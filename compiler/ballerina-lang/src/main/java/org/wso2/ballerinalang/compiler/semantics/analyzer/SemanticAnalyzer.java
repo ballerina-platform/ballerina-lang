@@ -74,6 +74,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
+import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -130,6 +131,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
@@ -533,6 +536,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         typeChecker.checkExpr(varNode.expr, env, varNode.type);
     }
 
+    public void visit(BLangErrorVariable varNode) {
+        // TODO: Complete
+    }
+
     private void handleDeclaredWithVar(BLangVariable variable) {
 
         BLangExpression varRefExpr = variable.expr;
@@ -853,6 +860,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         analyzeDef(varDefNode.var, env);
     }
 
+    public void visit(BLangErrorVariableDef varDefNode) {
+        // TODO: Complete
+    }
+
     @Override
     public void visit(BLangTupleVariableDef tupleVariableDef) {
         analyzeDef(tupleVariableDef.var, env);
@@ -922,6 +933,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         typeChecker.checkExpr(recordDeStmt.expr, this.env);
         checkRecordVarRefEquivalency(recordDeStmt.pos, recordDeStmt.varRef, recordDeStmt.expr.type,
                 recordDeStmt.expr.pos);
+    }
+
+    @Override
+    public void visit(BLangErrorDestructure errorDeStmt) {
+        // TODO: Complete
     }
 
     /**

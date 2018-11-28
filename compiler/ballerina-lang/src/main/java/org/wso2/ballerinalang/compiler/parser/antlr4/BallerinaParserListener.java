@@ -1,4 +1,4 @@
-// Generated from BallerinaParser.g4 by ANTLR 4.5.3
+// Generated from /home/anoukh/wso2-ballerina/ballerina/compiler/ballerina-lang/src/main/resources/grammar/BallerinaParser.g4 by ANTLR 4.5.3
 package org.wso2.ballerinalang.compiler.parser.antlr4;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -574,6 +574,76 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitRecordLiteral(BallerinaParser.RecordLiteralContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code staticMatchRecordLiteral}
+	 * labeled alternative in {@link BallerinaParser#staticMatchLiterals}.
+	 * @param ctx the parse tree
+	 */
+	void enterStaticMatchRecordLiteral(BallerinaParser.StaticMatchRecordLiteralContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code staticMatchRecordLiteral}
+	 * labeled alternative in {@link BallerinaParser#staticMatchLiterals}.
+	 * @param ctx the parse tree
+	 */
+	void exitStaticMatchRecordLiteral(BallerinaParser.StaticMatchRecordLiteralContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code staticMatchTupleLiteral}
+	 * labeled alternative in {@link BallerinaParser#staticMatchLiterals}.
+	 * @param ctx the parse tree
+	 */
+	void enterStaticMatchTupleLiteral(BallerinaParser.StaticMatchTupleLiteralContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code staticMatchTupleLiteral}
+	 * labeled alternative in {@link BallerinaParser#staticMatchLiterals}.
+	 * @param ctx the parse tree
+	 */
+	void exitStaticMatchTupleLiteral(BallerinaParser.StaticMatchTupleLiteralContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code staticMatchIdentifierLiteral}
+	 * labeled alternative in {@link BallerinaParser#staticMatchLiterals}.
+	 * @param ctx the parse tree
+	 */
+	void enterStaticMatchIdentifierLiteral(BallerinaParser.StaticMatchIdentifierLiteralContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code staticMatchIdentifierLiteral}
+	 * labeled alternative in {@link BallerinaParser#staticMatchLiterals}.
+	 * @param ctx the parse tree
+	 */
+	void exitStaticMatchIdentifierLiteral(BallerinaParser.StaticMatchIdentifierLiteralContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code staticMatchOrExpression}
+	 * labeled alternative in {@link BallerinaParser#staticMatchLiterals}.
+	 * @param ctx the parse tree
+	 */
+	void enterStaticMatchOrExpression(BallerinaParser.StaticMatchOrExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code staticMatchOrExpression}
+	 * labeled alternative in {@link BallerinaParser#staticMatchLiterals}.
+	 * @param ctx the parse tree
+	 */
+	void exitStaticMatchOrExpression(BallerinaParser.StaticMatchOrExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code staticMatchSimpleLiteral}
+	 * labeled alternative in {@link BallerinaParser#staticMatchLiterals}.
+	 * @param ctx the parse tree
+	 */
+	void enterStaticMatchSimpleLiteral(BallerinaParser.StaticMatchSimpleLiteralContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code staticMatchSimpleLiteral}
+	 * labeled alternative in {@link BallerinaParser#staticMatchLiterals}.
+	 * @param ctx the parse tree
+	 */
+	void exitStaticMatchSimpleLiteral(BallerinaParser.StaticMatchSimpleLiteralContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#tupleLiteral}.
+	 * @param ctx the parse tree
+	 */
+	void enterTupleLiteral(BallerinaParser.TupleLiteralContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#tupleLiteral}.
+	 * @param ctx the parse tree
+	 */
+	void exitTupleLiteral(BallerinaParser.TupleLiteralContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#recordKeyValue}.
 	 * @param ctx the parse tree
 	 */
@@ -694,6 +764,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitRecordDestructuringStatement(BallerinaParser.RecordDestructuringStatementContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#errorDestructuringStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterErrorDestructuringStatement(BallerinaParser.ErrorDestructuringStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#errorDestructuringStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitErrorDestructuringStatement(BallerinaParser.ErrorDestructuringStatementContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#compoundAssignmentStatement}.
 	 * @param ctx the parse tree
 	 */
@@ -804,6 +884,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitStructuredBindingPattern(BallerinaParser.StructuredBindingPatternContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#errorBindingPattern}.
+	 * @param ctx the parse tree
+	 */
+	void enterErrorBindingPattern(BallerinaParser.ErrorBindingPatternContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#errorBindingPattern}.
+	 * @param ctx the parse tree
+	 */
+	void exitErrorBindingPattern(BallerinaParser.ErrorBindingPatternContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#tupleBindingPattern}.
 	 * @param ctx the parse tree
 	 */
@@ -893,6 +983,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitRecordRefBindingPattern(BallerinaParser.RecordRefBindingPatternContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#errorRefBindingPattern}.
+	 * @param ctx the parse tree
+	 */
+	void enterErrorRefBindingPattern(BallerinaParser.ErrorRefBindingPatternContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#errorRefBindingPattern}.
+	 * @param ctx the parse tree
+	 */
+	void exitErrorRefBindingPattern(BallerinaParser.ErrorRefBindingPatternContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#entryRefBindingPattern}.
 	 * @param ctx the parse tree

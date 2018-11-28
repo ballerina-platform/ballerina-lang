@@ -69,6 +69,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -167,6 +168,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
@@ -604,6 +607,11 @@ public class Desugar extends BLangNodeVisitor {
         result = varNode;
     }
 
+    @Override
+    public void visit(BLangErrorVariable varNode) {
+        result = varNode;
+    }
+
     // Statements
 
     @Override
@@ -685,6 +693,11 @@ public class Desugar extends BLangNodeVisitor {
         createVarDefStmts(varNode, blockStmt, mapVariable.symbol, null);
 
         result = rewrite(blockStmt, env);
+    }
+
+    @Override
+    public void visit(BLangErrorVariableDef varDefNode) {
+        // TODO: complete
     }
 
     /**
@@ -1205,6 +1218,12 @@ public class Desugar extends BLangNodeVisitor {
 
         //finally rewrite the populated block statement
         result = rewrite(blockStmt, env);
+    }
+
+    @Override
+    public void visit(BLangErrorDestructure errorDestructure) {
+        // TODO: Complete
+        result = errorDestructure;
     }
 
     private void createVarRefAssignmentStmts(BLangRecordVarRef parentRecordVarRef, BLangBlockStmt parentBlockStmt,

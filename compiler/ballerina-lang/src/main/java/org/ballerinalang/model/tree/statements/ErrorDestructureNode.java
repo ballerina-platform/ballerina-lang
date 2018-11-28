@@ -19,22 +19,23 @@
 package org.ballerinalang.model.tree.statements;
 
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.expressions.RecordVariableReferenceNode;
 import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
 
 /**
- * var {a: c, b} = {a: "Sam", b: 1}.
+ * error (reason, detail) = error ("Error", {message: "Error Message"});.
  *
  * @since 0.985.0
  */
-public interface RecordDestructureNode extends StatementNode {
+public interface ErrorDestructureNode extends StatementNode {
+    ExpressionNode getReason();
 
-    RecordVariableReferenceNode getVariableRefs();
+    ExpressionNode getDetail();
 
-    void addVariableRef(VariableReferenceNode variableReferenceNode);
+    void addReasonRef(VariableReferenceNode variableReferenceNode);
+
+    void addDetailRef(VariableReferenceNode variableReferenceNode);
 
     ExpressionNode getExpression();
 
     void setExpression(ExpressionNode expression);
-
 }

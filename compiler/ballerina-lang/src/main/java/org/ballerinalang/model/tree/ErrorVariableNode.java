@@ -16,25 +16,17 @@
  * under the License.
  *
  */
-package org.ballerinalang.model.tree.statements;
-
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.expressions.RecordVariableReferenceNode;
-import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
+package org.ballerinalang.model.tree;
 
 /**
- * var {a: c, b} = {a: "Sam", b: 1}.
+ * Represents an error variable node.
+ * error (reason, detail) = getError();
  *
  * @since 0.985.0
  */
-public interface RecordDestructureNode extends StatementNode {
+public interface ErrorVariableNode extends VariableNode, AnnotatableNode, DocumentableNode, TopLevelNode {
 
-    RecordVariableReferenceNode getVariableRefs();
+    VariableNode getReason();
 
-    void addVariableRef(VariableReferenceNode variableReferenceNode);
-
-    ExpressionNode getExpression();
-
-    void setExpression(ExpressionNode expression);
-
+    VariableNode getDetail();
 }

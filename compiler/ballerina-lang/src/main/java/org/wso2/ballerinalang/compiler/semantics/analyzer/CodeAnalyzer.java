@@ -66,6 +66,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -114,6 +115,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
@@ -292,6 +295,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordVariableDef bLangRecordVariableDef) {
+        // ignore
+    }
+
+    @Override
+    public void visit(BLangErrorVariableDef bLangErrorVariableDef) {
         // ignore
     }
 
@@ -966,6 +974,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExpr(stmt.expr);
     }
 
+    public void visit(BLangErrorDestructure stmt) {
+        this.checkStatementExecutionValidity(stmt);
+        analyzeExpr(stmt.varRef);
+        analyzeExpr(stmt.expr);
+    }
+
     @Override
     public void visit(BLangTupleDestructure stmt) {
         this.checkStatementExecutionValidity(stmt);
@@ -1137,6 +1151,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangRecordVarRef varRefExpr) {
+        /* ignore */
+    }
+
+    public void visit(BLangErrorVarRef varRefExpr) {
         /* ignore */
     }
 

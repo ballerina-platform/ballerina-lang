@@ -35,7 +35,6 @@ import java.util.List;
 public class BLangTupleDestructure extends BLangStatement implements TupleDestructureNode {
     public BLangTupleVarRef varRef;
     public BLangExpression expr;
-    public boolean declaredWithVar;
 
     @Override
     public List<BLangExpression> getVariableRefs() {
@@ -55,16 +54,6 @@ public class BLangTupleDestructure extends BLangStatement implements TupleDestru
     @Override
     public void setExpression(ExpressionNode expression) {
         this.expr = (BLangExpression) expression;
-    }
-
-    @Override
-    public boolean isDeclaredWithVar() {
-        return this.declaredWithVar;
-    }
-
-    @Override
-    public void setDeclaredWithVar(boolean isDeclaredWithVar) {
-        this.declaredWithVar = isDeclaredWithVar;
     }
 
     @Override
