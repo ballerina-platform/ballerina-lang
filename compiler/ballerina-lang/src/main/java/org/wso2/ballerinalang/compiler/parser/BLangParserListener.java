@@ -31,8 +31,6 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.FieldContex
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.ObjectTypeNameLabelContext;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.StringTemplateContentContext;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserBaseListener;
-import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.QuoteType;
@@ -47,7 +45,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
-import java.util.stream.Collectors;
 
 import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_SEALED_ARRAY_INDICATOR;
 import static org.wso2.ballerinalang.compiler.util.Constants.UNSEALED_ARRAY_INDICATOR;
@@ -588,7 +585,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startWorker();
+        this.pkgBuilder.startWorker(diagnosticSrc.pkgID);
     }
 
     @Override
@@ -601,7 +598,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.workerDefinition() != null) {
             workerName = ctx.workerDefinition().Identifier().getText();
         }
-        this.pkgBuilder.addWorker(getCurrentPos(ctx), getWS(ctx), workerName);
+        boolean retParamsAvail = ctx.workerDefinition().returnParameter() != null;
+        this.pkgBuilder.addWorker(getCurrentPos(ctx), getWS(ctx), workerName, retParamsAvail);
     }
 
     /**
@@ -612,7 +610,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (isInErrorState) {
             return;
         }
-
         this.pkgBuilder.attachWorkerWS(getWS(ctx));
     }
 
@@ -1435,77 +1432,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void enterJoinClause(BallerinaParser.JoinClauseContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        this.pkgBuilder.startJoinCause();
-    }
-
-    @Override
-    public void exitJoinClause(BallerinaParser.JoinClauseContext ctx) {
-        this.pkgBuilder.addJoinCause(this.getWS(ctx), ctx.Identifier().getText());
-    }
-
-    @Override
-    public void exitAnyJoinCondition(BallerinaParser.AnyJoinConditionContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        List<String> workerNames = new ArrayList<>();
-        if (ctx.Identifier() != null) {
-            workerNames = ctx.Identifier().stream().map(TerminalNode::getText).collect(Collectors.toList());
-        }
-        int joinCount = 0;
-        Object value;
-        if ((value = getIntegerLiteral(ctx, ctx.integerLiteral())) != null) {
-            if (value instanceof Long) {
-                try {
-                    joinCount = ((Long) value).intValue();
-                } catch (NumberFormatException ex) {
-                    // When ctx.IntegerLiteral() is not a string or missing, compilation fails due to
-                    // NumberFormatException.
-                    // Hence catching the error and ignore. Still Parser complains about missing IntegerLiteral.
-                }
-            }
-        }
-        this.pkgBuilder.addJoinCondition(getWS(ctx), "SOME", workerNames, joinCount);
-    }
-
-    @Override
-    public void exitAllJoinCondition(BallerinaParser.AllJoinConditionContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        List<String> workerNames = new ArrayList<>();
-        if (ctx.Identifier() != null) {
-            workerNames = ctx.Identifier().stream().map(TerminalNode::getText).collect(Collectors.toList());
-        }
-        this.pkgBuilder.addJoinCondition(getWS(ctx), "ALL", workerNames, -1);
-    }
-
-    @Override
-    public void enterTimeoutClause(BallerinaParser.TimeoutClauseContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        this.pkgBuilder.startTimeoutCause();
-    }
-
-    @Override
-    public void exitTimeoutClause(BallerinaParser.TimeoutClauseContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        this.pkgBuilder.addTimeoutCause(this.getWS(ctx), ctx.Identifier().getText());
-    }
-
-    @Override
     public void enterTryCatchStatement(BallerinaParser.TryCatchStatementContext ctx) {
         if (isInErrorState) {
             return;
@@ -1600,32 +1526,74 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitInvokeWorker(BallerinaParser.InvokeWorkerContext ctx) {
+    public void exitWorkerReceiveExpression(BallerinaParser.WorkerReceiveExpressionContext ctx) {
         if (isInErrorState) {
             return;
         }
 
-        this.pkgBuilder.addWorkerSendStmt(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), false, ctx
-                .expression().size() > 1);
+        this.pkgBuilder.addWorkerReceiveExpr(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), ctx
+                .expression() != null);
     }
 
     @Override
-    public void exitInvokeFork(BallerinaParser.InvokeForkContext ctx) {
+    public void exitFlushWorker(BallerinaParser.FlushWorkerContext ctx) {
         if (isInErrorState) {
             return;
         }
-
-        this.pkgBuilder.addWorkerSendStmt(getCurrentPos(ctx), getWS(ctx), "FORK", true, false);
+        String workerName = ctx.Identifier() != null ? ctx.Identifier().getText() : null;
+        this.pkgBuilder.addWorkerFlushExpr(getCurrentPos(ctx), getWS(ctx), workerName);
     }
 
     @Override
-    public void exitWorkerReply(BallerinaParser.WorkerReplyContext ctx) {
+    public void exitWorkerSendAsyncStatement(BallerinaParser.WorkerSendAsyncStatementContext ctx) {
         if (isInErrorState) {
             return;
         }
 
-        this.pkgBuilder.addWorkerReceiveStmt(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), ctx
-                .expression().size() > 1);
+        this.pkgBuilder.addWorkerSendStmt(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
+                                          ctx.expression().size() > 1);
+    }
+
+    @Override
+    public void exitWorkerSendSyncExpression(BallerinaParser.WorkerSendSyncExpressionContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.addWorkerSendSyncExpr(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
+    }
+
+    @Override
+    public void exitWaitExpression(BallerinaParser.WaitExpressionContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        // Wait for all
+        if (ctx.waitForCollection() != null) {
+            this.pkgBuilder.handleWaitForAll(getCurrentPos(ctx), getWS(ctx));
+        } else {
+            // Wait for Any or Wait for one
+            this.pkgBuilder.handleWait(getCurrentPos(ctx), getWS(ctx));
+        }
+    }
+
+    @Override
+    public void enterWaitForCollection(BallerinaParser.WaitForCollectionContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+        this.pkgBuilder.startWaitForAll();
+    }
+
+    @Override
+    public void exitWaitKeyValue(BallerinaParser.WaitKeyValueContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+        boolean containsExpr = ctx.expression() != null;
+        this.pkgBuilder.addKeyValueToWaitForAll(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
+                                                containsExpr);
     }
 
     /**
@@ -3163,17 +3131,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.createDeprecatedNode(getCurrentPos(ctx), getWS(ctx), contentText);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitAwaitExpr(BallerinaParser.AwaitExprContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-        this.pkgBuilder.createAwaitExpr(getCurrentPos(ctx), getWS(ctx));
-    }
-
     @Override
     public void exitTrapExpression(BallerinaParser.TrapExpressionContext ctx) {
         if (isInErrorState) {
@@ -3202,68 +3159,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.createElvisExpr(getCurrentPos(ctx), getWS(ctx));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterScopeStatement(BallerinaParser.ScopeStatementContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-        this.pkgBuilder.startScopeStmt();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitScopeStatement(BallerinaParser.ScopeStatementContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-        String name = null;
-        if (ctx.scopeClause().Identifier() != null) {
-            name = ctx.scopeClause().Identifier().getText();
-        }
-        BLangIdentifier identifier = new BLangIdentifier();
-        identifier.setValue(name);
-
-        this.pkgBuilder.endScopeStmt(getCurrentPos(ctx), getWS(ctx), identifier, getFunctionDefinition(ctx));
-    }
-
-    @Override
-    public void exitScopeClause(BallerinaParser.ScopeClauseContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-        this.pkgBuilder.addScopeBlock(getCurrentPos(ctx));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enterCompensationClause(BallerinaParser.CompensationClauseContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-        this.pkgBuilder.startOnCompensationBlock();
-    }
-
-    @Override
-    public void exitCompensateStatement(BallerinaParser.CompensateStatementContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        String scope = null;
-        if (ctx.Identifier() != null) {
-            scope = ctx.Identifier().getText();
-        }
-
-        this.pkgBuilder.addCompensateStatement(getCurrentPos(ctx), getWS(ctx), scope);
     }
 
     private DiagnosticPos getCurrentPos(ParserRuleContext ctx) {
@@ -3347,13 +3242,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                     DiagnosticCode.BINARY_TOO_SMALL, DiagnosticCode.BINARY_TOO_LARGE);
         }
         return null;
-    }
-
-    private BLangLambdaFunction getFunctionDefinition(BallerinaParser.ScopeStatementContext ctx) {
-        boolean bodyExists = ctx.compensationClause().callableUnitBody() != null;
-
-        return this.pkgBuilder.getScopesFunctionDef(getCurrentPos(ctx), getWS(ctx), bodyExists,
-                ctx.scopeClause().Identifier().getText());
     }
 
     private Object parseLong(ParserRuleContext context, String originalNodeValue, String processedNodeValue, int radix,

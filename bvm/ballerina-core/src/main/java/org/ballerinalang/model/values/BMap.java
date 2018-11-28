@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.model.values;
 
-import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.bre.bvm.VarLock;
+import org.ballerinalang.bre.vm.BVM;
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
@@ -72,8 +72,8 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
     private final Lock writeLock = lock.writeLock();
     private BType type = BTypes.typeMap;
     private HashMap<String, Object> nativeData = new HashMap<>();
+    private volatile BVM.FreezeStatus freezeStatus = new BVM.FreezeStatus(BVM.FreezeStatus.State.UNFROZEN);
     private ConcurrentHashMap<String, VarLock> lockMap = new ConcurrentHashMap();
-    private volatile CPU.FreezeStatus freezeStatus = new CPU.FreezeStatus(CPU.FreezeStatus.State.UNFROZEN);
 
     public BMap() {
         map =  new LinkedHashMap<>();
@@ -146,7 +146,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
     public void put(K key, V value) {
         writeLock.lock();
         try {
-            if (freezeStatus.getState() != CPU.FreezeStatus.State.UNFROZEN) {
+            if (freezeStatus.getState() != BVM.FreezeStatus.State.UNFROZEN) {
                 handleInvalidUpdate(freezeStatus.getState());
             }
 
@@ -162,7 +162,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
     public void clear() {
         writeLock.lock();
         try {
-            if (freezeStatus.getState() != CPU.FreezeStatus.State.UNFROZEN) {
+            if (freezeStatus.getState() != BVM.FreezeStatus.State.UNFROZEN) {
                 handleInvalidUpdate(freezeStatus.getState());
             }
 
@@ -217,7 +217,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
     public boolean remove(K key) {
         writeLock.lock();
         try {
-            if (freezeStatus.getState() != CPU.FreezeStatus.State.UNFROZEN) {
+            if (freezeStatus.getState() != BVM.FreezeStatus.State.UNFROZEN) {
                 handleInvalidUpdate(freezeStatus.getState());
             }
 
@@ -379,7 +379,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
             }
         } else if (type.getTag() == TypeTags.UNION_TAG) {
             for (BType memberType : ((BUnionType) type).getMemberTypes()) {
-                if (CPU.checkIsLikeType(this, memberType)) {
+                if (BVM.checkIsLikeType(this, memberType)) {
                     this.stamp(memberType);
                     type = memberType;
                     break;
@@ -520,7 +520,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
      * {@inheritDoc}
      */
     @Override
-    public synchronized void attemptFreeze(CPU.FreezeStatus freezeStatus) {
+    public synchronized void attemptFreeze(BVM.FreezeStatus freezeStatus) {
         if (this.type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
             throw new BLangFreezeException("'freeze()' not allowed on '" + getType() + "'");
         }

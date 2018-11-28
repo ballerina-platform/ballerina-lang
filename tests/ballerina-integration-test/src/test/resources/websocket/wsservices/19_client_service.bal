@@ -17,42 +17,39 @@
 import ballerina/http;
 import ballerina/log;
 
-@final string REMOTE_BACKEND_URL200 = "ws://localhost:15000/websocket";
+final string REMOTE_BACKEND_URL200 = "ws://localhost:15000/websocket";
 
 @http:WebSocketServiceConfig {
     path: "/client/service"
 }
-service<http:WebSocketService> clientFailure200 bind { port: 9200 } {
+service clientFailure200 on new http:WebSocketListener(9200) {
 
-    onOpen(endpoint wsEp) {
-        endpoint http:WebSocketClient wsClientEp {
-            url: REMOTE_BACKEND_URL200
-        };
+    resource function onOpen(http:WebSocketCaller wsEp) {
+        http:WebSocketClient wsClientEp = new(
+             REMOTE_BACKEND_URL200);
         var returnVal = wsEp->pushText("Client worked");
         if (returnVal is error) {
              panic returnVal;
         }
     }
 
-    onText(endpoint caller, string text) {
-        endpoint http:WebSocketClient wsClientEp {
-            url: REMOTE_BACKEND_URL200,
-            callbackService: ClientService200
-        };
+    resource function onText(http:WebSocketCaller caller, string text) {
+        http:WebSocketClient wsClientEp = new(
+            REMOTE_BACKEND_URL200,
+            config = {callbackService: ClientService200});
         var returnVal = caller->pushText("Client worked");
         if (returnVal is error) {
              panic returnVal;
         }
     }
 
-    onBinary(endpoint caller, byte[] data) {
-        endpoint http:WebSocketClient wsClientEp {
-            url: REMOTE_BACKEND_URL200,
-            callbackService: callback200
-        };
+    resource function onBinary(http:WebSocketCaller caller, byte[] data) {
+        http:WebSocketClient wsClientEp = new(
+            REMOTE_BACKEND_URL200,
+            config = {callbackService: callback200});
     }
 }
-service<http:WebSocketService> callback200 {
-}
-service<http:WebSocketClientService> ClientService200 {
-}
+service callback200 = @http:WebSocketServiceConfig {} service {
+};
+service ClientService200 = @http:WebSocketServiceConfig {} service{
+};

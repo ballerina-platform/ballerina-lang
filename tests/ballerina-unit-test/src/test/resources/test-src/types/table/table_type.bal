@@ -129,6 +129,10 @@ type TestTypeData record {
     string[] sA;
 };
 
+type IntData record {
+    int int_type;
+};
+
 function testToJson() returns (json) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
@@ -1557,3 +1561,36 @@ function getXMLConversionResult(table|error tableOrError) returns xml {
     return retVal;
 }
 
+function testSelectQueryWithCursorTable() returns (int | error) {
+    h2:Client testDB = new({
+        path: "./target/tempdb/",
+        name: "TEST_DATA_TABLE_H2",
+        username: "SA",
+        password: "",
+        poolOptions: { maximumPoolSize: 1 }
+    });
+
+    table<IntData> t1 = check testDB->select("SELECT int_type from DataTable WHERE row_id = 1", IntData);
+    table<IntData> t1Copy = from t1 select *;
+    testDB.stop();
+    return 0;
+}
+
+function testJoinQueryWithCursorTable() returns (int | error) {
+    h2:Client testDB = new({
+        path: "./target/tempdb/",
+        name: "TEST_DATA_TABLE_H2",
+        username: "SA",
+        password: "",
+        poolOptions: { maximumPoolSize: 2 }
+    });
+
+    table<IntData> t1 = check testDB->select("SELECT int_type from DataTable WHERE row_id = 1", IntData);
+    table<IntData> t2 = check testDB->select("SELECT int_type from DataTable WHERE row_id = 1", IntData);
+
+    table<IntData> joinedTable = from t1 as table1 join t2 as table2 on
+    table1.int_type == table2.int_type select table1.int_type as int_type;
+
+    testDB.stop();
+    return 0;
+}

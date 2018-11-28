@@ -73,7 +73,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJSONArrayLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -120,6 +119,11 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
@@ -134,7 +138,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangCompensate;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
@@ -146,13 +149,11 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
@@ -174,7 +175,6 @@ import org.wso2.ballerinalang.programfile.ConstantInfo;
 import org.wso2.ballerinalang.programfile.DefaultValue;
 import org.wso2.ballerinalang.programfile.ErrorTableEntry;
 import org.wso2.ballerinalang.programfile.FiniteTypeInfo;
-import org.wso2.ballerinalang.programfile.ForkjoinInfo;
 import org.wso2.ballerinalang.programfile.FunctionInfo;
 import org.wso2.ballerinalang.programfile.ImportPackageInfo;
 import org.wso2.ballerinalang.programfile.Instruction;
@@ -213,7 +213,6 @@ import org.wso2.ballerinalang.programfile.cpentries.BlobCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ByteCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPool;
 import org.wso2.ballerinalang.programfile.cpentries.FloatCPEntry;
-import org.wso2.ballerinalang.programfile.cpentries.ForkJoinCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.FunctionRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.IntegerCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.PackageRefCPEntry;
@@ -324,7 +323,6 @@ public class CodeGenerator extends BLangNodeVisitor {
     private Stack<Integer> tryCatchErrorRangeToIPStack = new Stack<>();
 
     private int workerChannelCount = 0;
-    private int forkJoinCount = 0;
 
     public static CodeGenerator getInstance(CompilerContext context) {
         CodeGenerator codeGenerator = context.get(CODE_GENERATOR_KEY);
@@ -572,7 +570,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         if (returnNode.expr.type != symTable.nilType) {
             BLangExpression expr = returnNode.expr;
             this.genNode(expr, this.env);
-            emit(this.typeTagToInstr(expr.type.tag), getOperand(0), expr.regIndex);
+            emit(this.typeTagToInstr(expr.type.tag), expr.regIndex);
         }
         generateFinallyInstructions(returnNode);
         emit(InstructionCodes.RET);
@@ -834,6 +832,51 @@ public class CodeGenerator extends BLangNodeVisitor {
             genNode(keyValue.valueExpr, this.env);
             storeStructField(keyValue.valueExpr, structRegIndex, key.expr.regIndex);
         }
+    }
+
+    @Override
+    public void visit(BLangWaitForAllExpr.BLangWaitLiteral waitLiteral) {
+        Operand mapVarRegIndex = calcAndGetExprRegIndex(waitLiteral);
+        Operand typeCPIndex = getTypeCPIndex(waitLiteral.type);
+        emit(InstructionCodes.NEWMAP, mapVarRegIndex, typeCPIndex);
+
+        // Create a list to store the operands
+        List<Operand> operands = new ArrayList<>();
+        Operand length = this.getOperand(-1);
+        operands.add(length);
+        // Add the map index
+        operands.add(typeCPIndex);
+        operands.add(mapVarRegIndex);
+        for (BLangWaitForAllExpr.BLangWaitKeyValue keyValue : waitLiteral.keyValuePairs) {
+            // Get index of the identifier
+            UTF8CPEntry waitKeyCPEntry = new UTF8CPEntry(keyValue.key.value);
+            Operand waitKeyCPIndex = getOperand(currentPkgInfo.addCPEntry(waitKeyCPEntry));
+
+            // Get index of the expression
+            BLangExpression expr = keyValue.valueExpr != null ? keyValue.valueExpr : keyValue.keyExpr;
+            genNode(expr, this.env);
+
+            operands.add(waitKeyCPIndex);
+            operands.add(expr.regIndex);
+        }
+        length.value = operands.size() - 3;
+        // length of operands, type of wait, regIndex of map, exprs: [regIndex of key, regIndex of expr]
+        this.emit(InstructionCodes.WAITALL, operands.toArray(new Operand[operands.size()]));
+    }
+
+    @Override
+    public void visit(BLangWorkerFlushExpr workerFlushExpr) {
+        List<Operand> operands = new ArrayList<>();
+        for (BLangIdentifier wrkrName : workerFlushExpr.workerIdentifierList) {
+            WorkerDataChannelInfo workerDataChannelInfo = this.getWorkerDataChannelInfo
+                    (this.currentCallableUnitInfo, this.currentWorkerInfo.getWorkerName(), wrkrName.value);
+            WorkerDataChannelRefCPEntry wrkrInvRefCPEntry = new WorkerDataChannelRefCPEntry(
+                    workerDataChannelInfo.getUniqueNameCPIndex(), workerDataChannelInfo.getUniqueName());
+            wrkrInvRefCPEntry.setWorkerDataChannelInfo(workerDataChannelInfo);
+            Operand wrkrInvRefCPIndex = getOperand(currentPkgInfo.addCPEntry(wrkrInvRefCPEntry));
+            operands.add(wrkrInvRefCPIndex);
+        }
+        emit(InstructionCodes.FLUSH, operands.toArray(new Operand[operands.size()]));
     }
 
     @Override
@@ -1354,16 +1397,24 @@ public class CodeGenerator extends BLangNodeVisitor {
         endJumpAddr.value = nextIP();
     }
 
-    public void visit(BLangAwaitExpr awaitExpr) {
-        Operand valueRegIndex;
-        if (awaitExpr.type != null) {
-            valueRegIndex = calcAndGetExprRegIndex(awaitExpr);
-        } else {
-            valueRegIndex = this.getOperand(-1);
+    public void visit(BLangWaitExpr waitExpr) {
+        Operand valueRegIndex = calcAndGetExprRegIndex(waitExpr);
+
+        Operand length = this.getOperand(-1);
+        List<Operand> operands = new ArrayList<>();
+        operands.add(length);
+
+        Operand typeCPIndex = getTypeCPIndex(waitExpr.type);
+        operands.add(typeCPIndex);
+        operands.add(valueRegIndex);
+
+        for (BLangExpression expr : waitExpr.exprList) {
+            genNode(expr, this.env);
+            operands.add(expr.regIndex);
         }
-        genNode(awaitExpr.expr, this.env);
-        Operand futureRegIndex = awaitExpr.expr.regIndex;
-        this.emit(InstructionCodes.AWAIT, futureRegIndex, valueRegIndex);
+        length.value = operands.size() - 3;
+        // length of operands, type of wait, regIndex of value, expressions: regIndex of expr
+        this.emit(InstructionCodes.WAIT, operands.toArray(new Operand[operands.size()]));
     }
 
     @Override
@@ -1420,67 +1471,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         genNode(bLangStatementExpression.expr, this.env);
         emit(getOpcode(bLangStatementExpression.expr.type.tag, InstructionCodes.IMOVE),
                 bLangStatementExpression.expr.regIndex, bLangStatementExpression.regIndex);
-    }
-
-    public void visit(BLangScope scopeNode) {
-        // add the child nodes to the map
-        childScopesMap.put(scopeNode.name.getValue(), scopeNode.childScopes);
-        visit(scopeNode.scopeBody);
-
-        // generating scope end instruction
-        int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, currentPkgID);
-        int funcNameCPIndex = addUTF8CPEntry(currentPkgInfo, Names.GEN_VAR_PREFIX + scopeNode.name.getValue());
-        FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgRefCPIndex, funcNameCPIndex);
-        int funcRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
-        int i = 0;
-        //functionRefCP, scopenameUTF8CP, nChild, children
-        Operand[] operands = new Operand[3 + scopeNode.childScopes.size()];
-        operands[i++] = getOperand(funcRefCPIndex);
-        int scopeNameCPIndex = addUTF8CPEntry(currentPkgInfo, scopeNode.getScopeName().getValue());
-        operands[i++] = getOperand(scopeNameCPIndex);
-
-        operands[i++] = getOperand(scopeNode.childScopes.size());
-
-        for (String child : scopeNode.childScopes) {
-            int childScopeNameIndex = addUTF8CPEntry(currentPkgInfo, child);
-            operands[i++] = getOperand(childScopeNameIndex);
-        }
-
-        Operand typeCPIndex = getTypeCPIndex(scopeNode.compensationFunction.function.symbol.type);
-        RegIndex nextIndex = calcAndGetExprRegIndex(scopeNode.compensationFunction);
-        Operand[] closureOperands = calcClosureOperands(scopeNode.compensationFunction.function, funcRefCPIndex,
-                nextIndex, typeCPIndex);
-
-        Operand[] finalOperands = new Operand[operands.length + closureOperands.length];
-        System.arraycopy(operands, 0, finalOperands, 0, operands.length);
-        System.arraycopy(closureOperands, 0, finalOperands, operands.length, closureOperands.length);
-
-        emit(InstructionCodes.SCOPE_END, finalOperands);
-    }
-
-    public void visit(BLangCompensate compensate) {
-        Operand jumpAddr = getOperand(nextIP());
-        //Add child function refs
-        Stack<String> children = childScopesMap.get(compensate.scopeName.getValue());
-
-        int i = 0;
-        // Operands: scopeName, child count, children, NIL return.
-        Operand[] operands = new Operand[3 + children.size()];
-
-        int scopeNameCPIndex = addUTF8CPEntry(currentPkgInfo, compensate.invocation.name.value);
-        operands[i++] = getOperand(scopeNameCPIndex);
-
-        operands[i++] = getOperand(children.size());
-        while (children != null && !children.isEmpty()) {
-            String childName = children.pop();
-            int childNameCP = currentPkgInfo.addCPEntry(new UTF8CPEntry(childName));
-            operands[i++] = getOperand(childNameCP);
-        }
-        // Compensation block is modeled as an anonymous function, which require a return reg.
-        operands[i++] = getRegIndex(TypeTags.NIL);
-
-        emit(InstructionCodes.COMPENSATE, operands);
-        emit(InstructionCodes.LOOP_COMPENSATE, jumpAddr);
     }
 
     // private methods
@@ -2501,150 +2491,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         this.genNode(workerNode.body, this.env);
     }
 
-    /* visit the workers within fork-join block */
-    private void processJoinWorkers(BLangForkJoin forkJoin, ForkjoinInfo forkjoinInfo,
-                                    SymbolEnv forkJoinEnv) {
-        UTF8CPEntry codeUTF8CPEntry = new UTF8CPEntry(AttributeInfo.Kind.CODE_ATTRIBUTE.toString());
-        int codeAttribNameIndex = this.currentPkgInfo.addCPEntry(codeUTF8CPEntry);
-        for (BLangWorker worker : forkJoin.workers) {
-            VariableIndex lvIndexesCopy = copyVarIndex(this.lvIndexes);
-            this.regIndexes = new VariableIndex(REG);
-            VariableIndex regIndexesCopy = this.regIndexes;
-            this.regIndexes = new VariableIndex(REG);
-            VariableIndex maxRegIndexesCopy = this.maxRegIndexes;
-            this.maxRegIndexes = new VariableIndex(REG);
-            List<RegIndex> regIndexListCopy = this.regIndexList;
-            this.regIndexList = new ArrayList<>();
-
-            WorkerInfo workerInfo = forkjoinInfo.getWorkerInfo(worker.name.value);
-            workerInfo.codeAttributeInfo.attributeNameIndex = codeAttribNameIndex;
-            workerInfo.codeAttributeInfo.codeAddrs = this.nextIP();
-            this.currentWorkerInfo = workerInfo;
-            this.genNode(worker.body, forkJoinEnv);
-            this.endWorkerInfoUnit(workerInfo.codeAttributeInfo);
-            this.emit(InstructionCodes.HALT);
-
-            this.lvIndexes = lvIndexesCopy;
-            this.regIndexes = regIndexesCopy;
-            this.maxRegIndexes = maxRegIndexesCopy;
-            this.regIndexList = regIndexListCopy;
-        }
-    }
-
-    private void populateForkJoinWorkerInfo(BLangForkJoin forkJoin, ForkjoinInfo forkjoinInfo) {
-        for (BLangWorker worker : forkJoin.workers) {
-            UTF8CPEntry workerNameCPEntry = new UTF8CPEntry(worker.name.value);
-            int workerNameCPIndex = this.currentPkgInfo.addCPEntry(workerNameCPEntry);
-            WorkerInfo workerInfo = new WorkerInfo(workerNameCPIndex, worker.name.value);
-            forkjoinInfo.addWorkerInfo(worker.name.value, workerInfo);
-        }
-    }
-
-    /* generate code for Join block */
-    private void processJoinBlock(BLangForkJoin forkJoin, ForkjoinInfo forkjoinInfo, SymbolEnv forkJoinEnv,
-                                  RegIndex joinVarRegIndex, Operand joinBlockAddr) {
-        UTF8CPEntry joinType = new UTF8CPEntry(forkJoin.joinType.name());
-        int joinTypeCPIndex = this.currentPkgInfo.addCPEntry(joinType);
-        forkjoinInfo.setJoinType(forkJoin.joinType.name());
-        forkjoinInfo.setJoinTypeCPIndex(joinTypeCPIndex);
-        joinBlockAddr.value = nextIP();
-
-        if (forkJoin.joinResultVar != null) {
-            visitForkJoinParameterDefs(forkJoin.joinResultVar, forkJoinEnv);
-            joinVarRegIndex.value = forkJoin.joinResultVar.symbol.varIndex.value;
-        }
-
-        if (forkJoin.joinedBody != null) {
-            this.genNode(forkJoin.joinedBody, forkJoinEnv);
-        }
-    }
-
-    /* generate code for timeout block */
-    private void processTimeoutBlock(BLangForkJoin forkJoin, SymbolEnv forkJoinEnv,
-                                     RegIndex timeoutVarRegIndex, Operand timeoutBlockAddr) {
-        /* emit a GOTO instruction to jump out of the timeout block */
-        Operand gotoAddr = getOperand(-1);
-        this.emit(InstructionCodes.GOTO, gotoAddr);
-        timeoutBlockAddr.value = nextIP();
-
-        if (forkJoin.timeoutVariable != null) {
-            visitForkJoinParameterDefs(forkJoin.timeoutVariable, forkJoinEnv);
-            timeoutVarRegIndex.value = forkJoin.timeoutVariable.symbol.varIndex.value;
-        }
-
-        if (forkJoin.timeoutBody != null) {
-            this.genNode(forkJoin.timeoutBody, forkJoinEnv);
-        }
-        gotoAddr.value = nextIP();
-    }
-
     public void visit(BLangForkJoin forkJoin) {
-        SymbolEnv forkJoinEnv = SymbolEnv.createForkJoinSymbolEnv(forkJoin, this.env);
-        ForkjoinInfo forkjoinInfo = new ForkjoinInfo(this.lvIndexes.toArray());
-        this.populateForkJoinWorkerInfo(forkJoin, forkjoinInfo);
-        int forkJoinInfoIndex = this.forkJoinCount++;
-        /* was I already inside a fork/join */
-        if (this.env.forkJoin != null) {
-            this.currentWorkerInfo.addForkJoinInfo(forkjoinInfo);
-        } else {
-            this.currentCallableUnitInfo.defaultWorkerInfo.addForkJoinInfo(forkjoinInfo);
-        }
-        ForkJoinCPEntry forkJoinCPEntry = new ForkJoinCPEntry(forkJoinInfoIndex);
-        Operand forkJoinCPIndex = getOperand(this.currentPkgInfo.addCPEntry(forkJoinCPEntry));
-        forkjoinInfo.setIndexCPIndex(forkJoinCPIndex.value);
-
-        RegIndex timeoutRegIndex = new RegIndex(-1, TypeTags.INT);
-        addToRegIndexList(timeoutRegIndex);
-
-        if (forkJoin.timeoutExpression != null) {
-            forkjoinInfo.setTimeoutAvailable(true);
-            this.genNode(forkJoin.timeoutExpression, forkJoinEnv);
-            timeoutRegIndex.value = forkJoin.timeoutExpression.regIndex.value;
-        }
-
-        // FORKJOIN forkJoinCPIndex timeoutRegIndex joinVarRegIndex joinBlockAddr timeoutVarRegIndex timeoutBlockAddr
-        RegIndex joinVarRegIndex = new RegIndex(-1, TypeTags.MAP);
-        Operand joinBlockAddr = getOperand(-1);
-        RegIndex timeoutVarRegIndex = new RegIndex(-1, TypeTags.MAP);
-        Operand timeoutBlockAddr = getOperand(-1);
-        this.emit(InstructionCodes.FORKJOIN, forkJoinCPIndex, timeoutRegIndex,
-                joinVarRegIndex, joinBlockAddr, timeoutVarRegIndex, timeoutBlockAddr);
-
-        VariableIndex lvIndexesCopy = copyVarIndex(this.lvIndexes);
-        VariableIndex regIndexesCopy = this.regIndexes;
-        VariableIndex maxRegIndexesCopy = this.maxRegIndexes;
-        List<RegIndex> regIndexListCopy = this.regIndexList;
-
-        this.processJoinWorkers(forkJoin, forkjoinInfo, forkJoinEnv);
-
-        this.lvIndexes = lvIndexesCopy;
-        this.regIndexes = regIndexesCopy;
-        this.maxRegIndexes = maxRegIndexesCopy;
-        this.regIndexList = regIndexListCopy;
-
-        int i = 0;
-        int[] joinWrkrNameCPIndexes = new int[forkJoin.joinedWorkers.size()];
-        String[] joinWrkrNames = new String[joinWrkrNameCPIndexes.length];
-        for (BLangIdentifier workerName : forkJoin.joinedWorkers) {
-            UTF8CPEntry workerNameCPEntry = new UTF8CPEntry(workerName.value);
-            int workerNameCPIndex = this.currentPkgInfo.addCPEntry(workerNameCPEntry);
-            joinWrkrNameCPIndexes[i] = workerNameCPIndex;
-            joinWrkrNames[i] = workerName.value;
-            i++;
-        }
-        forkjoinInfo.setJoinWrkrNameIndexes(joinWrkrNameCPIndexes);
-        forkjoinInfo.setJoinWorkerNames(joinWrkrNames);
-        forkjoinInfo.setWorkerCount(forkJoin.joinedWorkerCount);
-        this.processJoinBlock(forkJoin, forkjoinInfo, forkJoinEnv, joinVarRegIndex, joinBlockAddr);
-        this.processTimeoutBlock(forkJoin, forkJoinEnv, timeoutVarRegIndex, timeoutBlockAddr);
-    }
-
-    private void visitForkJoinParameterDefs(BLangSimpleVariable parameterDef, SymbolEnv forkJoinEnv) {
-        LocalVariableAttributeInfo localVariableAttributeInfo = new LocalVariableAttributeInfo(1);
-        parameterDef.symbol.varIndex = getLVIndex(parameterDef.type.tag);
-        this.genNode(parameterDef, forkJoinEnv);
-        LocalVariableInfo localVariableDetails = this.getLocalVarAttributeInfo(parameterDef.symbol);
-        localVariableAttributeInfo.localVars.add(localVariableDetails);
+         /* ignore */
     }
 
     public void visit(BLangWorkerSend workerSendStmt) {
@@ -2658,10 +2506,6 @@ public class CodeGenerator extends BLangNodeVisitor {
                 .getUniqueNameCPIndex(), workerDataChannelInfo.getUniqueName());
         wrkrInvRefCPEntry.setWorkerDataChannelInfo(workerDataChannelInfo);
         Operand wrkrInvRefCPIndex = getOperand(currentPkgInfo.addCPEntry(wrkrInvRefCPEntry));
-        if (workerSendStmt.isForkJoinSend) {
-            this.currentWorkerInfo.setWrkrDtChnlRefCPIndex(wrkrInvRefCPIndex.value);
-            this.currentWorkerInfo.setWorkerDataChannelInfoForForkJoin(workerDataChannelInfo);
-        }
         workerDataChannelInfo.setDataChannelRefIndex(wrkrInvRefCPIndex.value);
 
         genNode(workerSendStmt.expr, this.env);
@@ -2678,6 +2522,33 @@ public class CodeGenerator extends BLangNodeVisitor {
         this.emit(InstructionCodes.WRKSEND, wrkSendArgRegs);
     }
 
+    public void visit(BLangWorkerSyncSendExpr syncSendExpr) {
+        WorkerDataChannelInfo workerDataChannelInfo = this.getWorkerDataChannelInfo(this.currentCallableUnitInfo,
+                    this.currentWorkerInfo.getWorkerName(), syncSendExpr.workerIdentifier.value);
+        WorkerDataChannelRefCPEntry wrkrInvRefCPEntry = new WorkerDataChannelRefCPEntry(workerDataChannelInfo
+                    .getUniqueNameCPIndex(), workerDataChannelInfo.getUniqueName());
+        wrkrInvRefCPEntry.setWorkerDataChannelInfo(workerDataChannelInfo);
+        Operand wrkrInvRefCPIndex = getOperand(currentPkgInfo.addCPEntry(wrkrInvRefCPEntry));
+        workerDataChannelInfo.setDataChannelRefIndex(wrkrInvRefCPIndex.value);
+
+        // send expression
+        genNode(syncSendExpr.expr, this.env);
+        RegIndex exprRegIndex = syncSendExpr.expr.regIndex;
+        BType exprType = syncSendExpr.expr.type;
+        UTF8CPEntry sigCPEntry = new UTF8CPEntry(this.generateSig(new BType[]{exprType}));
+        Operand sigCPIndex = getOperand(this.currentPkgInfo.addCPEntry(sigCPEntry));
+        // Reg index of send expression
+        RegIndex regIndex = calcAndGetExprRegIndex(syncSendExpr);
+
+        // WRKSEND wrkrInvRefCPIndex typesCPIndex exprRegIndex regIndex
+        Operand[] wrkSendArgRegs = new Operand[4];
+        wrkSendArgRegs[0] = wrkrInvRefCPIndex;
+        wrkSendArgRegs[1] = sigCPIndex;
+        wrkSendArgRegs[2] = exprRegIndex;
+        wrkSendArgRegs[3] = regIndex;
+        this.emit(InstructionCodes.WORKERSYNCSEND, wrkSendArgRegs);
+    }
+
     public void visit(BLangWorkerReceive workerReceiveStmt) {
         if (workerReceiveStmt.isChannel) {
             visitChannelReceive(workerReceiveStmt);
@@ -2691,19 +2562,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         Operand wrkrRplyRefCPIndex = getOperand(currentPkgInfo.addCPEntry(wrkrChnlRefCPEntry));
         workerDataChannelInfo.setDataChannelRefIndex(wrkrRplyRefCPIndex.value);
 
-        BLangExpression lExpr = workerReceiveStmt.expr;
-        RegIndex regIndex;
-        BType bType;
-        if (lExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF && lExpr instanceof BLangLocalVarRef) {
-            lExpr.regIndex = ((BLangLocalVarRef) lExpr).varSymbol.varIndex;
-            regIndex = lExpr.regIndex;
-        } else {
-            lExpr.regIndex = getRegIndex(lExpr.type.tag);
-            lExpr.regIndex.isLHSIndex = true;
-            regIndex = lExpr.regIndex;
-        }
-        bType = lExpr.type;
-
+        RegIndex regIndex = calcAndGetExprRegIndex(workerReceiveStmt);
+        BType bType = workerReceiveStmt.type;
         UTF8CPEntry sigCPEntry = new UTF8CPEntry(this.generateSig(new BType[]{bType}));
         Operand sigCPIndex = getOperand(currentPkgInfo.addCPEntry(sigCPEntry));
 
@@ -2713,13 +2573,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         wrkReceiveArgRegs[1] = sigCPIndex;
         wrkReceiveArgRegs[2] = regIndex;
         emit(InstructionCodes.WRKRECEIVE, wrkReceiveArgRegs);
-
-        if (!(lExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
-                lExpr instanceof BLangLocalVarRef)) {
-            this.varAssignment = true;
-            this.genNode(lExpr, this.env);
-            this.varAssignment = false;
-        }
     }
 
     public void visit(BLangForever foreverStatement) {
@@ -2847,11 +2700,13 @@ public class CodeGenerator extends BLangNodeVisitor {
         emit((InstructionCodes.UNLOCK), unlockOps);
         emit(instructGotoLockEnd);
 
-        ErrorTableEntry errorTableEntry = new ErrorTableEntry(fromIP, toIP, nextIP(), null);
+        RegIndex errorRegIndex = getRegIndex(TypeTags.ERROR);
+
+        ErrorTableEntry errorTableEntry = new ErrorTableEntry(fromIP, toIP, nextIP(), errorRegIndex);
         errorTable.addErrorTableEntry(errorTableEntry);
 
         emit((InstructionCodes.UNLOCK), unlockOps);
-        emit(InstructionFactory.get(InstructionCodes.PANIC, getOperand(-1)));
+        emit(InstructionFactory.get(InstructionCodes.PANIC, errorRegIndex));
         gotoLockEndAddr.value = nextIP();
     }
 
@@ -3429,19 +3284,9 @@ public class CodeGenerator extends BLangNodeVisitor {
                 + channelReceive.getWorkerName().getValue());
         chnReceiveArgRegs[i++] = getOperand(chnName);
 
-        BLangExpression receiverExpr = channelReceive.expr;
-        RegIndex regIndex;
-        BType bType;
-        if (receiverExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF && receiverExpr instanceof BLangLocalVarRef) {
-            receiverExpr.regIndex = ((BLangLocalVarRef) receiverExpr).varSymbol.varIndex;
-            regIndex = receiverExpr.regIndex;
-        } else {
-            receiverExpr.regIndex = getRegIndex(receiverExpr.type.tag);
-            receiverExpr.regIndex.isLHSIndex = true;
-            regIndex = receiverExpr.regIndex;
-        }
+        BType bType = channelReceive.type;
+        RegIndex regIndex = calcAndGetExprRegIndex(channelReceive);
 
-        bType = receiverExpr.type;
         UTF8CPEntry sigCPEntry = new UTF8CPEntry(this.generateSig(new BType[] { bType }));
         Operand sigCPIndex = getOperand(currentPkgInfo.addCPEntry(sigCPEntry));
         chnReceiveArgRegs[i++] = sigCPIndex;

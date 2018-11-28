@@ -93,7 +93,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJSONArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
@@ -150,6 +149,11 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
@@ -162,7 +166,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangCompensate;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
@@ -182,7 +185,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement.BLangStatementLink;
@@ -190,7 +192,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
@@ -1780,26 +1781,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangForkJoin forkJoin) {
-        forkJoin.workers = rewrite(forkJoin.workers, env);
-        forkJoin.joinResultVar = rewrite(forkJoin.joinResultVar, env);
-        forkJoin.joinedBody = rewrite(forkJoin.joinedBody, env);
-        forkJoin.timeoutBody = rewrite(forkJoin.timeoutBody, env);
-        result = forkJoin;
-    }
-
-    @Override
-    public void visit(BLangCompensate compensateNode) {
-        result = compensateNode;
-    }
-
-    @Override
-    public void visit(BLangScope scopeNode) {
-        scopeNode.scopeBody = rewrite(scopeNode.scopeBody, env);
-        scopeNode.compensationFunction = rewrite(scopeNode.getCompensationFunction(), env);
-        visit(scopeNode.compensationFunction.function);
-        env.enclPkg.functions.add(scopeNode.getCompensationFunction().function);
-        env.enclPkg.topLevelNodes.add(scopeNode.compensationFunction.function);
-        result = scopeNode;
+         result = forkJoin;
     }
 
     // Expressions
@@ -2204,9 +2186,42 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangAwaitExpr awaitExpr) {
-        awaitExpr.expr = rewriteExpr(awaitExpr.expr);
-        result = awaitExpr;
+    public void visit(BLangWaitExpr waitExpr) {
+        // Wait for any
+        if (waitExpr.getExpression().getKind() == NodeKind.BINARY_EXPR) {
+            waitExpr.exprList = collectAllBinaryExprs((BLangBinaryExpr) waitExpr.getExpression(), new ArrayList<>());
+        } else { // Wait for one
+            waitExpr.exprList = Collections.singletonList(rewriteExpr(waitExpr.getExpression()));
+        }
+        result = waitExpr;
+    }
+
+    private List<BLangExpression> collectAllBinaryExprs(BLangBinaryExpr binaryExpr, List<BLangExpression> exprs) {
+        visitBinaryExprOfWait(binaryExpr.lhsExpr, exprs);
+        visitBinaryExprOfWait(binaryExpr.rhsExpr, exprs);
+        return exprs;
+    }
+
+    private void visitBinaryExprOfWait(BLangExpression expr, List<BLangExpression> exprs) {
+        if (expr.getKind() == NodeKind.BINARY_EXPR) {
+            collectAllBinaryExprs((BLangBinaryExpr) expr, exprs);
+        } else {
+            expr = rewriteExpr(expr);
+            exprs.add(expr);
+        }
+    }
+
+    @Override
+    public void visit(BLangWaitForAllExpr waitExpr) {
+        waitExpr.keyValuePairs.forEach(keyValue -> {
+            if (keyValue.valueExpr != null) {
+                keyValue.valueExpr = rewriteExpr(keyValue.valueExpr);
+            } else {
+                keyValue.keyExpr = rewriteExpr(keyValue.keyExpr);
+            }
+        });
+        BLangExpression expr = new BLangWaitForAllExpr.BLangWaitLiteral(waitExpr.keyValuePairs, waitExpr.type);
+        result = rewriteExpr(expr);
     }
 
     @Override
@@ -2523,12 +2538,24 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangWorkerSyncSendExpr syncSendExpr) {
+        syncSendExpr.expr = rewriteExpr(syncSendExpr.expr);
+        result = syncSendExpr;
+    }
+
+    @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
-        workerReceiveNode.expr = rewriteExpr(workerReceiveNode.expr);
         if (workerReceiveNode.keyExpr != null) {
             workerReceiveNode.keyExpr = rewriteExpr(workerReceiveNode.keyExpr);
         }
         result = workerReceiveNode;
+    }
+
+    @Override
+    public void visit(BLangWorkerFlushExpr workerFlushExpr) {
+        workerFlushExpr.workerIdentifierList = workerFlushExpr.cachedWorkerSendStmts
+                .stream().map(send -> send.workerIdentifier).collect(Collectors.toList());
+        result = workerFlushExpr;
     }
 
     @Override
@@ -2611,6 +2638,11 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangStructLiteral structLiteral) {
         result = structLiteral;
+    }
+
+    @Override
+    public void visit(BLangWaitForAllExpr.BLangWaitLiteral waitLiteral) {
+        result = waitLiteral;
     }
 
     @Override
