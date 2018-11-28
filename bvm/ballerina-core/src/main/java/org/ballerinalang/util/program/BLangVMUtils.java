@@ -462,7 +462,8 @@ public class BLangVMUtils {
         String distributedTransactionsEnabledConfig = ConfigRegistry.getInstance()
                 .getAsString(Constants.DISTRIBUTED_TRANSACTIONS);
         boolean distributedTransactionEnabled = true;
-        if (distributedTransactionsEnabledConfig != null && distributedTransactionsEnabledConfig.equals(Constants.FALSE)) {
+        if (distributedTransactionsEnabledConfig != null &&
+                distributedTransactionsEnabledConfig.equals(Constants.FALSE)) {
             distributedTransactionEnabled = false;
         }
         return distributedTransactionEnabled;
