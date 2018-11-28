@@ -368,12 +368,12 @@
                 "url": "check"
             },
             {
-                "name": "Throw ",
-                "url": "throw"
+                "name": "Panic ",
+                "url": "panic"
             },
             {
-                "name": "Try/Catch/Finally",
-                "url": "try-catch-finally"
+                "name": "Trap Error",
+                "url": "trap-error"
             }
         ]
     },

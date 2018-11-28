@@ -16,12 +16,10 @@ public function main() {
     // As a best practice, check whether an error occurrs.
     var r = getAccountBalance(24);
 
-    match r {
-        int blnc => {
-            io:println(blnc);
-        }
-        error err => {
-            io:println("Error occurred: " + err.reason());
-        }
+    // Type guard check (`is` check) for variable type checking.
+    if (r is int) {
+        io:println(r);
+    } else if (r is error) {
+        io:println("Error occurred: " + r.reason());
     }
 }
