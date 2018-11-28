@@ -30,6 +30,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
@@ -53,6 +55,9 @@ public class TransactionResourceManager {
     private Map<Integer, BFunctionPointer> abortedFuncRegistry;
 
     private ParticipantRegistry participantRegistry;
+    private ConcurrentSkipListSet<String> failedResourceParticipantSet = new ConcurrentSkipListSet<>();
+    private ConcurrentSkipListSet<String> failedLocalParticipantSet = new ConcurrentSkipListSet<>();
+    private ConcurrentHashMap<String, ConcurrentSkipListSet<Integer>> localParticipants = new ConcurrentHashMap<>();
 
     private TransactionResourceManager() {
         resourceRegistry = new HashMap<>();
@@ -117,6 +122,7 @@ public class TransactionResourceManager {
      */
     public void registerParticipation(String gTransactionId, int transactionBlockId, BFunctionPointer committed,
                                       BFunctionPointer aborted, WorkerExecutionContext workerExecutionContext) {
+        localParticipants.computeIfAbsent(gTransactionId, gid -> new ConcurrentSkipListSet<>()).add(transactionBlockId);
 
         LocalTransactionInfo localTransactionInfo = workerExecutionContext.getLocalTransactionInfo();
         registerCommittedFunction(transactionBlockId, committed);
@@ -170,13 +176,16 @@ public class TransactionResourceManager {
             }
         }
 
+        boolean status = true;
         if (participantRegistry.hasParticipants(transactionId)) {
-            boolean status = participantRegistry.prepareCommit(transactionId);
-            log.info("Transaction prepare (participants): " + (status ? "success" : "failed"));
-            return status;
+            status = participantRegistry.prepareCommit(transactionId);
         }
-        log.info("Transaction prepare: success)");
-        return true;
+        if (failedResourceParticipantSet.contains(transactionId) || failedLocalParticipantSet.contains(transactionId)) {
+            // resource participant reported failure.
+            status = false;
+        }
+        log.info(String.format("Transaction prepare (participants): %s", status ? "success" : "failed"));
+        return status;
     }
 
     /**
@@ -210,6 +219,9 @@ public class TransactionResourceManager {
         }
         invokeCommittedFunction(transactionId, transactionBlockId);
         removeContextsFromRegistry(combinedId, transactionId);
+        failedResourceParticipantSet.remove(transactionId);
+        failedLocalParticipantSet.remove(transactionId);
+        localParticipants.remove(transactionId);
         return commitSuccess;
     }
 
@@ -245,10 +257,15 @@ public class TransactionResourceManager {
         }
         //For the retry  attempt failures the aborted function should not be invoked. It should invoked only when the
         //whole transaction aborts after all the retry attempts.
-        if (!isRetryAttempt) {
-            invokeAbortedFunction(transactionId, transactionBlockId);
-        }
+
+        // todo: Temporaraly disabling abort functions as there is no clear way to separate rollback and full abort.
+        //if (!isRetryAttempt) {
+        //    invokeAbortedFunction(transactionId, transactionBlockId);
+        //}
         removeContextsFromRegistry(combinedId, transactionId);
+        failedResourceParticipantSet.remove(transactionId);
+        failedLocalParticipantSet.remove(transactionId);
+        localParticipants.remove(transactionId);
         return abortSuccess;
     }
 
@@ -357,13 +374,18 @@ public class TransactionResourceManager {
         // pass
     }
 
-    public void notifyFailure(String gTransactionId) {
+    public void notifyResourceFailure(String gTransactionId) {
         participantRegistry.participantFailed(gTransactionId);
+        failedResourceParticipantSet.add(gTransactionId);
         // The resource excepted (uncaught).
         log.info("Trx infected callable unit excepted id : " + gTransactionId);
     }
 
-    public void notifyFailure(String gTransactionId, int blockId) {
+    public void notifyLocalParticipantFailure(String gTransactionId, int blockId) {
+        ConcurrentSkipListSet<Integer> participantBlockIds = localParticipants.get(gTransactionId);
+        if (participantBlockIds != null && participantBlockIds.contains(blockId)) {
+            failedLocalParticipantSet.add(gTransactionId);
+        }
         String uniqueName = Integer.toString(blockId);
         participantRegistry.participantFailed(gTransactionId, uniqueName);
     }

@@ -74,7 +74,7 @@ service participant2 on participant2EP02 {
         }
     }
 
-    //@transactions:Participant {}
+    @transactions:Participant {}
     resource function testSaveToDatabaseSuccessfulInParticipant(http:Caller ep, http:Request req) {
         saveToDatabase(ep, req, false);
     }
@@ -115,10 +115,10 @@ type Registration record {
 };
 
 
-//@transactions:Participant {
-//    oncommit:onCommit2,
-//    onabort:onAbort2
-//}
+@transactions:Participant {
+    oncommit:onCommit2,
+    onabort:onAbort2
+}
 function saveToDatabase(http:Caller conn, http:Request req, boolean shouldAbort) {
     http:Caller ep = conn;
     http:Response res = new;  res.statusCode = 200;
@@ -152,19 +152,6 @@ function saveToDatabaseUpdateHelper1(string uuid) {
         io:println(result);
     } else {
         io:println("");
-    }
-
-    var x = testDB -> select("SELECT registrationID FROM Customers ", Registration);
-    if (x is error) {
-        io:println("query returned error");
-    } else {
-        string payload = "";
-        io:println("query returned");
-        while (x.hasNext()) {
-            io:println("has rows");
-            var reg = <Registration>x.getNext();
-            io:println(reg);
-        }
     }
 }
 

@@ -3146,10 +3146,9 @@ public class CPU {
             transactionResourceManager.registerAbortedFunction(transactionBlockId, fpAborted);
         }
 
-        String blockId = Integer.toString(transactionBlockId);
         localTransactionInfo.beginTransactionBlock(transactionBlockId, 1);
-        transactionResourceManager.registerLocalParticipant(localTransactionInfo.getGlobalTransactionId(),
-                blockId, fpCommitted, fpAborted);
+        transactionResourceManager.registerParticipation(localTransactionInfo.getGlobalTransactionId(),
+                transactionBlockId, fpCommitted, fpAborted, ctx);
     }
 
     private static LocalTransactionInfo createAndNotifyGlobalTx(WorkerExecutionContext ctx, int transactionBlockId) {

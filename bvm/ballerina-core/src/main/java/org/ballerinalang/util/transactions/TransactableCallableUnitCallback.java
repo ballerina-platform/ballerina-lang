@@ -47,7 +47,7 @@ public class TransactableCallableUnitCallback implements CallableUnitCallback {
 
     @Override
     public void notifyFailure(BError error) {
-        TransactionResourceManager.getInstance().notifyFailure(transactionId);
+        TransactionResourceManager.getInstance().notifyResourceFailure(transactionId);
         callback.notifyFailure(error);
     }
 

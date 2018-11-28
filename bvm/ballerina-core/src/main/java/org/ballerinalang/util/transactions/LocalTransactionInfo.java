@@ -138,7 +138,7 @@ public class LocalTransactionInfo {
 
     public void notifyLocalParticipantFailure() {
         Integer bockId = transactionBlockIdStack.peek();
-        transactionResourceManager.notifyFailure(globalTransactionId, bockId);
+        transactionResourceManager.notifyLocalParticipantFailure(globalTransactionId, bockId);
     }
 
     public void notifyLocalParticipantSuccess() {

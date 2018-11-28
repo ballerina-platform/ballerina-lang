@@ -46,7 +46,10 @@ service hello on new http:Listener(8889) {
         http:Response res = new;
         res.setPayload("payload-from-remote");
 
-        caller->respond(res) but { error e => log:printError("Error sending response", err = e) };
+        var resp = caller->respond(res);
+        if (resp is error) {
+            log:printError("Error sending response", err = resp);
+        }
     }
 }
 
@@ -93,22 +96,21 @@ function initiatorFunc(boolean throw1, boolean throw2,
             var resp = participantEP->post("/", blowOrNot);
             log:printInfo("remote1-call-responded [" + blowOrNot + "]");
 
-            match (resp) {
-                http:Response res => {
-                    log:printInfo("remote response status code: " + res.statusCode);
-                    if (res.statusCode == 500) {
-                        S1 = S1 + " remote1-blown";
+            if (resp is http:Response) {
+                log:printInfo("remote response status code: " + resp.statusCode);
+                if (resp.statusCode == 500) {
+                    S1 = S1 + " remote1-blown";
+                } else {
+                    var payload = resp.getTextPayload();
+                    if (payload is string) {
+                        log:printInfo(payload);
+                        S1 = S1 + " <" + untaint payload + ">";
                     } else {
-                        match (res.getTextPayload()) {
-                            string r => {
-                                log:printInfo(r);
-                                S1 = S1 + " <" + untaint r + ">";
-                            }
-                            error err => log:printError(err.reason());
-                        }
+                        log:printError(payload.reason());
                     }
                 }
-                error err => log:printError(err.reason());
+            } else {
+                log:printError(resp.reason());
             }
         }
         if (trx_ran_once && remoteExecuted2 == false && remote2) {
@@ -118,22 +120,21 @@ function initiatorFunc(boolean throw1, boolean throw2,
             var resp = participantEP->post("/", blowOrNot);
             log:printInfo("remote2-call-responded [" + blowOrNot + "]");
 
-            match (resp) {
-                http:Response res => {
-                    log:printInfo("remote response status code: " + res.statusCode);
-                    if (res.statusCode == 500) {
-                        S1 = S1 + " remote2-blown";
+            if (resp is http:Response) {
+                log:printInfo("remote response status code: " + resp.statusCode);
+                if (resp.statusCode == 500) {
+                    S1 = S1 + " remote2-blown";
+                } else {
+                    var payload = resp.getTextPayload();
+                    if (payload is string) {
+                        log:printInfo(payload);
+                        S1 = S1 + " <" + untaint payload + ">";
                     } else {
-                        match (res.getTextPayload()) {
-                            string r => {
-                                log:printInfo(r);
-                                S1 = S1 + " <" + untaint r + ">";
-                            }
-                            error err => log:printError(err.reason());
-                        }
+                        log:printError(payload.reason());
                     }
                 }
-                error err => log:printError(err.reason());
+            } else {
+                log:printError(resp.reason());
             }
         }
         if (throw1 && !thrown1) {
@@ -188,7 +189,10 @@ service initiatorService on new http:Listener(8888) {
                                       false, false);
         http:Response res = new;
         res.setPayload(result);
-        caller->respond(res) but { error e => log:printError("Error sending response: " + result, err = e) };
+        var r = caller->respond(res);
+        if (r is error) {
+            log:printError("Error sending response: " + result, err = r);
+        }
     }
 
     @http:ResourceConfig {
@@ -200,7 +204,10 @@ service initiatorService on new http:Listener(8888) {
                                       false, false);
         http:Response res = new;
         res.setPayload(result);
-        caller->respond(res) but { error e => log:printError("Error sending response: " + result, err = e) };
+        var r = caller->respond(res);
+        if (r is error) {
+            log:printError("Error sending response: " + result, err = r);
+        }
     }
 
     @http:ResourceConfig {
@@ -213,7 +220,10 @@ service initiatorService on new http:Listener(8888) {
                                       true, false);
         http:Response res = new;
         res.setPayload(result);
-        caller->respond(res) but { error e => log:printError("Error sending response: " + result, err = e) };
+        var r = caller->respond(res);
+        if (r is error) {
+            log:printError("Error sending response: " + result, err = r);
+        }
     }
 
 
@@ -227,7 +237,10 @@ service initiatorService on new http:Listener(8888) {
                                       true, false);
         http:Response res = new;
         res.setPayload(result);
-        caller->respond(res) but { error e => log:printError("Error sending response: " + result, err = e) };
+        var r = caller->respond(res);
+        if (r is error) {
+            log:printError("Error sending response: " + result, err = r);
+        }
     }
 
 
@@ -241,6 +254,9 @@ service initiatorService on new http:Listener(8888) {
                                       true, true);
         http:Response res = new;
         res.setPayload(result);
-        caller->respond(res) but { error e => log:printError("Error sending response: " + result, err = e) };
+        var r = caller->respond(res);
+        if (r is error) {
+            log:printError("Error sending response: " + result, err = r);
+        }
     }
 }
