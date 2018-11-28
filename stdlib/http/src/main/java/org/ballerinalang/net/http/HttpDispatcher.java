@@ -171,10 +171,11 @@ public class HttpDispatcher {
         HttpUtil.populateInboundRequest(inRequest, inRequestEntity, mediaType, httpCarbonMessage, programFile);
 
         SignatureParams signatureParams = httpResource.getSignatureParams();
-        BValue[] bValues = new BValue[signatureParams.getParamCount()];
-        bValues[0] = httpCaller;
-        bValues[1] = inRequest;
-        if (signatureParams.getParamCount() == 2) {
+        BValue[] bValues = new BValue[signatureParams.getParamCount() + 1];
+        bValues[0] = httpResource.getParentService().getBalService().getBValue();
+        bValues[1] = httpCaller;
+        bValues[2] = inRequest;
+        if (signatureParams.getParamCount() == 3) {
             return bValues;
         }
 
