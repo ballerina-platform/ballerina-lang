@@ -1765,6 +1765,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitTransactionClause(BallerinaParser.TransactionClauseContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
         this.pkgBuilder.addTransactionBlock(getCurrentPos(ctx), getWS(ctx));
     }
 

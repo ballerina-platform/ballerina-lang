@@ -118,8 +118,7 @@ public class NativeCallContext implements Context {
 
     @Override
     public boolean isInTransaction() {
-//        return this.parentCtx.isInTransaction();//TODO fix - rajith
-        return false;
+        return this.strand.isInTransaction();
     }
 
     @Override
@@ -228,8 +227,7 @@ public class NativeCallContext implements Context {
     }
 
     public LocalTransactionInfo getLocalTransactionInfo() {
-//        return this.parentCtx.getLocalTransactionInfo();//TODO fix - rajith
-        return null;
+        return this.strand.getLocalTransactionInfo();
     }
 
 }
