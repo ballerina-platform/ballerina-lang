@@ -18,11 +18,11 @@ import ballerina/http;
 import ballerina/log;
 import ballerina/runtime;
 
-@final string attributeName = "attribute";
-@final string attributeValue = "value";
+final string attributeName = "attribute";
+final string attributeValue = "value";
 
 public type Filter15 object {
-    public function filterRequest(http:Listener listener, http:Request request, http:FilterContext context)
+    public function filterRequest(http:Caller caller, http:Request request, http:FilterContext context)
                         returns boolean {
         log:printInfo("Add attribute to invocation context from filter");
         runtime:getInvocationContext().attributes[attributeName] = attributeValue;
@@ -36,20 +36,17 @@ public type Filter15 object {
 
 Filter15 filter15 = new;
 
-endpoint http:Listener echoEP08 {
-    port:9098,
-    filters:[filter15]
-};
+listener http:Listener echoEP08 = new(9098, config = { filters: [filter15] });
 
 @http:ServiceConfig {
     basePath:"/echo"
 }
-service<http:Service> echo08 bind echoEP08 {
+service echo08 on echoEP08 {
     @http:ResourceConfig {
         methods:["GET"],
         path:"/test"
     }
-    echo (endpoint caller, http:Request req) {
+    resource function echo(http:Caller caller, http:Request req) {
         http:Response res = new;
         if (attributeValue == <string>runtime:getInvocationContext().attributes[attributeName]) {
             _ = caller->respond(res);
