@@ -16,7 +16,6 @@
 
 package io.ballerina.plugins.idea.highlighting;
 
-import com.intellij.ide.highlighter.custom.CustomHighlighterColors;
 import com.intellij.openapi.editor.DefaultLanguageHighlighterColors;
 import com.intellij.openapi.editor.HighlighterColors;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
@@ -27,6 +26,7 @@ import static com.intellij.openapi.editor.DefaultLanguageHighlighterColors.DOC_C
 import static com.intellij.openapi.editor.DefaultLanguageHighlighterColors.FUNCTION_DECLARATION;
 import static com.intellij.openapi.editor.DefaultLanguageHighlighterColors.INSTANCE_METHOD;
 import static com.intellij.openapi.editor.DefaultLanguageHighlighterColors.METADATA;
+import static com.intellij.openapi.editor.DefaultLanguageHighlighterColors.STATIC_FIELD;
 import static com.intellij.openapi.editor.colors.TextAttributesKey.createTextAttributesKey;
 
 /**
@@ -44,22 +44,22 @@ public class BallerinaSyntaxHighlightingColors {
             DefaultLanguageHighlighterColors.STRING);
     public static final TextAttributesKey NUMBER = createTextAttributesKey("BALLERINA_NUMBER",
             DefaultLanguageHighlighterColors.NUMBER);
-    public static final TextAttributesKey ANNOTATION = createTextAttributesKey("BALLERINA_ANNOTATION",
-            METADATA);
-    public static final TextAttributesKey PACKAGE = createTextAttributesKey("BALLERINA_PACKAGE",
-            FUNCTION_DECLARATION);
-    public static final TextAttributesKey TEMPLATE_LANGUAGE_COLOR = createTextAttributesKey
-            ("BALLERINA_TEMPLATE_LANGUAGE_COLOR", INSTANCE_METHOD);
+    public static final TextAttributesKey ANNOTATION = createTextAttributesKey("BALLERINA_ANNOTATION", METADATA);
+    public static final TextAttributesKey PACKAGE = createTextAttributesKey("BALLERINA_PACKAGE", FUNCTION_DECLARATION);
+
+    public static final TextAttributesKey TEMPLATE_LANGUAGE_COLOR = createTextAttributesKey(
+            "BALLERINA_TEMPLATE_LANGUAGE_COLOR", INSTANCE_METHOD);
     public static final TextAttributesKey DOCUMENTATION = createTextAttributesKey("BALLERINA_DOCUMENTATION",
             DOC_COMMENT);
-    public static final TextAttributesKey DOCUMENTATION_VARIABLE =
-            createTextAttributesKey("BALLERINA_DOCUMENTATION_VARIABLE", DOC_COMMENT_TAG);
-    public static final TextAttributesKey DOCUMENTATION_INLINE_CODE =
-            createTextAttributesKey("BALLERINA_DOCUMENTATION_INLINE_CODE", DOC_COMMENT_TAG_VALUE);
+    public static final TextAttributesKey DOCUMENTATION_VARIABLE = createTextAttributesKey(
+            "BALLERINA_DOCUMENTATION_VARIABLE", DOC_COMMENT_TAG);
+    public static final TextAttributesKey DOCUMENTATION_INLINE_CODE = createTextAttributesKey(
+            "BALLERINA_DOCUMENTATION_INLINE_CODE", DOC_COMMENT_TAG_VALUE);
     public static final TextAttributesKey GLOBAL_VARIABLE = createTextAttributesKey("BALLERINA_GLOBAL_VARIABLE",
             DefaultLanguageHighlighterColors.INSTANCE_FIELD);
-    public static final TextAttributesKey RECORD_KEY = createTextAttributesKey("BALLERINA_RECORD_KEY",
-            CustomHighlighterColors.CUSTOM_KEYWORD3_ATTRIBUTES);
+    public static final TextAttributesKey RECORD_KEY = createTextAttributesKey("BALLERINA_RECORD_KEY", STATIC_FIELD);
     public static final TextAttributesKey DEFAULT = createTextAttributesKey("BALLERINA_GLOBAL_VARIABLE",
             DefaultLanguageHighlighterColors.OPERATION_SIGN);
+    public static final TextAttributesKey RESERVED_WORDS = createTextAttributesKey("BALLERINA_DATA_TYPE",
+            FUNCTION_DECLARATION);
 }

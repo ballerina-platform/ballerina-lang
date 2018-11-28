@@ -414,6 +414,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (convSymbol != symTable.notFoundSymbol) {
             return convSymbol;
         }
+        dlog.error(pos, DiagnosticCode.INCOMPATIBLE_TYPES_CONVERSION, variableSourceType, targetType);
         resultType = symTable.semanticError;
         return symTable.notFoundSymbol;
     }

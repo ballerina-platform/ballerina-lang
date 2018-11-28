@@ -41,6 +41,7 @@ import org.ballerinalang.test.utils.SQLDBUtils;
 import org.ballerinalang.test.utils.SQLDBUtils.DBType;
 import org.ballerinalang.test.utils.SQLDBUtils.FileBasedTestDatabase;
 import org.ballerinalang.test.utils.SQLDBUtils.TestDatabase;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
@@ -1249,5 +1250,17 @@ public class TableTest {
                 "\"LONG_TYPE\":9223372036854774807, \"FLOAT_TYPE\":123.34, " +
                 "\"DOUBLE_TYPE\":2.139095039E9, \"BOOLEAN_TYPE\":true, \"STRING_TYPE\":\"Hello\"}]}}";
         Assert.assertEquals(ResponseReader.getReturnValue(responseMsg), expected);
+    }
+
+    @Test(expectedExceptions = { BLangRuntimeException.class },
+          expectedExceptionsMessageRegExp = ".*Table query over a cursor table not supported.*")
+    public void testSelectQueryWithCursorTable() {
+        BRunUtil.invoke(result, "testSelectQueryWithCursorTable");
+    }
+
+    @Test(expectedExceptions = { BLangRuntimeException.class },
+          expectedExceptionsMessageRegExp = ".*Table query over a cursor table not supported.*")
+    public void testJoinQueryWithCursorTable() {
+        BRunUtil.invoke(result, "testJoinQueryWithCursorTable");
     }
 }

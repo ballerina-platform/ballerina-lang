@@ -16,13 +16,9 @@
 
 import ballerina/http;
 
-endpoint http:Listener serviceEndpointWithoutSSL {
-    port: 9095,
-    httpVersion: "2.0"
-};
+listener http:Listener serviceEndpointWithoutSSL = new(9095, config = { httpVersion: "2.0" });
 
-endpoint http:Listener serviceEndpointWithSSL {
-    port: 9096,
+listener http:Listener serviceEndpointWithSSL = new(9096, config = {
     httpVersion: "2.0",
     secureSocket: {
         keyStore: {
@@ -30,18 +26,18 @@ endpoint http:Listener serviceEndpointWithSSL {
             password: "ballerina"
         }
     }
-};
+});
 
 @http:ServiceConfig {
     basePath: "/hello"
 }
-service helloWorldWithoutSSL bind serviceEndpointWithoutSSL {
+service helloWorldWithoutSSL on serviceEndpointWithoutSSL {
 
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/"
     }
-    sayHelloGet(endpoint caller, http:Request req) {
+    resource function sayHelloGet(http:Caller caller, http:Request req) {
         _ = caller->respond("Version: " + untaint req.httpVersion);
     }
 }
@@ -49,13 +45,13 @@ service helloWorldWithoutSSL bind serviceEndpointWithoutSSL {
 @http:ServiceConfig {
     basePath: "/hello"
 }
-service helloWorldWithSSL bind serviceEndpointWithSSL {
+service helloWorldWithSSL on serviceEndpointWithSSL {
 
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/"
     }
-    sayHelloGet(endpoint caller, http:Request req) {
+    resource function sayHelloGet(http:Caller caller, http:Request req) {
         _ = caller->respond("Version: " + untaint req.httpVersion);
     }
 }

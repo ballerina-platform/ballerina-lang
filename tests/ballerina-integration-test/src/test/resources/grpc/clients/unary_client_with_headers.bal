@@ -59,7 +59,7 @@ function testBlockingHeader(string name) returns (string) {
         (result, resHeaders) = unionResp;
         io:println("Client Got Response : ");
         io:println(result);
-        string headerValue = resHeaders.get("x-id") :? "none";
+        string headerValue = resHeaders.get("x-id") ?: "none";
         return "Header: " + headerValue;
     }
 }
@@ -86,7 +86,7 @@ public type HelloWorldBlockingClient client object {
         any result = ();
         grpc:Headers resHeaders = new;
         (result, resHeaders) = unionResp;
-        return (<string>result, resHeaders);
+        return (string.create(result), resHeaders);
     }
 };
 

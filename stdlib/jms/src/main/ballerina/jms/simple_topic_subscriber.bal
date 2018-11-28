@@ -58,7 +58,7 @@ public type SimpleTopicSubscriber object {
     #
     # + serviceType - Type descriptor of the service
     public function __attach(service serviceType, map<any> data) returns error? {
-          return self.subscriber.registerListener(serviceType, self.subscriber.consumerActions);
+          return self.subscriber.registerListener(serviceType, self.subscriber.consumerActions, data);
     }
 
     # Start simple topic subscriber endpoint

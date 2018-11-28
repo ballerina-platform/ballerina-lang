@@ -61,7 +61,7 @@ public type grpcMutualSslServiceBlockingClient client object {
         grpc:Headers resHeaders = new;
         any result = ();
         (result, resHeaders) = unionResp;
-        return (<string>result, resHeaders);
+        return (string.create(result), resHeaders);
     }
 };
 

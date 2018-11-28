@@ -160,7 +160,8 @@ public class ForkJoinWorkerResponseContext extends SyncCallableWorkerResponseCon
     }
 
     private BError createCallFailedError(WorkerExecutionContext context, Map<String, BError> errors) {
-        return BLangVMErrors.handleError(context, errors);
+//        return BLangVMErrors.handleError(context, errors);
+        return null;
     }
 
 }
