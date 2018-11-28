@@ -18,10 +18,7 @@ import ballerina/grpc;
 import ballerina/io;
 
 // Server endpoint configuration
-listener grpc:Listener ep4 = new ({
-    host:"localhost",
-    port:9096
-});
+listener grpc:Listener ep4 = new (9096);
 
 @grpc:ServiceConfig {name:"lotsOfGreetings",
     clientStreaming:true}

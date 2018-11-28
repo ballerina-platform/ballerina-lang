@@ -16,9 +16,7 @@
 import ballerina/grpc;
 import ballerina/io;
 
-listener grpc:Listener server8 = new ({
-    port:9100
-});
+listener grpc:Listener server8 = new (9100);
 
 service TestService on server8 {
     @grpc:ResourceConfig {
