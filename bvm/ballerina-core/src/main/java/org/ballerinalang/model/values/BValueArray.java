@@ -265,33 +265,37 @@ public class BValueArray extends BNewArray implements Serializable {
     @Override
     public void stamp(BType type) {
         if (type.getTag() == TypeTags.TUPLE_TAG) {
-            BRefType<?>[] arrayValues = this.getValues();
 
             if (elementType != null && isBasicType(elementType)) {
                 moveBasicTypeArrayToRefValueArray();
-                this.arrayType = type;
-                return;
             }
 
+            BRefType<?>[] arrayValues = this.getValues();
             for (int i = 0; i < this.size(); i++) {
                 if (arrayValues[i] != null) {
-                    arrayValues[i].stamp(((BTupleType) type).getTupleTypes().get(i));
+                    BType memberType = ((BTupleType) type).getTupleTypes().get(i);
+                    if (memberType.getTag() == TypeTags.ANYDATA_TAG || memberType.getTag() == TypeTags.JSON_TAG) {
+                        memberType = CPU.resolveMatchingTypeForUnion(arrayValues[i], memberType);
+                        ((BTupleType) type).getTupleTypes().set(i, memberType);
+                    }
+                    arrayValues[i].stamp(memberType);
                 }
             }
-
         } else if (type.getTag() == TypeTags.JSON_TAG) {
+
             if (elementType != null && isBasicType(elementType) && !isBasicType(type)) {
                 moveBasicTypeArrayToRefValueArray();
-                this.arrayType = type;
+                this.arrayType = new BArrayType(type);
                 return;
             }
 
             BRefType<?>[] arrayValues = this.getValues();
             for (int i = 0; i < this.size(); i++) {
                 if (arrayValues[i] != null) {
-                    arrayValues[i].stamp(type);
+                    arrayValues[i].stamp(CPU.resolveMatchingTypeForUnion(arrayValues[i], type));
                 }
             }
+            type = new BArrayType(type);
         } else if (type.getTag() == TypeTags.UNION_TAG) {
             for (BType memberType : ((BUnionType) type).getMemberTypes()) {
                 if (CPU.checkIsLikeType(this, memberType)) {
@@ -301,7 +305,7 @@ public class BValueArray extends BNewArray implements Serializable {
                 }
             }
         } else if (type.getTag() == TypeTags.ANYDATA_TAG) {
-            type = CPU.resolveMatchingAnydataType(this);
+            type = CPU.resolveMatchingTypeForUnion(this, type);
             this.stamp(type);
         } else {
             BType arrayElementType = ((BArrayType) type).getElementType();

@@ -103,7 +103,7 @@ public abstract class BValueType implements BValue {
 
     @Override
     public void stamp(BType type) {
-        if (type.getTag() == TypeTags.ANYDATA_TAG) {
+        if (type.getTag() == TypeTags.ANYDATA_TAG || type.getTag() == TypeTags.JSON_TAG) {
             return;
         }
         this.setType(type);

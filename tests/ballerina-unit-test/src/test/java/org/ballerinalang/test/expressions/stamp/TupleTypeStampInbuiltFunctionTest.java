@@ -25,6 +25,7 @@ import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BStringType;
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
@@ -181,5 +182,20 @@ public class TupleTypeStampInbuiltFunctionTest {
         Assert.assertEquals(((BValueArray) results[0]).getInt(0), 1);
         Assert.assertEquals(((BValueArray) results[0]).getInt(1), 2);
     }
-}
 
+    @Test
+    public void testStampTupleToAnydataTuple() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampTupleToAnydataTuple");
+        Assert.assertEquals(((BInteger) results[0]).value().intValue(), 1);
+        Assert.assertEquals(((BInteger) results[1]).value().intValue(), 2);
+    }
+
+    @Test
+    public void testStampAnydataTupleToBasicTypeTuple() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampAnydataTupleToBasicTypeTuple");
+        Assert.assertEquals(((BInteger) results[0]).value().intValue(), 1);
+        Assert.assertEquals(((BInteger) results[1]).value().intValue(), 2);
+    }
+}

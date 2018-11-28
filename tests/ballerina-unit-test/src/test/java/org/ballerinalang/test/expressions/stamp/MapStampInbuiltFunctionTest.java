@@ -79,7 +79,8 @@ public class MapStampInbuiltFunctionTest {
         Assert.assertEquals(results.length, 1);
         Assert.assertEquals(mapValue.size(), 2);
 
-        Assert.assertEquals(mapValue.getType().getClass(), BJSONType.class);
+        Assert.assertEquals(mapValue.getType().getClass(), BMapType.class);
+        Assert.assertEquals(((BMapType) mapValue.getType()).getConstrainedType().getClass(), BJSONType.class);
 
         Assert.assertEquals(mapValue.get("a").getType().getTag(), TypeTags.INT_TAG);
         Assert.assertEquals(mapValue.get("a").stringValue(), "1");
@@ -218,7 +219,8 @@ public class MapStampInbuiltFunctionTest {
         Assert.assertEquals(results.length, 1);
         Assert.assertEquals(mapValue.size(), 5);
 
-        Assert.assertEquals(mapValue.getType().getClass(), BJSONType.class);
+        Assert.assertEquals(mapValue.getType().getClass(), BMapType.class);
+        Assert.assertEquals(((BMapType) mapValue.getType()).getConstrainedType().getClass(), BJSONType.class);
 
         Assert.assertEquals(mapValue.get("name").stringValue(), "Raja");
         Assert.assertEquals(mapValue.get("name").getType().getClass(), BStringType.class);
@@ -310,8 +312,8 @@ public class MapStampInbuiltFunctionTest {
         Assert.assertEquals(mapValue.getType().getClass(), BMapType.class);
         Assert.assertEquals(((BMapType) mapValue.getType()).getConstrainedType().getClass(), BJSONType.class);
 
-        Assert.assertEquals(mapValue.get("a").getType().getClass(), BJSONType.class);
-        Assert.assertEquals(mapValue.get("b").getType().getClass(), BJSONType.class);
+        Assert.assertEquals(mapValue.get("a").getType().getClass(), BMapType.class);
+        Assert.assertEquals(mapValue.get("b").getType().getClass(), BMapType.class);
     }
 
 
@@ -364,10 +366,10 @@ public class MapStampInbuiltFunctionTest {
         Assert.assertEquals(mapValue.getType().getClass(), BMapType.class);
         Assert.assertEquals(((BMapType) mapValue.getType()).getConstrainedType().getClass(), BJSONType.class);
 
-        Assert.assertEquals(mapValue.getMap().get("a").getType().getClass(), BJSONType.class);
+        Assert.assertEquals(mapValue.getMap().get("a").getType().getClass(), BMapType.class);
         Assert.assertEquals(((BMap) mapValue.getMap().get("a")).getMap().size(), 5);
 
-        Assert.assertEquals(mapValue.getMap().get("b").getType().getClass(), BJSONType.class);
+        Assert.assertEquals(mapValue.getMap().get("b").getType().getClass(), BMapType.class);
         Assert.assertEquals(((BMap) mapValue.getMap().get("b")).getMap().size(), 5);
     }
 

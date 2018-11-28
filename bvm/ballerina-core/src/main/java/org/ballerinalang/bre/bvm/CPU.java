@@ -4213,38 +4213,38 @@ public class CPU {
         compensationTable.index++;
     }
 
-    public static BType resolveMatchingAnydataType(BValue value) {
-        if(checkIsLikeType(value, BTypes.typeInt)){
+    public static BType resolveMatchingTypeForUnion(BValue value, BType type) {
+        if (checkIsLikeType(value, BTypes.typeInt)) {
             return BTypes.typeInt;
         }
 
-        if(checkIsLikeType(value, BTypes.typeFloat)) {
+        if (checkIsLikeType(value, BTypes.typeFloat)) {
             return BTypes.typeFloat;
         }
 
-        if(checkIsLikeType(value, BTypes.typeString)) {
+        if (checkIsLikeType(value, BTypes.typeString)) {
             return BTypes.typeString;
         }
 
-        if(checkIsLikeType(value, BTypes.typeBoolean)) {
+        if (checkIsLikeType(value, BTypes.typeBoolean)) {
             return BTypes.typeBoolean;
         }
 
-        if(checkIsLikeType(value, BTypes.typeByte)) {
+        if (checkIsLikeType(value, BTypes.typeByte)) {
             return BTypes.typeByte;
         }
 
-        BType anydataArrayType = new BArrayType(BTypes.typeAnydata);
-        if(checkIsLikeType(value, anydataArrayType)) {
+        BType anydataArrayType = new BArrayType(type);
+        if (checkIsLikeType(value, anydataArrayType)) {
             return anydataArrayType;
         }
 
-        if(checkIsLikeType(value, BTypes.typeXML)) {
+        if (checkIsLikeType(value, BTypes.typeXML)) {
             return BTypes.typeXML;
         }
 
-        BType anydataMapType = new BMapType(BTypes.typeAnydata);
-        if(checkIsLikeType(value, anydataMapType)){
+        BType anydataMapType = new BMapType(type);
+        if (checkIsLikeType(value, anydataMapType)) {
             return anydataMapType;
         }
 

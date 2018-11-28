@@ -191,6 +191,14 @@ function stampBasicArrayToTuple() returns (int,int)|error {
     return returnValue;
 }
 
+function stampAnydataBasicArrayToTuple() returns (int,int)|error {
+    int[] intArrayValue = [1, 2];
+    anydata anydataValue = intArrayValue;
+    (int,int)|error returnValue = (int,int).stamp(anydataValue);
+
+    return returnValue;
+}
+
 function stampBasicArrayToAnydataTuple() returns (anydata,anydata)|error {
     int[] intArrayValue = [1, 2];
     (anydata,anydata)|error returnValue = (anydata,anydata).stamp(intArrayValue);
@@ -203,4 +211,14 @@ function stampBasicArrayToBasicArray() returns int[] {
     int[] returnValue = int[].stamp(intArrayValue);
 
     return returnValue;
+}
+
+function stampBasicMapArrayToAnydataMapArray() returns map<anydata>[] {
+    map<int> map1 = {a: 5, b: 10};
+    map<int> map2 = {a: 15, b: 20};
+
+    map<int>[] intMap = [map1, map2];
+    map<anydata>[] anydataMap = map<anydata>[].stamp(intMap);
+
+    return anydataMap;
 }
