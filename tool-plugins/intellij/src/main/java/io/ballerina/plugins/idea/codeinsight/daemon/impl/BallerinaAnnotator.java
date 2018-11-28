@@ -32,6 +32,7 @@ import io.ballerina.plugins.idea.psi.BallerinaAnnotationAttachment;
 import io.ballerina.plugins.idea.psi.BallerinaAnyIdentifierName;
 import io.ballerina.plugins.idea.psi.BallerinaCompletePackageName;
 import io.ballerina.plugins.idea.psi.BallerinaFloatingPointLiteral;
+import io.ballerina.plugins.idea.psi.BallerinaFunctionNameReference;
 import io.ballerina.plugins.idea.psi.BallerinaGlobalVariableDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaIntegerLiteral;
 import io.ballerina.plugins.idea.psi.BallerinaInvocation;
@@ -39,6 +40,7 @@ import io.ballerina.plugins.idea.psi.BallerinaNameReference;
 import io.ballerina.plugins.idea.psi.BallerinaObjectFunctionDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaPackageReference;
 import io.ballerina.plugins.idea.psi.BallerinaRecordKey;
+import io.ballerina.plugins.idea.psi.BallerinaServiceDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaTableColumn;
 import io.ballerina.plugins.idea.psi.BallerinaTypeDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaTypes;
@@ -195,11 +197,15 @@ public class BallerinaAnnotator implements Annotator {
                         annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.KEYWORD);
                     }
                 // Highlights function names.
-                } else if (parent instanceof BallerinaAnyIdentifierName && !(parent
-                        .getParent() instanceof BallerinaInvocation)) {
+                } else if (parent instanceof BallerinaAnyIdentifierName
+                        && !(parent.getParent() instanceof BallerinaInvocation)
+                        && !(parent.getParent() instanceof BallerinaFunctionNameReference)) {
                     annotateKeyword(element, holder, BallerinaSyntaxHighlightingColors.RESERVED_WORD, false);
                 // Highlights type names.
                 } else if (parent instanceof BallerinaTypeDefinition) {
+                    annotateKeyword(element, holder, BallerinaSyntaxHighlightingColors.RESERVED_WORD, false);
+                // Highlights Service names.
+                } else if (parent instanceof BallerinaServiceDefinition) {
                     annotateKeyword(element, holder, BallerinaSyntaxHighlightingColors.RESERVED_WORD, false);
                 }
             }
