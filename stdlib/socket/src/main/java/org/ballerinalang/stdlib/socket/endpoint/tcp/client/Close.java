@@ -69,6 +69,7 @@ public class Close extends BlockingNativeCallableUnit {
             log.error("Unable to close the connection", e);
             context.setReturnValues(
                     SocketUtils.createSocketError(context, "Unable to close the client socket connection"));
+            return;
         }
         context.setReturnValues();
     }
