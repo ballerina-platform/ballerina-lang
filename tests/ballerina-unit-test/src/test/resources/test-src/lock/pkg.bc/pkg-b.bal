@@ -24,8 +24,8 @@ function lockWithinLockInWorkers() returns (int, string) {
             ab:lockInt1 = 56;
         }
     }
-    worker w3 {
-        runtime:sleep(30);
-        return (ab:lockInt1, ab:lockString1);
-    }
+
+    runtime:sleep(30);
+    return (ab:lockInt1, ab:lockString1);
+
 }
