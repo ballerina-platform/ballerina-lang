@@ -49,30 +49,26 @@ service circuitbreaker01 on circuitBreakerEP01 {
         path: "/forceopen"
     }
     resource function invokeForceOpen(http:Caller caller, http:Request request) {
-        var cbClient = <http:CircuitBreakerClient>healthyClientEP.httpClient;
-        if (cbClient is http:CircuitBreakerClient) {
-            forceOpenStateCount += 1;
-            if (forceOpenStateCount == 2) {
-                cbClient.forceOpen();
-            }
-            var backendRes = healthyClientEP->forward("/healthy", request);
-            if (backendRes is http:Response) {
+        http:CircuitBreakerClient cbClient = <http:CircuitBreakerClient>healthyClientEP.httpClient;
+        forceOpenStateCount += 1;
+        if (forceOpenStateCount == 2) {
+            cbClient.forceOpen();
+        }
+        var backendRes = healthyClientEP->forward("/healthy", request);
+        if (backendRes is http:Response) {
             var responseToCaller = caller->respond(backendRes);
-                if (responseToCaller is error) {
-                    log:printError("Error sending response", err = responseToCaller);
-                }
-            } else if (backendRes is error) {
-                http:Response response = new;
-                response.statusCode = http:INTERNAL_SERVER_ERROR_500;
-                string errCause = <string> backendRes.detail().message;
-                response.setPayload(errCause);
-                var responseToCaller = caller->respond(response);
-                if (responseToCaller is error) {
-                    log:printError("Error sending response", err = responseToCaller);
-                }
+            if (responseToCaller is error) {
+                log:printError("Error sending response", err = responseToCaller);
             }
-        } else {
-            panic cbClient;
+        } else if (backendRes is error) {
+            http:Response response = new;
+            response.statusCode = http:INTERNAL_SERVER_ERROR_500;
+            string errCause = <string> backendRes.detail().message;
+            response.setPayload(errCause);
+            var responseToCaller = caller->respond(response);
+            if (responseToCaller is error) {
+                log:printError("Error sending response", err = responseToCaller);
+            }
         }
     }
 }
