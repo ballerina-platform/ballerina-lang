@@ -30,17 +30,17 @@ public final class SymbolMetaInfo {
     private String pkgName;
     private String pkgAlias;
     private boolean caller;
-    private boolean endpoint;
+    private String kind;
     private BSymbol bSymbol;
 
     private SymbolMetaInfo(String name, String pkgOrgName, String pkgName, String pkgAlias, boolean caller,
-                           boolean endpoint, BSymbol bSymbol) {
+                           String kind, BSymbol bSymbol) {
         this.name = name;
         this.pkgOrgName = pkgOrgName;
         this.pkgName = pkgName;
         this.pkgAlias = pkgAlias;
         this.caller = caller;
-        this.endpoint = endpoint;
+        this.kind = kind;
         this.bSymbol = bSymbol;
     }
 
@@ -64,8 +64,8 @@ public final class SymbolMetaInfo {
         return caller;
     }
 
-    public boolean isEndpoint() {
-        return endpoint;
+    public String getKind() {
+        return kind;
     }
 
     public BSymbol getbSymbol() {
@@ -88,7 +88,7 @@ public final class SymbolMetaInfo {
         private String pkgName;
         private String pkgAlias;
         private boolean caller = false;
-        private boolean endpoint = false;
+        private String kind = "";
         private BSymbol bSymbol;
 
         public SymbolMetaInfoBuilder setName(String name) {
@@ -101,8 +101,8 @@ public final class SymbolMetaInfo {
             return this;
         }
 
-        public SymbolMetaInfoBuilder setEndpoint(boolean endpoint) {
-            this.endpoint = endpoint;
+        public SymbolMetaInfoBuilder setKind(String kind) {
+            this.kind = kind;
             return this;
         }
 
@@ -128,7 +128,7 @@ public final class SymbolMetaInfo {
 
         public SymbolMetaInfo build() {
             return new SymbolMetaInfo(this.name, this.pkgOrgName, this.pkgName, this.pkgAlias, this.caller,
-                    this.endpoint, this.bSymbol);
+                    this.kind, this.bSymbol);
         }
     }
 }
