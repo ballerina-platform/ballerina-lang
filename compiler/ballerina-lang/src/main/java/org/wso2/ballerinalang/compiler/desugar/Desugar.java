@@ -2535,8 +2535,9 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
-        result = ASTBuilderUtil
+        final BLangTypeInit typeInit = ASTBuilderUtil
                 .createEmptyTypeInit(serviceConstructorExpr.pos, serviceConstructorExpr.serviceNode.symbol.type);
+        result = rewriteExpr(typeInit);
     }
 
     @Override
