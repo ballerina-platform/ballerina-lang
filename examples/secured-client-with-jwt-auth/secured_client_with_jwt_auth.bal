@@ -4,12 +4,11 @@ import ballerina/runtime;
 
 // Define the JWT auth client endpoint to call the backend services.
 // JWT authentication is enabled by setting the `scheme: http:JWT_AUTH`
-endpoint http:Client httpEndpoint {
-    url: "https://localhost:9090",
+http:Client httpEndpoint = new("https://localhost:9090", config = {
     auth: {
         scheme: http:JWT_AUTH
     }
-};
+});
 
 public function main() {
     // Set the JWT token into runtime invocation context mentioning scheme as `jwt`
@@ -28,12 +27,11 @@ public function main() {
 
     // Send a `GET` request to the specified endpoint.
     var response = httpEndpoint->get("/hello/sayHello");
-    match response {
-        http:Response resp => {
-            var result = resp.getPayloadAsString();
-            log:printInfo(result is error ? "Failed to retrieve payload." : result);
-        }
-        error err => log:printError("Failed to call the endpoint.");
+    if (response is http:Response) {
+        var result = response.getPayloadAsString();
+        log:printInfo(result is error ? "Failed to retrieve payload." : result);
+    } else {
+        log:printError("Failed to call the endpoint.");
     }
 }
 
@@ -49,8 +47,7 @@ http:AuthProvider jwtAuthProvider = {
     }
 };
 
-endpoint http:Listener ep {
-    port: 9090,
+listener http:Listener ep = new(9090, config = {
     authProviders: [jwtAuthProvider],
     secureSocket: {
         keyStore: {
@@ -62,7 +59,7 @@ endpoint http:Listener ep {
             password: "ballerina"
         }
     }
-};
+});
 
 @http:ServiceConfig {
     basePath: "/hello",
@@ -70,15 +67,13 @@ endpoint http:Listener ep {
         authentication: { enabled: true }
     }
 }
-service<http:Service> echo bind ep {
+service echo on ep {
 
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/sayHello"
     }
-    hello(endpoint caller, http:Request req) {
-        http:Response res = new;
-        res.setPayload("Hello, World!!!");
-        _ = caller->respond(res);
+    resource function hello(http:Caller caller, http:Request req) {
+        _ = caller->respond("Hello, World!!!");
     }
 }

@@ -5,14 +5,13 @@ import ballerina/log;
 // Define the basic auth client endpoint to call the backend services.
 // Basic authentication is enabled by setting the `scheme: http:BASIC_AUTH`
 // The `username` and `password` should be specified as needed.
-endpoint http:Client httpEndpoint {
-    url: "https://localhost:9090",
+http:Client httpEndpoint = new("https://localhost:9090", config = {
     auth: {
         scheme: http:BASIC_AUTH,
         username: "tom",
         password: "1234"
     }
-};
+});
 
 public function main() {
     // This defines the authentication credentials of the HTTP service.
@@ -20,18 +19,16 @@ public function main() {
 
     // Send a `GET` request to the specified endpoint.
     var response = httpEndpoint->get("/hello/sayHello");
-    match response {
-        http:Response resp => {
-            var result = resp.getPayloadAsString();
-            log:printInfo(result is error ? "Failed to retrieve payload." : result);
-        }
-        error err => log:printError("Failed to call the endpoint.");
+    if (response is http:Response) {
+        var result = response.getPayloadAsString();
+        log:printInfo(result is error ? "Failed to retrieve payload." : result);
+    } else {
+        log:printError("Failed to call the endpoint.");
     }
 }
 
 // Create a basic authentication provider with the relevant configurations.
-endpoint http:Listener ep {
-    port: 9090,
+listener http:Listener ep  = new(9090, config = {
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
@@ -42,23 +39,21 @@ endpoint http:Listener ep {
             password: "ballerina"
         }
     }
-};
+});
 
 @http:ServiceConfig {
     basePath: "/hello",
     authConfig: {
-        authentication: { enabled: true }
+        //authentication: { enabled: true }
     }
 }
-service<http:Service> echo bind ep {
+service echo on ep {
 
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/sayHello"
     }
-    hello(endpoint caller, http:Request req) {
-        http:Response res = new;
-        res.setPayload("Hello, World!!!");
-        _ = caller->respond(res);
+    resource function hello(http:Caller caller, http:Request req) {
+        _ = caller->respond("Hello, World!!!");
     }
 }
