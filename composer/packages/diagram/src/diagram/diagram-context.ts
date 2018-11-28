@@ -1,6 +1,6 @@
 import { ASTNode } from "@ballerina/ast-model";
+import { IBallerinaLangClient } from "@ballerina/lang-service";
 import React from "react";
-import { DiagramLangClient } from "./editable-diagram";
 
 export enum DiagramMode { ACTION, DEFAULT }
 
@@ -13,7 +13,7 @@ export interface IDiagramContext {
     zoomIn: () => void;
     zoomOut: () => void;
     zoomFit: () => void;
-    langClient?: DiagramLangClient;
+    langClient?: IBallerinaLangClient;
 }
 
 const defaultDiagramContext: IDiagramContext = {

@@ -8,13 +8,19 @@ import { ASTDidChangeParams, ASTDidChangeResponse, BallerinaExampleListParams,
 
 export class BallerinaLangClient implements IBallerinaLangClient {
 
+    public isInitialized: boolean = false;
+
     constructor(
         public lsConnection: IConnection) {
     }
 
     public init(params: InitializeParams = initParams): Thenable<InitializeResult> {
         this.lsConnection.listen();
-        return this.lsConnection.initialize(params);
+        return this.lsConnection.initialize(params)
+                .then((resp) => {
+                    this.isInitialized = true;
+                    return resp;
+                });
     }
 
     public getAST(params: GetASTParams): Thenable<GetASTResponse> {

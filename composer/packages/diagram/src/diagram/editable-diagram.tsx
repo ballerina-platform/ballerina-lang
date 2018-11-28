@@ -1,6 +1,5 @@
 import { ASTNode, ASTUtil } from "@ballerina/ast-model";
-import { ASTDidChangeParams, ASTDidChangeResponse, BallerinaAST, BallerinaASTNode,
-    BallerinaEndpoint, BallerinaSourceFragment, GetASTParams, GetASTResponse  } from "@ballerina/lang-service";
+import { BallerinaAST, IBallerinaLangClient  } from "@ballerina/lang-service";
 import debounce from "lodash.debounce";
 import React from "react";
 import { CommonDiagramProps, Diagram } from "./diagram";
@@ -9,17 +8,9 @@ import { Loader } from "./loader";
 
 const resizeDelay = 200;
 
-export interface DiagramLangClient {
-    getAST(params: GetASTParams): Thenable<GetASTResponse>;
-    astDidChange(params: ASTDidChangeParams): Thenable<ASTDidChangeResponse>;
-    parseFragment(params: BallerinaSourceFragment): Thenable<BallerinaASTNode>;
-    getEndpoints(): Thenable<BallerinaEndpoint[]>;
-    goToSource(line: number, column: number): void;
-}
-
 export interface EdiatableDiagramProps extends CommonDiagramProps {
     docUri: string;
-    langClient: DiagramLangClient;
+    langClient: IBallerinaLangClient;
 }
 
 export interface EditableDiagramState {

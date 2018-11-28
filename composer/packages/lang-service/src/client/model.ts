@@ -57,6 +57,8 @@ export interface GetBallerinaProjectParams {
 
 export interface IBallerinaLangClient {
 
+    isInitialized: boolean;
+
     init: (params?: InitializeParams) => Thenable<InitializeResult>;
 
     getAST: (params: GetASTParams) => Thenable<GetASTResponse>;
