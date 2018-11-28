@@ -32,13 +32,14 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
-import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -59,7 +60,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -70,6 +70,7 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -251,16 +252,21 @@ public class IterableCodeDesugar {
                 funcNode);
         ctx.iteratorResultVariables = foreachVariables;
 
-        BLangTupleVariable tupleVariable = (BLangTupleVariable) TreeBuilder.createTupleVariableNode();
-        tupleVariable.memberVariables.addAll(foreachVariables);
-        BLangTupleVariableDef variableDef = ASTBuilderUtil.createTupleVariableDef(pos, tupleVariable);
-
         final BLangForeach foreachStmt = ASTBuilderUtil.createForeach(pos, funcNode.body,
                 ASTBuilderUtil.createVariableRef(pos, ctx.collectionVar.symbol));
 
+        BLangSimpleVariable variable = foreachVariables.get(0);
+        BLangSimpleVariableDef variableDef =  ASTBuilderUtil.createVariableDef(pos, variable);
+
         foreachStmt.isDeclaredWithVar = true;
         foreachStmt.variableDefinitionNode = variableDef;
-        foreachStmt.varType = new BTupleType(ctx.foreachTypes);
+        BType paramType = ctx.foreachTypes.get(0);
+        foreachStmt.varType = paramType;
+        BMapType mapType = new BMapType(TypeTags.RECORD, paramType, symTable.mapType.tsymbol);
+        foreachStmt.resultType = mapType;
+        LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
+        memberTypes.add(mapType);
+        foreachStmt.nillableResultType = new BUnionType(null, memberTypes, true);
 
         // foreach variable are the result variables.
         if (isReturningIteratorFunction(ctx)) {
@@ -297,10 +303,6 @@ public class IterableCodeDesugar {
         final List<BLangSimpleVariable> foreachVariables = createForeachVariables(ctx, ctx.getFirstOperation().argVar,
                 funcNode);
 
-        BLangTupleVariable tupleVariable = (BLangTupleVariable) TreeBuilder.createTupleVariableNode();
-        tupleVariable.memberVariables.addAll(foreachVariables);
-        BLangTupleVariableDef variableDef = ASTBuilderUtil.createTupleVariableDef(pos, tupleVariable);
-
         // Define all undefined variables.
         defineRequiredVariables(ctx, streamOperations, foreachVariables, funcNode);
 
@@ -308,9 +310,18 @@ public class IterableCodeDesugar {
         final BLangForeach foreachStmt = ASTBuilderUtil.createForeach(pos, funcNode.body,
                 ASTBuilderUtil.createVariableRef(pos, ctx.collectionVar.symbol));
 
+        BLangSimpleVariable variable = foreachVariables.get(0);
+        BLangSimpleVariableDef variableDef =  ASTBuilderUtil.createVariableDef(pos, variable);
+
         foreachStmt.isDeclaredWithVar = true;
         foreachStmt.variableDefinitionNode = variableDef;
-        foreachStmt.varType = new BTupleType(ctx.foreachTypes);
+        BType paramType = ctx.foreachTypes.get(0);
+        foreachStmt.varType = paramType;
+        BMapType mapType = new BMapType(TypeTags.RECORD, paramType, symTable.mapType.tsymbol);
+        foreachStmt.resultType = mapType;
+        LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
+        memberTypes.add(mapType);
+        foreachStmt.nillableResultType = new BUnionType(null, memberTypes, true);
 
         if (foreachVariables.size() > 1) {
             // Create tuple, for lambda invocation.

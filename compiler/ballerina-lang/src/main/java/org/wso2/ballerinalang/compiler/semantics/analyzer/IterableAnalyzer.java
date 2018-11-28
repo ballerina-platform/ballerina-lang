@@ -382,9 +382,10 @@ public class IterableAnalyzer {
                 return Lists.of(symTable.semanticError);
             } else if (op.arity == 1) {
                 return Lists.of(type.eType);
-            } else if (op.arity == 2) {
-                return Lists.of(symTable.intType, type.eType);
             }
+//            else if (op.arity == 2) {
+//                return Lists.of(symTable.intType, type.eType);
+//            }
             logTooManyVariablesError(op);
             return Lists.of(symTable.semanticError);
         }
