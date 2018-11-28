@@ -3,34 +3,33 @@ import ballerina/jms;
 import ballerina/log;
 
 // Create a simple queue receiver.
-endpoint jms:SimpleQueueReceiver consumerEndpoint {
+jms:SimpleQueueReceiver consumerEndpoint = new({
     initialContextFactory:"bmbInitialContextFactory",
     providerUrl:"amqp://admin:admin@carbon/carbon"
                 + "?brokerlist='tcp://localhost:5672'",
     acknowledgementMode:"AUTO_ACKNOWLEDGE",
     queueName:"MyQueue"
-};
+});
 
 // Bind the created JMS consumer to the listener service.
-service<jms:Consumer> jmsListener bind consumerEndpoint {
+service jmsListener on consumerEndpoint {
 
-    onMessage(endpoint consumer, jms:Message message) {
-
-        match (message.getTextMessageContent()) {
-            string textContent => {
-                log:printInfo("Message received from broker. Payload: "
-                              + textContent);
-
-                forwardToBakend(untaint textContent);
-            }
-            error e => log:printError("Error while reading message", err=e);
+    resource function onMessage(jms:QueueReceiver consumer,
+         jms:Message message) {
+        var textContent = message.getTextMessageContent();
+        if (textContent is string) {
+            log:printInfo("Message received from broker. Payload: " +
+                              textContent);
+            forwardToBakend(untaint textContent);
+        } else {
+            log:printError("Error while reading message", err = e);
         }
     }
 }
 
 function forwardToBakend(string textContent) {
     // Create an HTTP client endpoint.
-    endpoint http:Client clientEP {
+    http:Client clientEP {
         url: "http://localhost:9090/"
     };
 
@@ -46,23 +45,24 @@ function forwardToBakend(string textContent) {
                    log:printInfo("Response from backend service: "
                                  + responseMessage);
                 error e =>
-                    log:printError("Error while reading response", err=e);
+                    log:printError("Error while reading response", err = e);
             }
         }
-        error e => log:printError("Error while sending payload", err=e);
+        error e => log:printError("Error while sending payload", err = e);
     }
 }
 
 // Backend service that receive the forwarded message from the broker.
-service<http:Service> backend bind { port: 9090 } {
+service backend on new http:Listener(9090) {
 
     @http:ResourceConfig {
         methods: ["POST"],
         path: "/jms"
     }
-    jmsPayloadReceiver(endpoint conn, http:Request req) {
+    resource function jmsPayloadReceiver(http:Caller conn, http:Request req) {
         http:Response res = new;
 
+        var stringPayload = req.getTextPayload();
         match (req.getTextPayload()) {
             string stringPayload => {
                 log:printInfo("Message received from backend service. "
@@ -77,7 +77,7 @@ service<http:Service> backend bind { port: 9090 } {
                    log:printError("Error occurred while acknowledging message", err = result);
                 }
             }
-            error e => log:printError("Error while reading payload", err=e);
+            error e => log:printError("Error while reading payload", err = e);
         }
     }
 }

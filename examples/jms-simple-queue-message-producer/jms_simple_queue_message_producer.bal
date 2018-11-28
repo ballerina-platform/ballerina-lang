@@ -18,7 +18,7 @@ public function main() {
         var returnVal = queueSender->send(msg);
         if (returnVal is error) {
             log:printError("Error occurred while sending message",
-                   err = returnVal);
+                err = returnVal);
         }
     } else {
         log:printError("Error occurred while creating message",

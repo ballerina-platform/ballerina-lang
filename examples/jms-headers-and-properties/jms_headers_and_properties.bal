@@ -15,7 +15,7 @@ jms:Session jmsSession = new(conn, {
 });
 
 // Initialize a queue receiver using the created session.
-jms:QueueReceiver consumerEndpoint = new({
+listener jms:QueueReceiver consumerEndpoint = new({
     session:jmsSession,
     queueName:"MyQueue"
 });
@@ -38,7 +38,7 @@ service jmsListener on consumerEndpoint {
         if (content is string) {
             log:printInfo("Message Text: " + content);
         } else {
-            log:printError("Error retrieving content", err=content);
+            log:printError("Error retrieving content", err = content);
         }
 
         // Retrieve JMS message headers
@@ -48,14 +48,14 @@ service jmsListener on consumerEndpoint {
         } else if (id is ()) {
             log:printInfo("Correlation ID not set");
         } else {
-            log:printError("Error getting correlation id", err=id);
+            log:printError("Error getting correlation id", err = id);
         }
 
         var msgType = message.getType();
         if (msgType is string) {
             log:printInfo("Message Type: " + msgType);
         } else {
-            log:printError("Error getting message type", err=msgType);
+            log:printError("Error getting message type", err = msgType);
         }
 
         // Retrieve custom JMS string property.
@@ -65,7 +65,7 @@ service jmsListener on consumerEndpoint {
         } else if (size is ()) {
             log:printInfo("Please provide the shoe size");
         } else {
-            log:printError("Error getting string property", err=size);
+            log:printError("Error getting string property", err = size);
         }
 
         // Create a new text message
@@ -73,38 +73,22 @@ service jmsListener on consumerEndpoint {
         if (msg is jms:Message) {
             var cid = msg.setCorrelationID("Msg:1");
             if (cid is error) {
-                log:printError("Error seeting correlation id",
-                          err=cid);
+                log:printError("Error setting correlation id",
+                          err = cid);
             }
             var stringProp = msg.setStringProperty("Instruction",
-"Do a perfect Pirouette")
-        } else {
-            log:printError("Error creating message", err = e);
-        }
-        match (queueSender.createTextMessage("Hello From Ballerina!")) {
-            error e => log:printError("Error creating message", err = e);
-
-            jms:Message msg => {
-                // Set JMS header, Correlation ID
-                match (msg.setCorrelationID("Msg:1")) {
-                    error e => log:printError("Error seeting correlation id",
-                                              err = e);
-                    () => {}
-                }
-                // Set a JMS string property
-                match (msg.setStringProperty("Instruction",
-                                             "Do a perfect Pirouette")) {
-                    error e => log:printError("Error seeting string property",
-                                              err = e);
-                    () => {}
-                }
-                var result = queueSender->send(msg);
-                match (result) {
-                    error e => log:printError("Error sending message to broker",
-                                              err = e);
-                    () => {}
-                }
+                               "Do a perfect Pirouette");
+            if (stringProp is error) {
+                log:printError("Error setting string property",
+                                      err = stringProp);
             }
+            var result = queueSender->send(msg);
+            if (result is error) {
+                log:printError("Error sending message to broker",
+                                      err = result);
+            }
+        } else {
+            log:printError("Error creating message", err = msg);
         }
     }
 }

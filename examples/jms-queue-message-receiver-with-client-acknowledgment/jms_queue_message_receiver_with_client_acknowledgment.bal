@@ -34,11 +34,11 @@ service jmsListener on consumerEndpoint {
             var ack = consumer->acknowledge(message);
             if (ack is error) {
                 log:printError("Error occurred while acknowledging message",
-                                  err=ack);
+                                  err = ack);
             }
         } else {
                 log:printError("Error occurred while reading message",
-                                 err=result);
+                                 err = result);
         }
 
     }

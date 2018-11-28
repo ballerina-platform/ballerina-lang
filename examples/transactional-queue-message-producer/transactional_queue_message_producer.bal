@@ -13,28 +13,25 @@ jms:Session jmsSession = new(jmsConnection, {
     acknowledgementMode:"SESSION_TRANSACTED"
 });
 
-endpoint jms:QueueSender queueSender {
+// Initialize a queue sender.
+jms:QueueSender queueSender = new({
     session:jmsSession,
     queueName:"MyQueue"
-};
+});
 
 public function main() {
     // Message is published within the transaction block.
     transaction {
     // Create a Text message.
-        match (jmsSession.createTextMessage("Hello from Ballerina")) {
-            error e => {
-                log:printError("Error occurred while creating message",
-                               err = e);
+        var msg = jmsSession.createTextMessage("Hello from Ballerina");
+        if (msg is jms:Message) {
+            var result = queueSender->send(msg);
+            if (result is error) {
+                log:printError("Error occurred while sending message", err = result);
             }
-
-            jms:Message msg => {
-                // Send the Ballerina message to the JMS provider.
-                var result = queueSender->send(msg);
-                if (result is error) {
-                    log:printError("Error occurred while sending message", err = result);
-                }
-            }
+        } else {
+            log:printError("Error occurred while creating message",
+                err = msg);
         }
     }
 }
