@@ -20,7 +20,7 @@ import ballerina/log;
 // Filter 1
 public type Filter12 object {
     public function filterRequest(http:Caller caller, http:Request request, http:FilterContext context)
-                                                                                        returns boolean {
+                        returns boolean {
         log:printInfo("Intercepting request for filter 1");
         return true;
     }

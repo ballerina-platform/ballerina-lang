@@ -23,7 +23,7 @@ FilterDto dto = { authenticated: true, username: "abcde" };
 
 public type Filter1 object {
     public function filterRequest(http:Caller caller, http:Request request, http:FilterContext context)
-                                                                                                    returns boolean {
+                        returns boolean {
         log:printInfo("Intercepting request for filter 1");
         context.attributes["attribute1"] = "attribute1";
         context.attributes["attribute2"] = dto;

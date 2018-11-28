@@ -21,7 +21,7 @@ import ballerina/log;
 
 public type Filter08 object {
     public function filterRequest(http:Caller caller, http:Request request, http:FilterContext context)
-                                                                                                    returns boolean {
+                        returns boolean {
         log:printInfo("Intercepting request for filter 1");
         return true;
     }
@@ -37,7 +37,7 @@ Filter08 filter08 = new;
 
 public type Filter09 object {
     public function filterRequest(http:Caller caller, http:Request request, http:FilterContext context)
-                                                                                        returns boolean {
+                        returns boolean {
         log:printInfo("Intercepting request for filter 2");
         return true;
     }
