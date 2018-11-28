@@ -37,19 +37,19 @@ export class DiagramConfig {
             v: 30
         },
         padding: {
-            bottom: 40,
-            left: 40,
-            right: 40,
-            top: 40,
+            bottom: 0,
+            left: 0,
+            right: 0,
+            top: 0,
         },
     };
 
     public panelHeading = {
-        height: 25,
+        height: 60,
         padding: {
             bottom: 0,
-            left: 5,
-            right: 5,
+            left: 0,
+            right: 0,
             top: 0,
         },
         title: {
