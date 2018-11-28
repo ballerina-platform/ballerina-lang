@@ -61,6 +61,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
@@ -71,13 +72,11 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangEndpointTypeNode;
@@ -500,25 +499,26 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             forkJoin.workers.forEach(this::acceptNode);
         }
 
-        if (forkJoin.joinedBody != null) {
-            acceptNode(forkJoin.joinedBody);
-        }
-
-        if (forkJoin.joinResultVar != null) {
-            acceptNode(forkJoin.joinResultVar);
-        }
-
-        if (forkJoin.timeoutBody != null) {
-            acceptNode(forkJoin.timeoutBody);
-        }
-
-        if (forkJoin.timeoutExpression != null) {
-            acceptNode(forkJoin.timeoutExpression);
-        }
-
-        if (forkJoin.timeoutVariable != null) {
-            acceptNode(forkJoin.timeoutVariable);
-        }
+        // todo need to remove this block
+//        if (forkJoin.joinedBody != null) {
+//            acceptNode(forkJoin.joinedBody);
+//        }
+//
+//        if (forkJoin.joinResultVar != null) {
+//            acceptNode(forkJoin.joinResultVar);
+//        }
+//
+//        if (forkJoin.timeoutBody != null) {
+//            acceptNode(forkJoin.timeoutBody);
+//        }
+//
+//        if (forkJoin.timeoutExpression != null) {
+//            acceptNode(forkJoin.timeoutExpression);
+//        }
+//
+//        if (forkJoin.timeoutVariable != null) {
+//            acceptNode(forkJoin.timeoutVariable);
+//        }
     }
 
     @Override
@@ -547,10 +547,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
-        setPreviousNode(workerReceiveNode);
-        if (workerReceiveNode.expr != null) {
-            this.acceptNode(workerReceiveNode.expr);
-        }
+        //TODO Worker receive node is now an expression not a statement
     }
 
     @Override
@@ -850,17 +847,6 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         if (checkedExpr.expr != null) {
             this.acceptNode(checkedExpr.expr);
         }
-    }
-
-    @Override
-    public void visit(BLangScope scopeNode) {
-        setPreviousNode(scopeNode);
-
-        if (scopeNode.scopeBody != null) {
-            acceptNode(scopeNode.scopeBody);
-        }
-
-        acceptNode(scopeNode.compensationFunction);
     }
 
     @Override
