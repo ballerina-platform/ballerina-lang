@@ -44,4 +44,9 @@ public class Constants {
 
     // Default worker name
     public static final String DEFAULT = "default";
+
+    public static final String DISTRIBUTED_TRANSACTIONS = "b7a.distributed.transactions.enabled";
+
+    public static final String FALSE = "false";
+
 }
