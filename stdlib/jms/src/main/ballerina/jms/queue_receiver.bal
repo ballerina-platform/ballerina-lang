@@ -18,7 +18,7 @@ import ballerina/log;
 
 # Queue Receiver endpoint
 #
-# + consumerActions - handles all the caller actions related to the queue receiver endpoint
+# + consumerActions - handles all the caller actions related to the QueueReceiver endpoint
 # + config - configurations related to the QueueReceiver
 public type QueueReceiver object {
 
@@ -49,7 +49,9 @@ public type QueueReceiver object {
 
     # Binds the queue receiver endpoint to a service
     #
-    # + serviceType - type descriptor of the service to bind to
+    # + serviceType - Type descriptor of the service to bind to
+    # + data - Service annotations
+    # + return - Nil or error upon failure to register listener
     public function __attach(service serviceType, map<any> data) returns error? {
         return self.registerListener(serviceType, self.consumerActions, data);
     }
@@ -59,6 +61,8 @@ public type QueueReceiver object {
     extern function createQueueReceiver(Session session, string messageSelector, Destination? destination = ());
 
     # Starts the endpoint. Function is ignored by the receiver endpoint
+    #
+    # + return - Nil or error upon failure to start
     public function __start() returns error? {
         return ();
         // Ignore
@@ -66,12 +70,14 @@ public type QueueReceiver object {
 
     # Retrieves the QueueReceiver consumer action handler
     #
-    # + return - queue receiver action handler
+    # + return - QueueReceiver actions handler
     public function getCallerActions() returns QueueReceiverCaller {
         return self.consumerActions;
     }
 
     # Stops consuming messages through QueueReceiver endpoint
+    #
+    # + return - Nil or error upon failure to close queue receiver
     public function __stop() returns error? {
         self.closeQueueReceiver(self.consumerActions);
         return ();
@@ -110,14 +116,14 @@ public type QueueReceiverCaller client object {
     # Synchronously receive a message from the JMS provider
     #
     # + timeoutInMilliSeconds - time to wait until a message is received
-    # + return - Returns a message or nil if the timeout exceeds. Returns an error on jms provider internal error
+    # + return - Returns a message or nil if the timeout exceeds, returns an error on JMS provider internal error
     public remote extern function receive(int timeoutInMilliSeconds = 0) returns (Message|error)?;
 
     # Synchronously receive a message from a given destination
     #
     # + destination - destination to subscribe to
     # + timeoutInMilliSeconds - time to wait until a message is received
-    # + return - Returns a message or () if the timeout exceededs. Returns an error on jms provider internal error.
+    # + return - Returns a message or () if the timeout exceeds, returns an error on JMS provider internal error
     public remote function receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|error)?;
 };
 

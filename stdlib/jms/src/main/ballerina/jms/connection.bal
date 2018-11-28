@@ -16,12 +16,12 @@
 
 # Represents JMS Connection
 #
-# + config - Used to store configurations related to a JMS connection
+# + config - Used to store configurations related to a JMS Connection
 public type Connection object {
 
     public ConnectionConfiguration config = {};
 
-    # JMS connection constructor
+    # JMS Connection constructor
     public function __init(ConnectionConfiguration c) {
         self.config = c;
         self.createConnection();

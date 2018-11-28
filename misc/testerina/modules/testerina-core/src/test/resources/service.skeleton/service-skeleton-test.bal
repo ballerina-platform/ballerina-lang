@@ -17,9 +17,7 @@ function clean() {
 
 @test:Config{before: "init", after: "clean"}
 function testService () {
-    endpoint http:Client httpEndpoint {
-        url:uri
-    };
+    http:Client httpEndpoint = new(uri);
 
     test:assertTrue(isServiceSkeletonStarted, msg = "Service skeleton failed to start");
 

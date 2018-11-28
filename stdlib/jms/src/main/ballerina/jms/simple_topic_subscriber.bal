@@ -16,9 +16,9 @@
 
 import ballerina/log;
 
-# JMS simple topic subscriber
+# JMS Simplified TopicSubscriber endpoint
 #
-# + config - Simple topic subscrirber enpoint configuration
+# + config - Used to store configurations related to JMS SimpleTopicSubscriber
 public type SimpleTopicSubscriber object {
 
     *AbstractListener;
@@ -28,9 +28,9 @@ public type SimpleTopicSubscriber object {
     private Session? session = ();
     private TopicSubscriber subscriber;
 
-    # Initialize simple topic subscirber endpoint
+    # Initialize SimpleTopicSubscirber endpoint
     #
-    # + c - Simple topic subscrirber enpoint configuration
+    # + c - Configurations related to the SimpleTopicSubscriber endpoint
     public function __init(SimpleTopicSubscriberEndpointConfiguration c) {
         self.config = c;
         Connection conn = new({
@@ -54,34 +54,40 @@ public type SimpleTopicSubscriber object {
         self.subscriber = new(consumerConfig);
     }
 
-    # Register simple topic subscriber endpoint
+    # Register SimpleTopicSubscriber endpoint
     #
     # + serviceType - Type descriptor of the service
+    # + data - Service annotations
+    # + return - Nil or error upon failure to register listener
     public function __attach(service serviceType, map<any> data) returns error? {
           return self.subscriber.registerListener(serviceType, self.subscriber.consumerActions, data);
     }
 
-    # Start simple topic subscriber endpoint
+    # Start SimpleTopicSubscriber endpoint
+    #
+    # + return - Nil or error upon failure to start
     public function __start() returns error? {
          return ();
     }
 
-    # Get simple topic subscriber actions
+    # Get SimpleTopicSubscriber actions handler
     #
-    # + return - Topic subscriber actions
+    # + return - TopicSubscriber actions handler
     public function getCallerActions() returns TopicSubscriberCaller {
         return self.subscriber.getCallerActions();
     }
 
-    # Stop simple topic subsriber endpoint
+    # Stop SimpleTopicSubsriber endpoint
+    #
+    # + return - Nil or error upon failure to close subscriber
     public function __stop() returns error? {
         return self.subscriber.closeSubscriber(self.subscriber.consumerActions);
     }
 
     # Create JMS text message
     #
-    # + message - A message body to create a text message
-    # + return - a message or nil if the session is nil
+    # + message - Message body to create a text message
+    # + return - Message or nil if the session is nil
     public function createTextMessage(string message) returns Message|error {
         var session = self.session;
         if (session is Session) {
@@ -96,8 +102,8 @@ public type SimpleTopicSubscriber object {
 
     # Create JMS map message
     #
-    # + message - A message body to create a map message
-    # + return - a message or nil if the session is nil.
+    # + message - Message body to create a map message
+    # + return - Message or nil if the session is nil
     public function createMapMessage(map<any> message) returns Message|error {
         var session = self.session;
         if (session is Session) {
@@ -113,13 +119,14 @@ public type SimpleTopicSubscriber object {
 
 # Configuration related to simple topic subscriber endpoint
 #
-# + initialContextFactory - JNDI initial context factory class
-# + providerUrl - JNDI provider URL
-# + connectionFactoryName - JNDI name of the connection factory
-# + acknowledgementMode - JMS session acknwoledge mode
+# + initialContextFactory - JMS provider specific inital context factory
+# + providerUrl - JMS provider specific provider URL used to configure a connection
+# + connectionFactoryName - JMS connection factory to be used in creating JMS connections
+# + acknowledgementMode - Specifies the session mode that will be used. Legal values are "AUTO_ACKNOWLEDGE",
+#                         "CLIENT_ACKNOWLEDGE", "SESSION_TRANSACTED" and "DUPS_OK_ACKNOWLEDGE"
 # + messageSelector - Message selector condition to filter messages
-# + properties - JMS message properties
-# + topicPattern - Topic name pattern
+# + properties - Additional properties used when initializing the initial context
+# + topicPattern - Name of the target topic
 public type SimpleTopicSubscriberEndpointConfiguration record {
     string initialContextFactory = "bmbInitialContextFactory";
     string providerUrl = "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'";

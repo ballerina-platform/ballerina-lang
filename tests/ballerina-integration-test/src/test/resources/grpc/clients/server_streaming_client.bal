@@ -21,14 +21,12 @@ import ballerina/runtime;
 int total = 0;
 function testServerStreaming(string name) returns int {
     // Client endpoint configuration
-    HelloWorldClient helloWorldEp = new({
-        url:"http://localhost:9099"
-    });
+    HelloWorldClient helloWorldEp = new("http://localhost:9099");
 
     // Executing unary non-blocking call registering server message listener.
     error? result = helloWorldEp->lotsOfReplies(name, HelloWorldMessageListener);
     if (result is error) {
-        io:println("Error occured while sending event " + result.reason());
+        io:println("Error from Connector: " + result.reason() + " - " + <string>result.detail().message);
         return total;
     } else {
         io:println("Connected successfully");
@@ -59,7 +57,7 @@ service HelloWorldMessageListener = service {
 
     // Resource registered to receive server error messages
     resource function onError(error err) {
-        io:println("Error reported from server: " + err.reason());
+        io:println("Error from Connector: " + err.reason() + " - " + <string>err.detail().message);
     }
 
     // Resource registered to receive server completed message.
@@ -73,11 +71,15 @@ service HelloWorldMessageListener = service {
 public type HelloWorldClient client object {
 
     private grpc:Client grpcClient = new;
+    private grpc:ClientEndpointConfig config = {};
+    private string url;
 
-    function __init(grpc:ClientEndpointConfig config) {
+    function __init(string url, grpc:ClientEndpointConfig? config = ()) {
+        self.config = config ?: {};
+        self.url = url;
         // initialize client endpoint.
         grpc:Client c = new;
-        c.init(config);
+        c.init(self.url, self.config);
         error? result = c.initStub("non-blocking", DESCRIPTOR_KEY, getDescriptorMap());
         if (result is error) {
             panic result;

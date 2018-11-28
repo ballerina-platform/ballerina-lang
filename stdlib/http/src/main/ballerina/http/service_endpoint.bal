@@ -27,9 +27,9 @@ public type Listener object {
 
     *AbstractListener;
 
-    private Caller caller = new;
     private int port = 0;
     private ServiceEndpointConfiguration config = {};
+    private string instanceId;
 
     public function __start() returns error? {
         return self.start();
@@ -42,8 +42,6 @@ public type Listener object {
     public function __attach(service s, map<any> annotationData) returns error? {
         return self.register(s, annotationData);
     }
-
-    private string instanceId;
 
     public function __init(int port, ServiceEndpointConfiguration? config = ()) {
         self.instanceId = system:uuid();
@@ -66,11 +64,6 @@ public type Listener object {
 
     # Starts the registered service.
     extern function start();
-
-    # Returns the connector that client code uses.
-    #
-    # + return - The connector that client code uses
-    public extern function getCallerActions() returns (Caller);
 
     # Stops the registered service.
     extern function stop();

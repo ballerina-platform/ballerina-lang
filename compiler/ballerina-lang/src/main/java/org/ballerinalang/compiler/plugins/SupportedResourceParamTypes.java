@@ -24,50 +24,44 @@ import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * {@code SupportEndpointTypes} annotation represents an array of
- * support Ballerina endpoint names.
+ * {@code SupportedResourceParamTypes} annotation represents an array of
+ * supported resource type names, that can be used to identify service type.
  *
- * @since 0.965.0
+ * @since 0.985.0
  */
 @Documented
 @Target(TYPE)
 @Retention(RUNTIME)
-public @interface SupportEndpointTypes {
+public @interface SupportedResourceParamTypes {
 
     /**
      * Returns an array of supported Ballerina endpoints names.
      *
      * @return an array of supported Ballerina endpoints names
      */
-    EndpointType[] value() default {};
+    Type[] paramTypes();
 
+    Type expectedListenerType();
 
     /**
      * Represents endpoint type.
      *
-     * @since 0.965.0
+     * @since 0.985.0
      */
-    public static @interface EndpointType {
+    @interface Type {
 
         /**
-         * Name of the endpoint type.
+         * Name of the param.
          *
-         * @return name of the endpoint
+         * @return name of the param
          */
         String name();
 
         /**
-         * Name of the endpoint package.
+         * Name of the package.
          *
-         * @return name of the endpoint package
+         * @return name of the package
          */
         String packageName();
-
-        /**
-         * Name of the endpoint package organization.
-         *
-         * @return name of the endpoint package organization
-         */
-        String orgName() default "";
     }
 }
