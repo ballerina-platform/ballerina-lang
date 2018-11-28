@@ -91,12 +91,9 @@ function testFiniteTypeWithMatch() returns foo:PreparedResult {
     var x = foo();
     if (x is foo:PreparedResult) {
         return x;
-    } else if (x is ()) {
-        return "qqq";
-    } else if (x is error) {
+    } else {
         return "qqq";
     }
-    return "qqq";
 }
 
 function foo() returns foo:PreparedResult|error|() {
