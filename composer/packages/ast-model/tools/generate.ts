@@ -23,36 +23,77 @@ const DEFAULT_NODES_PATH = "./src/default-nodes/resources";
 const balFiles = globSync(path.join(
     process.cwd(), "..", "..", "..", "{examples,tests}", "**", "*.bal"), {});
 
-const astPromises: any[] = [];
-balFiles.forEach((file) => {
-    const promise = genAST(file).then((ast) => {
+const triedBalFiles: string[] = [];
+const notParsedBalFiles: string[] = [];
+const usedBalFiles: string[] = [];
+
+processPart(0, 100);
+
+function genDefaultNodes() {
+    const defaultNodesBal = path.join(__dirname, "resources", "top-level-defs.bal");
+    genAST(defaultNodesBal).then((ast: CompilationUnit) => {
         if (!ast) {
-            // could not parse
             return;
         }
-        findModelInfo(ast, modelInfo);
+
+        const defaultImportPath = path.join(DEFAULT_NODES_PATH, "import.json");
+        fs.writeFileSync(defaultImportPath, JSON.stringify(ast.topLevelNodes[0]));
+
+        const defaultFunctionPath = path.join(DEFAULT_NODES_PATH, "function.json");
+        fs.writeFileSync(defaultFunctionPath, JSON.stringify(ast.topLevelNodes[1]));
+
+        const defaultMainFunctionPath = path.join(DEFAULT_NODES_PATH, "main-function.json");
+        fs.writeFileSync(defaultMainFunctionPath, JSON.stringify(ast.topLevelNodes[6]));
     });
-    astPromises.push(promise);
-});
+}
 
-const defaultNodesBal = path.join(__dirname, "resources", "top-level-defs.bal");
-const defaultNodesASTPromise = genAST(defaultNodesBal).then((ast: CompilationUnit) => {
-    if (!ast) {
-        return;
-    }
+function printSummary() {
+    const { log } = console;
+    const found = balFiles.length;
+    const notParsed = notParsedBalFiles.length;
+    const used = usedBalFiles.length;
+    log(`${found} Files found`);
+    log(`${notParsed} Could not be parsed`);
+    log(`${used} Used for util generation`);
+}
 
-    const defaultImportPath = path.join(DEFAULT_NODES_PATH, "import.json");
-    fs.writeFileSync(defaultImportPath, JSON.stringify(ast.topLevelNodes[0]));
+function processPart(start: number, count: number) {
+    const astPromises: any[] = [];
+    const filesPart = balFiles.slice(start, start + count);
+    filesPart.forEach((file) => {
+        triedBalFiles.push(file);
+        const promise = genAST(file).then((ast) => {
+            if (!ast) {
+                // could not parse
+                notParsedBalFiles.push(file);
+                return;
+            }
+            usedBalFiles.push(file);
+            findModelInfo(ast, modelInfo);
+        });
 
-    const defaultFunctionPath = path.join(DEFAULT_NODES_PATH, "function.json");
-    fs.writeFileSync(defaultFunctionPath, JSON.stringify(ast.topLevelNodes[1]));
+        const timeout = new Promise((resolve, reject) => {
+            setTimeout(() => {
+                resolve();
+            }, 20000);
+        });
+        astPromises.push(Promise.race([promise, timeout]));
+    });
 
-    const defaultMainFunctionPath = path.join(DEFAULT_NODES_PATH, "main-function.json");
-    fs.writeFileSync(defaultMainFunctionPath, JSON.stringify(ast.topLevelNodes[6]));
-});
-astPromises.push(defaultNodesASTPromise);
+    Promise.all(astPromises).then(() => {
+        if (astPromises.length < count) {
+            genFiles();
+            shutdown();
+            printSummary();
+            genDefaultNodes();
+            return;
+        }
 
-Promise.all(astPromises).then(() => {
+        processPart(start + count, count);
+    });
+}
+
+function genFiles() {
     fs.writeFileSync(AST_INTERFACES_PATH, genInterfacesFileCode(modelInfo));
     fix(AST_INTERFACES_PATH);
     const modelNames = Object.keys(modelInfo).sort();
@@ -60,6 +101,4 @@ Promise.all(astPromises).then(() => {
     fix(BASE_VISITOR_PATH);
     fs.writeFileSync(CHECK_KIND_UTIL_PATH, genCheckKindUtilCode(modelNames));
     fix(CHECK_KIND_UTIL_PATH);
-
-    shutdown();
-});
+}
