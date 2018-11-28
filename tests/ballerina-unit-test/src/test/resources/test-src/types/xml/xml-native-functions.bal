@@ -537,7 +537,7 @@ function testToString() returns (string) {
     
     xml book = bookComment + bookName + bookId + bookAuthor + bookMeta;
     
-    string s = <string> book;
+    string s = string.create(book);
     return s;
 }
 
