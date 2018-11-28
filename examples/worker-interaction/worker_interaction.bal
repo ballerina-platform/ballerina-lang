@@ -11,7 +11,7 @@ public function main() {
         (i, k) -> w2;
         // Receive a message from worker `w2`. This message contains a `json` type value.
         json j = {};
-        j <- w2;
+        j = <- w2;
         string jStr = j.toString();
         io:println("[w1 <- w2] j: ", jStr);
     }
@@ -21,7 +21,7 @@ public function main() {
         int iw;
         float kw;
         (int, float) vW1 = (0, 1.0);
-        vW1 <- w1;
+        vW1 = <- w1;
         (iw, kw) = vW1;
         io:println("[w2 <- w1] iw: " + iw + " kw: " + kw);
         // Send a message to worker `w1`.
