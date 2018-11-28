@@ -21,9 +21,9 @@ public function main() {
     var response = httpEndpoint->get("/hello/sayHello");
     if (response is http:Response) {
         var result = response.getPayloadAsString();
-        log:printInfo(result is error ? "Failed to retrieve payload." : result);
+        log:printInfo((result is error) ? "Failed to retrieve payload." : result);
     } else {
-        log:printError("Failed to call the endpoint.");
+        log:printError("Failed to call the endpoint.", err = response);
     }
 }
 
@@ -44,7 +44,7 @@ listener http:Listener ep  = new(9090, config = {
 @http:ServiceConfig {
     basePath: "/hello",
     authConfig: {
-        //authentication: { enabled: true }
+        authentication: { enabled: true }
     }
 }
 service echo on ep {

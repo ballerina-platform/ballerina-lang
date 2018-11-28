@@ -75,8 +75,8 @@ function testAuthzFailure() {
     // Send a `GET` request to the specified endpoint
     var response = httpEndpoint->get("/hello/sayHello");
     if (response is http:Response) {
-        test:assertEquals(response.statusCode, 403, msg =
-            "Expected status code 403 not received");
+        test:assertEquals(response.statusCode, 403,
+            msg = "Expected status code 403 not received");
     } else {
         test:assertFail(msg = "Failed to call the endpoint:");
     }

@@ -21,8 +21,8 @@ public function main() {
     var response = httpEndpoint->get("/users/@me/lists/");
     if (response is http:Response) {
         var result = response.getPayloadAsString();
-        log:printInfo(result is string ? result : "Failed to retrieve payload.");
+        log:printInfo((result is error) ? "Failed to retrieve payload." : result);
     } else {
-        log:printError("Failed to call the endpoint.");
+        log:printError("Failed to call the endpoint.", err = response);
     }
 }
