@@ -91,19 +91,11 @@ service clientCallbackService9 = @http:WebSocketServiceConfig {} service {
 };
 
 public function getAssociatedClientEndpoint3(http:WebSocketCaller wsServiceEp) returns (http:WebSocketClient) {
-    var returnVal = wsServiceEp.attributes[ASSOCIATED_CONNECTION5];
-    if (returnVal is http:WebSocketClient) {
-         return returnVal;
-    } else {
-         panic error("WebSocketError", "Test Failure");
-    }
+    var returnVal = <http:WebSocketClient>wsServiceEp.attributes[ASSOCIATED_CONNECTION5];
+    return returnVal;
 }
 
-public function getAssociatedListener3(http:WebSocketClient wsClientEp) returns (http:WebSocketClient) {
-    var returnVal = wsClientEp.attributes[ASSOCIATED_CONNECTION5];
-   if (returnVal is http:WebSocketListener) {
-         return returnVal;
-    } else {
-panic error("WebSocketError", "Test Failure");
-}
+public function getAssociatedListener3(http:WebSocketCaller wsClientEp) returns (http:WebSocketClient) {
+    var returnVal = <http:WebSocketClient>wsClientEp.attributes[ASSOCIATED_CONNECTION5];
+    return returnVal;
 }

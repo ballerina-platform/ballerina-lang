@@ -39,46 +39,26 @@ service castErrror = @http:WebSocketServiceConfig {} service {
     resource function onText(http:WebSocketCaller wsEp, string text) {
         http:WebSocketClient val;
         var returnVal = <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION4];
-        if (returnVal is error) {
-             panic returnVal;
-        } else {
-             val = returnVal;
-        }
+        val = returnVal;
     }
     resource function onBinary(http:WebSocketCaller wsEp, byte[] data) {
         http:WebSocketClient val;
         var returnVal = <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION4];
-        if (returnVal is error) {
-             panic returnVal;
-        } else {
-             val = returnVal;
-        }
+        val = returnVal;
     }
     resource function onPing(http:WebSocketCaller wsEp, byte[] data) {
         http:WebSocketClient val;
         var returnVal = <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION4];
-        if (returnVal is error) {
-             panic returnVal;
-        } else {
-             val = returnVal;
-        }
+        val = returnVal;
     }
     resource function onIdleTimeout(http:WebSocketCaller wsEp) {
         http:WebSocketClient val;
         var returnVal = <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION4];
-        if (returnVal is error) {
-             panic returnVal;
-        } else {
-             val = returnVal;
-        }
+        val = returnVal;
     }
     resource function onClose(http:WebSocketCaller wsEp, int code, string reason) {
         http:WebSocketClient val;
         var returnVal = <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION4];
-        if (returnVal is error) {
-             panic returnVal;
-        } else {
-             val = returnVal;
-        }
+        val = returnVal;
     }
 };
