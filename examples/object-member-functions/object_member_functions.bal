@@ -6,7 +6,10 @@ type Person object {
     public string firstName;
     public string lastName;
 
-    new(age, firstName, lastName) {
+    function __init(int age, string firstName, string lastName) {
+        self.age = age;
+        self.firstName = firstName;
+        self.lastName = lastName;
     }
 
     // Function defined within the object.

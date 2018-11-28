@@ -5,8 +5,8 @@ type Gender "male"|"female";
 type Person record {
     // This is a required field with an explicit default value specified.
     string fname = "default";
-    // This is a required field without an explicit default value. However, `string` has an implicit initial value (empty string).
-    // Therefore, the compiler will not complain if we omit this field when creating the record.
+    // This is a required field without an explicit default value.
+    // The compiler will not complain if we omit this field when creating the record.
     string lname;
     // This is a non-defaultable required field.
     Gender gender;
@@ -17,7 +17,7 @@ type Person record {
 public function main() {
     // The `gender` must be provided when creating the record since `Gender` is not a type with an implicit initial value
     // and an explicit default value is not specified for it in the record descriptor.
-    Person p = {gender: "male"};
+    Person p = {gender: "male", lname: ""};
 
     // Note that the `age` field is not present in the record since it is an optional field.
     io:println("Person with non-defaultable required field set: ", p);

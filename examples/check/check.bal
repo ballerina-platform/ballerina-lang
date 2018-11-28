@@ -12,12 +12,11 @@ type Address record {
 
 function getAddress(Person p) returns (Address|error) {
     // If the address does not exist, return an error.
-    match (p.address) {
-        Address add => { return add;}
-        () => {
-            error addNotFoundErr = error("address not found");
-            return addNotFoundErr;
-        }
+    if (p.address is Address) {
+        return p.address;
+    } else {
+        error addNotFoundErr = error("address not found");
+        return addNotFoundErr;
     }
 }
 
@@ -44,7 +43,7 @@ function validateAddressAgain(Person person) returns boolean {
 }
 
 public function main() {
-    Person bob = { name: "bob" };
+    Person bob = { name: "bob", address: () };
     Address address = { street: "1st Avenue", city: "Manhattan" };
     bob.address = address;
 
@@ -54,7 +53,7 @@ public function main() {
     boolean bobResult2 = validateAddressAgain(bob);
     io:println("Bob's result 2:", bobResult2);
 
-    Person tom = { name: "tom" };
+    Person tom = { name: "tom", address: () };
     io:println("\n", "validating tom...");
     var tomResult1 = validateAddress(tom);
     io:println("Tom's result 1:", tomResult1);
