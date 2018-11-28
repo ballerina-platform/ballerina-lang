@@ -23,9 +23,11 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.InputStreamReader;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -60,7 +62,8 @@ public class BallerinaExampleServiceImpl implements BallerinaExampleService {
             Gson gson = new Gson();
             Path bbeJSONPath = Paths.get(CommonUtil.BALLERINA_HOME).resolve(EXAMPLES_DIR).resolve(BBE_DEF_JSON);
             try {
-                FileReader fileReader = new FileReader(bbeJSONPath.toFile());
+                InputStreamReader fileReader = new InputStreamReader(
+                        new FileInputStream(bbeJSONPath.toFile()), StandardCharsets.UTF_8);
                 JsonReader jsonReader = new JsonReader(fileReader);
                 List<BallerinaExampleCategory> data = gson.fromJson(jsonReader, EXAMPLE_CATEGORY_TYPE);
                 response.setSamples(data);
