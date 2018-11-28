@@ -20,12 +20,12 @@ import ballerina/log;
 @http:ServiceConfig {
     basePath: "/say"
 }
-service<http:Service> hello bind { port: 9090 } {
+service hello on new http:Listener(9090) {
     @http:ResourceConfig {
         methods: ["GET"],
         path: "sayHelloBBB"
     }
-    sayHello(endpoint caller, http:Request req) {
+    resource function sayHello(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setPayload("Hello, World!");
         var result = caller->respond(res);
@@ -37,7 +37,7 @@ service<http:Service> hello bind { port: 9090 } {
         methods: ["GET"],
         path: "sayHelloAA"
     }
-    sayHelloAA(endpoint caller, http:Request req) {
+    resource function sayHelloAA(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setPayload("Hello, World!");
         var result = caller->respond(res);
