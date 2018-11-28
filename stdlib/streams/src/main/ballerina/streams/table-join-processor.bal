@@ -15,14 +15,18 @@
 // under the License.
 
 public type TableJoinProcessor object {
-    private function (StreamEvent s) returns map[] tableQuery;
+    private function (StreamEvent s) returns map<anydata>[] tableQuery;
     private function (any) nextProcessor;
     public Window? windowInstance;
     public string streamName;
     public string tableName;
     public JoinType joinType;
 
-    public new(nextProcessor, joinType, tableQuery) {
+    public function __init(function (any) nextProcessor, JoinType joinType,
+                           function (StreamEvent s) returns map<anydata>[] tableQuery) {
+        self.nextProcessor = nextProcessor;
+        self.joinType = joinType;
+        self.tableQuery = tableQuery;
         self.windowInstance = ();
         self.streamName = "";
         self.tableName = "";
@@ -33,7 +37,7 @@ public type TableJoinProcessor object {
         int j = 0;
         foreach event in streamEvents {
             (StreamEvent?, StreamEvent?)[] candidateEvents = [];
-            foreach i, m in self.tableQuery(event) {
+            foreach i, m in self.tableQuery.call(event) {
                 StreamEvent resultEvent = new((self.tableName, m), "CURRENT", time:currentTime().time);
                 candidateEvents[i] = (event, resultEvent);
             }
@@ -59,7 +63,7 @@ public type TableJoinProcessor object {
                 }
             }
         }
-        self.nextProcessor(outputEvents);
+        self.nextProcessor.call(outputEvents);
     }
 
     public function setJoinProperties(string tn, string sn, Window wi) {
@@ -91,7 +95,7 @@ public type TableJoinProcessor object {
 };
 
 public function createTableJoinProcessor(function (any) nextProcessor, JoinType joinType,
-                                         function (StreamEvent s) returns map[] tableQuery)
+                                         function (StreamEvent s) returns map<anydata>[] tableQuery)
                     returns TableJoinProcessor {
     TableJoinProcessor tableJoinProcessor = new(nextProcessor, joinType, tableQuery);
     return tableJoinProcessor;

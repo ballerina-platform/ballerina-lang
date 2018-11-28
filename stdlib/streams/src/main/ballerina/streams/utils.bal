@@ -16,8 +16,9 @@
 
 import ballerina/time;
 
-public function buildStreamEvent(map keyVals, string streamName) returns StreamEvent[] {
+public function buildStreamEvent(any t, string streamName) returns StreamEvent[] {
     EventType evntType = "CURRENT";
+    var keyVals = <map<anydata>>map<anydata>.stamp(t.clone());
     StreamEvent[] streamEvents = [new((streamName, keyVals), evntType, time:currentTime().time)];
     return streamEvents;
 }
@@ -28,12 +29,5 @@ public function createResetStreamEvent(StreamEvent event) returns StreamEvent {
 }
 
 public function getStreamEvent(any? anyEvent) returns StreamEvent {
-    StreamEvent event;
-    if (anyEvent is StreamEvent) {
-        event = anyEvent;
-        return event;
-    } else {
-        error e = error("Received value is not of type StreamEvent");
-        panic e;
-    }
+    return <StreamEvent>anyEvent;
 }

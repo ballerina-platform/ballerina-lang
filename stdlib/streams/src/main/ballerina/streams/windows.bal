@@ -36,7 +36,9 @@ public type LengthWindow object {
     public any[] windowParameters;
     public function (StreamEvent[])? nextProcessPointer;
 
-    public new(nextProcessPointer, windowParameters) {
+    public function __init(function (StreamEvent[])? nextProcessPointer, any[] windowParameters) {
+        self.nextProcessPointer = nextProcessPointer;
+        self.windowParameters = windowParameters;
         self.linkedList = new;
         self.initParameters(windowParameters);
         self.size = 0;
@@ -84,7 +86,7 @@ public type LengthWindow object {
         }
         match (self.nextProcessPointer) {
             function (StreamEvent[]) nxtProc => {
-                nxtProc(outputEvents);
+                nxtProc.call(outputEvents);
             }
             () => {
                 //do nothing
@@ -106,7 +108,7 @@ public type LengthWindow object {
                     StreamEvent rhsEvent = (isLHSTrigger) ? s : originEvent;
                     match (conditionFunc) {
                         function (map e1Data, map e2Data) returns boolean conditionCheckFunc => {
-                            if (conditionCheckFunc(lshEvent.data, rhsEvent.data)) {
+                            if (conditionCheckFunc.call(lshEvent.data, rhsEvent.data)) {
                                 events[i] = (lshEvent, rhsEvent);
                                 i += 1;
                             }
@@ -140,7 +142,9 @@ public type TimeWindow object {
     public function (StreamEvent[])? nextProcessPointer;
     public int lastTimestamp = -0x8000000000000000;
 
-    public new(nextProcessPointer, windowParameters) {
+    public function __init(function (StreamEvent[])? nextProcessPointer, any[] windowParameters) {
+        self.nextProcessPointer = nextProcessPointer;
+        self.windowParameters = windowParameters;
         self.timeInMillis = 0;
         self.expiredEventQueue = new;
         self.timerQueue = new;
@@ -173,14 +177,7 @@ public type TimeWindow object {
             streamEventChunk.resetToFront();
 
             while (streamEventChunk.hasNext()) {
-                StreamEvent streamEvent;
-                any? next = streamEventChunk.next();
-                if (next is StreamEvent) {
-                    streamEvent = next;
-                } else {
-                    return;
-                }
-
+                StreamEvent streamEvent = <StreamEvent>streamEventChunk.next();
                 int currentTime = time:currentTime().time;
                 self.expiredEventQueue.resetToFront();
 
@@ -202,7 +199,8 @@ public type TimeWindow object {
                     self.expiredEventQueue.addLast(clonedEvent);
 
                     if (self.lastTimestamp < clonedEvent.timestamp) {
-                        task:Timer timer = new task:Timer(self.invokeProcess, self.handleError, self.timeInMillis,
+                        task:Timer timer = new task:Timer(function () returns error? {return self.invokeProcess();},
+                            function (error e) {self.handleError(e);}, self.timeInMillis,
                             delay = self.timeInMillis - (time:currentTime().time - clonedEvent.timestamp));
                         _ = timer.start();
                         self.timerQueue.addLast(timer);
@@ -223,7 +221,7 @@ public type TimeWindow object {
                         StreamEvent streamEvent = getStreamEvent(streamEventChunk.next());
                         events[events.length()] = streamEvent;
                     }
-                    nxtProc(events);
+                    nxtProc.call(events);
                 }
             }
             () => {
@@ -233,12 +231,13 @@ public type TimeWindow object {
     }
 
     public function invokeProcess() returns error? {
-        StreamEvent timerEvent = new(("timer", {}), "TIMER", time:currentTime().time);
+        map<anydata> data = {};
+        StreamEvent timerEvent = new(("timer", data), "TIMER", time:currentTime().time);
         StreamEvent[] timerEventWrapper = [];
         timerEventWrapper[0] = timerEvent;
         self.process(timerEventWrapper);
         if (!self.timerQueue.isEmpty()) {
-            task:Timer timer = check trap <task:Timer>self.timerQueue.removeFirst();
+            task:Timer timer = <task:Timer>self.timerQueue.removeFirst();
             _ = timer.stop();
         }
         return ();
@@ -262,7 +261,7 @@ public type TimeWindow object {
                     StreamEvent rhsEvent = (isLHSTrigger) ? s : originEvent;
                     match (conditionFunc) {
                         function (map e1Data, map e2Data) returns boolean conditionCheckFunc => {
-                            if (conditionCheckFunc(lshEvent.data, rhsEvent.data)) {
+                            if (conditionCheckFunc.call(lshEvent.data, rhsEvent.data)) {
                                 events[i] = (lshEvent, rhsEvent);
                                 i += 1;
                             }
@@ -296,7 +295,9 @@ public type LengthBatchWindow object {
     public LinkedList? expiredEventQueue;
     public function (StreamEvent[])? nextProcessPointer;
 
-    public new(nextProcessPointer, windowParameters) {
+    public function __init(function (StreamEvent[])? nextProcessPointer, any[] windowParameters) {
+        self.nextProcessPointer = nextProcessPointer;
+        self.windowParameters = windowParameters;
         self.length = 0;
         self.count = 0;
         self.resetEvent = ();
@@ -379,7 +380,7 @@ public type LengthBatchWindow object {
                         StreamEvent streamEvent = getStreamEvent(streamEventChunk.next());
                         events[events.length()] = streamEvent;
                     }
-                    nxtProc(events);
+                    nxtProc.call(events);
                 }
             }
             () => {
@@ -403,7 +404,7 @@ public type LengthBatchWindow object {
 
                     match (conditionFunc) {
                         function (map e1Data, map e2Data) returns boolean conditionCheckFunc => {
-                            if (conditionCheckFunc(lshEvent.data, rhsEvent.data)) {
+                            if (conditionCheckFunc.call(lshEvent.data, rhsEvent.data)) {
                                 events[i] = (lshEvent, rhsEvent);
                                 i += 1;
                             }
@@ -439,7 +440,9 @@ public type TimeBatchWindow object {
     public task:Timer? timer;
     public function (StreamEvent[])? nextProcessPointer;
 
-    public new(nextProcessPointer, windowParameters) {
+    public function __init(function (StreamEvent[])? nextProcessPointer, any[] windowParameters) {
+        self.nextProcessPointer = nextProcessPointer;
+        self.windowParameters = windowParameters;
         self.timeInMilliSeconds = 0;
         self.resetEvent = ();
         self.timer = ();
@@ -465,7 +468,8 @@ public type TimeBatchWindow object {
     }
 
     public function invokeProcess() returns error? {
-        StreamEvent timerEvent = new(("timer", {}), "TIMER", time:currentTime().time);
+        map<anydata> data = {};
+        StreamEvent timerEvent = new(("timer", data), "TIMER", time:currentTime().time);
         StreamEvent[] timerEventWrapper = [];
         timerEventWrapper[0] = timerEvent;
         self.process(timerEventWrapper);
@@ -476,8 +480,8 @@ public type TimeBatchWindow object {
         LinkedList outputStreamEvents = new();
         if (self.nextEmitTime == -1) {
             self.nextEmitTime = time:currentTime().time + self.timeInMilliSeconds;
-            self.timer = new task:Timer(self.invokeProcess, self.handleError, self.timeInMilliSeconds, delay =
-                self.timeInMilliSeconds);
+            self.timer = new task:Timer(function () returns error? {return self.invokeProcess();},
+                function (error e) {self.handleError(e);}, self.timeInMilliSeconds, delay = self.timeInMilliSeconds);
             _ = self.timer.start();
         }
 
@@ -487,8 +491,9 @@ public type TimeBatchWindow object {
         if (currentTime >= self.nextEmitTime) {
             self.nextEmitTime += self.timeInMilliSeconds;
             self.timer.stop();
-            self.timer = new task:Timer(self.invokeProcess, self.handleError, self.timeInMilliSeconds, delay =
-                self.timeInMilliSeconds);
+            self.timer = new task:Timer(function () returns error? {return self.invokeProcess();},
+                            function (error e) {self.handleError(e);},
+                self.timeInMilliSeconds, delay = self.timeInMilliSeconds);
             _ = self.timer.start();
             sendEvents = true;
         } else {
@@ -526,7 +531,7 @@ public type TimeBatchWindow object {
                         StreamEvent streamEvent = getStreamEvent(outputStreamEvents.next());
                         events[events.length()] = streamEvent;
                     }
-                    nxtProc(events);
+                    nxtProc.call(events);
                 }
             }
             () => {
@@ -549,7 +554,7 @@ public type TimeBatchWindow object {
                     StreamEvent rhsEvent = (isLHSTrigger) ? s : originEvent;
                     match (conditionFunc) {
                         function (map e1Data, map e2Data) returns boolean conditionCheckFunc => {
-                            if (conditionCheckFunc(lshEvent.data, rhsEvent.data)) {
+                            if (conditionCheckFunc.call(lshEvent.data, rhsEvent.data)) {
                                 events[i] = (lshEvent, rhsEvent);
                                 i += 1;
                             }
@@ -586,7 +591,9 @@ public type ExternalTimeWindow object {
     public function (StreamEvent[])? nextProcessPointer;
     public string timeStamp;
 
-    public new(nextProcessPointer, windowParameters) {
+    public function __init(function (StreamEvent[])? nextProcessPointer, any[] windowParameters) {
+        self.nextProcessPointer = nextProcessPointer;
+        self.windowParameters = windowParameters;
         self.timeInMillis = 0;
         self.timeStamp = "";
         self.expiredEventQueue = new;
@@ -662,7 +669,7 @@ public type ExternalTimeWindow object {
                         StreamEvent streamEvent = getStreamEvent(streamEventChunk.next());
                         events[events.length()] = streamEvent;
                     }
-                    nxtProc(events);
+                    nxtProc.call(events);
                 }
             }
             () => {
@@ -685,7 +692,7 @@ public type ExternalTimeWindow object {
                     StreamEvent rhsEvent = (isLHSTrigger) ? s : originEvent;
                     match (conditionFunc) {
                         function (map e1Data, map e2Data) returns boolean conditionCheckFunc => {
-                            if (conditionCheckFunc(lshEvent.data, rhsEvent.data)) {
+                            if (conditionCheckFunc.call(lshEvent.data, rhsEvent.data)) {
                                 events[i] = (lshEvent, rhsEvent);
                                 i += 1;
                             }
@@ -741,7 +748,9 @@ public type ExternalTimeBatchWindow object {
     public boolean outputExpectsExpiredEvents = false;
     public any[] windowParameters;
 
-    public new(nextProcessPointer, windowParameters) {
+    public function __init(function (StreamEvent[])? nextProcessPointer, any[] windowParameters) {
+        self.nextProcessPointer = nextProcessPointer;
+        self.windowParameters = windowParameters;
         self.timeToKeep = 0;
         self.lastScheduledTime = 0;
         self.timer = ();
@@ -822,7 +831,8 @@ public type ExternalTimeBatchWindow object {
     }
 
     public function invokeProcess() returns error? {
-        StreamEvent timerEvent = new(("timer", {}), TIMER, time:currentTime().time);
+        map<anydata> data = {};
+        StreamEvent timerEvent = new(("timer", data), TIMER, time:currentTime().time);
         StreamEvent[] timerEventWrapper = [];
         timerEventWrapper[0] = timerEvent;
         self.process(timerEventWrapper);
@@ -863,7 +873,8 @@ public type ExternalTimeBatchWindow object {
 
                         // rescheduling to emit the current batch after expiring it if no further events arrive.
                         self.lastScheduledTime = time:currentTime().time + self.schedulerTimeout;
-                        self.timer = new task:Timer(self.invokeProcess, self.handleError, self.schedulerTimeout);
+                        self.timer = new task:Timer(function () returns error? {return self.invokeProcess();},
+                            function (error e) {self.handleError(e);}, self.schedulerTimeout);
                         _ = self.timer.start();
                     }
                     continue;
@@ -893,7 +904,8 @@ public type ExternalTimeBatchWindow object {
                     // triggering the last batch expiration.
                     if (self.schedulerTimeout > 0) {
                         self.lastScheduledTime = time:currentTime().time + self.schedulerTimeout;
-                        self.timer = new task:Timer(self.invokeProcess, self.handleError, self.schedulerTimeout);
+                        self.timer = new task:Timer(function () returns error? {return self.invokeProcess();},
+                            function (error e) {self.handleError(e);}, self.schedulerTimeout);
                         _ = self.timer.start();
                     }
                 }
@@ -913,7 +925,7 @@ public type ExternalTimeBatchWindow object {
                         }
                         foreach event in streamEvent{
                         }
-                        nxtProc(streamEvent);
+                        nxtProc.call(streamEvent);
                     }
                 }
             }
@@ -937,7 +949,7 @@ public type ExternalTimeBatchWindow object {
                     StreamEvent rhsEvent = (isLHSTrigger) ? s : originEvent;
                     match (conditionFunc) {
                         function (map e1Data, map e2Data) returns boolean conditionCheckFunc => {
-                            if (conditionCheckFunc(lshEvent.data, rhsEvent.data)) {
+                            if (conditionCheckFunc.call(lshEvent.data, rhsEvent.data)) {
                                 events[i] = (lshEvent, rhsEvent);
                                 i += 1;
                             }
@@ -1113,7 +1125,8 @@ public type ExternalTimeBatchWindow object {
             }
             if (self.schedulerTimeout > 0) {
                 self.lastScheduledTime = time:currentTime().time + self.schedulerTimeout;
-                self.timer = new task:Timer(self.invokeProcess, self.handleError, self.schedulerTimeout);
+                self.timer = new task:Timer(function () returns error? {return self.invokeProcess();},
+                            function (error e) {self.handleError(e);}, self.schedulerTimeout);
                 _ = self.timer.start();
             }
         }
@@ -1146,7 +1159,9 @@ public type TimeLengthWindow object {
     public function (StreamEvent[])? nextProcessPointer;
     public task:Timer? timer;
 
-    public new(nextProcessPointer, windowParameters) {
+    public function __init(function (StreamEvent[])? nextProcessPointer, any[] windowParameters) {
+        self.nextProcessPointer = nextProcessPointer;
+        self.windowParameters = windowParameters;
         self.timeInMilliSeconds = 0;
         self.length = 0;
         self.timer = ();
@@ -1222,7 +1237,8 @@ public type TimeLengthWindow object {
                             self.expiredEventChunk.addLast(clonedEvent);
                         }
                     }
-                    self.timer = new task:Timer(self.invokeProcess, self.handleError, self.timeInMilliSeconds);
+                    self.timer = new task:Timer(function () returns error? {return self.invokeProcess();},
+                        function (error e) {self.handleError(e);}, self.timeInMilliSeconds);
                 } else {
                     streamEventChunk.removeCurrent();
                 }
@@ -1239,7 +1255,7 @@ public type TimeLengthWindow object {
                         StreamEvent streamEvent = getStreamEvent(streamEventChunk.next());
                         events[events.length()] = streamEvent;
                     }
-                    nxtProc(events);
+                    nxtProc.call(events);
                 }
             }
             () => {
@@ -1249,7 +1265,8 @@ public type TimeLengthWindow object {
     }
 
     public function invokeProcess() returns error? {
-        StreamEvent timerEvent = new(("timer", {}), "TIMER", time:currentTime().time);
+        map<anydata> data = {};
+        StreamEvent timerEvent = new(("timer", data), "TIMER", time:currentTime().time);
         StreamEvent[] timerEventWrapper = [];
         timerEventWrapper[0] = timerEvent;
         self.process(timerEventWrapper);
@@ -1271,7 +1288,7 @@ public type TimeLengthWindow object {
                     StreamEvent rhsEvent = (isLHSTrigger) ? s : originEvent;
                     match (conditionFunc) {
                         function (map e1Data, map e2Data) returns boolean conditionCheckFunc => {
-                            if (conditionCheckFunc(lshEvent.data, rhsEvent.data)) {
+                            if (conditionCheckFunc.call(lshEvent.data, rhsEvent.data)) {
                                 events[i] = (lshEvent, rhsEvent);
                                 i += 1;
                             }
@@ -1311,7 +1328,9 @@ public type UniqueLengthWindow object {
     public LinkedList expiredEventChunk;
     public function (StreamEvent[])? nextProcessPointer;
 
-    public new(nextProcessPointer, windowParameters) {
+    public function __init(function (StreamEvent[])? nextProcessPointer, any[] windowParameters) {
+        self.nextProcessPointer = nextProcessPointer;
+        self.windowParameters = windowParameters;
         self.uniqueKey = "";
         self.length = 0;
         self.uniqueMap = {};
@@ -1415,7 +1434,7 @@ public type UniqueLengthWindow object {
                         StreamEvent streamEvent = getStreamEvent(streamEventChunk.next());
                         events[events.length()] = streamEvent;
                     }
-                    nxtProc(events);
+                    nxtProc.call(events);
                 }
             }
             () => {
@@ -1438,7 +1457,7 @@ public type UniqueLengthWindow object {
                     StreamEvent rhsEvent = (isLHSTrigger) ? s : originEvent;
                     match (conditionFunc) {
                         function (map e1Data, map e2Data) returns boolean conditionCheckFunc => {
-                            if (conditionCheckFunc(lshEvent.data, rhsEvent.data)) {
+                            if (conditionCheckFunc.call(lshEvent.data, rhsEvent.data)) {
                                 events[i] = (lshEvent, rhsEvent);
                                 i += 1;
                             }
@@ -1472,7 +1491,9 @@ public type DelayWindow object {
     public task:Timer? timer;
     public function (StreamEvent[])? nextProcessPointer;
 
-    public new(nextProcessPointer, windowParameters) {
+    public function __init(function (StreamEvent[])? nextProcessPointer, any[] windowParameters) {
+        self.nextProcessPointer = nextProcessPointer;
+        self.windowParameters = windowParameters;
         self.delayInMilliSeconds = 0;
         self.timer = ();
         self.delayedEventQueue = new;
@@ -1531,7 +1552,8 @@ public type DelayWindow object {
                     if (self.lastTimestamp < streamEvent.timestamp) {
                         //calculate the remaining time to delay the current event
                         int delay = self.delayInMilliSeconds - (currentTime - streamEvent.timestamp);
-                        self.timer = new task:Timer(self.invokeProcess, self.handleError, delay);
+                        self.timer = new task:Timer(function () returns error? {return self.invokeProcess();},
+                            function (error e) {self.handleError(e);}, delay);
                         _ = self.timer.start();
                         self.lastTimestamp = streamEvent.timestamp;
                     }
@@ -1551,7 +1573,7 @@ public type DelayWindow object {
                         StreamEvent streamEvent = getStreamEvent(streamEventChunk.next());
                         events[events.length()] = streamEvent;
                     }
-                    nxtProc(events);
+                    nxtProc.call(events);
                 }
             }
             () => {
@@ -1561,7 +1583,8 @@ public type DelayWindow object {
     }
 
     public function invokeProcess() returns error? {
-        StreamEvent timerEvent = new(("timer", {}), "TIMER", time:currentTime().time);
+        map<anydata> data = {};
+        StreamEvent timerEvent = new(("timer", data), "TIMER", time:currentTime().time);
         StreamEvent[] timerEventWrapper = [];
         timerEventWrapper[0] = timerEvent;
         self.process(timerEventWrapper);
@@ -1587,7 +1610,7 @@ public type DelayWindow object {
                     StreamEvent rhsEvent = (isLHSTrigger) ? s : originEvent;
                     match (conditionFunc) {
                         function (map e1Data, map e2Data) returns boolean conditionCheckFunc => {
-                            if (conditionCheckFunc(lshEvent.data, rhsEvent.data)) {
+                            if (conditionCheckFunc.call(lshEvent.data, rhsEvent.data)) {
                                 events[i] = (lshEvent, rhsEvent);
                                 i += 1;
                             }
