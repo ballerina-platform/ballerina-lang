@@ -6,7 +6,7 @@ public type {{serviceName}}{{#equals stubType "blocking"}}Blocking{{/equals}}Cli
     private grpc:ClientEndpointConfig config = {};
     private string url;
 
-    function __init (string url, grpc:ClientEndpointConfig? config = ()) {
+    function __init(string url, grpc:ClientEndpointConfig? config = ()) {
         self.config = config ?: {};
         self.url = url;
         // initialize client endpoint.
@@ -21,7 +21,7 @@ public type {{serviceName}}{{#equals stubType "blocking"}}Blocking{{/equals}}Cli
     }
 
 {{#blockingFunctions}}
-    remote function {{methodName}} ({{#if inputType}}{{inputType}} req, {{/if}}grpc:Headers? headers = ()) returns ({{#if outputType}}({{outputType}}, grpc:Headers){{else}}grpc:Headers{{/if}}|error) {
+    remote function {{methodName}}({{#if inputType}}{{inputType}} req, {{/if}}grpc:Headers? headers = ()) returns ({{#if outputType}}({{outputType}}, grpc:Headers){{else}}grpc:Headers{{/if}}|error) {
         {{#unless inputType}}Empty req = {};{{/unless}}
         var payload = check self.grpcClient->blockingExecute("{{methodId}}", req, headers = headers);
         grpc:Headers resHeaders = new;
@@ -37,12 +37,12 @@ public type {{serviceName}}{{#equals stubType "blocking"}}Blocking{{/equals}}Cli
         return resHeaders;{{/if}}
     }
 {{/blockingFunctions}}{{#nonBlockingFunctions}}
-    remote function {{methodName}} ({{#if inputType}}{{inputType}} req, {{/if}}service msgListener, grpc:Headers? headers = ()) returns (error?) {
+    remote function {{methodName}}({{#if inputType}}{{inputType}} req, {{/if}}service msgListener, grpc:Headers? headers = ()) returns (error?) {
         {{#unless inputType}}Empty req = {};{{/unless}}
         return self.grpcClient->nonBlockingExecute("{{methodId}}", req, msgListener, headers = headers);
     }
 {{/nonBlockingFunctions}}{{#streamingFunctions}}
-    remote function {{methodName}} (service msgListener, grpc:Headers? headers = ()) returns (grpc:StreamingClient|error)  {
+    remote function {{methodName}}(service msgListener, grpc:Headers? headers = ()) returns (grpc:StreamingClient|error)  {
         return self.grpcClient->streamingExecute("{{methodId}}", msgListener, headers = headers);
     }{{/streamingFunctions}}
 };
