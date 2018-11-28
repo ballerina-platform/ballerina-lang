@@ -21,7 +21,6 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -60,14 +59,16 @@ public class ForeachJSONTypedBindingPatternsTests {
     public void testDirectAccessJsonArrayWithoutType() {
         BValue[] returns = BRunUtil.invoke(program, "testDirectAccessJsonArrayWithoutType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "");
+        Assert.assertEquals(returns[0].stringValue(), "0:{\"subject\":\"maths\", \"marks\":75} " +
+                "1:{\"subject\":\"English\", \"marks\":85} ");
     }
 
     @Test
     public void testDirectAccessJsonArrayWithType() {
         BValue[] returns = BRunUtil.invoke(program, "testDirectAccessJsonArrayWithType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "");
+        Assert.assertEquals(returns[0].stringValue(), "0:{\"subject\":\"maths\", \"marks\":75} " +
+                "1:{\"subject\":\"English\", \"marks\":85} ");
     }
 
     @Test
@@ -86,16 +87,18 @@ public class ForeachJSONTypedBindingPatternsTests {
                 "1:{\"subject\":\"English\", \"marks\":85} ");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class, expectedExceptionsMessageRegExp =
-            ".*error:.*NullReferenceException.*")
+    @Test
     public void testDirectAccessInvalidElementWithoutType() {
-        BRunUtil.invoke(program, "testDirectAccessInvalidElementWithoutType");
+        BValue[] returns = BRunUtil.invoke(program, "testDirectAccessInvalidElementWithoutType");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "cannot stamp 'null' value to type 'map<json>' {}");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class, expectedExceptionsMessageRegExp =
-            ".*error:.*NullReferenceException.*")
+    @Test
     public void testDirectAccessInvalidElementWithType() {
-        BRunUtil.invoke(program, "testDirectAccessInvalidElementWithType");
+        BValue[] returns = BRunUtil.invoke(program, "testDirectAccessInvalidElementWithType");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "cannot stamp 'null' value to type 'map<json>' {}");
     }
 
     @Test
