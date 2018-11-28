@@ -2907,7 +2907,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // Last instruction of the transaction block.
         int trErrorHandlerAddress = nextIP();
-        int transBlockFinalAddr = trErrorHandlerAddress - 1;
+        int transBlockFinalAddr = trErrorHandlerAddress;
         RegIndex errorRegIndex = getRegIndex(TypeTags.ERROR);
         // End the transaction.
         this.emit(InstructionCodes.TR_END, transactionIndexOperand,
