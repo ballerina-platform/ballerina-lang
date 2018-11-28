@@ -20,7 +20,6 @@ package org.ballerinalang.bre.vm;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.bre.vm.Strand.State;
-import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
@@ -133,17 +132,8 @@ public class BVMExecutor {
 
         StrandResourceCallback strandCallback = new StrandResourceCallback(null, responseCallback);
         Strand strand = new Strand(programFile, resourceInfo.getName(), properties, strandCallback, null);
-        configureDistributedTransactions(strand);
 
         if (properties != null) {
-            //TODO fix - rajith
-//            Object interruptible = properties.get(Constants.IS_INTERRUPTIBLE);
-//            if (interruptible != null && (boolean) interruptible) {
-//                String stateId = UUID.randomUUID().toString();
-//                properties.put(Constants.STATE_ID, stateId);
-//                RuntimeStates.add(new State(context, stateId));
-//                context.interruptible = true;
-//            }
             globalProps.putAll(properties);
             String gTransactionId = (String) properties.get(Constants.GLOBAL_TRANSACTION_ID);
             if (gTransactionId != null) {
@@ -156,6 +146,7 @@ public class BVMExecutor {
             }
         }
 
+        BLangVMUtils.setGlobalTransactionEnabledStatus(strand);
         BLangVMUtils.setServiceInfo(strand, serviceInfo);
 
         StackFrame idf = new StackFrame(resourceInfo.getPackageInfo(), resourceInfo,
@@ -183,7 +174,8 @@ public class BVMExecutor {
                                   BValue[] args, Map<String, Object> properties, boolean waitForResponse) {
         StrandWaitCallback strandCallback = new StrandWaitCallback(callableInfo.getRetParamTypes()[0]);
         Strand strand = new Strand(programFile, callableInfo.getName(), properties, strandCallback,  null);
-        configureDistributedTransactions(strand);
+
+        BLangVMUtils.setGlobalTransactionEnabledStatus(strand);
 
         StackFrame idf = new StackFrame(callableInfo.getPackageInfo(), callableInfo,
                 callableInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), -1);
@@ -300,18 +292,5 @@ public class BVMExecutor {
         for (PackageInfo info : programFile.getPackageInfoEntries()) {
             execute(programFile, info.getStopFunctionInfo(), new BValue[0], null, true);
         }
-    }
-
-
-    private static final String FALSE = "false";
-    private static final String DISTRIBUTED_TRANSACTIONS = "b7a.distributed.transactions.enabled";
-    private static void configureDistributedTransactions(Strand strand) {
-        String distributedTransactionsEnabledConfig = ConfigRegistry.getInstance()
-                .getAsString(DISTRIBUTED_TRANSACTIONS);
-        boolean distributedTransactionEnabled = true;
-        if (distributedTransactionsEnabledConfig != null && distributedTransactionsEnabledConfig.equals(FALSE)) {
-            distributedTransactionEnabled = false;
-        }
-        BLangVMUtils.setGlobalTransactionEnabledStatus(strand, distributedTransactionEnabled);
     }
 }

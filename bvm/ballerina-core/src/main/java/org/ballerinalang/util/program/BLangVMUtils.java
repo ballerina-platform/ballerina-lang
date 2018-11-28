@@ -23,6 +23,7 @@ import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.bre.vm.StackFrame;
 import org.ballerinalang.bre.vm.Strand;
+import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
@@ -35,6 +36,7 @@ import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueType;
+import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
@@ -448,12 +450,21 @@ public class BLangVMUtils {
         ctx.globalProps.remove(TRANSACTION_INFO_KEY);
     }
 
-    public static void setGlobalTransactionEnabledStatus(Strand ctx,
-            boolean isGlobalTransactionEnabled) {
-        ctx.globalProps.put(GLOBAL_TRANSACTION_ENABLED, isGlobalTransactionEnabled);
+    public static void setGlobalTransactionEnabledStatus(Strand strand) {
+        strand.globalProps.put(GLOBAL_TRANSACTION_ENABLED, getGlobalTransactionEnabledFromConfig());
     }
 
     public static boolean getGlobalTransactionEnabled(Strand ctx) {
         return (boolean) ctx.globalProps.get(GLOBAL_TRANSACTION_ENABLED);
+    }
+
+    private static boolean getGlobalTransactionEnabledFromConfig() {
+        String distributedTransactionsEnabledConfig = ConfigRegistry.getInstance()
+                .getAsString(Constants.DISTRIBUTED_TRANSACTIONS);
+        boolean distributedTransactionEnabled = true;
+        if (distributedTransactionsEnabledConfig != null && distributedTransactionsEnabledConfig.equals(Constants.FALSE)) {
+            distributedTransactionEnabled = false;
+        }
+        return distributedTransactionEnabled;
     }
 }
