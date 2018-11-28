@@ -6,7 +6,7 @@ listener http:MockListener echoEP = new(9090);
     basePath:"/signature"
 }
 service echo on echoEP {
-    resource function echo1 (http:Request req, http:Response res) {
+    resource function echo1(http:Request req, http:Response res) {
         http:Response resp = new;
     }
 }
