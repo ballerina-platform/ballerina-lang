@@ -17,11 +17,11 @@
 */
 package org.ballerinalang.util.transactions;
 
+import org.ballerinalang.bre.vm.BVMExecutor;
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.program.BLangFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -269,7 +269,7 @@ public class TransactionResourceManager {
         BFunctionPointer fp = committedFuncRegistry.get(transactionBlockId);
         if (fp != null) {
             BValue[] args = { new BString(transactionId + ":" + transactionBlockId)};
-            BLangFunctions.invokeCallable(fp.value(), args);
+            BVMExecutor.executeFunction(fp.value().getPackageInfo().getProgramFile(), fp.value(), args);
         }
     }
 
@@ -277,7 +277,7 @@ public class TransactionResourceManager {
         BFunctionPointer fp = abortedFuncRegistry.get(transactionBlockId);
         if (fp != null) {
             BValue[] args = { new BString(transactionId + ":" + transactionBlockId)};
-            BLangFunctions.invokeCallable(fp.value(), args);
+            BVMExecutor.executeFunction(fp.value().getPackageInfo().getProgramFile(), fp.value(), args);
         }
     }
 }

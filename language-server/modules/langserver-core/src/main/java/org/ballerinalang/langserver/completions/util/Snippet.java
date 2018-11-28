@@ -60,7 +60,9 @@ public enum Snippet {
     
     
     // Keyword Snippets
-    KW_BIND(SnippetGenerator.getBindSnippet()),
+    KW_ON(SnippetGenerator.getOnSnippet()),
+
+    KW_NEW(SnippetGenerator.getNewKeywordSnippet()),
 
     KW_CHECK(SnippetGenerator.getCheckKeywordSnippet()),
 

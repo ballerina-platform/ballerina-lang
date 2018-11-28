@@ -22,15 +22,15 @@ import ballerina/runtime;
 int total = 0;
 public function main(string... args) {
 
-    ChatClient chatEp = new ({
-        url:"http://localhost:9094"
-    });
+    ChatClient chatEp = new ("http://localhost:9094");
+    const string ERROR_MSG_FORMAT = "Error from Connector: %s - %s";
 
     grpc:StreamingClient ep;
     // Executing unary non-blocking call registering server message listener.
     var res = chatEp->chat(ChatMessageListener);
     if (res is error) {
-        io:println("Error from Connector: " + res.reason());
+        string msg = io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
+        io:println(msg);
     } else {
         ep = con;
     }
@@ -52,7 +52,8 @@ service ChatMessageListener = service {
     }
 
     resource function onError(error err) {
-        io:println("Error reported from server: " + err.reason());
+        string msg = io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
+        io:println(msg);
     }
 
     resource function onComplete() {
@@ -64,12 +65,16 @@ service ChatMessageListener = service {
 // Non-blocking client endpoint
 public type ChatClient client object {
 
-    public grpc:Client grpcClient = new;
+    private grpc:Client grpcClient = new;
+    private grpc:ClientEndpointConfig config = {};
+    private string url;
 
-    function __init(grpc:ClientEndpointConfig config) {
+    function __init(string url, grpc:ClientEndpointConfig? config = ()) {
+        self.config = config ?: {};
+        self.url = url;
         // initialize client endpoint.
         grpc:Client c = new;
-        c.init(config);
+        c.init(self.url, self.config);
         error? result = c.initStub("non-blocking", DESCRIPTOR_KEY, getDescriptorMap());
         if (result is error) {
             panic result;

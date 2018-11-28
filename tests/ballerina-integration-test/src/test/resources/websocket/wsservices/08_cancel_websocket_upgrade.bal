@@ -17,11 +17,9 @@
 import ballerina/log;
 import ballerina/http;
 
-endpoint http:Listener ep1 {
-    port: 9090
-};
+listener http:Listener ep1 = new(9090);
 
-service<http:Service> simple bind ep1 {
+service simple on ep1 {
 
     @http:ResourceConfig {
         webSocketUpgrade: {
@@ -29,7 +27,7 @@ service<http:Service> simple bind ep1 {
             upgradeService: simpleProxy1
         }
     }
-    websocketProxy(endpoint httpEp, http:Request req, string path1, string path2) {
+    resource function websocketProxy(http:Caller httpEp, http:Request req, string path1, string path2) {
         var returnVal = httpEp->cancelWebSocketUpgrade(404, "Cannot proceed");
         if (returnVal is error) {
              panic returnVal;
@@ -37,13 +35,13 @@ service<http:Service> simple bind ep1 {
     }
 }
 
-service<http:WebSocketService> simpleProxy1 {
+service simpleProxy1 = @http:WebSocketServiceConfig {} service {
 
-    onOpen(endpoint wsEp) {
+    resource function onOpen(http:WebSocketCaller wsEp) {
     }
-}
+};
 
-service<http:Service> cannotcancel bind ep1 {
+service cannotcancel on ep1 {
 
     @http:ResourceConfig {
         webSocketUpgrade: {
@@ -51,7 +49,7 @@ service<http:Service> cannotcancel bind ep1 {
             upgradeService: simpleProxy1
         }
     }
-    websocketProxy(endpoint httpEp, http:Request req, string path1, string path2) {
+    resource function websocketProxy(http:Caller httpEp, http:Request req, string path1, string path2) {
         var returnVal = httpEp->cancelWebSocketUpgrade(200, "Cannot proceed");
         if (returnVal is error) {
              panic returnVal;

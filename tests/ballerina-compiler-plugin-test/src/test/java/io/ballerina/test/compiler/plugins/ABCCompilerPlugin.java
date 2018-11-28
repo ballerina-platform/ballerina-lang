@@ -23,12 +23,11 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.FunctionNode;
-import org.ballerinalang.model.tree.ResourceNode;
+import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -52,19 +51,13 @@ public class ABCCompilerPlugin extends AbstractCompilerPlugin {
     }
 
     @Override
-    public void process(BLangPackage packageNode) {
+    public void process(PackageNode packageNode) {
         addEvent(TestEvent.Kind.PKG_NODE, packageNode.toString(), 1);
     }
 
     @Override
     public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
         addEvent(TestEvent.Kind.SERVICE_ANN, serviceNode.getName().getValue(), annotations.size());
-    }
-
-    @Override
-    public void process(ResourceNode resourceNode, List<AnnotationAttachmentNode> annotations) {
-        addEvent(TestEvent.Kind.RESOURCE_ANN, resourceNode.getName().getValue(), annotations.size());
-
     }
 
     @Override

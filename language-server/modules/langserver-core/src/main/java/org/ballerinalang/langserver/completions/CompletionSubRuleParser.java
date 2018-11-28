@@ -158,7 +158,7 @@ public class CompletionSubRuleParser {
     private static void parseWithinServiceDefinition(LSContext context) {
         if (!isCursorWithinAnnotationContext(context)) {
             String tokenString = getCombinedTokenString(context);
-            String functionRule = "service<http:Service> serviceName {" + CommonUtil.LINE_SEPARATOR + "\t"
+            String functionRule = "service testService on new http:Listener(8080) {" + CommonUtil.LINE_SEPARATOR + "\t"
                     + tokenString + CommonUtil.LINE_SEPARATOR + "}";
             getParser(context, functionRule).serviceDefinition();
         }
@@ -185,7 +185,8 @@ public class CompletionSubRuleParser {
                     || parserRuleContext.getClass().equals(BallerinaParser.ExpressionContext.class)
                     || moderateContextTypes.contains(parserRuleContext.getClass())
                     || parserRuleContext instanceof BallerinaParser.StatementContext
-                    || parserRuleContext instanceof BallerinaParser.DefinitionContext) {
+                    || parserRuleContext instanceof BallerinaParser.DefinitionContext
+                    || parserRuleContext instanceof BallerinaParser.ObjectFieldDefinitionContext) {
                 context.put(CompletionKeys.PARSER_RULE_CONTEXT_KEY, parserRuleContext);
                 break;
             }

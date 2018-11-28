@@ -18,24 +18,26 @@
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.expressions.AwaitExpressionNode;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.expressions.WaitExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * This represents the await expression implementation.
  * 
  * @since 0.965
  */
-public class BLangAwaitExpr extends BLangExpression implements AwaitExpressionNode {
+public class BLangWaitExpr extends BLangExpression implements WaitExpressionNode {
 
-    private static final String AWAIT_KEYWORD = "await";
-    
-    public BLangExpression expr;
+    private static final String WAIT_KEYWORD = "wait";
+
+    public List<BLangExpression> exprList;
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.AWAIT_EXPR;
+        return NodeKind.WAIT_EXPR;
     }
 
     @Override
@@ -45,12 +47,12 @@ public class BLangAwaitExpr extends BLangExpression implements AwaitExpressionNo
 
     @Override
     public String toString() {
-        return AWAIT_KEYWORD + " " + String.valueOf(expr);
+        String expressions = exprList.stream().map(Object::toString).collect(Collectors.joining("|"));
+        return WAIT_KEYWORD + " " + expressions;
     }
 
     @Override
-    public ExpressionNode getExpression() {
-        return expr;
+    public BLangExpression getExpression() {
+        return exprList.get(0);
     }
-    
 }
