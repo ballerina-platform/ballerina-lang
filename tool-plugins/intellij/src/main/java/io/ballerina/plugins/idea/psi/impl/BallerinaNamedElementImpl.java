@@ -34,7 +34,6 @@ import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.PlatformIcons;
 import io.ballerina.plugins.idea.BallerinaIcons;
 import io.ballerina.plugins.idea.psi.BallerinaCompositeElement;
-import io.ballerina.plugins.idea.psi.BallerinaFile;
 import io.ballerina.plugins.idea.psi.BallerinaFunctionDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaGlobalVariableDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaNamedElement;
@@ -155,7 +154,6 @@ public abstract class BallerinaNamedElementImpl<T extends BallerinaNamedStub<?>>
                 @NotNull
                 @Override
                 public String getLocationString() {
-                    BallerinaFile file = getContainingFile();
                     return "";
                 }
 
