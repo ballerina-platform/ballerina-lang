@@ -18,13 +18,16 @@ import ballerina/io;
 import ballerina/runtime;
 
 int total = 0;
+const string ERROR_MSG_FORMAT = "Error from Connector: %s - %s";
+
 function testUnaryNonBlockingClient() returns int {
     // Client endpoint configuration
     HelloWorldClient helloWorldEp = new ("http://localhost:9100");
     // Executing unary non-blocking call registering server message listener.
     error? result = helloWorldEp->hello("WSO2", HelloWorldMessageListener);
     if (result is error) {
-        io:println("Error from Connector: " + result.reason() + " - " + <string>result.detail().message);
+        string msg = io:sprintf(ERROR_MSG_FORMAT, result.reason(), <string>result.detail().message);
+        io:println(msg);
         return total;
     } else {
         io:println("Connected successfully");
@@ -55,7 +58,8 @@ service HelloWorldMessageListener = service {
 
     // Resource registered to receive server error messages
     resource function onError(error err) {
-        io:println("Error from Connector: " + err.reason() + " - " + <string>err.detail().message);
+        string msg = io:sprintf(ERROR_MSG_FORMAT, err.reason(), <string>err.detail().message);
+        io:println(msg);
     }
 
     // Resource registered to receive server completed message.

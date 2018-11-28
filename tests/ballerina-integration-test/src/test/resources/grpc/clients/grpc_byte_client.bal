@@ -23,7 +23,7 @@ function testByteArray() returns (string) {
     byte[] bytes = statement.toByteArray("UTF-8");
     var addResponse = blockingEp->checkBytes(bytes);
     if (addResponse is error) {
-        return "Error from Connector: " + addResponse.reason() + " - " + <string>addResponse.detail().message;
+        return io:sprintf("Error from Connector: %s - %s", addResponse.reason(), <string>addResponse.detail().message);
     } else {
         byte[] result = [];
         grpc:Headers resHeaders = new;

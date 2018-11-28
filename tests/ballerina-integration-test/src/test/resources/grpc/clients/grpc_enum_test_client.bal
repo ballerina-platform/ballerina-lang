@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/grpc;
+import ballerina/io;
 
 function testEnum() returns (string) {
     testEnumServiceBlockingClient blockingEp = new ("http://localhost:8555");
@@ -21,7 +22,7 @@ function testEnum() returns (string) {
     orderInfo orderReq = { id:"100500", mode:r };
     var addResponse = blockingEp->testEnum(orderReq);
     if (addResponse is error) {
-        return "Error from Connector: " + addResponse.reason() + " - " + <string>addResponse.detail().message;
+        return io:sprintf("Error from Connector: %s - %s", addResponse.reason(), <string>addResponse.detail().message);
     } else {
         string result = "";
         (result, _) = addResponse;

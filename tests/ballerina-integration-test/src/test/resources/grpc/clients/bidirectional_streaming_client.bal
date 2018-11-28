@@ -23,12 +23,14 @@ int total = 0;
 public function main(string... args) {
 
     ChatClient chatEp = new ("http://localhost:9094");
+    const string ERROR_MSG_FORMAT = "Error from Connector: %s - %s";
 
     grpc:StreamingClient ep;
     // Executing unary non-blocking call registering server message listener.
     var res = chatEp->chat(ChatMessageListener);
     if (res is error) {
-        io:println("Error from Connector: " + res.reason() + " - " + <string>res.detail().message);
+        string msg = io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
+        io:println(msg);
     } else {
         ep = con;
     }
@@ -50,7 +52,8 @@ service ChatMessageListener = service {
     }
 
     resource function onError(error err) {
-        io:println("Error from Connector: " + err.reason() + " - " + <string>err.detail().message);
+        string msg = io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
+        io:println(msg);
     }
 
     resource function onComplete() {

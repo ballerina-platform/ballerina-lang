@@ -16,17 +16,13 @@
 import ballerina/grpc;
 import ballerina/io;
 
-public function main() {
-    string x = testUnaryBlockingClient("Teset");
-    io:println(x);
-}
-
 HelloWorldBlockingClient helloWorldBlockingEp = new ("http://localhost:9100");
+const string ERROR_MSG_FORMAT = "Error from Connector: %s - %s";
 
 function testUnaryBlockingClient(string name) returns (string) {
     (string, grpc:Headers)|error unionResp = helloWorldBlockingEp->hello(name);
     if (unionResp is error) {
-        string msg = "Error from Connector: " + unionResp.reason() + " - " + <string>unionResp.detail().message;
+        string msg = io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
         io:println(msg);
         return msg;
     } else {
@@ -41,7 +37,7 @@ function testUnaryBlockingClient(string name) returns (string) {
 function testUnaryBlockingIntClient(int age) returns (int) {
     (int, grpc:Headers)|error unionResp = helloWorldBlockingEp->testInt(age);
     if (unionResp is error) {
-        string msg = "Error from Connector: " + unionResp.reason() + " - " + <string>unionResp.detail().message;
+        string msg = io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
         io:println(msg);
         return -1;
     } else {
@@ -56,7 +52,7 @@ function testUnaryBlockingIntClient(int age) returns (int) {
 function testUnaryBlockingFloatClient(float salary) returns (float) {
     (float, grpc:Headers)|error unionResp = helloWorldBlockingEp->testFloat(salary);
     if (unionResp is error) {
-        string msg = "Error from Connector: " + unionResp.reason() + " - " + <string>unionResp.detail().message;
+        string msg = io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
         io:println(msg);
         return -1.0;
     } else {
@@ -71,7 +67,7 @@ function testUnaryBlockingFloatClient(float salary) returns (float) {
 function testUnaryBlockingBoolClient(boolean isAvailable) returns (boolean) {
     (boolean, grpc:Headers)|error unionResp = helloWorldBlockingEp->testBoolean(isAvailable);
     if (unionResp is error) {
-        string msg = "Error from Connector: " + unionResp.reason() + " - " + <string>unionResp.detail().message;
+        string msg = io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
         io:println(msg);
         return false;
     } else {
@@ -86,7 +82,7 @@ function testUnaryBlockingBoolClient(boolean isAvailable) returns (boolean) {
 function testResponseInsideMatch(string msg) returns Response {
     (Response, grpc:Headers)|error unionResp = helloWorldBlockingEp->testResponseInsideMatch(msg);
     if (unionResp is error) {
-        string message = "Error from Connector: " + unionResp.reason() + " - " + <string>unionResp.detail().message;
+        string message = io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
         io:println(message);
         return {};
     } else {
@@ -102,7 +98,7 @@ function testUnaryBlockingStructClient(Request req) returns (Response) {
     //Request req = {name:"Sam", age:25, message:"Testing."};
     (Response, grpc:Headers)|error unionResp = helloWorldBlockingEp->testStruct(req);
     if (unionResp is error) {
-        string msg = "Error from Connector: " + unionResp.reason() + " - " + <string>unionResp.detail().message;
+        string msg = io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
         io:println(msg);
         return {};
     } else {

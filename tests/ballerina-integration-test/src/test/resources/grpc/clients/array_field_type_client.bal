@@ -17,6 +17,7 @@ import ballerina/grpc;
 import ballerina/io;
 
 HelloWorldBlockingClient HelloWorldBlockingEp = new ("http://localhost:9092");
+const string ERROR_MSG_FORMAT = "Error from Connector: %s - %s";
 
 function testIntArrayInput(TestInt req) returns (int|string) {
     io:println("testIntArrayInput: input:");
@@ -24,7 +25,7 @@ function testIntArrayInput(TestInt req) returns (int|string) {
     (int, grpc:Headers)|error unionResp = HelloWorldBlockingEp->testIntArrayInput(req);
     io:println(unionResp);
     if (unionResp is error) {
-        return "Error from Connector: " + unionResp.reason() + " - " + <string>unionResp.detail().message;
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
     } else {
         io:println("Client Got Response : ");
         int result = 0;
@@ -40,7 +41,7 @@ function testStringArrayInput(TestString req) returns (string) {
     (string, grpc:Headers)|error unionResp = HelloWorldBlockingEp->testStringArrayInput(req);
     io:println(unionResp);
     if (unionResp is error) {
-        return "Error from Connector: " + unionResp.reason() + " - " + <string>unionResp.detail().message;
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
     } else {
         io:println("Client Got Response : ");
         string result;
@@ -56,7 +57,7 @@ function testFloatArrayInput(TestFloat req) returns (float|string) {
     (float, grpc:Headers)|error unionResp = HelloWorldBlockingEp->testFloatArrayInput(req);
     io:println(unionResp);
     if (unionResp is error) {
-        return "Error from Connector: " + unionResp.reason() + " - " + <string>unionResp.detail().message;
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
     } else {
         io:println("Client Got Response : ");
         float result;
@@ -72,7 +73,7 @@ function testBooleanArrayInput(TestBoolean req) returns (boolean|string) {
     (boolean, grpc:Headers)|error unionResp = HelloWorldBlockingEp->testBooleanArrayInput(req);
     io:println(unionResp);
     if (unionResp is error) {
-        return "Error from Connector: " + unionResp.reason() + " - " + <string>unionResp.detail().message;
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
     } else {
         io:println("Client Got Response : ");
         boolean result;
@@ -88,7 +89,7 @@ function testStructArrayInput(TestStruct req) returns (string) {
     (string, grpc:Headers)|error unionResp = HelloWorldBlockingEp->testStructArrayInput(req);
     io:println(unionResp);
     if (unionResp is error) {
-        return "Error from Connector: " + unionResp.reason() + " - " + <string>unionResp.detail().message;
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
     } else {
         io:println("Client Got Response : ");
         string result;
@@ -103,7 +104,7 @@ function testIntArrayOutput() returns (TestInt|string) {
     (TestInt, grpc:Headers)|error unionResp = HelloWorldBlockingEp->testIntArrayOutput();
     io:println(unionResp);
     if (unionResp is error) {
-        return "Error from Connector: " + unionResp.reason() + " - " + <string>unionResp.detail().message;
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
     } else {
         io:println("Client Got Response : ");
         TestInt result;
@@ -118,7 +119,7 @@ function testStringArrayOutput() returns (TestString|string) {
     (TestString, grpc:Headers)|error unionResp = HelloWorldBlockingEp->testStringArrayOutput();
     io:println(unionResp);
     if (unionResp is error) {
-        return "Error from Connector: " + unionResp.reason() + " - " + <string>unionResp.detail().message;
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
     } else {
         io:println("Client Got Response : ");
         TestString result;
@@ -133,7 +134,7 @@ function testFloatArrayOutput() returns (TestFloat|string) {
     (TestFloat, grpc:Headers)|error unionResp = HelloWorldBlockingEp->testFloatArrayOutput();
     io:println(unionResp);
     if (unionResp is error) {
-        return "Error from Connector: " + unionResp.reason() + " - " + <string>unionResp.detail().message;
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
     } else {
         io:println("Client Got Response : ");
         TestFloat result;
@@ -148,7 +149,7 @@ function testBooleanArrayOutput() returns (TestBoolean|string) {
     (TestBoolean, grpc:Headers)|error unionResp = HelloWorldBlockingEp->testBooleanArrayOutput();
     io:println(unionResp);
     if (unionResp is error) {
-        return "Error from Connector: " + unionResp.reason() + " - " + <string>unionResp.detail().message;
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
     } else {
         io:println("Client Got Response : ");
         TestBoolean result;
@@ -163,7 +164,7 @@ function testStructArrayOutput() returns (TestStruct|string) {
     (TestStruct, grpc:Headers)|error unionResp = HelloWorldBlockingEp->testStructArrayOutput();
     io:println(unionResp);
     if (unionResp is error) {
-        return "Error from Connector: " + unionResp.reason() + " - " + <string>unionResp.detail().message;
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
     } else {
         io:println("Client Got Response : ");
         TestStruct result;
