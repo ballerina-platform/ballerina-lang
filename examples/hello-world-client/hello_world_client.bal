@@ -15,10 +15,10 @@ public function main() {
             log:printInfo(payload);
         } else if (payload is error) {
             // If an error occurs when retrieving the text payload, log the error.
-            log:printError(string.create(payload.detail().message));
+            log:printError(<string> payload.detail().message);
         }
     } else if (resp is error) {
             // If an error occurs when getting the response, log the error.
-        log:printError(string.create(resp.detail().message));
+        log:printError(<string> resp.detail().message);
     }
 }

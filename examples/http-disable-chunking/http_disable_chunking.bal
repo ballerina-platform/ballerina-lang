@@ -4,49 +4,46 @@ import ballerina/log;
 //The HTTP client's chunking behaviour can be configured as auto, always, or never.
 //In this example, it is set to as never, which means that chunking never happens irrespective of how it is specified
 //in the request. When chunking is set to auto, chunking is done as specified in the request.
-endpoint http:Client clientEndpoint {
-    url: "http://localhost:9090",
+http:ClientEndpointConfig clientEndpointConfig = {
     chunking: http:CHUNKING_NEVER
 };
 
-service<http:Service> chunkingSample bind { port: 9092 } {
+service chunkingSample on new http:Listener(9092) {
 
     @http:ResourceConfig {
         path: "/"
     }
     //Parameters include a reference to the caller endpoint and an object with the request data.
-    invokeEndpoint(endpoint caller, http:Request req) {
+    resource function invokeEndpoint(http:Caller caller, http:Request req) {
+        http:Client clientEndpoint = new("http://localhost:9090", config = clientEndpointConfig);
         //Create a new outbound request and set the payload.
         http:Request newReq = new;
         newReq.setPayload({ "name": "Ballerina" });
         var result = clientEndpoint->post("/echo/", newReq);
-        match result {
-            http:Response clientResponse => {
-                //send the response back to the caller.
-                var result = caller->respond(clientResponse);
-                if (result is error) {
-                   log:printError("Error sending response", err = result);
-                }
+        if (result is http:Response) {
+            //send the response back to the caller.
+            var resp = caller->respond(result);
+            if (resp is error) {
+               log:printError("Error sending response", err = resp);
             }
-            error responseError => {
-                http:Response errorResponse = new;
-                json errMsg = { "error": "error occurred while invoking the service" };
-                errorResponse.setPayload(errMsg);
-                var result = caller->respond(errorResponse);
-                if (result is error) {
-                   log:printError("Error sending response", err = result);
-                }
+        } else if (result is error) {
+            http:Response errorResponse = new;
+            json errMsg = { "error": "error occurred while invoking the service" };
+            errorResponse.setPayload(errMsg);
+            var response = caller->respond(errorResponse);
+            if (response is error) {
+               log:printError("Error sending response", err = response);
             }
         }
     }
 }
 
 // A sample backend that responds according to chunking behaviour.
-service<http:Service> echo bind { port: 9090 } {
+service echo on new http:Listener(9090) {
     @http:ResourceConfig {
         path: "/"
     }
-    echoResource(endpoint caller, http:Request req) {
+    resource function echoResource(http:Caller caller, http:Request req) returns error? {
         string value;
 
         http:Response res = new;
@@ -83,5 +80,6 @@ service<http:Service> echo bind { port: 9090 } {
         if (result is error) {
            log:printError("Error sending response from echo service", err = result);
         }
+        return ();
     }
 }
