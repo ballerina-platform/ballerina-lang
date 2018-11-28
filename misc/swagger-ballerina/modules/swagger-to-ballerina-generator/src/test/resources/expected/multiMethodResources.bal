@@ -3,9 +3,7 @@ import ballerina/log;
 import ballerina/mime;
 import ballerina/swagger;
 
-endpoint http:Listener ep0 {
-    port: 9090
-};
+listener http:Listener ep0 = new(9090);
 
 @swagger:ServiceInfo {
     title: "serviceName",
@@ -14,7 +12,7 @@ endpoint http:Listener ep0 {
 @http:ServiceConfig {
     basePath: "/"
 }
-service serviceName bind ep0 {
+service serviceName on ep0 {
 
     @swagger:MultiResourceInfo {
         resourceInformation: {
@@ -30,7 +28,7 @@ service serviceName bind ep0 {
         methods:["GET", "POST"],
         path:"/user"
     }
-    resource1 (endpoint outboundEp, http:Request _resource1Req) {
+    resource function resource1 (http:Caller outboundEp, http:Request _resource1Req) {
 
     }
 
@@ -41,7 +39,7 @@ service serviceName bind ep0 {
         methods:["PUT"],
         path:"/user"
     }
-    resource2 (endpoint outboundEp, http:Request _resource2Req) {
+    resource function resource2 (http:Caller outboundEp, http:Request _resource2Req) {
 
     }
 

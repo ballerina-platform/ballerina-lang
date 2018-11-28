@@ -167,18 +167,30 @@ public class BallerinaOpenApi implements BallerinaSwaggerObject<BallerinaOpenApi
             return;
         }
 
-        serverList.forEach(server -> {
-            try {
-                // Note that only one base path is allowed. Though we extract base path per each server
-                // defined in the Open Api definition, only the base path of first server will be used
-                // in ballerina code generation. Ballerina all endpoints to be in a single base path
-                BallerinaServer balServer = new BallerinaServer().buildContext(server);
-                servers.add(balServer);
-            } catch (BallerinaOpenApiException e) {
-                // Ignore the exception, set default value for this server and move forward
-                servers.add(new BallerinaServer().getDefaultValue());
-            }
-        });
+        // TODO: Temporally only send one server to be defined as a listener and attach to the service.
+//        serverList.forEach(server -> {
+//            try {
+//                // Note that only one base path is allowed. Though we extract base path per each server
+//                // defined in the Open Api definition, only the base path of first server will be used
+//                // in ballerina code generation. Ballerina all endpoints to be in a single base path
+//                BallerinaServer balServer = new BallerinaServer().buildContext(server);
+//                servers.add(balServer);
+//            } catch (BallerinaOpenApiException e) {
+//                // Ignore the exception, set default value for this server and move forward
+//                servers.add(new BallerinaServer().getDefaultValue());
+//            }
+//        });
+
+        try {
+            // Note that only one base path is allowed. Though we extract base path per each server
+            // defined in the Open Api definition, only the base path of first server will be used
+            // in ballerina code generation. Ballerina all endpoints to be in a single base path
+            BallerinaServer balServer = new BallerinaServer().buildContext(serverList.get(0));
+            servers.add(balServer);
+        } catch (BallerinaOpenApiException e) {
+            // Ignore the exception, set default value for this server and move forward
+            servers.add(new BallerinaServer().getDefaultValue());
+        }
     }
 
     /**

@@ -70,7 +70,7 @@ public class CodeGeneratorTest {
             generator.generate(GenType.MOCK, definitionPath, projectPath.toString());
             if (Files.exists(outFile)) {
                 String result = new String(Files.readAllBytes(outFile));
-                Assert.assertTrue(result.contains("listPets (endpoint outboundEp"));
+                Assert.assertTrue(result.contains("listPets (http:Caller outboundEp"));
             } else {
                 Assert.fail("Service was not generated");
             }

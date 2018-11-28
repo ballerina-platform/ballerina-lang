@@ -3,9 +3,7 @@ import ballerina/log;
 import ballerina/mime;
 import ballerina/swagger;
 
-endpoint http:Listener ep0 {
-    port: 9090
-};
+listener http:Listener ep0 = new(9090);
 
 @swagger:ServiceInfo {
     title: "serviceName",
@@ -14,8 +12,8 @@ endpoint http:Listener ep0 {
 @http:ServiceConfig {
     basePath: "/"
 }
-service serviceName bind ep0 {
-    user (endpoint outboundEp, http:Request _userReq) {
+service serviceName on ep0 {
+    resource function user (http:Caller outboundEp, http:Request _userReq) {
 
     }
 
