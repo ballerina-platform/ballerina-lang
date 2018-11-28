@@ -131,7 +131,7 @@ service echo11 on testEP {
     }
     resource function echo13(http:Caller caller, http:Request req) {
         string barStr = req.getQueryParams().foo;
-        var result = <int> barStr;
+        var result = int.create(barStr);
         int bar = (result is int) ? result : 0;
         json responseJson = {"echo13":bar};
 
@@ -146,7 +146,7 @@ service echo11 on testEP {
     }
     resource function echo14(http:Caller caller, http:Request req) {
         string barStr = req.getQueryParams().foo;
-        var result = <float> barStr;
+        var result = float.create(barStr);
         float bar = (result is float) ? result : 0.0;
         json responseJson = {"echo14":bar};
 
@@ -161,7 +161,7 @@ service echo11 on testEP {
     }
     resource function echo15(http:Caller caller, http:Request req) {
         string barStr = req.getQueryParams().foo;
-        boolean bar = <boolean>barStr;
+        boolean bar = boolean.create(barStr);
         json responseJson = {"echo15":bar};
 
         http:Response res = new;

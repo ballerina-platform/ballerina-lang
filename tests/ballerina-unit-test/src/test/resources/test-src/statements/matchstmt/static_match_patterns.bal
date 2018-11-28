@@ -201,7 +201,9 @@ function tar3(anydata f) returns string {
 
 type Obj object {
     int var1;
-    new (var1) {}
+    function __init(int var1) {
+        self.var1 = var1;
+    }
 };
 
 function testNonAnyDataType() returns string {

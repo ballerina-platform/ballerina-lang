@@ -20,25 +20,16 @@ package org.wso2.ballerinalang.compiler.tree;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.DeprecatedNode;
-import org.ballerinalang.model.tree.EndpointNode;
-import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.MarkdownDocumentationNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
-import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
-import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
-import org.ballerinalang.model.tree.statements.XMLNSDeclStatementNode;
-import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 
 import java.util.ArrayList;
@@ -53,19 +44,10 @@ import java.util.Set;
  */
 public class BLangService extends BLangNode implements ServiceNode {
 
-    public BLangUserDefinedType serviceTypeStruct;
-    public List<BLangSimpleVariableDef> vars;
-    public List<BLangResource> resources;
     public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
     public BLangMarkdownDocumentation markdownDocumentationAttachment;
-    public List<BLangEndpoint> endpoints;
-    public BLangFunction initFunction;
     public List<BLangDeprecatedNode> deprecatedAttachments;
-    public List<BLangSimpleVarRef> boundEndpoints;
-    public BObjectType endpointType, endpointClientType;
-    public BLangRecordLiteral anonymousEndpointBind;
-    public List<BLangXMLNSStatement> nsDeclarations;
 
     public BSymbol symbol;
     public BLangIdentifier name;
@@ -76,16 +58,26 @@ public class BLangService extends BLangNode implements ServiceNode {
 
     // Cached values.
     public String listenerName;
+    public BType listerType;
+    public List<BLangFunction> resourceFunctions;
+
+    // Old values. TODO : Remove this.
+    @Deprecated
+    public List<BLangResource> resources = new ArrayList<>();
+    @Deprecated
+    public List<BLangSimpleVariableDef> vars = new ArrayList<>();
+    @Deprecated
+    public List<BLangEndpoint> endpoints = new ArrayList<>();
+    @Deprecated
+    public BLangRecordLiteral anonymousEndpointBind = null;
+    @Deprecated
+    public List<? extends SimpleVariableReferenceNode> boundEndpoints = new ArrayList<>();
 
     public BLangService() {
-        this.vars = new ArrayList<>();
-        this.resources = new ArrayList<>();
-        this.endpoints = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
         this.annAttachments = new ArrayList<>();
         this.deprecatedAttachments = new ArrayList<>();
-        this.boundEndpoints = new ArrayList<>();
-        this.nsDeclarations = new ArrayList<>();
+        this.resourceFunctions = new ArrayList<>();
     }
 
     @Override
@@ -99,43 +91,26 @@ public class BLangService extends BLangNode implements ServiceNode {
     }
 
     @Override
-    public UserDefinedTypeNode getServiceTypeStruct() {
-        return this.serviceTypeStruct;
+    public boolean isAnonymousService() {
+        return this.isAnonymousServiceValue;
+    }
+
+    public List<BLangFunction> getResources() {
+        return resourceFunctions;
+    }
+
+    public BLangExpression getAttachExpr() {
+        return this.attachExpr;
     }
 
     @Override
-    public void setServiceTypeStruct(UserDefinedTypeNode serviceTypeStruct) {
-        this.serviceTypeStruct = (BLangUserDefinedType) serviceTypeStruct;
+    public BLangUserDefinedType getUserDefinedTypeNode() {
+        return this.serviceUDT;
     }
 
     @Override
-    public List<BLangSimpleVariableDef> getVariables() {
-        return vars;
-    }
-
-    @Override
-    public void addVariable(VariableDefinitionNode var) {
-        this.getVariables().add((BLangSimpleVariableDef) var);
-    }
-
-    @Override
-    public List<BLangResource> getResources() {
-        return resources;
-    }
-
-    @Override
-    public void addResource(ResourceNode resource) {
-        this.resources.add((BLangResource) resource);
-    }
-
-    @Override
-    public void setInitFunction(FunctionNode function) {
-        this.initFunction = (BLangFunction) function;
-    }
-
-    @Override
-    public FunctionNode getInitFunction() {
-        return initFunction;
+    public BLangTypeDefinition getTypeDefinition() {
+        return this.serviceTypeDefinition;
     }
 
     @Override
@@ -176,42 +151,6 @@ public class BLangService extends BLangNode implements ServiceNode {
     @Override
     public void addDeprecatedAttachment(DeprecatedNode deprecatedNode) {
         this.deprecatedAttachments.add((BLangDeprecatedNode) deprecatedNode);
-    }
-
-    @Override
-    public List<? extends EndpointNode> getEndpointNodes() {
-        return endpoints;
-    }
-
-    @Override
-    public void bindToEndpoint(SimpleVariableReferenceNode endpointRef) {
-        final BLangSimpleVarRef endpointVar = (BLangSimpleVarRef) endpointRef;
-        this.boundEndpoints.add(0, endpointVar);
-    }
-
-    @Override
-    public List<? extends SimpleVariableReferenceNode> getBoundEndpoints() {
-        return this.boundEndpoints;
-    }
-
-    @Override
-    public RecordLiteralNode getAnonymousEndpointBind() {
-        return anonymousEndpointBind;
-    }
-
-    @Override
-    public void addAnonymousEndpointBind(RecordLiteralNode recordLiteralNode) {
-        this.anonymousEndpointBind = (BLangRecordLiteral) recordLiteralNode;
-    }
-
-    @Override
-    public List<BLangXMLNSStatement> getNamespaceDeclarations() {
-        return nsDeclarations;
-    }
-
-    @Override
-    public void addNamespaceDeclaration(XMLNSDeclStatementNode xmlns) {
-        this.nsDeclarations.add((BLangXMLNSStatement) xmlns);
     }
 
     @Override

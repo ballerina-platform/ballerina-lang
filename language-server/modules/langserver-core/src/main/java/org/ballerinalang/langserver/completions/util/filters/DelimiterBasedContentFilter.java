@@ -40,8 +40,6 @@ import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
-import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
