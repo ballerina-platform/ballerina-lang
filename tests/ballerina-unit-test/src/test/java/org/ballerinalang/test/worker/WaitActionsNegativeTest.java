@@ -42,13 +42,13 @@ public class WaitActionsNegativeTest {
     public void testNegativeWorkerActions() {
         int index = 0;
         BAssertUtil.validateError(result, index, "incompatible types: expected 'future<string>', found 'future<int>'",
-                                  27, 22);
+                27, 22);
         index++;
         BAssertUtil.validateError(result, index, "variable assignment is required", 28, 5);
 
         index++;
         BAssertUtil.validateError(result, index, "incompatible types: expected 'future<int>', found 'future<string>'",
-                                  47, 31);
+                47, 31);
         index++;
         BAssertUtil.validateError(result, index, "incompatible types: expected 'future<int|boolean>', found 'future" +
                 "<string>'", 48, 36);
@@ -63,10 +63,10 @@ public class WaitActionsNegativeTest {
                 "'future<boolean>'", 49, 44);
         index++;
         BAssertUtil.validateError(result, index, "operator '|' cannot be applied to type 'future'",
-                                  50, 29);
+                50, 29);
         index++;
         BAssertUtil.validateError(result, index, "operator '|' not defined for 'future<int>' and 'future<string>'",
-                                  51, 33);
+                51, 33);
         index++;
         BAssertUtil.validateError(result, index, "incompatible types: expected 'future<future<int|string>>', found " +
                 "'future<int>'", 52, 40);
@@ -75,7 +75,7 @@ public class WaitActionsNegativeTest {
                 "'future<string>'", 52, 43);
         index++;
         BAssertUtil.validateError(result, index, "incompatible types: expected 'future<int>', found 'future<string>'",
-                                  76, 34);
+                76, 34);
         index++;
         BAssertUtil.validateError(result, index, "incompatible types: expected 'future<boolean|string>', found " +
                 "'future<int>'", 77, 41);
@@ -84,19 +84,19 @@ public class WaitActionsNegativeTest {
                 "'future<int>'", 77, 45);
         index++;
         BAssertUtil.validateError(result, index, "incompatible types: expected 'future<int>', found 'future<string>'",
-                                  78, 51);
+                78, 51);
         index++;
         BAssertUtil.validateError(result, index, "invalid literal for type '$anonType$5'",
-                                  79, 45);
+                79, 45);
         index++;
         BAssertUtil.validateError(result, index, "invalid field name 'f2' in type '$anonType$6'",
-                                  80, 45);
+                80, 45);
         index++;
         BAssertUtil.validateError(result, index, "missing non-defaultable required record field 'f3'",
-                                  80, 45);
+                80, 45);
         index++;
         BAssertUtil.validateError(result, index, "missing non-defaultable required record field 'f2'",
-                                  81, 25);
+                81, 25);
 
     }
 }

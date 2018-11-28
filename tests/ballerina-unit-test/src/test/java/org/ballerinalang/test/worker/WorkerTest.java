@@ -39,7 +39,15 @@ public class WorkerTest {
         this.result = BCompileUtil.compile("test-src/workers/workers.bal");
         Assert.assertEquals(result.getErrorCount(), 0, Arrays.asList(result.getDiagnostics()).toString());
     }
-    
+
+    @Test
+    public void workerSendToWorkerTest() {
+        BValue[] vals = BRunUtil.invoke(result, "workerSendToWorker", new BValue[0]);
+        Assert.assertEquals(vals.length, 1);
+        BInteger ret = (BInteger) vals[0];
+        Assert.assertEquals(ret.intValue(), 52);
+    }
+
     @Test
     public void workerReturnTest() {
         BValue[] vals = BRunUtil.invoke(result, "workerReturnTest", new BValue[0]);

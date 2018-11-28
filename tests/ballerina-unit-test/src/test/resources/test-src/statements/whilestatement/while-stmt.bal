@@ -35,7 +35,7 @@ function testWhileScopeWithIf() returns (int, float) {
         if(i == 0){
             operator = args[0];
         } else {
-            var val = <float>args[i];
+            var val = float.create(args[i]);
             if (val is error) {
                  panic val;
             } else {

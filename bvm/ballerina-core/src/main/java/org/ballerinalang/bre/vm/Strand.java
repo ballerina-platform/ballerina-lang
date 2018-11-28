@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.bre.vm;
 
-import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.DebugContext;
