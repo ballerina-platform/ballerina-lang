@@ -16,10 +16,7 @@
 import ballerina/grpc;
 import ballerina/log;
 
-listener grpc:Listener ep5 = new ({
-    host:"localhost",
-    port:9098
-});
+listener grpc:Listener ep5 = new (9098);
 @grpc:ServiceDescriptor {
     descriptor: <string>descriptorMap5[DESCRIPTOR_KEY_5],
     descMap: descriptorMap5

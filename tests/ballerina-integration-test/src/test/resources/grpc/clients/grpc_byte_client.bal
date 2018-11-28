@@ -18,14 +18,12 @@ import ballerina/io;
 import ballerina/grpc;
 
 function testByteArray() returns (string) {
-    byteServiceBlockingClient blockingEp  = new ({
-        url:"http://localhost:8557"
-    });
+    byteServiceBlockingClient blockingEp  = new ("http://localhost:8557");
     string statement = "Lion in Town.";
     byte[] bytes = statement.toByteArray("UTF-8");
     var addResponse = blockingEp->checkBytes(bytes);
     if (addResponse is error) {
-        return "Error from Connector: " + addResponse.reason();
+        return io:sprintf("Error from Connector: %s - %s", addResponse.reason(), <string>addResponse.detail().message);
     } else {
         byte[] result = [];
         grpc:Headers resHeaders = new;
@@ -35,12 +33,16 @@ function testByteArray() returns (string) {
 }
 
 public type byteServiceBlockingClient client object {
-    public grpc:Client grpcClient = new;
+    private grpc:Client grpcClient = new;
+    private grpc:ClientEndpointConfig config = {};
+    private string url;
 
-    function __init(grpc:ClientEndpointConfig config) {
+    function __init(string url, grpc:ClientEndpointConfig? config = ()) {
+        self.config = config ?: {};
+        self.url = url;
         // initialize client endpoint.
         grpc:Client c = new;
-        c.init(config);
+        c.init(self.url, self.config);
         error? result = c.initStub("blocking", DESCRIPTOR_KEY, getDescriptorMap());
         if (result is error) {
             panic result;
@@ -67,12 +69,16 @@ public type byteServiceBlockingClient client object {
 };
 
 public type byteServiceClient client object {
-    public grpc:Client grpcClient = new;
+    private grpc:Client grpcClient = new;
+    private grpc:ClientEndpointConfig config = {};
+    private string url;
 
-    function __init(grpc:ClientEndpointConfig config) {
+    function __init(string url, grpc:ClientEndpointConfig? config = ()) {
+        self.config = config ?: {};
+        self.url = url;
         // initialize client endpoint.
         grpc:Client c = new;
-        c.init(config);
+        c.init(self.url, self.config);
         error? result = c.initStub("non-blocking", DESCRIPTOR_KEY, getDescriptorMap());
         if (result is error) {
             panic result;
