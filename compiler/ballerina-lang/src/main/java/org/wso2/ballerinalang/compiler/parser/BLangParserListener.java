@@ -3165,7 +3165,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         Token stop = ctx.getStop();
         if (stop != null) {
             endLine = stop.getLine();
-            endCol = stop.getCharPositionInLine() + 1;
+            endCol = stop.getCharPositionInLine() + (stop.getStopIndex() - stop.getStartIndex() + 1) + 1;
         }
 
         return new DiagnosticPos(diagnosticSrc, startLine, endLine, startCol, endCol);

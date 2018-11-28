@@ -53,21 +53,22 @@ public class RootTemplate extends AbstractTestTemplate {
 
     public RootTemplate(String fileName, BLangPackage builtTestFile) {
         super(builtTestFile);
-        builtTestFile.getServices().stream()
-                .filter(service -> fileName.equals(service.pos.src.cUnitName) &&
-                        service.serviceTypeStruct.toString().equals("httpService"))
-                .forEach(httpServices::add);
-        builtTestFile.getServices().stream()
-                .filter(service -> fileName.equals(service.pos.src.cUnitName) &&
-                        service.serviceTypeStruct.toString().equals("httpWebSocketService"))
-                .forEach(httpWSServices::add);
-        builtTestFile.getServices().stream()
-                .filter(service -> fileName.equals(service.pos.src.cUnitName) &&
-                        service.serviceTypeStruct.toString().equals("httpWebSocketClientService"))
-                .forEach(httpWSClientServices::add);
-        builtTestFile.getFunctions().stream()
-                .filter(func -> fileName.equals(func.pos.src.cUnitName))
-                .forEach(functions::add);
+        // TODO: Fix with the latest service changes
+//        builtTestFile.getServices().stream()
+//                .filter(service -> fileName.equals(service.pos.src.cUnitName) &&
+//                        service.serviceTypeStruct.toString().equals("httpService"))
+//                .forEach(httpServices::add);
+//        builtTestFile.getServices().stream()
+//                .filter(service -> fileName.equals(service.pos.src.cUnitName) &&
+//                        service.serviceTypeStruct.toString().equals("httpWebSocketService"))
+//                .forEach(httpWSServices::add);
+//        builtTestFile.getServices().stream()
+//                .filter(service -> fileName.equals(service.pos.src.cUnitName) &&
+//                        service.serviceTypeStruct.toString().equals("httpWebSocketClientService"))
+//                .forEach(httpWSClientServices::add);
+//        builtTestFile.getFunctions().stream()
+//                .filter(func -> fileName.equals(func.pos.src.cUnitName))
+//                .forEach(functions::add);
         globalEndpoints.addAll(builtTestFile.getGlobalEndpoints());
         globalFunctions.addAll(builtTestFile.getFunctions());
     }
