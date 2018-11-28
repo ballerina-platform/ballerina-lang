@@ -84,8 +84,13 @@ public class TesterinaFunction {
 
     public BValue[] invoke() throws BallerinaException {
         if (this.type == Type.TEST_INIT) {
-            // Invoke init & start functions
-            invokeInitAndStartFunctions(programFile);
+            // Invoke init functions
+            invokePackageInitFunctions(programFile);
+            invokePackageTestInitFunctions(programFile);
+
+            //  Invoke start functions
+            invokePackageStartFunctions(programFile);
+            invokePackageTestStartFunctions(programFile);
 
             TesterinaRegistry.getInstance().addInitializedPackage(programFile.getEntryPkgName());
             return new BValue[]{};
@@ -94,20 +99,28 @@ public class TesterinaFunction {
         }
     }
 
-    private void invokeInitAndStartFunctions(ProgramFile programFile) {
+    private void invokePackageInitFunctions(ProgramFile programFile) {
         for (PackageInfo info : programFile.getPackageInfoEntries()) {
-            if (info.getInitFunctionInfo() != null) {
-                BVMExecutor.executeFunction(programFile, info.getInitFunctionInfo());
-            }
+            BVMExecutor.executeFunction(programFile, info.getInitFunctionInfo());
+        }
+    }
 
+    private void invokePackageTestInitFunctions(ProgramFile programFile) {
+        for (PackageInfo info : programFile.getPackageInfoEntries()) {
             if (info.getTestInitFunctionInfo() != null) {
                 BVMExecutor.executeFunction(programFile, info.getTestInitFunctionInfo());
             }
+        }
+    }
 
-            if (info.getStartFunctionInfo() != null) {
-                BVMExecutor.executeFunction(programFile, info.getStartFunctionInfo());
-            }
+    private void invokePackageStartFunctions(ProgramFile programFile) {
+        for (PackageInfo info : programFile.getPackageInfoEntries()) {
+            BVMExecutor.executeFunction(programFile, info.getStartFunctionInfo());
+        }
+    }
 
+    private void invokePackageTestStartFunctions(ProgramFile programFile) {
+        for (PackageInfo info : programFile.getPackageInfoEntries()) {
             if (info.getTestStartFunctionInfo() != null) {
                 BVMExecutor.executeFunction(programFile, info.getTestStartFunctionInfo());
             }
@@ -124,10 +137,10 @@ public class TesterinaFunction {
         BLangFunctions.invokePackageStopFunctions(programFile);
 
         for (PackageInfo info : programFile.getPackageInfoEntries()) {
-            if (info.getStopFunctionInfo() != null) {
-                BVMExecutor.executeFunction(programFile, info.getStopFunctionInfo());
-            }
+            BVMExecutor.executeFunction(programFile, info.getStopFunctionInfo());
+        }
 
+        for (PackageInfo info : programFile.getPackageInfoEntries()) {
             if (info.getTestStopFunctionInfo() != null) {
                 BVMExecutor.executeFunction(programFile, info.getTestStopFunctionInfo());
             }
