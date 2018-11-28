@@ -206,15 +206,15 @@ function unionTestNoSealedArray(boolean | int[] | float[4] | float[] x) returns 
     }
 }
 
-//function accessIndexOfMatchedSealedArray(int[] | int[3] x, int index) returns int {
-//    if (x is int[3]) {
-//        x[index] = 10;
-//        return x[index];
-//    } else {
-//        x[index] = 10;
-//        return x[index];
-//    }
-//}
+function accessIndexOfMatchedSealedArray(int[] | int[3] x, int index) returns int {
+    if (x is int[3]) {
+        x[index] = 10;
+        return x[index];
+    } else {
+        x[index] = 10;
+        return x[index];
+    }
+}
 
 // JSON Arrays
 
