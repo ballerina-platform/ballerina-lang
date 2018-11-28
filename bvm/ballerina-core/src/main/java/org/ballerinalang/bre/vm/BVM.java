@@ -2880,7 +2880,7 @@ public class BVM {
     private static boolean handleVariableLock(Strand strand, BType[] types, int[] pkgRegs, int[] varRegs,
                                               int[] fieldRegs, int varCount, String uuid) {
         boolean lockAcquired = true;
-        for (int i = 0; i < varRegs.length && lockAcquired; i++) {
+        for (int i = 0; i < varCount && lockAcquired; i++) {
             BType paramType = types[i];
             int pkgIndex = pkgRegs[i];
             int regIndex = varRegs[i];
@@ -2935,7 +2935,7 @@ public class BVM {
             }
         }
 
-        for (int i = varRegs.length - 1; i > -1; i--) {
+        for (int i = varCount - 1; i > -1; i--) {
             BType paramType = types[i];
             int pkgIndex = pkgRegs[i];
             int regIndex = varRegs[i];
