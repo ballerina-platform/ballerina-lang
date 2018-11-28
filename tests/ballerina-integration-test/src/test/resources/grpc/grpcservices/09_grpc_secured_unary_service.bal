@@ -16,9 +16,8 @@
 import ballerina/grpc;
 import ballerina/log;
 
-listener grpc:Listener ep9 = new ({
+listener grpc:Listener ep9 = new (8085, config = {
     host:"localhost",
-    port:8085,
     secureSocket:{
         keyStore:{
             path:"${ballerina.home}/bre/security/ballerinaKeystore.p12",

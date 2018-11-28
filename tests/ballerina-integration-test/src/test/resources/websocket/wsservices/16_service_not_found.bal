@@ -20,7 +20,7 @@ import ballerina/http;
 @http:ServiceConfig {
     basePath: "/proxy"
 }
-service<http:Service> simple8 bind { port: 9098 } {
+service simple8 on new http:Listener(9098) {
 
     @http:ResourceConfig {
         webSocketUpgrade: {
@@ -28,14 +28,14 @@ service<http:Service> simple8 bind { port: 9098 } {
             upgradeService: simpleProxy8
         }
     }
-    websocketProxy(endpoint httpEp, http:Request req, string path1, string path2) {
+    resource function websocketProxy(http:Caller httpEp, http:Request req, string path1, string path2) {
 
     }
 }
 
-service<http:WebSocketService> simpleProxy8 {
+service simpleProxy8 = @http:WebSocketServiceConfig {} service {
 
-    onOpen(endpoint wsEp) {
+    resource function onOpen(http:WebSocketCaller wsEp) {
     }
-}
+};
 
