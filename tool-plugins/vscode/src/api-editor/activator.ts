@@ -148,12 +148,12 @@ function createAPIEditorPanel(selectedService: string, renderHtml: string,
             handler: (args: any[]): Thenable<any> => {
                 return langClient.getBallerinaOASDef(args[0], args[1]);
             }
-        }/*,{
+        },{
             methodName: 'triggerSwaggerDefChange',
             handler: (args: any[]) => {
                 return langClient.triggerSwaggerDefChange(args[0], args[1]);
             }
-        }*/
+        }
     ];
     WebViewRPCHandler.create(oasEditorPanel.webview, langClient, remoteMethods);
 
