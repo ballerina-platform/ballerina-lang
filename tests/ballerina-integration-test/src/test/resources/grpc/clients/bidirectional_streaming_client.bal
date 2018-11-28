@@ -22,9 +22,7 @@ import ballerina/runtime;
 int total = 0;
 public function main(string... args) {
 
-    ChatClient chatEp = new ({
-        url:"http://localhost:9094"
-    });
+    ChatClient chatEp = new ("http://localhost:9094");
 
     grpc:StreamingClient ep;
     // Executing unary non-blocking call registering server message listener.
@@ -64,12 +62,16 @@ service ChatMessageListener = service {
 // Non-blocking client endpoint
 public type ChatClient client object {
 
-    public grpc:Client grpcClient = new;
+    private grpc:Client grpcClient = new;
+    private grpc:ClientEndpointConfig config = {};
+    private string url;
 
-    function __init(grpc:ClientEndpointConfig config) {
+    function __init(string url, grpc:ClientEndpointConfig? config = ()) {
+        self.config = config ?: {};
+        self.url = url;
         // initialize client endpoint.
         grpc:Client c = new;
-        c.init(config);
+        c.init(self.url, self.config);
         error? result = c.initStub("non-blocking", DESCRIPTOR_KEY, getDescriptorMap());
         if (result is error) {
             panic result;

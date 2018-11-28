@@ -16,9 +16,7 @@
 import ballerina/grpc;
 import ballerina/io;
 
-HelloWorldBlockingClient HelloWorldBlockingEp = new({
-    url:"http://localhost:9090"
-});
+HelloWorldBlockingClient HelloWorldBlockingEp = new("http://localhost:9090");
 
 function testInputNestedStruct(Person p) returns (string) {
     io:println("testInputNestedStruct: input:");
@@ -114,12 +112,16 @@ function testInputStructNoOutput(StockQuote quote) returns (string) {
 
 public type HelloWorldBlockingClient client object {
 
-    public grpc:Client grpcClient = new;
+    private grpc:Client grpcClient = new;
+    private grpc:ClientEndpointConfig config = {};
+    private string url;
 
-    function __init(grpc:ClientEndpointConfig config) {
+    function __init(string url, grpc:ClientEndpointConfig? config = ()) {
+        self.config = config ?: {};
+        self.url = url;
         // initialize client endpoint.
         grpc:Client c = new;
-        c.init(config);
+        c.init(self.url, self.config);
         error? result = c.initStub("blocking", DESCRIPTOR_KEY, getDescriptorMap());
         if (result is error) {
             panic result;
@@ -201,12 +203,16 @@ public type HelloWorldBlockingClient client object {
 
 public type HelloWorldClient client object {
 
-    public grpc:Client grpcClient = new;
+    private grpc:Client grpcClient = new;
+    private grpc:ClientEndpointConfig config;
+    private string url;
 
-    function __init(grpc:ClientEndpointConfig config) {
+    function __init(string url, grpc:ClientEndpointConfig? config = ()) {
         // initialize client endpoint.
+        self.config = config ?: {};
+        self.url = url;
         grpc:Client c = new;
-        c.init(config);
+        c.init(self.url, self.config);
         error? result = c.initStub("non-blocking", DESCRIPTOR_KEY, getDescriptorMap());
         if (result is error) {
             panic result;

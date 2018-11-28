@@ -21,9 +21,7 @@ import ballerina/runtime;
 int total = 0;
 function testServerStreaming(string name) returns int {
     // Client endpoint configuration
-    HelloWorldClient helloWorldEp = new({
-        url:"http://localhost:9099"
-    });
+    HelloWorldClient helloWorldEp = new("http://localhost:9099");
 
     // Executing unary non-blocking call registering server message listener.
     error? result = helloWorldEp->lotsOfReplies(name, HelloWorldMessageListener);
@@ -73,11 +71,15 @@ service HelloWorldMessageListener = service {
 public type HelloWorldClient client object {
 
     private grpc:Client grpcClient = new;
+    private grpc:ClientEndpointConfig config = {};
+    private string url;
 
-    function __init(grpc:ClientEndpointConfig config) {
+    function __init(string url, grpc:ClientEndpointConfig? config = ()) {
+        self.config = config ?: {};
+        self.url = url;
         // initialize client endpoint.
         grpc:Client c = new;
-        c.init(config);
+        c.init(self.url, self.config);
         error? result = c.initStub("non-blocking", DESCRIPTOR_KEY, getDescriptorMap());
         if (result is error) {
             panic result;

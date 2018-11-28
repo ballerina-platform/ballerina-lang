@@ -54,7 +54,7 @@ public class GrpcConstants {
     //client side endpoint constants
     public static final String CLIENT_ENDPOINT_TYPE = "Client";
     public static final String CLIENT_CONNECTOR = "ClientConnector";
-    public static final String CLIENT_ENDPOINT_CONFIG = "config";
+    public static final String ENDPOINT_URL = "url";
     public static final String MESSAGE_HEADERS = "MessageHeaders";
     public static final int SERVICE_ENDPOINT_INDEX = 0;
     public static final String CLIENT_END_POINT = "clientEndpoint";

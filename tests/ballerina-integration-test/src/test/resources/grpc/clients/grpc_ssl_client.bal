@@ -18,8 +18,7 @@ import ballerina/grpc;
 import ballerina/io;
 
 function testUnarySecuredBlockingWithCerts(string path) returns (string) {
-    grpcMutualSslServiceBlockingClient helloWorldBlockingEp = new ({
-        url:"https://localhost:9317",
+    grpcMutualSslServiceBlockingClient helloWorldBlockingEp = new ("https://localhost:9317", config = {
         secureSocket:{
             keyFile: path + "/private.key",
             certFile: path + "/public.crt",
@@ -40,12 +39,16 @@ function testUnarySecuredBlockingWithCerts(string path) returns (string) {
 }
 
 public type grpcMutualSslServiceBlockingClient client object {
-    public grpc:Client grpcClient = new;
+    private grpc:Client grpcClient = new;
+    private grpc:ClientEndpointConfig config = {};
+    private string url;
 
-    function __init(grpc:ClientEndpointConfig config) {
+    function __init(string url, grpc:ClientEndpointConfig? config = ()) {
+        self.config = config ?: {};
+        self.url = url;
         // initialize client endpoint.
         grpc:Client c = new;
-        c.init(config);
+        c.init(self.url, self.config);
         error? result = c.initStub("blocking", DESCRIPTOR_KEY, getDescriptorMap());
         if (result is error) {
             panic result;
@@ -65,12 +68,17 @@ public type grpcMutualSslServiceBlockingClient client object {
 };
 
 public type grpcMutualSslServiceClient client object {
-    public grpc:Client grpcClient = new;
 
-    function __init(grpc:ClientEndpointConfig config) {
+    private grpc:Client grpcClient = new;
+    private grpc:ClientEndpointConfig config = {};
+    private string url;
+
+    function __init(string url, grpc:ClientEndpointConfig? config = ()) {
+        self.config = config ?: {};
+        self.url = url;
         // initialize client endpoint.
         grpc:Client c = new;
-        c.init(config);
+        c.init(self.url, self.config);
         error? result = c.initStub("non-blocking", DESCRIPTOR_KEY, getDescriptorMap());
         if (result is error) {
             panic result;

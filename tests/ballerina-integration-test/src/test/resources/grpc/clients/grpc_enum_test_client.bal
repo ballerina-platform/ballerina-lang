@@ -16,9 +16,7 @@
 import ballerina/grpc;
 
 function testEnum() returns (string) {
-    testEnumServiceBlockingClient blockingEp = new ({
-        url:"http://localhost:8555"
-    });
+    testEnumServiceBlockingClient blockingEp = new ("http://localhost:8555");
 
     orderInfo orderReq = { id:"100500", mode:r };
     var addResponse = blockingEp->testEnum(orderReq);
@@ -32,12 +30,16 @@ function testEnum() returns (string) {
 }
 
 public type testEnumServiceBlockingClient client object {
-    public grpc:Client grpcClient = new;
+    private grpc:Client grpcClient = new;
+    private grpc:ClientEndpointConfig config = {};
+    private string url;
 
-    function __init(grpc:ClientEndpointConfig config) {
+    function __init(string url, grpc:ClientEndpointConfig? config = ()) {
+        self.config = config ?: {};
+        self.url = url;
         // initialize client endpoint.
         grpc:Client c = new;
-        c.init(config);
+        c.init(self.url, self.config);
         error? result = c.initStub("blocking", DESCRIPTOR_KEY, getDescriptorMap());
         if (result is error) {
             panic result;
@@ -56,12 +58,16 @@ public type testEnumServiceBlockingClient client object {
 };
 
 public type testEnumServiceClient client object {
-    public grpc:Client grpcClient = new;
+    private grpc:Client grpcClient = new;
+    private grpc:ClientEndpointConfig config = {};
+    private string url;
 
-    function __init(grpc:ClientEndpointConfig config) {
+    function __init(string url, grpc:ClientEndpointConfig? config = ()) {
+        self.config = config ?: {};
+        self.url = url;
         // initialize client endpoint.
         grpc:Client c = new;
-        c.init(config);
+        c.init(self.url, self.config);
         error? result = c.initStub("non-blocking", DESCRIPTOR_KEY, getDescriptorMap());
         if (result is error) {
             panic result;

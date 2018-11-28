@@ -17,8 +17,7 @@ import ballerina/grpc;
 import ballerina/io;
 
 function testUnarySecuredBlocking() returns (string) {
-    HelloWorldBlockingClient helloWorldBlockingEp = new ({
-        url:"https://localhost:8085",
+    HelloWorldBlockingClient helloWorldBlockingEp = new ("https://localhost:8085", config = {
         secureSocket:{
             trustStore:{
                 path:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
@@ -54,12 +53,16 @@ function testUnarySecuredBlocking() returns (string) {
 
 public type HelloWorldBlockingClient client object {
 
-    public grpc:Client grpcClient = new;
+    private grpc:Client grpcClient = new;
+    private grpc:ClientEndpointConfig config = {};
+    private string url;
 
-    function __init(grpc:ClientEndpointConfig config) {
+    function __init(string url, grpc:ClientEndpointConfig? config = ()) {
+        self.config = config ?: {};
+        self.url = url;
         // initialize client endpoint.
         grpc:Client c = new;
-        c.init(config);
+        c.init(self.url, self.config);
         error? result = c.initStub("blocking", DESCRIPTOR_KEY, getDescriptorMap());
         if (result is error) {
             panic result;
@@ -79,12 +82,16 @@ public type HelloWorldBlockingClient client object {
 
 public type HelloWorldClient client object {
 
-    public grpc:Client grpcClient = new;
+    private grpc:Client grpcClient = new;
+    private grpc:ClientEndpointConfig config = {};
+    private string url;
 
-    function __init(grpc:ClientEndpointConfig config) {
+    function __init(string url, grpc:ClientEndpointConfig? config = ()) {
+        self.config = config ?: {};
+        self.url = url;
         // initialize client endpoint.
         grpc:Client c = new;
-        c.init(config);
+        c.init(self.url, self.config);
         error? result = c.initStub("non-blocking", DESCRIPTOR_KEY, getDescriptorMap());
         if (result is error) {
             panic result;

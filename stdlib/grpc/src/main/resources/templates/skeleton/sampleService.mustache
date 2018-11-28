@@ -1,9 +1,6 @@
 import ballerina/grpc;
 
-listener grpc:Listener ep = new ({
-    host:"0.0.0.0",
-    port:9000
-});
+listener grpc:Listener ep = new (9000);
 {{#if bidiStreaming}}
 @grpc:ServiceConfig { {{#streamingFunction}}
     name: {{methodName}},{{/streamingFunction}}

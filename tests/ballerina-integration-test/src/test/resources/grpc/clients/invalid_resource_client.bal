@@ -16,9 +16,7 @@
 import ballerina/grpc;
 import ballerina/io;
 
-HelloWorldBlockingClient helloWorldBlockingEp = new ({
-    url:"http://localhost:9098"
-});
+HelloWorldBlockingClient helloWorldBlockingEp = new ("http://localhost:9098");
 
 function testInvalidRemoteMethod(string name) returns (string) {
     (string, grpc:Headers)|error unionResp = helloWorldBlockingEp->hello(name);
@@ -78,13 +76,16 @@ function testNonExistenceRemoteMethod(boolean isAvailable) returns (boolean|stri
 }
 
 public type HelloWorldBlockingClient client object {
-
     private grpc:Client grpcClient = new;
+    private grpc:ClientEndpointConfig config = {};
+    private string url;
 
-    function __init(grpc:ClientEndpointConfig config) {
+    function __init(string url, grpc:ClientEndpointConfig? config = ()) {
+        self.config = config ?: {};
+        self.url = url;
         // initialize client endpoint.
         grpc:Client c = new;
-        c.init(config);
+        c.init(self.url, self.config);
         error? result = c.initStub("blocking", DESCRIPTOR_KEY, getDescriptorMap());
         if (result is error) {
             panic result;
@@ -145,11 +146,15 @@ public type HelloWorldBlockingClient client object {
 public type helloWorldClient client object {
 
     private grpc:Client grpcClient = new;
+    private grpc:ClientEndpointConfig config = {};
+    private string url;
 
-    function __init(grpc:ClientEndpointConfig config) {
+    function __init(string url, grpc:ClientEndpointConfig? config = ()) {
+        self.config = config ?: {};
+        self.url = url;
         // initialize client endpoint.
         grpc:Client c = new;
-        c.init(config);
+        c.init(self.url, self.config);
         error? result = c.initStub("non-blocking", DESCRIPTOR_KEY, getDescriptorMap());
         if (result is error) {
             panic result;

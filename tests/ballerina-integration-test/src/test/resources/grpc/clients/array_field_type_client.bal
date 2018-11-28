@@ -16,9 +16,7 @@
 import ballerina/grpc;
 import ballerina/io;
 
-HelloWorldBlockingClient HelloWorldBlockingEp = new ({
-    url:"http://localhost:9092"
-});
+HelloWorldBlockingClient HelloWorldBlockingEp = new ("http://localhost:9092");
 
 function testIntArrayInput(TestInt req) returns (int|string) {
     io:println("testIntArrayInput: input:");
@@ -178,11 +176,15 @@ function testStructArrayOutput() returns (TestStruct|string) {
 public type HelloWorldBlockingClient client object {
 
     private grpc:Client grpcClient = new;
+    private grpc:ClientEndpointConfig config = {};
+    private string url;
 
-    function __init(grpc:ClientEndpointConfig config) {
+    function __init(string url, grpc:ClientEndpointConfig? config = ()) {
+        self.config = config ?: {};
+        self.url = url;
         // initialize client endpoint.
         grpc:Client c = new;
-        c.init(config);
+        c.init(self.url, self.config);
         error? result = c.initStub("blocking", DESCRIPTOR_KEY, getDescriptorMap());
         if (result is error) {
             panic result;
@@ -320,11 +322,15 @@ public type HelloWorldBlockingClient client object {
 public type HelloWorldClient client object {
 
     private grpc:Client grpcClient = new;
+    private grpc:ClientEndpointConfig config = {};
+    private string url;
 
-    function __init(grpc:ClientEndpointConfig config) {
+    function __init(string url, grpc:ClientEndpointConfig? config = ()) {
+        self.config = config ?: {};
+        self.url = url;
         // initialize client endpoint.
         grpc:Client c = new;
-        c.init(config);
+        c.init(self.url, self.config);
         error? result = c.initStub("non-blocking", DESCRIPTOR_KEY, getDescriptorMap());
         if (result is error) {
             panic result;
