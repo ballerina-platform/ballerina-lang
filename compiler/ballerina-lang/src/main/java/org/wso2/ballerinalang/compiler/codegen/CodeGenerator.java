@@ -566,7 +566,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangReturn returnNode) {
-        if (returnNode.expr.type != symTable.nilType) {
+        if (!(returnNode.expr.type == symTable.nilType && returnNode.expr.getKind() == NodeKind.LITERAL)) {
             BLangExpression expr = returnNode.expr;
             this.genNode(expr, this.env);
             emit(this.typeTagToInstr(expr.type.tag), expr.regIndex);
