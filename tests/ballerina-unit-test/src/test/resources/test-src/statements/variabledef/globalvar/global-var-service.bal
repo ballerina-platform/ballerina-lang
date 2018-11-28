@@ -9,12 +9,10 @@ float glbVarFloatChange = 99.0;
 
 float glbVarFloat1 = glbVarFloat;
 
-endpoint http:NonListener echoEP {
-    port:9090
-};
+listener http:MockListener echoEP = new(9090);
 
 @http:ServiceConfig {basePath:"/globalvar"}
-service<http:Service> GlobalVar bind echoEP {
+service GlobalVar on echoEP {
 
     string serviceVarFloat = <string>glbVarFloat;
 
@@ -22,7 +20,7 @@ service<http:Service> GlobalVar bind echoEP {
         methods:["GET"],
         path:"/defined"
     }
-    defineGlobalVar (endpoint conn, http:Request request) {
+    resource function defineGlobalVar (http:Caller conn, http:Request request) {
         http:Response res = new;
         json responseJson = {"glbVarInt":glbVarInt, "glbVarString":glbVarString, "glbVarFloat":glbVarFloat};
         res.setJsonPayload(responseJson);
@@ -33,7 +31,7 @@ service<http:Service> GlobalVar bind echoEP {
         methods:["GET"],
         path:"/access-service-level"
     }
-    accessGlobalVarAtServiceLevel (endpoint conn, http:Request request) {
+    resource function accessGlobalVarAtServiceLevel (http:Caller conn, http:Request request) {
         http:Response res = new;
         json responseJson = {"serviceVarFloat":serviceVarFloat};
         res.setJsonPayload(responseJson);
@@ -44,7 +42,7 @@ service<http:Service> GlobalVar bind echoEP {
         methods:["GET"],
         path:"/change-resource-level"
     }
-    changeGlobalVarAtResourceLevel (endpoint conn, http:Request request) {
+    resource function changeGlobalVarAtResourceLevel (http:Caller conn, http:Request request) {
         http:Response res = new;
         glbVarFloatChange = 77.87;
         json responseJson = {"glbVarFloatChange":glbVarFloatChange};
@@ -56,7 +54,7 @@ service<http:Service> GlobalVar bind echoEP {
         methods:["GET"],
         path:"/get-changed-resource-level"
     }
-    getChangedGlobalVarAtResourceLevel (endpoint conn, http:Request request) {
+    resource function getChangedGlobalVarAtResourceLevel (http:Caller conn, http:Request request) {
         http:Response res = new;
         json responseJson = {"glbVarFloatChange":glbVarFloatChange};
         res.setJsonPayload(responseJson);
@@ -66,13 +64,13 @@ service<http:Service> GlobalVar bind echoEP {
 }
 
 @http:ServiceConfig {basePath:"/globalvar-second"}
-service<http:Service> GlobalVarSecond bind echoEP {
+service GlobalVarSecond on echoEP {
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/get-changed-resource-level"
     }
-    getChangedGlobalVarAtResourceLevel (endpoint conn, http:Request request) {
+    resource function getChangedGlobalVarAtResourceLevel (http:Caller conn, http:Request request) {
         http:Response res = new;
         json responseJson = {"glbVarFloatChange":glbVarFloatChange};
         res.setJsonPayload(responseJson);
