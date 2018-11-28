@@ -31,10 +31,6 @@ export class ASTKindChecker {
     return node.kind === "Assignment";
   }
 
-  public static isAwaitExpr(node: ASTNode) {
-    return node.kind === "AwaitExpr";
-  }
-
   public static isBinaryExpr(node: ASTNode) {
     return node.kind === "BinaryExpr";
   }
@@ -61,10 +57,6 @@ export class ASTKindChecker {
 
   public static isCheckExpr(node: ASTNode) {
     return node.kind === "CheckExpr";
-  }
-
-  public static isCompensate(node: ASTNode) {
-    return node.kind === "Compensate";
   }
 
   public static isCompilationUnit(node: ASTNode) {
@@ -131,10 +123,6 @@ export class ASTKindChecker {
     return node.kind === "Forever";
   }
 
-  public static isForkJoin(node: ASTNode) {
-    return node.kind === "ForkJoin";
-  }
-
   public static isFunction(node: ASTNode) {
     return node.kind === "Function";
   }
@@ -175,10 +163,6 @@ export class ASTKindChecker {
     return node.kind === "Invocation";
   }
 
-  public static isJoinStreamingInput(node: ASTNode) {
-    return node.kind === "JoinStreamingInput";
-  }
-
   public static isLambda(node: ASTNode) {
     return node.kind === "Lambda";
   }
@@ -195,18 +179,6 @@ export class ASTKindChecker {
     return node.kind === "MarkdownDocumentation";
   }
 
-  public static isMatch(node: ASTNode) {
-    return node.kind === "Match";
-  }
-
-  public static isMatchStaticPatternClause(node: ASTNode) {
-    return node.kind === "MatchStaticPatternClause";
-  }
-
-  public static isMatchStructuredPatternClause(node: ASTNode) {
-    return node.kind === "MatchStructuredPatternClause";
-  }
-
   public static isNamedArgsExpr(node: ASTNode) {
     return node.kind === "NamedArgsExpr";
   }
@@ -217,18 +189,6 @@ export class ASTKindChecker {
 
   public static isObjectType(node: ASTNode) {
     return node.kind === "ObjectType";
-  }
-
-  public static isOrderBy(node: ASTNode) {
-    return node.kind === "OrderBy";
-  }
-
-  public static isOrderByVariable(node: ASTNode) {
-    return node.kind === "OrderByVariable";
-  }
-
-  public static isOutputRateLimit(node: ASTNode) {
-    return node.kind === "OutputRateLimit";
   }
 
   public static isPanic(node: ASTNode) {
@@ -259,10 +219,6 @@ export class ASTKindChecker {
     return node.kind === "RecordType";
   }
 
-  public static isRecordVariable(node: ASTNode) {
-    return node.kind === "RecordVariable";
-  }
-
   public static isRecordVariableRef(node: ASTNode) {
     return node.kind === "RecordVariableRef";
   }
@@ -271,16 +227,8 @@ export class ASTKindChecker {
     return node.kind === "RestArgsExpr";
   }
 
-  public static isRetry(node: ASTNode) {
-    return node.kind === "Retry";
-  }
-
   public static isReturn(node: ASTNode) {
     return node.kind === "Return";
-  }
-
-  public static isScope(node: ASTNode) {
-    return node.kind === "Scope";
   }
 
   public static isSelectClause(node: ASTNode) {
@@ -293,10 +241,6 @@ export class ASTKindChecker {
 
   public static isService(node: ASTNode) {
     return node.kind === "Service";
-  }
-
-  public static isServiceConstructor(node: ASTNode) {
-    return node.kind === "ServiceConstructor";
   }
 
   public static isSimpleVariableRef(node: ASTNode) {
@@ -411,6 +355,10 @@ export class ASTKindChecker {
     return node.kind === "VisibleEndpoint";
   }
 
+  public static isWaitExpr(node: ASTNode) {
+    return node.kind === "WaitExpr";
+  }
+
   public static isWhere(node: ASTNode) {
     return node.kind === "Where";
   }
@@ -421,22 +369,6 @@ export class ASTKindChecker {
 
   public static isWindowClause(node: ASTNode) {
     return node.kind === "WindowClause";
-  }
-
-  public static isWithin(node: ASTNode) {
-    return node.kind === "Within";
-  }
-
-  public static isWorker(node: ASTNode) {
-    return node.kind === "Worker";
-  }
-
-  public static isWorkerReceive(node: ASTNode) {
-    return node.kind === "WorkerReceive";
-  }
-
-  public static isWorkerSend(node: ASTNode) {
-    return node.kind === "WorkerSend";
   }
 
   public static isXmlAttribute(node: ASTNode) {
