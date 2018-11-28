@@ -188,8 +188,14 @@
                 "category": "Ballerina"
             },
             {
-                "command": "ballerina.showTraces",
-                "title": "Ballerina: Show Network logs"
+                "command": "ballerina.showAPIEditor",
+                "title": "Show API Designer",
+                "category": "Ballerina"
+            },
+            {
+                "command": "ballerina.showAPIEditor",
+                "title": "Show API Designer",
+                "category": "Ballerina"
             }
         ],
         "menus": {
@@ -197,6 +203,13 @@
                 {
                     "when": "resourceLangId == ballerina",
                     "command": "ballerina.showDiagram",
+                    "group": "navigation"
+                }
+            ],
+            "editor/context": [
+                {
+                    "when": "resourceLangId == ballerina",
+                    "command": "ballerina.showAPIEditor",
                     "group": "navigation"
                 }
             ]

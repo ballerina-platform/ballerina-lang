@@ -11,10 +11,10 @@ const ExtractVSCodeThemeCSS = new ExtractTextPlugin({
 
 module.exports = {
     output: {
-        path: path.resolve(__dirname, 'build'),
-        filename: 'composer.js',
-        library: 'ballerinaComposer',
-        libraryTarget: 'umd'
+      path: path.resolve(__dirname, 'build'),
+      filename: '[name].js',
+      library: 'ballerinaComposer',
+      libraryTarget: 'umd'
     },
     resolve: {
         alias: {

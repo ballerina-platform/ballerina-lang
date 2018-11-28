@@ -6,11 +6,12 @@ export function getWebViewResourceRoot(context: ExtensionContext): Uri {
 }
 
 export function getLibraryWebViewContent(context: ExtensionContext,
-        body: string, scripts: string, styles: string) {
+        body: string, scripts: string, styles: string, isAPIDesigner?: boolean) {
     const resourceRoot = getWebViewResourceRoot(context).toString();
     const composerResourcesRoot = process.env.COMPOSER_DEBUG === "true" 
                 ? process.env.COMPOSER_DEV_HOST
                 : `${resourceRoot}/composer`;
+    const jsModule = isAPIDesigner ? 'apiEditor' : 'composer';
     return `
     <!DOCTYPE html>
     <html>
@@ -30,7 +31,7 @@ export function getLibraryWebViewContent(context: ExtensionContext,
             ${scripts}
         </script>
         <script charset="UTF-8" src="${resourceRoot}/utils/messaging.js"></script>
-        <script charset="UTF-8" onload="loadedScript();" src="${composerResourcesRoot}/composer.js"></script>
+        <script charset="UTF-8" onload="loadedScript();" src="${composerResourcesRoot}/${jsModule}.js"></script>
     </body>
     </html>
     `;
