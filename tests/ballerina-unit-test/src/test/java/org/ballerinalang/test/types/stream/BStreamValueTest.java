@@ -49,7 +49,7 @@ public class BStreamValueTest {
 
     @Test(description = "Test streams for invalid scenarios")
     public void testConstrainedStreamNegative() {
-        Assert.assertEquals(failureResult.getErrorCount(), 8);
+        Assert.assertEquals(failureResult.getErrorCount(), 5);
         BAssertUtil.validateError(failureResult, 0, "incompatible types: expected 'stream<int>',"
                                   + " found 'stream'", 14, 12);
         BAssertUtil.validateError(failureResult, 1, "incompatible types: expected 'stream<int>',"
@@ -58,14 +58,8 @@ public class BStreamValueTest {
                                   + " 'stream<Person>', found 'stream<Employee>'", 24, 37);
         BAssertUtil.validateError(failureResult, 3, "incompatible types: expected"
                                   + " 'stream<Person>', found 'stream'", 30, 37);
-        BAssertUtil.validateError(failureResult, 4, "incompatible types: 'stream<Employee>'"
-                                  + " cannot be converted to 'stream<Person>'", 41, 24);
-        BAssertUtil.validateError(failureResult, 5, "incompatible types: 'Employee' cannot be"
-                                  + " converted to 'stream<int>'", 48, 17);
-        BAssertUtil.validateError(failureResult, 6, "incompatible types: 'stream<Person>' cannot"
-                                  + " be converted to 'stream<Employee>'", 55, 26);
-        BAssertUtil.validateError(failureResult, 7, "incompatible types: 'any' cannot be"
-                                  + " converted to 'stream<Employee>'", 63, 18);
+        BAssertUtil.validateError(failureResult, 4, "incompatible types: 'stream<Person>'"
+                                  + " cannot be explicitly typed as 'stream<Employee>'", 41, 26);
     }
 
     @Test(description = "Test publishing records of invalid type to a stream",
@@ -253,13 +247,6 @@ public class BStreamValueTest {
         assertEventEquality((BRefValueArray) returns[0], (BRefValueArray) returns[1]);
     }
 
-    @Test(description = "Test stream declaration without constraint")
-    public void testStreamPublishingAndSubscriptionForUnconstrainedStream() {
-        BValue[] returns = BRunUtil.invoke(result,
-                                           "testStreamPublishingAndSubscriptionForUnconstrainedStream");
-        assertEventEquality((BRefValueArray) returns[0], (BRefValueArray) returns[1]);
-    }
-
     @Test(description = "Test stream publish with structurally equivalent records")
     public void testStreamsPublishingForStructurallyEquivalentRecords() {
         BValue[] returns = BRunUtil.invoke(result, "testStreamsPublishingForStructurallyEquivalentRecords");
@@ -275,9 +262,9 @@ public class BStreamValueTest {
     @Test(description = "Test receipt of stream constrained by union type with correct publishing and subscribing "
             + "with a function to whose parameter types the stream constraint is assignable")
     public void testStreamPublishingAndSubscriptionForAssignableUnionTypeStream() {
-        BInteger intVal = new BInteger(100);
+        long intVal = 100;
         BValue[] returns = BRunUtil.invoke(result, "testStreamPublishingAndSubscriptionForAssignableUnionTypeStream",
-                                           new BValue[]{ intVal });
+                                           new BValue[]{ new BInteger(intVal) });
         BRefValueArray publishedEvents = (BRefValueArray) returns[0];
         BRefValueArray receivedEvents = (BRefValueArray) returns[1];
 
@@ -289,7 +276,7 @@ public class BStreamValueTest {
             Assert.assertEquals(receivedEvents.get(i), publishedEvents.get(i),
                                 "Received event does not match the published event");
         }
-        Assert.assertEquals(receivedEvents.get(receivedEvents.size() - 1).value(), intVal.floatValue(),
+        Assert.assertEquals(receivedEvents.get(receivedEvents.size() - 1).value(), intVal,
                             "Received event does not match the expected casted value");
     }
 
