@@ -103,7 +103,6 @@ public class MimeWithHttpTest {
         Assert.assertEquals(returns[0].stringValue(), "123Basicxxxxxx");
     }
 
-
     @Test(description = "Set header to entity and access it via Response")
     public void testHeaderWithResponse() {
         BValue[] args = {};
