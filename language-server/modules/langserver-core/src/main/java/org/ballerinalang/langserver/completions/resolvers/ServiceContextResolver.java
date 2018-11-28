@@ -57,9 +57,6 @@ public class ServiceContextResolver extends AbstractItemResolver {
                 completionItems.add(Snippet.DEF_RESOURCE.get().build(new CompletionItem(), isSnippet));
                 completionItems.add(Snippet.DEF_FUNCTION.get().build(new CompletionItem(), isSnippet));
             }
-//            CompletionItemSorter itemSorter =
-//                    ItemSorters.get(ctx.get(CompletionKeys.SYMBOL_ENV_NODE_KEY).getClass());
-//            itemSorter.sortItems(ctx, completionItems);
         } else {
             AbstractItemResolver resolver = CompletionItemResolver.get(parserRuleContext.getClass());
             if (resolver != null) {
