@@ -183,7 +183,6 @@ import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord.TaintedStatus;
 import static org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangRecordVarRefKeyValue;
-import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_PREFIX;
 
 /**
  * Generate taint-table for each invokable node.
@@ -212,7 +211,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     private boolean entryPointAnalysis;
     private boolean stopAnalysis;
     private boolean blockedOnWorkerInteraction;
-    private boolean workerAnalysis;
     private BlockedNode blockedNode;
     private Set<TaintRecord.TaintError> taintErrorSet = new LinkedHashSet<>();
 
@@ -220,8 +218,9 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     private List<BlockedNode> blockedEntryPointNodeList = new ArrayList<>();
 
     private BInvokableSymbol ignoredInvokableSymbol = null;
-    private Map<String, TaintedStatus> workerInteractionTaintedStatusMap;
-    private String currWorkerIdentifier;
+    private Map<BLangIdentifier, TaintedStatus> workerInteractionTaintedStatusMap;
+    private BLangIdentifier currWorkerIdentifier;
+    private BLangIdentifier currForkIdentifier;
 
     private TaintedStatus taintedStatus;
     private TaintedStatus returnTaintedStatus;
@@ -286,11 +285,9 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         this.currPkgEnv = pkgEnv;
         this.env = pkgEnv;
 
-        // Skip lambda functions created for workers and analyze remaining top level functions here. Worker lambda
-        // functions will be analyzed during variable declaration (to keep track of the current worker name correctly)
-        pkgNode.topLevelNodes.stream().filter(node -> !(node.getKind() == NodeKind.FUNCTION
-                && ((BLangFunction)node).flagSet.contains(Flag.WORKER)))
-                .forEach(node -> ((BLangNode) node).accept(this));
+        pkgNode.topLevelNodes.forEach(e -> {
+            ((BLangNode) e).accept(this);
+        });
 
         analyzerPhase = AnalyzerPhase.BLOCKED_NODE_ANALYSIS;
         resolveBlockedInvokable(blockedNodeList);
@@ -408,20 +405,28 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     public void visit(BLangSimpleVariable varNode) {
         if (varNode.expr != null) {
             SymbolEnv varInitEnv = SymbolEnv.createVarInitEnv(varNode, env, varNode.symbol);
-            if (varNode.expr.getKind() == NodeKind.LAMBDA
-                    && ((BLangLambdaFunction) varNode.expr).function.flagSet.contains(Flag.WORKER)) {
-                String workerIdentifier = varNode.name.value;
-                currWorkerIdentifier = workerIdentifier.substring(WORKER_LAMBDA_VAR_PREFIX.length(),
-                        workerIdentifier.length());
-            }
             analyzeNode(varNode.expr, varInitEnv);
-            setTaintedStatus(varNode, this.taintedStatus);
+            // Checks in the BLangWorkerReceive was moved here since its an expression now. So it can be used with
+            // variable definitions: int a = <- w1. The RHS of the variable will be visited first which will be the
+            // receive. Since the tainted status is not known, it will set the tainted status as null. Since we need to
+            // get the tainted status of the variable based on what is being received (send statement), we need to do a
+            // recursive call to all statements of the worker. To do so we need to set these variables to be true.
+            // So in the next pass the tainted status on what is being received will be known, then we simply set it to
+            // the variable.
+            if (this.taintedStatus == null) {
+                blockedOnWorkerInteraction = true;
+                stopAnalysis = true;
+            } else {
+                setTaintedStatus(varNode, this.taintedStatus);
+            }
         }
     }
 
     @Override
     public void visit(BLangWorker workerNode) {
-        /* ignore, remove later */
+        currWorkerIdentifier = workerNode.name;
+        SymbolEnv workerEnv = SymbolEnv.createWorkerEnv(workerNode, this.env);
+        analyzeNode(workerNode.body, workerEnv);
     }
 
     @Override
@@ -453,21 +458,12 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangBlockStmt blockNode) {
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, env);
-        boolean recurse = false;
         for (BLangStatement stmt : blockNode.stmts) {
-            if (blockNode.parent.getKind() == NodeKind.FUNCTION && blockedOnWorkerInteraction) {
-                recurse = true;
-                stopAnalysis = false;
-            }
             if (stopAnalysis) {
                 break;
             } else {
                 analyzeNode(stmt, blockEnv);
             }
-        }
-        if (recurse) {
-            blockedOnWorkerInteraction = false;
-            visit(blockNode);
         }
     }
 
@@ -480,7 +476,19 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     public void visit(BLangAssignment assignNode) {
         assignNode.expr.accept(this);
         BLangExpression varRefExpr = assignNode.varRef;
-        visitAssignment(varRefExpr, this.taintedStatus, assignNode.pos);
+        // Checks in the BLangWorkerReceive was moved here since its an expression now. So it can be used in assignments
+        // (a = <- w1; where 'a' is defined above) The RHS of the assignment will be visited first which will be the
+        // receive. Since the tainted status is not known, it will set the tainted status as null. Since we need to
+        // get the tainted status of the variable based on what is being received (send statement), we need to do a
+        // recursive call to all statements of the worker. To do so we need to set these variables to be true. So in the
+        // next pass the tainted status on what is being received will be known, then we simply set the tainted status
+        // to the variable reference.
+        if (this.taintedStatus == null) {
+            blockedOnWorkerInteraction = true;
+            stopAnalysis = true;
+        } else {
+            visitAssignment(varRefExpr, this.taintedStatus, assignNode.pos);
+        }
     }
 
     @Override
@@ -809,13 +817,13 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         workerSendNode.expr.accept(this);
         TaintedStatus taintedStatus = workerInteractionTaintedStatusMap.get(workerSendNode.workerIdentifier);
         if (taintedStatus == null) {
-            workerInteractionTaintedStatusMap.put(workerSendNode.workerIdentifier.value, this.taintedStatus);
+            workerInteractionTaintedStatusMap.put(workerSendNode.workerIdentifier, this.taintedStatus);
         } else if (this.taintedStatus == TaintedStatus.TAINTED) {
             // Worker interactions should be non-overriding. Hence changing the status only if the expression used in
             // sending is evaluated to be a tainted value. By doing so, analyzer will not change an interaction that
             // was identified to return a `Tainted` value to be `Untainted` later on. (Example: Conditional worker
             // interactions)
-            workerInteractionTaintedStatusMap.put(workerSendNode.workerIdentifier.value, TaintedStatus.TAINTED);
+            workerInteractionTaintedStatusMap.put(workerSendNode.workerIdentifier, TaintedStatus.TAINTED);
         }
     }
 
@@ -824,13 +832,13 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         syncSendExpr.expr.accept(this);
         TaintedStatus taintedStatus = workerInteractionTaintedStatusMap.get(syncSendExpr.workerIdentifier);
         if (taintedStatus == null) {
-            workerInteractionTaintedStatusMap.put(syncSendExpr.workerIdentifier.value, this.taintedStatus);
+            workerInteractionTaintedStatusMap.put(syncSendExpr.workerIdentifier, this.taintedStatus);
         } else if (this.taintedStatus == TaintedStatus.TAINTED) {
             // Worker interactions should be non-overriding. Hence changing the status only if the expression used in
             // sending is evaluated to be a tainted value. By doing so, analyzer will not change an interaction that
             // was identified to return a `Tainted` value to be `Untainted` later on. (Example: Conditional worker
             // interactions)
-            workerInteractionTaintedStatusMap.put(syncSendExpr.workerIdentifier.value, TaintedStatus.TAINTED);
+            workerInteractionTaintedStatusMap.put(syncSendExpr.workerIdentifier, TaintedStatus.TAINTED);
         }
         // Todo tainted status for the sync send expression should be handled properly since it will return error or nil
         // ATM it is set to untainted
@@ -848,10 +856,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             return;
         }
         this.taintedStatus = workerInteractionTaintedStatusMap.get(currWorkerIdentifier);
-        if (this.taintedStatus == null) {
-            blockedOnWorkerInteraction = true;
-            stopAnalysis = true;
-        }
     }
 
     // Expressions
@@ -991,8 +995,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             case STAMP:
             case CREATE:
             case CALL:
-                // TODO:get the return of the call operations based on the taint-table of the function and update return
-                // tainted status, as well as argument tainted status accordingly.
                 invocationExpr.argExprs.forEach(expression -> expression.accept(this));
                 break;
             case REASON:
@@ -1248,11 +1250,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
-        if (bLangLambdaFunction.function.flagSet.contains(Flag.WORKER)) {
-            workerAnalysis = true;
-            bLangLambdaFunction.function.accept(this);
-            workerAnalysis = false;
-        }
+        /* ignore */
     }
 
     @Override
@@ -1317,7 +1315,17 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
-        // TODO: Fix me.
+        TaintedStatus reasonTaintedStatus = TaintedStatus.UNTAINTED;
+        TaintedStatus detailsTaintedStatus = TaintedStatus.UNTAINTED;
+        if (errorConstructorExpr.reasonExpr != null) {
+            errorConstructorExpr.reasonExpr.accept(this);
+            reasonTaintedStatus = this.taintedStatus;
+        }
+        if (errorConstructorExpr.detailsExpr != null) {
+            errorConstructorExpr.detailsExpr.accept(this);
+            detailsTaintedStatus = this.taintedStatus;
+        }
+        this.taintedStatus = getCombinedTaintedStatus(reasonTaintedStatus, detailsTaintedStatus);
     }
 
     @Override
@@ -1799,12 +1807,35 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     private void analyzeReturnTaintedStatus(BLangInvokableNode invokableNode, SymbolEnv symbolEnv) {
         ignoredInvokableSymbol = null;
-        if (!blockedOnWorkerInteraction) {
-            workerInteractionTaintedStatusMap = new HashMap<>();
-        }
+        workerInteractionTaintedStatusMap = new HashMap<>();
         analyzeNode(invokableNode.body, symbolEnv);
         if (stopAnalysis) {
             stopAnalysis = false;
+        }
+    }
+
+    private void analyzeWorkers(List<BLangWorker> workers, boolean resetStatusMap) {
+        //TODO: (workers) remove
+        if (resetStatusMap) {
+            workerInteractionTaintedStatusMap = new HashMap<>();
+        }
+        boolean recurse = false;
+        for (BLangWorker worker : workers) {
+            blockedOnWorkerInteraction = false;
+            worker.accept(this);
+            if (this.blockedNode != null || taintErrorSet.size() > 0) {
+                return;
+            } else if (blockedOnWorkerInteraction) {
+                recurse = true;
+                stopAnalysis = false;
+            } else if (stopAnalysis) {
+                return;
+            }
+        }
+        // If any of the workers were blocked on a worker interaction, re-analyze the workers after completing the
+        // analysis of all workers, to resolve blocked interactions.
+        if (recurse) {
+            analyzeWorkers(workers, false);
         }
     }
 
