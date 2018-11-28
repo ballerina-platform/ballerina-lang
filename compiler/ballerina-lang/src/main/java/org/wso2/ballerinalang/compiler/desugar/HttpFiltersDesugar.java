@@ -29,9 +29,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
@@ -53,9 +55,11 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.programfile.InstructionCodes;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import static org.wso2.ballerinalang.compiler.util.Names.GEN_VAR_PREFIX;
@@ -341,6 +345,12 @@ public class HttpFiltersDesugar {
         foreach.collection = filtersField;
         foreach.isDeclaredWithVar = false;
         foreach.varType = filterType;
+        BMapType mapType = new BMapType(TypeTags.RECORD, filterType, symTable.mapType.tsymbol);
+        foreach.resultType = mapType;
+        LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
+        memberTypes.add(mapType);
+        foreach.nillableResultType = new BUnionType(null, memberTypes, true);
+
         foreach.variableDefinitionNode = variableDefinition;
 
         resourceNode.body.stmts.add(2, foreach);
