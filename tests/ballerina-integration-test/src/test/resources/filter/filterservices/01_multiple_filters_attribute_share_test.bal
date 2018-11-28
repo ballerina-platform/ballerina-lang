@@ -22,7 +22,8 @@ import ballerina/log;
 FilterDto dto = { authenticated: true, username: "abcde" };
 
 public type Filter1 object {
-    public function filterRequest(http:Listener listener, http:Request request, http:FilterContext context) returns boolean {
+    public function filterRequest(http:Caller caller, http:Request request, http:FilterContext context)
+                        returns boolean {
         log:printInfo("Intercepting request for filter 1");
         context.attributes["attribute1"] = "attribute1";
         context.attributes["attribute2"] = dto;
@@ -39,8 +40,7 @@ Filter1 filter1 = new;
 // Filter2
 
 public type Filter2 object {
-    public function filterRequest(http:Listener listener, http:Request request, http:FilterContext context) returns boolean {
-        endpoint http:Listener caller = listener;
+    public function filterRequest(http:Caller caller, http:Request request, http:FilterContext context) returns boolean {
         log:printInfo("Intercepting request for filter 2");
         boolean status = true;
         if (context.attributes.hasKey("attribute1")){
@@ -53,15 +53,11 @@ public type Filter2 object {
             status = status && false;
         }
         if (context.attributes.hasKey("attribute2")){
-            var returnedDto = <FilterDto>context.attributes["attribute2"];
-            if (returnedDto is FilterDto) {
-                if (returnedDto.authenticated == dto.authenticated && returnedDto.username == dto.username){
-                    status = status && true;
-                } else {
-                    status = status && false;
-                }
+            FilterDto returnedDto = <FilterDto>context.attributes["attribute2"];
+            if (returnedDto.authenticated == dto.authenticated && returnedDto.username == dto.username){
+                status = status && true;
             } else {
-                panic returnedDto;
+                status = status && false;
             }
         } else {
             status = status && false;
@@ -84,20 +80,17 @@ public type Filter2 object {
 
 Filter2 filter2 = new;
 
-endpoint http:Listener echoEP {
-    port: 9090,
-    filters: [filter1, filter2]
-};
+listener http:Listener echoEP = new(9090, config = { filters: [filter1, filter2] });
 
 @http:ServiceConfig {
     basePath: "/echo"
 }
-service<http:Service> echo bind echoEP {
+service echo on echoEP {
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/test"
     }
-    echo(endpoint caller, http:Request req) {
+    resource function echo(http:Caller caller, http:Request req) {
         http:Response res = new;
         _ = caller->respond(res);
     }

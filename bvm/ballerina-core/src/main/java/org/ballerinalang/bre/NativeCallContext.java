@@ -119,7 +119,7 @@ public class NativeCallContext implements Context {
     @Override
     public boolean isInTransaction() {
 //        return this.parentCtx.isInTransaction();//TODO fix - rajith
-        return true;
+        return false;
     }
 
     @Override
