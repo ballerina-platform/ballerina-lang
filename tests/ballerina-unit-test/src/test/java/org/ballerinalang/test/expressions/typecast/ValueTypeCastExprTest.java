@@ -110,33 +110,6 @@ public class ValueTypeCastExprTest {
     }
 
     @Test
-    public void testStringToInt() {
-        BValue[] args = {new BString("100")};
-        BValue[] returns = BRunUtil.invoke(result, "stringToInt", args);
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        final long expected = 100;
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), expected);
-    }
-
-    @Test
-    public void testStringToFloat() {
-        BValue[] args = {new BString("2222.333f")};
-        BValue[] returns = BRunUtil.invoke(result, "stringToFloat", args);
-        Assert.assertTrue(returns[0] instanceof BFloat);
-        double expected = 2222.333;
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), expected, DELTA);
-    }
-
-    @Test
-    public void testStringToBoolean() {
-        BValue[] args = {new BString("trUe")};
-        BValue[] returns = BRunUtil.invoke(result, "stringToBoolean", args);
-        Assert.assertTrue(returns[0] instanceof BBoolean);
-        boolean expected = true;
-        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), expected);
-    }
-
-    @Test
     public void testStringToAny() {
         BValue[] args = {new BString("adfs sadfasd")};
         BValue[] returns = BRunUtil.invoke(result, "stringToAny", args);
