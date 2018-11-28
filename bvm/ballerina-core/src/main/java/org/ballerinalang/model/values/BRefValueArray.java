@@ -122,9 +122,8 @@ public class BRefValueArray extends BNewArray implements Serializable {
                     arrayValues[i].stamp(type);
                 }
             }
-            if (this.arrayType != null) {
-                type = new BArrayType(type);
-            }
+            // Set the type as json[]. Otherwise it will be treated as a json and will fail.
+            type = new BArrayType(type);
         } else if (type.getTag() == TypeTags.UNION_TAG) {
             for (BType memberType : ((BUnionType) type).getMemberTypes()) {
                 if (CPU.checkIsLikeType(this, memberType)) {
