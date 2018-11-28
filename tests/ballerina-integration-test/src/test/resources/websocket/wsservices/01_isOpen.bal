@@ -17,26 +17,23 @@
 import ballerina/http;
 import ballerina/io;
 
-http:WebSocketListener listener = new;
+listener http:WebSocketListener socketListener = new(9078);
 
 @http:WebSocketServiceConfig {
     path: "/"
 }
-service<http:WebSocketService> isOpen bind { port: 9078 } {
-    onOpen(endpoint caller){
-        listener = untaint caller;
-    }
+service isOpen on socketListener{
 
-    onText(endpoint caller, string text) {
+    resource function onText(http:WebSocketCaller caller, string text) {
         _ = caller->close(timeoutInSecs = 0);
         io:println("In onText isOpen " + caller.isOpen);
     }
 
-    onClose(endpoint caller, int code, string reason) {
+    resource function onClose(http:WebSocketCaller caller, int code, string reason) {
         io:println("In onClose isOpen " + caller.isOpen);
     }
 
-    onError(endpoint caller, error err) {
+    resource function onError(http:WebSocketCaller caller, error err) {
         io:println("In onError isOpen " + caller.isOpen);
     }
 }
