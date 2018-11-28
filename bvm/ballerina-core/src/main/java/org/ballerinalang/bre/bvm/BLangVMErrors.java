@@ -18,6 +18,8 @@
 package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.vm.StackFrame;
+import org.ballerinalang.bre.vm.Strand;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.model.types.BErrorType;
 import org.ballerinalang.model.types.BTypes;
@@ -115,8 +117,8 @@ public class BLangVMErrors {
         return createError(context, true, reason);
     }
 
-    public static BError createError(WorkerExecutionContext context, String message) {
-        return generateError(context, true, message);
+    public static BError createError(Strand strand, String message) {
+        return generateError(strand, true, message);
     }
 
     /**
@@ -139,13 +141,13 @@ public class BLangVMErrors {
 
     /* Custom errors messages */
 
-    public static BError createTypeCastError(WorkerExecutionContext context, String sourceType, 
+    public static BError createTypeCastError(Strand context, String sourceType,
             String targetType) {
         String errorMessage = "'" + sourceType + "' cannot be cast to '" + targetType + "'";
         return createError(context, errorMessage);
     }
 
-    public static BError createTypeConversionError(WorkerExecutionContext context, String errorMessage) {
+    public static BError createTypeConversionError(Strand context, String errorMessage) {
         return createError(context, errorMessage);
     }
 
@@ -155,35 +157,36 @@ public class BLangVMErrors {
         return generateError(context.getProgramFile(), context.getCallableUnitInfo(), true, NULL_REF_EXCEPTION);
     }
 
-    public static BError createNullRefException(WorkerExecutionContext context) {
-        return generateError(context, true, NULL_REF_EXCEPTION);
+    public static BError createNullRefException(Strand strand) {
+        return generateError(strand, true, NULL_REF_EXCEPTION);
     }
 
-    static BError handleError(WorkerExecutionContext context, Map<String, BError> errors) {
+    static BError handleError(Strand strand, Map<String, BError> errors) {
         if (!errors.isEmpty()) {
             BError error = errors.computeIfAbsent("default", key -> errors.values().iterator().next());
-            attachStackFrame(error, context);
+            attachStackFrame(error, strand.programFile, strand.currentFrame);
             return error;
         }
-        return generateError(context, true, MSG_CALL_FAILED);
+        return generateError(strand, true, MSG_CALL_FAILED);
     }
 
-    static BError createCallCancelledException(WorkerExecutionContext context) {
-        return generateError(context, true, MSG_CALL_CANCELLED);
+    static BError createCallCancelledException(Strand strand) {
+        return generateError(strand, true, MSG_CALL_CANCELLED);
     }
 
     /* Private Util Methods */
 
-    private static BError generateError(WorkerExecutionContext context, boolean attachCallStack, String reason) {
+    private static BError generateError(Strand strand, boolean attachCallStack, String reason) {
         BMap<String, BValue> details = new BMap<>(BTypes.typeMap);
-        return generateError(context, attachCallStack, BTypes.typeError, reason, details);
+        return generateErrorWithStack(strand.programFile, strand.currentFrame, attachCallStack,
+                BTypes.typeError, reason, details);
     }
 
-    private static BError generateError(WorkerExecutionContext context, boolean attachCallStack, BErrorType type,
-            String reason, BMap<String, BValue> details) {
+    private static BError generateErrorWithStack(ProgramFile programFile, StackFrame sf, boolean attachCallStack,
+                                        BErrorType type, String reason, BMap<String, BValue> details) {
         BError error = new BError(type, reason, details);
         if (attachCallStack) {
-            attachStackFrame(error, context);
+            attachStackFrame(error, programFile, sf);
         }
         return error;
     }
@@ -208,8 +211,8 @@ public class BLangVMErrors {
         return error;
     }
 
-    public static void attachStackFrame(BError error, WorkerExecutionContext context) {
-        Optional.ofNullable(getStackFrame(context)).ifPresent(error.callStack::add);
+    public static void attachStackFrame(BError error, ProgramFile programFile, StackFrame sf) {
+        Optional.ofNullable(getStackFrame(programFile, sf)).ifPresent(error.callStack::add);
     }
 
     public static void attachStackFrame(ProgramFile programFile, BError error,
@@ -225,7 +228,8 @@ public class BLangVMErrors {
             index++;
         }
         while (!context.isRootContext()) {
-            callStack.add(index, getStackFrame(context));
+            //                    TODO fix - rajith
+//            callStack.add(index, getStackFrame(context));
             context = context.parent;
             index++;
         }
@@ -237,7 +241,7 @@ public class BLangVMErrors {
         if (callableUnitInfo == null) {
             return null;
         }
-        
+
         PackageInfo runtimePackage = programFile.getPackageInfo(BALLERINA_RUNTIME_PKG);
         StructureTypeInfo typeInfo = runtimePackage.getStructInfo(STRUCT_CALL_STACK_ELEMENT);
         if (typeInfo == null || typeInfo.getType().getTag() != TypeTags.RECORD_TYPE_TAG) {
@@ -266,11 +270,11 @@ public class BLangVMErrors {
         return BLangVMStructs.createBStruct(typeInfo, values);
     }
 
-    public static BMap<String, BValue> getStackFrame(WorkerExecutionContext context) {
-        if (context == null) {
+    public static BMap<String, BValue> getStackFrame(ProgramFile programFile, StackFrame sf) {
+        if (sf == null) {
             return null;
         }
-        return getStackFrame(context.programFile, context.callableUnitInfo, context.ip);
+        return getStackFrame(programFile, sf.callableUnitInfo, sf.ip);
     }
 
     public static String getPrintableStackTrace(BError error) {

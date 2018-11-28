@@ -1,4 +1,4 @@
-function mapAccessTest(int x, int y) returns (int|error) {
+function mapAccessTest(int x, int y) returns (int) {
     map<any> testMap = {};
     int xx = 0;
     int yy = 0;
@@ -6,8 +6,8 @@ function mapAccessTest(int x, int y) returns (int|error) {
     testMap["second"] = y;
     testMap["third"] = x + y;
     testMap["forth"] = x - y;
-    xx = check <int> testMap.first;
-    yy = check <int> testMap.second;
+    xx = <int> testMap.first;
+    yy = <int> testMap.second;
 
     return xx + yy;
 }
@@ -68,11 +68,11 @@ function testHasKeyNegative() returns (boolean) {
     return namesMap.hasKey("fname2");
 }
 
-function testGetMapValues () returns (string, string)|error {
+function testGetMapValues () returns (string, string) {
     json j = {"city":"Colombo", "country":"SriLanka"};
     int[] arr = [7,8,9];
     map<any> address = {city:"CA", "country":"USA"};
-    map<map>[] addressArray=[{address:{city:"Colombo", "country":"SriLanka"}},
+    map<map<any>>[] addressArray=[{address:{city:"Colombo", "country":"SriLanka"}},
                                {address:{city:"Kandy", "country":"SriLanka"}},
                                {address:{city:"Galle", "country":"SriLanka"}}];
     map<any> m = { name:"Supun",
@@ -87,8 +87,8 @@ function testGetMapValues () returns (string, string)|error {
                 };
     any[] values = m.values();
     var nam = <string> values[0];
-    var jsn = check <json> values[8];
-    var city = check <string> jsn.city;
+    var jsn = <json> values[8];
+    var city = <string> jsn.city;
     return (nam, city);
 }
 
@@ -186,4 +186,5 @@ function processConcurrentKeys(map<int> intMap, int n) returns error? {
         }
         return ();
     }
+    return ();
 }

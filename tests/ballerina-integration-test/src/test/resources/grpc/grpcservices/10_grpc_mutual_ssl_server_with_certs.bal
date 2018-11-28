@@ -17,9 +17,8 @@ import ballerina/config;
 import ballerina/grpc;
 import ballerina/log;
 
-listener grpc:Listener ep10 = new ({
+listener grpc:Listener ep10 = new (9317, config = {
     host:"localhost",
-    port:9317,
     secureSocket:{
         keyFile: config:getAsString("certificate.key"),
         certFile: config:getAsString("public.cert"),
