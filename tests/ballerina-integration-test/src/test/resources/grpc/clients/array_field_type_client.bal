@@ -16,9 +16,8 @@
 import ballerina/grpc;
 import ballerina/io;
 
-HelloWorldBlockingClient HelloWorldBlockingEp = new ({
-    url:"http://localhost:9092"
-});
+HelloWorldBlockingClient HelloWorldBlockingEp = new ("http://localhost:9092");
+const string ERROR_MSG_FORMAT = "Error from Connector: %s - %s";
 
 function testIntArrayInput(TestInt req) returns (int|string) {
     io:println("testIntArrayInput: input:");
@@ -26,8 +25,7 @@ function testIntArrayInput(TestInt req) returns (int|string) {
     (int, grpc:Headers)|error unionResp = HelloWorldBlockingEp->testIntArrayInput(req);
     io:println(unionResp);
     if (unionResp is error) {
-        io:println("Error from Connector: " + unionResp.reason());
-        return "Error from Connector: " + unionResp.reason();
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
     } else {
         io:println("Client Got Response : ");
         int result = 0;
@@ -43,8 +41,7 @@ function testStringArrayInput(TestString req) returns (string) {
     (string, grpc:Headers)|error unionResp = HelloWorldBlockingEp->testStringArrayInput(req);
     io:println(unionResp);
     if (unionResp is error) {
-        io:println("Error from Connector: " + unionResp.reason());
-        return "Error from Connector: " + unionResp.reason();
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
     } else {
         io:println("Client Got Response : ");
         string result;
@@ -60,8 +57,7 @@ function testFloatArrayInput(TestFloat req) returns (float|string) {
     (float, grpc:Headers)|error unionResp = HelloWorldBlockingEp->testFloatArrayInput(req);
     io:println(unionResp);
     if (unionResp is error) {
-        io:println("Error from Connector: " + unionResp.reason());
-        return "Error from Connector: " + unionResp.reason();
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
     } else {
         io:println("Client Got Response : ");
         float result;
@@ -77,8 +73,7 @@ function testBooleanArrayInput(TestBoolean req) returns (boolean|string) {
     (boolean, grpc:Headers)|error unionResp = HelloWorldBlockingEp->testBooleanArrayInput(req);
     io:println(unionResp);
     if (unionResp is error) {
-        io:println("Error from Connector: " + unionResp.reason());
-        return "Error from Connector: " + unionResp.reason();
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
     } else {
         io:println("Client Got Response : ");
         boolean result;
@@ -94,8 +89,7 @@ function testStructArrayInput(TestStruct req) returns (string) {
     (string, grpc:Headers)|error unionResp = HelloWorldBlockingEp->testStructArrayInput(req);
     io:println(unionResp);
     if (unionResp is error) {
-        io:println("Error from Connector: " + unionResp.reason());
-        return "Error from Connector: " + unionResp.reason();
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
     } else {
         io:println("Client Got Response : ");
         string result;
@@ -110,8 +104,7 @@ function testIntArrayOutput() returns (TestInt|string) {
     (TestInt, grpc:Headers)|error unionResp = HelloWorldBlockingEp->testIntArrayOutput();
     io:println(unionResp);
     if (unionResp is error) {
-        io:println("Error from Connector: " + unionResp.reason());
-        return "Error from Connector: " + unionResp.reason();
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
     } else {
         io:println("Client Got Response : ");
         TestInt result;
@@ -126,8 +119,7 @@ function testStringArrayOutput() returns (TestString|string) {
     (TestString, grpc:Headers)|error unionResp = HelloWorldBlockingEp->testStringArrayOutput();
     io:println(unionResp);
     if (unionResp is error) {
-        io:println("Error from Connector: " + unionResp.reason());
-        return "Error from Connector: " + unionResp.reason();
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
     } else {
         io:println("Client Got Response : ");
         TestString result;
@@ -142,8 +134,7 @@ function testFloatArrayOutput() returns (TestFloat|string) {
     (TestFloat, grpc:Headers)|error unionResp = HelloWorldBlockingEp->testFloatArrayOutput();
     io:println(unionResp);
     if (unionResp is error) {
-        io:println("Error from Connector: " + unionResp.reason());
-        return "Error from Connector: " + unionResp.reason();
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
     } else {
         io:println("Client Got Response : ");
         TestFloat result;
@@ -158,8 +149,7 @@ function testBooleanArrayOutput() returns (TestBoolean|string) {
     (TestBoolean, grpc:Headers)|error unionResp = HelloWorldBlockingEp->testBooleanArrayOutput();
     io:println(unionResp);
     if (unionResp is error) {
-        io:println("Error from Connector: " + unionResp.reason());
-        return "Error from Connector: " + unionResp.reason();
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
     } else {
         io:println("Client Got Response : ");
         TestBoolean result;
@@ -174,8 +164,7 @@ function testStructArrayOutput() returns (TestStruct|string) {
     (TestStruct, grpc:Headers)|error unionResp = HelloWorldBlockingEp->testStructArrayOutput();
     io:println(unionResp);
     if (unionResp is error) {
-        io:println("Error from Connector: " + unionResp.reason());
-        return "Error from Connector: " + unionResp.reason();
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
     } else {
         io:println("Client Got Response : ");
         TestStruct result;
@@ -188,11 +177,15 @@ function testStructArrayOutput() returns (TestStruct|string) {
 public type HelloWorldBlockingClient client object {
 
     private grpc:Client grpcClient = new;
+    private grpc:ClientEndpointConfig config = {};
+    private string url;
 
-    function __init(grpc:ClientEndpointConfig config) {
+    function __init(string url, grpc:ClientEndpointConfig? config = ()) {
+        self.config = config ?: {};
+        self.url = url;
         // initialize client endpoint.
         grpc:Client c = new;
-        c.init(config);
+        c.init(self.url, self.config);
         error? result = c.initStub("blocking", DESCRIPTOR_KEY, getDescriptorMap());
         if (result is error) {
             panic result;
@@ -330,11 +323,15 @@ public type HelloWorldBlockingClient client object {
 public type HelloWorldClient client object {
 
     private grpc:Client grpcClient = new;
+    private grpc:ClientEndpointConfig config = {};
+    private string url;
 
-    function __init(grpc:ClientEndpointConfig config) {
+    function __init(string url, grpc:ClientEndpointConfig? config = ()) {
+        self.config = config ?: {};
+        self.url = url;
         // initialize client endpoint.
         grpc:Client c = new;
-        c.init(config);
+        c.init(self.url, self.config);
         error? result = c.initStub("non-blocking", DESCRIPTOR_KEY, getDescriptorMap());
         if (result is error) {
             panic result;
