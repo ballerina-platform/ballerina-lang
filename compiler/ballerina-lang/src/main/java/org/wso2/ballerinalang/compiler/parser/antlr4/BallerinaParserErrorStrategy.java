@@ -21,11 +21,12 @@ import org.antlr.v4.runtime.FailedPredicateException;
 import org.antlr.v4.runtime.InputMismatchException;
 import org.antlr.v4.runtime.NoViableAltException;
 import org.antlr.v4.runtime.Parser;
-import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.IntervalSet;
+import org.antlr.v4.runtime.tree.ParseTreeListener;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.parser.BLangParserListener;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
@@ -46,7 +47,7 @@ public class BallerinaParserErrorStrategy extends DefaultErrorStrategy {
 
     @Override
     public void reportInputMismatch(Parser parser, InputMismatchException e) {
-        setContextException(parser);
+        setErrorState(parser);
         Token offendingToken = e.getOffendingToken();
         String mismatchedToken = getTokenErrorDisplay(offendingToken);
         String expectedToken = e.getExpectedTokens().toString(parser.getVocabulary());
@@ -56,7 +57,7 @@ public class BallerinaParserErrorStrategy extends DefaultErrorStrategy {
 
     @Override
     public void reportNoViableAlternative(Parser parser, NoViableAltException e) {
-        setContextException(parser);
+        setErrorState(parser);
         String offendingToken = e.getOffendingToken().getText();
         DiagnosticPos pos = getPosition(e.getOffendingToken());
         dlog.error(pos, DiagnosticCode.INVALID_TOKEN, escapeWSAndQuote(offendingToken));
@@ -64,7 +65,7 @@ public class BallerinaParserErrorStrategy extends DefaultErrorStrategy {
 
     @Override
     public void reportFailedPredicate(Parser parser, FailedPredicateException e) {
-        setContextException(parser);
+        setErrorState(parser);
         DiagnosticPos pos = getPosition(getMissingSymbol(parser));
         if (parser.getContext() instanceof BallerinaParser.ShiftExprPredicateContext) {
             dlog.error(pos, DiagnosticCode.INVALID_SHIFT_OPERATOR);
@@ -82,7 +83,7 @@ public class BallerinaParserErrorStrategy extends DefaultErrorStrategy {
         }
         beginErrorCondition(parser);
         
-        setContextException(parser);
+        setErrorState(parser);
         Token token = parser.getCurrentToken();
         IntervalSet expecting = getExpectedTokens(parser);
         String missingToken = expecting.toString(parser.getVocabulary());
@@ -97,7 +98,7 @@ public class BallerinaParserErrorStrategy extends DefaultErrorStrategy {
         }
         beginErrorCondition(parser);
 
-        setContextException(parser);
+        setErrorState(parser);
         Token token = parser.getCurrentToken();
         DiagnosticPos pos = getPosition(getMissingSymbol(parser));
         dlog.error(pos, DiagnosticCode.EXTRANEOUS_INPUT, getTokenErrorDisplay(token));
@@ -116,25 +117,25 @@ public class BallerinaParserErrorStrategy extends DefaultErrorStrategy {
         } else if (e instanceof FailedPredicateException) {
             reportFailedPredicate(parser, (FailedPredicateException) e);
         } else {
-            setContextException(parser);
+            setErrorState(parser);
             DiagnosticPos pos = getPosition(getMissingSymbol(parser));
             dlog.error(pos, DiagnosticCode.INVALID_TOKEN, e.getMessage());
         }
     }
 
     /**
-     * Set an exception in the parser context. This is later used at
-     * {@link org.wso2.ballerinalang.compiler.parser.BLangParserListener} level to determine whether the parse
-     * exception has occurred and is in error state.
+     * Set the error state to the listener. This state will be used at the 
+     * {@link org.wso2.ballerinalang.compiler.parser.BLangParserListener} 
+     * level to determine whether a syntax error has occurred and is in error state.
      * 
      * @param parser Current parser
      */
-    protected void setContextException(Parser parser) {
-        // Here the type of the exception is not important.
-        InputMismatchException e = new InputMismatchException(parser);
-        for (ParserRuleContext context = parser.getContext(); context != null; context = context.getParent()) {
-            context.exception = e;
-        }
+    protected void setErrorState(Parser parser) {
+        getListener(parser).setErrorState();
+    }
+
+    protected BLangParserListener getListener(Parser parser) {
+        return (BLangParserListener) parser.getParseListeners().get(0);
     }
 
     private DiagnosticPos getPosition(Token token) {

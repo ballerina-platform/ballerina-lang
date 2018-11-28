@@ -391,13 +391,13 @@ public class TaintedStatusPropagationTest {
 
     @Test
     public void testMatch() {
-        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/match.bal");
+        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/is.bal");
         Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
     @Test
     public void testMatchNegative() {
-        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/match-negative.bal");
+        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/is-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 2);
         BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 6, 24);
         BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 10, 24);
@@ -483,13 +483,13 @@ public class TaintedStatusPropagationTest {
         BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 13, 24);
     }
 
-    @Test
+    @Test (enabled = false)
     public void testForkJoin() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/fork-join.bal");
         Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
-    @Test
+    @Test (enabled = false)
     public void testForkJoinNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/fork-join-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 1);
@@ -526,6 +526,6 @@ public class TaintedStatusPropagationTest {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/" +
                 "param-status-with-native-invocations-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 1);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'sqlQuery'", 32, 38);
+        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'sqlQuery'", 32, 43);
     }
 }

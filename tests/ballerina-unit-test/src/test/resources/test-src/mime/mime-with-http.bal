@@ -25,3 +25,20 @@ service echo on mockEP {
         _ = caller -> respond(response);
     }
 }
+
+
+function testHeaderWithRequest() returns (string) {
+    http:Request request = new;
+    mime:Entity entity = new;
+    entity.setHeader("123Authorization", "123Basicxxxxxx");
+    request.setEntity(entity);
+    return (request.getHeader("123Authorization"));
+}
+
+function testHeaderWithResponse() returns (string) {
+    http:Response response = new;
+    mime:Entity entity = new;
+    entity.setHeader("123Authorization", "123Basicxxxxxx");
+    response.setEntity(entity);
+    return (response.getHeader("123Authorization"));
+}

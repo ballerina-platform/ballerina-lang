@@ -60,7 +60,7 @@ public type SimpleQueueReceiver object {
     #
     # + serviceType - type descriptor of the service to bind to
     public function __attach(service serviceType, map<any> data) returns error? {
-        return self.queueReceiver.registerListener(serviceType, self.queueReceiver.consumerActions);
+        return self.queueReceiver.registerListener(serviceType, self.queueReceiver.consumerActions, data);
     }
 
     # Starts the endpoint. Function is ignored by the receiver endpoint
