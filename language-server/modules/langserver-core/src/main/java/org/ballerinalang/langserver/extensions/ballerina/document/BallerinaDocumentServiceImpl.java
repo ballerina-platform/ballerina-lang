@@ -168,11 +168,11 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                     return;
                 }
 
-                JsonObject targetAST = TextDocumentFormatUtil.generateJSON(compilationUnit.get(), new HashMap<>())
-                        .getAsJsonObject();
+                JsonObject targetAST = TextDocumentFormatUtil.generateJSON(compilationUnit.get(), new HashMap<>(),
+                        new HashMap<>()).getAsJsonObject();
                 FormattingSourceGen.build(targetAST, "CompilationUnit");
-                JsonObject generatedAST = TextDocumentFormatUtil.generateJSON(oasCompilationUnit.get(), new HashMap<>())
-                        .getAsJsonObject();
+                JsonObject generatedAST = TextDocumentFormatUtil.generateJSON(oasCompilationUnit.get(), new HashMap<>(),
+                        new HashMap<>()).getAsJsonObject();
                 FormattingSourceGen.build(generatedAST, "CompilationUnit");
                 mergeAst(targetAST, generatedAST);
 
