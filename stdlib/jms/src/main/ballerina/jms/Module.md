@@ -31,19 +31,19 @@ import ballerina/jms;
 import ballerina/log;
 
 // Create a simple queue receiver.
-endpoint jms:SimpleQueueReceiver consumerEP {
+listener jms:SimpleQueueReceiver consumerEP = new({
     initialContextFactory: "bmbInitialContextFactory",
     providerUrl: "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'",
     acknowledgementMode: "AUTO_ACKNOWLEDGE",
     queueName: "MyQueue"
-};
+});
 
 // Bind the created consumer to the listener service.
-service<jms:Consumer> jmsListener bind consumerEP {
+service jmsListener on consumerEP {
 
     // The `OnMessage` resource gets invoked when a message is received.
     var msg = message.getTextMessageContent();
-    onMessage(endpoint consumer, jms:Message message) {
+    resource function onMessage(jms:QueueReceiverCaller consumer, jms:Message message) {
         if (msg is string) {
             log:printInfo("Message : " + msg);
         } else {
@@ -61,12 +61,12 @@ import ballerina/jms;
 import ballerina/log;
 
 // Create a topic publisher.
-endpoint jms:SimpleTopicPublisher topicPublisher {
+jms:SimpleTopicPublisher topicPublisher = new({
     initialContextFactory: "bmbInitialContextFactory",
     providerUrl: "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'",
     acknowledgementMode: "AUTO_ACKNOWLEDGE",
     topicPattern: "BallerinaTopic"
-};
+});
 
 public function main(string... args) {
     // Create a text message.
@@ -103,16 +103,16 @@ jms:Session jmsSession = new(conn, {
     });
 
 // Initialize a queue receiver using the created session.
-endpoint jms:QueueReceiver consumerEP {
+listener jms:QueueReceiver consumerEP = new({
     session: jmsSession,
     queueName: "MyQueue"
-};
+});
 
 // Bind the created consumer to the listener service.
-service<jms:Consumer> jmsListener bind consumerEP {
+service jmsListener on consumerEP {
 
     // The `OnMessage` resource gets invoked when a message is received.
-    onMessage(endpoint consumer, jms:Message message) {
+    resource function onMessage(jms:QueueReceiverCaller consumer, jms:Message message) {
         // Retrieve the text message.
         var msg = message.getTextMessageContent();
         if (msg is string) {
@@ -144,10 +144,10 @@ jms:Session jmsSession = new(jmsConnection, {
         acknowledgementMode: "AUTO_ACKNOWLEDGE"
     });
 
-endpoint jms:QueueSender queueSender {
+jms:QueueSender queueSender = new({
     session: jmsSession,
     queueName: "MyQueue"
-};
+});
 
 public function main(string... args) {
     // Create a text message.
@@ -180,13 +180,13 @@ jms:Session jmsSession = new(conn, {
     acknowledgementMode:"AUTO_ACKNOWLEDGE"
 });
 
-endpoint jms:TopicSubscriber subscriberEndpoint {
+listener jms:TopicSubscriber subscriberEndpoint = new({
     session:jmsSession,
     topicPattern:"BallerinaTopic"
-};
+});
 
-service<jms:Consumer> jmsListener bind subscriberEndpoint {
-    onMessage(endpoint subscriber, jms:Message message) {
+service jmsListener on subscriberEndpoint {
+    onMessage(jms:TopicSubscriberCaller subscriber, jms:Message message) {
         var msg = message.getTextMessageContent();
         if (msg is string) {
             log:printInfo("Message : " + msg);
@@ -214,10 +214,10 @@ jms:Session jmsSession = new(jmsConnection, {
     acknowledgementMode:"AUTO_ACKNOWLEDGE"
 });
 
-endpoint jms:TopicPublisher topicPublisher {
+jms:TopicPublisher topicPublisher = new({
     session:jmsSession,
     topicPattern:"BallerinaTopic"
-};
+});
 
 public function main(string... args) {
     var msg = jmsSession.createTextMessage("Hello from Ballerina");
