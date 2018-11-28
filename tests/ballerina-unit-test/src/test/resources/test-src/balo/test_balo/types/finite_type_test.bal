@@ -88,11 +88,15 @@ function finiteAssignmentRefValueTypeCaseTwo() returns foo:POrInt {
 }
 
 function testFiniteTypeWithMatch() returns foo:PreparedResult {
-    match foo() {
-        foo:PreparedResult x => return x;
-        () => return "qqq";
-        error => return "qqq";
+    var x = foo();
+    if (x is foo:PreparedResult) {
+        return x;
+    } else if (x is ()) {
+        return "qqq";
+    } else if (x is error) {
+        return "qqq";
     }
+    return "qqq";
 }
 
 function foo() returns foo:PreparedResult|error|() {
