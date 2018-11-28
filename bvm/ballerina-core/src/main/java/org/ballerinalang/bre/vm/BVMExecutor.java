@@ -129,17 +129,12 @@ public class BVMExecutor {
         Map<String, Object> globalProps = new HashMap<>();
         if (properties != null) {
             globalProps.putAll(properties);
-            if (properties.get(Constants.GLOBAL_TRANSACTION_ID) != null) {
-//                context.setLocalTransactionInfo(new LocalTransactionInfo(
-//                        properties.get(Constants.GLOBAL_TRANSACTION_ID).toString(),
-//                        properties.get(Constants.TRANSACTION_URL).toString(), "2pc"));
-            }
         }
 
         StrandResourceCallback strandCallback = new StrandResourceCallback(null, responseCallback);
         Strand strand = new Strand(programFile, resourceInfo.getName(), properties, strandCallback, null);
 
-        BLangVMUtils.setGlobalTransactionEnabledStatus(strand, getGlobalTransactionEnabled());
+        BLangVMUtils.setGlobalTransactionEnabledStatus(strand);
 
         if (strand.globalProps.get(Constants.GLOBAL_TRANSACTION_ID) != null) {
             strand.setLocalTransactionInfo(new LocalTransactionInfo(
@@ -164,7 +159,7 @@ public class BVMExecutor {
         StrandWaitCallback strandCallback = new StrandWaitCallback(callableInfo.getRetParamTypes()[0]);
         Strand strand = new Strand(programFile, callableInfo.getName(), properties, strandCallback,  null);
 
-        BLangVMUtils.setGlobalTransactionEnabledStatus(strand, getGlobalTransactionEnabled());
+        BLangVMUtils.setGlobalTransactionEnabledStatus(strand);
 
         StackFrame idf = new StackFrame(callableInfo.getPackageInfo(), callableInfo,
                 callableInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), -1);
@@ -281,15 +276,5 @@ public class BVMExecutor {
         for (PackageInfo info : programFile.getPackageInfoEntries()) {
             execute(programFile, info.getStopFunctionInfo(), new BValue[0], null, true);
         }
-    }
-
-    private static boolean getGlobalTransactionEnabled() {
-        String distributedTransactionsEnabledConfig = ConfigRegistry.getInstance()
-                .getAsString(Constants.DISTRIBUTED_TRANSACTIONS);
-        boolean distributedTransactionEnabled = true;
-        if (distributedTransactionsEnabledConfig != null && distributedTransactionsEnabledConfig.equals(Constants.FALSE)) {
-            distributedTransactionEnabled = false;
-        }
-        return distributedTransactionEnabled;
     }
 }
