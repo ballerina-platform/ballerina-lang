@@ -107,6 +107,6 @@ public abstract class AbstractLogFunction extends BlockingNativeCallableUnit {
 
     //TODO merge below and above methods(below one new bvm)
     protected String getPackagePath(Context ctx) {
-        return ctx.getParentWorkerExecutionContext().callableUnitInfo.getPackageInfo().getPkgPath();
+        return ctx.getCallableUnitInfo().getPackageInfo().getPkgPath();
     }
 }

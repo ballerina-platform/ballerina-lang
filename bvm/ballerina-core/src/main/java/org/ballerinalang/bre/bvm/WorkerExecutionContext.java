@@ -213,6 +213,7 @@ public class WorkerExecutionContext {
         if (distributedTransactionsEnabledConfig != null && distributedTransactionsEnabledConfig.equals(FALSE)) {
             distributedTransactionEnabled = false;
         }
-        BLangVMUtils.setGlobalTransactionEnabledStatus(this, distributedTransactionEnabled);
+        throw new IllegalStateException("Pre-strand distributed trx config.");
+        //BLangVMUtils.setGlobalTransactionEnabledStatus(this, distributedTransactionEnabled);
     }
 }

@@ -3115,8 +3115,8 @@ public class BVM {
         if (retryCountRegIndex != -1) {
             retryCount = (int) ctx.currentFrame.longRegs[retryCountRegIndex];
             if (retryCount < 0) {
-//                ctx.setError(BLangVMErrors
-//                        .createError(ctx, BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_RETRY_COUNT)));
+                ctx.setError(BLangVMErrors
+                        .createError(ctx, BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_RETRY_COUNT)));
                 handleError(ctx);
                 return;
             }
@@ -4295,6 +4295,7 @@ public class BVM {
             strand.setError(null);
         } else if (strand.fp > 0) {
             strand.popFrame();
+            signalTransactionError(strand);
             handleError(strand);
         } else {
             strand.respCallback.setError(strand.getError());
@@ -4313,6 +4314,14 @@ public class BVM {
 //            }
 //        }
 //        return strand.currentFrame;
+    }
+
+    private static void signalTransactionError(Strand strand) {
+        LocalTransactionInfo localTransactionInfo = strand.getLocalTransactionInfo();
+        if (localTransactionInfo == null) {
+            return;
+        }
+        localTransactionInfo.notifyLocalParticipantFailure();
     }
 
     private static AttributeInfo getAttributeInfo(AttributeInfoPool attrInfoPool, AttributeInfo.Kind attrInfoKind) {

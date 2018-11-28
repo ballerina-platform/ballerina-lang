@@ -448,7 +448,7 @@ public class BLangVMUtils {
         ctx.globalProps.remove(TRANSACTION_INFO_KEY);
     }
 
-    public static void setGlobalTransactionEnabledStatus(WorkerExecutionContext ctx,
+    public static void setGlobalTransactionEnabledStatus(Strand ctx,
             boolean isGlobalTransactionEnabled) {
         ctx.globalProps.put(GLOBAL_TRANSACTION_ENABLED, isGlobalTransactionEnabled);
     }
