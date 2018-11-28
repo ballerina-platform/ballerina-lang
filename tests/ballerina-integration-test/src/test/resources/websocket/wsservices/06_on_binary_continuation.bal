@@ -17,17 +17,17 @@
 import ballerina/http;
 import ballerina/io;
 
+byte[] content = [];
 service onBinaryContinuation on new http:WebSocketListener(9088) {
-    byte[] content = [];
     resource function onBinary(http:WebSocketCaller caller, byte[] data, boolean finalFrame) {
         if (finalFrame) {
-            appendToArray(untaint data, self.content);
-            var returnVal = caller->pushBinary(self.content);
+            appendToArray(untaint data, content);
+            var returnVal = caller->pushBinary(content);
             if (returnVal is error) {
                  panic returnVal;
             }
         } else {
-            appendToArray(untaint data, self.content);
+            appendToArray(untaint data, content);
         }
     }
 }

@@ -20,16 +20,13 @@ import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedResourceParamTypes;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ServiceNode;
-import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 
 import java.util.List;
 
-import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_ANNOTATION_CONFIGURATION;
-import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_CALLER;
-import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_SERVICE;
+import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_CLIENT_ENDPOINT;
 
 /**
  * Compiler plugin for validating WebSocket service.
@@ -40,9 +37,9 @@ import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_SERVICE;
                                                                                       name = "WebSocketListener"),
                              paramTypes = {
                                      @SupportedResourceParamTypes.Type(packageName = "http",
-                                                                       name = WEBSOCKET_CALLER)
+                                                                       name = WEBSOCKET_CLIENT_ENDPOINT)
                              })
-public class WebSocketServiceCompilerPlugin extends AbstractCompilerPlugin {
+public class WebSocketClientServiceCompilerPlugin extends AbstractCompilerPlugin {
 
     private DiagnosticLog dlog = null;
 
@@ -54,22 +51,8 @@ public class WebSocketServiceCompilerPlugin extends AbstractCompilerPlugin {
     @SuppressWarnings("unchecked")
     @Override
     public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
-        if (annotations.size() > 1) {
-            int count = 0;
-            for (AnnotationAttachmentNode annotation : annotations) {
-                if (annotation.getAnnotationName().getValue().equals(WEBSOCKET_ANNOTATION_CONFIGURATION)) {
-                    count++;
-                }
-            }
-            if (count > 1) {
-                dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
-                        "There cannot be more than one " + WEBSOCKET_SERVICE + " annotations");
-            }
-        }
         List<BLangFunction> resources = (List<BLangFunction>) serviceNode.getResources();
         resources.forEach(res -> WebSocketResourceValidator
-                .validate(((BLangService) serviceNode).symbol.getName().value, res, dlog, false));
+                .validate(((BLangService) serviceNode).symbol.getName().value, res, dlog, true));
     }
 }
-
-
