@@ -11,7 +11,7 @@ const ExtractVSCodeThemeCSS = new ExtractTextPlugin({
 
 module.exports = {
     entry: {
-        index: './src/index.ts',
+        composer: './src/index.ts',
         apiEditor: './src/api-editor.ts',
     },
     output: {
