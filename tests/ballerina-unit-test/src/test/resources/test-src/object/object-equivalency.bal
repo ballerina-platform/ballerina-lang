@@ -567,7 +567,7 @@ type Employee object {
 
 function testTupleMatchWithObjectEquivalency() returns string {
   future<(Foo, Person) | () | error> f = start getPerson();
-    ((Foo, Person) | () | error) res = await f;
+    ((Foo, Person) | () | error) res = wait f;
 
     int[] i = [1, 2, 3];
 

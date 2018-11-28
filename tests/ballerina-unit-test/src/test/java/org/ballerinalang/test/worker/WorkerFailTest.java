@@ -26,40 +26,56 @@ import org.testng.annotations.Test;
  */
 public class WorkerFailTest {
     
-    @Test
+    @Test(enabled = false)
     public void invalidForkJoinJoinResult() {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-forkjoin-join-result.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
     }
-    
-    @Test
+
+    @Test(enabled = false)
     public void invalidForkJoinTimeoutResult() {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-forkjoin-timeout-result.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
     }
     
-    @Test
+    @Test(enabled = false)
     public void invalidWorkerSendReceive() {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-worker-send-receive.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
     }
     
-    @Test
+    @Test(enabled = false)
     public void invalidForkJoinWithReturn() {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-forkjoin-with-return.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
     }
     
-    @Test
+    @Test(enabled = false)
     public void invalidWorkSendWithoutWorker() {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-worksend-without-worker.bal");
-        Assert.assertEquals(result.getErrorCount(), 3);
+        Assert.assertEquals(result.getErrorCount(), 4);
     }
     
-    @Test
+    @Test(enabled = false)
     public void invalidWorkReceiveWithoutWorker() {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-workreceive-without-worker.bal");
-        Assert.assertEquals(result.getErrorCount(), 3);
+        Assert.assertEquals(result.getErrorCount(), 4);
     }
-    
+
+    @Test
+    public void invalidSendWithReturnTest() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-send-with-return.bal");
+        Assert.assertEquals(result.getErrorCount(), 1);
+        String message = result.getDiagnostics()[0].getMessage();
+        Assert.assertTrue(message.contains("can not be used after a non-error return"),message);
+    }
+
+    @Test
+    public void invalidSendWithErrorReturnTest() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-send-with-error-return.bal");
+        Assert.assertEquals(result.getErrorCount(), 1);
+        String message = result.getDiagnostics()[0].getMessage();
+        Assert.assertTrue(message.contains("expected 'int', found 'int|error'"),message);
+    }
+
 }

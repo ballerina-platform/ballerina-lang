@@ -35,7 +35,6 @@ import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
-import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -118,8 +117,7 @@ public abstract class AbstractItemResolver {
                 || poppedTokens.contains(UtilSymbolKeys.PKG_DELIMITER_KEYWORD)
                 || poppedTokens.contains(UtilSymbolKeys.RIGHT_ARROW_SYMBOL_KEY)
                 || poppedTokens.contains(UtilSymbolKeys.LEFT_ARROW_SYMBOL_KEY)
-                || poppedTokens.contains(UtilSymbolKeys.BANG_SYMBOL_KEY)
-                || parserRuleContext instanceof BallerinaParser.WorkerInteractionStatementContext;
+                || poppedTokens.contains(UtilSymbolKeys.BANG_SYMBOL_KEY);
     }
 
     /**
