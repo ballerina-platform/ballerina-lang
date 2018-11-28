@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
-import org.ballerinalang.compiler.plugins.ServiceData;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
 import org.ballerinalang.compiler.plugins.SupportedResourceParamTypes;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
@@ -31,7 +30,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -48,13 +46,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
-import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
-import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -176,13 +172,9 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
 
     public void visit(BLangService serviceNode) {
         List<BLangAnnotationAttachment> attachmentList = serviceNode.getAnnotationAttachments();
-        final ServiceData serviceData = new BLangServiceData(serviceNode);
-        final BLangObjectTypeNode typeNode = (BLangObjectTypeNode) serviceNode.serviceTypeDefinition.typeNode;
-        typeNode.functions.stream().filter(func -> Symbols.isFlagOn(func.symbol.flags, Flags.RESOURCE))
-                .forEach(func -> serviceData.addResource(func, func.getAnnotationAttachments()));
-        notifyProcessors(attachmentList, (processor, list) -> processor.process(serviceData, list));
-        notifyServiceTypeProcessors(serviceData, attachmentList,
-                (processor, list) -> processor.process(serviceData, list));
+        notifyProcessors(attachmentList, (processor, list) -> processor.process(serviceNode, list));
+        notifyServiceTypeProcessors(serviceNode, attachmentList,
+                (processor, list) -> processor.process(serviceNode, list));
     }
 
     public void visit(BLangTypeDefinition typeDefNode) {
@@ -335,17 +327,16 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         }
     }
 
-    private void notifyServiceTypeProcessors(ServiceData serviceData, List<BLangAnnotationAttachment> attachments,
+    private void notifyServiceTypeProcessors(BLangService serviceNode, List<BLangAnnotationAttachment> attachments,
             BiConsumer<CompilerPlugin, List<AnnotationAttachmentNode>> notifier) {
         for (DefinitionID def : resourceTypeProcessorMap.keySet()) {
-            for (FunctionNode function : serviceData.getResourceNodes()) {
+            for (FunctionNode function : serviceNode.getResources()) {
                 final BLangFunction resourceNode = (BLangFunction) function;
                 if (resourceNode.symbol.params.stream().map(varSym -> varSym.type.tsymbol)
                         .map(tsym -> new DefinitionID(tsym.pkgID.name.value, tsym.name.value))
                         .anyMatch(definitionID -> definitionID.equals(def))) {
                     final List<CompilerPlugin> compilerPlugins = resourceTypeProcessorMap.get(def);
                     compilerPlugins.forEach(proc -> notifier.accept(proc, Collections.unmodifiableList(attachments)));
-                    final BLangService serviceNode = (BLangService) serviceData.getServiceNode();
                     // Hacking till we figure out service type.
                     if (serviceNode.listerType == null) {
                         serviceNode.listerType = serviceListenerMap.get(def);

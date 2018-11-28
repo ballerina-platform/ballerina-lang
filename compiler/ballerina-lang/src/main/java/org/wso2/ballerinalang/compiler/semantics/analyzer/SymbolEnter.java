@@ -545,6 +545,13 @@ public class SymbolEnter extends BLangNodeVisitor {
         serviceNode.symbol = serviceSymbol;
         serviceNode.symbol.type = new BServiceType(serviceObjectType.tsymbol);
         defineSymbol(serviceNode.name.pos, serviceSymbol);
+
+        // Caching values future validation.
+        if (serviceNode.serviceTypeDefinition.typeNode.getKind() == NodeKind.OBJECT_TYPE) {
+            BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) serviceNode.serviceTypeDefinition.typeNode;
+            objectTypeNode.functions.stream().filter(func -> func.flagSet.contains(Flag.RESOURCE))
+                    .forEach(func -> serviceNode.resourceFunctions.add(func));
+        }
     }
 
     @Override

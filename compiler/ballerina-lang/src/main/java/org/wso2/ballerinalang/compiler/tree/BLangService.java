@@ -24,14 +24,15 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.MarkdownDocumentationNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -58,6 +59,7 @@ public class BLangService extends BLangNode implements ServiceNode {
     // Cached values.
     public String listenerName;
     public BType listerType;
+    public List<BLangFunction> resourceFunctions;
 
     // Old values. TODO : Remove this.
     @Deprecated
@@ -66,11 +68,16 @@ public class BLangService extends BLangNode implements ServiceNode {
     public List<BLangSimpleVariableDef> vars = new ArrayList<>();
     @Deprecated
     public List<BLangEndpoint> endpoints = new ArrayList<>();
+    @Deprecated
+    public BLangRecordLiteral anonymousEndpointBind = null;
+    @Deprecated
+    public List<? extends SimpleVariableReferenceNode> boundEndpoints = new ArrayList<>();
 
     public BLangService() {
         this.flagSet = EnumSet.noneOf(Flag.class);
         this.annAttachments = new ArrayList<>();
         this.deprecatedAttachments = new ArrayList<>();
+        this.resourceFunctions = new ArrayList<>();
     }
 
     @Override
@@ -88,8 +95,8 @@ public class BLangService extends BLangNode implements ServiceNode {
         return this.isAnonymousServiceValue;
     }
 
-    public List<BLangResource> getResources() {
-        return Collections.emptyList();
+    public List<BLangFunction> getResources() {
+        return resourceFunctions;
     }
 
     public BLangExpression getAttachExpr() {

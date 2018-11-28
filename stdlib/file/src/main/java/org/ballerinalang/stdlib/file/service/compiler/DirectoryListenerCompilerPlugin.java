@@ -19,11 +19,11 @@
 package org.ballerinalang.stdlib.file.service.compiler;
 
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
-import org.ballerinalang.compiler.plugins.ServiceData;
 import org.ballerinalang.compiler.plugins.SupportedResourceParamTypes;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.types.TypeKind;
@@ -88,9 +88,9 @@ public class DirectoryListenerCompilerPlugin extends AbstractCompilerPlugin {
     }
 
     @Override
-    public void process(ServiceData serviceData, List<AnnotationAttachmentNode> annotations) {
-        List<BLangFunction> resources = (List<BLangFunction>) serviceData.getResourceNodes();
-        resources.forEach(res -> validate(serviceData.getServiceNode().getName().getValue(), res, this.dlog));
+    public void process(ServiceNode serviceData, List<AnnotationAttachmentNode> annotations) {
+        List<BLangFunction> resources = (List<BLangFunction>) serviceData.getResources();
+        resources.forEach(res -> validate(serviceData.getName().getValue(), res, this.dlog));
     }
 
     public static void validate(String serviceName, BLangFunction resource, DiagnosticLog dlog) {

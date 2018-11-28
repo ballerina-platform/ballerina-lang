@@ -25,7 +25,6 @@ import java.util.List;
 /**
  * @since 0.94
  *
- * TODO : Fix me.
  */
 public interface ServiceNode extends AnnotatableNode, DocumentableNode, TopLevelNode {
     
@@ -33,8 +32,7 @@ public interface ServiceNode extends AnnotatableNode, DocumentableNode, TopLevel
     
     void setName(IdentifierNode name);
 
-    @Deprecated
-    List<? extends ResourceNode> getResources();
+    List<? extends FunctionNode> getResources();
 
     boolean isAnonymousService();
 
