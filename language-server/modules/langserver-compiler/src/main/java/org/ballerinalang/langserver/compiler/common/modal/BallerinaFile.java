@@ -61,9 +61,8 @@ public class BallerinaFile {
         isBallerinaProject = ballerinaProject;
     }
 
-    public BallerinaFile setCompilerContext(CompilerContext compilerContext) {
+    public void setCompilerContext(CompilerContext compilerContext) {
         this.compilerContext = compilerContext;
-        return this;
     }
 
     public boolean isBallerinaProject() {

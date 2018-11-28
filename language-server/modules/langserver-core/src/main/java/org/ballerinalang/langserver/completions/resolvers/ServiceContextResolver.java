@@ -18,12 +18,13 @@
 package org.ballerinalang.langserver.completions.resolvers;
 
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.ballerinalang.langserver.common.UtilSymbolKeys;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleAnnotationAttachmentResolver;
 import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
-import org.ballerinalang.langserver.completions.util.sorters.CompletionItemSorter;
-import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
+import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
@@ -36,22 +37,33 @@ import java.util.List;
 public class ServiceContextResolver extends AbstractItemResolver {
 
     @Override
-    public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
+    public List<CompletionItem> resolveItems(LSServiceOperationContext ctx) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        ParserRuleContext parserRuleContext = completionContext.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
+        ParserRuleContext parserRuleContext = ctx.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
+        boolean isSnippet = ctx.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem().getSnippetSupport();
+        List<String> poppedTokens = CommonUtil.getPoppedTokenStrings(ctx);
 
-        if (this.isAnnotationStart(completionContext)) {
+        if (this.isAnnotationStart(ctx)) {
             completionItems.addAll(CompletionItemResolver
-                    .get(ParserRuleAnnotationAttachmentResolver.class).resolveItems(completionContext));
-        } else if (parserRuleContext == null || parserRuleContext instanceof BallerinaParser.ServiceDefinitionContext) {
-            completionItems.addAll(this.populateBasicTypes(completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
-            CompletionItemSorter itemSorter =
-                    ItemSorters.get(completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY).getClass());
-            itemSorter.sortItems(completionContext, completionItems);
+                    .get(ParserRuleAnnotationAttachmentResolver.class).resolveItems(ctx));
+        } else if (parserRuleContext == null
+                || parserRuleContext instanceof BallerinaParser.ObjectFieldDefinitionContext) {
+            if (poppedTokens.contains(UtilSymbolKeys.EQUAL_SYMBOL_KEY)) {
+                AbstractItemResolver resolver = CompletionItemResolver
+                        .get(BallerinaParser.VariableDefinitionStatementContext.class);
+                completionItems.addAll(resolver.resolveItems(ctx));
+            } else {
+                completionItems.addAll(this.populateBasicTypes(ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
+                completionItems.add(Snippet.DEF_RESOURCE.get().build(new CompletionItem(), isSnippet));
+                completionItems.add(Snippet.DEF_FUNCTION.get().build(new CompletionItem(), isSnippet));
+            }
+//            CompletionItemSorter itemSorter =
+//                    ItemSorters.get(ctx.get(CompletionKeys.SYMBOL_ENV_NODE_KEY).getClass());
+//            itemSorter.sortItems(ctx, completionItems);
         } else {
             AbstractItemResolver resolver = CompletionItemResolver.get(parserRuleContext.getClass());
             if (resolver != null) {
-                completionItems.addAll(resolver.resolveItems(completionContext));
+                completionItems.addAll(resolver.resolveItems(ctx));
             }
         }
         return completionItems;
