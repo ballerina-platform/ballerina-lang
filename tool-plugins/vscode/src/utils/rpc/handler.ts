@@ -91,7 +91,7 @@ export class WebViewRPCHandler {
             const method = this._getMethod(msg.methodName);
             if (method) {
                 method.handler(msg.arguments || [])
-                    .then((response) => {
+                    .then((response: Thenable<any>) => {
                         this.webView.postMessage({
                             originId: msg.id,
                             response,
