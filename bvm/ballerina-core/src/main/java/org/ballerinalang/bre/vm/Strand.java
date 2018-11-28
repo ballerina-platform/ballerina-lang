@@ -36,10 +36,6 @@ import java.util.concurrent.Semaphore;
 public class Strand {
     private static final int DEFAULT_CONTROL_STACK_SIZE = 2000;
 
-    private static final String DISTRIBUTED_TRANSACTIONS = "b7a.distributed.transactions.enabled";
-
-    private static final String FALSE = "false";
-
     private String id;
 
     public volatile State state;
@@ -90,7 +86,6 @@ public class Strand {
         this.parentChannels = parentChannels;
         this.wdChannels = new WDChannels();
         initDebugger();
-        configureDistributedTransactions();
     }
 
     private void initDebugger() {
@@ -195,16 +190,6 @@ public class Strand {
         RUNNABLE,
         PAUSED,
         TERMINATED
-    }
-
-    private void configureDistributedTransactions() {
-        String distributedTransactionsEnabledConfig = ConfigRegistry.getInstance()
-                .getAsString(DISTRIBUTED_TRANSACTIONS);
-        boolean distributedTransactionEnabled = true;
-        if (distributedTransactionsEnabledConfig != null && distributedTransactionsEnabledConfig.equals(FALSE)) {
-            distributedTransactionEnabled = false;
-        }
-        BLangVMUtils.setGlobalTransactionEnabledStatus(this, distributedTransactionEnabled);
     }
 }
 
