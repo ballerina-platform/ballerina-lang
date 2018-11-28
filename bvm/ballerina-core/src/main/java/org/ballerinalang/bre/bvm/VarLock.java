@@ -57,6 +57,8 @@ public class VarLock {
         current.removeLast();
         if (!waitingForLock.isEmpty()) {
             Strand ctx = waitingForLock.removeFirst();
+            //So the lock instruction will run again
+            ctx.currentFrame.ip--;
             BVMScheduler.stateChange(ctx, State.PAUSED, State.RUNNABLE);
             BVMScheduler.schedule(ctx);
         }
