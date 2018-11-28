@@ -1,62 +1,38 @@
 import ballerina/io;
 import ballerina/log;
 
-function close(io:ReadableCharacterChannel|io:WritableCharacterChannel
-               characterChannel) {
-    // Close the character channel when done
-    match characterChannel {
-        io:ReadableCharacterChannel readableCharChannel => {
-            var result = readableCharChannel.close();
-            if (result is error){
-                log:printError("Error occurred while closing character stream",
-                    err = result)
-            };
-        }
-        io:WritableCharacterChannel writableCharChannel => {
-            var result = writableCharChannel.close();
-            if (result is error){
-                log:printError("Error occurred while closing character stream",
-                    err = result)
-            };
-        }
+function closeRc(io:ReadableCharacterChannel rc) {
+    var result = rc.close();
+    if (result is error) {
+        log:printError("Error occurred while closing character stream",
+            err = result);
     }
-
 }
 
-function write(json content, string path) {
+function closeWc(io:WritableCharacterChannel wc) {
+    var result = wc.close();
+    if (result is error) {
+        log:printError("Error occurred while closing character stream",
+            err = result);
+    }
+}
+
+function write(json content, string path) returns error? {
     // Create a writable byte channel from the given path
-    io:WritableByteChannel byteChannel = io:openWritableFile(path);
+    io:WritableByteChannel wbc = io:openWritableFile(path);
     // Derive the character channel from the byte channel
-    io:WritableCharacterChannel ch = new io:WritableCharacterChannel(byteChannel, "UTF8");
+    io:WritableCharacterChannel wch = new(wbc, "UTF8");
     // This is how json content is written via the character channel
-    match ch.writeJson(content) {
-        error err => {
-            close(ch);
-            throw err;
-        }
-        () => {
-            close(ch);
-            io:println("Content written successfully");
-        }
-    }
+    return wch.writeJson(content);
 }
 
-function read(string path) returns json {
+function read(string path) returns json|error {
     // Create a readable byte channel from the given path
-    io:ReadableByteChannel byteChannel = io:openReadableFile(path);
+    io:ReadableByteChannel rbc = io:openReadableFile(path);
     // Derive the character channel from the byte channel
-    io:ReadableCharacterChannel ch = new io:ReadableCharacterChannel(byteChannel, "UTF8");
+    io:ReadableCharacterChannel rch = new(rbc, "UTF8");
     // This is how json content is read from the character channel
-    match ch.readJson() {
-        json result => {
-            close(ch);
-            return result;
-        }
-        error err => {
-            close(ch);
-            throw err;
-        }
-    }
+    return rch.readJson();
 }
 
 public function main() {
@@ -74,9 +50,18 @@ public function main() {
     };
     io:println("Preparing to write json file");
     // Write the content
-    write(j1, filePath);
-    io:println("Preparing to read the content written");
-    // Read the content
-    json content = read(filePath);
-    io:println(content);
+    var wResult = write(j1, filePath);
+    if (wResult is error) {
+        log:printError("Error occurred while writing json: ", err = wResult);
+    } else {
+        io:println("Preparing to read the content written");
+        // Read the content
+        var rResult = read(filePath);
+        if (rResult is error) {
+            log:printError("Error occurred while reading json: ",
+                err = rResult);
+        } else if (rResult is json){
+            io:println(rResult);
+        }
+    }
 }
