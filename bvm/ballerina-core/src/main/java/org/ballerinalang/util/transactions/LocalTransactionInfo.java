@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.util.transactions;
 
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.bre.vm.Strand;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -107,7 +107,7 @@ public class LocalTransactionInfo {
         return  getCurrentRetryCount(transactionId) > 0;
     }
 
-    public boolean isRetryPossible(WorkerExecutionContext context, int transactionId) {
+    public boolean isRetryPossible(Strand context, int transactionId) {
         int allowedRetryCount = getAllowedRetryCount(transactionId);
         int currentRetryCount = getCurrentRetryCount(transactionId);
         if (currentRetryCount >= allowedRetryCount) {
@@ -126,7 +126,7 @@ public class LocalTransactionInfo {
         return true;
     }
 
-    public boolean onTransactionFailed(WorkerExecutionContext context, int transactionBlockId) {
+    public boolean onTransactionFailed(Strand context, int transactionBlockId) {
         if (isRetryPossible(context, transactionBlockId)) {
             transactionContextStore.clear();
             transactionResourceManager.rollbackTransaction(globalTransactionId, transactionBlockId);

@@ -165,7 +165,7 @@ type TwoPhaseCommitTransaction object {
             results[results.length()] = f;
         }
         foreach f in results {
-            ((PrepareResult|error)?, Participant) r = await f;
+            ((PrepareResult|error)?, Participant) r = wait f;
             var (result, participant) = r;
             string participantId = participant.participantId;
             if (result is PrepareResult) {
@@ -214,7 +214,7 @@ type TwoPhaseCommitTransaction object {
 
         }
         foreach f in results {
-            (NotifyResult|error)? result = await f;
+            (NotifyResult|error)? result = wait f;
             if (result is error) {
                 notifyResult = result;
             }

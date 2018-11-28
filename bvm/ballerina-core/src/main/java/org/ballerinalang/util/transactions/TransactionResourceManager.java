@@ -1,28 +1,27 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
- */
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+*  Unless required by applicable law or agreed to in writing,
+*  software distributed under the License is distributed on an
+*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+*  KIND, either express or implied.  See the License for the
+*  specific language governing permissions and limitations
+*  under the License.
+*/
 package org.ballerinalang.util.transactions;
 
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.bre.vm.BVMExecutor;
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.program.BLangFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -339,7 +338,7 @@ public class TransactionResourceManager {
         BFunctionPointer fp = committedFuncRegistry.get(transactionBlockId);
         BValue[] args = {new BString(transactionId + ":" + transactionBlockId)};
         if (fp != null) {
-            BLangFunctions.invokeCallable(fp.value(), args);
+            BVMExecutor.executeFunction(fp.value().getPackageInfo().getProgramFile(), fp.value(), args);
         }
         List<BFunctionPointer> funcs = participantRegistry.getCommittedFuncs(transactionId);
         invokeFunctions(args, funcs);
@@ -351,7 +350,7 @@ public class TransactionResourceManager {
         BFunctionPointer fp = abortedFuncRegistry.get(transactionBlockId);
         BValue[] args = {new BString(transactionId + ":" + transactionBlockId)};
         if (fp != null) {
-            BLangFunctions.invokeCallable(fp.value(), args);
+            BVMExecutor.executeFunction(fp.value().getPackageInfo().getProgramFile(), fp.value(), args);
         }
         // todo: even though this is called aborted function, it actually is a rollback function.
         // Temporarily disabling invocation of abort functions.

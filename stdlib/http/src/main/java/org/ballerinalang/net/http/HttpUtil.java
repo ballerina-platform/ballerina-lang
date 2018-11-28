@@ -257,11 +257,6 @@ public class HttpUtil {
             if (entityBodyRequired && !byteChannelAlreadySet) {
                 populateEntityBody(context, httpMessageStruct, entity, isRequest);
             }
-
-            // Entity cannot be null, since it is not a nullable field in http:Request or http:Response
-            if (entity.isEmpty()) {
-                entity = createNewEntity(context, httpMessageStruct);
-            }
             return new BValue[]{entity};
         } catch (Throwable throwable) {
             return new BValue[]{MimeUtil.createError(context, MIME_ERROR_CODE,

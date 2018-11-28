@@ -41,7 +41,6 @@ import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.VariableNode;
-import org.ballerinalang.model.tree.WorkerNode;
 import org.ballerinalang.model.tree.clauses.GroupByNode;
 import org.ballerinalang.model.tree.clauses.HavingNode;
 import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
@@ -70,7 +69,6 @@ import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.ForeverNode;
 import org.ballerinalang.model.tree.statements.ForkJoinNode;
 import org.ballerinalang.model.tree.statements.IfNode;
-import org.ballerinalang.model.tree.statements.ScopeNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.ballerinalang.model.tree.statements.TransactionNode;
@@ -78,6 +76,7 @@ import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
@@ -93,7 +92,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
-import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
@@ -116,7 +114,6 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWithinClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
@@ -154,6 +151,11 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
@@ -167,7 +169,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangCompensate;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
@@ -185,7 +186,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
@@ -194,7 +194,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
@@ -234,6 +233,8 @@ import java.util.Stack;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_PREFIX;
+
 /**
  * This class builds the package AST of a Ballerina source file.
  *
@@ -270,6 +271,8 @@ public class BLangPackageBuilder {
     private Stack<BLangRecordLiteral> recordLiteralNodes = new Stack<>();
 
     private Stack<BLangTableLiteral> tableLiteralNodes = new Stack<>();
+
+    private Stack<BLangWaitForAllExpr> waitCollectionStack = new Stack<>();
 
     private Stack<BLangTryCatchFinally> tryCatchFinallyNodesStack = new Stack<>();
 
@@ -352,8 +355,6 @@ public class BLangPackageBuilder {
     private Stack<Set<Whitespace>> operatorWs = new Stack<>();
 
     private Stack<Set<Whitespace>> objectFieldBlockWs = new Stack<>();
-
-    private Stack<ScopeNode> scopeNodeStack = new Stack<>();
 
     private Stack<Set<Whitespace>> finiteTypeWsStack = new Stack<>();
 
@@ -1436,14 +1437,6 @@ public class BLangPackageBuilder {
         addExpressionNode(checkedExpr);
     }
 
-    void createAwaitExpr(DiagnosticPos pos, Set<Whitespace> ws) {
-        BLangAwaitExpr awaitExpr = TreeBuilder.createAwaitExpressionNode();
-        awaitExpr.pos = pos;
-        awaitExpr.addWS(ws);
-        awaitExpr.expr = (BLangExpression) exprNodeStack.pop();
-        addExpressionNode(awaitExpr);
-    }
-
     void createTrapExpr(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangTrapExpr trapExpr = (BLangTrapExpr) TreeBuilder.createTrapExpressionNode();
         trapExpr.pos = pos;
@@ -1497,33 +1490,36 @@ public class BLangPackageBuilder {
         this.compUnit.addTopLevelNode(function);
     }
 
-    void startWorker() {
-        WorkerNode workerNode = TreeBuilder.createWorkerNode();
-        this.invokableNodeStack.push(workerNode);
-        startBlock();
+    void startWorker(PackageID pkgID) {
+        this.startLambdaFunctionDef(pkgID);
+        BLangFunction lambdaFunction = (BLangFunction) this.invokableNodeStack.peek();
+        lambdaFunction.addFlag(Flag.WORKER);
+        this.startBlock();
     }
 
-    void addWorker(DiagnosticPos pos, Set<Whitespace> ws, String workerName) {
-        // TODO This code will not work if there are workers inside a lambda and the lambda is inside a fork/join
-        BLangWorker worker = (BLangWorker) this.invokableNodeStack.pop();
-        worker.setName(createIdentifier(workerName));
-        worker.pos = pos;
-        worker.addWS(ws);
-        worker.setBody(this.blockNodeStack.pop());
-        if (this.forkJoinNodesStack.empty()) {
-            InvokableNode invokableNode = this.invokableNodeStack.peek();
-            invokableNode.getParameters().forEach(worker::addParameter);
-            worker.setReturnTypeNode(invokableNode.getReturnTypeNode());
-            invokableNode.addWorker(worker);
-            invokableNode.addFlag(Flag.PARALLEL);
-        } else {
-            ((BLangForkJoin) this.forkJoinNodesStack.peek()).workers.add(worker);
+    void addWorker(DiagnosticPos pos, Set<Whitespace> ws, String workerName, boolean retParamsAvail) {
+        endCallableUnitBody(ws);
+        addLambdaFunctionDef(pos, ws, false, retParamsAvail, false);
+        String workerLambdaName = WORKER_LAMBDA_VAR_PREFIX + workerName;
+        addSimpleVariableDefStatement(pos, ws, workerLambdaName, true, true, true);
+
+        // Check if the worker is in a fork. If so add the lambda function to the worker list in fork, else ignore.
+        if (!this.forkJoinNodesStack.empty()) {
+            List<? extends StatementNode> stmtsAdded = this.blockNodeStack.peek().getStatements();
+            BLangSimpleVariableDef lamdaWrkr = (BLangSimpleVariableDef) stmtsAdded.get(stmtsAdded.size() - 1);
+            this.forkJoinNodesStack.peek().addWorkers(lamdaWrkr);
         }
+
+        addNameReference(pos, ws, null, workerLambdaName);
+        createSimpleVariableReference(pos, ws);
+        startInvocationNode(ws);
+        createInvocationNode(pos, ws, BLangBuiltInMethod.CALL.toString(), false, false);
+        markLastInvocationAsAsync(pos);
+        addSimpleVariableDefStatement(pos, ws, workerName, true, true, true);
     }
 
     void attachWorkerWS(Set<Whitespace> ws) {
-        BLangWorker worker = (BLangWorker) this.invokableNodeStack.peek();
-        worker.addWS(ws);
+        //TODO: attach ws to
     }
 
     void startForkJoinStmt() {
@@ -1535,41 +1531,6 @@ public class BLangPackageBuilder {
         forkJoin.pos = pos;
         forkJoin.addWS(ws);
         this.addStmtToCurrentBlock(forkJoin);
-    }
-
-    void startJoinCause() {
-        startBlock();
-    }
-
-    void addJoinCause(Set<Whitespace> ws, String identifier) {
-        BLangForkJoin forkJoin = (BLangForkJoin) this.forkJoinNodesStack.peek();
-        forkJoin.joinedBody = (BLangBlockStmt) this.blockNodeStack.pop();
-        Set<Whitespace> varWS = removeNthFromLast(ws, 3);
-        forkJoin.addWS(ws);
-        forkJoin.joinResultVar = (BLangSimpleVariable) this.generateBasicVarNode(
-                (DiagnosticPos) this.typeNodeStack.peek().getPosition(), varWS, identifier, false);
-    }
-
-    void addJoinCondition(Set<Whitespace> ws, String joinType, List<String> workerNames, int joinCount) {
-        BLangForkJoin forkJoin = (BLangForkJoin) this.forkJoinNodesStack.peek();
-        forkJoin.joinedWorkerCount = joinCount;
-        forkJoin.joinType = ForkJoinNode.JoinType.valueOf(joinType);
-        forkJoin.addWS(ws);
-        workerNames.forEach(s -> forkJoin.joinedWorkers.add((BLangIdentifier) createIdentifier(s)));
-    }
-
-    void startTimeoutCause() {
-        startBlock();
-    }
-
-    void addTimeoutCause(Set<Whitespace> ws, String identifier) {
-        BLangForkJoin forkJoin = (BLangForkJoin) this.forkJoinNodesStack.peek();
-        forkJoin.timeoutBody = (BLangBlockStmt) this.blockNodeStack.pop();
-        forkJoin.timeoutExpression = (BLangExpression) this.exprNodeStack.pop();
-        Set<Whitespace> varWS = removeNthFromLast(ws, 3);
-        forkJoin.addWS(ws);
-        forkJoin.timeoutVariable = (BLangSimpleVariable) this.generateBasicVarNode(
-                (DiagnosticPos) this.typeNodeStack.peek().getPosition(), varWS, identifier, false);
     }
 
     void endCallableUnitBody(Set<Whitespace> ws) {
@@ -2465,12 +2426,10 @@ public class BLangPackageBuilder {
         this.matchStmtStack.peekFirst().patternClauses.add(patternClause);
     }
 
-    void addWorkerSendStmt(DiagnosticPos pos, Set<Whitespace> ws, String workerName, boolean isForkJoinSend, boolean
-            hasKey) {
+    void addWorkerSendStmt(DiagnosticPos pos, Set<Whitespace> ws, String workerName, boolean hasKey) {
         BLangWorkerSend workerSendNode = (BLangWorkerSend) TreeBuilder.createWorkerSendNode();
         workerSendNode.setWorkerName(this.createIdentifier(workerName));
         workerSendNode.expr = (BLangExpression) exprNodeStack.pop();
-        workerSendNode.isForkJoinSend = isForkJoinSend;
         workerSendNode.pos = pos;
         workerSendNode.addWS(ws);
         //added to use for channels as well
@@ -2482,19 +2441,36 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(workerSendNode);
     }
 
-    void addWorkerReceiveStmt(DiagnosticPos pos, Set<Whitespace> ws, String workerName, boolean hasKey) {
-        BLangWorkerReceive workerReceiveNode = (BLangWorkerReceive) TreeBuilder.createWorkerReceiveNode();
-        workerReceiveNode.setWorkerName(this.createIdentifier(workerName));
-        workerReceiveNode.expr = (BLangExpression) exprNodeStack.pop();
-        workerReceiveNode.pos = pos;
-        workerReceiveNode.addWS(ws);
+    void addWorkerReceiveExpr(DiagnosticPos pos, Set<Whitespace> ws, String workerName, boolean hasKey) {
+        BLangWorkerReceive workerReceiveExpr = (BLangWorkerReceive) TreeBuilder.createWorkerReceiveNode();
+        workerReceiveExpr.setWorkerName(this.createIdentifier(workerName));
+        workerReceiveExpr.pos = pos;
+        workerReceiveExpr.addWS(ws);
         //if there are two expressions, this is a channel receive and the top expression is the key
         if (hasKey) {
-            workerReceiveNode.keyExpr = workerReceiveNode.expr;
-            workerReceiveNode.expr = (BLangExpression) exprNodeStack.pop();
-            workerReceiveNode.isChannel = true;
+            workerReceiveExpr.keyExpr = (BLangExpression) exprNodeStack.pop();
+            workerReceiveExpr.isChannel = true;
         }
-        addStmtToCurrentBlock(workerReceiveNode);
+        addExpressionNode(workerReceiveExpr);
+    }
+
+    void addWorkerFlushExpr(DiagnosticPos pos, Set<Whitespace> ws, String workerName) {
+        BLangWorkerFlushExpr workerFlushExpr = TreeBuilder.createWorkerFlushExpressionNode();
+        if (workerName != null) {
+            workerFlushExpr.workerIdentifier = (BLangIdentifier) createIdentifier(workerName);
+        }
+        workerFlushExpr.pos = pos;
+        workerFlushExpr.addWS(ws);
+        addExpressionNode(workerFlushExpr);
+    }
+
+    void addWorkerSendSyncExpr(DiagnosticPos pos, Set<Whitespace> ws, String workerName) {
+        BLangWorkerSyncSendExpr workerSendExpr = TreeBuilder.createWorkerSendSyncExprNode();
+        workerSendExpr.setWorkerName(this.createIdentifier(workerName));
+        workerSendExpr.expr = (BLangExpression) exprNodeStack.pop();
+        workerSendExpr.pos = pos;
+        workerSendExpr.addWS(ws);
+        addExpressionNode(workerSendExpr);
     }
 
     void addExpressionStmt(DiagnosticPos pos, Set<Whitespace> ws) {
@@ -3467,50 +3443,6 @@ public class BLangPackageBuilder {
         return lambda;
     }
 
-    void startScopeStmt() {
-        scopeNodeStack.push(TreeBuilder.createScopeNode());
-        startBlock();
-    }
-
-    void addCompensateStatement(DiagnosticPos pos, Set<Whitespace> ws, String name) {
-        BLangCompensate compensateNode = (BLangCompensate) TreeBuilder.createCompensateNode();
-        compensateNode.pos = pos;
-        compensateNode.addWS(ws);
-        compensateNode.scopeName = createIdentifier(name);
-        compensateNode.invocation.name = (BLangIdentifier) createIdentifier(name);
-        compensateNode.invocation.pkgAlias = (BLangIdentifier) createIdentifier(null);
-
-        addStmtToCurrentBlock(compensateNode);
-    }
-
-    void endScopeStmt(DiagnosticPos pos, Set<Whitespace> ws, BLangIdentifier scopeName,
-                      BLangLambdaFunction compensationFunction) {
-        BLangScope scope = (BLangScope) scopeNodeStack.pop();
-        scope.pos = pos;
-        scope.addWS(ws);
-        scope.setScopeName(scopeName);
-        addStmtToCurrentBlock(scope);
-        if (!scopeNodeStack.isEmpty()) {
-            for (String child : scope.childScopes) {
-                scopeNodeStack.peek().addChildScope(child);
-            }
-            scopeNodeStack.peek().addChildScope(scopeName.getValue());
-        }
-
-        scope.setCompensationFunction(compensationFunction);
-    }
-
-    void addScopeBlock(DiagnosticPos currentPos) {
-        ScopeNode scopeNode = scopeNodeStack.peek();
-        BLangBlockStmt scopeBlock = (BLangBlockStmt) this.blockNodeStack.pop();
-        scopeBlock.pos = currentPos;
-        scopeNode.setScopeBody(scopeBlock);
-    }
-
-    void startOnCompensationBlock() {
-        startFunctionDef();
-    }
-
     public void addTypeReference(DiagnosticPos currentPos, Set<Whitespace> ws) {
         TypeNode typeRef = typeNodeStack.pop();
         typeRef.addWS(ws);
@@ -3525,5 +3457,50 @@ public class BLangPackageBuilder {
         typeTestExpr.pos = pos;
         typeTestExpr.addWS(ws);
         addExpressionNode(typeTestExpr);
+    }
+
+    void handleWait(DiagnosticPos currentPos, Set<Whitespace> ws) {
+        BLangWaitExpr waitExpr = TreeBuilder.createWaitExpressionNode();
+        waitExpr.exprList = Collections.singletonList((BLangExpression) this.exprNodeStack.pop());
+        waitExpr.pos = currentPos;
+        waitExpr.addWS(ws);
+        addExpressionNode(waitExpr);
+    }
+
+    void startWaitForAll() {
+        BLangWaitForAllExpr bLangWaitForAll = TreeBuilder.createWaitForAllExpressionNode();
+        waitCollectionStack.push(bLangWaitForAll);
+    }
+
+
+    void handleWaitForAll(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangWaitForAllExpr waitForAllExpr = waitCollectionStack.pop();
+        waitForAllExpr.pos = pos;
+        waitForAllExpr.addWS(ws);
+        addExpressionNode(waitForAllExpr);
+    }
+
+    void addKeyValueToWaitForAll(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean containsExpr) {
+        BLangWaitForAllExpr.BLangWaitKeyValue keyValue = TreeBuilder.createWaitKeyValueNode();
+        keyValue.addWS(ws);
+        keyValue.pos = pos;
+        // Add the key as an identifier
+        BLangIdentifier key = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        key.setLiteral(false);
+        key.setValue(identifier);
+        keyValue.key = key;
+        // Add the value. If it is a Identifier:expr pair then add the value by popping the expr from the expression
+        // stack else the value is not assigned.
+        if (containsExpr) {
+            keyValue.valueExpr = (BLangExpression) exprNodeStack.pop();
+        } else {
+            BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+            varRef.pos = pos;
+            varRef.variableName = key;
+            varRef.addWS(ws);
+            varRef.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+            keyValue.keyExpr = varRef;
+        }
+        waitCollectionStack.peek().keyValuePairs.add(keyValue);
     }
 }

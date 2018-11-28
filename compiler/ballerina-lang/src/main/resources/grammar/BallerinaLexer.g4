@@ -138,15 +138,13 @@ IN          : 'in' ;
 LOCK        : 'lock' ;
 UNTAINT     : 'untaint' ;
 START       : 'start' ;
-AWAIT       : 'await' ;
 BUT         : 'but' ;
 CHECK       : 'check' ;
 DONE        : 'done' ;
-SCOPE       : 'scope';
-COMPENSATION: 'compensation';
-COMPENSATE  : 'compensate' ;
 PRIMARYKEY  : 'primarykey' ;
 IS          : 'is' ;
+FLUSH       : 'flush' ;
+WAIT        : 'wait' ;
 
 // Separators
 
@@ -207,7 +205,7 @@ ELLIPSIS    : '...' ;
 PIPE        : '|' ;
 EQUAL_GT    : '=>' ;
 ELVIS       : '?:' ;
-
+SYNCRARROW      : '->>' ;
 
 // Compound Assignment operators.
 

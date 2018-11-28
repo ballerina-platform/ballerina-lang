@@ -82,10 +82,11 @@ public class CallableWorkerResponseContext extends BaseWorkerResponseContext {
     }
 
     protected WorkerExecutionContext propagateErrorToTarget() {
-        BError error = BLangVMErrors.handleError(this.targetCtx, this.getWorkerErrors());
-        WorkerExecutionContext ctx = this.onFinalizedError(this.targetCtx, error);
-        this.doFailCallbackNotify(error);
-        return ctx;
+//        BError error = BLangVMErrors.handleError(this.targetCtx, this.getWorkerErrors());
+//        WorkerExecutionContext ctx = this.onFinalizedError(this.targetCtx, error);
+//        this.doFailCallbackNotify(error);
+//        return ctx;
+        return null;
     }
 
     @Override
