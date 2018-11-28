@@ -68,16 +68,6 @@ public class ClientGeneratorPlugin extends AbstractCompilerPlugin {
         }
     }
 
-    @Override
-    public void process(EndpointNode endpointNode, List<AnnotationAttachmentNode> annotations) {
-        AnnotationAttachmentNode config = GeneratorUtils
-                .getAnnotationFromList("ClientEndpoint", GeneratorConstants.SWAGGER_PKG_ALIAS,
-                        annotations);
-        if (config != null) {
-            this.endpoints.add(endpointNode);
-        }
-    }
-
     private String getOutputFilePath(ServiceNode serviceNode) {
         String cUnit = serviceNode.getPosition().getSource().getCompilationUnitName();
         String dir = cUnit.substring(0, cUnit.lastIndexOf(File.separator) + 1);

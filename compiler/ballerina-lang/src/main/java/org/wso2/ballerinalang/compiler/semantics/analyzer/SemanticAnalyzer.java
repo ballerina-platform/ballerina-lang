@@ -1278,6 +1278,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (!types.checkListenerCompatibility(env, exprType)) {
             dlog.error(serviceNode.attachExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, Names.ABSTRACT_LISTENER,
                     exprType);
+        } else {
+            serviceNode.listerType = exprType;
         }
 
         // TODO : Fix this.
@@ -1286,7 +1288,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             if (!Symbols.isFlagOn(attachExpr.symbol.flags, Flags.LISTENER)) {
                 dlog.error(serviceNode.attachExpr.pos, DiagnosticCode.SYNTAX_ERROR, "invalid listener attachment");
             }
-        } else if (serviceNode.attachExpr.getKind() != NodeKind.Type_INIT_EXPR) {
+        } else if (serviceNode.attachExpr.getKind() != NodeKind.TYPE_INIT_EXPR) {
             dlog.error(serviceNode.attachExpr.pos, DiagnosticCode.SYNTAX_ERROR, "invalid listener attachment");
         }
     }
@@ -2008,8 +2010,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // var a = { x : y };
         // var a = new ;
         final NodeKind kind = expr.getKind();
-        if (kind == RECORD_LITERAL_EXPR || kind == NodeKind.ARRAY_LITERAL_EXPR
-                || (kind == NodeKind.Type_INIT_EXPR && ((BLangTypeInit) expr).userDefinedType == null)) {
+        if (kind == RECORD_LITERAL_EXPR || kind == NodeKind.ARRAY_LITERAL_EXPR || (kind == NodeKind.TYPE_INIT_EXPR
+                && ((BLangTypeInit) expr).userDefinedType == null)) {
             dlog.error(expr.pos, DiagnosticCode.INVALID_ANY_VAR_DEF);
             return false;
         }

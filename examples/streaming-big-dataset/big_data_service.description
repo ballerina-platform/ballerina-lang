@@ -1,0 +1,12 @@
+// Ballerina inherently supports streaming large datasets. For example,
+// retrieving a large amount of data, converting it to a preferred data format
+// (e.g., JSON, XML) and sending it across the network on HTTP, does not require loading
+// the entire dataset to memory at once. Data is fetched on demand from the database
+// and incrementally converted to JSON/XML and sent to the client.
+// This example demonstrates streaming a large amount of data through an HTTP service.
+// Please run data_setup.bal file to setup a database with sufficient amount of data.
+// It creates a sample database with a table that contains an id field,
+// and two text fields each having 1KB of data. Here, the row_count parameter of the
+// PopulateData stored procedure is set to 100000, which would add up to around 200MB
+// of textual data. You can increase the value of row_count parameter to increase the
+// amount of data.

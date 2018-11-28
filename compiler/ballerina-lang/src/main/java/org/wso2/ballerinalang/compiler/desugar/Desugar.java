@@ -69,7 +69,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -248,7 +247,6 @@ public class Desugar extends BLangNodeVisitor {
     private Types types;
     private Names names;
     private SiddhiQueryBuilder siddhiQueryBuilder;
-    private HttpFiltersDesugar httpFiltersDesugar;
     private ServiceDesugar serviceDesugar;
 
     private BLangNode result;
@@ -289,7 +287,6 @@ public class Desugar extends BLangNodeVisitor {
         this.names = Names.getInstance(context);
         this.siddhiQueryBuilder = SiddhiQueryBuilder.getInstance(context);
         this.names = Names.getInstance(context);
-        httpFiltersDesugar = HttpFiltersDesugar.getInstance(context);
         this.serviceDesugar = ServiceDesugar.getInstance(context);
     }
 
@@ -419,7 +416,7 @@ public class Desugar extends BLangNodeVisitor {
 
         pkgNode.constants.forEach(constant -> pkgNode.typeDefinitions.add(constant.associatedTypeDefinition));
 
-        BLangBlockStmt serviceAttachments = serviceDesugar.rewriteServices(pkgNode.services, env);
+        BLangBlockStmt serviceAttachments = serviceDesugar.rewriteServiceVariables(pkgNode.services, env);
 
         pkgNode.globalVars.forEach(globalVar -> {
             BLangAssignment assignment = createAssignmentStmt(globalVar);
@@ -439,8 +436,10 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.globalVars = rewrite(pkgNode.globalVars, env);
         pkgNode.functions = rewrite(pkgNode.functions, env);
 
+        pkgNode.services.forEach(service -> serviceDesugar.engageCustomServiceDesugar(service, env));
+
         serviceDesugar.rewriteListeners(pkgNode.globalVars, env);
-        serviceDesugar.rewriteAttachments(serviceAttachments, env);
+        serviceDesugar.rewriteServiceAttachments(serviceAttachments, env);
 
         pkgNode.initFunction = rewrite(pkgNode.initFunction, env);
         pkgNode.startFunction = rewrite(pkgNode.startFunction, env);
@@ -571,12 +570,6 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangResource resourceNode) {
-        addReturnIfNotPresent(resourceNode);
-        httpFiltersDesugar.invokeFilters(resourceNode, env);
-        SymbolEnv resourceEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode, resourceNode.symbol.scope, env);
-        resourceNode.body = rewrite(resourceNode.body, resourceEnv);
-        resourceNode.workers = rewrite(resourceNode.workers, resourceEnv);
-        result = resourceNode;
     }
 
     @Override
@@ -585,11 +578,6 @@ public class Desugar extends BLangNodeVisitor {
         workerNode.body = rewrite(workerNode.body, env);
         this.workerStack.pop();
         result = workerNode;
-    }
-
-    @Override
-    public void visit(BLangEndpoint endpoint) {
-        result = endpoint;
     }
 
     @Override
@@ -2579,8 +2567,9 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
-        result = ASTBuilderUtil
+        final BLangTypeInit typeInit = ASTBuilderUtil
                 .createEmptyTypeInit(serviceConstructorExpr.pos, serviceConstructorExpr.serviceNode.symbol.type);
+        result = rewriteExpr(typeInit);
     }
 
     @Override

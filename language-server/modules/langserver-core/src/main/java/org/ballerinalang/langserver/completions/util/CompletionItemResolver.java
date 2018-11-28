@@ -146,10 +146,6 @@ public enum CompletionItemResolver {
     PARSER_RULE_RETURN_STMT_CONTEXT(BallerinaParser.ReturnStatementContext.class,
             new ParserRuleReturnStatementContextRexolver()),
     // TODO: Can be removed
-//    PARSER_RULE_GLOBAL_EP_DECLARATION_CONTEXT(BallerinaParser.GlobalEndpointDefinitionContext.class,
-//            new EndpointDeclarationContextResolver()),
-//    PARSER_RULE_EP_DECLARATION_CONTEXT(BallerinaParser.EndpointDeclarationContext.class,
-//            new EndpointDeclarationContextResolver()),
     PARSER_RULE_PANIC_STATEMENT_CONTEXT(BallerinaParser.PanicStatementContext.class,
             new ParserRulePanicStatementContext()),
     PARSER_RULE_MATCH_STATEMENT_CONTEXT(BallerinaParser.MatchStatementContext.class,

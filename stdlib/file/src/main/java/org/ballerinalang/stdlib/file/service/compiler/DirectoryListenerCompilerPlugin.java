@@ -19,21 +19,22 @@
 package org.ballerinalang.stdlib.file.service.compiler;
 
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
-import org.ballerinalang.compiler.plugins.SupportEndpointTypes;
+import org.ballerinalang.compiler.plugins.SupportedResourceParamTypes;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
-import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.tree.BLangResource;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 
 import java.util.List;
 
@@ -49,8 +50,12 @@ import static org.ballerinalang.util.diagnostic.Diagnostic.Kind.ERROR;
  *
  * @since 0.970.0
  */
-@SupportEndpointTypes(
-        value = {@SupportEndpointTypes.EndpointType(orgName = "ballerina", packageName = "file", name = "Listener")}
+@SupportedResourceParamTypes(expectedListenerType = @SupportedResourceParamTypes.Type(packageName = "file",
+                                                                                      name = "Listener"),
+                             paramTypes = {
+                                     @SupportedResourceParamTypes.Type(packageName = "file",
+                                                                       name = "FileEvent")
+                             }
 )
 public class DirectoryListenerCompilerPlugin extends AbstractCompilerPlugin {
 
@@ -62,31 +67,33 @@ public class DirectoryListenerCompilerPlugin extends AbstractCompilerPlugin {
     }
 
     @Override
-    public void process(EndpointNode endpointNode, List<AnnotationAttachmentNode> annotations) {
-        final ExpressionNode configurationExpression = endpointNode.getConfigurationExpression();
-        if (NodeKind.RECORD_LITERAL_EXPR.equals(configurationExpression.getKind())) {
-            BLangRecordLiteral recordLiteral = (BLangRecordLiteral) configurationExpression;
-            for (BLangRecordLiteral.BLangRecordKeyValue config : recordLiteral.getKeyValuePairs()) {
-                final String key = ((BLangSimpleVarRef) config.getKey()).variableName.value;
-                if (ANNOTATION_PATH.equals(key)) {
-                    final Object value = ((BLangLiteral) config.getValue()).getValue();
-                    if (value == null || value.toString().isEmpty()) {
-                        String msg = "'" + ANNOTATION_PATH + "' field empty.";
-                        dlog.logDiagnostic(ERROR, endpointNode.getPosition(), msg);
-                        break;
-                    }
+    public void process(SimpleVariableNode variableNode, List<AnnotationAttachmentNode> annotations) {
+        if (!variableNode.getFlags().contains(Flag.LISTENER)) {
+            return;
+        }
+        final ExpressionNode configurationExpression = variableNode.getInitialExpression();
+        if (NodeKind.TYPE_INIT_EXPR.equals(configurationExpression.getKind())) {
+            BLangTypeInit typeInit = (BLangTypeInit) configurationExpression;
+            final BLangExpression annotationPath = typeInit.argsExpr.get(0);
+            if (annotationPath.getKind() == NodeKind.LITERAL) {
+                final Object value = ((BLangLiteral) annotationPath).getValue();
+                if (value == null || value.toString().isEmpty()) {
+                    String msg = "'" + ANNOTATION_PATH + "' field empty.";
+                    dlog.logDiagnostic(ERROR, variableNode.getPosition(), msg);
                 }
+            } else {
+                // TODO: Handle error.
             }
         }
     }
 
     @Override
-    public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
-        List<BLangResource> resources = (List<BLangResource>) serviceNode.getResources();
-        resources.forEach(res -> validate(serviceNode.getName().getValue(), res, this.dlog));
+    public void process(ServiceNode serviceData, List<AnnotationAttachmentNode> annotations) {
+        List<BLangFunction> resources = (List<BLangFunction>) serviceData.getResources();
+        resources.forEach(res -> validate(serviceData.getName().getValue(), res, this.dlog));
     }
 
-    public static void validate(String serviceName, BLangResource resource, DiagnosticLog dlog) {
+    public static void validate(String serviceName, BLangFunction resource, DiagnosticLog dlog) {
         switch (resource.getName().getValue()) {
             case RESOURCE_NAME_ON_CREATE:
             case RESOURCE_NAME_ON_DELETE:

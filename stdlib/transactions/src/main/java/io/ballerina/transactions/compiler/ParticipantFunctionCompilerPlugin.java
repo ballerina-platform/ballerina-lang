@@ -49,12 +49,4 @@ public class ParticipantFunctionCompilerPlugin extends AbstractCompilerPlugin {
                     "Transact-able function cannot have more than one transaction annotation");
         }
     }
-
-    @Override
-    public void process(ResourceNode resourceNode, List<AnnotationAttachmentNode> annotations) {
-        if (annotations.size() > 1) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, resourceNode.getPosition(),
-                    "Participant resource cannot have more than one transaction annotation");
-        }
-    }
 }

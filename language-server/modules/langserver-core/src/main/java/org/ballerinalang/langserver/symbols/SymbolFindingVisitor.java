@@ -96,7 +96,7 @@ public class SymbolFindingVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangService serviceNode) {
         this.addSymbol(serviceNode, serviceNode.symbol, SymbolKind.Class);
-        serviceNode.getResources().forEach(bLangResource -> bLangResource.accept(this));
+//        serviceNode.getResources().forEach(bLangResource -> bLangResource.accept(this));
     }
 
     @Override

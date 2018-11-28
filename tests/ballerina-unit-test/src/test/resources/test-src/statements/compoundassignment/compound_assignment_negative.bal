@@ -2,7 +2,7 @@ function testMapElementIncrement()  returns (int|error){
     map<any> namesMap = {fname:1};
     namesMap.fname += 1;
     int x;
-    x = check <int>namesMap.fname;
+    x = check int.create(namesMap.fname);
     return x;
 }
 
@@ -10,7 +10,7 @@ function testMapElementDecrement() returns (int|error){
     map<any> namesMap = {fname:1};
     namesMap.fname -= 1;
     int x;
-    x = check <int>namesMap.fname;
+    x = check int.create(namesMap.fname);
     return x;
 }
 
@@ -42,7 +42,7 @@ function testStringVarRefDecrement() returns (string){
 
 function testMultiReturnWithCompound() returns (int){
     int x = 4;
-    x += <int>"NotAInteger";
+    x += int.create("NotAInteger");
     return x;
 }
 
