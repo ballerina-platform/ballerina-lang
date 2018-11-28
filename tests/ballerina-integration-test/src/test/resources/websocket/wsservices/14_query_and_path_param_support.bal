@@ -17,12 +17,12 @@
 import ballerina/log;
 import ballerina/http;
 
-@final string PATH1 = "PATH1";
-@final string PATH2 = "PATH2";
-@final string QUERY1 = "QUERY1";
-@final string QUERY2 = "QUERY2";
+final string PATH1 = "PATH1";
+final string PATH2 = "PATH2";
+final string QUERY1 = "QUERY1";
+final string QUERY2 = "QUERY2";
 
-service<http:Service> simple6 bind { port: 9096 } {
+service simple6 on new http:Listener(9096) {
 
     @http:ResourceConfig {
         webSocketUpgrade: {
@@ -30,8 +30,8 @@ service<http:Service> simple6 bind { port: 9096 } {
             upgradeService: simpleProxy6
         }
     }
-    websocketProxy(endpoint httpEp, http:Request req, string path1, string path2) {
-        endpoint http:WebSocketListener wsServiceEp;
+    resource function websocketProxy(http:Caller httpEp, http:Request req, string path1, string path2) {
+        http:WebSocketCaller wsServiceEp;
         wsServiceEp = httpEp->acceptWebSocketUpgrade({ "X-some-header": "some-header-value" });
         wsServiceEp.attributes[PATH1] = path1;
         wsServiceEp.attributes[PATH2] = path2;
@@ -40,9 +40,9 @@ service<http:Service> simple6 bind { port: 9096 } {
     }
 }
 
-service<http:WebSocketService> simpleProxy6 {
+service simpleProxy6 = @http:WebSocketServiceConfig {} service {
 
-    onText(endpoint wsEp, string text) {
+    resource function onText(http:WebSocketCaller wsEp, string text) {
         if (text == "send") {
             string path1 = <string>wsEp.attributes[PATH1];
             string path2 = <string>wsEp.attributes[PATH2];
@@ -56,4 +56,4 @@ service<http:WebSocketService> simpleProxy6 {
             }
         }
     }
-}
+};

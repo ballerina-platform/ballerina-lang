@@ -664,15 +664,6 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangScope scopeNode) {
-        if (scopeNode.scopeBody != null) {
-            this.acceptNode(scopeNode.scopeBody);
-        }
-
-        visit(scopeNode.compensationFunction);
-    }
-
-    @Override
     public void visit(BLangCompoundAssignment compoundAssignNode) {
         this.acceptNode(compoundAssignNode.varRef);
         if (compoundAssignNode.expr != null) {

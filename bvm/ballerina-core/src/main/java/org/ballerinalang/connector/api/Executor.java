@@ -24,6 +24,9 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.observability.ObserverContext;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -52,9 +55,13 @@ public class Executor {
         if (resource == null || responseCallback == null) {
             throw new BallerinaConnectorException("invalid arguments provided");
         }
+        List<BValue> args = new ArrayList<>();
+        args.add(resource.getService().getBValue());
+        args.addAll(Arrays.asList(values));
         FunctionInfo resourceInfo = resource.getResourceInfo();
-        BVMExecutor.executeResource(resourceInfo.getPackageInfo().getProgramFile(), resourceInfo, responseCallback,
-                                    properties, observerContext, resource.getService().getServiceInfo(), values);
+        BVMExecutor.executeResource(resourceInfo.getPackageInfo().getProgramFile(),
+                resourceInfo, responseCallback, properties, observerContext,
+                resource.getService().getServiceInfo(), args.toArray(new BValue[0]));
 
 
 //        WorkerExecutionContext context = new WorkerExecutionContext(resource.getResourceInfo().getPackageInfo()
@@ -80,9 +87,13 @@ public class Executor {
         if (resource == null || responseCallback == null) {
             throw new BallerinaConnectorException("invalid arguments provided");
         }
+        List<BValue> args = new ArrayList<>();
+        args.add(resource.getService().getBValue());
+        args.addAll(Arrays.asList(values));
         FunctionInfo resourceInfo = resource.getResourceInfo();
-        BVMExecutor.executeResource(resourceInfo.getPackageInfo().getProgramFile(), resourceInfo, responseCallback,
-                                    properties, observerContext, resource.getService().getServiceInfo(), values);
+        BVMExecutor.executeResource(resourceInfo.getPackageInfo().getProgramFile(),
+                resourceInfo, responseCallback, properties, observerContext,
+                resource.getService().getServiceInfo(), args.toArray(new BValue[0]));
 //        ResourceExecutor.execute(resource, responseCallback, properties, observerContext, context, values);
     }
 
