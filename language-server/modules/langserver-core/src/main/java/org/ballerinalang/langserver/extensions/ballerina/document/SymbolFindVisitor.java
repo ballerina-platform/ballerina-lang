@@ -126,7 +126,7 @@ class SymbolFindVisitor extends LSNodeVisitor {
                             .setPkgName(pkgName)
                             .setPkgOrgName(orgName)
                             .setPkgAlias(alias)
-                            .setEndpoint(true)
+                            .setKind("VisibleEndpoint")
                             .setCaller(isCaller)
                             .build();
                 })
