@@ -1,7 +1,7 @@
 import ballerina/io;
 
 // Shared counter variable among multiple workers.
-int counter;
+int counter = 0;
 
 public function main() {
     process();
