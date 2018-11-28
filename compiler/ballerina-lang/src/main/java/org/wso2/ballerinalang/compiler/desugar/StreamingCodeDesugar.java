@@ -42,11 +42,13 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -496,7 +498,13 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         List<BType> types = new LinkedList<>();
         types.add(foreachVariables.memberVariables.get(0).type);
         types.add(foreachVariables.memberVariables.get(1).type);
-        foreach.varType = new BTupleType(types);
+        BTupleType tupleType = new BTupleType(types);
+        foreach.varType = tupleType;
+        BMapType mapType = new BMapType(TypeTags.RECORD, tupleType, symTable.mapType.tsymbol);
+        foreach.resultType = mapType;
+        LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
+        memberTypes.add(mapType);
+        foreach.nillableResultType = new BUnionType(null, memberTypes, true);
 
         outputLambdaFunc.function.body.stmts.add(foreach);
 
