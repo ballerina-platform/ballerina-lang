@@ -18,7 +18,7 @@ import ballerina/http;
 import ballerina/io;
 import ballerina/socket;
 
-listener http:Listener echoEP  = new(9090);
+listener http:Listener echoEP  = new(58291);
 
 @http:ServiceConfig { basePath: "/echo" }
 service echo on echoEP {
@@ -28,7 +28,7 @@ service echo on echoEP {
         path:"/"
     }
     resource function echo1 (http:Caller caller, http:Request req) {
-        socket:Client socketClient = new({host: "localhost", port: 47826, callbackService: ClientService});
+        socket:Client socketClient = new({host: "localhost", port: 54387, callbackService: ClientService});
         var payload = req.getTextPayload();
         http:Response resp = new;
         if (payload is string) {

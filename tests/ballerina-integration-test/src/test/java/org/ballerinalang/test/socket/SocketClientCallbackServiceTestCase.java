@@ -56,7 +56,7 @@ public class SocketClientCallbackServiceTestCase extends SocketBaseTest {
         Map<String, String> headers = new HashMap<>(1);
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
         HttpResponse response = HttpClientRequest
-                .doPost(serverInstance.getServiceURLHttp(9090, "echo"), requestMessage, headers);
+                .doPost(serverInstance.getServiceURLHttp(58291, "echo"), requestMessage, headers);
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 202, "Response code mismatched");
         serverLeecher.waitForText(20000);

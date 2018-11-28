@@ -50,12 +50,9 @@ import static org.ballerinalang.util.diagnostic.Diagnostic.Kind.ERROR;
  *
  * @since 0.970.0
  */
-@SupportedResourceParamTypes(expectedListenerType = @SupportedResourceParamTypes.Type(packageName = "file",
-                                                                                      name = "Listener"),
-                             paramTypes = {
-                                     @SupportedResourceParamTypes.Type(packageName = "file",
-                                                                       name = "FileEvent")
-                             }
+@SupportedResourceParamTypes(
+        expectedListenerType = @SupportedResourceParamTypes.Type(packageName = "file", name = "Listener"),
+        paramTypes = { @SupportedResourceParamTypes.Type(packageName = "file", name = "FileEvent") }
 )
 public class DirectoryListenerCompilerPlugin extends AbstractCompilerPlugin {
 

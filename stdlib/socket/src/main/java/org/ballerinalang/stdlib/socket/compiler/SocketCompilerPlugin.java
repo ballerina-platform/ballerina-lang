@@ -19,29 +19,22 @@
 package org.ballerinalang.stdlib.socket.compiler;
 
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
-import org.ballerinalang.compiler.plugins.SupportEndpointTypes;
+import org.ballerinalang.compiler.plugins.SupportedResourceParamTypes;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
-import org.ballerinalang.model.tree.EndpointNode;
-import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.ServiceNode;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.tree.BLangResource;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 
 import java.util.List;
 
 import static org.ballerinalang.model.types.TypeKind.ARRAY;
 import static org.ballerinalang.model.types.TypeKind.OBJECT;
 import static org.ballerinalang.model.types.TypeKind.RECORD;
-import static org.ballerinalang.stdlib.socket.SocketConstants.CONFIG_FIELD_PORT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.RESOURCE_ON_ACCEPT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.RESOURCE_ON_CLOSE;
 import static org.ballerinalang.stdlib.socket.SocketConstants.RESOURCE_ON_CONNECT;
@@ -54,14 +47,15 @@ import static org.ballerinalang.util.diagnostic.Diagnostic.Kind.ERROR;
  *
  * @since 0.985.0
  */
-@SupportEndpointTypes(
-        value = {@SupportEndpointTypes.EndpointType(orgName = "ballerina", packageName = "socket", name = "Listener"),
-                 @SupportEndpointTypes.EndpointType(orgName = "ballerina", packageName = "socket", name = "Client")}
+@SupportedResourceParamTypes(
+        expectedListenerType = @SupportedResourceParamTypes.Type(packageName = "socket", name = "Listener"),
+        paramTypes = { @SupportedResourceParamTypes.Type(packageName = "socket", name = "Client") }
 )
 public class SocketCompilerPlugin extends AbstractCompilerPlugin {
 
     private static final String INVALID_RESOURCE_SIGNATURE = "Invalid resource signature for %s in service %s. ";
     private DiagnosticLog diagnosticLog = null;
+    private int resourceCount = 0;
 
     @Override
     public void init(DiagnosticLog diagnosticLog) {
@@ -69,61 +63,46 @@ public class SocketCompilerPlugin extends AbstractCompilerPlugin {
     }
 
     @Override
-    public void process(EndpointNode endpointNode, List<AnnotationAttachmentNode> annotations) {
-        final ExpressionNode configurationExpression = endpointNode.getConfigurationExpression();
-        if (NodeKind.RECORD_LITERAL_EXPR.equals(configurationExpression.getKind())) {
-            BLangRecordLiteral recordLiteral = (BLangRecordLiteral) configurationExpression;
-            boolean isPortPresent = false;
-            for (BLangRecordLiteral.BLangRecordKeyValue config : recordLiteral.getKeyValuePairs()) {
-                final String key = ((BLangSimpleVarRef) config.getKey()).variableName.value;
-                if (CONFIG_FIELD_PORT.equals(key)) {
-                    isPortPresent = true;
-                    final Object value = ((BLangLiteral) config.getValue()).getValue();
-                    Long port = (Long) value;
-                    if (port <= 0) {
-                        String msg = String.format("'%s' must be a positive integer value", CONFIG_FIELD_PORT);
-                        diagnosticLog.logDiagnostic(ERROR, endpointNode.getPosition(), msg);
-                        break;
-                    }
-                }
-            }
-            if (!isPortPresent) {
-                String msg = String.format("'%s' is a mandatory configuration field", CONFIG_FIELD_PORT);
-                diagnosticLog.logDiagnostic(ERROR, endpointNode.getPosition(), msg);
-            }
-        }
-    }
-
-    @Override
     public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
-        List<BLangResource> resources = (List<BLangResource>) serviceNode.getResources();
+        List<BLangFunction> resources = (List<BLangFunction>) serviceNode.getResources();
         resources.forEach(res -> validate(serviceNode.getName().getValue(), res, this.diagnosticLog));
+//        if (resourceCount != 4) {
+//            String msg = String
+//                    .format("Service needs to have all 4 resources[(%s or %s), %s, %s, %s].", RESOURCE_ON_ACCEPT,
+//                            RESOURCE_ON_CONNECT, RESOURCE_ON_READ_READY, RESOURCE_ON_CLOSE, RESOURCE_ON_ERROR);
+//            diagnosticLog.logDiagnostic(ERROR, serviceNode.getPosition(), msg);
+//        }
     }
 
-    private void validate(String serviceName, BLangResource resource, DiagnosticLog diagnosticLog) {
+    private void validate(String serviceName, BLangFunction resource, DiagnosticLog diagnosticLog) {
         switch (resource.getName().getValue()) {
             case RESOURCE_ON_CONNECT:
             case RESOURCE_ON_ACCEPT:
                 validateOnAccept(serviceName, resource, diagnosticLog);
+                resourceCount++;
                 break;
             case RESOURCE_ON_READ_READY:
                 validateOnReadReady(serviceName, resource, diagnosticLog);
+                resourceCount++;
                 break;
             case RESOURCE_ON_CLOSE:
                 validateOnClose(serviceName, resource, diagnosticLog);
+                resourceCount++;
                 break;
             case RESOURCE_ON_ERROR:
                 validateOnError(serviceName, resource, diagnosticLog);
+                resourceCount++;
                 break;
             default:
         }
     }
 
-    private void validateOnError(String serviceName, BLangResource resource, DiagnosticLog diagnosticLog) {
+    private void validateOnError(String serviceName, BLangFunction resource, DiagnosticLog diagnosticLog) {
         final List<BLangSimpleVariable> readReadyParams = resource.getParameters();
         if (readReadyParams.size() != 2) {
-            String msg = String.format(INVALID_RESOURCE_SIGNATURE + "Parameters should be an 'endpoint' and 'error'",
-                    resource.getName().getValue(), serviceName);
+            String msg = String
+                    .format(INVALID_RESOURCE_SIGNATURE + "Parameters should be a 'socket:Caller' and 'error'",
+                            resource.getName().getValue(), serviceName);
             diagnosticLog.logDiagnostic(ERROR, resource.getPosition(), msg);
             return;
         }
@@ -141,11 +120,12 @@ public class SocketCompilerPlugin extends AbstractCompilerPlugin {
         }
     }
 
-    private void validateOnReadReady(String serviceName, BLangResource resource, DiagnosticLog diagnosticLog) {
+    private void validateOnReadReady(String serviceName, BLangFunction resource, DiagnosticLog diagnosticLog) {
         final List<BLangSimpleVariable> readReadyParams = resource.getParameters();
         if (readReadyParams.size() != 2) {
-            String msg = String.format(INVALID_RESOURCE_SIGNATURE + "Parameters should be an 'endpoint' and 'byte[]'",
-                    resource.getName().getValue(), serviceName);
+            String msg = String
+                    .format(INVALID_RESOURCE_SIGNATURE + "Parameters should be a 'socket:Caller' and 'byte[]'",
+                            resource.getName().getValue(), serviceName);
             diagnosticLog.logDiagnostic(ERROR, resource.getPosition(), msg);
             return;
         }
@@ -157,20 +137,20 @@ public class SocketCompilerPlugin extends AbstractCompilerPlugin {
         if (ARRAY.equals(content.getKind()) && content instanceof BArrayType) {
             if (!"byte".equals(((BArrayType) content).eType.tsymbol.toString())) {
                 String msg = String.format(INVALID_RESOURCE_SIGNATURE + "Second parameter should be a byte[]",
-                                resource.getName().getValue(), serviceName);
+                        resource.getName().getValue(), serviceName);
                 diagnosticLog.logDiagnostic(ERROR, resource.getPosition(), msg);
             }
         }
     }
 
-    private void validateOnClose(String serviceName, BLangResource resource, DiagnosticLog diagnosticLog) {
+    private void validateOnClose(String serviceName, BLangFunction resource, DiagnosticLog diagnosticLog) {
         validateOnAccept(serviceName, resource, diagnosticLog);
     }
 
-    private void validateOnAccept(String serviceName, BLangResource resource, DiagnosticLog diagnosticLog) {
+    private void validateOnAccept(String serviceName, BLangFunction resource, DiagnosticLog diagnosticLog) {
         final List<BLangSimpleVariable> acceptParams = resource.getParameters();
         if (acceptParams.size() != 1) {
-            String msg = String.format(INVALID_RESOURCE_SIGNATURE + "The parameter should be an 'endpoint'",
+            String msg = String.format(INVALID_RESOURCE_SIGNATURE + "The parameter should be a 'socket:Caller'",
                     resource.getName().getValue(), serviceName);
             diagnosticLog.logDiagnostic(ERROR, resource.getPosition(), msg);
             return;
@@ -181,11 +161,11 @@ public class SocketCompilerPlugin extends AbstractCompilerPlugin {
         }
     }
 
-    private void validateEndpointCaller(String serviceName, BLangResource resource, DiagnosticLog diagnosticLog,
+    private void validateEndpointCaller(String serviceName, BLangFunction resource, DiagnosticLog diagnosticLog,
             BStructureType event) {
         String eventType = event.tsymbol.toString();
-        if (!("ballerina/socket:Server".equals(eventType) || "ballerina/socket:Client".equals(eventType))) {
-            String msg = String.format(INVALID_RESOURCE_SIGNATURE + "The parameter should be an 'endpoint'",
+        if (!("ballerina/socket:Listener".equals(eventType) || "ballerina/socket:Client".equals(eventType))) {
+            String msg = String.format(INVALID_RESOURCE_SIGNATURE + "The parameter should be a 'socket:Caller'",
                     resource.getName().getValue(), serviceName);
             diagnosticLog.logDiagnostic(ERROR, resource.getPosition(), msg);
         }

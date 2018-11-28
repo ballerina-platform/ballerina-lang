@@ -56,7 +56,7 @@ public class SelectorManager {
     private boolean running = false;
     private ThreadFactory threadFactory = new BLangThreadFactory("socket-selector");
     private ExecutorService executor = Executors.newSingleThreadExecutor(threadFactory);
-    private boolean execution = true;
+    private boolean executing = true;
     private ConcurrentLinkedQueue<ChannelRegisterCallback> registerPendingSockets = new ConcurrentLinkedQueue<>();
 
     private SelectorManager() throws IOException {
@@ -114,7 +114,7 @@ public class SelectorManager {
     /**
      * Start the selector loop.
      */
-    public void start() {
+    public synchronized void start() {
         if (running) {
             return;
         }
@@ -123,7 +123,7 @@ public class SelectorManager {
     }
 
     private void execute() {
-        while (execution) {
+        while (executing) {
             try {
                 registerChannels();
                 final int select = selector.select();
@@ -220,7 +220,7 @@ public class SelectorManager {
             if (log.isDebugEnabled()) {
                 log.debug("Stopping the selector loop.");
             }
-            execution = false;
+            executing = false;
             running = false;
             selector.close();
             executor.shutdown();

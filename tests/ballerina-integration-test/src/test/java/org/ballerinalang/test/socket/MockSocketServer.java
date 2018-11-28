@@ -38,7 +38,7 @@ public class MockSocketServer implements Runnable {
 
     private static final Logger log = LoggerFactory.getLogger(MockSocketServer.class);
 
-    static final int SERVER_PORT = 47826;
+    public static final int SERVER_PORT = 54387;
     private static final String POISON_PILL = "Bye";
     private String receivedString;
 

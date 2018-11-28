@@ -1667,11 +1667,11 @@
                 <module>stdlib/time</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
-                <!--<module>stdlib/observability</module>-->
+                <module>stdlib/observability</module>
                 <module>stdlib/database/h2</module>
                 <module>stdlib/database/mysql</module>
                 <module>stdlib/database/sql</module>
-                <!--<module>stdlib/streams</module>-->
+                <module>stdlib/streams</module>
                 <module>stdlib/privacy</module>
 
                 <module>misc/lib-creator</module>
@@ -1698,8 +1698,8 @@
                 <module>misc/swagger-ballerina</module>
                 <module>misc/testerina</module>
                 <module>misc/toml-parser</module>
-                <!--<module>misc/metrics-extensions</module>-->
-                <!--<module>misc/tracing-extensions</module>-->
+                <module>misc/metrics-extensions</module>
+                <module>misc/tracing-extensions</module>
                 <module>misc/strip-bouncycastle</module>
 
                 <module>composer</module>
@@ -1713,7 +1713,7 @@
                 <module>tests/ballerina-compiler-plugin-test</module>
                 <module>tool-plugins/intellij</module>
                 <module>tool-plugins/vscode</module>
-                <!--<module>tool-plugins/theia</module> -->
+                <module>tool-plugins/theia</module>
 
                 <module>benchmarks</module>
             </modules>
@@ -1751,11 +1751,11 @@
                 <module>stdlib/time</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
-                <!--<module>stdlib/observability</module>-->
+                <module>stdlib/observability</module>
                 <module>stdlib/database/h2</module>
                 <module>stdlib/database/mysql</module>
                 <module>stdlib/database/sql</module>
-                <!--<module>stdlib/streams</module>-->
+                <module>stdlib/streams</module>
                 <module>stdlib/privacy</module>
 
                 <module>misc/lib-creator</module>
@@ -1781,8 +1781,8 @@
                 <module>misc/swagger-ballerina</module>
                 <module>misc/testerina</module>
                 <module>misc/toml-parser</module>
-                <!--<module>misc/metrics-extensions</module>-->
-                <!--<module>misc/tracing-extensions</module>-->
+                <module>misc/metrics-extensions</module>
+                <module>misc/tracing-extensions</module>
                 <module>misc/strip-bouncycastle</module>
 
                 <module>distribution/zip/ballerina</module>
@@ -1831,11 +1831,11 @@
                 <module>stdlib/time</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
-                <!--<module>stdlib/observability</module>-->
+                <module>stdlib/observability</module>
                 <module>stdlib/database/h2</module>
                 <module>stdlib/database/mysql</module>
                 <module>stdlib/database/sql</module>
-                <!--<module>stdlib/streams</module>-->
+                <module>stdlib/streams</module>
                 <module>stdlib/privacy</module>
 
                 <module>misc/lib-creator</module>
@@ -1863,8 +1863,8 @@
                 <module>misc/swagger-ballerina</module>
                 <module>misc/testerina</module>
                 <module>misc/toml-parser</module>
-                <!--<module>misc/metrics-extensions</module>-->
-                <!--<module>misc/tracing-extensions</module>-->
+                <module>misc/metrics-extensions</module>
+                <module>misc/tracing-extensions</module>
                 <module>misc/strip-bouncycastle</module>
 
                 <module>composer</module>

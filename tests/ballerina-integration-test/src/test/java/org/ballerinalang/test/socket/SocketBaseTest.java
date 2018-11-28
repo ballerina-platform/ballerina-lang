@@ -47,7 +47,7 @@ public class SocketBaseTest extends BaseTest {
                 Paths.get("src", "test", "resources", "certsAndKeys", "private.key").toAbsolutePath().toString());
         String publicCert = StringEscapeUtils.escapeJava(
                 Paths.get("src", "test", "resources", "certsAndKeys", "public.crt").toAbsolutePath().toString());
-        int[] requiredPorts = new int[] { 9090, 47826, 61598 };
+        int[] requiredPorts = new int[] { 58291, MockSocketServer.SERVER_PORT, 61598 };
 
         String balFile = new File(
                 "src" + File.separator + "test" + File.separator + "resources" + File.separator + "socket")
