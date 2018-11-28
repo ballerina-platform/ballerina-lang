@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -64,7 +65,9 @@ public class WSServiceTemplate extends AbstractTestTemplate {
         }
 
         // Check for the bounded endpoint to get `port` from it
-        List<? extends SimpleVariableReferenceNode> boundEndpoints = service.getBoundEndpoints();
+        // TODO: 11/28/18 Fix with the latest service changes 
+//        List<? extends SimpleVariableReferenceNode> boundEndpoints = service.getBoundEndpoints();
+        List<? extends SimpleVariableReferenceNode> boundEndpoints = new ArrayList<>();
         EndpointNode endpoint = (boundEndpoints.size() > 0) ? globalEndpoints.stream()
                 .filter(ep -> boundEndpoints.get(0).getVariableName().getValue()
                         .equals(ep.getName().getValue()))
