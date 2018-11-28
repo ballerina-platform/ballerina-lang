@@ -332,7 +332,8 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         for (DefinitionID def : resourceTypeProcessorMap.keySet()) {
             for (FunctionNode function : serviceNode.getResources()) {
                 final BLangFunction resourceNode = (BLangFunction) function;
-                if (resourceNode.symbol.params.stream().map(varSym -> varSym.type.tsymbol)
+                if (resourceNode.symbol.params.stream().filter(varSym -> varSym.type.tsymbol != null)
+                        .map(varSym -> varSym.type.tsymbol)
                         .map(tsym -> new DefinitionID(tsym.pkgID.name.value, tsym.name.value))
                         .anyMatch(definitionID -> definitionID.equals(def))) {
                     final List<CompilerPlugin> compilerPlugins = resourceTypeProcessorMap.get(def);
@@ -341,6 +342,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
                     if (serviceNode.listerType == null) {
                         serviceNode.listerType = serviceListenerMap.get(def);
                     }
+                    break;
                 }
             }
         }
