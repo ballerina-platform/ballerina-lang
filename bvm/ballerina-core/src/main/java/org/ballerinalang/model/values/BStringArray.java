@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.model.values;
 
-import org.ballerinalang.bre.bvm.CPU;
+import org.ballerinalang.bre.vm.BVM;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -59,7 +59,7 @@ public class BStringArray extends BNewArray {
 
     public void add(long index, String value) {
         synchronized (this) {
-            if (freezeStatus.getState() != CPU.FreezeStatus.State.UNFROZEN) {
+            if (freezeStatus.getState() != BVM.FreezeStatus.State.UNFROZEN) {
                 handleInvalidUpdate(freezeStatus.getState());
             }
         }

@@ -19,6 +19,7 @@ package org.ballerinalang.testerina.natives.test;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.bre.vm.BVMExecutor;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
@@ -27,7 +28,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.testerina.core.TesterinaConstants;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.ballerinalang.testerina.util.TesterinaUtils;
-import org.ballerinalang.util.program.BLangFunctions;
 
 import java.nio.file.Paths;
 
@@ -52,7 +52,8 @@ public class StopServiceSkeleton extends BlockingNativeCallableUnit {
         TesterinaRegistry.getInstance().getSkeletonProgramFiles().forEach(skeletonProgramFile -> {
             if (skeletonProgramFile.getEntryPkgName().equals(moduleName)) {
                 // stop the service
-                BLangFunctions.invokeVMUtilFunction(skeletonProgramFile.getEntryPackage().getStopFunctionInfo());
+                BVMExecutor.executeFunction(skeletonProgramFile,
+                        skeletonProgramFile.getEntryPackage().getStopFunctionInfo());
                 // Clean up the package DIR
                 TesterinaUtils.cleanUpDir(Paths.get(System.getProperty(TesterinaConstants.BALLERINA_SOURCE_ROOT),
                                                     TesterinaConstants.TESTERINA_TEMP_DIR, moduleName));

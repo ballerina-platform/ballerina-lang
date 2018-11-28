@@ -1156,54 +1156,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterScopeStatement(BallerinaParser.ScopeStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitScopeStatement(BallerinaParser.ScopeStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterScopeClause(BallerinaParser.ScopeClauseContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitScopeClause(BallerinaParser.ScopeClauseContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterCompensationClause(BallerinaParser.CompensationClauseContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitCompensationClause(BallerinaParser.CompensationClauseContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterCompensateStatement(BallerinaParser.CompensateStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitCompensateStatement(BallerinaParser.CompensateStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterForkJoinStatement(BallerinaParser.ForkJoinStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1211,54 +1163,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitForkJoinStatement(BallerinaParser.ForkJoinStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterJoinClause(BallerinaParser.JoinClauseContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitJoinClause(BallerinaParser.JoinClauseContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterAnyJoinCondition(BallerinaParser.AnyJoinConditionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitAnyJoinCondition(BallerinaParser.AnyJoinConditionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterAllJoinCondition(BallerinaParser.AllJoinConditionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitAllJoinCondition(BallerinaParser.AllJoinConditionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterTimeoutClause(BallerinaParser.TimeoutClauseContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitTimeoutClause(BallerinaParser.TimeoutClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1348,49 +1252,49 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterWorkerInteractionStatement(BallerinaParser.WorkerInteractionStatementContext ctx) { }
+	@Override public void enterWorkerSendAsyncStatement(BallerinaParser.WorkerSendAsyncStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitWorkerInteractionStatement(BallerinaParser.WorkerInteractionStatementContext ctx) { }
+	@Override public void exitWorkerSendAsyncStatement(BallerinaParser.WorkerSendAsyncStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterInvokeWorker(BallerinaParser.InvokeWorkerContext ctx) { }
+	@Override public void enterFlushWorker(BallerinaParser.FlushWorkerContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitInvokeWorker(BallerinaParser.InvokeWorkerContext ctx) { }
+	@Override public void exitFlushWorker(BallerinaParser.FlushWorkerContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterInvokeFork(BallerinaParser.InvokeForkContext ctx) { }
+	@Override public void enterWaitForCollection(BallerinaParser.WaitForCollectionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitInvokeFork(BallerinaParser.InvokeForkContext ctx) { }
+	@Override public void exitWaitForCollection(BallerinaParser.WaitForCollectionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterWorkerReply(BallerinaParser.WorkerReplyContext ctx) { }
+	@Override public void enterWaitKeyValue(BallerinaParser.WaitKeyValueContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitWorkerReply(BallerinaParser.WorkerReplyContext ctx) { }
+	@Override public void exitWaitKeyValue(BallerinaParser.WaitKeyValueContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1792,6 +1696,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterFlushWorkerExpression(BallerinaParser.FlushWorkerExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFlushWorkerExpression(BallerinaParser.FlushWorkerExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterServiceConstructorExpression(BallerinaParser.ServiceConstructorExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1828,6 +1744,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterWorkerReceiveExpression(BallerinaParser.WorkerReceiveExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitWorkerReceiveExpression(BallerinaParser.WorkerReceiveExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterBitwiseShiftExpression(BallerinaParser.BitwiseShiftExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1847,6 +1775,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitTypeAccessExpression(BallerinaParser.TypeAccessExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterWorkerSendSyncExpression(BallerinaParser.WorkerSendSyncExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitWorkerSendSyncExpression(BallerinaParser.WorkerSendSyncExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1960,6 +1900,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterWaitExpression(BallerinaParser.WaitExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitWaitExpression(BallerinaParser.WaitExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterTrapExpression(BallerinaParser.TrapExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -2015,18 +1967,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitBinaryEqualExpression(BallerinaParser.BinaryEqualExpressionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterAwaitExprExpression(BallerinaParser.AwaitExprExpressionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitAwaitExprExpression(BallerinaParser.AwaitExprExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -2219,18 +2159,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitTrapExpr(BallerinaParser.TrapExprContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterAwaitExpr(BallerinaParser.AwaitExprContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitAwaitExpr(BallerinaParser.AwaitExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
