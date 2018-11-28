@@ -1619,6 +1619,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (!enclInvokableHasErrorReturn) {
             dlog.error(checkedExpr.expr.pos, DiagnosticCode.CHECKED_EXPR_NO_ERROR_RETURN_IN_ENCL_INVOKABLE);
         }
+
+        returnTypes.peek().add(exprType);
     }
 
     @Override
