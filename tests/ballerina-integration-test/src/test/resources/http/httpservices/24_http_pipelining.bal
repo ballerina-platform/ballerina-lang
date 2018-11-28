@@ -46,7 +46,7 @@ service pipeliningTest on new http:Listener(9220) {
 
         var result = caller->respond(untaint response);
         if (result is error) {
-            log:printError(err.reason(), err = result);
+            log:printError(result.reason(), err = result);
         }
     }
 }

@@ -24,6 +24,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.util.StringUtils;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
@@ -69,7 +70,7 @@ public class CircuitBreakerTest {
     @Test
     public void testCircuitBreaker() {
         // Expected HTTP status codes from circuit breaker responses.
-        int[] expectedStatusCodes = new int[] { 200, 200, 500, 503, 503, 200, 200, 200 };
+        int[] expectedStatusCodes = new int[]{200, 200, 500, 503, 503, 200, 200, 200};
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testTypicalScenario");
 
         Assert.assertEquals(returnVals.length, 2);
@@ -87,7 +88,7 @@ public class CircuitBreakerTest {
                 Assert.assertEquals(statusCode, expectedStatusCodes[i], "Status code does not match.");
             } else {
                 Assert.assertNotNull(errs.get(i)); // the request which resulted in an error
-                BMap<String, BValue> err = (BMap<String, BValue>) errs.get(i);
+                BMap<String, BValue> err = (BMap<String, BValue>) ((BError) errs.get(i)).getDetails();
                 String errMsg = err.get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
                 Assert.assertTrue(errMsg != null && errMsg.startsWith(CB_ERROR_MSG),
                         "Invalid error message from circuit breaker.");
@@ -106,7 +107,7 @@ public class CircuitBreakerTest {
     @Test
     public void testTrialRunFailure() {
         // Expected HTTP status codes from circuit breaker responses.
-        int[] expectedStatusCodes = new int[] { 200, 500, 503, 500, 503, 500 };
+        int[] expectedStatusCodes = new int[]{200, 500, 503, 500, 503, 500};
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testTrialRunFailure");
 
         Assert.assertEquals(returnVals.length, 2);
@@ -125,7 +126,7 @@ public class CircuitBreakerTest {
                 Assert.assertEquals(statusCode, expectedStatusCodes[i], "Status code does not match.");
             } else {
                 Assert.assertNotNull(errs.get(i)); // the request which resulted in an error
-                BMap<String, BValue> err = (BMap<String, BValue>) errs.get(i);
+                BMap<String, BValue> err = (BMap<String, BValue>) ((BError) errs.get(i)).getDetails();
                 String msg = err.get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
                 Assert.assertTrue(msg != null && msg.startsWith(CB_ERROR_MSG),
                         "Invalid error message from circuit breaker.");
@@ -140,12 +141,13 @@ public class CircuitBreakerTest {
      * eventually the failure threshold is exceeded.
      * - Requests afterwards are immediately failed, with a 503 response.
      * - After the reset timeout expires, the circuit goes to HALF_OPEN state and a trial request is sent.
-     * - The backend service is not available and therefore, the request fails again and the circuit goes back to OPEN.
+     * - The backend service is not available and therefore, the request fails again and the
+     * circuit goes back to OPEN.
      */
     @Test(description = "Test case for Circuit Breaker HTTP status codes.")
     public void testHttpStatusCodeFailure() {
         // Expected HTTP status codes from circuit breaker responses.
-        int[] expectedStatusCodes = new int[] { 200, 500, 503, 500, 503, 503 };
+        int[] expectedStatusCodes = new int[]{200, 500, 503, 500, 503, 503};
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testHttpStatusCodeFailure");
 
         Assert.assertEquals(returnVals.length, 2);
@@ -164,7 +166,7 @@ public class CircuitBreakerTest {
     @Test(description = "Verify the functionality of circuit breaker force open implementation")
     public void testCBForceOpenScenario() {
         // Expected HTTP status codes from circuit breaker responses.
-        int[] expectedStatusCodes = new int[] { 200, 200, 200, 200, 503, 503, 503, 503 };
+        int[] expectedStatusCodes = new int[]{200, 200, 200, 200, 503, 503, 503, 503};
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testForceOpenScenario");
 
         Assert.assertEquals(returnVals.length, 2);
@@ -184,7 +186,7 @@ public class CircuitBreakerTest {
     @Test(description = "Verify the functionality of circuit breaker force close implementation")
     public void testCBForceCloseScenario() {
         // Expected HTTP status codes from circuit breaker responses.
-        int[] expectedStatusCodes = new int[] { 200, 200, 500, 200, 200, 200, 200, 200 };
+        int[] expectedStatusCodes = new int[]{200, 200, 500, 200, 200, 200, 200, 200};
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testForceCloseScenario");
 
         Assert.assertEquals(returnVals.length, 2);

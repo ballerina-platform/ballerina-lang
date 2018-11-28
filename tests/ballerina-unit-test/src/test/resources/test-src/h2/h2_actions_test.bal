@@ -29,7 +29,7 @@ function testSelect() returns (int[]) {
     if (val is table<Customer>) {
         int i = 0;
         while (val.hasNext()) {
-            var rs = <Customer>val.getNext();
+            var rs = val.getNext();
             if (rs is Customer) {
                 customerIds[i] = rs.customerId;
                 i += 1;
@@ -71,8 +71,8 @@ function testCall() returns (string) {
 
     var ret = testDB->call("{call JAVAFUNC('select * from Customers where customerId=1')}", [Customer]);
 
-    table[] dts= [];
-    if (ret is table[]) {
+    table<record {}>[] dts= [];
+    if (ret is table<record {}>[]) {
         dts = ret;
     } else if (ret is ()) {
         return "nil";
@@ -82,7 +82,7 @@ function testCall() returns (string) {
 
     string name = "";
     while (dts[0].hasNext()) {
-        var rs = <Customer>dts[0].getNext();
+        var rs = dts[0].getNext();
         if (rs is Customer) {
             name = rs.name;
         }
@@ -177,8 +177,8 @@ function testUpdateInMemory() returns (int, string) {
 
     var x = testDB->select("SELECT  * from Customers2", Customer);
     string s = "";
-    if (x is table) {
-        var res = <json>x;
+    if (x is table<Customer>) {
+        var res = json.create(x);
         if (res is json) {
             s = res.toString();
         }
@@ -236,9 +236,9 @@ function testCloseConnectionPool(string connectionCountQuery)
         });
     var result = testDB->select(connectionCountQuery, Result);
     int count = -1;
-    if (result is table) {
+    if (result is table<Result>) {
         while (result.hasNext()) {
-            var rs = <Result>result.getNext();
+            var rs = result.getNext();
             if (rs is Result) {
                 count = rs.val;
             }
@@ -255,7 +255,7 @@ function selectFunction(h2:Client testDB) returns (int[]) {
     if (val is table<Customer>) {
         int i = 0;
             while (val.hasNext()) {
-                var rs = <Customer>val.getNext();
+                var rs = val.getNext();
                 if (rs is Customer) {
                     customerIds[i] = rs.customerId;
                     i += 1;
@@ -281,8 +281,8 @@ function testH2MemDBUpdate() returns (int, string) {
     var dt = testDB->select("Select * From student", ());
 
     string data = "";
-    if (dt is table) {
-        var j = <json>dt;
+    if (dt is table<record {}>) {
+        var j = json.create(dt);
         if (j is json) {
             data = io:sprintf("%s", j);
         }

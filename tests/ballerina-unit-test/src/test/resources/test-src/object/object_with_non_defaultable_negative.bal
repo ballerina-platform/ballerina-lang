@@ -19,6 +19,6 @@ type Person object {
 
 type Employee object {
     public int age = 10;
-    public Person p;
+    public Person p = new(30);
     private string month = "february";
 };

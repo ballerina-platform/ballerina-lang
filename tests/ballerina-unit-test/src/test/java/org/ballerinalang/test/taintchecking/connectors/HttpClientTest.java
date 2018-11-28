@@ -41,6 +41,6 @@ public class HttpClientTest {
         Assert.assertEquals(result.getDiagnostics().length, 3);
         BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'headerName'", 10, 19);
         BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'path'", 12, 42);
-        BAssertUtil.validateError(result, 2, "tainted value passed to sensitive parameter 'secureIn'", 18, 37);
+        BAssertUtil.validateError(result, 2, "tainted value passed to sensitive parameter 'secureIn'", 16, 28);
     }
 }

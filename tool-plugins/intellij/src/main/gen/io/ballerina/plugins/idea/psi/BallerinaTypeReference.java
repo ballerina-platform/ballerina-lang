@@ -23,13 +23,13 @@ import com.intellij.psi.PsiElement;
 
 public interface BallerinaTypeReference extends BallerinaCompositeElement {
 
-  @NotNull
+  @Nullable
   BallerinaSimpleTypeName getSimpleTypeName();
 
   @NotNull
   PsiElement getMul();
 
-  @NotNull
+  @Nullable
   PsiElement getSemicolon();
 
 }

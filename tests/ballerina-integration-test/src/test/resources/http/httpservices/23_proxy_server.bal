@@ -17,54 +17,44 @@
 import ballerina/io;
 import ballerina/http;
 
-endpoint http:Listener server {
-    port:9218
-};
-
 @http:ServiceConfig {
     basePath:"/proxy"
 }
-service<http:Service> serverService bind server {
+service serverService on new http:Listener(9218) {
 
     @http:ResourceConfig {
         methods:["POST"],
         path:"/server"
     }
-    sayHello (endpoint conn, http:Request req) {
+    resource function sayHello(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload("Backend server sent response");
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 }
-
-endpoint http:Listener proxy {
-    port:9219
-};
 
 @http:ServiceConfig {
     basePath:"/*"
 }
-service<http:Service> proxyService bind proxy {
+service proxyService on new http:Listener(9219) {
 
     @http:ResourceConfig {
         path:"/*"
     }
-    sayHello (endpoint conn, http:Request req) {
+    resource function sayHello (http:Caller caller, http:Request req) {
         string url = untaint req.rawPath;
-        sendRequest(url, req, conn);
+        sendRequest(url, req, caller);
     }
 }
 
 function defineEndpointWithProxy (string url) returns http:Client {
-    endpoint http:Client httpEndpoint {
-        url: url
-    };
+    http:Client httpEndpoint = new(url);
     return httpEndpoint;
 }
 
-function sendRequest(string url, http:Request req, http:Listener conn) {
-    endpoint http:Client clientEP = defineEndpointWithProxy(url);
-    endpoint http:Listener listenerEP = conn;
+function sendRequest(string url, http:Request req, http:Caller caller) {
+    http:Client clientEP = defineEndpointWithProxy(url);
+    http:Caller listenerEP = caller;
     var response = clientEP->forward("", req);
     if (response is http:Response) {
         _ = listenerEP->respond(response);
