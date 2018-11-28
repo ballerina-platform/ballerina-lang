@@ -72,42 +72,39 @@ public class BLangVMErrors {
         return generateError(null, null, false, reason);
     }
 
-    //                    TODO fix - rajith
-//    /**
-//     * Create BError value.
-//     *
-//     * @param reason error reason
-//     * @param detail error details
-//     * @return BError instance
-//     */
-//    public static BError createError(String reason, BMap<String, BValue> detail) {
-//        return generateError(null, null, false, BTypes.typeError, reason, detail);
-//    }
+    /**
+     * Create BError value.
+     *
+     * @param reason error reason
+     * @param detail error details
+     * @return BError instance
+     */
+    public static BError createError(String reason, BMap<String, BValue> detail) {
+        return generateError(null, null, false, BTypes.typeError, reason, detail);
+    }
 
-    //                    TODO fix - rajith
-//    /**
-//     * Create BError value.
-//     *
-//     * @param errorType BError type
-//     * @param reason    error reason
-//     * @return BError instance
-//     */
-//    public static BError createError(BErrorType errorType, String reason) {
-//        return generateError(null, null, false, errorType, reason, null);
-//    }
+    /**
+     * Create BError value.
+     *
+     * @param errorType BError type
+     * @param reason    error reason
+     * @return BError instance
+     */
+    public static BError createError(BErrorType errorType, String reason) {
+        return generateError(null, null, false, errorType, reason, null);
+    }
 
-    //                    TODO fix - rajith
-//    /**
-//     * Create BError value.
-//     *
-//     * @param errorType BError type
-//     * @param reason    error reason
-//     * @param detail    error detail
-//     * @return BError instance
-//     */
-//    public static BError createError(BErrorType errorType, String reason, BMap<String, BValue> detail) {
-//        return generateError(null, null, false, errorType, reason, detail);
-//    }
+    /**
+     * Create BError value.
+     *
+     * @param errorType BError type
+     * @param reason    error reason
+     * @param detail    error detail
+     * @return BError instance
+     */
+    public static BError createError(BErrorType errorType, String reason, BMap<String, BValue> detail) {
+        return generateError(null, null, false, errorType, reason, detail);
+    }
 
     /**
      * Create error Struct from given error reason.
@@ -181,11 +178,11 @@ public class BLangVMErrors {
 
     private static BError generateError(Strand strand, boolean attachCallStack, String reason) {
         BMap<String, BValue> details = new BMap<>(BTypes.typeMap);
-        return generateError(strand.programFile, strand.currentFrame, attachCallStack,
+        return generateErrorWithStack(strand.programFile, strand.currentFrame, attachCallStack,
                 BTypes.typeError, reason, details);
     }
 
-    private static BError generateError(ProgramFile programFile, StackFrame sf, boolean attachCallStack,
+    private static BError generateErrorWithStack(ProgramFile programFile, StackFrame sf, boolean attachCallStack,
                                         BErrorType type, String reason, BMap<String, BValue> details) {
         BError error = new BError(type, reason, details);
         if (attachCallStack) {
