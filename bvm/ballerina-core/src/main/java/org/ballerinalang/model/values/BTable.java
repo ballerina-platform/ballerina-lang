@@ -76,7 +76,13 @@ public class BTable implements BRefType<Object>, BCollection {
     public BTable(String query, BTable fromTable, BTable joinTable,
                   BStructureType constraintType, BRefValueArray params) {
         this.tableProvider = TableProvider.getInstance();
+        if (!fromTable.isInMemoryTable()) {
+            throw new BallerinaException("Table query over a cursor table not supported");
+        }
         if (joinTable != null) {
+            if (!joinTable.isInMemoryTable()) {
+                throw new BallerinaException("Table query over a cursor table not supported");
+            }
             this.tableName = tableProvider.createTable(fromTable.tableName, joinTable.tableName, query,
                     constraintType, params);
         } else {
