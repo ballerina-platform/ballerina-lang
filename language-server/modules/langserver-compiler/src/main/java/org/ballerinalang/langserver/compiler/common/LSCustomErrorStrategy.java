@@ -61,7 +61,6 @@ public class LSCustomErrorStrategy extends BallerinaParserErrorStrategy {
     protected void setErrorState(Parser parser) {
         BLangParserListener listener = getListener(parser);
         // Here the type of the exception is not important.
-        InputMismatchException e = new InputMismatchException(parser);
         ParserRuleContext context = parser.getContext();
         // Note: Here we forcefully set the exception to null, in order to avoid the callable unit body being null at
         // the run time
@@ -87,8 +86,8 @@ public class LSCustomErrorStrategy extends BallerinaParserErrorStrategy {
     /**
      * Check the context and identify if the particular context is a child of a connector init and set the exception.
      *
-     * @param context current parser rule context
-     * @param e       exception to set
+     * @param context       current parser rule context
+     * @param listener      Parser Listener instance
      */
     private void setContextIfCheckedExpression(ParserRuleContext context, BLangParserListener listener) {
         ParserRuleContext parentContext = context.getParent();
@@ -103,8 +102,8 @@ public class LSCustomErrorStrategy extends BallerinaParserErrorStrategy {
     /**
      * Set the context if the statement is a conditional statement such as if-else, while or catch.
      *
-     * @param context Current parser rule context
-     * @param e       Exception of the parser context
+     * @param context       Current parser rule context
+     * @param listener      Parser Listener instance
      */
     private void setContextIfConditionalStatement(ParserRuleContext context, BLangParserListener listener) {
         ParserRuleContext conditionalContext = context.getParent();

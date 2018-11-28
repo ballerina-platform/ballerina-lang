@@ -50,6 +50,10 @@ service clientFailure200 on new http:WebSocketListener(9200) {
     }
 }
 service callback200 = @http:WebSocketServiceConfig {} service {
+    resource function onOpen(http:WebSocketCaller wsEp) {
+    }
 };
 service ClientService200 = @http:WebSocketServiceConfig {} service{
+    resource function onOpen(http:WebSocketClient wsEp) {
+    }
 };

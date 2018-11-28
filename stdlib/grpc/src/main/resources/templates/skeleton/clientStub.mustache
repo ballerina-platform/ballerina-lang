@@ -3,37 +3,47 @@ import ballerina/io;
 {{/if}}{{#stubList}}
 public type {{serviceName}}{{#equals stubType "blocking"}}Blocking{{/equals}}Client client object {
     private grpc:Client grpcClient = new;
+    private grpc:ClientEndpointConfig config = {};
+    private string url;
 
-    new (grpc:ClientEndpointConfig config) {
+    function __init(string url, grpc:ClientEndpointConfig? config = ()) {
+        self.config = config ?: {};
+        self.url = url;
         // initialize client endpoint.
         grpc:Client c = new;
-        c.init(config);
-        error? result = c.initStub("{{stubType}}", DESCRIPTOR_KEY, descriptorMap);
+        c.init(self.url, self.config);
+        error? result = c.initStub("{{stubType}}", DESCRIPTOR_KEY, getDescriptorMap());
         if (result is error) {
             panic result;
         } else {
-            self.grpcClient = result;
+            self.grpcClient = c;
         }
     }
 
 {{#blockingFunctions}}
-    remote function {{methodName}} ({{#if inputType}}{{inputType}} req, {{/if}}grpc:Headers? headers = ()) returns ({{#if outputType}}({{outputType}}, grpc:Headers){{else}}grpc:Headers{{/if}}|error) {
+    remote function {{methodName}}({{#if inputType}}{{inputType}} req, {{/if}}grpc:Headers? headers = ()) returns ({{#if outputType}}({{outputType}}, grpc:Headers){{else}}grpc:Headers{{/if}}|error) {
         {{#unless inputType}}Empty req = {};{{/unless}}
         var payload = check self.grpcClient->blockingExecute("{{methodId}}", req, headers = headers);
         grpc:Headers resHeaders = new;
         {{#if outputType}}any result = ();
         (result, resHeaders) = payload;
-        return ({{#not_equal outputType "string"}}check {{/not_equal}}<{{outputType}}>result, resHeaders);{{else}}(_, resHeaders) = payload;
+        {{#not_equal outputType "string"}}var value = {{outputType}}.create(result);
+        if (value is {{outputType}}) {
+            return (value, resHeaders);
+        } else {
+            error err = error("{ballerina/grpc}INTERNAL", {"message": value.reason()});
+            return err;
+        }{{/not_equal}}{{#equals outputType "string"}}return ({{outputType}}.create(result), resHeaders);{{/equals}}{{else}}(_, resHeaders) = payload;
         return resHeaders;{{/if}}
     }
 {{/blockingFunctions}}{{#nonBlockingFunctions}}
-    remote function {{methodName}} ({{#if inputType}}{{inputType}} req, {{/if}}typedesc listener, grpc:Headers? headers = ()) returns (error?) {
+    remote function {{methodName}}({{#if inputType}}{{inputType}} req, {{/if}}service msgListener, grpc:Headers? headers = ()) returns (error?) {
         {{#unless inputType}}Empty req = {};{{/unless}}
-        return self.grpcClient->nonBlockingExecute("{{methodId}}", req, listener, headers = headers);;
+        return self.grpcClient->nonBlockingExecute("{{methodId}}", req, msgListener, headers = headers);
     }
 {{/nonBlockingFunctions}}{{#streamingFunctions}}
-    remote function {{methodName}} (typedesc listener, grpc:Headers? headers = ()) returns (grpc:Client| error)  {
-        return self.grpcClient->streamingExecute("{{methodId}}", listener, headers = headers);
+    remote function {{methodName}}(service msgListener, grpc:Headers? headers = ()) returns (grpc:StreamingClient|error)  {
+        return self.grpcClient->streamingExecute("{{methodId}}", msgListener, headers = headers);
     }{{/streamingFunctions}}
 };
 {{/stubList}}{{#messageList}}
@@ -57,7 +67,9 @@ type {{this.messageName}} record {
 {{#fieldList}}public final {{../messageName}} {{uppercase ../messageName}}_{{name}} = "{{name}}";
 {{/fieldList}}{{/enumList}}{{#if rootDescriptorKey}}
 const string DESCRIPTOR_KEY = "{{rootDescriptorKey}}";
-map descriptorMap = {
-{{#each descriptors}}"{{descriptorKey}}":"{{descriptorData}}"{{#unless @last}},{{/unless}}
-{{/each}}
-};{{/if}}
+function getDescriptorMap() returns map<any> {
+    return {
+        {{#each descriptors}}"{{descriptorKey}}":"{{descriptorData}}"{{#unless @last}},{{/unless}}
+        {{/each}}
+    };
+}{{/if}}

@@ -1,7 +1,7 @@
 package org.ballerinalang.net.http.compiler;
 
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
-import org.ballerinalang.model.tree.ResourceNode;
+import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -53,7 +53,7 @@ public class ResourceSignatureValidator {
 
     @SuppressWarnings("unchecked")
 
-    public static void validateAnnotation(ResourceNode resourceNode, DiagnosticLog dlog) {
+    public static void validateAnnotation(FunctionNode resourceNode, DiagnosticLog dlog) {
         List<AnnotationAttachmentNode> annotations =
                 (List<AnnotationAttachmentNode>) resourceNode.getAnnotationAttachments();
         List<BLangRecordLiteral.BLangRecordKeyValue> annVals = new ArrayList<>();
