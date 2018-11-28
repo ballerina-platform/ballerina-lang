@@ -133,9 +133,6 @@ public class TesterinaFunction {
      * @throws BallerinaException exception is thrown
      */
     public void invokeStopFunctions() throws BallerinaException {
-        BLangFunctions.invokePackageTestStopFunctions(programFile);
-        BLangFunctions.invokePackageStopFunctions(programFile);
-
         for (PackageInfo info : programFile.getPackageInfoEntries()) {
             BVMExecutor.executeFunction(programFile, info.getStopFunctionInfo());
         }
