@@ -18,7 +18,7 @@ package org.ballerinalang.model.values;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNode;
-import org.ballerinalang.bre.bvm.CPU;
+import org.ballerinalang.bre.vm.BVM;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.XMLNodeType;
@@ -39,7 +39,7 @@ import javax.xml.namespace.QName;
  * <li>processing instruction</li>
  * <li>sequence of above</li>
  * </ul>
- * 
+ *
  * @param <T> Type of the BXML
  *
  * @since 0.8.0
@@ -52,23 +52,23 @@ public abstract class BXML<T> implements BRefType<T>, BCollection {
      * Start of a XML comment.
      */
     public static final String COMMENT_START = "<!--";
-    
+
     /**
      * End of a XML Comment.
      */
     public static final String COMMENT_END = "-->";
-    
+
     /**
      * Start of a XML processing instruction.
      */
     public static final String PI_START = "<?";
-    
+
     /**
      * End of a XML processing instruction.
      */
     public static final String PI_END = "?>";
 
-    protected volatile CPU.FreezeStatus freezeStatus = new CPU.FreezeStatus(CPU.FreezeStatus.State.UNFROZEN);
+    protected volatile BVM.FreezeStatus freezeStatus = new BVM.FreezeStatus(BVM.FreezeStatus.State.UNFROZEN);
 
     /**
      * Check whether the XML sequence is empty.

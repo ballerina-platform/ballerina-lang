@@ -20,13 +20,13 @@ package org.ballerinalang.stdlib.log;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.bre.vm.BVMExecutor;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.logging.util.BLogLevel;
 import org.ballerinalang.model.values.BClosure;
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.observability.ObservabilityUtils;
-import org.ballerinalang.util.program.BLangFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,7 +101,8 @@ public abstract class AbstractLogFunction extends BlockingNativeCallableUnit {
         for (BClosure closure : functionPointer.getClosureVars()) {
             lambdaFunctionArgs.add(closure.value());
         }
-        return BLangFunctions.invokeCallable(functionPointer.value(), lambdaFunctionArgs.toArray(new BValue[0]));
+        return BVMExecutor.executeFunction(functionPointer.value().getPackageInfo().getProgramFile(),
+                functionPointer.value(), lambdaFunctionArgs.toArray(new BValue[0]));
     }
 
     //TODO merge below and above methods(below one new bvm)

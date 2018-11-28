@@ -50,6 +50,10 @@ public enum Flag {
      */
     LAMBDA,
     /**
+     * Indicates Flagged node is a worker lambda.
+     */
+    WORKER,
+    /**
      * Indicates Flagged Node executes in parallel workers.
      */
     PARALLEL,

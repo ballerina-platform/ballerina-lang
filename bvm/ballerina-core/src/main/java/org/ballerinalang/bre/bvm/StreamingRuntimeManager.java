@@ -18,6 +18,7 @@
 
 package org.ballerinalang.bre.bvm;
 
+import org.ballerinalang.bre.vm.BVMExecutor;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BStructureType;
@@ -36,7 +37,6 @@ import org.ballerinalang.siddhi.core.SiddhiManager;
 import org.ballerinalang.siddhi.core.event.Event;
 import org.ballerinalang.siddhi.core.stream.output.StreamCallback;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.program.BLangFunctions;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -120,7 +120,8 @@ public class StreamingRuntimeManager {
                 List<BValue> argsList = new ArrayList<>();
                 argsList.addAll(closureArgs);
                 argsList.add(outputArray);
-                BLangFunctions.invokeCallable(functionPointer.value(), argsList.toArray(new BValue[argsList.size()]));
+                BVMExecutor.executeFunction(functionPointer.value().getPackageInfo().getProgramFile(),
+                        functionPointer.value(), argsList.toArray(new BValue[0]));
             }
         });
     }

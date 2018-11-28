@@ -46,7 +46,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
@@ -278,14 +277,14 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
         if (forkJoin.getWorkers() != null) {
             forkJoin.getWorkers().forEach(this::acceptNode);
         }
-
-        if (forkJoin.joinedBody != null) {
-            this.acceptNode(forkJoin.joinedBody);
-        }
-
-        if (forkJoin.timeoutBody != null) {
-            this.acceptNode(forkJoin.timeoutBody);
-        }
+        // todo need to remove this block
+//        if (forkJoin.joinedBody != null) {
+//            this.acceptNode(forkJoin.joinedBody);
+//        }
+//
+//        if (forkJoin.timeoutBody != null) {
+//            this.acceptNode(forkJoin.timeoutBody);
+//        }
     }
 
     @Override
