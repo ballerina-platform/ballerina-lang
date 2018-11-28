@@ -936,6 +936,11 @@ public class Desugar extends BLangNodeVisitor {
                 parentErrorVariable.detail.type, parentBlockStmt, errorVarySymbol, parentIndexBasedAccess);
 
         if (parentErrorVariable.detail.getKind() == NodeKind.VARIABLE) {
+            BLangIdentifier name = ((BLangSimpleVariable) parentErrorVariable.detail).name;
+            if (names.fromIdNode(name) == Names.IGNORE) {
+                parentErrorVariable.detail = null;
+                return;
+            }
             final BLangSimpleVariableDef detailVariableDef =
                     ASTBuilderUtil.createVariableDefStmt(parentErrorVariable.detail.pos, parentBlockStmt);
             detailVariableDef.var = (BLangSimpleVariable) parentErrorVariable.detail;
@@ -1680,9 +1685,9 @@ public class Desugar extends BLangNodeVisitor {
         // Create a variable definition to store the value of the match expression
         String matchExprVarName = GEN_VAR_PREFIX.value;
         BLangSimpleVariable matchExprVar = ASTBuilderUtil.createVariable(matchStmt.expr.pos,
-                matchExprVarName, matchStmt.expr.type, matchStmt.expr, new BVarSymbol(0,
+                matchExprVarName, symTable.errorType, matchStmt.expr, new BVarSymbol(0,
                         names.fromString(matchExprVarName),
-                        this.env.scope.owner.pkgID, matchStmt.expr.type, this.env.scope.owner));
+                        this.env.scope.owner.pkgID, symTable.errorType, this.env.scope.owner));
 
         // Now create a variable definition node
         BLangSimpleVariableDef matchExprVarDef = ASTBuilderUtil.createVariableDef(matchBlockStmt.pos, matchExprVar);
@@ -3504,11 +3509,11 @@ public class Desugar extends BLangNodeVisitor {
         } else if (lhsType.tag == TypeTags.UNION || rhsType.tag == TypeTags.UNION) {
             conversionSymbol = Symbols.createConversionOperatorSymbol(rhsType, lhsType, symTable.errorType, false, true,
                     InstructionCodes.NOP, null, null);
-        } else if (lhsType.tag == TypeTags.MAP || rhsType.tag == TypeTags.MAP) {
-            conversionSymbol = Symbols.createConversionOperatorSymbol(rhsType, lhsType, symTable.errorType, false,
-                    true, InstructionCodes.NOP, null, null);
         } else {
-            conversionSymbol = (BConversionOperatorSymbol) symResolver.resolveConversionOperator(rhsType, lhsType);
+            BSymbol bSymbol = symResolver.resolveConversionOperator(rhsType, lhsType);
+            conversionSymbol = bSymbol == symTable.notFoundSymbol ?
+                    Symbols.createConversionOperatorSymbol(rhsType, lhsType, symTable.errorType, false,
+                    true, InstructionCodes.NOP, null, null) : (BConversionOperatorSymbol) bSymbol;
         }
 
         // Create a type cast expression

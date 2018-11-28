@@ -52,3 +52,19 @@ function testErrorPattern2() returns string {
 
     return "Default";
 }
+
+function testErrorPattern3() returns string {
+    any a = 13;
+    error<string, ClosedFoo> err = error("Err Code 1", {s: "error"});
+    match err {
+        var error (reason) => return "A";
+        var error (reason, _) => return "A"; // unreachable
+    }
+
+    match err {
+        var error (reason, _) => return "A";
+        var error (reason) => return "A"; // unreachable
+    }
+
+    return "Default";
+}

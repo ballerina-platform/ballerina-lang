@@ -46,16 +46,6 @@ function testStructuredMatchPatternsBasic3() returns string {
     return "Default";
 }
 
-function testStructuredMatchPatternsBasic4() returns string {
-    (string, (int, float)) a = ("S", (23, 5.6));
-
-    match a {
-        var y => return "Matched Values : " + io:sprintf("%s", y);
-    }
-
-    return "Default";
-}
-
 function testStructuredMatchPatternsBasics5() returns string[] {
     (string, int)|(float, boolean)|(float, string, boolean)|float a1 = 66.6;
     (string, int)|(float, boolean)|(float, string, boolean)|float a2 = ("Hello", 12);
@@ -74,8 +64,6 @@ function foo1((string, int)|(float, boolean)|(float, string, boolean)|float a) r
                             io:sprintf("%s", b);
         var s => return "Matched with single var : " + io:sprintf("%s", s);
     }
-
-    return "Default";
 }
 
 
@@ -100,8 +88,6 @@ function bar1((string, int)|(float, (string, boolean))|(float, (string, (boolean
         var (s, i) => return "Matched with two vars : " + io:sprintf("%s", s) + ", " + io:sprintf("%s", i);
         var s => return "Matched with single var : " + io:sprintf("%s", s);
     }
-
-    return "Default";
 }
 
 
@@ -136,8 +122,6 @@ function bar2(any a) returns string {
         var (s, i) => return "Matched with two vars : " + io:sprintf("%s", s) + ", " + io:sprintf("%s", i);
         var s => return "Matched with single var : " + io:sprintf("%s", s);
     }
-
-    return "Default";
 }
 
 function testStructuredMatchPatternComplex3() returns string[] {
@@ -196,8 +180,6 @@ function foo3(any x) returns string {
         var (s, i) if i is boolean => {return "Matched with boolean : " + io:sprintf("%s", s) + ", " + io:sprintf("%s", i);}
         var y => {return "Matched with default type - float : " + io:sprintf("%s", y);}
     }
-
-    return "Default";
 }
 
 function testStructuredMatchPatternWithTypeGuard2() returns string[] {
@@ -325,6 +307,4 @@ function foo7(any x) returns string {
 
         var s => {return "Default";}
     }
-
-    return "Default";
 }

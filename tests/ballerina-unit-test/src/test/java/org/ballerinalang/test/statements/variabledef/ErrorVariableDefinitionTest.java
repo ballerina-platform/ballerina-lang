@@ -195,9 +195,22 @@ public class ErrorVariableDefinitionTest {
         Assert.assertEquals(returns[1].stringValue(), "Fatal");
     }
 
+    @Test(description = "Test error variable with ignore as the detail variable")
+    public void testErrorWithUnderscore() {
+        BValue[] returns = BRunUtil.invoke(result, "testErrorWithUnderscore");
+        Assert.assertEquals(returns.length, 8);
+        Assert.assertEquals(returns[0].stringValue(), "Error Code");
+        Assert.assertEquals(returns[1].stringValue(), "Error Code");
+        Assert.assertEquals(returns[2].stringValue(), "Error One");
+        Assert.assertEquals(returns[3].stringValue(), "Error One");
+        Assert.assertEquals(returns[4].stringValue(), "Error Two");
+        Assert.assertEquals(returns[5].stringValue(), "Error Two");
+        Assert.assertEquals(returns[6].stringValue(), "Error Two");
+        Assert.assertEquals(returns[7].stringValue(), "Error Two");
+    }
+
     @Test
     public void testNegativeErrorVariables() {
-        System.out.println(resultNegative);
         Assert.assertEquals(resultNegative.getErrorCount(), 12);
         int i = -1;
         BAssertUtil.validateError(resultNegative, ++i, "redeclared symbol 'reason11'", 27, 9);

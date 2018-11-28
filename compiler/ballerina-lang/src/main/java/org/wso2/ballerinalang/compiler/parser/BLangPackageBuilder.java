@@ -1416,6 +1416,11 @@ public class BLangPackageBuilder {
         addExpressionNode(binaryExpressionNode);
     }
 
+    void createStaticMatchIdentifierExpr(DiagnosticPos pos, Set<Whitespace> ws, String identifierName) {
+        addNameReference(pos, ws, null, identifierName);
+        createSimpleVariableReference(pos, ws);
+    }
+
     void createElvisExpr(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangElvisExpr elvisExpr = (BLangElvisExpr) TreeBuilder.createElvisExpressionNode();
         elvisExpr.pos = pos;

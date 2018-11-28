@@ -22,7 +22,7 @@ type CMA error <string, map<any>>;
 const ERROR1 = "Some Error One";
 const ERROR2 = "Some Error Two";
 
-function testBasicErrorVariableWithMapDetails() returns (string, string, string, string, map<string>, string?, string?, string?, map, any, any, any) {
+function testBasicErrorVariableWithMapDetails() returns (string, string, string, string, map<string>, string?, string?, string?, map<any>, any, any, any) {
     SMS err1 = error ("Error One", {message: "Msg One", detail: "Detail Msg"});
     SMA err2 = error ("Error Two", {message: "Msg Two", fatal: true});
 
@@ -49,7 +49,7 @@ function testBasicErrorVariableWithMapDetails() returns (string, string, string,
     return (reason11, reason12, reason21, reason22, detail11, message12, detail12, extra12, detail21, message22, detail22, extra22);
 }
 
-function testBasicErrorVariableWithConstAndMap() returns (string, string, string, string, map, string?, string?, string?, map, any, any, any) {
+function testBasicErrorVariableWithConstAndMap() returns (string, string, string, string, map<string>, string?, string?, string?, map<any>, any, any, any) {
     CMS err3 = error (ERROR1, {message: "Msg Three", detail: "Detail Msg"});
     CMA err4 = error (ERROR2, {message: "Msg Four", fatal: true});
 
@@ -112,7 +112,7 @@ function testErrorInTuple() returns (int, string, string, any, boolean) {
     return (intVar, stringVar, errorVar.reason(), errorVar2.detail().message, fooVar.fatal);
 }
 
-function testErrorInTupleWithDestructure() returns (int, string, string, map, boolean) {
+function testErrorInTupleWithDestructure() returns (int, string, string, map<any>, boolean) {
     (int, string, (error, boolean)) t1 = (12, "Bal", (error("Err2", {message: "Something Wrong2"}), true));
 
     int intVar;

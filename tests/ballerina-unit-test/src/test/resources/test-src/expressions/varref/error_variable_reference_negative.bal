@@ -55,7 +55,7 @@ function testBasicErrorVariableWithRecordDetails() {
     FooError err2 = error ("Error One", {message: "Something Wrong", fatal: true});
 
     string res1;
-    map rec; // expected 'map', found 'Foo'
+    map<any> rec; // expected 'map', found 'Foo'
     string res2;
     boolean message; // 'boolean', found 'string'
     any fatal;
@@ -70,7 +70,7 @@ function testErrorInTuple() {
 
     any intVar;
     string stringVar;
-    map errorVar;
+    map<any> errorVar;
     error errorVar2;
     any fooVar;
 

@@ -255,10 +255,6 @@ function nonAnydataTypes() returns string {
     int[] x = [1, 2, 3];
     Obj y = new;
 
-    match x {
-        [1, 2, 3] => return "a"; // pattern will not be matched and invalid literal for match pattern
-    }
-
     match y {
         {var1: 12} => return "a"; // pattern will not be matched
         {"var1": 12} => return "a"; // pattern will not be matched
@@ -269,4 +265,11 @@ function nonAnydataTypes() returns string {
 
 function foo() returns string {
     return "var1";
+}
+
+function singleMatchStmt() returns string {
+    any k = 1;
+    match k {
+        _ => return "A"; //pattern will always be matched
+    }
 }

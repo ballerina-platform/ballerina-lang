@@ -26,7 +26,7 @@ function testBasicErrorMatch() returns string {
 
 function testBasicErrorMatch2() returns string {
     error<string, map<string>> err1 = error ("Error Code", {message: "Msg"});
-    (string, map)|error t1 = err1;
+    (string, map<any>)|error t1 = err1;
     match t1 {
         var (reason, detail) => return "Matched with tuple : " + reason + " " + io:sprintf("%s", detail);
         var error(reason, detail) => return "Matched with error : " + reason + " " + io:sprintf("%s", detail);
@@ -36,7 +36,7 @@ function testBasicErrorMatch2() returns string {
 
 function testBasicErrorMatch3() returns string {
     error<string> err1 = error ("Error Code");
-    (string, map)|error<string> t1 = err1;
+    (string, map<any>)|error<string> t1 = err1;
     match t1 {
         var (reason, detail) => return "Matched with tuple : " + reason + " " + io:sprintf("%s", detail);
         var error(reason, detail) => return "Matched with error : " + reason + " " + io:sprintf("%s", detail);
@@ -116,4 +116,20 @@ function foo4(any a) returns string {
     }
 
     return "Default";
+}
+
+function testErrorWithUnderscore() returns string[] {
+
+    error err1 = error ("Error One");
+    string[] results = [foo5(err1)];
+    return results;
+}
+
+function foo5(any|error e) returns string {
+    match e {
+        var (a, b) => return "Matched with tuple var : " + io:sprintf("%s", a);
+        var {a, b} => return "Matched with record var : " + io:sprintf("%s", a);
+        var error (reason,  _) => return "Matched with error var : " + io:sprintf("%s", reason);
+        var x => return "Matched nothing : " + io:sprintf("%s", x);
+    }
 }

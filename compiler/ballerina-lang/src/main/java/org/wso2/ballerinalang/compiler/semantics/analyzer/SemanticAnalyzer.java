@@ -438,6 +438,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
+        if (names.fromIdNode(varNode.name) == Names.IGNORE) {
+            varNode.type = symTable.noType;
+            return;
+        }
+
         int ownerSymTag = env.scope.owner.tag;
         if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
             // This is a variable declared in a function, an action or a resource
@@ -585,6 +590,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             BLangSimpleVariable simpleVariable = (BLangSimpleVariable) variable;
             Name varName = names.fromIdNode(simpleVariable.name);
             if (varName == Names.IGNORE) {
+                simpleVariable.type = symTable.noType;
                 dlog.error(simpleVariable.pos, DiagnosticCode.UNDERSCORE_NOT_ALLOWED);
                 return;
             }
@@ -667,11 +673,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         switch (varNode.type.tag) {
             case TypeTags.UNION:
                 BUnionType unionType = ((BUnionType) varNode.type);
-
-                List<BTupleType> possibleTypes = unionType.memberTypes.stream()
-                        .filter(type -> TypeTags.TUPLE == type.tag)
-                        .map(BTupleType.class::cast)
-                        .filter(tupleType -> varNode.memberVariables.size() == tupleType.tupleTypes.size())
+                List<BType> possibleTypes = unionType.memberTypes.stream()
+                        .filter(type -> {
+                            if (TypeTags.TUPLE == type.tag &&
+                                    (varNode.memberVariables.size() == ((BTupleType) type).tupleTypes.size())) {
+                                return true;
+                            }
+                            return TypeTags.ANY == type.tag || TypeTags.ANYDATA == type.tag;
+                        })
                         .collect(Collectors.toList());
 
                 if (possibleTypes.isEmpty()) {
@@ -682,14 +691,26 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     List<BType> memberTupleTypes = new ArrayList<>();
                     for (int i = 0; i < varNode.memberVariables.size(); i++) {
                         Set<BType> memberTypes = new HashSet<>();
-                        for (BTupleType tupleType : possibleTypes) {
-                            memberTypes.add(tupleType.tupleTypes.get(i));
+                        for (BType possibleType : possibleTypes) {
+                            if (possibleType.tag == TypeTags.TUPLE) {
+                                memberTypes.add(((BTupleType) possibleType).tupleTypes.get(i));
+                            } else {
+                                memberTupleTypes.add(varNode.type);
+                            }
                         }
                         memberTupleTypes.add(new BUnionType(null, memberTypes, false));
                     }
                     tupleTypeNode = new BTupleType(memberTupleTypes);
                 } else {
-                    tupleTypeNode = possibleTypes.get(0);
+                    if (possibleTypes.get(0).tag == TypeTags.TUPLE) {
+                        tupleTypeNode = (BTupleType) possibleTypes.get(0);
+                    } else {
+                        List<BType> memberTupleTypes = new ArrayList<>();
+                        for (int i = 0; i < varNode.memberVariables.size(); i++) {
+                            memberTupleTypes.add(possibleTypes.get(0));
+                        }
+                        tupleTypeNode = new BTupleType(memberTupleTypes);
+                    }
                 }
                 break;
             case TypeTags.ANY:
@@ -755,13 +776,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             case TypeTags.UNION:
                 BUnionType unionType = (BUnionType) recordVar.type;
                 List<BType> possibleTypes = unionType.memberTypes.stream()
-                        .filter(type -> TypeTags.RECORD == type.tag || TypeTags.MAP == type.tag)
-                        .map(bType -> {
-                            if (TypeTags.RECORD == bType.tag) {
-                                return BRecordType.class.cast(bType);
-                            }
-                            return BMapType.class.cast(bType);
-                        })
                         .filter(rec -> doesRecordContainKeys(rec, recordVar.variableList, recordVar.restParam != null))
                         .collect(Collectors.toList());
                 if (possibleTypes.isEmpty()) {
@@ -777,9 +791,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
                     if (recordVar.restParam != null) {
                         Set<BType> memberTypes = possibleTypes.stream()
-                                .map(possibleType -> possibleType.tag == TypeTags.RECORD ?
-                                        ((BRecordType) possibleType).restFieldType :
-                                        ((BMapType) possibleType).constraint)
+                                .map(possibleType -> {
+                                    if (possibleType.tag == TypeTags.RECORD) {
+                                        return ((BRecordType) possibleType).restFieldType;
+                                    } else if (possibleType.tag == TypeTags.MAP) {
+                                        return ((BMapType) possibleType).constraint;
+                                    } else {
+                                        return possibleType;
+                                    }
+                                })
                                 .collect(Collectors.toSet());
 
                         recordVarType.restFieldType = memberTypes.size() > 1 ?
@@ -789,13 +809,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
                     recordVarType.fields = fields;
                     recordSymbol.type = recordVarType;
+                } else if (possibleTypes.get(0).tag == TypeTags.RECORD) {
+                    recordVarType = (BRecordType) possibleTypes.get(0);
+                } else if (possibleTypes.get(0).tag == TypeTags.MAP) {
+                    recordVarType = createSameTypedFieldsRecordType(recordVar,
+                            ((BMapType) possibleTypes.get(0)).constraint);
                 } else {
-                    if (possibleTypes.get(0).tag == TypeTags.RECORD) {
-                        recordVarType = (BRecordType) possibleTypes.get(0);
-                    } else {
-                        recordVarType = createSameTypedFieldsRecordType(recordVar,
-                                ((BMapType) possibleTypes.get(0)).constraint);
-                    }
+                    recordVarType = createSameTypedFieldsRecordType(recordVar, possibleTypes.get(0));
                 }
                 break;
             case TypeTags.RECORD:
@@ -902,9 +922,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                                     ));
                             memberTypes.add(possibleTypeFields.get(fieldName) == null ?
                                     possibleRecordType.restFieldType : possibleTypeFields.get(fieldName));
-                        } else {
+                        } else if (possibleType.tag == TypeTags.MAP) {
                             BMapType possibleMapType = (BMapType) possibleType;
                             memberTypes.add(possibleMapType.constraint);
+                        } else {
+                            memberTypes.add(possibleType);
                         }
                     });
                     BType fieldType = memberTypes.size() > 1 ?
@@ -1005,8 +1027,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private boolean doesRecordContainKeys(BType varType, List<BLangRecordVariableKeyValue> variableList,
                                           boolean hasRestParam) {
-        if (varType.tag == TypeTags.MAP) { // if it is a map type all keys are assumed to be present
+        if (varType.tag == TypeTags.MAP || varType.tag == TypeTags.ANY || varType.tag == TypeTags.ANYDATA) {
             return true;
+        }
+
+        if (varType.tag != TypeTags.RECORD) {
+            return false;
         }
 
         BRecordType recordVarType = (BRecordType) varType;
@@ -1417,15 +1443,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 return typeChecker.checkExpr(expression, this.env);
             case BINARY_EXPR:
                 BLangBinaryExpr binaryExpr = (BLangBinaryExpr) expression;
-
-                if (OperatorKind.BITWISE_OR != binaryExpr.opKind) {
+                BType lhsType = checkStaticMatchPatternLiteralType(binaryExpr.lhsExpr);
+                BType rhsType = checkStaticMatchPatternLiteralType(binaryExpr.rhsExpr);
+                if (lhsType.tag == TypeTags.NONE || rhsType.tag == TypeTags.NONE) {
                     dlog.error(expression.pos, DiagnosticCode.INVALID_LITERAL_FOR_MATCH_PATTERN);
                     expression.type = symTable.errorType;
                     return expression.type;
                 }
-
-                checkStaticMatchPatternLiteralType(binaryExpr.lhsExpr);
-                checkStaticMatchPatternLiteralType(binaryExpr.rhsExpr);
                 expression.type = symTable.anyType;
                 return expression.type;
             case RECORD_LITERAL_EXPR:
@@ -1453,12 +1477,20 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
                 if (bracedOrTupleExpr.expressions.size() > 1) {
                     bracedOrTupleExpr.type = new BTupleType(results);
-                    return bracedOrTupleExpr.type;
                 } else {
                     bracedOrTupleExpr.isBracedExpr = true;
                     bracedOrTupleExpr.type = results.get(0);
-                    return bracedOrTupleExpr.type;
                 }
+                return bracedOrTupleExpr.type;
+            case SIMPLE_VARIABLE_REF:
+                BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) expression;
+                if (names.fromIdNode(simpleVarRef.variableName) == Names.IGNORE) {
+                    expression.type = symTable.noType;
+                    return expression.type;
+                }
+                dlog.error(expression.pos, DiagnosticCode.INVALID_LITERAL_FOR_MATCH_PATTERN);
+                expression.type = symTable.errorType;
+                return expression.type;
             default:
                 dlog.error(expression.pos, DiagnosticCode.INVALID_LITERAL_FOR_MATCH_PATTERN);
                 expression.type = symTable.errorType;

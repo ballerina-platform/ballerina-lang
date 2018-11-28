@@ -22,7 +22,7 @@ type CMA error <string, map<any>>;
 const ERROR1 = "Some Error One";
 const ERROR2 = "Some Error Two";
 
-function testBasicErrorVariableWithMapDetails() returns (string, string, string, string, map<string>, string?, string?, string?, map, any, any, any) {
+function testBasicErrorVariableWithMapDetails() returns (string, string, string, string, map<string>, string?, string?, string?, map<any>, any, any, any) {
     SMS err1 = error ("Error One", {message: "Msg One", detail: "Detail Msg"});
     SMA err2 = error ("Error Two", {message: "Msg Two", fatal: true});
 
@@ -35,7 +35,7 @@ function testBasicErrorVariableWithMapDetails() returns (string, string, string,
     return (reason11, reason12, reason21, reason22, detail11, message12, detail12, extra12, detail21, message22, detail22, extra22);
 }
 
-function testBasicErrorVariableWithConstAndMap() returns (string, string, string, string, map, string?, string?, string?, map, any, any, any) {
+function testBasicErrorVariableWithConstAndMap() returns (string, string, string, string, map<string>, string?, string?, string?, map<any>, any, any, any) {
     CMS err3 = error (ERROR1, {message: "Msg Three", detail: "Detail Msg"});
     CMA err4 = error (ERROR2, {message: "Msg Four", fatal: true});
 
@@ -48,7 +48,7 @@ function testBasicErrorVariableWithConstAndMap() returns (string, string, string
     return (reason31, reason32, reason41, reason42, detail31, message32, detail32, extra32, detail41, message42, detail42, extra42);
 }
 
-function testVarBasicErrorVariableWithMapDetails() returns (string, string, string, string, map, string?, string?, string?, map, any, any, any) {
+function testVarBasicErrorVariableWithMapDetails() returns (string, string, string, string, map<string>, string?, string?, string?, map<any>, any, any, any) {
     SMS err1 = error ("Error One", {message: "Msg One", detail: "Detail Msg"});
     SMA err2 = error ("Error Two", {message: "Msg Two", fatal: true});
 
@@ -61,7 +61,7 @@ function testVarBasicErrorVariableWithMapDetails() returns (string, string, stri
     return (reason11, reason12, reason21, reason22, detail11, message12, detail12, extra12, detail21, message22, detail22, extra22);
 }
 
-function testVarBasicErrorVariableWithConstAndMap() returns (string, string, string, string, map, string?, string?, string?, map, any, any, any) {
+function testVarBasicErrorVariableWithConstAndMap() returns (string, string, string, string, map<string>, string?, string?, string?, map<any>, any, any, any) {
     CMS err3 = error (ERROR1, {message: "Msg Three", detail: "Detail Msg"});
     CMA err4 = error (ERROR2, {message: "Msg Four", fatal: true});
 
@@ -102,7 +102,7 @@ function testErrorInTupleWithVar() returns (int, string, string, any, boolean) {
     return (intVar, stringVar, erroVar.reason(), errorVar2.detail().message, fooVar.fatal);
 }
 
-function testErrorInTupleWithDestructure() returns (int, string, string, map, boolean) {
+function testErrorInTupleWithDestructure() returns (int, string, string, map<any>, boolean) {
     (int, string, (error, boolean)) t1 = (12, "Bal", (error("Err2", {message: "Something Wrong2"}), true));
     (int, string, (error, boolean)) (intVar, stringVar, (error (reasonVar, detailVar), booleanVar)) = t1;
     return (intVar, stringVar, reasonVar, detailVar, booleanVar);
@@ -129,4 +129,24 @@ function testErrorWithAnonErrorType() returns (string, string?) {
     error<string, map<string>> err = error ("Error Code", {message: "Fatal"});
     error<string, map<string>> error (reason, {message}) = err;
     return (reason, message);
+}
+
+function testErrorWithUnderscore() returns (string, string, string, string,string, string, string, string) {
+    error<string, map<string>> err = error ("Error Code", {message: "Fatal"});
+    error<string, map<string>> error (reason, _) = err;
+    error<string, map<string>> error (reason2) = err;
+
+    SMS err1 = error ("Error One", {message: "Msg One", detail: "Detail Msg"});
+
+    SMS error (reason3, _) = err1;
+    SMS error (reason4) = err1;
+
+    FooError err2 = error ("Error Two", {message: "Something Wrong", fatal: true});
+    FooError error (reason5, _) = err2;
+    FooError error (reason6) = err2;
+
+    var error (reason7, _) = err2;
+    var error (reason8) = err2;
+
+    return (reason, reason2, reason3, reason4, reason5, reason6, reason7, reason8);
 }

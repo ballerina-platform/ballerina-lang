@@ -276,6 +276,18 @@ variableDefinitionStatement
     |   FINAL? (typeName | VAR) bindingPattern ASSIGN expression SEMICOLON
     ;
 
+staticMatchLiterals
+    :   simpleLiteral                                                       # staticMatchSimpleLiteral
+    |   recordLiteral                                                       # staticMatchRecordLiteral
+    |   tupleLiteral                                                        # staticMatchTupleLiteral
+    |   Identifier                                                          # staticMatchIdentifierLiteral
+    |   staticMatchLiterals PIPE staticMatchLiterals                        # staticMatchOrExpression
+    ;
+
+tupleLiteral
+    :   LEFT_PARENTHESIS expression (COMMA expression)* RIGHT_PARENTHESIS
+    ;
+
 recordLiteral
     :   LEFT_BRACE (recordKeyValue (COMMA recordKeyValue)*)? RIGHT_BRACE
     ;
@@ -376,7 +388,7 @@ matchStatement
     ;
 
 matchPatternClause
-    :   expression EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
+    :   staticMatchLiterals EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
     |   VAR bindingPattern (IF expression)? EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
     ;
 
@@ -682,7 +694,7 @@ expression
     |   tableQuery                                                          # tableQueryExpression
     |   LT typeName (COMMA functionInvocation)? GT expression               # typeConversionExpression
     |   (ADD | SUB | BIT_COMPLEMENT | NOT | LENGTHOF | UNTAINT) expression  # unaryExpression
-    |   LEFT_PARENTHESIS expression (COMMA expression)* RIGHT_PARENTHESIS   # bracedOrTupleExpression
+    |   tupleLiteral                                                        # bracedOrTupleExpression
     |	CHECK expression										            # checkedExpression
     |   expression IS typeName                                              # typeTestExpression
     |   expression (DIV | MUL | MOD) expression                             # binaryDivMulModExpression

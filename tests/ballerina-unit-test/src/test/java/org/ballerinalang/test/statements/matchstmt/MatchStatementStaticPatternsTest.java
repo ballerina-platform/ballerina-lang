@@ -270,7 +270,7 @@ public class MatchStatementStaticPatternsTest {
 
     @Test(description = "Test pattern will not be matched")
     public void testPatternNotMatched() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 62);
+        Assert.assertEquals(resultNegative.getErrorCount(), 61);
         int i = -1;
         String patternNotMatched = "pattern will not be matched";
 
@@ -337,19 +337,17 @@ public class MatchStatementStaticPatternsTest {
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 242, 9);
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 243, 9);
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 244, 9);
-        BAssertUtil.validateError(resultNegative, ++i,
-                "invalid literal for match pattern; allowed literals are simple, tuple and record only", 259, 9);
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 259, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 263, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 264, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 260, 9);
         BAssertUtil.validateError(resultNegative, ++i,
-                "invalid key: only identifiers are allowed for record literal keys", 265, 10);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 265, 9);
+                "invalid key: only identifiers are allowed for record literal keys", 261, 10);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 261, 9);
+        BAssertUtil.validateError(resultNegative, ++i, "pattern will always be matched", 273, 9);
     }
 
     @Test(description = "Test unreachable pattern")
     public void testUnreachablePatterns() {
-        Assert.assertEquals(resultNegative2.getErrorCount(), 8);
+        Assert.assertEquals(resultNegative2.getErrorCount(), 9);
         int i = -1;
         String unreachablePatterm =
                 "unreachable pattern: preceding patterns are too general or the pattern ordering is not correct";
@@ -362,5 +360,6 @@ public class MatchStatementStaticPatternsTest {
         BAssertUtil.validateError(resultNegative2, ++i, unreachablePatterm, 55, 9);
         BAssertUtil.validateError(resultNegative2, ++i, unreachablePatterm, 56, 9);
         BAssertUtil.validateError(resultNegative2, ++i, unreachablePatterm, 57, 9);
+        BAssertUtil.validateError(resultNegative2, ++i, "unreachable code", 71, 5);
     }
 }

@@ -107,9 +107,19 @@ public class MatchStructuredErrorPatternsTest {
         Assert.assertEquals(results.get(++i), msg + "an error cannot find key 'invalid' {}");
     }
 
+    @Test(description = "Test basics of structured pattern match statement 1")
+    public void testErrorWithUnderscore() {
+        BValue[] returns = BRunUtil.invoke(result, "testErrorWithUnderscore", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        BStringArray results = (BStringArray) returns[0];
+        int i = -1;
+        String msg = "Matched with ";
+        Assert.assertEquals(results.get(++i), msg + "error var : Error One");
+    }
+
     @Test(description = "Test pattern will not be matched 2")
     public void testUnreachablePatterns() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 5);
+        Assert.assertEquals(resultNegative.getErrorCount(), 7);
         int i = -1;
         String unreachablePattern = "unreachable pattern: " +
                 "preceding patterns are too general or the pattern ordering is not correct";
@@ -119,5 +129,7 @@ public class MatchStructuredErrorPatternsTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 "invalid record binding pattern; unknown field 'detail' in record type 'ClosedFoo'", 49, 29);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 50, 13);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 61, 13);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 66, 13);
     }
 }

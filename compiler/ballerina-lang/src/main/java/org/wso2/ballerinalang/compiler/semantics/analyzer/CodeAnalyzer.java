@@ -121,6 +121,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStaticBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
@@ -525,35 +526,61 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangMatch matchStmt) {
         analyzeExpr(matchStmt.expr);
 
+        boolean staticLastPattern = false;
         if (!matchStmt.getStaticPatternClauses().isEmpty()) {
-            analyzeStaticMatchPatterns(matchStmt);
+            staticLastPattern = analyzeStaticMatchPatterns(matchStmt);
         }
 
+        boolean structuredLastPattern = false;
         if (!matchStmt.getStructuredPatternClauses().isEmpty()) {
-            analyzeStructuredMatchPatterns(matchStmt);
+            structuredLastPattern = analyzeStructuredMatchPatterns(matchStmt);
+        }
+
+        if (!matchStmt.getPatternClauses().isEmpty()) {
+            analyzeMatchedPatterns(matchStmt, staticLastPattern, structuredLastPattern);
         }
     }
 
-    private void analyzeStructuredMatchPatterns(BLangMatch matchStmt) {
-        if (matchStmt.exprTypes.isEmpty()) {
-            return;
+    private void analyzeMatchedPatterns(BLangMatch matchStmt, boolean staticLastPattern,
+                                        boolean structuredLastPattern) {
+        if (staticLastPattern && structuredLastPattern) {
+            dlog.error(matchStmt.pos, DiagnosticCode.MATCH_STMT_CONTAINS_TWO_DEFAULT_PATTERNS);
         }
 
-        analyseUnreachableStructuredBindingPatterns(matchStmt.getStructuredPatternClauses());
+        // Execute the following block if there are no unmatched expression types
+        if (staticLastPattern || structuredLastPattern) {
+            if (matchStmt.getPatternClauses().size() == 1) {
+                dlog.error(matchStmt.getPatternClauses().get(0).pos, DiagnosticCode.MATCH_STMT_PATTERN_ALWAYS_MATCHES);
+            }
+            this.checkStatementExecutionValidity(matchStmt);
+            boolean matchStmtReturns = true;
+            for (BLangMatch.BLangMatchBindingPatternClause patternClause : matchStmt.getPatternClauses()) {
+                analyzeNode(patternClause.body, env);
+                matchStmtReturns = matchStmtReturns && this.statementReturns;
+                this.resetStatementReturns();
+            }
+            this.statementReturns = matchStmtReturns;
+        }
+    }
+
+    private boolean analyzeStructuredMatchPatterns(BLangMatch matchStmt) {
+        if (matchStmt.exprTypes.isEmpty()) {
+            return false;
+        }
+
+        return analyseStructuredBindingPatterns(matchStmt.getStructuredPatternClauses());
     }
 
     /**
      * This method is used to check the isLike test in a static match pattern.
      * @param matchStmt the match statment containing static match patterns.
      */
-    private void analyzeStaticMatchPatterns(BLangMatch matchStmt) {
+    private boolean analyzeStaticMatchPatterns(BLangMatch matchStmt) {
         if (matchStmt.exprTypes.isEmpty()) {
-            return;
+            return false;
         }
-        List<BLangExpression> matchedSimplePatterns = new ArrayList<>();
-        List<BLangExpression> matchedRecordPatterns = new ArrayList<>();
-        List<BLangExpression> matchedTuplePatterns = new ArrayList<>();
-        for (BLangMatch.BLangMatchStaticBindingPatternClause pattern : matchStmt.getStaticPatternClauses()) {
+        List<BLangMatchStaticBindingPatternClause> matchedPatterns = new ArrayList<>();
+        for (BLangMatchStaticBindingPatternClause pattern : matchStmt.getStaticPatternClauses()) {
             List<BType> matchedExpTypes = matchStmt.exprTypes
                     .stream()
                     .filter(exprType -> isValidStaticMatchPattern(exprType, pattern.literal))
@@ -563,38 +590,37 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 dlog.error(pattern.pos, DiagnosticCode.MATCH_STMT_UNMATCHED_PATTERN);
                 continue;
             }
-
-            if (pattern.getLiteral().type.tag == TypeTags.MAP) {
-                matchedRecordPatterns.add(pattern.getLiteral());
-                continue;
-            }
-
-            if (pattern.getLiteral().type.tag == TypeTags.TUPLE) {
-                matchedTuplePatterns.add(pattern.getLiteral());
-                continue;
-            }
-
-            matchedSimplePatterns.add(pattern.getLiteral());
+            matchedPatterns.add(pattern);
         }
-        analyzeUnreachableStaticPatterns(matchedSimplePatterns);
-        analyzeUnreachableStaticPatterns(matchedTuplePatterns);
-        analyzeUnreachableStaticPatterns(matchedRecordPatterns);
+
+        if (matchedPatterns.isEmpty()) {
+            return false;
+        }
+
+        return analyzeStaticPatterns(matchedPatterns);
     }
 
-    private void analyzeUnreachableStaticPatterns(List<BLangExpression> matchedPatterns) {
+    private boolean analyzeStaticPatterns(List<BLangMatchStaticBindingPatternClause> matchedPatterns) {
+        BLangMatchStaticBindingPatternClause finalPattern = matchedPatterns.get(matchedPatterns.size() - 1);
+        if (finalPattern.literal.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            finalPattern.isLastPattern = true;
+        }
+
         for (int i = 0; i < matchedPatterns.size() - 1; i++) {
-            BLangExpression precedingPattern = matchedPatterns.get(i);
+            BLangExpression precedingPattern = matchedPatterns.get(i).literal;
             for (int j = i + 1; j < matchedPatterns.size(); j++) {
-                BLangExpression pattern = matchedPatterns.get(j);
+                BLangExpression pattern = matchedPatterns.get(j).literal;
                 if (checkLiteralSimilarity(precedingPattern, pattern)) {
                     dlog.error(pattern.pos, DiagnosticCode.MATCH_STMT_UNREACHABLE_PATTERN);
                     matchedPatterns.remove(j--);
                 }
             }
         }
+
+        return finalPattern.isLastPattern;
     }
 
-    private void analyseUnreachableStructuredBindingPatterns(List<BLangMatchStructuredBindingPatternClause> clauses) {
+    private boolean analyseStructuredBindingPatterns(List<BLangMatchStructuredBindingPatternClause> clauses) {
         BLangMatchStructuredBindingPatternClause finalPattern = clauses.get(clauses.size() - 1);
         if (finalPattern.bindingPatternVariable.getKind() == NodeKind.VARIABLE && finalPattern.typeGuardExpr == null) {
             finalPattern.isLastPattern = true;
@@ -611,6 +637,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 }
             }
         }
+
+        return finalPattern.isLastPattern;
     }
 
     /**
@@ -622,6 +650,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
      * @return true if both patterns are similar..
      */
     private boolean checkLiteralSimilarity(BLangExpression precedingPattern, BLangExpression pattern) {
+        if (precedingPattern.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            return true;
+        }
+
         if (precedingPattern.type.tag == TypeTags.MAP && pattern.type.tag == TypeTags.MAP) {
             BLangRecordLiteral precedingRecordLiteral = (BLangRecordLiteral) precedingPattern;
             Map<String, BLangExpression> recordLiteral = ((BLangRecordLiteral) pattern).keyValuePairs
@@ -761,12 +793,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return true;
         }
 
-        if (precedingVar.getKind() == NodeKind.VARIABLE &&
-                (var.getKind() == NodeKind.RECORD_VARIABLE || var.getKind() == NodeKind.TUPLE_VARIABLE)) {
-            return true;
-        }
+        return precedingVar.getKind() == NodeKind.VARIABLE;
 
-        return precedingVar.getKind() == NodeKind.VARIABLE && var.getKind() == NodeKind.VARIABLE;
     }
 
     /**
@@ -777,6 +805,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
      * @return true if the pattern is valid, else false.
      */
     private boolean isValidStaticMatchPattern(BType matchType, BLangExpression literal) {
+        if (literal.type.tag == TypeTags.NONE) {
+            return true; // When matching '_'
+        }
+
         if (types.isSameType(literal.type, matchType)) {
             return true;
         }
@@ -1237,8 +1269,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private void validateEndpointDeclaration(BLangSimpleVariableDef varDefNode) {
-        if (varDefNode.var.symbol.tag != SymTag.ENDPOINT || Objects.isNull(varDefNode.parent) || Objects
-                .isNull(varDefNode.parent.parent)) {
+        if (Objects.isNull(varDefNode.var.symbol) || varDefNode.var.symbol.tag != SymTag.ENDPOINT ||
+                Objects.isNull(varDefNode.parent) || Objects.isNull(varDefNode.parent.parent)) {
             return;
         }
         // Check for valid parents nodes. (immediate parent is block node)
