@@ -89,7 +89,7 @@ import org.ballerinalang.model.values.BXMLAttributes;
 import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.BXMLSequence;
 import org.ballerinalang.util.FunctionFlags;
-import org.ballerinalang.util.TransactionStatus;
+import org.ballerinalang.util.Transactions;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ErrorTableEntry;
 import org.ballerinalang.util.codegen.FunctionInfo;
@@ -435,7 +435,8 @@ public class BVM {
                         i = operands[0];
                         j = operands[1];
                         k = operands[2];
-                        retryTransaction(strand, i, j, k);
+                        l = operands[3];
+                        retryTransaction(strand, i, j, k, l);
                         break;
                     case InstructionCodes.CALL:
                         callIns = (InstructionCALL) instruction;
@@ -454,16 +455,20 @@ public class BVM {
                         }
                         break;
                     case InstructionCodes.TR_BEGIN:
+                        int h;
                         i = operands[0];
                         j = operands[1];
                         k = operands[2];
-                        l = operands[3];
-                        beginTransaction(strand, i, j, k, l);
+                        h = operands[3];
+                        l = operands[4];
+                        beginTransaction(strand, i, j, k, h, l);
                         break;
                     case InstructionCodes.TR_END:
                         i = operands[0];
                         j = operands[1];
-                        endTransaction(strand, i, j);
+                        k = operands[2];
+                        h = operands[3];
+                        endTransaction(strand, i, j, k, h);
                         break;
                     case InstructionCodes.WRKSEND:
                         InstructionWRKSendReceive wrkSendIns = (InstructionWRKSendReceive) instruction;
@@ -3098,54 +3103,35 @@ public class BVM {
         sf.refRegs[i] = new BMap<>(structInfo.getType());
     }
 
-    private static void beginTransaction(Strand ctx, int transactionBlockId, int retryCountRegIndex,
-                                         int committedFuncIndex, int abortedFuncIndex) {
-        //If global tx enabled, it is managed via transaction coordinator. Otherwise it is managed locally without
-        //any interaction with the transaction coordinator.
-        boolean isGlobalTransactionEnabled = ctx.getGlobalTransactionEnabled();
+    private static void beginTransaction(Strand ctx, int transactionType, int transactionBlockId,
+                                         int retryCountRegIndex, int committedFuncIndex, int abortedFuncIndex) {
+        if (transactionType == Transactions.TransactionType.PARTICIPANT.value) {
+            beginTransactionParticipant(ctx, transactionBlockId, committedFuncIndex, abortedFuncIndex);
+            return;
+        }
 
         //Transaction is attempted three times by default to improve resiliency
         int retryCount = TransactionConstants.DEFAULT_RETRY_COUNT;
         if (retryCountRegIndex != -1) {
             retryCount = (int) ctx.currentFrame.longRegs[retryCountRegIndex];
             if (retryCount < 0) {
-                ctx.setError(BLangVMErrors
-                        .createError(ctx, BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_RETRY_COUNT)));
+//                ctx.setError(BLangVMErrors
+//                        .createError(ctx, BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_RETRY_COUNT)));
                 handleError(ctx);
                 return;
             }
         }
 
-        //Register committed function handler if exists.
-        if (committedFuncIndex != -1) {
-            FunctionRefCPEntry funcRefCPEntry = (FunctionRefCPEntry) ctx.currentFrame.constPool[committedFuncIndex];
-            BFunctionPointer fpCommitted = new BFunctionPointer(funcRefCPEntry.getFunctionInfo());
-            TransactionResourceManager.getInstance().registerCommittedFunction(transactionBlockId, fpCommitted);
-        }
-
-        //Register aborted function handler if exists.
-        if (abortedFuncIndex != -1) {
-            FunctionRefCPEntry funcRefCPEntry = (FunctionRefCPEntry) ctx.currentFrame.constPool[abortedFuncIndex];
-            BFunctionPointer fpAborted = new BFunctionPointer(funcRefCPEntry.getFunctionInfo());
-            TransactionResourceManager.getInstance().registerAbortedFunction(transactionBlockId, fpAborted);
-        }
-
+        // If global tx enabled, it is managed via transaction coordinator.
+        // Otherwise it is managed locally without any interaction with the transaction coordinator.
+        boolean isGlobalTransactionEnabled = ctx.getGlobalTransactionEnabled();
         LocalTransactionInfo localTransactionInfo = ctx.getLocalTransactionInfo();
         if (localTransactionInfo == null) {
-            String globalTransactionId;
-            String protocol = null;
-            String url = null;
             if (isGlobalTransactionEnabled) {
-                BValue[] returns = TransactionUtils.notifyTransactionBegin(ctx, null, null, transactionBlockId,
-                        TransactionConstants.DEFAULT_COORDINATION_TYPE);
-                BMap<String, BValue> txDataStruct = (BMap<String, BValue>) returns[0];
-                globalTransactionId = txDataStruct.get(TransactionConstants.TRANSACTION_ID).stringValue();
-                protocol = txDataStruct.get(TransactionConstants.CORDINATION_TYPE).stringValue();
-                url = txDataStruct.get(TransactionConstants.REGISTER_AT_URL).stringValue();
+                localTransactionInfo = createAndNotifyGlobalTx(ctx, transactionBlockId);
             } else {
-                globalTransactionId = UUID.randomUUID().toString().replaceAll("-", "");
+                localTransactionInfo = createLocalOnlyTransaction();
             }
-            localTransactionInfo = new LocalTransactionInfo(globalTransactionId, url, protocol);
             ctx.setLocalTransactionInfo(localTransactionInfo);
         } else {
             if (isGlobalTransactionEnabled) {
@@ -3156,71 +3142,226 @@ public class BVM {
         localTransactionInfo.beginTransactionBlock(transactionBlockId, retryCount);
     }
 
-    private static void retryTransaction(Strand ctx, int transactionBlockId,
-                                         int startOfAbortIP, int startOfNoThrowEndIP) {
+    private static void beginTransactionParticipant(Strand ctx, int transactionBlockId,
+                                                    int committedFuncIndex, int abortedFuncIndex) {
         LocalTransactionInfo localTransactionInfo = ctx.getLocalTransactionInfo();
-        if (!localTransactionInfo.isRetryPossible(ctx, transactionBlockId)) {
-            if (ctx.getError() == null) {
-                ctx.currentFrame.ip = startOfNoThrowEndIP;
-            } else {
-                String errorMsg = ctx.getError().reason;
-                if (BLangVMErrors.TRANSACTION_ERROR.equals(errorMsg)) {
-                    ctx.currentFrame.ip = startOfNoThrowEndIP;
-                } else {
-                    ctx.currentFrame.ip = startOfAbortIP;
-                }
-            }
+        if (localTransactionInfo == null) {
+            // No transaction available to participate,
+            // We have no business here. This is a no-op.
+            return;
         }
-        localTransactionInfo.incrementCurrentRetryCount(transactionBlockId);
+
+        // Register committed function handler if exists.
+        TransactionResourceManager transactionResourceManager = TransactionResourceManager.getInstance();
+        BFunctionPointer fpCommitted = null;
+        if (committedFuncIndex != -1) {
+            FunctionRefCPEntry funcRefCPEntry = (FunctionRefCPEntry) ctx.currentFrame.constPool[committedFuncIndex];
+            fpCommitted = new BFunctionPointer(funcRefCPEntry.getFunctionInfo());
+            transactionResourceManager.registerCommittedFunction(transactionBlockId, fpCommitted);
+        }
+
+        // Register aborted function handler if exists.
+        BFunctionPointer fpAborted = null;
+        if (abortedFuncIndex != -1) {
+            FunctionRefCPEntry funcRefCPEntry = (FunctionRefCPEntry) ctx.currentFrame.constPool[abortedFuncIndex];
+            fpAborted = new BFunctionPointer(funcRefCPEntry.getFunctionInfo());
+            transactionResourceManager.registerAbortedFunction(transactionBlockId, fpAborted);
+        }
+
+        localTransactionInfo.beginTransactionBlock(transactionBlockId, 1);
+        transactionResourceManager.registerParticipation(localTransactionInfo.getGlobalTransactionId(),
+                transactionBlockId, fpCommitted, fpAborted, ctx);
     }
 
-    private static void endTransaction(Strand ctx, int transactionBlockId, int status) {
+    private static LocalTransactionInfo createAndNotifyGlobalTx(Strand ctx, int transactionBlockId) {
+        BValue[] txResult = TransactionUtils.notifyTransactionBegin(ctx, null, null,
+                transactionBlockId, TransactionConstants.DEFAULT_COORDINATION_TYPE);
+
+        BMap<String, BValue> txDataStruct = (BMap<String, BValue>) txResult[0];
+        String globalTransactionId = txDataStruct.get(TransactionConstants.TRANSACTION_ID).stringValue();
+        String url = txDataStruct.get(TransactionConstants.REGISTER_AT_URL).stringValue();
+        String protocol = txDataStruct.get(TransactionConstants.CORDINATION_TYPE).stringValue();
+
+        return new LocalTransactionInfo(globalTransactionId, url, protocol);
+    }
+
+    private static LocalTransactionInfo createLocalOnlyTransaction() {
+        String globalTransactionId = UUID.randomUUID().toString().replaceAll("-", "");
+        return new LocalTransactionInfo(globalTransactionId, null, null);
+    }
+
+    private static void retryTransaction(Strand ctx, int transactionBlockId, int trAbortEndIp,
+                                         int trEndEndIp, int trEndStatusReg) {
+        ctx.currentFrame.intRegs[trEndStatusReg] = 0; // set trend status to normal.
         LocalTransactionInfo localTransactionInfo = ctx.getLocalTransactionInfo();
-        boolean isGlobalTransactionEnabled = ctx.getGlobalTransactionEnabled();
-        boolean notifyCoordinator;
+        LocalTransactionInfo.TransactionFailure failure = localTransactionInfo.getAndClearFailure();
+        if (localTransactionInfo.isRetryPossible(ctx, transactionBlockId)) {
+            if (localTransactionInfo.isRetryAttempt(transactionBlockId)) {
+                LocalTransactionInfo newLocalTransaction = createAndNotifyGlobalTx(ctx, transactionBlockId);
+                int allowedRetryCount = localTransactionInfo.getAllowedRetryCount(transactionBlockId);
+                newLocalTransaction.beginTransactionBlock(transactionBlockId,
+                        allowedRetryCount - 1);
+                ctx.setLocalTransactionInfo(newLocalTransaction);
+            }
+            ctx.getLocalTransactionInfo().incrementCurrentRetryCount(transactionBlockId);
+            ctx.setError(null);
+            // todo: communicate re-try intent to coordinator
+            // tr_end will communicate the tx ending to coordinator
+            return;
+        }
+
+//        BMap<String, BValue> error = ctx.getError();
+//        if (failure == null && error == null) {
+//            // this is suspicious, this should not happen.
+//            // when re-try is exhausted it should probably be due to a error or tx failure.
+//            ctx.ip = trEndEndIp;
+//            throw new IllegalStateException("re-try exhausted transaction without failure or error");
+//            // todo: remove this block including surrounding if and remove trEndEndIp from retry instruction!!!
+//        }
+
+        ctx.currentFrame.intRegs[trEndStatusReg] = 1;
+        ctx.currentFrame.ip = trAbortEndIp;
+    }
+
+    private static void endTransaction(Strand ctx, int txBlockId, int status,
+                                       int statusRegIndex, int errorRegIndex) {
+        LocalTransactionInfo localTxInfo = ctx.getLocalTransactionInfo();
         try {
             //In success case no need to do anything as with the transaction end phase it will be committed.
-            if (status == TransactionStatus.FAILED.value()) {
-                notifyCoordinator = localTransactionInfo.onTransactionFailed(ctx, transactionBlockId);
-                if (notifyCoordinator) {
-                    if (isGlobalTransactionEnabled) {
-                        TransactionUtils.notifyTransactionAbort(ctx, localTransactionInfo.getGlobalTransactionId(),
-                                transactionBlockId);
-                    } else {
-                        TransactionResourceManager.getInstance()
-                                .notifyAbort(localTransactionInfo.getGlobalTransactionId(), transactionBlockId, false);
-                    }
-                }
-            } else if (status == TransactionStatus.ABORTED.value()) {
-                if (isGlobalTransactionEnabled) {
-                    TransactionUtils.notifyTransactionAbort(ctx, localTransactionInfo.getGlobalTransactionId(),
-                            transactionBlockId);
-                } else {
-                    TransactionResourceManager.getInstance()
-                            .notifyAbort(localTransactionInfo.getGlobalTransactionId(), transactionBlockId, false);
-                }
-            } else if (status == TransactionStatus.SUCCESS.value()) {
-                //We dont' need to notify the coordinator in this case. If it does not receive abort from the tx
-                //it will commit at the end message
-                if (!isGlobalTransactionEnabled) {
-                    TransactionResourceManager.getInstance()
-                            .prepare(localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
-                    TransactionResourceManager.getInstance()
-                            .notifyCommit(localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
-                }
-            } else if (status == TransactionStatus.END.value()) { //status = 1 Transaction end
-                boolean isOuterTx = localTransactionInfo.onTransactionEnd(transactionBlockId);
-                if (isGlobalTransactionEnabled) {
-                    TransactionUtils.notifyTransactionEnd(ctx, localTransactionInfo.getGlobalTransactionId(),
-                            transactionBlockId);
-                }
-                if (isOuterTx) {
-                    BLangVMUtils.removeTransactionInfo(ctx);
-                }
+            switch (Transactions.TransactionStatus.getConst(status)) {
+                case BLOCK_END: // 0
+                    // set statusReg
+                    transactionBlockEnd(ctx, txBlockId, statusRegIndex, localTxInfo, errorRegIndex);
+                    break;
+                case FAILED: // -1
+                    transactionFailedEnd(ctx, txBlockId, localTxInfo, statusRegIndex);
+                    break;
+                case ABORTED: // -2
+                    transactionAbortedEnd(ctx, txBlockId, localTxInfo, statusRegIndex, errorRegIndex);
+                    break;
+                case END: // 1
+                    transactionEndEnd(ctx, txBlockId, localTxInfo);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Invalid transaction end status: " + status);
             }
         } catch (Throwable e) {
             ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
             handleError(ctx);
+        }
+    }
+
+    private static void transactionAbortedEnd(Strand ctx, int txBlockId,
+                                              LocalTransactionInfo localTxInfo, int statusRegIndex, int errorRegIndex) {
+        // Notify only if, aborted by 'abort' statement.
+        if (ctx.currentFrame.intRegs[statusRegIndex] == 0) {
+            notifyTransactionAbort(ctx, txBlockId, localTxInfo);
+        }
+        setErrorRethrowReg(ctx, statusRegIndex, errorRegIndex);
+    }
+
+    private static void setErrorRethrowReg(Strand ctx, int statusRegIndex, int errorRegIndex) {
+        if (ctx.getError() != null) {
+            BError cause = ctx.getError();
+            if (cause != null) {
+                ctx.setError(cause);
+                ctx.currentFrame.refRegs[errorRegIndex] = cause; // panic on this error.
+            }
+            // Next 2 instructions re-throw this error.
+            ctx.currentFrame.intRegs[statusRegIndex] = 1;
+            return;
+        }
+        // Skip rethrow instruction, since there is no error.
+        ctx.currentFrame.intRegs[statusRegIndex] = 0;
+    }
+
+    private static void transactionEndEnd(Strand ctx, int transactionBlockId,
+                                          LocalTransactionInfo localTransactionInfo) {
+        boolean isOuterTx = localTransactionInfo.onTransactionEnd(transactionBlockId);
+        if (isOuterTx) {
+            BLangVMUtils.removeTransactionInfo(ctx);
+        }
+    }
+
+    private static void transactionBlockEnd(Strand ctx, int transactionBlockId, int statusRegIndex,
+                                            LocalTransactionInfo localTransactionInfo, int errorRegIndex) {
+        // Tx reached end of block, it may or may not successfully finished.
+        LocalTransactionInfo.TransactionFailure failure = localTransactionInfo.getFailure();
+
+        BError error = null;
+        BRefType<?> errorVal = ctx.currentFrame.refRegs[errorRegIndex];
+        if (errorVal != null && errorVal.getType().getTag() == TypeTags.ERROR_TAG) {
+            error = (BError) errorVal;
+        }
+
+        if (error != null && ctx.getError() == null) {
+            ctx.setError(error);
+            ctx.currentFrame.refRegs[errorRegIndex] = null;
+        }
+
+        if (failure == null && error == null && ctx.getError() == null) {
+            // Skip branching to retry block as there is no local failure.
+            // Will set this reg if there is failure in global coordinated trx.
+            ctx.currentFrame.intRegs[statusRegIndex] = 0;
+
+            if (ctx.getGlobalTransactionEnabled()) {
+                TransactionUtils.CoordinatorCommit coordinatorStatus =
+                        notifyGlobalPrepareAndCommit(ctx, transactionBlockId, localTransactionInfo);
+
+                if (!TransactionUtils.CoordinatorCommit.COMMITTED.equals(coordinatorStatus)) {
+                    // Coordinator returned un-committed status, hence skip committed block, and goto failed block.
+                    ctx.currentFrame.intRegs[statusRegIndex] = 1;
+                }
+            } else {
+                notifyLocalPrepareAndCommit(transactionBlockId, localTransactionInfo);
+            }
+        } else {
+            // Tx failed, branch to retry block.
+            ctx.currentFrame.intRegs[statusRegIndex] = 1;
+
+            // This could be a transaction failure from a native/std library. Or due to an an error/exception.
+            // If transaction is not already marked as failed do so now for future references.
+            if (failure == null) {
+                localTransactionInfo.markFailure();
+            }
+            boolean notifyCoordinator = localTransactionInfo.onTransactionFailed(ctx, transactionBlockId);
+            if (notifyCoordinator) {
+                notifyTransactionAbort(ctx, transactionBlockId, localTransactionInfo);
+            }
+        }
+    }
+
+    private static TransactionUtils.CoordinatorCommit notifyGlobalPrepareAndCommit(
+            Strand ctx, int transactionBlockId, LocalTransactionInfo localTransactionInfo) {
+        return TransactionUtils.notifyTransactionEnd(ctx,
+                localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
+    }
+
+    private static boolean notifyLocalPrepareAndCommit(int transactionBlockId,
+                                                       LocalTransactionInfo localTransactionInfo) {
+        TransactionResourceManager.getInstance()
+                .prepare(localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
+        return TransactionResourceManager.getInstance()
+                .notifyCommit(localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
+    }
+
+    private static void notifyTransactionAbort(Strand ctx, int transactionBlockId,
+                                               LocalTransactionInfo localTransactionInfo) {
+        if (ctx.getGlobalTransactionEnabled()) {
+            TransactionUtils.notifyTransactionAbort(ctx, localTransactionInfo.getGlobalTransactionId(),
+                    transactionBlockId);
+        }
+        TransactionResourceManager.getInstance()
+                .notifyAbort(localTransactionInfo.getGlobalTransactionId(), transactionBlockId, false);
+    }
+
+    private static void transactionFailedEnd(Strand ctx, int transactionBlockId,
+                                             LocalTransactionInfo localTransactionInfo, int runOnRetryBlockRegIndex) {
+        // Invoking tr_end with transaction status of FAILED means tx has failed for some reason.
+        if (localTransactionInfo.isRetryPossible(ctx, transactionBlockId)) {
+            ctx.currentFrame.intRegs[runOnRetryBlockRegIndex] = 1;
+        } else {
+            ctx.currentFrame.intRegs[runOnRetryBlockRegIndex] = 0;
         }
     }
 

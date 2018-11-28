@@ -21,15 +21,12 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.observability.ObserverContext;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
-import org.ballerinalang.util.transactions.TransactableCallableUnitCallback;
-import org.ballerinalang.util.transactions.TransactionResourceManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -73,7 +70,7 @@ public class ResourceExecutor {
                         globalTransactionId,
                         properties.get(Constants.TRANSACTION_URL).toString(), "2pc");
                 context.setLocalTransactionInfo(localTransactionInfo);
-                registerTransactionInfection(responseCallback, globalTransactionId, context);
+//                registerTransactionInfection(responseCallback, globalTransactionId, context);
             }
         }
 //        //required for tracking compensations
@@ -83,15 +80,16 @@ public class ResourceExecutor {
                 responseCallback);
     }
 
-    private static void registerTransactionInfection(CallableUnitCallback responseCallBack, String globalTransactionId,
-                                                     WorkerExecutionContext workerExecutionContext) {
-        if (globalTransactionId != null && responseCallBack instanceof TransactableCallableUnitCallback) {
-            TransactableCallableUnitCallback trxCallBack = (TransactableCallableUnitCallback) responseCallBack;
-            TransactionResourceManager manager = TransactionResourceManager.getInstance();
-            BFunctionPointer onAbort = trxCallBack.getTransactionOnAbort();
-            BFunctionPointer onCommit = trxCallBack.getTransactionOnCommit();
-            manager.registerParticipation(globalTransactionId, trxCallBack.getTransactionBlockId(),
-                    onCommit, onAbort, workerExecutionContext);
-        }
-    }
+//    private static void registerTransactionInfection(CallableUnitCallback responseCallBack,
+//                                                     String globalTransactionId,
+//                                                     Strand workerExecutionContext) {
+//        if (globalTransactionId != null && responseCallBack instanceof TransactableCallableUnitCallback) {
+//            TransactableCallableUnitCallback trxCallBack = (TransactableCallableUnitCallback) responseCallBack;
+//            TransactionResourceManager manager = TransactionResourceManager.getInstance();
+//            BFunctionPointer onAbort = trxCallBack.getTransactionOnAbort();
+//            BFunctionPointer onCommit = trxCallBack.getTransactionOnCommit();
+//            manager.registerParticipation(globalTransactionId, trxCallBack.getTransactionBlockId(),
+//                    onCommit, onAbort, workerExecutionContext);
+//        }
+//    }
 }

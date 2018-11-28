@@ -17,10 +17,13 @@
 */
 package org.ballerinalang.util.transactions;
 
+import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.bre.vm.BVMExecutor;
+import org.ballerinalang.bre.vm.Strand;
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -120,7 +123,7 @@ public class TransactionResourceManager {
      * @since 0.985.0
      */
     public void registerParticipation(String gTransactionId, int transactionBlockId, BFunctionPointer committed,
-                                      BFunctionPointer aborted, WorkerExecutionContext workerExecutionContext) {
+                                      BFunctionPointer aborted, Strand workerExecutionContext) {
         localParticipants.computeIfAbsent(gTransactionId, gid -> new ConcurrentSkipListSet<>()).add(transactionBlockId);
 
         LocalTransactionInfo localTransactionInfo = workerExecutionContext.getLocalTransactionInfo();
@@ -363,7 +366,8 @@ public class TransactionResourceManager {
         if (funcs != null) {
             for (BFunctionPointer func : funcs) {
                 if (func != null) {
-                    BLangFunctions.invokeCallable(func.value(), args);
+                    FunctionInfo funcInfo = func.value();
+                    BVMExecutor.executeFunction(funcInfo.getPackageInfo().getProgramFile(), funcInfo, args);
                 }
             }
         }

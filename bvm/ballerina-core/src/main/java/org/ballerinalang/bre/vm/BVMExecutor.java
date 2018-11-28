@@ -39,6 +39,9 @@ import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.observability.ObserverContext;
 import org.ballerinalang.util.program.BLangVMUtils;
+import org.ballerinalang.util.transactions.LocalTransactionInfo;
+import org.ballerinalang.util.transactions.TransactableCallableUnitCallback;
+import org.ballerinalang.util.transactions.TransactionResourceManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -126,6 +129,10 @@ public class BVMExecutor {
                                        CallableUnitCallback responseCallback, Map<String, Object> properties,
                                        ObserverContext observerContext, ServiceInfo serviceInfo, BValue... args) {
         Map<String, Object> globalProps = new HashMap<>();
+
+        StrandResourceCallback strandCallback = new StrandResourceCallback(null, responseCallback);
+        Strand strand = new Strand(programFile, resourceInfo.getName(), properties, strandCallback, null);
+
         if (properties != null) {
             //TODO fix - rajith
 //            Object interruptible = properties.get(Constants.IS_INTERRUPTIBLE);
@@ -136,15 +143,16 @@ public class BVMExecutor {
 //                context.interruptible = true;
 //            }
             globalProps.putAll(properties);
-            if (properties.get(Constants.GLOBAL_TRANSACTION_ID) != null) {
-//                context.setLocalTransactionInfo(new LocalTransactionInfo(
-//                        properties.get(Constants.GLOBAL_TRANSACTION_ID).toString(),
-//                        properties.get(Constants.TRANSACTION_URL).toString(), "2pc"));
+            String gTransactionId = (String) properties.get(Constants.GLOBAL_TRANSACTION_ID);
+            if (gTransactionId != null) {
+                String globalTransactionId = properties.get(Constants.GLOBAL_TRANSACTION_ID).toString();
+                LocalTransactionInfo localTransactionInfo = new LocalTransactionInfo(
+                        globalTransactionId,
+                        properties.get(Constants.TRANSACTION_URL).toString(), "2pc");
+                strand.setLocalTransactionInfo(localTransactionInfo);
+                registerTransactionInfection(responseCallback, gTransactionId, strand);
             }
         }
-
-        StrandResourceCallback strandCallback = new StrandResourceCallback(null, responseCallback);
-        Strand strand = new Strand(programFile, resourceInfo.getName(), properties, strandCallback, null);
 
         BLangVMUtils.setServiceInfo(strand, serviceInfo);
 
@@ -157,6 +165,17 @@ public class BVMExecutor {
         BVMScheduler.schedule(strand);
     }
 
+    private static void registerTransactionInfection(CallableUnitCallback responseCallBack, String globalTransactionId,
+                                                     Strand strand) {
+        if (globalTransactionId != null && responseCallBack instanceof TransactableCallableUnitCallback) {
+            TransactableCallableUnitCallback trxCallBack = (TransactableCallableUnitCallback) responseCallBack;
+            TransactionResourceManager manager = TransactionResourceManager.getInstance();
+            manager.registerParticipation(globalTransactionId, trxCallBack.getTransactionBlockId(),
+                    trxCallBack.getTransactionOnCommit(),
+                    trxCallBack.getTransactionOnAbort(),
+                    strand);
+        }
+    }
 
     private static BValue execute(ProgramFile programFile, CallableUnitInfo callableInfo,
                                   BValue[] args, Map<String, Object> properties, boolean waitForResponse) {

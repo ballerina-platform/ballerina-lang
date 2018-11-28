@@ -200,7 +200,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private Stack<Boolean> loopWithintransactionCheckStack = new Stack<>();
     private Stack<Boolean> returnWithintransactionCheckStack = new Stack<>();
     private Stack<Boolean> doneWithintransactionCheckStack = new Stack<>();
-    private Stack<Boolean> transactionWithinHandlerCheckStack = new Stack<>();
     private BLangNode parent;
     private Names names;
     private SymbolEnv env;
@@ -315,9 +314,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private void visitFunction(BLangFunction funcNode) {
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
-        if (funcNode.symbol.isTransactionHandler) {
-            transactionWithinHandlerCheckStack.push(true);
-        }
         this.returnWithintransactionCheckStack.push(true);
         this.doneWithintransactionCheckStack.push(true);
         this.returnTypes.push(new HashSet<>());
@@ -341,9 +337,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.returnTypes.pop();
         this.returnWithintransactionCheckStack.pop();
         this.doneWithintransactionCheckStack.pop();
-        if (funcNode.symbol.isTransactionHandler) {
-            transactionWithinHandlerCheckStack.pop();
-        }
     }
 
     private boolean isPublicInvokableNode(BLangInvokableNode invNode) {
@@ -1840,8 +1833,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isValidTransactionBlock() {
-        return (this.transactionWithinHandlerCheckStack.empty() || !this.transactionWithinHandlerCheckStack.peek()) &&
-                !(this.withinRetryBlock || this.withinAbortedBlock || this.withinCommittedBlock);
+        return !(this.withinRetryBlock || this.withinAbortedBlock || this.withinCommittedBlock);
     }
 
     private void validateMainFunction(BLangFunction funcNode) {
