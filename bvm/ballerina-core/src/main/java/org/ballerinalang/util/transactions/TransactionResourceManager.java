@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.util.transactions;
 
 import org.ballerinalang.bre.vm.BVMExecutor;
@@ -114,23 +114,23 @@ public class TransactionResourceManager {
     /**
      * Register a participation in a global transaction.
      *
-     * @param gTransactionId         global transaction id
-     * @param committed              function pointer to invoke when this transaction committed
-     * @param aborted                function pointer to invoke when this transaction aborted
-     * @param workerExecutionContext
-     *
+     * @param gTransactionId     global transaction id
+     * @param transactionBlockId participant identifier
+     * @param committed          function pointer to invoke when this transaction committed
+     * @param aborted            function pointer to invoke when this transaction aborted
+     * @param strand             ballerina strand of the participant
      * @since 0.985.0
      */
     public void registerParticipation(String gTransactionId, int transactionBlockId, BFunctionPointer committed,
-                                      BFunctionPointer aborted, Strand workerExecutionContext) {
+                                      BFunctionPointer aborted, Strand strand) {
         localParticipants.computeIfAbsent(gTransactionId, gid -> new ConcurrentSkipListSet<>()).add(transactionBlockId);
 
-        LocalTransactionInfo localTransactionInfo = workerExecutionContext.getLocalTransactionInfo();
+        LocalTransactionInfo localTransactionInfo = strand.getLocalTransactionInfo();
         registerCommittedFunction(transactionBlockId, committed);
         registerAbortedFunction(transactionBlockId, aborted);
         localTransactionInfo.beginTransactionBlock(transactionBlockId, 1);
 
-        BValue[] bValues = TransactionUtils.notifyTransactionBegin(workerExecutionContext,
+        BValue[] bValues = TransactionUtils.notifyTransactionBegin(strand,
                 localTransactionInfo.getGlobalTransactionId(),
                 localTransactionInfo.getURL(), transactionBlockId, localTransactionInfo.getProtocol());
         log.info("participant registered: " + bValues[0]);
