@@ -208,8 +208,7 @@ public class TestGenerator {
             // Populate target function's parameters
             Set<String> lookupSet = new HashSet<>();
             for (int i = 0; i < params.size(); i++) {
-                String paramType = generateTypeDefinition(importsConsumer, currentPkgId,
-                                                          params.get(i));
+                String paramType = generateTypeDefinition(importsConsumer, currentPkgId, params.get(i));
                 String paramName = CommonUtil.generateName(1, lookupSet);
                 lookupSet.add(paramName);
 

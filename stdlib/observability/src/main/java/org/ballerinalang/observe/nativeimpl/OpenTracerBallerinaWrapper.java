@@ -77,7 +77,8 @@ public class OpenTracerBallerinaWrapper {
         }
 
         WorkerExecutionContext workerExecutionContext = context.getParentWorkerExecutionContext();
-        ServiceInfo serviceInfo = BLangVMUtils.getServiceInfo(workerExecutionContext);
+        // TODO fix - rajith
+        ServiceInfo serviceInfo = BLangVMUtils.getServiceInfo(context.getStrand());
         String serviceName;
         if (serviceInfo != null) {
             serviceName = ObservabilityUtils.getFullServiceName(serviceInfo);

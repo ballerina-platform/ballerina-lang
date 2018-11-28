@@ -65,7 +65,7 @@ public type SimpleDurableTopicSubscriber object {
     # + map - Service annotations
     # + return - Nil or error upon failure to register listener
     public function __attach(service serviceType, map<any> data) returns error? {
-        return self.subscriber.registerListener(serviceType, self.subscriber.consumerActions);
+        return self.subscriber.registerListener(serviceType, self.subscriber.consumerActions, data);
     }
 
     # Starts the endpoint. Function is ignored by the subscriber endpoint

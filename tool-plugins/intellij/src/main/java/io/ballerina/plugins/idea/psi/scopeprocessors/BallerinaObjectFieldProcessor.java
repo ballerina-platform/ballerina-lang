@@ -25,9 +25,6 @@ import io.ballerina.plugins.idea.completion.BallerinaCompletionUtils;
 import io.ballerina.plugins.idea.psi.BallerinaFieldDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaFiniteType;
 import io.ballerina.plugins.idea.psi.BallerinaFiniteTypeUnit;
-import io.ballerina.plugins.idea.psi.BallerinaObjectBody;
-import io.ballerina.plugins.idea.psi.BallerinaObjectFieldDefinition;
-import io.ballerina.plugins.idea.psi.BallerinaObjectMember;
 import io.ballerina.plugins.idea.psi.BallerinaRecordFieldDefinitionList;
 import io.ballerina.plugins.idea.psi.BallerinaRecordTypeName;
 import io.ballerina.plugins.idea.psi.BallerinaTypeDefinition;
@@ -36,7 +33,6 @@ import io.ballerina.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -69,11 +65,6 @@ public class BallerinaObjectFieldProcessor extends BallerinaScopeProcessorBase {
                 return true;
             }
 
-            PsiElement firstChild = ballerinaFiniteType.getFirstChild();
-            if (firstChild instanceof BallerinaObjectBody) {
-                processObjectDefinition(((BallerinaObjectBody) firstChild));
-                return true;
-            }
             PsiElement owner = ((BallerinaTypeDefinition) element).getIdentifier();
             if (owner == null) {
                 return true;
@@ -108,47 +99,6 @@ public class BallerinaObjectFieldProcessor extends BallerinaScopeProcessorBase {
             }
         }
         return true;
-    }
-
-    // Todo - Merge with function in BallerinaBlockProcessor
-    private void processObjectDefinition(@NotNull BallerinaObjectBody ballerinaObjectBody) {
-        BallerinaTypeDefinition ballerinaTypeDefinition = PsiTreeUtil.getParentOfType(ballerinaObjectBody,
-                BallerinaTypeDefinition.class);
-        if (ballerinaTypeDefinition == null || ballerinaTypeDefinition.getIdentifier() == null) {
-            return;
-        }
-
-        List<BallerinaObjectFieldDefinition> objectFieldDefinitionList = new LinkedList<>();
-        List<BallerinaObjectMember> objectMemberList = ballerinaObjectBody.getObjectMemberList();
-        for (BallerinaObjectMember ballerinaObjectMember : objectMemberList) {
-            BallerinaObjectFieldDefinition objectFieldDefinition = ballerinaObjectMember.getObjectFieldDefinition();
-            if (objectFieldDefinition != null) {
-                objectFieldDefinitionList.add(objectFieldDefinition);
-            }
-        }
-        processObjectFields(ballerinaTypeDefinition.getIdentifier(), objectFieldDefinitionList);
-    }
-
-    // Todo - Merge with function in BallerinaBlockProcessor
-    private void processObjectFields(@NotNull PsiElement typeName,
-                                     @NotNull List<BallerinaObjectFieldDefinition> fieldDefinitionList) {
-        for (BallerinaObjectFieldDefinition ballerinaFieldDefinition : fieldDefinitionList) {
-            PsiElement identifier = ballerinaFieldDefinition.getIdentifier();
-            if (identifier == null) {
-                return;
-            }
-            if (myResult != null) {
-                myResult.addElement(BallerinaCompletionUtils.createFieldLookupElement(identifier, typeName,
-                        ballerinaFieldDefinition.getTypeName().getText(),
-                        BallerinaPsiImplUtil.getObjectFieldDefaultValue(ballerinaFieldDefinition), null,
-                        ballerinaFieldDefinition.getPublic() == null, ballerinaFieldDefinition.getPrivate() == null));
-            } else if (myElement.getText().equals(identifier.getText())) {
-                add(identifier);
-            }
-            if (!isCompletion() && getResult() != null) {
-                return;
-            }
-        }
     }
 
     @Override

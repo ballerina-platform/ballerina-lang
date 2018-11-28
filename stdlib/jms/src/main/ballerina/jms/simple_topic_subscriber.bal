@@ -60,7 +60,7 @@ public type SimpleTopicSubscriber object {
     # + data - Service annotations
     # + return - Nil or error upon failure to register listener
     public function __attach(service serviceType, map<any> data) returns error? {
-          return self.subscriber.registerListener(serviceType, self.subscriber.consumerActions);
+          return self.subscriber.registerListener(serviceType, self.subscriber.consumerActions, data);
     }
 
     # Start SimpleTopicSubscriber endpoint

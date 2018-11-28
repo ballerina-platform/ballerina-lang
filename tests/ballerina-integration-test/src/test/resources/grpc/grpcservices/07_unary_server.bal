@@ -16,9 +16,7 @@
 import ballerina/grpc;
 import ballerina/io;
 
-listener grpc:Listener ep7 = new ({
-    port:9100
-});
+listener grpc:Listener ep7 = new (9100);
 
 @grpc:ServiceDescriptor {
     descriptor: <string>descriptorMap7[DESCRIPTOR_KEY_7],

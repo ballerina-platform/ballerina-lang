@@ -26,8 +26,6 @@ import io.ballerina.plugins.idea.psi.BallerinaGlobalVariableDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaIdentifier;
 import io.ballerina.plugins.idea.psi.BallerinaNamedPattern;
 import io.ballerina.plugins.idea.psi.BallerinaObjectFieldDefinition;
-import io.ballerina.plugins.idea.psi.BallerinaObjectInitializer;
-import io.ballerina.plugins.idea.psi.BallerinaObjectParameter;
 import io.ballerina.plugins.idea.psi.BallerinaOrgName;
 import io.ballerina.plugins.idea.psi.BallerinaPackageReference;
 import io.ballerina.plugins.idea.psi.BallerinaParameterWithType;
@@ -85,16 +83,12 @@ public class BallerinaFindUsageProvider implements FindUsagesProvider {
             return "Annotation";
         } else if (parent instanceof BallerinaObjectFieldDefinition) {
             return "Object Field";
-        } else if (parent instanceof BallerinaObjectParameter) {
-            return "Object Parameter";
         } else if (parent instanceof BallerinaVariableDefinitionStatement) {
             return "Variable";
         } else if (parent instanceof BallerinaNamedPattern) {
             return "Variable";
         } else if (parent instanceof BallerinaRestParameter) {
             return "Parameter";
-        } else if (parent instanceof BallerinaObjectInitializer) {
-            return "Object Initializer";
         }
         return "";
     }

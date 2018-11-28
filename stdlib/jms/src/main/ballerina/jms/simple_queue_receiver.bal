@@ -62,7 +62,7 @@ public type SimpleQueueReceiver object {
     # + data - Service annotations
     # + return - Nil or error upon failure to register listener
     public function __attach(service serviceType, map<any> data) returns error? {
-        return self.queueReceiver.registerListener(serviceType, self.queueReceiver.consumerActions);
+        return self.queueReceiver.registerListener(serviceType, self.queueReceiver.consumerActions, data);
     }
 
     # Starts the endpoint. Function is ignored by the receiver endpoint

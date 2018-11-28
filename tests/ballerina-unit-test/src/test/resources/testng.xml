@@ -58,7 +58,9 @@ under the License.
             <package name="org.ballerinalang.test.nativeimpl.functions.*">
                 <exclude name="org.ballerinalang.test.nativeimpl.functions.io.socket"/>
             </package>
-            <package name="org.ballerinalang.test.jdbc.*"/>
+            <package name="org.ballerinalang.test.jdbc.*">
+                <exclude name="org.ballerinalang.test.jdbc.transaction"/>
+            </package>
             <package name="org.ballerinalang.test.h2"/>
             <package name="org.ballerinalang.test.net.*"/>
             <!--package name="org.ballerinalang.test.debugger.*"/>-->
@@ -75,7 +77,7 @@ under the License.
             <package name="org.ballerinalang.test.launch.*"/>
             <package name="org.ballerinalang.test.lock.*"/>
             <package name="org.ballerinalang.test.task.*"/>
-            <package name="org.ballerinalang.test.cache.*"/>
+            <!--<package name="org.ballerinalang.test.cache.*"/>-->
             <package name="org.ballerinalang.test.mime.*"/>
             <package name="org.ballerinalang.test.jwt.*"/>
             <package name="org.ballerinalang.test.taintchecking.*"/>
@@ -109,11 +111,6 @@ under the License.
             <class name="org.ballerinalang.test.observe.SummaryTest"/>
             <class name="org.ballerinalang.test.observe.RegistryTest"/>
             <class name="org.ballerinalang.test.observe.CounterTest"/>
-        </classes>
-    </test>
-    <test name="ballerina-checkpointing-test-suite" preserve-order="true" parallel="false">
-        <classes >
-            <class name="org.ballerinalang.test.checkpointing.SerializationTest"/>
         </classes>
     </test>
     <test name="ballerina-entry-function-test-suite" preserve-order="true" parallel="false">

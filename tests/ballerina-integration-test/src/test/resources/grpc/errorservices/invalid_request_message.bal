@@ -15,9 +15,8 @@
 // under the License.
 import ballerina/grpc;
 
-listener grpc:Server server1 = new ({
-    host:"localhost",
-    port:9090
+listener grpc:Listener server1 = new (9090, config = {
+    host:"localhost"
 });
 
 service HelloWorld on server1 {
