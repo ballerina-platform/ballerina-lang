@@ -109,7 +109,7 @@ A `Listener` endpoint can be defined as follows:
 listener http:Listener helloWorldEP = new(9090);
 ```
 
-Then a `Service` can be defined and bound to the above `Listener` endpoint as shown below:
+Then a `Service` can be defined and attached to the above `Listener` endpoint as shown below:
 
 ```ballerina
 // By default, Ballerina assumes that the service is to be exposed via HTTP/1.1.
