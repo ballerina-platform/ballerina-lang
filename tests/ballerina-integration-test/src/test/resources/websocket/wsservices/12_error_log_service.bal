@@ -21,12 +21,12 @@ import ballerina/http;
 @http:WebSocketServiceConfig {
     path: "/error/ws"
 }
-service<http:WebSocketService> errorService bind { port: 9094 } {
-    onOpen(endpoint ep) {
+service errorService on new http:WebSocketListener(9094) {
+    resource function onOpen(http:WebSocketCaller ep) {
         log:printInfo("connection open");
     }
 
-    onText(endpoint ep, string text) {
+    resource function onText(http:WebSocketCaller ep, string text) {
         log:printError(string `text received: {{text}}`);
         var returnVal = ep->pushText(text);
         if (returnVal is error) {
@@ -34,11 +34,11 @@ service<http:WebSocketService> errorService bind { port: 9094 } {
         }
     }
 
-    onError(endpoint ep, error err) {
+    resource function onError(http:WebSocketCaller ep, error err) {
         io:println(err.detail().message);
     }
 
-    onClose(endpoint ep, int statusCode, string reason) {
+    resource function onClose(http:WebSocketCaller ep, int statusCode, string reason) {
         log:printError(string `Connection closed with {{statusCode}}, {{reason}}`);
     }
 }

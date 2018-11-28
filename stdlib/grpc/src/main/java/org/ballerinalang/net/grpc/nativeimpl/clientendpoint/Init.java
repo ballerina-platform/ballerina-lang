@@ -50,8 +50,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_CONNECTOR;
-import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_ENDPOINT_CONFIG;
 import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_ENDPOINT_TYPE;
+import static org.ballerinalang.net.grpc.GrpcConstants.ENDPOINT_URL;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
@@ -98,7 +98,7 @@ public class Init extends BlockingNativeCallableUnit {
         // Creating client endpoint with channel as native data.
         BMap<String, BValue> endpointConfigStruct = (BMap<String, BValue>) context.getRefArgument(1);
         Struct endpointConfig = BLangConnectorSPIUtil.toStruct(endpointConfigStruct);
-        String urlString = endpointConfig.getStringField(GrpcConstants.CLIENT_ENDPOINT_URL);
+        String urlString = context.getStringArgument(0);
         HttpConnectionManager connectionManager = HttpConnectionManager.getInstance();
         URL url;
         try {
@@ -125,7 +125,7 @@ public class Init extends BlockingNativeCallableUnit {
                 senderConfiguration);
 
         clientEndpoint.addNativeData(CLIENT_CONNECTOR, clientConnector);
-        clientEndpoint.addNativeData(CLIENT_ENDPOINT_CONFIG, endpointConfig);
+        clientEndpoint.addNativeData(ENDPOINT_URL, urlString);
 
     }
 

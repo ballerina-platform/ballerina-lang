@@ -43,12 +43,14 @@ function testObjectOfObject () returns (string) {
     Person[] emps = [emp1, emp2];
     Department dpt = new (emps);
 
-    string country = "";
-    var result = dpt["employees"][0]["adrs"]["country"];
-    if (result is any) {
-        country = <string> result;
+    var country = dpt["employees"][0]["adrs"]["country"];
+    if (country is string) {
+        return country;
+    } else if (country is ()) {
+        return "";
+    } else {
+        return <string> country;
     }
-    return country;
 }
 
 function testReturnObjectAttributes () returns (string) {

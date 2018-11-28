@@ -17,16 +17,16 @@
 import ballerina/http;
 import ballerina/io;
 
-@final string ASSOCIATED_CONNECTION4 = "ASSOCIATED_CONNECTION";
-service<http:Service> simple7 bind { port: 9097 } {
+final string ASSOCIATED_CONNECTION4 = "ASSOCIATED_CONNECTION";
+service simple7 on new http:Listener(9097) {
 
     @http:ResourceConfig {
         webSocketUpgrade: {
             upgradeService: castErrror
         }
     }
-    websocketProxy(endpoint httpEp, http:Request req, string path1, string path2) {
-        endpoint http:WebSocketListener wsServiceEp;
+    resource function websocketProxy(http:Caller httpEp, http:Request req, string path1, string path2) {
+        http:WebSocketCaller wsServiceEp;
         wsServiceEp = httpEp->acceptWebSocketUpgrade({ "X-some-header": "some-header-value" });
         wsServiceEp.attributes["Query1"] = req.getQueryParams().q1;
     }
@@ -34,51 +34,31 @@ service<http:Service> simple7 bind { port: 9097 } {
 @http:WebSocketServiceConfig {
     idleTimeoutInSeconds: 10
 }
-service<http:WebSocketService> castErrror {
+service castErrror = @http:WebSocketServiceConfig {} service {
 
-    onText(endpoint wsEp, string text) {
-        endpoint http:WebSocketClient val;
+    resource function onText(http:WebSocketCaller wsEp, string text) {
+        http:WebSocketClient val;
         var returnVal = <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION4];
-        if (returnVal is error) {
-             panic returnVal;
-        } else {
-             val = returnVal;
-        }
+        val = returnVal;
     }
-    onBinary(endpoint wsEp, byte[] data) {
-        endpoint http:WebSocketClient val;
+    resource function onBinary(http:WebSocketCaller wsEp, byte[] data) {
+        http:WebSocketClient val;
         var returnVal = <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION4];
-        if (returnVal is error) {
-             panic returnVal;
-        } else {
-             val = returnVal;
-        }
+        val = returnVal;
     }
-    onPing(endpoint wsEp, byte[] data) {
-        endpoint http:WebSocketClient val;
+    resource function onPing(http:WebSocketCaller wsEp, byte[] data) {
+        http:WebSocketClient val;
         var returnVal = <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION4];
-        if (returnVal is error) {
-             panic returnVal;
-        } else {
-             val = returnVal;
-        }
+        val = returnVal;
     }
-    onIdleTimeout(endpoint wsEp) {
-        endpoint http:WebSocketClient val;
+    resource function onIdleTimeout(http:WebSocketCaller wsEp) {
+        http:WebSocketClient val;
         var returnVal = <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION4];
-        if (returnVal is error) {
-             panic returnVal;
-        } else {
-             val = returnVal;
-        }
+        val = returnVal;
     }
-    onClose(endpoint wsEp, int code, string reason) {
-        endpoint http:WebSocketClient val;
+    resource function onClose(http:WebSocketCaller wsEp, int code, string reason) {
+        http:WebSocketClient val;
         var returnVal = <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION4];
-        if (returnVal is error) {
-             panic returnVal;
-        } else {
-             val = returnVal;
-        }
+        val = returnVal;
     }
-}
+};

@@ -17,6 +17,10 @@
 */
 package org.ballerinalang.bre.bvm;
 
+import org.ballerinalang.bre.vm.BVMScheduler;
+import org.ballerinalang.bre.vm.Strand;
+import org.ballerinalang.bre.vm.Strand.State;
+
 import java.util.ArrayDeque;
 
 /**
@@ -26,22 +30,24 @@ import java.util.ArrayDeque;
  */
 public class VarLock {
 
-    private ArrayDeque<WorkerExecutionContext> current;
+    private ArrayDeque<Strand> current;
 
-    private ArrayDeque<WorkerExecutionContext> waitingForLock;
+    private ArrayDeque<Strand> waitingForLock;
 
     public VarLock() {
         this.current = new ArrayDeque<>();
         this.waitingForLock = new ArrayDeque<>();
     }
 
-    public synchronized boolean lock(WorkerExecutionContext ctx) {
-        if (isLockFree() || lockedBySameContext(ctx) || lockedByParentContext(ctx)) {
+    public synchronized boolean lock(Strand ctx) {
+        if (isLockFree() || lockedBySameContext(ctx)) {
             current.offerLast(ctx);
             return true;
         }
         waitingForLock.offerLast(ctx);
-        BLangScheduler.workerWaitForLock(ctx);
+        //TODO: need to improve on state change
+//        BVMScheduler.stateChange(ctx, State.RUNNABLE, State.PAUSED);
+//        BLangScheduler.workerWaitForLock(ctx);
         return false;
     }
 
@@ -49,8 +55,9 @@ public class VarLock {
         //current cannot be empty as unlock cannot be called without lock being called first.
         current.removeLast();
         if (!waitingForLock.isEmpty()) {
-            WorkerExecutionContext ctx = waitingForLock.removeFirst();
-            BLangScheduler.resume(ctx, ctx.ip - 1, false);
+            Strand ctx = waitingForLock.removeFirst();
+            BVMScheduler.stateChange(ctx, State.PAUSED, State.RUNNABLE);
+            BVMScheduler.schedule(ctx);
         }
     }
 
@@ -58,14 +65,14 @@ public class VarLock {
         return current.isEmpty();
     }
 
-    private boolean lockedByParentContext(WorkerExecutionContext ctx) {
-        if (ctx.parent == null) {
-            return false;
-        }
-        return current.getLast() == ctx.parent || lockedByParentContext(ctx.parent);
-    }
+//    private boolean lockedByParentContext(Strand ctx) {
+//        if (ctx.parent == null) {
+//            return false;
+//        }
+//        return current.getLast() == ctx.parent || lockedByParentContext(ctx.parent);
+//    }
 
-    private boolean lockedBySameContext(WorkerExecutionContext ctx) {
+    private boolean lockedBySameContext(Strand ctx) {
         return current.getLast() == ctx;
     }
 }

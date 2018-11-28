@@ -406,10 +406,11 @@ public class HoverUtil {
                     wsArray[1].getPrevious().length() + wsArray[1].getWs().length() +
                     wsArray[2].getPrevious().length() + wsArray[2].getWs().length() + wsArray[3].getWs().length();
             int serviceTypeLength = 0;
-            Set<Whitespace> ws = serviceNode.getServiceTypeStruct().getWS();
-            for (Whitespace w : ws) {
-                serviceTypeLength += w.getPrevious().length() + w.getWs().length();
-            }
+// TODO: 11/28/18 Fix with the latest Service Changes
+//            Set<Whitespace> ws = serviceNode.getServiceTypeStruct().getWS();
+//            for (Whitespace w : ws) {
+//                serviceTypeLength += w.getPrevious().length() + w.getWs().length();
+//            }
             position.sCol += (serviceTypeLength + serviceKeywordLength);
             position.eCol = position.sCol + serviceNode.name.value.length();
         }

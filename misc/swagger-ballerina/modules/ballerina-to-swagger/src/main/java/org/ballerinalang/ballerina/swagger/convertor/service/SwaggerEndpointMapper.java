@@ -5,6 +5,7 @@ import io.swagger.models.Swagger;
 import org.ballerinalang.ballerina.swagger.convertor.Constants;
 import org.ballerinalang.ballerina.swagger.convertor.ConverterUtils;
 import org.ballerinalang.model.tree.EndpointNode;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -31,21 +32,21 @@ public class SwaggerEndpointMapper {
      * @return swagger definition with Server information
      */
     public Swagger convertBoundEndpointsToSwagger(List<EndpointNode> endpoints, ServiceNode service, Swagger swagger) {
-        if (endpoints == null || service == null) {
+        if (endpoints == null || service == null || service.getAttachExpr() == null
+                || service.getAttachExpr().getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
             return swagger;
         }
         if (swagger == null) {
             return new Swagger();
         }
 
-        for (SimpleVariableReferenceNode node : service.getBoundEndpoints()) {
-            for (EndpointNode ep : endpoints) {
-                // At the moment only the last bound endpoint will be populated in swagger
-                // we need to move to OAS3 models to support multiple server support
-                if (node.getVariableName().equals(ep.getName())) {
-                    extractServer(ep, swagger);
-                    break;
-                }
+        SimpleVariableReferenceNode node = (SimpleVariableReferenceNode) service.getAttachExpr();
+        for (EndpointNode ep : endpoints) {
+            // At the moment only the last bound endpoint will be populated in swagger
+            // we need to move to OAS3 models to support multiple server support
+            if (node.getVariableName().equals(ep.getName())) {
+                extractServer(ep, swagger);
+                break;
             }
         }
         return swagger;

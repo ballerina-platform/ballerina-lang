@@ -19,7 +19,6 @@ package org.ballerinalang.net.grpc.stubs;
 
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BError;
@@ -49,8 +48,8 @@ public class BlockingStub extends AbstractStub {
 
     private static final BTupleType RESP_TUPLE_TYPE = new BTupleType(Arrays.asList(BTypes.typeAny, BTypes.typeAny));
 
-    public BlockingStub(HttpClientConnector clientConnector, Struct endpointConfig) {
-        super(clientConnector, endpointConfig);
+    public BlockingStub(HttpClientConnector clientConnector, String url) {
+        super(clientConnector, url);
     }
 
     /**

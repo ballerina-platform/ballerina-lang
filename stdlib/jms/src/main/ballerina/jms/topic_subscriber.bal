@@ -16,10 +16,10 @@
 
 import ballerina/log;
 
-# JMS topic subscriber
+# JMS TopicSubscriber endpoint
 #
-# + consumerActions - Topic subscriber endpoint actions
-# + config - Topic subscriber endpoint configuration
+# + consumerActions - Handles all the caller actions related to the TopicSubscriber endpoint
+# + config - Used to store configurations related to JMS TopicSubscriber
 public type TopicSubscriber object {
 
     *AbstractListener;
@@ -27,9 +27,9 @@ public type TopicSubscriber object {
     public TopicSubscriberCaller consumerActions = new;
     public TopicSubscriberEndpointConfiguration config = {};
 
-    # Initialize topic subscriber endpoint
+    # Initialize the TopicSubscriber endpoint
     #
-    # + c - Topic subscriber configuration
+    # + c - Configurations related to the TopicSubscriber endpoint
     public function __init(TopicSubscriberEndpointConfiguration c) {
         self.config = c;
         self.consumerActions.topicSubscriber = self;
@@ -47,9 +47,11 @@ public type TopicSubscriber object {
         }
     }
 
-    # Register topic subscriber endpoint
+    # Register TopicSubscriber endpoint
     #
     # + serviceType - Type descriptor of the service
+    # + data - Service annotations
+    # + return - Nil or error upon failure to register listener
     public function __attach(service serviceType, map<any> data) returns error? {
         return self.registerListener(serviceType, self.consumerActions, data);
     }
@@ -58,19 +60,23 @@ public type TopicSubscriber object {
 
     extern function createSubscriber(Session session, string messageSelector, Destination? destination = ());
 
-    # Start topic subscriber endpoint
+    # Start TopicSubscriber endpoint
+    #
+    # + return - Nil or error upon failure to start
     public function __start() returns error? {
         return ();
     }
 
-    # Get topic subscriber actions
+    # Get TopicSubscriber actions handler
     #
-    # + return - Topic subscriber actions
+    # + return - TopicSubscriber actions handler
     public function getCallerActions() returns TopicSubscriberCaller {
         return self.consumerActions;
     }
 
-    # Stop topic subscriber endpoint
+    # Stop TopicSubscriber endpoint
+    #
+    # + return - Nil or error upon failure to close subscriber
     public function __stop() returns error? {
         return self.closeSubscriber(self.consumerActions);
     }
@@ -94,7 +100,7 @@ public type TopicSubscriberEndpointConfiguration record {
 
 # Actions that topic subscriber endpoint could perform
 #
-# + topicSubscriber - JMS topic subscriber
+# + topicSubscriber - JMS TopicSubscriber
 public type TopicSubscriberCaller client object {
 
     public TopicSubscriber? topicSubscriber = ();
@@ -108,14 +114,14 @@ public type TopicSubscriberCaller client object {
     # Synchronously receive a message from the JMS provider
     #
     # + timeoutInMilliSeconds - Time to wait until a message is received
-    # + return - Returns a message or nill if the timeout exceededs. Returns an error on jms provider internal error.
+    # + return - Returns a message or nil if the timeout exceeds, returns an error on JMS provider internal error.
     public remote extern function receive(int timeoutInMilliSeconds = 0) returns (Message|error)?;
 
     # Synchronously receive a message from the JMS provider
     #
-    # + destination - destination to subscribe to
+    # + destination - Destination to subscribe to
     # + timeoutInMilliSeconds - Time to wait until a message is received
-    # + return - Returns a message or nill if the timeout exceededs. Returns an error on jms provider internal error.
+    # + return - Returns a message or nil if the timeout exceeds, returns an error on JMS provider internal error
     public remote function receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|error)?;
 };
 
