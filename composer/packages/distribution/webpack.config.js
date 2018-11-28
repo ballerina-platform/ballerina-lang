@@ -10,6 +10,10 @@ const ExtractVSCodeThemeCSS = new ExtractTextPlugin({
 });
 
 module.exports = {
+    entry: {
+        index: './src/index.ts',
+        apiEditor: './src/api-editor.ts',
+    },
     output: {
       path: path.resolve(__dirname, 'build'),
       filename: '[name].js',
