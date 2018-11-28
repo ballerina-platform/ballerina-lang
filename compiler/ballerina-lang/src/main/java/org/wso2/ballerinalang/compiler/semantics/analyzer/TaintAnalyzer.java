@@ -212,6 +212,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     private boolean entryPointAnalysis;
     private boolean stopAnalysis;
     private boolean blockedOnWorkerInteraction;
+    private boolean workerAnalysis;
     private BlockedNode blockedNode;
     private Set<TaintRecord.TaintError> taintErrorSet = new LinkedHashSet<>();
 
@@ -1248,9 +1249,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
         if (bLangLambdaFunction.function.flagSet.contains(Flag.WORKER)) {
+            workerAnalysis = true;
             bLangLambdaFunction.function.accept(this);
+            workerAnalysis = false;
         }
-        /* ignore */
     }
 
     @Override
