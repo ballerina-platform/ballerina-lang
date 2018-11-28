@@ -427,26 +427,3 @@ function testValidReturn() returns (string) {
 function testReturn() returns (string) {
     return " foo";
 }
-
-function testValidDoneWithinTransaction() returns (string) {
-    workerTest = "start ";
-    int i = 0;
-    transaction {
-        workerTest = workerTest + " withinTx";
-        testDone();
-        workerTest = workerTest + " endTx";
-    }
-    workerTest = workerTest + " afterTx";
-    return workerTest;
-}
-
-function testDone() {
-    worker w1 {
-        workerTest = workerTest + " withinworker";
-        int i = 0;
-        if (i == 0) {
-            workerTest = workerTest + " beforeDone";
-            done;
-        }
-    }
-}
