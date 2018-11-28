@@ -15,9 +15,8 @@
 // under the License.
 import ballerina/grpc;
 
-listener grpc:Listener ep12 = new ({
-    host:"localhost",
-    port:8555
+listener grpc:Listener ep12 = new (8555, config = {
+    host:"localhost"
 });
 
 @grpc:ServiceDescriptor {

@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.langserver.completions.util.filters;
 
-import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.langserver.LSGlobalContextKeys;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -41,7 +40,6 @@ import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -88,14 +86,17 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
         }
         List<SymbolInfo> visibleSymbols = ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
         SymbolInfo symbol = FilterUtils.getVariableByName(symbolToken, visibleSymbols);
-        ParserRuleContext parserRuleContext = ctx.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
+//        ParserRuleContext parserRuleContext = ctx.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
 
-        boolean isWorkerInteraction = UtilSymbolKeys.RIGHT_ARROW_SYMBOL_KEY.equals(delimiter)
-                || parserRuleContext instanceof BallerinaParser.WorkerInteractionStatementContext;
+          // ToDo fix with worker actions
+//        boolean isWorkerInteraction = UtilSymbolKeys.RIGHT_ARROW_SYMBOL_KEY.equals(delimiter)
+//                || parserRuleContext instanceof BallerinaParser.WorkerInteractionStatementContext;
+//
+//        boolean isWorkerReply = UtilSymbolKeys.LEFT_ARROW_SYMBOL_KEY.equals(delimiter)
+//                || parserRuleContext instanceof BallerinaParser.WorkerInteractionStatementContext;
 
-        boolean isWorkerReply = UtilSymbolKeys.LEFT_ARROW_SYMBOL_KEY.equals(delimiter)
-                || parserRuleContext instanceof BallerinaParser.WorkerInteractionStatementContext;
-
+        boolean isWorkerInteraction = false;
+        boolean isWorkerReply = false;
         boolean isActionInvocation = UtilSymbolKeys.RIGHT_ARROW_SYMBOL_KEY.equals(delimiter)
                 && CommonUtil.isClientObject(symbol.getScopeEntry().symbol);
 
@@ -182,7 +183,7 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
                 ArrayList<OtherTypeSymbolDTO> otherTypeDTOs = new ArrayList<>(pkgSymbolDAO.getOtherTypes(dto));
                 ArrayList<BObjectTypeSymbolDTO> objDTOs = new ArrayList<>(pkgSymbolDAO.getObjects(dto, false));
                 ArrayList<BObjectTypeSymbolDTO> clientEpDTOs = new ArrayList<>(pkgSymbolDAO.getClientEndpoints(dto));
-                
+
                 if (bLangImport.isPresent()) {
                     List<CompletionItem> completionItems = funcDTOs.stream()
                             .map(BFunctionSymbolDTO::getCompletionItem)

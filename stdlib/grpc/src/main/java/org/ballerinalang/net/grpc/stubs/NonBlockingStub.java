@@ -18,7 +18,6 @@
 package org.ballerinalang.net.grpc.stubs;
 
 import io.netty.handler.codec.http.HttpHeaders;
-import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.net.grpc.CallStreamObserver;
 import org.ballerinalang.net.grpc.ClientCall;
 import org.ballerinalang.net.grpc.Message;
@@ -34,8 +33,8 @@ import org.wso2.transport.http.netty.contract.HttpClientConnector;
  */
 public class NonBlockingStub extends AbstractStub {
 
-    public NonBlockingStub(HttpClientConnector clientConnector, Struct endpointConfig) {
-        super(clientConnector, endpointConfig);
+    public NonBlockingStub(HttpClientConnector clientConnector, String urlString) {
+        super(clientConnector, urlString);
     }
 
     /**

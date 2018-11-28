@@ -18,10 +18,7 @@ import ballerina/grpc;
 import ballerina/io;
 
 // Server endpoint configuration
-listener grpc:Listener ep3 = new ({
-    host:"localhost",
-    port:9095
-});
+listener grpc:Listener ep3 = new (9095);
 
 @grpc:ServiceConfig {name:"chat",
     clientStreaming:true,

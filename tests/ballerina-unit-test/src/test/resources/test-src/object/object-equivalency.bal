@@ -88,7 +88,7 @@ function testEquivalenceOfPrivateStructsInSamePackage () returns (string) {
     employee1 e = new (14, "rat");
     e.setSSN("234-56-7890");
 
-    person1 p = <person1>e;
+    person1 p = e;
 
     return p.getSSN();
 }
@@ -172,7 +172,7 @@ function testEquivalenceOfPublicStructsInSamePackage () returns (string) {
     e.name = "rat";
     e.setSSN("234-56-7890");
 
-    person2 p = <person2>e;
+    person2 p = e;
 
     return p.getSSN();
 }
@@ -182,7 +182,7 @@ function testEqOfPublicStructs () returns (string) {
     eq:employee e = new (14, "rat");
     e.setSSN("234-56-7890");
 
-    eq:person p = <eq:person>e;
+    eq:person p = e;
 
     return p.getSSN();
 }
@@ -234,7 +234,7 @@ function testEqOfPublicStructs1 () returns (string) {
     e.name = "rat";
     e.setSSN("234-56-1234");
 
-    eq:person p = <eq:person>e;
+    eq:person p = e;
 
     return p.getSSN();
 }
@@ -245,7 +245,7 @@ function testEqOfPublicStructs2 () returns (string) {
     e.name = "rat";
     e.setSSN("234-56-3345");
 
-    eq:person p = <eq:person>e;
+    eq:person p = e;
 
     return p.getSSN();
 }
@@ -256,6 +256,7 @@ function testEqOfPublicStructs2 () returns (string) {
 type userA object {
     public int age = 0;
     public string name = "";
+    public string address = "";
 
     function getName () returns (string);
 
@@ -314,11 +315,10 @@ function testRuntimeEqPrivateStructsInSamePackage () returns (string|error) {
     uFoo.name = "ttt";
     uFoo.address = "102 Skyhigh street #129, San Jose";
 
-    // This is a safe cast
-    var uA = <userA>uFoo;
+    // This is a safe assignment
+    userA uA = uFoo;
 
-    // This is a unsafe cast
-    var uB = check <userB>uA;
+    userB uB = uA;
     return uB.name;
 }
 
@@ -326,6 +326,8 @@ function testRuntimeEqPrivateStructsInSamePackage () returns (string|error) {
 public type userPA object {
     public int age = 0;
     public string name = "";
+    public string address = "";
+    public string zipcode = "";
 
     public function getName () returns (string);
 
@@ -344,6 +346,7 @@ public type userPB object {
     public int age = 0;
     public string name = "";
     public string address = "";
+    public string zipcode = "";
 
     public function getName () returns (string);
 
@@ -384,52 +387,30 @@ function testRuntimeEqPublicStructsInSamePackage () returns (string) {
     uFoo.name = "Skyhigh";
     uFoo.address = "102 Skyhigh street #129, San Jose";
 
-    // This is a safe cast
-    var uA = <userPA>uFoo;
+    // This is a safe assignment
+    userPA uA = uFoo;
 
-    // This is a unsafe cast
-    var uB = <userPB>uA;
-    if(uB is error) {
-        return uB.reason();
-    } else if (uB is userPB) {
-        return uB.name;
-    } else {
-        return "";
-    }
+    userPB uB = uA;
+    return uB.name;
 }
 
 function testRuntimeEqPublicStructs () returns (string) {
     req:userPFoo uFoo = new (10, "Skytop", "102 Skyhigh street #129, San Jose");
 
-    // This is a safe cast
-    var uA = <userPA>uFoo;
+    // This is a safe assignment
+    userPA uA = uFoo;
 
-    // This is a unsafe cast
-    var uB  = <userPB>uA;
-    if(uB is error) {
-        return uB.reason();
-    } else if (uB is userPB) {
-        return uB.name;
-    } else {
-        return "";
-    }
+    userPB uB  = uA;
+    return uB.name;
 }
 
 function testRuntimeEqPublicStructs1 () returns (string) {
     req:userPFoo uFoo = new (10, "Brandon", "102 Skyhigh street #129, San Jose");
 
-    // This is a safe cast
-    var uA = <userPA>uFoo;
+    // This is a safe assignment
+    userPA uA = uFoo;
 
-    // This is a unsafe cast
-    var uB  = <req2:userPB>uA;
-    if(uB is error) {
-        return uB.reason();
-    } else if (uB is req2:userPB) {
-        return uB.getName();
-    } else {
-        return "";
-    }
+    return uA.getName();
 }
 
 type personC object {
@@ -519,7 +500,8 @@ type AnyStruct object {
 };
 
 function AnyStruct.shout (AnotherAnyStruct aa) returns (string|error) {
-    var j =check <json>aa;
+    any a = aa;
+    var j = check json.stamp(a);
     return "anyStruct" + j.toString();
 }
 
@@ -536,7 +518,8 @@ type SomeStruct object {
 };
 
 function SomeStruct.shout (SomeOtherStruct aa) returns (string|error) {
-    var j = check <json>aa;
+    any a = aa;
+    var j = check trap <json>a;
     return "someStruct" + (j.toString());
 }
 
@@ -584,19 +567,15 @@ type Employee object {
 
 function testTupleMatchWithObjectEquivalency() returns string {
   future<(Foo, Person) | () | error> f = start getPerson();
-    ((Foo, Person) | () | error) res = await f;
+    ((Foo, Person) | () | error) res = wait f;
 
     int[] i = [1, 2, 3];
 
     foreach y in i {
-        match res {
-            (Foo, Person) x => {
-                return "SUCCESS";
-            }
-            () => { return "ERROR"; }
-            error err => {
-                return "ERROR";
-            }
+        if res is (Foo, Person) {
+            return "SUCCESS";
+        } else {
+            return "ERROR";
         }
     }
 }
@@ -608,7 +587,7 @@ function getPerson() returns (Foo, Person) | () | error {
 }
 
 function testObjectEqViewFromThirdPackage() returns (string|error) {
-    eq:BarObj barObj = new();
+    any barObj = new eq:BarObj();
     var fooObj = trap <eq2:FooObj> barObj;
     if fooObj is error {
         panic fooObj;

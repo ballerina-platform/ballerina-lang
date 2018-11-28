@@ -76,6 +76,7 @@ public enum DiagnosticCode {
     INCOMPATIBLE_TYPE_CONSTRAINT("incompatible.type.constraint"),
     WORKER_SEND_RECEIVE_PARAMETER_COUNT_MISMATCH("worker.send.receive.parameter.count.mismatch"),
     INVALID_WORKER_INTERACTION("worker.invalid.worker.interaction"),
+    WORKER_AFTER_RETURN("worker.after.return"),
     INVALID_MULTIPLE_FORK_JOIN_SEND("worker.multiple.fork.join.send"),
     INCOMPATIBLE_TYPE_REFERENCE("incompatible.type.reference"),
     INCOMPATIBLE_RECORD_TYPE_REFERENCE("incompatible.record.type.reference"),
@@ -353,8 +354,15 @@ public enum DiagnosticCode {
 
     // Seal inbuilt function related codes
     INCOMPATIBLE_STAMP_TYPE("incompatible.stamp.type"),
-    NOT_SUPPORTED_SOURCE_TYPE_FOR_STAMP("not.supported.source.for.stamp")
-    ;
+    NOT_SUPPORTED_SOURCE_TYPE_FOR_STAMP("not.supported.source.for.stamp"),
+
+    // Worker flush action related error codes
+    INVALID_WORKER_FLUSH("invalid.worker.flush.expression"),
+    INVALID_WORKER_FLUSH_FOR_WORKER("invalid.worker.flush.expression.for.worker"),
+
+    // Worker receive and send related error codes
+    INVALID_TYPE_FOR_RECEIVE("invalid.type.for.receive"),
+    INVALID_TYPE_FOR_SEND("invalid.type.for.send");
 
     private String value;
 

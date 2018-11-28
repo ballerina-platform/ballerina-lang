@@ -17,14 +17,13 @@
 */
 package org.ballerinalang.model.tree.expressions;
 
+import org.ballerinalang.model.tree.IdentifierNode;
+
 /**
- * This represents the await expression node.
- * 
- * @since 0.965
+ * This represents the worker flush expression node.
+ *
+ * @since 0.985
  */
-public interface AwaitExpressionNode extends ExpressionNode {
-
-    ExpressionNode getExpression();
-
+public interface WorkerFlushExpressionNode extends ExpressionNode {
+    IdentifierNode getWorkerName();
 }
-

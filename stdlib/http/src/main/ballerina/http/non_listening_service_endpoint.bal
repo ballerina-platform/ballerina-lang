@@ -19,7 +19,7 @@
 public type MockListener object {
 
     *AbstractListener;
-    private Caller caller = new;
+
     private int port = 0;
     private ServiceEndpointConfiguration config = {};
 
@@ -45,7 +45,6 @@ public type MockListener object {
     public extern function initEndpoint () returns (error?);
     public extern function register (service s, map<any> annotationData) returns error?;
     public extern function start ();
-    public extern function getCallerActions() returns Caller;
     public extern function stop ();
 };
 

@@ -18,7 +18,7 @@ package org.ballerinalang.code.generator.model;
 
 import org.ballerinalang.code.generator.exception.CodeGeneratorException;
 import org.ballerinalang.model.tree.EndpointNode;
-import org.ballerinalang.model.tree.ResourceNode;
+import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.ServiceNode;
 
 import java.util.ArrayList;
@@ -57,7 +57,7 @@ public class ClientContextHolder {
         }
 
         // Extract ballerina resource nodes as parsable resources
-        for (ResourceNode resource: service.getResources()) {
+        for (FunctionNode resource : service.getResources()) {
             ResourceContextHolder operation = ResourceContextHolder.buildContext(resource);
             context.resources.add(operation);
         }

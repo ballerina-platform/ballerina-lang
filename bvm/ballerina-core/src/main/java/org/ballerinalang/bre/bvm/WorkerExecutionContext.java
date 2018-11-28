@@ -24,9 +24,7 @@ import org.ballerinalang.util.codegen.Instruction;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
-import org.ballerinalang.util.debugger.DebugCommand;
 import org.ballerinalang.util.debugger.DebugContext;
-import org.ballerinalang.util.program.BLangVMUtils;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
 
 import java.util.HashMap;
@@ -137,20 +135,20 @@ public class WorkerExecutionContext {
         if (!programFile.getDebugger().isDebugEnabled()) {
             return;
         }
-        if (parent == null) {
-            this.debugContext = new DebugContext();
-            this.programFile.getDebugger().addWorkerContext(this);
-            return;
-        }
-        DebugContext parentCtx = parent.getDebugContext();
-        if (parentCtx == null || parentCtx.getCurrentCommand() == DebugCommand.RESUME
-                || parentCtx.getCurrentCommand() == DebugCommand.STEP_OVER
-                || parentCtx.getCurrentCommand() == DebugCommand.STEP_OUT) {
-            this.debugContext = new DebugContext();
-        } else if (parentCtx.getCurrentCommand() == DebugCommand.STEP_IN) {
-            this.debugContext = new DebugContext(DebugCommand.STEP_IN);
-        }
-        this.programFile.getDebugger().addWorkerContext(this);
+//        if (parent == null) {
+//            this.debugContext = new DebugContext();
+//            this.programFile.getDebugger().addWorkerContext(this);
+//            return;
+//        }
+//        DebugContext parentCtx = parent.getDebugContext();
+//        if (parentCtx == null || parentCtx.getCurrentCommand() == DebugCommand.RESUME
+//                || parentCtx.getCurrentCommand() == DebugCommand.STEP_OVER
+//                || parentCtx.getCurrentCommand() == DebugCommand.STEP_OUT) {
+//            this.debugContext = new DebugContext();
+//        } else if (parentCtx.getCurrentCommand() == DebugCommand.STEP_IN) {
+//            this.debugContext = new DebugContext(DebugCommand.STEP_IN);
+//        }
+//        this.programFile.getDebugger().addWorkerContext(this);
     }
     
     public void setError(BError error) {
@@ -162,19 +160,22 @@ public class WorkerExecutionContext {
     }
 
     public boolean isInTransaction() {
-        return BLangVMUtils.getTransactionInfo(this) != null;
+        return false;
+//        return BLangVMUtils.getTransactionInfo(this) != null;
     }
 
     public void setLocalTransactionInfo(LocalTransactionInfo localTransactionInfo) {
-        BLangVMUtils.setTransactionInfo(this, localTransactionInfo);
+//        BLangVMUtils.setTransactionInfo(this, localTransactionInfo);
     }
 
     public LocalTransactionInfo getLocalTransactionInfo() {
-        return BLangVMUtils.getTransactionInfo(this);
+        return null;
+//        return BLangVMUtils.getTransactionInfo(this);
     }
 
     public boolean getGlobalTransactionEnabled() {
-        return BLangVMUtils.getGlobalTransactionEnabled(this);
+        return true;
+//        return BLangVMUtils.getGlobalTransactionEnabled(this);
     }
 
     public boolean isRootContext() {
@@ -211,6 +212,6 @@ public class WorkerExecutionContext {
         if (distributedTransactionsEnabledConfig != null && distributedTransactionsEnabledConfig.equals(FALSE)) {
             distributedTransactionEnabled = false;
         }
-        BLangVMUtils.setGlobalTransactionEnabledStatus(this, distributedTransactionEnabled);
+//        BLangVMUtils.setGlobalTransactionEnabledStatus(this, distributedTransactionEnabled);
     }
 }
