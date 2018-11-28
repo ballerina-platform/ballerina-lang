@@ -13,18 +13,21 @@ function startService() {
     after: "stopService"
 }
 function testFunc() {
-    endpoint http:Client httpEndpoint { url: "http://localhost:9090" };
+    http:Client httpEndpoint = new("http://localhost:9090");
     // Chck whether the server is started
     //test:assertTrue(serviceStarted, msg = "Unable to start the service");
 
     // Send a GET request to the specified endpoint
     var response = httpEndpoint->get("/retry");
-    match response {
-        http:Response resp => {
-            var res = check resp.getTextPayload();
-            test:assertEquals(res, "Hello World!!!");
+    if (response is http:Response) {
+        var result = textResponse.getTextPayload();
+        if (result is string) {
+            test:assertEquals(result, "Hello World!!!");
+        } else {
+            test:assertFail(msg = "Invalid response message");
         }
-        error err => test:assertFail(msg = "Failed to call the endpoint:");
+    } else {
+        test:assertFail(msg = "Failed to call the endpoint");
     }
 }
 
