@@ -867,8 +867,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangService serviceNode) {
-        SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode, serviceNode.symbol.scope, env);
-        serviceNode.resources.forEach(res -> analyzeNode(res, serviceEnv));
     }
 
     public void visit(BLangResource resourceNode) {
@@ -1618,6 +1616,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (!enclInvokableHasErrorReturn) {
             dlog.error(checkedExpr.expr.pos, DiagnosticCode.CHECKED_EXPR_NO_ERROR_RETURN_IN_ENCL_INVOKABLE);
         }
+
+        returnTypes.peek().add(exprType);
     }
 
     @Override

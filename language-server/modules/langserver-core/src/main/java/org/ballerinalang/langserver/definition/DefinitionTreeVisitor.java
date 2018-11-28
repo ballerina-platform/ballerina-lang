@@ -132,9 +132,10 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
         if (serviceNode.name.getValue()
                 .equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY))) {
 
-            if (serviceNode.serviceTypeStruct != null) {
-                this.acceptNode(serviceNode.serviceTypeStruct);
-            }
+            // TODO: 11/28/18 Fix with the latest service changes 
+//            if (serviceNode.serviceTypeStruct != null) {
+//                this.acceptNode(serviceNode.serviceTypeStruct);
+//            }
 
             if (serviceNode.vars != null) {
                 serviceNode.vars.forEach(this::acceptNode);
@@ -147,14 +148,14 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
             if (serviceNode.endpoints != null) {
                 serviceNode.endpoints.forEach(this::acceptNode);
             }
-
-            if (serviceNode.boundEndpoints != null) {
-                serviceNode.boundEndpoints.forEach(this::acceptNode);
-            }
-
-            if (serviceNode.initFunction != null) {
-                this.acceptNode(serviceNode.initFunction);
-            }
+            
+            // TODO: 11/28/18 Fix with the latest service changes
+//            if (serviceNode.boundEndpoints != null) {
+//                serviceNode.boundEndpoints.forEach(this::acceptNode);
+//            }
+//            if (serviceNode.initFunction != null) {
+//                this.acceptNode(serviceNode.initFunction);
+//            }
         }
     }
 

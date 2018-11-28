@@ -46,30 +46,26 @@ service circuitbreaker03 on circuitBreakerEP03 {
         path: "/getstate"
     }
     resource function getState(http:Caller caller, http:Request request) {
-        var cbClient = <http:CircuitBreakerClient>simpleClientEP.httpClient;
-        if (cbClient is http:CircuitBreakerClient) {
-            var backendRes = simpleClientEP->forward("/simple", request);
-            http:CircuitState currentState = cbClient.getCurrentState();
-            if (backendRes is http:Response) {
-                if (!(currentState == http:CB_CLOSED_STATE)) {
-                    backendRes.setPayload("Circuit Breaker is not in correct state state");
-                }
-                var responseToCaller = caller->respond(backendRes);
-                if (responseToCaller is error) {
-                    log:printError("Error sending response", err = responseToCaller);
-                }
-            } else if (backendRes is error) {
-                http:Response response = new;
-                response.statusCode = http:INTERNAL_SERVER_ERROR_500;
-                string errCause = <string> backendRes.detail().message;
-                response.setPayload(errCause);
-                var responseToCaller = caller->respond(response);
-                if (responseToCaller is error) {
-                    log:printError("Error sending response", err = responseToCaller);
-                }
+        http:CircuitBreakerClient cbClient = <http:CircuitBreakerClient>simpleClientEP.httpClient;
+        var backendRes = simpleClientEP->forward("/simple", request);
+        http:CircuitState currentState = cbClient.getCurrentState();
+        if (backendRes is http:Response) {
+            if (!(currentState == http:CB_CLOSED_STATE)) {
+                backendRes.setPayload("Circuit Breaker is not in correct state state");
             }
-        } else {
-            panic cbClient;
+            var responseToCaller = caller->respond(backendRes);
+            if (responseToCaller is error) {
+                log:printError("Error sending response", err = responseToCaller);
+            }
+        } else if (backendRes is error) {
+            http:Response response = new;
+            response.statusCode = http:INTERNAL_SERVER_ERROR_500;
+            string errCause = <string> backendRes.detail().message;
+            response.setPayload(errCause);
+            var responseToCaller = caller->respond(response);
+            if (responseToCaller is error) {
+                log:printError("Error sending response", err = responseToCaller);
+            }
         }
     }
 }

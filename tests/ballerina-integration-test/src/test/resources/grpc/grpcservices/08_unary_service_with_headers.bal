@@ -18,9 +18,8 @@ import ballerina/grpc;
 import ballerina/io;
 
 // Server endpoint configuration
-listener grpc:Listener ep8 = new ({
-    host:"localhost",
-    port:9101
+listener grpc:Listener ep8 = new (9101, config = {
+    host:"localhost"
 });
 
 @grpc:ServiceDescriptor {

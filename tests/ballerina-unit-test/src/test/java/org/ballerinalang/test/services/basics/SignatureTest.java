@@ -52,7 +52,7 @@ public class SignatureTest {
 
         Assert.assertEquals(compileResult.getErrorCount(), 1);
         Assert.assertEquals(compileResult.getDiagnostics().clone()[0].getMessage(),
-                "first parameter should be of type ballerina/http:Listener");
+                "first parameter should be of type ballerina/http:Caller");
     }
 
     @Test()

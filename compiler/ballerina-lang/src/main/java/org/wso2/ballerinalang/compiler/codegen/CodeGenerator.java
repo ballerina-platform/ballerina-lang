@@ -2375,7 +2375,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         int serviceNameCPIndex = addUTF8CPEntry(currentPkgInfo, serviceNode.name.value);
         //Create service info
         int serviceTypeCPIndex = getTypeCPIndex(serviceNode.symbol.type).getValue();
-        int listenerTypeIndex = serviceNode.attachExpr != null ? getTypeCPIndex(serviceNode.attachExpr.type).value : -1;
+        int listenerTypeIndex = serviceNode.listerType != null ? getTypeCPIndex(serviceNode.listerType).value : -1;
         int listenerNameCPIndex = addUTF8CPEntry(currentPkgInfo, serviceNode.listenerName);
         ServiceInfo serviceInfo = new ServiceInfo(currentPackageRefCPIndex, serviceNameCPIndex,
                 serviceNode.symbol.flags, serviceTypeCPIndex, listenerTypeIndex, listenerNameCPIndex);

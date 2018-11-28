@@ -46,7 +46,7 @@ public class EventRegister {
      */
     public Register register(Event event, Function<EventResult, EventResult> function) {
         if (event.isSelectable()) {
-            return new SelectableEventRegister(event, function);
+            return null;
         } else {
             return new InstantEventRegister(event, function);
         }

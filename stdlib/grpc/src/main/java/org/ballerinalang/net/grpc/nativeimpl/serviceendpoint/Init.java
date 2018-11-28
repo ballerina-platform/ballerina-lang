@@ -89,8 +89,9 @@ public class Init extends AbstractGrpcNativeFunction {
     public void execute(Context context) {
         Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
         BMap<String, BValue> endpointConfigStruct = (BMap<String, BValue>) context.getRefArgument(1);
+        long port = context.getIntArgument(0);
         Struct serviceEndpointConfig = BLangConnectorSPIUtil.toStruct(endpointConfigStruct);
-        ListenerConfiguration configuration = getListenerConfig(serviceEndpointConfig);
+        ListenerConfiguration configuration = getListenerConfig(port, serviceEndpointConfig);
         ServerConnector httpServerConnector =
                 HttpConnectionManager.getInstance().createHttpServerConnector(configuration);
 
@@ -100,9 +101,8 @@ public class Init extends AbstractGrpcNativeFunction {
         context.setReturnValues();
     }
     
-    private ListenerConfiguration getListenerConfig(Struct endpointConfig) {
+    private ListenerConfiguration getListenerConfig(long port, Struct endpointConfig) {
         String host = endpointConfig.getStringField(GrpcConstants.ENDPOINT_CONFIG_HOST);
-        long port = endpointConfig.getIntField(GrpcConstants.ENDPOINT_CONFIG_PORT);
         Struct sslConfig = endpointConfig.getStructField(GrpcConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
         
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();

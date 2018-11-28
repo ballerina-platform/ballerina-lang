@@ -23,48 +23,53 @@ public type Listener object {
 
     *AbstractListener;
 
+    private int port = 0;
+    private ServiceEndpointConfiguration config = {};
+
+    # Starts the registered service.
     public function __start() returns error? {
         return self.start();
     }
 
+    # Stops the registered service.
     public function __stop() returns error? {
         return self.stop();
     }
-
-    public function __attach(service s, map<any> annotationData) returns error? {
-        return self.register(s, annotationData);
-    }
-
-    public function __init(ServiceEndpointConfiguration config) {
-        self.init(config);
-    }
-
-    # Gets called when the endpoint is being initialize during module init time.
-    #
-    # + config - The ServiceEndpointConfiguration of the endpoint.
-    public extern function init(ServiceEndpointConfiguration config);
 
     # Gets called every time a service attaches itself to this endpoint - also happens at module init time.
     #
     # + serviceType - The type of the service to be registered.
     # + annotationData - Annotations attached to the service.
-    public extern function register(service serviceType, map<any> annotationData) returns error?;
+    public function __attach(service s, map<any> annotationData) returns error? {
+        return self.register(s, annotationData);
+    }
 
-    # Starts the registered service.
-    public extern function start() returns error?;
+    # Gets called when the endpoint is being initialize during module init time.
+    #
+    # + port - Listener port.
+    # + config - The ServiceEndpointConfiguration of the endpoint.
+    public function __init(int port, ServiceEndpointConfiguration? config = ()) {
+        self.config = config ?: {};
+        self.port = port;
+        self.init(self.port, self.config);
+    }
 
-    # Stops the registered service.
-    public extern function stop() returns error?;
+    extern function init(int port, ServiceEndpointConfiguration config);
+
+
+    extern function register(service serviceType, map<any> annotationData) returns error?;
+
+    extern function start() returns error?;
+
+    extern function stop() returns error?;
 };
 
 # Represents the gRPC server endpoint configuration.
 #
 # + host - The server hostname.
-# + port - The server port.
 # + secureSocket - The SSL configurations for the client endpoint.
 public type ServiceEndpointConfiguration record {
     string host = "0.0.0.0";
-    int port = 0;
     ServiceSecureSocket? secureSocket = ();
     !...
 };
