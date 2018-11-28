@@ -45,7 +45,8 @@ public class VarLock {
             return true;
         }
         waitingForLock.offerLast(ctx);
-        BVMScheduler.stateChange(ctx, State.RUNNABLE, State.PAUSED);
+        //TODO: need to improve on state change
+//        BVMScheduler.stateChange(ctx, State.RUNNABLE, State.PAUSED);
 //        BLangScheduler.workerWaitForLock(ctx);
         return false;
     }
