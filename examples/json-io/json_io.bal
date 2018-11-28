@@ -23,7 +23,14 @@ function write(json content, string path) returns error? {
     // Derive the character channel from the byte channel
     io:WritableCharacterChannel wch = new(wbc, "UTF8");
     // This is how json content is written via the character channel
-    return wch.writeJson(content);
+    var result = wch.writeJson(content);
+    if (result is error) {
+        closeWc(wch);
+        return result;
+    } else {
+        closeWc(wch);
+        return result;
+    }
 }
 
 function read(string path) returns json|error {
@@ -32,7 +39,14 @@ function read(string path) returns json|error {
     // Derive the character channel from the byte channel
     io:ReadableCharacterChannel rch = new(rbc, "UTF8");
     // This is how json content is read from the character channel
-    return rch.readJson();
+    var result = rch.readJson();
+    if (result is error) {
+        closeRc(rch);
+        return result;
+    } else {
+        closeRc(rch);
+        return result;
+    }
 }
 
 public function main() {
