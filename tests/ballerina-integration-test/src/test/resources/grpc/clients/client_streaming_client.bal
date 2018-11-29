@@ -34,7 +34,6 @@ function testClientStreaming(string[] args) returns (string) {
     io:println("Initialized connection sucessfully.");
 
     foreach greet in args {
-        io:print("send greeting: " + greet);
         error? err = ep->send(greet);
         if (err is error) {
             io:println("Error from Connector: " + err.reason() + " - " + <string>err.detail().message);
@@ -42,14 +41,14 @@ function testClientStreaming(string[] args) returns (string) {
     }
     _ = ep->complete();
 
-    int wait = 0;
+    int waitCount = 0;
     while(total < 1) {
         runtime:sleep(1000);
-        io:println("msg count: " + total);
-        if (wait > 10) {
+        io:println("msg count: ", total);
+        if (waitCount > 10) {
             break;
         }
-        wait += 1;
+        waitCount += 1;
     }
     io:println("completed successfully");
     return response;

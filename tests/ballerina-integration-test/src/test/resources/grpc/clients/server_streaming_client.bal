@@ -32,14 +32,14 @@ function testServerStreaming(string name) returns int {
         io:println("Connected successfully");
     }
 
-    int wait = 0;
+    int waitCount = 0;
     while(total < 4) {
         runtime:sleep(1000);
         io:println("msg count: " + total);
-        if (wait > 10) {
+        if (waitCount > 10) {
             break;
         }
-        wait += 1;
+        waitCount += 1;
     }
     io:println("Client got response successfully.");
     io:println("responses count: " + total);
