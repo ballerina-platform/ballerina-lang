@@ -1,0 +1,34 @@
+{
+    "extends": [
+        "tslint:latest"
+    ],
+    "rules": {
+        "interface-name": false,
+        "trailing-comma": [
+            true,
+            {
+              "multiline": {
+                "functions": "never"
+              },
+              "esSpecCompliant": true
+            }
+        ],
+        "no-implicit-dependencies": {
+            "severity": "error",
+            "options": [
+              true,
+              "dev",
+              [
+                "@storybook/react",
+                "react",
+                "react-dom",
+                "react-test-renderer",
+                "rimraf",
+                "semantic-ui-react",
+                "semantic-ui-css",
+                "typescript"
+              ]
+            ]
+          }
+    }
+}

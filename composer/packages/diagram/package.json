@@ -1,0 +1,48 @@
+{
+  "name": "@ballerina/diagram",
+  "version": "0.983.1-SNAPSHOT",
+  "description": "Provides a set of react components to draw Ballerina Diagrams.",
+  "keywords": [
+    "ballerina",
+    "ballerina-lang",
+    "composer"
+  ],
+  "repository": "ballerina-platform/ballerina-lang",
+  "main": "lib/src/index.js",
+  "scripts": {
+    "prepublishOnly": "npm run build",
+    "prebuild": "npm run clean && npm run copy-assets && npm run lint",
+    "clean": "composer pkg:clean",
+    "lint": "composer pkg:lint",
+    "build": "composer pkg:build",
+    "test": "composer pkg:test",
+    "coverage": "composer pkg:test:coverage",
+    "watch": "composer pkg:watch",
+    "watch:test": "composer pkg:test:watch",
+    "storybook": "composer pkg:storybook",
+    "copy-assets": "copyfiles resources/bbe-asts/* lib",
+    "start-ws-ls": "npm run build && node lib/tools/start-ws-lang-server.js",
+    "gen-bbe-asts": "npm run build && node lib/tools/update-bbe-asts.js"
+  },
+  "author": "ballerina.io",
+  "license": "Apache-2.0",
+  "peerDependencies": {
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0"
+  },
+  "devDependencies": {
+    "@ballerina/composer-cli": "^0.983.1-SNAPSHOT",
+    "@types/lodash": "^4.14.118",
+    "@types/lodash.debounce": "^4.0.4",
+    "copyfiles": "^2.1.0"
+  },
+  "dependencies": {
+    "@ballerina/ast-model": "^0.983.1-SNAPSHOT",
+    "@ballerina/font": "^0.983.1-SNAPSHOT",
+    "@ballerina/lang-service": "^0.983.1-SNAPSHOT",
+    "@ballerina/theme": "^0.983.1-SNAPSHOT",
+    "lodash": "^4.17.11",
+    "lodash.debounce": "^4.0.8",
+    "log4javascript": "^1.4.15"
+  }
+}

@@ -81,11 +81,13 @@ under the License.
             <package name="org.ballerinalang.test.taintchecking.*"/>
             <package name="org.ballerinalang.test.config.*"/>
             <!--<package name="org.ballerinalang.test.streaming.*"/>-->
+            <package name="org.ballerinalang.test.streaming.legacy.*"/>
+            <package name="org.ballerinalang.test.streaming.native.*"/>
             <package name="org.ballerinalang.test.object.*"/>
             <package name="org.ballerinalang.test.record.*"/>
             <package name="org.ballerinalang.test.net.grpc"/>
             <!--package name="org.ballerinalang.test.runtime.*"/>-->
-            <!--package name="org.ballerinalang.test.balo.*" />-->
+            <package name="org.ballerinalang.test.balo.*" />
             <package name="org.ballerinalang.test.compression.*"/>
             <package name="org.ballerinalang.test.variable.shadowing.*" />
             <package name="org.ballerinalang.test.channels.*" />

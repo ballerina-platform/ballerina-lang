@@ -1,0 +1,11 @@
+{
+  "extends": "../../configs/common.tsconfig.json",
+  "compilerOptions": {
+    "rootDirs": ["src", "tests"],
+    "outDir": "lib"
+  },
+  "include": ["src", "tests"],
+  "exclude": [
+    "**/*-spec.ts"
+  ]
+}

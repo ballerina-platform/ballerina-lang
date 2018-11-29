@@ -67,8 +67,9 @@ public class BAnyTypeSuccessScenariosTest {
     public void testInputAnyAsTable() {
         BValue[] returns = BRunUtil.invokeFunction(result, "inputAnyAsTableTest");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BRefValueArray.class);
-        Assert.assertEquals(returns[0].stringValue(), "[{\"id\":1, \"name\":\"Jane\"}, {\"id\":2, \"name\":\"Anne\"}]");
+        Assert.assertSame(returns[0].getClass(), BTable.class);
+        Assert.assertEquals(returns[0].stringValue(),
+                "table<Employee> {index: [], primaryKey: [], data: [{id:1, name:\"Jane\"}, {id:2, name:\"Anne\"}]}");
     }
 
 //TODO fix below scenario - basically need to rewrite the tree in method visit(ReturnStmt returnStmt) in
