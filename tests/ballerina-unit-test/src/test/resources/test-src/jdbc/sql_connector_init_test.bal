@@ -198,17 +198,17 @@ function testConnectionFailure() {
 
 }
 
-function getJsonConversionResult(table<record {}>|error tableOrError) returns json {
+function getJsonConversionResult(table|error tableOrError) returns json {
     json retVal = {};
-    if (tableOrError is table<record {}>) {
-        var jsonConversionResult = json.create(tableOrError);
+    if (tableOrError is table) {
+        var jsonConversionResult = <json>tableOrError;
         if (jsonConversionResult is json) {
             retVal = jsonConversionResult;
         } else if (jsonConversionResult is error) {
-            retVal = { "Error" : string.create(jsonConversionResult.detail().message) };
+            retVal = {"Error" : <string>jsonConversionResult.detail().message};
         }
     } else if (tableOrError is error) {
-        retVal = { "Error" : string.create(tableOrError.detail().message) };
+        retVal = {"Error" : <string>tableOrError.detail().message};
     }
     return retVal;
 }
