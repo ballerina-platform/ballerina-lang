@@ -70,11 +70,7 @@ public class OpenRecordNegativeTest {
     @Test(description = "Test function invocation on a nil-able function pointer")
     public void testNilableFuncPtrInvocation() {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/negative/open_record_nil-able_fn_ptr.bal");
-        BAssertUtil.validateError(compileResult, 0,
-                                  "invalid function pointer invocation on non-invokable field 'getName' in record " +
-                                          "'Person'", 28, 16);
-        BAssertUtil.validateError(compileResult, 1,
-                                  "invalid function pointer invocation on non-invokable field 'getName' in record " +
-                                          "'Person'", 33, 16);
+        BAssertUtil.validateError(compileResult, 0, "incompatible types: expected 'string', found 'string?'", 28, 16);
+        BAssertUtil.validateError(compileResult, 1, "incompatible types: expected 'string', found 'string?'", 33, 16);
     }
 }
