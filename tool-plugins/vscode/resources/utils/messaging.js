@@ -60,6 +60,7 @@ var vscode = acquireVsCodeApi();
 
 function getLangClient() {
     return {
+        isInitialized: true,
         getAST: (params) => {
             return new Promise((resolve, reject) => {
                 webViewRPCHandler.invokeRemoteMethod('getAST', [params.documentIdentifier.uri], (resp) => {
