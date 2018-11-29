@@ -77,7 +77,7 @@ public class SourceGenTest {
             LSCompiler lsCompiler = new LSCompiler(documentManager);
             JsonObject ast = TextDocumentFormatUtil.getAST(filePath.toUri().toString(), lsCompiler, documentManager,
                     formatContext);
-            FormattingSourceGen.build(ast.getAsJsonObject("model"), null, "CompilationUnit");
+            FormattingSourceGen.build(ast.getAsJsonObject("model"), "CompilationUnit");
             String actual = FormattingSourceGen.getSourceOf(ast.getAsJsonObject("model"));
             TestUtil.closeDocument(serviceEndpoint, filePath);
             Assert.assertEquals(actual, expected, "Generated source didn't match the expected for file: " +
