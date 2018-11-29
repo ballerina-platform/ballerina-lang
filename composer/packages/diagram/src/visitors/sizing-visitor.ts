@@ -91,16 +91,18 @@ export const visitor: Visitor = {
         client.h = defaultWorker.h = lineHeight;
 
         // Size endpoints
+        let endpointWidth = 0;
         if (node.VisibleEndpoints) {
             node.VisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
                 if (!endpoint.caller) {
                     endpoint.viewState.bBox.w = config.lifeLine.width;
                     endpoint.viewState.bBox.h = client.h;
+                    endpointWidth += endpoint.viewState.bBox.w + config.lifeLine.gutter.h;
                 }
             });
         }
 
-        body.w = config.panel.padding.left + config.panel.padding.right;
+        body.w = config.panel.padding.left + endpointWidth + config.panel.padding.right;
         body.h = config.panel.padding.top + lineHeight + config.panel.padding.bottom;
 
         header.w = config.panelHeading.padding.left + config.panelHeading.padding.right;
