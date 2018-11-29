@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import org.antlr.v4.runtime.misc.OrderedHashSet;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.AttachPoint;
@@ -431,6 +432,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
+        if (names.fromIdNode(varNode.name) == Names.IGNORE) {
+            varNode.type = symTable.noType;
+            return;
+        }
+
         int ownerSymTag = env.scope.owner.tag;
         if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
             // This is a variable declared in a function, an action or a resource
@@ -638,7 +644,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 if (possibleTypes.size() > 1) {
                     List<BType> memberTupleTypes = new ArrayList<>();
                     for (int i = 0; i < varNode.memberVariables.size(); i++) {
-                        Set<BType> memberTypes = new HashSet<>();
+                        Set<BType> memberTypes = new OrderedHashSet<>();
                         for (BType possibleType : possibleTypes) {
                             if (possibleType.tag == TypeTags.TUPLE) {
                                 memberTypes.add(((BTupleType) possibleType).tupleTypes.get(i));
@@ -753,7 +759,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                                         return possibleType;
                                     }
                                 })
-                                .collect(Collectors.toSet());
+                                .collect(Collectors.toCollection(OrderedHashSet::new));
                         recordVarType.restFieldType = memberTypes.size() > 1 ?
                                 new BUnionType(null, memberTypes, false) :
                                 memberTypes.iterator().next();
@@ -834,10 +840,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                             recordVarType.restFieldType.tag == TypeTags.ANY) {
                         restType = recordVarType.restFieldType;
                     } else {
-                        Set<BType> typesForRestField = new HashSet<>();
+                        Set<BType> typesForRestField = new OrderedHashSet<>();
                         typesForRestField.add(recordVarType.restFieldType);
                         typesForRestField.add(symTable.nilType);
-                        restType = new BUnionType(null ,typesForRestField, true);
+                        restType = new BUnionType(null, typesForRestField, true);
                     }
                     value.type = restType;
                     value.accept(this);
@@ -876,7 +882,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         List<BField> fields = new ArrayList<>();
         for (BLangRecordVariableKeyValue bLangRecordVariableKeyValue : recordVar.variableList) {
             String fieldName = bLangRecordVariableKeyValue.key.value;
-            Set<BType> memberTypes = new HashSet<>();
+            Set<BType> memberTypes = new OrderedHashSet<>();
             for (BType possibleType : possibleTypes) {
                 if (possibleType.tag == TypeTags.RECORD) {
                     BRecordType possibleRecordType = (BRecordType) possibleType;
@@ -918,7 +924,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (fieldTypes.tag == TypeTags.ANYDATA || fieldTypes.tag == TypeTags.ANY) {
             fieldType = fieldTypes;
         } else {
-            Set<BType> typesForField = new HashSet<>();
+            Set<BType> typesForField = new OrderedHashSet<>();
             typesForField.add(fieldTypes);
             typesForField.add(symTable.nilType);
             fieldType = new BUnionType(null, typesForField, true);
@@ -1145,6 +1151,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         (BLangRecordVarRef) variableReference, rhsField.type, rhsPos);
             } else if (variableReference.getKind() == NodeKind.TUPLE_VARIABLE_REF) {
                 checkTupleVarRefEquivalency(pos, (BLangTupleVarRef) variableReference, rhsField.type, rhsPos);
+            } else if (variableReference.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                Name varName = names.fromIdNode(((BLangSimpleVarRef) variableReference).variableName);
+                if (varName == Names.IGNORE) {
+                    continue;
+                }
+                types.checkType(variableReference.pos,
+                        rhsField.type, variableReference.type, DiagnosticCode.INCOMPATIBLE_TYPES);
             } else {
                 types.checkType(variableReference.pos,
                         rhsField.type, variableReference.type, DiagnosticCode.INCOMPATIBLE_TYPES);
@@ -1363,13 +1376,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 }
                 return bracedOrTupleExpr.type;
             case SIMPLE_VARIABLE_REF:
-                BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) expression;
-                if (names.fromIdNode(simpleVarRef.variableName) == Names.IGNORE) {
-                    expression.type = symTable.noType;
-                    return expression.type;
-                }
-                dlog.error(expression.pos, DiagnosticCode.INVALID_LITERAL_FOR_MATCH_PATTERN);
-                expression.type = symTable.errorType;
+                // to match "_"
+                expression.type = symTable.noType;
                 return expression.type;
             default:
                 dlog.error(expression.pos, DiagnosticCode.INVALID_LITERAL_FOR_MATCH_PATTERN);

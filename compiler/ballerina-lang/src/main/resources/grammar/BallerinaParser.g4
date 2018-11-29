@@ -282,9 +282,10 @@ staticMatchLiterals
     :   simpleLiteral                                                       # staticMatchSimpleLiteral
     |   recordLiteral                                                       # staticMatchRecordLiteral
     |   tupleLiteral                                                        # staticMatchTupleLiteral
-    |   Identifier                                                          # staticMatchIdentifierLiteral
+    |   underscore                                                          # staticMatchUnderscoreLiteral
     |   staticMatchLiterals PIPE staticMatchLiterals                        # staticMatchOrExpression
     ;
+
  tupleLiteral
     :   LEFT_PARENTHESIS expression (COMMA expression)* RIGHT_PARENTHESIS
     ;
@@ -391,6 +392,7 @@ matchPatternClause
 
 bindingPattern
     :   Identifier
+    |   underscore
     |   structuredBindingPattern
     ;
 
@@ -428,6 +430,7 @@ restBindingPattern
 
 bindingRefPattern
     :   variableReference
+    |   underscore
     |   structuredRefBindingPattern
     |   errorRefBindingPattern
     ;
@@ -547,6 +550,7 @@ variableReference
     |   variableReference xmlAttrib                                             # xmlAttribVariableReference
     |   variableReference invocation                                            # invocationReference
     |   typeDescExpr invocation                                                 # typeDescExprInvocationReference
+    |   underscore                                                              # underscoreVariableReference
     ;
 
 field
@@ -714,6 +718,10 @@ shiftExpression
 shiftExprPredicate : {_input.get(_input.index() -1).getType() != WS}? ;
 
 //reusable productions
+
+underscore
+    :   UNDERSCORE
+    ;
 
 nameReference
     :   (Identifier COLON)? Identifier

@@ -1417,8 +1417,8 @@ public class BLangPackageBuilder {
         addExpressionNode(binaryExpressionNode);
     }
 
-    void createStaticMatchIdentifierExpr(DiagnosticPos pos, Set<Whitespace> ws, String identifierName) {
-        addNameReference(pos, ws, null, identifierName);
+    void createUnderscoreIdentifierExpr(DiagnosticPos pos, Set<Whitespace> ws) {
+        addNameReference(pos, ws, null, "_");
         createSimpleVariableReference(pos, ws);
     }
 

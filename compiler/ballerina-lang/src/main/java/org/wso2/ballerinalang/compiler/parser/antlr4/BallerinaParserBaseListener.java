@@ -1,4 +1,4 @@
-// Generated from /home/anoukh/wso2-ballerina/ballerina/compiler/ballerina-lang/src/main/resources/grammar/BallerinaParser.g4 by ANTLR 4.5.3
+// Generated from BallerinaLexer.g4 by ANTLR 4.5.3
 package org.wso2.ballerinalang.compiler.parser.antlr4;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -700,13 +700,13 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterStaticMatchIdentifierLiteral(BallerinaParser.StaticMatchIdentifierLiteralContext ctx) { }
+	@Override public void enterStaticMatchUnderscoreLiteral(BallerinaParser.StaticMatchUnderscoreLiteralContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitStaticMatchIdentifierLiteral(BallerinaParser.StaticMatchIdentifierLiteralContext ctx) { }
+	@Override public void exitStaticMatchUnderscoreLiteral(BallerinaParser.StaticMatchUnderscoreLiteralContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1427,6 +1427,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitSimpleVariableReference(BallerinaParser.SimpleVariableReferenceContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterUnderscoreVariableReference(BallerinaParser.UnderscoreVariableReferenceContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitUnderscoreVariableReference(BallerinaParser.UnderscoreVariableReferenceContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -2291,6 +2303,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitShiftExprPredicate(BallerinaParser.ShiftExprPredicateContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterUnderscore(BallerinaParser.UnderscoreContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitUnderscore(BallerinaParser.UnderscoreContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

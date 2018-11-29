@@ -297,7 +297,7 @@ public class RecordVariableDefinitionTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'UnionOne|UnionTwo', found 'UnionRec1'", 143, 66);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'string|boolean', found 'boolean|string?'", 144, 25);
+                "incompatible types: expected 'string|boolean', found 'string|boolean?'", 144, 25);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'int|float', found 'int|float?'", 144, 31);
         BAssertUtil.validateError(resultNegative, ++i,

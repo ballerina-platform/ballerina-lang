@@ -240,19 +240,19 @@ public class MatchStatementStaticPatternsTest {
         Assert.assertEquals(results.get(++i), "Value is 'Correct'");
     }
 
-//    @Test(description = "Test matching finite type")
-//    public void testFiniteType() {
-//        BValue[] returns = BRunUtil.invoke(result, "testFiniteType");
-//        Assert.assertEquals(returns.length, 1);
-//        Assert.assertEquals(returns[0].stringValue(), "Value is '15.2'");
-//    }
+    @Test(description = "Test matching finite type")
+    public void testFiniteType() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteType");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "Value is '15.2'");
+    }
 
-//    @Test(description = "Test matching finite type")
-//    public void testFiniteType2() {
-//        BValue[] returns = BRunUtil.invoke(result, "testFiniteType2");
-//        Assert.assertEquals(returns.length, 1);
-//        Assert.assertEquals(returns[0].stringValue(), "Value is 'true'");
-//    }
+    @Test(description = "Test matching finite type")
+    public void testFiniteType2() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteType2");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "Value is 'true'");
+    }
 
     @Test(description = "Test matching non anydata type")
     public void testNonAnyDataType() {
