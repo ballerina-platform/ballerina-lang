@@ -373,17 +373,10 @@ public class ResponseNativeFunctionSuccessTest {
     public void testRemoveHeader() {
         BMap<String, BValue> outResponse =
                 BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inResStruct);
-        BMap<String, BValue> entity =
-                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         String expect = "Expect";
-        String headerValue = "100-continue";
         BString key = new BString(expect);
 
-        HttpHeaders httpHeaders = new DefaultHttpHeaders();
-        httpHeaders.add(expect, headerValue);
-        entity.addNativeData(ENTITY_HEADERS, httpHeaders);
-
-        BValue[] inputArg = { outResponse, key };
+        BValue[] inputArg = {outResponse, key};
         BValue[] returnVals = BRunUtil.invokeStateful(result, "testRemoveHeader", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
@@ -391,7 +384,7 @@ public class ResponseNativeFunctionSuccessTest {
         BMap<String, BValue> entityStruct =
                 (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(RESPONSE_ENTITY_FIELD);
         HttpHeaders returnHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
-        Assert.assertNull(returnHeaders.get("100-continue"));
+        Assert.assertNull(returnHeaders.get(expect));
     }
 
     @Test(description = "Test RemoveHeader function within a service")
