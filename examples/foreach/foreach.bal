@@ -21,21 +21,22 @@ public function main() {
     json apple = { name: "apple", colors: ["red", "green"], price: 5 };
     // To fetch a JSON value, use only a single `json` typed variable.
     foreach j in apple {
-        match j {
-            string js => {
-                io:println("string value: ", js);
-            }
-            json jx => {
-                io:println("non-string value: ", jx);
-            }
+        if (j is string) {
+            io:println("string value: ", j);
+        } else {
+            // Json is a union type for () or null | int | float | decimal | string | json[] | map<json>,
+            // thus json array and int will be matched.
+            io:println("non-string value: ", j);
         }
     }
 
     io:println("\nIterating over a json array:-");
     // To Iterate over a JSON array, you need to first cast it into an array of json (`json[]`).
-    json[] colors = check <json[]>apple.colors;
-    foreach i, j in colors {
-        io:println("color ", i, ": ", j);
+    json[]|error colors = trap <json[]>apple.colors;
+    if (colors is json[]) {
+        foreach i, j in colors {
+            io:println("color ", i, ": ", j);
+        }
     }
 
     io:println("\nIterating over an xml:-");
@@ -50,7 +51,7 @@ public function main() {
 
     io:println("\nIterating over a closed integer range:-");
     int endValue = 10;
-    int sum;
+    int sum = 0;
     // A closed integer range in the `foreach` statement represents an incremental integer value range from the start
     // expression (`1`) to the end expression (`endValue`) inclusively.
     foreach i in 1 ... endValue {

@@ -12,8 +12,11 @@ type Address record {
 
 function getAddress(Person p) returns (Address|error) {
     // If the address does not exist, return an error.
-    if (p.address is Address) {
-        return p.address;
+    // For type-guard to work, only simple variable references should be used. therefore, `p.address` is assigned to a
+    // variable.
+    Address? addr = p.address;
+    if (addr is Address) {
+        return addr;
     } else {
         error addNotFoundErr = error("address not found");
         return addNotFoundErr;
@@ -34,9 +37,12 @@ function validateAddress(Person person) returns (boolean|error) {
 function validateAddressAgain(Person person) returns boolean {
     //The enclosing function's return type does not include `error` as an alternative (it allows only boolean).
     //So, if the "getAddress(person)!city" expression evaluates an error, 
-    //the `check` expression throws the resulted error.
+    //the `check` expression panics the resulted error.
     //Else, the function behaviour is the same as the `validateAddress` function.
-    string city = check getAddress(person)!city;
+    string|error city = getAddress(person)!city;
+    if (city is error) {
+        panic city;
+    }
     // If check fails, this line won't print.
     io:println(person.name, " has a valid city");
     return true;
