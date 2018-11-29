@@ -4,14 +4,14 @@ public function main() {
     io:println("Iterating over a string array:-");
     string[] fruits = ["apple", "banana", "cherry"];
     // To fetch the values defined in the array, use one variable.
-    // To fetch the index and value, use two variables as comma separated values. e.g.,, `foreach i, v in fruits`.
+    // To fetch the index and value, use two variables as comma separated values. E.g., `foreach i, v in fruits`.
     foreach v in fruits {
         io:println("fruit: " + v);
     }
 
     io:println("\nIterating over a map:-");
     map<string> words = { a: "apple", b: "banana", c: "cherry" };
-    // To fetch the values defined in the map, use one variable. To fetch both the key (string) and value, use two
+    // To fetch the values defined in the map, use one variable. To fetch both the key (`string`) and value, use two
     // variables.
     foreach k, v in words {
         io:println("letter: ", k, ", word: ", v);
@@ -43,7 +43,7 @@ public function main() {
                         <name>Sherlock Holmes</name>
                         <author>Sir Arthur Conan Doyle</author>
                     </book>`;
-    // To fetch the XML value, use one variable. To get both the index (int) and XML value, use two variables.
+    // To fetch the XML value, use one variable. To get both the index (`int`) and XML value, use two variables.
     foreach i, x in book.*.elements(){
         io:println("xml at ", i, ": ", x);
     }
@@ -51,8 +51,8 @@ public function main() {
     io:println("\nIterating over a closed integer range:-");
     int endValue = 10;
     int sum;
-    // A closed integer range in the foreach statement represents an incremental integer value range from the start
-    // expression (1) to the end expression (endValue) inclusively.
+    // A closed integer range in the `foreach` statement represents an incremental integer value range from the start
+    // expression (`1`) to the end expression (`endValue`) inclusively.
     foreach i in 1 ... endValue {
         sum = sum + i;
     }
@@ -60,8 +60,8 @@ public function main() {
 
     io:println("\nIterating over a half open integer range:-");
     sum = 0;
-    // A half open integer range in the foreach statement represents an incremental integer value range from the start
-    // expression (1) inclusively, to the end expression (endValue) exclusively.
+    // A half open integer range in the `foreach` statement represents an incremental integer value range from the start
+    // expression (`1`) inclusively, to the end expression (`endValue`) exclusively.
     foreach i in 1 ..< endValue {
         sum = sum + i;
     }
