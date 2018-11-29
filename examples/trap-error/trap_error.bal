@@ -9,7 +9,7 @@ public function main() {
     result = trap divideNumbers(1, 0);
     if (result is int) {
         io:println("int result: " + result);
-    } else if (result is error) {
+    } else {
         io:println("Error occurred: ", result.reason());
     }
 }
