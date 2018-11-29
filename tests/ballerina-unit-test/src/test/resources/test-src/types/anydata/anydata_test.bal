@@ -153,7 +153,7 @@ function testMapAssignment() {
     map<ClosedFoo> mcr = {};
     ad = mcr;
 
-    map<table> mt = {};
+    map<table<any>> mt = {};
     ad = mt;
 
     map<map<anydata>> mmad = {};
@@ -242,7 +242,7 @@ function testArrayAssignment() {
                   { 3, "Jim", 330.5 }
                 ]
             };
-    table[] at = [t];
+    table<any>[] at = [t];
     ad = at;
 
     map<anydata> m = {};
@@ -269,7 +269,7 @@ function testAnydataArray() returns anydata[] {
 }
 
 type ValueType int|float|string|boolean|byte;
-type DataType ValueType|table|json|xml|ClosedFoo|Foo|map<anydata>|anydata[]|();
+type DataType ValueType|table<any>|json|xml|ClosedFoo|Foo|map<anydata>|anydata[]|();
 
 function testUnionAssignment() returns anydata[] {
     anydata[] rets = [];
@@ -543,10 +543,10 @@ function testAnydataToMap() {
         convertedMCfoo = ad;
     }
 
-    map<table> mt = {};
+    map<table<any>> mt = {};
     ad = mt;
-    map<table> convertedMt;
-    if (ad is map<table>) {
+    map<table<any>> convertedMt;
+    if (ad is map<table<any>>) {
         convertedMt = ad;
     }
 
