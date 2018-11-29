@@ -101,3 +101,9 @@ function fn1(any t) returns (string, int, boolean, int, float, int) {
     ((string, (int, (boolean, int))), (float, int)) ((s, (i1, (b, y))), (f, i2)) = t;
     return (s, i1, b, y, f, i2);
 }
+
+function testTupleVarWithAllIgnoreVars() {
+    (int, string) tuple = (12, "Y");
+    (int, string) (_, _) = tuple; // no new variables on left side
+    var (_, _) = tuple; // no new variables on left side
+}

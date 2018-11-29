@@ -283,3 +283,10 @@ function testMapRecordVar() returns (anydata, anydata, anydata, string?, string?
 
     return (var1, var2, var3, var10, var11, var12);
 }
+
+function testRecordVariableWithIgnore() returns (string, string) {
+    Person p = {name: "Peter", married: true};
+    Person {name, married: _, !...} = p;
+    var {name: name1, married: _, !...} = p;
+    return (name, name1);
+}
