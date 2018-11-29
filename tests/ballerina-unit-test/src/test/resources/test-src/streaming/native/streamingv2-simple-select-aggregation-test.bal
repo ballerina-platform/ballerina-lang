@@ -29,7 +29,6 @@ type TeacherOutput record {
     string name;
     int age;
     int sumAge;
-    int count;
 };
 
 int index = 0;
@@ -38,7 +37,7 @@ stream<TeacherOutput> outputStream;
 
 TeacherOutput[] globalEmployeeArray = [];
 
-function startAggregationGroupByQuery() returns (TeacherOutput[]) {
+function startAggregationQuery() returns (TeacherOutput[]) {
 
     Teacher[] teachers = [];
     Teacher t1 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
@@ -46,20 +45,11 @@ function startAggregationGroupByQuery() returns (TeacherOutput[]) {
     teachers[0] = t1;
     teachers[1] = t2;
     teachers[2] = t2;
-    teachers[3] = t1;
-    teachers[4] = t2;
-
-    teachers[5] = t1;
-    teachers[6] = t2;
-    teachers[7] = t1;
-    teachers[8] = t2;
-    teachers[9] = t1;
 
     createStreamingConstruct();
 
     outputStream.subscribe(printTeachers);
     foreach t in teachers {
-        runtime:sleep(1);
         inputStream.publish(t);
     }
 
@@ -67,7 +57,7 @@ function startAggregationGroupByQuery() returns (TeacherOutput[]) {
     while (true) {
         runtime:sleep(500);
         count += 1;
-        if ((globalEmployeeArray.length()) == 10 || count == 10) {
+        if ((globalEmployeeArray.length()) == 3 || count == 10) {
             break;
         }
     }
@@ -77,9 +67,8 @@ function startAggregationGroupByQuery() returns (TeacherOutput[]) {
 
 
 //  ------------- Query to be implemented -------------------------------------------------------
-//  from inputStream where inputStream.age > getValue()
-//  select inputStream.name, inputStream.age, sum (inputStream.age) as sumAge, count() as count
-//  group by inputStream.name
+//  from inputStream where inputStream.age > 25
+//  select inputStream.name, inputStream.age, sum (inputStream.age) as sumAge
 //      => (TeacherOutput [] o) {
 //            outputStream.publish(o);
 //      }
@@ -98,35 +87,23 @@ function createStreamingConstruct() {
     streams:OutputProcess outputProcess = streams:createOutputProcess(outputFunc);
 
     streams:Sum sumAggregator = new();
-    streams:Count countAggregator = new();
-    streams:Aggregator[] aggregatorArr = [];
-    aggregatorArr[0] = sumAggregator;
-    aggregatorArr[1] = countAggregator;
 
-    streams:Select select = streams:createSelect(function (streams:StreamEvent[] e) {outputProcess.process(e);},
-        aggregatorArr,
-        [function (streams:StreamEvent e) returns string {
-            return <string>e.data["inputStream.name"];
-        }],
-        function (streams:StreamEvent e, streams:Aggregator[] aggregatorArr1) returns map<anydata> {
-            streams:Sum sumAggregator1 = <streams:Sum>aggregatorArr1[0];
-            streams:Count countAggregator1 = <streams:Count>aggregatorArr1[1];
+    streams:SimpleSelect simpleSelect =
+    streams:createSimpleSelect(function (streams:StreamEvent[] e) {outputProcess.process(e);},
+        function (streams:StreamEvent e) returns map<anydata> {
             // got rid of type casting
             return {
                 "name": e.data["inputStream.name"],
                 "age": e.data["inputStream.age"],
-                "sumAge": sumAggregator1.process(e.data["inputStream.age"], e.eventType),
-                "count": countAggregator1.process((), e.eventType)
+                "sumAge": sumAggregator.process(e.data["inputStream.age"], e.eventType)
             };
         }
     );
 
-    streams:Window tmpWindow = streams:timeWindow([1000],
-        nextProcessPointer = function (streams:StreamEvent[] e) {select.process(e);});
-    streams:Filter filter = streams:createFilter(function (streams:StreamEvent[] e) {tmpWindow.process(e);},
+    streams:Filter filter = streams:createFilter(function (streams:StreamEvent[] e) {simpleSelect.process(e);},
         function (map<anydata> m) returns boolean {
             // simplify filter
-            return <int>m["inputStream.age"] > getValue();
+            return <int>m["inputStream.age"] > 25;
         }
     );
 
@@ -136,10 +113,6 @@ function createStreamingConstruct() {
             filter.process(eventArr);
         }
     );
-}
-
-function getValue() returns int {
-    return 25;
 }
 
 function printTeachers(TeacherOutput e) {

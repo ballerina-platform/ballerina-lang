@@ -49,7 +49,8 @@ public class CompressionConfigNegativeTest {
                                                                    .getAbsolutePath());
 
         Assert.assertEquals(compileResult.getErrorCount(), 1);
-        Assert.assertEquals(compileResult.getDiagnostics().clone()[0].getMessage(), "invalid token 'compression'");
+        Assert.assertEquals(compileResult.getDiagnostics().clone()[0].getMessage(),
+                "Invalid multiple configurations for compression");
     }
 
     @Test(description = "Test the compilation error for bogus content types")

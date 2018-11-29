@@ -52,17 +52,11 @@ public class Strand {
 
     public BVMCallback respCallback;
 
-    private Semaphore executionLock;
-
     private BError error;
 
     public Map<String, Object> globalProps;
 
-    public List<Integer> callbacksToWaitFor;
-
-    public boolean waitCompleted;
-
-    public int callBacksRemaining;
+    public StrandWaitHandler strandWaitHandler;
 
     //TODO try to generalize below to normal data channels
     public WDChannels parentChannels;
@@ -76,7 +70,6 @@ public class Strand {
         this.callStack = new StackFrame[DEFAULT_CONTROL_STACK_SIZE];
         this.state = State.NEW;
         this.globalProps = properties;
-        this.callBacksRemaining = 0;
         this.id = name + "-" + UUID.randomUUID().toString();
         this.parentChannels = parentChannels;
         this.wdChannels = new WDChannels();
@@ -157,20 +150,20 @@ public class Strand {
         return BLangVMUtils.getGlobalTransactionEnabled(this);
     }
 
-    public void createLock() {
-        this.executionLock = new Semaphore(1);
+    public void createWaitHandler(int callBacksRemaining, List<Integer> callBacksToWaitFor) {
+        this.strandWaitHandler = new StrandWaitHandler(callBacksRemaining, callBacksToWaitFor);
     }
 
     public void acquireExecutionLock() {
         try {
-            executionLock.acquire();
+            this.strandWaitHandler.executionLock.acquire();
         } catch (InterruptedException e) {
             /* ignore */
         }
     }
 
     public void releaseExecutionLock() {
-        executionLock.release();
+        this.strandWaitHandler.executionLock.release();
     }
 
     public DebugContext getDebugContext() {
@@ -185,6 +178,25 @@ public class Strand {
         RUNNABLE,
         PAUSED,
         TERMINATED
+    }
+
+    /**
+     * This class holds relevant data for callback wait handling related to strand side.
+     */
+    public static class StrandWaitHandler {
+        private Semaphore executionLock;
+        boolean waitCompleted;
+        // This is for wait for all scenario
+        List<Integer> callbacksToWaitFor;
+        // This is for wait for any scenario
+        int callBacksRemaining;
+
+        public StrandWaitHandler(int callBacksRemaining, List<Integer> callBacksToWaitFor) {
+            this.callBacksRemaining = callBacksRemaining;
+            this.callbacksToWaitFor = callBacksToWaitFor;
+            this.waitCompleted = false;
+            this.executionLock = new Semaphore(1);
+        }
     }
 }
 

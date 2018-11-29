@@ -38,31 +38,32 @@ public class CallbackReturnHandler {
     static Strand handleReturn(Strand strand, BType expType, int retReg, SafeStrandCallback... callbacks) {
         try {
             strand.acquireExecutionLock();
-            if (strand.waitCompleted) {
-                    return null;
+            if (strand.strandWaitHandler.waitCompleted) {
+                return null;
             }
             for (SafeStrandCallback callback : callbacks) {
                 callback.acquireDataLock();
-                if (callback.getErrorVal() != null) {
-                    strand.callBacksRemaining--;
-                    if (strand.callBacksRemaining == 0) {
-                        return setErrorToStrand(strand, callback);
-                    }
+                if (!callback.isDone()) {
+                    callback.configureWaitHandler(strand, false, expType, retReg, -1);
                     callback.releaseDataLock();
                     continue;
                 }
-                if (callback.returnDataAvailable()) {
+                if (callback.getErrorVal() == null) {
                     handleReturn(strand.currentFrame, callback, expType, retReg);
-                    strand.waitCompleted = true;
-                    strand.callBacksRemaining--;
+                    strand.strandWaitHandler.waitCompleted = true;
                     callback.releaseDataLock();
                     return strand;
                 }
-
-                callback.setRetData(strand, expType, retReg, false, 0);
+                strand.strandWaitHandler.callBacksRemaining--;
+                if (strand.strandWaitHandler.callBacksRemaining == 0) {
+                    strand.setError(callback.getErrorVal());
+                    strand.strandWaitHandler.waitCompleted = true;
+                    callback.releaseDataLock();
+                    BVM.handleError(strand);
+                    return strand;
+                }
                 callback.releaseDataLock();
             }
-
         } finally {
             strand.releaseExecutionLock();
         }
@@ -72,30 +73,36 @@ public class CallbackReturnHandler {
     static Strand handleReturn(Strand strand, int retReg, Map<Integer, SafeStrandCallback> callbacks) {
         try {
             strand.acquireExecutionLock();
-            if (strand.waitCompleted) {
+            if (strand.strandWaitHandler.waitCompleted) {
                 return null;
             }
+            //TODO check whether keyReg can have same value
             for (Map.Entry<Integer, SafeStrandCallback> entry : callbacks.entrySet()) {
                 Integer keyReg = entry.getKey();
-                SafeStrandCallback strandCallback = entry.getValue();
-                strandCallback.acquireDataLock();
+                SafeStrandCallback callback = entry.getValue();
+                callback.acquireDataLock();
 
-                if (strandCallback.getErrorVal() != null) {
-                    return setErrorToStrand(strand, strandCallback);
+                if (!callback.isDone()) {
+                    callback.configureWaitHandler(strand, true, null, retReg, keyReg);
+                    callback.releaseDataLock();
+                    continue;
                 }
 
-                if (strandCallback.returnDataAvailable()) {
-                    handleWaitAllReturn(strand.currentFrame, strandCallback, retReg, keyReg);
-                    strand.callbacksToWaitFor.remove(keyReg);
-                    strandCallback.releaseDataLock();
+                if (callback.getErrorVal() != null) {
+                    strand.setError(callback.getErrorVal());
+                    strand.strandWaitHandler.waitCompleted = true;
+                    callback.releaseDataLock();
+                    BVM.handleError(strand);
+                    return strand;
+                }
 
-                    // Check if there are no strands to wait for
-                    if (strand.callbacksToWaitFor.isEmpty()) {
-                        return strand;
-                    }
-                } else {
-                    strandCallback.setRetData(strand, null, retReg, true, keyReg);
-                    strandCallback.releaseDataLock();
+                handleWaitAllReturn(strand.currentFrame, callback, retReg, keyReg);
+                strand.strandWaitHandler.callbacksToWaitFor.remove(keyReg);
+                callback.releaseDataLock();
+
+                // Check if there are no strands to wait for
+                if (strand.strandWaitHandler.callbacksToWaitFor.isEmpty()) {
+                    return strand;
                 }
             }
 
@@ -103,14 +110,6 @@ public class CallbackReturnHandler {
             strand.releaseExecutionLock();
         }
         return null;
-    }
-
-    private static Strand setErrorToStrand(Strand strand, SafeStrandCallback callback) {
-        strand.setError(callback.getErrorVal());
-        callback.releaseDataLock();
-        BVM.handleError(strand);
-        strand.waitCompleted = true;
-        return strand;
     }
 
     private static void handleWaitAllReturn(StackFrame sf, SafeStrandCallback strandCallback, int retReg, int keyReg) {

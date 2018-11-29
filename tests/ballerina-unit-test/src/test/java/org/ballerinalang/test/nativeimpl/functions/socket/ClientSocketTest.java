@@ -137,7 +137,8 @@ public class ClientSocketTest {
         Assert.assertEquals(mockSocketServer.getReceivedString(), msg);
     }
 
-    @Test(description = "Write some content, then shutdown the write and try to write it again")
+    @Test(description = "Write some content, then shutdown the write and try to write it again",
+          dependsOnMethods = "testOneWayWrite")
     public void testShutdownWrite() {
         String firstMsg = "Hello Ballerina1\\n";
         String secondMsg = "Hello Ballerina2\\n";
