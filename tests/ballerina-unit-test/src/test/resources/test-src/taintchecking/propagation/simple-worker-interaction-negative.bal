@@ -1,7 +1,3 @@
-function secureFunction (@sensitive string secureIn, string insecureIn) {
-
-}
-
 public function main (string... args) {
     worker w1 {
         string data = "string";
@@ -15,4 +11,8 @@ public function main (string... args) {
         secureFunction(data1, data1);
         data1 -> w1;
     }
+}
+
+function secureFunction (@sensitive string secureIn, string insecureIn) {
+
 }
