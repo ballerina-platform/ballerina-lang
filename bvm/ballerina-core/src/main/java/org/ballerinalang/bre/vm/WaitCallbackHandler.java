@@ -18,12 +18,14 @@
 package org.ballerinalang.bre.vm;
 
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.util.codegen.cpentries.UTF8CPEntry;
 import java.util.Map;
@@ -33,9 +35,9 @@ import java.util.Map;
  *
  * @since 0.985.0
  */
-public class CallbackReturnHandler {
+public class WaitCallbackHandler {
 
-    static Strand handleReturn(Strand strand, BType expType, int retReg, SafeStrandCallback... callbacks) {
+    static Strand handleReturnInWait(Strand strand, BType expType, int retReg, SafeStrandCallback... callbacks) {
         try {
             strand.acquireExecutionLock();
             if (strand.strandWaitHandler.waitCompleted) {
@@ -49,10 +51,16 @@ public class CallbackReturnHandler {
                     continue;
                 }
                 if (callback.getErrorVal() == null) {
-                    handleReturn(strand.currentFrame, callback, expType, retReg);
-                    strand.strandWaitHandler.waitCompleted = true;
-                    callback.releaseDataLock();
-                    return strand;
+                    strand.strandWaitHandler.callBacksRemaining--;
+                    if (copyReturnsInWait(strand, callback, expType, retReg)) {
+                        strand.strandWaitHandler.waitCompleted = true;
+                        callback.releaseDataLock();
+                        return strand;
+                    } else {
+                        // If one callback is of error type, we wait for the others
+                        callback.releaseDataLock();
+                        continue;
+                    }
                 }
                 strand.strandWaitHandler.callBacksRemaining--;
                 if (strand.strandWaitHandler.callBacksRemaining == 0) {
@@ -70,7 +78,7 @@ public class CallbackReturnHandler {
         return null;
     }
 
-    static Strand handleReturn(Strand strand, int retReg, Map<Integer, SafeStrandCallback> callbacks) {
+    static Strand handleReturnInWaitMultiple(Strand strand, int retReg, Map<Integer, SafeStrandCallback> callbacks) {
         try {
             strand.acquireExecutionLock();
             if (strand.strandWaitHandler.waitCompleted) {
@@ -96,7 +104,7 @@ public class CallbackReturnHandler {
                     return strand;
                 }
 
-                handleWaitAllReturn(strand.currentFrame, callback, retReg, keyReg);
+                copyReturnsInWaitMultiple(strand.currentFrame, callback, retReg, keyReg);
                 strand.strandWaitHandler.callbacksToWaitFor.remove(keyReg);
                 callback.releaseDataLock();
 
@@ -112,7 +120,7 @@ public class CallbackReturnHandler {
         return null;
     }
 
-    private static void handleWaitAllReturn(StackFrame sf, SafeStrandCallback strandCallback, int retReg, int keyReg) {
+    private static void copyReturnsInWaitMultiple(StackFrame sf, SafeStrandCallback strandCallback, int retReg, int keyReg) {
         String keyValue = ((UTF8CPEntry) sf.constPool[keyReg]).getValue();
         switch (strandCallback.retType.getTag()) {
             case TypeTags.INT_TAG:
@@ -136,7 +144,8 @@ public class CallbackReturnHandler {
         }
     }
 
-    private static void handleReturn(StackFrame sf, SafeStrandCallback strandCallback, BType expType, int retReg) {
+    private static boolean copyReturnsInWait(Strand strand, SafeStrandCallback strandCallback, BType expType, int retReg) {
+        StackFrame sf = strand.currentFrame;
         if (expType.getTag() == TypeTags.UNION_TAG) {
             switch (strandCallback.retType.getTag()) {
                 case TypeTags.INT_TAG:
@@ -155,10 +164,14 @@ public class CallbackReturnHandler {
                     sf.refRegs[retReg] = new BBoolean(strandCallback.getBooleanRetVal() == 1);
                     break;
                 default:
+                    BRefType<?> refRetVal = strandCallback.getRefRetVal();
+                    if (BVM.checkIsType(refRetVal, BTypes.typeError) && strand.strandWaitHandler.callBacksRemaining != 0) {
+                        return false;
+                    }
                     sf.refRegs[retReg] = strandCallback.getRefRetVal();
                     break;
             }
-            return;
+            return true;
         }
         switch (strandCallback.retType.getTag()) {
             case TypeTags.INT_TAG:
@@ -180,5 +193,6 @@ public class CallbackReturnHandler {
                 sf.refRegs[retReg] = strandCallback.getRefRetVal();
                 break;
         }
+        return true;
     }
 }

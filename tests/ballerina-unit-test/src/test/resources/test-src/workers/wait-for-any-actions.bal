@@ -121,6 +121,42 @@ function waitTest13() returns int {
     }
 }
 
+function waitTest14() returns int|error {
+    future<int|error> f1 = start addOrError(5, 2);
+    future<int|error> f2 = start addOrError(10, 12);
+    int|error result = wait f1 | f2;
+    return result;
+}
+
+function waitTest15() returns int|string|error {
+    future<int|error> f1 = start addOrError(10, 12);
+    future<string> f2 = start concat("moo");
+    int|string|error result = wait f1 | f2;
+    return result;
+}
+
+function waitTest16() returns int|error {
+    future<int|error> f1 = start addOrError(10, 12);
+    future<int> f2 = start add_panic1(55, 88);
+    int|error result = wait f1 | f2;
+    return result;
+}
+
+function waitTest17() returns int|string|error {
+    future<string> f3 = start concat("foo");
+    future<int|error> f1 = start addOrError(10, 12);
+    future<int> f2 = start add_panic1(55, 88);
+    int|string|error result = wait f3 | f2 | f1;
+    return result;
+}
+
+function waitTest18() returns int|string|() {
+    future<()> f1 = runtime:timeout(2000);
+    future<int> f2 = start add_1(5, 2);
+    future<string> f3 = start greet();
+    int|string|() result = wait f1 | f2 | f3;
+    return result;
+}
 
 function add_panic1(int i, int j) returns int {
     int k = i + j;
@@ -170,7 +206,8 @@ function add_panic3(int i, int j) returns int {
 
 function add_1(int i, int j) returns int {
     int k = i + j;
-    //runtime:sleep(5000);
+    // sleep for 2s
+    runtime:sleep(2000);
     int l = 0;
     while(l < 999999) {
         l = l + 1;
@@ -192,6 +229,11 @@ function concat(string name) returns string {
     return "hello " + name;
 }
 
+function greet() returns string {
+    runtime:sleep(3000);
+    return "good morning";
+}
+
 function status() returns boolean {
     return true;
 }
@@ -210,4 +252,13 @@ function getEmpMap() returns map<string> {
 function getAddrMap() returns map<string> {
     map<string> addrMap = { line1: "No. 20", line2: "Palm Grove", city: "Colombo 03"};
     return addrMap;
+}
+
+function addOrError(int i, int j) returns int|error {
+    int k = i + j;
+    if (true) {
+        error err = error("err returned" );
+        return err;
+    }
+    return k;
 }

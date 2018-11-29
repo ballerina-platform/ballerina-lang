@@ -4234,7 +4234,7 @@ public class BVM {
             callbacks[i] = (SafeStrandCallback) future.value().respCallback;
         }
         strand.createWaitHandler(c, null);
-        return CallbackReturnHandler.handleReturn(strand, expType, retValReg, callbacks);
+        return WaitCallbackHandler.handleReturnInWait(strand, expType, retValReg, callbacks);
     }
 
     private static Strand execWaitForAll(Strand strand, int[] operands) {
@@ -4255,7 +4255,7 @@ public class BVM {
             callbackHashMap.put(keyRegIndex, (SafeStrandCallback) future.value().respCallback);
         }
         strand.createWaitHandler(c,  new ArrayList(callbackHashMap.keySet()));
-        return CallbackReturnHandler.handleReturn(strand, retValReg, callbackHashMap);
+        return WaitCallbackHandler.handleReturnInWaitMultiple(strand, retValReg, callbackHashMap);
     }
     /**
      * This is used to propagate the results of {@link BVM#handleError(Strand)} to the
@@ -4617,7 +4617,7 @@ public class BVM {
         return true;
     }
 
-    private static boolean checkIsType(BValue sourceVal, BType targetType) {
+    static boolean checkIsType(BValue sourceVal, BType targetType) {
         if (isMutable(sourceVal)) {
             BType sourceType = sourceVal == null ? BTypes.typeNull : sourceVal.getType();
             return checkIsType(sourceType, targetType, new ArrayList<>());

@@ -117,7 +117,6 @@ FORK        : 'fork' ;
 JOIN        : 'join' ;
 SOME        : 'some' ;
 ALL         : 'all' ;
-TIMEOUT     : 'timeout' ;
 TRY         : 'try' ;
 CATCH       : 'catch' ;
 FINALLY     : 'finally' ;

@@ -57,16 +57,16 @@ public class SafeStrandCallback extends StrandCallback {
                 Map<Integer, SafeStrandCallback> callbackHashMap = new HashMap();
                 callbackHashMap.put(this.callbackWaitHandler.keyReg, this);
 
-                Strand resultStrand = CallbackReturnHandler.handleReturn(this.callbackWaitHandler.waitingStrand,
-                        this.callbackWaitHandler.retReg, callbackHashMap);
+                Strand resultStrand = WaitCallbackHandler.handleReturnInWaitMultiple(this.callbackWaitHandler.waitingStrand,
+                                                                                     this.callbackWaitHandler.retReg, callbackHashMap);
                 if (resultStrand != null) {
                     BVMScheduler.stateChange(resultStrand, State.PAUSED, State.RUNNABLE);
                     BVMScheduler.schedule(resultStrand);
                 }
                 return;
             }
-            Strand resultStrand = CallbackReturnHandler.handleReturn(this.callbackWaitHandler.waitingStrand,
-                    this.callbackWaitHandler.expType, this.callbackWaitHandler.retReg, this);
+            Strand resultStrand = WaitCallbackHandler.handleReturnInWait(this.callbackWaitHandler.waitingStrand,
+                                                                         this.callbackWaitHandler.expType, this.callbackWaitHandler.retReg, this);
             if (resultStrand != null) {
                 BVMScheduler.stateChange(resultStrand, State.PAUSED, State.RUNNABLE);
                 BVMScheduler.schedule(resultStrand);
