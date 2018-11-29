@@ -1589,6 +1589,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitXmlAttribVariableReference(BallerinaParser.XmlAttribVariableReferenceContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
         boolean isSingleAttrRef = ctx.xmlAttrib().expression() != null;
         this.pkgBuilder.createXmlAttributesRefExpr(getCurrentPos(ctx), getWS(ctx), isSingleAttrRef);
     }
@@ -1765,6 +1768,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitTransactionClause(BallerinaParser.TransactionClauseContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
         this.pkgBuilder.addTransactionBlock(getCurrentPos(ctx), getWS(ctx));
     }
 
@@ -3158,7 +3165,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         Token stop = ctx.getStop();
         if (stop != null) {
             endLine = stop.getLine();
-            endCol = stop.getCharPositionInLine() + 1;
+            endCol = stop.getCharPositionInLine() + (stop.getStopIndex() - stop.getStartIndex() + 1) + 1;
         }
 
         return new DiagnosticPos(diagnosticSrc, startLine, endLine, startCol, endCol);

@@ -5,8 +5,8 @@ listener http:MockListener mockEP  = new(9092);
 @http:ServiceConfig {
     compression: {
         enable: http:COMPRESSION_ALWAYS,
-        contentTypes:["gfywgfwfw", "fywvwiuwi"]
-    }
+        contentTypes:["gfywgfwfw/rr", "fywvwiuwi/rrr"]
+    },
     compression: {
         enable: http:COMPRESSION_AUTO
     }

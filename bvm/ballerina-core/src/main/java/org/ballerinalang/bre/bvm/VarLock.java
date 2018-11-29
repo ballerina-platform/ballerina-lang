@@ -22,6 +22,7 @@ import org.ballerinalang.bre.vm.Strand;
 import org.ballerinalang.bre.vm.Strand.State;
 
 import java.util.ArrayDeque;
+import java.util.Arrays;
 
 /**
  * {@code VarLock} represents lock object for variables.
@@ -45,7 +46,8 @@ public class VarLock {
             return true;
         }
         waitingForLock.offerLast(ctx);
-        BVMScheduler.stateChange(ctx, State.RUNNABLE, State.PAUSED);
+        //TODO: need to improve on state change
+        BVMScheduler.stateChange(ctx, Arrays.asList(State.NEW, State.RUNNABLE), State.PAUSED);
 //        BLangScheduler.workerWaitForLock(ctx);
         return false;
     }
@@ -55,6 +57,8 @@ public class VarLock {
         current.removeLast();
         if (!waitingForLock.isEmpty()) {
             Strand ctx = waitingForLock.removeFirst();
+            //So the lock instruction will run again
+            ctx.currentFrame.ip--;
             BVMScheduler.stateChange(ctx, State.PAUSED, State.RUNNABLE);
             BVMScheduler.schedule(ctx);
         }

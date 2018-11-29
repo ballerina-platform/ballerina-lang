@@ -22,7 +22,7 @@ import org.ballerinalang.langserver.command.testgen.template.AbstractTestTemplat
 import org.ballerinalang.langserver.command.testgen.template.PlaceHolder;
 import org.ballerinalang.net.http.HttpConstants;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangResource;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 
 import java.util.ArrayList;
 import java.util.List;

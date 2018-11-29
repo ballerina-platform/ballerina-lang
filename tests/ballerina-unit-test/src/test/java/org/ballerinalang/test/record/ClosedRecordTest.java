@@ -184,6 +184,14 @@ public class ClosedRecordTest {
         Assert.assertEquals(returns[0].stringValue(), "Doe, John");
     }
 
+    @Test
+    public void testAmbiguityResolution() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAmbiguityResolution");
+        Assert.assertEquals(returns[0].stringValue(), "In-memory mode configuration");
+        Assert.assertEquals(returns[1].stringValue(), "Server mode configuration");
+        Assert.assertEquals(returns[2].stringValue(), "Embedded mode configuration");
+    }
+
     @Test(description = "Test white space between the type name and ellipsis in rest descriptor")
     public void testRestDescriptorSyntax() {
         CompileResult result = BCompileUtil.compile("test-src/record/closed_record_negative.bal");
@@ -191,6 +199,13 @@ public class ClosedRecordTest {
         BAssertUtil.validateError(result, 0, "invalid record rest descriptor", 5, 7);
         BAssertUtil.validateError(result, 1, "invalid record rest descriptor", 12, 9);
         BAssertUtil.validateError(result, 2, "invalid record rest descriptor", 20, 5);
+    }
+
+    @Test(description = "Test ambiguous type resolution negative cases")
+    public void testAmbiguityResolutionNegative() {
+        CompileResult result = BCompileUtil.compile("test-src/record/closed_record_ambiguous_types_negative.bal");
+        BAssertUtil.validateError(result, 0, "ambiguous type 'InMemoryModeConfig|ServerModeConfig|EmbeddedModeConfig'",
+                                  39, 22);
     }
 
     @Test(description = "Test invocation of nil-able function pointer fields in a closed record")

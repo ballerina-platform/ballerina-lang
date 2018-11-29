@@ -1,3 +1,5 @@
+import ballerina/runtime;
+
 // Test field locking when a record is passed as a param
 function fieldLock() returns int {
         Student stParam = {};
@@ -11,11 +13,8 @@ function workerFuncParam(Student param, CircuitBreakerInferredConfig conf) {
     worker w1 {
         incrementParam(param, conf);
     }
-
-    worker w2 {
-        incrementParam(param, conf);
-    }
-
+    runtime:sleep(10);
+    incrementParam(param, conf);
 }
 
 function incrementParam(Student param, CircuitBreakerInferredConfig conf) {
@@ -71,9 +70,8 @@ function buckWorkerFuncParam(Bucket buck) {
         incrementParam2(buck);
     }
 
-    worker w2 {
-        incrementParam2(buck);
-    }
+    runtime:sleep(10);
+    incrementParam2(buck);
 }
 
 function incrementParam2(Bucket buck) {

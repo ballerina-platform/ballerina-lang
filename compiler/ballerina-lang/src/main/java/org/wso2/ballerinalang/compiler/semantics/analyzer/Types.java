@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -503,7 +504,8 @@ public class Types {
             return true;
         }
 
-        if (target.tag == TypeTags.SERVICE && source.tag == TypeTags.SERVICE) {
+        if (target.getKind() == TypeKind.SERVICE && source.getKind() == TypeKind.SERVICE) {
+            // Special casing services, until we figure out service type concept.
             return true;
         }
 
@@ -2054,26 +2056,21 @@ public class Types {
         return false;
     }
 
-    public BType getRemainingType(BType originalType, Set<BType> set) {
+    public BType getRemainingType(BType originalType, Set<BType> removeTypes) {
         if (originalType.tag != TypeTags.UNION) {
             return originalType;
         }
 
-        List<BType> memberTypes = new ArrayList<>(((BUnionType) originalType).getMemberTypes());
+        List<BType> types = getAllTypes(new BUnionType(null, removeTypes, false));
+        List<BType> remainingTypes = getAllTypes(originalType).stream()
+                .filter(type -> types.stream().noneMatch(memberType -> isSameType(memberType, type)))
+                .collect(Collectors.toList());
 
-        for (BType removeType : set) {
-            if (removeType.tag != TypeTags.UNION) {
-                memberTypes.remove(removeType);
-            } else {
-                ((BUnionType) removeType).getMemberTypes().forEach(type -> memberTypes.remove(type));
-            }
-
-            if (memberTypes.size() == 1) {
-                return memberTypes.get(0);
-            }
+        if (remainingTypes.size() == 1) {
+            return remainingTypes.get(0);
         }
 
-        return new BUnionType(null, new HashSet<>(memberTypes), memberTypes.contains(symTable.nilType));
+        return new BUnionType(null, new HashSet<>(remainingTypes), remainingTypes.contains(symTable.nilType));
     }
 
     public BType getRemainingType(BType originalType, BType removeType) {
@@ -2081,18 +2078,27 @@ public class Types {
             return originalType;
         }
 
-        List<BType> memberTypes = new ArrayList<>(((BUnionType) originalType).getMemberTypes());
-        if (removeType.tag != TypeTags.UNION) {
-            memberTypes.remove(removeType);
-        } else {
-            ((BUnionType) removeType).getMemberTypes().forEach(type -> memberTypes.remove(type));
+        List<BType> types = getAllTypes(removeType);
+        List<BType> remainingTypes = getAllTypes(originalType).stream()
+                .filter(type -> types.stream()
+                        .noneMatch(memberType -> isSameType(memberType, type)))
+                .collect(Collectors.toList());
+
+        if (remainingTypes.size() == 1) {
+            return remainingTypes.get(0);
         }
 
-        if (memberTypes.size() == 1) {
-            return memberTypes.get(0);
+        return new BUnionType(null, new HashSet<>(remainingTypes), remainingTypes.contains(symTable.nilType));
+    }
+
+    private List<BType> getAllTypes(BType type) {
+        if (type.tag != TypeTags.UNION) {
+            return Lists.of(type);
         }
 
-        return new BUnionType(null, new HashSet<>(memberTypes), memberTypes.contains(symTable.nilType));
+        List<BType> memberTypes = new ArrayList<>();
+        ((BUnionType) type).getMemberTypes().forEach(memberType -> memberTypes.addAll(getAllTypes(memberType)));
+        return memberTypes;
     }
 
     /**

@@ -603,6 +603,23 @@ public class CommonUtil {
     }
 
     /**
+     * Check whether the symbol is a listener object.
+     *
+     * @param bSymbol           Symbol to evaluate
+     * @return {@link Boolean}  whether listener or not
+     */
+    public static boolean isListenerObject(BSymbol bSymbol) {
+        if (!(bSymbol instanceof BObjectTypeSymbol)) {
+            return false;
+        }
+        List<String> attachedFunctions = ((BObjectTypeSymbol) bSymbol).attachedFuncs.stream()
+                .map(function -> function.funcName.getValue())
+                .collect(Collectors.toList());
+        return attachedFunctions.contains("__start") && attachedFunctions.contains("__stop")
+                && attachedFunctions.contains("__attach");
+    }
+
+    /**
      * Given an Object type, extract the non-remote functions.
      *
      * @param objectTypeSymbol  Object Symbol
@@ -699,7 +716,8 @@ public class CommonUtil {
                     + nameComponents[nameComponents.length - 1];
         }
     }
-/**
+
+    /**
      * Get the last item of the List.
      *
      * @param list  List to get the Last Item
@@ -1421,6 +1439,19 @@ public class CommonUtil {
             }
             return (parent != null && parent.parent != null)
                     ? lookupFunctionReturnType(functionName, parent.parent) : "any";
+        }
+    }
+
+    /**
+     * Node comparator to compare the nodes by position.                            
+     */
+    public static class BLangNodeComparator implements Comparator<BLangNode> {
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public int compare(BLangNode node1, BLangNode node2) {
+            return node1.getPosition().getStartLine() - node2.getPosition().getStartLine();
         }
     }
 }

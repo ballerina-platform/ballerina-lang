@@ -16,15 +16,12 @@
 import ballerina/grpc;
 import ballerina/io;
 
-HelloWorldBlockingClient helloWorldBlockingEp = new ({
-    url:"http://localhost:9098"
-});
+HelloWorldBlockingClient helloWorldBlockingEp = new ("http://localhost:9098");
 
 function testInvalidRemoteMethod(string name) returns (string) {
     (string, grpc:Headers)|error unionResp = helloWorldBlockingEp->hello(name);
     if (unionResp is error) {
-        io:println("Error from Connector: " + unionResp.reason());
-        return "Error from Connector: " + unionResp.reason();
+        return io:sprintf("Error from Connector: %s - %s", unionResp.reason(), <string>unionResp.detail().message);
     } else {
         io:println("Client Got Response : ");
         string result = "";
@@ -37,7 +34,9 @@ function testInvalidRemoteMethod(string name) returns (string) {
 function testInvalidInputParameter(int age) returns (int) {
     (int, grpc:Headers)|error unionResp = helloWorldBlockingEp->testInt(age);
     if (unionResp is error) {
-        io:println("Error from Connector: " + unionResp.reason());
+        string message = io:sprintf("Error from Connector: %s - %s", unionResp.reason(), <string>unionResp.detail()
+            .message);
+        io:println(message);
         return -1;
     } else {
         io:println("Client got response : ");
@@ -51,7 +50,8 @@ function testInvalidInputParameter(int age) returns (int) {
 function testInvalidOutputResponse(float salary) returns (float|string) {
     (float, grpc:Headers)|error unionResp = helloWorldBlockingEp->testFloat(salary);
     if (unionResp is error) {
-        string message = "Error from Connector: " + unionResp.reason();
+        string message = io:sprintf("Error from Connector: %s - %s", unionResp.reason(), <string>unionResp.detail()
+            .message);
         io:println(message);
         return message;
     } else {
@@ -66,7 +66,8 @@ function testInvalidOutputResponse(float salary) returns (float|string) {
 function testNonExistenceRemoteMethod(boolean isAvailable) returns (boolean|string) {
     (boolean, grpc:Headers)|error unionResp = helloWorldBlockingEp->testBoolean(isAvailable);
     if (unionResp is error) {
-        string message = "Error from Connector: " + unionResp.reason();
+        string message = io:sprintf("Error from Connector: %s - %s", unionResp.reason(), <string>unionResp.detail()
+            .message);
         io:println(message);
         return message;
     } else {
@@ -79,13 +80,16 @@ function testNonExistenceRemoteMethod(boolean isAvailable) returns (boolean|stri
 }
 
 public type HelloWorldBlockingClient client object {
-
     private grpc:Client grpcClient = new;
+    private grpc:ClientEndpointConfig config = {};
+    private string url;
 
-    function __init(grpc:ClientEndpointConfig config) {
+    function __init(string url, grpc:ClientEndpointConfig? config = ()) {
+        self.config = config ?: {};
+        self.url = url;
         // initialize client endpoint.
         grpc:Client c = new;
-        c.init(config);
+        c.init(self.url, self.config);
         error? result = c.initStub("blocking", DESCRIPTOR_KEY, getDescriptorMap());
         if (result is error) {
             panic result;
@@ -124,7 +128,8 @@ public type HelloWorldBlockingClient client object {
         if (value is float) {
             return (value, resHeaders);
         } else {
-            return value;
+            error err = error("{ballerina/grpc}INTERNAL", {"message": value.reason()});
+            return err;
         }
     }
 
@@ -145,11 +150,15 @@ public type HelloWorldBlockingClient client object {
 public type helloWorldClient client object {
 
     private grpc:Client grpcClient = new;
+    private grpc:ClientEndpointConfig config = {};
+    private string url;
 
-    function __init(grpc:ClientEndpointConfig config) {
+    function __init(string url, grpc:ClientEndpointConfig? config = ()) {
+        self.config = config ?: {};
+        self.url = url;
         // initialize client endpoint.
         grpc:Client c = new;
-        c.init(config);
+        c.init(self.url, self.config);
         error? result = c.initStub("non-blocking", DESCRIPTOR_KEY, getDescriptorMap());
         if (result is error) {
             panic result;
