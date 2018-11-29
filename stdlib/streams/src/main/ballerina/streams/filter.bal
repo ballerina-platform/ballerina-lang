@@ -16,29 +16,31 @@
 
 public type Filter object {
     private function (StreamEvent[]) nextProcessorPointer;
-    private function (map<any>) returns boolean conditionFunc;
+    private function (map<anydata>) returns boolean conditionFunc;
 
-    new(nextProcessorPointer, conditionFunc) {
-
+    function __init(function (StreamEvent[]) nextProcessorPointer,
+                    function (map<anydata>) returns boolean conditionFunc) {
+        self.nextProcessorPointer = nextProcessorPointer;
+        self.conditionFunc = conditionFunc;
     }
 
     public function process(StreamEvent[] streamEvents) {
         StreamEvent[] newStreamEventArr = [];
         int index = 0;
         foreach event in streamEvents {
-            if (self.conditionFunc(event.data)) {
+            if (self.conditionFunc.call(event.data)) {
                 newStreamEventArr[index] = event;
                 index += 1;
             }
         }
         if (index > 0) {
-            self.nextProcessorPointer(newStreamEventArr);
+            self.nextProcessorPointer.call(newStreamEventArr);
         }
     }
 };
 
-public function createFilter(function(StreamEvent[]) nextProcPointer, function (map<any> o) returns boolean conditionFunc)
-                    returns Filter {
+public function createFilter(function (StreamEvent[]) nextProcPointer,
+                             function (map<anydata> o) returns boolean conditionFunc) returns Filter {
     Filter filter = new(nextProcPointer, conditionFunc);
     return filter;
 }

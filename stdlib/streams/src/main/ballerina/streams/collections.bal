@@ -21,8 +21,10 @@ public type Node object {
     public Node? next;
     public Node? prev;
 
-    new(prev, data, next) {
-
+    function __init(Node? prev, any? data, Node? next) {
+        self.prev = prev;
+        self.data = data;
+        self.next = next;
     }
 };
 
@@ -33,7 +35,7 @@ public type LinkedList object {
     public int size = 0;
     public boolean ascend = true;
 
-    new() {
+    function __init() {
         self.first = ();
         self.last = ();
         self.curr = ();
@@ -43,13 +45,11 @@ public type LinkedList object {
 
     // Returns whether the list is empty.
     public function isEmpty() returns boolean {
-        match self.first {
-            Node value => {
-                return false;
-            }
-            () => {
-                return true;
-            }
+        var value = self.first;
+        if (value is Node) {
+            return false;
+        } else {
+            return true;
         }
     }
 
@@ -67,42 +67,36 @@ public type LinkedList object {
 
     // When iterating, indicates whethers there's a node next to the self.current node.
     public function hasNext() returns boolean {
-        match self.curr {
-            Node c => {
-                Node? next = c.next;
-                return next !== ();
-            }
-            () => {
-                return (self.ascend && self.first !== ());
-            }
+        var c = self.curr;
+        if (c is Node) {
+            Node? next = c.next;
+            return !(next is ());
+        } else {
+            return (self.ascend && !(self.first is ()));
         }
     }
 
     // When iterating, indicates whethers there's a node prior to the self.current node.
     public function hasPrevious() returns boolean {
-        match self.curr {
-            Node c => {
-                Node? prev = c.prev;
-                return prev !== ();
-            }
-            () => {
-                return (!self.ascend && self.last !== ());
-            }
+        var c = self.curr;
+        if (c is Node) {
+            Node? prev = c.prev;
+            return !(prev is ());
+        } else {
+            return (!self.ascend && !(self.last is ()));
         }
     }
 
     // Iterates to the next node and returns it's data.
     public function next() returns any? {
         if (self.hasNext()) {
-            match self.curr {
-                Node c => {
-                    Node? next = c.next;
-                    self.curr = next;
-                }
-                () => {
-                    Node? next = self.first;
-                    self.curr = next;
-                }
+            var c = self.curr;
+            if (c is Node) {
+                Node? next = c.next;
+                self.curr = next;
+            } else {
+                Node? next = self.first;
+                self.curr = next;
             }
             return self.curr.data;
         } else {
@@ -115,15 +109,13 @@ public type LinkedList object {
     // Iterates to the previous node and returns it's data.
     public function previous() returns any? {
         if (self.hasPrevious()) {
-            match self.curr {
-                Node c => {
-                    Node? prev = c.prev;
-                    self.curr = prev;
-                }
-                () => {
-                    Node? prev = self.last;
-                    self.curr = prev;
-                }
+            var c = self.curr;
+            if (c is Node) {
+                Node? prev = c.prev;
+                self.curr = prev;
+            } else {
+                Node? prev = self.last;
+                self.curr = prev;
             }
             return self.curr.data;
         } else {
@@ -135,11 +127,11 @@ public type LinkedList object {
 
     // Removes the self.current node.
     public function removeCurrent() {
-        match self.curr {
-            Node c => {
-                _ = self.unlink(c);
-            }
-            () => {}
+        var c = self.curr;
+        if (c is Node) {
+            _ = self.unlink(c);
+        } else {
+
         }
     }
 
@@ -217,25 +209,21 @@ public type LinkedList object {
 
     // Returns the self.first element in this list.
     public function getFirst() returns any? {
-        match self.first {
-            Node n => {
-                return n.data;
-            }
-            () => {
-                return ();
-            }
+        var n = self.first;
+        if (n is Node) {
+            return n.data;
+        } else {
+            return ();
         }
     }
 
     // Returns the self.last element in this list.
     public function getLast() returns any? {
-        match self.last {
-            Node n => {
-                return n.data;
-            }
-            () => {
-                return ();
-            }
+        var n = self.last;
+        if (n is Node) {
+            return n.data;
+        } else {
+            return ();
         }
     }
 
@@ -251,67 +239,59 @@ public type LinkedList object {
 
     // Removes and returns the self.first element from this list.
     public function removeFirst() returns any? {
-        match self.first {
-            Node f => {
-                return self.unlinkFirst(f);
-            }
-            () => {
-                return ();
-            }
+        var f = self.first;
+        if (f is Node) {
+            return self.unlinkFirst(f);
+        } else {
+            return ();
         }
     }
 
     // Removes and returns the last element from this list.
     public function removeLast() returns any? {
-        match self.last {
-            Node l => {
-                return self.unlinkLast(l);
-            }
-            () => {
-                return ();
-            }
+        var l = self.last;
+        if (l is Node) {
+            return self.unlinkLast(l);
+        } else {
+            return ();
         }
     }
 
     public function insertBeforeCurrent(any data) {
-        match self.curr {
-            Node c => {
-                self.linkBefore(data, c);
-            }
-            () => {}
+        var c = self.curr;
+        if (c is Node) {
+            self.linkBefore(data, c);
+        } else {
+
         }
     }
 
     // Links data as first element.
     function linkFirst(any data) {
-        match self.first {
-            Node f => {
-                Node newNode = new((), data, f);
-                self.first = newNode;
-                f.prev = newNode;
-            }
-            () => {
-                Node newNode = new((), data, ());
-                self.first = newNode;
-                self.last = newNode;
-            }
+        var f = self.first;
+        if (f is Node) {
+            Node newNode = new((), data, f);
+            self.first = newNode;
+            f.prev = newNode;
+        } else {
+            Node newNode = new((), data, ());
+            self.first = newNode;
+            self.last = newNode;
         }
         self.size += 1;
     }
 
     // Links data as last element.
     function linkLast(any data) {
-        match self.last {
-            Node l => {
-                Node newNode = new(l, data, ());
-                self.last = newNode;
-                l.next = newNode;
-            }
-            () => {
-                Node newNode = new((), data, ());
-                self.first = newNode;
-                self.last = newNode;
-            }
+        var l = self.last;
+        if (l is Node) {
+            Node newNode = new(l, data, ());
+            self.last = newNode;
+            l.next = newNode;
+        } else {
+            Node newNode = new((), data, ());
+            self.first = newNode;
+            self.last = newNode;
         }
         self.size += 1;
     }
@@ -321,13 +301,11 @@ public type LinkedList object {
         Node? pred = succ.prev;
         Node newNode = new(pred, data, succ);
         succ.prev = newNode;
-        match pred {
-            Node n => {
-                n.next = newNode;
-            }
-            () => {
-                self.first = newNode;
-            }
+        var n = pred;
+        if (n is Node) {
+            n.next = newNode;
+        } else {
+            self.first = newNode;
         }
         self.size += 1;
     }
@@ -339,13 +317,11 @@ public type LinkedList object {
         self.first = next;
         node.data = ();
         node.next = ();
-        match next {
-            Node n => {
-                n.prev = ();
-            }
-            () => {
-                self.last = ();
-            }
+        var n = next;
+        if (n is Node) {
+            n.prev = ();
+        } else {
+            self.last = ();
         }
         self.size -= 1;
         return data;
@@ -358,13 +334,11 @@ public type LinkedList object {
         self.last = prev;
         node.data = ();
         node.prev = ();
-        match prev {
-            Node n => {
-                n.next = ();
-            }
-            () => {
-                self.first = ();
-            }
+        var n = prev;
+        if (n is Node) {
+            n.next = ();
+        } else {
+            self.first = ();
         }
         self.size -= 1;
         return data;
@@ -375,24 +349,23 @@ public type LinkedList object {
         any data = x.data;
         Node? next = x.next;
         Node? prev = x.prev;
-        match prev {
-            Node p => {
-                p.next = next;
-                x.prev = ();
-            }
-            () => {
-                self.first = next;
-            }
+
+        var p = prev;
+        if (p is Node) {
+            p.next = next;
+            x.prev = ();
+        } else {
+            self.first = next;
         }
-        match next {
-            Node n => {
-                n.prev = prev;
-                x.next = ();
-            }
-            () => {
-                self.last = prev;
-            }
+
+        var n = next;
+        if (n is Node) {
+            n.prev = prev;
+            x.next = ();
+        } else {
+            self.last = prev;
         }
+
         if (reflect:equals(x, self.curr)) {
             if (self.ascend) {
                 self.curr = prev;
@@ -406,22 +379,18 @@ public type LinkedList object {
     }
 
     public function dequeue() returns any? {
-        match self.first {
-            Node value => {
-                self.first = value.next;
-                match self.first {
-                    Node nextValue => {
-                        // do nothing
-                    }
-                    () => {
-                        self.last = ();
-                    }
-                }
-                return value.data;
+        var value = self.first;
+        if (value is Node) {
+            self.first = value.next;
+            var nextValue = self.first;
+            if (nextValue is Node) {
+                // do nothing
+            } else {
+                self.last = ();
             }
-            () => {
-                return ();
-            }
+            return value.data;
+        } else {
+            return ();
         }
     }
 
@@ -430,16 +399,16 @@ public type LinkedList object {
         Node? temp;
         int i = 0;
         if (!self.isEmpty()) {
-            match self.first {
-                Node value => {
-                    temp = value;
-                    while (temp !== ()) {
-                        arr[i] = temp.data;
-                        i = i + 1;
-                        temp = temp.next;
-                    }
+            var value = self.first;
+            if (value is Node) {
+                temp = value;
+                while (temp !== ()) {
+                    arr[i] = temp.data;
+                    i = i + 1;
+                    temp = temp.next;
                 }
-                () => {}
+            } else {
+
             }
         }
         return arr;
