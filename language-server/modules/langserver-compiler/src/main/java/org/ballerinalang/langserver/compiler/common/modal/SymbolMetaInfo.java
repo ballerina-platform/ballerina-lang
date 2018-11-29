@@ -32,9 +32,10 @@ public final class SymbolMetaInfo {
     private boolean caller;
     private String kind;
     private BSymbol bSymbol;
+    private String typeName;
 
     private SymbolMetaInfo(String name, String pkgOrgName, String pkgName, String pkgAlias, boolean caller,
-                           String kind, BSymbol bSymbol) {
+                           String kind, BSymbol bSymbol, String typeName) {
         this.name = name;
         this.pkgOrgName = pkgOrgName;
         this.pkgName = pkgName;
@@ -42,6 +43,7 @@ public final class SymbolMetaInfo {
         this.caller = caller;
         this.kind = kind;
         this.bSymbol = bSymbol;
+        this.typeName = typeName;
     }
 
     public String getName() {
@@ -72,6 +74,10 @@ public final class SymbolMetaInfo {
         return bSymbol;
     }
 
+    public String getTypeName() {
+        return typeName;
+    }
+
     public JsonElement getJson() {
         Gson gson = new Gson();
         return gson.toJsonTree(this);
@@ -90,6 +96,7 @@ public final class SymbolMetaInfo {
         private boolean caller = false;
         private String kind = "";
         private BSymbol bSymbol;
+        private String typeName;
 
         public SymbolMetaInfoBuilder setName(String name) {
             this.name = name;
@@ -126,9 +133,14 @@ public final class SymbolMetaInfo {
             return this;
         }
 
+        public SymbolMetaInfoBuilder setTypeName(String typeName) {
+            this.typeName = typeName;
+            return this;
+        }
+
         public SymbolMetaInfo build() {
             return new SymbolMetaInfo(this.name, this.pkgOrgName, this.pkgName, this.pkgAlias, this.caller,
-                    this.kind, this.bSymbol);
+                    this.kind, this.bSymbol, this.typeName);
         }
     }
 }
