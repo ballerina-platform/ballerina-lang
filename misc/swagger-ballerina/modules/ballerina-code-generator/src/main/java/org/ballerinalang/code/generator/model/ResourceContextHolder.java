@@ -20,7 +20,7 @@ import org.ballerinalang.code.generator.GeneratorConstants;
 import org.ballerinalang.code.generator.exception.CodeGeneratorException;
 import org.ballerinalang.code.generator.util.GeneratorUtils;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
-import org.ballerinalang.model.tree.ResourceNode;
+import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
@@ -47,7 +47,7 @@ public class ResourceContextHolder {
      */
     private String path;
 
-    public static ResourceContextHolder buildContext(ResourceNode resource) throws CodeGeneratorException {
+    public static ResourceContextHolder buildContext(FunctionNode resource) throws CodeGeneratorException {
         ResourceContextHolder context = new ResourceContextHolder();
         context.name = resource.getName().getValue();
         context.parameters = new ArrayList<>();

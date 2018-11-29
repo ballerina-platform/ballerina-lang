@@ -156,3 +156,31 @@ function testTypeReferencingInBALOs() returns records:BManager {
                           company:"WSO2", dept:"Engineering"};
     return m;
 }
+
+// TEST DEFAULT VALUE INIT IN TYPE REFERENCED FIELDS
+
+type PersonRec record {
+    string name = "John Doe";
+    int age = 25;
+    Address adr = {city: "Colombo", country: "Sri Lanka"};
+};
+
+type EmployeeRec record {
+    *PersonRec;
+    string company = "WSO2";
+};
+
+type ManagerRec record {
+    string dept = "";
+    *EmployeeRec;
+};
+
+function testDefaultValueInit() returns ManagerRec {
+    ManagerRec mgr = {};
+    return mgr;
+}
+
+function testDefaultValueInitInBALOs() returns records:BManager {
+    records:BManager mgr = {};
+    return mgr;
+}

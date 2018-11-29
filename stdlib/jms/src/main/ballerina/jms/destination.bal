@@ -20,16 +20,16 @@
 # `topic`: Destination type topic
 public type DestinationType "queue"|"topic";
 
-# Constant for jms destination type queue
+# Constant for JMS destination type queue
 public const QUEUE = "queue";
 
-# Constant for jms destination type topic
+# Constant for JMS destination type topic
 public const TOPIC = "topic";
 
 # Destination object
 #
-# + destinationName - name of the destination
-# + destinationType - type of the destination, either queue or topic
+# + destinationName - Name of the destination
+# + destinationType - Type of the destination, either queue or topic
 public type Destination object {
     public string destinationName;
     public string destinationType;

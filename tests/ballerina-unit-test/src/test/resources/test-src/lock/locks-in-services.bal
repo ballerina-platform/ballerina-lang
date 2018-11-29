@@ -29,7 +29,7 @@ float sample1Price = 0.0;
 string sample1FinalText = "";
 float[] sample1FloatArr = [1.0, 2.0];
 Person sample1Person = {age:2, name:"a", address:{no:5, line1:"", line2:"ppp"}};
-map sample1MapVal = {name:""};
+map<string> sample1MapVal = {name:""};
 
 @http:ServiceConfig {}
 service sample1 on echoEP {
@@ -108,7 +108,7 @@ Person person1 = {age:2, name:"a", address:{no:5, line1:"", line2:"ppp"}};
 float[] floatArr1 = [1.0, 2.0];
 int sample2RequestCount = 0;
 float sample2Price = 0.0;
-map sample2MapVal = {name:""};
+map<string> sample2MapVal = {name:""};
 
 @http:ServiceConfig {}
 service sample2 on echoEP {
@@ -205,9 +205,9 @@ service sample3 on echoEP {
 
 //Test when there is a field access within a lock
 @http:ServiceConfig {}
-service<http:Service> sample4 bind echoEP {
+service sample4 on echoEP {
 
-    echo(endpoint conn, http:Request req) {
+    resource function echo(http:Caller conn, http:Request req) {
 
        Person p = {};
        workerFunc(p);
@@ -224,9 +224,9 @@ function workerFunc(Person param) {
         increment(param);
     }
 
-    worker w2 {
-        increment(param);
-    }
+    runtime:sleep(10);
+    increment(param);
+
 
 }
 

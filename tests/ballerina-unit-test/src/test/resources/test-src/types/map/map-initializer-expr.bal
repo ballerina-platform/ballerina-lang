@@ -5,7 +5,7 @@ function mapInitTest() returns (map<any>) {
 }
 
 function testNestedMapInit () returns (map<any>) {
-    map<map> m = {"info":{"city":"Colombo", "country":"SriLanka"}};
+    map<map<any>> m = {"info":{"city":"Colombo", "country":"SriLanka"}};
     return m;
 }
 
@@ -18,7 +18,7 @@ function testMapInitWithJson () returns (map<any>) {
 function testComplexMapInit() returns (map<any>) {
     map<any> address = {city:"CA", "country":"USA"};
     int[] intArray = [7,8,9];
-    map<map>[]  addressArray = [
+    map<map<any>>[]  addressArray = [
                          {address:{city:"Colombo", "country":"SriLanka"}},
                          {address:{city:"Kandy", "country":"SriLanka"}},
                          {address:{city:"Galle", "country":"SriLanka"}}
