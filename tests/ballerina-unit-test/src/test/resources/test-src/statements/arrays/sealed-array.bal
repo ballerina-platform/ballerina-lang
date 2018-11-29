@@ -183,33 +183,36 @@ function unionAndMatchStatementUnsealedArray(float[] x) returns string {
 }
 
 function unionTestSealedArray(boolean | int[] | float[4] | float[] | float[6] x) returns string {
-    match x {
-        boolean k => return "matched boolean";
-        int[] k => return "matched int array";
-        float[6] k => return "matched sealed float array size 6";
-        float[4] k => return "matched sealed float array size 4";
-        float[] k => return "matched float array";
+    if (x is boolean) {
+        return "matched boolean";
+    } else if (x is int[]) {
+        return "matched int array";
+    } else if (x is float[6]) {
+        return "matched sealed float array size 6";
+    } else if (x is float[4]) {
+        return "matched sealed float array size 4";
+    } else {
+        return "matched float array";
     }
 }
 
 function unionTestNoSealedArray(boolean | int[] | float[4] | float[] x) returns string {
-    match x {
-        boolean k => return "matched boolean";
-        int[] k => return "matched int array";
-        float[] k => return "matched float array";
+    if (x is boolean) {
+        return "matched boolean";
+    } else if (x is int[]) {
+        return "matched int array";
+    } else {
+        return "matched float array";
     }
 }
 
 function accessIndexOfMatchedSealedArray(int[] | int[3] x, int index) returns int {
-    match x {
-        int[3] k => {
-            k[index] = 10;
-            return k[index];
-        }
-        int[] k => {
-            k[index] = 10;
-            return k[index];
-        }
+    if (x is int[3]) {
+        x[index] = 10;
+        return x[index];
+    } else {
+        x[index] = 10;
+        return x[index];
     }
 }
 
