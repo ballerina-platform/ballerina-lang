@@ -2057,33 +2057,22 @@ public class Types {
         return false;
     }
 
-    public BType getRemainingType(BType originalType, Set<BType> removeTypes) {
-        if (originalType.tag != TypeTags.UNION) {
-            return originalType;
-        }
-
-        List<BType> types = getAllTypes(new BUnionType(null, removeTypes, false));
-        List<BType> remainingTypes = getAllTypes(originalType).stream()
-                .filter(type -> types.stream().noneMatch(memberType -> isSameType(memberType, type)))
-                .collect(Collectors.toList());
-
-        if (remainingTypes.size() == 1) {
-            return remainingTypes.get(0);
-        }
-
-        return new BUnionType(null, new HashSet<>(remainingTypes), remainingTypes.contains(symTable.nilType));
+    public BType getRemainingType(BType originalType, Set<BType> typesToRemove) {
+        return getRemainingType(originalType, new BUnionType(null, typesToRemove, false));
     }
 
-    public BType getRemainingType(BType originalType, BType removeType) {
+    public BType getRemainingType(BType originalType, BType typeToRemove) {
         if (originalType.tag != TypeTags.UNION) {
             return originalType;
         }
 
-        List<BType> types = getAllTypes(removeType);
-        List<BType> remainingTypes = getAllTypes(originalType).stream()
-                .filter(type -> types.stream()
-                        .noneMatch(memberType -> isSameType(memberType, type)))
-                .collect(Collectors.toList());
+        List<BType> removeTypes = getAllTypes(typeToRemove);
+        return getRemainingType(originalType, removeTypes);
+    }
+
+    private BType getRemainingType(BType originalType, List<BType> removeTypes) {
+        List<BType> remainingTypes = getAllTypes(originalType);
+        removeTypes.forEach(removeType -> remainingTypes.removeIf(type -> isSameType(type, removeType)));
 
         if (remainingTypes.size() == 1) {
             return remainingTypes.get(0);

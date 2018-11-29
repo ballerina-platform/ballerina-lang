@@ -35,6 +35,7 @@ import static org.ballerinalang.net.http.HttpConstants.ANN_NAME_INTERRUPTIBLE;
 import static org.ballerinalang.net.http.HttpConstants.ANN_NAME_RESOURCE_CONFIG;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
 import static org.ballerinalang.net.http.HttpConstants.PACKAGE_BALLERINA_BUILTIN;
+import static org.ballerinalang.net.http.HttpUtil.checkConfigAnnotationAvailability;
 
 /**
  * {@code HttpResource} This is the http wrapper for the {@code Resource} implementation.
@@ -182,26 +183,25 @@ public class HttpResource {
         Annotation resourceConfigAnnotation = getResourceConfigAnnotation(resource);
         httpResource.setInterruptible(httpService.isInterruptible() || hasInterruptibleAnnotation(resource));
 
-        if (resourceConfigAnnotation == null || resourceConfigAnnotation.getValue() == null) {
-            if (log.isDebugEnabled()) {
-                log.debug("resourceConfig not specified in the Resource instance, using default sub path");
-            }
-            httpResource.setPath(resource.getName());
+        if (checkConfigAnnotationAvailability(resourceConfigAnnotation)) {
+            Struct resourceConfig = resourceConfigAnnotation.getValue();
+            httpResource.setPath(resourceConfig.getStringField(PATH_FIELD));
+            httpResource.setMethods(getAsStringList(resourceConfig.getArrayField(METHODS_FIELD)));
+            httpResource.setConsumes(getAsStringList(resourceConfig.getArrayField(CONSUMES_FIELD)));
+            httpResource.setProduces(getAsStringList(resourceConfig.getArrayField(PRODUCES_FIELD)));
+            httpResource.setEntityBodyAttributeValue(resourceConfig.getStringField(BODY_FIELD));
+            httpResource.setCorsHeaders(CorsHeaders.buildCorsHeaders(resourceConfig.getStructField(CORS_FIELD)));
+            httpResource.setTransactionInfectable(resourceConfig.getBooleanField(TRANSACTION_INFECTABLE_FIELD));
+
+            processResourceCors(httpResource, httpService);
             httpResource.prepareAndValidateSignatureParams();
             return httpResource;
         }
 
-        Struct resourceConfig = resourceConfigAnnotation.getValue();
-
-        httpResource.setPath(resourceConfig.getStringField(PATH_FIELD));
-        httpResource.setMethods(getAsStringList(resourceConfig.getArrayField(METHODS_FIELD)));
-        httpResource.setConsumes(getAsStringList(resourceConfig.getArrayField(CONSUMES_FIELD)));
-        httpResource.setProduces(getAsStringList(resourceConfig.getArrayField(PRODUCES_FIELD)));
-        httpResource.setEntityBodyAttributeValue(resourceConfig.getStringField(BODY_FIELD));
-        httpResource.setCorsHeaders(CorsHeaders.buildCorsHeaders(resourceConfig.getStructField(CORS_FIELD)));
-        httpResource.setTransactionInfectable(resourceConfig.getBooleanField(TRANSACTION_INFECTABLE_FIELD));
-
-        processResourceCors(httpResource, httpService);
+        if (log.isDebugEnabled()) {
+            log.debug("resourceConfig not specified in the Resource instance, using default sub path");
+        }
+        httpResource.setPath(resource.getName());
         httpResource.prepareAndValidateSignatureParams();
         return httpResource;
     }

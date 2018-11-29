@@ -279,4 +279,16 @@ public class ServiceTest {
         BAssertUtil.validateError(negativeResult, 4, "worker send/receive interactions are invalid; worker(s) cannot "
                 + "move onwards from the state: '{w1=a -> w2, w2=b -> w1}'", 35, 9);
     }
+
+    @Test(description = "Test uninitialized service/resource config annotations")
+    public void testUninitializedAnnotations() {
+        String path = "/hello/echo";
+        HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, requestMsg);
+
+        Assert.assertNotNull(responseMsg, "responseMsg message not found");
+        String responseMsgPayload = StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(responseMsg).getInputStream());
+        Assert.assertEquals(responseMsgPayload, "Uninitialized configs");
+    }
 }
