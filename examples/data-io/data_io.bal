@@ -33,7 +33,7 @@ function deserialize(io:ReadableByteChannel byteChannel) returns Person {
         nameLength = int32Result;
     } else if (int32Result is error) {
         log:printError("Error occurred while reading name length",
-            err = int32Result);
+                        err = int32Result);
     }
     //Read UTF-8 encoded string represented through specified amount of bytes
     var strResult = dc.readString(nameLength, "UTF-8");
@@ -48,7 +48,7 @@ function deserialize(io:ReadableByteChannel byteChannel) returns Person {
         person.age = int16Result;
     } else if (int16Result is error) {
         log:printError("Error occurred while reading age",
-            err = int16Result);
+                        err = int16Result);
     }
     //Read 64 bit signed float
     var float64Result = dc.readFloat64();
@@ -56,7 +56,7 @@ function deserialize(io:ReadableByteChannel byteChannel) returns Person {
         person.income = float64Result;
     } else if (float64Result is error) {
         log:printError("Error occurred while reading income",
-            err = float64Result);
+                        err = float64Result);
     }
     //Read boolean
     var boolResult = dc.readBool();
@@ -64,7 +64,7 @@ function deserialize(io:ReadableByteChannel byteChannel) returns Person {
         person.isMarried = boolResult;
     } else if (boolResult is error) {
         log:printError("Error occurred while reading marital status",
-            err = boolResult);
+                        err = boolResult);
     }
     //Finally close the data channel
     var closeResult = dc.close();
@@ -84,8 +84,8 @@ function readRecordFromFile(string path) returns Person {
 }
 
 public function main() {
-    Person wPerson = { name: "Ballerina", age: 21, income: 1543.12,
-        isMarried: true };
+    Person wPerson = { name: "Ballerina", age: 21,
+                       income: 1543.12, isMarried: true };
     //Write record to file
     writeRecordToFile(wPerson, "./files/person.bin");
     io:println("Person record successfully written to file");

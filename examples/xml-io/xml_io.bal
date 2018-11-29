@@ -5,7 +5,7 @@ function closeRc(io:ReadableCharacterChannel rc) {
     var result = rc.close();
     if (result is error) {
         log:printError("Error occurred while closing character stream",
-            err = result);
+                        err = result);
     }
 }
 
@@ -13,7 +13,7 @@ function closeWc(io:WritableCharacterChannel wc) {
     var result = wc.close();
     if (result is error) {
         log:printError("Error occurred while closing character stream",
-            err = result);
+                        err = result);
     }
 }
 

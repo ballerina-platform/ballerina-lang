@@ -6,9 +6,9 @@ import ballerina/log;
 // content in the file. The `rs` annotation defines a record seperator
 // (e.g., a new line) and the `fs` annotation is a field seperator
 // (e.g., a comma).
-function getReadableRecordChannel(string filePath, string encoding,
-                                  string rs, string fs)
-                                    returns (io:ReadableTextRecordChannel) {
+function getReadableRecordChannel(string filePath, string encoding, string rs,
+                                  string fs)
+                                        returns (io:ReadableTextRecordChannel) {
     io:ReadableByteChannel byteChannel = io:openReadableFile(filePath);
     // Create a `readable character channel`
     // from the `readable byte channel` to read content as text.
@@ -16,8 +16,8 @@ function getReadableRecordChannel(string filePath, string encoding,
     // Convert the `readable character channel` to a `readable record channel`
     //to read the content as records.
     io:ReadableTextRecordChannel delimitedRecordChannel = new(characterChannel,
-        rs = rs,
-        fs = fs);
+                                                              rs = rs,
+                                                              fs = fs);
     return delimitedRecordChannel;
 }
 
@@ -26,9 +26,9 @@ function getReadableRecordChannel(string filePath, string encoding,
 // content in the file. The `rs` annotation defines a record seperator
 // (e.g., a new line) and the `fs` annotation is a field seperator
 // (e.g., a comma).
-function getWritableRecordChannel(string filePath, string encoding,
-                                  string rs, string fs)
-                                    returns (io:WritableTextRecordChannel) {
+function getWritableRecordChannel(string filePath, string encoding, string rs,
+                                  string fs)
+                                        returns (io:WritableTextRecordChannel) {
     io:WritableByteChannel byteChannel = io:openWritableFile(filePath);
     // Create a `writable character channel`
     // from the `writable byte channel` to read content as text.
@@ -36,8 +36,8 @@ function getWritableRecordChannel(string filePath, string encoding,
     // Convert the `writable character channel` to a `writable record channel`
     //to read the content as records.
     io:WritableTextRecordChannel delimitedRecordChannel = new(characterChannel,
-        rs = rs,
-        fs = fs);
+                                                              rs = rs,
+                                                              fs = fs);
     return delimitedRecordChannel;
 }
 
@@ -60,7 +60,7 @@ function closeRc(io:ReadableTextRecordChannel rc) {
     var closeResult = rc.close();
     if (closeResult is error) {
         log:printError("Error occured while closing the channel: ",
-            err = closeResult);
+                       err = closeResult);
     }
 }
 
@@ -68,7 +68,7 @@ function closeWc(io:WritableTextRecordChannel wc) {
     var closeResult = wc.close();
     if (closeResult is error) {
         log:printError("Error occured while closing the channel: ",
-            err = closeResult);
+                       err = closeResult);
     }
 }
 
@@ -85,14 +85,14 @@ public function main() {
     io:WritableTextRecordChannel dstRecordChannel =
     getWritableRecordChannel(dstFileName, "UTF-8", "\r\n", "|");
     io:println("Start processing the CSV file from " + srcFileName +
-            " to the text file in " + dstFileName);
+               " to the text file in " + dstFileName);
     var result = process(srcRecordChannel, dstRecordChannel);
     if (result is error) {
         log:printError("An error occurred while processing the records: ",
-            err = result);
+                       err = result);
     } else {
         io:println("Processing completed. The processed file is located in ",
-            dstFileName);
+                    dstFileName);
     }
     closeRc(srcRecordChannel);
     closeWc(dstRecordChannel);
