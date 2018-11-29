@@ -33,7 +33,7 @@ service GlobalVar on echoEP {
     }
     resource function accessGlobalVarAtServiceLevel (http:Caller conn, http:Request request) {
         http:Response res = new;
-        json responseJson = {"serviceVarFloat":serviceVarFloat};
+        json responseJson = {"serviceVarFloat":self.serviceVarFloat};
         res.setJsonPayload(responseJson);
         _ = conn -> respond(res);
     }
