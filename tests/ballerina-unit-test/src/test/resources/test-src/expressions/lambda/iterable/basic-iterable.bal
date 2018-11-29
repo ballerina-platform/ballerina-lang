@@ -140,7 +140,7 @@ function jsonTest () returns (string, string[], int, int, string[])|error {
 
     int i1 = j1.count();
 
-    var ja = check json[].create(j1.subjects);
+    var ja = check json[].convert(j1.subjects);
     string[] result = ja.map(function ((int, json) tuple) returns (string) {
                                  var (i, j) = tuple;
                                  return  i + "->" + j.toString();

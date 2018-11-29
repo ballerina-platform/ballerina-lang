@@ -136,7 +136,7 @@ public type HelloWorldBlockingClient client object {
         any result = ();
         grpc:Headers resHeaders;
         (result, resHeaders) = payload;
-        return (string.create(result), resHeaders);
+        return (string.convert(result), resHeaders);
     }
 
     remote function testOutputNestedStruct(string req, grpc:Headers? headers = ()) returns ((Person, grpc:Headers)|error) {
@@ -144,7 +144,7 @@ public type HelloWorldBlockingClient client object {
         any result = ();
         grpc:Headers resHeaders;
         (result, resHeaders) = payload;
-        var value = Person.create(result);
+        var value = Person.convert(result);
         if (value is Person) {
             return (value, resHeaders);
         } else {
@@ -157,7 +157,7 @@ public type HelloWorldBlockingClient client object {
         any result = ();
         grpc:Headers resHeaders;
         (result, resHeaders) = payload;
-        var value = StockQuote.create(result);
+        var value = StockQuote.convert(result);
         if (value is StockQuote) {
             return (value, resHeaders);
         } else {
@@ -179,7 +179,7 @@ public type HelloWorldBlockingClient client object {
         any result = ();
         grpc:Headers resHeaders;
         (result, resHeaders) = payload;
-        var value = StockQuotes.create(result);
+        var value = StockQuotes.convert(result);
         if (value is StockQuotes) {
             return (value, resHeaders);
         } else {
@@ -193,7 +193,7 @@ public type HelloWorldBlockingClient client object {
         any result = ();
         grpc:Headers resHeaders;
         (result, resHeaders) = payload;
-        var value = StockNames.create(result);
+        var value = StockNames.convert(result);
         if (value is StockNames) {
             return (value, resHeaders);
         } else {

@@ -41,17 +41,17 @@ type Person2 record {
 
 function testFloatToIntWithMultipleArguments() returns int {
     float a = 5.0;
-    return int.create(a, a);
+    return int.convert(a, a);
 }
 
 function testFloatToIntWithNoArguments() {
     float a = 5.0;
-    return int.create();
+    return int.convert(a);
 }
 
 function testObjectToJson() returns json|error {
     PersonObj p = new PersonObj();
-    return json.create(p);
+    return json.convert(p);
 }
 
 function testStructToJsonConstrained1() returns json|error {
@@ -62,6 +62,6 @@ function testStructToJsonConstrained1() returns json|error {
         info: { status: "single" },
         marks: [87, 94, 72]
     };
-    json<Person2> j = json<Person2>.create(p);
+    json<Person2> j = json<Person2>.convert(p);
     return j;
 }

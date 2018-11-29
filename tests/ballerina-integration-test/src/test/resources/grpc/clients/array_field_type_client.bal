@@ -199,7 +199,7 @@ public type HelloWorldBlockingClient client object {
         any result = ();
         grpc:Headers resHeaders = new;
         (result, resHeaders) = payload;
-        var value = int.create(result);
+        var value = int.convert(result);
         if (value is int) {
             return (value, resHeaders);
         } else {
@@ -212,7 +212,7 @@ public type HelloWorldBlockingClient client object {
         any result = ();
         grpc:Headers resHeaders = new;
         (result, resHeaders) = payload;
-        return (string.create(result), resHeaders);
+        return (string.convert(result), resHeaders);
     }
 
     remote function testFloatArrayInput(TestFloat req, grpc:Headers? headers = ()) returns ((float, grpc:Headers)|error) {
@@ -220,7 +220,7 @@ public type HelloWorldBlockingClient client object {
         any result = ();
         grpc:Headers resHeaders = new;
         (result, resHeaders) = payload;
-        var value = float.create(result);
+        var value = float.convert(result);
         if (value is float) {
             return (value, resHeaders);
         } else {
@@ -233,7 +233,7 @@ public type HelloWorldBlockingClient client object {
         any result = ();
         grpc:Headers resHeaders = new;
         (result, resHeaders) = payload;
-        var value = boolean.create(result);
+        var value = boolean.convert(result);
         if (value is boolean) {
             return (value, resHeaders);
         } else {
@@ -246,7 +246,7 @@ public type HelloWorldBlockingClient client object {
         any result = ();
         grpc:Headers resHeaders = new;
         (result, resHeaders) = payload;
-        return (string.create(result), resHeaders);
+        return (string.convert(result), resHeaders);
     }
 
     remote function testIntArrayOutput(grpc:Headers? headers = ()) returns ((TestInt, grpc:Headers)|error) {
@@ -255,7 +255,7 @@ public type HelloWorldBlockingClient client object {
         any result =();
         grpc:Headers resHeaders = new;
         (result, resHeaders) = payload;
-        var value = TestInt.create(result);
+        var value = TestInt.convert(result);
         if (value is TestInt) {
             return (value, resHeaders);
         } else {
@@ -269,7 +269,7 @@ public type HelloWorldBlockingClient client object {
         any result = ();
         grpc:Headers resHeaders = new;
         (result, resHeaders) = payload;
-        var value = TestString.create(result);
+        var value = TestString.convert(result);
         if (value is TestString) {
             return (value, resHeaders);
         } else {
@@ -283,7 +283,7 @@ public type HelloWorldBlockingClient client object {
         any result = ();
         grpc:Headers resHeaders = new;
         (result, resHeaders) = payload;
-        var value = TestFloat.create(result);
+        var value = TestFloat.convert(result);
         if (value is TestFloat) {
             return (value, resHeaders);
         } else {
@@ -297,7 +297,7 @@ public type HelloWorldBlockingClient client object {
         any result = ();
         grpc:Headers resHeaders = new;
         (result, resHeaders) = payload;
-        var value = TestBoolean.create(result);
+        var value = TestBoolean.convert(result);
         if (value is TestBoolean) {
             return (value, resHeaders);
         } else {
@@ -311,7 +311,7 @@ public type HelloWorldBlockingClient client object {
         any result = ();
         grpc:Headers resHeaders = new;
         (result, resHeaders) = payload;
-        var value = TestStruct.create(result);
+        var value = TestStruct.convert(result);
         if (value is TestStruct) {
             return (value, resHeaders);
         } else {

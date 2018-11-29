@@ -48,21 +48,21 @@ public class NativeConversionNegativeTest {
                 BCompileUtil.compile("test-src/expressions/conversion/native-conversion-taint-negative.bal");
     }
 
-    @Test(description = "Test passing tainted value with create")
+    @Test(description = "Test passing tainted value with convert")
     public void testTaintedValue() {
         Assert.assertEquals(taintCheckResult.getErrorCount(), 1);
         BAssertUtil.validateError(taintCheckResult, 0, "tainted value passed to sensitive parameter 'intArg'", 28, 22);
     }
 
-    @Test(description = "Test create function with multiple arguments")
+    @Test(description = "Test convert function with multiple arguments")
     public void testFloatToIntWithMultipleArguments() {
         Assert.assertEquals(negativeCompileResult.getErrorCount(), 8);
-        BAssertUtil.validateError(negativeCompileResult, 0, "too many arguments in call to 'create()'", 44, 12);
+        BAssertUtil.validateError(negativeCompileResult, 0, "too many arguments in call to 'convert()'", 44, 12);
     }
 
-    @Test(description = "Test create function with no arguments")
+    @Test(description = "Test convert function with no arguments")
     public void testFloatToIntWithNoArguments() {
-        BAssertUtil.validateError(negativeCompileResult, 2, "not enough arguments in call to 'create()'", 49, 12);
+        BAssertUtil.validateError(negativeCompileResult, 2, "not enough arguments in call to 'convert()'", 49, 12);
     }
 
     @Test(description = "Test object conversions not supported")

@@ -56,7 +56,7 @@ public type byteServiceBlockingClient client object {
         grpc:Headers resHeaders = new;
         any result = ();
         (result, resHeaders) = unionResp;
-        var value = byte[].create(result);
+        var value = byte[].convert(result);
         if (value is byte[]) {
             return (value, resHeaders);
         } else if (value is error) {

@@ -76,7 +76,7 @@ public type HelloWorldBlockingClient client object {
         any result = ();
         grpc:Headers resHeaders = new;
         (result, resHeaders) = unionResp;
-        return (string.create(result), resHeaders);
+        return (string.convert(result), resHeaders);
     }
 };
 

@@ -53,7 +53,7 @@ function testMapVariableAccessInJSONInit () returns (json|error) {
     string val2;
     int intVal;
     val2 = <string> myMap.stirngVal;
-    intVal = check int.create(myMap.intVal);
+    intVal = check int.convert(myMap.intVal);
     msg = {"val1":val2, "val2":intVal};
     return msg;
 }
