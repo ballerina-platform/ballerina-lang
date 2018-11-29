@@ -33,9 +33,6 @@ service jmsListener2 on topicSubscriber2 {
              io:print(messageRetrieved["c"]);
              io:println(messageRetrieved["d"]);
              var retrievedBlob = <byte[]>messageRetrieved["e"];
-             if (retrievedBlob is error) {
-                  panic retrievedBlob;
-             }
         } else {
              panic messageRetrieved;
         }
