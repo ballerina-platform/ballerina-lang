@@ -77,6 +77,22 @@ public class TransactionBlockTest {
     }
 
     @Test
+    public void testTransactionStmtWithTrxStatementInCalleeFunctionErrorAbortTrapped() {
+        BValue[] params = {};
+        BValue[] result = BRunUtil.invoke(programFile, "rentimeNestedTransactionErrorTraped", params);
+        Assert.assertEquals(result[0].stringValue(), " in func trapped" +
+                "[err: dynamically nested transactions are not allowed] outer-committed endTrx");
+    }
+
+    @Test
+    public void testTransactionStmtWithTrxStatementInCalleeFunctionErrorAbort() {
+        BValue[] params = {};
+        BValue[] result = BRunUtil.invoke(programFile, "runtimeNestedTransactionsError", params);
+        Assert.assertEquals(result[0].stringValue(), " in func retry in func retry in func outer-aborted " +
+                "[err: dynamically nested transactions are not allowed]");
+    }
+
+    @Test
     public void testTransactionStmtWithFailureAndAbort() {
         BValue[] returns = runFunctionWithTxConfig(1, true);
         Assert.assertEquals(returns[0].stringValue(), "start fc-1 inTrx blowUp retry inTrx aborting aborted end");
@@ -84,10 +100,12 @@ public class TransactionBlockTest {
 
     @Test
     public void testMultipleCommittedAbortedBlocks() {
-        Assert.assertEquals(negativeProgramFile.getErrorCount(), 2);
+        Assert.assertEquals(negativeProgramFile.getErrorCount(), 3);
         BAssertUtil.validateError(negativeProgramFile, 0,
                 "only one aborted block is allowed per transaction statement", 21, 7);
         BAssertUtil.validateError(negativeProgramFile, 1,
                 "only one committed block is allowed per transaction statement", 34, 7);
+        BAssertUtil.validateError(negativeProgramFile, 2,
+                "transaction statement cannot be nested within another transaction block", 43, 9);
     }
 }

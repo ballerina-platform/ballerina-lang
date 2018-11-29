@@ -36,3 +36,17 @@ function testTwoCommittedBlocks() returns (string) {
     }
     return a;
 }
+
+function testNestedTrxBlocks() returns (string) {
+    string a = "";
+    transaction with retries=2 {
+        transaction {
+            a += "nested block";
+        }
+    } onretry {
+        a = a + " retry";
+    } committed {
+        a = a + " committed";
+    }
+    return a;
+}

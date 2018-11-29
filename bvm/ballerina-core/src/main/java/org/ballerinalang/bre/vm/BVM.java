@@ -3124,22 +3124,26 @@ public class BVM {
 
         // If global tx enabled, it is managed via transaction coordinator.
         // Otherwise it is managed locally without any interaction with the transaction coordinator.
-        boolean isGlobalTransactionEnabled = ctx.getGlobalTransactionEnabled();
-        LocalTransactionInfo localTransactionInfo = ctx.getLocalTransactionInfo();
-        if (localTransactionInfo == null) {
-            if (isGlobalTransactionEnabled) {
-                localTransactionInfo = createAndNotifyGlobalTx(ctx, transactionBlockId);
-            } else {
-                localTransactionInfo = createLocalOnlyTransaction();
-            }
-            ctx.setLocalTransactionInfo(localTransactionInfo);
-        } else {
-            if (isGlobalTransactionEnabled) {
-                TransactionUtils.notifyTransactionBegin(ctx, localTransactionInfo.getGlobalTransactionId(),
-                        localTransactionInfo.getURL(), transactionBlockId, localTransactionInfo.getProtocol());
-            }
+        if (ctx.getLocalTransactionInfo() != null) {
+            // starting a transaction within already infected transaction.
+            createAndSetDynamicNestedTrxError(ctx);
+            handleError(ctx);
+            return;
         }
+
+        boolean isGlobalTransactionEnabled = ctx.getGlobalTransactionEnabled();
+        LocalTransactionInfo localTransactionInfo = isGlobalTransactionEnabled ?
+                createAndNotifyGlobalTx(ctx, transactionBlockId) :
+                createLocalOnlyTransaction();
+
+        ctx.setLocalTransactionInfo(localTransactionInfo);
         localTransactionInfo.beginTransactionBlock(transactionBlockId, retryCount);
+    }
+
+    private static void createAndSetDynamicNestedTrxError(Strand strand) {
+        BError error = BLangVMErrors.createError(strand, BLangExceptionHelper.getErrorMessage(
+                RuntimeErrors.INVALID_DYNAMICALLY_NESTED_TRANSACTION));
+        strand.setError(error);
     }
 
     private static void beginTransactionParticipant(Strand ctx, int transactionBlockId,

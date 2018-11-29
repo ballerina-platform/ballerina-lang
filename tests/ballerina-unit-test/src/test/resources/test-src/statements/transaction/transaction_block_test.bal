@@ -64,3 +64,58 @@ function blowUp()  returns int {
     }
     return 5;
 }
+
+function runtimeNestedTransactions(boolean trapError) returns string {
+    transaction {
+        if (trapError) {
+            var res = trap functionWithATransactionStmt();
+            if (res is string) {
+                ss += res;
+            } else {
+                ss += " trapped[err: " + res.reason() + "]";
+            }
+        } else {
+            var res = functionWithATransactionStmt();
+            ss += res;
+        }
+    } onretry {
+        ss += " retry";
+    } committed {
+        ss += " outer-committed";
+    } aborted {
+        ss += " outer-aborted";
+    }
+    ss += " endTrx";
+    return ss;
+}
+
+function functionWithATransactionStmt() returns string {
+    ss = ss + " in func";
+    transaction {
+        ss += " in-trx";
+    } onretry {
+        ss += " retry-func-trx";
+    } committed {
+        ss += " committed-fun-trx";
+    }
+    ss += " after-fun-trx";
+    return ss;
+}
+
+string ss = "";
+function rentimeNestedTransactionErrorTraped() returns string {
+    ss = "";
+    ss += runtimeNestedTransactions(true);
+    return ss;
+}
+
+function runtimeNestedTransactionsError() returns string {
+    ss = "";
+    var res = trap runtimeNestedTransactions(false);
+    if (res is string) {
+        ss += res;
+    } else {
+        ss += " [err: " + res.reason() + "]";
+    }
+    return ss;
+}
