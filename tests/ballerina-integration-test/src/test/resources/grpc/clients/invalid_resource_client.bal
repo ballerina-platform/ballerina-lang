@@ -18,10 +18,6 @@ import ballerina/io;
 
 HelloWorldBlockingClient helloWorldBlockingEp = new ("http://localhost:9098");
 
-public function main() {
-    _ = testInvalidRemoteMethod("Test");
-}
-
 function testInvalidRemoteMethod(string name) returns (string) {
     (string, grpc:Headers)|error unionResp = helloWorldBlockingEp->hello(name);
     if (unionResp is error) {
