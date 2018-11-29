@@ -1446,13 +1446,13 @@ public class TypeChecker extends BLangNodeVisitor {
         if (expectedType.tag == TypeTags.UNION) {
             BUnionType unionType = (BUnionType) expectedType;
             BType invokableType = unionType.memberTypes.stream().filter(type -> type.tag == TypeTags.INVOKABLE)
-                    .collect( Collectors.collectingAndThen(Collectors.toList(), list -> {
-                        if (list.size() != 1) {
-                            return null;
-                        }
-                        return list.get(0);
-                    }
-            ));
+                    .collect(Collectors.collectingAndThen(Collectors.toList(), list -> {
+                                if (list.size() != 1) {
+                                    return null;
+                                }
+                                return list.get(0);
+                            }
+                    ));
 
             if (invokableType != null) {
                 expectedType = invokableType;
