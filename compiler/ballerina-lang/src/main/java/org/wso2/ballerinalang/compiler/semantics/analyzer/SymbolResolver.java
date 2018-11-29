@@ -395,7 +395,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             return symTable.notFoundSymbol;
         }
         // Check whether the types are anydata, since conversion is supported only for any data types.
-        if (!types.isLikeAnydataOrNotNil(variableSourceType) || !types.isAnydata(targetType)) {
+        if (!isConvertSupportedForSourceType(variableSourceType) || !types.isAnydata(targetType)) {
             dlog.error(pos, DiagnosticCode.INCOMPATIBLE_TYPES_CONVERSION, variableSourceType, targetType);
             resultType = symTable.semanticError;
             return symTable.notFoundSymbol;
@@ -1198,5 +1198,20 @@ public class SymbolResolver extends BLangNodeVisitor {
                 return true;
         }
 
+    }
+
+    /**
+     * Returns the eligibility whether convert can be used on the given value type.
+     *
+     * @param sourceType source type used for the convert operation
+     * @return eligibility to use as the source type for 'convert' function
+     */
+    private boolean isConvertSupportedForSourceType(BType sourceType) {
+        switch (sourceType.tag) {
+            case TypeTags.XML_ATTRIBUTES:
+                return true;
+            default:
+                return types.isLikeAnydataOrNotNil(sourceType);
+        }
     }
 }

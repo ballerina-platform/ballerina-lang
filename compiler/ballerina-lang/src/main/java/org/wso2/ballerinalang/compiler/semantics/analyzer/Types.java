@@ -1221,11 +1221,7 @@ public class Types {
                 return createConversionOperatorSymbol(s, t, false, InstructionCodes.JSON2MAP);
             } else if (s.tag == TypeTags.ANYDATA) {
                 return createConversionOperatorSymbol(s, t, false, InstructionCodes.ANY2MAP);
-            } else if (t.constraint.tag != TypeTags.ANY) {
-                // Semantically fail rest of the casts for Constrained Maps.
-                // Eg:- ANY2MAP cast is undefined for Constrained Maps.
-                return symTable.notFoundSymbol;
-            }
+            } 
 
             return symResolver.resolveOperator(Names.CONVERSION_OP, Lists.of(s, t));
         }
