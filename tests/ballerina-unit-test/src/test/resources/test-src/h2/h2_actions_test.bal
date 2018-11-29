@@ -269,7 +269,7 @@ function selectFunction(h2:Client testDB) returns (int[]) {
 }
 
 function testH2MemDBUpdate() returns (int, string) {
-    h2:Client testDB = new({
+    h2:Client testDB = new(<h2:InMemoryConfig>{
             name: "TestMEMDB",
             username: "SA",
             password: "",

@@ -1,0 +1,1557 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Storyshots Detail view detail view 1`] = `
+<div
+  className="ui compact inverted padded segment"
+>
+  <code>
+    <pre>
+      headers
+    </pre>
+  </code>
+  <div
+    className="react-json-view"
+    style={
+      Object {
+        "background": "inherit",
+        "backgroundColor": "#2d2d2d",
+        "cursor": "default",
+        "fontFamily": "monospace",
+        "marginTop": 10,
+        "position": "relative",
+      }
+    }
+  >
+    <div
+      className="pretty-json-container object-container"
+    >
+      <div
+        className="object-content"
+      >
+        <div
+          className="object-key-val"
+        >
+          <span>
+            <span
+              onClick={[Function]}
+              style={
+                Object {
+                  "cursor": "pointer",
+                  "display": "inline-block",
+                }
+              }
+            >
+              <div
+                className="icon-container"
+                style={
+                  Object {
+                    "display": "inline-block",
+                    "width": "17px",
+                  }
+                }
+              >
+                <span
+                  className="expanded-icon"
+                >
+                  <svg
+                    fill="currentColor"
+                    style={
+                      Object {
+                        "color": "#6699cc",
+                        "height": "1em",
+                        "paddingLeft": "2px",
+                        "verticalAlign": "top",
+                        "width": "1em",
+                      }
+                    }
+                    viewBox="0 0 15 15"
+                  >
+                    <path
+                      d="M0 5l6 6 6-6z"
+                    />
+                  </svg>
+                </span>
+              </div>
+              <span />
+              <span
+                style={
+                  Object {
+                    "color": "#f2f0ec",
+                    "cursor": "pointer",
+                    "display": "inline-block",
+                    "fontWeight": "bold",
+                  }
+                }
+              >
+                {
+              </span>
+            </span>
+            <div
+              className="object-meta-data"
+              onClick={[Function]}
+              style={
+                Object {
+                  "display": "inline-block",
+                  "padding": "0px 0px 0px 10px",
+                }
+              }
+            >
+              <span
+                className="copy-to-clipboard-container"
+              >
+                <span
+                  onClick={[Function]}
+                  style={
+                    Object {
+                      "cursor": "pointer",
+                      "display": "inline",
+                    }
+                  }
+                >
+                  <span
+                    className="copy-icon"
+                  >
+                    <svg
+                      fill="currentColor"
+                      preserveAspectRatio="xMidYMid meet"
+                      style={
+                        Object {
+                          "color": "#d27b53",
+                          "fontSize": "15px",
+                          "height": "1em",
+                          "marginRight": "3px",
+                          "verticalAlign": "top",
+                          "width": "1em",
+                        }
+                      }
+                      viewBox="0 0 40 40"
+                    >
+                      <g>
+                        <path
+                          d="m30 35h-25v-22.5h25v7.5h2.5v-12.5c0-1.4-1.1-2.5-2.5-2.5h-7.5c0-2.8-2.2-5-5-5s-5 2.2-5 5h-7.5c-1.4 0-2.5 1.1-2.5 2.5v27.5c0 1.4 1.1 2.5 2.5 2.5h25c1.4 0 2.5-1.1 2.5-2.5v-5h-2.5v5z m-20-27.5h2.5s2.5-1.1 2.5-2.5 1.1-2.5 2.5-2.5 2.5 1.1 2.5 2.5 1.3 2.5 2.5 2.5h2.5s2.5 1.1 2.5 2.5h-20c0-1.5 1.1-2.5 2.5-2.5z m-2.5 20h5v-2.5h-5v2.5z m17.5-5v-5l-10 7.5 10 7.5v-5h12.5v-5h-12.5z m-17.5 10h7.5v-2.5h-7.5v2.5z m12.5-17.5h-12.5v2.5h12.5v-2.5z m-7.5 5h-5v2.5h5v-2.5z"
+                        />
+                      </g>
+                    </svg>
+                  </span>
+                </span>
+              </span>
+            </div>
+          </span>
+          <div
+            className="pushed-content object-container"
+          >
+            <div
+              className="object-content"
+              style={
+                Object {
+                  "marginLeft": "6px",
+                }
+              }
+            >
+              <div
+                className="variable-row"
+                style={
+                  Object {
+                    ":hover": Object {
+                      "borderLeft": "2px solid #515151",
+                      "paddingLeft": "19px",
+                    },
+                    "borderLeft": "1px solid #515151",
+                    "paddingBottom": "3px",
+                    "paddingLeft": 20,
+                    "paddingRight": "5px",
+                    "paddingTop": "3px",
+                  }
+                }
+              >
+                <span>
+                  <span
+                    className="object-key"
+                    style={
+                      Object {
+                        ":hover": Object {
+                          "opacity": "1",
+                        },
+                        "color": "#f2f0ec",
+                        "display": "inline-block",
+                        "fontStyle": "none",
+                        "letterSpacing": "0.5px",
+                        "opacity": "0.85",
+                        "verticalAlign": "top",
+                      }
+                    }
+                  >
+                    <span
+                      style={
+                        Object {
+                          "verticalAlign": "top",
+                        }
+                      }
+                    >
+                      "
+                    </span>
+                    <span
+                      style={
+                        Object {
+                          "display": "inline-block",
+                        }
+                      }
+                    >
+                      foo
+                    </span>
+                    <span
+                      style={
+                        Object {
+                          "verticalAlign": "top",
+                        }
+                      }
+                    >
+                      "
+                    </span>
+                  </span>
+                  <span
+                    style={
+                      Object {
+                        "color": "#f2f0ec",
+                        "display": "inline-block",
+                        "margin": "0px 5px",
+                        "verticalAlign": "top",
+                      }
+                    }
+                  >
+                    :
+                  </span>
+                </span>
+                <div
+                  className="variable-value"
+                  onClick={null}
+                  style={
+                    Object {
+                      "cursor": "default",
+                      "display": "inline-block",
+                      "paddingRight": "6px",
+                      "position": "relative",
+                    }
+                  }
+                >
+                  <div
+                    style={
+                      Object {
+                        "color": "#f99157",
+                        "display": "inline-block",
+                      }
+                    }
+                  >
+                    <span
+                      className="string-value"
+                      onClick={[Function]}
+                      style={
+                        Object {
+                          "cursor": "default",
+                        }
+                      }
+                    >
+                      "
+                      bar
+                      "
+                    </span>
+                  </div>
+                </div>
+                <span
+                  className="copy-to-clipboard-container"
+                >
+                  <span
+                    onClick={[Function]}
+                    style={
+                      Object {
+                        "cursor": "pointer",
+                        "display": "inline",
+                      }
+                    }
+                  >
+                    <span
+                      className="copy-icon"
+                    >
+                      <svg
+                        fill="currentColor"
+                        preserveAspectRatio="xMidYMid meet"
+                        style={
+                          Object {
+                            "color": "#d27b53",
+                            "fontSize": "15px",
+                            "height": "1em",
+                            "marginRight": "3px",
+                            "verticalAlign": "top",
+                            "width": "1em",
+                          }
+                        }
+                        viewBox="0 0 40 40"
+                      >
+                        <g>
+                          <path
+                            d="m30 35h-25v-22.5h25v7.5h2.5v-12.5c0-1.4-1.1-2.5-2.5-2.5h-7.5c0-2.8-2.2-5-5-5s-5 2.2-5 5h-7.5c-1.4 0-2.5 1.1-2.5 2.5v27.5c0 1.4 1.1 2.5 2.5 2.5h25c1.4 0 2.5-1.1 2.5-2.5v-5h-2.5v5z m-20-27.5h2.5s2.5-1.1 2.5-2.5 1.1-2.5 2.5-2.5 2.5 1.1 2.5 2.5 1.3 2.5 2.5 2.5h2.5s2.5 1.1 2.5 2.5h-20c0-1.5 1.1-2.5 2.5-2.5z m-2.5 20h5v-2.5h-5v2.5z m17.5-5v-5l-10 7.5 10 7.5v-5h12.5v-5h-12.5z m-17.5 10h7.5v-2.5h-7.5v2.5z m12.5-17.5h-12.5v2.5h12.5v-2.5z m-7.5 5h-5v2.5h5v-2.5z"
+                          />
+                        </g>
+                      </svg>
+                    </span>
+                  </span>
+                </span>
+              </div>
+            </div>
+          </div>
+          <span
+            className="brace-row"
+          >
+            <span
+              style={
+                Object {
+                  "color": "#f2f0ec",
+                  "cursor": "pointer",
+                  "display": "inline-block",
+                  "fontWeight": "bold",
+                  "paddingLeft": "3px",
+                }
+              }
+            >
+              }
+            </span>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Storyshots ToolBar tool bar 1`] = `
+<div
+  className="logs-console-toolbar"
+>
+  <div
+    className="ui inverted menu"
+  >
+    <a
+      className="item"
+      onClick={[Function]}
+    >
+      <i
+        aria-hidden="true"
+        className="ban icon"
+      />
+    </a>
+    <div
+      aria-expanded={false}
+      className="ui item dropdown filter-message.id pull-right"
+      inverted={true}
+      onBlur={[Function]}
+      onChange={[Function]}
+      onClick={[Function]}
+      onFocus={[Function]}
+      onMouseDown={[Function]}
+      role="listbox"
+      tabIndex={0}
+    >
+      <div
+        aria-live="polite"
+        className="text"
+        role="alert"
+      >
+        Activity Id: all
+      </div>
+      <i
+        aria-hidden="true"
+        className="dropdown icon"
+        onClick={[Function]}
+      />
+      <div
+        className="menu transition"
+      >
+        <div
+          aria-checked={true}
+          aria-selected={true}
+          className="active selected item"
+          onClick={[Function]}
+          role="option"
+          style={
+            Object {
+              "pointerEvents": "all",
+            }
+          }
+        >
+          <span
+            className="text"
+          >
+            All
+          </span>
+        </div>
+        <div
+          aria-checked={false}
+          aria-selected={false}
+          className="item"
+          onClick={[Function]}
+          role="option"
+          style={
+            Object {
+              "pointerEvents": "all",
+            }
+          }
+        >
+          <span
+            className="text"
+          >
+            id4
+          </span>
+        </div>
+      </div>
+    </div>
+    <div
+      aria-expanded={false}
+      className="ui item dropdown filter-logger pull-right"
+      inverted={true}
+      onBlur={[Function]}
+      onChange={[Function]}
+      onClick={[Function]}
+      onFocus={[Function]}
+      onMouseDown={[Function]}
+      role="listbox"
+      tabIndex={0}
+    >
+      <div
+        aria-live="polite"
+        className="text"
+        role="alert"
+      >
+        Logger: all
+      </div>
+      <i
+        aria-hidden="true"
+        className="dropdown icon"
+        onClick={[Function]}
+      />
+      <div
+        className="menu transition"
+      >
+        <div
+          aria-checked={true}
+          aria-selected={true}
+          className="active selected item"
+          onClick={[Function]}
+          role="option"
+          style={
+            Object {
+              "pointerEvents": "all",
+            }
+          }
+        >
+          <span
+            className="text"
+          >
+            All
+          </span>
+        </div>
+        <div
+          aria-checked={false}
+          aria-selected={false}
+          className="item"
+          onClick={[Function]}
+          role="option"
+          style={
+            Object {
+              "pointerEvents": "all",
+            }
+          }
+        >
+          <span
+            className="text"
+          >
+            http.tracelog.downstream
+          </span>
+        </div>
+      </div>
+    </div>
+    <div
+      aria-expanded={false}
+      className="ui item dropdown filter-message.path pull-right"
+      inverted={true}
+      onBlur={[Function]}
+      onChange={[Function]}
+      onClick={[Function]}
+      onFocus={[Function]}
+      onMouseDown={[Function]}
+      role="listbox"
+      tabIndex={0}
+    >
+      <div
+        aria-live="polite"
+        className="text"
+        role="alert"
+      >
+        Path: all
+      </div>
+      <i
+        aria-hidden="true"
+        className="dropdown icon"
+        onClick={[Function]}
+      />
+      <div
+        className="menu transition"
+      >
+        <div
+          aria-checked={true}
+          aria-selected={true}
+          className="active selected item"
+          onClick={[Function]}
+          role="option"
+          style={
+            Object {
+              "pointerEvents": "all",
+            }
+          }
+        >
+          <span
+            className="text"
+          >
+            All
+          </span>
+        </div>
+        <div
+          aria-checked={false}
+          aria-selected={false}
+          className="item"
+          onClick={[Function]}
+          role="option"
+          style={
+            Object {
+              "pointerEvents": "all",
+            }
+          }
+        >
+          <span
+            className="text"
+          >
+            /path4
+          </span>
+        </div>
+      </div>
+    </div>
+    <div
+      aria-expanded={false}
+      className="ui item dropdown filter-message.direction pull-right"
+      inverted={true}
+      onBlur={[Function]}
+      onChange={[Function]}
+      onClick={[Function]}
+      onFocus={[Function]}
+      onMouseDown={[Function]}
+      role="listbox"
+      tabIndex={0}
+    >
+      <div
+        aria-live="polite"
+        className="text"
+        role="alert"
+      >
+        Inbound/Outbound: all
+      </div>
+      <i
+        aria-hidden="true"
+        className="dropdown icon"
+        onClick={[Function]}
+      />
+      <div
+        className="menu transition"
+      >
+        <div
+          aria-checked={true}
+          aria-selected={true}
+          className="active selected item"
+          onClick={[Function]}
+          role="option"
+          style={
+            Object {
+              "pointerEvents": "all",
+            }
+          }
+        >
+          <span
+            className="text"
+          >
+            All
+          </span>
+        </div>
+        <div
+          aria-checked={false}
+          aria-selected={false}
+          className="item"
+          onClick={[Function]}
+          role="option"
+          style={
+            Object {
+              "pointerEvents": "all",
+            }
+          }
+        >
+          <span
+            className="text"
+          >
+            direction
+          </span>
+        </div>
+      </div>
+    </div>
+    <div
+      aria-expanded={false}
+      className="ui item dropdown filter-message.httpMethod pull-right"
+      inverted={true}
+      onBlur={[Function]}
+      onChange={[Function]}
+      onClick={[Function]}
+      onFocus={[Function]}
+      onMouseDown={[Function]}
+      role="listbox"
+      tabIndex={0}
+    >
+      <div
+        aria-live="polite"
+        className="text"
+        role="alert"
+      >
+        Method: all
+      </div>
+      <i
+        aria-hidden="true"
+        className="dropdown icon"
+        onClick={[Function]}
+      />
+      <div
+        className="menu transition"
+      >
+        <div
+          aria-checked={true}
+          aria-selected={true}
+          className="active selected item"
+          onClick={[Function]}
+          role="option"
+          style={
+            Object {
+              "pointerEvents": "all",
+            }
+          }
+        >
+          <span
+            className="text"
+          >
+            All
+          </span>
+        </div>
+        <div
+          aria-checked={false}
+          aria-selected={false}
+          className="item"
+          onClick={[Function]}
+          role="option"
+          style={
+            Object {
+              "pointerEvents": "all",
+            }
+          }
+        >
+          <span
+            className="text"
+          >
+            POST
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Storyshots trace list list traces 1`] = `
+<div
+  id="logs-console"
+>
+  <table
+    className="ui celled inverted unstackable table"
+  >
+    <thead
+      className=""
+    >
+      <tr
+        className=""
+      >
+        <th
+          className=""
+        />
+        <th
+          className=""
+        >
+          Method
+        </th>
+        <th
+          className=""
+        >
+          Path
+        </th>
+        <th
+          className=""
+        >
+          Direction
+        </th>
+      </tr>
+    </thead>
+    <tbody
+      className=""
+    >
+      <tr
+        className="clickable"
+        onClick={[Function]}
+      >
+        <td
+          className=""
+        >
+          <i
+            aria-hidden="true"
+            className="icon"
+            title="http.tracelog.downstream - direction"
+          />
+        </td>
+        <td
+          className=""
+        >
+          <div
+            className="ui horizontal label get"
+            onClick={[Function]}
+          >
+            GET
+          </div>
+        </td>
+        <td
+          className=""
+        >
+          /path
+        </td>
+        <td
+          className=""
+        >
+          direction
+        </td>
+      </tr>
+      <tr
+        className="clickable"
+        onClick={[Function]}
+      >
+        <td
+          className=""
+        >
+          <i
+            aria-hidden="true"
+            className="icon"
+            title="http.tracelog.downstream - direction"
+          />
+        </td>
+        <td
+          className=""
+        >
+          <div
+            className="ui horizontal label post"
+            onClick={[Function]}
+          >
+            POST
+          </div>
+        </td>
+        <td
+          className=""
+        >
+          /path2
+        </td>
+        <td
+          className=""
+        >
+          direction
+        </td>
+      </tr>
+      <tr
+        className="clickable"
+        onClick={[Function]}
+      >
+        <td
+          className=""
+        >
+          <i
+            aria-hidden="true"
+            className="icon"
+            title="http.tracelog.downstream - direction"
+          />
+        </td>
+        <td
+          className=""
+        >
+          <div
+            className="ui horizontal label post"
+            onClick={[Function]}
+          >
+            POST
+          </div>
+        </td>
+        <td
+          className=""
+        >
+          /path3
+        </td>
+        <td
+          className=""
+        >
+          direction
+        </td>
+      </tr>
+      <tr
+        className="clickable"
+        onClick={[Function]}
+      >
+        <td
+          className=""
+        >
+          <i
+            aria-hidden="true"
+            className="icon"
+            title="http.tracelog.downstream - direction"
+          />
+        </td>
+        <td
+          className=""
+        >
+          <div
+            className="ui horizontal label post"
+            onClick={[Function]}
+          >
+            POST
+          </div>
+        </td>
+        <td
+          className=""
+        >
+          /path4
+        </td>
+        <td
+          className=""
+        >
+          direction
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+`;
+
+exports[`Storyshots trace list list traces selected 1`] = `
+<div
+  id="logs-console"
+>
+  <table
+    className="ui celled inverted unstackable table"
+  >
+    <thead
+      className=""
+    >
+      <tr
+        className=""
+      >
+        <th
+          className=""
+        />
+        <th
+          className=""
+        >
+          Method
+        </th>
+        <th
+          className=""
+        >
+          Path
+        </th>
+        <th
+          className=""
+        >
+          Direction
+        </th>
+      </tr>
+    </thead>
+    <tbody
+      className=""
+    >
+      <tr
+        className="clickable"
+        onClick={[Function]}
+      >
+        <td
+          className=""
+        >
+          <i
+            aria-hidden="true"
+            className="icon"
+            title="http.tracelog.downstream - direction"
+          />
+        </td>
+        <td
+          className=""
+        >
+          <div
+            className="ui horizontal label get"
+            onClick={[Function]}
+          >
+            GET
+          </div>
+        </td>
+        <td
+          className=""
+        >
+          /path
+        </td>
+        <td
+          className=""
+        >
+          direction
+        </td>
+      </tr>
+      <tr
+        className="clickable"
+        onClick={[Function]}
+      >
+        <td
+          className=""
+        >
+          <i
+            aria-hidden="true"
+            className="icon"
+            title="http.tracelog.downstream - direction"
+          />
+        </td>
+        <td
+          className=""
+        >
+          <div
+            className="ui horizontal label post"
+            onClick={[Function]}
+          >
+            POST
+          </div>
+        </td>
+        <td
+          className=""
+        >
+          /path2
+        </td>
+        <td
+          className=""
+        >
+          direction
+        </td>
+      </tr>
+      <tr
+        className="clickable"
+        onClick={[Function]}
+      >
+        <td
+          className=""
+        >
+          <i
+            aria-hidden="true"
+            className="icon"
+            title="http.tracelog.downstream - direction"
+          />
+        </td>
+        <td
+          className=""
+        >
+          <div
+            className="ui horizontal label post"
+            onClick={[Function]}
+          >
+            POST
+          </div>
+        </td>
+        <td
+          className=""
+        >
+          /path3
+        </td>
+        <td
+          className=""
+        >
+          direction
+        </td>
+      </tr>
+      <tr
+        className="clickable"
+        onClick={[Function]}
+      >
+        <td
+          className=""
+        >
+          <i
+            aria-hidden="true"
+            className="icon"
+            title="http.tracelog.downstream - direction"
+          />
+        </td>
+        <td
+          className=""
+        >
+          <div
+            className="ui horizontal label post"
+            onClick={[Function]}
+          >
+            POST
+          </div>
+        </td>
+        <td
+          className=""
+        >
+          /path4
+        </td>
+        <td
+          className=""
+        >
+          direction
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+`;
+
+exports[`Storyshots trace logs Trace Logs toolbar and component 1`] = `
+<div>
+  <div>
+    <div
+      className="logs-console-toolbar"
+    >
+      <div
+        className="ui inverted menu"
+      >
+        <a
+          className="item"
+          onClick={[Function]}
+        >
+          <i
+            aria-hidden="true"
+            className="ban icon"
+          />
+        </a>
+        <div
+          aria-expanded={false}
+          className="ui item dropdown filter-logger pull-right"
+          inverted={true}
+          onBlur={[Function]}
+          onChange={[Function]}
+          onClick={[Function]}
+          onFocus={[Function]}
+          onMouseDown={[Function]}
+          role="listbox"
+          tabIndex={0}
+        >
+          <div
+            aria-live="polite"
+            className="text"
+            role="alert"
+          >
+            Logger: all
+          </div>
+          <i
+            aria-hidden="true"
+            className="dropdown icon"
+            onClick={[Function]}
+          />
+          <div
+            className="menu transition"
+          >
+            <div
+              aria-checked={true}
+              aria-selected={true}
+              className="active selected item"
+              onClick={[Function]}
+              role="option"
+              style={
+                Object {
+                  "pointerEvents": "all",
+                }
+              }
+            >
+              <span
+                className="text"
+              >
+                All
+              </span>
+            </div>
+            <div
+              aria-checked={false}
+              aria-selected={false}
+              className="item"
+              onClick={[Function]}
+              role="option"
+              style={
+                Object {
+                  "pointerEvents": "all",
+                }
+              }
+            >
+              <span
+                className="text"
+              >
+                http.tracelog.downstream
+              </span>
+            </div>
+          </div>
+        </div>
+        <div
+          aria-expanded={false}
+          className="ui item dropdown filter-message.direction pull-right"
+          inverted={true}
+          onBlur={[Function]}
+          onChange={[Function]}
+          onClick={[Function]}
+          onFocus={[Function]}
+          onMouseDown={[Function]}
+          role="listbox"
+          tabIndex={0}
+        >
+          <div
+            aria-live="polite"
+            className="text"
+            role="alert"
+          >
+            Inbound/Outbound: all
+          </div>
+          <i
+            aria-hidden="true"
+            className="dropdown icon"
+            onClick={[Function]}
+          />
+          <div
+            className="menu transition"
+          >
+            <div
+              aria-checked={true}
+              aria-selected={true}
+              className="active selected item"
+              onClick={[Function]}
+              role="option"
+              style={
+                Object {
+                  "pointerEvents": "all",
+                }
+              }
+            >
+              <span
+                className="text"
+              >
+                All
+              </span>
+            </div>
+            <div
+              aria-checked={false}
+              aria-selected={false}
+              className="item"
+              onClick={[Function]}
+              role="option"
+              style={
+                Object {
+                  "pointerEvents": "all",
+                }
+              }
+            >
+              <span
+                className="text"
+              >
+                
+              </span>
+            </div>
+          </div>
+        </div>
+        <div
+          aria-expanded={false}
+          className="ui item dropdown filter-message.httpMethod pull-right"
+          inverted={true}
+          onBlur={[Function]}
+          onChange={[Function]}
+          onClick={[Function]}
+          onFocus={[Function]}
+          onMouseDown={[Function]}
+          role="listbox"
+          tabIndex={0}
+        >
+          <div
+            aria-live="polite"
+            className="text"
+            role="alert"
+          >
+            Method: all
+          </div>
+          <i
+            aria-hidden="true"
+            className="dropdown icon"
+            onClick={[Function]}
+          />
+          <div
+            className="menu transition"
+          >
+            <div
+              aria-checked={true}
+              aria-selected={true}
+              className="active selected item"
+              onClick={[Function]}
+              role="option"
+              style={
+                Object {
+                  "pointerEvents": "all",
+                }
+              }
+            >
+              <span
+                className="text"
+              >
+                All
+              </span>
+            </div>
+            <div
+              aria-checked={false}
+              aria-selected={false}
+              className="item"
+              onClick={[Function]}
+              role="option"
+              style={
+                Object {
+                  "pointerEvents": "all",
+                }
+              }
+            >
+              <span
+                className="text"
+              >
+                
+              </span>
+            </div>
+          </div>
+        </div>
+        <div
+          aria-expanded={false}
+          className="ui item dropdown filter-message.id pull-right"
+          inverted={true}
+          onBlur={[Function]}
+          onChange={[Function]}
+          onClick={[Function]}
+          onFocus={[Function]}
+          onMouseDown={[Function]}
+          role="listbox"
+          tabIndex={0}
+        >
+          <div
+            aria-live="polite"
+            className="text"
+            role="alert"
+          >
+            Activity Id: all
+          </div>
+          <i
+            aria-hidden="true"
+            className="dropdown icon"
+            onClick={[Function]}
+          />
+          <div
+            className="menu transition"
+          >
+            <div
+              aria-checked={true}
+              aria-selected={true}
+              className="active selected item"
+              onClick={[Function]}
+              role="option"
+              style={
+                Object {
+                  "pointerEvents": "all",
+                }
+              }
+            >
+              <span
+                className="text"
+              >
+                All
+              </span>
+            </div>
+            <div
+              aria-checked={false}
+              aria-selected={false}
+              className="item"
+              onClick={[Function]}
+              role="option"
+              style={
+                Object {
+                  "pointerEvents": "all",
+                }
+              }
+            >
+              <span
+                className="text"
+              >
+                0xdb0d6c88
+              </span>
+            </div>
+          </div>
+        </div>
+        <div
+          aria-expanded={false}
+          className="ui item dropdown filter-message.path pull-right"
+          inverted={true}
+          onBlur={[Function]}
+          onChange={[Function]}
+          onClick={[Function]}
+          onFocus={[Function]}
+          onMouseDown={[Function]}
+          role="listbox"
+          tabIndex={0}
+        >
+          <div
+            aria-live="polite"
+            className="text"
+            role="alert"
+          >
+            Path: all
+          </div>
+          <i
+            aria-hidden="true"
+            className="dropdown icon"
+            onClick={[Function]}
+          />
+          <div
+            className="menu transition"
+          >
+            <div
+              aria-checked={true}
+              aria-selected={true}
+              className="active selected item"
+              onClick={[Function]}
+              role="option"
+              style={
+                Object {
+                  "pointerEvents": "all",
+                }
+              }
+            >
+              <span
+                className="text"
+              >
+                All
+              </span>
+            </div>
+            <div
+              aria-checked={false}
+              aria-selected={false}
+              className="item"
+              onClick={[Function]}
+              role="option"
+              style={
+                Object {
+                  "pointerEvents": "all",
+                }
+              }
+            >
+              <span
+                className="text"
+              >
+                
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div>
+    <div
+      id="logs-console"
+    >
+      <table
+        className="ui celled inverted unstackable table"
+      >
+        <thead
+          className=""
+        >
+          <tr
+            className=""
+          >
+            <th
+              className=""
+            />
+            <th
+              className=""
+            >
+              Method
+            </th>
+            <th
+              className=""
+            >
+              Path
+            </th>
+            <th
+              className=""
+            >
+              Direction
+            </th>
+          </tr>
+        </thead>
+        <tbody
+          className=""
+        >
+          <tr
+            className="clickable"
+            onClick={[Function]}
+          >
+            <td
+              className=""
+            >
+              <i
+                aria-hidden="true"
+                className="icon"
+                title="http.tracelog.downstream - "
+              />
+            </td>
+            <td
+              className=""
+            >
+              
+            </td>
+            <td
+              className=""
+            >
+              
+            </td>
+            <td
+              className=""
+            >
+              
+            </td>
+          </tr>
+          <tr
+            className="clickable"
+            onClick={[Function]}
+          >
+            <td
+              className=""
+            >
+              <i
+                aria-hidden="true"
+                className="icon"
+                title="http.tracelog.downstream - "
+              />
+            </td>
+            <td
+              className=""
+            >
+              
+            </td>
+            <td
+              className=""
+            >
+              
+            </td>
+            <td
+              className=""
+            >
+              
+            </td>
+          </tr>
+          <tr
+            className="clickable"
+            onClick={[Function]}
+          >
+            <td
+              className=""
+            >
+              <i
+                aria-hidden="true"
+                className="icon"
+                title="http.tracelog.downstream - "
+              />
+            </td>
+            <td
+              className=""
+            >
+              
+            </td>
+            <td
+              className=""
+            >
+              
+            </td>
+            <td
+              className=""
+            >
+              
+            </td>
+          </tr>
+          <tr
+            className="clickable"
+            onClick={[Function]}
+          >
+            <td
+              className=""
+            >
+              <i
+                aria-hidden="true"
+                className="icon"
+                title="http.tracelog.downstream - "
+              />
+            </td>
+            <td
+              className=""
+            >
+              
+            </td>
+            <td
+              className=""
+            >
+              
+            </td>
+            <td
+              className=""
+            >
+              
+            </td>
+          </tr>
+          <tr
+            className="clickable"
+            onClick={[Function]}
+          >
+            <td
+              className=""
+            >
+              <i
+                aria-hidden="true"
+                className="icon"
+                title="http.tracelog.downstream - "
+              />
+            </td>
+            <td
+              className=""
+            >
+              
+            </td>
+            <td
+              className=""
+            >
+              
+            </td>
+            <td
+              className=""
+            >
+              
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+`;

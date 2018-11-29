@@ -132,14 +132,14 @@ public class BVMExecutor {
         }
 
         StrandResourceCallback strandCallback = new StrandResourceCallback(null, responseCallback);
-        Strand strand = new Strand(programFile, resourceInfo.getName(), properties, strandCallback, null);
+        Strand strand = new Strand(programFile, resourceInfo.getName(), globalProps, strandCallback, null);
 
         BLangVMUtils.setGlobalTransactionEnabledStatus(strand);
 
         if (strand.globalProps.get(Constants.GLOBAL_TRANSACTION_ID) != null) {
             strand.setLocalTransactionInfo(new LocalTransactionInfo(
-                    properties.get(Constants.GLOBAL_TRANSACTION_ID).toString(),
-                    properties.get(Constants.TRANSACTION_URL).toString(), "2pc"));
+                    strand.globalProps.get(Constants.GLOBAL_TRANSACTION_ID).toString(),
+                    strand.globalProps.get(Constants.TRANSACTION_URL).toString(), "2pc"));
         }
 
         BLangVMUtils.setServiceInfo(strand, serviceInfo);
@@ -156,8 +156,13 @@ public class BVMExecutor {
 
     private static BValue execute(ProgramFile programFile, CallableUnitInfo callableInfo,
                                   BValue[] args, Map<String, Object> properties, boolean waitForResponse) {
+        Map<String, Object> globalProps = new HashMap<>();
+        if (properties != null) {
+            globalProps.putAll(properties);
+        }
+
         StrandWaitCallback strandCallback = new StrandWaitCallback(callableInfo.getRetParamTypes()[0]);
-        Strand strand = new Strand(programFile, callableInfo.getName(), properties, strandCallback,  null);
+        Strand strand = new Strand(programFile, callableInfo.getName(), globalProps, strandCallback,  null);
 
         BLangVMUtils.setGlobalTransactionEnabledStatus(strand);
 

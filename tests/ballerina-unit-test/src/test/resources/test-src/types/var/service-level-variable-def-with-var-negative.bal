@@ -1,10 +1,10 @@
 import ballerina/http;
 
-service<http:Service> DummyService bind { port:9090} {
+service DummyService on new http:MockListener(9090) {
     int counter = 100;
     var dummy = "dummy-string";
 
-    dummyResource (endpoint caller, http:Request req) {
+    resource function dummyResource (http:Caller caller, http:Request req) {
         json responseJson = {"dummy":"dummy"};
         http:Response res = new;
         res.setJsonPayload(responseJson);

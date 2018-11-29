@@ -1,9 +1,7 @@
 import ballerina/http;
 import ballerina/log;
 
-endpoint http:Listener listenerEndpoint {
-    port: 9090
-};
+listener http:Listener listenerEndpoint = new(9090);
 
 // Since compression behaviour of the service is set as `COMPRESSION_AUTO`, entity body compression is done according
 // to the scheme indicated in `Accept-Encoding` request header. Compression is not performed when the header is not
@@ -13,11 +11,11 @@ endpoint http:Listener listenerEndpoint {
         enable: http:COMPRESSION_AUTO
     }
 }
-service<http:Service> autoCompress bind listenerEndpoint {
+service autoCompress on listenerEndpoint {
     @http:ResourceConfig {
         path: "/"
     }
-    invokeEndpoint(endpoint caller, http:Request req) {
+    resource function invokeEndpoint(http:Caller caller, http:Request req) {
         var result = caller->respond({ "Type": "Auto compression" });
 
         if (result is error) {
@@ -38,17 +36,18 @@ service<http:Service> autoCompress bind listenerEndpoint {
         contentTypes:["text/plain"]
     }
 }
-service<http:Service> alwaysCompress bind listenerEndpoint {
+service alwaysCompress on listenerEndpoint {
     // Since compression is only constrained to "text/plain" MIME type,
     // `getJson` resource does not compress the response entity body.
-    getJson(endpoint caller, http:Request req) {
-        var result = caller->respond({ "Type": "Always but constrained by content-type" });
+    resource function getJson(http:Caller caller, http:Request req) {
+        json msg = { "Type": "Always but constrained by content-type" };
+        var result = caller->respond(msg);
         if (result is error) {
            log:printError("Error sending response", err = result);
         }
     }
     // The response entity body is always compressed since MIME type has matched.
-    getString(endpoint caller, http:Request req) {
+    resource function getString(http:Caller caller, http:Request req) {
         var result = caller->respond("Type : This is a string");
         if (result is error) {
            log:printError("Error sending response", err = result);
@@ -62,29 +61,26 @@ service<http:Service> alwaysCompress bind listenerEndpoint {
 // `Accept-Encoding` header, the client specifies it with "deflate, gzip". Alternatively, the existing header is sent.
 // When compression is specified as `COMPRESSION_AUTO`, only the user specified `Accept-Encoding` header is sent.
 // If the behaviour is set as `COMPRESSION_NEVER`, the client makes sure not to send the `Accept-Encoding` header.
-endpoint http:Client clientEndpoint {
-    url: "http://localhost:9090",
-    compression: http:COMPRESSION_ALWAYS
-};
+http:Client clientEndpoint = new("http://localhost:9090", config = {
+        compression: http:COMPRESSION_ALWAYS
+    });
 
-service<http:Service> passthrough bind { port: 9092 } {
+service passthrough on new http:Listener(9092) {
     @http:ResourceConfig {
         path: "/"
     }
-    getCompressed(endpoint caller, http:Request req) {
-        var result = clientEndpoint->post("/backend/echo", untaint req);
-        match result {
-            http:Response clientResponse => {
-                var result = caller->respond(clientResponse);
-                if (result is error) {
-                   log:printError("Error sending response", err = result);
-                }
+    resource function getCompressed(http:Caller caller, http:Request req) {
+        var response = clientEndpoint->post("/backend/echo", untaint req);
+        if (response is http:Response) {
+            var result = caller->respond(response);
+            if (result is error) {
+               log:printError("Error sending response", err = result);
             }
-            error responseError => {
-                var result = caller->respond({ "error": "error occurred while invoking the service" });
-                if (result is error) {
-                   log:printError("Error sending response", err = result);
-                }
+        } else if (response is error) {
+            json err = { "error": "error occurred while invoking service" };
+            var result = caller->respond(err);
+            if (result is error) {
+               log:printError("Error sending response", err = result);
             }
         }
     }
@@ -92,8 +88,8 @@ service<http:Service> passthrough bind { port: 9092 } {
 
 // The compression behaviour of the service is inferred by `COMPRESSION_AUTO`, which is the default value
 // of the compression config
-service<http:Service> backend bind listenerEndpoint {
-    echo(endpoint caller, http:Request req) {
+service backend on listenerEndpoint {
+    resource function echo(http:Caller caller, http:Request req) {
         http:Response res = new;
         if (req.hasHeader("accept-encoding")) {
             string value = req.getHeader("accept-encoding");
