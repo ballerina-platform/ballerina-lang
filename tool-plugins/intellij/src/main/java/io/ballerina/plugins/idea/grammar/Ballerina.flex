@@ -362,7 +362,6 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "anydata"                                   { return ANYDATA; }
     "as"                                        { return AS; }
     "ascending"                                 { return ASCENDING; }
-    "await"                                     { return AWAIT; }
 
     "boolean"                                   { return BOOLEAN; }
     "break"                                     { return BREAK; }
@@ -373,8 +372,6 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "channel"                                   { return CHANNEL; }
     "check"                                     { return CHECK; }
     "client"                                    { return CLIENT; }
-    "compensation"                              { return COMPENSATION; }
-    "compensate"                                { return COMPENSATE; }
     "const"                                     { return CONST; }
     "continue"                                  { return CONTINUE; }
 
@@ -390,6 +387,7 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "final"                                     { return FINAL; }
     "finally"                                   { return FINALLY; }
     "float"                                     { return FLOAT; }
+    "flush"                                     { return FLUSH; }
     "foreach"                                   { return FOREACH; }
     "fork"                                      { return FORK; }
     "function"                                  { return FUNCTION; }
@@ -433,7 +431,6 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "returns"                                   { return RETURNS; }
 
     "service"                                   { return SERVICE; }
-    "scope"                                     { return SCOPE; }
     "some"                                      { return SOME; }
     "start"                                     { return START; }
     "stream"                                    { return STREAM; }
@@ -450,6 +447,7 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
 
     "untaint"                                   { return UNTAINT; }
 
+    "wait"                                      { return WAIT; }
     "while"                                     { return WHILE; }
     "with"                                      { return WITH; }
     "worker"                                    { return WORKER; }
@@ -506,6 +504,7 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "|"                                         { return PIPE; }
     "=>"                                        { return EQUAL_GT; }
     "?:"                                        { return ELVIS; }
+    "->>"                                       { return SYNCRARROW; }
 
     "+="                                        { return COMPOUND_ADD; }
     "-="                                        { return COMPOUND_SUB; }
