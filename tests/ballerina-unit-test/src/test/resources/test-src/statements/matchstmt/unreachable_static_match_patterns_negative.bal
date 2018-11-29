@@ -59,3 +59,14 @@ function simpleTypes() returns string {
 
     return "Fail";
 }
+
+function unreachableCode() returns string {
+    anydata k = 10;
+    match k {
+        15 => return "T";
+        (12, 15) => return "T";
+        _ => return "T";
+    }
+
+    return "Fail"; // unreachable
+}

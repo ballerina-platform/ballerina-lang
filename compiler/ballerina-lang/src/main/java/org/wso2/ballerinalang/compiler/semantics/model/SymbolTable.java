@@ -504,7 +504,6 @@ public class SymbolTable {
 
         // Error related methods.
         defineBuiltinMethod(BLangBuiltInMethod.REASON, errorType, stringType, InstructionCodes.REASON);
-        defineBuiltinMethod(BLangBuiltInMethod.DETAIL, errorType, mapType, InstructionCodes.DETAIL);
 
         // Length methods.
         defineBuiltinMethod(BLangBuiltInMethod.LENGTH, stringType, intType, InstructionCodes.LENGTHOF);

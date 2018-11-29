@@ -2792,9 +2792,11 @@ public class TypeChecker extends BLangNodeVisitor {
                     checkExpr(expression, env, symTable.noType);
                 }
                 return symResolver.createSymbolForCreateOperator(iExpr.pos, new Name(function.getName()),
-                                                                 functionArgList, iExpr.expr);
+                        functionArgList, iExpr.expr);
             case CALL:
                 return getFunctionPointerCallSymbol(iExpr);
+            case DETAIL:
+                return symResolver.createSymbolForDetailBuiltInMethod(iExpr.name, iExpr.expr.type);
             default:
                 return symTable.notFoundSymbol;
         }

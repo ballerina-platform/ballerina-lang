@@ -64,10 +64,9 @@ function testStructuredMatchPatternsBasic4() returns string {
     Bar bar = {b: 12, f: foo};
 
     match bar {
+        var {a} => return "Matched Values : " + io:sprintf("%s", a);
         var y => return "Matched Values : " + io:sprintf("%s", y);
     }
-
-    return "Default";
 }
 
 type ClosedFoo1 record {
@@ -154,8 +153,6 @@ function complexMatch(ClosedBar1|ClosedBar2|string a) returns string {
                                     io:sprintf("%s", var2);
         var s => return "Matched with single var : " + io:sprintf("%s", s);
     }
-
-    return "Default";
 }
 
 function testRuntimeCheck() returns string[] {
@@ -217,7 +214,6 @@ function typeGuard1((string, int)|ClosedBar1|ClosedBar2|(int, boolean)|int|float
         var (s, i) if i is boolean => {return "Matched with boolean : " + io:sprintf("%s", s) + ", " + io:sprintf("%s", i);}
         var y => {return "Matched with default type - float : " + io:sprintf("%s", y);}
     }
-    return "Default";
 }
 
 function testStructuredMatchPatternWithTypeGuard2() returns string[] {
@@ -241,7 +237,6 @@ function typeGuard2(any matchExpr) returns string {
         var {var1, var2} if (var1 is string && var2 is ClosedBar1) => {return "Matched with string and ClosedBar1 : " + io:sprintf("%s", var2.var1);}
         var x => return "Matched with Default";
     }
-    return "Default";
 }
 
 type FooRec record {
@@ -270,7 +265,6 @@ function typeGuard3(any matchExpr) returns string {
         var {var1, var2: (x, {var1: y, var2: z})} if (y is (int, string) && z is (float, boolean)) => return "Matched with bar : " + io:sprintf("%s", y[0] + 5);
         var y => return "Matched with default : " + io:sprintf("%s", y);
     }
-    return "Default";
 }
 
 type RestParam record {
@@ -300,8 +294,6 @@ function typeGuard4(RestParam|ClosedRec matchExpr) returns string {
         var {var1, ...rest} => return "Matched with restparam : " + io:sprintf("%s", rest);
         var y => return "Matched with default : " + io:sprintf("%s", y);
     }
-
-    return "Default";
 }
 
 function testClosedRecord() returns string[] {
