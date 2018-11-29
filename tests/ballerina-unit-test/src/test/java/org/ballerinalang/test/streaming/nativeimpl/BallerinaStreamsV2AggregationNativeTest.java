@@ -34,17 +34,17 @@ import org.testng.annotations.Test;
  *
  * @since 0.980.0
  */
-public class BallerinaStreamsV2AggregationGroupByTest {
+public class BallerinaStreamsV2AggregationNativeTest {
 
     private CompileResult result;
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/streaming/native/streamingv2-aggregation-with-groupby-test.bal");
+        result = BCompileUtil.compile("test-src/streaming/native/streamingv2-aggregation-unit-test.bal");
     }
 
     @Test(description = "Test streaming query with aggregation and group by.")
-    public void testFilterQuery() {
+    public void testAggregationQuery() {
         BValue[] outputEvents = BRunUtil.invoke(result, "startAggregationQuery");
         Assert.assertNotNull(outputEvents);
 
