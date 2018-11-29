@@ -4,7 +4,7 @@ This module provides the common record types and constants required for other da
 
 ### PoolOptions 
 
-The PoolOptions type is the properties that are used to configure DB connection pool. This is used with `jdbc`, `mysql`, and `h2` endpoints to configure the connection pool associated with the endpoint.
+The PoolOptions type is the properties that are used to configure DB connection pool. This is used with `jdbc`, `mysql`, and `h2` clients to configure the connection pool associated with the client.
 
 ### SQLType
 
