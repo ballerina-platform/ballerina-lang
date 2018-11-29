@@ -90,7 +90,7 @@ public class SwaggerResourceMapper {
      * @param resources Resource array to be convert.
      * @return map of string and swagger path objects.
      */
-    protected Map<String, Path> convertResourceToPath(List<? extends FunctionNode> resources) {
+    protected Map<String, Path> convertResourceToPath(List<? extends ResourceNode> resources) {
         Map<String, Path> pathMap = new HashMap<>();
         for (ResourceNode resource : resources) {
             if (this.getHttpMethods(resource, false).size() == 0
@@ -173,7 +173,7 @@ public class SwaggerResourceMapper {
      * @param resource Resource array to be convert.
      * @return Operation Adaptor object of given resource
      */
-    private OperationAdaptor convertResourceToOperation(FunctionNode resource, String httpMethod) {
+    private OperationAdaptor convertResourceToOperation(ResourceNode resource, String httpMethod) {
         OperationAdaptor op = new OperationAdaptor();
         if (resource != null) {
             op.setHttpOperation(httpMethod);
@@ -215,7 +215,7 @@ public class SwaggerResourceMapper {
      * @param resource The ballerina resource definition.
      * @param op       The swagger operation.
      */
-    private void parseResponsesAnnotationAttachment(FunctionNode resource, Operation op) {
+    private void parseResponsesAnnotationAttachment(ResourceNode resource, Operation op) {
         AnnotationAttachmentNode annotation = ConverterUtils.getAnnotationFromList("Responses", swaggerAlias,
                 resource.getAnnotationAttachments());
 
@@ -293,7 +293,7 @@ public class SwaggerResourceMapper {
      * @param resource         The ballerina resource definition.
      * @param operationAdaptor The swagger operation.
      */
-    private void addResourceParameters(FunctionNode resource, OperationAdaptor operationAdaptor) {
+    private void addResourceParameters(ResourceNode resource, OperationAdaptor operationAdaptor) {
         //Set Path
         AnnotationAttachmentNode annotation = ConverterUtils
                 .getAnnotationFromList(HttpConstants.ANN_NAME_RESOURCE_CONFIG, httpAlias,
@@ -509,7 +509,7 @@ public class SwaggerResourceMapper {
      * @param resource  The ballerina resource definition.
      * @param operation The swagger operation.
      */
-    private void parseResourceConfigAnnotationAttachment(FunctionNode resource, OperationAdaptor operation) {
+    private void parseResourceConfigAnnotationAttachment(ResourceNode resource, OperationAdaptor operation) {
         AnnotationAttachmentNode annotation = ConverterUtils
                 .getAnnotationFromList(HttpConstants.ANN_NAME_RESOURCE_CONFIG, httpAlias,
                         resource.getAnnotationAttachments());
@@ -571,7 +571,7 @@ public class SwaggerResourceMapper {
      * @param useDefaults True to add default http methods, else false.
      * @return A list of http methods.
      */
-    private List<String> getHttpMethods(FunctionNode resource, boolean useDefaults) {
+    private List<String> getHttpMethods(ResourceNode resource, boolean useDefaults) {
         AnnotationAttachmentNode annotation = ConverterUtils
                 .getAnnotationFromList(HttpConstants.ANN_NAME_RESOURCE_CONFIG, httpAlias,
                         resource.getAnnotationAttachments());
@@ -610,7 +610,7 @@ public class SwaggerResourceMapper {
      * @param resource The ballerina resource.
      * @return The path value.
      */
-    private String getPath(FunctionNode resource) {
+    private String getPath(ResourceNode resource) {
         String path = "/" + resource.getName();
         AnnotationAttachmentNode annotation = ConverterUtils
                 .getAnnotationFromList(HttpConstants.ANN_NAME_RESOURCE_CONFIG, httpAlias,
