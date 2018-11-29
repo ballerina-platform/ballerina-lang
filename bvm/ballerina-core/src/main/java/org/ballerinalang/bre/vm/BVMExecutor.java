@@ -24,6 +24,7 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefType;
@@ -255,7 +256,8 @@ public class BVMExecutor {
      */
     private static void invokePackageInitFunctions(ProgramFile programFile) {
         for (PackageInfo info : programFile.getPackageInfoEntries()) {
-            execute(programFile, info.getInitFunctionInfo(), new BValue[0], null, true);
+            BValue result = execute(programFile, info.getInitFunctionInfo(), new BValue[0], null, true);
+            validateInvocationError(result);
         }
     }
 
@@ -267,7 +269,8 @@ public class BVMExecutor {
      */
     private static void invokePackageStartFunctions(ProgramFile programFile) {
         for (PackageInfo info : programFile.getPackageInfoEntries()) {
-            execute(programFile, info.getStartFunctionInfo(), new BValue[0], null, true);
+            BValue result = execute(programFile, info.getStartFunctionInfo(), new BValue[0], null, true);
+            validateInvocationError(result);
         }
     }
 
@@ -279,7 +282,20 @@ public class BVMExecutor {
      */
     private static void invokePackageStopFunctions(ProgramFile programFile) {
         for (PackageInfo info : programFile.getPackageInfoEntries()) {
-            execute(programFile, info.getStopFunctionInfo(), new BValue[0], null, true);
+            BValue result = execute(programFile, info.getStopFunctionInfo(), new BValue[0], null, true);
+            validateInvocationError(result);
+        }
+    }
+
+    /**
+     * This will validate given BValue is an BError and then convert it into
+     * Ballerina exception. This method will be used to validate module life cycle methods.
+     *
+     * @value BValue to be validated.
+     */
+    private static void validateInvocationError(BValue value) {
+        if (value != null && value.getType().getTag() == TypeTags.ERROR_TAG) {
+            throw new BLangRuntimeException("error: " + BLangVMErrors.getPrintableStackTrace((BError) value));
         }
     }
 }
