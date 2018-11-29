@@ -2,14 +2,14 @@ import ballerina/http;
 import ballerina/log;
 
 @http:ServiceConfig
-service<http:Service> sample bind { port: 9090 } {
+service sample on new http:Listener(9090) {
 
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/path/{foo}"
     }
     // The `PathParam` and `QueryParam` parameters extract values from the request URI.
-    params(endpoint caller, http:Request req, string foo) {
+    resource function params(http:Caller caller, http:Request req, string foo) {
         // Get `QueryParams`.
         var params = req.getQueryParams();
         var bar = <string>params.bar;
