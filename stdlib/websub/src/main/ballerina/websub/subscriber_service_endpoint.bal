@@ -114,9 +114,9 @@ function Listener.sendSubscriptionRequests() {
             string hub = <string>subscriptionDetails.hub;
             string topic = <string>subscriptionDetails.topic;
 
-            http:ClientEndpointConfig? subscriptionClientConfig;
             var clientConfig = trap <http:ClientEndpointConfig>subscriptionDetails.subscriptionClientConfig;
-            subscriptionClientConfig = clientConfig is http:ClientEndpointConfig ? clientConfig : ();
+            http:ClientEndpointConfig? subscriptionClientConfig =
+                                                clientConfig is http:ClientEndpointConfig ? clientConfig : ();
 
             if (hub == "" || topic == "") {
                 if (resourceUrl == "") {
