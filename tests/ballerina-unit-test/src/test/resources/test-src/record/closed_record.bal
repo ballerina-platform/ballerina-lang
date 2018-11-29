@@ -42,7 +42,7 @@ function testStructOfStruct () returns (string) {
 
     string country = "";
     var result = dpt.employees[0].adrs["country"];
-    country = result is any ? <string> result : "";
+    country = result is string ? result : "";
     return country;
 }
 
@@ -170,4 +170,42 @@ function testFuncPtrAsRecordField() returns string {
     };
 
     return p.fullName.call();
+}
+
+public type InMemoryModeConfig record {
+    string name = "";
+    string username = "";
+    string password = "";
+    map<any> dbOptions = {};
+    !...
+};
+
+public type ServerModeConfig record {
+    string host;
+    int port;
+    *InMemoryModeConfig;
+    !...
+};
+
+public type EmbeddedModeConfig record {
+    string path;
+    *InMemoryModeConfig;
+    !...
+};
+
+function testAmbiguityResolution() returns (string, string, string) {
+    string s1 = init({});
+    string s2 = init({host:"localhost", port:9090});
+    string s3 = init({path:"localhost:9090"});
+    return (s1, s2, s3);
+}
+
+function init(InMemoryModeConfig|ServerModeConfig|EmbeddedModeConfig rec) returns string {
+    if (rec is ServerModeConfig) {
+        return "Server mode configuration";
+    } else if (rec is EmbeddedModeConfig) {
+        return "Embedded mode configuration";
+    } else {
+        return "In-memory mode configuration";
+    }
 }

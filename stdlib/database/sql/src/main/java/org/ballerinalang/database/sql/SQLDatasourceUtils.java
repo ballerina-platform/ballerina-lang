@@ -1180,22 +1180,19 @@ public class SQLDatasourceUtils {
 
     public static BMap<String, BValue> createMultiModeDBClient(Context context, String dbType,
             org.ballerinalang.connector.api.Struct clientEndpointConfig, String urlOptions) {
+        String modeRecordType = clientEndpointConfig.getName();
         String dbPostfix = Constants.SQL_MEMORY_DB_POSTFIX;
         String hostOrPath = "";
-        String host = clientEndpointConfig.getStringField(Constants.EndpointConfig.HOST);
-        String path = clientEndpointConfig.getStringField(Constants.EndpointConfig.PATH);
-        if (!host.isEmpty()) {
+        int port = -1;
+        if (modeRecordType.equals(Constants.SERVER_MODE)) {
             dbPostfix = Constants.SQL_SERVER_DB_POSTFIX;
-            hostOrPath = host;
-        } else if (!path.isEmpty()) {
+            hostOrPath = clientEndpointConfig.getStringField(Constants.EndpointConfig.HOST);;
+            port = (int) clientEndpointConfig.getIntField(Constants.EndpointConfig.PORT);
+        } else if (modeRecordType.equals(Constants.EMBEDDED_MODE)) {
             dbPostfix = Constants.SQL_FILE_DB_POSTFIX;
-            hostOrPath = path;
-        }
-        if (!host.isEmpty() && !path.isEmpty()) {
-            throw new BallerinaException("error in creating db client endpoint: Provide either host or path");
+            hostOrPath = clientEndpointConfig.getStringField(Constants.EndpointConfig.PATH);;
         }
         dbType = dbType + dbPostfix;
-        int port = (int) clientEndpointConfig.getIntField(Constants.EndpointConfig.PORT);
         String name = clientEndpointConfig.getStringField(Constants.EndpointConfig.NAME);
         String username = clientEndpointConfig.getStringField(Constants.EndpointConfig.USERNAME);
         String password = clientEndpointConfig.getStringField(Constants.EndpointConfig.PASSWORD);

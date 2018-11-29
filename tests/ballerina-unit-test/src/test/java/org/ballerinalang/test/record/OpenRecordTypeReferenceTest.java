@@ -143,4 +143,26 @@ public class OpenRecordTypeReferenceTest {
         assertEquals(manager.get("company").stringValue(), "WSO2");
         assertEquals(manager.get("dept").stringValue(), "Engineering");
     }
+
+    @Test(description = "Test case for default value initializing in type referenced fields")
+    public void testDefaultValueInit() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testDefaultValueInit");
+        BMap manager = (BMap) returns[0];
+        assertEquals(manager.get("name").stringValue(), "John Doe");
+        assertEquals(((BInteger) manager.get("age")).intValue(), 25);
+        assertEquals(manager.get("adr").stringValue(), "{city:\"Colombo\", country:\"Sri Lanka\"}");
+        assertEquals(manager.get("company").stringValue(), "WSO2");
+        assertEquals(manager.get("dept").stringValue(), "");
+    }
+
+    @Test(description = "Test case for default value initializing in type referenced fields from a BALO")
+    public void testDefaultValueInitInBALOs() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testDefaultValueInitInBALOs");
+        BMap manager = (BMap) returns[0];
+        assertEquals(manager.get("name").stringValue(), "anonymous");
+        assertEquals(((BInteger) manager.get("age")).intValue(), 0);
+        assertEquals(manager.get("adr").stringValue(), "{city:\"\", country:\"\"}");
+        assertEquals(manager.get("company").stringValue(), "");
+        assertEquals(manager.get("dept").stringValue(), "");
+    }
 }

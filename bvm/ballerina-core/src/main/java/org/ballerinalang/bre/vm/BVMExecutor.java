@@ -126,9 +126,8 @@ public class BVMExecutor {
     public static void executeResource(ProgramFile programFile, FunctionInfo resourceInfo,
                                        CallableUnitCallback responseCallback, Map<String, Object> properties,
                                        ObserverContext observerContext, ServiceInfo serviceInfo, BValue... args) {
-        Map<String, Object> globalProps = new HashMap<>();
-        if (properties != null) {
-            globalProps.putAll(properties);
+        if (properties == null) {
+            properties = new HashMap<>();
         }
 
         StrandResourceCallback strandCallback = new StrandResourceCallback(null, responseCallback);
@@ -156,6 +155,10 @@ public class BVMExecutor {
 
     private static BValue execute(ProgramFile programFile, CallableUnitInfo callableInfo,
                                   BValue[] args, Map<String, Object> properties, boolean waitForResponse) {
+        if (properties == null) {
+            properties = new HashMap<>();
+        }
+
         StrandWaitCallback strandCallback = new StrandWaitCallback(callableInfo.getRetParamTypes()[0]);
         Strand strand = new Strand(programFile, callableInfo.getName(), properties, strandCallback,  null);
 
