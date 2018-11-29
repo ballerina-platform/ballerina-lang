@@ -51,6 +51,86 @@ service hello on new http:Listener(8889) {
             log:printError("Error sending response", err = resp);
         }
     }
+
+     @http:ResourceConfig {
+        methods: ["POST"],
+        path: "/nestedTrx",
+        transactionInfectable: true
+    }
+    @transactions:Participant {
+        oncommit: baz,
+        onabort: bar
+    }
+    resource function nestedTrx(http:Caller caller, http:Request req) {
+        boolean nestedTrxInRemote = false;
+        boolean nestedTrxInParticipant = false;
+        boolean nestedTrxInNonParticipantLocalFunc = false;
+        string s = "";
+        log:printInfo("in-remote: ");
+        var payload =  req.getTextPayload();
+        if (payload is string) {
+            log:printInfo("in remote: " + payload);
+            if (payload == "nestedInRemote") {
+                nestedTrxInRemote = true;
+            } else if (payload == "nestedInRemotesLocalParticipant") {
+                nestedTrxInParticipant = true;
+            } else if (payload == "nestedTrxInNonParticipantLocalFunc") {
+                nestedTrxInNonParticipantLocalFunc = true;
+            }
+        }
+
+        if (nestedTrxInRemote) {
+            transaction {
+                log:printInfo("In nested trx in remote");
+                s += "in nested transaction";
+            }
+        } else if (nestedTrxInParticipant) {
+            log:printInfo("In nested trx in remote's local participant");
+            var participant = trap participantWithNestedTransaction();
+            if (participant is string) {
+                s += participant;
+            } else {
+                s += "remote-local-error:[" + participant.reason() + "]";
+            }
+        } else if (nestedTrxInNonParticipantLocalFunc) {
+            log:printInfo("In nested trx in remote's local non participant");
+            var participant = trap localNonParticipantWithNestedTransaction();
+            if (participant is string) {
+                s += participant;
+            } else {
+                s += "remote-local-error-trapped:[" + participant.reason() + "]";
+            }
+        }
+
+
+        http:Response res = new;
+        res.setPayload(s);
+        var resp = caller->respond(res);
+        if (resp is error) {
+            log:printError("Error sending response", err = resp);
+        }
+    }
+}
+
+@transactions:Participant {}
+function participantWithNestedTransaction() returns string {
+    string s = "";
+    log:printInfo("In remote's local participant");
+    transaction {
+        log:printInfo("In nested trx in remote's local");
+        s += "in nested transaction";
+    }
+    return s;
+}
+
+function localNonParticipantWithNestedTransaction() returns string {
+    string s = "";
+    log:printInfo("In remote's local non participant");
+    transaction {
+        log:printInfo("In nested trx in remote's local");
+        s += "in nested transaction";
+    }
+    return s;
 }
 
 
@@ -176,6 +256,42 @@ function blowUp()  returns int {
     return 5;
 }
 
+function initiateNestedTransactionInRemote(string nestingMethod) returns string {
+    http:Client remoteEp = new("http://localhost:8889");
+    string s = "";
+    transaction {
+        s += " in initiator-trx";
+        var resp = remoteEp->post("/nestedTrx", nestingMethod);
+        if (resp is http:Response) {
+            if (resp.statusCode == 500) {
+                s += " remote1-excepted";
+                var payload = resp.getTextPayload();
+                if (payload is string) {
+                    s += ":[" + untaint payload + "]";
+                }
+            } else {
+                var text = resp.getTextPayload();
+                if (text is string) {
+                    log:printInfo(text);
+                    s += " <" + untaint text + ">";
+                } else {
+                    s += " error-in-remote-response " + text.reason();
+                    log:printError(text.reason());
+                }
+            }
+        } else {
+            s += " remote call error: " + resp.reason();
+        }
+    } onretry {
+        s += " onretry";
+    } committed {
+        s += " committed";
+    } aborted {
+        s += " aborted";
+    }
+    return s;
+}
+
 @http:ServiceConfig {
     basePath: "/"
 }
@@ -252,6 +368,49 @@ service initiatorService on new http:Listener(8888) {
         string result = initiatorFunc(false, false,
                                       true, true,
                                       true, true);
+        http:Response res = new;
+        res.setPayload(result);
+        var r = caller->respond(res);
+        if (r is error) {
+            log:printError("Error sending response: " + result, err = r);
+        }
+    }
+
+    @http:ResourceConfig {
+        methods: ["POST"]
+    }
+    resource function remoteParticipantStartNestedTransaction(http:Caller caller, http:Request req) {
+        string result = initiateNestedTransactionInRemote("nestedInRemote");
+        http:Response res = new;
+        res.setPayload(result);
+        var r = caller->respond(res);
+        if (r is error) {
+            log:printError("Error sending response: " + result, err = r);
+        }
+    }
+
+    @http:ResourceConfig {
+        methods: ["POST"]
+    }
+    resource function remoteParticipantStartNestedTransactionNestedInRemotesLocalParticipant(http:Caller
+                            caller, http:Request req) {
+
+        string result = initiateNestedTransactionInRemote("nestedInRemotesLocalParticipant");
+        http:Response res = new;
+        res.setPayload(result);
+        var r = caller->respond(res);
+        if (r is error) {
+            log:printError("Error sending response: " + result, err = r);
+        }
+    }
+
+    @http:ResourceConfig {
+        methods: ["POST"]
+    }
+    resource function remoteParticipantStartNestedTransactionInRemotesLocalNonParticipant(http:Caller
+                            caller, http:Request req) {
+
+        string result = initiateNestedTransactionInRemote("nestedTrxInNonParticipantLocalFunc");
         http:Response res = new;
         res.setPayload(result);
         var r = caller->respond(res);

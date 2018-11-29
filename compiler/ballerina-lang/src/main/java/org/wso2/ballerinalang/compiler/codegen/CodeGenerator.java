@@ -1751,14 +1751,14 @@ public class CodeGenerator extends BLangNodeVisitor {
             workerInfo.codeAttributeInfo.codeAddrs = nextIP();
             this.lvIndexes = lvIndexCopy;
             this.currentWorkerInfo = workerInfo;
-            this.emitTransactionBeginIfApplicable(body);
+            this.emitTransactionParticipantBeginIfApplicable(body);
             this.genNode(body, invokableSymbolEnv);
         }
         this.endWorkerInfoUnit(workerInfo.codeAttributeInfo);
         this.emit(InstructionCodes.HALT);
     }
 
-    private void emitTransactionBeginIfApplicable(BLangBlockStmt body) {
+    private void emitTransactionParticipantBeginIfApplicable(BLangBlockStmt body) {
         BLangNode parent = body.parent;
         if (parent == null) {
             return;
@@ -1767,11 +1767,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         if (parent instanceof BLangFunction) {
             Set<Flag> flagSet = ((BLangFunction) parent).flagSet;
             if (flagSet != null && flagSet.contains(Flag.RESOURCE)) {
-                transactionIndex++;
-                List<BLangAnnotationAttachment> annAttachments = ((BLangFunction) parent).annAttachments;
-                if (annAttachments == null || annAttachments.isEmpty()) {
-                    return;
-                }
                 return;
             }
             BLangFunction function = (BLangFunction) parent;
@@ -1779,8 +1774,10 @@ public class CodeGenerator extends BLangNodeVisitor {
                     .filter(a -> Transactions.isTransactionsAnnotation(a.pkgAlias.value, a.annotationName.value))
                     .collect(Collectors.toList());
             if (participantAnnotation.isEmpty()) {
+                // function not annotated for transaction participation.
                 return;
             }
+
             transactionIndex++;
             BLangAnnotationAttachment annotation = participantAnnotation.get(0);
             Operand abortedFuncRegIndex = new RegIndex(-1, TypeTags.INVOKABLE);

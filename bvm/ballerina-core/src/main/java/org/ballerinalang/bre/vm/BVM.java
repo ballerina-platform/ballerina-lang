@@ -3175,6 +3175,8 @@ public class BVM {
         localTransactionInfo.beginTransactionBlock(transactionBlockId, 1);
         transactionResourceManager.registerParticipation(localTransactionInfo.getGlobalTransactionId(),
                 transactionBlockId, fpCommitted, fpAborted, ctx);
+        // this call frame is a transaction participant.
+        ctx.currentFrame.transactionParticipant = true;
     }
 
     private static LocalTransactionInfo createAndNotifyGlobalTx(Strand ctx, int transactionBlockId) {
@@ -4325,7 +4327,11 @@ public class BVM {
         if (localTransactionInfo == null) {
             return;
         }
-        localTransactionInfo.notifyLocalParticipantFailure();
+        // resources get transaction block ids above INT_MAX/2
+        boolean resourceParticipant = localTransactionInfo.getCurrentTransactionBlockId() >= Integer.MAX_VALUE / 2;
+        if (!resourceParticipant) {
+            localTransactionInfo.notifyLocalParticipantFailure();
+        }
     }
 
     private static AttributeInfo getAttributeInfo(AttributeInfoPool attrInfoPool, AttributeInfo.Kind attrInfoKind) {

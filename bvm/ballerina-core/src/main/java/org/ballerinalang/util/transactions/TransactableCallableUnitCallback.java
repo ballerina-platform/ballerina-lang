@@ -41,7 +41,6 @@ public class TransactableCallableUnitCallback implements CallableUnitCallback {
 
     @Override
     public void notifySuccess() {
-        TransactionResourceManager.getInstance().notifySuccess(transactionId);
         callback.notifySuccess();
     }
 

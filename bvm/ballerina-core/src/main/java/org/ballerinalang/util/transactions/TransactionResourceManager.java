@@ -372,10 +372,6 @@ public class TransactionResourceManager {
         }
     }
 
-    public void notifySuccess(String transactionId) {
-        // pass
-    }
-
     public void notifyResourceFailure(String gTransactionId) {
         participantRegistry.participantFailed(gTransactionId);
         failedResourceParticipantSet.add(gTransactionId);

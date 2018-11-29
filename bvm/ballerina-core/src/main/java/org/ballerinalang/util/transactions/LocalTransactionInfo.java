@@ -141,10 +141,6 @@ public class LocalTransactionInfo {
         transactionResourceManager.notifyLocalParticipantFailure(globalTransactionId, bockId);
     }
 
-    public void notifyLocalParticipantSuccess() {
-        transactionResourceManager.notifySuccess(globalTransactionId);
-    }
-
     public boolean onTransactionEnd(int transactionBlockId) {
         boolean isOuterTx = false;
         transactionBlockIdStack.pop();

@@ -61,6 +61,9 @@ public class StackFrame {
     // Return registry index
     int retReg;
 
+    // Indicate this frame belong to a transaction participant
+    public boolean transactionParticipant;
+
     public StackFrame() {}
 
     public StackFrame(CallableUnitInfo callableUnitInfo, int retTypeTag) {

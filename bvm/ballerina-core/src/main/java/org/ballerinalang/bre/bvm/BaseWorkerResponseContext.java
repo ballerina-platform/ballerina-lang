@@ -177,6 +177,5 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
         if (localTransactionInfo == null) {
             return;
         }
-        localTransactionInfo.notifyLocalParticipantSuccess();
     }
 }

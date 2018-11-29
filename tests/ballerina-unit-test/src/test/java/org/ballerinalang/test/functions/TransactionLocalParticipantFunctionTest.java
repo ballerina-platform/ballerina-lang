@@ -70,4 +70,13 @@ public class TransactionLocalParticipantFunctionTest {
                 "in-trx-block in-participantFoo in-participantErroredFunc TransactionError " +
                 "in-trx-lastline aborted-block after-trx");
     }
+
+    @Test
+    public void testTransactionLocalNonParticipantStartTransaction() {
+        BValue[] params = {};
+        BValue[] ret = BRunUtil.invoke(result, "initiatorWithLocalNonParticipantError", params);
+        String s = ret[0].stringValue();
+        Assert.assertEquals(s, " in-trx trapped:[dynamically nested transactions are not allowed] " +
+                "last-line committed");
+    }
 }

@@ -121,4 +121,40 @@ public class RemoteParticipantTransactionTest extends BaseTest {
                 "in-trx-block in-remote remote2-blown in-trx-lastline aborted-block after-trx";
         assertEquals(response.getData(), target, "payload mismatched");
     }
+
+    @Test
+    public void remoteParticipantStartNestedTransaction() throws IOException {
+        String url = serverInstance.getServiceURLHttp(initiatorServicePort,
+                "remoteParticipantStartNestedTransaction");
+        HttpResponse response = HttpClientRequest.doPost(url, "", new HashMap<>());
+        assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        String target = " in initiator-trx remote1-excepted:[dynamically nested transactions are not allowed] " +
+                "onretry in initiator-trx remote1-excepted:[dynamically nested transactions are not allowed] " +
+                "onretry in initiator-trx remote1-excepted:[dynamically nested transactions are not allowed] aborted";
+        assertEquals(response.getData(), target, "payload mismatched");
+    }
+
+    @Test
+    public void remoteParticipantsLocalParticipantStartNestedTransaction() throws IOException {
+        String url = serverInstance.getServiceURLHttp(initiatorServicePort,
+                "remoteParticipantStartNestedTransactionNestedInRemotesLocalParticipant");
+        HttpResponse response = HttpClientRequest.doPost(url, "", new HashMap<>());
+        assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        String target = " in initiator-trx <remote-local-error:[dynamically nested transactions are not allowed]> " +
+                "onretry in initiator-trx <remote-local-error:[dynamically nested transactions are not allowed]> " +
+                "onretry in initiator-trx <remote-local-error:[dynamically nested transactions are not allowed]> " +
+                "aborted";
+        assertEquals(response.getData(), target, "payload mismatched");
+    }
+
+    @Test
+    public void remoteParticipantsLocalNonParticipantStartNestedTransaction() throws IOException {
+        String url = serverInstance.getServiceURLHttp(initiatorServicePort,
+                "remoteParticipantStartNestedTransactionInRemotesLocalNonParticipant");
+        HttpResponse response = HttpClientRequest.doPost(url, "", new HashMap<>());
+        assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        String target = " in initiator-trx <remote-local-error-trapped:[dynamically nested transactions " +
+                "are not allowed]> committed";
+        assertEquals(response.getData(), target, "payload mismatched");
+    }
 }

@@ -97,3 +97,32 @@ function blowUp()  returns int {
 }
 
 
+function initiatorWithLocalNonParticipantError() returns string {
+    string s = "";
+    transaction {
+        s += " in-trx";
+        var t = trap nonParticipantNestedTrxStmt(s);
+        if (t is string) {
+            s += t;
+        } else {
+            s += " trapped:[" + t.reason() + "]";
+        }
+        s += " last-line";
+    } onretry {
+        s += " onretry";
+    } committed {
+        s += " committed";
+    } aborted {
+        s += " aborted";
+    }
+    return s;
+}
+
+function nonParticipantNestedTrxStmt(string s) returns string {
+    string q = s;
+    transaction {
+        q += " in-local-nonparticipant-trx";
+    }
+    return q;
+}
+
