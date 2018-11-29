@@ -36,7 +36,8 @@ public class ItemResolverConstants {
     public static final String WHILE = "while";
     public static final String ERROR = "error";
     public static final String LOCK = "lock";
-    public static final String BIND = "bind";
+    public static final String ON = "on";
+    public static final String NEW = "new";
     public static final String ENDPOINT = "endpoint";
     public static final String CONTINUE = "continue";
     public static final String BREAK = "break";
@@ -112,4 +113,5 @@ public class ItemResolverConstants {
     public static final String BUILTIN_FREEZE_LABEL = "freeze()";
     public static final String BUILTIN_IS_FROZEN_LABEL = "isFrozen()";
     public static final String BUILTIN_STAMP_LABEL = "stamp(anydata a)";
+    public static final String BUILTIN_CREATE_LABEL = "create(anydata a)";
 }

@@ -20,7 +20,7 @@ service contentBasedRouting on serviceEP {
         var jsonMsg = req.getJsonPayload();
         string nameString = "";
         if (jsonMsg is json) {
-            nameString = jsonMsg.toString();
+            nameString = jsonMsg.name.toString();
         } else if (jsonMsg is error) {
             io:println("Error getting payload");
         }

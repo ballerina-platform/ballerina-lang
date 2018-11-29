@@ -42,9 +42,9 @@ public class BallerinaTypeReferenceImpl extends BallerinaCompositeElementImpl im
   }
 
   @Override
-  @NotNull
+  @Nullable
   public BallerinaSimpleTypeName getSimpleTypeName() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaSimpleTypeName.class));
+    return PsiTreeUtil.getChildOfType(this, BallerinaSimpleTypeName.class);
   }
 
   @Override
@@ -54,9 +54,9 @@ public class BallerinaTypeReferenceImpl extends BallerinaCompositeElementImpl im
   }
 
   @Override
-  @NotNull
+  @Nullable
   public PsiElement getSemicolon() {
-    return notNullChild(findChildByType(SEMICOLON));
+    return findChildByType(SEMICOLON);
   }
 
 }

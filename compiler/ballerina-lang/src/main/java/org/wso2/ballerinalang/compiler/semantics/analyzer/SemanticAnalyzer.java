@@ -61,6 +61,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BChannelType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
@@ -126,7 +127,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangCompensate;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
@@ -144,7 +144,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
@@ -154,7 +153,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
@@ -1093,8 +1091,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             SymbolEnv ifBodyEnv = SymbolEnv.createBlockEnv(ifNode.body, env);
             for (Entry<BVarSymbol, BType> entry : typeGuards.entrySet()) {
                 BVarSymbol originalVarSymbol = entry.getKey();
-                BVarSymbol varSymbol = new BVarSymbol(0, originalVarSymbol.name, ifBodyEnv.scope.owner.pkgID,
-                        entry.getValue(), this.env.scope.owner);
+                BVarSymbol varSymbol = symbolEnter.createVarSymbol(0, entry.getValue(), originalVarSymbol.name,
+                                                                   this.env);
                 symbolEnter.defineShadowedSymbol(ifNode.expr.pos, varSymbol, ifBodyEnv);
 
                 // Cache the type guards, to be reused at the desugar.
@@ -1280,6 +1278,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (!types.checkListenerCompatibility(env, exprType)) {
             dlog.error(serviceNode.attachExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, Names.ABSTRACT_LISTENER,
                     exprType);
+        } else {
+            serviceNode.listerType = exprType;
         }
 
         // TODO : Fix this.
@@ -1288,7 +1288,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             if (!Symbols.isFlagOn(attachExpr.symbol.flags, Flags.LISTENER)) {
                 dlog.error(serviceNode.attachExpr.pos, DiagnosticCode.SYNTAX_ERROR, "invalid listener attachment");
             }
-        } else if (serviceNode.attachExpr.getKind() != NodeKind.Type_INIT_EXPR) {
+        } else if (serviceNode.attachExpr.getKind() != NodeKind.TYPE_INIT_EXPR) {
             dlog.error(serviceNode.attachExpr.pos, DiagnosticCode.SYNTAX_ERROR, "invalid listener attachment");
         }
     }
@@ -1388,46 +1388,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangForkJoin forkJoin) {
-        SymbolEnv forkJoinEnv = SymbolEnv.createFolkJoinEnv(forkJoin, this.env);
-        forkJoin.workers.forEach(e -> this.symbolEnter.defineNode(e, forkJoinEnv));
-        forkJoin.workers.forEach(e -> this.analyzeDef(e, forkJoinEnv));
-        if (!this.isJoinResultType(forkJoin.joinResultVar)) {
-            this.dlog.error(forkJoin.joinResultVar.pos, DiagnosticCode.INVALID_WORKER_JOIN_RESULT_TYPE);
-        }
-        /* create code black and environment for join result section, i.e. (map results) */
-        BLangBlockStmt joinResultsBlock = this.generateCodeBlock(this.createVarDef(forkJoin.joinResultVar));
-        SymbolEnv joinResultsEnv = SymbolEnv.createBlockEnv(joinResultsBlock, this.env);
-        this.analyzeNode(joinResultsBlock, joinResultsEnv);
-        /* create an environment for the join body, making the enclosing environment the earlier
-         * join result's environment */
-        SymbolEnv joinBodyEnv = SymbolEnv.createBlockEnv(forkJoin.joinedBody, joinResultsEnv);
-        this.analyzeNode(forkJoin.joinedBody, joinBodyEnv);
-
-        if (forkJoin.timeoutExpression != null) {
-            if (!this.isJoinResultType(forkJoin.timeoutVariable)) {
-                this.dlog.error(forkJoin.timeoutVariable.pos, DiagnosticCode.INVALID_WORKER_TIMEOUT_RESULT_TYPE);
-            }
-            /* create code black and environment for timeout section */
-            BLangBlockStmt timeoutVarBlock = this.generateCodeBlock(this.createVarDef(forkJoin.timeoutVariable));
-            SymbolEnv timeoutVarEnv = SymbolEnv.createBlockEnv(timeoutVarBlock, this.env);
-            this.typeChecker.checkExpr(forkJoin.timeoutExpression,
-                    timeoutVarEnv, symTable.intType);
-            this.analyzeNode(timeoutVarBlock, timeoutVarEnv);
-            /* create an environment for the timeout body, making the enclosing environment the earlier
-             * timeout var's environment */
-            SymbolEnv timeoutBodyEnv = SymbolEnv.createBlockEnv(forkJoin.timeoutBody, timeoutVarEnv);
-            this.analyzeNode(forkJoin.timeoutBody, timeoutBodyEnv);
-        }
-
-        this.validateJoinWorkerList(forkJoin, forkJoinEnv);
-    }
-
-    private void validateJoinWorkerList(BLangForkJoin forkJoin, SymbolEnv forkJoinEnv) {
-        forkJoin.joinedWorkers.forEach(e -> {
-            if (!this.workerExists(forkJoinEnv, e.value)) {
-                this.dlog.error(forkJoin.pos, DiagnosticCode.UNDEFINED_WORKER, e.value);
-            }
-        });
+       /* ignore */
     }
 
     @Override
@@ -1441,18 +1402,26 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isInTopLevelWorkerEnv() {
-        return this.env.enclEnv.node.getKind() == NodeKind.WORKER;
+        SymbolEnv env = this.env;
+        return env.enclInvokable.flagSet.contains(Flag.WORKER) && env.enclInvokable.body == env.node;
     }
 
     private boolean workerExists(SymbolEnv env, String workerName) {
-        BSymbol symbol = this.symResolver.lookupSymbol(env, new Name(workerName), SymTag.WORKER);
-        return (symbol != this.symTable.notFoundSymbol);
+        BSymbol symbol = this.symResolver.lookupSymbol(env, new Name(workerName), SymTag.VARIABLE);
+        return symbol != this.symTable.notFoundSymbol &&
+               symbol.type.tag == TypeTags.FUTURE &&
+               ((BFutureType) symbol.type).workerDerivative;
     }
 
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
         workerSendNode.env = this.env;
         this.typeChecker.checkExpr(workerSendNode.expr, this.env);
+
+        // Validate if the send type is anydata
+        if (!types.isAnydata(workerSendNode.expr.type)) {
+            this.dlog.error(workerSendNode.pos, DiagnosticCode.INVALID_TYPE_FOR_SEND, workerSendNode.expr.type);
+        }
 
         BSymbol symbol = symResolver.lookupSymbol(env, names.fromIdNode(workerSendNode.workerIdentifier), SymTag
                 .VARIABLE);
@@ -1464,44 +1433,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (!this.isInTopLevelWorkerEnv()) {
             this.dlog.error(workerSendNode.pos, DiagnosticCode.INVALID_WORKER_SEND_POSITION);
         }
-        if (!workerSendNode.isForkJoinSend) {
-            String workerName = workerSendNode.workerIdentifier.getValue();
-            if (!this.workerExists(this.env, workerName)) {
-                this.dlog.error(workerSendNode.pos, DiagnosticCode.UNDEFINED_WORKER, workerName);
-            }
-        }
-    }
 
-    @Override
-    public void visit(BLangWorkerReceive workerReceiveNode) {
-        BSymbol symbol = symResolver
-                .lookupSymbol(env, names.fromIdNode(workerReceiveNode.workerIdentifier), SymTag.VARIABLE);
-
-        if (workerReceiveNode.isChannel || symbol.getType().tag == TypeTags.CHANNEL) {
-            visitChannelReceive(workerReceiveNode, symbol);
-            return;
-        }
-
-        this.typeChecker.checkExpr(workerReceiveNode.expr, this.env);
-        if (!this.isInTopLevelWorkerEnv()) {
-            this.dlog.error(workerReceiveNode.pos, DiagnosticCode.INVALID_WORKER_RECEIVE_POSITION);
-        }
-        String workerName = workerReceiveNode.workerIdentifier.getValue();
+        String workerName = workerSendNode.workerIdentifier.getValue();
         if (!this.workerExists(this.env, workerName)) {
-            this.dlog.error(workerReceiveNode.pos, DiagnosticCode.UNDEFINED_WORKER, workerName);
-        }
-
-        if (workerReceiveNode.expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
-            return;
-        }
-        BLangSimpleVarRef expr = (BLangSimpleVarRef) workerReceiveNode.expr;
-        if (expr.symbol == null) {
-            return;
-        }
-        if ((expr.symbol.flags & Flags.FINAL) == Flags.FINAL) {
-            dlog.error(expr.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_FINAL);
-        } else if ((expr.symbol.flags & Flags.CONSTANT) == Flags.CONSTANT) {
-            dlog.error(expr.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_TO_CONSTANT);
+            this.dlog.error(workerSendNode.pos, DiagnosticCode.UNDEFINED_WORKER, workerName);
         }
     }
 
@@ -1931,24 +1866,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangScope scopeNode) {
-        visit(scopeNode.scopeBody);
-
-        symbolEnter.defineNode(scopeNode.compensationFunction.function, env);
-        typeChecker.checkExpr(scopeNode.compensationFunction, env);
-        symbolEnter.defineNode(scopeNode, env);
-    }
-
-    @Override
-    public void visit(BLangCompensate node) {
-        if (symTable.notFoundSymbol.equals(symResolver.lookupSymbol(env, names.fromString(node
-                .getScopeName()
-                .getValue()), SymTag.SCOPE))) {
-            dlog.error(node.pos, DiagnosticCode.UNDEFINED_SYMBOL, node.getScopeName().getValue());
-        }
-    }
-
-    @Override
     public void visit(BLangConstant constant) {
         BLangExpression expression = (BLangExpression) constant.value;
         if (expression.getKind() != NodeKind.LITERAL) {
@@ -2002,36 +1919,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BType constraint = ((BChannelType) channelSymbol.type).constraint;
         if (node.expr.type.tag != constraint.tag) {
             dlog.error(node.pos, DiagnosticCode.INCOMPATIBLE_TYPES, constraint, node.expr.type);
-        }
-    }
-
-    private void visitChannelReceive(BLangWorkerReceive node, BSymbol symbol) {
-        node.isChannel = true;
-        node.env = this.env;
-        if (symbol == null) {
-            symbol = symResolver.lookupSymbol(env, names.fromString(node.getWorkerName()
-                    .getValue()), SymTag.VARIABLE);
-        }
-
-        if (symTable.notFoundSymbol.equals(symbol)) {
-            dlog.error(node.pos, DiagnosticCode.UNDEFINED_SYMBOL, node.getWorkerName().getValue());
-            return;
-        }
-
-        if (TypeTags.CHANNEL != symbol.type.tag) {
-            dlog.error(node.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.channelType, symbol.type);
-            return;
-        }
-        typeChecker.checkExpr(node.expr, env);
-
-        BType constraint = ((BChannelType) symbol.type).constraint;
-        if (node.expr.type.tag != constraint.tag) {
-            dlog.error(node.pos, DiagnosticCode.INCOMPATIBLE_TYPES, constraint, node.expr.type);
-            return;
-        }
-
-        if (node.keyExpr != null) {
-            typeChecker.checkExpr(node.keyExpr, env);
         }
     }
 
@@ -2132,8 +2019,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // var a = { x : y };
         // var a = new ;
         final NodeKind kind = expr.getKind();
-        if (kind == RECORD_LITERAL_EXPR || kind == NodeKind.ARRAY_LITERAL_EXPR
-                || (kind == NodeKind.Type_INIT_EXPR && ((BLangTypeInit) expr).userDefinedType == null)) {
+        if (kind == RECORD_LITERAL_EXPR || kind == NodeKind.ARRAY_LITERAL_EXPR || (kind == NodeKind.TYPE_INIT_EXPR
+                && ((BLangTypeInit) expr).userDefinedType == null)) {
             dlog.error(expr.pos, DiagnosticCode.INVALID_ANY_VAR_DEF);
             return false;
         }

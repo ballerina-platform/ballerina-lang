@@ -38,6 +38,7 @@
 
         DEPRECATED          = 'deprecated';
 
+
         // Separators
         SEMICOLON           = ';' ;
         COLON               = ':' ;
@@ -114,14 +115,14 @@
     extends("(Simple|Array|Nullable|Union|Group|Tuple|Object|Record)TypeName|BinaryAndExpression") = TypeName
 
     // Each named definition which can be renamed should implement this interface.
-    implements("(Function|Struct|GlobalVariable|Annotation|Action|Worker|Type)Definition") = "io.ballerina.plugins.idea.psi.BallerinaNamedElement"
+    implements("(Function|GlobalVariable|Annotation|Action|Worker|Type)Definition") = "io.ballerina.plugins.idea.psi.BallerinaNamedElement"
     // This is to identify top level elements in a file.
-    implements("(Function|Struct|GlobalVariable|Annotation|Action|Worker|Type)Definition") = "io.ballerina.plugins.idea.psi.impl.BallerinaTopLevelDefinition"
+    implements("(Function|GlobalVariable|Annotation|Action|Worker|Type)Definition") = "io.ballerina.plugins.idea.psi.impl.BallerinaTopLevelDefinition"
     // Each named definition should extend this class.
-    extends("(Function|Struct|GlobalVariable|Annotation|Action|Worker|Type)Definition") = "io.ballerina.plugins.idea.psi.impl.BallerinaNamedElementImpl<?>"
+    extends("(Function|GlobalVariable|Annotation|Action|Worker|Type)Definition") = "io.ballerina.plugins.idea.psi.impl.BallerinaNamedElementImpl<?>"
 
     // Each stubbed element should have this element type factory.
-    elementTypeFactory("(Function|Struct|GlobalVariable|Annotation|Action|Worker|Type)Definition") = "io.ballerina.plugins.idea.stubs.factory.BallerinaElementTypeFactory.stubFactory"
+    elementTypeFactory("(Function|Struct|Annotation|Action|Worker|Type)Definition") = "io.ballerina.plugins.idea.stubs.factory.BallerinaElementTypeFactory.stubFactory"
 
     // Each stub which is not a named definition should extend this class.
 //    extends("PackageDeclaration") = "BallerinaStubbedElementImpl<?>"
@@ -183,13 +184,13 @@ Alias ::= as identifier {
 // Note - Global variable definition should be the first definition since it can contain identifier as type.
 Definition ::= ( TypeDefinition
                | ServiceDefinition
-               | GlobalVariable
+               | GlobalVariableDefinition
                | FunctionDefinition
                | AnnotationDefinition
                | ConstantDefinition )
 {recoverWhile=TopLevelDefinitionRecover}
 
-private TopLevelDefinitionRecover ::= !(MARKDOWN_DOCUMENTATION_LINE_START|PARAMETER_DOCUMENTATION_START|RETURN_PARAMETER_DOCUMENTATION_START|DEPRECATED_TEMPLATE_START|'@'|extern|remote|client|abstract|public|type|typedesc|service|listener|function|enum|annotation|int|float|decimal|boolean|string|byte|map|xml|xmlns|json|table|any|stream|object|record|channel|const|future|identifier|'{')
+private TopLevelDefinitionRecover ::= !(MARKDOWN_DOCUMENTATION_LINE_START|PARAMETER_DOCUMENTATION_START|RETURN_PARAMETER_DOCUMENTATION_START|DEPRECATED_TEMPLATE_START|'@'|extern|remote|client|abstract|public|type|typedesc|service|listener|function|enum|annotation|int|float|decimal|boolean|string|byte|map|xml|xmlns|json|table|any|stream|object|record|channel|const|final|future|identifier|'{')
 
 ServiceDefinition ::= service identifier? on Expression  ServiceBody {pin=1}
 ServiceBody ::= LEFT_BRACE ServiceBodyMember* RIGHT_BRACE
@@ -228,15 +229,9 @@ TypeDefinition ::= (public)? type identifier FiniteType SEMICOLON {
     stubClass="io.ballerina.plugins.idea.stubs.BallerinaTypeDefinitionStub"
 }
 
-ObjectBody ::= ObjectMember* ObjectInitializer? ObjectMember*
+ObjectBody ::=  (ObjectFieldDefinition | ObjectFunctionDefinition | TypeReference)*
 
-ObjectMember ::= ObjectFieldDefinition | ObjectFunctionDefinition | TypeReference
-
-TypeReference ::= MUL SimpleTypeName SEMICOLON
-
-ObjectInitializer ::= documentationString? AnnotationAttachment* (public)? new ObjectInitializerParameterList CallableUnitBody {pin=4}
-
-ObjectInitializerParameterList ::= LEFT_PARENTHESIS ObjectParameterList? RIGHT_PARENTHESIS {pin=1}
+TypeReference ::= MUL SimpleTypeName SEMICOLON {pin=1}
 
 ObjectFieldDefinition ::= AnnotationAttachment* deprecatedAttachment? (public | private)? TypeName identifier (ASSIGN Expression)? (COMMA | SEMICOLON) {pin=5}
 
@@ -245,13 +240,6 @@ FieldDefinition ::= AnnotationAttachment* TypeName identifier QUESTION_MARK? (AS
 RecordRestFieldDefinition ::= TypeName <<restDescriptorPredicate>> ELLIPSIS | SealedLiteral
 
 SealedLiteral ::= NOT <<restDescriptorPredicate>> ELLIPSIS
-
-ObjectParameterList ::= (ObjectDefaultableParameter | ObjectParameter) (COMMA (ObjectDefaultableParameter | ObjectParameter))* (COMMA RestParameter)? | RestParameter
-
-// Todo - Revert back the changes?
-ObjectParameter ::= AnnotationAttachment* (TypeName identifier | identifier)
-
-ObjectDefaultableParameter ::= ObjectParameter ASSIGN Expression
 
 ObjectFunctionDefinition ::= documentationString? AnnotationAttachment* deprecatedAttachment? (public|private)? (remote|resource)? (extern)? function CallableUnitSignature (CallableUnitBody | SEMICOLON) {pin=7}
 
@@ -264,15 +252,17 @@ ConstantDefinition ::= PUBLIC? CONST TypeName? identifier ASSIGN Expression SEMI
 
 //private AttachmentPointsRecover ::= !(GT | Identifier | SEMICOLON)
 
-GlobalVariable ::= GlobalVariableDefinition | ChannelDefinition
-
-GlobalVariableDefinition ::= (public)? (listener)? TypeName identifier (ASSIGN  Expression)? SEMICOLON {
-   pin=3
-   stubClass="io.ballerina.plugins.idea.stubs.BallerinaGlobalVariableDefinitionStub"
+GlobalVariableDefinition ::= public? listener? TypeName identifier (ASSIGN Expression)? SEMICOLON
+                            | public? final (TypeName | var) identifier ASSIGN Expression SEMICOLON
+                            | channelType identifier SEMICOLON
+{
+    stubClass="io.ballerina.plugins.idea.stubs.BallerinaGlobalVariableDefinitionStub"
 }
 
-ChannelDefinition ::= ChannelType identifier SEMICOLON
-ChannelType ::= channel (LT TypeName GT) {pin=1}
+//finalVariableDefinition ::= public? final (TypeName | var) identifier ASSIGN Expression SEMICOLON  {pin=2}
+//nonFinalVariableDefinition ::= public? listener? TypeName identifier (ASSIGN Expression)? SEMICOLON {pin=3}
+//channelDefinition ::= channelType identifier SEMICOLON
+channelType ::= channel (LT TypeName GT) {pin=1}
 
 // Todo - Need to update the service?
 // Note - "parameter" is treated differently here because there is a parser rule named "parameter" as well.
@@ -411,7 +401,7 @@ private StatementRecover ::= !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|SYMBOLIC_ST
 //TODO - change pin
 VariableDefinitionStatement ::= variableDefinitionStatementWithAssignment | variableDefinitionStatementWithoutAssignment {methods=[getType]}
 variableDefinitionStatementWithoutAssignment::= TypeName identifier SEMICOLON {pin=2}
-variableDefinitionStatementWithAssignment ::= (TypeName | var) BindingPattern ASSIGN Expression SEMICOLON {pin=3}
+variableDefinitionStatementWithAssignment ::= final? (TypeName | var) BindingPattern ASSIGN Expression SEMICOLON {pin=4}
 
 RecordLiteral ::= LEFT_BRACE RecordLiteralBody? RIGHT_BRACE {pin(".*")=1}
 
@@ -871,8 +861,7 @@ private StringTemplateTextContent ::= STRING_TEMPLATE_TEXT
 
 AnyIdentifierName ::= identifier | ReservedWord
 
-ReservedWord ::= foreach | map | start | continue
-
+ReservedWord ::= foreach | map | start | continue | OBJECT_INIT
 
 //Siddhi Streams and Tables related
 TableQuery ::= from StreamingInput JoinStreamingInput? SelectClause? OrderByClause? LimitClause? {pin=1}

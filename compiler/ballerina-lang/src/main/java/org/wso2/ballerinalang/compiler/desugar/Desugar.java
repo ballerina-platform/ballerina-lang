@@ -55,13 +55,10 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntermediateCollectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
@@ -69,7 +66,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -88,80 +84,34 @@ import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.*;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJSONArrayLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangJSONAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangStructFieldAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangTupleAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangXMLAccessExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BFunctionPointerInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangAttachedFunctionInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangBuiltInMethodInvocation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangChannelLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangJSONLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStreamLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangRecordVarRefKeyValue;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFieldVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangPackageVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangTypeLoad;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangCompensate;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
@@ -181,7 +131,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement.BLangStatementLink;
@@ -189,7 +138,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
@@ -247,7 +195,6 @@ public class Desugar extends BLangNodeVisitor {
     private Types types;
     private Names names;
     private SiddhiQueryBuilder siddhiQueryBuilder;
-    private HttpFiltersDesugar httpFiltersDesugar;
     private ServiceDesugar serviceDesugar;
 
     private BLangNode result;
@@ -288,7 +235,6 @@ public class Desugar extends BLangNodeVisitor {
         this.names = Names.getInstance(context);
         this.siddhiQueryBuilder = SiddhiQueryBuilder.getInstance(context);
         this.names = Names.getInstance(context);
-        httpFiltersDesugar = HttpFiltersDesugar.getInstance(context);
         this.serviceDesugar = ServiceDesugar.getInstance(context);
     }
 
@@ -418,7 +364,7 @@ public class Desugar extends BLangNodeVisitor {
 
         pkgNode.constants.forEach(constant -> pkgNode.typeDefinitions.add(constant.associatedTypeDefinition));
 
-        BLangBlockStmt serviceAttachments = serviceDesugar.rewriteServices(pkgNode.services, env);
+        BLangBlockStmt serviceAttachments = serviceDesugar.rewriteServiceVariables(pkgNode.services, env);
 
         pkgNode.globalVars.forEach(globalVar -> {
             BLangAssignment assignment = createAssignmentStmt(globalVar);
@@ -438,8 +384,10 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.globalVars = rewrite(pkgNode.globalVars, env);
         pkgNode.functions = rewrite(pkgNode.functions, env);
 
+        pkgNode.services.forEach(service -> serviceDesugar.engageCustomServiceDesugar(service, env));
+
         serviceDesugar.rewriteListeners(pkgNode.globalVars, env);
-        serviceDesugar.rewriteAttachments(serviceAttachments, env);
+        serviceDesugar.rewriteServiceAttachments(serviceAttachments, env);
 
         pkgNode.initFunction = rewrite(pkgNode.initFunction, env);
         pkgNode.startFunction = rewrite(pkgNode.startFunction, env);
@@ -498,19 +446,16 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
-        int maskOptional = Flags.asMask(EnumSet.of(Flag.OPTIONAL));
-
         recordTypeNode.fields.addAll(recordTypeNode.referencedFields);
         // Add struct level variables to the init function.
         recordTypeNode.fields.stream()
                 // Only add a field if it is required. Checking if it's required is enough since non-defaultable
                 // required fields will have been caught in the type checking phase.
                 .filter(field -> !recordTypeNode.initFunction.initFunctionStmts.containsKey(field.symbol) &&
-                            !Symbols.isFlagOn(field.symbol.flags, maskOptional))
+                        !Symbols.isOptional(field.symbol))
                 .filter(field -> field.expr != null)
                 .forEachOrdered(field -> {
-                    recordTypeNode.initFunction.initFunctionStmts.put(field.symbol,
-                            createAssignmentStmt(field));
+                    recordTypeNode.initFunction.initFunctionStmts.put(field.symbol, createAssignmentStmt(field));
                 });
 
         //Adding init statements to the init function.
@@ -518,6 +463,26 @@ public class Desugar extends BLangNodeVisitor {
                 .values().toArray(new BLangStatement[0]);
         for (int i = 0; i < recordTypeNode.initFunction.initFunctionStmts.size(); i++) {
             recordTypeNode.initFunction.body.stmts.add(i, initStmts[i]);
+        }
+
+        // Add invocations for the initializers of each of the type referenced records. Here, the initializers of the
+        // referenced types are invoked on the current record type.
+        for (BLangType typeRef : recordTypeNode.typeRefs) {
+            BVarSymbol receiverSym = recordTypeNode.initFunction.receiver.symbol;
+            BInvokableSymbol dupInitFuncSym = ASTBuilderUtil.duplicateInvokableSymbol(
+                    ((BRecordTypeSymbol) typeRef.type.tsymbol).initializerFunc.symbol);
+            dupInitFuncSym.receiverSymbol = receiverSym;
+
+            BLangInvocation initInv = ASTBuilderUtil.createInvocationExpr(typeRef.pos, dupInitFuncSym,
+                                                                          new ArrayList<>(), symResolver);
+            initInv.expr = ASTBuilderUtil.createVariableRef(recordTypeNode.initFunction.receiver.pos, receiverSym);
+            initInv = rewriteExpr(initInv);
+
+            BLangExpressionStmt exprStmt = ASTBuilderUtil.createExpressionStmt(typeRef.pos,
+                                                                               recordTypeNode.initFunction.body);
+            exprStmt.expr = initInv;
+            initInv.parent = exprStmt;
+            exprStmt.parent = recordTypeNode.initFunction.body;
         }
 
         result = recordTypeNode;
@@ -570,12 +535,6 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangResource resourceNode) {
-        addReturnIfNotPresent(resourceNode);
-        httpFiltersDesugar.invokeFilters(resourceNode, env);
-        SymbolEnv resourceEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode, resourceNode.symbol.scope, env);
-        resourceNode.body = rewrite(resourceNode.body, resourceEnv);
-        resourceNode.workers = rewrite(resourceNode.workers, resourceEnv);
-        result = resourceNode;
     }
 
     @Override
@@ -584,11 +543,6 @@ public class Desugar extends BLangNodeVisitor {
         workerNode.body = rewrite(workerNode.body, env);
         this.workerStack.pop();
         result = workerNode;
-    }
-
-    @Override
-    public void visit(BLangEndpoint endpoint) {
-        result = endpoint;
     }
 
     @Override
@@ -1553,26 +1507,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangForkJoin forkJoin) {
-        forkJoin.workers = rewrite(forkJoin.workers, env);
-        forkJoin.joinResultVar = rewrite(forkJoin.joinResultVar, env);
-        forkJoin.joinedBody = rewrite(forkJoin.joinedBody, env);
-        forkJoin.timeoutBody = rewrite(forkJoin.timeoutBody, env);
-        result = forkJoin;
-    }
-
-    @Override
-    public void visit(BLangCompensate compensateNode) {
-        result = compensateNode;
-    }
-
-    @Override
-    public void visit(BLangScope scopeNode) {
-        scopeNode.scopeBody = rewrite(scopeNode.scopeBody, env);
-        scopeNode.compensationFunction = rewrite(scopeNode.getCompensationFunction(), env);
-        visit(scopeNode.compensationFunction.function);
-        env.enclPkg.functions.add(scopeNode.getCompensationFunction().function);
-        env.enclPkg.topLevelNodes.add(scopeNode.compensationFunction.function);
-        result = scopeNode;
+         result = forkJoin;
     }
 
     // Expressions
@@ -1915,6 +1850,7 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.STREAM:
             case TypeTags.FUTURE:
             case TypeTags.OBJECT:
+            case TypeTags.RECORD:
                 List<BLangExpression> argExprs = new ArrayList<>(iExpr.requiredArgs);
                 argExprs.add(0, iExpr.expr);
                 final BLangAttachedFunctionInvocation attachedFunctionInvocation =
@@ -1976,9 +1912,42 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangAwaitExpr awaitExpr) {
-        awaitExpr.expr = rewriteExpr(awaitExpr.expr);
-        result = awaitExpr;
+    public void visit(BLangWaitExpr waitExpr) {
+        // Wait for any
+        if (waitExpr.getExpression().getKind() == NodeKind.BINARY_EXPR) {
+            waitExpr.exprList = collectAllBinaryExprs((BLangBinaryExpr) waitExpr.getExpression(), new ArrayList<>());
+        } else { // Wait for one
+            waitExpr.exprList = Collections.singletonList(rewriteExpr(waitExpr.getExpression()));
+        }
+        result = waitExpr;
+    }
+
+    private List<BLangExpression> collectAllBinaryExprs(BLangBinaryExpr binaryExpr, List<BLangExpression> exprs) {
+        visitBinaryExprOfWait(binaryExpr.lhsExpr, exprs);
+        visitBinaryExprOfWait(binaryExpr.rhsExpr, exprs);
+        return exprs;
+    }
+
+    private void visitBinaryExprOfWait(BLangExpression expr, List<BLangExpression> exprs) {
+        if (expr.getKind() == NodeKind.BINARY_EXPR) {
+            collectAllBinaryExprs((BLangBinaryExpr) expr, exprs);
+        } else {
+            expr = rewriteExpr(expr);
+            exprs.add(expr);
+        }
+    }
+
+    @Override
+    public void visit(BLangWaitForAllExpr waitExpr) {
+        waitExpr.keyValuePairs.forEach(keyValue -> {
+            if (keyValue.valueExpr != null) {
+                keyValue.valueExpr = rewriteExpr(keyValue.valueExpr);
+            } else {
+                keyValue.keyExpr = rewriteExpr(keyValue.keyExpr);
+            }
+        });
+        BLangExpression expr = new BLangWaitForAllExpr.BLangWaitLiteral(waitExpr.keyValuePairs, waitExpr.type);
+        result = rewriteExpr(expr);
     }
 
     @Override
@@ -2295,12 +2264,24 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangWorkerSyncSendExpr syncSendExpr) {
+        syncSendExpr.expr = rewriteExpr(syncSendExpr.expr);
+        result = syncSendExpr;
+    }
+
+    @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
-        workerReceiveNode.expr = rewriteExpr(workerReceiveNode.expr);
         if (workerReceiveNode.keyExpr != null) {
             workerReceiveNode.keyExpr = rewriteExpr(workerReceiveNode.keyExpr);
         }
         result = workerReceiveNode;
+    }
+
+    @Override
+    public void visit(BLangWorkerFlushExpr workerFlushExpr) {
+        workerFlushExpr.workerIdentifierList = workerFlushExpr.cachedWorkerSendStmts
+                .stream().map(send -> send.workerIdentifier).collect(Collectors.toList());
+        result = workerFlushExpr;
     }
 
     @Override
@@ -2383,6 +2364,11 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangStructLiteral structLiteral) {
         result = structLiteral;
+    }
+
+    @Override
+    public void visit(BLangWaitForAllExpr.BLangWaitLiteral waitLiteral) {
+        result = waitLiteral;
     }
 
     @Override
@@ -2547,8 +2533,9 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
-        result = ASTBuilderUtil
+        final BLangTypeInit typeInit = ASTBuilderUtil
                 .createEmptyTypeInit(serviceConstructorExpr.pos, serviceConstructorExpr.serviceNode.symbol.type);
+        result = rewriteExpr(typeInit);
     }
 
     @Override
@@ -3771,7 +3758,7 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangMatchTypedBindingPatternClause getSuccessPattern(BLangAccessExpression accessExpr,
             BLangSimpleVariable tempResultVar, boolean liftError) {
-        BType type = getSafeType(accessExpr.expr.type, liftError);
+        BType type = types.getSafeType(accessExpr.expr.type, liftError);
         String successPatternVarName = GEN_VAR_PREFIX.value + "t_match_success";
         BLangSimpleVariable successPatternVar = ASTBuilderUtil.createVariable(accessExpr.pos, successPatternVarName,
                 type, null, new BVarSymbol(0, names.fromString(successPatternVarName), this.env.scope.owner.pkgID, type,
@@ -3800,40 +3787,6 @@ public class Desugar extends BLangNodeVisitor {
                 ASTBuilderUtil.createMatchStatementPattern(accessExpr.pos, successPatternVar, patternBody);
         this.safeNavigationAssignment = assignmentStmt;
         return successPattern;
-    }
-
-    private BType getSafeType(BType type, boolean liftError) {
-
-        // Since JSON, ANY and ANYDATA is by default contains null, we need to create a new respective type which
-        // is not-nullable.
-        switch (type.tag) {
-            case TypeTags.JSON:
-                BJSONType jsonType = (BJSONType) type;
-                return new BJSONType(jsonType.tag, jsonType.constraint, jsonType.tsymbol, false);
-            case TypeTags.ANY:
-                return new BAnyType(type.tag, type.tsymbol, false);
-            case TypeTags.ANYDATA:
-                return new BAnydataType(type.tag, type.tsymbol, false);
-        }
-
-        if (type.tag != TypeTags.UNION) {
-            return type;
-        }
-
-        BUnionType unionType = (BUnionType) type;
-        BUnionType errorLiftedType =
-                new BUnionType(null, new LinkedHashSet<>(unionType.memberTypes), unionType.isNullable());
-
-        // Lift nil always. Lift error only if safe navigation is used.
-        errorLiftedType.memberTypes.remove(symTable.nilType);
-        if (liftError) {
-            errorLiftedType.memberTypes.remove(symTable.errorType);
-        }
-
-        if (errorLiftedType.memberTypes.size() == 1) {
-            return errorLiftedType.memberTypes.toArray(new BType[0])[0];
-        }
-        return errorLiftedType;
     }
 
     private boolean safeNavigateLHS(BLangExpression expr) {
@@ -3944,7 +3897,7 @@ public class Desugar extends BLangNodeVisitor {
         } else {
             varRef = cloneExpression((BLangVariableReference) originalAccessExpr.expr);
         }
-        varRef.type = getSafeType(originalAccessExpr.expr.type, false);
+        varRef.type = types.getSafeType(originalAccessExpr.expr.type, false);
 
         BLangAccessExpression accessExpr;
         switch (originalAccessExpr.getKind()) {
@@ -3995,7 +3948,7 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangExpression getDefaultValueExpr(BLangAccessExpression accessExpr) {
         BType fieldType = accessExpr.originalType;
-        BType type = getSafeType(accessExpr.expr.type, false);
+        BType type = types.getSafeType(accessExpr.expr.type, false);
         switch (type.tag) {
             case TypeTags.JSON:
                 if (accessExpr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR &&
@@ -4099,7 +4052,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private boolean isDefaultableMappingType(BType type) {
-        switch (getSafeType(type, false).tag) {
+        switch (types.getSafeType(type, false).tag) {
             case TypeTags.JSON:
             case TypeTags.MAP:
             case TypeTags.RECORD:

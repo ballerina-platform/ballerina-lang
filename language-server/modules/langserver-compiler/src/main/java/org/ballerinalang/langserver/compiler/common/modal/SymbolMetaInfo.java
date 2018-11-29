@@ -30,18 +30,20 @@ public final class SymbolMetaInfo {
     private String pkgName;
     private String pkgAlias;
     private boolean caller;
-    private boolean endpoint;
+    private String kind;
     private BSymbol bSymbol;
+    private String typeName;
 
     private SymbolMetaInfo(String name, String pkgOrgName, String pkgName, String pkgAlias, boolean caller,
-                           boolean endpoint, BSymbol bSymbol) {
+                           String kind, BSymbol bSymbol, String typeName) {
         this.name = name;
         this.pkgOrgName = pkgOrgName;
         this.pkgName = pkgName;
         this.pkgAlias = pkgAlias;
         this.caller = caller;
-        this.endpoint = endpoint;
+        this.kind = kind;
         this.bSymbol = bSymbol;
+        this.typeName = typeName;
     }
 
     public String getName() {
@@ -64,12 +66,16 @@ public final class SymbolMetaInfo {
         return caller;
     }
 
-    public boolean isEndpoint() {
-        return endpoint;
+    public String getKind() {
+        return kind;
     }
 
     public BSymbol getbSymbol() {
         return bSymbol;
+    }
+
+    public String getTypeName() {
+        return typeName;
     }
 
     public JsonElement getJson() {
@@ -88,8 +94,9 @@ public final class SymbolMetaInfo {
         private String pkgName;
         private String pkgAlias;
         private boolean caller = false;
-        private boolean endpoint = false;
+        private String kind = "";
         private BSymbol bSymbol;
+        private String typeName;
 
         public SymbolMetaInfoBuilder setName(String name) {
             this.name = name;
@@ -101,8 +108,8 @@ public final class SymbolMetaInfo {
             return this;
         }
 
-        public SymbolMetaInfoBuilder setEndpoint(boolean endpoint) {
-            this.endpoint = endpoint;
+        public SymbolMetaInfoBuilder setKind(String kind) {
+            this.kind = kind;
             return this;
         }
 
@@ -126,9 +133,14 @@ public final class SymbolMetaInfo {
             return this;
         }
 
+        public SymbolMetaInfoBuilder setTypeName(String typeName) {
+            this.typeName = typeName;
+            return this;
+        }
+
         public SymbolMetaInfo build() {
             return new SymbolMetaInfo(this.name, this.pkgOrgName, this.pkgName, this.pkgAlias, this.caller,
-                    this.endpoint, this.bSymbol);
+                    this.kind, this.bSymbol, this.typeName);
         }
     }
 }

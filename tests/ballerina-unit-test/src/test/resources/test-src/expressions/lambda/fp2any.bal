@@ -8,7 +8,7 @@ function test1 () returns (string|error) {
 }
 
 function test2(any a) returns (string|error) {
-   var fp2 = check <function (string,int) returns (string)> a;
+   var fp2 = <function (string,int) returns (string)> a;
 
    return fp2.call("test", 1);
 }

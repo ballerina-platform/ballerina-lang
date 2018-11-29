@@ -537,7 +537,7 @@ function testToString() returns (string) {
     
     xml book = bookComment + bookName + bookId + bookAuthor + bookMeta;
     
-    string s = <string> book;
+    string s = string.create(book);
     return s;
 }
 
@@ -897,4 +897,22 @@ function testRemoveInnerChildren() returns (xml, xml) {
     xml children = x1.*;
     x1.address.country.removeChildren("code");
     return (children, x1.*);
+}
+
+function testToJSONAndSubsequentStore() returns json {
+    xml xmlPerson = xml `<person><name>David</name></person>`;
+    json person = xmlPerson.toJSON({});
+    json people = [person];
+    people[1] = person;
+    return people;
+}
+
+function testToJSONAndSubsequentRemove() returns (json, json) {
+    xml xmlPerson = xml `<name>David</name>`;
+    json person = xmlPerson.toJSON({});
+    person.age = 37;
+    json intermediatePerson = person.clone();
+    person.remove("name");
+    person.remove("age");
+    return (intermediatePerson, person);
 }

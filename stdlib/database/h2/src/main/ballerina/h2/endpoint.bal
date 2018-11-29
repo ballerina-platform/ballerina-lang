@@ -16,20 +16,14 @@
 
 import ballerina/sql;
 
-# The Client endpoint configuration for h2 databases.
+# The Client endpoint configuration for the in-memory mode of h2 databases.
 #
-# + host - The host name of the database to connect (in case of server based DB)
-# + path - The path of the database connection (in case of file based DB)
-# + port - The port of the database to connect (in case of server based DB)
 # + name - The name of the database to connect
 # + username - Username for the database connection
 # + password - Password for the database connection
 # + poolOptions - Properties for the connection pool configuration. Refer `sql:PoolOptions` for more details
 # + dbOptions - A map of DB specific properties
-public type ClientEndpointConfig record {
-    string host = "";
-    string path = "";
-    int port = 9092;
+public type InMemoryConfig record {
     string name = "";
     string username = "";
     string password = "";
@@ -38,19 +32,45 @@ public type ClientEndpointConfig record {
     !...
 };
 
+# The Client endpoint configuration for the server mode of h2 databases.
+#
+# + host - The host name of the database to connect (in case of server based DB)
+# + port - The port of the database to connect (in case of server based DB)
+# + name - The name of the database to connect
+# + username - Username for the database connection
+# + password - Password for the database connection
+# + poolOptions - Properties for the connection pool configuration. Refer `sql:PoolOptions` for more details
+# + dbOptions - A map of DB specific properties
+public type ServerModeConfig record {
+    string host = "";
+    int port = 9092;
+    *InMemoryConfig;
+    !...
+};
+
+# The Client endpoint configuration for the embedded mode of h2 databases.
+#
+# + path - The path of the database connection (in case of file based DB)
+# + name - The name of the database to connect
+# + username - Username for the database connection
+# + password - Password for the database connection
+# + poolOptions - Properties for the connection pool configuration. Refer `sql:PoolOptions` for more details
+# + dbOptions - A map of DB specific properties
+public type EmbeddedModeConfig record {
+    string path = "";
+    *InMemoryConfig;
+    !...
+};
 
 # Represents an H2 client endpoint.
 #
-# + config - The configurations associated with the SQL endpoint
 # + sqlClient - The base SQL Client
 public type Client client object {
     *sql:AbstractSQLClient;
-    private ClientEndpointConfig config;
     private sql:Client sqlClient;
 
     # Gets called when the H2 client is instantiated.
-    public function __init(ClientEndpointConfig c) {
-        self.config = c;
+    public function __init(InMemoryConfig|ServerModeConfig|EmbeddedModeConfig c) {
         self.sqlClient = createClient(c);
     }
 
@@ -125,4 +145,4 @@ public type Client client object {
     }
 };
 
-extern function createClient(ClientEndpointConfig config) returns sql:Client;
+extern function createClient(InMemoryConfig|ServerModeConfig|EmbeddedModeConfig config) returns sql:Client;

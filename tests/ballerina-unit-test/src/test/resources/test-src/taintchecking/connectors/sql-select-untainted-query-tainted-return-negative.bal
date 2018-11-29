@@ -20,8 +20,8 @@ public function testSelectWithUntaintedQueryProducingTaintedReturn(string... arg
         dbOptions: {}
     });
 
-    var output = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
-    if (output is table) {
+    var output = testDB->select("SELECT  FirstName from Customers where registrationID = 1", Employee);
+    if (output is table<Employee>) {
         while (output.hasNext()) {
             var rs = <Employee>output.getNext();
             testFunction(rs.name);

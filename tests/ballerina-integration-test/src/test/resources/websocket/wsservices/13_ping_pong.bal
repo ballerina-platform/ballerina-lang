@@ -17,22 +17,21 @@
 import ballerina/http;
 import ballerina/log;
 
-@final string REMOTE_BACKEND_URL3 = "ws://localhost:15200/websocket";
-@final string ASSOCIATED_CONNECTION3 = "ASSOCIATED_CONNECTION";
-@final string strData2 = "data";
-@final byte[] APPLICATION_DATA3 = strData2.toByteArray("UTF-8");
+final string REMOTE_BACKEND_URL3 = "ws://localhost:15200/websocket";
+final string ASSOCIATED_CONNECTION3 = "ASSOCIATED_CONNECTION";
+final string strData2 = "data";
+final byte[] APPLICATION_DATA3 = strData2.toByteArray("UTF-8");
 
 @http:WebSocketServiceConfig {
     path: "/pingpong/ws"
 }
-service<http:WebSocketService> PingPongTestService2 bind { port: 9095 } {
+service PingPongTestService2 on new http:WebSocketListener(9095) {
 
-    onOpen(endpoint wsEp) {
-        endpoint http:WebSocketClient wsClientEp {
-            url: REMOTE_BACKEND_URL3,
-            callbackService: clientCallbackService2,
-            readyOnConnect: false
-        };
+    resource function onOpen(http:WebSocketCaller wsEp) {
+         http:WebSocketClient wsClientEp = new(
+            REMOTE_BACKEND_URL3,
+            config = {callbackService: clientCallbackService2,
+            readyOnConnect: false});
         wsEp.attributes[ASSOCIATED_CONNECTION3] = wsClientEp;
         wsClientEp.attributes[ASSOCIATED_CONNECTION3] = wsEp;
         var returnVal = wsClientEp->ready();
@@ -41,8 +40,8 @@ service<http:WebSocketService> PingPongTestService2 bind { port: 9095 } {
         }
     }
 
-    onText(endpoint wsEp, string text) {
-        endpoint http:WebSocketClient clientEp;
+    resource function onText(http:WebSocketCaller wsEp, string text) {
+        http:WebSocketClient clientEp;
 
         if (text == "ping-me") {
              var returnVal = wsEp->ping(APPLICATION_DATA3);
@@ -83,14 +82,14 @@ service<http:WebSocketService> PingPongTestService2 bind { port: 9095 } {
         }
     }
 
-    onPing(endpoint wsEp, byte[] localData) {
+    resource function onPing(http:WebSocketCaller wsEp, byte[] localData) {
         var returnVal = wsEp->pong(localData);
         if (returnVal is error) {
              panic returnVal;
         }
     }
 
-    onPong(endpoint wsEp, byte[] localData) {
+    resource function onPong(http:WebSocketCaller wsEp, byte[] localData) {
         var returnVal = wsEp->pushText("pong-from-you");
         if (returnVal is error) {
              panic returnVal;
@@ -99,47 +98,40 @@ service<http:WebSocketService> PingPongTestService2 bind { port: 9095 } {
 
 }
 
-service<http:WebSocketClientService> clientCallbackService2 {
+service clientCallbackService2 = @http:WebSocketServiceConfig {} service {
 
-    onText(endpoint wsEp, string text) {
-        endpoint http:WebSocketListener serverEp = getAssociatedListener2(wsEp);
+    resource function onText(http:WebSocketClient wsEp, string text) {
+        http:WebSocketCaller serverEp = getAssociatedListener2(wsEp);
         var returnVal = serverEp->pushText(text);
         if (returnVal is error) {
              panic returnVal;
         }
     }
 
-    onPing(endpoint wsEp, byte[] localData) {
-        endpoint http:WebSocketListener serverEp = getAssociatedListener2(wsEp);
+    resource function onPing(http:WebSocketClient wsEp, byte[] localData) {
+        http:WebSocketCaller serverEp = getAssociatedListener2(wsEp);
         var returnVal = serverEp->pushText("ping-from-remote-server-received");
         if (returnVal is error) {
              panic returnVal;
         }
     }
 
-    onPong(endpoint wsEp, byte[] localData) {
-        endpoint http:WebSocketListener serverEp = getAssociatedListener2(wsEp);
+    resource function onPong(http:WebSocketClient wsEp, byte[] localData) {
+        http:WebSocketCaller serverEp = getAssociatedListener2(wsEp);
         var returnVal = serverEp->pushText("pong-from-remote-server-received");
         if (returnVal is error) {
              panic returnVal;
         }
     }
-}
+};
 
-public function getAssociatedClientEndpoint2(http:WebSocketListener wsServiceEp) returns (http:WebSocketClient) {
+public function getAssociatedClientEndpoint2(http:WebSocketCaller wsServiceEp) returns (http:WebSocketClient) {
     var returnVal = <http:WebSocketClient>wsServiceEp.attributes[ASSOCIATED_CONNECTION3];
-    if (returnVal is error) {
-         panic returnVal;
-    } else {
-         return returnVal;
-    }
+    return returnVal;
+
 }
 
-public function getAssociatedListener2(http:WebSocketClient wsClientEp) returns (http:WebSocketListener) {
-    var returnVal = <http:WebSocketListener>wsClientEp.attributes[ASSOCIATED_CONNECTION3];
-    if (returnVal is error) {
-         panic returnVal;
-    } else {
-         return returnVal;
-    }
+public function getAssociatedListener2(http:WebSocketClient wsClientEp) returns (http:WebSocketCaller) {
+    var returnVal = <http:WebSocketCaller>wsClientEp.attributes[ASSOCIATED_CONNECTION3];
+    return returnVal;
 }

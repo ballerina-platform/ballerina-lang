@@ -49,7 +49,7 @@ public class StreamingActionTest {
                 44, 37);
     }
 
-    @Test(description = "Test streaming action query with errors")
+    @Test(description = "Test streaming action query with errors", enabled = false)
     public void testStreamingActionNegativeArgumentCount() {
         Assert.assertEquals(resultNegativeInvalidArgumentCount.getErrorCount(), 1);
         BAssertUtil.validateError(resultNegativeInvalidArgumentCount, 0,

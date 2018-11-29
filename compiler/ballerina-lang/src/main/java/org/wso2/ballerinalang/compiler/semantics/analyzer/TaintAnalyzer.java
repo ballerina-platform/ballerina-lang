@@ -78,7 +78,6 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangWithinClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
@@ -110,6 +109,11 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
@@ -124,7 +128,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangCompensate;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
@@ -140,7 +143,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
@@ -149,7 +151,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
@@ -405,7 +406,19 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (varNode.expr != null) {
             SymbolEnv varInitEnv = SymbolEnv.createVarInitEnv(varNode, env, varNode.symbol);
             analyzeNode(varNode.expr, varInitEnv);
-            setTaintedStatus(varNode, this.taintedStatus);
+            // Checks in the BLangWorkerReceive was moved here since its an expression now. So it can be used with
+            // variable definitions: int a = <- w1. The RHS of the variable will be visited first which will be the
+            // receive. Since the tainted status is not known, it will set the tainted status as null. Since we need to
+            // get the tainted status of the variable based on what is being received (send statement), we need to do a
+            // recursive call to all statements of the worker. To do so we need to set these variables to be true.
+            // So in the next pass the tainted status on what is being received will be known, then we simply set it to
+            // the variable.
+            if (this.taintedStatus == null) {
+                blockedOnWorkerInteraction = true;
+                stopAnalysis = true;
+            } else {
+                setTaintedStatus(varNode, this.taintedStatus);
+            }
         }
     }
 
@@ -463,7 +476,19 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     public void visit(BLangAssignment assignNode) {
         assignNode.expr.accept(this);
         BLangExpression varRefExpr = assignNode.varRef;
-        visitAssignment(varRefExpr, this.taintedStatus, assignNode.pos);
+        // Checks in the BLangWorkerReceive was moved here since its an expression now. So it can be used in assignments
+        // (a = <- w1; where 'a' is defined above) The RHS of the assignment will be visited first which will be the
+        // receive. Since the tainted status is not known, it will set the tainted status as null. Since we need to
+        // get the tainted status of the variable based on what is being received (send statement), we need to do a
+        // recursive call to all statements of the worker. To do so we need to set these variables to be true. So in the
+        // next pass the tainted status on what is being received will be known, then we simply set the tainted status
+        // to the variable reference.
+        if (this.taintedStatus == null) {
+            blockedOnWorkerInteraction = true;
+            stopAnalysis = true;
+        } else {
+            visitAssignment(varRefExpr, this.taintedStatus, assignNode.pos);
+        }
     }
 
     @Override
@@ -476,16 +501,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
         TaintedStatus combinedTaintedStatus = getCombinedTaintedStatus(varRefTaintedStatus, exprTaintedStatus);
         visitAssignment(compoundAssignment.varRef, combinedTaintedStatus, compoundAssignment.pos);
-    }
-
-    @Override
-    public void visit(BLangCompensate node) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangScope scopeNode) {
-        scopeNode.scopeBody.accept(this);
     }
 
     private void visitAssignment(BLangExpression varRefExpr, TaintedStatus varTaintedStatus, DiagnosticPos pos) {
@@ -699,21 +714,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangForkJoin forkJoin) {
-        analyzeWorkers(forkJoin.workers, true);
-        if (currForkIdentifier != null) {
-            TaintedStatus taintedStatus = workerInteractionTaintedStatusMap.get(currForkIdentifier);
-            if (taintedStatus != null) {
-                setTaintedStatus(forkJoin.joinResultVar, taintedStatus);
-            }
-        }
-        overridingAnalysis = false;
-        if (forkJoin.joinedBody != null) {
-            forkJoin.joinedBody.accept(this);
-        }
-        if (forkJoin.timeoutBody != null) {
-            forkJoin.timeoutBody.accept(this);
-        }
-        overridingAnalysis = true;
+        /* ignore */
     }
 
     @Override
@@ -813,9 +814,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             analyzeExprList(exprsList);
             return;
         }
-        if (workerSendNode.isForkJoinSend) {
-            currForkIdentifier = workerSendNode.workerIdentifier;
-        }
         workerSendNode.expr.accept(this);
         TaintedStatus taintedStatus = workerInteractionTaintedStatusMap.get(workerSendNode.workerIdentifier);
         if (taintedStatus == null) {
@@ -830,24 +828,34 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangWorkerSyncSendExpr syncSendExpr) {
+        syncSendExpr.expr.accept(this);
+        TaintedStatus taintedStatus = workerInteractionTaintedStatusMap.get(syncSendExpr.workerIdentifier);
+        if (taintedStatus == null) {
+            workerInteractionTaintedStatusMap.put(syncSendExpr.workerIdentifier, this.taintedStatus);
+        } else if (this.taintedStatus == TaintedStatus.TAINTED) {
+            // Worker interactions should be non-overriding. Hence changing the status only if the expression used in
+            // sending is evaluated to be a tainted value. By doing so, analyzer will not change an interaction that
+            // was identified to return a `Tainted` value to be `Untainted` later on. (Example: Conditional worker
+            // interactions)
+            workerInteractionTaintedStatusMap.put(syncSendExpr.workerIdentifier, TaintedStatus.TAINTED);
+        }
+        // Todo tainted status for the sync send expression should be handled properly since it will return error or nil
+        // ATM it is set to untainted
+        this.taintedStatus = TaintedStatus.UNTAINTED;
+    }
+
+    @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
         if (workerReceiveNode.isChannel) {
             List<BLangExpression> exprList = new ArrayList<>();
-            exprList.add(workerReceiveNode.expr);
             if (workerReceiveNode.keyExpr != null) {
                 exprList.add(workerReceiveNode.keyExpr);
             }
             analyzeExprList(exprList);
             return;
         }
-
-        TaintedStatus taintedStatus = workerInteractionTaintedStatusMap.get(currWorkerIdentifier);
-        if (taintedStatus == null) {
-            blockedOnWorkerInteraction = true;
-            stopAnalysis = true;
-        } else {
-            visitAssignment(workerReceiveNode.expr, taintedStatus, workerReceiveNode.pos);
-        }
+        this.taintedStatus = workerInteractionTaintedStatusMap.get(currWorkerIdentifier);
     }
 
     // Expressions
@@ -1045,9 +1053,29 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangAwaitExpr awaitExpr) {
-        awaitExpr.expr.accept(this);
+    public void visit(BLangWaitExpr waitExpr) {
+        waitExpr.getExpression().accept(this);
     }
+
+    @Override
+    public void visit(BLangWaitForAllExpr waitExpr) {
+        TaintedStatus statusForWait = TaintedStatus.UNTAINTED;
+        for (BLangWaitForAllExpr.BLangWaitKeyValue keyValue: waitExpr.keyValuePairs) {
+            BLangExpression expr = keyValue.valueExpr != null ? keyValue.valueExpr : keyValue.keyExpr;
+            expr.accept(this);
+            statusForWait = (this.taintedStatus == TaintedStatus.TAINTED) ? TaintedStatus.TAINTED :
+                                                                            TaintedStatus.UNTAINTED;
+        }
+        this.taintedStatus = statusForWait;
+    }
+
+    @Override
+    public void visit(BLangWorkerFlushExpr workerFlushExpr) {
+        // Need to handle this properly. The flush expression can only return error or nil. ATM tainted status is set to
+        // be untainted
+        this.taintedStatus = TaintedStatus.UNTAINTED;
+    }
+
 
     @Override
     public void visit(BLangTrapExpr trapExpr) {
@@ -1769,17 +1797,15 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     private void analyzeReturnTaintedStatus(BLangInvokableNode invokableNode, SymbolEnv symbolEnv) {
         ignoredInvokableSymbol = null;
-        if (invokableNode.workers.isEmpty()) {
-            analyzeNode(invokableNode.body, symbolEnv);
-        } else {
-            analyzeWorkers(invokableNode.workers, true);
-        }
+        workerInteractionTaintedStatusMap = new HashMap<>();
+        analyzeNode(invokableNode.body, symbolEnv);
         if (stopAnalysis) {
             stopAnalysis = false;
         }
     }
 
     private void analyzeWorkers(List<BLangWorker> workers, boolean resetStatusMap) {
+        //TODO: (workers) remove
         if (resetStatusMap) {
             workerInteractionTaintedStatusMap = new HashMap<>();
         }

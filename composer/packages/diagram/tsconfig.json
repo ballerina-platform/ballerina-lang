@@ -1,0 +1,8 @@
+{
+  "extends": "../../configs/common.tsconfig.json",
+  "compilerOptions": {
+    "rootDirs": ["src", "stories", "tools"],
+    "outDir": "lib",
+    "resolveJsonModule": true,
+  }
+}

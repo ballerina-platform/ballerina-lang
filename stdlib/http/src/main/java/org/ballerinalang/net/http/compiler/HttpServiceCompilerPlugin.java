@@ -17,18 +17,15 @@
 package org.ballerinalang.net.http.compiler;
 
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
-import org.ballerinalang.compiler.plugins.SupportEndpointTypes;
+import org.ballerinalang.compiler.plugins.SupportedResourceParamTypes;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
-import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
-import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangResource;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -45,8 +42,12 @@ import static org.ballerinalang.net.http.HttpConstants.ANN_NAME_HTTP_SERVICE_CON
  *
  * @since 0.965.0
  */
-@SupportEndpointTypes(
-        value = {@SupportEndpointTypes.EndpointType(orgName = "ballerina", packageName = "http", name = "Listener")}
+@SupportedResourceParamTypes(expectedListenerType = @SupportedResourceParamTypes.Type(packageName = "http",
+                                                                                        name = "Listener"),
+                            paramTypes = {
+                                    @SupportedResourceParamTypes.Type(packageName = "http", name = "Caller"),
+                                    @SupportedResourceParamTypes.Type(packageName = "http", name = "Request")
+                            }
 )
 public class HttpServiceCompilerPlugin extends AbstractCompilerPlugin {
 
@@ -72,21 +73,17 @@ public class HttpServiceCompilerPlugin extends AbstractCompilerPlugin {
                                "multiple service configuration annotations found in service : " +
                                        serviceNode.getName().getValue());
         }
-        final UserDefinedTypeNode serviceType = serviceNode.getServiceTypeStruct();
-        if (serviceType != null && HttpConstants.HTTP_SERVICE_TYPE.equals(serviceType.getTypeName().getValue())) {
-            List<BLangResource> resources = (List<BLangResource>) serviceNode.getResources();
-            resources.forEach(res -> {
-                ResourceSignatureValidator.validateAnnotation(res, dlog);
-                ResourceSignatureValidator.validate(res.getParameters(), dlog, res.pos);
-            });
-        }
+        //        final UserDefinedTypeNode serviceType = serviceNode.getServiceTypeStruct();
+        //        if (serviceType != null && HttpConstants.HTTP_SERVICE_TYPE.equals(serviceType.getTypeName()
+        // .getValue())) {
+        List<BLangFunction> resources = (List<BLangFunction>) serviceNode.getResources();
+        resources.forEach(res -> {
+            ResourceSignatureValidator.validateAnnotation(res, dlog);
+            ResourceSignatureValidator.validate(res.getParameters(), dlog, res.pos);
+        });
+        //        }
         // get value from endpoint.
         // ((BLangSimpleVarRef) serviceNode.getBoundEndpoints().get(0)).varSymbol.getType().tsymbol.name.value
-    }
-
-    @Override
-    public void process(EndpointNode endpointNode, List<AnnotationAttachmentNode> annotations) {
-        // TODO: process endpoint configuration.
     }
 
     private void handleServiceConfigAnnotation(ServiceNode serviceNode, BLangAnnotationAttachment annotation) {

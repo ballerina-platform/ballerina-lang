@@ -53,14 +53,23 @@ public class SnippetGenerator {
                                 SnippetType.SNIPPET);
     }
 
-
     /**
-     * Get Bind statement Snippet Block.
+     * Get On keyword Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
-    public static SnippetBlock getBindSnippet() {
-        return new SnippetBlock(ItemResolverConstants.BIND, "bind ", ItemResolverConstants.KEYWORD_TYPE,
+    public static SnippetBlock getOnSnippet() {
+        return new SnippetBlock(ItemResolverConstants.ON, "on ", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
+    }
+
+    /**
+     * Get new keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getNewKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.NEW, "new ", ItemResolverConstants.KEYWORD_TYPE,
                                 SnippetType.KEYWORD);
     }
 
@@ -602,6 +611,15 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getBuiltinStampSnippet() {
         return new SnippetBlock(ItemResolverConstants.BUILTIN_STAMP_LABEL, "stamp(${1});", "", SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get create Builtin Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getBuiltinCreateSnippet() {
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_CREATE_LABEL, "create(${1});", "", SnippetType.SNIPPET);
     }
 
     /**

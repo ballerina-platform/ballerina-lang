@@ -49,6 +49,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
@@ -365,7 +366,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         return resolveTargetSymbolForStamping(targetType, variableSourceType, name, pos);
     }
 
-    BSymbol createSymbolForCreateOperator(DiagnosticPos pos, Name name, List<BLangExpression> functionArgList,
+    public BSymbol createSymbolForCreateOperator(DiagnosticPos pos, Name name, List<BLangExpression> functionArgList,
                                           BLangExpression targetTypeExpression) {
         // If there are more than one argument for create in-built function then fail.
         if (functionArgList.size() < 1) {
@@ -860,7 +861,12 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         BTypeSymbol objectSymbol = Symbols.createObjectSymbol(Flags.asMask(flags), Names.EMPTY,
                 env.enclPkg.symbol.pkgID, null, env.scope.owner);
-        BObjectType objectType = new BObjectType(objectSymbol);
+        BObjectType objectType;
+        if (flags.contains(Flag.SERVICE)) {
+            objectType = new BServiceType(objectSymbol);
+        } else {
+            objectType = new BObjectType(objectSymbol);
+        }
         objectSymbol.type = objectType;
         objectTypeNode.symbol = objectSymbol;
 

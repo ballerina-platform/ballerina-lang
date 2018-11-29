@@ -19,7 +19,6 @@ package org.ballerinalang.net.grpc.nativeimpl.client;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -39,11 +38,11 @@ import java.util.Map;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.BLOCKING_TYPE;
 import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_CONNECTOR;
-import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_ENDPOINT_CONFIG;
 import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_ENDPOINT_REF_INDEX;
 import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_ENDPOINT_TYPE;
 import static org.ballerinalang.net.grpc.GrpcConstants.DESCRIPTOR_KEY_STRING_INDEX;
 import static org.ballerinalang.net.grpc.GrpcConstants.DESCRIPTOR_MAP_REF_INDEX;
+import static org.ballerinalang.net.grpc.GrpcConstants.ENDPOINT_URL;
 import static org.ballerinalang.net.grpc.GrpcConstants.METHOD_DESCRIPTORS;
 import static org.ballerinalang.net.grpc.GrpcConstants.NON_BLOCKING_TYPE;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
@@ -70,7 +69,7 @@ public class InitStub extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BMap<String, BValue> clientEndpoint = (BMap<String, BValue>) context.getRefArgument(CLIENT_ENDPOINT_REF_INDEX);
         HttpClientConnector clientConnector = (HttpClientConnector) clientEndpoint.getNativeData(CLIENT_CONNECTOR);
-        Struct endpointConfig = (Struct) clientEndpoint.getNativeData(CLIENT_ENDPOINT_CONFIG);
+        String urlString = (String) clientEndpoint.getNativeData(ENDPOINT_URL);
         String stubType = context.getStringArgument(STUB_TYPE_STRING_INDEX);
         String descriptorKey = context.getStringArgument(DESCRIPTOR_KEY_STRING_INDEX);
         BMap<String, BValue> descriptorMap = (BMap<String, BValue>) context.getRefArgument(DESCRIPTOR_MAP_REF_INDEX);
@@ -95,10 +94,10 @@ public class InitStub extends BlockingNativeCallableUnit {
 
             clientEndpoint.addNativeData(METHOD_DESCRIPTORS, methodDescriptorMap);
             if (BLOCKING_TYPE.equalsIgnoreCase(stubType)) {
-                BlockingStub blockingStub = new BlockingStub(clientConnector, endpointConfig);
+                BlockingStub blockingStub = new BlockingStub(clientConnector, urlString);
                 clientEndpoint.addNativeData(SERVICE_STUB, blockingStub);
             } else if (NON_BLOCKING_TYPE.equalsIgnoreCase(stubType)) {
-                NonBlockingStub nonBlockingStub = new NonBlockingStub(clientConnector, endpointConfig);
+                NonBlockingStub nonBlockingStub = new NonBlockingStub(clientConnector, urlString);
                 clientEndpoint.addNativeData(SERVICE_STUB, nonBlockingStub);
             } else {
                 context.setReturnValues(MessageUtils.getConnectorError(new StatusRuntimeException(Status

@@ -63,10 +63,10 @@ public class IndexGenerator {
         List<BPackageSymbol> bPackageSymbols = new ArrayList<>();
 //        List<String> packages = Arrays.asList("auth", "builtin", "cache", "config", "crypto", "file", "grpc", "h2",
 //                "http", "io", "jms", "log", "math", "mime", "mysql", "reflect", "runtime", "sql",
-//                "swagger", "system", "task", "time", "transactions", "websub");
-        List<String> packages = Arrays.asList("auth", "builtin", "cache", "config", "crypto", "file",
+//                "swagger", "system", "task", "time", "transactions", "websub", "socket");
+        List<String> packages = Arrays.asList(/*"auth", */"builtin"/*, "cache", "config", "crypto", "file",
                 "http", "io", "log",
-                "swagger", "time");
+                "swagger", "time"*/);
         CompilerContext tempCompilerContext = LSContextManager.getInstance().getBuiltInPackagesCompilerContext();
         packages.forEach(pkg -> {
             try {
@@ -86,8 +86,6 @@ public class IndexGenerator {
     }
 
     public static void main(String[] args) {
-//        System.setProperty("ballerina.home", "/media/nadeeshaan/f6e45128-5272-4b10-99c9-b5dc9990d202/" +
-//                "nadeeshaan/Development/NextGen_ESB/Bal_Workspace/ballerina-tools-0.983.1-SNAPSHOT");
         IndexGenerator indexGenerator = new IndexGenerator();
         LSIndexImpl lsIndex = new LSIndexImpl("classpath:lang-server-index.sql");
         List<BPackageSymbol> bPackageSymbols = indexGenerator.getBLangPackages();

@@ -36,7 +36,6 @@ import io.ballerina.plugins.idea.psi.BallerinaFile;
 import io.ballerina.plugins.idea.psi.BallerinaIdentifier;
 import io.ballerina.plugins.idea.psi.BallerinaMatchExpressionPatternClause;
 import io.ballerina.plugins.idea.psi.BallerinaNameReference;
-import io.ballerina.plugins.idea.psi.BallerinaObjectInitializer;
 import io.ballerina.plugins.idea.psi.BallerinaPackageReference;
 import io.ballerina.plugins.idea.psi.BallerinaRecordKey;
 import io.ballerina.plugins.idea.psi.BallerinaRecordKeyValue;
@@ -44,9 +43,7 @@ import io.ballerina.plugins.idea.psi.BallerinaRecordLiteralExpression;
 import io.ballerina.plugins.idea.psi.BallerinaRecordTypeName;
 import io.ballerina.plugins.idea.psi.BallerinaStatement;
 import io.ballerina.plugins.idea.psi.BallerinaTypeDefinition;
-import io.ballerina.plugins.idea.psi.BallerinaTypeInitExpression;
 import io.ballerina.plugins.idea.psi.BallerinaTypes;
-import io.ballerina.plugins.idea.psi.BallerinaUserDefineTypeName;
 import io.ballerina.plugins.idea.psi.BallerinaVariableDefinitionStatement;
 import io.ballerina.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import io.ballerina.plugins.idea.psi.scopeprocessors.BallerinaActionInvocationProcessor;
@@ -80,32 +77,6 @@ public class BallerinaNameReferenceReference extends BallerinaCachedReference<Ba
     public PsiElement resolveInner() {
         BallerinaScopeProcessorBase processor;
         PsiElement result;
-
-        BallerinaTypeInitExpression typeInitExpr = PsiTreeUtil.getParentOfType(myElement,
-                BallerinaTypeInitExpression.class);
-        if (typeInitExpr != null) {
-            // We need to check for user defined types for cases like "Person p = new Employee();" where we are
-            // trying to resolve Employee.
-            BallerinaUserDefineTypeName userDefineTypeName = PsiTreeUtil.getChildOfType(typeInitExpr,
-                    BallerinaUserDefineTypeName.class);
-            if (userDefineTypeName == null) {
-                BallerinaVariableDefinitionStatement variableDefinitionStatement =
-                        PsiTreeUtil.getParentOfType(typeInitExpr, BallerinaVariableDefinitionStatement.class);
-                if (variableDefinitionStatement != null) {
-                    if (BallerinaPsiImplUtil.isObjectInitializer(variableDefinitionStatement)) {
-                        PsiElement type = BallerinaPsiImplUtil.getType(variableDefinitionStatement);
-                        if (type != null && type.getParent() instanceof BallerinaTypeDefinition) {
-                            BallerinaObjectInitializer initializer =
-                                    BallerinaPsiImplUtil.getInitializer(((BallerinaTypeDefinition) type.getParent()));
-                            if (initializer != null) {
-                                return initializer.getNew();
-                            }
-                        }
-                        return null;
-                    }
-                }
-            }
-        }
 
         processor = new BallerinaActionInvocationProcessor(null, myElement, false);
         processResolveVariants(processor);

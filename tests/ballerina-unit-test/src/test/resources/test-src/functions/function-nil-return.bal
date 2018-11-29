@@ -49,6 +49,14 @@ function testPrintInWorkers() {
     }
 }
 
+function testNoReturnFuncInvocnInNilReturnFuncRetStmt() {
+    io:println(nilReturnFuncInvokingNoRetFuncInRetStmt());
+}
+
+function testNilReturnFuncInvocnInNilReturnFuncRetStmt() {
+    io:println(nilReturnFuncInvokingNilRetFuncInRetStmt());
+}
+
 function sampleFunction1() {
     // Do nothing
 }
@@ -63,4 +71,23 @@ function sampleFunction3() {
 
 function sampleFunction4() returns () {
     return ();
+}
+
+function nilReturnFuncInvokingNoRetFuncInRetStmt() returns () {
+    io:println("nil returns here");
+    return noReturnFunc();
+}
+
+function nilReturnFuncInvokingNilRetFuncInRetStmt() returns () {
+    io:println("nil returns here");
+    return nilReturnFunc();
+}
+
+function noReturnFunc() {
+    io:println("no returns here");
+}
+
+function nilReturnFunc() returns () {
+    io:println("explicit nil returns here");
+    return;
 }

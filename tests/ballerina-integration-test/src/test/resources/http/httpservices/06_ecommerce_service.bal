@@ -181,7 +181,7 @@ service productmgt on serviceEndpoint5 {
     resource function addProduct(http:Caller caller, http:Request req) {
         var jsonReq = req.getJsonPayload();
         if (jsonReq is json) {
-            string productId = extractFieldValue3(jsonReq.Product.ID);
+            string productId = jsonReq.Product.ID.toString();
             self.productsMap[productId] = jsonReq;
             json payload = {"Status":"Product is successfully added."};
 
@@ -206,11 +206,3 @@ function populateSampleProducts() returns (map<any>) {
     return productsMap;
 }
 
-//Keep this until there's a simpler way to get a string value out of a json
-function extractFieldValue3(json fieldValue) returns string {
-    if (fieldValue is string) {
-        return fieldValue;
-    } else {
-        return "error";
-    }
-}
