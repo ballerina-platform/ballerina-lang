@@ -36,7 +36,7 @@ function testUnaryNonBlockingClient() returns int {
     int waitCount = 0;
     while(total < 2) {
         runtime:sleep(1000);
-        io:println("msg count: " + total);
+        io:println("msg count: ", total);
         if (waitCount > 10) {
             break;
         }
