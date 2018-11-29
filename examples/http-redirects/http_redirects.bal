@@ -3,7 +3,8 @@ import ballerina/io;
 import ballerina/log;
 
 http:Client clientEP = new("http://localhost:9090", config = {
-    followRedirects: { enabled: true, maxCount: 5 }});
+        followRedirects: { enabled: true, maxCount: 5 }
+    });
 
 public function main() {
 
