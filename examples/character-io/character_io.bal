@@ -5,7 +5,6 @@ import ballerina/log;
 // appends the additional string, and writes the content.
 function process(io:ReadableCharacterChannel sc,
                  io:WritableCharacterChannel dc) returns error? {
-
     // Here is the string that is appended in-between.
     string intermediateCharacterString = " my name is ";
     // The first five characters in the source file contain the greeting.
