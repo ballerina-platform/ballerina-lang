@@ -47,8 +47,8 @@ public class BByteValueNegativeTest {
         String msg2 = "incompatible types: expected 'byte', found 'float'";
         String msg3 = "incompatible types: expected 'byte', found 'string'";
         String msg4 = "incompatible types: expected 'byte', found 'byte|error'";
-        String msg5 = "pattern will not be matched";
-        String msg6 = "unreachable pattern: preceding patterns are too general or the pattern ordering is not correct";
+        String msg5 = "unnecessary condition: expression will always evaluate to 'true'";
+        String msg6 = "invalid usage of the checked expression operator: no error type return in enclosing invokable";
         BAssertUtil.validateError(result, 0, msg1 , 2, 15);
         BAssertUtil.validateError(result, 1, msg1 , 3, 15);
         BAssertUtil.validateError(result, 2, msg1 , 4, 15);
@@ -70,8 +70,8 @@ public class BByteValueNegativeTest {
         BAssertUtil.validateError(result, 18, msg4 , 24, 15);
         BAssertUtil.validateError(result, 19, msg4 , 27, 15);
         BAssertUtil.validateError(result, 20, msg4 , 30, 15);
-        BAssertUtil.validateError(result, 22, msg5, 35, 29);
-        BAssertUtil.validateError(result, 24, msg6, 43, 29);
+        BAssertUtil.validateError(result, 22, msg5, 35, 60);
+        BAssertUtil.validateError(result, 25, msg6, 45, 22);
     }
 
     @Test(description = "Test byte shift operators negative")

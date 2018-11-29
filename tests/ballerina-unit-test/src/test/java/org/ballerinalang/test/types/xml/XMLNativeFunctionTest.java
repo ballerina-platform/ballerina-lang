@@ -824,7 +824,7 @@ public class XMLNativeFunctionTest {
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertTrue(returns[1] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), " ");
-        Assert.assertEquals(returns[1].stringValue(), " ");
+        Assert.assertEquals(returns[1].stringValue(), "");
         Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
     }
     

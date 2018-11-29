@@ -40,8 +40,8 @@ public class BDecimalValueNegativeTest {
         String expectedError = "invalid token 'decimal'";
         BAssertUtil.validateError(compileResult, index++, expectedError, 23, 5);
 
-        expectedError = "mismatched input 'decimal'. expecting {'is', ';', '?', '+', '-', '*', '/', " +
-                "'%', '==', '!=', '>', '<', '>=', '<=', '&&', '||', '===', '!==', '&', '^', '...', '|', '?:', '->>', '..<'}";
+        expectedError = "mismatched input 'decimal'. expecting {'is', ';', '?', '+', '-', '*', '/', '%', '==', " +
+                "'!=', '>', '<', '>=', '<=', '&&', '||', '===', '!==', '&', '^', '...', '|', '?:', '->>', '..<'}";
         BAssertUtil.validateError(compileResult, index++, expectedError, 23, 5);
 
         expectedError = "extraneous input 'd'";

@@ -17,14 +17,20 @@
 public type Select object {
 
     private function (StreamEvent[]) nextProcessorPointer;
-    private Aggregator [] aggregatorArr;
-    private ((function(StreamEvent o) returns string) []) groupbyFuncArray;
-    private function(StreamEvent o, Aggregator []  aggregatorArr1) returns map<any> selectFunc;
+    private Aggregator[] aggregatorArr;
+    private ((function (StreamEvent o) returns string)[]) groupbyFuncArray;
+    private function (StreamEvent o, Aggregator[] aggregatorArr1) returns map<anydata> selectFunc;
     private map<Aggregator[]> aggregatorsCloneMap;
 
 
-    new(nextProcessorPointer, aggregatorArr, groupbyFuncArray, selectFunc) {
+    function __init(function (StreamEvent[]) nextProcessorPointer, Aggregator[] aggregatorArr,
+                    (function (StreamEvent) returns string)[] groupbyFuncArray,
+                    function (StreamEvent o, Aggregator[] aggregatorArr1) returns map<anydata> selectFunc) {
         self.aggregatorsCloneMap = {};
+        self.nextProcessorPointer = nextProcessorPointer;
+        self.aggregatorArr = aggregatorArr;
+        self.groupbyFuncArray = groupbyFuncArray;
+        self.selectFunc = selectFunc;
     }
 
     public function process(StreamEvent[] streamEvents) {
@@ -32,61 +38,48 @@ public type Select object {
         if (self.aggregatorArr.length() > 0) {
             map<StreamEvent> groupedEvents = {};
             foreach var event in streamEvents {
-
                 if (event.eventType == RESET) {
                     self.aggregatorsCloneMap.clear();
                 }
 
-                string groupbyKey;
-                match self.groupbyFuncArray {
-                    (function(StreamEvent o) returns string) [] groupbyFunctionArray => {
-                        groupbyKey = self.getGroupByKey(groupbyFunctionArray, event);
-                    }
-                }
-
+                string groupbyKey = self.getGroupByKey(self.groupbyFuncArray, event);
                 Aggregator[] aggregatorsClone = [];
-                match (self.aggregatorsCloneMap[groupbyKey]) {
-                    Aggregator[] aggregators => {
-                        aggregatorsClone = aggregators;
+                var aggregators = self.aggregatorsCloneMap[groupbyKey];
+                if (aggregators is Aggregator[]) {
+                    aggregatorsClone = aggregators;
+                } else {
+                    int i = 0;
+                    foreach var aggregator in self.aggregatorArr {
+                        aggregatorsClone[i] = aggregator.copy();
+                        i += 1;
                     }
-                    () => {
-                        int i = 0;
-                        foreach var aggregator in self.aggregatorArr {
-                            aggregatorsClone[i] = aggregator.copy();
-                            i += 1;
-                        }
-                        self.aggregatorsCloneMap[groupbyKey] = aggregatorsClone;
-                    }
+                    self.aggregatorsCloneMap[groupbyKey] = aggregatorsClone;
                 }
-                StreamEvent e = new ((OUTPUT, self.selectFunc(event, aggregatorsClone)), event.eventType, event
-                    .timestamp);
+                map<anydata> x = self.selectFunc.call(event, aggregatorsClone);
+                StreamEvent e = new((OUTPUT, x), event.eventType, event.timestamp);
                 groupedEvents[groupbyKey] = e;
             }
             foreach var key in groupedEvents.keys() {
-                match groupedEvents[key] {
-                    StreamEvent e => {
-                        outputStreamEvents[outputStreamEvents.length()] = e;
-                    }
-                    () => {}
-                }
+                StreamEvent event = <StreamEvent>groupedEvents[key];
+                outputStreamEvents[outputStreamEvents.length()] = event;
             }
         } else {
             foreach var event in streamEvents {
-                StreamEvent e = new ((OUTPUT, self.selectFunc(event, self.aggregatorArr)), event.eventType,
+                StreamEvent e = new((OUTPUT, self.selectFunc.call(event, self.aggregatorArr)), event.eventType,
                     event.timestamp);
                 outputStreamEvents[outputStreamEvents.length()] = e;
             }
         }
         if (outputStreamEvents.length() > 0) {
-            self.nextProcessorPointer(outputStreamEvents);
+            self.nextProcessorPointer.call(outputStreamEvents);
         }
     }
 
-    public function getGroupByKey((function(StreamEvent o) returns string) [] groupbyFunctionArray, StreamEvent e)
+    public function getGroupByKey((function (StreamEvent o) returns string)[] groupbyFunctionArray, StreamEvent e)
                         returns string {
         string key = "";
         foreach var func in groupbyFunctionArray {
-            key += func(e);
+            key += func.call(e);
             key += ",";
         }
         return key;
@@ -96,7 +89,7 @@ public type Select object {
 public function createSelect(function (StreamEvent[]) nextProcPointer,
                              Aggregator[] aggregatorArr,
                              ((function (StreamEvent o) returns string)[]) groupbyFuncArray,
-                             function (StreamEvent o, Aggregator[] aggregatorArr1) returns map<any> selectFunc)
+                             function (StreamEvent o, Aggregator[] aggregatorArr1) returns map<anydata> selectFunc)
                     returns Select {
 
     Select select = new(nextProcPointer, aggregatorArr, groupbyFuncArray, selectFunc);

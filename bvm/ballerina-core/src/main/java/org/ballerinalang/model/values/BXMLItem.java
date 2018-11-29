@@ -555,7 +555,7 @@ public final class BXMLItem extends BXML<OMNode> {
     @Override
     public BXML<?> strip() {
         if (omNode == null || (nodeType == XMLNodeType.TEXT &&
-                ((OMText) omNode).getText().isEmpty())) {
+                ((OMText) omNode).getText().trim().isEmpty())) {
             return new BXMLSequence();
         }
 

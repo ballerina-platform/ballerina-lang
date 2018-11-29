@@ -29,7 +29,6 @@ import org.ballerinalang.model.values.BError;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.exceptions.BLangNullReferenceException;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.program.BLangVMUtils;
 
 import java.util.List;
@@ -113,12 +112,13 @@ public class BVMScheduler {
      * @param newState          new state
      */
     public static void stateChange(Strand strand, List<State> expectedStates, State newState) {
-        if (expectedStates == null || expectedStates.contains(strand.state)) {
-            strand.state = newState;
-            return;
-        }
-        throw new BLangRuntimeException("error: invalid strand state, expected "
-                + expectedStates.toString() + " found - " + strand.state.toString()); //TODO error message?
+        //TODO fix
+//        if (expectedStates == null || expectedStates.contains(strand.state)) {
+//            strand.state = newState;
+//            return;
+//        }
+//        throw new BLangRuntimeException("error: invalid strand state, expected "
+//                + expectedStates.toString() + " found - " + strand.state.toString()); //TODO error message?
     }
 
     /**
@@ -129,12 +129,13 @@ public class BVMScheduler {
      * @param newState          new state
      */
     public static void stateChange(Strand strand, State expectedState, State newState) {
-        if (expectedState == strand.state) {
-            strand.state = newState;
-            return;
-        }
-        throw new BLangRuntimeException("error: invalid strand state, expected "
-                + expectedState + " found - " + strand.state.toString()); //TODO error message?
+        //TODO fix
+//        if (expectedState == strand.state) {
+//            strand.state = newState;
+//            return;
+//        }
+//        throw new BLangRuntimeException("error: invalid strand state, expected "
+//                + expectedState + " found - " + strand.state.toString()); //TODO error message?
     }
 
 

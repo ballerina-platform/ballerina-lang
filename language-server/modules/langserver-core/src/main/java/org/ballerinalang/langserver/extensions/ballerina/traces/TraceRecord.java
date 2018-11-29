@@ -27,11 +27,9 @@ public class TraceRecord {
     private Message message;
     private String rawMessage;
     private String id;
-    private String logDate;
     private String millis;
     private String sequence;
     private String logger;
-    private String level;
     private String sourceClass;
     private String sourceMethod;
     private String thread;
@@ -40,14 +38,12 @@ public class TraceRecord {
         this.message = message;
         this.rawMessage = rawMessage;
         this.id = UUID.randomUUID().toString();
-        this.logDate = record.get("logDate").getAsString();
         this.millis = record.get("millis").getAsString();
-        this.sequence = record.get("sequence").getAsString();
-        this.logger = record.get("logger").getAsString();
-        this.level = record.get("level").getAsString();
-        this.sourceClass = record.get("sourceClass").getAsString();
-        this.sourceMethod = record.get("sourceMethod").getAsString();
-        this.thread = record.get("thread").getAsString();
+        this.sequence = record.get("sequenceNumber").getAsString();
+        this.logger = record.get("loggerName").getAsString();
+        this.sourceClass = record.get("sourceClassName").getAsString();
+        this.sourceMethod = record.get("sourceMethodName").getAsString();
+        this.thread = record.get("threadID").getAsString();
     }
 
     public String getRawMessage() {
@@ -70,20 +66,12 @@ public class TraceRecord {
         return millis;
     }
 
-    public String getLogDate() {
-        return logDate;
-    }
-
     public String getSourceMethod() {
         return sourceMethod;
     }
 
     public String getSourceClass() {
         return sourceClass;
-    }
-
-    public String getLevel() {
-        return level;
     }
 
     public Message getMessage() {

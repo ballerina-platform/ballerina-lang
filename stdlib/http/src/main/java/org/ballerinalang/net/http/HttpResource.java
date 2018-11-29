@@ -182,7 +182,7 @@ public class HttpResource {
         Annotation resourceConfigAnnotation = getResourceConfigAnnotation(resource);
         httpResource.setInterruptible(httpService.isInterruptible() || hasInterruptibleAnnotation(resource));
 
-        if (resourceConfigAnnotation == null) {
+        if (resourceConfigAnnotation == null || resourceConfigAnnotation.getValue() == null) {
             if (log.isDebugEnabled()) {
                 log.debug("resourceConfig not specified in the Resource instance, using default sub path");
             }

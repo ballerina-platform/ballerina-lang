@@ -4209,9 +4209,7 @@ public class BVM {
             BFuture future = (BFuture) strand.currentFrame.refRegs[futureReg];
             callbacks[i] = (SafeStrandCallback) future.value().respCallback;
         }
-        strand.createLock();
-        strand.waitCompleted = false;
-        strand.callBacksRemaining = callbacks.length;
+        strand.createWaitHandler(c, null);
         return CallbackReturnHandler.handleReturn(strand, expType, retValReg, callbacks);
     }
 
@@ -4232,9 +4230,7 @@ public class BVM {
             BFuture future = (BFuture) strand.currentFrame.refRegs[futureReg];
             callbackHashMap.put(keyRegIndex, (SafeStrandCallback) future.value().respCallback);
         }
-        strand.createLock();
-        strand.waitCompleted = false;
-        strand.callbacksToWaitFor = new ArrayList(callbackHashMap.keySet());
+        strand.createWaitHandler(c,  new ArrayList(callbackHashMap.keySet()));
         return CallbackReturnHandler.handleReturn(strand, retValReg, callbackHashMap);
     }
     /**
