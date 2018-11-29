@@ -16,12 +16,10 @@ public function main() {
         if (msg is json) {
             io:println(msg);
         } else if (msg is error) {
-            string errCause = <string> msg.detail().message;
-            log:printError(errCause, err = msg);
+            log:printError(<string>msg.detail().message, err = msg);
         }
     } else if (response is error) {
-        string errCause = <string> response.detail().message;
-        log:printError(errCause, err = response);
+        log:printError(<string>response.detail().message, err = response);
     }
 
     // Set a string payload to the message to be sent to the endpoint.
@@ -34,12 +32,10 @@ public function main() {
         if (msg is json) {
             io:println(msg);
         } else if (msg is error) {
-            string errCause = <string> msg.detail().message;
-            log:printError(errCause, err = msg);
+            log:printError(<string>msg.detail().message, err = msg);
         }
     } else if (response is error) {
-        string errCause = <string> response.detail().message;
-        log:printError(errCause, err = response);
+        log:printError(<string>response.detail().message, err = response);
     }
 
     req.setPayload("DELETE: Hello World");
@@ -50,12 +46,10 @@ public function main() {
         if (msg is json) {
             io:println(msg);
         } else if (msg is error) {
-            string errCause = <string> msg.detail().message;
-            log:printError(errCause, err = msg);
+            log:printError(<string>msg.detail().message, err = msg);
         }
     } else if (response is error) {
-        string errCause = <string> response.detail().message;
-        log:printError(errCause, err = response);
+        log:printError(<string>response.detail().message, err = response);
     }
 
     req.setPayload("CUSTOM: Hello World");
@@ -75,7 +69,6 @@ public function main() {
         log:printInfo("Status code: " + statusCode);
 
     } else if (response is error) {
-        string errCause = <string> response.detail().message;
-        log:printError(errCause, err = response);
+        log:printError(<string>response.detail().message, err = response);
     }
 }

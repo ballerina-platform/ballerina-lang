@@ -19,7 +19,7 @@ service echo on new http:Listener(9090) {
         if (payload is json) {
             // Validate the JSON before setting it to the response to prevent security vulnerabilities.
             // var valid = self.validateJson(payload);
-            if (self.validateJson(payload)) {
+            if (validateJson(payload.hello)) {
                 // Since the JSON is known to be valid, `untaint` the data denoting that the data is trusted and set the JSON to the response.
                 res.setJsonPayload(untaint payload);
             } else {
@@ -28,8 +28,7 @@ service echo on new http:Listener(9090) {
             }
         } else if (payload is error) {
             res.statusCode = 500;
-            string errCause = <string> payload.detail().message;
-            res.setPayload(untaint errCause);
+            res.setPayload(untaint <string>payload.detail().message);
         }
         // Reply to the client with the response.
         var result = caller->respond(res);
@@ -41,13 +40,10 @@ service echo on new http:Listener(9090) {
 }
 
 function validateJson(json payload) returns boolean {
-	if (payload.hello != ()) {
-		var stringMatch = payload.hello.toString().matches("[a-zA-Z]+");
-		if (stringMatch is error) {
-			return false;
-		} else {
-			return stringMatch;
-		}
-		return false;
-	}
+    var result = payload.toString().matches("[a-zA-Z]+");
+    if (result is error) {
+        return false;
+    } else {
+        return result;
+    }
 }

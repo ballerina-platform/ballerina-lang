@@ -31,11 +31,11 @@ service redirect1 on new http:Listener(9090) {
         methods:["GET"],
         path:"/"
     }
-    resource function redirect1 (http:Caller caller, http:Request req) {
+    resource function redirect1(http:Caller caller, http:Request req) {
         http:Response res = new;
         //Send a redirect response with a location
         _ = caller->redirect(res, http:REDIRECT_TEMPORARY_REDIRECT_307,
-            ["http://localhost:9093/redirect2"]);
+                                    ["http://localhost:9093/redirect2"]);
     }
 }
 
@@ -48,7 +48,7 @@ service redirect2 on new http:Listener(9093) {
         methods:["GET"],
         path:"/"
     }
-    resource function redirect2 (http:Caller caller, http:Request req) {
+    resource function redirect2(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setPayload("Hello World!");
         var result = caller->respond(res);
