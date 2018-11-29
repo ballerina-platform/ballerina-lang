@@ -10,7 +10,7 @@ function testBasicTypes() returns (typedesc, typedesc, typedesc, typedesc, typed
 function testRefTypes() returns (typedesc, typedesc, typedesc, typedesc) {
     typedesc a = xml;
     typedesc b = json;
-    typedesc c = map;
+    typedesc c = map<any>;
     typedesc d = table<Employee>;
     return (a, b, c, d);
 }
@@ -72,7 +72,7 @@ function testTuplesWithExpressions() returns typedesc {
 
 function testAnyToTypedesc() returns typedesc|error {
     any a = int;
-    typedesc desc = check <typedesc>a;
+    typedesc desc = <typedesc>a;
     return desc;
 }
 

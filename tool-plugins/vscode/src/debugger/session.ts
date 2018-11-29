@@ -236,11 +236,11 @@ export class BallerinaDebugSession extends LoggingDebugSession {
                 executableArgs = executableArgs.concat(commandOptions);
             }
 
-            if (args.networkLogs) {
+            if (args.networkLogs && args.port > 0) {
                 executableArgs.push('-e');
                 executableArgs.push('b7a.http.tracelog.host=localhost');
                 executableArgs.push('-e');
-                executableArgs.push('b7a.http.tracelog.port=5010');
+                executableArgs.push(`b7a.http.tracelog.port=${args.port}`);
             }
 
             executableArgs.push(<string>this._debugTarget);
@@ -275,9 +275,8 @@ export class BallerinaDebugSession extends LoggingDebugSession {
             debugServer.stderr.on('data', (data) => {
                 if (`${data}`.startsWith("error:")) {
                     this.terminate(`${data}`);
-                } else {
-                    this.sendEvent(new OutputEvent(`${data}`));
                 }
+                this.sendEvent(new OutputEvent(`${data}`));
             });
         });
     }
