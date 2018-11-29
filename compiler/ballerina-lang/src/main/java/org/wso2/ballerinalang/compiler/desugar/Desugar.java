@@ -498,19 +498,16 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
-        int maskOptional = Flags.asMask(EnumSet.of(Flag.OPTIONAL));
-
         recordTypeNode.fields.addAll(recordTypeNode.referencedFields);
         // Add struct level variables to the init function.
         recordTypeNode.fields.stream()
                 // Only add a field if it is required. Checking if it's required is enough since non-defaultable
                 // required fields will have been caught in the type checking phase.
                 .filter(field -> !recordTypeNode.initFunction.initFunctionStmts.containsKey(field.symbol) &&
-                            !Symbols.isFlagOn(field.symbol.flags, maskOptional))
+                        !Symbols.isOptional(field.symbol))
                 .filter(field -> field.expr != null)
                 .forEachOrdered(field -> {
-                    recordTypeNode.initFunction.initFunctionStmts.put(field.symbol,
-                            createAssignmentStmt(field));
+                    recordTypeNode.initFunction.initFunctionStmts.put(field.symbol, createAssignmentStmt(field));
                 });
 
         //Adding init statements to the init function.
@@ -518,6 +515,26 @@ public class Desugar extends BLangNodeVisitor {
                 .values().toArray(new BLangStatement[0]);
         for (int i = 0; i < recordTypeNode.initFunction.initFunctionStmts.size(); i++) {
             recordTypeNode.initFunction.body.stmts.add(i, initStmts[i]);
+        }
+
+        // Add invocations for the initializers of each of the type referenced records. Here, the initializers of the
+        // referenced types are invoked on the current record type.
+        for (BLangType typeRef : recordTypeNode.typeRefs) {
+            BVarSymbol receiverSym = recordTypeNode.initFunction.receiver.symbol;
+            BInvokableSymbol dupInitFuncSym = ASTBuilderUtil.duplicateInvokableSymbol(
+                    ((BRecordTypeSymbol) typeRef.type.tsymbol).initializerFunc.symbol);
+            dupInitFuncSym.receiverSymbol = receiverSym;
+
+            BLangInvocation initInv = ASTBuilderUtil.createInvocationExpr(typeRef.pos, dupInitFuncSym,
+                                                                          new ArrayList<>(), symResolver);
+            initInv.expr = ASTBuilderUtil.createVariableRef(recordTypeNode.initFunction.receiver.pos, receiverSym);
+            initInv = rewriteExpr(initInv);
+
+            BLangExpressionStmt exprStmt = ASTBuilderUtil.createExpressionStmt(typeRef.pos,
+                                                                               recordTypeNode.initFunction.body);
+            exprStmt.expr = initInv;
+            initInv.parent = exprStmt;
+            exprStmt.parent = recordTypeNode.initFunction.body;
         }
 
         result = recordTypeNode;
@@ -1885,6 +1902,7 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.STREAM:
             case TypeTags.FUTURE:
             case TypeTags.OBJECT:
+            case TypeTags.RECORD:
                 List<BLangExpression> argExprs = new ArrayList<>(iExpr.requiredArgs);
                 argExprs.add(0, iExpr.expr);
                 final BLangAttachedFunctionInvocation attachedFunctionInvocation =

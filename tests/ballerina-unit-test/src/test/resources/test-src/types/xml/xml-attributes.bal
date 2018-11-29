@@ -193,12 +193,12 @@ function testUsingQNameAsString () returns (string, string) {
     return (s1, s2);
 }
 
-function testGetAttributesAsMap() returns (map<any>, map<any>, string, string) {
+function testGetAttributesAsMap() returns (map<string>, map<string>, string, string) {
     var x1 = xml `<root xmlns:ns0="http://sample.com/wso2/a1" ns0:foo1="bar1" foo2="bar2"/>`;
     var x2 = xml `<root xmlns="http://sample.com/default/namepsace" xmlns:ns0="http://sample.com/wso2/a1" ns0:foo1="bar1" foo2="bar2"/>`;
     
-    map<any> m1 = <map> x1@;
-    map<any> m2 = <map> x2@;
+    map<string> m1 = map<string>.create(x1@);
+    map<string> m2 = map<string>.create(x2@);
 
     var a = m1["{http://sample.com/wso2/a1}foo1"];
     var s1 = a is string ?  a : "";

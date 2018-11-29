@@ -20,6 +20,7 @@ package org.ballerinalang.test.types.xml;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -1460,5 +1461,29 @@ public class XMLNativeFunctionTest {
         Assert.assertTrue(returns[1] instanceof BXML);
         Assert.assertEquals(returns[1].stringValue(), "<name>John</name><address><street>Palm Grove</street><city>" +
                 "Colombo 03</city><country><name>Sri Lanka</name></country></address><age>50</age>");
+    }
+
+    @Test
+    public void testToJSONAndSubsequentStore() {
+        BValue[] returns = BRunUtil.invoke(result, "testToJSONAndSubsequentStore");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.JSON_TAG);
+        Assert.assertEquals(returns[0].stringValue(), "{\"person\":{\"name\":\"David\"}}");
+        Assert.assertTrue(returns[1] instanceof BMap);
+        Assert.assertEquals(returns[1].getType().getTag(), TypeTags.JSON_TAG);
+        Assert.assertEquals(returns[1].stringValue(), "{\"person\":{\"name\":\"David\"}}");
+    }
+
+    @Test
+    public void testToJSONAndSubsequentRemove() {
+        BValue[] returns = BRunUtil.invoke(result, "testToJSONAndSubsequentRemove");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.JSON_TAG);
+        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"David\", \"age\":37}");
+        Assert.assertTrue(returns[1] instanceof BMap);
+        Assert.assertEquals(returns[1].getType().getTag(), TypeTags.JSON_TAG);
+        Assert.assertEquals(returns[1].stringValue(), "{}");
     }
 }

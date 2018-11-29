@@ -34,27 +34,16 @@ function testVariableWhileScope() {
     int sum = b;
 }
 
-service<DummyService> myService {
+service myService = service {
     int a = 20;
 
-    myResource1(string s) {
+    resource function myResource1(string s) {
         string res = "abc";
         int b = a + 50;
     }
 
-    myResource2(string s) {
+    resource function myResource2(string s) {
         string res = "abc";
         int c = b + 50;
-    }
-}
-
-type DummyEndpoint object {
-    function init(record {} conf)  {
-    }
-};
-
-type DummyService object {
-    function getEndpoint() returns (DummyEndpoint) {
-        return null;
     }
 };
