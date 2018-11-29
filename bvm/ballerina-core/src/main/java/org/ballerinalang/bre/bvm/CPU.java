@@ -4438,7 +4438,7 @@ public class CPU {
             case TypeTags.JSON_TAG:
             case TypeTags.MAP_TAG:
                 return ((BMap) sourceValue).getMap().entrySet().stream()
-                        .allMatch(value -> checkIsLikeType((BValue) value, targetType));
+                        .allMatch(value -> checkIsLikeType((BValue) ((Map.Entry) value).getValue(), targetType));
             case TypeTags.ARRAY_TAG:
                 BNewArray arr = (BNewArray) sourceValue;
                 switch (arr.getType().getTag()) {

@@ -15,7 +15,9 @@
 // under the License.
 
 import ballerina/runtime;
+import ballerina/io;
 import ballerina/streams;
+import ballerina/reflect;
 
 type Teacher record {
     string name;
@@ -38,26 +40,27 @@ stream<TeacherOutput> outputStream;
 
 TeacherOutput[] globalEmployeeArray = [];
 
-function startAggregationGroupByQuery() returns (TeacherOutput[]) {
+public function startOrderByQuery() returns any {
 
     Teacher[] teachers = [];
     Teacher t1 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
     Teacher t2 = { name: "Raja", age: 45, status: "single", batch: "LK2014", school: "Hindu College" };
+    Teacher t3 = { name: "Lahiru", age: 45, status: "single", batch: "LK2014", school: "Hindu College" };
     teachers[0] = t1;
     teachers[1] = t2;
     teachers[2] = t2;
     teachers[3] = t1;
-    teachers[4] = t2;
+    teachers[4] = t3;
 
     teachers[5] = t1;
     teachers[6] = t2;
     teachers[7] = t1;
-    teachers[8] = t2;
+    teachers[8] = t3;
     teachers[9] = t1;
 
-    createStreamingConstruct();
+    foo();
 
-    outputStream.subscribe(printTeachers);
+    outputStream.subscribe(function(TeacherOutput e) {printTeachers(e);});
     foreach t in teachers {
         runtime:sleep(1);
         inputStream.publish(t);
@@ -85,12 +88,16 @@ function startAggregationGroupByQuery() returns (TeacherOutput[]) {
 //      }
 //
 
-function createStreamingConstruct() {
+function getValue(int a) returns int {
+    return a;
+}
+
+function foo() {
 
     function (map<anydata>[]) outputFunc = function (map<anydata>[] events) {
         foreach m in events {
             // just cast input map into the output type
-            var t = <TeacherOutput>TeacherOutput.stamp(m.clone());
+            TeacherOutput t = <TeacherOutput>TeacherOutput.stamp(m.clone());
             outputStream.publish(t);
         }
     };
@@ -103,14 +110,21 @@ function createStreamingConstruct() {
     aggregatorArr[0] = sumAggregator;
     aggregatorArr[1] = countAggregator;
 
-    streams:Select select = streams:createSelect(function (streams:StreamEvent[] e) {outputProcess.process(e);},
+    (function(map<anydata>) returns anydata)[] fields = [function(map<anydata> x) returns anydata {
+        return getValue(<int>x["OUTPUT.age"]);
+    }];
+
+    streams:OrderBy orderByProcess =
+        streams:createOrderBy(function (streams:StreamEvent[] e) {outputProcess.process(e);}, fields, ["descending"]);
+
+    streams:Select select = streams:createSelect(function (streams:StreamEvent[] e) {orderByProcess.process(e);},
         aggregatorArr,
         [function (streams:StreamEvent e) returns string {
-            return <string>e.data["inputStream.name"];
+            return <string> e.data["inputStream.name"];
         }],
         function (streams:StreamEvent e, streams:Aggregator[] aggregatorArr1) returns map<anydata> {
-            streams:Sum sumAggregator1 = <streams:Sum>aggregatorArr1[0];
-            streams:Count countAggregator1 = <streams:Count>aggregatorArr1[1];
+            streams:Sum sumAggregator1 =  <streams:Sum>aggregatorArr1[0];
+            streams:Count countAggregator1 =  <streams:Count>aggregatorArr1[1];
             // got rid of type casting
             return {
                 "name": e.data["inputStream.name"],
@@ -121,12 +135,19 @@ function createStreamingConstruct() {
         }
     );
 
-    streams:Window tmpWindow = streams:timeWindow([1000],
-        nextProcessPointer = function (streams:StreamEvent[] e) {select.process(e);});
+    // streams:Window tmpWindow = streams:lengthWindow(select.process, 5);
+
+    streams:Window tmpWindow = streams:lengthBatchWindow([5], nextProcessPointer = function (streams:StreamEvent[] e)
+        {select.process(e);});
+
+    // streams:Window tmpWindow = streams:timeWindow(select.process, 1000);
+
+    //streams:Window tmpWindow = streams:timeBatchWindow(select.process, 1000);
+
     streams:Filter filter = streams:createFilter(function (streams:StreamEvent[] e) {tmpWindow.process(e);},
         function (map<anydata> m) returns boolean {
             // simplify filter
-            return <int>m["inputStream.age"] > getValue();
+            return <int>m["inputStream.age"] > 25;
         }
     );
 
@@ -136,10 +157,6 @@ function createStreamingConstruct() {
             filter.process(eventArr);
         }
     );
-}
-
-function getValue() returns int {
-    return 25;
 }
 
 function printTeachers(TeacherOutput e) {

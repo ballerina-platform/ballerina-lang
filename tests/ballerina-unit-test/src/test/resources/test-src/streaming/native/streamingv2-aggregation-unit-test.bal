@@ -16,6 +16,7 @@
 
 import ballerina/runtime;
 import ballerina/streams;
+import ballerina/io;
 
 type InputRecord record {
     string id;
@@ -60,7 +61,7 @@ function startAggregationQuery() returns (OutputRecord[]) {
 
     streamFunc();
 
-    outputStream.subscribe(addToOutputDataArray);
+    outputStream.subscribe(function (OutputRecord e) { addToOutputDataArray(<OutputRecord>e);});
     foreach r in records {
         inputStream.publish(r);
     }
@@ -79,10 +80,10 @@ function startAggregationQuery() returns (OutputRecord[]) {
 
 function streamFunc() {
 
-    function (map[]) outputFunc = function (map[] events) {
+    function (map<anydata>[]) outputFunc = function (map<anydata>[] events) {
         foreach m in events {
             // just cast input map into the output type
-            OutputRecord o = check <OutputRecord>m;
+            var o = <OutputRecord>OutputRecord.stamp(m.clone());
             outputStream.publish(o);
         }
     };
@@ -126,28 +127,27 @@ function streamFunc() {
     aggregators[14] = fMinAggregator;
 
     // create selector
-    streams:Select select = streams:createSelect(
-        outputProcess.process,
+    streams:Select select = streams:createSelect(function (streams:StreamEvent[] e) {outputProcess.process(e);},
         aggregators,
         [function (streams:StreamEvent e) returns string {
             return <string>e.data["inputStream.category"];
         }],
-        function (streams:StreamEvent e, streams:Aggregator[] aggregatorArray) returns map {
-            streams:Sum iSumAggregator1 = check <streams:Sum>aggregatorArray[0];
-            streams:Sum fSumAggregator1 = check <streams:Sum>aggregatorArray[1];
-            streams:Count countAggregator1 = check <streams:Count>aggregatorArray[2];
-            streams:Average iAvgAggregator1 = check <streams:Average>aggregatorArray[3];
-            streams:Average fAvgAggregator1 = check <streams:Average>aggregatorArray[4];
-            streams:DistinctCount dCountAggregator1 = check <streams:DistinctCount>aggregatorArray[5];
-            streams:StdDev stdDevAggregator1 = check <streams:StdDev>aggregatorArray[6];
-            streams:MaxForever iMaxForeverAggregator1 = check <streams:MaxForever>aggregatorArray[7];
-            streams:MaxForever fMaxForeverAggregator1 = check <streams:MaxForever>aggregatorArray[8];
-            streams:MinForever iMinForeverAggregator1 = check <streams:MinForever>aggregatorArray[9];
-            streams:MinForever fMinForeverAggregator1 = check <streams:MinForever>aggregatorArray[10];
-            streams:Max iMaxAggregator1 = check <streams:Max>aggregatorArray[11];
-            streams:Max fMaxAggregator1 = check <streams:Max>aggregatorArray[12];
-            streams:Min iMinAggregator1 = check <streams:Min>aggregatorArray[13];
-            streams:Min fMinAggregator1 = check <streams:Min>aggregatorArray[14];
+        function (streams:StreamEvent e, streams:Aggregator[] aggregatorArray) returns map<anydata> {
+            streams:Sum iSumAggregator1 = <streams:Sum>aggregatorArray[0];
+            streams:Sum fSumAggregator1 = <streams:Sum>aggregatorArray[1];
+            streams:Count countAggregator1 = <streams:Count>aggregatorArray[2];
+            streams:Average iAvgAggregator1 = <streams:Average>aggregatorArray[3];
+            streams:Average fAvgAggregator1 = <streams:Average>aggregatorArray[4];
+            streams:DistinctCount dCountAggregator1 = <streams:DistinctCount>aggregatorArray[5];
+            streams:StdDev stdDevAggregator1 = <streams:StdDev>aggregatorArray[6];
+            streams:MaxForever iMaxForeverAggregator1 = <streams:MaxForever>aggregatorArray[7];
+            streams:MaxForever fMaxForeverAggregator1 = <streams:MaxForever>aggregatorArray[8];
+            streams:MinForever iMinForeverAggregator1 = <streams:MinForever>aggregatorArray[9];
+            streams:MinForever fMinForeverAggregator1 = <streams:MinForever>aggregatorArray[10];
+            streams:Max iMaxAggregator1 = <streams:Max>aggregatorArray[11];
+            streams:Max fMaxAggregator1 = <streams:Max>aggregatorArray[12];
+            streams:Min iMinAggregator1 = <streams:Min>aggregatorArray[13];
+            streams:Min fMinAggregator1 = <streams:Min>aggregatorArray[14];
 
             // got rid of type casting
             return {
@@ -172,16 +172,16 @@ function streamFunc() {
         }
     );
 
-    streams:Filter filter = streams:createFilter(select.process, function (map m) returns boolean {
+    streams:Filter filter = streams:createFilter(function (streams:StreamEvent[] e) {select.process(e);},
+        function (map<anydata> m) returns boolean {
             // simplify filter
-            return check <int>m["inputStream.intVal"] > getValue();
+            return <int>m["inputStream.intVal"] > getValue();
         }
     );
 
     inputStream.subscribe(function (InputRecord i) {
             // make it type unaware and proceed
-            map keyVal = <map>i;
-            streams:StreamEvent[] eventArr = streams:buildStreamEvent(keyVal, "inputStream");
+            streams:StreamEvent[] eventArr = streams:buildStreamEvent(i, "inputStream");
             filter.process(eventArr);
         }
     );

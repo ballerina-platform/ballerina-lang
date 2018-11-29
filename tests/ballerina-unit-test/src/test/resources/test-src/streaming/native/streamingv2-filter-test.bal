@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/runtime;
+import ballerina/io;
 import ballerina/streams;
 
 type Teacher record {
@@ -23,13 +24,11 @@ type Teacher record {
     string status;
     string batch;
     string school;
-    int timeStamp;
 };
 
 type TeacherOutput record {
     string name;
     int age;
-    int sumAge;
 };
 
 int index = 0;
@@ -38,24 +37,16 @@ stream<TeacherOutput> outputStream;
 
 TeacherOutput[] globalEmployeeArray = [];
 
-function startExternalTimeWindowQuery() returns (TeacherOutput[]) {
+public function startFilterQuery() returns any {
 
     Teacher[] teachers = [];
-    Teacher t1 =
-    { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College", timeStamp: 1000 };
-    Teacher t2 =
-    { name: "Raja", age: 45, status: "single", batch: "LK2014", school: "Hindu College", timeStamp: 1400 };
-    Teacher t3 =
-    { name: "Naveen", age: 35, status: "single", batch: "LK2014", school: "Hindu College", timeStamp: 3000 };
-    Teacher t4 =
-    { name: "Amal", age: 50, status: "single", batch: "LK2014", school: "Hindu College", timeStamp: 3200 };
-
+    Teacher t1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
+    Teacher t2 = { name: "Raja", age: 45, status: "single", batch: "LK2014", school: "Hindu College" };
     teachers[0] = t1;
     teachers[1] = t2;
-    teachers[2] = t3;
-    teachers[3] = t4;
-
-    createStreamingConstruct();
+    teachers[2] = t2;
+    Teacher r = Teacher.create(t1);
+    foo();
 
     outputStream.subscribe(function (TeacherOutput e) {printTeachers(e);});
     foreach t in teachers {
@@ -66,7 +57,7 @@ function startExternalTimeWindowQuery() returns (TeacherOutput[]) {
     while(true) {
         runtime:sleep(500);
         count += 1;
-        if((globalEmployeeArray.length()) == 4 || count == 10) {
+        if((globalEmployeeArray.length()) == 2 || count == 10) {
             break;
         }
     }
@@ -76,53 +67,49 @@ function startExternalTimeWindowQuery() returns (TeacherOutput[]) {
 
 
 //  ------------- Query to be implemented -------------------------------------------------------
-//  from teacherStream window externalTime(Teacher.timeStamp, 1000)
-//        select name, age, sum(age) as sumAge
-//        => (TeacherOutput[] t) {
-//            outPutStream.publish(t);
-//        }
+//  from inputStream where inputStream.age > 25
+//  select inputStream.name, inputStream.age
+//      => (TeacherOutput [] o) {
+//            outputStream.publish(o);
+//      }
 //
 
-function createStreamingConstruct() {
+function foo() {
 
     function (map<anydata>[]) outputFunc = function (map<anydata>[] events) {
         foreach m in events {
             // just cast input map into the output type
-            var t = <TeacherOutput>TeacherOutput.stamp(m.clone());
+            TeacherOutput t = <TeacherOutput>TeacherOutput.create(m);
             outputStream.publish(t);
         }
     };
 
     streams:OutputProcess outputProcess = streams:createOutputProcess(outputFunc);
 
-    streams:Sum iSumAggregator = new();
-
-    streams:Aggregator[] aggregators = [];
-    aggregators[0] = iSumAggregator;
-
-    streams:Select select = streams:createSelect(function(streams:StreamEvent[] e) {outputProcess.process(e);},
-        aggregators,
-        [function (streams:StreamEvent e) returns string {
-            return <string>e.data["inputStream.school"];
-        }],
-        function (streams:StreamEvent e, streams:Aggregator[] aggregatorArray) returns map<anydata> {
-            streams:Sum iSumAggregator1 = <streams:Sum>aggregatorArray[0];
+    streams:SimpleSelect simpleSelect = streams:createSimpleSelect(
+            function(streams:StreamEvent[] e) {outputProcess.process(e);},
+            function (streams:StreamEvent e) returns map<anydata> {
             // got rid of type casting
-            return {
-                "name": e.data["inputStream.name"],
-                "age": e.data["inputStream.age"],
-                "sumAge": iSumAggregator1.process(e.data["inputStream.age"], e.eventType)
-            };
-        });
+                return {
+                    "name": e.data["inputStream.name"],
+                    "age": e.data["inputStream.age"]
+                };
+        }
+    );
 
-    streams:Window tmpWindow = streams:externalTimeWindow(["inputStream.timeStamp", 1000],
-        nextProcessPointer = function (streams:StreamEvent[] e) {select.process(e);});
+    streams:Filter filter = streams:createFilter(function(streams:StreamEvent[] e) {simpleSelect.process(e);},
+        function (map<anydata> m) returns boolean {
+            // simplify filter
+            return <int>m["inputStream.age"] > 25;
+        }
+    );
 
     inputStream.subscribe(function (Teacher t) {
+            // make it type unaware and proceed
             streams:StreamEvent[] eventArr = streams:buildStreamEvent(t, "inputStream");
-            tmpWindow.process(eventArr);
-
-        });
+            filter.process(eventArr);
+        }
+    );
 }
 
 function printTeachers(TeacherOutput e) {
