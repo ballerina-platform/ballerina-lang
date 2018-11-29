@@ -209,3 +209,26 @@ function init(InMemoryModeConfig|ServerModeConfig|EmbeddedModeConfig rec) return
         return "In-memory mode configuration";
     }
 }
+
+type PersonB record {
+    string fname = "";
+    string lname = "";
+    (function (string, string) returns string)? getName = ();
+    !...
+};
+
+function testNilableFuncPtrInvocation() returns string? {
+    PersonB bob = {fname:"Bob", lname:"White"};
+    bob.getName = function (string fname, string lname) returns string {
+        return fname + " " + lname;
+    };
+    string? x = bob.getName.call(bob.fname, bob.lname);
+    return x;
+}
+
+function testNilableFuncPtrInvocation2() returns string? {
+    PersonB bob = {fname:"Bob", lname:"White"};
+    string? x = bob.getName.call(bob.fname, bob.lname);
+    return x;
+}
+

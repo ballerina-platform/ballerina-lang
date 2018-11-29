@@ -1,0 +1,22 @@
+{
+  "name": "@ballerina/documentation",
+  "version": "0.983.1-SNAPSHOT",
+  "description": "",
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "babel src -d lib --copy-files --source-maps",
+    "watch": "babel src -d lib --copy-files --watch --source-maps"
+  },
+  "author": "ballerina.io",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "diff": "^3.5.0",
+    "escape-html": "^1.0.3",
+    "react-markdown": "^4.0.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.1.2",
+    "@babel/preset-env": "^7.1.0",
+    "@babel/preset-react": "^7.0.0"
+  }
+}

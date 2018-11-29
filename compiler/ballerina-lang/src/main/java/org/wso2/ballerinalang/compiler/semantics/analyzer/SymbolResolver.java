@@ -366,7 +366,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         return resolveTargetSymbolForStamping(targetType, variableSourceType, name, pos);
     }
 
-    BSymbol createSymbolForCreateOperator(DiagnosticPos pos, Name name, List<BLangExpression> functionArgList,
+    public BSymbol createSymbolForCreateOperator(DiagnosticPos pos, Name name, List<BLangExpression> functionArgList,
                                           BLangExpression targetTypeExpression) {
         // If there are more than one argument for create in-built function then fail.
         if (functionArgList.size() < 1) {

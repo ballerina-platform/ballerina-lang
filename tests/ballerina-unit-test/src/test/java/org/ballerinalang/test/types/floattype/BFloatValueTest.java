@@ -153,9 +153,8 @@ public class BFloatValueTest {
 
     @Test
     public void testIntegerValue() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 1);
-        int index = 0;
-        String expectedError = "extraneous input '10.1'";
-        BAssertUtil.validateError(negativeResult, index, expectedError, 3, 10);
+        Assert.assertEquals(negativeResult.getErrorCount(), 3);
+        String expectedError = "invalid token '10.1'";
+        BAssertUtil.validateError(negativeResult, 0, expectedError, 3, 10);
     }
 }

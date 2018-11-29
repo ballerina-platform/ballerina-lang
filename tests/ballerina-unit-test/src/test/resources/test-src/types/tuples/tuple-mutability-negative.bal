@@ -17,7 +17,6 @@
 // Super Type
 type Person record {
     string name;
-    !...
 };
 
 // Assignable to Person type
@@ -27,8 +26,11 @@ type Employee record {
     !...
 };
 
+Person person1 = { name: "John" };
+Employee employee1 = { name: "John", intern: true };
+
 function mismatchingCovariace() {
-    (Person, Employee) x1;
+    (Person, Employee) x1 = (person1, employee1);
     (Person, Person) x = x1;
     (Employee, Employee) x2 = x1;
 
@@ -36,7 +38,7 @@ function mismatchingCovariace() {
     (boolean|float|Person, int|Person?) x4 = x3;
     (boolean|float|Person, int) x5 = x3;
 
-    ((int|string, boolean), Person) x6;
+    ((int|string, boolean), Person) x6 = ((12, true), person1);
     ((int|string?, boolean?), Person?) x7 = x6;
     ((int?, boolean?), Person?) x8 = x6;
 }
