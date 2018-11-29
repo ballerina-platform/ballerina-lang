@@ -19,6 +19,8 @@ export interface EditableDiagramState {
     ast?: CompilationUnit;
     editingEnabled: boolean;
     error?: Error;
+    width?: number;
+    height?: number;
 }
 
 export class EditableDiagram extends React.Component<EdiatableDiagramProps, EditableDiagramState> {
@@ -29,6 +31,8 @@ export class EditableDiagram extends React.Component<EdiatableDiagramProps, Edit
     public state: EditableDiagramState = {
         ast: undefined,
         editingEnabled: false,
+        height: this.props.height,
+        width: this.props.width
     };
 
     private wrapperRef = React.createRef<HTMLDivElement>();
@@ -36,17 +40,15 @@ export class EditableDiagram extends React.Component<EdiatableDiagramProps, Edit
     private disposables: Disposable[] = [];
 
     public render() {
-        const { height, width, mode, zoom } = this.props;
-        const { ast, error } = this.state;
+        const { mode, zoom } = this.props;
+        const { ast, error, height, width } = this.state;
 
-        const wrapperDiv = this.wrapperRef.current;
-        const parentOffset = wrapperDiv ? wrapperDiv.offsetParent : undefined;
         // create props for the diagram
         const diagramProps = {
             ast,
-            height: (!height && parentOffset) ? parentOffset.clientHeight : height,
+            height,
             mode,
-            width: (!width && parentOffset) ? parentOffset.clientWidth : width,
+            width,
             zoom,
         };
 
@@ -72,6 +74,14 @@ export class EditableDiagram extends React.Component<EdiatableDiagramProps, Edit
     }
 
     public componentDidMount(): void {
+        const wrapperDiv = this.wrapperRef.current;
+        const parentOffset = wrapperDiv ? wrapperDiv.offsetParent : undefined;
+        if (parentOffset) {
+            this.setState({
+                height: parentOffset.clientHeight,
+                width: parentOffset.clientWidth
+            });
+        }
         if (!this.props.langClient.isInitialized) {
             this.props.langClient.init()
                 .then(() => this.updateAST());
@@ -80,7 +90,12 @@ export class EditableDiagram extends React.Component<EdiatableDiagramProps, Edit
         }
         if (window) {
             window.onresize = debounce(() => {
-                this.forceUpdate();
+                if (parentOffset) {
+                    this.setState({
+                        height: parentOffset.clientHeight,
+                        width: parentOffset.clientWidth
+                    });
+                }
             }, resizeDelay);
         }
         const disposable = ASTUtil.onTreeModified((tree) => {
@@ -112,6 +127,7 @@ export class EditableDiagram extends React.Component<EdiatableDiagramProps, Edit
             if (resp.ast) {
                 this.setState({
                     ast: resp.ast as CompilationUnit,
+                    error: undefined
                 });
             } else {
                 this.setState({

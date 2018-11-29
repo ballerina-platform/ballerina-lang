@@ -66,7 +66,7 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
 
         return <DiagramContext.Provider value={this.createContext()}>
                 <div className="diagram-container" ref={this.containerRef}>
-                    <ControllerPanel stickTo={this.containerRef} width={diagramWidth} />
+                    <ControllerPanel stickTo={this.containerRef} />
                     <SvgCanvas model={cuViewState} zoom={this.state.currentZoom}>
                         {children}
                     </SvgCanvas>
@@ -75,7 +75,7 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
     }
 
     private createContext(): IDiagramContext {
-        const { ast } = this.props;
+        const { ast, width, height } = this.props;
         const { currentMode } = this.state;
         // create context contributions
         const contextContributions = {
@@ -85,6 +85,8 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
                     currentMode: newMode,
                 });
             },
+            diagramHeight: height,
+            diagramWidth: width,
             mode: currentMode,
             zoomFit: () => {
                 this.setState({
@@ -102,7 +104,7 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
                         currentZoom: this.state.currentZoom - zoomFactor
                     });
                 }
-            },
+            }
         };
 
         // merge with parent (if any) or with default context

@@ -1,6 +1,7 @@
 import { ASTNode } from "@ballerina/ast-model";
 import { IBallerinaLangClient } from "@ballerina/lang-service";
 import React from "react";
+import { DefaultConfig } from "../config/default";
 
 export enum DiagramMode { ACTION, DEFAULT }
 
@@ -10,6 +11,8 @@ export interface IDiagramContext {
     editingEnabled: boolean;
     mode: DiagramMode;
     toggleEditing: () => void;
+    diagramHeight: number;
+    diagramWidth: number;
     zoomIn: () => void;
     zoomOut: () => void;
     zoomFit: () => void;
@@ -21,6 +24,8 @@ const defaultDiagramContext: IDiagramContext = {
     changeMode: () => {
         // do nothing
     },
+    diagramHeight: DefaultConfig.canvas.height,
+    diagramWidth: DefaultConfig.canvas.width,
     editingEnabled: false,
     mode: DiagramMode.ACTION,
     toggleEditing: () => {
@@ -34,7 +39,7 @@ const defaultDiagramContext: IDiagramContext = {
     },
     zoomOut: () => {
         // do nothing
-    }
+    },
 };
 
 export const DiagramContext = React.createContext(defaultDiagramContext);

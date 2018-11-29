@@ -1,5 +1,6 @@
 import React, { RefObject, StatelessComponent } from "react";
 import { Menu, Sticky } from "semantic-ui-react";
+import { DiagramContext } from "../diagram-context";
 import { AddDefinitionsMenu } from "./add-definitions-menu";
 import { EditToggleButton } from "./edit-toggle-button";
 import { ModeToggleButton } from "./mode-toggle-button";
@@ -11,27 +12,30 @@ export const RESPOSIVE_MENU_TRIGGER = {
 };
 
 export const ControllerPanel: StatelessComponent<{
-            stickTo: RefObject<HTMLDivElement>,
-            width: number
+            stickTo: RefObject<HTMLDivElement>
         }> = (
-            { children, stickTo, width }
+            { children, stickTo }
         ) => {
-    return <Sticky className="diagram-controllers" context={stickTo.current || undefined}>
-        <Menu
-            className={
-                "top-menu "
-                + (width > RESPOSIVE_MENU_TRIGGER.HIDDEN_MODE ? "" : "hidden")
-                + (width > RESPOSIVE_MENU_TRIGGER.ICON_MODE ? "" : " mobile-top-bar")
-            }
-            style={{ width }}
-        >
-             <Menu.Menu position="left">
-                <EditToggleButton />
-                <ModeToggleButton />
-                <ZoomControllers />
-                <AddDefinitionsMenu />
-                {children}
-            </Menu.Menu>
-        </Menu>
-    </Sticky>;
+    return <DiagramContext.Consumer>
+        {({ diagramWidth: width }) => (
+            <Sticky className="diagram-controllers" context={stickTo.current || undefined}>
+                <Menu
+                    className={
+                        "top-menu "
+                        + (width > RESPOSIVE_MENU_TRIGGER.HIDDEN_MODE ? "" : "hidden")
+                        + (width > RESPOSIVE_MENU_TRIGGER.ICON_MODE ? "" : " mobile-top-bar")
+                    }
+                    style={{ width }}
+                >
+                    <Menu.Menu position="left">
+                        <EditToggleButton />
+                        <ModeToggleButton />
+                        <ZoomControllers />
+                        <AddDefinitionsMenu />
+                        {children}
+                    </Menu.Menu>
+                </Menu>
+            </Sticky>
+        )}
+    </DiagramContext.Consumer>;
 };
