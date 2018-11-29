@@ -443,7 +443,7 @@ public class CPU {
                         j = operands[1];
                         k = operands[2];
                         l = operands[3];
-//                        retryTransaction(ctx, i, j, k, l);
+                        retryTransaction(ctx, i, j, k, l);
                         break;
                     case InstructionCodes.CALL:
                         callIns = (InstructionCALL) instruction;
@@ -468,14 +468,14 @@ public class CPU {
                         k = operands[2];
                         h = operands[3];
                         l = operands[4];
-//                        beginTransaction(ctx, i, j, k, h, l);
+                        beginTransaction(ctx, i, j, k, h, l);
                         break;
                     case InstructionCodes.TR_END:
                         i = operands[0];
                         j = operands[1];
                         k = operands[2];
                         h = operands[3];
-//                        endTransaction(ctx, i, j, k, h);
+                        endTransaction(ctx, i, j, k, h);
                         break;
                     case InstructionCodes.WRKSEND:
                         InstructionWRKSendReceive wrkSendIns = (InstructionWRKSendReceive) instruction;

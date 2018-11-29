@@ -328,6 +328,8 @@ function testMultipleTransactionStmtFailed1Helper(string status) returns string 
         }
     } onretry {
         failingTrxLog = failingTrxLog + " inFirstTrxFld";
+    } aborted {
+        failingTrxLog += " aborted";
     }
     failingTrxLog = failingTrxLog + " inFirstTrxEnd";
     transaction {

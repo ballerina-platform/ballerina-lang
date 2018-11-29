@@ -42,7 +42,7 @@ public class TransactionStmtFlowTest {
     }
 
     @Test
-    public void testTransactionStmt1() {
+    public void testTransactionStmtSuccess() {
         BValue[] args = {new BInteger(10)};
         BValue[] returns = BRunUtil.invoke(programFile, "testTransactionStmt", args);
 
@@ -51,7 +51,7 @@ public class TransactionStmtFlowTest {
     }
 
     @Test
-    public void testAbortStatement() {
+    public void testTransactionAbortStatement() {
         BValue[] returns = BRunUtil.invoke(programFile, "testAbortStatement");
 
         Assert.assertEquals(returns.length, 1);
@@ -59,7 +59,7 @@ public class TransactionStmtFlowTest {
     }
 
     @Test
-    public void testTransactionStmt2() {
+    public void testTransactionStmtAbort() {
         BValue[] args = {new BInteger(0)};
         BValue[] returns = BRunUtil.invoke(programFile, "testTransactionStmt", args);
 
@@ -68,7 +68,7 @@ public class TransactionStmtFlowTest {
     }
 
     @Test
-    public void testTransactionStmt3() {
+    public void testPanicInTransactionStmt() {
         BValue[] args = {new BInteger(-1)};
         BValue[] returns = BRunUtil.invoke(programFile, "testTransactionStmt", args);
 
@@ -77,7 +77,7 @@ public class TransactionStmtFlowTest {
     }
 
     @Test
-    public void testTransactionStmt4() {
+    public void testPanicInTransactionStmtWithNamedError() {
         BValue[] args = {new BInteger(-10)};
         BValue[] returns = BRunUtil.invoke(programFile, "testTransactionStmt", args);
 
@@ -87,7 +87,7 @@ public class TransactionStmtFlowTest {
 
 
     @Test
-    public void testOptionalFailed1() {
+    public void testTransactionSuccess() {
         BValue[] args = {new BInteger(10)};
         BValue[] returns = BRunUtil.invoke(programFile, "testOptionalFailed", args);
 
@@ -96,7 +96,7 @@ public class TransactionStmtFlowTest {
     }
 
     @Test
-    public void testOptionalFailed2() {
+    public void testTransactionAbort() {
         BValue[] args = {new BInteger(0)};
         BValue[] returns = BRunUtil.invoke(programFile, "testOptionalFailed", args);
 
@@ -105,7 +105,7 @@ public class TransactionStmtFlowTest {
     }
 
     @Test
-    public void testOptionalFailed3() {
+    public void testTrappedPanicInTransactionStmt() {
         BValue[] args = {new BInteger(-1)};
         BValue[] returns = BRunUtil.invoke(programFile, "testOptionalFailed", args);
 
@@ -114,7 +114,7 @@ public class TransactionStmtFlowTest {
     }
 
     @Test
-    public void testOptionalFailed4() {
+    public void testTrappedPanicInTransactionStmtWithNamedError() {
         BValue[] args = {new BInteger(-10)};
         BValue[] returns = BRunUtil.invoke(programFile, "testOptionalFailed", args);
 
@@ -123,7 +123,7 @@ public class TransactionStmtFlowTest {
     }
 
     @Test
-    public void testTransactionStmtWithFailedAndNonDefaultRetries1() {
+    public void testTransactionStmtWithFailedAndNonDefaultRetriesFail() {
         BValue[] args = {new BInteger(-1)};
         BValue[] returns = BRunUtil.invoke(programFile, "testTransactionStmtWithFailedAndNonDefaultRetries", args);
 
@@ -132,7 +132,7 @@ public class TransactionStmtFlowTest {
     }
 
     @Test
-    public void testTransactionStmtWithFailedAndNonDefaultRetries2() {
+    public void testTransactionStmtWithNonDefaultRetriesAbort() {
         BValue[] args = {new BInteger(0)};
         BValue[] returns = BRunUtil.invoke(programFile, "testTransactionStmtWithFailedAndNonDefaultRetries", args);
 
@@ -141,7 +141,7 @@ public class TransactionStmtFlowTest {
     }
 
     @Test
-    public void testTransactionStmtWithFailedAndNonDefaultRetries3() {
+    public void testTransactionStmtWithNamedErrorAndNonDefaultRetriesFail() {
         BValue[] args = {new BInteger(-10)};
         BValue[] returns = BRunUtil.invoke(programFile, "testTransactionStmtWithFailedAndNonDefaultRetries", args);
 
@@ -150,7 +150,7 @@ public class TransactionStmtFlowTest {
     }
 
     @Test
-    public void testTransactionStmtWithFailedAndNonDefaultRetries4() {
+    public void testTransactionStmtWithNonDefaultRetriesSuccess() {
         BValue[] args = {new BInteger(10)};
         BValue[] returns = BRunUtil.invoke(programFile, "testTransactionStmtWithFailedAndNonDefaultRetries", args);
 
@@ -176,7 +176,7 @@ public class TransactionStmtFlowTest {
     }
 
     @Test
-    public void testTransactionStmtWithConstRetryFailed2() {
+    public void testTransactionStmtWithInvalidRetryCountFail() {
         BValue[] returns = BRunUtil.invoke(programFile, "testTransactionStmtWithConstRetryFailed2");
 
         Assert.assertEquals(returns.length, 1);
@@ -201,16 +201,16 @@ public class TransactionStmtFlowTest {
     }
 
     @Test
-    public void testMultipleTransactionStmtFailed1() {
+    public void testMultipleTransactionStmtFirstStmtFailCausingPanic() {
         BValue[] returns = BRunUtil.invoke(programFile, "testMultipleTransactionStmtFailed1");
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(),
-                "start inFirstTrxBlock inFirstTrxFld inFirstTrxBlock err end");
+                "start inFirstTrxBlock inFirstTrxFld inFirstTrxBlock aborted err end");
     }
 
     @Test
-    public void testMultipleTransactionStmtFailed2() {
+    public void testMultipleTransactionStmtFirstFailSecondSuccess() {
         BValue[] returns = BRunUtil.invoke(programFile, "testMultipleTransactionStmtFailed2");
 
         Assert.assertEquals(returns.length, 1);
