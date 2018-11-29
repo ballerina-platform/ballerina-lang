@@ -55,7 +55,6 @@ public class SocketCompilerPlugin extends AbstractCompilerPlugin {
 
     private static final String INVALID_RESOURCE_SIGNATURE = "Invalid resource signature for %s in service %s. ";
     private DiagnosticLog diagnosticLog = null;
-    private int resourceCount = 0;
 
     @Override
     public void init(DiagnosticLog diagnosticLog) {
@@ -64,9 +63,13 @@ public class SocketCompilerPlugin extends AbstractCompilerPlugin {
 
     @Override
     public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
+        int resourceCount = 0;
+        int mandatoryResourceCount = 4;
         List<BLangFunction> resources = (List<BLangFunction>) serviceNode.getResources();
-        resources.forEach(res -> validate(serviceNode.getName().getValue(), res, this.diagnosticLog));
-        if (resourceCount != 4) {
+        for (BLangFunction resource : resources) {
+            resourceCount += validate(serviceNode.getName().getValue(), resource, this.diagnosticLog);
+        }
+        if (resourceCount != mandatoryResourceCount) {
             String errorMsg = "Service needs to have all 4 resources "
                     + "[(%s (Listener) or %s (CallBackService)), %s, %s, %s].";
             String msg = String.format(errorMsg, RESOURCE_ON_ACCEPT, RESOURCE_ON_CONNECT, RESOURCE_ON_READ_READY,
@@ -75,7 +78,8 @@ public class SocketCompilerPlugin extends AbstractCompilerPlugin {
         }
     }
 
-    private void validate(String serviceName, BLangFunction resource, DiagnosticLog diagnosticLog) {
+    private int validate(String serviceName, BLangFunction resource, DiagnosticLog diagnosticLog) {
+        int resourceCount = 0;
         switch (resource.getName().getValue()) {
             case RESOURCE_ON_CONNECT:
             case RESOURCE_ON_ACCEPT:
@@ -96,6 +100,7 @@ public class SocketCompilerPlugin extends AbstractCompilerPlugin {
                 break;
             default:
         }
+        return resourceCount;
     }
 
     private void validateOnError(String serviceName, BLangFunction resource, DiagnosticLog diagnosticLog) {
