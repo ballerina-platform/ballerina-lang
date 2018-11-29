@@ -151,9 +151,11 @@ function testUnionOfArrays() returns string {
     boolean[] boolArray = [true, true];
 
     int[]|boolean[] x2 = boolArray;
-    match x2 {
-        int[] => return "INT";
-        boolean[] => return "BOOL";
+
+    if (x2 is int[]) {
+        return "INT";
+    } else {
+        return "BOOL";
     }
 }
 
