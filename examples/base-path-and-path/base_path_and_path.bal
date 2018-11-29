@@ -18,7 +18,6 @@ service echo on new http:Listener(9090) {
         http:Response res = new;
         if (payload is json) {
             // Validate the JSON before setting it to the response to prevent security vulnerabilities.
-            // var valid = self.validateJson(payload);
             if (validateJson(payload.hello)) {
                 // Since the JSON is known to be valid, `untaint` the data denoting that the data is trusted and set the JSON to the response.
                 res.setJsonPayload(untaint payload);
