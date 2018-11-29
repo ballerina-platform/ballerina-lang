@@ -83,6 +83,10 @@
                 "url": "match-expression"
             },
             {
+                "name": "Type Guard",
+                "url": "type-guard"
+            },
+            {
                 "name": "Elvis",
                 "url": "elvis-operator"
             }
