@@ -1,6 +1,6 @@
 import {
     Assignment, ASTNode, ASTUtil, Block,
-    ExpressionStatement, Foreach, Function, If, VariableDef, Visitor, While
+    ExpressionStatement, Foreach, Function, If, VariableDef, VisibleEndpoint, Visitor, While
 } from "@ballerina/ast-model";
 import * as _ from "lodash";
 import { DiagramConfig } from "../config/default";
@@ -29,7 +29,7 @@ const config: DiagramConfig = DiagramUtils.getConfig();
  * @return {object} {width,text}
  */
 
-function getTextWidth(text: string, minWidth = config.statement.width , maxWidth = config.statement.maxWidth) {
+function getTextWidth(text: string, minWidth = config.statement.width, maxWidth = config.statement.maxWidth) {
     textElement.innerHTML = _.escape(text);
     let width = config.statement.padding.left +
         textElement.getComputedTextLength() + config.statement.padding.right;
@@ -65,7 +65,7 @@ function sizeStatement(node: ASTNode) {
     const viewState: ViewState = node.viewState;
     const label = getTextWidth(ASTUtil.genSource(node));
     viewState.bBox.h = config.statement.height;
-    viewState.bBox.w = (config.statement.width > label.w) ? config.statement.width : label.w ;
+    viewState.bBox.w = (config.statement.width > label.w) ? config.statement.width : label.w;
     viewState.bBox.label = label.text;
 }
 
@@ -89,6 +89,16 @@ export const visitor: Visitor = {
         const lineHeight = (client.h > defaultWorker.h) ? client.h : defaultWorker.h;
         // Sync up the heights of lifelines
         client.h = defaultWorker.h = lineHeight;
+
+        // Size endpoints
+        if (node.VisibleEndpoints) {
+            node.VisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
+                if (!endpoint.caller) {
+                    endpoint.viewState.bBox.w = config.lifeLine.width;
+                    endpoint.viewState.bBox.h = client.h;
+                }
+            });
+        }
 
         body.w = config.panel.padding.left + config.panel.padding.right;
         body.h = config.panel.padding.top + lineHeight + config.panel.padding.bottom;

@@ -1,4 +1,7 @@
-import { ASTKindChecker, Block, CompilationUnit, Foreach, Function, If, Visitor, While } from "@ballerina/ast-model";
+import {
+    ASTKindChecker, Block, CompilationUnit, Foreach, Function,
+    If, VisibleEndpoint, Visitor, While
+} from "@ballerina/ast-model";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
 import { CompilationUnitViewState, FunctionViewState, ViewState } from "../view-model/index";
@@ -75,6 +78,19 @@ export const visitor: Visitor = {
             const bodyViewState: ViewState = node.body.viewState;
             bodyViewState.bBox.x = viewState.defaultWorker.x + viewState.defaultWorker.leftMargin;
             bodyViewState.bBox.y = viewState.defaultWorker.y + config.lifeLine.header.height;
+        }
+
+        // Size endpoints
+        if (node.VisibleEndpoints) {
+            let epX = viewState.defaultWorker.x + viewState.defaultWorker.w
+            + config.lifeLine.gutter.h;
+            node.VisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
+                if (!endpoint.caller) {
+                    endpoint.viewState.bBox.x = epX;
+                    endpoint.viewState.bBox.y = viewState.defaultWorker.y;
+                    epX = epX + endpoint.viewState.bBox.w + config.lifeLine.gutter.h;
+                }
+            });
         }
 
         // Update the width of children
