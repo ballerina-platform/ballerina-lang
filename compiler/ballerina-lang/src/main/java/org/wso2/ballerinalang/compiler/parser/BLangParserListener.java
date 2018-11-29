@@ -1589,6 +1589,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitXmlAttribVariableReference(BallerinaParser.XmlAttribVariableReferenceContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
         boolean isSingleAttrRef = ctx.xmlAttrib().expression() != null;
         this.pkgBuilder.createXmlAttributesRefExpr(getCurrentPos(ctx), getWS(ctx), isSingleAttrRef);
     }

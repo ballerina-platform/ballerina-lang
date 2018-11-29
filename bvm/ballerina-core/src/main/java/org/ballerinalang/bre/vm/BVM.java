@@ -4442,6 +4442,7 @@ public class BVM {
                 insertToMap(ctx, bMap, fieldName, value);
                 break;
             case TypeTags.OBJECT_TYPE_TAG:
+            case TypeTags.SERVICE_TAG:
                 BObjectType objType = (BObjectType) mapType;
                 BField objField = objType.getFields().get(fieldName);
                 BType objFieldType = objField.getFieldType();

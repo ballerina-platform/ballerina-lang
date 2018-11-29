@@ -128,25 +128,16 @@ public class BVMExecutor {
     public static void executeResource(ProgramFile programFile, FunctionInfo resourceInfo,
                                        CallableUnitCallback responseCallback, Map<String, Object> properties,
                                        ObserverContext observerContext, ServiceInfo serviceInfo, BValue... args) {
-        Map<String, Object> globalProps = new HashMap<>();
+        if (properties == null) {
+            properties = new HashMap<>();
+        }
 
         StrandResourceCallback strandCallback = new StrandResourceCallback(null, responseCallback);
         Strand strand = new Strand(programFile, resourceInfo.getName(), properties, strandCallback, null);
 
-        if (properties != null) {
-            globalProps.putAll(properties);
-            String gTransactionId = (String) properties.get(Constants.GLOBAL_TRANSACTION_ID);
-            if (gTransactionId != null) {
-                String globalTransactionId = properties.get(Constants.GLOBAL_TRANSACTION_ID).toString();
-                LocalTransactionInfo localTransactionInfo = new LocalTransactionInfo(
-                        globalTransactionId,
-                        properties.get(Constants.TRANSACTION_URL).toString(), "2pc");
-                strand.setLocalTransactionInfo(localTransactionInfo);
-                registerTransactionInfection(responseCallback, gTransactionId, strand);
-            }
-        }
-
         BLangVMUtils.setGlobalTransactionEnabledStatus(strand);
+        infectResourceFunction(responseCallback, properties, strand);
+
         BLangVMUtils.setServiceInfo(strand, serviceInfo);
 
         StackFrame idf = new StackFrame(resourceInfo.getPackageInfo(), resourceInfo,
@@ -156,6 +147,19 @@ public class BVMExecutor {
 
         BVMScheduler.stateChange(strand, State.NEW, State.RUNNABLE);
         BVMScheduler.schedule(strand);
+    }
+
+    private static void infectResourceFunction(CallableUnitCallback responseCallback, Map<String, Object> properties,
+                                               Strand strand) {
+        String gTransactionId = (String) properties.get(Constants.GLOBAL_TRANSACTION_ID);
+        if (gTransactionId != null) {
+            String globalTransactionId = properties.get(Constants.GLOBAL_TRANSACTION_ID).toString();
+            LocalTransactionInfo localTransactionInfo = new LocalTransactionInfo(
+                    globalTransactionId,
+                    properties.get(Constants.TRANSACTION_URL).toString(), "2pc");
+            strand.setLocalTransactionInfo(localTransactionInfo);
+            registerTransactionInfection(responseCallback, gTransactionId, strand);
+        }
     }
 
     private static void registerTransactionInfection(CallableUnitCallback responseCallBack, String globalTransactionId,
@@ -172,6 +176,10 @@ public class BVMExecutor {
 
     private static BValue execute(ProgramFile programFile, CallableUnitInfo callableInfo,
                                   BValue[] args, Map<String, Object> properties, boolean waitForResponse) {
+        if (properties == null) {
+            properties = new HashMap<>();
+        }
+
         StrandWaitCallback strandCallback = new StrandWaitCallback(callableInfo.getRetParamTypes()[0]);
         Strand strand = new Strand(programFile, callableInfo.getName(), properties, strandCallback,  null);
 
