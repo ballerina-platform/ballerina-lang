@@ -15,18 +15,18 @@
 // under the License.
 
 public type BPerson record {
-    string name;
-    int age;
-    Address adr;
+    string name = "anonymous";
+    int age = 0;
+    Address adr = {city:"", country:""};
 };
 
 public type BManager record {
     *BEmployee;
-    string dept;
+    string dept = "";
 };
 
 public type BEmployee record {
-    string company;
+    string company = "";
     *BPerson;
 };
 
