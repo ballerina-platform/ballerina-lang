@@ -1,4 +1,4 @@
-import { ASTNode, ASTUtil } from "@ballerina/ast-model";
+import { ASTNode, ASTUtil, Disposable } from "@ballerina/ast-model";
 import { BallerinaAST, IBallerinaLangClient  } from "@ballerina/lang-service";
 import debounce from "lodash.debounce";
 import React from "react";
@@ -29,6 +29,8 @@ export class EditableDiagram extends React.Component<EdiatableDiagramProps, Edit
     };
 
     private wrapperRef = React.createRef<HTMLDivElement>();
+
+    private disposables: Disposable[] = [];
 
     public render() {
         const { height, width, mode, zoom } = this.props;
@@ -70,18 +72,22 @@ export class EditableDiagram extends React.Component<EdiatableDiagramProps, Edit
                 this.forceUpdate();
             }, resizeDelay);
         }
-        ASTUtil.onTreeModified((tree) => {
-            // tslint:disable-next-line:no-console
-            console.log("---------------->");
+        const disposable = ASTUtil.onTreeModified((tree) => {
+            this.forceUpdate();
             const { langClient, docUri } = this.props;
-            // tslint:disable-next-line:no-console
-            console.log("---------------->", tree);
             langClient.astDidChange({
                 ast: tree as BallerinaAST,
                 textDocumentIdentifier: {
                     uri: docUri
                 },
             });
+        });
+        this.disposables.push(disposable);
+    }
+
+    public componentWillUnmount() {
+        this.disposables.forEach((disposable) => {
+            disposable.dispose();
         });
     }
 

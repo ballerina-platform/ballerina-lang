@@ -40,12 +40,6 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
 
     private containerRef = React.createRef<HTMLDivElement>();
 
-    public componentDidMount() {
-        ASTUtil.onTreeModified(() => {
-            this.forceUpdate();
-        });
-    }
-
     public render() {
         const { ast, width, height } = this.props;
         const children: React.ReactNode[] = [];

@@ -10,6 +10,7 @@ export const ASTUtil = {
     ...events,
 };
 
+export { Disposable } from "./events";
 export * from "./ast-interfaces";
 export * from "./base-visitor";
 export * from "./check-kind-util";
