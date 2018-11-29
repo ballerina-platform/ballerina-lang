@@ -8,7 +8,6 @@ import { visitor as positioningVisitor } from "../visitors/positioning-visitor";
 import { visitor as sizingVisitor } from "../visitors/sizing-visitor";
 import { ControllerPanel } from "./controllers/controller-panel";
 import { DiagramContext, DiagramMode, IDiagramContext } from "./diagram-context";
-import { DiagramErrorBoundary } from "./diagram-error-boundary";
 import { DiagramUtils } from "./diagram-utils";
 
 const zoomFactor = 0.1;
@@ -66,14 +65,12 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
         }
 
         return <DiagramContext.Provider value={this.createContext()}>
-            <DiagramErrorBoundary>
                 <div className="diagram-container" ref={this.containerRef}>
                     <ControllerPanel stickTo={this.containerRef} width={diagramWidth} />
                     <SvgCanvas model={cuViewState} zoom={this.state.currentZoom}>
                         {children}
                     </SvgCanvas>
                 </div>
-            </DiagramErrorBoundary>
         </DiagramContext.Provider>;
     }
 

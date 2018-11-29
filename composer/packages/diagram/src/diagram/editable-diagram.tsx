@@ -1,9 +1,11 @@
-import { ASTNode, ASTUtil, Disposable } from "@ballerina/ast-model";
+import { ASTUtil, CompilationUnit, Disposable } from "@ballerina/ast-model";
 import { BallerinaAST, IBallerinaLangClient  } from "@ballerina/lang-service";
 import debounce from "lodash.debounce";
 import React from "react";
 import { CommonDiagramProps, Diagram } from "./diagram";
 import { DiagramContext, IDiagramContext } from "./diagram-context";
+import { DiagramErrorBoundary } from "./diagram-error-boundary";
+import { DiagramErrorDialog } from "./error-dialog";
 import { Loader } from "./loader";
 
 const resizeDelay = 200;
@@ -14,8 +16,9 @@ export interface EdiatableDiagramProps extends CommonDiagramProps {
 }
 
 export interface EditableDiagramState {
-    ast?: ASTNode;
+    ast?: CompilationUnit;
     editingEnabled: boolean;
+    error?: Error;
 }
 
 export class EditableDiagram extends React.Component<EdiatableDiagramProps, EditableDiagramState> {
@@ -23,7 +26,7 @@ export class EditableDiagram extends React.Component<EdiatableDiagramProps, Edit
     // get default context or provided context from a parent (if any)
     public static contextType = DiagramContext;
 
-    public state = {
+    public state: EditableDiagramState = {
         ast: undefined,
         editingEnabled: false,
     };
@@ -34,7 +37,7 @@ export class EditableDiagram extends React.Component<EdiatableDiagramProps, Edit
 
     public render() {
         const { height, width, mode, zoom } = this.props;
-        const { ast } = this.state;
+        const { ast, error } = this.state;
 
         const wrapperDiv = this.wrapperRef.current;
         const parentOffset = wrapperDiv ? wrapperDiv.offsetParent : undefined;
@@ -48,14 +51,17 @@ export class EditableDiagram extends React.Component<EdiatableDiagramProps, Edit
         };
 
         return <DiagramContext.Provider value={this.createContext()}>
-                <div
-                    className="diagram-wrapper"
-                    style={{ width: "100%", height: "100%" }}
-                    ref={this.wrapperRef}
-                >
-                    {!ast && <Loader />}
-                    {ast && <Diagram {...diagramProps} />}
-                </div>
+                    <DiagramErrorBoundary>
+                        <div
+                            className="diagram-wrapper"
+                            style={{ width: "100%", height: "100%" }}
+                            ref={this.wrapperRef}
+                        >
+                            {!ast && !error && <Loader />}
+                            {ast && <Diagram {...diagramProps} />}
+                            {error && <DiagramErrorDialog error={error as Error} />}
+                        </div>
+                    </DiagramErrorBoundary>
             </DiagramContext.Provider>;
     }
 
@@ -66,7 +72,12 @@ export class EditableDiagram extends React.Component<EdiatableDiagramProps, Edit
     }
 
     public componentDidMount(): void {
-        this.updateAST();
+        if (!this.props.langClient.isInitialized) {
+            this.props.langClient.init()
+                .then(() => this.updateAST());
+        } else {
+            this.updateAST();
+        }
         if (window) {
             window.onresize = debounce(() => {
                 this.forceUpdate();
@@ -99,12 +110,16 @@ export class EditableDiagram extends React.Component<EdiatableDiagramProps, Edit
             },
         }).then((resp) => {
             if (resp.ast) {
-            this.setState({
-                ast: resp.ast,
-            });
+                this.setState({
+                    ast: resp.ast as CompilationUnit,
+                });
+            } else {
+                this.setState({
+                    error: new Error("Unable to parse " + this.props.docUri)
+                });
             }
-        }, (err) => {
-            // TODO Handle the error
+        }, (error) => {
+           this.setState({ error });
         });
     }
 
