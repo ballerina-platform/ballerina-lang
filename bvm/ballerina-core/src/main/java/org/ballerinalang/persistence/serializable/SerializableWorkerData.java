@@ -16,7 +16,7 @@
  */
 package org.ballerinalang.persistence.serializable;
 
-import org.ballerinalang.bre.bvm.WorkerData;
+import org.ballerinalang.bre.old.WorkerData;
 import org.ballerinalang.persistence.Deserializer;
 import org.ballerinalang.util.codegen.ProgramFile;
 

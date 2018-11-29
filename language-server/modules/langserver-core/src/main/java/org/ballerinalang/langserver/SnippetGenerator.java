@@ -614,6 +614,15 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get create Builtin Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getBuiltinCreateSnippet() {
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_CREATE_LABEL, "create(${1});", "", SnippetType.SNIPPET);
+    }
+
+    /**
      * Get isNaN Builtin Function Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block

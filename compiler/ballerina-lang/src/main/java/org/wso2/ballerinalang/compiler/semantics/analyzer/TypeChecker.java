@@ -1419,14 +1419,20 @@ public class TypeChecker extends BLangNodeVisitor {
         BType expType = conversionExpr.expr.getKind() == NodeKind.RECORD_LITERAL_EXPR ? targetType : symTable.noType;
         BType sourceType = checkExpr(conversionExpr.expr, env, expType);
 
-        BSymbol symbol = symResolver.resolveTypeConversionOrAssertionOperator(sourceType, targetType);
-
-        if (symbol == symTable.notFoundSymbol) {
-            dlog.error(conversionExpr.pos, DiagnosticCode.INVALID_EXPLICIT_TYPE_FOR_EXPRESSION, sourceType, targetType);
+        if (targetType.tag == TypeTags.TABLE || targetType.tag == TypeTags.STREAM ||
+                targetType.tag == TypeTags.FUTURE) {
+            dlog.error(conversionExpr.pos, DiagnosticCode.TYPE_ASSERTION_NOT_YET_SUPPORTED, targetType);
         } else {
-            BOperatorSymbol conversionSym = (BOperatorSymbol) symbol;
-            conversionExpr.conversionSymbol = conversionSym;
-            actualType = conversionSym.type.getReturnType();
+            BSymbol symbol = symResolver.resolveTypeConversionOrAssertionOperator(sourceType, targetType);
+
+            if (symbol == symTable.notFoundSymbol) {
+                dlog.error(conversionExpr.pos, DiagnosticCode.INVALID_EXPLICIT_TYPE_FOR_EXPRESSION, sourceType,
+                           targetType);
+            } else {
+                BOperatorSymbol conversionSym = (BOperatorSymbol) symbol;
+                conversionExpr.conversionSymbol = conversionSym;
+                actualType = conversionSym.type.getReturnType();
+            }
         }
         resultType = types.checkType(conversionExpr, actualType, this.expType);
     }
@@ -1442,13 +1448,29 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangArrowFunction bLangArrowFunction) {
-        if (expType.tag != TypeTags.INVOKABLE) {
+        BType expectedType = expType;
+        if (expectedType.tag == TypeTags.UNION) {
+            BUnionType unionType = (BUnionType) expectedType;
+            BType invokableType = unionType.memberTypes.stream().filter(type -> type.tag == TypeTags.INVOKABLE)
+                    .collect(Collectors.collectingAndThen(Collectors.toList(), list -> {
+                                if (list.size() != 1) {
+                                    return null;
+                                }
+                                return list.get(0);
+                            }
+                    ));
+
+            if (invokableType != null) {
+                expectedType = invokableType;
+            }
+        }
+        if (expectedType.tag != TypeTags.INVOKABLE) {
             dlog.error(bLangArrowFunction.pos, DiagnosticCode.ARROW_EXPRESSION_CANNOT_INFER_TYPE_FROM_LHS);
             resultType = symTable.semanticError;
             return;
         }
 
-        BInvokableType expectedInvocation = (BInvokableType) this.expType;
+        BInvokableType expectedInvocation = (BInvokableType) expectedType;
         populateArrowExprParamTypes(bLangArrowFunction, expectedInvocation.paramTypes);
         bLangArrowFunction.expression.type = populateArrowExprReturn(bLangArrowFunction, expectedInvocation.retType);
         // if function return type is none, assign the inferred return type
@@ -1981,7 +2003,8 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType checkInvocationParam(BLangInvocation iExpr) {
-        List<BType> paramTypes = ((BInvokableType) iExpr.symbol.type).getParameterTypes();
+        BType safeType = getSafeType(iExpr.symbol.type, iExpr);
+        List<BType> paramTypes = ((BInvokableType) safeType).getParameterTypes();
         int requiredParamsCount;
         if (iExpr.symbol.tag == SymTag.VARIABLE) {
             // Here we assume function pointers can have only required params.
@@ -2041,7 +2064,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (iExpr.async) {
             return this.generateFutureType(invocableSymbol);
         } else {
-            return invocableSymbol.type.getReturnType();
+            return getSafeType(invocableSymbol.type, iExpr).getReturnType();
         }
     }
 
@@ -2807,7 +2830,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         BSymbol funcSymbol = ((BLangVariableReference) iExpr.expr).symbol;
-        if (funcSymbol == null || funcSymbol.type.tag != TypeTags.INVOKABLE) {
+        if (funcSymbol == null || getSafeType(funcSymbol.type, iExpr).tag != TypeTags.INVOKABLE) {
             return symTable.notFoundSymbol;
         }
 
@@ -2854,8 +2877,7 @@ public class TypeChecker extends BLangNodeVisitor {
                                       Map<BVarSymbol, BType> thenTypeGuards) {
         for (Entry<BVarSymbol, BType> entry : thenTypeGuards.entrySet()) {
             BVarSymbol originalVarSymbol = entry.getKey();
-            BVarSymbol varSymbol = new BVarSymbol(0, originalVarSymbol.name, thenEnv.scope.owner.pkgID,
-                    entry.getValue(), this.env.scope.owner);
+            BVarSymbol varSymbol = symbolEnter.createVarSymbol(0, entry.getValue(), originalVarSymbol.name, this.env);
             symbolEnter.defineShadowedSymbol(ternaryExpr.pos, varSymbol, thenEnv);
 
             // Cache the type guards, to be reused at the desugar.
@@ -2868,8 +2890,7 @@ public class TypeChecker extends BLangNodeVisitor {
         for (Entry<BVarSymbol, BType> entry : typeGuardsSet.entrySet()) {
             BVarSymbol originalVarSymbol = entry.getKey();
             BType remainingType = types.getRemainingType(originalVarSymbol.type, entry.getValue());
-            BVarSymbol varSymbol = new BVarSymbol(0, originalVarSymbol.name, elseEnv.scope.owner.pkgID, remainingType,
-                    this.env.scope.owner);
+            BVarSymbol varSymbol = symbolEnter.createVarSymbol(0, remainingType, originalVarSymbol.name, this.env);
             symbolEnter.defineShadowedSymbol(ternaryExpr.expr.pos, varSymbol, elseEnv);
 
             // Cache the type guards, to be reused at the desugar.

@@ -6,7 +6,7 @@ function getGlobalVars() returns (int, string, float, any) {
 
 function accessGlobalVar() returns int {
     int value;
-    value = check <int>foo:glbVarAny;
+    value = <int>foo:glbVarAny;
     return (foo:glbVarInt + value);
 }
 

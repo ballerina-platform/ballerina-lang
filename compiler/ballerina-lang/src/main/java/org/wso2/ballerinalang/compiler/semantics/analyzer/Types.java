@@ -70,6 +70,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -1221,11 +1222,7 @@ public class Types {
                 return createConversionOperatorSymbol(s, t, false, InstructionCodes.JSON2MAP);
             } else if (s.tag == TypeTags.ANYDATA) {
                 return createConversionOperatorSymbol(s, t, false, InstructionCodes.ANY2MAP);
-            } else if (t.constraint.tag != TypeTags.ANY) {
-                // Semantically fail rest of the casts for Constrained Maps.
-                // Eg:- ANY2MAP cast is undefined for Constrained Maps.
-                return symTable.notFoundSymbol;
-            }
+            } 
 
             return symResolver.resolveOperator(Names.CONVERSION_OP, Lists.of(s, t));
         }
@@ -2056,15 +2053,22 @@ public class Types {
         return false;
     }
 
-    public BType getRemainingType(BType originalType, Set<BType> removeTypes) {
+    public BType getRemainingType(BType originalType, Set<BType> typesToRemove) {
+        return getRemainingType(originalType, new BUnionType(null, typesToRemove, false));
+    }
+
+    public BType getRemainingType(BType originalType, BType typeToRemove) {
         if (originalType.tag != TypeTags.UNION) {
             return originalType;
         }
 
-        List<BType> types = getAllTypes(new BUnionType(null, removeTypes, false));
-        List<BType> remainingTypes = getAllTypes(originalType).stream()
-                .filter(type -> types.stream().noneMatch(memberType -> isSameType(memberType, type)))
-                .collect(Collectors.toList());
+        List<BType> removeTypes = getAllTypes(typeToRemove);
+        return getRemainingType(originalType, removeTypes);
+    }
+
+    private BType getRemainingType(BType originalType, List<BType> removeTypes) {
+        List<BType> remainingTypes = getAllTypes(originalType);
+        removeTypes.forEach(removeType -> remainingTypes.removeIf(type -> isSameType(type, removeType)));
 
         if (remainingTypes.size() == 1) {
             return remainingTypes.get(0);
@@ -2073,22 +2077,37 @@ public class Types {
         return new BUnionType(null, new HashSet<>(remainingTypes), remainingTypes.contains(symTable.nilType));
     }
 
-    public BType getRemainingType(BType originalType, BType removeType) {
-        if (originalType.tag != TypeTags.UNION) {
-            return originalType;
+    public BType getSafeType(BType type, boolean liftError) {
+        // Since JSON, ANY and ANYDATA by default contain null, we need to create a new respective type which
+        // is not-nullable.
+        switch (type.tag) {
+            case TypeTags.JSON:
+                BJSONType jsonType = (BJSONType) type;
+                return new BJSONType(jsonType.tag, jsonType.constraint, jsonType.tsymbol, false);
+            case TypeTags.ANY:
+                return new BAnyType(type.tag, type.tsymbol, false);
+            case TypeTags.ANYDATA:
+                return new BAnydataType(type.tag, type.tsymbol, false);
         }
 
-        List<BType> types = getAllTypes(removeType);
-        List<BType> remainingTypes = getAllTypes(originalType).stream()
-                .filter(type -> types.stream()
-                        .noneMatch(memberType -> isSameType(memberType, type)))
-                .collect(Collectors.toList());
-
-        if (remainingTypes.size() == 1) {
-            return remainingTypes.get(0);
+        if (type.tag != TypeTags.UNION) {
+            return type;
         }
 
-        return new BUnionType(null, new HashSet<>(remainingTypes), remainingTypes.contains(symTable.nilType));
+        BUnionType unionType = (BUnionType) type;
+        BUnionType errorLiftedType =
+                new BUnionType(null, new LinkedHashSet<>(unionType.memberTypes), unionType.isNullable());
+
+        // Lift nil always. Lift error only if safe navigation is used.
+        errorLiftedType.memberTypes.remove(symTable.nilType);
+        if (liftError) {
+            errorLiftedType.memberTypes.remove(symTable.errorType);
+        }
+
+        if (errorLiftedType.memberTypes.size() == 1) {
+            return errorLiftedType.memberTypes.toArray(new BType[0])[0];
+        }
+        return errorLiftedType;
     }
 
     private List<BType> getAllTypes(BType type) {
