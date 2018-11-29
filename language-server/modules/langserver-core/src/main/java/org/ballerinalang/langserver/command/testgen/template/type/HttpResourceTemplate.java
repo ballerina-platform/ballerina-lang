@@ -42,7 +42,7 @@ public class HttpResourceTemplate extends AbstractTestTemplate {
     private final String resourcePath;
     private final String serviceUriStrName;
 
-    public HttpResourceTemplate(String serviceUriStrName, String basePath, BLangResource resource) {
+    public HttpResourceTemplate(String serviceUriStrName, String basePath, BLangFunction resource) {
         super(null, null);
         this.serviceUriStrName = serviceUriStrName;
         this.resourceMethods = new ArrayList<>();
