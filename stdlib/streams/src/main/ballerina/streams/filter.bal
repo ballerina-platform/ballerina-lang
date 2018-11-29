@@ -44,5 +44,3 @@ public function createFilter(function (StreamEvent[]) nextProcPointer,
     Filter filter = new(nextProcPointer, conditionFunc);
     return filter;
 }
-
-
