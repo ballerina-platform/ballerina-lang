@@ -66,12 +66,13 @@ public class SocketCompilerPlugin extends AbstractCompilerPlugin {
     public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
         List<BLangFunction> resources = (List<BLangFunction>) serviceNode.getResources();
         resources.forEach(res -> validate(serviceNode.getName().getValue(), res, this.diagnosticLog));
-//        if (resourceCount != 4) {
-//            String msg = String
-//                    .format("Service needs to have all 4 resources[(%s or %s), %s, %s, %s].", RESOURCE_ON_ACCEPT,
-//                            RESOURCE_ON_CONNECT, RESOURCE_ON_READ_READY, RESOURCE_ON_CLOSE, RESOURCE_ON_ERROR);
-//            diagnosticLog.logDiagnostic(ERROR, serviceNode.getPosition(), msg);
-//        }
+        if (resourceCount != 4) {
+            String errorMsg = "Service needs to have all 4 resources "
+                    + "[(%s (Listener) or %s (CallBackService)), %s, %s, %s].";
+            String msg = String.format(errorMsg, RESOURCE_ON_ACCEPT, RESOURCE_ON_CONNECT, RESOURCE_ON_READ_READY,
+                    RESOURCE_ON_CLOSE, RESOURCE_ON_ERROR);
+            diagnosticLog.logDiagnostic(ERROR, serviceNode.getPosition(), msg);
+        }
     }
 
     private void validate(String serviceName, BLangFunction resource, DiagnosticLog diagnosticLog) {

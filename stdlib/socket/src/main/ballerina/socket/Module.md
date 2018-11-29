@@ -48,8 +48,8 @@ service ClientService = service {
     }
     
     resource function onReadReady (socket:Caller caller, byte[] content) {
-        io:println("client write");	
-        _ = caller->write(content);		
+        io:println("client write");
+        _ = caller->write(content);
     }
     
     resource function onClose(socket:Caller caller) {
