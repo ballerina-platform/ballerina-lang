@@ -40,7 +40,7 @@ export class EditableSVGText extends React.Component<EditableSVGTextProps, Edita
             height: h,
             width: w,
             x,
-            y
+            y: y + (h / 4)
         };
         return <g className="editable-text">
             {!textEditingEnabled &&
