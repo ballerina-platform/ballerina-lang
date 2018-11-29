@@ -16,13 +16,13 @@
 
 public type TableJoinProcessor object {
     private function (StreamEvent s) returns map<anydata>[] tableQuery;
-    private function (any) nextProcessor;
+    private function (StreamEvent[]) nextProcessor;
     public Window? windowInstance;
     public string streamName;
     public string tableName;
     public JoinType joinType;
 
-    public function __init(function (any) nextProcessor, JoinType joinType,
+    public function __init(function (StreamEvent[]) nextProcessor, JoinType joinType,
                            function (StreamEvent s) returns map<anydata>[] tableQuery) {
         self.nextProcessor = nextProcessor;
         self.joinType = joinType;
@@ -83,7 +83,7 @@ public type TableJoinProcessor object {
     }
 };
 
-public function createTableJoinProcessor(function (any) nextProcessor, JoinType joinType,
+public function createTableJoinProcessor(function (StreamEvent[])  nextProcessor, JoinType joinType,
                                          function (StreamEvent s) returns map<anydata>[] tableQuery)
                     returns TableJoinProcessor {
     TableJoinProcessor tableJoinProcessor = new(nextProcessor, joinType, tableQuery);

@@ -466,7 +466,7 @@ public class ASTBuilderUtil {
         return varRefs;
     }
 
-    static BLangSimpleVarRef createVariableRef(DiagnosticPos pos, BVarSymbol varSymbol) {
+    static BLangSimpleVarRef createVariableRef(DiagnosticPos pos, BSymbol varSymbol) {
         final BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
         varRef.pos = pos;
         varRef.variableName = createIdentifier(pos, varSymbol.name.value);
