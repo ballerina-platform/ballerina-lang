@@ -46,7 +46,7 @@ public enum BLangBuiltInMethod {
 
     STAMP("stamp"),
 
-    CREATE("create"),
+    CONVERT("convert"),
     
     CALL("call"),
 

@@ -2770,12 +2770,12 @@ public class Desugar extends BLangNodeVisitor {
             case IS_FROZEN:
                 visitFreezeBuiltInMethodInvocation(iExpr);
                 break;
-            case CREATE:
+            case CONVERT:
                 if (iExpr.symbol.kind == SymbolKind.CONVERSION_OPERATOR) {
                     result = new BLangBuiltInMethodInvocation(iExpr, iExpr.builtInMethod);
                 } else {
-                    result = visitCreateStampMethod(iExpr.pos, iExpr.expr, iExpr.requiredArgs,
-                                                    (BInvokableSymbol) iExpr.symbol);
+                    result = visitConvertStampMethod(iExpr.pos, iExpr.expr, iExpr.requiredArgs,
+                                                     (BInvokableSymbol) iExpr.symbol);
                 }
                 break;
             case CALL:
@@ -2928,10 +2928,10 @@ public class Desugar extends BLangNodeVisitor {
         return conversionExpr;
     }
 
-    private BLangInvocation.BLangBuiltInMethodInvocation visitCreateStampMethod(DiagnosticPos pos,
-                                                                                BLangExpression expr,
-                                                                                List<BLangExpression> requiredArgs,
-                                                                                BInvokableSymbol invokableSymbol) {
+    private BLangInvocation.BLangBuiltInMethodInvocation visitConvertStampMethod(DiagnosticPos pos,
+                                                                                 BLangExpression expr,
+                                                                                 List<BLangExpression> requiredArgs,
+                                                                                 BInvokableSymbol invokableSymbol) {
         BType targetType = invokableSymbol.retType;
         if (types.isValueType(targetType) || targetType == symTable.nilType) {
             return ASTBuilderUtil.createBuiltInMethod(pos, expr, invokableSymbol, requiredArgs, symResolver,

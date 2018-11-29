@@ -552,13 +552,13 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         //special case for varRefs of Types;
         outputTypeRef.type = symTable.typeDesc;
         BSymbol createMethodSymbol =
-                symResolver.createSymbolForCreateOperator(mapVarRef.pos,
-                        names.fromBuiltInMethod(BLangBuiltInMethod.CREATE), Lists.of(mapVarRef), outputTypeRef);
+                symResolver.createSymbolForConvertOperator(mapVarRef.pos,
+                                                           names.fromBuiltInMethod(BLangBuiltInMethod.CONVERT), Lists.of(mapVarRef), outputTypeRef);
         BLangInvocation createMethodInvocation = ASTBuilderUtil.createInvocationExprForMethod(mapVarRef.pos,
                 (BInvokableSymbol) createMethodSymbol, Lists.of(mapVarRef), symResolver);
         createMethodInvocation.expr = outputTypeRef;
         createMethodInvocation.argExprs = Lists.of(mapVarRef);
-        createMethodInvocation.builtInMethod = BLangBuiltInMethod.CREATE;
+        createMethodInvocation.builtInMethod = BLangBuiltInMethod.CONVERT;
         createMethodInvocation.builtinMethodInvocation = true;
         return createMethodInvocation;
     }

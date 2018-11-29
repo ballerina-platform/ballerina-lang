@@ -1304,7 +1304,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                 genNode(iExpr.requiredArgs.get(0), this.env);
                 emit(InstructionCodes.STAMP, iExpr.requiredArgs.get(0).regIndex, getTypeCPIndex(iExpr.type), regIndex);
                 break;
-            case CREATE:
+            case CONVERT:
                 if (iExpr.symbol.kind == SymbolKind.CONVERSION_OPERATOR) {
                     BConversionOperatorSymbol symbol = (BConversionOperatorSymbol) iExpr.symbol;
                     emitConversionInstruction(iExpr, iExpr.requiredArgs.get(0), symbol,
