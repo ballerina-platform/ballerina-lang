@@ -33,19 +33,17 @@ import org.testng.annotations.Test;
  *
  * @since 0.982.0
  */
-public class BallerinaStreamsV2AggregationWithGroupByTest {
+public class BallerinaStreamsV2SelectAggregationTest {
 
     private CompileResult result;
 
     @BeforeClass
     public void setup() {
-        System.setProperty("enable.siddhiRuntime", "false");
         result = BCompileUtil.compile("test-src/streaming/native/streamingv2-aggregation-groupby-test.bal");
     }
 
     @Test(description = "Test streaming query with aggregation.")
-    public void testFilterQuery() {
-        System.setProperty("enable.siddhiRuntime", "true");
+    public void testGroupByQuery() {
         BValue[] outputEvents = BRunUtil.invoke(result, "startAggregationGroupByQuery");
         Assert.assertNotNull(outputEvents);
 

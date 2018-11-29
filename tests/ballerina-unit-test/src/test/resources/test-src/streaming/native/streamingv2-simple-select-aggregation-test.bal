@@ -54,10 +54,10 @@ function startAggregationQuery() returns (TeacherOutput[]) {
     }
 
     int count = 0;
-    while(true) {
+    while (true) {
         runtime:sleep(500);
         count += 1;
-        if((globalEmployeeArray.length()) == 3 || count == 10) {
+        if ((globalEmployeeArray.length()) == 3 || count == 10) {
             break;
         }
     }
@@ -76,10 +76,10 @@ function startAggregationQuery() returns (TeacherOutput[]) {
 
 function createStreamingConstruct() {
 
-    function (map[]) outputFunc = function (map[] events) {
+    function (map<anydata>[]) outputFunc = function (map<anydata>[] events) {
         foreach m in events {
             // just cast input map into the output type
-            TeacherOutput t = check <TeacherOutput>m;
+            var t = <TeacherOutput>TeacherOutput.stamp(m.clone());
             outputStream.publish(t);
         }
     };
@@ -88,8 +88,9 @@ function createStreamingConstruct() {
 
     streams:Sum sumAggregator = new();
 
-    streams:SimpleSelect simpleSelect = streams:createSimpleSelect(outputProcess.process,
-        function (streams:StreamEvent e) returns map<any> {
+    streams:SimpleSelect simpleSelect =
+    streams:createSimpleSelect(function (streams:StreamEvent[] e) {outputProcess.process(e);},
+        function (streams:StreamEvent e) returns map<anydata> {
             // got rid of type casting
             return {
                 "name": e.data["inputStream.name"],
@@ -99,16 +100,16 @@ function createStreamingConstruct() {
         }
     );
 
-    streams:Filter filter = streams:createFilter(simpleSelect.process, function (map<any> m) returns boolean {
+    streams:Filter filter = streams:createFilter(function (streams:StreamEvent[] e) {simpleSelect.process(e);},
+        function (map<anydata> m) returns boolean {
             // simplify filter
-            return check <int>m["inputStream.age"] > 25;
+            return <int>m["inputStream.age"] > 25;
         }
     );
 
     inputStream.subscribe(function (Teacher t) {
             // make it type unaware and proceed
-            map<any> keyVal = <map>t;
-            streams:StreamEvent[] eventArr = streams:buildStreamEvent(keyVal, "inputStream");
+            streams:StreamEvent[] eventArr = streams:buildStreamEvent(t, "inputStream");
             filter.process(eventArr);
         }
     );
