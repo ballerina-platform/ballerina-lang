@@ -42,13 +42,13 @@ service contentBasedRouting on new http:Listener(9090) {
                    log:printError("Error sending response", err = result);
                 }
             } else if (clientResponse is error) {
-                    http:Response res = new;
-                    res.statusCode = 500;
-                    res.setPayload(<string> clientResponse.detail().message);
-                    var result = outboundEP->respond(res);
-                    if (result is error) {
-                       log:printError("Error sending response", err = result);
-                    }
+                http:Response res = new;
+                res.statusCode = 500;
+                res.setPayload(<string> clientResponse.detail().message);
+                var result = outboundEP->respond(res);
+                if (result is error) {
+                   log:printError("Error sending response", err = result);
+                }
             }
         } else if (jsonMsg is error) {
             http:Response res = new;

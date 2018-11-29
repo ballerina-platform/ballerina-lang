@@ -8,6 +8,8 @@ http:ClientEndpointConfig clientEndpointConfig = {
     chunking: http:CHUNKING_NEVER
 };
 
+http:Client clientEndpoint = new("http://localhost:9090", config = clientEndpointConfig);
+
 service chunkingSample on new http:Listener(9092) {
 
     @http:ResourceConfig {
@@ -15,18 +17,17 @@ service chunkingSample on new http:Listener(9092) {
     }
     //Parameters include a reference to the caller endpoint and an object with the request data.
     resource function invokeEndpoint(http:Caller caller, http:Request req) {
-        http:Client clientEndpoint = new("http://localhost:9090", config = clientEndpointConfig);
         //Create a new outbound request and set the payload.
         http:Request newReq = new;
         newReq.setPayload({ "name": "Ballerina" });
-        var result = clientEndpoint->post("/echo/", newReq);
-        if (result is http:Response) {
+        var clientResponse = clientEndpoint->post("/echo/", newReq);
+        if (clientResponse is http:Response) {
             //send the response back to the caller.
-            var resp = caller->respond(result);
-            if (resp is error) {
-               log:printError("Error sending response", err = resp);
+            var result = caller->respond(clientResponse);
+            if (result is error) {
+               log:printError("Error sending response", err = result);
             }
-        } else if (result is error) {
+        } else if (clientResponse is error) {
             http:Response errorResponse = new;
             json errMsg = { "error": "error occurred while invoking the service" };
             errorResponse.setPayload(errMsg);
