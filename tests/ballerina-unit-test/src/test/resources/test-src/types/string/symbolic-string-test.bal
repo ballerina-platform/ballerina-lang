@@ -19,7 +19,8 @@ import ballerina/crypto;
 type Person object {
     public string name = "";
     public string fullName;
-    new(name = 'John, string firstname, string lastname = 'Doe) {
+    function __init(string name = 'John, string firstname, string lastname = 'Doe) {
+        self.name = name;
         self.fullName = firstname + " " + lastname;
     }
     public function getPersonInfo() returns string {
@@ -38,7 +39,6 @@ public string var2 = "";
 
 public string var3 = 'efgh;
 
-@readonly
 public string var4 = 'ijkl;
 
 function contains() returns (boolean) {
