@@ -807,18 +807,15 @@ public class CommonUtil {
             symbolInfoList.addAll(Arrays.asList(freeze, isFrozen));
         }
 
-        if (builtinStampFunctionAllowed(context, bType)) {
-            // For the any data value type, add the stamp builtin function
+        if (isAnyData(context, bType)) {
+            // For the any data value type, add the stamp,clone,create builtin functions
             SymbolInfo stamp = getIterableOpSymbolInfo(Snippet.BUILTIN_STAMP.get(), bType,
                                                        ItemResolverConstants.BUILTIN_STAMP_LABEL, context);
-            symbolInfoList.add(stamp);
-        }
-
-        if (builtinCloneFunctionAllowed(context, bType)) {
-            // For the any data, add the clone builtin function
-            SymbolInfo freeze = getIterableOpSymbolInfo(Snippet.BUILTIN_CLONE.get(), bType,
-                                                        ItemResolverConstants.BUILTIN_CLONE_LABEL, context);
-            symbolInfoList.add(freeze);
+            SymbolInfo clone = getIterableOpSymbolInfo(Snippet.BUILTIN_CLONE.get(), bType,
+                                                       ItemResolverConstants.BUILTIN_CLONE_LABEL, context);
+            SymbolInfo create = getIterableOpSymbolInfo(Snippet.BUILTIN_CREATE.get(), bType,
+                                                        ItemResolverConstants.BUILTIN_CREATE_LABEL, context);
+            symbolInfoList.addAll(Arrays.asList(stamp, clone, create));
         }
 
         // Populate the Builtin Functions
@@ -1004,16 +1001,7 @@ public class CommonUtil {
         return false;
     }
 
-    private static boolean builtinStampFunctionAllowed(LSContext context, BType bType) {
-        CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
-        if (compilerContext != null) {
-            Types types = Types.getInstance(compilerContext);
-            return types.isAnydata(bType);
-        }
-        return false;
-    }
-
-    private static boolean builtinCloneFunctionAllowed(LSContext context, BType bType) {
+    private static boolean isAnyData(LSContext context, BType bType) {
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         if (compilerContext != null) {
             Types types = Types.getInstance(compilerContext);
