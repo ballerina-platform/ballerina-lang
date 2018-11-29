@@ -105,6 +105,16 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get Wait Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getWaitKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.WAIT_KEYWORD, "wait ", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
+    }
+
+    /**
      * Get Extern Keyword Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -164,9 +174,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getForkJoinStatementSnippet() {
-        String snippet = "fork {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR
-                + "} join (${2:all}) (map ${3:results}) {" + CommonUtil.LINE_SEPARATOR + "\t${4}"
-                + CommonUtil.LINE_SEPARATOR + "}";
+        String snippet = "fork {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.FORK, snippet, ItemResolverConstants.STATEMENT_TYPE,
                                 SnippetType.STATEMENT);
     }
