@@ -20,10 +20,16 @@ import org.ballerinalang.code.generator.GeneratorConstants;
 import org.ballerinalang.code.generator.util.GeneratorUtils;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.EndpointNode;
-import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 
 import java.util.List;
 import java.util.Map;
@@ -48,40 +54,65 @@ public class EndpointContextHolder {
      * @return if {@code ep} is bound to the {@code service}, endpoint context will be returned.
      * otherwise empty null will be returned
      */
-    public static EndpointContextHolder buildContext(ServiceNode service, EndpointNode ep) {
+    public static EndpointContextHolder buildContext(BLangService service, BLangSimpleVariable ep) {
         EndpointContextHolder endpoint = null;
-        for (SimpleVariableReferenceNode node : service.getBoundEndpoints()) {
-            if (node.getVariableName().equals(ep.getName())) {
-                endpoint = new EndpointContextHolder();
-                AnnotationAttachmentNode ann = GeneratorUtils
-                        .getAnnotationFromList("ServiceConfig", GeneratorConstants.HTTP_PKG_ALIAS,
-                                service.getAnnotationAttachments());
-
-                endpoint.extractDetails(ep, ann);
-                break;
-            }
+        if (service == null || service.getAttachExpr() == null
+                || service.getAttachExpr().getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+            return null;
         }
+
+//        for (SimpleVariableReferenceNode node : service.getAttachExpr()) {
+
+        SimpleVariableReferenceNode node = (SimpleVariableReferenceNode) service.getAttachExpr();
+        if (node.getVariableName().equals(ep.getName())) {
+            endpoint = new EndpointContextHolder();
+            AnnotationAttachmentNode ann = GeneratorUtils
+                    .getAnnotationFromList("ServiceConfig", GeneratorConstants.HTTP_PKG_ALIAS,
+                            service.getAnnotationAttachments());
+
+            endpoint.extractDetails(ep, ann);
+//                break;
+        }
+
+//        }
 
         return endpoint;
     }
 
-    private void extractDetails(EndpointNode ep, AnnotationAttachmentNode ann) {
+    private void extractDetails(BLangSimpleVariable ep, AnnotationAttachmentNode ann) {
         this.name = ep.getName().getValue();
 
-        BLangRecordLiteral bLiteral = (BLangRecordLiteral) ep.getConfigurationExpression();
-        List<BLangRecordLiteral.BLangRecordKeyValue> list = bLiteral.getKeyValuePairs();
-        Map<String, String[]> configs = GeneratorUtils.getKeyValuePairAsMap(list);
+        BLangTypeInit bTypeInit = (BLangTypeInit) ep.getInitialExpression();
+        List<BLangExpression> list = bTypeInit.argsExpr;
+        String httpsPort = null;
 
-        String httpsPort = configs.get(GeneratorConstants.ATTR_HTTPS_PORT) != null ?
-                configs.get(GeneratorConstants.ATTR_HTTPS_PORT)[0] :
-                null;
-        this.host =
-                configs.get(GeneratorConstants.ATTR_HOST) != null ? configs.get(GeneratorConstants.ATTR_HOST)[0] : null;
-        this.port = configs.get(GeneratorConstants.ATTR_HTTP_PORT) != null ?
-                configs.get(GeneratorConstants.ATTR_HTTP_PORT)[0] :
-                null;
+//        List<BLangRecordLiteral.BLangRecordKeyValue> list = bLiteral.getKeyValuePairs();
+//        Map<String, String[]> configs = GeneratorUtils.getKeyValuePairAsMap(list);
 
-        bLiteral = ((BLangRecordLiteral) ((BLangAnnotationAttachment) ann).getExpression());
+        if (list.size() == 1 && list.get(0) instanceof BLangLiteral) {
+            port = list.get(0).toString();
+        }
+
+        if (list.size() > 1
+                && list.get(1) instanceof BLangNamedArgsExpression
+                && ((BLangNamedArgsExpression) list.get(1)).getExpression() instanceof BLangRecordLiteral) {
+            BLangRecordLiteral bLangRecordLiteral = (BLangRecordLiteral) ((BLangNamedArgsExpression) list.get(1))
+                    .getExpression();
+            Map<String, String[]> configs = GeneratorUtils.getKeyValuePairAsMap(bLangRecordLiteral.keyValuePairs);
+
+            httpsPort = configs.get(GeneratorConstants.ATTR_HTTPS_PORT) != null ?
+                    configs.get(GeneratorConstants.ATTR_HTTPS_PORT)[0] :
+                    null;
+            this.host =
+                    configs.get(GeneratorConstants.ATTR_HOST) != null
+                            ? configs.get(GeneratorConstants.ATTR_HOST)[0]
+                            : null;
+//        this.port = configs.get(GeneratorConstants.ATTR_HTTP_PORT) != null ?
+//                configs.get(GeneratorConstants.ATTR_HTTP_PORT)[0] :
+//                null;
+        }
+
+        BLangRecordLiteral bLiteral = ((BLangRecordLiteral) ((BLangAnnotationAttachment) ann).getExpression());
         List<BLangRecordLiteral.BLangRecordKeyValue> attrList = bLiteral.getKeyValuePairs();
         Map<String, String[]> attrs = GeneratorUtils.getKeyValuePairAsMap(attrList);
 

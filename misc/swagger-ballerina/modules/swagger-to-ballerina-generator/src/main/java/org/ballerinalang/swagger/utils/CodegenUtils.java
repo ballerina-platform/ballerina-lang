@@ -19,7 +19,6 @@ package org.ballerinalang.swagger.utils;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
-import org.ballerinalang.swagger.model.BallerinaPath;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -27,7 +26,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
-import java.util.UUID;
 import javax.annotation.Nullable;
 
 /**

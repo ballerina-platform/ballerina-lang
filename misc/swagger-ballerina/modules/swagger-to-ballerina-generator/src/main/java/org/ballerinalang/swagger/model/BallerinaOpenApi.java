@@ -112,7 +112,7 @@ public class BallerinaOpenApi implements BallerinaSwaggerObject<BallerinaOpenApi
             } else {
                 balPath.getOperations().forEach(operation -> {
                     if (operation.getValue().getOperationId() == null) {
-                        String pathName = path.getKey().substring(1); // need to drop '/' prefix from the key, ex:'/path'
+                        String pathName = path.getKey().substring(1); //need to drop '/' prefix from the key, ex:'/path'
                         String operationId = operation.getKey() + StringUtils.capitalize(pathName);
                         operation.getValue().setOperationId(CodegenUtils.normalizeForBIdentifier(operationId));
                     }
