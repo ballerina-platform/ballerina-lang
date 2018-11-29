@@ -15,7 +15,9 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.bre.bvm;
+package org.ballerinalang.bre.old;
+
+import org.ballerinalang.bre.bvm.WorkerDataChannel;
 
 /**
  * This represents a result context of a group of workers.

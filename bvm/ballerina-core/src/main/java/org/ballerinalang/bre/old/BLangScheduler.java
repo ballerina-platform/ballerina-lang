@@ -15,10 +15,10 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.bre.bvm;
+package org.ballerinalang.bre.old;
 
 import org.ballerinalang.bre.Context;
-//import org.ballerinalang.bre.bvm.CPU.HandleErrorException;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.values.BError;
@@ -35,6 +35,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.LongAdder;
+
+//import org.ballerinalang.bre.bvm.CPU.HandleErrorException;
 
 /**
  * This represents the Ballerina worker scheduling functionality. 
@@ -198,8 +200,8 @@ public class BLangScheduler {
         }
     }
     
-    public static AsyncInvocableWorkerResponseContext executeBlockingNativeAsync(NativeCallableUnit nativeCallable, 
-            Context nativeCtx, int flags) {
+    public static AsyncInvocableWorkerResponseContext executeBlockingNativeAsync(NativeCallableUnit nativeCallable,
+                                                                                 Context nativeCtx, int flags) {
         CallableUnitInfo callableUnitInfo = nativeCtx.getCallableUnitInfo();
         AsyncInvocableWorkerResponseContext respCtx = new AsyncInvocableWorkerResponseContext(callableUnitInfo);
         checkAndObserveNativeAsync(nativeCtx, respCtx, callableUnitInfo, flags);

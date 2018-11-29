@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.compiler.backend.llvm;
 
-import org.ballerinalang.bre.vm.BVMExecutor;
+import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.values.BBoolean;

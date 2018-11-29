@@ -15,20 +15,16 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.bre.vm;
+package org.ballerinalang.bre.bvm;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.bre.BLangCallableUnitCallback;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.NativeCallContext;
-import org.ballerinalang.bre.bvm.BLangScheduler;
-import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.bre.bvm.SignalType;
-import org.ballerinalang.bre.bvm.VarLock;
-import org.ballerinalang.bre.bvm.WorkerDataChannel;
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.bre.bvm.WorkerSignal;
+import org.ballerinalang.bre.old.BLangScheduler;
+import org.ballerinalang.bre.old.SignalType;
+import org.ballerinalang.bre.old.WorkerExecutionContext;
+import org.ballerinalang.bre.old.WorkerSignal;
 import org.ballerinalang.channels.ChannelManager;
 import org.ballerinalang.channels.ChannelRegistry;
 import org.ballerinalang.model.NativeCallableUnit;
