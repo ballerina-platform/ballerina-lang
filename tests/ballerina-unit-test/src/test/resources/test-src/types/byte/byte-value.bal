@@ -148,13 +148,13 @@ function testByteOrIntMatch2() returns byte|int|string[]|Foo|error {
 
 function testByteOrIntMatch3() returns int {
     var result = byteOrInt(1);
-    int x = result is byte ? 456 : (result is int ? -123 : (result is string[] ? 789 : (result is Foo ? 8765 : result is error ? 1135 : 0)));
+    int x = result is byte ? 456 : (result is int ? -123 : (result is string[] ? 789 : (result is Foo ? 8765 : 1135)));
     return x;
 }
 
 function testByteOrIntMatch4() returns int {
     var result = byteOrInt(2);
-    int x = result is byte ? 456 : (result is int ? -123 : (result is string[] ? 789 : (result is Foo ? 8765 : result is error ? 1135 : 0)));
+    int x = result is byte ? 456 : (result is int ? -123 : (result is string[] ? 789 : (result is Foo ? 8765 : 1135)));
     return x;
 }
 
