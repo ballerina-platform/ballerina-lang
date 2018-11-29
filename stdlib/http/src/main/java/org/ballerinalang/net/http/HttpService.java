@@ -192,7 +192,7 @@ public class HttpService implements Cloneable {
         Annotation serviceConfigAnnotation = getHttpServiceConfigAnnotation(service);
         httpService.setInterruptible(hasInterruptibleAnnotation(service));
 
-        if (serviceConfigAnnotation == null) {
+        if (serviceConfigAnnotation == null || serviceConfigAnnotation.getValue() == null) {
             log.debug("serviceConfig not specified in the Service instance, using default base path");
             //service name cannot start with / hence concat
             String basePath = httpService.getName().startsWith(DOLLAR) ? DEFAULT_BASE_PATH :
