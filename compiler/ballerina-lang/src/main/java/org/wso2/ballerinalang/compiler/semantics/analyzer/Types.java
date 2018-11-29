@@ -70,6 +70,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -2089,6 +2090,39 @@ public class Types {
         }
 
         return new BUnionType(null, new HashSet<>(remainingTypes), remainingTypes.contains(symTable.nilType));
+    }
+
+    public BType getSafeType(BType type, boolean liftError) {
+        // Since JSON, ANY and ANYDATA by default contain null, we need to create a new respective type which
+        // is not-nullable.
+        switch (type.tag) {
+            case TypeTags.JSON:
+                BJSONType jsonType = (BJSONType) type;
+                return new BJSONType(jsonType.tag, jsonType.constraint, jsonType.tsymbol, false);
+            case TypeTags.ANY:
+                return new BAnyType(type.tag, type.tsymbol, false);
+            case TypeTags.ANYDATA:
+                return new BAnydataType(type.tag, type.tsymbol, false);
+        }
+
+        if (type.tag != TypeTags.UNION) {
+            return type;
+        }
+
+        BUnionType unionType = (BUnionType) type;
+        BUnionType errorLiftedType =
+                new BUnionType(null, new LinkedHashSet<>(unionType.memberTypes), unionType.isNullable());
+
+        // Lift nil always. Lift error only if safe navigation is used.
+        errorLiftedType.memberTypes.remove(symTable.nilType);
+        if (liftError) {
+            errorLiftedType.memberTypes.remove(symTable.errorType);
+        }
+
+        if (errorLiftedType.memberTypes.size() == 1) {
+            return errorLiftedType.memberTypes.toArray(new BType[0])[0];
+        }
+        return errorLiftedType;
     }
 
     private List<BType> getAllTypes(BType type) {
