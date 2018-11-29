@@ -45,17 +45,21 @@ function testNullableTypeBasics2() returns (int|boolean|()) {
 
     int|float|() x = ();
 
-    match x {
-        float|int s => io:println("int");
-        int|() s => io:println("null");
+
+    if (x is float|int) {
+        io:println("int");
+    } else {
+        io:println("null");
     }
 
     int|boolean|() i = ();
 
-    match i {
-        int => io:println("int");
-        boolean => io:println("boolean");
-        any|() a => io:println(a);
+    if (i is int) {
+        io:println("int");
+    } else if (i is boolean) {
+        io:println("boolean");
+    } else {
+        io:println(i);
     }
 
     return i;
@@ -94,13 +98,11 @@ public type RecPerson record {
 
 function testRecordLiteralAssignment() returns string {
     Person|RecPerson x = {name:"John", id:12};
-    match x {
-        Person p => {
-            return "Invalid";
-        }
-        RecPerson e => {
-            return <string> e.name;
-        }
+
+    if (x is Person) {
+        return "Invalid";
+    } else {
+        return <string> x.name;
     }
 }
 
@@ -123,14 +125,16 @@ function testUnionTypeWithMultipleRecordTypes() returns string[] {
     Foo|Bar var1 = {s : "dummy string"};
     Foo|Bar var2 = {x : "dummy string"};
 
-    match var1 {
-        Foo => returnValues[0] = "FOO";
-        Bar => returnValues[0] = "BAR";
+    if (var1 is Foo) {
+        returnValues[0] = "FOO";
+    } else {
+        returnValues[0] = "BAR";
     }
 
-    match var2 {
-        Foo => returnValues[1] = "FOO";
-        Bar => returnValues[1] = "BAR";
+    if (var2 is Foo) {
+        returnValues[1] = "FOO";
+    } else {
+        returnValues[1] = "BAR";
     }
 
     return returnValues;
