@@ -15,7 +15,6 @@ export const SvgCanvas: React.StatelessComponent<{
                     h: bBox.h,
                     w: bBox.w
                 };
-                const editMode = diagContext.editingEnabled;
                 const viewBox =  `0 0 ${bBox.w} ${bBox.h}`;
                 return (
                     <div style={{ width: svgSize.w * zoom, height: svgSize.h * zoom }} >
