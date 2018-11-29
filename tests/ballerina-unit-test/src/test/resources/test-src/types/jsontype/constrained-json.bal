@@ -93,65 +93,65 @@ function testContrainingWithNestedStructs() returns (json, json, json) {
 
 function testConstraintJSONToJSONCast() returns (json) {
     json<Person> j1 = getPerson();
-    json j2 = <json> j1;
+    json j2 = j1;
     return j2;
 }
 
 function testJSONToConstraintJsonUnsafeCast() returns (json | error) {
-    var j = <json<Person>>getPlainJson();
+    var j = json<Person>.stamp(getPlainJson());
     return j;
 }
 
 function testJSONToConstraintJsonUnsafeCastPositive() returns (json, json, json) {
-    var j = <json<Person>>getPersonEquivalentPlainJson();
-    if (j is error) {
-         panic j;
+    var j = json<Person>.stamp(getPersonEquivalentPlainJson());
+    if (j is json<Person>) {
+        return (j.name, j.age, j.address);
     } else {
-         return (j.name, j.age, j.address);
+        panic j ;
     }
 }
 
 
-function testConstraintJSONToConstraintJsonCast() returns (json) {
-    json<Person> j = <json<Person>> getStudent();
-    return j;
-}
+//function testConstraintJSONToConstraintJsonCast() returns (json) {
+//    json<Person> j = getStudent();
+//    return j;
+//}
 
-function testConstraintJSONToConstraintJsonUnsafePositiveCast() returns (json | error) {
-    json<Person> jp = <json<Person>> getStudent();
-    var js  = <json<Student>> jp;
-    return js;
-}
+//function testConstraintJSONToConstraintJsonUnsafePositiveCast() returns (json | error) {
+//    json<Person> jp = getStudent();
+//    var js  = <json<Student>> jp;
+//    return js;
+//}
 
 function testConstraintJSONToConstraintJsonUnsafeNegativeCast() returns (json | error) {
     json<Employee> je = {first_name:"John", last_name:"Doe", age:30, address:{phoneNumber:{number:"1234"}, street:"York St"}};
-    var js = <json<Student>> je;
+    var js = json<Student>.create(je);
     return js;
 }
 
 function testJSONArrayToConstraintJsonArrayCastPositive() returns (json<Student>[] | error) {
     json j1 = [getStudent()];
-    var j2 = <json<Student>[]> j1;
+    var j2 = json<Student>[].stamp(j1);
     return j2;
 }
 
 function testJSONArrayToConstraintJsonArrayCastNegative() returns (json<Student>[] | error) {
     json j1 = [{"a":"b"}, {"c":"d"}];
-    var j2 = <json<Student>[]> j1;
+    var j2 = json<Student>[].stamp(j1);
     return j2;
 }
 
 function testJSONArrayToCJsonArrayCast() returns (json<Student>[] | error) {
     json[] j1 = [{"name":"John Doe", "age":30, "address":"London", "class":"B"}];
     json j2 = j1;
-    var j3 = <json<Student>[]> j2;
+    var j3 = json<Student>[].stamp(j2);
     return j3;
 }
 
 function testJSONArrayToCJsonArrayCastNegative() returns (json<Student>[] | error) {
     json[] j1 = [{name:"John Doe", age:30, address:"London"}]; // one field is missing
     json j2 = j1;
-    var j3 = <json<Student>[]> j2;
+    var j3 = json<Student>[].stamp(j2);
     return j3;
 }
 
@@ -166,7 +166,7 @@ function testCJSONArrayToJsonAssignment() returns (json) {
 function testMixedTypeJSONArrayToCJsonArrayCastNegative() returns (json<Student>[] | error) {
     json[] j1 = [{name:"John Doe", age:30, address:"London", "class":"B"}, [4, 6]];
     json j2 = j1;
-    var j3 = <json<Student>[]> j2;
+    var j3 = json<Student>[].create(j2);
     return j3;
 }
 

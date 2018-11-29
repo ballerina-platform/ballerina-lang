@@ -58,6 +58,7 @@ public class SelectorManager {
     private ExecutorService executor = Executors.newSingleThreadExecutor(threadFactory);
     private boolean executing = true;
     private ConcurrentLinkedQueue<ChannelRegisterCallback> registerPendingSockets = new ConcurrentLinkedQueue<>();
+    private final Object startStopLock = new Object();
 
     private SelectorManager() throws IOException {
         selector = Selector.open();
@@ -114,12 +115,14 @@ public class SelectorManager {
     /**
      * Start the selector loop.
      */
-    public synchronized void start() {
-        if (running) {
-            return;
+    public void start() {
+        synchronized (startStopLock) {
+            if (running) {
+                return;
+            }
+            executor.execute(this::execute);
+            running = true;
         }
-        executor.execute(this::execute);
-        running = true;
     }
 
     private void execute() {
@@ -216,23 +219,25 @@ public class SelectorManager {
      * Stop the selector loop.
      */
     public void stop() {
-        try {
-            if (log.isDebugEnabled()) {
-                log.debug("Stopping the selector loop.");
-            }
-            executing = false;
-            running = false;
-            selector.close();
-            executor.shutdown();
+        synchronized (startStopLock) {
             try {
-                if (!executor.awaitTermination(1, TimeUnit.SECONDS)) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Stopping the selector loop.");
+                }
+                executing = false;
+                running = false;
+                selector.close();
+                executor.shutdown();
+                try {
+                    if (!executor.awaitTermination(1, TimeUnit.SECONDS)) {
+                        executor.shutdownNow();
+                    }
+                } catch (InterruptedException e) {
                     executor.shutdownNow();
                 }
-            } catch (InterruptedException e) {
-                executor.shutdownNow();
+            } catch (Throwable e) {
+                log.error("Error occurred while stopping the selector loop: " + e.getMessage(), e);
             }
-        } catch (Throwable e) {
-            log.error("Error occurred while stopping the selector loop: " + e.getMessage(), e);
         }
     }
 }

@@ -1,0 +1,36 @@
+openapi: 3.0.1
+info:
+  title: serviceName
+  version: 1.0.0
+servers:
+- url: /serviceName
+paths:
+  /user:
+    get:
+      summary: Get operation for the path /user
+      operationId: 7f58309c-ee8b-447e-9945-9acfb49bfbeb-resource1
+      responses:
+        200:
+          description: Successful
+          content:
+            application/json:
+              example: Ok
+    put:
+      summary: Put operation for the path /user
+      operationId: e037d64c-b624-4a66-8546-0caff850e2db-resource2
+      responses:
+        200:
+          description: Successful
+          content:
+            application/json:
+              example: Ok
+    post:
+      summary: Post operation for the path /user
+      operationId: dc539fb0-681b-4475-9f44-51a4dad0924f-resource1
+      responses:
+        200:
+          description: Successful
+          content:
+            application/json:
+              example: Ok
+components: {}

@@ -116,7 +116,8 @@ class SymbolFindVisitor extends LSNodeVisitor {
                 .collect(Collectors.toList()).stream()
                 .filter(symbol -> symbol instanceof BVarSymbol && CommonUtil.isClientObject(symbol))
                 .map(symbol -> {
-                    BLangImportPackage importPackage = this.packageMap.get(symbol.pkgID);
+                    BLangImportPackage importPackage = this.packageMap.get(symbol.type.tsymbol.pkgID);
+                    String typeName = symbol.type.tsymbol.getName().getValue();
                     String pkgName = symbol.pkgID.getName().getValue();
                     String orgName = symbol.pkgID.getOrgName().getValue();
                     String alias = importPackage == null ? "" : importPackage.getAlias().getValue();
@@ -128,6 +129,7 @@ class SymbolFindVisitor extends LSNodeVisitor {
                             .setPkgAlias(alias)
                             .setKind("VisibleEndpoint")
                             .setCaller(isCaller)
+                            .setTypeName(typeName)
                             .build();
                 })
                 .collect(Collectors.toList());
