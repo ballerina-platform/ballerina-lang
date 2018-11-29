@@ -14,7 +14,7 @@ module.exports = (baseConfig, env, config) => {
   config.resolve.extensions.push(".ts", ".tsx");
   config.resolve.alias = {
     '../../theme.config$': path.join(
-         __dirname, '../node_modules/@ballerina/theme/src/themes/vscode/theme.config')
+            __dirname, '../node_modules/@ballerina/theme/src/themes/default/theme.config')
   };
   config.node = {};
   config.node.net = "mock";
