@@ -3,7 +3,6 @@ import ballerina/mime;
 import ballerina/http;
 
 listener http:Listener serviceEndpoint5 = new(9095);
-map<any> productsMap = populateSampleProducts();
 
 @http:ServiceConfig {
     basePath:"/customerservice"
@@ -157,13 +156,16 @@ service OrderMgtService on serviceEndpoint5 {
     basePath:"/productsservice"
 }
 service productmgt on serviceEndpoint5 {
+
+    map<any> productsMap = populateSampleProducts();
+
     @http:ResourceConfig {
         methods:["GET"],
         path:"/{prodId}"
     }
     resource function product(http:Caller caller, http:Request req, string prodId) {
         http:Response res = new;
-        var result = json.create(productsMap[prodId]);
+        var result = json.create(self.productsMap[prodId]);
         if (result is json) {
             res.setPayload(result);
         } else if (result is error) {
@@ -180,7 +182,7 @@ service productmgt on serviceEndpoint5 {
         var jsonReq = req.getJsonPayload();
         if (jsonReq is json) {
             string productId = jsonReq.Product.ID.toString();
-            productsMap[productId] = jsonReq;
+            self.productsMap[productId] = jsonReq;
             json payload = {"Status":"Product is successfully added."};
 
             http:Response res = new;
@@ -193,14 +195,14 @@ service productmgt on serviceEndpoint5 {
 }
 
 function populateSampleProducts() returns (map<any>) {
-    map<any> productsMap1 = {};
+    map<any> productsMap = {};
     json prod_1 = {"Product":{"ID":"123000", "Name":"ABC_1", "Description":"Sample product."}};
     json prod_2 = {"Product":{"ID":"123001", "Name":"ABC_2", "Description":"Sample product."}};
     json prod_3 = {"Product":{"ID":"123002", "Name":"ABC_3", "Description":"Sample product."}};
-    productsMap1["123000"] = prod_1;
-    productsMap1["123001"] = prod_2;
-    productsMap1["123002"] = prod_3;
+    productsMap["123000"] = prod_1;
+    productsMap["123001"] = prod_2;
+    productsMap["123002"] = prod_3;
     io:println("Sample products are added.");
-    return productsMap1;
+    return productsMap;
 }
 
