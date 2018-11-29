@@ -63,7 +63,7 @@ public class IndexGenerator {
         List<BPackageSymbol> bPackageSymbols = new ArrayList<>();
 //        List<String> packages = Arrays.asList("auth", "builtin", "cache", "config", "crypto", "file", "grpc", "h2",
 //                "http", "io", "jms", "log", "math", "mime", "mysql", "reflect", "runtime", "sql",
-//                "swagger", "system", "task", "time", "transactions", "websub");
+//                "swagger", "system", "task", "time", "transactions", "websub", "socket");
         List<String> packages = Arrays.asList(/*"auth", */"builtin"/*, "cache", "config", "crypto", "file",
                 "http", "io", "log",
                 "swagger", "time"*/);

@@ -209,19 +209,19 @@ public class WaitForAllActionsTest {
         Assert.assertTrue(mapsAreEqual(expectedMap, resultMap));
     }
 
-    @Test (expectedExceptions = {BLangRuntimeException.class},
+    @Test(expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: err from panic \\{\\}.*")
     public void waitTest13() {
         BRunUtil.invoke(result, "waitTest13");
     }
 
-    @Test (expectedExceptions = {BLangRuntimeException.class},
+    @Test(expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: err from panic \\{\\}.*")
     public void waitTest14() {
         BRunUtil.invoke(result, "waitTest14");
     }
 
-    @Test (expectedExceptions = {BLangRuntimeException.class},
+    @Test(expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: err from panic \\{\\}.*")
     public void waitTest15() {
         BRunUtil.invoke(result, "waitTest15");
@@ -235,7 +235,7 @@ public class WaitForAllActionsTest {
     }
 
     /**
-     * Util method to compare 2 maps
+     * Util method to compare 2 maps.
      *
      * @param expected expected map
      * @param result   resulting map
