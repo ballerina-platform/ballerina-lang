@@ -146,3 +146,12 @@ service echo on echoEP {
 function getConstPath() returns(string) {
     return "/constantPath";
 }
+
+@http:ServiceConfig
+service hello on echoEP {
+
+    @http:ResourceConfig
+    resource function echo(http:Caller caller, http:Request req) {
+        _ = caller->respond("Uninitialized configs");
+    }
+}
