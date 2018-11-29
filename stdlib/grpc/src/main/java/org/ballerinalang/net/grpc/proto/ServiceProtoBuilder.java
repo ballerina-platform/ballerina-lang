@@ -110,15 +110,14 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
             final BLangService serviceNode = (BLangService) service;
             if (ServiceDefinitionValidator.validate(serviceNode, dlog)) {
                 Optional<BLangConstant> rootDescriptor = ((ArrayList) ((BLangPackage) serviceNode.parent)
-                        .constants).stream().filter(var -> ROOT_DESCRIPTOR.equals(((BLangConstant)var).getName()
-                        .getValue()))
-                        .findFirst();
+                        .constants).stream().filter(var -> ROOT_DESCRIPTOR.equals(((BLangConstant) var).getName()
+                        .getValue())).findFirst();
                 Optional<BLangFunction> descriptorMapFunc = ((ArrayList) ((BLangPackage) serviceNode
                         .parent).functions).stream().filter(var -> DESCRIPTOR_MAP.equals(((BLangFunction) var)
                         .getName().getValue())).findFirst();
 
-                if (rootDescriptor.isPresent() && descriptorMapFunc.isPresent()) { ;
-                    addDescriptorAnnotation(serviceNode, (String)((BLangLiteral) rootDescriptor.get().getValue())
+                if (rootDescriptor.isPresent() && descriptorMapFunc.isPresent()) {
+                    addDescriptorAnnotation(serviceNode, (String) ((BLangLiteral) rootDescriptor.get().getValue())
                             .getValue());
                 } else {
                     File fileDefinition = ServiceProtoUtils.generateProtoDefinition(serviceNode);
@@ -234,16 +233,19 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
             return;
         }
 
-        BLangInvocation functionRef = ASTBuilderUtil.createInvocationExpr(pos, (BInvokableSymbol) mapVarSymbol, new
-                ArrayList<>(), symResolver);
-        functionRef.symbol = mapVarSymbol;
-        functionRef.type = symTable.mapType;
-        BLangIdentifier funcName = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        funcName.setValue(DESCRIPTOR_MAP);
-        functionRef.name = funcName;
-        BLangIdentifier funcPkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        funcPkgAlias.setValue("");
-        functionRef.pkgAlias = funcPkgAlias;
+        BLangInvocation functionRef = null;
+        if (mapVarSymbol instanceof BInvokableSymbol) {
+            functionRef = ASTBuilderUtil.createInvocationExpr(pos, (BInvokableSymbol) mapVarSymbol, new
+                    ArrayList<>(), symResolver);
+            functionRef.symbol = mapVarSymbol;
+            functionRef.type = symTable.mapType;
+            BLangIdentifier funcName = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+            funcName.setValue(DESCRIPTOR_MAP);
+            functionRef.name = funcName;
+            BLangIdentifier funcPkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+            funcPkgAlias.setValue("");
+            functionRef.pkgAlias = funcPkgAlias;
+        }
 
         BLangRecordLiteral.BLangRecordKeyValue mapKeyValue = (BLangRecordLiteral.BLangRecordKeyValue) TreeBuilder
                 .createRecordKeyValue();
