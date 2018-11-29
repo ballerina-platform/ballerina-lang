@@ -365,7 +365,6 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
 
     "boolean"                                   { return BOOLEAN; }
     "break"                                     { return BREAK; }
-    "but"                                       { return BUT; }
     "byte"                                      { return BYTE; }
 
     "catch"                                     { return CATCH; }
@@ -431,13 +430,11 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "returns"                                   { return RETURNS; }
 
     "service"                                   { return SERVICE; }
-    "some"                                      { return SOME; }
     "start"                                     { return START; }
     "stream"                                    { return STREAM; }
     "string"                                    { return STRING; }
 
     "table"                                     { return TABLE; }
-    "timeout"                                   { return TIMEOUT; }
     "transaction"                               { return TRANSACTION; }
     "trap"                                      { return TRAP; }
     "try"                                       { return TRY; }

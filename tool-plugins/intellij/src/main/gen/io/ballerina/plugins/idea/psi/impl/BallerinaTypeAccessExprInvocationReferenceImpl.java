@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaBuiltInReferenceTypeTypeExpressionImpl extends BallerinaExpressionImpl implements BallerinaBuiltInReferenceTypeTypeExpression {
+public class BallerinaTypeAccessExprInvocationReferenceImpl extends BallerinaVariableReferenceImpl implements BallerinaTypeAccessExprInvocationReference {
 
-  public BallerinaBuiltInReferenceTypeTypeExpressionImpl(@NotNull ASTNode node) {
+  public BallerinaTypeAccessExprInvocationReferenceImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitBuiltInReferenceTypeTypeExpression(this);
+    visitor.visitTypeAccessExprInvocationReference(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -43,20 +43,14 @@ public class BallerinaBuiltInReferenceTypeTypeExpressionImpl extends BallerinaEx
 
   @Override
   @NotNull
-  public BallerinaBuiltInReferenceTypeName getBuiltInReferenceTypeName() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaBuiltInReferenceTypeName.class));
+  public BallerinaInvocation getInvocation() {
+    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaInvocation.class));
   }
 
   @Override
   @NotNull
-  public PsiElement getDot() {
-    return notNullChild(findChildByType(DOT));
-  }
-
-  @Override
-  @NotNull
-  public PsiElement getIdentifier() {
-    return notNullChild(findChildByType(IDENTIFIER));
+  public BallerinaTypeAccessExpression getTypeAccessExpression() {
+    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaTypeAccessExpression.class));
   }
 
 }

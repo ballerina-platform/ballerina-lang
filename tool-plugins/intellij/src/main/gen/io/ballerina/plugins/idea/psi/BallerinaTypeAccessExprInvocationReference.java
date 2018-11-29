@@ -21,15 +21,12 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaValueTypeTypeExpression extends BallerinaExpression {
+public interface BallerinaTypeAccessExprInvocationReference extends BallerinaVariableReference {
 
   @NotNull
-  BallerinaValueTypeName getValueTypeName();
+  BallerinaInvocation getInvocation();
 
   @NotNull
-  PsiElement getDot();
-
-  @NotNull
-  PsiElement getIdentifier();
+  BallerinaTypeAccessExpression getTypeAccessExpression();
 
 }

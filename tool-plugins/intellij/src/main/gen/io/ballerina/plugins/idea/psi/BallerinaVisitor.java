@@ -168,10 +168,6 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitCompositeElement(o);
   }
 
-  public void visitBuiltInReferenceTypeTypeExpression(@NotNull BallerinaBuiltInReferenceTypeTypeExpression o) {
-    visitExpression(o);
-  }
-
   public void visitCallableUnitBody(@NotNull BallerinaCallableUnitBody o) {
     visitCompositeElement(o);
   }
@@ -870,6 +866,10 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitTypeName(o);
   }
 
+  public void visitTypeAccessExprInvocationReference(@NotNull BallerinaTypeAccessExprInvocationReference o) {
+    visitVariableReference(o);
+  }
+
   public void visitTypeAccessExpression(@NotNull BallerinaTypeAccessExpression o) {
     visitExpression(o);
   }
@@ -917,10 +917,6 @@ public class BallerinaVisitor extends PsiElementVisitor {
 
   public void visitValueTypeName(@NotNull BallerinaValueTypeName o) {
     visitCompositeElement(o);
-  }
-
-  public void visitValueTypeTypeExpression(@NotNull BallerinaValueTypeTypeExpression o) {
-    visitExpression(o);
   }
 
   public void visitVariableDefinitionStatement(@NotNull BallerinaVariableDefinitionStatement o) {

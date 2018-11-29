@@ -105,7 +105,7 @@
         DECIMAL_INTEGER_LITERAL = "regexp:\d+"
   ]
 
-    extends("(FunctionInvocation|SimpleVariable|MapArrayVariable|FieldVariable|XmlAttribVariable|Invocation)Reference") = VariableReference
+    extends("(FunctionInvocation|SimpleVariable|MapArrayVariable|FieldVariable|XmlAttribVariable|Invocation|TypeAccessExprInvocation)Reference") = VariableReference
 
     extends("((Simple|Array|Record|Xml|StringTemplate)Literal|(ValueType|BuiltInReferenceType)Type|VariableReference|LambdaFunction|ArrowFunction|Type(Init|Conversion|Access|Test)|BracedOrTuple|Wait|WorkerSendAsync|WorkerReceive|FlushWorker|TableQuery|Checked|TableLiteral|Elvis|ActionInvocation|IntegerRange|ArrowFunction|ErrorConstructor|ServiceConstructor|BinaryRefEqual|Trap)Expression") = Expression
     extends("(Unary|Binary|Ternary|Bitwise|BitwiseShift)Expression") = Expression
@@ -197,7 +197,7 @@ ServiceBody ::= LEFT_BRACE ServiceBodyMember* RIGHT_BRACE
 ServiceBodyMember ::= ObjectFieldDefinition | ObjectFunctionDefinition
 
 // Pin to make sure callable unit is identified correctly
-CallableUnitBody ::= LEFT_BRACE  Block WorkerDefinition* Block RIGHT_BRACE {pin=1}
+CallableUnitBody ::= LEFT_BRACE (RIGHT_BRACE | Block WorkerDefinition* Block RIGHT_BRACE) {pin=1}
 
 Block ::= Statement* {methods=[processDeclarations]} /*{recoverWhile=StatementRecover}*/
 
@@ -254,13 +254,7 @@ ConstantDefinition ::= PUBLIC? CONST TypeName? identifier ASSIGN Expression SEMI
 GlobalVariableDefinition ::= public? listener? TypeName identifier (ASSIGN Expression)? SEMICOLON
                             | public? final (TypeName | var) identifier ASSIGN Expression SEMICOLON
                             | channelType identifier SEMICOLON
-//{
-//    stubClass="io.ballerina.plugins.idea.stubs.BallerinaGlobalVariableDefinitionStub"
-//}
 
-//finalVariableDefinition ::= public? final (TypeName | var) identifier ASSIGN Expression SEMICOLON  {pin=2}
-//nonFinalVariableDefinition ::= public? listener? TypeName identifier (ASSIGN Expression)? SEMICOLON {pin=3}
-//channelDefinition ::= channelType identifier SEMICOLON
 channelType ::= channel (LT TypeName GT) {pin=1}
 
 // Todo - Need to update the service?
@@ -541,9 +535,9 @@ VariableReference ::= MapArrayVariableReference
                       | FieldVariableReference
                       | XmlAttribVariableReference
                       | FunctionInvocationReference
-                      | SimpleVariableReference {
-  methods=[getType]
-}
+                      | SimpleVariableReference
+                      | TypeAccessExprInvocationReference
+                      {methods=[getType]}
 
 InvocationReference ::= VariableReference Invocation
 MapArrayVariableReference ::= VariableReference Index
@@ -551,24 +545,17 @@ FieldVariableReference ::= VariableReference Field
 XmlAttribVariableReference ::= VariableReference XmlAttrib
 FunctionInvocationReference ::= FunctionInvocation
 SimpleVariableReference ::=  NameReference
+TypeAccessExprInvocationReference ::=  TypeAccessExpression Invocation
 
-Field ::= (DOT | NOT) (identifier | MUL) {
-    /*pin=1*/
-//    stubClass="io.ballerina.plugins.idea.stubs.BallerinaFieldStub"
-}
-
+// Todo - Adding pin will mess function invocation.
+Invocation ::= (DOT | NOT) AnyIdentifierName LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS
 Index ::= LEFT_BRACKET Expression RIGHT_BRACKET /*{pin=1}*/
-
-XmlAttrib ::= AT (LEFT_BRACKET Expression RIGHT_BRACKET)? /*{pin=1}*/
+Field ::= (DOT | NOT) (identifier | MUL) /*{pin=1}*/
+XmlAttrib ::= AT (LEFT_BRACKET Expression RIGHT_BRACKET)? {pin=1}
 
 // Todo - Need to pin?
 FunctionInvocation ::= functionNameReference LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS {pin=2}
-
-// Todo - Adding pin will mess function invocation.
-Invocation ::= (DOT | NOT) AnyIdentifierName LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS /*{pin=1}*/
-
 InvocationArgList ::= InvocationArg (COMMA InvocationArg)* {pin(".*")=1}
-
 InvocationArg ::= NamedArgs | RestArgs | Expression
 
 // Todo - Update the recovery rule
@@ -623,8 +610,6 @@ Expression
     |   BracedOrTupleExpression
     |   TernaryExpression
     |   ArrayLiteralExpression
-    |   ValueTypeTypeExpression
-    |   BuiltInReferenceTypeTypeExpression
     |   ActionInvocationExpression
     |   VariableReferenceExpression
     |   TypeInitExpression
@@ -668,7 +653,7 @@ TableQueryExpression ::= TableQuery
 
 TableLiteralExpression ::= TableLiteral
 
-private ExpressionRecover ::= !(NULL_LITERAL|int|string|float|boolean|byte|any|map|table|function|stream|'}'|';'|var|while|match|foreach|continue|break|fork|try|throw|return|abort|fail|lock|xmlns|transaction|but|if|forever|object|trap|wait|flush|error|check)
+private ExpressionRecover ::= !(NULL_LITERAL|int|string|float|boolean|byte|any|map|table|function|stream|'}'|';'|var|while|match|foreach|continue|break|fork|try|throw|return|abort|fail|lock|xmlns|transaction|if|forever|object|trap|wait|flush|error|check)
 
 fake BinaryExpression ::= Expression {
   methods=[left="Expression[0]" right="Expression[1]" getOperator]
@@ -680,8 +665,6 @@ ArrayLiteralExpression ::= ArrayLiteral
 RecordLiteralExpression ::= RecordLiteral
 XmlLiteralExpression ::= XmlLiteral
 StringTemplateLiteralExpression ::= StringTemplateLiteral
-ValueTypeTypeExpression ::= ValueTypeName DOT identifier
-BuiltInReferenceTypeTypeExpression ::= BuiltInReferenceTypeName DOT identifier
 VariableReferenceExpression ::= start? VariableReference
 LambdaFunctionExpression ::= LambdaFunction
 TypeConversionExpression ::= LT TypeName (COMMA FunctionInvocation)? GT Expression {pin=1}

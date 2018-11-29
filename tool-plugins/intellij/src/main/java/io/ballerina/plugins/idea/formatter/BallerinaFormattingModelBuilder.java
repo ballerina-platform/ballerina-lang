@@ -50,7 +50,6 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.BIT_COMPLEMENT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BLOCK;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BRACED_OR_TUPLE_EXPRESSION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BREAK;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.BUT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.CALLABLE_UNIT_BODY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.CALLABLE_UNIT_SIGNATURE;
@@ -319,7 +318,6 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(UNTAINT).spaceIf(true) // Todo
                 .around(START).spaceIf(true)
                 .around(CHECK).spaceIf(true)
-                .around(BUT).spaceIf(true)
 
                 // Streaming keywords
                 .around(FROM).spaceIf(true)
