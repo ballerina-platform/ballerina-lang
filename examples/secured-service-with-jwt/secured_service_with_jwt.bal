@@ -16,8 +16,7 @@ http:AuthProvider jwtAuthProvider = {
 // provider is set to this endpoint using the `authProviders` attribute. The
 // developer has the option to override the authentication and authorization
 // at the service and resource levels.
-endpoint http:Listener ep {
-    port: 9090,
+listener http:Listener ep = new(9090, config = {
     authProviders:[jwtAuthProvider],
     // The secure hello world sample uses https.
     secureSocket: {
@@ -30,7 +29,7 @@ endpoint http:Listener ep {
             password: "ballerina"
         }
     }
-};
+});
 
 @http:ServiceConfig {
     basePath: "/hello",
@@ -46,7 +45,7 @@ endpoint http:Listener ep {
 // the scope.
 // To specify one or more scope of a resource, the annotation attribute
 // `scopes` can be used.
-service<http:Service> echo bind ep {
+service echo on ep {
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/sayHello",
@@ -58,9 +57,7 @@ service<http:Service> echo bind ep {
     // resource level.
     // The hello resource would inherit the `authentication:{enabled:true}` flag
     // from the service level, and define 'hello' as the scope for the resource.
-    hello(endpoint caller, http:Request req) {
-        http:Response res = new;
-        res.setPayload("Hello, World!!!");
-        _ = caller->respond(res);
+    resource function hello(http:Caller caller, http:Request req) {
+        _ = caller->respond("Hello, World!!!");
     }
 }

@@ -16,11 +16,11 @@
 
 import ballerina/log;
 
-# Simplified QueueSender object
+# JMS Simplified QueueSender endpoint
 # A new connection and a session will be create when this endpoint is initialize. If your requirement is complex
 # please refer QueueSender endpoint.
 #
-# + config - configurations related to the SimpleQueueSender endpoint
+# + config - Used to store configurations related to a JMS SimpleQueueSender
 public type SimpleQueueSender client object {
 
     public SimpleQueueSenderEndpointConfiguration config = {};
@@ -90,9 +90,9 @@ public type SimpleQueueSender client object {
 # + initialContextFactory - JMS provider specific inital context factory
 # + providerUrl - JMS provider specific provider URL used to configure a connection
 # + connectionFactoryName - JMS connection factory to be used in creating JMS connections
-# + acknowledgementMode - specifies the session mode that will be used. Legal values are "AUTO_ACKNOWLEDGE",
+# + acknowledgementMode - Specifies the session mode that will be used. Legal values are "AUTO_ACKNOWLEDGE",
 #                         "CLIENT_ACKNOWLEDGE", "SESSION_TRANSACTED" and "DUPS_OK_ACKNOWLEDGE"
-# + properties - Additional properties use in initializing the initial context
+# + properties - Additional properties used when initializing the initial context
 # + queueName - Name of the target queue
 public type SimpleQueueSenderEndpointConfiguration record {
     string initialContextFactory = "bmbInitialContextFactory";

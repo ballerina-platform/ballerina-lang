@@ -67,7 +67,7 @@ public class WorkerFailTest {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-send-with-return.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
         String message = result.getDiagnostics()[0].getMessage();
-        Assert.assertTrue(message.contains("can not be used after a non-error return"),message);
+        Assert.assertTrue(message.contains("can not be used after a non-error return"), message);
     }
 
     @Test
@@ -75,7 +75,16 @@ public class WorkerFailTest {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-send-with-error-return.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
         String message = result.getDiagnostics()[0].getMessage();
-        Assert.assertTrue(message.contains("expected 'int', found 'int|error'"),message);
+        Assert.assertTrue(message.contains("expected 'int', found 'int|error'"), message);
     }
+
+    @Test
+    public void invalidSendWithErrorCheckTest() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-send-with-error-check.bal");
+        Assert.assertEquals(result.getErrorCount(), 1);
+        String message = result.getDiagnostics()[0].getMessage();
+        Assert.assertTrue(message.contains("can not be used after a non-error return"), message);
+    }
+
 
 }

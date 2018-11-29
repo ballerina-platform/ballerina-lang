@@ -25,7 +25,6 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 import org.ballerinalang.util.debugger.DebugContext;
-import org.ballerinalang.util.program.BLangVMUtils;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
 
 import java.util.HashMap;
@@ -213,6 +212,6 @@ public class WorkerExecutionContext {
         if (distributedTransactionsEnabledConfig != null && distributedTransactionsEnabledConfig.equals(FALSE)) {
             distributedTransactionEnabled = false;
         }
-        BLangVMUtils.setGlobalTransactionEnabledStatus(this, distributedTransactionEnabled);
+//        BLangVMUtils.setGlobalTransactionEnabledStatus(this, distributedTransactionEnabled);
     }
 }

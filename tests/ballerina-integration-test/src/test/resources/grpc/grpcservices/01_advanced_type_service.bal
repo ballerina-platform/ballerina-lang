@@ -16,9 +16,8 @@
 import ballerina/grpc;
 import ballerina/io;
 
-listener grpc:Listener ep = new ({
-    host:"localhost",
-    port:9090
+listener grpc:Listener ep = new (9090, config = {
+    host:"localhost"
 });
 
 @grpc:ServiceDescriptor {

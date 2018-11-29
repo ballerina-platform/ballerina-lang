@@ -65,24 +65,24 @@ service simpleProxy9 on new http:WebSocketListener(9099) {
 }
 
 service clientCallbackService9 = @http:WebSocketServiceConfig {} service {
-    resource function onText(http:WebSocketCaller wsEp, string text) {
-        http:WebSocketClient serviceEp = getAssociatedListener3(wsEp);
+    resource function onText(http:WebSocketClient wsEp, string text) {
+        http:WebSocketCaller serviceEp = getAssociatedListener3(wsEp);
         var returnVal = serviceEp->pushText(text);
         if (returnVal is error) {
              panic returnVal;
         }
     }
 
-    resource function onBinary(http:WebSocketCaller wsEp, byte[] data) {
-        http:WebSocketClient serviceEp = getAssociatedListener3(wsEp);
+    resource function onBinary(http:WebSocketClient wsEp, byte[] data) {
+        http:WebSocketCaller serviceEp = getAssociatedListener3(wsEp);
         var returnVal = serviceEp->pushBinary(data);
         if (returnVal is error) {
              panic returnVal;
         }
     }
 
-    resource function onClose(http:WebSocketCaller wsEp, int statusCode, string reason) {
-        http:WebSocketClient serviceEp = getAssociatedListener3(wsEp);
+    resource function onClose(http:WebSocketClient wsEp, int statusCode, string reason) {
+        http:WebSocketCaller serviceEp = getAssociatedListener3(wsEp);
         var returnVal = serviceEp->close(statusCode = statusCode, reason = reason);
         if (returnVal is error) {
              panic returnVal;
@@ -95,7 +95,7 @@ public function getAssociatedClientEndpoint3(http:WebSocketCaller wsServiceEp) r
     return returnVal;
 }
 
-public function getAssociatedListener3(http:WebSocketCaller wsClientEp) returns (http:WebSocketClient) {
-    var returnVal = <http:WebSocketClient>wsClientEp.attributes[ASSOCIATED_CONNECTION5];
+public function getAssociatedListener3(http:WebSocketClient wsClientEp) returns (http:WebSocketCaller) {
+    var returnVal = <http:WebSocketCaller>wsClientEp.attributes[ASSOCIATED_CONNECTION5];
     return returnVal;
 }

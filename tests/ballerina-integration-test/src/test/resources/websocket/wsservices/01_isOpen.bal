@@ -22,7 +22,7 @@ listener http:WebSocketListener socketListener = new(9078);
 @http:WebSocketServiceConfig {
     path: "/"
 }
-service isOpen on socketListener{
+service isOpen on socketListener {
 
     resource function onText(http:WebSocketCaller caller, string text) {
         _ = caller->close(timeoutInSecs = 0);

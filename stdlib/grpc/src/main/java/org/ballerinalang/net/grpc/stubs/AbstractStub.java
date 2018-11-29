@@ -19,9 +19,7 @@ package org.ballerinalang.net.grpc.stubs;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
-import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.net.grpc.ClientCall;
-import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.OutboundMessage;
@@ -55,7 +53,7 @@ public abstract class AbstractStub {
 
     private static final Logger logger = Logger.getLogger(AbstractStub.class.getName());
     private final HttpClientConnector connector;
-    private final Struct endpointConfig;
+    private String urlString;
     private static final String CACHE_BALLERINA_VERSION;
 
     static {
@@ -67,9 +65,9 @@ public abstract class AbstractStub {
      *
      * @param connector the client connector which use to communicate.
      */
-    AbstractStub(HttpClientConnector connector, Struct endpointConfig) {
+    AbstractStub(HttpClientConnector connector, String url) {
         this.connector = connector;
-        this.endpointConfig = endpointConfig;
+        this.urlString = url;
     }
 
     /**
@@ -82,22 +80,14 @@ public abstract class AbstractStub {
         return connector;
     }
 
-    /**
-     * Returns remote endpoint config.
-     */
-    private Struct getEndpointConfig() {
-        return endpointConfig;
-    }
-
     OutboundMessage createOutboundRequest(HttpHeaders httpHeaders) {
         try {
             HttpCarbonMessage carbonMessage = MessageUtils.createHttpCarbonMessage(true);
-            String urlString = getEndpointConfig().getStringField(GrpcConstants.CLIENT_ENDPOINT_URL);
-            URL url = new URL(urlString);
+            URL url = new URL(this.urlString);
             int port = getOutboundReqPort(url);
             String host = url.getHost();
             carbonMessage.setHeader(SCHEME_HEADER, url.getProtocol());
-            carbonMessage.setHeader(AUTHORITY, urlString);
+            carbonMessage.setHeader(AUTHORITY, this.urlString);
             setOutboundReqProperties(carbonMessage, url, port, host);
             setOutboundReqHeaders(carbonMessage, port, host);
             if (httpHeaders != null) {

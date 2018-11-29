@@ -34,7 +34,7 @@ import org.testng.annotations.Test;
  */
 public class PackageInitInvocationTest {
 
-    CompileResult result;
+    private CompileResult result;
 
     @BeforeClass
     public void setup() {
