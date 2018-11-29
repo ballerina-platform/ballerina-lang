@@ -213,10 +213,8 @@ public class ClosedRecordTest {
         CompileResult result = BCompileUtil.compile("test-src/record/negative/closed_record_nil-able_fn_ptr.bal");
 
         BAssertUtil.validateError(result, 0,
-                                  "invalid function pointer invocation on non-invokable field 'getName' in record " +
-                                          "'Person'", 29, 16);
-        BAssertUtil.validateError(result, 1,
-                                  "invalid function pointer invocation on non-invokable field 'getName' in record " +
-                                          "'Person'", 34, 16);
+                                  "function invocation on type 'function (string,string) returns (string)?' is " +
+                                          "not supported", 29, 16);
+        BAssertUtil.validateError(result, 1, "undefined function 'Person.getName'", 34, 16);
     }
 }
