@@ -84,10 +84,6 @@ function testTableLiteralDataAndAddWithObject() returns (int) {
     return count;
 }
 
-function testEmptyTableCreateInvalid() {
-    table t1 = table{};
-}
-
 function testUnknownTableType() {
     table<Student> t1 = table {};
 }
@@ -107,7 +103,7 @@ function testTableRemoveInvalidFunctionPointer() returns (int, json) | error {
     if (res is int) {
         count = res;
     }
-    json j = check <json>dt;
+    json j = check json.create(dt);
 
     return (count, j);
 }
