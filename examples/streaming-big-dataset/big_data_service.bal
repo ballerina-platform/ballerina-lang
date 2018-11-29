@@ -24,7 +24,7 @@ service dataService on new http:Listener(9090) {
             // Convert the obtained data to JSON. Note that this conversion does not load
             // all the data into memory.
             // The table can be converted to XML in a similar manner.
-            var jsonConversionRet = json.create(selectRet);
+            var jsonConversionRet = json.convert(selectRet);
             if (jsonConversionRet is json) {
                 // Set the JSON payload to the response. This is streamed to the client once the service is
                 // invoked.

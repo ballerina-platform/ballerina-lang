@@ -9,7 +9,7 @@ listener grpc:Listener ep = new ({
 });
 
 @grpc:ServiceDescriptor {
-    descriptor: string.create(descriptorMap[DESCRIPTOR_KEY]),
+    descriptor: string.convert(descriptorMap[DESCRIPTOR_KEY]),
     descMap: descriptorMap
 }
 service HelloWorld on ep {

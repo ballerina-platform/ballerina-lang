@@ -22,7 +22,7 @@ service multipartDemoService on new http:Listener(9090) {
             }
             response.setPayload(untaint bodyParts);
         } else if (bodyParts is error) {
-            log:printError(string.create(bodyParts.detail().message));
+            log:printError(string.convert(bodyParts.detail().message));
             response.setPayload("Error in decoding multiparts!");
             response.statusCode = 500;
         }
@@ -97,9 +97,9 @@ function handleContent(mime:Entity bodyPart) {
             //Extract the xml data from the body part and print it.
             var payload = bodyPart.getXml();
             if (payload is xml) {
-                log:printInfo(string.create(payload));
+                log:printInfo(string.convert(payload));
             } else if (payload is error) {
-                log:printError(string.create(payload.detail().message));
+                log:printError(string.convert(payload.detail().message));
             }
         } else if (mime:APPLICATION_JSON == baseType) {
             //Extract the json data from the body part and print it.
@@ -107,7 +107,7 @@ function handleContent(mime:Entity bodyPart) {
             if (payload is json) {
                 log:printInfo(payload.toString());
             } else if (payload is error) {
-                log:printError(string.create(payload.detail().message));
+                log:printError(string.convert(payload.detail().message));
             }
         } else if (mime:TEXT_PLAIN == baseType) {
             //Extract the text data from the body part and print it.
@@ -115,7 +115,7 @@ function handleContent(mime:Entity bodyPart) {
             if (payload is string) {
                 log:printInfo(payload);
             } else if (payload is error) {
-                log:printError(string.create(payload.detail().message));
+                log:printError(string.convert(payload.detail().message));
             }
         }
     }
