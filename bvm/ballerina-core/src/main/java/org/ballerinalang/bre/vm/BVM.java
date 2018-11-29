@@ -4161,17 +4161,6 @@ public class BVM {
             sf.ip = -1;
             strand.respCallback.signal();
         }
-//        } else {
-//            //                    TODO fix - rajith
-////            BLangScheduler.workerExcepted(ctx);
-////            throw new BVM.HandleErrorException(
-////                    ctx.respCtx.signal(new WorkerSignal(ctx, SignalType.ERROR, ctx.workerResult)));
-//            if (strand.fp > 0) {
-//                strand.popFrame();
-//                return handleError(strand);
-//            }
-//        }
-//        return strand.currentFrame;
     }
 
     private static AttributeInfo getAttributeInfo(AttributeInfoPool attrInfoPool, AttributeInfo.Kind attrInfoKind) {
