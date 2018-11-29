@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.bre.vm;
 
+import org.ballerinalang.bre.vm.Strand.State;
 import org.ballerinalang.model.types.BType;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -32,69 +32,85 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class SafeStrandCallback extends StrandCallback {
 
-    private Lock dataLock;
+    private volatile boolean done;
 
-    private AtomicBoolean returnValueAvailable;
-
-    private Strand contStrand;
-
-    private BType expType;
-
-    private int keyReg;
-
-    private int retReg;
-
-    private boolean multipleWait;
+    private CallbackWaitHandler callbackWaitHandler;
 
     SafeStrandCallback(BType retType) {
         super(retType);
-        this.dataLock = new ReentrantLock();
-        this.returnValueAvailable = new AtomicBoolean(false);
+        this.callbackWaitHandler = new CallbackWaitHandler();
+        this.done = false;
     }
 
     @Override
     public void signal() {
         try {
-            dataLock.lock();
-            this.returnValueAvailable.set(true);
-            if (contStrand == null) {
+            this.callbackWaitHandler.dataLock.lock();
+            this.done = true;
+            if (this.callbackWaitHandler.waitingStrand == null) {
                 return;
             }
-            Strand strand;
-            if (multipleWait) {
-                // Create the hashmap with the keyReg and callback
-                Map<Integer, SafeStrandCallback> callbackHashMap = new HashMap();
-                callbackHashMap.put(keyReg, this);
-
-                strand = CallbackReturnHandler.handleReturn(contStrand, retReg, callbackHashMap);
-            } else {
-                strand = CallbackReturnHandler.handleReturn(contStrand, expType, retReg, this);
+            if (this.callbackWaitHandler.waitingStrand.strandWaitHandler.waitCompleted) {
+                return;
             }
-            if (strand != null) {
-                BVMScheduler.schedule(strand);
+            if (this.callbackWaitHandler.waitForAll) {
+                Map<Integer, SafeStrandCallback> callbackHashMap = new HashMap();
+                callbackHashMap.put(this.callbackWaitHandler.keyReg, this);
+
+                Strand resultStrand = CallbackReturnHandler.handleReturn(this.callbackWaitHandler.waitingStrand,
+                        this.callbackWaitHandler.retReg, callbackHashMap);
+                if (resultStrand != null) {
+                    BVMScheduler.stateChange(resultStrand, State.PAUSED, State.RUNNABLE);
+                    BVMScheduler.schedule(resultStrand);
+                }
+                return;
+            }
+            Strand resultStrand = CallbackReturnHandler.handleReturn(this.callbackWaitHandler.waitingStrand,
+                    this.callbackWaitHandler.expType, this.callbackWaitHandler.retReg, this);
+            if (resultStrand != null) {
+                BVMScheduler.stateChange(resultStrand, State.PAUSED, State.RUNNABLE);
+                BVMScheduler.schedule(resultStrand);
             }
         } finally {
-            dataLock.unlock();
+            this.callbackWaitHandler.dataLock.unlock();
         }
     }
 
     void acquireDataLock() {
-        dataLock.lock();
+        this.callbackWaitHandler.dataLock.lock();
     }
 
     void releaseDataLock() {
-        dataLock.unlock();
+        this.callbackWaitHandler.dataLock.unlock();
     }
 
-    void setRetData(Strand contStrand, BType expType, int retReg, boolean multipleWait, int keyReg) {
-        this.contStrand = contStrand;
-        this.expType = expType;
-        this.retReg = retReg;
-        this.multipleWait = multipleWait;
-        this.keyReg = keyReg;
+    void configureWaitHandler(Strand waitingStrand, boolean waitForAll, BType expType, int retReg, int keyReg) {
+        this.callbackWaitHandler.waitingStrand = waitingStrand;
+        this.callbackWaitHandler.waitForAll = waitForAll;
+        this.callbackWaitHandler.expType = expType;
+        this.callbackWaitHandler.retReg = retReg;
+        this.callbackWaitHandler.keyReg = keyReg;
     }
 
-    boolean returnDataAvailable() {
-        return this.returnValueAvailable.get();
+    public boolean isDone() {
+        return this.done;
+    }
+
+    /**
+     * This class holds relevant data for callback wait handling related to callback side.
+     */
+    public static class CallbackWaitHandler {
+        private Lock dataLock;
+        Strand waitingStrand;
+        boolean waitForAll;
+        BType expType;
+        int retReg;
+
+        //WaitForAll
+        int keyReg;
+
+        public CallbackWaitHandler() {
+            dataLock = new ReentrantLock();
+        }
     }
 }

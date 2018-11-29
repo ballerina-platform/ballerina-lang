@@ -17,7 +17,7 @@ function getGlobalVars() returns (int, string, float, any) {
 
 function accessGlobalVar() returns int | error {
     int value;
-    value = check trap <int> glbVarAny;
+    value = check trap <int>glbVarAny;
     return (glbVarInt + value);
 }
 

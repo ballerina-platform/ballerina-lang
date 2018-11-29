@@ -33,7 +33,7 @@ public enum PlaceHolder {
             //after imports
             bLangPackage.getImports().forEach(imp -> pos[0] = getMaximumPosition(imp.getPosition(), pos[0]));
             bLangPackage.getGlobalVariables().forEach(var -> pos[0] = getMaximumPosition(var.getPosition(), pos[0]));
-            return resetColumnPosition(pos[0]);
+            return zeroColumnPosition(pos[0]);
         }
     },
 
@@ -48,7 +48,7 @@ public enum PlaceHolder {
             });
             pos[0].eLine = pos[0].eLine + 1;
             pos[0].sLine = pos[0].eLine;
-            return resetColumnPosition(pos[0]);
+            return zeroColumnPosition(pos[0]);
         }
     },
 
@@ -57,7 +57,7 @@ public enum PlaceHolder {
         public DiagnosticPos getPosition(BLangPackage bLangPackage) {
             final DiagnosticPos[] pos = {new DiagnosticPos(null, 0, 0, 0, 0)};
             bLangPackage.getImports().forEach(pkg -> pos[0] = getMaximumPosition(pkg.getPosition(), pos[0]));
-            return resetColumnPosition(pos[0]);
+            return zeroColumnPosition(pos[0]);
         }
     },
 
@@ -80,7 +80,7 @@ public enum PlaceHolder {
         this.name = name;
     }
 
-    private static DiagnosticPos resetColumnPosition(DiagnosticPos pos) {
+    private static DiagnosticPos zeroColumnPosition(DiagnosticPos pos) {
         pos.sCol = 0;
         pos.eCol = 0;
         return pos;
