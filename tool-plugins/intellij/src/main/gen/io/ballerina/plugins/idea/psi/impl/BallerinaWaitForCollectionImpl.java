@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaWorkerInteractionStatementImpl extends BallerinaCompositeElementImpl implements BallerinaWorkerInteractionStatement {
+public class BallerinaWaitForCollectionImpl extends BallerinaCompositeElementImpl implements BallerinaWaitForCollection {
 
-  public BallerinaWorkerInteractionStatementImpl(@NotNull ASTNode node) {
+  public BallerinaWaitForCollectionImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitWorkerInteractionStatement(this);
+    visitor.visitWaitForCollection(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -42,15 +42,21 @@ public class BallerinaWorkerInteractionStatementImpl extends BallerinaCompositeE
   }
 
   @Override
-  @Nullable
-  public BallerinaTriggerWorker getTriggerWorker() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaTriggerWorker.class);
+  @NotNull
+  public List<BallerinaWaitKeyValue> getWaitKeyValueList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaWaitKeyValue.class);
+  }
+
+  @Override
+  @NotNull
+  public PsiElement getLeftBrace() {
+    return notNullChild(findChildByType(LEFT_BRACE));
   }
 
   @Override
   @Nullable
-  public BallerinaWorkerReply getWorkerReply() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaWorkerReply.class);
+  public PsiElement getRightBrace() {
+    return findChildByType(RIGHT_BRACE);
   }
 
 }

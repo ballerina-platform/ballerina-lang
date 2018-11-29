@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaTimeoutClauseImpl extends BallerinaCompositeElementImpl implements BallerinaTimeoutClause {
+public class BallerinaWorkerReceiveExpressionImpl extends BallerinaExpressionImpl implements BallerinaWorkerReceiveExpression {
 
-  public BallerinaTimeoutClauseImpl(@NotNull ASTNode node) {
+  public BallerinaWorkerReceiveExpressionImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitTimeoutClause(this);
+    visitor.visitWorkerReceiveExpression(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -49,26 +49,20 @@ public class BallerinaTimeoutClauseImpl extends BallerinaCompositeElementImpl im
 
   @Override
   @Nullable
-  public BallerinaTimeoutClauseBody getTimeoutClauseBody() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaTimeoutClauseBody.class);
+  public PsiElement getComma() {
+    return findChildByType(COMMA);
   }
 
   @Override
-  @Nullable
-  public BallerinaTypeName getTypeName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaTypeName.class);
+  @NotNull
+  public PsiElement getLarrow() {
+    return notNullChild(findChildByType(LARROW));
   }
 
   @Override
   @Nullable
   public PsiElement getIdentifier() {
     return findChildByType(IDENTIFIER);
-  }
-
-  @Override
-  @NotNull
-  public PsiElement getTimeout() {
-    return notNullChild(findChildByType(TIMEOUT));
   }
 
 }

@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaUnnamedPatternImpl extends BallerinaCompositeElementImpl implements BallerinaUnnamedPattern {
+public class BallerinaFlushWorkerExpressionImpl extends BallerinaExpressionImpl implements BallerinaFlushWorkerExpression {
 
-  public BallerinaUnnamedPatternImpl(@NotNull ASTNode node) {
+  public BallerinaFlushWorkerExpressionImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitUnnamedPattern(this);
+    visitor.visitFlushWorkerExpression(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -42,39 +42,9 @@ public class BallerinaUnnamedPatternImpl extends BallerinaCompositeElementImpl i
   }
 
   @Override
-  @Nullable
-  public BallerinaBlock getBlock() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaBlock.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaStatement getStatement() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaStatement.class);
-  }
-
-  @Override
   @NotNull
-  public BallerinaTypeName getTypeName() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaTypeName.class));
-  }
-
-  @Override
-  @NotNull
-  public PsiElement getEqualGt() {
-    return notNullChild(findChildByType(EQUAL_GT));
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getLeftBrace() {
-    return findChildByType(LEFT_BRACE);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getRightBrace() {
-    return findChildByType(RIGHT_BRACE);
+  public BallerinaFlushWorker getFlushWorker() {
+    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaFlushWorker.class));
   }
 
 }

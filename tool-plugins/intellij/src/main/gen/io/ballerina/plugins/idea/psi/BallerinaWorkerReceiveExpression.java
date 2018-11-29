@@ -21,12 +21,18 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaCompensationClause extends BallerinaCompositeElement {
+public interface BallerinaWorkerReceiveExpression extends BallerinaExpression {
 
   @Nullable
-  BallerinaCallableUnitBody getCallableUnitBody();
+  BallerinaExpression getExpression();
+
+  @Nullable
+  PsiElement getComma();
 
   @NotNull
-  PsiElement getCompensation();
+  PsiElement getLarrow();
+
+  @Nullable
+  PsiElement getIdentifier();
 
 }

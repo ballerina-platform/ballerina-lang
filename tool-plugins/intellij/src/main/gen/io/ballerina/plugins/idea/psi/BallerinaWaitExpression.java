@@ -21,21 +21,15 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaJoinClause extends BallerinaCompositeElement {
+public interface BallerinaWaitExpression extends BallerinaExpression {
 
   @Nullable
-  BallerinaJoinClauseBody getJoinClauseBody();
+  BallerinaExpression getExpression();
 
   @Nullable
-  BallerinaJoinConditions getJoinConditions();
-
-  @Nullable
-  BallerinaTypeName getTypeName();
-
-  @Nullable
-  PsiElement getIdentifier();
+  BallerinaWaitForCollection getWaitForCollection();
 
   @NotNull
-  PsiElement getJoin();
+  PsiElement getWait();
 
 }

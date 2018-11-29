@@ -21,21 +21,12 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaUnnamedPattern extends BallerinaCompositeElement {
-
-  @Nullable
-  BallerinaBlock getBlock();
-
-  @Nullable
-  BallerinaStatement getStatement();
+public interface BallerinaWaitForCollection extends BallerinaCompositeElement {
 
   @NotNull
-  BallerinaTypeName getTypeName();
+  List<BallerinaWaitKeyValue> getWaitKeyValueList();
 
   @NotNull
-  PsiElement getEqualGt();
-
-  @Nullable
   PsiElement getLeftBrace();
 
   @Nullable

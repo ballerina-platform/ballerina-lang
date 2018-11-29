@@ -21,15 +21,15 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaCompensateStatement extends BallerinaCompositeElement {
+public interface BallerinaWaitKeyValue extends BallerinaCompositeElement {
 
   @Nullable
-  PsiElement getSemicolon();
+  BallerinaExpression getExpression();
+
+  @Nullable
+  PsiElement getColon();
 
   @NotNull
-  PsiElement getCompensate();
-
-  @Nullable
   PsiElement getIdentifier();
 
 }

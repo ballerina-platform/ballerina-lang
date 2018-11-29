@@ -21,16 +21,13 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaMatchExpressionPatternClause extends BallerinaCompositeElement {
+public interface BallerinaWorkerSendAsyncExpression extends BallerinaExpression {
 
-  @Nullable
+  @NotNull
   BallerinaExpression getExpression();
 
   @NotNull
-  BallerinaTypeName getTypeName();
-
-  @Nullable
-  PsiElement getEqualGt();
+  PsiElement getSyncrarrow();
 
   @Nullable
   PsiElement getIdentifier();

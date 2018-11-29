@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaCompensateStatementImpl extends BallerinaCompositeElementImpl implements BallerinaCompensateStatement {
+public class BallerinaWorkerSendAsyncExpressionImpl extends BallerinaExpressionImpl implements BallerinaWorkerSendAsyncExpression {
 
-  public BallerinaCompensateStatementImpl(@NotNull ASTNode node) {
+  public BallerinaWorkerSendAsyncExpressionImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitCompensateStatement(this);
+    visitor.visitWorkerSendAsyncExpression(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -42,15 +42,15 @@ public class BallerinaCompensateStatementImpl extends BallerinaCompositeElementI
   }
 
   @Override
-  @Nullable
-  public PsiElement getSemicolon() {
-    return findChildByType(SEMICOLON);
+  @NotNull
+  public BallerinaExpression getExpression() {
+    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaExpression.class));
   }
 
   @Override
   @NotNull
-  public PsiElement getCompensate() {
-    return notNullChild(findChildByType(COMPENSATE));
+  public PsiElement getSyncrarrow() {
+    return notNullChild(findChildByType(SYNCRARROW));
   }
 
   @Override
