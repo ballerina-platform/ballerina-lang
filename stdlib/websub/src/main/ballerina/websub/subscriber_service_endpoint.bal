@@ -107,7 +107,7 @@ function Listener.sendSubscriptionRequests() {
 
         // TODO: fix retrieveSubscriptionParameters to put values as relevant types.
         string strSubscribeOnStartUp = <string>subscriptionDetails.subscribeOnStartUp;
-        boolean subscribeOnStartUp = boolean.create(strSubscribeOnStartUp);
+        boolean subscribeOnStartUp = boolean.convert(strSubscribeOnStartUp);
 
         if (subscribeOnStartUp) {
             string resourceUrl = <string>subscriptionDetails.resourceUrl;
@@ -275,7 +275,7 @@ function invokeClientConnectorForSubscription(string hub, http:AuthConfig? auth,
     int leaseSeconds = 0;
 
     string strLeaseSeconds = <string>subscriptionDetails.leaseSeconds;
-    var convIntLeaseSeconds = int.create(strLeaseSeconds);
+    var convIntLeaseSeconds = int.convert(strLeaseSeconds);
     if (convIntLeaseSeconds is int) {
         leaseSeconds = convIntLeaseSeconds;
     } else if (convIntLeaseSeconds is error) {
