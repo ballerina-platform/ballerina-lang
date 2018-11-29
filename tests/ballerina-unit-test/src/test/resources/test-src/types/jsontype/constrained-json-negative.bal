@@ -74,7 +74,7 @@ function tesInitializationWithInvalidNestedStruct() {
 
 function testConstrainedJSONArrayToConstraintJsonArrayCast() returns (json<Student>[]) {
     json<Person>[] j1 = [{name:"John Doe", age:30, address:"London"}];
-    var j2 = <json<Student>[]> j1;
+    var j2 = json<Student>[].create(j1);
     return j2;
 }
 
