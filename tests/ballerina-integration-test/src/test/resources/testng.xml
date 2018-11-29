@@ -107,7 +107,7 @@
 
     <test name="ballerina-filter-tests" parallel="false">
         <classes>
-            <class name="org.ballerinalang.test.filter.FilterBaseTest"/>
+            <class name="org.ballerinalang.test.filter.FilterTestCommons"/>
             <class name="org.ballerinalang.test.filter.MultpleFiltersTestCase"/>
             <class name="org.ballerinalang.test.filter.InvocationContextTestCase"/>
             <class name="org.ballerinalang.test.filter.SingleFilterTestCase"/>
