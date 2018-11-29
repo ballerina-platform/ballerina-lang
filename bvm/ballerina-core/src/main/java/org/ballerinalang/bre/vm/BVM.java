@@ -900,12 +900,12 @@ public class BVM {
 //                checkAndStopCallableObservation(observerContext, flags);
                 /* we want the parent to continue, since we got the response of the native call already */
                 strand.respCallback.signal();
-                return strand;
+                return null;
             }
             CallableUnitCallback callback = getNativeCallableUnitCallback(strand, sf, ctx, observerContext,
                     retReg, retType, flags);
             nativeCallable.execute(ctx, callback);
-            return strand;
+            return null;
         } catch (BLangNullReferenceException e) {
             strand.setError(BLangVMErrors.createNullRefException(strand));
         } catch (Throwable e) {
