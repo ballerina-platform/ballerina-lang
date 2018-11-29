@@ -43,6 +43,8 @@ public function main() {
 
     // Note that Index-based access will return a union of constraint+nil.
     // If the key does not exist a nil value is returned.
+    // Elvis operator `?:` is a conditional operator that handles `null`. 
+    // It evaluates an expression and if the value is `null`, it executes the second expression.
     string index2 = stringMap["index"] ?: "";
     io:println(index2);
 }
