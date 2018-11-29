@@ -12,8 +12,13 @@ public function main() {
     io:println(a);
 
     // First, the variable of the `any` type needs to be cast to the required type (`int` in this example) as shown here.
-    int intVal = check <int>a;
-    io:println(intVal + 10);
+    int|error intVal = trap <int>a;
+    if (intVal is int) {
+        io:println(intVal + 10);
+    } else {
+        // Runtime value is casted to correct type since Ballerina runtime can infer the correct type to error.
+        io:println("Error occurred: " + intVal.reason());
+    }
 
     // In Ballerina, a variable of the `any` type can hold values of any data type.
     int[] ia = [1, 3, 5, 6];
