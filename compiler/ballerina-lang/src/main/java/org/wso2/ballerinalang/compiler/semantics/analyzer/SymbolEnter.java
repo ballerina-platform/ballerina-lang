@@ -1263,15 +1263,19 @@ public class SymbolEnter extends BLangNodeVisitor {
         return varSymbol;
     }
 
-    private BVarSymbol createVarSymbol(Set<Flag> flagSet, BType varType, Name varName, SymbolEnv env) {
+    public BVarSymbol createVarSymbol(Set<Flag> flagSet, BType varType, Name varName, SymbolEnv env) {
+        return createVarSymbol(Flags.asMask(flagSet), varType, varName, env);
+    }
+
+    public BVarSymbol createVarSymbol(int flags, BType varType, Name varName, SymbolEnv env) {
+        BType safeType = types.getSafeType(varType, false);
         BVarSymbol varSymbol;
-        if (varType.tag == TypeTags.INVOKABLE) {
-            varSymbol = new BInvokableSymbol(SymTag.VARIABLE, Flags.asMask(flagSet), varName,
-                    env.enclPkg.symbol.pkgID, varType, env.scope.owner);
+        if (safeType.tag == TypeTags.INVOKABLE) {
+            varSymbol = new BInvokableSymbol(SymTag.VARIABLE, flags, varName, env.enclPkg.symbol.pkgID, varType,
+                                             env.scope.owner);
             varSymbol.kind = SymbolKind.FUNCTION;
         } else {
-            varSymbol = new BVarSymbol(Flags.asMask(flagSet), varName,
-                    env.enclPkg.symbol.pkgID, varType, env.scope.owner);
+            varSymbol = new BVarSymbol(flags, varName, env.enclPkg.symbol.pkgID, varType, env.scope.owner);
             if (varType.tsymbol != null && Symbols.isFlagOn(varType.tsymbol.flags, Flags.CLIENT)) {
                 varSymbol.tag = SymTag.ENDPOINT;
             }
