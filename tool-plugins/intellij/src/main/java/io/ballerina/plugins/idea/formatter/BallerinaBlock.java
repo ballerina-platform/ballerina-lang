@@ -197,12 +197,8 @@ public class BallerinaBlock extends AbstractBlock {
                         || parentElementType == BallerinaTypes.ELSE_CLAUSE
                         || parentElementType == BallerinaTypes.WORKER_BODY
                         || parentElementType == BallerinaTypes.FORK_JOIN_STATEMENT
-                        || parentElementType == BallerinaTypes.JOIN_CLAUSE_BODY
-                        || parentElementType == BallerinaTypes.TIMEOUT_CLAUSE_BODY
                         || parentElementType == BallerinaTypes.WHILE_STATEMENT_BODY
                         || parentElementType == BallerinaTypes.MATCH_STATEMENT_BODY
-                        || parentElementType == BallerinaTypes.NAMED_PATTERN
-                        || parentElementType == BallerinaTypes.UNNAMED_PATTERN
                         || parentElementType == BallerinaTypes.EXPRESSION_PATTERN
                         || parentElementType == BallerinaTypes.BINDING_PATTERN_PATTERN
                         || parentElementType == BallerinaTypes.RECORD_LITERAL
@@ -241,15 +237,7 @@ public class BallerinaBlock extends AbstractBlock {
             return Indent.getNormalIndent();
         } else if (childElementType == BallerinaTypes.INVOCATION_ARG_LIST) {
             return Indent.getIndent(Indent.Type.NORMAL, true, true);
-        } else if (childElementType == BallerinaTypes.FORK_STATEMENT_BODY) {
-            return Indent.getNormalIndent();
-        } else if (childElementType == BallerinaTypes.JOIN_CLAUSE_BODY) {
-            return Indent.getNormalIndent();
-        } else if (childElementType == BallerinaTypes.TIMEOUT_CLAUSE_BODY) {
-            return Indent.getNormalIndent();
         } else if (childElementType == BallerinaTypes.MATCH_STATEMENT_BODY) {
-            return Indent.getNormalIndent();
-        } else if (childElementType == BallerinaTypes.MATCH_EXPRESSION_PATTERN_CLAUSE) {
             return Indent.getNormalIndent();
         } else if (childElementType == BallerinaTypes.EXPRESSION_LIST
                 && parentElementType == BallerinaTypes.ARRAY_LITERAL) {
@@ -322,17 +310,7 @@ public class BallerinaBlock extends AbstractBlock {
             childIndent = Indent.getNormalIndent();
         } else if (myNode.getElementType() == BallerinaTypes.FORK_JOIN_STATEMENT) {
             childIndent = Indent.getNormalIndent();
-        } else if (myNode.getElementType() == BallerinaTypes.JOIN_CLAUSE_BODY) {
-            childIndent = Indent.getNormalIndent();
-        } else if (myNode.getElementType() == BallerinaTypes.TIMEOUT_CLAUSE_BODY) {
-            childIndent = Indent.getNormalIndent();
         } else if (myNode.getElementType() == BallerinaTypes.MATCH_STATEMENT_BODY) {
-            childIndent = Indent.getNormalIndent();
-        } else if (myNode.getElementType() == BallerinaTypes.MATCH_EXPRESSION) {
-            childIndent = Indent.getNormalIndent();
-        } else if (myNode.getElementType() == BallerinaTypes.NAMED_PATTERN) {
-            childIndent = Indent.getNormalIndent();
-        } else if (myNode.getElementType() == BallerinaTypes.UNNAMED_PATTERN) {
             childIndent = Indent.getNormalIndent();
         } else if (myNode.getElementType() == BallerinaTypes.EXPRESSION_PATTERN) {
             childIndent = Indent.getNormalIndent();

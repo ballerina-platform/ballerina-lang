@@ -40,7 +40,6 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.ANNOTATION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ANY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ANYDATA;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ASCENDING;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.AWAIT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BINARY_INTEGER_LITERAL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BOOLEAN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BOOLEAN_LITERAL;
@@ -142,13 +141,11 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.SELECT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.SERVICE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.SET;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.SNAPSHOT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.SOME;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.START;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.STREAM;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.STRING;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TABLE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.THROW;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.TIMEOUT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRANSACTION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRAP;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRY;
@@ -186,12 +183,12 @@ public class BallerinaParserDefinition implements ParserDefinition {
     // excluding keywords "foreach" and "map", which are also used as Iterable operations.
     // Todo - Annotate ReservedWord in the runtime to prevent highlighting as keywords.
     public static final TokenSet KEYWORDS = TokenSet
-            .create(ABORT, ABSTRACT, ALL, ANNOTATION, ANY, ANYDATA, AWAIT, BOOLEAN, BREAK, BUT, BYTE, CATCH, CHANNEL,
+            .create(ABORT, ABSTRACT, ALL, ANNOTATION, ANY, ANYDATA, BOOLEAN, BREAK, BUT, BYTE, CATCH, CHANNEL,
                     CHECK, CLIENT, CONST, CONTINUE, DEPRECATED, DECIMAL, DONE, ELSE, ENUM, ERROR, EXTERN, FAIL, FINAL,
                     FINALLY, FLOAT, FORK, FUNCTION, FUTURE, IF, IMPORT, IN, INT, IS, JOIN, JSON, LENGTHOF, LISTENER,
                     LOCK, MATCH, NEW, OBJECT, OBJECT_INIT, ONABORT, ONCOMMIT, ONRETRY, PARAMETER, PANIC, PRIVATE,
-                    PUBLIC, RECORD, REMOTE, RESOURCE, RETRIES, RETRY, RETURN, RETURNS, SERVICE, SOME, START, STREAM,
-                    STRING, TABLE, TIMEOUT, TRANSACTION, TRY, TYPE, TYPEDESC, TRAP, THROW, UNTAINT, WHILE, WITH, WORKER,
+                    PUBLIC, RECORD, REMOTE, RESOURCE, RETRIES, RETRY, RETURN, RETURNS, SERVICE, START, STREAM,
+                    STRING, TABLE, TRANSACTION, TRY, TYPE, TYPEDESC, TRAP, THROW, UNTAINT, WHILE, WITH, WORKER,
                     VAR, VERSION, XML, XMLNS, BOOLEAN_LITERAL, NULL_LITERAL, FROM, ON, SELECT, GROUP, BY, HAVING, ORDER,
                     WHERE, FOLLOWED, SET, FOR, WINDOW, EVENTS, EVERY, WITHIN, LAST, FIRST, SNAPSHOT, OUTPUT, INNER,
                     OUTER, RIGHT, LEFT, FULL, UNIDIRECTIONAL, SECOND, SECONDS, MINUTE, MINUTES, HOUR, HOURS, DAY, DAYS,
