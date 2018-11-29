@@ -154,7 +154,7 @@ function testTupleWithAssignableTypes() returns (boolean, boolean, boolean) {
 
 function testSimpleConstrainedMap() returns (boolean, boolean, boolean, boolean, boolean) {
     map<string> m = {"key1": "value1"};
-    boolean b0 = m is map;
+    boolean b0 = m is map<any>;
     boolean b1 = m is map<any>;
     boolean b2 = m is map<string>;
     boolean b3 = m is json;

@@ -40,16 +40,6 @@ public extern function openReadableFile(@sensitive string path) returns @tainted
 public extern function openWritableFile(@sensitive string path, boolean append = false)
     returns @tainted WritableByteChannel;
 
-# Opens a secure socket connection with a remote server.
-#
-# + host - Remote server domain/IP
-# + port - Remote server port
-# + options - Mata data to initialize the connection(i.e security information)
-# + return - Socket which will represent the network object or an error
-public extern function openSecureSocket(@sensitive string host,
-                                        @sensitive int port,
-                                        SocketProperties options) returns @tainted Socket|error;
-
 # Creates an in-memory channel which will reference stream of bytes.
 #
 # + content - Content which should be exposed as channel

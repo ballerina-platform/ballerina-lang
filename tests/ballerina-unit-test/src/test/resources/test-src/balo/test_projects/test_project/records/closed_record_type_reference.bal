@@ -15,19 +15,19 @@
 // under the License.
 
 public type BClosedPerson record {
-    string name;
-    int age;
-    ClosedAddress adr;
+    string name = "anonymous";
+    int age = 0;
+    ClosedAddress adr = {city:"", country:""};
 };
 
 public type BClosedManager record {
     *BClosedEmployee;
-    string dept;
+    string dept = "";
     !...
 };
 
 public type BClosedEmployee record {
-    string company;
+    string company = "";
     *BClosedPerson;
     !...
 };

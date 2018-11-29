@@ -35,15 +35,15 @@ function testAccessJsonInStruct () returns (string, string, string) | error {
 
     var result1 = p1.parent;
     if (result1 is Person) {
-        status1 = check <string>result1.info.status;
+        status1 = check string.create(result1.info.status);
     } else {
         io:println("Person is null");
     }
 
     var result2 = p1["parent"];
     if (result2 is Person) {
-        status2 = check <string> result2["info"]["status"];
-        status3 = check <string> result2.info["status"];
+        status2 = check string.create(result2["info"]["status"]);
+        status3 = check string.create(result2.info["status"]);
     } else {
         io:println("Person is null");
     }
@@ -65,7 +65,7 @@ function testAccessMapInStruct () returns (any, any, any, string) {
 
     var result = p1["parent"];
     if (result is Person) {
-        city = result.address[cityKey] is any ? <string> result.address[cityKey] : "";
+        city = string.create(result.address[cityKey]);
         return (result.address.city, result["address"]["city"], result.address["city"], city);
     } else {
         io:println("Person is null");

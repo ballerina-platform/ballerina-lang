@@ -29,9 +29,8 @@ under the License.
 
     <test name="ballerina-socket-test-suite" preserve-order="true" parallel="false">
         <classes>
-            <class name="org.ballerinalang.test.nativeimpl.functions.io.socket.ClientSocketTest"/>
-            <class name="org.ballerinalang.test.nativeimpl.functions.io.socket.SecureClientSocketTest"/>
-            <!--<class name="org.ballerinalang.test.nativeimpl.functions.io.socket.ServerSocketTest"/>-->
+            <class name="org.ballerinalang.test.nativeimpl.functions.socket.ServerSocketTest"/>
+            <class name="org.ballerinalang.test.nativeimpl.functions.socket.ClientSocketTest"/>
         </classes>
     </test>
     <!-- Ballerina language Test Cases. -->
@@ -55,7 +54,7 @@ under the License.
             <package name="org.ballerinalang.test.functions.*"/>
             <package name="org.ballerinalang.test.worker.*"/>
             <package name="org.ballerinalang.test.nativeimpl.functions.*">
-                <exclude name="org.ballerinalang.test.nativeimpl.functions.io.socket"/>
+                <exclude name="org.ballerinalang.test.nativeimpl.functions.socket"/>
             </package>
             <package name="org.ballerinalang.test.jdbc.*">
                 <exclude name="org.ballerinalang.test.jdbc.transaction"/>
@@ -65,7 +64,7 @@ under the License.
             <!--package name="org.ballerinalang.test.debugger.*"/>-->
             <package name="org.ballerinalang.test.structs.*"/>
             <!--package name="org.ballerinalang.test.endpoint.*"/>-->
-            <!--package name="org.ballerinalang.test.closures.*"/>-->
+            <package name="org.ballerinalang.test.closures.*"/>
             <package name="org.ballerinalang.test.services.nativeimpl.*"/>
             <package name="org.ballerinalang.test.services.basics"/>
             <package name="org.ballerinalang.test.services.cors"/>
