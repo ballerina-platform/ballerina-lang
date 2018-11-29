@@ -79,16 +79,21 @@ export const visitor: Visitor = {
         const client = viewState.client;
         const defaultWorker = viewState.defaultWorker;
 
+        // Initialize the client width and height to default.
         client.h = config.lifeLine.line.height + (config.lifeLine.header.height * 2);
         client.w = config.lifeLine.width;
 
-        defaultWorker.h = node.body!.viewState.bBox.h + (config.lifeLine.header.height * 2)
+        // Size default worker
+        defaultWorker.bBox.h = node.body!.viewState.bBox.h + (config.lifeLine.header.height * 2)
             + config.statement.height; // for bottom plus
-        defaultWorker.w = config.lifeLine.width;
+        defaultWorker.bBox.w = node.body!.viewState.bBox.w;
+        defaultWorker.lifeline.h = defaultWorker.bBox.h;
+        defaultWorker.lifeline.w = config.lifeLine.width;
+        defaultWorker.bBox.leftMargin = node.body!.viewState.bBox.leftMargin;
 
-        const lineHeight = (client.h > defaultWorker.h) ? client.h : defaultWorker.h;
+        const lineHeight = (client.h > defaultWorker.bBox.h) ? client.h : defaultWorker.bBox.h;
         // Sync up the heights of lifelines
-        client.h = defaultWorker.h = lineHeight;
+        client.h = defaultWorker.bBox.h = lineHeight;
 
         // Size endpoints
         let endpointWidth = 0;
@@ -107,9 +112,6 @@ export const visitor: Visitor = {
 
         header.w = config.panelHeading.padding.left + config.panelHeading.padding.right;
         header.h = config.panelHeading.height;
-
-        // Set the margin
-        defaultWorker.leftMargin = (defaultWorker.w / 2);
 
         viewState.bBox.w = (body.w > header.w) ? body.w : header.w;
         viewState.bBox.h = body.h + header.h;

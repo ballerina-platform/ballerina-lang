@@ -13,7 +13,7 @@ export const Function = (props: {model: FunctionNode}) => {
     return (
         <Panel model={viewState} title={model.name.value} icon="function">
             <LifeLine title="Client" icon="client" model={viewState.client}/>
-            <LifeLine title="Default" icon="worker" model={viewState.defaultWorker}/>
+            <LifeLine title="Default" icon="worker" model={viewState.defaultWorker.lifeline}/>
             { model.body && <Block model={model.body} />}
             { model.VisibleEndpoints && model.VisibleEndpoints.map((element: VisibleEndpoint) => {
                 return <LifeLine title={element.name} icon="endpoint" model={element.viewState.bBox} />;

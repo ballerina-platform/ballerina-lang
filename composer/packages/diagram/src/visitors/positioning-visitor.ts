@@ -5,8 +5,14 @@ import {
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
 import { CompilationUnitViewState, FunctionViewState, ViewState } from "../view-model/index";
+import { WorkerViewState } from "../view-model/worker";
 
 const config: DiagramConfig = DiagramUtils.getConfig();
+
+function positionWorkerLine(worker: WorkerViewState) {
+    worker.lifeline.y = worker.bBox.y;
+    worker.lifeline.x = worker.bBox.x + worker.bBox.leftMargin - (worker.lifeline.w / 2);
+}
 
 export const visitor: Visitor = {
 
@@ -56,6 +62,7 @@ export const visitor: Visitor = {
     // tslint:disable-next-line:ban-types
     beginVisitFunction(node: Function) {
         const viewState: FunctionViewState = node.viewState;
+        const defaultWorker: WorkerViewState = node.viewState.defaultWorker;
 
         // Position the header
         viewState.header.x = viewState.bBox.x;
@@ -67,27 +74,31 @@ export const visitor: Visitor = {
         viewState.client.x = viewState.body.x + config.panel.padding.left;
         viewState.client.y = viewState.body.y + config.panel.padding.top;
         // Position default worker
-        viewState.defaultWorker.x = viewState.client.x + viewState.client.w + config.lifeLine.gutter.h;
-        viewState.defaultWorker.y = viewState.client.y;
+        defaultWorker.bBox.x = viewState.client.x + viewState.client.w + config.lifeLine.gutter.h;
+        defaultWorker.bBox.y = viewState.client.y;
+        // Position default worker lifeline.
+        positionWorkerLine(defaultWorker);
+
         // Position drop down menu for adding workers and endpoints
-        viewState.menuTrigger.x = viewState.defaultWorker.x + viewState.defaultWorker.w + config.lifeLine.gutter.h;
-        viewState.menuTrigger.y = viewState.defaultWorker.y;
+        viewState.menuTrigger.x = defaultWorker.bBox.x + defaultWorker.bBox.w
+            + config.lifeLine.gutter.h;
+        viewState.menuTrigger.y = defaultWorker.bBox.y;
 
         // Position the body block node
         if (node.body) {
             const bodyViewState: ViewState = node.body.viewState;
-            bodyViewState.bBox.x = viewState.defaultWorker.x + viewState.defaultWorker.leftMargin;
-            bodyViewState.bBox.y = viewState.defaultWorker.y + config.lifeLine.header.height;
+            bodyViewState.bBox.x = defaultWorker.bBox.x + defaultWorker.bBox.leftMargin;
+            bodyViewState.bBox.y = defaultWorker.bBox.y + config.lifeLine.header.height;
         }
 
         // Size endpoints
         if (node.VisibleEndpoints) {
-            let epX = viewState.defaultWorker.x + viewState.defaultWorker.w
-            + config.lifeLine.gutter.h;
+            let epX = defaultWorker.bBox.x + defaultWorker.bBox.w
+                + config.lifeLine.gutter.h;
             node.VisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
                 if (!endpoint.caller) {
                     endpoint.viewState.bBox.x = epX;
-                    endpoint.viewState.bBox.y = viewState.defaultWorker.y;
+                    endpoint.viewState.bBox.y = defaultWorker.bBox.y;
                     epX = epX + endpoint.viewState.bBox.w + config.lifeLine.gutter.h;
                 }
             });
