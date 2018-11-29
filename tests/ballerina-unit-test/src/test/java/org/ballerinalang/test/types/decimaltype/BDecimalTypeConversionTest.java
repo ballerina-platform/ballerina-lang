@@ -115,9 +115,9 @@ public class BDecimalTypeConversionTest {
                 "Invalid decimal value returned.");
         Assert.assertTrue(val4.decimalValue().compareTo(new BigDecimal("1.0", MathContext.DECIMAL128)) == 0,
                 "Invalid decimal value returned.");
-        Assert.assertTrue(val5.decimalValue().compareTo(new BigDecimal("12.3", MathContext.DECIMAL128)) == 0,
-                "Invalid decimal value returned.");
-        Assert.assertTrue(val6.decimalValue().compareTo(new BigDecimal("23.4", MathContext.DECIMAL128)) == 0,
-                "Invalid decimal value returned.");
+        Assert.assertTrue(val5.decimalValue().subtract(new BigDecimal("12.3", MathContext.DECIMAL128)).
+                        compareTo(DELTA) < 0, "Invalid decimal value returned.");
+        Assert.assertTrue(val6.decimalValue().subtract(new BigDecimal("23.4", MathContext.DECIMAL128)).
+                        compareTo(DELTA) < 0, "Invalid decimal value returned.");
     }
 }
