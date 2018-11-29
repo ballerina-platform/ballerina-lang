@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.command.testgen.renderer;
 
 import org.ballerinalang.langserver.command.testgen.template.PlaceHolder;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -26,7 +27,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.stream.IntStream;
 
 /**
  * Represents a BLangPackage based render output.
@@ -39,14 +42,24 @@ public class BLangPkgBasedRendererOutput implements RendererOutput {
      * List of placeholders to keep track of placeholder content.
      */
     private Map<DiagnosticPos, Map<String, String>> positions = new HashMap<>();
+    /**
+     * Need to track focus line.
+     */
+    private BiConsumer<Integer, Integer> focusLineAcceptor;
+    /**
+     * Focus function name.
+     */
+    private String focusFunctionName;
 
     /**
      * Returns a new FileTemplate.
      *
-     * @param bLangPackage content of the test file
+     * @param bLangPackage      content of the test file
+     * @param focusLineAcceptor focus line acceptor
      */
-    public BLangPkgBasedRendererOutput(BLangPackage bLangPackage) {
+    public BLangPkgBasedRendererOutput(BLangPackage bLangPackage, BiConsumer<Integer, Integer> focusLineAcceptor) {
         this.bLangPackageOfTestFile = bLangPackage;
+        this.focusLineAcceptor = focusLineAcceptor;
     }
 
     /**
@@ -76,8 +89,12 @@ public class BLangPkgBasedRendererOutput implements RendererOutput {
         Map<String, String> placeHolders = positions.get(position);
         placeHolders = (placeHolders == null) ? new HashMap<>() : placeHolders;
         String oldContent = placeHolders.get(placeHolder.getName());
-        placeHolders.put(placeHolder.getName(), merger.apply(oldContent));
+        String newContent = merger.apply(oldContent);
+        placeHolders.put(placeHolder.getName(), newContent);
         positions.put(position, placeHolders);
+
+        //Compute position of the test function
+        computeFocusPosition(placeHolder, newContent, position.eLine);
     }
 
     /**
@@ -127,11 +144,25 @@ public class BLangPkgBasedRendererOutput implements RendererOutput {
     }
 
     /**
-     * Returns True when creating a new test file.
+     * Sets focus function name and acceptor.
      *
-     * @return True when creating a new file, False otherwise
+     * @param functionName focus function name
+     * @param acceptor     focus line acceptor
      */
-    public boolean isNewTestFile() {
-        return false;
+    @Override
+    public void setFocusLineAcceptor(String functionName, BiConsumer<Integer, Integer> acceptor) {
+        this.focusFunctionName = functionName;
+        this.focusLineAcceptor = acceptor;
+    }
+
+    private void computeFocusPosition(PlaceHolder placeHolder, String newContent, int index) {
+        if (placeHolder == PlaceHolder.CONTENT && focusLineAcceptor != null) {
+            String[] lines = newContent.split(CommonUtil.LINE_SEPARATOR_SPLIT);
+            IntStream.range(0, lines.length)
+                    .filter(i -> lines[i].contains("function " + focusFunctionName))
+                    .findFirst().ifPresent(i -> {
+                focusLineAcceptor.accept(index + i, 0);
+            });
+        }
     }
 }

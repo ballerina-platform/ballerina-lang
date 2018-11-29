@@ -13,13 +13,13 @@ function testForkJoinAllOfSpecific() returns string[] {
             worker PQR_Airline {
                 "pqr" -> fork;
             }
-        } join (all ABC_Airline, XYZ_Airline) (map airlineResponses) {
+        } join (all ABC_Airline, XYZ_Airline) (map<any> airlineResponses) {
             string abc= <string> airlineResponses.ABC_Airline;
             string xyz= <string> airlineResponses.XYZ_Airline;
             results[0] = abc;
             results[1] = xyz;
             return results;
-        } timeout (3000) (map airlineResponses) {
+        } timeout (3000) (map<any> airlineResponses) {
             return results;
         }
 }

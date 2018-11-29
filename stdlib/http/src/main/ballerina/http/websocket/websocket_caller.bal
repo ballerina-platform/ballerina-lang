@@ -23,11 +23,11 @@
 # + attributes - A map to store connection related attributes
 public type WebSocketCaller client object {
 
-    @readonly public string id = "";
-    @readonly public string negotiatedSubProtocol = "";
-    @readonly public boolean isSecure = false;
-    @readonly public boolean isOpen = false;
-    @readonly public map attributes = {};
+    public string id = "";
+    public string negotiatedSubProtocol = "";
+    public boolean isSecure = false;
+    public boolean isOpen = false;
+    public map<any> attributes = {};
 
     private WebSocketConnector conn = new;
 

@@ -67,10 +67,10 @@ function startAggregationQuery() returns (OutputRecord[]) {
     }
 
     int count = 0;
-    while(true) {
+    while (true) {
         runtime:sleep(500);
         count += 1;
-        if((outputDataArray.length()) == 5 || count == 10) {
+        if ((outputDataArray.length()) == 5 || count == 10) {
             break;
         }
     }

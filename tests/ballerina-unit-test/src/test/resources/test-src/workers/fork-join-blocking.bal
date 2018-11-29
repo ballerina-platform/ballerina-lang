@@ -23,7 +23,7 @@ function testForkJoin() returns (int, int)|error {
             runtime:sleep(5000);
             i = 100;
         }
-    } join (all) (map results) {
+    } join (all) (map<any> results) {
         int st = check <int> results["w1"];
         int x = i;
         return (st, x);

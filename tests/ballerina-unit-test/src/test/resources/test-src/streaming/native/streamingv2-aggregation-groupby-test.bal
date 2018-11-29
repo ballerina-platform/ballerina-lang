@@ -64,10 +64,10 @@ function startAggregationGroupByQuery() returns (TeacherOutput[]) {
     }
 
     int count = 0;
-    while(true) {
+    while (true) {
         runtime:sleep(500);
         count += 1;
-        if((globalEmployeeArray.length()) == 10 || count == 10) {
+        if ((globalEmployeeArray.length()) == 10 || count == 10) {
             break;
         }
     }

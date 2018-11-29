@@ -128,11 +128,11 @@ public type LinkedList object {
     // Removes the self.current node.
     public function removeCurrent() {
         var c = self.curr;
-            if (c is Node) {
-                _ = self.unlink(c);
-            } else {
+        if (c is Node) {
+            _ = self.unlink(c);
+        } else {
 
-            }
+        }
     }
 
     // Returns the number of elements in this list.

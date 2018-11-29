@@ -173,8 +173,8 @@ function testArrayRefEqualityNegative() returns boolean {
 }
 
 function checkMapRefEqualityPositive() returns boolean {
-    map m1 = {};
-    map m2 = m1;
+    map<any> m1 = {};
+    map<any> m2 = m1;
 
     map<string> m3 = {};
     map<string> m4 = m3;
@@ -194,8 +194,8 @@ function checkMapRefEqualityPositive() returns boolean {
 }
 
 function checkMapRefEqualityNegative() returns boolean {
-    map m1 = {};
-    map m2 = {};
+    map<any> m1 = {};
+    map<any> m2 = {};
 
     boolean equals = m1 === m2 || !(m1 !== m2);
 

@@ -159,17 +159,6 @@ public class BallerinaBlock extends AbstractBlock {
                 alignment = Alignment.createAlignment(true, Alignment.Anchor.LEFT);
                 myAlignmentMap.put(treeParent, alignment);
             }
-        } else if ((childElementType == BallerinaTypes.OBJECT_PARAMETER
-                || childElementType == BallerinaTypes.OBJECT_DEFAULTABLE_PARAMETER
-                || childElementType == BallerinaTypes.REST_PARAMETER)
-                && parentElementType == BallerinaTypes.OBJECT_PARAMETER_LIST) {
-            ASTNode treeParent = myNode.getTreeParent();
-            if (myAlignmentMap.containsKey(treeParent)) {
-                alignment = myAlignmentMap.get(treeParent);
-            } else {
-                alignment = Alignment.createAlignment(true, Alignment.Anchor.LEFT);
-                myAlignmentMap.put(treeParent, alignment);
-            }
         } else if (childElementType == BallerinaTypes.QUESTION_MARK
                 && parentElementType == BallerinaTypes.TERNARY_EXPRESSION) {
             alignment = Alignment.createAlignment(true, Alignment.Anchor.LEFT);
@@ -230,8 +219,6 @@ public class BallerinaBlock extends AbstractBlock {
                         || parentElementType == BallerinaTypes.TRANSACTION_CLAUSE)) {
             return Indent.getNormalIndent();
         } else if (parentElementType == BallerinaTypes.CALLABLE_UNIT_SIGNATURE) {
-            return Indent.getIndent(Indent.Type.NORMAL, true, true);
-        } else if (parentElementType == BallerinaTypes.OBJECT_INITIALIZER_PARAMETER_LIST) {
             return Indent.getIndent(Indent.Type.NORMAL, true, true);
         } else if (childElementType == BallerinaTypes.RETURN_PARAMETER) {
             return Indent.getNormalIndent();

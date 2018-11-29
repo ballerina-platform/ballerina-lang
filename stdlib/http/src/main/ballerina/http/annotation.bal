@@ -131,7 +131,7 @@ public type HttpResourceConfig record {
 # + upgradeService - WebSocket service which should be used after a successful upgrade
 public type WebSocketUpgradeConfig record {
     string upgradePath = "";
-    typedesc upgradeService?;
+    service upgradeService?;
     !...
 };
 

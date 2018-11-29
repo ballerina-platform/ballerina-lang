@@ -12,8 +12,9 @@ service<http:Service> helloService bind { port: 9095 } {
     hello(endpoint caller, http:Request request) {
         http:Response response = new;
         response.setPayload("Successful");
-        caller->respond(response) but {
-            error e => log:printError("Error when responding", err = e)
-        };
+        var result = caller->respond(response);
+        if (result is error) {
+            log:printError("Error when responding", err = result);
+        }
     }
 }

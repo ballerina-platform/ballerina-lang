@@ -261,7 +261,7 @@ function validateSubscriptionChangeRequest(string mode, string topic, string cal
         }
         return;
     }
-    map errorDetail = { message : "Topic/Callback cannot be null for subscription/unsubscription request" };
+    map<any> errorDetail = { message : "Topic/Callback cannot be null for subscription/unsubscription request" };
     error err = error(WEBSUB_ERROR_CODE, errorDetail);
     return err;
 }
@@ -275,7 +275,8 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
     http:Client callbackEp = new http:Client(callback, config = { secureSocket: hubClientSecureSocket });
     string mode = params[HUB_MODE] ?: "";
     string strLeaseSeconds = params[HUB_LEASE_SECONDS] ?: "";
-    int leaseSeconds = int.create(strLeaseSeconds) but { error => 0 };
+    var result = int.create(strLeaseSeconds);
+    int leaseSeconds = result is error ? 0 : result;
 
     //measured from the time the verification request was made from the hub to the subscriber from the recommendation
     int createdAt = time:currentTime().time;
@@ -308,7 +309,7 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
                 if (mode == MODE_SUBSCRIBE) {
                     subscriptionDetails.leaseSeconds = leaseSeconds * 1000;
                     subscriptionDetails.createdAt = createdAt;
-                    subscriptionDetails.secret = params[HUB_SECRET] but { () => "" };
+                    subscriptionDetails.secret = params[HUB_SECRET] ?: "";
                     if (!isTopicRegistered(topic)) {
                         var registerStatus = registerTopicAtHub(topic);
                         if (registerStatus is error) {
@@ -448,8 +449,8 @@ function addTopicRegistrationsOnStartup() {
         }
     });
     var dbResult = subscriptionDbEp->select("SELECT * FROM topics", TopicRegistration);
-    if (dbResult is table) {
-        table dt = dbResult;
+    if (dbResult is table<TopicRegistration>) {
+        table<TopicRegistration> dt = dbResult;
         while (dt.hasNext()) {
             var registrationDetails = trap <TopicRegistration>dt.getNext();
             if (registrationDetails is TopicRegistration) {
@@ -488,8 +489,8 @@ function addSubscriptionsOnStartup() {
 
     var dbResult = subscriptionDbEp->select("SELECT topic, callback, secret, lease_seconds, created_at"
             + " FROM subscriptions", SubscriptionDetails);
-    if (dbResult is table) {
-        table dt = dbResult;
+    if (dbResult is table<SubscriptionDetails>) {
+        table<SubscriptionDetails> dt = dbResult;
         while (dt.hasNext()) {
             var subscriptionDetails = trap <SubscriptionDetails>dt.getNext();
             if (subscriptionDetails is SubscriptionDetails) {
@@ -570,7 +571,9 @@ returns error? {
             changeSubscriptionInDatabase(MODE_UNSUBSCRIBE, subscriptionDetails);
         }
     } else {
-        string stringPayload = request.getPayloadAsString() but { error => "" };
+        var result = request.getPayloadAsString();
+        string stringPayload = result is error ? "" : result;
+
         if (subscriptionDetails.secret != "") {
             string xHubSignature = hubSignatureMethod + "=";
             string generatedSignature = "";

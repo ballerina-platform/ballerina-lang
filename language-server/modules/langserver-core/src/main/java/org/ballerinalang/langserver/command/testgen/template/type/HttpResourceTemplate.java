@@ -22,7 +22,7 @@ import org.ballerinalang.langserver.command.testgen.template.AbstractTestTemplat
 import org.ballerinalang.langserver.command.testgen.template.PlaceHolder;
 import org.ballerinalang.net.http.HttpConstants;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangResource;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,8 +42,8 @@ public class HttpResourceTemplate extends AbstractTestTemplate {
     private final String resourcePath;
     private final String serviceUriStrName;
 
-    public HttpResourceTemplate(String serviceUriStrName, String basePath, BLangResource resource) {
-        super(null);
+    public HttpResourceTemplate(String serviceUriStrName, String basePath, BLangFunction resource) {
+        super(null, null);
         this.serviceUriStrName = serviceUriStrName;
         this.resourceMethods = new ArrayList<>();
         String resourceName = resource.name.value;

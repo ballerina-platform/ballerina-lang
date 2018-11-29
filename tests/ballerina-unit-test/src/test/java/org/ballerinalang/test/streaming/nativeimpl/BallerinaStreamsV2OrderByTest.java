@@ -31,7 +31,7 @@ import org.testng.annotations.Test;
 /**
  * This contains methods to test OrderBy query behaviour in Ballerina Streaming V2.
  *
- * @since 0.980.0
+ * @since 0.985.0
  */
 public class BallerinaStreamsV2OrderByTest {
 
@@ -47,11 +47,11 @@ public class BallerinaStreamsV2OrderByTest {
         BValue[] outputEvents = BRunUtil.invoke(result, "startOrderByQuery");
         Assert.assertNotNull(outputEvents);
         Assert.assertEquals(outputEvents.length, 6);
-        Assert.assertEquals(((BMap)outputEvents[0]).getMap().get("age"), new BInteger(45));
-        Assert.assertEquals(((BMap)outputEvents[1]).getMap().get("age"), new BInteger(45));
-        Assert.assertEquals(((BMap)outputEvents[2]).getMap().get("age"), new BInteger(30));
-        Assert.assertEquals(((BMap)outputEvents[3]).getMap().get("age"), new BInteger(45));
-        Assert.assertEquals(((BMap)outputEvents[4]).getMap().get("age"), new BInteger(45));
-        Assert.assertEquals(((BMap)outputEvents[5]).getMap().get("age"), new BInteger(30));
+        Assert.assertEquals(((BMap) outputEvents[0]).getMap().get("age"), new BInteger(45));
+        Assert.assertEquals(((BMap) outputEvents[1]).getMap().get("age"), new BInteger(45));
+        Assert.assertEquals(((BMap) outputEvents[2]).getMap().get("age"), new BInteger(30));
+        Assert.assertEquals(((BMap) outputEvents[3]).getMap().get("age"), new BInteger(45));
+        Assert.assertEquals(((BMap) outputEvents[4]).getMap().get("age"), new BInteger(45));
+        Assert.assertEquals(((BMap) outputEvents[5]).getMap().get("age"), new BInteger(30));
     }
 }

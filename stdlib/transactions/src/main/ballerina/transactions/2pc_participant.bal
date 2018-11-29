@@ -20,14 +20,14 @@ import ballerina/log;
 #
 # + name - protocol name
 type Protocol record {
-    @readonly string name = "";
+    string name = "";
 };
 
 # This represents the protocol associated with the coordination type.
 #
 # + name - protocol name
 type LocalProtocol record {
-    @readonly string name = "";
+    string name = "";
 };
 
 # This represents the protocol associated with the coordination type.
@@ -36,8 +36,8 @@ type LocalProtocol record {
 # + url - protocol URL. This URL will have a value only if the participant is remote. If the participant is local,
 #         the `protocolFn` will be called
 public type RemoteProtocol record {
-    @readonly string name = "";
-    @readonly string url = "";
+    string name = "";
+    string url = "";
 };
 
 type Participant abstract object {

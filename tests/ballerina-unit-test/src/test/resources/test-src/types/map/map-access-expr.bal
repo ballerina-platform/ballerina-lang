@@ -1,19 +1,19 @@
-function mapAccessTest(int x, int y) returns (int|error) {
-    map testMap = {};
+function mapAccessTest(int x, int y) returns (int) {
+    map<any> testMap = {};
     int xx = 0;
     int yy = 0;
     testMap["first"] = x;
     testMap["second"] = y;
     testMap["third"] = x + y;
     testMap["forth"] = x - y;
-    xx = check <int> testMap.first;
-    yy = check <int> testMap.second;
+    xx = <int> testMap.first;
+    yy = <int> testMap.second;
 
     return xx + yy;
 }
 
-function mapReturnTest(string firstName, string lastName) returns (map) {
-    map testMap = {};
+function mapReturnTest(string firstName, string lastName) returns (map<any>) {
+    map<any> testMap = {};
     testMap["fname"] = firstName;
     testMap["lname"] = lastName;
     testMap[ firstName + lastName ] = firstName + lastName;
@@ -21,7 +21,7 @@ function mapReturnTest(string firstName, string lastName) returns (map) {
 }
 
 function testArrayAccessAsIndexOfMapt() returns (string) {
-    map namesMap = {fname:"Supun",lname:"Setunga"};
+    map<any> namesMap = {fname:"Supun",lname:"Setunga"};
     string[] keys = ["fname","lname"];
     string key = "";
     var a = namesMap[keys[0]];
@@ -30,14 +30,14 @@ function testArrayAccessAsIndexOfMapt() returns (string) {
 }
 
 function testAccessThroughVar() returns (string) {
-    map m = {};
+    map<any> m = {};
     m["x"] = "a";
     m["y"] = "b";
     m["z"] = "c";
     return constructString(m);
 }
 
-function constructString(map m) returns (string) {
+function constructString(map<any> m) returns (string) {
     string [] keys = m.keys();
     int len = keys.length();
     int i = 0;
@@ -53,29 +53,29 @@ function constructString(map m) returns (string) {
 }
 
 function testMapClear() returns (int) {
-    map namesMap = {fname:"Supun", lname:"Setunga", sname:"Kevin", tname:"Ratnasekera"};
+    map<any> namesMap = {fname:"Supun", lname:"Setunga", sname:"Kevin", tname:"Ratnasekera"};
     namesMap.clear();
     return namesMap.length();
 }
 
 function testHasKeyPositive() returns (boolean) {
-    map namesMap = {fname:"Supun", lname:"Setunga", sname:"Kevin", tname:"Ratnasekera"};
+    map<any> namesMap = {fname:"Supun", lname:"Setunga", sname:"Kevin", tname:"Ratnasekera"};
     return namesMap.hasKey("fname");
 }
 
 function testHasKeyNegative() returns (boolean) {
-    map namesMap = {fname:"Supun", lname:"Setunga", sname:"Kevin", tname:"Ratnasekera"};
+    map<any> namesMap = {fname:"Supun", lname:"Setunga", sname:"Kevin", tname:"Ratnasekera"};
     return namesMap.hasKey("fname2");
 }
 
-function testGetMapValues () returns (string, string)|error {
+function testGetMapValues () returns (string, string) {
     json j = {"city":"Colombo", "country":"SriLanka"};
     int[] arr = [7,8,9];
-    map address = {city:"CA", "country":"USA"};
-    map<map>[] addressArray=[{address:{city:"Colombo", "country":"SriLanka"}},
+    map<any> address = {city:"CA", "country":"USA"};
+    map<map<any>>[] addressArray=[{address:{city:"Colombo", "country":"SriLanka"}},
                                {address:{city:"Kandy", "country":"SriLanka"}},
                                {address:{city:"Galle", "country":"SriLanka"}}];
-    map m = { name:"Supun",
+    map<any> m = { name:"Supun",
                   age:25,
                   gpa:2.81,
                   status:true,
@@ -87,18 +87,18 @@ function testGetMapValues () returns (string, string)|error {
                 };
     any[] values = m.values();
     var nam = <string> values[0];
-    var jsn = check <json> values[8];
-    var city = check <string> jsn.city;
+    var jsn = <json> values[8];
+    var city = <string> jsn.city;
     return (nam, city);
 }
 
 function testMapRemovePositive() returns (boolean, boolean, boolean) {
-    map namesMap = {fname:"Supun", lname:"Setunga", sname:"Kevin", tname:"Ratnasekera"};
+    map<any> namesMap = {fname:"Supun", lname:"Setunga", sname:"Kevin", tname:"Ratnasekera"};
     return (namesMap.hasKey("fname"), namesMap.remove("fname"), namesMap.hasKey("fname"));
 }
 
 function testMapRemoveNegative() returns (boolean, boolean, boolean) {
-    map namesMap = {fname:"Supun", lname:"Setunga", sname:"Kevin", tname:"Ratnasekera"};
+    map<any> namesMap = {fname:"Supun", lname:"Setunga", sname:"Kevin", tname:"Ratnasekera"};
     return (namesMap.hasKey("fname2"), namesMap.remove("fname2"), namesMap.hasKey("fname2"));
 }
 
@@ -186,4 +186,5 @@ function processConcurrentKeys(map<int> intMap, int n) returns error? {
         }
         return ();
     }
+    return ();
 }

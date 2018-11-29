@@ -15,10 +15,7 @@
 // under the License.
 
 import ballerina/runtime;
-import ballerina/io;
-import ballerina/reflect;
 import ballerina/streams;
-import ballerina/math;
 
 type Stock record {
     string symbol;
@@ -97,7 +94,7 @@ function joinFunc() {
 
     // Selector
     streams:SimpleSelect select =
-        streams:createSimpleSelect(function (streams:StreamEvent[] e) {outputProcess.process(e);},
+    streams:createSimpleSelect(function (streams:StreamEvent[] e) {outputProcess.process(e);},
         function (streams:StreamEvent e) returns map<anydata> {
             return {
                 "symbol": e.data["stockStream.symbol"],
@@ -110,13 +107,12 @@ function joinFunc() {
     // On condition
     function (map<anydata>, map<anydata>) returns boolean conditionFunc =
     function (map<anydata> lsh, map<anydata> rhs) returns boolean {
-        io:println(lsh["stockStream.symbol"]);
         return lsh["stockStream.symbol"] == rhs["twitterStream.company"];
     };
 
     // Join processor
     streams:StreamJoinProcessor joinProcessor =
-        streams:createStreamJoinProcessor(function (streams:StreamEvent[] e) {select.process(e);}, "FULLOUTERJOIN",
+    streams:createStreamJoinProcessor(function (streams:StreamEvent[] e) {select.process(e);}, "FULLOUTERJOIN",
         conditionFunc = conditionFunc);
 
     // Window processors
@@ -132,7 +128,8 @@ function joinFunc() {
 
     // Subscribe to input streams
     stockStream.subscribe(function (Stock i) {
-            map<anydata> keyVal = <map<anydata>>map<anydata>.stamp(i.clone());
+            map<anydata> keyVal = <map<anydata>>map<anydata>.stamp
+            (i.clone());
             streams:StreamEvent[] eventArr = streams:buildStreamEvent(keyVal, "stockStream");
             lengthWindowA.process(eventArr);
         }

@@ -15,9 +15,7 @@
 // under the License.
 
 import ballerina/runtime;
-import ballerina/io;
 import ballerina/streams;
-import ballerina/reflect;
 
 type InputRecord record {
     string id;
@@ -53,10 +51,10 @@ public function startHavingQuery() returns any {
     }
 
     int count = 0;
-    while(true) {
+    while (true) {
         runtime:sleep(500);
         count += 1;
-        if((outputDataArray.length()) == 4 || count == 10) {
+        if ((outputDataArray.length()) == 4 || count == 10) {
             break;
         }
     }

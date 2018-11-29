@@ -1,26 +1,20 @@
 import ballerina/io;
 import ballerina/http;
 
-endpoint http:Listener frontendEP {
-    port: 9090
-};
+listener http:Listener frontendEP = new(9090);
 
-endpoint http:Client backendClientEP {
-    url: "http://localhost:7090",
-    // HTTP version is set to 2.0.
-    httpVersion: "2.0"
-};
+http:Client backendClientEP = new("http://localhost:7090", config = { httpVersion: "2.0" });
 
 @http:ServiceConfig {
     basePath: "/frontend"
 }
-service<http:Service> frontendHttpService bind frontendEP {
+service frontendHttpService on frontendEP {
 
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/"
     }
-    frontendHttpResource(endpoint caller, http:Request clientRequest) {
+    resource function frontendHttpResource(http:Caller caller, http:Request clientRequest) {
 
         http:Request serviceReq = new;
         http:HttpFuture httpFuture = new;
@@ -136,21 +130,17 @@ service<http:Service> frontendHttpService bind frontendEP {
     }
 }
 
-endpoint http:Listener backendEP {
-    port: 7090,
-    // HTTP version is set to 2.0
-    httpVersion: "2.0"
-};
+listener http:Listener backendEP = new(7090, config = { httpVersion: "2.0" });
 
 @http:ServiceConfig {
     basePath: "/backend"
 }
-service<http:Service> backendHttp2Service bind backendEP {
+service backendHttp2Service on backendEP {
 
     @http:ResourceConfig {
         path: "/main"
     }
-    backendHttp2Resource(endpoint caller, http:Request req) {
+    resource function backendHttp2Resource(http:Caller caller, http:Request req) {
 
         io:println("Request received");
 

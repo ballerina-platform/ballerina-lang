@@ -32,11 +32,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.ballerinalang.langserver.command.testgen.AnnotationConfigsProcessor.searchArrayField;
 import static org.ballerinalang.langserver.command.testgen.AnnotationConfigsProcessor.searchStringField;
+import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATOR;
 
 /**
  * To represent a Service template.
@@ -47,9 +49,9 @@ public class WSClientServiceTemplate extends AbstractTestTemplate {
     private static final Pattern WS_PATTERN = Pattern.compile("^(wss?):\\/\\/([A-Z\\d\\.-]{2,})[:]*(\\d{2,4})?(.*)");
     private final List<String[]> servicesList;
 
-    public WSClientServiceTemplate(BLangPackage builtTestFile,
-                                   List<BLangFunction> functions, BLangService service) {
-        super(builtTestFile);
+    public WSClientServiceTemplate(BLangPackage builtTestFile, BLangService service, List<BLangFunction> functions,
+                                   BiConsumer<Integer, Integer> focusLineAcceptor) {
+        super(builtTestFile, focusLineAcceptor);
         String serviceName = service.name.value;
         this.servicesList = new ArrayList<>();
         // Iterate functions to find urls of the endpoints which has callbackService as current WSClientService
@@ -84,6 +86,7 @@ public class WSClientServiceTemplate extends AbstractTestTemplate {
     public void render(RendererOutput rendererOutput) throws TestGeneratorException {
         StringBuilder content = new StringBuilder();
         Iterator<String[]> servicesIterator = servicesList.iterator();
+        String focusFunctionName = "";
         while (servicesIterator.hasNext()) {
             String[] service = servicesIterator.next();
             String funcName = service[0];
@@ -119,8 +122,10 @@ public class WSClientServiceTemplate extends AbstractTestTemplate {
                 renderedContent = StringUtils.stripEnd(renderedContent, null);
             }
             content.append(renderedContent);
+            focusFunctionName = funcName;
         }
         //Append to root template
-        rendererOutput.append(PlaceHolder.CONTENT, content.toString());
+        rendererOutput.setFocusLineAcceptor(focusFunctionName, focusLineAcceptor);
+        rendererOutput.append(PlaceHolder.CONTENT, LINE_SEPARATOR + content.toString());
     }
 }

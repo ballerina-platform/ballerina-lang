@@ -210,7 +210,7 @@ function testDataflow_10() returns string {
 }
 
 function testUninitializedVarReferrencing() {
-    map m;
+    map<any> m;
     int a;
     string s;
     error e = error(s);
@@ -665,7 +665,7 @@ function testVariableAssignment() returns (string, boolean, int, string) {
     boolean married;
     int theAge;
     string format;
-    map theMap;
+    map<any> theMap;
 
     {name: fName, married, age: {age: theAge, format}, ...theMap} = getPerson();
     return (fName, married, theAge, format);

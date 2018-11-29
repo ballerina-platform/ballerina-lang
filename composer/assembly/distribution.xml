@@ -23,7 +23,7 @@
     <fileSets>
         <fileSet>
             <directory>
-                distribution/build
+                packages/distribution/build
             </directory>
             <outputDirectory>.</outputDirectory>
         </fileSet>

@@ -776,6 +776,226 @@ function testOutOfIntRangeNegativeDecimalInUnionAsInt() {
     int i = <int> f;
 }
 
+function testExplicitlyTypedExprForExactValues() returns error? {
+    // test from string to string
+    string s = "hello";
+    string s0 = <string> s;
+    if (s != s0) {
+        error e = error("invalid resultant value, from string to string");
+        return e;
+    }
+
+    // test from float
+    float f = 12.345;
+    decimal fd = 12.34500000000000063948846218409017;
+
+    string s1 = <string> f;
+    if (s1 != "12.345") {
+        error e = error("invalid resultant value, from float to string");
+        return e;
+    }
+
+    float f1 = <float> f;
+    if (f1 != f) {
+        error e = error("invalid resultant value, from float to float");
+        return e;
+    }
+
+    decimal d1 = <decimal> f;
+    if (d1 != fd)  {
+        error e = error("invalid resultant value, from float to decimal");
+        return e;
+    }
+
+    int i1 = <int> f;
+    if (i1 != 12) {
+        error e = error("invalid resultant value, from float to int");
+        return e;
+    }
+
+    boolean b1 = <boolean> f;
+    if (b1 != true) {
+        error e = error("invalid resultant value, from float to boolean");
+        return e;
+    }
+
+    // test from decimal
+    decimal d = 12.345;
+
+    string s2 = <string> d;
+    if (s2 != "12.345") {
+        error e = error("invalid resultant value, from decimal to string");
+        return e;
+    }
+
+    float f2 = <float> d;
+    if (f2 != f) {
+        error e = error("invalid resultant value, from decimal to float");
+        return e;
+    }
+
+    decimal d2 = <decimal> d;
+    if (d2 != d) {
+        error e = error("invalid resultant value, from decimal to decimal");
+        return e;
+    }
+
+    int i2 = <int> d;
+    if (i2 != 12) {
+        error e = error("invalid resultant value, from decimal to int");
+        return e;
+    }
+
+    boolean b2 = <boolean> d;
+    if (b2 != true) {
+        error e = error("invalid resultant value, from decimal to boolean");
+        return e;
+    }
+
+    // test from int
+    int i = 12345;
+    float intf = 12345.0;
+    decimal intd = 12345;
+
+    string s3 = <string> i;
+    if (s3 != "12345") {
+        error e = error("invalid resultant value, from int to string");
+        return e;
+    }
+
+    float f3 = <float> i;
+    if (f3 != intf) {
+        error e = error("invalid resultant value, from int to float");
+        return e;
+    }
+
+    decimal d3 = <decimal> i;
+    if (d3 != intd) {
+        error e = error("invalid resultant value, from int to decimal");
+        return e;
+    }
+
+    int i3 = <int> i;
+    if (i3 != i) {
+        error e = error("invalid resultant value, from int to int");
+        return e;
+    }
+
+    boolean b3 = <boolean> i;
+    if (b3 != true) {
+        error e = error("invalid resultant value, from int to boolean");
+        return e;
+    }
+
+    // test from boolean
+    boolean b = false;
+    float boolf = 0.0;
+    decimal boold = 0.0;
+
+    string s4 = <string> b;
+    if (s4 != "false") {
+        error e = error("invalid resultant value, from boolean to string");
+        return e;
+    }
+
+    float f4 = <float> b;
+    if (f4 != boolf) {
+        error e = error("invalid resultant value, from boolean to float");
+        return e;
+    }
+
+    decimal d4 = <decimal> b;
+    if (d4 != boold) {
+        error e = error("invalid resultant value, from boolean to decimal");
+        return e;
+    }
+
+    int i4 = <int> b;
+    if (i4 != 0) {
+        error e = error("invalid resultant value, from boolean to decimal");
+        return e;
+    }
+
+    boolean b4 = <boolean> b;
+    if (b4 != b) {
+        error e = error("invalid resultant value, from boolean to boolean");
+        return e;
+    }
+
+    b = true;
+    boolf = 1.0;
+    boold = 1.0;
+
+    s4 = <string> b;
+    if (s4 != "true") {
+        error e = error("invalid resultant value, from boolean to string");
+        return e;
+    }
+
+    f4 = <float> b;
+    if (f4 != boolf) {
+        error e = error("invalid resultant value, from boolean to float");
+        return e;
+    }
+
+    d4 = <decimal> b;
+    if (d4 != boold) {
+        error e = error("invalid resultant value, from boolean to decimal");
+        return e;
+    }
+
+    i4 = <int> b;
+    if (i4 != 1) {
+        error e = error("invalid resultant value, from boolean to decimal");
+        return e;
+    }
+
+    b4 = <boolean> b;
+    if (b4 != b) {
+        error e = error("invalid resultant value, from boolean to boolean");
+        return e;
+    }
+    return;
+}
+
+function init(InMemoryModeConfig|ServerModeConfig|EmbeddedModeConfig rec) returns string {
+    if (rec is ServerModeConfig) {
+        return "Server mode configuration";
+    } else if (rec is EmbeddedModeConfig) {
+        return "Embedded mode configuration";
+    } else {
+        return "In-memory mode configuration";
+    }
+}
+
+public type InMemoryModeConfig record {
+    string name = "";
+    string username = "";
+    string password = "";
+    map<any> dbOptions = {name:"asdf"};
+    !...
+};
+
+public type ServerModeConfig record {
+    string host = "";
+    int port = 9090;
+    *InMemoryModeConfig;
+    !...
+};
+
+public type EmbeddedModeConfig record {
+    string path = "";
+    *InMemoryModeConfig;
+    !...
+};
+
+function testTypeAssertionOnRecordLiterals() returns (string, string, string) {
+    string s1 = init(<ServerModeConfig>{});
+    string s2 = init(<EmbeddedModeConfig>{});
+    string s3 = init(<InMemoryModeConfig>{});
+    return (s1, s2, s3);
+}
+
 function getString(string s) returns string {
     return s;
 }

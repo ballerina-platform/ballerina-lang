@@ -54,10 +54,10 @@ function startAggregationQuery() returns (TeacherOutput[]) {
     }
 
     int count = 0;
-    while(true) {
+    while (true) {
         runtime:sleep(500);
         count += 1;
-        if((globalEmployeeArray.length()) == 3 || count == 10) {
+        if ((globalEmployeeArray.length()) == 3 || count == 10) {
             break;
         }
     }
@@ -89,7 +89,7 @@ function createStreamingConstruct() {
     streams:Sum sumAggregator = new();
 
     streams:SimpleSelect simpleSelect =
-        streams:createSimpleSelect(function (streams:StreamEvent[] e) {outputProcess.process(e);},
+    streams:createSimpleSelect(function (streams:StreamEvent[] e) {outputProcess.process(e);},
         function (streams:StreamEvent e) returns map<anydata> {
             // got rid of type casting
             return {

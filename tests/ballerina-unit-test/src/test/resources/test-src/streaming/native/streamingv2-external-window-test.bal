@@ -63,10 +63,10 @@ function startExternalTimeWindowQuery() returns (TeacherOutput[]) {
     }
 
     int count = 0;
-    while(true) {
+    while (true) {
         runtime:sleep(500);
         count += 1;
-        if((globalEmployeeArray.length()) == 4 || count == 10) {
+        if ((globalEmployeeArray.length()) == 4 || count == 10) {
             break;
         }
     }
@@ -100,7 +100,7 @@ function createStreamingConstruct() {
     streams:Aggregator[] aggregators = [];
     aggregators[0] = iSumAggregator;
 
-    streams:Select select = streams:createSelect(function(streams:StreamEvent[] e) {outputProcess.process(e);},
+    streams:Select select = streams:createSelect(function (streams:StreamEvent[] e) {outputProcess.process(e);},
         aggregators,
         [function (streams:StreamEvent e) returns string {
             return <string>e.data["inputStream.school"];

@@ -13,10 +13,8 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/reflect;
 import ballerina/crypto;
 import ballerina/math;
-import ballerina/io;
 
 public type Aggregator abstract object {
 
@@ -35,7 +33,7 @@ public type Sum object {
 
     }
 
-    public function process(anydata value, EventType eventType) returns anydata{
+    public function process(anydata value, EventType eventType) returns anydata {
         if (value is int) {
             if (eventType == "CURRENT") {
                 self.iSum += value;

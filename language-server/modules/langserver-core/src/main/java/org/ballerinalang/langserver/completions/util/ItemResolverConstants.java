@@ -36,7 +36,8 @@ public class ItemResolverConstants {
     public static final String WHILE = "while";
     public static final String ERROR = "error";
     public static final String LOCK = "lock";
-    public static final String BIND = "bind";
+    public static final String ON = "on";
+    public static final String NEW = "new";
     public static final String ENDPOINT = "endpoint";
     public static final String CONTINUE = "continue";
     public static final String BREAK = "break";
@@ -80,7 +81,7 @@ public class ItemResolverConstants {
     public static final String OBJECT_TYPE = "type <ObjectName> object";
     public static final String RECORD_TYPE = "type <RecordName> record";
     public static final String TYPE_TYPE = "type";
-    public static final String NEW_OBJECT_CONSTRUCTOR_TYPE = "new object constructor";
+    public static final String NEW_OBJECT_INITIALIZER_TYPE = "new object initializer";
     // End Symbol Types Constants
     
     // Keyword constants

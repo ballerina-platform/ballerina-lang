@@ -15,9 +15,7 @@
 // under the License.
 
 import ballerina/runtime;
-import ballerina/io;
 import ballerina/streams;
-import ballerina/reflect;
 
 type Teacher record {
     string name;
@@ -60,17 +58,17 @@ public function startOrderByQuery() returns any {
 
     foo();
 
-    outputStream.subscribe(function(TeacherOutput e) {printTeachers(e);});
+    outputStream.subscribe(function (TeacherOutput e) {printTeachers(e);});
     foreach t in teachers {
         runtime:sleep(1);
         inputStream.publish(t);
     }
 
     int count = 0;
-    while(true) {
+    while (true) {
         runtime:sleep(500);
         count += 1;
-        if((globalEmployeeArray.length()) == 10 || count == 10) {
+        if ((globalEmployeeArray.length()) == 10 || count == 10) {
             break;
         }
     }
@@ -110,21 +108,21 @@ function foo() {
     aggregatorArr[0] = sumAggregator;
     aggregatorArr[1] = countAggregator;
 
-    (function(map<anydata>) returns anydata)[] fields = [function(map<anydata> x) returns anydata {
+    (function (map<anydata>) returns anydata)[] fields = [function (map<anydata> x) returns anydata {
         return getValue(<int>x["OUTPUT.age"]);
     }];
 
     streams:OrderBy orderByProcess =
-        streams:createOrderBy(function (streams:StreamEvent[] e) {outputProcess.process(e);}, fields, ["descending"]);
+    streams:createOrderBy(function (streams:StreamEvent[] e) {outputProcess.process(e);}, fields, ["descending"]);
 
     streams:Select select = streams:createSelect(function (streams:StreamEvent[] e) {orderByProcess.process(e);},
         aggregatorArr,
         [function (streams:StreamEvent e) returns string {
-            return <string> e.data["inputStream.name"];
+            return <string>e.data["inputStream.name"];
         }],
         function (streams:StreamEvent e, streams:Aggregator[] aggregatorArr1) returns map<anydata> {
-            streams:Sum sumAggregator1 =  <streams:Sum>aggregatorArr1[0];
-            streams:Count countAggregator1 =  <streams:Count>aggregatorArr1[1];
+            streams:Sum sumAggregator1 = <streams:Sum>aggregatorArr1[0];
+            streams:Count countAggregator1 = <streams:Count>aggregatorArr1[1];
             // got rid of type casting
             return {
                 "name": e.data["inputStream.name"],
@@ -135,14 +133,8 @@ function foo() {
         }
     );
 
-    // streams:Window tmpWindow = streams:lengthWindow(select.process, 5);
-
     streams:Window tmpWindow = streams:lengthBatchWindow([5], nextProcessPointer = function (streams:StreamEvent[] e)
         {select.process(e);});
-
-    // streams:Window tmpWindow = streams:timeWindow(select.process, 1000);
-
-    //streams:Window tmpWindow = streams:timeBatchWindow(select.process, 1000);
 
     streams:Filter filter = streams:createFilter(function (streams:StreamEvent[] e) {tmpWindow.process(e);},
         function (map<anydata> m) returns boolean {

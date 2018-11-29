@@ -16,11 +16,11 @@
 
 import ballerina/log;
 
-# Simplified queue receiver endpoint.
+# JMS Simplified QueueReceiver endpoint.
 # A new connection and a session will be create when this endpoint is initialize. If your requirement is complex
 # please refer QueueReceiver endpoint.
 #
-# + config - configurations related to the SimpleQueueReceiver endpoint
+# + config - Used to store configurations related to a JMS SimpleQueueReceiver
 public type SimpleQueueReceiver object {
 
     *AbstractListener;
@@ -58,39 +58,45 @@ public type SimpleQueueReceiver object {
 
     # Binds the SimlpeQueueReceiver endpoint to a service
     #
-    # + serviceType - type descriptor of the service to bind to
+    # + serviceType - Type descriptor of the service to bind to
+    # + data - Service annotations
+    # + return - Nil or error upon failure to register listener
     public function __attach(service serviceType, map<any> data) returns error? {
-        return self.queueReceiver.registerListener(serviceType, self.queueReceiver.consumerActions);
+        return self.queueReceiver.registerListener(serviceType, self.queueReceiver.consumerActions, data);
     }
 
     # Starts the endpoint. Function is ignored by the receiver endpoint
+    #
+    # + return - Nil or error upon failure to start
     public function __start() returns error?  {
         return ();
     }
 
     # Retrieves the SimpleQueueReceiver consumer action handler
     #
-    # + return - simple queue receiver action handler
+    # + return - SimpleQueueReceiver actions handler
     public function getCallerActions() returns QueueReceiverCaller {
         return self.queueReceiver.getCallerActions();
     }
 
     # Stops consuming messages through QueueReceiver endpoint
+    #
+    # + return - Nil or error upon failure to close queue receiver
     public function __stop() returns error? {
         return self.queueReceiver.closeQueueReceiver(self.queueReceiver.consumerActions);
     }
 
     # Creates a JMS message which holds text content
     #
-    # + content - the text content used to initialize this message
-    # + return - the created message, or nil if the session is nil
+    # + content - Text content used to initialize this message
+    # + return - Message or nil if the session is nil
     public function createTextMessage(string content) returns Message|error {
         var session = self.session;
         if (session is Session) {
             return session.createTextMessage(content);
         } else {
             string errorMessage = "Session cannot be nil";
-            map errorDetail = { message: errorMessage };
+            map<any> errorDetail = { message: errorMessage };
             error e = error(JMS_ERROR_CODE, errorDetail);
             panic e;
         }
@@ -102,10 +108,10 @@ public type SimpleQueueReceiver object {
 # + initialContextFactory - JMS provider specific inital context factory
 # + providerUrl - JMS provider specific provider URL used to configure a connection
 # + connectionFactoryName - JMS connection factory to be used in creating JMS connections
-# + acknowledgementMode - specifies the session mode that will be used. Legal values are "AUTO_ACKNOWLEDGE",
+# + acknowledgementMode - Specifies the session mode that will be used. Legal values are "AUTO_ACKNOWLEDGE",
 #                         "CLIENT_ACKNOWLEDGE", "SESSION_TRANSACTED" and "DUPS_OK_ACKNOWLEDGE"
-# + messageSelector - JMS selector statement
-# + properties - Additional properties use in initializing the initial context
+# + messageSelector - Message selector condition to filter messages
+# + properties - Additional properties used when initializing the initial context
 # + queueName - Name of the target queue
 public type SimpleQueueReceiverEndpointConfiguration record {
     string initialContextFactory = "bmbInitialContextFactory";
@@ -113,7 +119,7 @@ public type SimpleQueueReceiverEndpointConfiguration record {
     string connectionFactoryName = "ConnectionFactory";
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
     string messageSelector = "";
-    map properties = {};
+    map<any> properties = {};
     string queueName = "";
     !...
 };

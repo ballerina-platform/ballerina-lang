@@ -31,7 +31,7 @@ import org.testng.annotations.Test;
 /**
  * This contains methods to test filter query behaviour in Ballerina Streaming V2.
  *
- * @since 0.980.0
+ * @since 0.985.0
  */
 public class BallerinaStreamsV2FilterTest {
 
@@ -46,8 +46,8 @@ public class BallerinaStreamsV2FilterTest {
     public void testFilterQuery() {
         BValue[] outputEvents = BRunUtil.invoke(result, "startFilterQuery");
         Assert.assertNotNull(outputEvents);
-        Assert.assertEquals(((BMap)outputEvents[0]).getMap().get("age"), new BInteger(45));
-        Assert.assertEquals(((BMap)outputEvents[1]).getMap().get("age"), new BInteger(45));
+        Assert.assertEquals(((BMap) outputEvents[0]).getMap().get("age"), new BInteger(45));
+        Assert.assertEquals(((BMap) outputEvents[1]).getMap().get("age"), new BInteger(45));
 
     }
 }

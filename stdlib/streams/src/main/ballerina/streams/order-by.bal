@@ -13,18 +13,17 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/io;
 
 public type OrderBy object {
 
     public function (StreamEvent[]) nextProcessorPointer;
 
-    public (function(map<anydata>) returns anydata)[] fieldFuncs;
+    public (function (map<anydata>) returns anydata)[] fieldFuncs;
     // contains the field name to be sorted and the sort type (ascending/descending)
     public string[] sortTypes;
 
     public function __init(function (StreamEvent[]) nextProcessorPointer,
-                           (function(map<anydata>) returns anydata)[] fieldFuncs, string[] sortTypes) {
+                           (function (map<anydata>) returns anydata)[] fieldFuncs, string[] sortTypes) {
         self.nextProcessorPointer = nextProcessorPointer;
         self.fieldFuncs = fieldFuncs;
         self.sortTypes = sortTypes;
@@ -47,7 +46,7 @@ public type OrderBy object {
         self.topDownSplitMerge(b, 0, n, a, tmpSortTypes);
     }
 
-    function topDownSplitMerge(StreamEvent[] b, int iBegin, int iEnd, StreamEvent[] a,string[] tmpSortTypes) {
+    function topDownSplitMerge(StreamEvent[] b, int iBegin, int iEnd, StreamEvent[] a, string[] tmpSortTypes) {
 
         if (iEnd - iBegin < 2) {
             return;
@@ -157,7 +156,8 @@ public type OrderBy object {
         }
     }
 
-    function callNextSortFunc(StreamEvent x, StreamEvent y, int c, string[] sortFieldMetadata, int fieldIndex) returns int {
+    function callNextSortFunc(StreamEvent x, StreamEvent y, int c, string[] sortFieldMetadata, int fieldIndex) returns
+                                                                                                                   int {
         int result = c;
         if (result == 0 && (sortFieldMetadata.length() > fieldIndex)) {
             result = self.sortFunc(x, y, sortFieldMetadata, fieldIndex);

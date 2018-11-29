@@ -31,7 +31,7 @@ import org.testng.annotations.Test;
 /**
  * This contains methods to test having query behaviour in Ballerina Streaming V2.
  *
- * @since 0.980.0
+ * @since 0.985.0
  */
 public class BallerinaStreamsV2HavingTest {
 
@@ -46,9 +46,9 @@ public class BallerinaStreamsV2HavingTest {
     public void testHavingQuery() {
         BValue[] outputEvents = BRunUtil.invoke(result, "startHavingQuery");
         Assert.assertNotNull(outputEvents);
-        Assert.assertEquals(((BMap)outputEvents[0]).getMap().get("sum"), new BInteger(4));
-        Assert.assertEquals(((BMap)outputEvents[1]).getMap().get("sum"), new BInteger(6));
-        Assert.assertEquals(((BMap)outputEvents[2]).getMap().get("sum"), new BInteger(4));
-        Assert.assertEquals(((BMap)outputEvents[3]).getMap().get("sum"), new BInteger(7));
+        Assert.assertEquals(((BMap) outputEvents[0]).getMap().get("sum"), new BInteger(4));
+        Assert.assertEquals(((BMap) outputEvents[1]).getMap().get("sum"), new BInteger(6));
+        Assert.assertEquals(((BMap) outputEvents[2]).getMap().get("sum"), new BInteger(4));
+        Assert.assertEquals(((BMap) outputEvents[3]).getMap().get("sum"), new BInteger(7));
     }
 }

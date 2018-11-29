@@ -17,6 +17,7 @@
 */
 package org.ballerinalang;
 
+import org.ballerinalang.bre.vm.BVMExecutor;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.persistence.RecoveryTask;
 import org.ballerinalang.util.codegen.FunctionInfo;
@@ -25,7 +26,6 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.exceptions.BLangUsageException;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.program.BLangFunctions;
 
 import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
 import static org.ballerinalang.util.cli.ArgumentParser.extractEntryFuncArgs;
@@ -50,8 +50,7 @@ public class BLangProgramRunner {
         Debugger debugger = new Debugger(programFile);
         initDebugger(programFile, debugger);
 
-        BLangFunctions.invokePackageInitFunctions(programFile);
-        BLangFunctions.invokePackageStartFunctions(programFile);
+        BVMExecutor.initProgramFile(programFile);
     }
 
     public static void resumeStates(ProgramFile programFile) {
@@ -72,14 +71,14 @@ public class BLangProgramRunner {
 
         FunctionInfo functionInfo = getEntryFunctionInfo(entryPkgInfo, functionName);
         try {
-            entryFuncResult = BLangFunctions.invokeEntrypointCallable(programFile, functionInfo,
-                                                                      extractEntryFuncArgs(functionInfo, args));
+            entryFuncResult = BVMExecutor.executeEntryFunction(programFile, functionInfo,
+                    extractEntryFuncArgs(functionInfo, args));
         } finally {
             if (!programFile.isServiceEPAvailable()) {
                 if (debugger.isDebugEnabled()) {
                     debugger.notifyExit();
                 }
-                BLangFunctions.invokePackageStopFunctions(programFile);
+                BVMExecutor.stopProgramFile(programFile);
             }
         }
         return entryFuncResult;

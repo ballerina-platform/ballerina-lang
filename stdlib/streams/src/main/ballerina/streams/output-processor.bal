@@ -28,7 +28,7 @@ public type OutputProcess object {
         int i = 0;
         foreach event in streamEvents {
             if (event.eventType == "CURRENT") {
-                map<anydata> outputData  = {};
+                map<anydata> outputData = {};
                 foreach k, v in event.data {
                     string[] s = k.split("\\.");
                     if (OUTPUT.equalsIgnoreCase(s[0])) {

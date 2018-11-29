@@ -24,12 +24,12 @@
 # + attributes - A map to store connection related attributes
 public type WebSocketClient client object {
 
-    @readonly public string id = "";
-    @readonly public string negotiatedSubProtocol = "";
-    @readonly public boolean isSecure = false;
-    @readonly public boolean isOpen = false;
-    @readonly public Response response = new;
-    @readonly public map attributes = {};
+    public string id = "";
+    public string negotiatedSubProtocol = "";
+    public boolean isSecure = false;
+    public boolean isOpen = false;
+    public Response response = new;
+    public map<any> attributes = {};
 
     private WebSocketConnector conn = new;
     private string url = "";
@@ -38,7 +38,7 @@ public type WebSocketClient client object {
     # Gets called when the endpoint is being initialize during module init time.
     #
     # + c - The `WebSocketClientEndpointConfig` of the endpoint
-    public function __init(string url, WebSocketClientEndpointConfig? config) {
+    public function __init(string url, WebSocketClientEndpointConfig? config = ()) {
         self.url = url;
         self.config = config ?: {};
         self.initEndpoint();

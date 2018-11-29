@@ -135,10 +135,10 @@ public function getAsBoolean(@sensitive string key, boolean default = false) ret
 #
 # + key - The configuration to be retrieved
 # + return - Configuration value mapped by the key
-public function getAsMap(@sensitive string key) returns map {
+public function getAsMap(@sensitive string key) returns map<any> {
     var value = get(key, MAP);
 
-    if (value is map) {
+    if (value is map<any>) {
         return value;
     } else {
         error err = error("Invalid value. Expected a 'map'.");

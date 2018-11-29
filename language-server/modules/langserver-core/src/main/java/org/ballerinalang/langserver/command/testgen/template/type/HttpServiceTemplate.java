@@ -24,13 +24,14 @@ import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
 import org.ballerinalang.net.http.HttpConstants;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 
 import static org.ballerinalang.langserver.command.testgen.AnnotationConfigsProcessor.isRecordValueExists;
 import static org.ballerinalang.langserver.command.testgen.AnnotationConfigsProcessor.searchStringField;
@@ -47,11 +48,12 @@ public class HttpServiceTemplate extends AbstractTestTemplate {
     private final String serviceUriStrName;
     private final String testServiceFunctionName;
     private final String serviceBasePath;
-    private final List<BLangResource> resources;
+    private final List<BLangFunction> resources;
 
-    public HttpServiceTemplate(BLangPackage builtTestFile,
-                               List<? extends EndpointNode> globalEndpoints, BLangService service) {
-        super(builtTestFile);
+    public HttpServiceTemplate(BLangPackage builtTestFile, BLangService service,
+                               List<? extends EndpointNode> globalEndpoints,
+                               BiConsumer<Integer, Integer> focusLineAcceptor) {
+        super(builtTestFile, focusLineAcceptor);
         String serviceName = service.name.value;
         boolean isSecureTemp = false;
         String serviceUriTemp = HTTP + DEFAULT_IP + ":" + DEFAULT_PORT;
@@ -66,9 +68,9 @@ public class HttpServiceTemplate extends AbstractTestTemplate {
         }
 
         // Check for the bounded endpoint to get `port` and `isSecure` from it
-        List<? extends SimpleVariableReferenceNode> boundEndpoints = service.getBoundEndpoints();
+        List<? extends SimpleVariableReferenceNode> boundEndpoints = service.boundEndpoints;
         EndpointNode endpoint = (boundEndpoints.size() > 0) ? globalEndpoints.stream()
-                .filter(ep -> service.getBoundEndpoints().get(0).getVariableName().getValue()
+                .filter(ep -> service.boundEndpoints.get(0).getVariableName().getValue()
                         .equals(ep.getName().getValue()))
                 .findFirst().orElse(null) : null;
         if (endpoint != null && endpoint.getConfigurationExpression() instanceof BLangRecordLiteral) {
@@ -112,14 +114,15 @@ public class HttpServiceTemplate extends AbstractTestTemplate {
         serviceOutput.put(PlaceHolder.OTHER.get("serviceUriStrName"), serviceUriStrName);
 
         // Iterate through resources
-        for (BLangResource resource : resources) {
+        for (BLangFunction resource : resources) {
             HttpResourceTemplate resTemplate = new HttpResourceTemplate(serviceUriStrName, serviceBasePath, resource);
             resTemplate.render(serviceOutput);
         }
 
         //Append to root template
+        rendererOutput.setFocusLineAcceptor(testServiceFunctionName, focusLineAcceptor);
         rendererOutput.append(PlaceHolder.DECLARATIONS, getServiceUriDeclaration() + LINE_SEPARATOR);
-        rendererOutput.append(PlaceHolder.CONTENT, serviceOutput.getRenderedContent());
+        rendererOutput.append(PlaceHolder.CONTENT, LINE_SEPARATOR + serviceOutput.getRenderedContent());
     }
 
     private String getServiceUriDeclaration() {

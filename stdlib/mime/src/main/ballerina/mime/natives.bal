@@ -183,7 +183,7 @@ public type Entity object {
     # + contentLength - Content length that needs to be set to entity
     public function setContentLength(@sensitive int contentLength) {
         self.cLength = contentLength;
-        var contentLengthStr = <string>contentLength;
+        var contentLengthStr = string.create(contentLength);
         self.setHeader(CONTENT_LENGTH, contentLengthStr);
     }
 

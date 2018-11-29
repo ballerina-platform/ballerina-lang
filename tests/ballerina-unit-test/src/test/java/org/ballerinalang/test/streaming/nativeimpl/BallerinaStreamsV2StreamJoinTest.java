@@ -21,8 +21,9 @@ package org.ballerinalang.test.streaming.nativeimpl;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -31,7 +32,7 @@ import org.testng.annotations.Test;
 /**
  * This contains methods to test stream join query behaviour in Ballerina Streaming V2.
  *
- * @since 0.980.0
+ * @since 0.985.0
  */
 public class BallerinaStreamsV2StreamJoinTest {
 
@@ -46,9 +47,13 @@ public class BallerinaStreamsV2StreamJoinTest {
     public void testStreamJoinQuery() {
         BValue[] outputEvents = BRunUtil.invoke(result, "startStreamJoinQuery");
         Assert.assertNotNull(outputEvents);
-        Assert.assertEquals(((BMap)outputEvents[0]).getMap().get("sum"), new BInteger(4));
-        Assert.assertEquals(((BMap)outputEvents[1]).getMap().get("sum"), new BInteger(6));
-        Assert.assertEquals(((BMap)outputEvents[2]).getMap().get("sum"), new BInteger(4));
-        Assert.assertEquals(((BMap)outputEvents[3]).getMap().get("sum"), new BInteger(7));
+        Assert.assertEquals(((BMap) outputEvents[0]).getMap().get("symbol"), null);
+        Assert.assertEquals(((BMap) outputEvents[0]).getMap().get("price"), null);
+        Assert.assertEquals(((BMap) outputEvents[1]).getMap().get("symbol"), new BString("WSO2"));
+        Assert.assertEquals(((BMap) outputEvents[1]).getMap().get("price"), new BFloat(55.6));
+        Assert.assertEquals(((BMap) outputEvents[2]).getMap().get("symbol"), new BString("MBI"));
+        Assert.assertEquals(((BMap) outputEvents[2]).getMap().get("price"), new BFloat(74.6));
+        Assert.assertEquals(((BMap) outputEvents[3]).getMap().get("symbol"), new BString("WSO2"));
+        Assert.assertEquals(((BMap) outputEvents[3]).getMap().get("price"), new BFloat(58.6));
     }
 }

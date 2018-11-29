@@ -44,7 +44,7 @@ public type AuthnHandlerChain object {
 
 function AuthnHandlerChain.handle (Request req) returns (boolean) {
     foreach currentAuthProviderType, currentAuthHandler in self.authHandlerRegistry.getAll() {
-        var authnHandler = <HttpAuthnHandler> currentAuthHandler;
+        HttpAuthnHandler authnHandler = currentAuthHandler;
         if (authnHandler.canHandle(req)) {
             log:printDebug(function() returns string {
                 return "Trying to authenticate with the auth provider: " + currentAuthProviderType;

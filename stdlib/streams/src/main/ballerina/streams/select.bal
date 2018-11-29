@@ -17,15 +17,15 @@
 public type Select object {
 
     private function (StreamEvent[]) nextProcessorPointer;
-    private Aggregator [] aggregatorArr;
-    private ((function(StreamEvent o) returns string) []) groupbyFuncArray;
-    private function(StreamEvent o, Aggregator []  aggregatorArr1) returns map<anydata> selectFunc;
+    private Aggregator[] aggregatorArr;
+    private ((function (StreamEvent o) returns string)[]) groupbyFuncArray;
+    private function (StreamEvent o, Aggregator[] aggregatorArr1) returns map<anydata> selectFunc;
     private map<Aggregator[]> aggregatorsCloneMap;
 
 
     function __init(function (StreamEvent[]) nextProcessorPointer, Aggregator[] aggregatorArr,
-                    (function(StreamEvent) returns string)[] groupbyFuncArray,
-                    function(StreamEvent o, Aggregator []  aggregatorArr1) returns map<anydata> selectFunc) {
+                    (function (StreamEvent) returns string)[] groupbyFuncArray,
+                    function (StreamEvent o, Aggregator[] aggregatorArr1) returns map<anydata> selectFunc) {
         self.aggregatorsCloneMap = {};
         self.nextProcessorPointer = nextProcessorPointer;
         self.aggregatorArr = aggregatorArr;
@@ -56,8 +56,7 @@ public type Select object {
                     self.aggregatorsCloneMap[groupbyKey] = aggregatorsClone;
                 }
                 map<anydata> x = self.selectFunc.call(event, aggregatorsClone);
-                StreamEvent e = new ((OUTPUT, x), event.eventType,
-                    event.timestamp);
+                StreamEvent e = new((OUTPUT, x), event.eventType, event.timestamp);
                 groupedEvents[groupbyKey] = e;
             }
             foreach key in groupedEvents.keys() {
@@ -66,7 +65,7 @@ public type Select object {
             }
         } else {
             foreach event in streamEvents {
-                StreamEvent e = new ((OUTPUT, self.selectFunc.call(event, self.aggregatorArr)), event.eventType,
+                StreamEvent e = new((OUTPUT, self.selectFunc.call(event, self.aggregatorArr)), event.eventType,
                     event.timestamp);
                 outputStreamEvents[outputStreamEvents.length()] = e;
             }
@@ -76,7 +75,7 @@ public type Select object {
         }
     }
 
-    public function getGroupByKey((function(StreamEvent o) returns string) [] groupbyFunctionArray, StreamEvent e)
+    public function getGroupByKey((function (StreamEvent o) returns string)[] groupbyFunctionArray, StreamEvent e)
                         returns string {
         string key = "";
         foreach func in groupbyFunctionArray {

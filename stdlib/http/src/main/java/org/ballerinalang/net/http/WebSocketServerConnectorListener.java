@@ -40,7 +40,6 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
 import java.util.Optional;
 
-import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONNECTION_FIELD;
 import static org.ballerinalang.util.observability.ObservabilityConstants.SERVER_CONNECTOR_WEBSOCKET;
 
 /**
@@ -72,9 +71,7 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
             BValue[] signatureParams = HttpDispatcher.getSignatureParameters(onUpgradeResource, webSocketHandshaker
                     .getHttpCarbonRequest(), httpEndpointConfig);
 
-            BMap<String, BValue> httpServiceEndpoint = (BMap<String, BValue>) signatureParams[0];
-            BMap<String, BValue> httpConnection =
-                    (BMap<String, BValue>) httpServiceEndpoint.get(SERVICE_ENDPOINT_CONNECTION_FIELD);
+            BMap<String, BValue> httpConnection = (BMap<String, BValue>) signatureParams[0];
             httpConnection.addNativeData(WebSocketConstants.WEBSOCKET_MESSAGE, webSocketHandshaker);
             httpConnection.addNativeData(WebSocketConstants.WEBSOCKET_SERVICE, wsService);
             httpConnection.addNativeData(HttpConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER, connectionManager);

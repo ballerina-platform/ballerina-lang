@@ -5,7 +5,7 @@ type Person record {
     int age = 0;
     Person | () parent = ();
     json info = null;
-    map address = {};
+    map<any> address = {};
     int[] marks = [];
 };
 
@@ -33,17 +33,19 @@ function testAccessJsonInStruct () returns (string, string, string) | error {
     string status2 = "";
     string status3 = "";
 
-    match p1.parent {
-     Person p2  => status1 = check <string>p2.info.status;
-     any | () => io:println("Person is null");
-   }
+    var result1 = p1.parent;
+    if (result1 is Person) {
+        status1 = check string.create(result1.info.status);
+    } else {
+        io:println("Person is null");
+    }
 
-    match p1["parent"] {
-     Person p2 => {
-                    status2 = check <string> p2["info"]["status"];
-                    status3 = check <string>p2.info["status"];
-     }
-     any | () => io:println("Person is null");
+    var result2 = p1["parent"];
+    if (result2 is Person) {
+        status2 = check string.create(result2["info"]["status"]);
+        status3 = check string.create(result2.info["status"]);
+    } else {
+        io:println("Person is null");
     }
     return (status1, status2, status3);
 }
@@ -61,15 +63,13 @@ function testAccessMapInStruct () returns (any, any, any, string) {
     string cityKey = "city";
     string city = "";
 
-    match p1["parent"] {
-        Person p2 =>{
-                city = p2.address[cityKey] but { () => "", any a => <string> a};
-                return (p2.address.city, p2["address"]["city"], p2.address["city"], city);
-         }
-        any | () => {
-                io:println("Person is null");
-                return (null, null, null, city);
-        }
+    var result = p1["parent"];
+    if (result is Person) {
+        city = string.create(result.address[cityKey]);
+        return (result.address.city, result["address"]["city"], result.address["city"], city);
+    } else {
+        io:println("Person is null");
+        return (null, null, null, city);
     }
 }
 
@@ -84,16 +84,14 @@ function testSetValueToJsonInStruct () returns (json) {
                     info:{status:"single"}
                 };
 
-    match p1.parent {
-         Person p2 => {
-         p2.info.status = "widowed";
-         p2["info"]["retired"] = true;
-         return p2.info;
-        }
-    any | () => {
+    var result = p1.parent;
+    if (result is Person) {
+         result.info.status = "widowed";
+         result["info"]["retired"] = true;
+         return result.info;
+    } else {
          io:println("Person is null");
          return null;
-         }
     }
 }
 

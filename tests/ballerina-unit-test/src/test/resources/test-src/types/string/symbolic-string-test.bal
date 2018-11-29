@@ -19,7 +19,8 @@ import ballerina/crypto;
 type Person object {
     public string name = "";
     public string fullName;
-    new(name = 'John, string firstname, string lastname = 'Doe) {
+    function __init(string name = 'John, string firstname, string lastname = 'Doe) {
+        self.name = name;
         self.fullName = firstname + " " + lastname;
     }
     public function getPersonInfo() returns string {
@@ -38,7 +39,6 @@ public string var2 = "";
 
 public string var3 = 'efgh;
 
-@readonly
 public string var4 = 'ijkl;
 
 function contains() returns (boolean) {
@@ -176,7 +176,7 @@ function testStringArray() returns (string) {
 }
 
 function testMap() returns (string[]) {
-    map addrMap = { number: "No.20", road: 'Mount_Lavinia, country: 'SriLanka };
+    map<any> addrMap = { number: "No.20", road: 'Mount_Lavinia, country: 'SriLanka };
     addrMap['postalCode] = 'PO00300;
     string [3] stringArr = [<string>addrMap['country], <string>addrMap['road], <string>addrMap["postalCode"]];
     return stringArr;

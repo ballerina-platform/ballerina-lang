@@ -6,15 +6,15 @@ sql:PoolOptions properties = { maximumPoolSize: 1,
     minimumIdle: 1, validationTimeout: 5000,
     connectionInitSql: "SELECT 1" };
 
-map propertiesMap = { "AUTO_RECONNECT": "TRUE" };
+map<any> propertiesMap = { "AUTO_RECONNECT": "TRUE" };
 sql:PoolOptions properties3 = { dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" };
 
-map propertiesMap2 = { "AUTO_RECONNECT": "TRUE" };
+map<any> propertiesMap2 = { "AUTO_RECONNECT": "TRUE" };
 sql:PoolOptions properties4 = { dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" };
 
 sql:PoolOptions properties5 = { dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" };
 
-map propertiesMap3 = { "AUTO_RECONNECT": "TRUE" };
+map<any> propertiesMap3 = { "AUTO_RECONNECT": "TRUE" };
 sql:PoolOptions properties6 = { dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" };
 
 function testConnectionPoolProperties1() returns (json) {
@@ -198,17 +198,17 @@ function testConnectionFailure() {
 
 }
 
-function getJsonConversionResult(table|error tableOrError) returns json {
+function getJsonConversionResult(table<record {}>|error tableOrError) returns json {
     json retVal = {};
-    if (tableOrError is table) {
-        var jsonConversionResult = <json>tableOrError;
+    if (tableOrError is table<record {}>) {
+        var jsonConversionResult = json.create(tableOrError);
         if (jsonConversionResult is json) {
             retVal = jsonConversionResult;
         } else if (jsonConversionResult is error) {
-            retVal = {"Error" : <string>jsonConversionResult.detail().message};
+            retVal = { "Error" : string.create(jsonConversionResult.detail().message) };
         }
     } else if (tableOrError is error) {
-        retVal = {"Error" : <string>tableOrError.detail().message};
+        retVal = { "Error" : string.create(tableOrError.detail().message) };
     }
     return retVal;
 }

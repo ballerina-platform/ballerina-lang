@@ -39,10 +39,8 @@ public type Filter object {
     }
 };
 
-public function createFilter(function(StreamEvent[]) nextProcPointer,
+public function createFilter(function (StreamEvent[]) nextProcPointer,
                              function (map<anydata> o) returns boolean conditionFunc) returns Filter {
     Filter filter = new(nextProcPointer, conditionFunc);
     return filter;
 }
-
-

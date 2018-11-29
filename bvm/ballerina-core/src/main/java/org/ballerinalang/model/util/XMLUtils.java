@@ -374,7 +374,7 @@ public class XMLUtils {
             } else if (OMNode.TEXT_NODE == omNode.getType()) {
                 json = JsonParser.parse("\"" + ((OMText) omNode).getText() + "\"");
             } else {
-                json = new BMap<String, BValue>();
+                json = new BMap<String, BValue>(BTypes.typeJSON);
             }
         } else {
             //Process xml sequence
@@ -462,12 +462,12 @@ public class XMLUtils {
     @SuppressWarnings("rawtypes")
     private static BMap<String, BRefType<?>> traverseXMLElement(OMElement omElement, String attributePrefix,
             boolean preserveNamespaces) {
-        BMap<String, BRefType<?>> rootNode = new BMap<>();
+        BMap<String, BRefType<?>> rootNode = new BMap<>(BTypes.typeJSON);
         LinkedHashMap<String, String> attributeMap = collectAttributesAndNamespaces(omElement, preserveNamespaces);
         Iterator iterator = omElement.getChildElements();
         String keyValue = getElementKey(omElement, preserveNamespaces);
         if (iterator.hasNext()) {
-            BMap<String, BRefType<?>> currentRoot = new BMap<>();
+            BMap<String, BRefType<?>> currentRoot = new BMap<>(BTypes.typeJSON);
             ArrayList<OMElement> childArray = new ArrayList<>();
             LinkedHashMap<String, ArrayList<BRefType<?>>> rootMap = new LinkedHashMap<>();
             while (iterator.hasNext()) {
@@ -679,7 +679,7 @@ public class XMLUtils {
             LinkedHashMap<String, String> attributeMap, String attributePrefix, String singleElementValue) {
         boolean singleElement = false;
         if (rootNode == null) {
-            rootNode = new BMap<>();
+            rootNode = new BMap<>(BTypes.typeJSON);
             singleElement = true;
         }
         //All the attributes and namesapces are set as key value pairs with given prefix

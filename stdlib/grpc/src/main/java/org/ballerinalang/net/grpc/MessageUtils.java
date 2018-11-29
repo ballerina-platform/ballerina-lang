@@ -134,7 +134,14 @@ public class MessageUtils {
         if (error instanceof StatusRuntimeException) {
             StatusRuntimeException statusException = (StatusRuntimeException) error;
             reason = reason + statusException.getStatus().getCode().name();
-            refData.put("message", new BString(statusException.getStatus().getDescription()));
+            String errorDescription = statusException.getStatus().getDescription();
+            if (errorDescription != null) {
+                refData.put("message", new BString(statusException.getStatus().getDescription()));
+            } else if (statusException.getStatus().getCause() != null) {
+                refData.put("message", new BString(statusException.getStatus().getCause().getMessage()));
+            } else {
+                refData.put("message", new BString(UNKNOWN_ERROR));
+            }
         } else {
             if (error.getMessage() == null) {
                 reason = reason + UNKNOWN.name();

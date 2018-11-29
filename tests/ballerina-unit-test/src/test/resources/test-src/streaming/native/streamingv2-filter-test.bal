@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/runtime;
-import ballerina/io;
 import ballerina/streams;
 
 type Teacher record {
@@ -54,10 +53,10 @@ public function startFilterQuery() returns any {
     }
 
     int count = 0;
-    while(true) {
+    while (true) {
         runtime:sleep(500);
         count += 1;
-        if((globalEmployeeArray.length()) == 2 || count == 10) {
+        if ((globalEmployeeArray.length()) == 2 || count == 10) {
             break;
         }
     }
@@ -87,17 +86,17 @@ function foo() {
     streams:OutputProcess outputProcess = streams:createOutputProcess(outputFunc);
 
     streams:SimpleSelect simpleSelect = streams:createSimpleSelect(
-            function(streams:StreamEvent[] e) {outputProcess.process(e);},
-            function (streams:StreamEvent e) returns map<anydata> {
-            // got rid of type casting
-                return {
-                    "name": e.data["inputStream.name"],
-                    "age": e.data["inputStream.age"]
-                };
-        }
+                                            function (streams:StreamEvent[] e) {outputProcess.process(e);},
+                                            function (streams:StreamEvent e) returns map<anydata> {
+                                                // got rid of type casting
+                                                return {
+                                                    "name": e.data["inputStream.name"],
+                                                    "age": e.data["inputStream.age"]
+                                                };
+                                            }
     );
 
-    streams:Filter filter = streams:createFilter(function(streams:StreamEvent[] e) {simpleSelect.process(e);},
+    streams:Filter filter = streams:createFilter(function (streams:StreamEvent[] e) {simpleSelect.process(e);},
         function (map<anydata> m) returns boolean {
             // simplify filter
             return <int>m["inputStream.age"] > 25;

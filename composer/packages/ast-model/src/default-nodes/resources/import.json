@@ -1,0 +1,72 @@
+{
+    "ws": [
+        {
+            "ws": "",
+            "i": 0,
+            "text": "import",
+            "static": true
+        },
+        {
+            "ws": " ",
+            "i": 2,
+            "text": "ballerina",
+            "static": false
+        },
+        {
+            "ws": "",
+            "i": 3,
+            "text": "/",
+            "static": true
+        },
+        {
+            "ws": "",
+            "i": 4,
+            "text": "http",
+            "static": false
+        },
+        {
+            "ws": "",
+            "i": 5,
+            "text": ";",
+            "static": true
+        }
+    ],
+    "position": {
+        "startColumn": 1,
+        "startLine": 1,
+        "endColumn": 22,
+        "endLine": 1
+    },
+    "id": "703db133-7509-46b0-a9f6-86354ca5f999",
+    "orgName": {
+        "id": "77f5ffdb-698e-4179-8309-f2597d883583",
+        "literal": false,
+        "value": "ballerina",
+        "kind": "Identifier",
+        "valueWithBar": "ballerina"
+    },
+    "alias": {
+        "id": "7b2b1c09-2ef2-44e1-bd3c-b0549aaad543",
+        "literal": false,
+        "value": "http",
+        "kind": "Identifier",
+        "valueWithBar": "http"
+    },
+    "packageName": [
+        {
+            "id": "6d2a688d-c5fb-4abe-98fa-b61f9eb434a2",
+            "literal": false,
+            "value": "http",
+            "kind": "Identifier",
+            "valueWithBar": "http"
+        }
+    ],
+    "kind": "Import",
+    "packageVersion": {
+        "id": "cca900ef-a695-44ee-babb-5cde25220c93",
+        "literal": false,
+        "value": "",
+        "kind": "Identifier",
+        "valueWithBar": ""
+    }
+}

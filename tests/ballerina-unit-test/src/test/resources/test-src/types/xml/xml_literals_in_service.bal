@@ -1,24 +1,23 @@
 import ballerina/http;
 
 xmlns "http://ballerina.com/a" as ns0; 
+xmlns "http://ballerina.com/b" as ns1; 
 
-endpoint http:NonListener testEP {
-    port:9090
-};
+listener http:Listener testEP = new(9090);
 
 @http:ServiceConfig {basePath:"/test"}
-service<http:Service> TestServiceLevelNamespaces bind testEP {
-    xmlns "http://ballerina.com/b" as ns1; 
-    
+service TestServiceLevelNamespaces on testEP {
+
     xml person = xml `<p:person xmlns:p="foo" xmlns:q="bar">hello</p:person>`;
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/getXML"
     }
-    getXML (endpoint conn, http:Request request) {
+
+    resource function getXML (http:Caller caller, http:Request req) {
         http:Response res = new;
-        res.setXmlPayload(person);
-        _ = conn -> respond(res);
+        res.setXmlPayload(self.person);
+        _ = caller -> respond(res);
     }
 }
