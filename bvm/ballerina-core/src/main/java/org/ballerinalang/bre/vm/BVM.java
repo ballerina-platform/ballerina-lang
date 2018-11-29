@@ -900,12 +900,12 @@ public class BVM {
 //                checkAndStopCallableObservation(observerContext, flags);
                 /* we want the parent to continue, since we got the response of the native call already */
                 strand.respCallback.signal();
-                return strand;
+                return null;
             }
             CallableUnitCallback callback = getNativeCallableUnitCallback(strand, sf, ctx, observerContext,
                     retReg, retType, flags);
             nativeCallable.execute(ctx, callback);
-            return strand;
+            return null;
         } catch (BLangNullReferenceException e) {
             strand.setError(BLangVMErrors.createNullRefException(strand));
         } catch (Throwable e) {
@@ -4161,17 +4161,6 @@ public class BVM {
             sf.ip = -1;
             strand.respCallback.signal();
         }
-//        } else {
-//            //                    TODO fix - rajith
-////            BLangScheduler.workerExcepted(ctx);
-////            throw new BVM.HandleErrorException(
-////                    ctx.respCtx.signal(new WorkerSignal(ctx, SignalType.ERROR, ctx.workerResult)));
-//            if (strand.fp > 0) {
-//                strand.popFrame();
-//                return handleError(strand);
-//            }
-//        }
-//        return strand.currentFrame;
     }
 
     private static AttributeInfo getAttributeInfo(AttributeInfoPool attrInfoPool, AttributeInfo.Kind attrInfoKind) {
