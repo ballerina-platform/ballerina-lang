@@ -1732,7 +1732,7 @@
                 <module>tests/ballerina-integration-test</module>
                 <module>tests/ballerina-tools-integration-test</module>
                 <module>tests/ballerina-compiler-plugin-test</module>
-                <!--<module>tests/ballerina-examples-test</module>-->
+                <module>tests/ballerina-examples-test</module>
                 <module>tool-plugins/intellij</module>
                 <module>tool-plugins/vscode</module>
 
@@ -1897,7 +1897,7 @@
                 <module>tests/ballerina-integration-test-utils</module>
                 <module>tests/ballerina-integration-test</module>
                 <module>tests/ballerina-tools-integration-test</module>
-                <!--<module>tests/ballerina-examples-test</module>-->
+                <module>tests/ballerina-examples-test</module>
                 <!-- Intellij build disabled in default build -->
                 <!--<module>tool-plugins/intellij</module>-->
                 <module>tool-plugins/vscode</module>

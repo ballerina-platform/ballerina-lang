@@ -81,7 +81,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <executable>${project.build.directory}/../src/main/resources/run.sh</executable>
+                    <executable>${project.build.directory}/../src/main/resources/run${script.extension}</executable>
                     <arguments>
                         <argument>${project.build.directory}/ballerina-tools-${project.version}/examples/</argument>
                         <argument>${maven.test.skip}</argument>
@@ -90,4 +90,29 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>Windows</id>
+            <activation>
+                <os>
+                    <family>Windows</family>
+                </os>
+            </activation>
+            <properties>
+                <script.extension>.bat</script.extension>
+            </properties>
+        </profile>
+        <profile>
+            <id>unix</id>
+            <activation>
+                <os>
+                    <family>unix</family>
+                </os>
+            </activation>
+            <properties>
+                <script.extension>.sh</script.extension>
+            </properties>
+        </profile>
+    </profiles>
 </project>
