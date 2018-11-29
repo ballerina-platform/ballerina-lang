@@ -66,7 +66,7 @@ function mapOpTest() returns xml[] {
 
 function filterOpTest() returns xml[] {
     xml[] books = bookstore["book"].filter(function (xml book) returns boolean {
-                                               var result = <int>book["year"].getTextValue();
+                                               var result = int.create(book["year"].getTextValue());
                                                if (result is int) {
                                                   return result > 2004;
                                                } else {
@@ -78,7 +78,7 @@ function filterOpTest() returns xml[] {
 
 function chainedIterableOps() returns xml[] {
     xml[] authors = bookstore["book"].filter(function (xml book) returns boolean {
-                                               var result = <int>book["year"].getTextValue();
+                                               var result = int.create(book["year"].getTextValue());
                                                if (result is int) {
                                                   return result > 2004;
                                                } else {
