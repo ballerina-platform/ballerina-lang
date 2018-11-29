@@ -196,6 +196,9 @@ export interface Visitor {
   beginVisitService?(node: Ballerina.Service): void;
   endVisitService?(node: Ballerina.Service): void;
 
+  beginVisitServiceConstructor?(node: Ballerina.ServiceConstructor): void;
+  endVisitServiceConstructor?(node: Ballerina.ServiceConstructor): void;
+
   beginVisitSimpleVariableRef?(node: Ballerina.SimpleVariableRef): void;
   endVisitSimpleVariableRef?(node: Ballerina.SimpleVariableRef): void;
 

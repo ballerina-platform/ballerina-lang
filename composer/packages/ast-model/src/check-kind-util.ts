@@ -243,6 +243,10 @@ export class ASTKindChecker {
     return node.kind === "Service";
   }
 
+  public static isServiceConstructor(node: ASTNode) {
+    return node.kind === "ServiceConstructor";
+  }
+
   public static isSimpleVariableRef(node: ASTNode) {
     return node.kind === "SimpleVariableRef";
   }
