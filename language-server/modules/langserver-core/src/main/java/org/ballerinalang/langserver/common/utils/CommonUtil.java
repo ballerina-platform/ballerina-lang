@@ -764,7 +764,6 @@ public class CommonUtil {
     static void populateIterableAndBuiltinFunctions(SymbolInfo variable, List<SymbolInfo> symbolInfoList,
                                                     LSContext context) {
         BType bType = variable.getScopeEntry().symbol.getType();
-
         if (iterableType(bType)) {
             SymbolInfo itrForEach = getIterableOpSymbolInfo(Snippet.ITR_FOREACH.get(), bType,
                     ItemResolverConstants.ITR_FOREACH_LABEL, context);
@@ -935,10 +934,17 @@ public class CommonUtil {
     private static String getIterableOpLambdaParam(BType bType, LSContext context) {
         String params = "";
         boolean isSnippet = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem().getSnippetSupport();
+        PackageID currentPkgId = context.get(DocumentServiceKeys.CURRENT_PACKAGE_ID_KEY);
         if (bType instanceof BMapType) {
-            params = Snippet.ITR_ON_MAP_PARAMS.get().getString(isSnippet);
+            BMapType bMapType = (BMapType) bType;
+            String valueType = FunctionGenerator.generateTypeDefinition(null, currentPkgId, bMapType.constraint);
+            params = Snippet.ITR_ON_MAP_PARAMS.get().getString(isSnippet)
+                    .replace(UtilSymbolKeys.ITR_OP_LAMBDA_KEY_REPLACE_TOKEN, "string")
+                    .replace(UtilSymbolKeys.ITR_OP_LAMBDA_VALUE_REPLACE_TOKEN, valueType);
         } else if (bType instanceof BArrayType) {
-            params = ((BArrayType) bType).eType.toString() + " v";
+            BArrayType bArrayType = (BArrayType) bType;
+            String valueType = FunctionGenerator.generateTypeDefinition(null, currentPkgId, bArrayType.eType);
+            params = valueType + " value";
         } else if (bType instanceof BJSONType) {
             params = Snippet.ITR_ON_JSON_PARAMS.get().getString(isSnippet);
         } else if (bType instanceof BXMLType) {
