@@ -1981,7 +1981,8 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType checkInvocationParam(BLangInvocation iExpr) {
-        List<BType> paramTypes = ((BInvokableType) iExpr.symbol.type).getParameterTypes();
+        BType safeType = getSafeType(iExpr.symbol.type, iExpr);
+        List<BType> paramTypes = ((BInvokableType) safeType).getParameterTypes();
         int requiredParamsCount;
         if (iExpr.symbol.tag == SymTag.VARIABLE) {
             // Here we assume function pointers can have only required params.
@@ -2041,7 +2042,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (iExpr.async) {
             return this.generateFutureType(invocableSymbol);
         } else {
-            return invocableSymbol.type.getReturnType();
+            return getSafeType(invocableSymbol.type, iExpr).getReturnType();
         }
     }
 
@@ -2807,7 +2808,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         BSymbol funcSymbol = ((BLangVariableReference) iExpr.expr).symbol;
-        if (funcSymbol == null || funcSymbol.type.tag != TypeTags.INVOKABLE) {
+        if (funcSymbol == null || getSafeType(funcSymbol.type, iExpr).tag != TypeTags.INVOKABLE) {
             return symTable.notFoundSymbol;
         }
 
@@ -2854,8 +2855,7 @@ public class TypeChecker extends BLangNodeVisitor {
                                       Map<BVarSymbol, BType> thenTypeGuards) {
         for (Entry<BVarSymbol, BType> entry : thenTypeGuards.entrySet()) {
             BVarSymbol originalVarSymbol = entry.getKey();
-            BVarSymbol varSymbol = new BVarSymbol(0, originalVarSymbol.name, thenEnv.scope.owner.pkgID,
-                    entry.getValue(), this.env.scope.owner);
+            BVarSymbol varSymbol = symbolEnter.createVarSymbol(0, entry.getValue(), originalVarSymbol.name, this.env);
             symbolEnter.defineShadowedSymbol(ternaryExpr.pos, varSymbol, thenEnv);
 
             // Cache the type guards, to be reused at the desugar.
@@ -2868,8 +2868,7 @@ public class TypeChecker extends BLangNodeVisitor {
         for (Entry<BVarSymbol, BType> entry : typeGuardsSet.entrySet()) {
             BVarSymbol originalVarSymbol = entry.getKey();
             BType remainingType = types.getRemainingType(originalVarSymbol.type, entry.getValue());
-            BVarSymbol varSymbol = new BVarSymbol(0, originalVarSymbol.name, elseEnv.scope.owner.pkgID, remainingType,
-                    this.env.scope.owner);
+            BVarSymbol varSymbol = symbolEnter.createVarSymbol(0, remainingType, originalVarSymbol.name, this.env);
             symbolEnter.defineShadowedSymbol(ternaryExpr.expr.pos, varSymbol, elseEnv);
 
             // Cache the type guards, to be reused at the desugar.
