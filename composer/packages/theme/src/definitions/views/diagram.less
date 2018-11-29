@@ -1,5 +1,6 @@
 .diagram(@color) {
-    background: ~"@{@{color}-background-color}";
+    background: ~"@{@{color}-diagram-background-color}";
+    font-size: @diagram-font-size;
 
     .diagram-container {
         background: ~"@{@{color}-diagram-background-color}";
@@ -17,7 +18,7 @@
                         font-family: @diagram-icon-font;
                     }
                     text {
-                        fill: ~"@{@{color}-diagram-life-line-head-text-color}";
+                        fill: ~"@{@{color}-diagram-panel-header-text-color}";
                         font-size: @diagram-life-line-head-font-size;
                     }
                 }
@@ -33,6 +34,7 @@
                             stroke: ~"@{@{color}-diagram-life-line-head-stroke-color}";
                         }
                         text {
+                            fill: ~"@{@{color}-diagram-life-line-text-color}";
                             stroke-width: 0;
                             text-anchor: middle;
                         }
@@ -58,6 +60,9 @@
                     } 
                     .arrow-head {
                         fill: ~"@{@{color}-diagram-arrow-head-color}";
+                    }
+                    .statement {
+                        font-size: @diagram-statement-font-size;
                     }
                 }
             }

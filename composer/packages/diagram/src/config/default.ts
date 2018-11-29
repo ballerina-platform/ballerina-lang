@@ -2,6 +2,16 @@
 const STATEMENT_HEIGHT = 20;
 
 export class DiagramConfig {
+    public canvas = {
+        padding: {
+            bottom: 10,
+            top: 10,
+        },
+        // tslint:disable-next-line:object-literal-sort-keys
+        height: 500,
+        width: 500,
+    };
+
     public statement = {
         height: STATEMENT_HEIGHT,
         margin: {
@@ -19,16 +29,6 @@ export class DiagramConfig {
             top: 5,
         },
         width: 120,
-    };
-
-    public canvas = {
-        padding: {
-            bottom: 0,
-            top: 40,
-        },
-        // tslint:disable-next-line:object-literal-sort-keys
-        height: 500,
-        width: 500,
     };
 
     public panel = {
