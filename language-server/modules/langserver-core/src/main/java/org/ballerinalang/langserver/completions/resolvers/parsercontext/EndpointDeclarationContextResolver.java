@@ -67,7 +67,7 @@ public class EndpointDeclarationContextResolver extends AbstractItemResolver {
         List<SymbolInfo> symbolInfoList = new ArrayList<>();
         scopeEntries.entrySet().forEach(entry -> {
             BSymbol bSymbol = entry.getValue().symbol;
-            if (CommonUtil.isEndpointObject(bSymbol)) {
+            if (CommonUtil.isClientObject(bSymbol)) {
                 symbolInfoList.add(new SymbolInfo(entry.getKey().toString(), entry.getValue()));
             }
         });
@@ -78,7 +78,7 @@ public class EndpointDeclarationContextResolver extends AbstractItemResolver {
     private List<SymbolInfo> getEndpointEntries(List<SymbolInfo> symbolInfoList) {
         return symbolInfoList.stream().filter(symbolInfo -> {
             BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-            return CommonUtil.isEndpointObject(bSymbol) || bSymbol instanceof BPackageSymbol;
+            return CommonUtil.isClientObject(bSymbol) || bSymbol instanceof BPackageSymbol;
         }).collect(Collectors.toList());
     }
 }

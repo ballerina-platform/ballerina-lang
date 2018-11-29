@@ -58,6 +58,12 @@ function testClosedToClosedAssignment3() returns AnotherPerson3 {
     return ap;
 }
 
+function testClosedToClosedAssignment4() {
+    Person1 p = {name:"John Doe", age:25};
+    AnotherPerson3 ap = p;
+    ap.weight = 60.5;
+}
+
 
 //////////////////////////////////////////////////////////////////
 // Test for when the LHS type has optional fields which correspond to required fields of the RHS type.

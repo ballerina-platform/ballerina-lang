@@ -23,6 +23,7 @@ import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -36,17 +37,11 @@ import java.util.Map;
  */
 public class MatchExpressionScopeResolver extends CursorPositionResolver {
     /**
-     * Check whether the cursor is positioned before the given node start.
-     *
-     * @param nodePosition          Position of the node
-     * @param node                  Node
-     * @param treeVisitor           {@link TreeVisitor} current tree visitor instance
-     * @param completionContext     Completion operation context
-     * @return {@link Boolean}      Whether the cursor is before the node start or not
+     * {@inheritDoc}
      */
     @Override
-    public boolean isCursorBeforeNode(DiagnosticPos nodePosition, BLangNode node, TreeVisitor treeVisitor,
-                                      LSContext completionContext) {
+    public boolean isCursorBeforeNode(DiagnosticPos nodePosition, TreeVisitor treeVisitor, LSContext completionContext,
+                                      BLangNode node, BSymbol bSymbol) {
         if (!(treeVisitor.getBlockOwnerStack().peek() instanceof BLangMatchExpression)) {
             // In the ideal case, this will not get triggered
             return false;
@@ -74,7 +69,7 @@ public class MatchExpressionScopeResolver extends CursorPositionResolver {
             SymbolEnv matchEnv = createMatchExpressionEnv(matchNode, treeVisitor.getSymbolEnv());
             treeVisitor.populateSymbols(visibleSymbolEntries, matchEnv);
             treeVisitor.forceTerminateVisitor();
-            treeVisitor.setNextNode(node);
+            treeVisitor.setNextNode(bSymbol);
         }
         
         return isBeforeNode;

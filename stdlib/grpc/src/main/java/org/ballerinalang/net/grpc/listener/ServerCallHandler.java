@@ -27,7 +27,6 @@ import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.types.BErrorType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.grpc.CallStreamObserver;
@@ -45,8 +44,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-import static org.ballerinalang.net.grpc.GrpcConstants.LISTENER_CONNECTION_FIELD;
-import static org.ballerinalang.net.grpc.GrpcConstants.LISTENER_ID_FIELD;
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
 import static org.ballerinalang.net.grpc.MessageUtils.getHeaderStruct;
 import static org.ballerinalang.net.grpc.MessageUtils.getProgramFile;
@@ -151,16 +148,10 @@ public abstract class ServerCallHandler {
         ProgramFile programFile = getProgramFile(resource);
         // generate client responder struct on request message with response observer and response msg type.
         BMap<String, BValue> clientEndpoint = BLangConnectorSPIUtil.createBStruct(programFile,
-                GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC, GrpcConstants.CALLER_ACTION);
+                GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC, GrpcConstants.CALLER);
         clientEndpoint.addNativeData(GrpcConstants.RESPONSE_OBSERVER, responseObserver);
         clientEndpoint.addNativeData(GrpcConstants.RESPONSE_MESSAGE_DEFINITION, methodDescriptor.getOutputType());
-
-        // create endpoint type instance on request.
-        BMap<String, BValue> endpoint = BLangConnectorSPIUtil.createBStruct(programFile,
-                GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC, GrpcConstants.SERVICE_ENDPOINT_TYPE);
-        endpoint.put(LISTENER_CONNECTION_FIELD, clientEndpoint);
-        endpoint.put(LISTENER_ID_FIELD, new BInteger(responseObserver.hashCode()));
-        return endpoint;
+        return clientEndpoint;
     }
 
     /**

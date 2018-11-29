@@ -22,12 +22,12 @@ type ResultCount record {
 };
 
 function getTableCount(string tablePrefix) returns (int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         name: "TABLEDB",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     sql:Parameter p1 = { sqlType: sql:TYPE_VARCHAR, value: tablePrefix };
 
@@ -49,12 +49,12 @@ function getTableCount(string tablePrefix) returns (int) {
 }
 
 function getSessionCount() returns (int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         name: "TABLEDB",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     int count = 0;
     var dt = testDB->select("SELECT count(*) as count FROM information_schema.sessions", ResultCount);

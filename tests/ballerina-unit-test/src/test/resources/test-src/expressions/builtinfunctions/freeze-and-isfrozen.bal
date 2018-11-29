@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-@final string FREEZE_ERROR_OCCURRED = "error occurred on freeze: ";
-@final string FREEZE_SUCCESSFUL = "freeze successful";
+final string FREEZE_ERROR_OCCURRED = "error occurred on freeze: ";
+final string FREEZE_SUCCESSFUL = "freeze successful";
 
 function testBooleanFreeze(boolean a) returns (boolean, boolean) {
     boolean b = a.freeze();
@@ -113,8 +113,8 @@ function testBasicTypesAsJsonFreeze() returns boolean {
     return equals && a == b;
 }
 
-function testIsFrozenOnStructuralTypes() returns (boolean, boolean) {
-    Employee e = { name: "Em" };
+function testIsFrozenOnStructuralTypes() returns (boolean, boolean)|error {
+    Employee e = { id: 0, name: "Em" };
     map<string|int|()|Employee> m = { one: "1", two: 2, three: (), rec: e };
 
     anydata[] a = [1, "hi", 2.0, false, m, (), e];
@@ -242,7 +242,7 @@ function testFrozenXmlRemoveAttribute() {
 }
 
 function testFrozenXmlSetAttributes() {
-    map m = { attr1: "one", attr2: "two"};
+    map<any> m = { attr1: "one", attr2: "two"};
     xml x1 = xml `<book>The Lost World</book>`;
     _ = x1.freeze();
     x1.setAttributes(m);
@@ -257,48 +257,49 @@ function testFrozenXmlSetChildren() {
 }
 
 function testFrozenMapUpdate() {
-    map m1 = { one: "1", two: 2 };
-    map m2 = { one: "21", two: 22, mapVal: m1 };
+    map<any> m1 = { one: "1", two: 2 };
+    map<any> m2 = { one: "21", two: 22, mapVal: m1 };
 
     _ = m2.freeze();
     m2.one = 22;
 }
 
 function testFrozenMapRemoval() {
-    map m1 = { one: "1", two: 2 };
-    map m2 = { one: "21", two: 22, mapVal: m1 };
+    map<any> m1 = { one: "1", two: 2 };
+    map<any> m2 = { one: "21", two: 22, mapVal: m1 };
 
     _ = m2.freeze();
     _ = m2.remove("one");
 }
 
 function testFrozenMapClear() {
-    map m1 = { one: "1", two: 2 };
+    map<any> m1 = { one: "1", two: 2 };
 
     _ = m1.freeze();
     m1.clear();
 }
 
 function testFrozenInnerMapUpdate() {
-    map m1 = { one: "1", two: 2 };
-    map m2 = { one: "21", two: 22, mapVal: m1 };
+    map<any> m1 = { one: "1", two: 2 };
+    map<any> m2 = { one: "21", two: 22, mapVal: m1 };
 
     _ = m2.freeze();
     m1["one"] = 12;
 }
 
-function testFrozenInnerMapRemoval() {
-    map m1 = { one: "1", two: 2 };
-    map m2 = { one: "21", two: 22, mapVal: m1 };
+function testFrozenInnerMapRemoval() returns error? {
+    map<any> m1 = { one: "1", two: 2 };
+    map<any> m2 = { one: "21", two: 22, mapVal: m1 };
 
     _ = m2.freeze();
-    map m3 = check <map> m2.mapVal;
+    map<any> m3 = check <map> m2.mapVal;
     _ = m3.remove("one");
+    return ();
 }
 
 function testFrozenInnerMapClear() {
-    map m1 = { one: "1", two: 2 };
-    map m2 = { one: "21", two: 22, mapVal: m1 };
+    map<any> m1 = { one: "1", two: 2 };
+    map<any> m2 = { one: "21", two: 22, mapVal: m1 };
 
     _ = m2.freeze();
     m1.clear();
@@ -318,22 +319,24 @@ function testFrozenAnyArrayAddition() {
     i1[3] = "freeze addition";
 }
 
-function testFrozenAnyArrayUpdate() {
+function testFrozenAnyArrayUpdate() returns error? {
     Employee e1 = { name: "Em", id: 1000 };
     int[] i = [1, 2];
     any[] i1 = [i, e1];
     _ = i1.freeze();
     Employee e2 = check <Employee> i1[1];
     i1[1] = 100;
+    return ();
 }
 
-function testFrozenAnyArrayElementUpdate() {
+function testFrozenAnyArrayElementUpdate() returns error? {
     Employee e1 = { name: "Em", id: 1000 };
     int[] i = [1, 2];
     any[] i1 = [i, e1];
     _ = i1.freeze();
     Employee e2 = check <Employee> i1[1];
     e2["name"] = "Zee";
+    return ();
 }
 
 function testFrozenTupleUpdate() {
@@ -394,7 +397,7 @@ function testSimpleUnionFreeze() returns boolean {
 }
 
 function testInvalidComplexMapFreeze() returns (string, boolean) {
-    map<string|PersonObj> m1;
+    map<string|PersonObj> m1 = {};
     PersonObj p = new("John");
 
     m1.one = "one";
@@ -406,7 +409,7 @@ function testInvalidComplexMapFreeze() returns (string, boolean) {
 }
 
 function testInvalidComplexArrayFreeze() returns (string, boolean) {
-    (string|typedesc|float)[] a1;
+    (string|typedesc|float)[] a1 = [];
     typedesc p = int;
 
     a1[0] = 2.0;
@@ -448,21 +451,21 @@ function testInvalidComplexUnionFreeze() returns (string, boolean) {
 }
 
 function testInvalidSelfReferencingValueFreeze() returns (string, boolean) {
-    map m = { one: 1 };
-    map m2 = { two: 2 };
+    map<any> m = { one: 1 };
+    map<any> m2 = { two: 2 };
     m.m2 = m2;
     m2.m = m;
 
     PersonObj p = new("Em");
     m2.p = p;
 
-    map|error res = m.freeze();
+    map<any>|error res = m.freeze();
     string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + res.reason() : FREEZE_SUCCESSFUL;
     return (errorOrSuccessMsg, m.isFrozen() || m2.isFrozen());
 }
 
 function testValidComplexMapFreeze() returns (string, boolean) {
-    map<string|PersonObj> m1;
+    map<string|PersonObj> m1 = {};
 
     m1.one = "one";
     m1.two = "2";
@@ -473,7 +476,7 @@ function testValidComplexMapFreeze() returns (string, boolean) {
 }
 
 function testValidComplexArrayFreeze() returns (string, boolean) {
-    (string|PersonObj|float)[] a1;
+    (string|PersonObj|float)[] a1 = [];
 
     a1[0] = 2.0;
     a1[1] = "hello world";
@@ -509,26 +512,26 @@ function testValidComplexUnionFreeze() returns (string, boolean) {
 }
 
 function testValidSelfReferencingValueFreeze() returns (string, boolean) {
-    map m = { one: 1 };
-    map m2 = { two: 2 };
+    map<any> m = { one: 1 };
+    map<any> m2 = { two: 2 };
     m.m2 = m2;
     m2.m = m;
 
-    map|error res = m.freeze();
+    map<any>|error res = m.freeze();
     string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + res.reason() : FREEZE_SUCCESSFUL;
     return (errorOrSuccessMsg, m.isFrozen() || m2.isFrozen());
 }
 
 function testPreservingInnerMapFrozenStatusOnFailedOuterFreeze() returns (string, boolean, boolean) {
-    map m = { one: 1 };
-    map m2 = { two: 2 };
+    map<any> m = { one: 1 };
+    map<any> m2 = { two: 2 };
     _ = m.freeze();
 
     m2.m = m;
     PersonObj p = new("Em");
     m2.p = p;
 
-    map|error res = m2.freeze();
+    map<any>|error res = m2.freeze();
     string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + res.reason() : FREEZE_SUCCESSFUL;
     return (errorOrSuccessMsg, m2.isFrozen(), m.isFrozen());
 }
@@ -580,7 +583,7 @@ type Dept record {
 type PersonObj object {
     string name;
 
-    new(name){}
+    function __init(string name){}
 
     function getName() returns string {
         return self.name;

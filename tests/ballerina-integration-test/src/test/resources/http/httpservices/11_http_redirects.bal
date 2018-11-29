@@ -18,14 +18,11 @@ import ballerina/io;
 import ballerina/http;
 import ballerina/mime;
 
-endpoint http:Listener serviceEndpoint2 {
-    port: 9102
-};
+listener http:Listener serviceEndpoint2 = new(9102);
 
-endpoint http:Listener serviceEndpoint3 {
-    port: 9103
-};
-endpoint http:Listener httpsEP {
+listener http:Listener serviceEndpoint3 = new(9103);
+
+http:ServiceEndpointConfiguration httpsEPConfig = {
     port:9104,
     secureSocket: {
         keyStore: {
@@ -35,46 +32,39 @@ endpoint http:Listener httpsEP {
     }
 };
 
-endpoint http:Client endPoint1 {
-    url: "http://localhost:9103",
+listener http:Listener httpsEP = new(9104, config = httpsEPConfig);
+
+http:ClientEndpointConfig endPoint1Config = {
     followRedirects: { enabled: true, maxCount: 3 }
 };
 
-endpoint http:Client endPoint2 {
-    url: "http://localhost:9103",
+http:ClientEndpointConfig endPoint2Config = {
     followRedirects: { enabled: true, maxCount: 5 }
 };
 
-endpoint http:Client endPoint3 {
-    url: "http://localhost:9102",
+http:ClientEndpointConfig endPoint3Config = {
     followRedirects: { enabled: true }
 };
 
-endpoint http:Client endPoint4 {
-    url: "http://localhost:9103"
-};
-
-endpoint http:Client endPoint5 {
-    url: "https://localhost:9104",
+http:ClientEndpointConfig endPoint5Config = {
     followRedirects: { enabled: true }
 };
 
 @http:ServiceConfig {
     basePath: "/service1"
 }
-service<http:Service> testRedirect bind serviceEndpoint3 {
-
+service testRedirect on serviceEndpoint3 {
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/"
     }
-    redirectClient(endpoint client, http:Request req) {
-        http:Request clientRequest = new;
+    resource function redirectClient(http:Caller caller, http:Request req) {
+        http:Client endPoint1 = new("http://localhost:9103", config = endPoint1Config );
         var response = endPoint1->get("/redirect1");
         http:Response finalResponse = new;
         if (response is http:Response) {
             finalResponse.setPayload(response.resolvedRequestedURI);
-            _ = client->respond(finalResponse);
+            _ = caller->respond(finalResponse);
         } else if (response is error) {
             io:println("Connector error!");
         }
@@ -84,8 +74,8 @@ service<http:Service> testRedirect bind serviceEndpoint3 {
         methods: ["GET"],
         path: "/maxRedirect"
     }
-    maxRedirectClient(endpoint client, http:Request req) {
-        http:Request clientRequest = new;
+    resource function maxRedirectClient(http:Caller caller, http:Request req) {
+        http:Client endPoint1 = new("http://localhost:9103", config = endPoint1Config );
         var response = endPoint1->get("/redirect1/round1");
         if (response is http:Response) {
             string value = "";
@@ -93,7 +83,7 @@ service<http:Service> testRedirect bind serviceEndpoint3 {
                 value = response.getHeader(http:LOCATION);
             }
             value = value + ":" + response.resolvedRequestedURI;
-            _ = client->respond(untaint value);
+            _ = caller->respond(untaint value);
         } else if (response is error) {
             io:println("Connector error!");
         }
@@ -103,14 +93,14 @@ service<http:Service> testRedirect bind serviceEndpoint3 {
         methods: ["GET"],
         path: "/crossDomain"
     }
-    crossDomain(endpoint client, http:Request req) {
-        http:Request clientRequest = new;
+    resource function crossDomain(http:Caller caller, http:Request req) {
+        http:Client endPoint2 = new("http://localhost:9103", config = endPoint2Config );
         var response = endPoint2->get("/redirect1/round1");
         if (response is http:Response) {
             var value = response.getTextPayload();
             if (value is string) {
                 value = value + ":" + response.resolvedRequestedURI;
-                _ = client->respond(untaint value);
+                _ = caller->respond(untaint value);
             } else if (value is error) {
                 io:println("Payload error!");
             }
@@ -123,14 +113,14 @@ service<http:Service> testRedirect bind serviceEndpoint3 {
         methods: ["GET"],
         path: "/noRedirect"
     }
-    NoRedirect(endpoint client, http:Request req) {
-        http:Request clientRequest = new;
+    resource function NoRedirect(http:Caller caller, http:Request req) {
+        http:Client endPoint3 = new("http://localhost:9102", config = endPoint3Config );
         var response = endPoint3->get("/redirect2");
         if (response is http:Response) {
             var value = response.getTextPayload();
             if (value is string) {
                 value = value + ":" + response.resolvedRequestedURI;
-                _ = client->respond(untaint value);
+                _ = caller->respond(untaint value);
             } else if (value is error) {
                 io:println("Payload error!");
             }
@@ -143,14 +133,14 @@ service<http:Service> testRedirect bind serviceEndpoint3 {
         methods: ["GET"],
         path: "/qpWithRelativePath"
     }
-    qpWithRelativePath(endpoint client, http:Request req) {
-        http:Request clientRequest = new;
+    resource function qpWithRelativePath(http:Caller caller, http:Request req) {
+        http:Client endPoint2 = new("http://localhost:9103", config = endPoint2Config );
         var response = endPoint2->get("/redirect1/qpWithRelativePath");
         if (response is http:Response) {
             var value = response.getTextPayload();
             if (value is string) {
                 value = value + ":" + response.resolvedRequestedURI;
-                _ = client->respond(untaint value);
+                _ = caller->respond(untaint value);
             } else if (value is error) {
                 io:println("Payload error!");
             }
@@ -163,14 +153,14 @@ service<http:Service> testRedirect bind serviceEndpoint3 {
         methods: ["GET"],
         path: "/qpWithAbsolutePath"
     }
-    qpWithAbsolutePath(endpoint client, http:Request req) {
-        http:Request clientRequest = new;
+    resource function qpWithAbsolutePath(http:Caller caller, http:Request req) {
+        http:Client endPoint2 = new("http://localhost:9103", config = endPoint2Config );
         var response = endPoint2->get("/redirect1/qpWithAbsolutePath");
         if (response is http:Response) {
             var value = response.getTextPayload();
             if (value is string) {
                 value = value + ":" + response.resolvedRequestedURI;
-                _ = client->respond(untaint value);
+                _ = caller->respond(untaint value);
             } else if (value is error) {
                 io:println("Payload error!");
             }
@@ -183,14 +173,14 @@ service<http:Service> testRedirect bind serviceEndpoint3 {
         methods: ["GET"],
         path: "/originalRequestWithQP"
     }
-    originalRequestWithQP(endpoint client, http:Request req) {
-        http:Request clientRequest = new;
+    resource function originalRequestWithQP(http:Caller caller, http:Request req) {
+        http:Client endPoint2 = new("http://localhost:9103", config = endPoint2Config );
         var response = endPoint2->get("/redirect1/round4?key=value&lang=ballerina");
         if (response is http:Response) {
             var value = response.getTextPayload();
             if (value is string) {
                 value = value + ":" + response.resolvedRequestedURI;
-                _ = client->respond(untaint value);
+                _ = caller->respond(untaint value);
             } else if (value is error) {
                 io:println("Payload error!");
             }
@@ -203,14 +193,14 @@ service<http:Service> testRedirect bind serviceEndpoint3 {
         methods: ["GET"],
         path: "/test303"
     }
-    test303(endpoint client, http:Request req) {
-        http:Request clientRequest = new;
+    resource function test303(http:Caller caller, http:Request req) {
+        http:Client endPoint3 = new("http://localhost:9102", config = endPoint3Config );
         var response = endPoint3->post("/redirect2/test303", "Test value!");
         if (response is http:Response) {
             var value = response.getTextPayload();
             if (value is string) {
                 value = value + ":" + response.resolvedRequestedURI;
-                _ = client->respond(untaint value);
+                _ = caller->respond(untaint value);
             } else if (value is error) {
                 io:println("Payload error!");
             }
@@ -223,8 +213,8 @@ service<http:Service> testRedirect bind serviceEndpoint3 {
         methods: ["GET"],
         path: "/redirectOff"
     }
-    redirectOff(endpoint client, http:Request req) {
-        http:Request clientRequest = new;
+    resource function redirectOff(http:Caller caller, http:Request req) {
+        http:Client endPoint4 = new("http://localhost:9103");
         var response = endPoint4->get("/redirect1/round1");
         if (response is http:Response) {
             string value = "";
@@ -232,7 +222,7 @@ service<http:Service> testRedirect bind serviceEndpoint3 {
                 value = response.getHeader(http:LOCATION);
             }
             value = value + ":" + response.resolvedRequestedURI;
-            _ = client->respond(untaint value);
+            _ = caller->respond(untaint value);
         } else if (response is error) {
             io:println("Connector error!");
         }
@@ -242,14 +232,14 @@ service<http:Service> testRedirect bind serviceEndpoint3 {
         methods: ["GET"],
         path: "/httpsRedirect"
     }
-    redirectWithHTTPs(endpoint client, http:Request req) {
-        http:Request clientRequest = new;
+    resource function redirectWithHTTPs(http:Caller caller, http:Request req) {
+        http:Client endPoint5 = new("https://localhost:9104", config = endPoint5Config );
         var response = endPoint5->get("/redirect3");
         if (response is http:Response) {
             var value = response.getTextPayload();
             if (value is string) {
                 value = value + ":" + response.resolvedRequestedURI;
-                _ = client->respond(untaint value);
+                _ = caller->respond(untaint value);
             } else if (value is error) {
                 io:println("Payload error!");
             }
@@ -262,69 +252,69 @@ service<http:Service> testRedirect bind serviceEndpoint3 {
 @http:ServiceConfig {
     basePath: "/redirect1"
 }
-service<http:Service> redirect1 bind serviceEndpoint3 {
+service redirect1 on serviceEndpoint3 {
 
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/"
     }
-    redirect1(endpoint client, http:Request req) {
+    resource function redirect1(http:Caller caller, http:Request req) {
         http:Response res = new;
-        _ = client->redirect(res, http:REDIRECT_TEMPORARY_REDIRECT_307, ["http://localhost:9102/redirect2"]);
+        _ = caller->redirect(res, http:REDIRECT_TEMPORARY_REDIRECT_307, ["http://localhost:9102/redirect2"]);
     }
 
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/round1"
     }
-    round1(endpoint client, http:Request req) {
+    resource function round1(http:Caller caller, http:Request req) {
         http:Response res = new;
-        _ = client->redirect(res, http:REDIRECT_PERMANENT_REDIRECT_308, ["/redirect1/round2"]);
+        _ = caller->redirect(res, http:REDIRECT_PERMANENT_REDIRECT_308, ["/redirect1/round2"]);
     }
 
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/round2"
     }
-    round2(endpoint client, http:Request req) {
+    resource function round2(http:Caller caller, http:Request req) {
         http:Response res = new;
-        _ = client->redirect(res, http:REDIRECT_USE_PROXY_305, ["/redirect1/round3"]);
+        _ = caller->redirect(res, http:REDIRECT_USE_PROXY_305, ["/redirect1/round3"]);
     }
 
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/round3"
     }
-    round3(endpoint client, http:Request req) {
+    resource function round3(http:Caller caller, http:Request req) {
         http:Response res = new;
-        _ = client->redirect(res, http:REDIRECT_MULTIPLE_CHOICES_300, ["/redirect1/round4"]);
+        _ = caller->redirect(res, http:REDIRECT_MULTIPLE_CHOICES_300, ["/redirect1/round4"]);
     }
 
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/round4"
     }
-    round4(endpoint client, http:Request req) {
+    resource function round4(http:Caller caller, http:Request req) {
         http:Response res = new;
-        _ = client->redirect(res, http:REDIRECT_MOVED_PERMANENTLY_301, ["/redirect1/round5"]);
+        _ = caller->redirect(res, http:REDIRECT_MOVED_PERMANENTLY_301, ["/redirect1/round5"]);
     }
 
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/round5"
     }
-    round5(endpoint client, http:Request req) {
+    resource function round5(http:Caller caller, http:Request req) {
         http:Response res = new;
-        _ = client->redirect(res, http:REDIRECT_FOUND_302, ["http://localhost:9102/redirect2"]);
+        _ = caller->redirect(res, http:REDIRECT_FOUND_302, ["http://localhost:9102/redirect2"]);
     }
 
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/qpWithRelativePath"
     }
-    qpWithRelativePath(endpoint client, http:Request req) {
+    resource function qpWithRelativePath(http:Caller caller, http:Request req) {
         http:Response res = new;
-        _ = client->redirect(res, http:REDIRECT_TEMPORARY_REDIRECT_307, ["/redirect1/processQP?key=value&lang=ballerina"
+        _ = caller->redirect(res, http:REDIRECT_TEMPORARY_REDIRECT_307, ["/redirect1/processQP?key=value&lang=ballerina"
             ]);
     }
 
@@ -332,9 +322,9 @@ service<http:Service> redirect1 bind serviceEndpoint3 {
         methods: ["GET"],
         path: "/qpWithAbsolutePath"
     }
-    qpWithAbsolutePath(endpoint client, http:Request req) {
+    resource function qpWithAbsolutePath(http:Caller caller, http:Request req) {
         http:Response res = new;
-        _ = client->redirect(res, http:REDIRECT_TEMPORARY_REDIRECT_307, [
+        _ = caller->redirect(res, http:REDIRECT_TEMPORARY_REDIRECT_307, [
                 "http://localhost:9103/redirect1/processQP?key=value&lang=ballerina"]);
     }
 
@@ -342,35 +332,35 @@ service<http:Service> redirect1 bind serviceEndpoint3 {
         methods: ["GET"],
         path: "/processQP"
     }
-    processQP(endpoint client, http:Request req) {
+    resource function processQP(http:Caller caller, http:Request req) {
         map<string> paramsMap = req.getQueryParams();
         string returnVal = paramsMap.key + ":" + paramsMap.lang;
-        _ = client->respond(untaint returnVal);
+        _ = caller->respond(untaint returnVal);
     }
 }
 
 @http:ServiceConfig {
     basePath: "/redirect2"
 }
-service<http:Service> redirect2 bind serviceEndpoint2 {
+service redirect2 on serviceEndpoint2 {
 
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/"
     }
-    redirect2(endpoint client, http:Request req) {
+    resource function redirect2(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setPayload("hello world");
-        _ = client->respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         methods: ["POST"],
         path: "/test303"
     }
-    test303(endpoint client, http:Request req) {
+    resource function test303(http:Caller caller, http:Request req) {
         http:Response res = new;
-        _ = client->redirect(res, http:REDIRECT_SEE_OTHER_303, ["/redirect2"]);
+        _ = caller->redirect(res, http:REDIRECT_SEE_OTHER_303, ["/redirect2"]);
     }
 }
 
@@ -378,13 +368,13 @@ service<http:Service> redirect2 bind serviceEndpoint2 {
     basePath:"/redirect3"
 }
 
-service<http:Service> redirect3 bind httpsEP {
+service redirect3 on httpsEP {
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/"
     }
-    firstRedirect (endpoint caller, http:Request req) {
+    resource function firstRedirect(http:Caller caller, http:Request req) {
         http:Response res = new;
         _ = caller->redirect(res, http:REDIRECT_SEE_OTHER_303, ["/redirect3/result"]);
     }
@@ -393,7 +383,7 @@ service<http:Service> redirect3 bind httpsEP {
         methods:["GET"],
         path:"/result"
     }
-    finalResult (endpoint caller, http:Request req) {
+    resource function finalResult(http:Caller caller, http:Request req) {
         _ = caller -> respond("HTTPs Result");
     }
 }

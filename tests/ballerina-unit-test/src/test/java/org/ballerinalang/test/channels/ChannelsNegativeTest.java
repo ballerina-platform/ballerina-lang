@@ -37,7 +37,7 @@ public class ChannelsNegativeTest {
     public void setup() {
 
         result = BCompileUtil.compile("test-src/channels/channel-negative-test.bal");
-        Assert.assertEquals(result.getErrorCount(), 8, "Channels negative test error count");
+        Assert.assertEquals(result.getErrorCount(), 7, "Channels negative test error count");
 
     }
 
@@ -73,18 +73,9 @@ public class ChannelsNegativeTest {
 
     @Test(description = "Test invalid annotations", groups = CHANNEL_TEST)
     public void checkInvalidAnnotations() {
-
         Assert.assertEquals(result.getDiagnostics()[6].getPosition().getStartLine(), 29, "Wrong channel annotation " +
-                "position line " +
-                "number");
-        Assert.assertEquals(result.getDiagnostics()[6].getMessage(), "annotation 'ballerina/builtin:final' is not " +
-                "allowed in channel", "@final annotation for channels error message");
-
-        Assert.assertEquals(result.getDiagnostics()[7].getPosition().getStartColumn(), 1, "Wrong channel annotation " +
-                "position column number");
-        Assert.assertEquals(result.getDiagnostics()[7].getMessage(), "annotation 'ballerina/builtin:readonly' is not " +
-                "allowed in channel", "@final annotation for channels error message");
-
+                "position line number");
+        Assert.assertEquals(result.getDiagnostics()[6].getMessage(), "annotation 'ballerina/builtin:readonly' is not " +
+                "allowed in channel", "@readonly annotation for channels error message");
     }
-
 }

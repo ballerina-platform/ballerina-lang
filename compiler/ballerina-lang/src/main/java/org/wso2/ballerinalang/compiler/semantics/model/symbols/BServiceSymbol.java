@@ -27,18 +27,8 @@ import org.wso2.ballerinalang.compiler.util.Name;
  */
 public class BServiceSymbol extends BVarSymbol {
 
-    public BObjectTypeSymbol objectType;
-
-    public BServiceSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner, BObjectTypeSymbol obtype) {
+    public BServiceSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
         super(flags, name, pkgID, type, owner);
         this.tag = SymTag.SERVICE;
-        this.objectType = obtype;
-    }
-
-    // Todo - This is a temporary fix for URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD checkstyle issue. Need to remove this
-    // ones the issue is fixed.
-    @Override
-    public String toString() {
-        return super.toString() + objectType.toString();
     }
 }

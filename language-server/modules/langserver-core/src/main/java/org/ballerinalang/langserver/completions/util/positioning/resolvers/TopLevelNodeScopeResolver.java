@@ -19,6 +19,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.TreeVisitor;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
@@ -27,24 +28,18 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
  */
 public class TopLevelNodeScopeResolver extends CursorPositionResolver {
     /**
-     * Check whether the cursor is positioned before the given node start.
-     *
-     * @param nodePosition      Position of the node
-     * @param node              Node
-     * @param treeVisitor       {@link TreeVisitor} current tree visitor instance
-     * @param completionContext Completion operation context
-     * @return {@link Boolean}      Whether the cursor is before the node start or not
+     * {@inheritDoc}
      */
     @Override
-    public boolean isCursorBeforeNode(DiagnosticPos nodePosition, BLangNode node, TreeVisitor treeVisitor,
-                                      LSContext completionContext) {
+    public boolean isCursorBeforeNode(DiagnosticPos nodePosition, TreeVisitor treeVisitor, LSContext completionContext,
+                                      BLangNode node, BSymbol bSymbol) {
         int line = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
         DiagnosticPos zeroBasedPos = CommonUtil.toZeroBasedPosition(nodePosition);
         int nodeSLine = zeroBasedPos.sLine;
 
         if (line <= nodeSLine) {
             treeVisitor.forceTerminateVisitor();  
-            treeVisitor.setNextNode(node);
+            treeVisitor.setNextNode(bSymbol);
             return true;
         }
 

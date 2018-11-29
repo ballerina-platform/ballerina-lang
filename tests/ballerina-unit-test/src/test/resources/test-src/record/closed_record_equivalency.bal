@@ -20,7 +20,6 @@ public type employee1 record {
     string zipcode = "95134";
     string ssn = "";
     int id = 0;
-    int employeeId = 123456;
     !...
 };
 
@@ -28,7 +27,7 @@ function testEquivalenceOfPrivateStructsInSamePackage () returns (string) {
     employee1 e = {age:14, name:"rat"};
     e.ssn = "234-56-7890:employee";
 
-    person1 p = <person1>e;
+    person1 p = e;
 
     return p.ssn;
 }
@@ -50,7 +49,6 @@ public type employee2 record {
     string zipcode = "95134";
     string ssn = "";
     int id = 0;
-    int employeeId = 123456;
     !...
 };
 
@@ -58,7 +56,7 @@ function testEquivalenceOfPublicStructsInSamePackage () returns (string) {
     employee2 e = {age:14, name:"rat"};
     e.ssn = "234-56-7890:employee";
 
-    person2 p = <person2>e;
+    person2 p = e;
 
     return p.ssn;
 }
@@ -81,7 +79,6 @@ public type employee3 record {
     string zipcode = "95134";
     string ssn = "";
     int id = 0;
-    int employeeId = 123456;
     !...
 };
 
@@ -89,7 +86,7 @@ function testEqOfPublicStructs1 () returns (string) {
     employee3 e = {age:14, name:"rat"};
     e.ssn = "234-56-1234:employee";
 
-    eq:closedPerson p = <eq:closedPerson>e;
+    eq:closedPerson p = e;
 
     return p.ssn;
 }
@@ -98,7 +95,7 @@ function testEqOfPublicStructs2 () returns (string) {
     eq2:closedEmployee e = {age:14, name:"rat"};
     e.ssn = "234-56-3345:employee";
 
-    eq:closedPerson p = <eq:closedPerson>e;
+    eq:closedPerson p = e;
 
     return p.ssn;
 }

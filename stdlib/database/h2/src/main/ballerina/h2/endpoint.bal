@@ -26,7 +26,7 @@ import ballerina/sql;
 # + password - Password for the database connection
 # + poolOptions - Properties for the connection pool configuration. Refer `sql:PoolOptions` for more details
 # + dbOptions - A map of DB specific properties
-public type ClientEndpointConfiguration record {
+public type ClientEndpointConfig record {
     string host = "";
     string path = "";
     int port = 9092;
@@ -34,7 +34,7 @@ public type ClientEndpointConfiguration record {
     string username = "";
     string password = "";
     sql:PoolOptions poolOptions = {};
-    map dbOptions = {};
+    map<any> dbOptions = {};
     !...
 };
 
@@ -45,11 +45,11 @@ public type ClientEndpointConfiguration record {
 # + sqlClient - The base SQL Client
 public type Client client object {
     *sql:AbstractSQLClient;
-    private ClientEndpointConfiguration config;
+    private ClientEndpointConfig config;
     private sql:Client sqlClient;
 
     # Gets called when the H2 client is instantiated.
-    public function __init(ClientEndpointConfiguration c) {
+    public function __init(ClientEndpointConfig c) {
         self.config = c;
         self.sqlClient = createClient(c);
     }
@@ -62,7 +62,7 @@ public type Client client object {
     # + return - A `table[]` if there are tables returned by the call action and else nil,
     #            `error` will be returned if there is any error
     public remote function call(@sensitive string sqlQuery, typedesc[]? recordType, sql:Param... parameters)
-                               returns @tainted table[]|()|error {
+                               returns @tainted table<record {}>[]|()|error {
         return self.sqlClient->call(sqlQuery, recordType, ...parameters);
     }
 
@@ -74,7 +74,7 @@ public type Client client object {
     # + parameters - The parameters to be passed to the select query. The number of parameters is variable
     # + return - A `table` returned by the sql query statement else `error` will be returned if there is any error
     public remote function select(@sensitive string sqlQuery, typedesc? recordType, boolean loadToMemory = false,
-                                  sql:Param... parameters) returns @tainted table|error {
+                                  sql:Param... parameters) returns @tainted table<record {}>|error {
         return self.sqlClient->select(sqlQuery, recordType, loadToMemory = loadToMemory, ...parameters);
     }
 
@@ -125,4 +125,4 @@ public type Client client object {
     }
 };
 
-extern function createClient(ClientEndpointConfiguration config) returns sql:Client;
+extern function createClient(ClientEndpointConfig config) returns sql:Client;

@@ -22,7 +22,7 @@ import ballerina/http;
     basePath:participant2pcCoordinatorBasePath
 }
 // # Service on the participant which handles protocol messages related to the 2-phase commit (2PC) coordination type.
-service Participant2pcService bind coordinatorListener {
+service Participant2pcService on coordinatorListener {
 
     # When the initiator sends "prepare" this resource on the participant will get called.
     # This participant will in turn call prepare on all its resource managers registered with the respective
@@ -37,7 +37,7 @@ service Participant2pcService bind coordinatorListener {
         body:"prepareReq",
         consumes:["application/json"]
     }
-    prepare(endpoint conn, http:Request req, int transactionBlockId, PrepareRequest prepareReq) {
+    resource function prepare(http:Caller conn, http:Request req, int transactionBlockId, PrepareRequest prepareReq) {
         http:Response res = new;
         string transactionId = prepareReq.transactionId;
         string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
@@ -70,7 +70,7 @@ service Participant2pcService bind coordinatorListener {
                 }
             }
         }
-        var jsonResponse = <json>prepareRes;
+        var jsonResponse = json.create(prepareRes);
         if (jsonResponse is json) {
             res.setJsonPayload(jsonResponse);
             var resResult = conn->respond(res);
@@ -96,7 +96,7 @@ service Participant2pcService bind coordinatorListener {
         body:"notifyReq",
         consumes:["application/json"]
     }
-    notify(endpoint conn, http:Request req, int transactionBlockId, NotifyRequest notifyReq) {
+    resource function notify(http:Caller conn, http:Request req, int transactionBlockId, NotifyRequest notifyReq) {
         http:Response res = new;
         string transactionId = notifyReq.transactionId;
         string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
@@ -139,7 +139,7 @@ service Participant2pcService bind coordinatorListener {
             }
             removeParticipatedTransaction(participatedTxnId);
         }
-        var jsonResponse = <json>notifyRes;
+        var jsonResponse = json.create(notifyRes);
         if (jsonResponse is json) {
             res.setJsonPayload(jsonResponse);
             var resResult = conn->respond(res);

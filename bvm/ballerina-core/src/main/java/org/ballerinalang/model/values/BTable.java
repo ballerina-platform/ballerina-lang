@@ -19,6 +19,7 @@ package org.ballerinalang.model.values;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.vm.BVM;
+import org.ballerinalang.bre.vm.BVMExecutor;
 import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.DataIterator;
 import org.ballerinalang.model.types.BStructureType;
@@ -29,7 +30,6 @@ import org.ballerinalang.util.TableIterator;
 import org.ballerinalang.util.TableProvider;
 import org.ballerinalang.util.TableUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.program.BLangFunctions;
 
 import java.util.List;
 import java.util.Map;
@@ -76,7 +76,13 @@ public class BTable implements BRefType<Object>, BCollection {
     public BTable(String query, BTable fromTable, BTable joinTable,
                   BStructureType constraintType, BRefValueArray params) {
         this.tableProvider = TableProvider.getInstance();
+        if (!fromTable.isInMemoryTable()) {
+            throw new BallerinaException("Table query over a cursor table not supported");
+        }
         if (joinTable != null) {
+            if (!joinTable.isInMemoryTable()) {
+                throw new BallerinaException("Table query over a cursor table not supported");
+            }
             this.tableName = tableProvider.createTable(fromTable.tableName, joinTable.tableName, query,
                     constraintType, params);
         } else {
@@ -258,7 +264,8 @@ public class BTable implements BRefType<Object>, BCollection {
 
                 BMap<String, BValue> data = this.getNext();
                 BValue[] args = {data};
-                BValue[] returns = BLangFunctions.invokeCallable(lambdaFunction.value(), args);
+                BValue[] returns = BVMExecutor.executeFunction(lambdaFunction.value().getPackageInfo()
+                        .getProgramFile(), lambdaFunction.value(), args);
                 if (((BBoolean) returns[0]).booleanValue()) {
                     ++deletedCount;
                     tableProvider.deleteData(tableName, data);

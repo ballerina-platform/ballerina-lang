@@ -54,7 +54,7 @@ import static org.ballerinalang.mime.util.MimeConstants.TEXT_PLAIN;
 public class ServiceTest {
 
     private static final String TEST_ENDPOINT_NAME = "echoEP";
-    CompileResult compileResult, negativeResult;
+    private CompileResult compileResult, negativeResult;
 
     @BeforeClass
     public void setup() {

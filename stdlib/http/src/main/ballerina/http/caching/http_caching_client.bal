@@ -20,10 +20,10 @@ import ballerina/runtime;
 import ballerina/time;
 import ballerina/io;
 
-@final string WARNING_AGENT = getWarningAgent();
+final string WARNING_AGENT = getWarningAgent();
 
-@final string WARNING_110_RESPONSE_IS_STALE = "110 " + WARNING_AGENT + " \"Response is Stale\"";
-@final string WARNING_111_REVALIDATION_FAILED = "111 " + WARNING_AGENT + " \"Revalidation Failed\"";
+final string WARNING_110_RESPONSE_IS_STALE = "110 " + WARNING_AGENT + " \"Response is Stale\"";
+final string WARNING_111_REVALIDATION_FAILED = "111 " + WARNING_AGENT + " \"Revalidation Failed\"";
 
 const string WEAK_VALIDATOR_TAG = "W/";
 const int STALE = 0;
@@ -71,14 +71,14 @@ public type CacheConfig record {
 
 # An HTTP caching client implementation which takes an `HttpActions` instance and wraps it with an HTTP caching layer.
 #
-# + serviceUri - The URL of the remote HTTP endpoint
+# + url - The URL of the remote HTTP endpoint
 # + config - The configurations of the client endpoint associated with this `CachingActions` instance
 # + httpClient - The underlying `HttpActions` instance which will be making the actual network calls
 # + cache - The cache storage for the HTTP responses
 # + cacheConfig - Configurations for the underlying cache storage and for controlling the HTTP caching behaviour
 public type HttpCachingClient client object {
 
-    public string serviceUri = "";
+    public string url = "";
     public ClientEndpointConfig config = {};
     public Client httpClient;
     public HttpCache cache;
@@ -88,11 +88,11 @@ public type HttpCachingClient client object {
     # caching responses. The `CacheConfig` instance is used for initializing a new HTTP cache for the client and
     # the `ClientEndpointConfig` is used for creating the underlying HTTP client.
     #
-    # + serviceUri - The URL of the HTTP endpoint to connect to
+    # + url - The URL of the HTTP endpoint to connect to
     # + config - The configurations for the client endpoint associated with the caching client
     # + cacheConfig - The configurations for the HTTP cache to be used with the caching client
-    public function __init(string serviceUri, ClientEndpointConfig config, CacheConfig cacheConfig) {
-        var httpSecureClient = createHttpSecureClient(serviceUri, config);
+    public function __init(string url, ClientEndpointConfig config, CacheConfig cacheConfig) {
+        var httpSecureClient = createHttpSecureClient(url, config);
         if (httpSecureClient is Client) {
             self.httpClient = httpSecureClient;
         } else {
@@ -243,7 +243,7 @@ public function createHttpCachingClient(string url, ClientEndpointConfig config,
     log:printDebug(function() returns string {
         return "Created HTTP caching client: " + io:sprintf("%s", httpCachingClient);
     });
-    return <Client>httpCachingClient;
+    return httpCachingClient;
 }
 
 remote function HttpCachingClient.post(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
@@ -748,7 +748,8 @@ function getResponseAge(Response cachedResponse) returns int {
         return 0;
     }
 
-    var ageValue = <int>cachedResponse.getHeader(AGE);
+    string ageHeaderString = cachedResponse.getHeader(AGE);
+    var ageValue = int.create(ageHeaderString);
     if (ageValue is int) {
         return ageValue;
     }

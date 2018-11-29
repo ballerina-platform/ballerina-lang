@@ -1,7 +1,7 @@
 import ballerina/runtime;
 
-function forkJoinWithTimeoutTest1() returns map {
-    map m = {};
+function forkJoinWithTimeoutTest1() returns map<any> {
+    map<any> m = {};
     fork {
         worker w1 {
             int a = 5;
@@ -16,16 +16,16 @@ function forkJoinWithTimeoutTest1() returns map {
             b -> w1;
             runtime:sleep(5000);
         }
-    } join (all) (map results) {
+    } join (all) (map<any> results) {
         m["x"] = 25;
-    } timeout (1000) (map results) {
+    } timeout (1000) (map<any> results) {
         m["x"] = 15;
     }
     return m;
 }
 
-function forkJoinWithTimeoutTest2() returns map {
-    map m = {};
+function forkJoinWithTimeoutTest2() returns map<any> {
+    map<any> m = {};
     fork {
         worker w1 {
             int a = 5;
@@ -36,16 +36,16 @@ function forkJoinWithTimeoutTest2() returns map {
             int b = 15;
             runtime:sleep(100);
         }
-    } join (all) (map results) {
+    } join (all) (map<any> results) {
         m["x"] = 25;
-    } timeout (5000) (map results) {
+    } timeout (5000) (map<any> results) {
         m["x"] = 15;
     }
     return m;
 }
 
-function complexForkJoinWorkerSendReceive() returns map {
-    map m = {};
+function complexForkJoinWorkerSendReceive() returns map<any> {
+    map<any> m = {};
     m["x"] = 10;
     fork {
         worker w1 {
@@ -60,14 +60,14 @@ function complexForkJoinWorkerSendReceive() returns map {
             a <- w1;
             b -> w1;
         }
-    } join (all) (map results) {
+    } join (all) (map<any> results) {
         m["x"] = 17;
     }
     return m;
 }
 
-function chainedWorkerSendReceive() returns map {
-    map m = {};
+function chainedWorkerSendReceive() returns map<any> {
+    map<any> m = {};
     fork {
         worker w1 {
             int a = 3;
@@ -89,14 +89,14 @@ function chainedWorkerSendReceive() returns map {
             b = a * 2;
             b -> w1;
         }
-    } join (all) (map results) {
+    } join (all) (map<any> results) {
 
     }
     return m;
 }
 
 function forkJoinWithSomeSelectedJoin1() returns int|error {
-    map m = {};
+    map<any> m = {};
     m["x"] = 0;
     m["y"] = 0;
     fork {
@@ -118,7 +118,7 @@ function forkJoinWithSomeSelectedJoin1() returns int|error {
             runtime:sleep(1000);
             m["x"] = b;
         }
-    } join (some 1 w2, w3) (map results) {
+    } join (some 1 w2, w3) (map<any> results) {
 
     }
     int j;
@@ -128,8 +128,8 @@ function forkJoinWithSomeSelectedJoin1() returns int|error {
     return j * k;
 }
 
-function forkJoinWithSomeSelectedJoin2() returns map {
-    map m = {};
+function forkJoinWithSomeSelectedJoin2() returns map<any> {
+    map<any> m = {};
     m["x"] = 0;
     fork {
         worker w1 {
@@ -152,14 +152,14 @@ function forkJoinWithSomeSelectedJoin2() returns map {
             (a * 2) -> w1;
             a <- w2;
         }
-    } join (some 1 w1, w2, w3) (map results) {
+    } join (some 1 w1, w2, w3) (map<any> results) {
 
     }
     return m;
 }
 
-function forkJoinWithSomeSelectedJoin3() returns map {
-    map m = {};
+function forkJoinWithSomeSelectedJoin3() returns map<any> {
+    map<any> m = {};
     m["x"] = 0;
     fork {
         worker w1 {
@@ -184,14 +184,14 @@ function forkJoinWithSomeSelectedJoin3() returns map {
             (a * 2) -> w1;
             m["x"] <- w2;
         }
-    } join (some 1 w2, w3) (map results) {
+    } join (some 1 w2, w3) (map<any> results) {
 
     }
     return m;
 }
 
 function forkJoinWithSomeSelectedJoin4() returns int|error {
-    map m = {};
+    map<any> m = {};
     m["x"] = 0;
     fork {
         worker w1 {
@@ -209,7 +209,7 @@ function forkJoinWithSomeSelectedJoin4() returns int|error {
             runtime:sleep(1000);
             m["x"] = a * 2;
         }
-    } join (some 2 w1, w2, w3) (map results) {
+    } join (some 2 w1, w2, w3) (map<any> results) {
 
     }
     int x = check <int>m["x"];
@@ -217,7 +217,7 @@ function forkJoinWithSomeSelectedJoin4() returns int|error {
 }
 
 function forkJoinWithSomeSelectedJoin5() returns int|error {
-    map m = {};
+    map<any> m = {};
     m["x"] = 0;
     fork {
         worker w1 {
@@ -237,9 +237,9 @@ function forkJoinWithSomeSelectedJoin5() returns int|error {
             m["x"] = a * 2;
             a -> w2;
         }
-    } join (some 2 w1, w2, w3) (map results) {
+    } join (some 2 w1, w2, w3) (map<any> results) {
 
-    } timeout (1000) (map results) {
+    } timeout (1000) (map<any> results) {
         m["x"] = 555;
     }
     int x;
@@ -247,8 +247,8 @@ function forkJoinWithSomeSelectedJoin5() returns int|error {
     return x;
 }
 
-function forkJoinWithAllSelectedJoin1() returns map {
-    map m = {};
+function forkJoinWithAllSelectedJoin1() returns map<any> {
+    map<any> m = {};
     m["x"] = 0;
     fork {
         worker w1 {
@@ -274,7 +274,7 @@ function forkJoinWithAllSelectedJoin1() returns map {
             (a * 2) -> w1;
             m["x"] <- w2;
         }
-    } join (all w2, w3) (map results) {
+    } join (all w2, w3) (map<any> results) {
 
     }
     return m;
@@ -306,9 +306,9 @@ function forkJoinWithAllSelectedJoin2() returns int {
             (a * 2) -> w1;
             result <- w2;
         }
-    } join (all w2, w3) (map results) {
+    } join (all w2, w3) (map<any> results) {
 
-    } timeout (1000) (map results) {
+    } timeout (1000) (map<any> results) {
         if (result != 33) {
             result = 777;
         }
@@ -316,8 +316,8 @@ function forkJoinWithAllSelectedJoin2() returns int {
     return result;
 }
 
-function forkJoinWithMessagePassingTimeoutNotTriggered() returns map|error {
-    map m = {};
+function forkJoinWithMessagePassingTimeoutNotTriggered() returns map<any>|error {
+    map<any> m = {};
     fork {
         worker w1 {
             int a = 5;
@@ -333,11 +333,11 @@ function forkJoinWithMessagePassingTimeoutNotTriggered() returns map|error {
             b -> w1;
             a -> fork;
         }
-    } join (all) (map results) {
+    } join (all) (map<any> results) {
         int b = check <int>results["w1"];
         int a = check <int>results["w2"];
         m["x"] = (a + 1) * b;
-    } timeout (5000) (map results) {
+    } timeout (5000) (map<any> results) {
         m["x"] = 15;
     }
     return m;
@@ -346,7 +346,7 @@ function forkJoinWithMessagePassingTimeoutNotTriggered() returns map|error {
 function forkJoinInWorkers() returns int|error {
     worker wx {
         int x = 20;
-        map m = {};
+        map<any> m = {};
         fork {
             worker w1 {
                 m["a"] = 10;
@@ -354,7 +354,7 @@ function forkJoinInWorkers() returns int|error {
             worker w2 {
                 m["b"] = 20;
             }
-        } join (all) (map results) {
+        } join (all) (map<any> results) {
             int a;
             int b;
             a = check <int>m["a"];
@@ -367,7 +367,7 @@ function forkJoinInWorkers() returns int|error {
 
 function largeForkJoinCreationTest() returns int|error {
     int result = 0;
-    map m = {};
+    map<any> m = {};
     int c = 1000;
     while (c > 0) {
         m["x"] = 10;
@@ -433,7 +433,7 @@ function largeForkJoinCreationTest() returns int|error {
                 a <- w9;
                 (a + b) -> w1;
             }
-        } join (all) (map results) {
+        } join (all) (map<any> results) {
             var x = check <int>m["x"];
             result = x;
         }
@@ -453,7 +453,7 @@ function forkJoinWithStruct() returns string|error {
             float f = 10.344;
             f -> fork;
         }
-    } join (all) (map results) {
+    } join (all) (map<any> results) {
         var f = check <foo>results["w1"];
         result = "[join-block] sW1: " + f.y;
         var fW2 = check <float>results["w2"];
@@ -479,7 +479,7 @@ function forkJoinWithSameWorkerContent() returns string|error {
             b -> fork;
         }
 
-    } join (all) (map results) {
+    } join (all) (map<any> results) {
 
     }
     fork {
@@ -491,7 +491,7 @@ function forkJoinWithSameWorkerContent() returns string|error {
             string[] a = ["data2"];
             a -> fork;
         }
-    } join (all) (map results) {
+    } join (all) (map<any> results) {
         string[] resW1 = check <string[]>results["w1"];
         var s1 = resW1[0];
         result = "W1: " + s1;

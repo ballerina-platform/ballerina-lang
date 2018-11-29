@@ -20,14 +20,14 @@ import ballerina/log;
 #
 # + name - protocol name
 type Protocol record {
-    @readonly string name = "";
+    string name = "";
 };
 
 # This represents the protocol associated with the coordination type.
 #
 # + name - protocol name
 type LocalProtocol record {
-    @readonly string name = "";
+    string name = "";
 };
 
 # This represents the protocol associated with the coordination type.
@@ -36,8 +36,8 @@ type LocalProtocol record {
 # + url - protocol URL. This URL will have a value only if the participant is remote. If the participant is local,
 #         the `protocolFn` will be called
 public type RemoteProtocol record {
-    @readonly string name = "";
-    @readonly string url = "";
+    string name = "";
+    string url = "";
 };
 
 type Participant abstract object {
@@ -55,7 +55,11 @@ type RemoteParticipant object {
     private string transactionId;
     private RemoteProtocol[] participantProtocols;
 
-    new(participantId, transactionId, participantProtocols) {}
+    function __init(string participantId, string transactionId, RemoteProtocol[] participantProtocols) {
+        self.participantId = participantId;
+        self.transactionId = transactionId;
+        self.participantProtocols = participantProtocols;
+    }
 
     function prepare(string protocol) returns ((PrepareResult|error)?, Participant) {
         foreach remoteProto in self.participantProtocols {
@@ -91,8 +95,7 @@ type RemoteParticipant object {
     }
 
     function prepareMe(string protocolUrl) returns PrepareResult|error {
-        endpoint Participant2pcClientEP participantEP;
-        participantEP = getParticipant2pcClient(protocolUrl);
+        Participant2pcClientEP participantEP  = getParticipant2pcClient(protocolUrl);
 
         // Let's set this to true and change it to false only if a participant aborted or an error occurred while trying
         // to prepare a participant
@@ -126,7 +129,7 @@ type RemoteParticipant object {
     }
 
     function notifyMe(string protocolUrl, string action) returns NotifyResult|error {
-        endpoint Participant2pcClientEP participantEP;
+        Participant2pcClientEP participantEP;
 
         log:printInfo("Notify(" + action + ") remote participant: " + protocolUrl);
         participantEP = getParticipant2pcClient(protocolUrl);
@@ -154,7 +157,12 @@ type LocalParticipant object {
     private TwoPhaseCommitTransaction participatedTxn;
     private LocalProtocol[] participantProtocols;
 
-    new(participantId, participatedTxn, participantProtocols) {}
+    function __init(string participantId, TwoPhaseCommitTransaction participatedTxn, LocalProtocol[]
+        participantProtocols) {
+        self.participantId = participantId;
+        self.participatedTxn = participatedTxn;
+        self.participantProtocols = participantProtocols;
+    }
 
     function prepare(string protocol) returns ((PrepareResult|error)?, Participant) {
         foreach localProto in self.participantProtocols {

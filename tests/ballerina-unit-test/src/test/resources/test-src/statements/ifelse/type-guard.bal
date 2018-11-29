@@ -225,3 +225,18 @@ function testTypeGuardInElse_5() returns string {
         return "x is boolean: " + <string> x;
     }
 }
+
+function testComplexTernary_1() returns string {
+    int|string|float|boolean|int[] x = "string";
+    return x is int ? "int" : (x is float ? "float" : (x is boolean ? "boolean" : (x is int[] ? "int[]" : x)));
+}
+
+function testComplexTernary_2() returns string {
+    int|string|float|boolean|xml x = "string";
+    if (x is int|string|float|boolean) {
+        return x is int ? "int" : (x is float ? "float" : (x is boolean ? "boolean" : x));
+    } else {
+        xml y = x;
+        return "xml";
+    }
+}

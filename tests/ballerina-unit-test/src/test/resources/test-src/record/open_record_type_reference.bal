@@ -57,7 +57,8 @@ function testValRefType() returns Foo1 {
 type Person object {
     string name;
 
-    new(name){
+    function __init(string name) {
+        self.name = name;
     }
 };
 
@@ -151,6 +152,7 @@ function testReferenceChains() returns Foo4 {
 }
 
 function testTypeReferencingInBALOs() returns records:BManager {
-    records:BManager m = {name:"John Doe", age:25, adr:{city:"Colombo", country:"Sri Lanka"}, company:"WSO2", dept:"Engineering"};
+    records:BManager m = {name:"John Doe", age:25, adr:{city:"Colombo", country:"Sri Lanka"},
+                          company:"WSO2", dept:"Engineering"};
     return m;
 }

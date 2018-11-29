@@ -17,6 +17,7 @@ AS          : 'as' ;
 PUBLIC      : 'public' ;
 PRIVATE     : 'private' ;
 EXTERN      : 'extern' ;
+FINAL       : 'final' ;
 SERVICE     : 'service' ;
 RESOURCE    : 'resource' ;
 FUNCTION    : 'function' ;

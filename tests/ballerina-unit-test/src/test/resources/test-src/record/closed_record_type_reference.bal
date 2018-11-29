@@ -58,7 +58,8 @@ function testValRefType() returns Foo1 {
 type Person object {
     string name;
 
-    new(name){
+    function __init(string name) {
+        self.name = name;
     }
 };
 

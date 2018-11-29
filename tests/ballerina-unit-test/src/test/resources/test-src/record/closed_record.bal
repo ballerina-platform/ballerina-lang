@@ -7,7 +7,7 @@ type Department record {
 type Person record {
     string name = "default first name";
     string lname = "";
-    map adrs = {};
+    map<any> adrs = {};
     int age = 999;
     Family family = {};
     Person? parent = ();
@@ -24,7 +24,7 @@ type Family record {
 type Employee record {
     string name = "default first name";
     string lname = "";
-    map address = {};
+    map<any> address = {};
     int age = 999;
     Family family = {};
     Person? parent = ();
@@ -34,19 +34,20 @@ type Employee record {
 
 function testStructOfStruct () returns (string) {
 
-    map address = {"country":"USA", "state":"CA"};
+    map<any> address = {"country":"USA", "state":"CA"};
     Person emp1 = {name:"Jack", adrs:address, age:25};
     Person emp2 = {};
     Person[] emps = [emp1, emp2];
     Department dpt = {employees:emps};
 
-    string country;
-    country = dpt.employees[0].adrs["country"] but { () => "", any a => <string> a};
+    string country = "";
+    var result = dpt.employees[0].adrs["country"];
+    country = result is any ? <string> result : "";
     return country;
 }
 
 function testReturnStructAttributes () returns (string) {
-    map address = {"country":"USA", "state":"CA"};
+    map<any> address = {"country":"USA", "state":"CA"};
     string[] chldrn = [];
     Family fmly = {children:chldrn};
     Person emp1 = {name:"Jack", adrs:address, age:25, family:fmly};
@@ -73,7 +74,7 @@ function testStructExpressionAsIndex () returns (string) {
     Family fmly = {};
     fmly.children = [];
     Person emp2 = {};
-    map address = {"country":"USA", "state":"CA"};
+    map<any> address = {"country":"USA", "state":"CA"};
     Person emp1 = {name:"Jack", adrs:address, age:25, family:fmly};
 
     emp1.adrs["street"] = "20";
@@ -150,7 +151,7 @@ function testSetFieldOfNonInitStruct () {
 }
 
 function testStructWithRecordKeyword() returns Employee {
-    map address = {"country":"USA", "state":"CA"};
+    map<any> address = {"country":"USA", "state":"CA"};
     Employee emp = {name:"John", lname:"Doe", address:address, age:25, designation:"Software Engineer"};
     return emp;
 }

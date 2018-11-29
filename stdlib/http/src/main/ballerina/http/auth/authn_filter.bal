@@ -35,7 +35,7 @@ public type AuthnFilter object {
     # + request - An inboud HTTP request message
     # + context - A filter context
     # + return - True if the filter succeeds
-    public function filterRequest(Server listenerObj, Request request, FilterContext context) returns boolean {
+    public function filterRequest(Listener listenerObj, Request request, FilterContext context) returns boolean {
         // get auth config for this resource
         boolean authenticated = false;
         var (isSecured, authProviders) = getResourceAuthConfig(context);
@@ -64,7 +64,7 @@ public type AuthnFilter object {
 # + listenerObj - The http endpoint
 # + authenticated - Authorization status for the request
 # + return - Authorization result to indicate if the filter can proceed(true) or not(false)
-function isAuthnSuccesfull(Server listenerObj, boolean authenticated) returns boolean {
+function isAuthnSuccesfull(Listener listenerObj, boolean authenticated) returns boolean {
     //TODO:Fix this properly
     //endpoint Listener callerObj = listenerObj;
     //Response response = new;
@@ -153,19 +153,11 @@ function getAuthAnnotation(string annotationModule, string annotationName, refle
     }
     if (authAnn is reflect:annotationData) {
         if (annotationName == RESOURCE_ANN_NAME) {
-            var resourceConfig = <HttpResourceConfig>authAnn.value;
-            if (resourceConfig is HttpResourceConfig) {
-                return resourceConfig.authConfig;
-            } else if (resourceConfig is error) {
-                panic resourceConfig;
-            }
+            HttpResourceConfig resourceConfig = <HttpResourceConfig>authAnn.value;
+            return resourceConfig.authConfig;
         } else if (annotationName == SERVICE_ANN_NAME) {
-            var serviceConfig = <HttpServiceConfig>authAnn.value;
-            if (serviceConfig is HttpServiceConfig) {
-                return serviceConfig.authConfig;
-            } else if (serviceConfig is error) {
-                panic serviceConfig;
-            }
+            HttpServiceConfig serviceConfig = <HttpServiceConfig>authAnn.value;
+            return serviceConfig.authConfig;
         }
     }
     return ();

@@ -46,7 +46,6 @@ import static org.ballerinalang.launcher.util.BAssertUtil.validateError;
  *
  * @since 0.985.0
  */
-@Test(groups = "broken")
 public class EqualAndNotEqualOperationsTest {
 
     CompileResult result;
@@ -810,6 +809,22 @@ public class EqualAndNotEqualOperationsTest {
                 " as unequal.");
     }
 
+    @Test(dataProvider = "selfAndCyclicReferencingPositiveFunctions")
+    public void selfAndCyclicReferencingPositiveFunctions(String testFunctionName) {
+        BValue[] returns = BRunUtil.invoke(result, testFunctionName);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected values to be identified as equal.");
+    }
+
+    @Test(dataProvider = "selfAndCyclicReferencingNegativeFunctions")
+    public void selfAndCyclicReferencingNegativeFunctions(String testFunctionName) {
+        BValue[] returns = BRunUtil.invoke(result, testFunctionName);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected values to be identified as unequal.");
+    }
+
     @Test(description = "Test equal and not equal with errors")
     public void testEqualAndNotEqualNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 38);
@@ -1016,6 +1031,26 @@ public class EqualAndNotEqualOperationsTest {
                 {new BString("Hello Ballerina"), new BString("Hi Ballerina")},
                 {new BBoolean(true), new BBoolean(false)},
                 {new BBoolean(false), new BBoolean(true)},
+        };
+    }
+
+    @DataProvider(name = "selfAndCyclicReferencingPositiveFunctions")
+    public Object[][] selfAndCyclicReferencingPositiveFunctions() {
+        return new Object[][]{
+                {"testSelfAndCyclicReferencingMapEqualityPositive"},
+                {"testSelfAndCyclicReferencingJsonEqualityPositive"},
+                {"testSelfAndCyclicReferencingArrayEqualityPositive"},
+                {"testSelfAndCyclicReferencingTupleEqualityPositive"}
+        };
+    }
+
+    @DataProvider(name = "selfAndCyclicReferencingNegativeFunctions")
+    public Object[][] selfAndCyclicReferencingNegativeFunctions() {
+        return new Object[][]{
+                {"testSelfAndCyclicReferencingMapEqualityNegative"},
+                {"testSelfAndCyclicReferencingJsonEqualityNegative"},
+                {"testSelfAndCyclicReferencingArrayEqualityNegative"},
+                {"testSelfAndCyclicReferencingTupleEqualityNegative"}
         };
     }
 }

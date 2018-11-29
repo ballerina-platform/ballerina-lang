@@ -18,24 +18,16 @@ import ballerina/log;
 
 # JMS QueueSender Endpoint
 #
-# + producerActions - Handle all the actions related to the endpoint
-# + config - Used to store configurations related to a JMS Queue sender
-public type QueueSender object {
+# + config - Used to store configurations related to a JMS QueueSender
+public type QueueSender client object {
 
-    public QueueSenderActions producerActions = new;
     public QueueSenderEndpointConfiguration config = {};
 
-    # Default constructor of the endpoint
-    public function __init() {
-        self.producerActions = new;
-    }
-
-    # Initialize the consumer endpoint
+    # Initialize the QueueSender endpoint
     #
     # + c - Configurations related to the QueueSender endpoint
-    public function init(QueueSenderEndpointConfiguration c) {
+    public function __init(QueueSenderEndpointConfiguration c) {
         self.config = c;
-        self.producerActions.queueSender = self;
         var session = c.session;
         if (session is Session) {
             var queueName = c.queueName;
@@ -51,75 +43,37 @@ public type QueueSender object {
 
     extern function initQueueSender(Session session, Destination? destination = ());
 
-    # Registers the endpoint in the service.
-    # This method is not used since QueueSender is a non-service endpoint.
+    # Sends a message to the JMS provider
     #
-    # + serviceType - type descriptor of the service
-    public function register(typedesc serviceType) {
+    # + message - Message to be sent to the JMS provider
+    # + return - Error if unable to send the message to the queue
+    public remote extern function send(Message message) returns error?;
 
-    }
-
-    # Starts the consumer endpoint
-    public function start() {
-
-    }
-
-    # Returns the caller action object of the QueueSender
+    # Sends a message to a given destination of the JMS provider
     #
-    # + return - Queue sender actions
-    public function getCallerActions() returns QueueSenderActions {
-        return self.producerActions;
-    }
-
-    # Stops the consumer endpoint
-    public function stop() {
-
-    }
+    # + destination - Destination used for the message sender
+    # + message - Message to be sent to the JMS provider
+    # + return - Error if sending to the given destination fails
+    public remote function sendTo(Destination destination, Message message) returns error?;
 };
+
+remote function QueueSender.sendTo(Destination destination, Message message) returns error? {
+    var session = self.config.session;
+    if (session is Session) {
+        validateQueue(destination);
+        self.initQueueSender(session, destination = destination);
+    } else {
+        log:printInfo("Message producer not properly initialized for queue " + destination.destinationName);
+    }
+    return self->send(message);
+}
 
 # Configurations related to a QueueSender object
 #
 # + session - JMS session object used to create the consumer
-# + queueName - name of the target queue
+# + queueName - Name of the target queue
 public type QueueSenderEndpointConfiguration record {
     Session? session = ();
     string? queueName = ();
     !...
 };
-
-# JMS QueueSender action handling object
-#
-# + queueSender - Queue sender endpoint
-public type QueueSenderActions object {
-
-    public QueueSender? queueSender = ();
-
-    # Sends a message to the JMS provider
-    #
-    # + message - message to be sent to the JMS provider
-    # + return - error if unable to send the message to the queue
-    public extern function send(Message message) returns error?;
-
-    # Sends a message to a given destination of the JMS provider
-    #
-    # + destination - destination used for the message sender
-    # + message - message to be sent to the JMS provider
-    # + return - error if sending fails to the given destination
-    public function sendTo(Destination destination, Message message) returns error?;
-};
-
-function QueueSenderActions.sendTo(Destination destination, Message message) returns error? {
-    var queueSender = self.queueSender;
-    if (queueSender is QueueSender) {
-        var session = queueSender.config.session;
-        if (session is Session) {
-            validateQueue(destination);
-            queueSender.initQueueSender(session, destination = destination);
-        } else {
-            log:printInfo("Message producer not properly initialized for queue " + destination.destinationName);
-        }
-    } else {
-        log:printInfo("Message producer not properly initialized for queue " + destination.destinationName);
-    }
-    return self.send(message);
-}

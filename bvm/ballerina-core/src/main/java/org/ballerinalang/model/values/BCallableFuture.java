@@ -17,7 +17,9 @@
 */
 package org.ballerinalang.model.values;
 
-import org.ballerinalang.bre.vm.SafeStrandCallback;
+import org.ballerinalang.bre.vm.BVMScheduler;
+import org.ballerinalang.bre.vm.Strand;
+import org.ballerinalang.bre.vm.Strand.State;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 
@@ -30,11 +32,11 @@ public class BCallableFuture implements BFuture {
 
     private String callableName;
 
-    private SafeStrandCallback strandCallback;
+    private Strand strand;
     
-    public BCallableFuture(String callableName, SafeStrandCallback strandCallback) {
+    public BCallableFuture(String callableName, Strand strand) {
         this.callableName = callableName;
-        this.strandCallback = strandCallback;
+        this.strand = strand;
     }
 
     @Override
@@ -54,17 +56,17 @@ public class BCallableFuture implements BFuture {
 
     @Override
     public BValue copy(Map<BValue, BValue> refs) {
-        return new BCallableFuture(this.callableName, this.strandCallback);
+        return new BCallableFuture(this.callableName, this.strand);
     }
 
     @Override
-    public SafeStrandCallback value() {
-        return this.strandCallback;
+    public Strand value() {
+        return this.strand;
     }
 
     @Override
     public boolean cancel() {
-//        return this.respCtx.cancel();
+        BVMScheduler.stateChange(strand, State.RUNNABLE, State.TERMINATED);
         return true;
     }
 

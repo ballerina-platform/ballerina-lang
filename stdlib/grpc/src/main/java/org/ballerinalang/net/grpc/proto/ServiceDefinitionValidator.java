@@ -22,7 +22,7 @@ import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.net.grpc.config.ServiceConfiguration;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
-import org.wso2.ballerinalang.compiler.tree.BLangResource;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -31,12 +31,12 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.ballerinalang.net.grpc.GrpcConstants.LISTENER;
 import static org.ballerinalang.net.grpc.GrpcConstants.ON_COMPLETE_RESOURCE;
 import static org.ballerinalang.net.grpc.GrpcConstants.ON_ERROR_RESOURCE;
 import static org.ballerinalang.net.grpc.GrpcConstants.ON_MESSAGE_RESOURCE;
 import static org.ballerinalang.net.grpc.GrpcConstants.ON_OPEN_RESOURCE;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_ENDPOINT_TYPE;
 import static org.ballerinalang.net.grpc.proto.ServiceProtoConstants.ANN_SERVICE_CONFIG;
 import static org.ballerinalang.net.grpc.proto.ServiceProtoUtils.getServiceConfiguration;
 
@@ -49,7 +49,7 @@ public class ServiceDefinitionValidator {
 
     public static final int COMPULSORY_PARAM_COUNT = 1;
 
-    private static final String ENDPOINT_TYPE = PROTOCOL_STRUCT_PACKAGE_GRPC + ":" + SERVICE_ENDPOINT_TYPE;
+    private static final String ENDPOINT_TYPE = PROTOCOL_STRUCT_PACKAGE_GRPC + ":" + LISTENER;
 
     /**
      * Validate gRPC service instance.
@@ -100,7 +100,7 @@ public class ServiceDefinitionValidator {
     }
 
     private static boolean validateResource(ServiceNode serviceNode, DiagnosticLog dlog) {
-        List<BLangResource> resources = (List<BLangResource>) serviceNode.getResources();
+        List<BLangFunction> resources = (List<BLangFunction>) serviceNode.getResources();
         ServiceConfiguration serviceConfig = getServiceConfiguration(serviceNode);
         if (serviceConfig.getRpcEndpoint() != null && (serviceConfig.isClientStreaming())) {
             if (resources.size() != 4) {
@@ -112,7 +112,7 @@ public class ServiceDefinitionValidator {
             boolean onOpenExists = false;
             boolean onErrorExists = false;
             boolean onCompleteExists = false;
-            for (BLangResource resourceNode : resources) {
+            for (BLangFunction resourceNode : resources) {
                 switch (resourceNode.getName().getValue()) {
                     case ON_OPEN_RESOURCE:
                         onOpenExists = true;
@@ -146,7 +146,7 @@ public class ServiceDefinitionValidator {
             boolean onErrorExists = false;
             boolean onCompleteExists = false;
 
-            for (BLangResource resourceNode : resources) {
+            for (BLangFunction resourceNode : resources) {
                 switch (resourceNode.getName().getValue()) {
                     case ON_MESSAGE_RESOURCE:
                         onMessageExists = true;
@@ -171,7 +171,7 @@ public class ServiceDefinitionValidator {
                                 "client message listener.");
             }
 
-            for (BLangResource resourceNode : resources) {
+            for (BLangFunction resourceNode : resources) {
                 if (!validateResourceSignature(resourceNode.getParameters(), dlog, resourceNode.pos)) {
                     return validateResourceSignature(resourceNode.getParameters(), dlog, resourceNode.pos);
                 }

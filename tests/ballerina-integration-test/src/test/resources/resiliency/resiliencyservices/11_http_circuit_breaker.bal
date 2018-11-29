@@ -19,12 +19,9 @@ import ballerina/http;
 import ballerina/log;
 import ballerina/runtime;
 
-endpoint http:Listener circuitBreakerEP04 {
-    port:9310
-};
+listener http:Listener circuitBreakerEP04 = new(9310);
 
-endpoint http:Client errornousClientEP {
-    url: "http://localhost:8090",
+http:ClientEndpointConfig conf04 = {
     circuitBreaker: {
         rollingWindow: {
             timeWindowMillis: 60000,
@@ -38,15 +35,17 @@ endpoint http:Client errornousClientEP {
     timeoutMillis: 2000
 };
 
+http:Client errornousClientEP = new("http://localhost:8090", config = conf04);
+
 @http:ServiceConfig {
     basePath: "/cb"
 }
-service<http:Service> circuitbreaker04 bind circuitBreakerEP04 {
+service circuitbreaker04 on circuitBreakerEP04 {
 
     @http:ResourceConfig {
         path: "/requestvolume"
     }
-    getState(endpoint caller, http:Request request) {
+    resource function getState(http:Caller caller, http:Request request) {
         var backendRes = errornousClientEP->forward("/errornous", request);
         if (backendRes is http:Response) {
             var responseToCaller = caller->respond(backendRes);
@@ -67,12 +66,12 @@ service<http:Service> circuitbreaker04 bind circuitBreakerEP04 {
 }
 
 @http:ServiceConfig { basePath: "/errornous" }
-service<http:Service> errornousservice bind { port: 8090 } {
+service errornousservice on new http:Listener(8090) {
     @http:ResourceConfig {
         methods: ["GET", "POST"],
         path: "/"
     }
-    sayHello(endpoint caller, http:Request req) {
+    resource function sayHello(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.statusCode = http:INTERNAL_SERVER_ERROR_500;
         res.setPayload("Internal error occurred while processing the request.");

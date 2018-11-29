@@ -390,9 +390,10 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         setPreviousNode(serviceNode);
         this.addToNodeStack(serviceNode);
 
-        if (serviceNode.serviceTypeStruct != null) {
-            this.acceptNode(serviceNode.serviceTypeStruct);
-        }
+// TODO: 11/28/18 Fix with the latest Service Changes 
+//        if (serviceNode.serviceTypeStruct != null) {
+//            this.acceptNode(serviceNode.serviceTypeStruct);
+//        }
 
         if (serviceNode.vars != null) {
             serviceNode.vars.forEach(this::acceptNode);
@@ -405,14 +406,14 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         if (serviceNode.endpoints != null) {
             serviceNode.endpoints.forEach(this::acceptNode);
         }
-
-        if (serviceNode.boundEndpoints != null) {
-            serviceNode.boundEndpoints.forEach(this::acceptNode);
-        }
-
-        if (serviceNode.initFunction != null) {
-            this.acceptNode(serviceNode.initFunction);
-        }
+// TODO: 11/28/18 Fix with the latest Service Changes 
+//        if (serviceNode.boundEndpoints != null) {
+//            serviceNode.boundEndpoints.forEach(this::acceptNode);
+//        }
+//
+//        if (serviceNode.initFunction != null) {
+//            this.acceptNode(serviceNode.initFunction);
+//        }
     }
 
     public void visit(BLangResource resourceNode) {
@@ -777,18 +778,6 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatch.BLangMatchTypedBindingPatternClause patternClauseNode) {
-        setPreviousNode(patternClauseNode);
-        if (patternClauseNode.variable != null) {
-            this.acceptNode(patternClauseNode.variable);
-        }
-
-        if (patternClauseNode.body != null) {
-            this.acceptNode(patternClauseNode.body);
-        }
-    }
-
-    @Override
     public void visit(BLangMatch.BLangMatchStaticBindingPatternClause patternClauseNode) {
         /*ignore*/
     }
@@ -859,17 +848,6 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         if (checkedExpr.expr != null) {
             this.acceptNode(checkedExpr.expr);
         }
-    }
-
-    @Override
-    public void visit(BLangScope scopeNode) {
-        setPreviousNode(scopeNode);
-
-        if (scopeNode.scopeBody != null) {
-            acceptNode(scopeNode.scopeBody);
-        }
-
-        acceptNode(scopeNode.compensationFunction);
     }
 
     @Override

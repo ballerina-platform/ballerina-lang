@@ -1,16 +1,29 @@
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 import ballerina/http;
 import ballerina/log;
 import ballerina/mime;
 import ballerina/runtime;
 import ballerina/io;
 
-endpoint http:Listener serviceEndpoint1 {
-    port: 9105
-};
+listener http:Listener serviceEndpoint1 = new(9105);
 
 // Define the end point to the call the `mockHelloService`.
-endpoint http:Client backendClientEP {
-    url: "http://localhost:9105",
+http:Client backendClientEP = new ("http://localhost:9105", config = {
     // Retry configuration options.
     retryConfig: {
         interval: 3000,
@@ -18,12 +31,12 @@ endpoint http:Client backendClientEP {
         backOffFactor: 0.5
     },
     timeoutMillis: 2000
-};
+});
 
 @http:ServiceConfig {
     basePath: "/retry"
 }
-service<http:Service> retryDemoService bind serviceEndpoint1 {
+service retryDemoService on serviceEndpoint1 {
     // Create a REST resource within the API.
     @http:ResourceConfig {
         methods: ["GET", "POST"],
@@ -31,7 +44,7 @@ service<http:Service> retryDemoService bind serviceEndpoint1 {
     }
     // Parameters include a reference to the caller endpoint and an object of
     // the request data.
-    invokeEndpoint(endpoint caller, http:Request request) {
+    resource function invokeEndpoint(http:Caller caller, http:Request request) {
         var backendResponse = backendClientEP->forward("/hello", request);
         if (backendResponse is http:Response) {
             var responseToCaller = caller->respond(backendResponse);
@@ -57,12 +70,12 @@ public int counter = 0;
 // The service outage is mocked by stopping/starting this service.
 // This should run separately from the `retryDemoService` service.
 @http:ServiceConfig { basePath: "/hello" }
-service<http:Service> mockHelloService bind serviceEndpoint1 {
+service mockHelloService on serviceEndpoint1 {
     @http:ResourceConfig {
         methods: ["GET", "POST"],
         path: "/"
     }
-    sayHello(endpoint caller, http:Request req) {
+    resource function sayHello(http:Caller caller, http:Request req) {
         counter = counter + 1;
         if (counter % 4 != 0) {
             log:printInfo(
@@ -72,10 +85,11 @@ service<http:Service> mockHelloService bind serviceEndpoint1 {
             runtime:sleep(5000);
             http:Response res = new;
             res.setPayload("Hello World!!!");
-            caller->respond(res) but {
-                error e => log:printError(
-                    "Error sending response from mock service", err = e)
-            };
+            var result = caller->respond(res);
+
+            if (result is error) {
+                log:printError("Error sending response from mock service", err = result);
+            }
         } else {
             log:printInfo("Request received from the client to healthy service.");
             http:Response response = new;

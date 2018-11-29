@@ -30,6 +30,9 @@ public interface BallerinaBindingPatternPattern extends BallerinaCompositeElemen
   BallerinaBlock getBlock();
 
   @Nullable
+  BallerinaExpression getExpression();
+
+  @Nullable
   BallerinaStatement getStatement();
 
   @NotNull
@@ -40,6 +43,9 @@ public interface BallerinaBindingPatternPattern extends BallerinaCompositeElemen
 
   @Nullable
   PsiElement getRightBrace();
+
+  @Nullable
+  PsiElement getIf();
 
   @NotNull
   PsiElement getVar();

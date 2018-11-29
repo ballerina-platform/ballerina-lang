@@ -38,6 +38,7 @@ public type Timer object {
         self.onError = onError;
         self.interval = interval;
         self.delay = delay;
+        self.isRunning = false;
     }
 
     // Start the timer

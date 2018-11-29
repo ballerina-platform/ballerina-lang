@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 import ballerina/io;
 import ballerina/mime;
 import ballerina/runtime;
@@ -40,18 +39,25 @@ public const POST_BODY_BEARER = "POST_BODY_BEARER";
 # Provides secure HTTP actions for interacting with HTTP endpoints. This will make use of the authentication schemes
 # configured in the HTTP client endpoint to secure the HTTP requests.
 #
-# + serviceUri - The URL of the remote HTTP endpoint
+# + url - The URL of the remote HTTP endpoint
 # + config - The configurations of the client endpoint associated with this HttpActions instance
 # + httpClient - The underlying `HttpActions` instance which will be making the actual network calls
 public type HttpSecureClient client object {
     //These properties are populated from the init call to the client connector as these were needed later stage
     //for retry and other few places.
-    public string serviceUri = "";
+    public string url = "";
     public ClientEndpointConfig config = {};
     public Client httpClient;
 
-    public function __init(string serviceUri, ClientEndpointConfig config) {
-        self.httpClient = createSimpleHttpClient(serviceUri, config);
+    public function __init(string url, ClientEndpointConfig config) {
+        self.url = url;
+        self.config = config;
+        var simpleClient = createClient(url, self.config);
+        if (simpleClient is Client) {
+            self.httpClient = simpleClient;
+        } else {
+            panic simpleClient;
+        }
     }
 
     # This wraps the `post()` function of the underlying HTTP actions provider. Add relevant authentication headers
@@ -296,9 +302,9 @@ public function createHttpSecureClient(string url, ClientEndpointConfig config) 
     HttpSecureClient httpSecureClient;
     if (config.auth is AuthConfig) {
         httpSecureClient = new(url, config);
-        return <Client>httpSecureClient;
+        return httpSecureClient;
     } else {
-        return createSimpleHttpClient(url, config);
+        return createClient(url, config);
     }
 }
 
@@ -366,37 +372,43 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns str
     string[] scopes = config.auth.scopes ?: [];
 
     if (refreshToken == EMPTY_STRING || clientId == EMPTY_STRING || clientSecret == EMPTY_STRING || refreshUrl == EMPTY_STRING) {
-        error err = error("AccessTokenError", { message: "Failed to generate new access token since one or more of refresh token, client id, client secret,
+        error err = error("AccessTokenError",
+            { message: "Failed to generate new access token since one or more of refresh token, client id, client secret,
         refresh url are not provided" });
         return err;
     }
 
-    refreshTokenClient = createSimpleHttpClient(refreshUrl, {});
-    Request refreshTokenRequest = new;
-    string textPayload = "grant_type=refresh_token&refresh_token=" + refreshToken;
-    string scopeString = EMPTY_STRING;
-    foreach requestScope in scopes {
-        scopeString = scopeString + WHITE_SPACE + requestScope;
-    }
-    if (scopeString != EMPTY_STRING) {
-        textPayload = textPayload + "&scope=" + scopeString.trim();
-    }
-    if (config.auth.credentialBearer == AUTH_HEADER_BEARER) {
-        string clientIdSecret = clientId + ":" + clientSecret;
-        refreshTokenRequest.addHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE + check clientIdSecret.base64Encode());
-    } else {
-        textPayload = textPayload + "&client_id=" + clientId + "&client_secret=" + clientSecret;
-    }
-    refreshTokenRequest.setTextPayload(textPayload, contentType = mime:APPLICATION_FORM_URLENCODED);
-    Response refreshTokenResponse = check refreshTokenClient->post(EMPTY_STRING, refreshTokenRequest);
+    var simpleClient = createClient(refreshUrl, {});
+    if (simpleClient is Client) {
+        refreshTokenClient = simpleClient;
+        Request refreshTokenRequest = new;
+        string textPayload = "grant_type=refresh_token&refresh_token=" + refreshToken;
+        string scopeString = EMPTY_STRING;
+        foreach requestScope in scopes {
+            scopeString = scopeString + WHITE_SPACE + requestScope;
+        }
+        if (scopeString != EMPTY_STRING) {
+            textPayload = textPayload + "&scope=" + scopeString.trim();
+        }
+        if (config.auth.credentialBearer == AUTH_HEADER_BEARER) {
+            string clientIdSecret = clientId + ":" + clientSecret;
+            refreshTokenRequest.addHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE + check clientIdSecret.base64Encode());
+        } else {
+            textPayload = textPayload + "&client_id=" + clientId + "&client_secret=" + clientSecret;
+        }
+        refreshTokenRequest.setTextPayload(untaint textPayload, contentType = mime:APPLICATION_FORM_URLENCODED);
+        Response refreshTokenResponse = check refreshTokenClient->post(EMPTY_STRING, refreshTokenRequest);
 
-    json generatedToken = check refreshTokenResponse.getJsonPayload();
-    if (refreshTokenResponse.statusCode == OK_200) {
-        return generatedToken.access_token.toString();
+        json generatedToken = check refreshTokenResponse.getJsonPayload();
+        if (refreshTokenResponse.statusCode == OK_200) {
+            return generatedToken.access_token.toString();
+        } else {
+            error err = error("AccessTokenError",
+                { message: "Failed to generate new access token from the given refresh token" });
+            return err;
+        }
     } else {
-        error err = error("AccessTokenError", { message:
-            "Failed to generate new access token from the given refresh token" });
-        return err;
+        return simpleClient;
     }
 }
 

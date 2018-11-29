@@ -37,7 +37,7 @@ function getCoordinationTypeToProtocolsMap() returns map<string[]> {
 }
 //# Service on the initiator which is independent from the coordination type and handles registration of remote
 //# participants.
-service InitiatorService bind coordinatorListener {
+service InitiatorService on coordinatorListener {
 
     # register(in: Micro-Transaction-Registration,
     # out: Micro-Transaction-Coordination?,
@@ -72,7 +72,7 @@ service InitiatorService bind coordinatorListener {
         body:"regReq",
         consumes:["application/json"]
     }
-    register(endpoint conn, http:Request req, int transactionBlockId, RegistrationRequest regReq) {
+    resource function register(http:Caller conn, http:Request req, int transactionBlockId, RegistrationRequest regReq) {
         string participantId = regReq.participantId;
         string txnId = regReq.transactionId;
         var initiatedTxn = initiatedTransactions[txnId];
@@ -88,7 +88,7 @@ service InitiatorService bind coordinatorListener {
             } else {
                 RemoteProtocol[] participantProtocols = regReq.participantProtocols;
                 RemoteParticipant participant = new(participantId, initiatedTxn.transactionId, participantProtocols);
-                initiatedTxn.participants[participantId] = <Participant>participant;
+                initiatedTxn.participants[participantId] = participant;
                 RemoteProtocol[] coordinatorProtocols = [];
                 int i = 0;
                 foreach participantProtocol in participantProtocols {
@@ -100,7 +100,7 @@ service InitiatorService bind coordinatorListener {
                     i = i + 1;
                 }
                 RegistrationResponse regRes = {transactionId:txnId, coordinatorProtocols:coordinatorProtocols};
-                var resPayload = <json>regRes;
+                var resPayload = json.create(regRes);
                 if (resPayload is json) {
                     http:Response res = new;
                     res.statusCode = http:OK_200;

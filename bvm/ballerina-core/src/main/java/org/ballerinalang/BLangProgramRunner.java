@@ -26,7 +26,6 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.exceptions.BLangUsageException;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.program.BLangFunctions;
 
 import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
 import static org.ballerinalang.util.cli.ArgumentParser.extractEntryFuncArgs;
@@ -79,7 +78,7 @@ public class BLangProgramRunner {
                 if (debugger.isDebugEnabled()) {
                     debugger.notifyExit();
                 }
-                BLangFunctions.invokePackageStopFunctions(programFile);
+                BVMExecutor.stopProgramFile(programFile);
             }
         }
         return entryFuncResult;

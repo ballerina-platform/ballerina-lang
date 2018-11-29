@@ -14,40 +14,39 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents a WebSocket client endpoint.
+# Represents a WebSocket caller.
 #
 # + id - The connection id
 # + negotiatedSubProtocol - The subprotocols negoriated with the server
 # + isSecure - `true` if the connection is secure
 # + isOpen - `true` if the connection is open
-# + response - Represents the HTTP response
 # + attributes - A map to store connection related attributes
 public type WebSocketCaller client object {
 
-    @readonly public string id = "";
-    @readonly public string negotiatedSubProtocol = "";
-    @readonly public boolean isSecure = false;
-    @readonly public boolean isOpen = false;
-    @readonly public map attributes = {};
+    public string id = "";
+    public string negotiatedSubProtocol = "";
+    public boolean isSecure = false;
+    public boolean isOpen = false;
+    public map<any> attributes = {};
 
     private WebSocketConnector conn = new;
 
     # Push text to the connection.
     #
     # + data - Data to be sent, if byte[] it is converted to a UTF-8 string for sending
-    # + final - True if this is a final frame of a (long) message
+    # + finalFrame - True if this is a final frame of a (long) message
     # + return  - `error` if an error occurs when sending
-    public remote function pushText(string|json|xml|boolean|int|float|byte|byte[] data, boolean final = true) returns error? {
-        return self.conn.pushText(data, final = final);
+    public remote function pushText(string|json|xml|boolean|int|float|byte|byte[] data, boolean finalFrame = true) returns error? {
+        return self.conn.pushText(data, finalFrame);
     }
 
     # Push binary data to the connection.
     #
     # + data - Binary data to be sent
-    # + final - True if this is a final frame of a (long) message
+    # + finalFrame - True if this is a final frame of a (long) message
     # + return - `error` if an error occurs when sending
-    public remote function pushBinary(byte[] data, boolean final = true) returns error? {
-        return self.conn.pushBinary(data, final = final);
+    public remote function pushBinary(byte[] data, boolean finalFrame = true) returns error? {
+        return self.conn.pushBinary(data, finalFrame);
     }
 
     # Ping the connection.

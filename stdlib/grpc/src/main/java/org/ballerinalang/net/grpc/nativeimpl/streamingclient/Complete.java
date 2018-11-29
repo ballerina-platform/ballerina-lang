@@ -22,7 +22,6 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.Status;
@@ -31,10 +30,8 @@ import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_SENDER;
-import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
  * Extern function to inform the server, client finished sending messages.
@@ -45,6 +42,8 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
         orgName = ORG_NAME,
         packageName = GrpcConstants.PROTOCOL_PACKAGE_GRPC,
         functionName = "complete",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = GrpcConstants.STREAMING_CLIENT,
+                structPackage = GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC),
         isPublic = true
 )
 public class Complete extends BlockingNativeCallableUnit {

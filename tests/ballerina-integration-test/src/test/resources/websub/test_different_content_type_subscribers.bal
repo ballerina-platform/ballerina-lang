@@ -19,9 +19,7 @@ import ballerina/mime;
 import ballerina/http;
 import ballerina/websub;
 
-endpoint websub:Listener websubEP {
-    port:8282
-};
+listener websub:Listener websubEP = new websub:Listener(8282);
 
 @websub:SubscriberServiceConfig {
     path:"/websub",
@@ -31,8 +29,8 @@ endpoint websub:Listener websubEP {
     leaseSeconds: 3000,
     secret: "Kslk30SNF2AChs2"
 }
-service<websub:Service> websubSubscriber bind websubEP {
-    onNotification (websub:Notification notification) {
+service websubSubscriber on websubEP {
+    resource function onNotification (websub:Notification notification) {
         if (notification.getContentType() == mime:TEXT_PLAIN) {
             var payload = notification.getTextPayload();
             if (payload is string) {
@@ -65,8 +63,8 @@ service<websub:Service> websubSubscriber bind websubEP {
     topic: "http://one.websub.topic.com",
     leaseSeconds: 1000
 }
-service<websub:Service> websubSubscriberTwo bind websubEP {
-    onNotification (websub:Notification notification) {
+service websubSubscriberTwo on websubEP {
+    resource function onNotification (websub:Notification notification) {
         if (notification.getContentType() == mime:TEXT_PLAIN) {
             var payload = notification.getTextPayload();
             if (payload is string) {

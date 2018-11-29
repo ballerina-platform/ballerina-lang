@@ -46,6 +46,8 @@ public enum BLangBuiltInMethod {
 
     STAMP("stamp"),
 
+    CREATE("create"),
+    
     CALL("call"),
 
     UNDEFINED("$undefined");

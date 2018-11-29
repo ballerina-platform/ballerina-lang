@@ -23,16 +23,20 @@ service<http:Service> passthrough bind { port: 9090 } {
             // If the request was successful, an HTTP response is returned.
             // Here, the received response is forwarded to the client through the outbound endpoint.
             http:Response res => {
-                caller->respond(res) but { error e =>
-                            log:printError("Error sending response", err = e) };
+                var result = caller->respond(res);
+                if (result is error) {
+                   log:printError("Error sending response", err = result);
+                }
             }
             // If there was an error, the 500 error response is constructed and sent back to the client.
             error err => {
                 http:Response res = new;
                 res.statusCode = 500;
                 res.setPayload(err.message);
-                caller->respond(res) but { error e =>
-                            log:printError("Error sending response", err = e) };
+                var result = caller->respond(res);
+                if (result is error) {
+                   log:printError("Error sending response", err = result);
+                }
             }
         }
     }
@@ -48,7 +52,9 @@ service<http:Service> hello bind { port: 9092 } {
     helloResource(endpoint caller, http:Request req) {
         http:Response res = new;
         res.setPayload("Hello World!");
-        caller->respond(res) but { error e =>
-                            log:printError("Error sending response", err = e) };
+        var result = caller->respond(res);
+        if (result is error) {
+           log:printError("Error sending response", err = result);
+        }
     }
 }

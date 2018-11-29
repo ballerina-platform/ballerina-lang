@@ -563,4 +563,20 @@ public class CloneOperationTest {
         Assert.assertEquals(person1.getMap().entrySet(), person2.getMap().entrySet());
         Assert.assertEquals(arr1.stringValue(), arr2.stringValue());
     }
+
+    @Test
+    public void testCloneNullJson() {
+        BValue[] results = BRunUtil.invoke(result, "cloneNullJson");
+        Assert.assertNotNull(results);
+        Assert.assertNull(results[0]);
+        Assert.assertNull(results[1]);
+    }
+
+    @Test
+    public void testCloneNilAnydata() {
+        BValue[] results = BRunUtil.invoke(result, "cloneNilAnydata");
+        Assert.assertNotNull(results);
+        Assert.assertNull(results[0]);
+        Assert.assertNull(results[1]);
+    }
 }

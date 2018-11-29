@@ -59,8 +59,9 @@ public class BFunctionSymbolDAO extends AbstractDAO<BFunctionSymbolDTO> {
      */
     @Override
     public List<Integer> insertBatch(List<BFunctionSymbolDTO> dtoList) throws LSIndexException {
-        String query = "INSERT INTO bLangFunction (packageId, objectId, name, completionItem, private, attached) " +
-                "VALUES (?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO bLangFunction " +
+                "(packageId, objectId, name, completionItem, private, action, attached)" +
+                " VALUES (?, ?, ?, ?, ?, ?, ?)";
         PreparedStatement statement = null;
         ResultSet rs = null;
         try {
@@ -71,7 +72,8 @@ public class BFunctionSymbolDAO extends AbstractDAO<BFunctionSymbolDTO> {
                 statement.setString(3, dto.getName());
                 statement.setString(4, DTOUtil.completionItemToJSON(dto.getCompletionItem()));
                 statement.setBoolean(5, dto.isPrivate());
-                statement.setBoolean(6, dto.isAttached());
+                statement.setBoolean(6, dto.isAction());
+                statement.setBoolean(7, dto.isAttached());
                 statement.addBatch();
             }
             statement.executeBatch();
@@ -121,8 +123,7 @@ public class BFunctionSymbolDAO extends AbstractDAO<BFunctionSymbolDTO> {
     public List<BFunctionSymbolDTO> getAllActions() throws LSIndexException {
         List<BFunctionSymbolDTO> funcDTOs = new ArrayList<>();
         String query = "SELECT p.ID, o.ID, f.NAME FROM BLANGOBJECT as o JOIN BLANGPACKAGE as p ON p.ID = o.PACKAGEID " +
-                "JOIN BLANGFUNCTION as f ON f.OBJECTID   = o.ACTIONHOLDERID  WHERE o.TYPE  = 1 AND p.NAME LIKE ? AND " +
-                "o.NAME LIKE ?";
+                "WHERE o.TYPE  = 1 AND p.NAME LIKE ? AND o.NAME LIKE ?";
         PreparedStatement statement = null;
         ResultSet rs = null;
         try {

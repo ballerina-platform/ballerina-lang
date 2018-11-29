@@ -27,6 +27,6 @@ endpoint http:WebSocketListener wsCaller {
 }
 service<http:WebSocketService> wsService bind wsCaller {
 
-    onClose(endpoint caller, int status, boolean final) {
+    onClose(endpoint caller, int status, boolean isFinal) {
     }
 }

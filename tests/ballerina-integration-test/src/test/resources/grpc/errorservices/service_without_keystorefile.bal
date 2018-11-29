@@ -16,9 +16,8 @@
 import ballerina/grpc;
 import ballerina/io;
 
-endpoint grpc:Listener ep85 {
+listener grpc:Listener server4 = new (8085, config = {
     host:"localhost",
-    port:8085,
     secureSocket:{
         keyStore:{
             password:"ballerina"
@@ -34,14 +33,14 @@ endpoint grpc:Listener ep85 {
         ciphers:["TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"],
         sslVerifyClient:"require"
     }
-};
+});
 
 @grpc:ServiceDescriptor {
     descriptor: <string>descriptorMap9[DESCRIPTOR_KEY_9],
     descMap: descriptorMap9
 }
-service HelloWorld85 bind ep85 {
-    hello(endpoint caller, string name) {
+service HelloWorld85 on server4 {
+    resource function hello(grpc:Caller caller, string name) {
         io:println("name: " + name);
         string message = "Hello " + name;
         io:println("Server send response : " + message);
@@ -53,8 +52,8 @@ service HelloWorld85 bind ep85 {
     }
 }
 
-@final string DESCRIPTOR_KEY_9 = "HelloWorld85.proto";
-map descriptorMap9 =
+const string DESCRIPTOR_KEY_9 = "HelloWorld85.proto";
+map<any> descriptorMap9 =
 {
     "HelloWorld85.proto":"0A1248656C6C6F576F726C6438352E70726F746F120C6772706373657276696365731A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F32530A0C48656C6C6F576F726C64383512430A0568656C6C6F121C2E676F6F676C652E70726F746F6275662E537472696E6756616C75651A1C2E676F6F676C652E70726F746F6275662E537472696E6756616C7565620670726F746F33",
 

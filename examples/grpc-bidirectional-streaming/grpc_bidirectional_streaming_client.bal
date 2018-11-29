@@ -28,7 +28,7 @@ public function main() {
     ChatMessage mes = { name: "Sam", message: "Hi " };
     error? connErr = ep->send(mes);
 
-    io:println(connErr.message but { () => "" });
+    io:println(connErr.message ?: "";
     runtime:sleep(6000);
 
     // Once all messages are sent, client send complete message to notify the server, I’m done.

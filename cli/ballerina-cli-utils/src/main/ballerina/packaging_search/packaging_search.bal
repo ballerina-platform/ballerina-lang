@@ -1,3 +1,19 @@
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 import ballerina/io;
 import ballerina/mime;
 import ballerina/http;
@@ -11,16 +27,15 @@ import ballerina/math;
 # + querySearched - Text searched for
 # + terminalWidth - Width of the terminal
 function search (http:Client definedEndpoint, string url, string querySearched, string terminalWidth) {
-    endpoint http:Client httpEndpoint = definedEndpoint;
+    http:Client httpEndpoint = definedEndpoint;
     http:Request req = new;
     var result = httpEndpoint -> get(untaint querySearched, message=req);
     http:Response httpResponse = new;
-    match result {
-        http:Response response => httpResponse = response;
-        error e => {
-            io:println("Connection to the remote host failed : " + e.reason());
-            return;
-        }
+    if (result is http:Response) {
+        httpResponse = result;
+    } else if (result is error) {
+        io:println("Connection to the remote host failed : " + result.reason());
+        return;
     }
     string statusCode = <string> httpResponse.statusCode;
     if (statusCode.hasPrefix("5")) {
@@ -36,22 +51,22 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
     } else {
         var jsonResponse = httpResponse.getJsonPayload();
         if (jsonResponse is json) {
-            var artifacts = <json[]> jsonResponse.artifacts;
+            var artifacts = trap <json[]> jsonResponse.artifacts;
             if (artifacts is json[]) {
                 if (artifacts.length() > 0) {
                     int artifactsLength = artifacts.length();
                     printTitle("Ballerina Central");
-                    
+
                     int rightMargin = 3;
                     int width;
-                    var intTerminalWidth = <int> terminalWidth;
+                    var intTerminalWidth = int.create(terminalWidth);
                     if (intTerminalWidth is int) {
                         width = intTerminalWidth - rightMargin;
                     } else {
                         io:println("invalid terminal width : " + terminalWidth);
                         return;
                     }
-                    
+
                     int dateColWidth = 15;
                     int versionColWidth = 8;
                     int authorsColWidth = 15;
@@ -59,10 +74,10 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
                     float descColFactor = 16.0;
                     int additionalSpace = 7;
                     float remainingWidth = width - <float>(dateColWidth + versionColWidth + additionalSpace);
-                    
+
                     int nameColWidth = math:round(remainingWidth * (nameColFactor / (nameColFactor + descColFactor)));
-                    int descColWidth = math:round(remainingWidth * (descColFactor / (nameColFactor + descColFactor)));  
-                    
+                    int descColWidth = math:round(remainingWidth * (descColFactor / (nameColFactor + descColFactor)));
+
                     printInCLI("|NAME", nameColWidth);
                     int minDescColWidth = 60;
                     if (descColWidth >= minDescColWidth) {
@@ -71,14 +86,14 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
                     } else {
                         printInCLI("DESCRIPTION", descColWidth);
                     }
-                    
+
                     printInCLI("DATE", dateColWidth);
                     printInCLI("VERSION", versionColWidth);
 
                     io:println("");
 
                     printCharacter("|-", nameColWidth, "-");
-                    
+
                     if (descColWidth >= minDescColWidth) {
                         printCharacter("-", descColWidth - authorsColWidth, "-");
                         printCharacter("-", authorsColWidth, "-");
@@ -97,9 +112,9 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
                         string orgName = jsonElement.orgName.toString();
                         string packageName = jsonElement.packageName.toString();
                         printInCLI("|"+ orgName + "/" + packageName, nameColWidth);
-                        
+
                         string summary = jsonElement.summary.toString();
-                                        
+
                         if (descColWidth >= minDescColWidth) {
                             printInCLI(summary, descColWidth - authorsColWidth);
                             string authors = "";
@@ -118,7 +133,7 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
 
                         json createTimeJson = <json> jsonElement.createdDate;
                         printInCLI(getDateCreated(createTimeJson), dateColWidth);
-                        
+
                         string packageVersion = jsonElement.packageVersion.toString();
                         printInCLI(packageVersion, versionColWidth);
                         i = i + 1;
@@ -146,8 +161,7 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
 # + password - Password of the proxy
 # + return - Endpoint defined
 function defineEndpointWithProxy (string url, string hostname, int port, string username, string password) returns http:Client{
-    endpoint http:Client httpEndpoint {
-        url: url,
+    http:Client httpEndpoint = new (url, config = {
         secureSocket:{
             trustStore:{
                 path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
@@ -157,7 +171,7 @@ function defineEndpointWithProxy (string url, string hostname, int port, string 
             shareSession: true
         },
         proxy : getProxyConfigurations(hostname, port, username, password)
-    };
+    });
     return httpEndpoint;
 }
 
@@ -166,8 +180,7 @@ function defineEndpointWithProxy (string url, string hostname, int port, string 
 # + url - URL to be invoked
 # + return - Endpoint defined
 function defineEndpointWithoutProxy (string url) returns http:Client{
-    endpoint http:Client httpEndpoint {
-        url: url,
+    http:Client httpEndpoint = new (url, config = {
         secureSocket:{
             trustStore:{
                 path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
@@ -176,7 +189,7 @@ function defineEndpointWithoutProxy (string url) returns http:Client{
             verifyHostname: false,
             shareSession: true
         }
-    };
+    });
     return httpEndpoint;
 }
 
@@ -227,7 +240,7 @@ function printTitle(string title) {
 # + return - Date and time the module was created
 function getDateCreated(json jsonObj) returns string {
     string jsonTime = jsonObj.time.toString();
-    var timeInMillis = <int> jsonTime;
+    var timeInMillis = int.create(jsonTime);
     if (timeInMillis is int) {
         time:Time timeStruct = new(timeInMillis, { zoneId: "UTC", zoneOffset: 0 });
         string customTimeString = timeStruct.format("yyyy-MM-dd-E");
@@ -241,21 +254,18 @@ function getDateCreated(json jsonObj) returns string {
 # This function invokes the method to search for modules.
 # + args - Arguments passed
 public function main (string... args) {
-    http:Client httpEndpoint = new;
+    http:Client httpEndpoint = new("");
     string host = args[2];
     string strPort = args[3];
     if (host != "" && strPort != "") {
-        var port = <int> strPort;
+        var port = int.create(strPort);
         if (port is int) {
             http:Client|error result = trap defineEndpointWithProxy(args[0], host, port, args[4], args[5]);
-            match result {
-                http:Client ep => {
-                    httpEndpoint = ep;
-                }
-                error e => {
-                    io:println("failed to resolve host : " + host + " with port " + port);
-                    return;
-                }
+            if (result is http:Client) {
+                httpEndpoint = result;
+            } else if (result is error) {
+                io:println("failed to resolve host : " + host + " with port " + port);
+                return;
             }
         } else {
             io:println("invalid port : " + strPort);

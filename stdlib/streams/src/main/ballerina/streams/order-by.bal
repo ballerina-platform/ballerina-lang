@@ -19,7 +19,7 @@ public type OrderBy object {
 
     public function (StreamEvent[]) nextProcessorPointer;
 
-    public (function(map) returns any)[] fieldFuncs;
+    public (function(map<any>) returns any)[] fieldFuncs;
     // contains the field name to be sorted and the sort type (ascending/descending)
     public string[] sortTypes;
 
@@ -182,7 +182,7 @@ public type OrderBy object {
 };
 
 public function createOrderBy(function (StreamEvent[]) nextProcessorPointer,
-                              (function (map) returns any)[] fields, string[] sortFieldMetadata)
+                              (function (map<any>) returns any)[] fields, string[] sortFieldMetadata)
                     returns OrderBy {
     return new(nextProcessorPointer, fields, sortFieldMetadata);
 }

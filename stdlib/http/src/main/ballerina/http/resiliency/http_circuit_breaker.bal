@@ -122,7 +122,7 @@ public type CircuitBreakerInferredConfig record {
 
 # A Circuit Breaker implementation which can be used to gracefully handle network failures.
 #
-# + serviceUri - The URL of the target service
+# + url - The URL of the target service
 # + config - The configurations of the client endpoint associated with this `CircuitBreaker` instance
 # + circuitBreakerInferredConfig - Configurations derived from `CircuitBreakerConfig`
 # + httpClient - The underlying `HttpActions` instance which will be making the actual network calls
@@ -130,7 +130,7 @@ public type CircuitBreakerInferredConfig record {
 # + currentCircuitState - The current state the cicuit is in
 public type CircuitBreakerClient object {
 
-    public string serviceUri;
+    public string url;
     public ClientEndpointConfig config;
     public CircuitBreakerInferredConfig circuitBreakerInferredConfig;
     public Client httpClient;
@@ -139,14 +139,14 @@ public type CircuitBreakerClient object {
 
     # A Circuit Breaker implementation which can be used to gracefully handle network failures.
     #
-    # + serviceUri - The URL of the target service
+    # + url - The URL of the target service
     # + config - The configurations of the client endpoint associated with this `CircuitBreaker` instance
     # + circuitBreakerInferredConfig - Configurations derived from `CircuitBreakerConfig`
     # + httpClient - The underlying `HttpActions` instance which will be making the actual network calls
     # + circuitHealth - The circuit health monitor
-    public function __init(string serviceUri, ClientEndpointConfig config, CircuitBreakerInferredConfig
+    public function __init(string url, ClientEndpointConfig config, CircuitBreakerInferredConfig
                                         circuitBreakerInferredConfig, Client httpClient, CircuitHealth circuitHealth) {
-        self.serviceUri = serviceUri;
+        self.url = url;
         self.config = config;
         self.circuitBreakerInferredConfig = circuitBreakerInferredConfig;
         self.httpClient = httpClient;
@@ -295,7 +295,6 @@ public type CircuitBreakerClient object {
 
 function CircuitBreakerClient.post(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
     message) returns Response|error {
-    Client httpClient = self.httpClient;
     Request req = buildRequest(message);
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
     self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
@@ -304,14 +303,13 @@ function CircuitBreakerClient.post(string path, Request|string|xml|json|byte[]|i
         // TODO: Allow the user to handle this scenario. Maybe through a user provided function
         return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
     } else {
-        var serviceResponse = httpClient->post(path, req);
+        var serviceResponse = self.httpClient->post(path, req);
         return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, self.circuitBreakerInferredConfig);
     }
 }
 
 function CircuitBreakerClient.head(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
     message = ()) returns Response|error {
-    Client httpClient = self.httpClient;
     Request request = buildRequest(message);
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
     self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
@@ -320,14 +318,13 @@ function CircuitBreakerClient.head(string path, Request|string|xml|json|byte[]|i
         // TODO: Allow the user to handle this scenario. Maybe through a user provided function
         return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
     } else {
-        var serviceResponse = httpClient->head(path, message = request);
+        var serviceResponse = self.httpClient->head(path, message = request);
         return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, self.circuitBreakerInferredConfig);
     }
 }
 
 function CircuitBreakerClient.put(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
     message) returns Response|error {
-    Client httpClient = self.httpClient;
     Request request = buildRequest(message);
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
     self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
@@ -336,14 +333,13 @@ function CircuitBreakerClient.put(string path, Request|string|xml|json|byte[]|io
         // TODO: Allow the user to handle this scenario. Maybe through a user provided function
         return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
     } else {
-        var serviceResponse = httpClient->put(path, request);
+        var serviceResponse = self.httpClient->put(path, request);
         return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, self.circuitBreakerInferredConfig);
     }
 }
 
 function CircuitBreakerClient.execute(string httpVerb, string path, Request|string|xml|json|byte[]|
     io:ReadableByteChannel|mime:Entity[]|() message) returns Response|error {
-    Client httpClient = self.httpClient;
     Request request = buildRequest(message);
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
     self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
@@ -352,14 +348,13 @@ function CircuitBreakerClient.execute(string httpVerb, string path, Request|stri
         // TODO: Allow the user to handle this scenario. Maybe through a user provided function
         return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
     } else {
-        var serviceResponse = httpClient->execute(httpVerb, path, request);
+        var serviceResponse = self.httpClient->execute(httpVerb, path, request);
         return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, self.circuitBreakerInferredConfig);
     }
 }
 
 function CircuitBreakerClient.patch(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
     message) returns Response|error {
-    Client httpClient = self.httpClient;
     Request request = buildRequest(message);
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
     self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
@@ -368,14 +363,13 @@ function CircuitBreakerClient.patch(string path, Request|string|xml|json|byte[]|
         // TODO: Allow the user to handle this scenario. Maybe through a user provided function
         return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
     } else {
-        var serviceResponse = httpClient->patch(path, request);
+        var serviceResponse = self.httpClient->patch(path, request);
         return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, self.circuitBreakerInferredConfig);
     }
 }
 
 function CircuitBreakerClient.delete(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
     message) returns Response|error {
-    Client httpClient = self.httpClient;
     Request request = buildRequest(message);
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
     self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
@@ -384,14 +378,13 @@ function CircuitBreakerClient.delete(string path, Request|string|xml|json|byte[]
         // TODO: Allow the user to handle this scenario. Maybe through a user provided function
         return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
     } else {
-        var serviceResponse = httpClient->delete(path, request);
+        var serviceResponse = self.httpClient->delete(path, request);
         return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, self.circuitBreakerInferredConfig);
     }
 }
 
 function CircuitBreakerClient.get(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
     message = ()) returns Response|error {
-    Client httpClient = self.httpClient;
     Request request = buildRequest(message);
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
     self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
@@ -400,14 +393,13 @@ function CircuitBreakerClient.get(string path, Request|string|xml|json|byte[]|io
         // TODO: Allow the user to handle this scenario. Maybe through a user provided function
         return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
     } else {
-        var serviceResponse = httpClient->get(path, message = request);
+        var serviceResponse = self.httpClient->get(path, message = request);
         return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, self.circuitBreakerInferredConfig);
     }
 }
 
 function CircuitBreakerClient.options(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
     message = ()) returns Response|error {
-    Client httpClient = self.httpClient;
     Request request = buildRequest(message);
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
     self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
@@ -416,13 +408,12 @@ function CircuitBreakerClient.options(string path, Request|string|xml|json|byte[
         // TODO: Allow the user to handle this scenario. Maybe through a user provided function
         return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
     } else {
-        var serviceResponse = httpClient->options(path, message = request);
+        var serviceResponse = self.httpClient->options(path, message = request);
         return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, self.circuitBreakerInferredConfig);
     }
 }
 
 function CircuitBreakerClient.forward(string path, Request request) returns Response|error {
-    Client httpClient = self.httpClient;
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
     self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
@@ -430,7 +421,7 @@ function CircuitBreakerClient.forward(string path, Request request) returns Resp
         // TODO: Allow the user to handle this scenario. Maybe through a user provided function
         return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
     } else {
-        var serviceResponse = httpClient->forward(path, request);
+        var serviceResponse = self.httpClient->forward(path, request);
         return updataCircuitHealthAndRespond(serviceResponse, self.circuitHealth, self.circuitBreakerInferredConfig);
     }
 }
@@ -574,7 +565,7 @@ function handleOpenCircuit(CircuitHealth circuitHealth, CircuitBreakerInferredCo
     int timeRemaining = circuitBreakerInferredConfig.resetTimeMillis - timeDif;
     string errorMessage = "Upstream service unavailable. Requests to upstream service will be suspended for "
         + timeRemaining + " milliseconds.";
-    map errorDetail = { message : errorMessage };
+    map<any> errorDetail = { message : errorMessage };
     error httpConnectorErr = error(HTTP_ERROR_CODE, errorDetail);
     return httpConnectorErr;
 }
@@ -585,7 +576,7 @@ function validateCircuitBreakerConfiguration(CircuitBreakerConfig circuitBreaker
     if (failureThreshold < 0 || failureThreshold > 1) {
         string errorMessage = "Invalid failure threshold. Failure threshold value"
             + " should between 0 to 1, found " + failureThreshold;
-        map errorDetail = { message : errorMessage };
+        map<any> errorDetail = { message : errorMessage };
         error circuitBreakerConfigError = error(HTTP_ERROR_CODE, errorDetail);
         panic circuitBreakerConfigError;
     }

@@ -51,7 +51,7 @@ service UnsupportedMapType bind ep {
 }
 
 type MapMessage record {
-    map payload = {};
+    map<any> payload = {};
 };
 
 

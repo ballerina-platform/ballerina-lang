@@ -81,6 +81,36 @@ public class BuiltinOperationsTest {
         Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
     }
 
+    @Test(description = "Test result that is returned from a mod with divisor as zero")
+    public void testModWithDivisorAsZero() {
+        BValue[] returns = BRunUtil.invoke(result, "testModWithDivisorAsZero", new BValue[0]);
+
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+    }
+
+    @Test(description = "Test result that is returned from a mod with both dividend and divisor as zero")
+    public void testModZeroByZero() {
+        BValue[] returns = BRunUtil.invoke(result, "testModZeroByZero", new BValue[0]);
+
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+    }
+
+    @Test(description = "Test result that is returned from a mod with divisor as a finite number")
+    public void testModWithDivisorAsFinite() {
+        BValue[] returns = BRunUtil.invoke(result, "testModWithDivisorAsFinite", new BValue[0]);
+
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), false);
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), true);
+    }
+
     @Test(description = "Test negative tests")
     public void testNegativeTests() {
         Assert.assertEquals(resNegative.getErrorCount(), 5);

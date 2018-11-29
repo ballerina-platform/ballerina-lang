@@ -31,7 +31,10 @@ public type ParentFoo object {
     public Baz z = 1;
 
 
-    public new (i, c){}
+    public function __init (int i, ChildFoo  c){
+        self.i = i;
+        self.c = c;
+    }
 };
 
 type ChildFoo object {
@@ -39,7 +42,9 @@ type ChildFoo object {
     private string name = "";
 
 
-    new (name) {}
+    function __init(string name) {
+        self.name = name;
+    }
 };
 
 public function fooFunc2 (string s, int i = 4, Bar r,  Foo... fArg) returns Foo {

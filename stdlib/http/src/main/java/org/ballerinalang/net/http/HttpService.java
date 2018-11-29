@@ -40,7 +40,9 @@ import java.util.stream.Stream;
 
 import static org.ballerinalang.net.http.HttpConstants.ANN_NAME_INTERRUPTIBLE;
 import static org.ballerinalang.net.http.HttpConstants.AUTO;
+import static org.ballerinalang.net.http.HttpConstants.DEFAULT_BASE_PATH;
 import static org.ballerinalang.net.http.HttpConstants.DEFAULT_HOST;
+import static org.ballerinalang.net.http.HttpConstants.DOLLAR;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
 import static org.ballerinalang.net.http.HttpConstants.PACKAGE_BALLERINA_BUILTIN;
 import static org.ballerinalang.net.http.HttpUtil.sanitizeBasePath;
@@ -143,7 +145,7 @@ public class HttpService implements Cloneable {
 
     public void setBasePath(String basePath) {
         if (basePath == null || basePath.trim().isEmpty()) {
-            this.basePath = HttpConstants.DEFAULT_BASE_PATH.concat(this.getName());
+            this.basePath = DEFAULT_BASE_PATH.concat(this.getName());
         } else {
             String sanitizedPath = sanitizeBasePath(basePath);
             this.basePath = urlDecode(sanitizedPath);
@@ -193,7 +195,9 @@ public class HttpService implements Cloneable {
         if (serviceConfigAnnotation == null) {
             log.debug("serviceConfig not specified in the Service instance, using default base path");
             //service name cannot start with / hence concat
-            basePathList.add(HttpConstants.DEFAULT_BASE_PATH.concat(httpService.getName()));
+            String basePath = httpService.getName().startsWith(DOLLAR) ? DEFAULT_BASE_PATH :
+                    DEFAULT_BASE_PATH.concat(httpService.getName());
+            basePathList.add(basePath);
             httpService.setHostName(DEFAULT_HOST);
         } else {
             Struct serviceConfig = serviceConfigAnnotation.getValue();

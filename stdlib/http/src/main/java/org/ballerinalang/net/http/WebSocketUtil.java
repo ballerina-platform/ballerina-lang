@@ -53,7 +53,7 @@ import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 public class WebSocketUtil {
 
     public static ProgramFile getProgramFile(Resource resource) {
-        return resource.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile();
+        return resource.getResourceInfo().getPackageInfo().getProgramFile();
     }
 
     static Annotation getServiceConfigAnnotation(Service service) {

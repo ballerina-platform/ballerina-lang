@@ -19,61 +19,81 @@ import ballerina/log;
 import ballerina/system;
 
 /////////////////////////////
-/// HTTP Service Endpoint ///
+/// HTTP Listener Endpoint ///
 /////////////////////////////
-# This is used for creating HTTP service endpoints. An HTTP service endpoint is capable of responding to
-# remote callers. The `Listener` is responsible for initializing the endpoint using the provided configurations and
-# providing the actions for communicating with the caller.
-#
-//# + remote - The remote address
-//# + local - The local address
-//# + protocol - The protocol associated with the service endpoint
-//public type Listener object {
-//
-//    @readonly public Remote remoteDetails = {};
-//    @readonly public Local local = {};
-//    @readonly public string protocol = "";
-//
-//    private Connection conn = new;
-//    private ServiceEndpointConfiguration config = {};
-//
-//    private string instanceId;
-//
-//    public new() {
-//        self.instanceId = system:uuid();
-//    }
-//
-//    # Gets invoked during module initialization to initialize the endpoint.
-//    #
-//    # + c - Configurations for HTTP service endpoints
-//    public function init(ServiceEndpointConfiguration c);
-//
-//    public extern function initEndpoint() returns error?;
-//
-//    # Gets invoked when binding a service to the endpoint.
-//    #
-//    # + serviceType - The type of the service to be registered
-//    public extern function register(typedesc serviceType);
-//
-//    # Starts the registered service.
-//    public extern function start();
-//
-//    # Returns the connector that client code uses.
-//    #
-//    # + return - The connector that client code uses
-//    public extern function getCallerActions() returns (Connection);
-//
-//    # Stops the registered service.
-//    public extern function stop();
-//};
+# This is used for creating HTTP server endpoints. An HTTP server endpoint is capable of responding to
+# remote callers. The `Listener` is responsible for initializing the endpoint using the provided configurations.
+public type Listener object {
+
+    *AbstractListener;
+
+    private int port = 0;
+    private ServiceEndpointConfiguration config = {};
+    private string instanceId;
+
+    public function __start() returns error? {
+        return self.start();
+    }
+
+    public function __stop() returns error? {
+        return self.stop();
+    }
+
+    public function __attach(service s, map<any> annotationData) returns error? {
+        return self.register(s, annotationData);
+    }
+
+    public function __init(int port, ServiceEndpointConfiguration? config = ()) {
+        self.instanceId = system:uuid();
+        self.config = config ?: {};
+        self.port = port;
+        self.init(self.config);
+    }
+
+    # Gets invoked during module initialization to initialize the endpoint.
+    #
+    # + c - Configurations for HTTP service endpoints
+    public function init(ServiceEndpointConfiguration c);
+
+    public extern function initEndpoint() returns error?;
+
+    # Gets invoked when attaching a service to the endpoint.
+    #
+    # + s - The service that needs to be attached
+    extern function register(service s, map<any> annotationData) returns error?;
+
+    # Starts the registered service.
+    extern function start();
+
+    # Stops the registered service.
+    extern function stop();
+};
+
+function Listener.init(ServiceEndpointConfiguration c) {
+    self.config = c;
+    var providers = self.config.authProviders;
+    if (providers is AuthProvider[]) {
+        var secureSocket = self.config.secureSocket;
+        if (secureSocket is ServiceSecureSocket) {
+            addAuthFiltersForSecureListener(self.config, self.instanceId);
+        } else {
+            error err = error("Secure sockets have not been cofigured in order to enable auth providers.");
+            panic err;
+        }
+    }
+    var err = self.initEndpoint();
+    if (err is error) {
+        panic err;
+    }
+}
 
 # Presents a read-only view of the remote address.
 #
 # + host - The remote host name/IP
 # + port - The remote port
 public type Remote record {
-    @readonly string host = "";
-    @readonly int port = 0;
+    string host = "";
+    int port = 0;
     !...
 };
 
@@ -82,8 +102,8 @@ public type Remote record {
 # + host - The local host name/IP
 # + port - The local port
 public type Local record {
-    @readonly string host = "";
-    @readonly int port = 0;
+    string host = "";
+    int port = 0;
     !...
 };
 
@@ -105,7 +125,6 @@ public type RequestLimits record {
 # Provides a set of configurations for HTTP service endpoints.
 #
 # + host - The host name/IP of the endpoint
-# + port - The port to which the endpoint should bind to
 # + keepAlive - Can be set to either `KEEPALIVE_AUTO`, which respects the `connection` header, or `KEEPALIVE_ALWAYS`,
 #               which always keeps the connection alive, or `KEEPALIVE_NEVER`, which always closes the connection
 # + secureSocket - The SSL configurations for the service endpoint. This needs to be configured in order to
@@ -124,7 +143,6 @@ public type RequestLimits record {
 # + negativeAuthzCache - Caching configurations for negative authorizations
 public type ServiceEndpointConfiguration record {
     string host = "0.0.0.0";
-    int port = 0; //User must provide a port number. If not an error will be thrown as "listener port is not defined!"
     KeepAlive keepAlive = KEEPALIVE_AUTO;
     ServiceSecureSocket? secureSocket = ();
     string httpVersion = "1.1";
@@ -233,24 +251,6 @@ public const KEEPALIVE_ALWAYS = "ALWAYS";
 # Closes the connection irrespective of the `connection` header value }
 public const KEEPALIVE_NEVER = "NEVER";
 
-//function Listener.init (ServiceEndpointConfiguration c) {
-//    self.config = c;
-//    var providers = self.config.authProviders;
-//    if (providers is AuthProvider[]) {
-//        var secureSocket = self.config.secureSocket;
-//        if (secureSocket is ServiceSecureSocket) {
-//            addAuthFiltersForSecureListener(self.config, self.instanceId);
-//        } else {
-//            error err = error("Secure sockets have not been cofigured in order to enable auth providers.");
-//            panic err;
-//        }
-//    }
-//    var err = self.initEndpoint();
-//    if (err is error) {
-//        panic err;
-//    }
-//}
-
 # Add authn and authz filters
 #
 # + config - `ServiceEndpointConfiguration` instance
@@ -316,14 +316,14 @@ function createAuthFiltersForSecureListener(ServiceEndpointConfiguration config,
                 var authStoreProviderConfig = provider.authStoreProviderConfig;
                 if (authStoreProviderConfig is auth:LdapAuthProviderConfig) {
                     auth:LdapAuthStoreProvider ldapAuthStoreProvider = new(authStoreProviderConfig, instanceId);
-                    authStoreProvider = <auth:AuthStoreProvider>ldapAuthStoreProvider;
+                    authStoreProvider = ldapAuthStoreProvider;
                 } else {
                     error e = error("Authstore config not provided for : " + provider.authStoreProvider);
                     panic e;
                 }
             } else if (provider.authStoreProvider == AUTH_PROVIDER_CONFIG) {
                 auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
-                authStoreProvider = <auth:AuthStoreProvider>configAuthStoreProvider;
+                authStoreProvider = configAuthStoreProvider;
             } else {
                 error configError = error("Unsupported auth store provider : " + provider.authStoreProvider);
                 panic configError;
@@ -340,9 +340,9 @@ HttpAuthzHandler authzHandler = new(authStoreProvider, positiveAuthzCache, negat
 
 function createBasicAuthHandler() returns HttpAuthnHandler {
     auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
-    auth:AuthStoreProvider authStoreProvider = <auth:AuthStoreProvider>configAuthStoreProvider;
+    auth:AuthStoreProvider authStoreProvider = configAuthStoreProvider;
     HttpBasicAuthnHandler basicAuthHandler = new(authStoreProvider);
-    return <HttpAuthnHandler>basicAuthHandler;
+    return basicAuthHandler;
 }
 
 function createAuthHandler(AuthProvider authProvider, string instanceId) returns HttpAuthnHandler {
@@ -351,10 +351,10 @@ function createAuthHandler(AuthProvider authProvider, string instanceId) returns
         if (authProvider.authStoreProvider == AUTH_PROVIDER_CONFIG) {
             if (authProvider.propagateJwt) {
                 auth:ConfigJwtAuthProvider configAuthProvider = new(getInferredJwtAuthProviderConfig(authProvider));
-                authStoreProvider = <auth:AuthStoreProvider>configAuthProvider;
+                authStoreProvider = configAuthProvider;
             } else {
                 auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
-                authStoreProvider = <auth:AuthStoreProvider>configAuthStoreProvider;
+                authStoreProvider = configAuthStoreProvider;
             }
         } else if (authProvider.authStoreProvider == AUTH_PROVIDER_LDAP) {
             var authStoreProviderConfig = authProvider.authStoreProviderConfig;
@@ -363,9 +363,9 @@ function createAuthHandler(AuthProvider authProvider, string instanceId) returns
                 if (authProvider.propagateJwt) {
                     auth:LdapJwtAuthProvider ldapAuthProvider =
                     new(getInferredJwtAuthProviderConfig(authProvider),ldapAuthStoreProvider);
-                    authStoreProvider = <auth:AuthStoreProvider>ldapAuthProvider;
+                    authStoreProvider = ldapAuthProvider;
                 } else {
-                    authStoreProvider = <auth:AuthStoreProvider>ldapAuthStoreProvider;
+                    authStoreProvider = ldapAuthStoreProvider;
                 }
             } else {
                 error e = error("Authstore config not provided for : " + authProvider.authStoreProvider);
@@ -377,7 +377,7 @@ function createAuthHandler(AuthProvider authProvider, string instanceId) returns
             panic e;
         }
         HttpBasicAuthnHandler basicAuthHandler = new(authStoreProvider);
-        return <HttpAuthnHandler>basicAuthHandler;
+        return basicAuthHandler;
     } else if (authProvider.scheme == AUTH_SCHEME_JWT){
         auth:JWTAuthProviderConfig jwtConfig = {};
         jwtConfig.issuer = authProvider.issuer;
@@ -388,7 +388,7 @@ function createAuthHandler(AuthProvider authProvider, string instanceId) returns
         jwtConfig.trustStorePassword = authProvider.trustStore.password ?: "";
         auth:JWTAuthProvider jwtAuthProvider = new(jwtConfig);
         HttpJwtAuthnHandler jwtAuthnHandler = new(jwtAuthProvider);
-        return <HttpAuthnHandler>jwtAuthnHandler;
+        return jwtAuthnHandler;
     } else {
         error e = error("Invalid auth scheme: " + authProvider.scheme);
         panic e;
@@ -418,15 +418,11 @@ function getInferredJwtAuthProviderConfig(AuthProvider authProvider) returns aut
 /// WebSocket Service Endpoint ///
 //////////////////////////////////
 # Represents a WebSocket service endpoint.
-#
-# + id - The connection ID
-# + negotiatedSubProtocol - The subprotocols negotiated with the client
-# + isSecure - `true` if the connection is secure
-# + isOpen - `true` if the connection is open
-# + attributes - A `map` to store connection related attributes
-public type WebSocketServer object {
+public type WebSocketListener object {
 
     *AbstractListener;
+
+    private Listener httpEndpoint;
 
     public function __start() returns error? {
         return self.httpEndpoint.start();
@@ -436,106 +432,16 @@ public type WebSocketServer object {
         return self.httpEndpoint.stop();
     }
 
-    public function __attach(service s, map annotationData) returns error? {
-    //return register(typedesc serviceType);
-    return self.register(s, annotationData);
+    public function __attach(service s, map<any> annotationData) returns error? {
+        return self.httpEndpoint.register(s, annotationData);
     }
 
-    private ServiceEndpointConfiguration config = {};
-    private Server httpEndpoint = new(config);
 
     # Gets invoked during module initialization to initialize the endpoint.
     #
     # + c - The `ServiceEndpointConfiguration` of the endpoint
-    public function __init(ServiceEndpointConfiguration c) {
-        self.config = c;
-        self.httpEndpoint = new(c);
-    }
-
-    # Gets invoked when binding a service to the endpoint.
-    #
-    # + serviceType - The service type
-    public function register(service serviceType, map annotationData) {
-        self.httpEndpoint.register(serviceType, annotationData);
+    public function __init(int port, ServiceEndpointConfiguration? config = ()) {
+        self.httpEndpoint = new(port, config = config);
     }
 
 };
-
-//New Implementation~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//listener ep = new http:Server(80);
-//ep.__init();
-//ep.__attach();
-//ep.__start();
-public type Server object {
-
-    *AbstractListener;
-
-    public function __start() returns error? {
-        return self.start();
-    }
-
-    public function __stop() returns error? {
-        return self.stop();
-    }
-
-    public function __attach(service s, map annotationData) returns error? {
-        //return register(typedesc serviceType);
-        return self.register(s, annotationData);
-    }
-
-    @readonly public Remote remoteDetails = {};
-    @readonly public Local local = {};
-    @readonly public string protocol = "";
-
-    private Caller caller = new;
-    private ServiceEndpointConfiguration config = {};
-
-    private string instanceId;
-
-    public function __init(ServiceEndpointConfiguration config) {
-        self.instanceId = system:uuid();
-        self.config = config;
-        self.init(self.config);
-    }
-
-    # Gets invoked during module initialization to initialize the endpoint.
-    #
-    # + c - Configurations for HTTP service endpoints
-    public function init(ServiceEndpointConfiguration c);
-
-    public extern function initEndpoint() returns error?;
-
-    # Gets invoked when binding a service to the endpoint.
-    #
-    # + serviceType - The type of the service to be registered
-    extern function register(service serviceType, map annotationData);
-
-    # Starts the registered service.
-    extern function start();
-
-    # Returns the connector that client code uses.
-    #
-    # + return - The connector that client code uses
-    public extern function getCallerActions() returns (Caller);
-
-    # Stops the registered service.
-    extern function stop();
-};
-
-function Server.init (ServiceEndpointConfiguration c) {
-    self.config = c;
-    var providers = self.config.authProviders;
-    if (providers is AuthProvider[]) {
-        var secureSocket = self.config.secureSocket;
-        if (secureSocket is ServiceSecureSocket) {
-            addAuthFiltersForSecureListener(self.config, self.instanceId);
-        } else {
-            error err = error("Secure sockets have not been cofigured in order to enable auth providers.");
-            panic err;
-        }
-    }
-    var err = self.initEndpoint();
-    if (err is error) {
-        panic err;
-    }
-}

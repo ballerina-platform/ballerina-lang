@@ -75,12 +75,12 @@ function testEmptyTableCreate() returns (int, int) {
 }
 
 function checkTableCount(string tablePrefix) returns (int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         name: "TABLEDB",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     sql:Parameter p1 = { sqlType: sql:TYPE_VARCHAR, value: tablePrefix };
 
@@ -258,7 +258,7 @@ function testPrintData() {
     _ = dt.add(p2);
     _ = dt.add(p3);
 
-    io:println(dt);
+   io:println(dt);
 }
 
 function testPrintDataEmptyTable() {

@@ -1,16 +1,16 @@
-function testMapElementIncrement()  returns (int){
-    map namesMap = {fname:1};
+function testMapElementIncrement()  returns (int|error){
+    map<any> namesMap = {fname:1};
     namesMap.fname += 1;
     int x;
-    x = check <int>namesMap.fname;
+    x = check int.create(namesMap.fname);
     return x;
 }
 
-function testMapElementDecrement() returns (int){
-    map namesMap = {fname:1};
+function testMapElementDecrement() returns (int|error){
+    map<any> namesMap = {fname:1};
     namesMap.fname -= 1;
     int x;
-    x = check <int>namesMap.fname;
+    x = check int.create(namesMap.fname);
     return x;
 }
 
@@ -42,7 +42,7 @@ function testStringVarRefDecrement() returns (string){
 
 function testMultiReturnWithCompound() returns (int){
     int x = 4;
-    x += <int>"NotAInteger";
+    x += int.create("NotAInteger");
     return x;
 }
 
@@ -120,8 +120,8 @@ function testCompoundAssignmentLogicalShift() returns (int){
 }
 
 type Company record {
-   int count;
-   int count2;
+   int count = 0;
+   int count2 = 0;
 };
 
 function testCompoundAssignmentAdditionStructElementRecursive() returns int? {

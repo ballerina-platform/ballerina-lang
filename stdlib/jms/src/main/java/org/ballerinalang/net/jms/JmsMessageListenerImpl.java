@@ -58,7 +58,7 @@ public class JmsMessageListenerImpl implements MessageListener {
     }
 
     private BValue[] getSignatureParameters(Message jmsMessage) {
-        ProgramFile programFile = resource.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile();
+        ProgramFile programFile = resource.getResourceInfo().getPackageInfo().getProgramFile();
         BMap<String, BValue> message = BLangConnectorSPIUtil.createBStruct(programFile,
                                                               Constants.BALLERINA_PACKAGE_JMS,
                                                               Constants.JMS_MESSAGE_STRUCT_NAME);

@@ -81,7 +81,7 @@ function startOrderBy() returns (Employee[]) {
 }
 
 function printEmployeeNumber(Employee e) {
-   addToGlobalEmployeeArray(e);
+    addToGlobalEmployeeArray(e);
 }
 
 function addToGlobalEmployeeArray(Employee e) {

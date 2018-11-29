@@ -17,7 +17,7 @@ annotation Test Tst;
 # Documentation for testConst constant
 #
 # + testConstd - abc description
-@final string testConsts = "TestConstantDocumentation";
+final string testConsts = "TestConstantDocumentation";
 
 # Documentation for Test struct
 #
@@ -79,7 +79,7 @@ type TestConnector record {
 # PizzaService HTTP Service
 #
 # + conn - HTTP connection.
-service<http:Service> PizzaService {
+service PizzaService on new http:Listener(9090) {
 
     # Check orderPizza resource.
     #
@@ -88,7 +88,7 @@ service<http:Service> PizzaService {
     # + reqest - In request.
 //  # + conn - HTTP connection. Commented due to https://github.com/ballerina-lang/ballerina/issues/5586 issue
 
-    orderPizza(endpoint conn, http:Request req) {
+    resource function orderPizza(http:Caller conn, http:Request req) {
         http:Response res = new;
         _ = conn -> respond(res);
     }

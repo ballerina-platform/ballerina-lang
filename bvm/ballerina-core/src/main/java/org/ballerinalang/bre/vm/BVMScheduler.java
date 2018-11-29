@@ -64,9 +64,13 @@ public class BVMScheduler {
      * @param strand to be executed
      */
     public static void execute(Strand strand) {
-        strandCountUp();
-        BVM.execute(strand);
-        strandCountDown();
+        try {
+            strandCountUp();
+            BVM.execute(strand);
+        } finally {
+            //TODO Ideally we shouldn't need to handle errors or finally here. Remove if possible
+            strandCountDown();
+        }
     }
 
     /**
@@ -91,9 +95,13 @@ public class BVMScheduler {
      */
     public static void executeNative(NativeCallableUnit nativeCallable,
                                      Context nativeCtx, CallableUnitCallback callback) {
-        strandCountUp();
-        nativeCallable.execute(nativeCtx, callback);
-        strandCountDown();
+        try {
+            strandCountUp();
+            nativeCallable.execute(nativeCtx, callback);
+        } finally {
+            //TODO Ideally we shouldn't need to handle errors or finally here. Remove if possible
+            strandCountDown();
+        }
     }
 
 
@@ -171,9 +179,13 @@ public class BVMScheduler {
 
         @Override
         public void run() {
-            strandCountUp();
-            BVM.execute(this.strand);
-            strandCountDown();
+            try {
+                strandCountUp();
+                BVM.execute(this.strand);
+            } finally {
+                //TODO Ideally we shouldn't need to handle errors or finally here. Remove if possible
+                strandCountDown();
+            }
         }
 
     }

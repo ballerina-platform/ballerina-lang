@@ -29,7 +29,6 @@ import io.ballerina.plugins.idea.psi.impl.BallerinaElementFactory;
 import io.ballerina.plugins.idea.psi.reference.BallerinaFieldReference;
 import io.ballerina.plugins.idea.psi.reference.BallerinaInvocationReference;
 import io.ballerina.plugins.idea.psi.reference.BallerinaNameReferenceReference;
-import io.ballerina.plugins.idea.psi.reference.BallerinaObjectFieldReference;
 import io.ballerina.plugins.idea.psi.reference.BallerinaObjectFunctionReference;
 import io.ballerina.plugins.idea.psi.reference.BallerinaOrgReference;
 import io.ballerina.plugins.idea.psi.reference.BallerinaTypeReference;
@@ -74,19 +73,13 @@ public class BallerinaIdentifier extends LeafPsiElement implements PsiNameIdenti
             PsiElement superParent = parent.getParent();
             if (superParent instanceof BallerinaInvocation) {
                 return new BallerinaInvocationReference(this);
-            } else if (!(superParent instanceof BallerinaCallableUnitSignature ||
-                    superParent instanceof BallerinaObjectCallableUnitSignature)) {
+            } else if (!(superParent instanceof BallerinaCallableUnitSignature)) {
                 return new BallerinaNameReferenceReference(this);
             }
         } else if (parent instanceof BallerinaWorkerReply) {
             return new BallerinaNameReferenceReference(this);
         } else if (parent instanceof BallerinaTriggerWorker) {
             return new BallerinaNameReferenceReference(this);
-        } else if (parent instanceof BallerinaObjectParameter) {
-            // Todo - Enable if needed
-            //            if (parent.getParent() instanceof BallerinaObjectParameterList) {
-            return new BallerinaObjectFieldReference(this);
-            //            }
         } else if (parent instanceof BallerinaAttachedObject) {
             return new BallerinaTypeReference(this);
         } else if (parent instanceof BallerinaCallableUnitSignature) {

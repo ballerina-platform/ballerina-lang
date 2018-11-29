@@ -52,7 +52,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
@@ -62,6 +61,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.DefaultValueLiteral;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
@@ -628,14 +628,6 @@ public class CompiledPackageSymbolEnter {
         int resourceCount = dataInStream.readShort();
         for (int j = 0; j < resourceCount; j++) {
             dataInStream.readInt();
-            dataInStream.readInt();
-            int paramNameCPIndexesCount = dataInStream.readShort();
-            for (int k = 0; k < paramNameCPIndexesCount; k++) {
-                dataInStream.readInt();
-            }
-
-            // Read attributes
-            readAttributes(dataInStream);
         }
     }
 
@@ -839,34 +831,34 @@ public class CompiledPackageSymbolEnter {
         }
     }
 
-    private Object getDefaultValue(DataInputStream dataInStream)
+    private DefaultValueLiteral getDefaultValue(DataInputStream dataInStream)
             throws IOException {
         String typeDesc = getUTF8CPEntryValue(dataInStream);
 
         int valueCPIndex;
         switch (typeDesc) {
             case TypeDescriptor.SIG_BOOLEAN:
-                return dataInStream.readBoolean();
+                return new DefaultValueLiteral(dataInStream.readBoolean(), TypeTags.BOOLEAN);
             case TypeDescriptor.SIG_INT:
                 valueCPIndex = dataInStream.readInt();
                 IntegerCPEntry integerCPEntry = (IntegerCPEntry) this.env.constantPool[valueCPIndex];
-                return integerCPEntry.getValue();
+                return new DefaultValueLiteral(integerCPEntry.getValue(), TypeTags.INT);
             case TypeDescriptor.SIG_BYTE:
                 valueCPIndex = dataInStream.readInt();
                 ByteCPEntry byteCPEntry = (ByteCPEntry) this.env.constantPool[valueCPIndex];
-                return byteCPEntry.getValue();
+                return new DefaultValueLiteral(byteCPEntry.getValue(), TypeTags.BYTE);
             case TypeDescriptor.SIG_FLOAT:
                 valueCPIndex = dataInStream.readInt();
                 FloatCPEntry floatCPEntry = (FloatCPEntry) this.env.constantPool[valueCPIndex];
-                return floatCPEntry.getValue();
+                return new DefaultValueLiteral(floatCPEntry.getValue(), TypeTags.FLOAT);
             case TypeDescriptor.SIG_DECIMAL:
                 valueCPIndex = dataInStream.readInt();
                 UTF8CPEntry decimalEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
-                return decimalEntry.getValue();
+                return new DefaultValueLiteral(decimalEntry.getValue(), TypeTags.DECIMAL);
             case TypeDescriptor.SIG_STRING:
                 valueCPIndex = dataInStream.readInt();
                 UTF8CPEntry stringCPEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
-                return stringCPEntry.getValue();
+                return new DefaultValueLiteral(stringCPEntry.getValue(), TypeTags.STRING);
             case TypeDescriptor.SIG_NULL:
                 break;
             default:
@@ -900,14 +892,20 @@ public class CompiledPackageSymbolEnter {
         invokableSymbol.taintTable = new HashMap<>();
         for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
             int paramIndex = taintTableDataInStream.readShort();
-            Boolean returnTaintedStatus = taintTableDataInStream.readBoolean();
-            List<Boolean> parameterTaintedStatusList = new ArrayList<>();
+            TaintRecord.TaintedStatus returnTaintedStatus =
+                    convertByteToTaintedStatus(taintTableDataInStream.readByte());
+            List<TaintRecord.TaintedStatus> parameterTaintedStatusList = new ArrayList<>();
             for (int columnIndex = 1; columnIndex < columnCount; columnIndex++) {
-                parameterTaintedStatusList.add(taintTableDataInStream.readBoolean());
+                parameterTaintedStatusList.add(convertByteToTaintedStatus(taintTableDataInStream.readByte()));
             }
             TaintRecord taintRecord = new TaintRecord(returnTaintedStatus, parameterTaintedStatusList);
             invokableSymbol.taintTable.put(paramIndex, taintRecord);
         }
+    }
+
+    private TaintRecord.TaintedStatus convertByteToTaintedStatus(byte readByte) {
+        return EnumSet.allOf(TaintRecord.TaintedStatus.class).stream()
+                .filter(taintedStatus -> readByte == taintedStatus.getByteValue()).findFirst().get();
     }
 
     private void setDocumentation(BSymbol symbol, Map<AttributeInfo.Kind, byte[]> attrDataMap) throws IOException {
@@ -1165,7 +1163,12 @@ public class CompiledPackageSymbolEnter {
                 pkgSymbol = env.pkgSymbol;
             }
 
-            return lookupUserDefinedType(pkgSymbol, typeName);
+            switch (typeChar) {
+                case 'X':
+                    return symTable.anyServiceType;
+                default:
+                    return lookupUserDefinedType(pkgSymbol, typeName);
+            }
         }
 
         @Override
@@ -1190,13 +1193,9 @@ public class CompiledPackageSymbolEnter {
                     return new BStreamType(TypeTags.STREAM, constraint, symTable.streamType.tsymbol);
                 case 'Q':
                     return new BChannelType(TypeTags.CHANNEL, constraint, symTable.channelType.tsymbol);
-                case 'X':
-                    if (constraint == null || constraint == symTable.anyType) {
-                        return symTable.anyServiceType;
-                    }
-                    return new BServiceType(constraint);
                 case 'G':
                 case 'T':
+                case 'X':
                 default:
                     return constraint;
             }

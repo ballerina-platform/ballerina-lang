@@ -54,6 +54,17 @@ function testClosedToOpenAssignment3() returns AnotherPerson3 {
     return ap;
 }
 
+function testClosedToOpenAssignment4() {
+    Person1 p = {name:"John Doe", age:25};
+    AnotherPerson3 ap = p;
+    ap.weight = 60.5;
+}
+
+function testClosedToOpenAssignment5() {
+    Person1 p = {name:"John Doe", age:25};
+    AnotherPerson3 ap = p;
+    ap.rest = "foo";
+}
 
 //////////////////////////////////////////////////////////////////
 // Test for when the LHS type has optional fields which correspond to required fields of the RHS type.
@@ -78,6 +89,7 @@ function testReqFieldToOptField() returns AnotherPerson4 {
 type Person2 record {
     string name;
     int age?;
+    !...
 };
 
 function testOptFieldToOptField1() returns AnotherPerson4 {
@@ -106,6 +118,7 @@ type Person3 record {
     int age;
     string address;
     float weight?;
+    !...
 };
 
 function testAdditionalFieldsToRest() returns AnotherPerson1 {

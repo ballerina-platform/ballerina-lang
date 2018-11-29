@@ -16,16 +16,13 @@
 import ballerina/grpc;
 import ballerina/log;
 
-endpoint grpc:Listener ep98 {
-    host:"localhost",
-    port:9098
-};
+listener grpc:Listener ep5 = new (9098);
 @grpc:ServiceDescriptor {
     descriptor: <string>descriptorMap5[DESCRIPTOR_KEY_5],
     descMap: descriptorMap5
 }
-service HelloWorld98 bind ep98 {
-    hello(endpoint caller, string name) {
+service HelloWorld98 on ep5 {
+    resource function hello(grpc:Caller caller, string name) {
         log:printInfo("name: " + name);
         string message = "Hello " + name;
         error? err = ();
@@ -40,7 +37,7 @@ service HelloWorld98 bind ep98 {
         _ = caller->complete();
     }
 
-    testInt(endpoint caller, string age) {
+    resource function testInt(grpc:Caller caller, string age) {
         log:printInfo("age: " + age);
         int displayAge = 0;
         if (age == "") {
@@ -57,7 +54,7 @@ service HelloWorld98 bind ep98 {
         _ = caller->complete();
     }
 
-    testFloat(endpoint caller, float salary) {
+    resource function testFloat(grpc:Caller caller, float salary) {
         log:printInfo("gross salary: " + salary);
         string netSalary = <string>(salary * 0.88);
         error? err = caller->send(netSalary);
@@ -70,8 +67,8 @@ service HelloWorld98 bind ep98 {
     }
 }
 
-@final string DESCRIPTOR_KEY_5 = "HelloWorld98.proto";
-map descriptorMap5 =
+const string DESCRIPTOR_KEY_5 = "HelloWorld98.proto";
+map<any> descriptorMap5 =
 {
     "HelloWorld98.proto":"0A1248656C6C6F576F726C6439382E70726F746F120C6772706373657276696365731A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F32E1010A0C48656C6C6F576F726C64393812430A0568656C6C6F121C2E676F6F676C652E70726F746F6275662E537472696E6756616C75651A1C2E676F6F676C652E70726F746F6275662E537472696E6756616C756512440A0774657374496E74121C2E676F6F676C652E70726F746F6275662E537472696E6756616C75651A1B2E676F6F676C652E70726F746F6275662E496E74363456616C756512460A0974657374466C6F6174121B2E676F6F676C652E70726F746F6275662E466C6F617456616C75651A1C2E676F6F676C652E70726F746F6275662E537472696E6756616C7565620670726F746F33",
 

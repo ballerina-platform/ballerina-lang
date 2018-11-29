@@ -71,13 +71,13 @@ public class AnydataStampInbuiltFunctionTest {
 
         Assert.assertEquals(results.length, 1);
 
-        Assert.assertEquals(employee0.get("age").getType().getClass(), BAnydataType.class);
+        Assert.assertEquals(employee0.get("age").getType().getTag(), TypeTags.INT_TAG);
         Assert.assertEquals(employee0.get("age").stringValue(), "25");
 
         Assert.assertEquals(employee0.get("batch").getType().getClass(), BStringType.class);
         Assert.assertEquals(employee0.get("batch").stringValue(), "LK2014");
 
-        Assert.assertEquals(employee0.get("school").getType().getClass(), BAnydataType.class);
+        Assert.assertEquals(employee0.get("school").getType().getClass(), BStringType.class);
         Assert.assertEquals(employee0.get("school").stringValue(), "Hindu College");
     }
 
@@ -187,13 +187,13 @@ public class AnydataStampInbuiltFunctionTest {
         Assert.assertEquals(((BMapType) mapValue.getType()).getConstrainedType().getClass(), BAnydataType.class);
 
         Assert.assertEquals(mapValue.get("name").stringValue(), "Raja");
-        Assert.assertEquals(mapValue.get("name").getType().getClass(), BAnydataType.class);
+        Assert.assertEquals(mapValue.get("name").getType().getClass(), BStringType.class);
 
         Assert.assertEquals(mapValue.get("age").stringValue(), "25");
-        Assert.assertEquals(mapValue.get("age").getType().getClass(), BAnydataType.class);
+        Assert.assertEquals(mapValue.get("age").getType().getTag(), TypeTags.INT_TAG);
 
         Assert.assertEquals(mapValue.get("status").stringValue(), "single");
-        Assert.assertEquals(mapValue.get("status").getType().getClass(), BAnydataType.class);
+        Assert.assertEquals(mapValue.get("status").getType().getClass(), BStringType.class);
     }
 
     @Test

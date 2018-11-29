@@ -23,7 +23,7 @@ import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.tree.BLangResource;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
@@ -37,7 +37,7 @@ public class WebSocketResourceValidator {
     private static final String INVALID_RESOURCE_SIGNATURE_FOR = "Invalid resource signature for ";
     private static final String RESOURCE_IN_SERVICE = " resource in service ";
 
-    public static void validate(String serviceName, BLangResource resource, DiagnosticLog dlog, boolean isClient) {
+    public static void validate(String serviceName, BLangFunction resource, DiagnosticLog dlog, boolean isClient) {
         switch (resource.getName().getValue()) {
             case WebSocketConstants.RESOURCE_NAME_ON_OPEN:
             case WebSocketConstants.RESOURCE_NAME_ON_IDLE_TIMEOUT:
@@ -67,7 +67,7 @@ public class WebSocketResourceValidator {
 
     }
 
-    private static void validateOnOpenResource(String serviceName, BLangResource resource, DiagnosticLog dlog,
+    private static void validateOnOpenResource(String serviceName, BLangFunction resource, DiagnosticLog dlog,
                                                boolean isClient) {
         if (!isClient || !resource.getName().getValue().equals(WebSocketConstants.RESOURCE_NAME_ON_OPEN)) {
             List<BLangSimpleVariable> paramDetails = resource.getParameters();
@@ -80,7 +80,7 @@ public class WebSocketResourceValidator {
         }
     }
 
-    private static void validateOnTextResource(String serviceName, BLangResource resource, DiagnosticLog dlog,
+    private static void validateOnTextResource(String serviceName, BLangFunction resource, DiagnosticLog dlog,
                                                boolean isClient) {
         List<BLangSimpleVariable> paramDetails = resource.getParameters();
         validateParamDetailsSize(paramDetails, 2, 3, serviceName, resource, dlog);
@@ -113,7 +113,7 @@ public class WebSocketResourceValidator {
         }
     }
 
-    private static void validateOnBinaryResource(String serviceName, BLangResource resource, DiagnosticLog dlog,
+    private static void validateOnBinaryResource(String serviceName, BLangFunction resource, DiagnosticLog dlog,
                                                  boolean isClient) {
         List<BLangSimpleVariable> paramDetails = resource.getParameters();
         validateParamDetailsSize(paramDetails, 2, 3, serviceName, resource, dlog);
@@ -130,7 +130,7 @@ public class WebSocketResourceValidator {
         }
     }
 
-    private static void validateOnPingPongResource(String serviceName, BLangResource resource, DiagnosticLog dlog,
+    private static void validateOnPingPongResource(String serviceName, BLangFunction resource, DiagnosticLog dlog,
                                                    boolean isClient) {
         List<BLangSimpleVariable> paramDetails = resource.getParameters();
         validateParamDetailsSize(paramDetails, 2, serviceName, resource, dlog);
@@ -142,7 +142,7 @@ public class WebSocketResourceValidator {
         }
     }
 
-    private static void validateOnCloseResource(String serviceName, BLangResource resource, DiagnosticLog dlog,
+    private static void validateOnCloseResource(String serviceName, BLangFunction resource, DiagnosticLog dlog,
                                                 boolean isClient) {
         List<BLangSimpleVariable> paramDetails = resource.getParameters();
         validateParamDetailsSize(paramDetails, 3, serviceName, resource, dlog);
@@ -159,7 +159,7 @@ public class WebSocketResourceValidator {
         }
     }
 
-    private static void validateOnErrorResource(String serviceName, BLangResource resource, DiagnosticLog dlog,
+    private static void validateOnErrorResource(String serviceName, BLangFunction resource, DiagnosticLog dlog,
                                                 boolean isClient) {
         List<BLangSimpleVariable> paramDetails = resource.getParameters();
         validateParamDetailsSize(paramDetails, 2, serviceName, resource, dlog);
@@ -172,7 +172,7 @@ public class WebSocketResourceValidator {
     }
 
     private static void validateParamDetailsSize(List<BLangSimpleVariable> paramDetails, int expectedSize,
-                                                 String serviceName, BLangResource resource, DiagnosticLog dlog) {
+            String serviceName, BLangFunction resource, DiagnosticLog dlog) {
         if (paramDetails == null || paramDetails.size() != expectedSize) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
                     + resource.getName().getValue() + RESOURCE_IN_SERVICE + serviceName +
@@ -181,7 +181,7 @@ public class WebSocketResourceValidator {
     }
 
     private static void validateParamDetailsSize(List<BLangSimpleVariable> paramDetails, int min, int max,
-                                                 String serviceName, BLangResource resource, DiagnosticLog dlog) {
+            String serviceName, BLangFunction resource, DiagnosticLog dlog) {
         if (paramDetails == null || paramDetails.size() < min || paramDetails.size() > max) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
                     + resource.getName().getValue() + RESOURCE_IN_SERVICE + serviceName +
@@ -189,10 +189,10 @@ public class WebSocketResourceValidator {
         }
     }
 
-    private static void validateEndpointParameter(String serviceName, BLangResource resource, DiagnosticLog dlog,
+    private static void validateEndpointParameter(String serviceName, BLangFunction resource, DiagnosticLog dlog,
                                                   List<BLangSimpleVariable> paramDetails, boolean isClient) {
         if (paramDetails == null || paramDetails.isEmpty() ||
-                (!isClient && !WebSocketConstants.WEBSOCKET_ENDPOINT_NAME.equals(
+                (!isClient && !WebSocketConstants.WEBSOCKET_CALLER_NAME.equals(
                         paramDetails.get(0).type.toString())) ||
                 (isClient && !WebSocketConstants.WEBSOCKET_CLIENT_ENDPOINT_NAME.equals(
                         paramDetails.get(0).type.toString()))) {

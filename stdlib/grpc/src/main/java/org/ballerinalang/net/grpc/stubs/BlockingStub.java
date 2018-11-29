@@ -19,7 +19,6 @@ package org.ballerinalang.net.grpc.stubs;
 
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BError;
@@ -39,8 +38,6 @@ import java.util.Arrays;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
-import static org.ballerinalang.net.http.HttpConstants.PACKAGE_BALLERINA_BUILTIN;
-import static org.ballerinalang.net.http.HttpConstants.STRUCT_GENERIC_ERROR;
 
 /**
  * This class handles Blocking client connection.
@@ -51,8 +48,8 @@ public class BlockingStub extends AbstractStub {
 
     private static final BTupleType RESP_TUPLE_TYPE = new BTupleType(Arrays.asList(BTypes.typeAny, BTypes.typeAny));
 
-    public BlockingStub(HttpClientConnector clientConnector, Struct endpointConfig) {
-        super(clientConnector, endpointConfig);
+    public BlockingStub(HttpClientConnector clientConnector, String url) {
+        super(clientConnector, url);
     }
 
     /**
@@ -127,12 +124,8 @@ public class BlockingStub extends AbstractStub {
             }
             if (inboundResponse != null) {
                 dataContext.context.setReturnValues(inboundResponse);
-            } else if (httpConnectorError != null) {
-                dataContext.context.setReturnValues(httpConnectorError);
             } else {
-                BMap<String, BValue> err = BLangConnectorSPIUtil.createBStruct(dataContext.context,
-                        PACKAGE_BALLERINA_BUILTIN, STRUCT_GENERIC_ERROR, "HttpClient failed");
-                dataContext.context.setReturnValues(err);
+                dataContext.context.setReturnValues(httpConnectorError);
             }
             dataContext.callback.notifySuccess();
         }

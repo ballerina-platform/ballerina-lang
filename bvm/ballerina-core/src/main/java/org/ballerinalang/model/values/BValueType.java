@@ -20,6 +20,7 @@ package org.ballerinalang.model.values;
 
 import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.TypeTags;
 
 import java.math.BigDecimal;
 
@@ -102,6 +103,9 @@ public abstract class BValueType implements BValue {
 
     @Override
     public void stamp(BType type) {
+        if (type.getTag() == TypeTags.ANYDATA_TAG) {
+            return;
+        }
         this.setType(type);
     }
 }

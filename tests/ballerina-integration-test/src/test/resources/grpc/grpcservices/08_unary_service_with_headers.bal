@@ -18,17 +18,16 @@ import ballerina/grpc;
 import ballerina/io;
 
 // Server endpoint configuration
-endpoint grpc:Listener ep101 {
-    host:"localhost",
-    port:9101
-};
+listener grpc:Listener ep8 = new (9101, config = {
+    host:"localhost"
+});
 
 @grpc:ServiceDescriptor {
     descriptor: <string>descriptorMap8[DESCRIPTOR_KEY_8],
     descMap: descriptorMap8
 }
-service HelloWorld101 bind ep101 {
-    hello(endpoint caller, string name, grpc:Headers headers) {
+service HelloWorld101 on ep8 {
+    resource function hello(grpc:Caller caller, string name, grpc:Headers headers) {
         io:println("name: " + name);
         string message = "Hello " + name;
         if (!headers.exists("x-id")) {
@@ -51,8 +50,8 @@ service HelloWorld101 bind ep101 {
     }
 }
 
-@final string DESCRIPTOR_KEY_8 = "HelloWorld101.proto";
-map descriptorMap8 =
+const string DESCRIPTOR_KEY_8 = "HelloWorld101.proto";
+map<any> descriptorMap8 =
 {
     "HelloWorld101.proto":"0A1348656C6C6F576F726C643130312E70726F746F120C6772706373657276696365731A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F32540A0D48656C6C6F576F726C6431303112430A0568656C6C6F121C2E676F6F676C652E70726F746F6275662E537472696E6756616C75651A1C2E676F6F676C652E70726F746F6275662E537472696E6756616C7565620670726F746F33",
 

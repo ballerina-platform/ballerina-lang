@@ -107,7 +107,7 @@ public function cloneXML() returns (xml, xml, xml) {
     return (a, x, y);
 }
 
-public function cloneMap() returns (map, map, map) {
+public function cloneMap() returns (map<any>, map<any>, map<any>) {
 
     map<map<map<json>>> a = {};
     map<map<json>> b = {};
@@ -239,13 +239,13 @@ public function cloneNilableInt() returns (any, any, any, any, any, any) {
     return (a, x, y, b, xx, yy);
 }
 
-public function cloneTuple() returns ((map, int[]), (map, int[]), (map, int[])) {
+public function cloneTuple() returns ((map<any>, int[]), (map<any>, int[]), (map<any>, int[])) {
     map<int> m = {};
     m["one"] = 100;
     int[] arr = [200];
     (map<int>, int[]) a = (m, arr);
-    (map, int[]) x = a.clone();
-    (map, int[]) y = a.clone();
+    (map<any>, int[]) x = a.clone();
+    (map<any>, int[]) y = a.clone();
     a[1][0] = 400;
     y[1][0] = 500;
     return (a, x, y);
@@ -367,5 +367,17 @@ public function cloneLikeAnydata() returns (any, any) {
     int[] q = [1, 2, 3];
     (any, any) x = (p, q);
     any y = x.clone();
+    return (x, y);
+}
+
+public function cloneNullJson() returns (any, any) {
+    json c = ();
+    json x = c.clone();
+    return (c, x);
+}
+
+public function cloneNilAnydata() returns (any, any) {
+    anydata x = ();
+    anydata y = x.clone();
     return (x, y);
 }

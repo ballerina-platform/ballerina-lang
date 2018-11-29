@@ -218,7 +218,7 @@ public type Max object {
                 if (eventType == "CURRENT") {
                     self.iMaxQueue.resetToRear();
                     while (self.iMaxQueue.hasPrevious()) {
-                        int a = check <int>self.iMaxQueue.previous();
+                        int a = check trap <int>self.iMaxQueue.previous();
                         if (a < i) {
                             self.iMaxQueue.removeCurrent();
                         } else {
@@ -238,13 +238,13 @@ public type Max object {
                 } else if (eventType == "EXPIRED"){
                     self.iMaxQueue.resetToFront();
                     while (self.iMaxQueue.hasNext()) {
-                        int a = check <int>self.iMaxQueue.next();
+                        int a = check trap <int>self.iMaxQueue.next();
                         if (a == i) {
                             self.iMaxQueue.removeCurrent();
                             break;
                         }
                     }
-                    self.iMax = check <int>self.iMaxQueue.getFirst();
+                    self.iMax = check trap <int>self.iMaxQueue.getFirst();
                     return self.iMax;
                 } else if (eventType == "RESET"){
                     self.iMaxQueue.clear();
@@ -256,7 +256,7 @@ public type Max object {
                 if (eventType == "CURRENT") {
                     self.fMaxQueue.resetToRear();
                     while (self.fMaxQueue.hasPrevious()) {
-                        float a = check <float>self.fMaxQueue.previous();
+                        float a = check trap <float>self.fMaxQueue.previous();
                         if (a < f) {
                             self.fMaxQueue.removeCurrent();
                         } else {
@@ -276,13 +276,13 @@ public type Max object {
                 } else if (eventType == "EXPIRED"){
                     self.fMaxQueue.resetToFront();
                     while (self.fMaxQueue.hasNext()) {
-                        float a = check <float>self.fMaxQueue.next();
+                        float a = check trap <float>self.fMaxQueue.next();
                         if (a == f) {
                             self.fMaxQueue.removeCurrent();
                             break;
                         }
                     }
-                    self.fMax = check <float>self.fMaxQueue.getFirst();
+                    self.fMax = check trap <float>self.fMaxQueue.getFirst();
                     return self.fMax;
                 } else if (eventType == "RESET"){
                     self.fMaxQueue.clear();
@@ -327,7 +327,7 @@ public type Min object {
                 if (eventType == "CURRENT") {
                     self.iMinQueue.resetToRear();
                     while (self.iMinQueue.hasPrevious()) {
-                        int a = check <int>self.iMinQueue.previous();
+                        int a = check trap <int>self.iMinQueue.previous();
                         if (a > i) {
                             self.iMinQueue.removeCurrent();
                         } else {
@@ -347,13 +347,13 @@ public type Min object {
                 } else if (eventType == "EXPIRED"){
                     self.iMinQueue.resetToFront();
                     while (self.iMinQueue.hasNext()) {
-                        int a = check <int>self.iMinQueue.next();
+                        int a = check trap <int>self.iMinQueue.next();
                         if (a == i) {
                             self.iMinQueue.removeCurrent();
                             break;
                         }
                     }
-                    self.iMin = check <int>self.iMinQueue.getFirst();
+                    self.iMin = check trap <int>self.iMinQueue.getFirst();
                     return self.iMin;
                 } else if (eventType == "RESET"){
                     self.iMinQueue.clear();
@@ -365,7 +365,7 @@ public type Min object {
                 if (eventType == "CURRENT") {
                     self.fMinQueue.resetToRear();
                     while (self.fMinQueue.hasPrevious()) {
-                        float a = check <float>self.fMinQueue.previous();
+                        float a = check trap <float>self.fMinQueue.previous();
                         if (a > f) {
                             self.fMinQueue.removeCurrent();
                         } else {
@@ -385,13 +385,13 @@ public type Min object {
                 } else if (eventType == "EXPIRED"){
                     self.fMinQueue.resetToFront();
                     while (self.fMinQueue.hasNext()) {
-                        float a = check <float>self.fMinQueue.next();
+                        float a = check trap <float>self.fMinQueue.next();
                         if (a == f) {
                             self.fMinQueue.removeCurrent();
                             break;
                         }
                     }
-                    self.fMin = check <float>self.fMinQueue.getFirst();
+                    self.fMin = check trap <float>self.fMinQueue.getFirst();
                     return self.fMin;
                 } else if (eventType == "RESET"){
                     self.fMinQueue.clear();

@@ -18,5 +18,5 @@ function invalidWorkerSendReceive() {
 	     int b = 15;
 	     a = <- w2;
 	   }
-    } join (all) (map results) { }
+    } join (all) (map<any> results) { }
 }

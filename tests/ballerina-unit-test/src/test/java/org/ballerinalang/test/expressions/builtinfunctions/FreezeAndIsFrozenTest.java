@@ -496,7 +496,7 @@ public class FreezeAndIsFrozenTest {
             "outer map containing it")
     public void testPreservingInnerMapFrozenStatusOnFailedOuterFreeze() {
         BValue[] returns = BRunUtil.invoke(result, "testPreservingInnerMapFrozenStatusOnFailedOuterFreeze",
-                                           new BValue[0]);
+                new BValue[0]);
         Assert.assertEquals(returns.length, 3);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), FREEZE_ERROR_OCCURRED_ERR_MSG);
@@ -512,7 +512,7 @@ public class FreezeAndIsFrozenTest {
             "outer array containing it")
     public void testPreservingInnerArrayFrozenStatusOnFailedOuterFreeze() {
         BValue[] returns = BRunUtil.invoke(result, "testPreservingInnerArrayFrozenStatusOnFailedOuterFreeze",
-                                           new BValue[0]);
+                new BValue[0]);
         Assert.assertEquals(returns.length, 3);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), FREEZE_ERROR_OCCURRED_ERR_MSG);
@@ -534,35 +534,37 @@ public class FreezeAndIsFrozenTest {
 
     @Test
     public void testFreezeAndIsFrozenNegativeCases() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 18);
-        validateError(negativeResult, 0, "function invocation on type '()' is not supported", 19, 9);
-        validateError(negativeResult, 1, "undefined function 'freeze' in object 'PersonObj'", 24, 19);
-        validateError(negativeResult, 2, "undefined function 'stream.freeze'", 27, 9);
-        validateError(negativeResult, 3, "undefined function 'future.freeze'", 30, 9);
-        validateError(negativeResult, 4, "undefined function 'map.freeze'", 35, 9);
-        validateError(negativeResult, 5, "undefined function 'map.freeze'", 38, 9);
-        validateError(negativeResult, 6, "function invocation on type 'PersonObj[]' is not supported", 43, 9);
-        validateError(negativeResult, 7, "function invocation on type 'PersonObjTwo|PersonObj[]' is not supported",
-                      46, 9);
-        validateError(negativeResult, 8, "function invocation on type '(PersonObj|PersonObjTwo,PersonObjTwo)' is " +
-                              "not supported", 51, 9);
-        validateError(negativeResult, 9, "undefined field 'freeze' in record 'Department'", 56, 9);
-        validateError(negativeResult, 10, "incompatible types: expected 'map<string|PersonObj>', found " +
-                "'map<string|PersonObj>|error'", 61, 32);
-        validateError(negativeResult, 11, "incompatible types: expected 'map<(any,any)>', found 'map<" +
-                "(string|PersonObj,FreezeAllowedDepartment|float)>|error'", 64, 26);
-        validateError(negativeResult, 12, "incompatible types: expected 'boolean|PersonObj|float[]', found " +
-                              "'boolean|PersonObj|float[]|error'", 67, 38);
-        validateError(negativeResult, 13, "incompatible types: expected 'any[]', found " +
-                              "'boolean|PersonObj|float[]|error'", 69, 16);
-        validateError(negativeResult, 14, "incompatible types: expected '(string|PersonObj," +
-                "FreezeAllowedDepartment|float)', found '(string|PersonObj,FreezeAllowedDepartment|float)|error'",
-                      72, 60);
-        validateError(negativeResult, 15, "incompatible types: expected 'FreezeAllowedDepartment', found " +
-                              "'FreezeAllowedDepartment|error'", 75, 35);
-        validateError(negativeResult, 16, "incompatible types: expected 'string|PersonObj', found " +
-                "'string|PersonObj|error'", 78, 27);
-        validateError(negativeResult, 17, "function invocation on type 'error' is not supported", 83, 9);
+        Assert.assertEquals(negativeResult.getErrorCount(), 19);
+        int index = 0;
+        validateError(negativeResult, index++, "function invocation on type '()' is not supported", 19, 9);
+        validateError(negativeResult, index++, "undefined function 'freeze' in object 'PersonObj'", 24, 19);
+        validateError(negativeResult, index++, "undefined function 'stream.freeze'", 27, 9);
+        validateError(negativeResult, index++, "undefined function 'future.freeze'", 30, 9);
+        validateError(negativeResult, index++, "variable 'boolFuture' is not initialized", 30, 9);
+        validateError(negativeResult, index++, "undefined function 'map.freeze'", 35, 9);
+        validateError(negativeResult, index++, "undefined function 'map.freeze'", 38, 9);
+        validateError(negativeResult, index++, "function invocation on type 'PersonObj[]' is not supported", 43, 9);
+        validateError(negativeResult, index++, "function invocation on type 'PersonObjTwo|PersonObj[]' is not " +
+                "supported", 46, 9);
+        validateError(negativeResult, index++, "function invocation on type '(PersonObj|PersonObjTwo,PersonObjTwo)' " +
+                "is not supported", 53, 9);
+        validateError(negativeResult, index++, "undefined function 'Department.freeze'", 58, 9);
+        validateError(negativeResult, index++, "incompatible types: expected 'map<string|PersonObj>', found " +
+                "'map<string|PersonObj>|error'", 63, 32);
+        validateError(negativeResult, index++, "incompatible types: expected 'map<(any,any)>', found 'map<" +
+                "(string|PersonObj,FreezeAllowedDepartment|float)>|error'", 66, 26);
+        validateError(negativeResult, index++, "incompatible types: expected 'boolean|PersonObj|float[]', found " +
+                "'boolean|PersonObj|float[]|error'", 69, 38);
+        validateError(negativeResult, index++, "incompatible types: expected 'any[]', found " +
+                "'boolean|PersonObj|float[]|error'", 71, 16);
+        validateError(negativeResult, index++, "incompatible types: expected '(string|PersonObj," +
+                "FreezeAllowedDepartment|float)', found '(string|PersonObj,FreezeAllowedDepartment|float)" +
+                "|error'", 74, 60);
+        validateError(negativeResult, index++, "incompatible types: expected 'FreezeAllowedDepartment', found " +
+                "'FreezeAllowedDepartment|error'", 77, 35);
+        validateError(negativeResult, index++, "incompatible types: expected 'string|PersonObj', found " +
+                "'string|PersonObj|error'", 80, 27);
+        validateError(negativeResult, index, "function invocation on type 'error' is not supported", 85, 9);
     }
 
     @DataProvider(name = "booleanValues")

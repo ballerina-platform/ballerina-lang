@@ -25,6 +25,9 @@ import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * This represents the local variables that are available to a worker. 
  * 
@@ -43,6 +46,8 @@ public class StackFrame {
     public BRefType<?>[] refRegs;
 
     public CallableUnitInfo callableUnitInfo;
+
+    public Map<String, Object> localProps = new HashMap<>();
 
     // Cached value
     ConstantPoolEntry[] constPool;

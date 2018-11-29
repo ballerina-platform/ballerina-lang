@@ -83,12 +83,7 @@ typeDefinition
     ;
 
 objectBody
-    :   objectMember* objectMember*
-    ;
-objectMember
-    :   objectFieldDefinition
-    |   objectFunctionDefinition
-    |   typeReference
+    :   (objectFieldDefinition | objectFunctionDefinition | typeReference)*
     ;
 
 typeReference
@@ -119,7 +114,7 @@ objectFunctionDefinition
     ;
 
 annotationDefinition
-    :   (PUBLIC)? ANNOTATION  (LT attachmentPoint (COMMA attachmentPoint)* GT)?  Identifier userDefineTypeName? SEMICOLON
+    :   (PUBLIC)? ANNOTATION  (LT attachmentPoint (COMMA attachmentPoint)* GT)?  Identifier typeName? SEMICOLON
     ;
 
 constantDefinition
@@ -127,7 +122,8 @@ constantDefinition
     ;
 
 globalVariableDefinition
-    :   (PUBLIC)? (LISTENER)? typeName Identifier (ASSIGN expression )? SEMICOLON
+    :   PUBLIC? LISTENER? typeName Identifier (ASSIGN expression)? SEMICOLON
+    |   PUBLIC? FINAL (typeName | VAR) Identifier ASSIGN expression SEMICOLON
     |   channelType Identifier SEMICOLON
     ;
 
@@ -153,7 +149,7 @@ workerDeclaration
     ;
 
 workerDefinition
-    :   WORKER Identifier
+    :   WORKER Identifier returnParameter?
     ;
 
 finiteType
@@ -209,12 +205,12 @@ valueTypeName
     ;
 
 builtInReferenceTypeName
-    :   TYPE_MAP (LT typeName GT)?
-    |   TYPE_FUTURE (LT typeName GT)?    
+    :   TYPE_MAP (LT typeName GT)
+    |   TYPE_FUTURE (LT typeName GT)
     |   TYPE_XML (LT (LEFT_BRACE xmlNamespaceName RIGHT_BRACE)? xmlLocalName GT)?
     |   TYPE_JSON (LT nameReference GT)?
-    |   TYPE_TABLE (LT nameReference GT)?
-    |   TYPE_STREAM (LT typeName GT)?
+    |   TYPE_TABLE (LT typeName GT)
+    |   TYPE_STREAM (LT typeName GT)
     |   SERVICE
     |   errorTypeName
     |   functionTypeName
@@ -274,7 +270,7 @@ statement
 
 variableDefinitionStatement
     :   typeName Identifier SEMICOLON
-    |   (typeName | VAR) bindingPattern ASSIGN expression SEMICOLON
+    |   FINAL? (typeName | VAR) bindingPattern ASSIGN expression SEMICOLON
     ;
 
 recordLiteral
@@ -373,9 +369,7 @@ matchStatement
     ;
 
 matchPatternClause
-    :   typeName EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
-    |   typeName Identifier EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
-    |   expression EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
+    :   expression EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
     |   VAR bindingPattern (IF expression)? EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
     ;
 
@@ -658,7 +652,6 @@ expression
     |   expression SYNCRARROW Identifier                                    # workerSendSyncExpression
     |   WAIT (waitForCollection | expression)                               # waitExpression
     |   trapExpr                                                            # trapExpression
-    |	expression matchExpression										    # matchExprExpression
     |   expression ELVIS expression                                         # elvisExpression
     |   LARROW Identifier (COMMA expression)?                               # workerReceiveExpression
     |   flushWorker                                                         # flushWorkerExpression
@@ -693,14 +686,6 @@ shiftExpression
     ;
 
 shiftExprPredicate : {_input.get(_input.index() -1).getType() != WS}? ;
-
-matchExpression
-    :   BUT LEFT_BRACE matchExpressionPatternClause (COMMA matchExpressionPatternClause)* RIGHT_BRACE
-    	;
-
-matchExpressionPatternClause
-    :   typeName Identifier? EQUAL_GT expression
-    ;
 
 //reusable productions
 

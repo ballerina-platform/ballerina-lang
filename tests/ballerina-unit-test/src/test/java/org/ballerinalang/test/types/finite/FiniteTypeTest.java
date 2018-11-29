@@ -147,7 +147,7 @@ public class FiniteTypeTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals((((BString) returns[0]).stringValue()), "on");
+        Assert.assertEquals((returns[0].stringValue()), "on");
     }
 
     @Test()

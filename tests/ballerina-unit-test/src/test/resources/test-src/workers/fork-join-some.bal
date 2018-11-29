@@ -9,7 +9,7 @@ function testForkJoinAny() returns string[] {
             worker XYZ_Airline {
                 "xyz" -> fork;
             }
-        } join (some 1) (map airlineResponses) {
+        } join (some 1) (map<any> airlineResponses) {
             if (airlineResponses.hasKey("ABC_Airline")) {
                 results[0] = <string> airlineResponses["ABC_Airline"];
             }
@@ -17,7 +17,7 @@ function testForkJoinAny() returns string[] {
                 results[0] = <string> airlineResponses["XYZ_Airline"];
             }
             return results;
-        } timeout (30000) (map airlineResponses) {
+        } timeout (30000) (map<any> airlineResponses) {
             results[0] = "";
             return results;
         }

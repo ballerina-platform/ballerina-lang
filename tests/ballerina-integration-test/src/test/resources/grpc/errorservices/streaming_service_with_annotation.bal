@@ -19,31 +19,29 @@ import ballerina/grpc;
 import ballerina/io;
 
 // Server endpoint configuration
-endpoint grpc:Listener ep {
-    port:9095
-};
+listener grpc:Listener server7 = new (9095);
 
 @grpc:ServiceConfig {name:"chat",
     requestType: ChatMessage,
     responseType: string,
     clientStreaming:true,
     serverStreaming:true}
-service Chat bind ep {
+service Chat on server7 {
 
-    onOpen(endpoint client) {
+    resource function onOpen(grpc:Caller client) {
     }
 
-    onMessage(endpoint client, ChatMessage chatMsg) {
+    resource function onMessage(grpc:Caller client, ChatMessage chatMsg) {
     }
 
-    onError(endpoint client, error err) {
+    resource function onError(grpc:Caller client, error err) {
     }
 
-    onComplete(endpoint client) {
+    resource function onComplete(grpc:Caller client) {
     }
 }
 
 type ChatMessage record {
-    string name;
-    string message;
+    string name = "";
+    string message = "";
 };

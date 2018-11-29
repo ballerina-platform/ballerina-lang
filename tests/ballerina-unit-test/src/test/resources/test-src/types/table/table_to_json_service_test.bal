@@ -19,27 +19,25 @@ import ballerina/h2;
 import ballerina/io;
 import ballerina/http;
 
-endpoint http:NonListener testEP {
-    port:9090
-};
+listener http:MockListener testEP = new(9090);
 
 @http:ServiceConfig { 
     basePath: "/foo" 
 }
-service<http:Service> MyService bind testEP {
+service MyService on testEP {
 
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/bar1"
     }
-    myResource1 (endpoint caller, http:Request req) {
-        endpoint h2:Client testDB {
+    resource function myResource1 (http:Caller caller, http:Request req) {
+        h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_DATA_TABLE_H2",
             username: "SA",
             password: "",
             poolOptions: { maximumPoolSize: 1 }
-        };
+        });
 
         var selectRet = testDB->select("SELECT int_type, long_type, float_type, double_type,
                   boolean_type, string_type from DataTable WHERE row_id = 1", ());
@@ -57,21 +55,24 @@ service<http:Service> MyService bind testEP {
 
         http:Response res = new;
         res.setPayload(untaint result);
-        caller->respond(res) but { error e => io:println("Error sending response") };
+        var result = caller->respond(res);
+        if (result is error) {
+            io:println("Error sending response");
+        }
     }
 
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/bar2"
     }
-    myResource2 (endpoint caller, http:Request req) {
-        endpoint h2:Client testDB {
+    resource function myResource2 (http:Caller caller, http:Request req) {
+        h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_DATA_TABLE_H2",
             username: "SA",
             password: "",
             poolOptions: { maximumPoolSize: 1 }
-        };
+        });
 
         var selectRet = testDB->select("SELECT int_type, long_type, float_type, double_type,
                   boolean_type, string_type from DataTable WHERE row_id = 1", ());
@@ -92,6 +93,9 @@ service<http:Service> MyService bind testEP {
 
         http:Response res = new;
         res.setPayload(untaint j);
-        caller->respond(res) but { error e => io:println("Error sending response") };
+        var result = caller->respond(res);
+        if (result is error) {
+            io:println("Error sending response");
+        }
     }
 }

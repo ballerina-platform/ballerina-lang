@@ -15,23 +15,23 @@
 // under the License.
 
 # Provides the gRPC actions for interacting with gRPC server.
-public type StreamingClient object {
+public type StreamingClient client object {
 
     # Sends request message to the server.
     #
     # + res - The inbound request message.
     # + return - Returns an error if encounters an error while sending the response, returns nil otherwise.
-    public extern function send(any res) returns error?;
+    public remote extern function send(any res) returns error?;
 
     # Informs the server, caller finished sending messages.
     #
     # + return - Returns an error if encounters an error while sending the response, returns nil otherwise.
-    public extern function complete() returns error?;
+    public remote extern function complete() returns error?;
 
     # Sends error message to the server.
     #
     # + statusCode - Error status code.
     # + message - Error message.
     # + return - Returns an error if encounters an error while sending the response, returns nil otherwise.
-    public extern function sendError(int statusCode, string message) returns error?;
+    public remote extern function sendError(int statusCode, string message) returns error?;
 };

@@ -226,7 +226,7 @@ public type ClientInformation record {
 };
 
 # Presence of this annotation will mark this endpoint to be used as a service endpoint for client generation
-public annotation <endpoint> ClientEndpoint;
+public annotation <client> ClientEndpoint;
 
 # Annotation to configure client code generation.
 public annotation <service> ClientConfig ClientInformation;

@@ -67,9 +67,9 @@ function testForeachWithOpenRecords2() returns any[] {
     return values;
 }
 
-function testForeachOpWithClosedRecords() returns map {
+function testForeachOpWithClosedRecords() returns map<any> {
     ClosedPerson p = { name: "John Doe", age: 25, address: { street: "Palm Grove", city: "Colombo 3" }};
-    map rec = {};
+    map<any> rec = {};
 
     p.foreach(function ((string, any) entry) {
             var (field, value) = entry;
@@ -79,10 +79,10 @@ function testForeachOpWithClosedRecords() returns map {
     return rec;
 }
 
-function testMapOpWithClosedRecords() returns map {
+function testMapOpWithClosedRecords() returns map<any> {
     ClosedPerson p = { name: "John Doe", age: 25, address: { street: "Palm Grove", city: "Colombo 3" }};
 
-    map newp =  p.map(function ((string, any) entry) returns (string, any) {
+    map<any> newp =  p.map(function ((string, any) entry) returns (string, any) {
            var (field, value) = entry;
             match value {
                 string str => value = str.toLower();

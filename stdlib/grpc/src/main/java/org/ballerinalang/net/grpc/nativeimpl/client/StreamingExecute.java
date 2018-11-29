@@ -22,17 +22,12 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.connector.api.Value;
-import org.ballerinalang.connector.impl.ValueImpl;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.grpc.MethodDescriptor;
 import org.ballerinalang.net.grpc.StreamObserver;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
@@ -41,7 +36,6 @@ import org.ballerinalang.net.grpc.stubs.NonBlockingStub;
 
 import java.util.Map;
 
-import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
 import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_ENDPOINT_REF_INDEX;
 import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_ENDPOINT_TYPE;
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
@@ -53,7 +47,6 @@ import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_MESSAGE_DEFINITIO
 import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_SENDER;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_STUB;
 import static org.ballerinalang.net.grpc.GrpcConstants.STREAMING_CLIENT;
-import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
  * {@code StreamingExecute} is the StreamingExecute action implementation of the gRPC Connector.
@@ -117,9 +110,8 @@ public class StreamingExecute extends AbstractExecute {
         if (connectionStub instanceof NonBlockingStub) {
             NonBlockingStub nonBlockingStub = (NonBlockingStub) connectionStub;
 
-            BTypeDescValue serviceType = (BTypeDescValue) context.getRefArgument(1);
-            Service callbackService = BLangConnectorSPIUtil.getServiceFromType(context.getProgramFile(), getTypeField
-                    (serviceType));
+            BMap serviceValue = (BMap) context.getRefArgument(1);
+            Service callbackService = BLangConnectorSPIUtil.getServiceFromType(context.getProgramFile(), serviceValue);
 
             // Update request headers when request headers exists in the context.
             BValue headerValues = context.getNullableRefArgument(MESSAGE_HEADER_REF_INDEX);
@@ -148,8 +140,7 @@ public class StreamingExecute extends AbstractExecute {
                 connStruct.addNativeData(REQUEST_SENDER, requestSender);
                 connStruct.addNativeData(REQUEST_MESSAGE_DEFINITION, methodDescriptor
                         .getInputType());
-                clientEndpoint.addNativeData(STREAMING_CLIENT, connStruct);
-                context.setReturnValues(clientEndpoint);
+                context.setReturnValues(connStruct);
                 callback.notifySuccess();
             } catch (RuntimeException | GrpcClientException e) {
                 notifyErrorReply(context, "gRPC Client Connector Error :" + e.getMessage());
@@ -163,10 +154,4 @@ public class StreamingExecute extends AbstractExecute {
         return false;
     }
 
-    private Value getTypeField(BTypeDescValue refField) {
-        if (refField == null) {
-            return null;
-        }
-        return ValueImpl.createValue(refField);
-    }
 }

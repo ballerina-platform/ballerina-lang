@@ -122,9 +122,9 @@ public class CommandExecutionTest {
         Assert.assertEquals(responseJson, expected);
     }
 
-    @Test(description = "Test Create Constructor for object")
-    public void testCreateConstructor() {
-        String configJsonPath = "command" + File.separator + "createConstructor.json";
+    @Test(description = "Test Create Initializer for object")
+    public void testCreateInitializer() {
+        String configJsonPath = "command" + File.separator + "createInitializer.json";
         Path sourcePath = sourcesPath.resolve("source").resolve("commonDocumentation.bal");
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
         JsonObject expected = configJsonObject.get("expected").getAsJsonObject();
@@ -132,7 +132,7 @@ public class CommandExecutionTest {
                 new CommandArgument("node.type", configJsonObject.get("nodeType").getAsString()),
                 new CommandArgument("doc.uri", sourcePath.toUri().toString()),
                 new CommandArgument("node.line", configJsonObject.get("nodeLine").getAsString()));
-        JsonObject responseJson = getCommandResponse(args, CommandConstants.CMD_CREATE_CONSTRUCTOR);
+        JsonObject responseJson = getCommandResponse(args, CommandConstants.CMD_CREATE_INITIALIZER);
         responseJson.get("result").getAsJsonObject().get("edit").getAsJsonObject().getAsJsonArray("documentChanges")
                 .forEach(element -> element.getAsJsonObject().remove("textDocument"));
         Assert.assertEquals(responseJson, expected);

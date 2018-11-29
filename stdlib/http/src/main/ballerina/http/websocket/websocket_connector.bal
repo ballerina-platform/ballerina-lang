@@ -17,15 +17,15 @@
 import ballerina/internal;
 
 # Represents a WebSocket connector in ballerina. This include all connection oriented operations.
-public type WebSocketConnector object {
+type WebSocketConnector object {
     private boolean isReady = false;
 
     # Push text to the connection.
     #
     # + data - Data to be sent, if byte[] it is converted to a UTF-8 string for sending
-    # + final - True if this is a final frame of a (long) message
+    # + finalFrame - True if this is a final frame of a (long) message
     # + return  - `error` if an error occurs when sending
-    public function pushText(string|json|xml|boolean|int|float|byte|byte[] data, boolean final = true) returns error? {
+    public function pushText(string|json|xml|boolean|int|float|byte|byte[] data, boolean finalFrame) returns error? {
         string text = "";
         if (data is byte) {
             text = <string>(<int>data);
@@ -36,25 +36,25 @@ public type WebSocketConnector object {
         } else if (data is boolean) {
             text = <string>data;
         } else if (data is string) {
-            text = <string>data;
+            text = data;
         } else if (data is xml) {
-            text = <string>data;
+            text = string.create(data);
         } else if (data is byte[]) {
             text = internal:byteArrayToString(data, "UTF-8");
         } else if (data is json) {
             text = data.toString();
         }
-        return self.externPushText(text, final);
+        return self.externPushText(text, finalFrame);
     }
 
-    extern function externPushText(string text, boolean final) returns error?;
+    extern function externPushText(string text, boolean finalFrame) returns error?;
 
     # Push binary data to the connection.
     #
     # + data - Binary data to be sent
-    # + final - True if this is a final frame of a (long) message
+    # + finalFrame - True if this is a final frame of a (long) message
     # + return - `error` if an error occurs when sending
-    public extern function pushBinary(byte[] data, boolean final = true) returns error?;
+    public extern function pushBinary(byte[] data, boolean finalFrame) returns error?;
 
     # Ping the connection.
     #

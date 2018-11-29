@@ -38,7 +38,9 @@ remote function TestEP.action2(string s, boolean b) returns int {
 }
 
 function test1(int i) returns boolean{
+    TestEP z;
     TestEP x = new;
+    TestEP y = new;
     x.func1("abc");
     boolean b = x->action1("test1", i);
     return b;
@@ -47,4 +49,22 @@ function test1(int i) returns boolean{
 function test2() returns int {
     TestEP x = new;
     return x.func2("test");
+}
+
+TestEP globEP = new;
+
+type TestObject object {
+    string s = "abc";
+    TestEP x = new;
+
+    function test() returns boolean {
+        _ = globEP->action1("test1", 10);
+        boolean b = self.x->action1("test1", 10);
+        return b;
+    }
+};
+
+function test3() returns boolean {
+    TestObject x = new;
+    return x.test();
 }

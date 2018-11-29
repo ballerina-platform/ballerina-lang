@@ -47,11 +47,11 @@ import java.util.Map;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
-import static org.ballerinalang.net.http.HttpConstants.CONNECTION;
+import static org.ballerinalang.net.http.HttpConstants.CALLER;
 import static org.ballerinalang.net.http.HttpConstants.DEFAULT_HOST;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_LISTENER_ENDPOINT;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
-import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT;
 import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONNECTION_FIELD;
 
 /**
@@ -151,13 +151,12 @@ public class HttpDispatcher {
     public static BValue[] getSignatureParameters(HttpResource httpResource, HttpCarbonMessage httpCarbonMessage,
                                                   Struct endpointConfig) {
         //TODO Think of keeping struct type globally rather than creating for each request
-        ProgramFile programFile =
-                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile();
+        ProgramFile programFile = httpResource.getBalResource().getResourceInfo().getPackageInfo().getProgramFile();
 
         BMap<String, BValue> serviceEndpoint =
-                BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_PACKAGE_HTTP, SERVICE_ENDPOINT);
-        BMap<String, BValue> connection =
-                BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_PACKAGE_HTTP, CONNECTION);
+                BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_PACKAGE_HTTP, HTTP_LISTENER_ENDPOINT);
+        BMap<String, BValue> httpCaller =
+                BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_PACKAGE_HTTP, CALLER);
         BMap<String, BValue> inRequest =
                 BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_PACKAGE_HTTP, REQUEST);
         BMap<String, BValue> inRequestEntity =
@@ -165,16 +164,15 @@ public class HttpDispatcher {
         BMap<String, BValue> mediaType =
                 BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
 
-        HttpUtil.enrichServiceEndpointInfo(serviceEndpoint, httpCarbonMessage, httpResource, endpointConfig);
-        HttpUtil.enrichConnectionInfo(connection, httpCarbonMessage, endpointConfig);
-        serviceEndpoint.put(SERVICE_ENDPOINT_CONNECTION_FIELD, connection);
+        HttpUtil.enrichHttpCallerWithConnectionInfo(httpCaller, httpCarbonMessage, httpResource, endpointConfig);
+        HttpUtil.enrichHttpCallerWithNativeData(httpCaller, httpCarbonMessage, endpointConfig);
+        serviceEndpoint.put(SERVICE_ENDPOINT_CONNECTION_FIELD, httpCaller);
 
-        HttpUtil.enrichConnectionInfo(connection, httpCarbonMessage, endpointConfig);
         HttpUtil.populateInboundRequest(inRequest, inRequestEntity, mediaType, httpCarbonMessage, programFile);
 
         SignatureParams signatureParams = httpResource.getSignatureParams();
         BValue[] bValues = new BValue[signatureParams.getParamCount()];
-        bValues[0] = serviceEndpoint;
+        bValues[0] = httpCaller;
         bValues[1] = inRequest;
         if (signatureParams.getParamCount() == 2) {
             return bValues;

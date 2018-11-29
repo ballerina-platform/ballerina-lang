@@ -48,7 +48,8 @@ public class HttpConstants {
 
     public static final String PROTOCOL_HTTP = "http";
     public static final String PROTOCOL_PACKAGE_HTTP = "ballerina" + ORG_NAME_SEPARATOR + "http";
-    public static final String HTTP_SERVICE_ENDPOINT_NAME = "ballerina" + ORG_NAME_SEPARATOR + "http:Listener";
+    public static final String HTTP_CALLER_NAME = "ballerina/http:Caller";
+    public static final String HTTP_MOCK_SERVER_ENDPOINT_NAME = "Tballerina/http:MockListener;";
     public static final String PROTOCOL_HTTPS = "https";
     public static final String HTTP_METHOD = "HTTP_METHOD";
     public static final String HTTP_STATUS_CODE = "HTTP_STATUS_CODE";
@@ -155,6 +156,7 @@ public class HttpConstants {
     public static final String PACKAGE_BALLERINA_BUILTIN = BALLERINA_BUILTIN_PKG;
 
     public static final String HTTP_CLIENT = "Client";
+    public static final String HTTP_CALLER = "HttpCaller";
 
     public static final String REQUEST_URL = "REQUEST_URL";
     public static final String SRC_HANDLER = "SRC_HANDLER";
@@ -173,7 +175,7 @@ public class HttpConstants {
     public static final String ANNOTATION_NAME_PATH = "Path";
     public static final String HTTP_CLIENT_EXCEPTION_CATEGORY = "http-client";
     public static final String SERVICE_ENDPOINT = "Listener";
-    public static final String CONNECTION = "Connection";
+    public static final String CALLER = "Caller";
     public static final String REMOTE = "Remote";
     public static final String LOCAL = "Local";
     public static final String REQUEST = "Request";
@@ -380,12 +382,12 @@ public class HttpConstants {
     public static final String SERVICE_ENDPOINT_PROTOCOL_FIELD = "protocol";
 
     //Remote struct field names
-    public static final String REMOTE_STRUCT_FIELD = "remoteDetails";
+    public static final String REMOTE_STRUCT_FIELD = "remoteAddress";
     public static final String REMOTE_HOST_FIELD = "host";
     public static final String REMOTE_PORT_FIELD = "port";
 
     //Local struct field names
-    public static final String LOCAL_STRUCT_INDEX = "local";
+    public static final String LOCAL_STRUCT_INDEX = "localAddress";
     public static final String LOCAL_HOST_FIELD = "host";
     public static final String LOCAL_PORT_FIELD = "port";
 
@@ -396,7 +398,11 @@ public class HttpConstants {
     public static final String REQUEST_REUSE_STATUS_INDEX = "dirtyRequest";
     public static final boolean DIRTY_REQUEST = true;
 
-    public static final String MOCK_SERVER = "MockServer";
+    public static final String MOCK_LISTENER_ENDPOINT = "MockListener";
+    public static final String HTTP_LISTENER_ENDPOINT = "Listener";
+
+    public static final String COLON = ":";
+    public static final String DOLLAR = "$";
 
     private HttpConstants() {
     }

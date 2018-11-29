@@ -26,6 +26,5 @@ function myFunc() {
 
 channel<string> lastChan;
 
-@final
 @readonly
 channel<string> annoChan;

@@ -41,17 +41,20 @@ service<http:Service> contentBasedRouting bind { port: 9090 } {
                 //Use the native function 'respond' to send the client response back to the caller.
                 match clientResponse {
                     http:Response respone => {
-                        outboundEP->respond(respone) but { error e =>
-                            log:printError("Error sending response", err = e) };
+                        var result = outboundEP->respond(res);
+                        if (result is error) {
+                           log:printError("Error sending response", err = result);
+                        }
                     }
                     error conError => {
                         error err = {};
                         http:Response res = new;
                         res.statusCode = 500;
                         res.setPayload(err.message);
-                        outboundEP->respond(res) but { error e =>
-                            log:printError("Error sending response", err = e) };
-                    }
+                        var result = outboundEP->respond(res);
+                        if (result is error) {
+                           log:printError("Error sending response", err = result);
+                        }
                     () => {}
                 }
 
@@ -60,8 +63,11 @@ service<http:Service> contentBasedRouting bind { port: 9090 } {
                 http:Response res = new;
                 res.statusCode = 500;
                 res.setPayload(untaint err.message);
-                outboundEP->respond(res) but { error e =>
-                    log:printError("Error sending response", err = e) };
+
+                var result = outboundEP->respond(res);
+                if (result is error) {
+                   log:printError("Error sending response", err = result);
+                }
             }
         }
     }

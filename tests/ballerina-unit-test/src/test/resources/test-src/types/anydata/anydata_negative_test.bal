@@ -15,12 +15,12 @@
 // under the License.
 
 type Foo record {
-    int ra;
+    int ra = 0;
     any...
 };
 
 type Bar object {
-    int oa;
+    int oa = 0;
 };
 
 type Employee record {
@@ -52,40 +52,40 @@ function testInvalidAssignmentsWithLiterals() {
 function testInvalidMapAssignments() {
     anydata ad;
 
-    map m;
+    map<any> m = {};
     ad = m;
 
-    map<any> m2;
+    map<any> m2 = {};
     ad = m2;
 
-    map<Bar> mo;
+    map<Bar> mo = {};
     ad = mo;
 
-    map<function (string) returns boolean> mfp;
+    map<function (string) returns boolean> mfp = {};
     ad = mfp;
 
-    map<typedesc> mtd;
+    map<typedesc> mtd = {};
     ad = mtd;
 
-    map<stream> mst;
+    map<stream> mst = {};
     ad = mst;
 
-    map<any[]> mar;
+    map<any[]> mar = {};
     ad = mar;
 
-    map<map<map>> mnested;
+    map<map<map>> mnested = {};
     ad = mnested;
 
-    map<Foo> mr;
+    map<Foo> mr = {};
     ad = mr;
 
-    map<(DataType, string)> mtup;
+    map<(DataType, string)> mtup = {};
     ad = mtup;
 
-    map<((DataType, string), Bar)> mtup2;
+    map<((DataType, string), Bar)> mtup2 = {};
     ad = mtup2;
 
-    map<DataType> mu;
+    map<DataType> mu = {};
     ad = mu;
 }
 

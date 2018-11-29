@@ -5,21 +5,21 @@ type ResultCount record {
 };
 
 function testXATransactonSuccess() returns (int, int) {
-    endpoint h2:Client testDB1 {
+    h2:Client testDB1 = new({
         path: "./target/H2_1/",
         name: "TestDB1",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1, isXA: true }
-    };
+    });
 
-    endpoint h2:Client testDB2 {
+    h2:Client testDB2 = new({
         path: "./target/H2_2/",
         name: "TestDB2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1, isXA: true }
-    };
+    });
 
     transaction {
         _ = testDB1->update("insert into Customers (customerId, name, creditLimit, country)
@@ -30,38 +30,33 @@ function testXATransactonSuccess() returns (int, int) {
     int count1;
     int count2;
     //check whether update action is performed
-    table dt = check testDB1->select("Select COUNT(*) as countval from Customers where customerId = 1 ", ResultCount);
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count1 = rs.COUNTVAL;
-    }
+    var dt1 = testDB1->select("Select COUNT(*) as countval from Customers where customerId = 1 ", ResultCount);
+    count1 = getTableCountValColumn(dt1);
 
-    dt = check testDB2->select("Select COUNT(*) as countval from Salary where id = 1", ResultCount);
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count2 = rs.COUNTVAL;
-    }
+    var dt2 = testDB2->select("Select COUNT(*) as countval from Salary where id = 1", ResultCount);
+    count2 = getTableCountValColumn(dt2);
+
     testDB1.stop();
     testDB2.stop();
     return (count1, count2);
 }
 
 function testXATransactonSuccessWithDataSource() returns (int, int) {
-    endpoint h2:Client testDB1 {
+    h2:Client testDB1 = new({
         path: "./target/H2_1/",
         name: "TestDB1",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1, isXA: true, dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" }
-    };
+    });
 
-    endpoint h2:Client testDB2 {
+    h2:Client testDB2 = new({
         path: "./target/H2_2/",
         name: "TestDB2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1, isXA: true, dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" }
-    };
+    });
 
     transaction {
         _ = testDB1->update("insert into Customers (customerId, name, creditLimit, country)
@@ -72,38 +67,32 @@ function testXATransactonSuccessWithDataSource() returns (int, int) {
     int count1;
     int count2;
     //check whether update action is performed
-    table dt = check testDB1->select("Select COUNT(*) as countval from Customers where customerId = 10 ", ResultCount);
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count1 = rs.COUNTVAL;
-    }
+    var dt1 = testDB1->select("Select COUNT(*) as countval from Customers where customerId = 10 ", ResultCount);
+    count1 = getTableCountValColumn(dt1);
 
-    dt = check testDB2->select("Select COUNT(*) as countval from Salary where id = 10", ResultCount);
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count2 = rs.COUNTVAL;
-    }
+    var dt2 = testDB2->select("Select COUNT(*) as countval from Salary where id = 10", ResultCount);
+    count2 = getTableCountValColumn(dt2);
     testDB1.stop();
     testDB2.stop();
     return (count1, count2);
 }
 
 function testXATransactonSuccessWithH2Client() returns (int, int) {
-    endpoint h2:Client testDB1 {
+    h2:Client testDB1 = new({
         path: "./target/H2_1/",
         name: "TestDB1",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1, isXA: true, dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" }
-    };
+    });
 
-    endpoint h2:Client testDB2 {
+    h2:Client testDB2 = new({
         path: "./target/H2_2/",
         name: "TestDB2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1, isXA: true, dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" }
-    };
+    });
 
     transaction {
         _ = testDB1->update("insert into Customers (customerId, name, creditLimit, country)
@@ -114,17 +103,11 @@ function testXATransactonSuccessWithH2Client() returns (int, int) {
     int count1;
     int count2;
     //check whether update action is performed
-    table dt = check testDB1->select("Select COUNT(*) as countval from Customers where customerId = 11", ResultCount);
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count1 = rs.COUNTVAL;
-    }
+    var dt1 = testDB1->select("Select COUNT(*) as countval from Customers where customerId = 11", ResultCount);
+    count1 = getTableCountValColumn(dt1);
 
-    dt = check testDB2->select("Select COUNT(*) as countval from Salary where id = 11", ResultCount);
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count2 = rs.COUNTVAL;
-    }
+    var dt2 = testDB2->select("Select COUNT(*) as countval from Salary where id = 11", ResultCount);
+    count2 = getTableCountValColumn(dt2);
     testDB1.stop();
     testDB2.stop();
     return (count1, count2);
@@ -132,46 +115,39 @@ function testXATransactonSuccessWithH2Client() returns (int, int) {
 
 function testXATransactonFailed1() returns (int, int) {
 
-    endpoint h2:Client testDB1 {
+    h2:Client testDB1 = new({
         path: "./target/H2_1/",
         name: "TestDB1",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1, isXA: true }
-    };
+    });
 
-    endpoint h2:Client testDB2 {
+    h2:Client testDB2 = new({
         path: "./target/H2_2/",
         name: "TestDB2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1, isXA: true }
-    };
+    });
 
     _ = trap testXATransactonFailed1Helper(testDB1, testDB2);
 
     int count1;
     int count2;
     //check whether update action is performed
-    table dt = check testDB1->select("Select COUNT(*) as countval from Customers where customerId = 2", ResultCount);
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count1 = rs.COUNTVAL;
-    }
+    var dt1 = testDB1->select("Select COUNT(*) as countval from Customers where customerId = 2", ResultCount);
+    count1 = getTableCountValColumn(dt1);
 
-    dt = check testDB2->select("Select COUNT(*) as countval from Salary where id = 2 ", ResultCount);
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count2 = rs.COUNTVAL;
-    }
+    var dt2 = testDB2->select("Select COUNT(*) as countval from Salary where id = 2 ", ResultCount);
+    count2 = getTableCountValColumn(dt2);
+
     testDB1.stop();
     testDB2.stop();
     return (count1, count2);
 }
 
-function testXATransactonFailed1Helper(h2:Client db1, h2:Client db2) {
-    endpoint h2:Client testDB1 = db1;
-    endpoint h2:Client testDB2 = db2;
+function testXATransactonFailed1Helper(h2:Client testDB1, h2:Client testDB2) {
     transaction {
         _ = testDB1->update("insert into Customers (customerId, name, creditLimit, country)
                                     values (2, 'John', 1000, 'UK')");
@@ -181,44 +157,35 @@ function testXATransactonFailed1Helper(h2:Client db1, h2:Client db2) {
 
 function testXATransactonFailed2() returns (int, int) {
 
-    endpoint h2:Client testDB1 {
+    h2:Client testDB1 = new({
         path: "./target/H2_1/",
         name: "TestDB1",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1, isXA: true }
-    };
+    });
 
-    endpoint h2:Client testDB2 {
+    h2:Client testDB2 = new({
         path: "./target/H2_2/",
         name: "TestDB2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1, isXA: true }
-    };
+    });
     _ = trap testXATransactonFailed2Helper(testDB1, testDB2);
     //check whether update action is performed
-    table dt = check testDB1->select("Select COUNT(*) as countval from Customers where customerId = 2", ResultCount);
-    int count1;
-    int count2;
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count1 = rs.COUNTVAL;
-    }
+    var dt1 = testDB1->select("Select COUNT(*) as countval from Customers where customerId = 2", ResultCount);
+    int count1 = getTableCountValColumn(dt1);
 
-    dt = check testDB2->select("Select COUNT(*) as countval from Salary where id = 2 ", ResultCount);
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count2 = rs.COUNTVAL;
-    }
+    var dt2 = testDB2->select("Select COUNT(*) as countval from Salary where id = 2 ", ResultCount);
+    int count2 = getTableCountValColumn(dt2);
+
     testDB1.stop();
     testDB2.stop();
     return (count1, count2);
 }
 
-function testXATransactonFailed2Helper(h2:Client db1, h2:Client db2) {
-    endpoint h2:Client testDB1 = db1;
-    endpoint h2:Client testDB2 = db2;
+function testXATransactonFailed2Helper(h2:Client testDB1, h2:Client testDB2) {
     transaction {
         _ = testDB1->update("insert into Customers (customerId, name, creditLimit, invalidColumn)
                                     values (2, 'John', 1000, 'UK')");
@@ -228,47 +195,37 @@ function testXATransactonFailed2Helper(h2:Client db1, h2:Client db2) {
 
 function testXATransactonRetry() returns (int, int) {
 
-    endpoint h2:Client testDB1 {
+    h2:Client testDB1 = new({
         path: "./target/H2_1/",
         name: "TestDB1",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1, isXA: true }
-    };
+    });
 
-    endpoint h2:Client testDB2 {
+    h2:Client testDB2 = new({
         path: "./target/H2_2/",
         name: "TestDB2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1, isXA: true }
-    };
+    });
 
     _ = trap testXATransactonRetryHelper(testDB1, testDB2);
     //check whether update action is performed
-    table dt = check testDB1->select("Select COUNT(*) as countval from Customers where customerId = 4",
+    var dt1 = testDB1->select("Select COUNT(*) as countval from Customers where customerId = 4",
         ResultCount);
-    int count1;
-    int count2;
+    int count1 = getTableCountValColumn(dt1);
 
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count1 = rs.COUNTVAL;
-    }
+    var dt2 = testDB2->select("Select COUNT(*) as countval from Salary where id = 4", ResultCount);
+    int count2 = getTableCountValColumn(dt2);
 
-    dt = check testDB2->select("Select COUNT(*) as countval from Salary where id = 4", ResultCount);
-    while (dt.hasNext()) {
-        ResultCount rs = check <ResultCount>dt.getNext();
-        count2 = rs.COUNTVAL;
-    }
     testDB1.stop();
     testDB2.stop();
     return (count1, count2);
 }
 
-function testXATransactonRetryHelper(h2:Client db1, h2:Client db2) {
-    endpoint h2:Client testDB1 = db1;
-    endpoint h2:Client testDB2 = db2;
+function testXATransactonRetryHelper(h2:Client testDB1, h2:Client testDB2) {
     int i = 0;
     transaction {
         if (i == 2) {
@@ -282,4 +239,18 @@ function testXATransactonRetryHelper(h2:Client db1, h2:Client db2) {
     } onretry {
         i = i + 1;
     }
+}
+
+function getTableCountValColumn(table<ResultCount>|error result) returns int {
+    int count = -1;
+    if (result is table<ResultCount>) {
+        while (result.hasNext()) {
+            var rs = result.getNext();
+            if (rs is ResultCount) {
+                count = rs.COUNTVAL;
+            }
+        }
+        return count;
+    }
+    return -1;
 }

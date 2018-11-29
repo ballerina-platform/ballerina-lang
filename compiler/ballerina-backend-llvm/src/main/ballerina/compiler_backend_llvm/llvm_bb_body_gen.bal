@@ -6,7 +6,10 @@ type BbBodyGenrator object {
     FuncGenrator parent;
     bir:BasicBlock bb;
 
-    new(builder, parent, bb) {
+    function __init(llvm:LLVMBuilderRef builder, FuncGenrator parent, bir:BasicBlock bb) {
+        self.builder = builder;
+        self.parent = parent;
+        self.bb = bb;
     }
 
     function genBasicBlockBody() returns BbTermGenrator {
@@ -19,10 +22,12 @@ type BbBodyGenrator object {
     }
 
     function genInstruction(bir:Instruction instruction) {
-        match instruction {
-            bir:Move moveIns => self.genMoveIns(moveIns);
-            bir:BinaryOp binaryIns => self.genBinaryOpIns(binaryIns);
-            bir:ConstantLoad constIns => self.genConstantLoadIns(constIns);
+        if (instruction is bir:Move) {
+            self.genMoveIns(instruction);
+        } else if (instruction is bir:BinaryOp) {
+            self.genBinaryOpIns(instruction);
+        } else {
+            self.genConstantLoadIns(instruction);
         }
     }
 
@@ -41,19 +46,28 @@ type BbBodyGenrator object {
         var kind = binaryIns.kind;
 
         BinaryInsGenrator binaryGen = new(self.builder, lhsTmpName, lhsRef, rhsOp1, rhsOp2);
-        match kind {
-            bir:ADD => binaryGen.genAdd();
-            bir:DIV => binaryGen.genDiv();
-            bir:EQUAL => binaryGen.genEqual();
-            bir:GREATER_EQUAL => binaryGen.genGreaterEqual();
-            bir:GREATER_THAN => binaryGen.genGreaterThan();
-            bir:LESS_EQUAL => binaryGen.genLessEqual();
-            bir:LESS_THAN => binaryGen.genLessThan();
-            bir:MUL => binaryGen.genMul();
-            bir:NOT_EQUAL => binaryGen.genNotEqual();
-            bir:SUB => binaryGen.genSub();
-        }
 
+        if (kind is bir:ADD) {
+            binaryGen.genAdd();
+        } else if (kind is bir:DIV) {
+            binaryGen.genDiv();
+        } else if (kind is bir:EQUAL) {
+            binaryGen.genEqual();
+        } else if (kind is bir:GREATER_EQUAL) {
+            binaryGen.genGreaterEqual();
+        } else if (kind is bir:GREATER_THAN) {
+            binaryGen.genGreaterThan();
+        } else if (kind is bir:LESS_EQUAL) {
+            binaryGen.genLessEqual();
+        } else if (kind is bir:LESS_THAN) {
+            binaryGen.genLessThan();
+        } else if (kind is bir:MUL) {
+            binaryGen.genMul();
+        } else if (kind is bir:NOT_EQUAL) {
+            binaryGen.genNotEqual();
+        } else {
+            binaryGen.genSub();
+        }
     }
 
     function genConstantLoadIns(bir:ConstantLoad constLoad) {
@@ -65,22 +79,22 @@ type BbBodyGenrator object {
 };
 
 function findBbRefById(map<BbTermGenrator> bbGenrators, string id) returns llvm:LLVMBasicBlockRef {
-    match bbGenrators[id] {
-        BbTermGenrator foundBB => return foundBB.bbRef;
-        () => {
-            error err = error("bb '" + id + "' dosn't exist");
-            panic err;
-        }
+    var result = bbGenrators[id];
+    if (result is BbTermGenrator) {
+        return result.bbRef;
+    } else {
+        error err = error("bb '" + id + "' dosn't exist");
+        panic err;
     }
 }
 
 function findFuncRefByName(map<FuncGenrator> funcGenrators, bir:Name name) returns llvm:LLVMValueRef {
-    match funcGenrators[name.value] {
-        FuncGenrator foundFunc => return foundFunc.funcRef;
-        any => {
-            error err = error("function '" + name.value + "' dosn't exist");
-            panic err;
-        }
+    var result = funcGenrators[name.value];
+    if (result is FuncGenrator) {
+            return result.funcRef;
+    } else {
+        error err = error("function '" + name.value + "' dosn't exist");
+        panic err;
     }
 }
 

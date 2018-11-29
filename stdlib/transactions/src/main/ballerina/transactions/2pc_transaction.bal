@@ -30,8 +30,10 @@ type TwoPhaseCommitTransaction object {
     TransactionState state = TXN_STATE_ACTIVE;
     private boolean possibleMixedOutcome = false;
 
-    new(transactionId, transactionBlockId, coordinationType = "2pc") {
-
+    function __init(string transactionId, int transactionBlockId, string coordinationType = "2pc") {
+        self.transactionId = transactionId;
+        self.transactionBlockId = transactionBlockId;
+        self.coordinationType = coordinationType;
     }
 
     // This function will be called by the initiator
@@ -154,7 +156,7 @@ type TwoPhaseCommitTransaction object {
             results[results.length()] = f;
         }
         foreach f in results {
-            ((PrepareResult|error)?, Participant) r = await f;
+            ((PrepareResult|error)?, Participant) r = wait f;
             var (result, participant) = r;
             string participantId = participant.participantId;
             if (result is PrepareResult) {
@@ -203,7 +205,7 @@ type TwoPhaseCommitTransaction object {
 
         }
         foreach f in results {
-            (NotifyResult|error)? result = await f;
+            (NotifyResult|error)? result = wait f;
             if (result is error) {
                 notifyResult = result;
             }

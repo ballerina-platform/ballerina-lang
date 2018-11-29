@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.bre.bvm.VarLock;
 import org.ballerinalang.bre.vm.BVM;
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BJSONType;
@@ -25,6 +26,7 @@ import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.Flags;
 import org.ballerinalang.model.util.JsonGenerator;
@@ -44,6 +46,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -67,6 +70,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
     private BType type = BTypes.typeMap;
     private HashMap<String, Object> nativeData = new HashMap<>();
     private volatile BVM.FreezeStatus freezeStatus = new BVM.FreezeStatus(BVM.FreezeStatus.State.UNFROZEN);
+    private ConcurrentHashMap<String, VarLock> lockMap = new ConcurrentHashMap();
 
     public BMap() {
         map =  new LinkedHashMap<>();
@@ -351,8 +355,10 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
         if (type.getTag() == TypeTags.JSON_TAG && ((BJSONType) type).getConstrainedType() != null) {
             this.stamp(((BJSONType) type).getConstrainedType());
         } else if (type.getTag() == TypeTags.MAP_TAG) {
-            for (Object mapEntry : this.values()) {
-                ((BValue) mapEntry).stamp(((BMapType) type).getConstrainedType());
+            for (Object value : this.values()) {
+                if (value != null) {
+                    ((BValue) value).stamp(((BMapType) type).getConstrainedType());
+                }
             }
         } else if (type.getTag() == TypeTags.RECORD_TYPE_TAG) {
             Map<String, BType> targetTypeField = new HashMap<>();
@@ -364,10 +370,18 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
 
             for (Map.Entry valueEntry : this.getMap().entrySet()) {
                 String fieldName = valueEntry.getKey().toString();
-                ((BValue) valueEntry.getValue()).stamp(targetTypeField.getOrDefault(fieldName, restFieldType));
+                if ((valueEntry.getValue()) != null) {
+                    ((BValue) valueEntry.getValue()).stamp(targetTypeField.getOrDefault(fieldName, restFieldType));
+                }
             }
         } else if (type.getTag() == TypeTags.UNION_TAG) {
-            return;
+            for (BType memberType : ((BUnionType) type).getMemberTypes()) {
+                if (BVM.checkIsLikeType(this, memberType)) {
+                    this.stamp(memberType);
+                    type = memberType;
+                    break;
+                }
+            }
         }
 
         this.type = type;
@@ -469,6 +483,17 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
      */
     public HashMap<String, Object> getNativeData() {
         return nativeData;
+    }
+
+    /**
+     * Returns a variable lock for the given field.
+     *
+     * @param fieldName field of the map that need to be locked
+     * @return VarLock for the given field
+     */
+    public VarLock getFieldLock(String fieldName) {
+        lockMap.putIfAbsent(fieldName, new VarLock());
+        return lockMap.get(fieldName);
     }
 
     /**

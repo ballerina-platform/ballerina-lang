@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.bre.vm;
 
-import org.ballerinalang.bre.bvm.BLangScheduler;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.bre.vm.Strand.State;
@@ -36,10 +35,11 @@ import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.codegen.ResourceInfo;
+import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.observability.ObserverContext;
 import org.ballerinalang.util.program.BLangVMUtils;
+import org.ballerinalang.util.transactions.LocalTransactionInfo;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -62,6 +62,15 @@ public class BVMExecutor {
     }
 
     /**
+     * This will invoke package start functions.
+     *
+     * @param programFile to be invoked.
+     */
+    public static void stopProgramFile(ProgramFile programFile) {
+        invokePackageStopFunctions(programFile);
+    }
+
+    /**
      * Execution API to execute program file starting from the given callable unit.
      * this will call package init and start functions as well.
      *
@@ -80,7 +89,7 @@ public class BVMExecutor {
         initProgramFile(programFile);
 //        new BalxEmitter().emit(programFile);
         BValue[] result = new BValue[]{execute(programFile, functionInfo, args, null, true)};
-        BLangScheduler.waitForWorkerCompletion();
+        BVMScheduler.waitForStrandCompletion();
         return result;
     }
 
@@ -100,7 +109,6 @@ public class BVMExecutor {
                     providedArgNo + ".");
         }
         BValue[] result = new BValue[]{execute(programFile, functionInfo, args, null, true)};
-        BLangScheduler.waitForWorkerCompletion();
         return result;
     }
 
@@ -112,33 +120,28 @@ public class BVMExecutor {
      * @param responseCallback  to be used for notifications
      * @param properties        to be passed in the context
      * @param observerContext   to be used
+     * @param serviceInfo       to be used
      * @param args              to be passed to the resource
      */
-    public static void executeResource(ProgramFile programFile, ResourceInfo resourceInfo,
+    public static void executeResource(ProgramFile programFile, FunctionInfo resourceInfo,
                                        CallableUnitCallback responseCallback, Map<String, Object> properties,
-                                       ObserverContext observerContext, BValue... args) {
-        Map<String, Object> globalProps = new HashMap<>();
-        if (properties != null) {
-            //TODO fix - rajith
-//            Object interruptible = properties.get(Constants.IS_INTERRUPTIBLE);
-//            if (interruptible != null && (boolean) interruptible) {
-//                String stateId = UUID.randomUUID().toString();
-//                properties.put(Constants.STATE_ID, stateId);
-//                RuntimeStates.add(new State(context, stateId));
-//                context.interruptible = true;
-//            }
-            globalProps.putAll(properties);
-            if (properties.get(Constants.GLOBAL_TRANSACTION_ID) != null) {
-//                context.setLocalTransactionInfo(new LocalTransactionInfo(
-//                        properties.get(Constants.GLOBAL_TRANSACTION_ID).toString(),
-//                        properties.get(Constants.TRANSACTION_URL).toString(), "2pc"));
-            }
+                                       ObserverContext observerContext, ServiceInfo serviceInfo, BValue... args) {
+        if (properties == null) {
+            properties = new HashMap<>();
         }
 
         StrandResourceCallback strandCallback = new StrandResourceCallback(null, responseCallback);
-        Strand strand = new Strand(programFile, properties, strandCallback);
+        Strand strand = new Strand(programFile, resourceInfo.getName(), properties, strandCallback, null);
 
-        BLangVMUtils.setServiceInfo(strand, resourceInfo.getServiceInfo());
+        BLangVMUtils.setGlobalTransactionEnabledStatus(strand);
+
+        if (strand.globalProps.get(Constants.GLOBAL_TRANSACTION_ID) != null) {
+            strand.setLocalTransactionInfo(new LocalTransactionInfo(
+                    properties.get(Constants.GLOBAL_TRANSACTION_ID).toString(),
+                    properties.get(Constants.TRANSACTION_URL).toString(), "2pc"));
+        }
+
+        BLangVMUtils.setServiceInfo(strand, serviceInfo);
 
         StackFrame idf = new StackFrame(resourceInfo.getPackageInfo(), resourceInfo,
                 resourceInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), -1);
@@ -152,8 +155,14 @@ public class BVMExecutor {
 
     private static BValue execute(ProgramFile programFile, CallableUnitInfo callableInfo,
                                   BValue[] args, Map<String, Object> properties, boolean waitForResponse) {
+        if (properties == null) {
+            properties = new HashMap<>();
+        }
+
         StrandWaitCallback strandCallback = new StrandWaitCallback(callableInfo.getRetParamTypes()[0]);
-        Strand strand = new Strand(programFile, properties, strandCallback);
+        Strand strand = new Strand(programFile, callableInfo.getName(), properties, strandCallback,  null);
+
+        BLangVMUtils.setGlobalTransactionEnabledStatus(strand);
 
         StackFrame idf = new StackFrame(callableInfo.getPackageInfo(), callableInfo,
                 callableInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), -1);
@@ -171,7 +180,6 @@ public class BVMExecutor {
         }
 
         BValue result = populateReturnData(strandCallback, callableInfo);
-        BVMScheduler.waitForStrandCompletion();
         return result;
     }
 
@@ -258,6 +266,18 @@ public class BVMExecutor {
     private static void invokePackageStartFunctions(ProgramFile programFile) {
         for (PackageInfo info : programFile.getPackageInfoEntries()) {
             execute(programFile, info.getStartFunctionInfo(), new BValue[0], null, true);
+        }
+    }
+
+    /**
+     * This will invoke package start functions, this should be invoked after
+     * invoking "invokePackageInitFunctions".
+     *
+     * @param programFile to be invoked.
+     */
+    private static void invokePackageStopFunctions(ProgramFile programFile) {
+        for (PackageInfo info : programFile.getPackageInfoEntries()) {
+            execute(programFile, info.getStopFunctionInfo(), new BValue[0], null, true);
         }
     }
 }

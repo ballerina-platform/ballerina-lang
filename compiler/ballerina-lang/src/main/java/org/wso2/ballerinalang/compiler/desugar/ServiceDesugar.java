@@ -39,6 +39,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -67,6 +68,7 @@ public class ServiceDesugar {
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
     private final Names names;
+    private HttpFiltersDesugar httpFiltersDesugar;
 
     public static ServiceDesugar getInstance(CompilerContext context) {
         ServiceDesugar desugar = context.get(SERVICE_DESUGAR_KEY);
@@ -82,6 +84,7 @@ public class ServiceDesugar {
         this.symTable = SymbolTable.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.names = Names.getInstance(context);
+        this.httpFiltersDesugar = HttpFiltersDesugar.getInstance(context);
     }
 
     void rewriteListeners(List<BLangSimpleVariable> variables, SymbolEnv env) {
@@ -110,17 +113,23 @@ public class ServiceDesugar {
                 .lookupMemberSymbol(pos, ((BObjectTypeSymbol) variable.type.tsymbol).methodScope, env, functionName,
                         SymTag.INVOKABLE);
 
+        BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(pos, variable.symbol);
+
         // Create method invocation
-        addMethodInvocation(pos, methodInvocationSymbol, Collections.emptyList(), lifeCycleFunction.body);
+        addMethodInvocation(pos, varRef, methodInvocationSymbol, Collections.emptyList(), lifeCycleFunction.body);
     }
 
-    BLangBlockStmt rewriteServices(List<BLangService> services, SymbolEnv env) {
+    void rewriteServiceAttachments(BLangBlockStmt serviceAttachments, SymbolEnv env) {
+        ASTBuilderUtil.appendStatements(serviceAttachments, env.enclPkg.initFunction.body);
+    }
+
+    BLangBlockStmt rewriteServiceVariables(List<BLangService> services, SymbolEnv env) {
         BLangBlockStmt attachmentsBlock = (BLangBlockStmt) TreeBuilder.createBlockNode();
-        services.forEach(service -> rewriteService(service, env, attachmentsBlock));
+        services.forEach(service -> rewriteServiceVariable(service, env, attachmentsBlock));
         return attachmentsBlock;
     }
 
-    void rewriteService(BLangService service, SymbolEnv env, BLangBlockStmt attachments) {
+    void rewriteServiceVariable(BLangService service, SymbolEnv env, BLangBlockStmt attachments) {
         // service x on y { ... }
         //
         // after desugar :
@@ -128,6 +137,17 @@ public class ServiceDesugar {
         //      (globalVar)                     ->      service x = service { ... };
         //      (init)                          ->      y.__attach(x, {});
         final DiagnosticPos pos = service.pos;
+
+        //      (globalVar)         ->      service x = service { ... };
+        final BLangServiceConstructorExpr serviceConstructor = ASTBuilderUtil.createServiceConstructor(service);
+        BLangSimpleVariable serviceVar = ASTBuilderUtil
+                .createVariable(pos, service.name.value, symTable.anyServiceType, serviceConstructor, null);
+        ASTBuilderUtil.defineVariable(serviceVar, env.enclPkg.symbol, names);
+        env.enclPkg.globalVars.add(serviceVar);
+
+        if (service.attachExpr == null) {
+            return;
+        }
 
         //      if y is anonymous   ->      y = y(expr)
         BLangSimpleVarRef listenerVarRef;
@@ -145,13 +165,6 @@ public class ServiceDesugar {
         }
         service.listenerName = listenerVarRef.variableName.value;
 
-        //      (globalVar)         ->      service x = service { ... };
-        final BLangServiceConstructorExpr serviceConstructor = ASTBuilderUtil.createServiceConstructor(service);
-        BLangSimpleVariable serviceVar = ASTBuilderUtil
-                .createVariable(pos, service.name.value, symTable.anyServiceType, serviceConstructor, null);
-        ASTBuilderUtil.defineVariable(serviceVar, env.enclPkg.symbol, names);
-        env.enclPkg.globalVars.add(serviceVar);
-
         //      (.<init>)              ->      y.__attach(x, {});
         // Find correct symbol.
         final Name functionName = names.fromString(
@@ -165,14 +178,15 @@ public class ServiceDesugar {
         args.add(ASTBuilderUtil.createVariableRef(pos, serviceVar.symbol));
         args.add(ASTBuilderUtil.createEmptyRecordLiteral(pos, symTable.mapType));
 
-        addMethodInvocation(pos, methodInvocationSymbol, args, attachments);
+        addMethodInvocation(pos, listenerVarRef, methodInvocationSymbol, args, attachments);
     }
 
-    void addMethodInvocation(DiagnosticPos pos, BInvokableSymbol methodInvocationSymbol, List<BLangExpression> args,
-            BLangBlockStmt body) {
+    void addMethodInvocation(DiagnosticPos pos, BLangSimpleVarRef varRef, BInvokableSymbol methodInvocationSymbol,
+            List<BLangExpression> args, BLangBlockStmt body) {
         // Create method invocation
         final BLangInvocation methodInvocation = ASTBuilderUtil
                 .createInvocationExprForMethod(pos, methodInvocationSymbol, args, symResolver);
+        methodInvocation.expr = varRef;
 
         BLangExpression rhsExpr = methodInvocation;
         // Add optional check.
@@ -191,7 +205,13 @@ public class ServiceDesugar {
         ASTBuilderUtil.appendStatement(assignmentStmt, body);
     }
 
-    void rewriteAttachments(BLangBlockStmt serviceAttachments, SymbolEnv env) {
-        ASTBuilderUtil.appendStatements(serviceAttachments, env.enclPkg.initFunction.body);
+    void engageCustomServiceDesugar(BLangService service, SymbolEnv env) {
+        final BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) service.serviceTypeDefinition.typeNode;
+        objectTypeNode.functions.stream().filter(fun -> Symbols.isFlagOn(fun.symbol.flags, Flags.RESOURCE))
+                .forEach(func -> engageCustomResourceDesugar(service, func, env));
+    }
+
+    private void engageCustomResourceDesugar(BLangService service, BLangFunction functionNode, SymbolEnv env) {
+        httpFiltersDesugar.invokeFilters(service, functionNode, env);
     }
 }

@@ -58,6 +58,7 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ENDPOINT_CO
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.SERVICE_ENDPOINT_CONFIG_NAME;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_HTTP_ENDPOINT;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERVICE_LISTENER;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERVICE_NAME;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERVICE_REGISTRY;
 
@@ -70,7 +71,8 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERV
 @BallerinaFunction(
         orgName = "ballerina", packageName = "websub",
         functionName = "retrieveSubscriptionParameters",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener", structPackage = WEBSUB_PACKAGE),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = WEBSUB_SERVICE_LISTENER,
+                structPackage = WEBSUB_PACKAGE),
         returnType = {@ReturnType(type = TypeKind.ARRAY)}
 )
 public class RetrieveSubscriptionParameters extends BlockingNativeCallableUnit {
@@ -152,10 +154,9 @@ public class RetrieveSubscriptionParameters extends BlockingNativeCallableUnit {
                     callback = webSubHttpService.getBasePath();
                     Struct serviceEndpointConfig =
                             serviceEndpoint.getRefField(SERVICE_ENDPOINT_CONFIG_NAME).getStructValue();
-                    if (!serviceEndpointConfig.getStringField(ENDPOINT_CONFIG_HOST).isEmpty()
-                            && serviceEndpointConfig.getIntField(ENDPOINT_CONFIG_PORT) != 0) {
-                        callback = serviceEndpointConfig.getStringField(ENDPOINT_CONFIG_HOST) + ":"
-                                + serviceEndpointConfig.getIntField(ENDPOINT_CONFIG_PORT) + callback;
+                    long port = serviceEndpoint.getIntField(ENDPOINT_CONFIG_PORT);
+                    if (!serviceEndpointConfig.getStringField(ENDPOINT_CONFIG_HOST).isEmpty() && port != 0) {
+                        callback = serviceEndpointConfig.getStringField(ENDPOINT_CONFIG_HOST) + ":" + port + callback;
                     } else {
                         callback = ((ServerConnector) serviceEndpoint.getNativeData(HTTP_SERVER_CONNECTOR))
                                 .getConnectorID() + callback;

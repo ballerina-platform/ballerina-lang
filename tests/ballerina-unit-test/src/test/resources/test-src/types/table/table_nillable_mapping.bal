@@ -103,13 +103,13 @@ type ResultMapNillableTypeNonNillableElements record {
 
 function testMappingToNillableTypeFields() returns (int?, int?, float?,
             float?, boolean?, string?, float?, float?, float?, int?, int?, string?, byte[]?) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     var dt = testDB->select("SELECT int_type, long_type, float_type, double_type,
     boolean_type, string_type, numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type,
@@ -156,13 +156,13 @@ function testMappingToNillableTypeFields() returns (int?, int?, float?,
 }
 
 function testMappingToNillableTypeFieldsBlob() returns (byte[]?) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
     byte[]? blob_type = ();
     transaction {
         var dt = testDB->select("SELECT blob_type from DataTypeTableNillableBlob where
@@ -182,13 +182,13 @@ function testMappingToNillableTypeFieldsBlob() returns (byte[]?) {
 
 function testMappingDatesToNillableTimeType() returns (int, int, int,
             int, int, int, int, int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     int dateInserted = -1;
     int dateRetrieved = -1;
@@ -227,10 +227,10 @@ function testMappingDatesToNillableTimeType() returns (int, int, int,
         while (dt.hasNext()) {
             var rs = <ResultDatesWithNillableTimeType>dt.getNext();
             if (rs is ResultDatesWithNillableTimeType) {
-                dateRetrieved = rs.DATE_TYPE.time but { () => -1 };
-                timeRetrieved = rs.TIME_TYPE.time but { () => -1 };
-                timestampRetrieved = rs.TIMESTAMP_TYPE.time but { () => -1 };
-                datetimeRetrieved = rs.DATETIME_TYPE.time but { () => -1 };
+                dateRetrieved = rs.DATE_TYPE.time ?: -1;
+                timeRetrieved = rs.TIME_TYPE.time ?: -1;
+                timestampRetrieved = rs.TIMESTAMP_TYPE.time but ?: -1;
+                datetimeRetrieved = rs.DATETIME_TYPE.time ?: -1;
             }
         }
     }
@@ -241,13 +241,13 @@ function testMappingDatesToNillableTimeType() returns (int, int, int,
 
 function testMappingDatesToNillableIntType(int datein, int timein,
                                            int timestampin) returns (int, int, int, int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     sql:Parameter para0 = { sqlType: sql:TYPE_INTEGER, value: 151 };
     sql:Parameter para1 = { sqlType: sql:TYPE_DATE, value: datein };
@@ -271,10 +271,10 @@ function testMappingDatesToNillableIntType(int datein, int timein,
         while (dt.hasNext()) {
             var rs = <ResultDatesWithNillableIntType>dt.getNext();
             if (rs is ResultDatesWithNillableIntType) {
-                time = rs.TIME_TYPE but { () => -1 };
-                date = rs.DATE_TYPE but { () => -1 };
-                timestamp = rs.TIMESTAMP_TYPE but { () => -1 };
-                datetime = rs.DATETIME_TYPE but { () => -1 };
+                time = rs.TIME_TYPE ?: -1;
+                date = rs.DATE_TYPE ?: -1;
+                timestamp = rs.TIMESTAMP_TYPE ?: -1;
+                datetime = rs.DATETIME_TYPE ?: -1;
             }
         }
     }
@@ -285,13 +285,13 @@ function testMappingDatesToNillableIntType(int datein, int timein,
 function testMappingDatesToNillableStringType(int datein, int
 timein, int timestampin) returns (string, string, string,
         string) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
     string date = "";
     string time = "";
     string timestamp = "";
@@ -314,10 +314,10 @@ timein, int timestampin) returns (string, string, string,
         while (dt.hasNext()) {
             var rs = <ResultDatesWithNillableStringType>dt.getNext();
             if (rs is ResultDatesWithNillableStringType) {
-                time = rs.TIME_TYPE but { () => "nil" };
-                date = rs.DATE_TYPE but { () => "nil" };
-                timestamp = rs.TIMESTAMP_TYPE but { () => "nil" };
-                datetime = rs.DATETIME_TYPE but { () => "nil" };
+                time = rs.TIME_TYPE ?: "nil";
+                date = rs.DATE_TYPE ?: "nil";
+                timestamp = rs.TIMESTAMP_TYPE ?: "nil";
+                datetime = rs.DATETIME_TYPE ?: "nil";
             }
         }
     }
@@ -328,13 +328,13 @@ timein, int timestampin) returns (string, string, string,
 function testMappingNullToNillableTypes() returns (int?, int?, float?,
             float?, boolean?, string?, float?, float?, float?, int?, int?, string?, byte[]?, time:Time?, time:Time?
             , time:Time?, time:Time?) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
     var dt = testDB->select("SELECT int_type, long_type, float_type, double_type,
     boolean_type, string_type, numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type,
     binary_type, date_type, time_type, datetime_type, timestamp_type from DataTypeTableNillable where
@@ -389,13 +389,13 @@ function testMappingNullToNillableTypes() returns (int?, int?, float?,
 }
 
 function testMappingNullToNillableTypesBlob() returns byte[]? {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
     var dt = testDB->select("SELECT blob_type from DataTypeTableNillableBlob where row_id=4",
         NillableBlob);
 
@@ -415,13 +415,13 @@ function testMappingNullToNillableTypesBlob() returns byte[]? {
 
 function testMapArrayToNonNillableTypeWithNillableElementType()
              returns (int?[], int?[], float?[], string?[], boolean?[]) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     var dt = testDB->select("SELECT int_array, long_array, float_array, boolean_array,
               string_array from ArrayTypes where row_id = 1", ResultMapNonNillableTypeNillableElements);
@@ -450,13 +450,13 @@ function testMapArrayToNonNillableTypeWithNillableElementType()
 
 function testMapArrayToNillableTypeWithNillableElementType() returns (
             int?[]?, int?[]?, float?[]?, string?[]?, boolean?[]?) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     var dt = testDB->select("SELECT int_array, long_array, float_array, boolean_array,
               string_array from ArrayTypes where row_id = 1", ResultMapNillable);
@@ -485,14 +485,13 @@ function testMapArrayToNillableTypeWithNillableElementType() returns (
 
 function testMapArrayToNillableTypeWithNonNillableElementType()
              returns (int[]?, int[]?, float[]?, string[]?, boolean[]?) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
-
+    });
     var dt = testDB->select("SELECT int_array, long_array, float_array, boolean_array,
               string_array from ArrayTypes where row_id = 1", ResultMapNillableTypeNonNillableElements);
 
@@ -520,13 +519,13 @@ function testMapArrayToNillableTypeWithNonNillableElementType()
 
 function testMapNillIncludedArrayNonNillableTypeWithNillableElementType(
              ) returns (int?[], int?[], float?[], string?[], boolean?[]) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     var dt = testDB->select("SELECT int_array, long_array, float_array, boolean_array,
               string_array from ArrayTypes where row_id = 2", ResultMapNonNillableTypeNillableElements);
@@ -555,13 +554,13 @@ function testMapNillIncludedArrayNonNillableTypeWithNillableElementType(
 
 function testMapNillIncludedArrayNillableTypeWithNillableElementType()
              returns (int?[]?, int?[]?, float?[]?, string?[]?, boolean?[]?) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     var dt = testDB->select("SELECT int_array, long_array, float_array, boolean_array,
               string_array from ArrayTypes where row_id = 2", ResultMapNillable);
@@ -590,13 +589,13 @@ function testMapNillIncludedArrayNillableTypeWithNillableElementType()
 
 function testMapNilArrayToNillableTypeWithNonNillableElementTypes()
              returns (int[]?, int[]?, float[]?, string[]?, boolean[]?) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     var dt = testDB->select("SELECT int_array, long_array, float_array, boolean_array,
               string_array from ArrayTypes where row_id = 3", ResultMapNillableTypeNonNillableElements);
@@ -625,13 +624,13 @@ function testMapNilArrayToNillableTypeWithNonNillableElementTypes()
 
 function testMapNilArrayToNillableTypeWithNillableElementTypes()
              returns (int?[]?, int?[]?, float?[]?, string?[]?, boolean?[]?) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     var dt = testDB->select("SELECT int_array, long_array, float_array, boolean_array,
               string_array from ArrayTypes where row_id = 3", ResultMapNillable);
@@ -660,13 +659,13 @@ function testMapNilArrayToNillableTypeWithNillableElementTypes()
 
 function testMapNillElementsOnlyArray()
              returns (int?[], int?[], float?[], string?[], boolean?[]) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     var dt = testDB->select("SELECT int_array, long_array, float_array, boolean_array,
               string_array from ArrayTypes where row_id = 5", ResultMapNonNillableTypeNillableElements);

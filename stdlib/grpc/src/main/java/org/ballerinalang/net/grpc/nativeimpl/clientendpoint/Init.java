@@ -27,7 +27,6 @@ import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.GrpcConstants;
@@ -51,8 +50,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_CONNECTOR;
-import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_ENDPOINT_CONFIG;
 import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_ENDPOINT_TYPE;
+import static org.ballerinalang.net.grpc.GrpcConstants.ENDPOINT_URL;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
@@ -85,6 +84,8 @@ import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_HOST_NAME_VERI
         orgName = ORG_NAME,
         packageName = PROTOCOL_PACKAGE_GRPC,
         functionName = "init",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = CLIENT_ENDPOINT_TYPE,
+                structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         isPublic = true
 )
 public class Init extends BlockingNativeCallableUnit {
@@ -97,7 +98,7 @@ public class Init extends BlockingNativeCallableUnit {
         // Creating client endpoint with channel as native data.
         BMap<String, BValue> endpointConfigStruct = (BMap<String, BValue>) context.getRefArgument(1);
         Struct endpointConfig = BLangConnectorSPIUtil.toStruct(endpointConfigStruct);
-        String urlString = endpointConfig.getStringField(GrpcConstants.CLIENT_ENDPOINT_URL);
+        String urlString = context.getStringArgument(0);
         HttpConnectionManager connectionManager = HttpConnectionManager.getInstance();
         URL url;
         try {
@@ -124,7 +125,7 @@ public class Init extends BlockingNativeCallableUnit {
                 senderConfiguration);
 
         clientEndpoint.addNativeData(CLIENT_CONNECTOR, clientConnector);
-        clientEndpoint.addNativeData(CLIENT_ENDPOINT_CONFIG, endpointConfig);
+        clientEndpoint.addNativeData(ENDPOINT_URL, urlString);
 
     }
 

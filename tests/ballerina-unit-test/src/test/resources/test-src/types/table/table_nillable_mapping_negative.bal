@@ -210,13 +210,13 @@ function testAssignNilToNonNillableTimeStamp() returns string {
 }
 
 function testAssignNilToNonNillableField(string field, typedesc recordType) returns string {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
     string dbTable;
     int rowId;
     if (field == "blob_type") {
@@ -341,13 +341,13 @@ function testAssignInvalidUnionArray2() returns string {
 }
 
 function testAssignToInvalidUnionField(string field) returns string {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     string dbTable;
     int rowId;
@@ -375,13 +375,13 @@ function testAssignToInvalidUnionField(string field) returns string {
 }
 
 function testAssignArrayToInvalidField(typedesc invalidType, int id) returns string {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     var dt = testDB->select("SELECT int_array, long_array, float_array, boolean_array,
               string_array from ArrayTypes where row_id = ?", invalidType, id);
@@ -399,13 +399,13 @@ function testAssignArrayToInvalidField(typedesc invalidType, int id) returns str
 }
 
 function testInvalidUnionForArrays(typedesc invalidUnion) returns string {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
     var dt = testDB->select("SELECT int_array from ArrayTypes where row_id = 1", invalidUnion);
     string message = "";
     if (dt is table) {

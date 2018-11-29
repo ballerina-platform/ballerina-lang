@@ -45,23 +45,23 @@
 //
 //# Failover caller actions which provides failover capabilities to the failover client endpoint.
 //#
-//# + serviceUri - The URL of the remote HTTP endpoint
+//# + url - The URL of the remote HTTP endpoint
 //# + config - The configurations of the client endpoint associated with this `Failover` instance
 //# + failoverInferredConfig - Configurations derived from `FailoverConfig`
 //# + succeededEndpointIndex - Index of the `CallerActions[]` array which given a successful response
 //public type FailoverActions object {
 //
-//    public string serviceUri;
+//    public string url;
 //    public ClientEndpointConfig config;
 //    public FailoverInferredConfig failoverInferredConfig;
 //    public int succeededEndpointIndex = 0;
 //
 //    # Failover caller actions which provides failover capabilities to an HTTP client endpoint.
 //    #
-//    # + serviceUri - The URL of the remote HTTP endpoint
+//    # + url - The URL of the remote HTTP endpoint
 //    # + config - The configurations of the client endpoint associated with this `Failover` instance
 //    # + failoverInferredConfig - Configurations derived from `FailoverConfig`
-//    public new (serviceUri, config, failoverInferredConfig) {}
+//    public new (url, config, failoverInferredConfig) {}
 //
 //    # The POST action implementation of the Failover Connector.
 //    #
