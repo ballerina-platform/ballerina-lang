@@ -1442,13 +1442,29 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangArrowFunction bLangArrowFunction) {
-        if (expType.tag != TypeTags.INVOKABLE) {
+        BType expectedType = expType;
+        if (expectedType.tag == TypeTags.UNION) {
+            BUnionType unionType = (BUnionType) expectedType;
+            BType invokableType = unionType.memberTypes.stream().filter(type -> type.tag == TypeTags.INVOKABLE)
+                    .collect( Collectors.collectingAndThen(Collectors.toList(), list -> {
+                        if (list.size() != 1) {
+                            return null;
+                        }
+                        return list.get(0);
+                    }
+            ));
+
+            if (invokableType != null) {
+                expectedType = invokableType;
+            }
+        }
+        if (expectedType.tag != TypeTags.INVOKABLE) {
             dlog.error(bLangArrowFunction.pos, DiagnosticCode.ARROW_EXPRESSION_CANNOT_INFER_TYPE_FROM_LHS);
             resultType = symTable.semanticError;
             return;
         }
 
-        BInvokableType expectedInvocation = (BInvokableType) this.expType;
+        BInvokableType expectedInvocation = (BInvokableType) expectedType;
         populateArrowExprParamTypes(bLangArrowFunction, expectedInvocation.paramTypes);
         bLangArrowFunction.expression.type = populateArrowExprReturn(bLangArrowFunction, expectedInvocation.retType);
         // if function return type is none, assign the inferred return type
