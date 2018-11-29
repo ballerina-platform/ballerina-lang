@@ -97,7 +97,7 @@ function testAnyToFuncPointerConversion_1() returns (int|error) {
                 return value;
             };
 
-    function (int , int ) returns (int) sumFunction = check <function (int , int ) returns (int)> anyFunc;
+    function (int , int ) returns (int) sumFunction = <function (int , int ) returns (int)> anyFunc;
     return sumFunction.call(3, 2);
 }
 
@@ -137,7 +137,7 @@ function testAnyToFuncPointerConversion_2() returns (int|error) {
                         return s.getAge();
                     };
 
-    function (Person) returns (int) personFunc = check <function (Person) returns (int)> anyFunc;
+    function (Person) returns (int) personFunc = <function (Person) returns (int)> anyFunc;
     Person p = new Person(23);
     return personFunc.call(p);
 }
