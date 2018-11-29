@@ -32,10 +32,12 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 
 import static io.netty.util.internal.StringUtil.LINE_FEED;
 import static org.ballerinalang.langserver.command.testgen.AnnotationConfigsProcessor.isRecordValueExists;
 import static org.ballerinalang.langserver.command.testgen.AnnotationConfigsProcessor.searchStringField;
+import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATOR;
 
 /**
  * To represent a Service template.
@@ -49,9 +51,10 @@ public class WSServiceTemplate extends AbstractTestTemplate {
     private final String testServiceFunctionName;
     private final String callbackServiceName;
 
-    public WSServiceTemplate(BLangPackage builtTestFile,
-                             List<? extends EndpointNode> globalEndpoints, BLangService service) {
-        super(builtTestFile);
+    public WSServiceTemplate(BLangPackage builtTestFile, BLangService service,
+                             List<? extends EndpointNode> globalEndpoints,
+                             BiConsumer<Integer, Integer> focusLineAcceptor) {
+        super(builtTestFile, focusLineAcceptor);
         String tempServiceUri = WS + DEFAULT_IP + ":" + DEFAULT_PORT;
         boolean isSecureTemp = false;
 
@@ -111,8 +114,9 @@ public class WSServiceTemplate extends AbstractTestTemplate {
         serviceOutput.put(PlaceHolder.OTHER.get("callbackServiceName"), callbackServiceName);
 
         //Append to root template
+        rendererOutput.setFocusLineAcceptor(testServiceFunctionName, focusLineAcceptor);
         rendererOutput.append(PlaceHolder.DECLARATIONS, getServiceUriDeclaration() + LINE_FEED);
-        rendererOutput.append(PlaceHolder.CONTENT, serviceOutput.getRenderedContent());
+        rendererOutput.append(PlaceHolder.CONTENT, LINE_SEPARATOR + serviceOutput.getRenderedContent());
     }
 
     private String getServiceUriDeclaration() {

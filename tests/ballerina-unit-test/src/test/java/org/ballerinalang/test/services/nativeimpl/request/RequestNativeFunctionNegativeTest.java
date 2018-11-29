@@ -240,7 +240,7 @@ public class RequestNativeFunctionNegativeTest {
         BMap<String, BValue> entityStruct =
                 (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(REQUEST_ENTITY_FIELD);
         HttpHeaders returnHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
-        Assert.assertNull(returnHeaders.get("Expect"));
+        Assert.assertNull(returnHeaders);
     }
 
     @Test

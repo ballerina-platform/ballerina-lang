@@ -1,0 +1,61 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Diagram for abstract_objects.bal renders properly 1`] = `
+<div>
+  Diagram Editor
+</div>
+`;
+
+exports[`Diagram for anonymous_functions.bal renders properly 1`] = `
+<div>
+  Diagram Editor
+</div>
+`;
+
+exports[`Diagram for anonymous_functions_test.bal renders properly 1`] = `
+<div>
+  Diagram Editor
+</div>
+`;
+
+exports[`Diagram for any_type.bal renders properly 1`] = `
+<div>
+  Diagram Editor
+</div>
+`;
+
+exports[`Diagram for any_type_test.bal renders properly 1`] = `
+<div>
+  Diagram Editor
+</div>
+`;
+
+exports[`Diagram for arrays.bal renders properly 1`] = `
+<div>
+  Diagram Editor
+</div>
+`;
+
+exports[`Diagram for arrays_test.bal renders properly 1`] = `
+<div>
+  Diagram Editor
+</div>
+`;
+
+exports[`Diagram for async.bal renders properly 1`] = `
+<div>
+  Diagram Editor
+</div>
+`;
+
+exports[`Diagram for async_test.bal renders properly 1`] = `
+<div>
+  Diagram Editor
+</div>
+`;
+
+exports[`Diagram for ballerina_to_swagger.bal renders properly 1`] = `
+<div>
+  Diagram Editor
+</div>
+`;

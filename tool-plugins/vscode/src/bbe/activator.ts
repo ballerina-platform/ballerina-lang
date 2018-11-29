@@ -21,7 +21,7 @@ import * as path from 'path';
 import { render } from './renderer';
 import { ExtendedLangClient } from '../core/extended-language-client';
 import { ballerinaExtInstance, BallerinaExtension } from '../core';
-import { WebViewRPCHandler } from '../utils';
+import { WebViewRPCHandler, WebViewMethod } from '../utils';
 
 let examplesPanel: WebviewPanel | undefined;
 
@@ -39,25 +39,11 @@ function showExamples(context: ExtensionContext, langClient: ExtendedLangClient)
             retainContextWhenHidden: true,
         }
     );
-    WebViewRPCHandler.create([
+    const remoteMethods: WebViewMethod[] = [
         {
-            methodName: 'getExamples',
-            handler: (args: any[]) => {
-                return langClient.fetchExamples();
-            }
-        }], 
-        examplesPanel.webview
-    );
-    const html = render(context, langClient);
-    if (examplesPanel && html) {
-        examplesPanel.webview.html = html;
-    }
-    
-    // Handle messages from the webview
-    examplesPanel.webview.onDidReceiveMessage(message => {
-        switch (message.command) {
-            case 'openExample':
-                const url = JSON.parse(message.url);
+            methodName: "openExample",
+            handler: (args: any[]): Thenable<any> => {
+                const url = args[0];
                 const ballerinaHome = ballerinaExtInstance.getBallerinaHome();
                 if (ballerinaHome) {
                     const folderPath = path.join(ballerinaHome, 'examples', url);
@@ -68,10 +54,15 @@ function showExamples(context: ExtensionContext, langClient: ExtendedLangClient)
                          window.showErrorMessage(err.message);
                      }); 
                 }
-                break;
-            default: 
+                return Promise.resolve();
+            }
         }
-    });
+    ];
+    WebViewRPCHandler.create(examplesPanel.webview, langClient, remoteMethods);
+    const html = render(context, langClient);
+    if (examplesPanel && html) {
+        examplesPanel.webview.html = html;
+    }
     examplesPanel.onDidDispose(() => {
         examplesPanel = undefined;
     });

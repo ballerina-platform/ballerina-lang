@@ -20,6 +20,9 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.BallerinaLanguageServer;
+import org.ballerinalang.langserver.BallerinaWorkspaceService;
+import org.ballerinalang.langserver.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.command.LSCommandExecutor;
 import org.ballerinalang.langserver.command.LSCommandExecutorException;
@@ -32,13 +35,15 @@ import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
+import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.MessageParams;
 import org.eclipse.lsp4j.MessageType;
+import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceEdit;
-import org.eclipse.lsp4j.services.LanguageClient;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
@@ -52,7 +57,9 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.BiConsumer;
 
+import static org.ballerinalang.langserver.BallerinaWorkspaceService.Experimental.SHOW_TEXT_DOCUMENT;
 import static org.ballerinalang.langserver.command.CommandUtil.getBLangNode;
 
 /**
@@ -157,7 +164,9 @@ public class CreateTestExecutor implements LSCommandExecutor {
         BLangPackage builtSourceFile = lsCompiler.getBLangPackage(context, docManager, false, null, false).getRight();
 
         // Generate test file and notify Client
-        LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient();
+        BallerinaLanguageServer ballerinaLanguageServer = context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY);
+        ExtendedLanguageClient client = ballerinaLanguageServer.getClient();
+        BallerinaWorkspaceService workspace = (BallerinaWorkspaceService) ballerinaLanguageServer.getWorkspaceService();
         try {
             if (builtSourceFile == null || builtSourceFile.diagCollector.hasErrors()) {
                 String message = "Test generation failed due to compilation errors!";
@@ -188,8 +197,17 @@ public class CreateTestExecutor implements LSCommandExecutor {
             // Generate test content edits
             String pkgRelativeSourceFilePath = testDirs.getLeft().relativize(filePath).toString();
             Pair<BLangNode, Object> bLangNodePair = getBLangNode(line, column, docUri, docManager, lsCompiler, context);
-            List<TextEdit> content = TestGenerator.generate(docManager, bLangNodePair, builtSourceFile,
-                                                            pkgRelativeSourceFilePath, testFile);
+
+            Position position = new Position(0, 0);
+            Range focus = new Range(position, position);
+            BiConsumer<Integer, Integer> focusLineAcceptor = (focusLine, incrementer) -> {
+                if (focusLine != null) {
+                    position.setLine(focusLine);
+                }
+                position.setLine(position.getLine() + incrementer);
+            };
+            List<TextEdit> content = TestGenerator.generate(docManager, bLangNodePair, focusLineAcceptor,
+                                                            builtSourceFile, pkgRelativeSourceFilePath, testFile);
 
             // Send edits
             VersionedTextDocumentIdentifier identifier = new VersionedTextDocumentIdentifier();
@@ -203,6 +221,10 @@ public class CreateTestExecutor implements LSCommandExecutor {
                 client.applyEdit(editParams);
                 String message = "Tests generated into the file:" + testFile.toString();
                 client.showMessage(new MessageParams(MessageType.Info, message));
+                if (workspace.getExperimentalClientCapabilities().get(SHOW_TEXT_DOCUMENT.getValue())) {
+                    Location location = new Location(identifier.getUri(), focus);
+                    client.showTextDocument(location);
+                }
             }
             return editParams;
         } catch (TestGeneratorException e) {

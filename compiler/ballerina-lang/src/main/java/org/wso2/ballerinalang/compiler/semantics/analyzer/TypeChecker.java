@@ -148,7 +148,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
@@ -472,6 +471,12 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private boolean isRecordLiteralCompatible(BRecordType bRecordType, BLangRecordLiteral recordLiteral) {
+        if (recordLiteral.getKeyValuePairs().isEmpty()) {
+            return bRecordType.getFields().stream().allMatch(
+                    // Check if the field is either an optional field or has an explicit default value set
+                    field -> Symbols.isOptional(field.symbol) || !Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED));
+        }
+
         for (BLangRecordKeyValue literalKeyValuePair : recordLiteral.getKeyValuePairs()) {
             boolean matched = false;
             for (BField field : bRecordType.getFields()) {
@@ -1417,7 +1422,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BType targetType = symResolver.resolveTypeNode(conversionExpr.typeNode, env);
         conversionExpr.targetType = targetType;
-        BType sourceType = checkExpr(conversionExpr.expr, env, symTable.noType);
+        BType expType = conversionExpr.expr.getKind() == NodeKind.RECORD_LITERAL_EXPR ? targetType : symTable.noType;
+        BType sourceType = checkExpr(conversionExpr.expr, env, expType);
 
         BSymbol symbol = symResolver.resolveTypeConversionOrAssertionOperator(sourceType, targetType);
 
@@ -1428,7 +1434,7 @@ public class TypeChecker extends BLangNodeVisitor {
             conversionExpr.conversionSymbol = conversionSym;
             actualType = conversionSym.type.getReturnType();
         }
-        resultType = types.checkType(conversionExpr, actualType, expType);
+        resultType = types.checkType(conversionExpr, actualType, this.expType);
     }
 
     @Override
@@ -1442,13 +1448,29 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangArrowFunction bLangArrowFunction) {
-        if (expType.tag != TypeTags.INVOKABLE) {
+        BType expectedType = expType;
+        if (expectedType.tag == TypeTags.UNION) {
+            BUnionType unionType = (BUnionType) expectedType;
+            BType invokableType = unionType.memberTypes.stream().filter(type -> type.tag == TypeTags.INVOKABLE)
+                    .collect(Collectors.collectingAndThen(Collectors.toList(), list -> {
+                                if (list.size() != 1) {
+                                    return null;
+                                }
+                                return list.get(0);
+                            }
+                    ));
+
+            if (invokableType != null) {
+                expectedType = invokableType;
+            }
+        }
+        if (expectedType.tag != TypeTags.INVOKABLE) {
             dlog.error(bLangArrowFunction.pos, DiagnosticCode.ARROW_EXPRESSION_CANNOT_INFER_TYPE_FROM_LHS);
             resultType = symTable.semanticError;
             return;
         }
 
-        BInvokableType expectedInvocation = (BInvokableType) this.expType;
+        BInvokableType expectedInvocation = (BInvokableType) expectedType;
         populateArrowExprParamTypes(bLangArrowFunction, expectedInvocation.paramTypes);
         bLangArrowFunction.expression.type = populateArrowExprReturn(bLangArrowFunction, expectedInvocation.retType);
         // if function return type is none, assign the inferred return type
