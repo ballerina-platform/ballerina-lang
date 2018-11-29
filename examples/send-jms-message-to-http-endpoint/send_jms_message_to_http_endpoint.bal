@@ -14,7 +14,7 @@ listener jms:SimpleQueueReceiver consumerEndpoint = new({
 // Bind the created JMS consumer to the listener service.
 service jmsListener on consumerEndpoint {
 
-    resou rce function onMessage(jms:QueueReceiver consumer,
+    resource function onMessage(jms:QueueReceiver consumer,
          jms:Message message) {
         var textContent = message.getTextMessageContent();
         if (textContent is string) {
@@ -56,7 +56,7 @@ service backend on new http:Listener(9090) {
         methods: ["POST"],
         path: "/jms"
     }
-    resource function jmsPayloadReceiver(http:Caller conn, http:Request req) {
+    resource function jmsPayloadReceiver(http:Caller caller, http:Request req) {
         http:Response res = new;
 
         var stringPayload = req.getTextPayload();

@@ -34,6 +34,6 @@ public function main() {
                          + "message", err=messageText);
         }
     } else {
-            log:printInfo("Error receiving message. " + err=result);
+            log:printInfo("Error receiving message. " + err = result);
     }
 }
