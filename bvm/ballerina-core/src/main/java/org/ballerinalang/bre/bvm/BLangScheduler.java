@@ -18,7 +18,7 @@
 package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CPU.HandleErrorException;
+//import org.ballerinalang.bre.bvm.CPU.HandleErrorException;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.values.BError;
@@ -74,7 +74,7 @@ public class BLangScheduler {
      * @param ctx the worker execution context
      */
     public static void executeNow(WorkerExecutionContext ctx) {
-        CPU.exec(ctx);
+//        CPU.exec(ctx);
     }
     
     public static void workerCountUp() {
@@ -130,12 +130,12 @@ public class BLangScheduler {
     public static WorkerExecutionContext errorThrown(WorkerExecutionContext ctx, BError error) {
         ctx.setError(error);
         if (!ctx.isRootContext()) {
-            try {
-                CPU.handleError(ctx);
+//            try {
+//                CPU.handleError(ctx);
                 return ctx;
-            } catch (HandleErrorException e) {
-                return e.ctx;
-            }
+//            } catch (HandleErrorException e) {
+//                return e.ctx;
+//            }
         } else {
             return null;
         }
@@ -249,7 +249,7 @@ public class BLangScheduler {
         
         @Override
         public void run() {
-            CPU.exec(this.ctx);
+//            CPU.exec(this.ctx);
         }
         
     }

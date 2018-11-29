@@ -1018,7 +1018,7 @@ public class BVM {
                 }
                 break;
             case InstructionCodes.IS_FROZEN:
-                sf.intRegs[j] = (value == null || value.isFrozen())  ? 1 : 0;
+                sf.intRegs[j] = (value == null || value.isFrozen()) ? 1 : 0;
                 break;
         }
     }

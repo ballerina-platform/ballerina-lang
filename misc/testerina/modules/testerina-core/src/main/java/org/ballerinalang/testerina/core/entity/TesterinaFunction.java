@@ -20,6 +20,7 @@ package org.ballerinalang.testerina.core.entity;
 import org.ballerinalang.bre.vm.BVMExecutor;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
+import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -84,45 +85,17 @@ public class TesterinaFunction {
     public BValue[] invoke() throws BallerinaException {
         if (this.type == Type.TEST_INIT) {
             // Invoke init functions
-            invokePackageInitFunctions(programFile);
-            invokePackageTestInitFunctions(programFile);
+            TesterinaUtils.invokePackageInitFunctions(programFile);
+            TesterinaUtils.invokePackageTestInitFunctions(programFile);
 
             //  Invoke start functions
-            invokePackageStartFunctions(programFile);
-            invokePackageTestStartFunctions(programFile);
+            TesterinaUtils.invokePackageStartFunctions(programFile);
+            TesterinaUtils.invokePackageTestStartFunctions(programFile);
 
             TesterinaRegistry.getInstance().addInitializedPackage(programFile.getEntryPkgName());
             return new BValue[]{};
         } else {
             return invoke(new BValue[]{});
-        }
-    }
-
-    private void invokePackageInitFunctions(ProgramFile programFile) {
-        for (PackageInfo info : programFile.getPackageInfoEntries()) {
-            BVMExecutor.executeFunction(programFile, info.getInitFunctionInfo());
-        }
-    }
-
-    private void invokePackageTestInitFunctions(ProgramFile programFile) {
-        for (PackageInfo info : programFile.getPackageInfoEntries()) {
-            if (info.getTestInitFunctionInfo() != null) {
-                BVMExecutor.executeFunction(programFile, info.getTestInitFunctionInfo());
-            }
-        }
-    }
-
-    private void invokePackageStartFunctions(ProgramFile programFile) {
-        for (PackageInfo info : programFile.getPackageInfoEntries()) {
-            BVMExecutor.executeFunction(programFile, info.getStartFunctionInfo());
-        }
-    }
-
-    private void invokePackageTestStartFunctions(ProgramFile programFile) {
-        for (PackageInfo info : programFile.getPackageInfoEntries()) {
-            if (info.getTestStartFunctionInfo() != null) {
-                BVMExecutor.executeFunction(programFile, info.getTestStartFunctionInfo());
-            }
         }
     }
 

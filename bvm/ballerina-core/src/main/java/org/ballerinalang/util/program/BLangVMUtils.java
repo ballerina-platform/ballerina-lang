@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.util.program;
 
-import org.ballerinalang.bre.bvm.CPU;
-import org.ballerinalang.bre.bvm.CPU.HandleErrorException;
 import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.bre.vm.StackFrame;
@@ -29,7 +27,6 @@ import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BDecimal;
-import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefType;
@@ -408,20 +405,6 @@ public class BLangVMUtils {
         }
         for (int i = 0; i < initWorkerCAI.getMaxRefLocalVars(); i++) {
             targetData.refRegs[i] = sourceData.refRegs[i];
-        }
-    }
-    
-    public static WorkerExecutionContext handleNativeInvocationError(WorkerExecutionContext parentCtx, BError error) {
-        parentCtx.setError(error);
-        try {
-            CPU.handleError(parentCtx);
-            return parentCtx;
-        } catch (HandleErrorException e) {
-            if (e.ctx != null && !e.ctx.isRootContext()) {
-                return e.ctx;
-            } else {
-                return null;
-            }
         }
     }
     

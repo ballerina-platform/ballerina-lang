@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.testerina.util;
 
+import org.ballerinalang.bre.vm.BVMExecutor;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.testerina.core.BTestRunner;
 import org.ballerinalang.testerina.core.TesterinaConstants;
@@ -26,7 +27,6 @@ import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.program.BLangFunctions;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
@@ -63,10 +63,10 @@ public class TesterinaUtils {
 
         // Invoke package init function
         if (isPackageInitialized(programFile.getEntryPkgName())) {
-            BLangFunctions.invokePackageInitFunctions(programFile);
+            invokePackageInitFunctions(programFile);
             registry.addInitializedPackage(programFile.getEntryPkgName());
         }
-        BLangFunctions.invokeVMUtilFunction(servicesPackage.getStartFunctionInfo());
+        BVMExecutor.executeFunction(programFile, servicesPackage.getStartFunctionInfo());
     }
 
     public static boolean isPackageInitialized(String entryPkgName) {
@@ -127,6 +127,54 @@ public class TesterinaUtils {
         }
 
         return orgName + moduleName + Names.VERSION_SEPARATOR + version;
+    }
+
+    /**
+     * Helper method to run package init functions.
+     *
+     * @param programFile to be initialized
+     */
+    public static void invokePackageInitFunctions(ProgramFile programFile) {
+        for (PackageInfo info : programFile.getPackageInfoEntries()) {
+            BVMExecutor.executeFunction(programFile, info.getInitFunctionInfo());
+        }
+    }
+
+    /**
+     * Helper method to run test package init functions.
+     *
+     * @param programFile to be initialized
+     */
+    public static void invokePackageTestInitFunctions(ProgramFile programFile) {
+        for (PackageInfo info : programFile.getPackageInfoEntries()) {
+            if (info.getTestInitFunctionInfo() != null) {
+                BVMExecutor.executeFunction(programFile, info.getTestInitFunctionInfo());
+            }
+        }
+    }
+
+    /**
+     * Helper method to run package start functions.
+     *
+     * @param programFile to be started
+     */
+    public static void invokePackageStartFunctions(ProgramFile programFile) {
+        for (PackageInfo info : programFile.getPackageInfoEntries()) {
+            BVMExecutor.executeFunction(programFile, info.getStartFunctionInfo());
+        }
+    }
+
+    /**
+     * Helper method to run test package start functions.
+     *
+     * @param programFile to be started
+     */
+    public static void invokePackageTestStartFunctions(ProgramFile programFile) {
+        for (PackageInfo info : programFile.getPackageInfoEntries()) {
+            if (info.getTestStartFunctionInfo() != null) {
+                BVMExecutor.executeFunction(programFile, info.getTestStartFunctionInfo());
+            }
+        }
     }
 
     /**

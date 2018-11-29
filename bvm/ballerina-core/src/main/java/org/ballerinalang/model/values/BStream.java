@@ -21,7 +21,7 @@ package org.ballerinalang.model.values;
 import io.ballerina.messaging.broker.core.BrokerException;
 import io.ballerina.messaging.broker.core.Consumer;
 import io.ballerina.messaging.broker.core.Message;
-import org.ballerinalang.bre.bvm.CPU;
+import org.ballerinalang.bre.vm.BVM;
 import org.ballerinalang.bre.vm.BVMExecutor;
 import org.ballerinalang.broker.BallerinaBroker;
 import org.ballerinalang.broker.BallerinaBrokerByteBuf;
@@ -121,7 +121,7 @@ public class BStream implements BRefType<Object> {
      */
     public void publish(BValue data) {
         BType dataType = data.getType();
-        if (!CPU.checkCast(data, constraintType)) {
+        if (!BVM.checkCast(data, constraintType)) {
             throw new BallerinaException("incompatible types: value of type:" + dataType
                     + " cannot be added to a stream of type:" + this.constraintType);
         }
@@ -137,7 +137,7 @@ public class BStream implements BRefType<Object> {
     public void subscribe(BFunctionPointer functionPointer) {
         BType[] parameters = functionPointer.value().getParamTypes();
         int lastArrayIndex = parameters.length - 1;
-        if (!CPU.isAssignable(constraintType, parameters[lastArrayIndex], new ArrayList<>())) {
+        if (!BVM.isAssignable(constraintType, parameters[lastArrayIndex], new ArrayList<>())) {
             throw new BallerinaException("incompatible function: subscription function needs to be a function"
                                                  + " accepting:" + this.constraintType);
         }

@@ -18,7 +18,7 @@
 
 package org.ballerinalang.model.values;
 
-import org.ballerinalang.bre.bvm.CPU;
+import org.ballerinalang.bre.vm.BVM;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -46,7 +46,7 @@ public final class BDecimal extends BValueType implements BRefType<BigDecimal> {
 
     @Override
     public long intValue() {
-        if (!CPU.isDecimalWithinIntRange(value)) {
+        if (!BVM.isDecimalWithinIntRange(value)) {
             throw new BallerinaException("out of range 'decimal' value '" + value + "' cannot be converted to 'int'");
         }
         return Math.round(value.doubleValue());
