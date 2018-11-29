@@ -18,13 +18,18 @@ import ballerina/http;
 import ballerina/log;
 
 public type Filter13 object {
-    public function filterRequest (http:Listener listener, http:Request request, http:FilterContext context) returns boolean {
-        endpoint http:Listener caller = listener;
+    public function filterRequest(http:Caller caller, http:Request request, http:FilterContext context)
+                        returns boolean {
         log:printInfo("Intercepting request for filter 1");
         http:Response response = new;
         response.statusCode = 401;
         response.setTextPayload("Authentication failure");
-        caller->respond(response) but {error e=> log:printError("Error", err=e)};
+
+        var result = caller->respond(response);
+        if (result is error) {
+           log:printError("Error", err = result);
+        }
+
         return false;
     }
 
@@ -35,20 +40,17 @@ public type Filter13 object {
 
 Filter13 filter13 = new;
 
-endpoint http:Listener echoEP06 {
-    port:9096,
-    filters:[filter13]
-};
+listener http:Listener echoEP06 = new(9096, config = { filters: [filter13] });
 
 @http:ServiceConfig {
     basePath:"/echo"
 }
-service<http:Service> echoService06 bind echoEP06 {
+service echoService06 on  echoEP06 {
     @http:ResourceConfig {
         methods:["GET"],
         path:"/test"
     }
-    echoresource (endpoint caller, http:Request req) {
+    resource function echo(http:Caller caller, http:Request req) {
         http:Response res = new;
         _ = caller -> respond(res);
     }

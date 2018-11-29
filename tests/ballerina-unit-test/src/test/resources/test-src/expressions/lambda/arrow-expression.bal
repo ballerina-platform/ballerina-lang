@@ -74,7 +74,7 @@ function testRecordTypeWithArrowExpr() returns Person {
 }
 
 function testNillableParameter() returns string {
-    function (string?) returns string lambda = (x) => x but {() => "John"};
+    function (string?) returns string lambda = (x) => x ?: "John";
     return lambda.call(());
 }
 

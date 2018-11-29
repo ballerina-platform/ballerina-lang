@@ -18,10 +18,7 @@ import ballerina/grpc;
 import ballerina/io;
 
 // Server endpoint configuration
-listener grpc:Listener ep6 = new ({
-    host:"localhost",
-    port:9099
-});
+listener grpc:Listener ep6 = new (9099);
 
 @grpc:ServiceDescriptor {
     descriptor: <string>descriptorMap6[DESCRIPTOR_KEY_6],
@@ -49,7 +46,7 @@ service HelloWorld45 on ep6 {
 }
 
 const string DESCRIPTOR_KEY_6 = "HelloWorld45.proto";
-map descriptorMap6 =
+map<any> descriptorMap6 =
 {
     "HelloWorld45.proto":"0A1248656C6C6F576F726C6434352E70726F746F120C6772706373657276696365731A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F325D0A0C48656C6C6F576F726C643435124D0A0D6C6F74734F665265706C696573121C2E676F6F676C652E70726F746F6275662E537472696E6756616C75651A1C2E676F6F676C652E70726F746F6275662E537472696E6756616C75653001620670726F746F33",
 

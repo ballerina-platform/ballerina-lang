@@ -22,8 +22,7 @@ service HelloWorld bind listener {
         // Send a response message to the caller.
         error? err = caller->send(message);
 
-        io:println(err.message but { () => "Server send response : " +
-                                                                    message });
+        io:println(err.message ?: "Server send response : " + message);
         // Send the `completed` notification to the caller.
         _ = caller->complete();
 

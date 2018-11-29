@@ -251,9 +251,9 @@ public interface InstructionCodes {
 
     int WRKSEND = 190;
     int WRKRECEIVE = 191;
-    int FORKJOIN = 192;
 
-    int AWAIT = 193;
+    int WORKERSYNCSEND = 192;
+    int WAIT = 193;
 
     int MAP2JSON = 194;
     int JSON2MAP = 195;
@@ -273,7 +273,10 @@ public interface InstructionCodes {
 
     int CLONE = 206;
 
+    int FLUSH = 207;
+
     int LENGTHOF = 208;
+    int WAITALL = 209;
 
     int NEWSTRUCT = 210;
     int NEWMAP = 212;

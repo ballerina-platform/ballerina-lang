@@ -91,9 +91,9 @@ function testForeachWithOpenRecords3() returns any[] {
     return values;
 }
 
-function testForeachOpWithOpenRecords() returns map {
+function testForeachOpWithOpenRecords() returns map<any> {
     Person p = { name: "John Doe", age: 25, address: { street: "Palm Grove", city: "Colombo 3" }, height: 5.9 };
-    map rec = {};
+    map<any> rec = {};
 
     p.foreach(function ((string, any) entry) {
             var (field, value) = entry;
@@ -103,10 +103,10 @@ function testForeachOpWithOpenRecords() returns map {
     return rec;
 }
 
-function testMapOpWithOpenRecords() returns map {
+function testMapOpWithOpenRecords() returns map<any> {
     Person p = { name: "John Doe", age: 25, address: { street: "Palm Grove", city: "Colombo 3" }, profession: "Software Engineer" };
 
-    map newp =  p.map(function ((string, any) entry) returns (string, any) {
+    map<any> newp =  p.map(function ((string, any) entry) returns (string, any) {
            var (field, value) = entry;
             match value {
                 string str => value = str.toLower();
@@ -118,10 +118,10 @@ function testMapOpWithOpenRecords() returns map {
     return newp;
 }
 
-function testFilterOpWithOpenRecords() returns map {
+function testFilterOpWithOpenRecords() returns map<any> {
     Foo f = {a: "A", b: "B", c: "C", d: "D", e: "E", f: "F"};
 
-    map newf = f.filter(function ((string, any) entry) returns boolean {
+    map<any> newf = f.filter(function ((string, any) entry) returns boolean {
         var (field, value) = entry;
         if (value !== "A" && value !== "E") {
             return true;
@@ -137,10 +137,10 @@ function testCountOpWithOpenRecords() returns int {
     return f.count();
 }
 
-function testChainedOpsWithOpenRecords() returns map {
+function testChainedOpsWithOpenRecords() returns map<any> {
     Foo f = {a: "AA", b: "BB", c: "CC", d: "DD", e: "EE", f: "FF"};
 
-    map newf = f.map(function ((string, any) entry) returns (string, any) {
+    map<any> newf = f.map(function ((string, any) entry) returns (string, any) {
                     var (field, value) = entry;
                     match value {
                         string str => value = str.toLower();

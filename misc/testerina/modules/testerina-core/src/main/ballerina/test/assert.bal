@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/reflect;
+import ballerina/io;
 
 const string assertFailureErrorCategory = "assert-failure";
 const string arraysNotEqualMessage = "Arrays are not equal";
@@ -69,8 +70,8 @@ public function assertFalse(boolean condition, string msg = "Assertion Failed!")
 # + msg - Assertion error message
 public function assertEquals(any actual, any expected, string msg = "Assertion Failed!") {
     if (!reflect:equals(actual,expected)) {
-        string expectedStr = <string> expected;
-        string actualStr = <string> actual;
+        string expectedStr = io:sprintf("%s", expected);
+        string actualStr = io:sprintf("%s", actual);
         string errorMsg = string `{{msg}}: expected '{{expectedStr}}' but found '{{actualStr}}'`;
         panic createBallerinaError(errorMsg, assertFailureErrorCategory);
     }
@@ -83,8 +84,8 @@ public function assertEquals(any actual, any expected, string msg = "Assertion F
 # + msg - Assertion error message
 public function assertNotEquals(any actual, any expected, string msg = "Assertion Failed!") {
     if (reflect:equals(actual,expected)) {
-        string expectedStr = <string> expected;
-        string actualStr = <string> actual;
+        string expectedStr = io:sprintf("%s", expected);
+        string actualStr = io:sprintf("%s", actual);
         string errorMsg = string `{{msg}}: expected the actual value not to be '{{expectedStr}}'`;
         panic createBallerinaError(errorMsg, assertFailureErrorCategory);
     }

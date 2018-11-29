@@ -18,10 +18,7 @@ import ballerina/grpc;
 import ballerina/io;
 
 // Server endpoint configuration
-listener grpc:Listener ep3 = new ({
-    host:"localhost",
-    port:9095
-});
+listener grpc:Listener ep3 = new (9095);
 
 @grpc:ServiceConfig {name:"chat",
     clientStreaming:true,
@@ -89,7 +86,7 @@ type ChatMessage record {
 };
 
 const string DESCRIPTOR_KEY_3 = "Chat.proto";
-map descriptorMap3 =
+map<any> descriptorMap3 =
 {
     "Chat.proto":
     "0A0A436861742E70726F746F1A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F22280A0B436861744D657373616765120A0A046E616D6518012809120D0A076D65737361676518022809323C0A044368617412340A0463686174120B436861744D6573736167651A1B676F6F676C652E70726F746F6275662E537472696E6756616C756528013001620670726F746F33"

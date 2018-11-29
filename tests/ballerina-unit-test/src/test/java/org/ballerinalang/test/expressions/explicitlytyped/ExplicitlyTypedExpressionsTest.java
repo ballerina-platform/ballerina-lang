@@ -21,6 +21,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BDecimal;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
@@ -370,30 +371,42 @@ public class ExplicitlyTypedExpressionsTest {
     @Test(dataProvider = "naNFloatAsIntTests", expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*error: 'float' value 'NaN' cannot be converted to 'int'.*")
     public void testNaNFloatAsInt(String functionName) {
-        BValue[] returns = BRunUtil.invoke(result, functionName, new BValue[0]);
-        Assert.assertEquals(returns.length, 2);
+        BRunUtil.invoke(result, functionName, new BValue[0]);
     }
 
     @Test(dataProvider = "infiniteFloatAsIntTests", expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*error: 'float' value 'Infinity' cannot be converted to 'int'.*")
     public void testInfiniteFloatAsInt(String functionName) {
-        BValue[] returns = BRunUtil.invoke(result, functionName, new BValue[0]);
-        Assert.assertEquals(returns.length, 2);
+        BRunUtil.invoke(result, functionName, new BValue[0]);
     }
 
     @Test(dataProvider = "outOfRangeFloatAsIntTests", expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*error: out of range 'float' value '.*' cannot be converted to 'int'.*")
     public void testOutOfRangeFloatAsInt(String functionName) {
-        BValue[] returns = BRunUtil.invoke(result, functionName, new BValue[0]);
-        Assert.assertEquals(returns.length, 2);
+        BRunUtil.invoke(result, functionName, new BValue[0]);
     }
 
     @Test(dataProvider = "outOfRangeDecimalAsIntTests", expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*error: out of range 'decimal' value '.*' cannot be converted to " +
                     "'int'.*")
     public void testOutOfRangeDecimalAsInt(String functionName) {
-        BValue[] returns = BRunUtil.invoke(result, functionName, new BValue[0]);
-        Assert.assertEquals(returns.length, 2);
+        BRunUtil.invoke(result, functionName, new BValue[0]);
+    }
+
+    @Test
+    public void testExplicitlyTypedExprForExactValues() {
+        BValue[] returns = BRunUtil.invoke(result, "testExplicitlyTypedExprForExactValues", new BValue[0]);
+        if (returns[0] instanceof BError) {
+            Assert.fail(((BError) returns[0]).getReason());
+        }
+    }
+
+    @Test
+    public void testTypeAssertionOnRecordLiterals() {
+        BValue[] returns = BRunUtil.invoke(result, "testTypeAssertionOnRecordLiterals");
+        Assert.assertEquals(returns[0].stringValue(), "Server mode configuration");
+        Assert.assertEquals(returns[1].stringValue(), "Embedded mode configuration");
+        Assert.assertEquals(returns[2].stringValue(), "In-memory mode configuration");
     }
 
     @Test

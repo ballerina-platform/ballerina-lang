@@ -49,8 +49,10 @@ service<http:Service> multipartResponseEncoder bind { port: 9092 } {
         outResponse.setBodyParts(immediatePartsToResponse,
             contentType = mime:MULTIPART_FORM_DATA);
 
-        caller->respond(outResponse) but {
-            error e => log:printError("Error in responding ", err = e) };
+        var result = caller->respond(outResponse);
+        if (result is error) {
+            log:printError("Error in responding ", err = result);
+        }
     }
 }
 
@@ -89,8 +91,10 @@ service multipartResponseDecoder bind multipartEP {
                 }
             }
         }
-        caller->respond(res) but {
-            error e => log:printError("Error in responding ", err = e) };
+        var result = caller->respond(res);
+        if (result is error) {
+            log:printError("Error in responding ", err = result);
+        }
     }
 }
 
@@ -159,14 +163,17 @@ function handleContent(mime:Entity bodyPart) {
                             + err.message);
                 } finally {
                     // Close the created connections.
-                    byteChannel.close() but {
-                        error e => log:printError("Error closing byteChannel ",
-                            err = e) };
-                    destinationChannel.close() but {
-                        error e =>
-                            log:printError("Error closing destinationChannel",
-                                err = e)
-                    };
+                    var result = byteChannel.close();
+
+                    if (result is error) {
+                        log:printError("Error closing byteChannel ", err = result);
+                    }
+
+                    result = destinationChannel.close();
+
+                    if (result is error) {
+                        log:printError("Error closing destinationChannel", err = result);
+                    }
                 }
             }
         }

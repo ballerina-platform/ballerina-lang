@@ -19,8 +19,10 @@
 package org.ballerinalang.util.debugger;
 
 import io.netty.channel.Channel;
-import org.ballerinalang.bre.bvm.BLangScheduler;
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.bre.vm.BVMScheduler;
+import org.ballerinalang.bre.vm.StackFrame;
+import org.ballerinalang.bre.vm.Strand;
+import org.ballerinalang.bre.vm.Strand.State;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
@@ -43,6 +45,7 @@ import org.ballerinalang.util.debugger.dto.VariableDTO;
 import org.ballerinalang.util.debugger.util.DebugMsgUtil;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.stream.Collectors;
@@ -115,9 +118,9 @@ public class Debugger {
      *
      * @param ctx of the current worker.
      */
-    public void pauseWorker(WorkerExecutionContext ctx) {
-        ctx.getDebugContext().setWorkerPaused(true);
-        BLangScheduler.workerPaused(ctx);
+    public void pauseWorker(Strand ctx) {
+        ctx.getDebugContext().setStrandPaused(true);
+        BVMScheduler.stateChange(ctx, State.RUNNABLE, State.PAUSED);
     }
 
     /**
@@ -224,45 +227,49 @@ public class Debugger {
     /**
      * Method to resume current debug session.
      *
-     * @param workerId of the worker to be resumed.
+     * @param strandId of the worker to be resumed.
      */
-    public void resume(String workerId) {
-        WorkerExecutionContext ctx = getWorkerContext(workerId);
+    public void resume(String strandId) {
+        Strand ctx = getWorkerContext(strandId);
         ctx.getDebugContext().setCurrentCommand(DebugCommand.RESUME);
-        BLangScheduler.resume(ctx);
+        BVMScheduler.stateChange(ctx, State.PAUSED, State.RUNNABLE);
+        BVMScheduler.schedule(ctx);
     }
 
     /**
      * Method to do "STEP_IN" command.
      *
-     * @param workerId to be resumed.
+     * @param strandId to be resumed.
      */
-    public void stepIn(String workerId) {
-        WorkerExecutionContext ctx = getWorkerContext(workerId);
+    public void stepIn(String strandId) {
+        Strand ctx = getWorkerContext(strandId);
         ctx.getDebugContext().setCurrentCommand(DebugCommand.STEP_IN);
-        BLangScheduler.resume(ctx);
+        BVMScheduler.stateChange(ctx, State.PAUSED, State.RUNNABLE);
+        BVMScheduler.schedule(ctx);
     }
 
     /**
      * Method to do "STEP_OVER" command.
      *
-     * @param workerId to be resumed.
+     * @param strandId to be resumed.
      */
-    public void stepOver(String workerId) {
-        WorkerExecutionContext ctx = getWorkerContext(workerId);
+    public void stepOver(String strandId) {
+        Strand ctx = getWorkerContext(strandId);
         ctx.getDebugContext().setCurrentCommand(DebugCommand.STEP_OVER);
-        BLangScheduler.resume(ctx);
+        BVMScheduler.stateChange(ctx, State.PAUSED, State.RUNNABLE);
+        BVMScheduler.schedule(ctx);
     }
 
     /**
      * Method to do "STEP_OUT" command.
      *
-     * @param workerId to be resumed.
+     * @param strandId to be resumed.
      */
-    public void stepOut(String workerId) {
-        WorkerExecutionContext ctx = getWorkerContext(workerId);
+    public void stepOut(String strandId) {
+        Strand ctx = getWorkerContext(strandId);
         ctx.getDebugContext().setCurrentCommand(DebugCommand.STEP_OUT);
-        BLangScheduler.resume(ctx);
+        BVMScheduler.stateChange(ctx, State.PAUSED, State.RUNNABLE);
+        BVMScheduler.schedule(ctx);
     }
 
     /**
@@ -270,9 +277,10 @@ public class Debugger {
      */
     public void stopDebugging() {
         debugInfoHolder.clearDebugLocations();
-        clientHandler.getAllWorkerContexts().forEach((k, v) -> {
+        clientHandler.getAllStrands().forEach((k, v) -> {
             v.getDebugContext().setCurrentCommand(DebugCommand.RESUME);
-            BLangScheduler.resume(v);
+            BVMScheduler.stateChange(v, Arrays.asList(State.PAUSED, State.RUNNABLE), State.RUNNABLE);
+            BVMScheduler.schedule(v);
         });
         clientHandler.clearChannel();
     }
@@ -285,13 +293,14 @@ public class Debugger {
      * @return Evaluated value.
      */
     public String evaluateVariable(String workerId, String variableName) {
-        WorkerExecutionContext ctx = getWorkerContext(workerId);
-        LineNumberInfo currentExecLine = getLineNumber(ctx.callableUnitInfo.getPackageInfo().getPkgPath(), ctx.ip);
+        Strand ctx = getWorkerContext(workerId);
+        LineNumberInfo currentExecLine = getLineNumber(ctx.currentFrame
+                .callableUnitInfo.getPackageInfo().getPkgPath(), ctx.currentFrame.ip);
         return expressionEvaluator.evaluateVariable(ctx, currentExecLine, variableName);
     }
 
-    private WorkerExecutionContext getWorkerContext(String workerId) {
-        WorkerExecutionContext ctx = clientHandler.getWorkerContext(workerId);
+    private Strand getWorkerContext(String workerId) {
+        Strand ctx = clientHandler.getStrand(workerId);
         if (ctx == null) {
             throw new DebugException(DebugConstants.MSG_INVALID_WORKER_ID + workerId);
         }
@@ -309,12 +318,12 @@ public class Debugger {
     }
 
     /**
-     * Add {@link WorkerExecutionContext} to current execution.
+     * Add {@link Strand} to current execution.
      *
-     * @param ctx context to run.
+     * @param strand context to run.
      */
-    public void addWorkerContext(WorkerExecutionContext ctx) {
-        this.clientHandler.addWorkerContext(ctx);
+    public void addStrand(Strand strand) {
+        this.clientHandler.addStrand(strand);
     }
 
     /**
@@ -333,7 +342,7 @@ public class Debugger {
      * @param currentExecLine Current execution line.
      * @param workerId        Current thread id.
      */
-    public void notifyDebugHit(WorkerExecutionContext ctx, LineNumberInfo currentExecLine, String workerId) {
+    public void notifyDebugHit(Strand ctx, LineNumberInfo currentExecLine, String workerId) {
         MessageDTO message = generateDebugHitMessage(ctx, currentExecLine, workerId);
         clientHandler.notifyHalt(message);
     }
@@ -376,7 +385,7 @@ public class Debugger {
      * @param workerId        Current thread id.
      * @return message         To be sent.
      */
-    private MessageDTO generateDebugHitMessage(WorkerExecutionContext ctx, LineNumberInfo currentExecLine,
+    private MessageDTO generateDebugHitMessage(Strand ctx, LineNumberInfo currentExecLine,
                                                String workerId) {
         MessageDTO message = new MessageDTO(DebugConstants.CODE_HIT, DebugConstants.MSG_HIT);
         message.setThreadId(workerId);
@@ -387,10 +396,11 @@ public class Debugger {
 
         int callingIp = currentExecLine.getIp();
 
-        String pck = ctx.callableUnitInfo.getPackageInfo().getPkgPath();
+        String pck = ctx.currentFrame.callableUnitInfo.getPackageInfo().getPkgPath();
 
-        String functionName = ctx.callableUnitInfo.getName();
-        LineNumberInfo callingLine = getLineNumber(ctx.callableUnitInfo.getPackageInfo().getPkgPath(), callingIp);
+        String functionName = ctx.currentFrame.callableUnitInfo.getName();
+        LineNumberInfo callingLine = getLineNumber(ctx.currentFrame.callableUnitInfo
+                .getPackageInfo().getPkgPath(), callingIp);
         FrameDTO frameDTO = new FrameDTO(pck, functionName, callingLine.getFileName(),
                 callingLine.getLineNumber());
         message.addFrame(frameDTO);
@@ -404,7 +414,7 @@ public class Debugger {
         for (PackageVarInfo packVarInfo : packageVarInfoEntries) {
             // TODO: Need to change the 'contains' logic, if we allow user-defined variable names to have '$'
             if (!packVarInfo.getName().contains(META_DATA_VAR_PATTERN)) {
-                int pkgIndex = ctx.callableUnitInfo.getPackageInfo().pkgIndex;
+                int pkgIndex = ctx.currentFrame.callableUnitInfo.getPackageInfo().pkgIndex;
                 VariableDTO variableDTO = constructGlobalVariable(ctx, packVarInfo, pkgIndex);
                 if (variableDTO.getValue() != null || packVarInfo.getType().getTag() == TypeTags.JSON_TAG) {
                     frameDTO.addVariable(variableDTO);
@@ -412,14 +422,15 @@ public class Debugger {
             }
         }
 
-        // Add local variables to the frame
-        LocalVariableAttributeInfo localVarAttrInfo = (LocalVariableAttributeInfo) ctx.workerInfo.
-                getAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE);
+        // Add local variables to the frame TODO remove default worker info
+        LocalVariableAttributeInfo localVarAttrInfo
+                = (LocalVariableAttributeInfo) ctx.currentFrame.callableUnitInfo.getDefaultWorkerInfo()
+                .getAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE);
 
         localVarAttrInfo.getLocalVariables().forEach(variableInfo -> {
             // TODO: Need to change the 'contains' logic, if we allow user-defined variable names to have '$'
             if (!variableInfo.getVariableName().contains(META_DATA_VAR_PATTERN)) {
-                VariableDTO variableDTO = constructLocalVariable(ctx, variableInfo);
+                VariableDTO variableDTO = constructLocalVariable(ctx.currentFrame, variableInfo);
 
                 // Show only the variables within the current scope
                 if ((variableInfo.getScopeStartLineNumber() < callingLine.getLineNumber()) &&
@@ -439,7 +450,7 @@ public class Debugger {
      * @param pkgIndex    Package index.
      * @return Constructed global variable.
      */
-    public static VariableDTO constructGlobalVariable(WorkerExecutionContext ctx, PackageVarInfo packVarInfo,
+    public static VariableDTO constructGlobalVariable(Strand ctx, PackageVarInfo packVarInfo,
                                                       int pkgIndex) {
         VariableDTO variableDTO = new VariableDTO(packVarInfo.getName(), GLOBAL);
         BType varType = packVarInfo.getType();
@@ -476,32 +487,32 @@ public class Debugger {
     /**
      * Method to construct a @{@link VariableDTO} that represents a local variable.
      *
-     * @param ctx          Current context.
+     * @param sf           Current context.
      * @param variableInfo Local variable info.
      * @return Constructed local variable.
      */
-    public static VariableDTO constructLocalVariable(WorkerExecutionContext ctx, LocalVariableInfo variableInfo) {
+    public static VariableDTO constructLocalVariable(StackFrame sf, LocalVariableInfo variableInfo) {
         VariableDTO variableDTO = new VariableDTO(variableInfo.getVariableName(), LOCAL);
         BType varType = variableInfo.getVariableType();
 
         switch (varType.getTag()) {
             case TypeTags.INT_TAG:
-                variableDTO.setBValue(new BInteger(ctx.workerLocal.longRegs[variableInfo.getVariableIndex()]));
+                variableDTO.setBValue(new BInteger(sf.longRegs[variableInfo.getVariableIndex()]));
                 break;
             case TypeTags.BYTE_TAG:
-                variableDTO.setBValue(new BByte((byte) ctx.workerLocal.intRegs[variableInfo.getVariableIndex()]));
+                variableDTO.setBValue(new BByte((byte) sf.intRegs[variableInfo.getVariableIndex()]));
                 break;
             case TypeTags.FLOAT_TAG:
-                variableDTO.setBValue(new BFloat(ctx.workerLocal.doubleRegs[variableInfo.getVariableIndex()]));
+                variableDTO.setBValue(new BFloat(sf.doubleRegs[variableInfo.getVariableIndex()]));
                 break;
             case TypeTags.STRING_TAG:
-                variableDTO.setBValue(new BString(ctx.workerLocal.stringRegs[variableInfo.getVariableIndex()]));
+                variableDTO.setBValue(new BString(sf.stringRegs[variableInfo.getVariableIndex()]));
                 break;
             case TypeTags.BOOLEAN_TAG:
-                variableDTO.setBValue(new BBoolean(ctx.workerLocal.intRegs[variableInfo.getVariableIndex()] == 1));
+                variableDTO.setBValue(new BBoolean(sf.intRegs[variableInfo.getVariableIndex()] == 1));
                 break;
             default:
-                variableDTO.setBValue(ctx.workerLocal.refRegs[variableInfo.getVariableIndex()], varType);
+                variableDTO.setBValue(sf.refRegs[variableInfo.getVariableIndex()], varType);
                 break;
         }
         return variableDTO;

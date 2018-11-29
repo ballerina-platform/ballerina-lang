@@ -134,11 +134,14 @@ public class TestGenerator {
         } else if (bLangNode instanceof BLangService || (fallback = fallBackNode instanceof BLangService)) {
             // A Service
             BLangService service = (!fallback) ? ((BLangService) bLangNode) : (BLangService) fallBackNode;
-            String owner = (service.serviceTypeStruct.type != null && service.serviceTypeStruct.type.tsymbol != null) ?
-                    service.serviceTypeStruct.type.tsymbol.owner.name.value :
-                    null;
+//            String owner = (service.serviceTypeStruct.type != null && service.serviceTypeStruct.type.tsymbol != null) ?
+//                    service.serviceTypeStruct.type.tsymbol.owner.name.value :
+//                    null;
+            // TODO: Fix with the latest changes
+            String owner = "";
+            String serviceTypeName = ""/*service.serviceTypeStruct.typeName.value*/;
             if ("http".equals(owner)) {
-                switch (service.serviceTypeStruct.typeName.value) {
+                switch (serviceTypeName) {
                     case "Service": {
                         return RootTemplate.fromHttpService(service, builtTestFile);
                     }
@@ -153,7 +156,7 @@ public class TestGenerator {
             } else if ("websub".equals(owner)) {
                 throw new TestGeneratorException("WebSub services are not supported!");
             }
-            throw new TestGeneratorException(service.serviceTypeStruct.toString() + " is not supported!");
+            throw new TestGeneratorException(/*service.serviceTypeStruct.toString()*/" is not supported!");
         }
         // Whole file
         return new RootTemplate(fileName, builtTestFile);
@@ -208,8 +211,7 @@ public class TestGenerator {
             // Populate target function's parameters
             Set<String> lookupSet = new HashSet<>();
             for (int i = 0; i < params.size(); i++) {
-                String paramType = generateTypeDefinition(importsConsumer, currentPkgId,
-                                                          params.get(i));
+                String paramType = generateTypeDefinition(importsConsumer, currentPkgId, params.get(i));
                 String paramName = CommonUtil.generateName(1, lookupSet);
                 lookupSet.add(paramName);
 

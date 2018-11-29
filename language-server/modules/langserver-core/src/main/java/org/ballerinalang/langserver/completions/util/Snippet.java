@@ -36,7 +36,7 @@ public enum Snippet {
 
     DEF_MAIN_FUNCTION(SnippetGenerator.getMainFunctionSnippet()),
 
-    DEF_NEW_OBJECT_CONSTRUCTOR(SnippetGenerator.getObjectConstructorSnippet()),
+    DEF_NEW_OBJECT_INITIALIZER(SnippetGenerator.getObjectInitializerSnippet()),
 
     DEF_OBJECT_SNIPPET(SnippetGenerator.getObjectDefinitionSnippet()),
 
@@ -60,7 +60,9 @@ public enum Snippet {
     
     
     // Keyword Snippets
-    KW_BIND(SnippetGenerator.getBindSnippet()),
+    KW_ON(SnippetGenerator.getOnSnippet()),
+
+    KW_NEW(SnippetGenerator.getNewKeywordSnippet()),
 
     KW_CHECK(SnippetGenerator.getCheckKeywordSnippet()),
 

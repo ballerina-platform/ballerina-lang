@@ -106,6 +106,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -117,6 +118,7 @@ import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
+import static org.ballerinalang.util.BLangConstants.CONSTRUCTOR_FUNCTION_SUFFIX;
 
 /**
  * Common utils to be reuse in language server implementation.
@@ -346,17 +348,17 @@ public class CommonUtil {
     }
 
     /**
-     * Get the top level node type in the line.
+     * Get the top level node type at the cursor line.
      *
-     * @param identifier    Document Identifier
-     * @param startPosition Start position
-     * @param docManager    Workspace document manager
+     * @param identifier Document Identifier
+     * @param cursorLine Cursor line
+     * @param docManager Workspace document manager
      * @return {@link String}   Top level node type
      */
-    public static String topLevelNodeTypeInLine(TextDocumentIdentifier identifier, Position startPosition,
-                                                WorkspaceDocumentManager docManager) {
+    public static String topLevelNodeInLine(TextDocumentIdentifier identifier, int cursorLine,
+                                            WorkspaceDocumentManager docManager) {
         List<String> topLevelKeywords = Arrays.asList("function", "service", "resource", "endpoint", "object",
-                "record");
+                                                      "record");
         LSDocument document = new LSDocument(identifier.getUri());
 
         try {
@@ -364,12 +366,15 @@ public class CommonUtil {
             Path compilationPath = getUntitledFilePath(filePath.toString()).orElse(filePath);
             String fileContent = docManager.getFileContent(compilationPath);
             String[] splitedFileContent = fileContent.split(LINE_SEPARATOR_SPLIT);
-            if ((splitedFileContent.length - 1) >= startPosition.getLine()) {
-                String lineContent = splitedFileContent[startPosition.getLine()];
+            if ((splitedFileContent.length - 1) >= cursorLine) {
+                String lineContent = splitedFileContent[cursorLine];
                 List<String> alphaNumericTokens = new ArrayList<>(Arrays.asList(lineContent.split("[^\\w']+")));
 
-                for (String topLevelKeyword : topLevelKeywords) {
-                    if (alphaNumericTokens.contains(topLevelKeyword)) {
+                ListIterator<String> iterator = alphaNumericTokens.listIterator();
+                while (iterator.hasNext()) {
+                    String topLevelKeyword = iterator.next();
+                    if (topLevelKeywords.contains(topLevelKeyword) &&
+                            (!iterator.hasNext() || !CONSTRUCTOR_FUNCTION_SUFFIX.equals(iterator.next()))) {
                         return topLevelKeyword;
                     }
                 }
@@ -592,8 +597,26 @@ public class CommonUtil {
      * @return {@link Boolean}  Symbol evaluation status
      */
     public static boolean isClientObject(BSymbol bSymbol) {
-        return SymbolKind.OBJECT.equals(bSymbol.type.tsymbol.kind)
+        return bSymbol.type != null && bSymbol.type.tsymbol != null
+                && SymbolKind.OBJECT.equals(bSymbol.type.tsymbol.kind)
                 && (bSymbol.type.tsymbol.flags & Flags.CLIENT) == Flags.CLIENT;
+    }
+
+    /**
+     * Check whether the symbol is a listener object.
+     *
+     * @param bSymbol           Symbol to evaluate
+     * @return {@link Boolean}  whether listener or not
+     */
+    public static boolean isListenerObject(BSymbol bSymbol) {
+        if (!(bSymbol instanceof BObjectTypeSymbol)) {
+            return false;
+        }
+        List<String> attachedFunctions = ((BObjectTypeSymbol) bSymbol).attachedFuncs.stream()
+                .map(function -> function.funcName.getValue())
+                .collect(Collectors.toList());
+        return attachedFunctions.contains("__start") && attachedFunctions.contains("__stop")
+                && attachedFunctions.contains("__attach");
     }
 
     /**
@@ -693,7 +716,8 @@ public class CommonUtil {
                     + nameComponents[nameComponents.length - 1];
         }
     }
-/**
+
+    /**
      * Get the last item of the List.
      *
      * @param list  List to get the Last Item
@@ -1415,6 +1439,19 @@ public class CommonUtil {
             }
             return (parent != null && parent.parent != null)
                     ? lookupFunctionReturnType(functionName, parent.parent) : "any";
+        }
+    }
+
+    /**
+     * Node comparator to compare the nodes by position.                            
+     */
+    public static class BLangNodeComparator implements Comparator<BLangNode> {
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public int compare(BLangNode node1, BLangNode node2) {
+            return node1.getPosition().getStartLine() - node2.getPosition().getStartLine();
         }
     }
 }

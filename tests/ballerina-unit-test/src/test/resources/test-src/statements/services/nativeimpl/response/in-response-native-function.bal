@@ -48,6 +48,7 @@ function testSetPayloadAndGetText((string|xml|json|byte[]|io:ReadableByteChannel
 }
 
 function testRemoveHeader(http:Response res, string key) returns http:Response {
+    res.setHeader("Expect", "100-continue");
     res.removeHeader(key);
     return res;
 }

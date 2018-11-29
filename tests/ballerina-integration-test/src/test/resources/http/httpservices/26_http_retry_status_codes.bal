@@ -18,8 +18,7 @@ import ballerina/http;
 import ballerina/log;
 import ballerina/runtime;
 
-endpoint http:Client internalErrorEP {
-    url: "http://localhost:8080",
+http:Client internalErrorEP = new("http://localhost:8080", config = {
     retryConfig: {
         interval: 3000,
         count: 3,
@@ -28,17 +27,17 @@ endpoint http:Client internalErrorEP {
         statusCodes: [501, 502, 503]
     },
     timeoutMillis: 2000
-};
+});
 
 @http:ServiceConfig {
     basePath: "/retry"
 }
-service<http:Service> retryStatusService bind { port: 9225 } {
+service retryStatusService on new http:Listener(9225) {
     @http:ResourceConfig {
         methods: ["GET", "POST"],
         path: "/"
     }
-    invokeEndpoint(endpoint caller, http:Request request) {
+    resource function invokeEndpoint(http:Caller caller, http:Request request) {
         if (request.getHeader("x-retry") == "recover") {
             var backendResponse = internalErrorEP->get("/status/recover", message = untaint request);
             if (backendResponse is http:Response) {
@@ -78,12 +77,12 @@ service<http:Service> retryStatusService bind { port: 9225 } {
 public int retryCounter = 0;
 
 @http:ServiceConfig { basePath: "/status" }
-service<http:Service> mockStatusCodeService bind { port: 8080 } {
+service mockStatusCodeService on new http:Listener(8080) {
     @http:ResourceConfig {
         methods: ["GET", "POST"],
         path: "/recover"
     }
-    recoverableResource(endpoint caller, http:Request req) {
+    resource function recoverableResource(http:Caller caller, http:Request req) {
         retryCounter = retryCounter + 1;
         if (retryCounter % 4 != 0) {
             http:Response res = new;
@@ -105,7 +104,7 @@ service<http:Service> mockStatusCodeService bind { port: 8080 } {
         methods: ["GET", "POST"],
         path: "/internalError"
     }
-    unRecoverableResource(endpoint caller, http:Request req) {
+    resource function unRecoverableResource(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.statusCode = 502;
         res.setPayload("Gateway Timed out.");

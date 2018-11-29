@@ -4,10 +4,13 @@ public function main (string... args) returns error? {
     x += "static";
     secureFunction(x, x);
 
-    int x2;
-    x2 = check <int>"100";
-    x2 += 1;
-    secureFunction(x2,x2);
+    var x2 = int.create("100");
+    if (x2 is int) {
+        x2 += 1;
+        secureFunction(x2,x2);
+    } else {
+        panic x2;
+    }
     return ();
 }
 

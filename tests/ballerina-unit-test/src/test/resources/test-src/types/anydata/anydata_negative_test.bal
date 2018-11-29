@@ -52,7 +52,7 @@ function testInvalidAssignmentsWithLiterals() {
 function testInvalidMapAssignments() {
     anydata ad;
 
-    map m = {};
+    map<any> m = {};
     ad = m;
 
     map<any> m2 = {};

@@ -27,9 +27,9 @@ public type Listener object {
 
     *AbstractListener;
 
-    private Caller caller = new;
     private int port = 0;
     private ServiceEndpointConfiguration config = {};
+    private string instanceId;
 
     public function __start() returns error? {
         return self.start();
@@ -39,11 +39,9 @@ public type Listener object {
         return self.stop();
     }
 
-    public function __attach(service s, map annotationData) returns error? {
+    public function __attach(service s, map<any> annotationData) returns error? {
         return self.register(s, annotationData);
     }
-
-    private string instanceId;
 
     public function __init(int port, ServiceEndpointConfiguration? config = ()) {
         self.instanceId = system:uuid();
@@ -62,15 +60,10 @@ public type Listener object {
     # Gets invoked when attaching a service to the endpoint.
     #
     # + s - The service that needs to be attached
-    extern function register(service s, map annotationData) returns error?;
+    extern function register(service s, map<any> annotationData) returns error?;
 
     # Starts the registered service.
     extern function start();
-
-    # Returns the connector that client code uses.
-    #
-    # + return - The connector that client code uses
-    public extern function getCallerActions() returns (Caller);
 
     # Stops the registered service.
     extern function stop();
@@ -99,8 +92,8 @@ function Listener.init(ServiceEndpointConfiguration c) {
 # + host - The remote host name/IP
 # + port - The remote port
 public type Remote record {
-    @readonly string host = "";
-    @readonly int port = 0;
+    string host = "";
+    int port = 0;
     !...
 };
 
@@ -109,8 +102,8 @@ public type Remote record {
 # + host - The local host name/IP
 # + port - The local port
 public type Local record {
-    @readonly string host = "";
-    @readonly int port = 0;
+    string host = "";
+    int port = 0;
     !...
 };
 
@@ -439,7 +432,7 @@ public type WebSocketListener object {
         return self.httpEndpoint.stop();
     }
 
-    public function __attach(service s, map annotationData) returns error? {
+    public function __attach(service s, map<any> annotationData) returns error? {
         return self.httpEndpoint.register(s, annotationData);
     }
 

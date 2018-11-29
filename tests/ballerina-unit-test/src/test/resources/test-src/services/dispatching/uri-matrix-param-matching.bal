@@ -17,17 +17,17 @@ service testService on testEP {
         json outJson = {};
         outJson.pathParams = string `{{person}}, {{yearParam}}`;
 
-        map personMParams = req.getMatrixParams(string `/hello/t1/{{person}}`);
+        map<any> personMParams = req.getMatrixParams(string `/hello/t1/{{person}}`);
         string age = <string> personMParams.age;
         string color = <string> personMParams.color;
         outJson.personMatrix = string `age={{age}};color={{color}}`;
 
-        map yearMParams = req.getMatrixParams(string `/hello/t1/{{person}}/bar/{{yearParam}}`);
+        map<any> yearMParams = req.getMatrixParams(string `/hello/t1/{{person}}/bar/{{yearParam}}`);
         string monthValue = <string> yearMParams.month;
         string dayValue = <string> yearMParams.day;
         outJson.yearMatrix = string `month={{monthValue}};day={{dayValue}}`;
 
-        map fooMParams = req.getMatrixParams(string `/hello/t1/{{person}}/bar/{{yearParam}}/foo`);
+        map<any> fooMParams = req.getMatrixParams(string `/hello/t1/{{person}}/bar/{{yearParam}}/foo`);
         string a = <string> fooMParams.a;
         string b = <string> fooMParams.b;
         outJson.fooMatrix = string `a={{a}};b={{b}}`;
@@ -50,10 +50,10 @@ service testService on testEP {
         json outJson = {};
         outJson.person = person;
 
-        map personMParams = req.getMatrixParams(string `/hello/t2/{{person}}`);
+        map<any> personMParams = req.getMatrixParams(string `/hello/t2/{{person}}`);
         outJson.personParamSize = personMParams.length();
 
-        map fooMParams = req.getMatrixParams(string `/hello/t2/{{person}}/foo`);
+        map<any> fooMParams = req.getMatrixParams(string `/hello/t2/{{person}}/foo`);
         outJson.fooParamSize = fooMParams.length();
 
         res.setJsonPayload(untaint outJson);

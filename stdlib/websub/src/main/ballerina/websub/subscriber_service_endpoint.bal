@@ -66,7 +66,7 @@ public type Listener object {
     # should happen for the services bound to the endpoint.
     #
     # + return - `map[]` array of maps containing subscription details for each service
-    extern function retrieveSubscriptionParameters() returns map[];
+    extern function retrieveSubscriptionParameters() returns map<any>[];
 
 };
 
@@ -98,7 +98,7 @@ function Listener.__stop() returns error? {
 }
 
 function Listener.sendSubscriptionRequests() {
-    map[] subscriptionDetailsArray = self.retrieveSubscriptionParameters();
+    map<any>[] subscriptionDetailsArray = self.retrieveSubscriptionParameters();
 
     foreach subscriptionDetails in subscriptionDetailsArray {
         if (subscriptionDetails.keys().length() == 0) {
@@ -234,7 +234,7 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:ClientEndpointConfig? s
         }
     } else if (discoveryResponse is error) {
         string errCause = <string> discoveryResponse.detail().message;
-        map errorDetail = { message : "Error occurred with WebSub discovery for Resource URL [" +
+        map<any> errorDetail = { message : "Error occurred with WebSub discovery for Resource URL [" +
                                 resourceUrl + "]: " + errCause };
         websubError = error(WEBSUB_ERROR_CODE, errorDetail);
     }
@@ -246,7 +246,7 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:ClientEndpointConfig? s
 # + hub - The hub to which the subscription request is to be sent
 # + subscriptionClientConfig - The configuration for subscription client
 # + subscriptionDetails - Map containing subscription details
-function invokeClientConnectorForSubscription(string hub, http:ClientEndpointConfig? subscriptionClientConfig, map subscriptionDetails) {
+function invokeClientConnectorForSubscription(string hub, http:ClientEndpointConfig? subscriptionClientConfig, map<any> subscriptionDetails) {
     Client websubHubClientEP = new Client(hub, config = subscriptionClientConfig);
 
     string topic = <string>subscriptionDetails.topic;

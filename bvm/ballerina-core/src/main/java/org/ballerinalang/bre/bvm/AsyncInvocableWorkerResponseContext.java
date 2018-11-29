@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.bre.bvm;
 
-import org.ballerinalang.model.values.BError;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.program.BLangVMUtils;
 
@@ -120,9 +119,10 @@ public class AsyncInvocableWorkerResponseContext extends SyncCallableWorkerRespo
     }
     
     private WorkerExecutionContext propagateErrorToTarget(WorkerExecutionContext targetCtx, boolean runInCaller) {
-        WorkerExecutionContext ctx = this.onFinalizedError(targetCtx,
-                BLangVMErrors.handleError(targetCtx, workerErrors));
-        return BLangScheduler.resume(ctx, runInCaller);
+//        WorkerExecutionContext ctx = this.onFinalizedError(targetCtx,
+//                BLangVMErrors.handleError(targetCtx, workerErrors));
+//        return BLangScheduler.resume(ctx, runInCaller);
+        return null;
     }
     
     public boolean isDone() {
@@ -150,10 +150,10 @@ public class AsyncInvocableWorkerResponseContext extends SyncCallableWorkerRespo
     
     private void sendAsyncCancelErrorSignal() {
         WorkerData result = BLangVMUtils.createWorkerData(this.callableUnitInfo.retWorkerIndex);
-        BError error = BLangVMErrors.createCallCancelledException(this.workerExecutionContexts.get(0));
-        WorkerExecutionContext ctx = this.signal(new WorkerSignal(
-                new WorkerExecutionContext(error), SignalType.ERROR, result));
-        BLangScheduler.resume(ctx);
+//        BError error = BLangVMErrors.createCallCancelledException(this.workerExecutionContexts.get(0));
+//        WorkerExecutionContext ctx = this.signal(new WorkerSignal(
+//                new WorkerExecutionContext(error), SignalType.ERROR, result));
+//        BLangScheduler.resume(ctx);
     }
     
     /**
