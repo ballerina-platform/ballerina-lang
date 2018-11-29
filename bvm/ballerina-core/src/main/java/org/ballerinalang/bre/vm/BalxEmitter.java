@@ -34,6 +34,7 @@ import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
 import org.ballerinalang.util.codegen.cpentries.PackageRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 import org.ballerinalang.util.codegen.cpentries.UTF8CPEntry;
+import org.ballerinalang.util.codegen.cpentries.WorkerDataChannelRefCPEntry;
 
 import java.io.PrintStream;
 
@@ -113,7 +114,7 @@ public class BalxEmitter {
                 println("CP_ENTRY_FORK_JOIN - ");
                 break;
             case CP_ENTRY_WRKR_DATA_CHNL_REF:
-                println("CP_ENTRY_WRKR_DATA_CHNL_REF - ");
+                println("CP_ENTRY_WRKR_DATA_CHNL_REF - " + ((WorkerDataChannelRefCPEntry) cp).getUniqueName());
                 break;
             case CP_ENTRY_BLOB:
                 println("CP_ENTRY_BLOB - ");
