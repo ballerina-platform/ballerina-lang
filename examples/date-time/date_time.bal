@@ -65,7 +65,7 @@ public function main() {
     io:println("After subtracting a duration: " + tmSub.toString());
     // This converts the time to a different timezone.
     time:Time t2 = time:createTime(2017, 3, 28, 23, 42, 45, 554, "America/Panama");
-    io:println("Before converting time zone: " + t2.toString());
+    io:println("Before converting the time zone: " + t2.toString());
     time:Time t3 = t2.toTimezone("Asia/Colombo");
-    io:println("After converting time zone:" + t3.toString());
+    io:println("After converting the time zone:" + t3.toString());
 }

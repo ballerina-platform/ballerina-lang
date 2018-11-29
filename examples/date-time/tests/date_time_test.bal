@@ -26,7 +26,7 @@ function testFunc() {
     string r2 = <string>outputs[16];
     test:assertTrue(r2.contains("After subtracting a duration: 20"));
     string rs1 = <string>outputs[17];
-    test:assertTrue(rs1.contains("Before converting time zone: 201"));
+    test:assertTrue(rs1.contains("Before converting the time zone: 201"));
     string rs2 = <string>outputs[18];
-    test:assertTrue(rs2.contains("After converting time zone:20"));
+    test:assertTrue(rs2.contains("After converting the time zone:20"));
 }

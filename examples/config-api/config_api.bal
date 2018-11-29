@@ -19,7 +19,7 @@ import ballerina/log;
 // variable value.
 //
 // The configuration file format is a subset of the TOML file format. It
-// supports string, int, float and boolean value types.
+// supports `string`, `int`, `float` and `boolean` value types.
 //
 // The configuration API is particularly useful for configuring services.
 // In this example, the port and keystore password are read through the
