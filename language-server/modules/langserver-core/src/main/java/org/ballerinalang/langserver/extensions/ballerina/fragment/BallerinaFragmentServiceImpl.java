@@ -69,7 +69,7 @@ public class BallerinaFragmentServiceImpl implements BallerinaFragmentService {
                     return jsonModel;
                 }
                 JsonObject jsonASTFragment = getJsonNodeForFragment(jsonModel, sourceFragment);
-                return FormattingSourceGen.build(jsonASTFragment, null, null);
+                return FormattingSourceGen.build(jsonASTFragment, null);
             }
         } catch (JSONGenerationException | LSCompilerException e) {
             logger.error("Error while generating AST for fragment", e);

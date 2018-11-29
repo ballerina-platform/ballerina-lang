@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.command.testgen.renderer;
 import org.apache.commons.io.IOUtils;
 import org.ballerinalang.langserver.command.testgen.TestGeneratorException;
 import org.ballerinalang.langserver.command.testgen.template.PlaceHolder;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -30,6 +31,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.stream.IntStream;
 
 import static java.util.regex.Matcher.quoteReplacement;
 
@@ -44,11 +47,19 @@ public class TemplateBasedRendererOutput implements RendererOutput {
      * List of placeholders to keep track of placeholder content.
      */
     private Map<String, String> placeHolders = new HashMap<>();
+    /**
+     * Need to track focus line.
+     */
+    private BiConsumer<Integer, Integer> focusLineAcceptor;
+    /**
+     * Focus function name.
+     */
+    private String focusFunctionName;
 
     /**
      * Returns a new FileTemplate.
      *
-     * @param templateFileName File name of the source file located in ./resources/test/template.
+     * @param templateFileName File name of the source file located in ./resources/test/template
      * @throws TestGeneratorException when reading template file failed
      */
     public TemplateBasedRendererOutput(String templateFileName) throws TestGeneratorException {
@@ -123,6 +134,9 @@ public class TemplateBasedRendererOutput implements RendererOutput {
         placeHolders.forEach(
                 (key, value) -> {
                     result[0] = result[0].replaceAll("\\$\\{" + key + "}", quoteReplacement(value));
+
+                    //Compute position of the test function
+                    computeFocusPosition(key, result[0]);
                 }
         );
         //Clear pending placeholders
@@ -131,11 +145,25 @@ public class TemplateBasedRendererOutput implements RendererOutput {
     }
 
     /**
-     * Returns True when creating a new test file.
+     * Sets focus function name and acceptor.
      *
-     * @return True when creating a new file, False otherwise
+     * @param focusFunctionName focus function name
+     * @param acceptor          focus line acceptor
      */
-    public boolean isNewTestFile() {
-        return true;
+    @Override
+    public void setFocusLineAcceptor(String focusFunctionName, BiConsumer<Integer, Integer> acceptor) {
+        this.focusFunctionName = focusFunctionName;
+        this.focusLineAcceptor = acceptor;
+    }
+
+    private void computeFocusPosition(String placeHolderName, String newContent) {
+        if (PlaceHolder.CONTENT.getName().equals(placeHolderName) && focusLineAcceptor != null) {
+            String[] lines = newContent.split(CommonUtil.LINE_SEPARATOR_SPLIT);
+            IntStream.range(0, lines.length)
+                    .filter(i -> lines[i].contains("function " + focusFunctionName))
+                    .findFirst().ifPresent(i -> {
+                focusLineAcceptor.accept(i - 2 < 0 ? 0 : i - 2, 0);
+            });
+        }
     }
 }
