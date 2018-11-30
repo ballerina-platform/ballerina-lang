@@ -33,7 +33,7 @@ import java.util.Map;
  * Test cases for verifying single http filter for a service.
  */
 @Test(groups = "filter-test")
-public class SingleFilterTestCase extends FilterBaseTest {
+public class SingleFilterTestCase extends FilterTestCommons {
     private Map<String, String> headers = new HashMap<>();
 
     @BeforeClass

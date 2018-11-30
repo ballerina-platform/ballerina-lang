@@ -872,9 +872,9 @@ public class EqualAndNotEqualOperationsTest {
         validateError(resultNegative, 29, "operator '!=' not defined for 'int[]' and '(float,float)'", 94, 34);
         validateError(resultNegative, 30, "operator '==' not defined for 'int[]' and '(int,float)'", 97, 22);
         validateError(resultNegative, 31, "operator '!=' not defined for '(int,float)' and 'int[]'", 97, 34);
-        validateError(resultNegative, 32, "operator '==' not defined for '(int,stream)' and '(int,float)'", 111,
+        validateError(resultNegative, 32, "operator '==' not defined for '(int,stream<int>)' and '(int,float)'", 111,
                       22);
-        validateError(resultNegative, 33, "operator '!=' not defined for '(int,float)' and '(int,stream)'", 111,
+        validateError(resultNegative, 33, "operator '!=' not defined for '(int,float)' and '(int,stream<int>)'", 111,
                       34);
         validateError(resultNegative, 34, "operator '==' not defined for 'any' and 'int'", 115, 14);
         validateError(resultNegative, 35, "operator '!=' not defined for 'int' and 'any'", 115, 26);
