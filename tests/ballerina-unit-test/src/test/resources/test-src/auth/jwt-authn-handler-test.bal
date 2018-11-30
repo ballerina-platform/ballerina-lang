@@ -1,40 +1,39 @@
-import ballerina/http;
-import ballerina/mime;
 import ballerina/auth;
+import ballerina/http;
 
-function testCanHandleHttpJwtAuthWithoutHeader () returns (boolean) {
+function testCanHandleHttpJwtAuthWithoutHeader() returns (boolean) {
     http:HttpJwtAuthnHandler handler = new(createJwtAuthProvider("ballerina/security/ballerinaTruststore.p12"));
-    http:Request request = createRequest ();
+    http:Request request = createRequest();
     string authHeaderValue = "Basic xxxxxx";
     request.setHeader("Authorization", authHeaderValue);
     return handler.canHandle(request);
 }
 
-function testCanHandleHttpJwtAuth () returns (boolean) {
+function testCanHandleHttpJwtAuth() returns (boolean) {
     http:HttpJwtAuthnHandler handler = new(createJwtAuthProvider("ballerina/security/ballerinaTruststore.p12"));
-    http:Request request = createRequest ();
+    http:Request request = createRequest();
     string authHeaderValue = "Bearer xxx.yyy.zzz";
     request.setHeader("Authorization", authHeaderValue);
     return handler.canHandle(request);
 }
 
-function testHandleHttpJwtAuthFailure () returns (boolean) {
+function testHandleHttpJwtAuthFailure() returns (boolean) {
     http:HttpJwtAuthnHandler handler = new(createJwtAuthProvider("ballerina/security/ballerinaTruststore.p12"));
-    http:Request request = createRequest ();
+    http:Request request = createRequest();
     string authHeaderValue = "Bearer xxx.yyy.zzz";
     request.setHeader("Authorization", authHeaderValue);
     return handler.handle(request);
 }
 
-function testHandleHttpJwtAuth (string token, string trustStorePath) returns (boolean) {
+function testHandleHttpJwtAuth(string token, string trustStorePath) returns (boolean) {
     http:HttpJwtAuthnHandler handler = new(createJwtAuthProvider(trustStorePath));
-    http:Request request = createRequest ();
+    http:Request request = createRequest();
     string authHeaderValue = "Bearer " + token;
     request.setHeader("Authorization", authHeaderValue);
     return handler.handle(request);
 }
 
-function createRequest () returns (http:Request) {
+function createRequest() returns (http:Request) {
     http:Request inRequest = new;
     inRequest.rawPath = "/helloWorld/sayHello";
     inRequest.method = "GET";
@@ -49,6 +48,6 @@ function createJwtAuthProvider(string trustStorePath) returns auth:JWTAuthProvid
     jwtConfig.certificateAlias = "ballerina";
     jwtConfig.trustStoreFilePath = trustStorePath;
     jwtConfig.trustStorePassword = "ballerina";
-    auth:JWTAuthProvider jwtAuthProvider = new (jwtConfig);
+    auth:JWTAuthProvider jwtAuthProvider = new(jwtConfig);
     return jwtAuthProvider;
 }

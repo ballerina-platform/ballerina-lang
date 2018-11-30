@@ -265,7 +265,6 @@ statement
     |   namespaceDeclarationStatement
     |   foreverStatement
     |   streamingQueryStatement
-    |   doneStatement
     ;
 
 variableDefinitionStatement
@@ -566,7 +565,11 @@ expressionStmt
     ;
 
 transactionStatement
-    :   transactionClause onretryClause?
+    :   transactionClause onretryClause? committedAbortedClauses
+    ;
+
+committedAbortedClauses
+    :  ((committedClause? abortedClause?) | (abortedClause? committedClause?))
     ;
 
 transactionClause
@@ -575,8 +578,6 @@ transactionClause
 
 transactionPropertyInitStatement
     :   retriesStatement
-    |   oncommitStatement
-    |   onabortStatement
     ;
 
 transactionPropertyInitStatementList
@@ -590,6 +591,15 @@ lockStatement
 onretryClause
     :   ONRETRY LEFT_BRACE statement* RIGHT_BRACE
     ;
+
+committedClause
+    :   COMMITTED LEFT_BRACE statement* RIGHT_BRACE
+    ;
+
+abortedClause
+    :   ABORTED LEFT_BRACE statement* RIGHT_BRACE
+    ;
+
 abortStatement
     :   ABORT SEMICOLON
     ;
@@ -600,14 +610,6 @@ retryStatement
 
 retriesStatement
     :   RETRIES ASSIGN expression
-    ;
-
-oncommitStatement
-    :   ONCOMMIT ASSIGN expression
-    ;
-
-onabortStatement
-    :   ONABORT ASSIGN expression
     ;
 
 namespaceDeclarationStatement
@@ -878,10 +880,6 @@ tableQuery
 
 foreverStatement
     :   FOREVER LEFT_BRACE  streamingQueryStatement+ RIGHT_BRACE
-    ;
-
-doneStatement
-    :   DONE SEMICOLON
     ;
 
 streamingQueryStatement

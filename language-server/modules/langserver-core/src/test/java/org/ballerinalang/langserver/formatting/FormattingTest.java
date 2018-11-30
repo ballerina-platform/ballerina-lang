@@ -99,7 +99,6 @@ public class FormattingTest {
                 {"expectedTryCatch.bal", "tryCatch.bal"},
                 {"expectedBinaryExpr.bal", "binaryExpr.bal"},
                 {"expectedArrayLiteralExpr.bal", "arrayLiteralExpr.bal"},
-                {"expectedDone.bal", "done.bal"},
                 {"expectedForeach.bal", "foreach.bal"},
                 {"expectedConstrainedType.bal", "constrainedType.bal"},
                 {"expectedBreak.bal", "break.bal"},

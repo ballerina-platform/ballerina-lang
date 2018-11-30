@@ -43,7 +43,7 @@ public type byteServiceBlockingClient client object {
         // initialize client endpoint.
         grpc:Client c = new;
         c.init(self.url, self.config);
-        error? result = c.initStub("blocking", DESCRIPTOR_KEY, getDescriptorMap());
+        error? result = c.initStub("blocking", ROOT_DESCRIPTOR, getDescriptorMap());
         if (result is error) {
             panic result;
         } else {
@@ -79,7 +79,7 @@ public type byteServiceClient client object {
         // initialize client endpoint.
         grpc:Client c = new;
         c.init(self.url, self.config);
-        error? result = c.initStub("non-blocking", DESCRIPTOR_KEY, getDescriptorMap());
+        error? result = c.initStub("non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
         if (result is error) {
             panic result;
         } else {
@@ -92,8 +92,8 @@ public type byteServiceClient client object {
     }
 };
 
-const string DESCRIPTOR_KEY = "byteService.proto";
-function getDescriptorMap() returns map<any> {
+const string ROOT_DESCRIPTOR = "0A1162797465536572766963652E70726F746F120C6772706373657276696365731A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F32550A0B627974655365727669636512460A0A636865636B4279746573121B2E676F6F676C652E70726F746F6275662E427974657356616C75651A1B2E676F6F676C652E70726F746F6275662E427974657356616C7565620670726F746F33";
+function getDescriptorMap() returns map<string> {
     return {
         "byteService.proto":
         "0A1162797465536572766963652E70726F746F120C6772706373657276696365731A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F32550A0B627974655365727669636512460A0A636865636B4279746573121B2E676F6F676C652E70726F746F6275662E427974657356616C75651A1B2E676F6F676C652E70726F746F6275662E427974657356616C7565620670726F746F33"

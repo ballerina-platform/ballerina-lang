@@ -77,8 +77,12 @@ export class DiagramConfig {
 
     public flowCtrl = {
         bottomMargin: STATEMENT_HEIGHT / 2,
-        header: {
+        condition: {
             height: STATEMENT_HEIGHT * 3
+        },
+        foreach: {
+            height: STATEMENT_HEIGHT * 2,
+            width: STATEMENT_HEIGHT * 3
         },
         leftMargin: STATEMENT_HEIGHT,
         leftMarginDefault: 60,

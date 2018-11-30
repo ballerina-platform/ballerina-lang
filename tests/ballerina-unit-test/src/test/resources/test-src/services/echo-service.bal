@@ -51,7 +51,7 @@ service echo on echoEP {
         string payloadData = "";
         var payload = req.getTextPayload();
         if (payload is error) {
-            done;
+            return;
         } else if (payload is string) {
             payloadData = payload;
         }
@@ -128,7 +128,7 @@ service echo on echoEP {
             res.setJsonPayload(untaint responseJson);
         } else if (params is error) {
             string errMsg = <string> params.detail().message;
-            res.setTextPayload(errMsg);
+            res.setPayload(untaint errMsg);
         }
         _ = caller->respond(res);
     }

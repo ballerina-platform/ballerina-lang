@@ -24,11 +24,11 @@ import java.util.Map;
 import java.util.Stack;
 
 /**
- * {@code LocalTransactionInfo} stores the transaction related information.
+ * {@code TransactionLocalContext} stores the transaction related information.
  *
  * @since 0.964.0
  */
-public class LocalTransactionInfo {
+public class TransactionLocalContext {
 
     private String globalTransactionId;
     private String url;
@@ -39,8 +39,12 @@ public class LocalTransactionInfo {
     private Map<Integer, Integer> currentTransactionRetryCounts;
     private Map<String, BallerinaTransactionContext> transactionContextStore;
     private Stack<Integer> transactionBlockIdStack;
+    private Stack<TransactionFailure> transactionFailure;
+    private static final TransactionResourceManager transactionResourceManager =
+            TransactionResourceManager.getInstance();
+    private boolean isResourceParticipant;
 
-    public LocalTransactionInfo(String globalTransactionId, String url, String protocol) {
+    private TransactionLocalContext(String globalTransactionId, String url, String protocol) {
         this.globalTransactionId = globalTransactionId;
         this.url = url;
         this.protocol = protocol;
@@ -49,6 +53,18 @@ public class LocalTransactionInfo {
         this.currentTransactionRetryCounts = new HashMap<>();
         this.transactionContextStore = new HashMap<>();
         transactionBlockIdStack = new Stack<>();
+        transactionFailure = new Stack<>();
+    }
+
+    public static TransactionLocalContext createTransactionParticipantLocalCtx(String globalTransactionId,
+                                                                               String url, String protocol) {
+        TransactionLocalContext localContext = new TransactionLocalContext(globalTransactionId, url, protocol);
+        localContext.setResourceParticipant(true);
+        return localContext;
+    }
+
+    public static TransactionLocalContext create(String globalTransactionId, String url, String protocol) {
+        return new TransactionLocalContext(globalTransactionId, url, protocol);
     }
 
     public String getGlobalTransactionId() {
@@ -79,10 +95,8 @@ public class LocalTransactionInfo {
     }
 
     public void incrementCurrentRetryCount(int localTransactionID) {
-        int count = currentTransactionRetryCounts.containsKey(localTransactionID) ?
-                currentTransactionRetryCounts.get(localTransactionID) :
-                0;
-        currentTransactionRetryCounts.put(localTransactionID, count + 1);
+        currentTransactionRetryCounts.putIfAbsent(localTransactionID, 0);
+        currentTransactionRetryCounts.computeIfPresent(localTransactionID, (k, v) -> v + 1);
     }
 
     public BallerinaTransactionContext getTransactionContext(String connectorid) {
@@ -93,6 +107,18 @@ public class LocalTransactionInfo {
         transactionContextStore.put(connectorid, txContext);
     }
 
+    /**
+     * Is this a retry attempt or initial transaction run.
+     *
+     * Current retry count = 0 is initial run.
+     *
+     * @param transactionId transaction block id
+     * @return this is a retry runs
+     */
+    public boolean isRetryAttempt(int transactionId) {
+        return  getCurrentRetryCount(transactionId) > 0;
+    }
+
     public boolean isRetryPossible(Strand context, int transactionId) {
         int allowedRetryCount = getAllowedRetryCount(transactionId);
         int currentRetryCount = getCurrentRetryCount(transactionId);
@@ -101,29 +127,26 @@ public class LocalTransactionInfo {
                 return false; //Retry count exceeded
             }
         }
-
-        //Participant transactions/nested transactions are not allowed to retry. That is because participant tx
-        //cannot start running 2pc protocol and it is done only via initiator. Also with participant retries, the number
-        //of retries become very large.
-        boolean isGlobalTransactionEnabled = context.getGlobalTransactionEnabled();
-        if (!isGlobalTransactionEnabled) {
-            return true;
-        }
-        if (currentRetryCount != 0 && !TransactionUtils.isInitiator(context, globalTransactionId, transactionId)) {
-            return false;
-        }
         return true;
     }
 
     public boolean onTransactionFailed(Strand context, int transactionBlockId) {
-        boolean bNotifyCoordinator = false;
         if (isRetryPossible(context, transactionBlockId)) {
             transactionContextStore.clear();
-            TransactionResourceManager.getInstance().rollbackTransaction(globalTransactionId, transactionBlockId);
+            transactionResourceManager.rollbackTransaction(globalTransactionId, transactionBlockId);
+            return false;
         } else {
-            bNotifyCoordinator = true;
+            return true;
         }
-        return bNotifyCoordinator;
+    }
+
+    public void notifyLocalParticipantFailure() {
+        Integer bockId = transactionBlockIdStack.peek();
+        transactionResourceManager.notifyLocalParticipantFailure(globalTransactionId, bockId);
+    }
+
+    public void notifyLocalRemoteParticipantFailure() {
+        TransactionResourceManager.getInstance().notifyResourceFailure(globalTransactionId);
     }
 
     public boolean onTransactionEnd(int transactionBlockId) {
@@ -131,7 +154,7 @@ public class LocalTransactionInfo {
         transactionBlockIdStack.pop();
         --transactionLevel;
         if (transactionLevel == 0) {
-            TransactionResourceManager.getInstance().endXATransaction(globalTransactionId, transactionBlockId);
+            transactionResourceManager.endXATransaction(globalTransactionId, transactionBlockId);
             resetTransactionInfo();
             isOuterTx = true;
         }
@@ -139,7 +162,7 @@ public class LocalTransactionInfo {
 
     }
 
-    private int getAllowedRetryCount(int localTransactionID) {
+    public int getAllowedRetryCount(int localTransactionID) {
         return allowedTransactionRetryCounts.get(localTransactionID);
     }
 
@@ -151,5 +174,52 @@ public class LocalTransactionInfo {
         allowedTransactionRetryCounts.clear();
         currentTransactionRetryCounts.clear();
         transactionContextStore.clear();
+    }
+
+    public void markFailure() {
+        transactionFailure.push(TransactionFailure.at(-1));
+    }
+
+    public TransactionFailure getAndClearFailure() {
+        if (transactionFailure.empty()) {
+            return null;
+        }
+        TransactionFailure failure = transactionFailure.pop();
+        transactionFailure.clear();
+        return failure;
+    }
+
+    public TransactionFailure getFailure() {
+        if (transactionFailure.empty()) {
+            return null;
+        }
+        return transactionFailure.peek();
+    }
+
+    public boolean isResourceParticipant() {
+        return isResourceParticipant;
+    }
+
+    public void setResourceParticipant(boolean resourceParticipant) {
+        isResourceParticipant = resourceParticipant;
+    }
+
+    /**
+     * Carrier for transaction failure information.
+     */
+    public static class TransactionFailure {
+        private final int offendingIp;
+
+        private TransactionFailure(int offendingIp) {
+            this.offendingIp = offendingIp;
+        }
+
+        private static TransactionFailure at(int offendingIp) {
+            return new TransactionFailure(offendingIp);
+        }
+
+        public int getOffendingIp() {
+            return offendingIp;
+        }
     }
 }

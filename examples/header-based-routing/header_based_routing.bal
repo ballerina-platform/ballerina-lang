@@ -37,7 +37,7 @@ service<http:Service> headerBasedRouting bind { port: 9090 } {
             if (result is error){
                 log:printError("Error sending response", err = result);
             }
-            done;
+            return;
         }
         //`getHeader()` returns header value of a specified header name.
         string nameString = req.getHeader("x-type");

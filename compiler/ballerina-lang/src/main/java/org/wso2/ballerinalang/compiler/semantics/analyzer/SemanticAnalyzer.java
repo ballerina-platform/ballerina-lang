@@ -61,7 +61,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BChannelType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
@@ -129,7 +128,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
@@ -1324,37 +1322,23 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (transactionNode.onRetryBody != null) {
             analyzeStmt(transactionNode.onRetryBody, env);
         }
+
+        if (transactionNode.committedBody != null) {
+            analyzeStmt(transactionNode.committedBody, env);
+        }
+
+        if (transactionNode.abortedBody != null) {
+            analyzeStmt(transactionNode.abortedBody, env);
+        }
+
         if (transactionNode.retryCount != null) {
             typeChecker.checkExpr(transactionNode.retryCount, env, symTable.intType);
             checkRetryStmtValidity(transactionNode.retryCount);
-        }
-
-        if (transactionNode.onCommitFunction != null) {
-            typeChecker.checkExpr(transactionNode.onCommitFunction, env, symTable.noType);
-            if (transactionNode.onCommitFunction.type.tag == TypeTags.INVOKABLE) {
-                ((BInvokableSymbol) ((BLangSimpleVarRef) transactionNode.onCommitFunction).symbol)
-                        .isTransactionHandler = true;
-            }
-            checkTransactionHandlerValidity(transactionNode.onCommitFunction);
-        }
-
-        if (transactionNode.onAbortFunction != null) {
-            typeChecker.checkExpr(transactionNode.onAbortFunction, env, symTable.noType);
-            if (transactionNode.onAbortFunction.type.tag == TypeTags.INVOKABLE) {
-                ((BInvokableSymbol) ((BLangSimpleVarRef) transactionNode.onAbortFunction).symbol)
-                        .isTransactionHandler = true;
-            }
-            checkTransactionHandlerValidity(transactionNode.onAbortFunction);
         }
     }
 
     @Override
     public void visit(BLangAbort abortNode) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangDone doneNode) {
         /* ignore */
     }
 
@@ -1401,42 +1385,23 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangEndpoint endpointNode) {
     }
 
-    private boolean isInTopLevelWorkerEnv() {
-        SymbolEnv env = this.env;
-        return env.enclInvokable.flagSet.contains(Flag.WORKER) && env.enclInvokable.body == env.node;
-    }
-
-    private boolean workerExists(SymbolEnv env, String workerName) {
-        BSymbol symbol = this.symResolver.lookupSymbol(env, new Name(workerName), SymTag.VARIABLE);
-        return symbol != this.symTable.notFoundSymbol &&
-               symbol.type.tag == TypeTags.FUTURE &&
-               ((BFutureType) symbol.type).workerDerivative;
-    }
 
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
         workerSendNode.env = this.env;
         this.typeChecker.checkExpr(workerSendNode.expr, this.env);
 
-        // Validate if the send type is anydata
-        if (!types.isAnydata(workerSendNode.expr.type)) {
-            this.dlog.error(workerSendNode.pos, DiagnosticCode.INVALID_TYPE_FOR_SEND, workerSendNode.expr.type);
-        }
-
         BSymbol symbol = symResolver.lookupSymbol(env, names.fromIdNode(workerSendNode.workerIdentifier), SymTag
                 .VARIABLE);
+
+        if (symTable.notFoundSymbol.equals(symbol)) {
+            workerSendNode.type = symTable.semanticError;
+        } else {
+            workerSendNode.type = symbol.type;
+        }
+
         if (workerSendNode.isChannel || symbol.getType().tag == TypeTags.CHANNEL) {
             visitChannelSend(workerSendNode, symbol);
-            return;
-        }
-
-        if (!this.isInTopLevelWorkerEnv()) {
-            this.dlog.error(workerSendNode.pos, DiagnosticCode.INVALID_WORKER_SEND_POSITION);
-        }
-
-        String workerName = workerSendNode.workerIdentifier.getValue();
-        if (!this.workerExists(this.env, workerName)) {
-            this.dlog.error(workerSendNode.pos, DiagnosticCode.UNDEFINED_WORKER, workerName);
         }
     }
 
@@ -1901,11 +1866,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private void visitChannelSend(BLangWorkerSend node, BSymbol channelSymbol) {
         node.isChannel = true;
-
-        if (symTable.notFoundSymbol.equals(channelSymbol)) {
-            dlog.error(node.pos, DiagnosticCode.UNDEFINED_SYMBOL, node.getWorkerName().getValue());
-            return;
-        }
 
         if (TypeTags.CHANNEL != channelSymbol.type.tag) {
             dlog.error(node.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.channelType, channelSymbol.type);
