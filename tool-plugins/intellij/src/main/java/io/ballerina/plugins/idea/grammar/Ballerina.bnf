@@ -38,6 +38,7 @@
 
         DEPRECATED          = 'deprecated';
 
+
         // Separators
         SEMICOLON           = ';' ;
         COLON               = ':' ;
@@ -102,21 +103,11 @@
         WHITE_SPACE = 'regexp:\s+'
         identifier = 'regexp:[a-zA-Z_][a-zA-Z0-9_]*'
         DECIMAL_INTEGER_LITERAL = "regexp:\d+"
-
-        //        QUOTED_STRING_LITERAL = "regexp:\"(.*?)\""
-        //        INTEGER_LITERAL = "regexp:\d+"
-
-
-        //    string_template_literal_start = "regexp:string\s*`"
-        //    string_template_literal_end = "`"
-
-        //    string_template_expression_start = "{{"
-        //    string_template_expression_end = "}}"
   ]
 
     extends("(FunctionInvocation|SimpleVariable|MapArrayVariable|FieldVariable|XmlAttribVariable|Invocation|AwaitExpression)Reference") = VariableReference
 
-    extends("((Simple|Array|Record|Xml|StringTemplate)Literal|(ValueType|BuiltInReferenceType)Type|VariableReference|LambdaFunction|ArrowFunction|Type(Init|Conversion|Access|Test)|BracedOrTuple|Await|TableQuery|MatchExpr|Checked|TableLiteral|Elvis|ActionInvocation|IntegerRange|ArrowFunction|ErrorConstructor|BinaryRefEqual|Trap)Expression") = Expression
+    extends("((Simple|Array|Record|Xml|StringTemplate)Literal|(ValueType|BuiltInReferenceType)Type|VariableReference|LambdaFunction|ArrowFunction|Type(Init|Conversion|Access|Test)|BracedOrTuple|Await|TableQuery|MatchExpr|Checked|TableLiteral|Elvis|ActionInvocation|IntegerRange|ArrowFunction|ErrorConstructor|ServiceConstructor|BinaryRefEqual|Trap)Expression") = Expression
     extends("(Unary|Binary|Ternary|Bitwise|BitwiseShift)Expression") = Expression
 
     extends("Binary(DivMulMod|AddSub|Compare|Equal|And|Or)Expression") = BinaryExpression
@@ -124,14 +115,14 @@
     extends("(Simple|Array|Nullable|Union|Group|Tuple|Object|Record)TypeName|BinaryAndExpression") = TypeName
 
     // Each named definition which can be renamed should implement this interface.
-    implements("(Function|Struct|GlobalVariable|Annotation|(.*Endpoint)|Action|Worker|Type)Definition") = "io.ballerina.plugins.idea.psi.BallerinaNamedElement"
+    implements("(Function|GlobalVariable|Annotation|Action|Worker|Type)Definition") = "io.ballerina.plugins.idea.psi.BallerinaNamedElement"
     // This is to identify top level elements in a file.
-    implements("(Function|Struct|GlobalVariable|Annotation|(.*Endpoint)|Action|Worker|Type)Definition") = "io.ballerina.plugins.idea.psi.impl.BallerinaTopLevelDefinition"
+    implements("(Function|GlobalVariable|Annotation|Action|Worker|Type)Definition") = "io.ballerina.plugins.idea.psi.impl.BallerinaTopLevelDefinition"
     // Each named definition should extend this class.
-    extends("(Function|Struct|GlobalVariable|Annotation|(.*Endpoint)|Action|Worker|Type)Definition") = "io.ballerina.plugins.idea.psi.impl.BallerinaNamedElementImpl<?>"
+    extends("(Function|GlobalVariable|Annotation|Action|Worker|Type)Definition") = "io.ballerina.plugins.idea.psi.impl.BallerinaNamedElementImpl<?>"
 
     // Each stubbed element should have this element type factory.
-    elementTypeFactory("(Function|Struct|GlobalVariable|Annotation|(.*Endpoint)|Action|Worker|Type)Definition") = "io.ballerina.plugins.idea.stubs.factory.BallerinaElementTypeFactory.stubFactory"
+    elementTypeFactory("(Function|Struct|Annotation|Action|Worker|Type)Definition") = "io.ballerina.plugins.idea.stubs.factory.BallerinaElementTypeFactory.stubFactory"
 
     // Each stub which is not a named definition should extend this class.
 //    extends("PackageDeclaration") = "BallerinaStubbedElementImpl<?>"
@@ -192,45 +183,31 @@ Alias ::= as identifier {
 
 // Note - Global variable definition should be the first definition since it can contain identifier as type.
 Definition ::= ( TypeDefinition
-               | GlobalVariable
                | ServiceDefinition
+               | GlobalVariableDefinition
                | FunctionDefinition
                | AnnotationDefinition
-               | GlobalEndpointDefinition
-               ) {
-    recoverWhile=TopLevelDefinitionRecover
-}
+               | ConstantDefinition )
+{recoverWhile=TopLevelDefinitionRecover}
 
-private TopLevelDefinitionRecover ::= !(MARKDOWN_DOCUMENTATION_LINE_START|PARAMETER_DOCUMENTATION_START|RETURN_PARAMETER_DOCUMENTATION_START|DEPRECATED_TEMPLATE_START|'@'|extern|public|type|typedesc|service|function|enum|annotation|endpoint|int|float|boolean|string|byte|map|xml|xmlns|json|table|any|stream|object|channel|future|identifier|'{')
+private TopLevelDefinitionRecover ::= !(MARKDOWN_DOCUMENTATION_LINE_START|PARAMETER_DOCUMENTATION_START|RETURN_PARAMETER_DOCUMENTATION_START|DEPRECATED_TEMPLATE_START|'@'|extern|remote|client|abstract|public|type|typedesc|service|listener|function|enum|annotation|int|float|decimal|boolean|string|byte|map|xml|xmlns|json|table|any|stream|object|record|channel|const|final|future|identifier|'{')
 
-ServiceDefinition ::= service (LT NameReference GT)? identifier ServiceEndpointAttachments?  ServiceBody {pin=1}
-ServiceEndpointAttachments ::= bind (NameReference (COMMA NameReference)* | RecordLiteral) {pin=1}
-ServiceBody ::= LEFT_BRACE (/*ResourceDefinition+ | EndpointDefinition+ ResourceDefinition* |*/ EndpointDefinition* (VariableDefinitionStatementInService | NamespaceDeclarationStatement)* ResourceDefinition*) RIGHT_BRACE /*{pin=1}*/
-
-// Note - Always sync with VariableDefinitionStatement
-VariableDefinitionStatementInService ::= TypeName identifier VariableAssignment? SEMICOLON {pin(".*")=2 elementType=VariableDefinitionStatement}
-ResourceDefinition ::=  documentationString? AnnotationAttachment* deprecatedAttachment? identifier LEFT_PARENTHESIS resourceParameterList? RIGHT_PARENTHESIS CallableUnitBody {pin=4}
-resourceParameterList ::= endpointParameter | ParameterList
-endpointParameter ::= endpoint identifier (COMMA ParameterList)? {pin(".*")=1}
+ServiceDefinition ::= service identifier? on Expression  ServiceBody {pin=1}
+ServiceBody ::= LEFT_BRACE ServiceBodyMember* RIGHT_BRACE
+ServiceBodyMember ::= ObjectFieldDefinition | ObjectFunctionDefinition
 
 // Pin to make sure callable unit is identified correctly
 // Note - Empty body was added to fix issue in anon object function
-CallableUnitBody ::= LEFT_BRACE (RIGHT_BRACE | BlockWithEndpoint RIGHT_BRACE | BlockWithEndpointAndWorker RIGHT_BRACE)  {pin=1}
+CallableUnitBody ::= LEFT_BRACE (RIGHT_BRACE | Block RIGHT_BRACE | WorkerDefinition+ RIGHT_BRACE)  {pin=1}
 
 Block ::= Statement* {methods=[processDeclarations]} /*{recoverWhile=StatementRecover}*/
-BlockWithEndpoint ::= EndpointDefinition* Statement* {elementType=Block}
-BlockWithEndpointAndWorker ::= EndpointDefinition* WorkerDefinition+ {elementType=Block}
-NonEmptyBlock ::= Statement+ {elementType=Block}
-//private StatementRecover ::= !(int | string | '}' | '=')
-
-//private StatementRecover ::= !(/*'!' | '&' | '(' | '*' | '+' | '-' |*/ ';' /*| '<-' | '^' | 'type' |*/ /*'{' | '|' |*/ '|=' | '||' | '}' | /*break | case | char | continue | decimali | default | defer | else | fallthrough | float | floati | for | func | go | goto | hex |*/ identifier | /* if | interface | map | oct | return | select |*/ string  | /* switch | var | continue |try |*/ int )
 
 // Todo - Need getIdentifier?
-FunctionDefinition ::= (public)? (extern)? function (FunctionWithoutReceiver | FunctionWithReceiver) {
-    pin=3 methods=[getIdentifier getName] stubClass="io.ballerina.plugins.idea.stubs.BallerinaFunctionDefinitionStub"
+FunctionDefinition ::= (public)? (remote)? (extern)? function (FunctionWithoutReceiver | FunctionWithReceiver) {
+    pin=4 methods=[getIdentifier getName] stubClass="io.ballerina.plugins.idea.stubs.BallerinaFunctionDefinitionStub"
 }
-private FunctionWithReceiver ::=  (TypeName DOUBLE_COLON)? CallableUnitSignature (CallableUnitBody | SEMICOLON) {pin=2}
-private FunctionWithoutReceiver ::= AttachedObject DOUBLE_COLON CallableUnitSignature CallableUnitBody {pin=2}
+private FunctionWithReceiver ::=  (TypeName DOT)? CallableUnitSignature (CallableUnitBody | SEMICOLON) {pin=2}
+private FunctionWithoutReceiver ::= AttachedObject DOT CallableUnitSignature CallableUnitBody {pin=2}
 
 AttachedObject ::= identifier
 
@@ -252,15 +229,9 @@ TypeDefinition ::= (public)? type identifier FiniteType SEMICOLON {
     stubClass="io.ballerina.plugins.idea.stubs.BallerinaTypeDefinitionStub"
 }
 
-ObjectBody ::= ObjectMember* ObjectInitializer? ObjectMember*
+ObjectBody ::=  (ObjectFieldDefinition | ObjectFunctionDefinition | TypeReference)*
 
-ObjectMember ::= ObjectFieldDefinition | ObjectFunctionDefinition | TypeReference
-
-TypeReference ::= MUL SimpleTypeName SEMICOLON
-
-ObjectInitializer ::= documentationString? AnnotationAttachment* (public)? new ObjectInitializerParameterList CallableUnitBody {pin=4}
-
-ObjectInitializerParameterList ::= LEFT_PARENTHESIS ObjectParameterList? RIGHT_PARENTHESIS {pin=1}
+TypeReference ::= MUL SimpleTypeName SEMICOLON {pin=1}
 
 ObjectFieldDefinition ::= AnnotationAttachment* deprecatedAttachment? (public | private)? TypeName identifier (ASSIGN Expression)? (COMMA | SEMICOLON) {pin=5}
 
@@ -270,38 +241,32 @@ RecordRestFieldDefinition ::= TypeName <<restDescriptorPredicate>> ELLIPSIS | Se
 
 SealedLiteral ::= NOT <<restDescriptorPredicate>> ELLIPSIS
 
-ObjectParameterList ::= (ObjectDefaultableParameter | ObjectParameter) (COMMA (ObjectDefaultableParameter | ObjectParameter))* (COMMA RestParameter)? | RestParameter
-
-// Todo - Revert back the changes?
-ObjectParameter ::= AnnotationAttachment* (TypeName identifier | identifier)
-
-ObjectDefaultableParameter ::= ObjectParameter ASSIGN Expression
-
-ObjectFunctionDefinition ::= documentationString? AnnotationAttachment* deprecatedAttachment? (public)? (extern)? function CallableUnitSignature (CallableUnitBody | SEMICOLON) {pin=6}
-
-//TODO merge with callableUnitSignature later
-ObjectCallableUnitSignature ::= AnyIdentifierName LEFT_PARENTHESIS FormalParameterList? RIGHT_PARENTHESIS ReturnParameter? {pin=1}
+ObjectFunctionDefinition ::= documentationString? AnnotationAttachment* deprecatedAttachment? (public|private)? (remote|resource)? (extern)? function CallableUnitSignature (CallableUnitBody | SEMICOLON) {pin=7}
 
 AnnotationDefinition ::= (public)? annotation (LT AttachmentPoint (COMMA AttachmentPoint)* GT)? identifier UserDefineTypeName? SEMICOLON {
     pin=2
     stubClass="io.ballerina.plugins.idea.stubs.BallerinaAnnotationDefinitionStub"
 }
 
+ConstantDefinition ::= PUBLIC? CONST TypeName? identifier ASSIGN Expression SEMICOLON {pin=2}
+
 //private AttachmentPointsRecover ::= !(GT | Identifier | SEMICOLON)
 
-GlobalVariable ::= GlobalVariableDefinition | ChannelDefinition
-
-GlobalVariableDefinition ::= (public)? TypeName identifier (ASSIGN  Expression)? SEMICOLON {
-   pin=2
-   stubClass="io.ballerina.plugins.idea.stubs.BallerinaGlobalVariableDefinitionStub"
+GlobalVariableDefinition ::= public? listener? TypeName identifier (ASSIGN Expression)? SEMICOLON
+                            | public? final (TypeName | var) identifier ASSIGN Expression SEMICOLON
+                            | channelType identifier SEMICOLON
+{
+    stubClass="io.ballerina.plugins.idea.stubs.BallerinaGlobalVariableDefinitionStub"
 }
 
-ChannelDefinition ::= ChannelType identifier SEMICOLON
-ChannelType ::= channel (LT TypeName GT) {pin=1}
+//finalVariableDefinition ::= public? final (TypeName | var) identifier ASSIGN Expression SEMICOLON  {pin=2}
+//nonFinalVariableDefinition ::= public? listener? TypeName identifier (ASSIGN Expression)? SEMICOLON {pin=3}
+//channelDefinition ::= channelType identifier SEMICOLON
+channelType ::= channel (LT TypeName GT) {pin=1}
 
 // Todo - Need to update the service?
 // Note - "parameter" is treated differently here because there is a parser rule named "parameter" as well.
-AttachmentPoint ::= service | resource | function | object | type | endpoint | TYPE_PARAMETER | annotation {
+AttachmentPoint ::= service | resource | function | remote | object | client | listener | type | TYPE_PARAMETER | annotation {
     /*recoverWhile=AttachmentPointRecover*/
 }
 
@@ -315,20 +280,6 @@ WorkerDefinition ::= worker identifier WorkerBody {
 private WorkerDefinitionRecover ::= !(worker|'}')
 
 WorkerBody ::= LEFT_BRACE Block RIGHT_BRACE {pin=1}
-
-GlobalEndpointDefinition ::= public? EndpointDefinition {
-    pin=2
-    methods=[getIdentifier] stubClass="io.ballerina.plugins.idea.stubs.BallerinaGlobalEndpointDefinitionStub"
-}
-
-EndpointDefinition ::= AnnotationAttachment* endpoint EndpointType identifier EndpointInitialization? SEMICOLON {
-    pin=2
-    stubClass="io.ballerina.plugins.idea.stubs.BallerinaEndpointDefinitionStub"
-}
-
-EndpointType ::= NameReference
-
-EndpointInitialization ::= RecordLiteral | ASSIGN VariableReference
 
 FiniteType ::= FiniteTypeUnit (PIPE FiniteTypeUnit)*
 
@@ -362,10 +313,10 @@ NullableTypeName ::= TypeName QUESTION_MARK
 UnionTypeName ::= TypeName (PIPE TypeName)+
 GroupTypeName ::= LEFT_PARENTHESIS <<isGroupType>> TypeName RIGHT_PARENTHESIS
 TupleTypeName ::= LEFT_PARENTHESIS TypeName (COMMA TypeName)* RIGHT_PARENTHESIS
-ObjectTypeName ::= abstract? object LEFT_BRACE ObjectBody RIGHT_BRACE {pin=2}
+ObjectTypeName ::= abstract? client? object LEFT_BRACE ObjectBody RIGHT_BRACE {pin=3}
 RecordTypeName ::= record? LEFT_BRACE RecordFieldDefinitionList RIGHT_BRACE
 
-RecordFieldDefinitionList ::= FieldDefinition* RecordRestFieldDefinition?
+RecordFieldDefinitionList ::= (FieldDefinition | TypeReference)* RecordRestFieldDefinition?
 
 //BuiltInTypeName ::= AnyTypeName
 //                    | SimpleTypeName (LEFT_BRACKET RIGHT_BRACKET)+
@@ -378,7 +329,7 @@ ReferenceTypeName ::= BuiltInReferenceTypeName
 
 UserDefineTypeName ::= NameReference
 
-ValueTypeName ::=   boolean | int | float | string | byte
+ValueTypeName ::=   boolean | int | float | decimal | string | byte
 
 BuiltInReferenceTypeName ::= MapTypeName
                              | FutureTypeName
@@ -386,6 +337,7 @@ BuiltInReferenceTypeName ::= MapTypeName
                              | JsonTypeName
                              | StreamTypeName
                              | TableTypeName
+                             | ServiceTypeName
                              | ErrorTypeName
                              | FunctionTypeName
 
@@ -398,6 +350,7 @@ ErrorTypeName ::= error (LT TypeName (COMMA TypeName)? GT)? {pin=1}
 StreamTypeName ::= stream (LT TypeName GT)? {pin=1}
 FunctionTypeName ::= function LEFT_PARENTHESIS (ParameterList | ParameterTypeNameList)? RIGHT_PARENTHESIS ReturnParameter? {pin=3}
 XmlNamespaceName ::= QUOTED_STRING_LITERAL
+ServiceTypeName ::= service
 
 XmlLocalName ::= identifier
 
@@ -442,17 +395,13 @@ Statement ::=
 // Todo - Add more tokens (for record destructuring and panic)
 // Note - Literals are added for worker interactions - 10 -> w2;
 // NULL_LITERAL is added for match pattern -  null => return "error";
-private StatementRecover ::= !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|SYMBOLIC_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|int|string|float|boolean|byte|any|json|xml|xmlns|map|table|function|stream|'('|'}'|';'|typedesc|future|await|var|while|match|foreach|continue|break|fork|try|throw|return|abort|retry|fail|lock|transaction|if|forever|object|check|error|panic|from|worker|done|identifier)
-
-//private StatementRecover ::= !(/*'!' | '&' | '(' | '*' | '+' | '-' |*/ ';' /*| '<-' | '^' | 'type' |*/ /*'{' | '|' |*/ '|=' | '||' | '}' | /*break | case | char | continue | decimali | default | defer | else | fallthrough | float | floati | for | func | go | goto | hex |*/ identifier | /* if | interface | map | oct | return | select |*/ string  | /*struct | switch | var | continue |try |*/ int )
+private StatementRecover ::= !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|SYMBOLIC_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|int|string|float|decimal|boolean|byte|any|anydata|json|xml|xmlns|map|table|function|stream|'('|'}'|';'|typedesc|future|await|var|while|match|foreach|continue|break|fork|try|throw|return|abort|retry|fail|lock|transaction|if|forever|object|check|error|panic|from|worker|done|identifier)
 
 // Note - VariableDefinitionStatementInService
 //TODO - change pin
 VariableDefinitionStatement ::= variableDefinitionStatementWithAssignment | variableDefinitionStatementWithoutAssignment {methods=[getType]}
 variableDefinitionStatementWithoutAssignment::= TypeName identifier SEMICOLON {pin=2}
-variableDefinitionStatementWithAssignment ::= (TypeName | var) BindingPattern ASSIGN Expression SEMICOLON {pin=3}
-
-private VariableAssignment ::= ASSIGN Expression {pin=1}
+variableDefinitionStatementWithAssignment ::= final? (TypeName | var) BindingPattern ASSIGN Expression SEMICOLON {pin=4}
 
 RecordLiteral ::= LEFT_BRACE RecordLiteralBody? RIGHT_BRACE {pin(".*")=1}
 
@@ -510,12 +459,12 @@ matchStatement ::= match Expression matchStatementBody {pin=1}
 matchStatementBody ::= LEFT_BRACE matchPatternClause+ RIGHT_BRACE {pin=1}
 
 // Todo - Add fake rule
-matchPatternClause ::= namedPattern | unnamedPattern | simpleLiteralPattern | bindingPatternPattern
+matchPatternClause ::= namedPattern | unnamedPattern | expressionPattern | bindingPatternPattern
 
 unnamedPattern ::= TypeName EQUAL_GT (LEFT_BRACE Block RIGHT_BRACE | Statement) {pin=2}
 namedPattern ::= TypeName identifier EQUAL_GT (LEFT_BRACE Block RIGHT_BRACE | Statement) {pin=3}
-simpleLiteralPattern ::=  SimpleLiteral EQUAL_GT (LEFT_BRACE Block RIGHT_BRACE | Statement) {pin=2}
-bindingPatternPattern ::= var BindingPattern EQUAL_GT (LEFT_BRACE Block RIGHT_BRACE | Statement) {pin=3}
+expressionPattern ::=  Expression EQUAL_GT (LEFT_BRACE Block RIGHT_BRACE | Statement) {pin=2}
+bindingPatternPattern ::= var BindingPattern (if Expression)? EQUAL_GT (LEFT_BRACE Block RIGHT_BRACE | Statement) {pin=4}
 
 BindingPattern ::= identifier | StructuredBindingPattern
 
@@ -655,7 +604,7 @@ InvocationArgList ::= InvocationArg (COMMA InvocationArg)* {pin(".*")=1}
 InvocationArg ::= NamedArgs | RestArgs | Expression
 
 // Todo - Update the recovery rule
-ActionInvocation ::= start? NameReference RARROW FunctionInvocation {/*pin=3 recoverWhile=StatementRecover*/}
+ActionInvocation ::= start? VariableReference RARROW FunctionInvocation {/*pin=3 recoverWhile=StatementRecover*/}
 
 ExpressionList ::= Expression (COMMA Expression)* {
     pin(".*")=1
@@ -728,6 +677,7 @@ Expression
     |   BitwiseExpression
     |   BitwiseShiftExpression
     |   ErrorConstructorExpression
+    |   ServiceConstructorExpression
     |   TypeTestExpression
     |   BinaryRefEqualExpression
     |   TrapExpression
@@ -782,6 +732,7 @@ BitwiseExpression ::= Expression (BITAND | PIPE | BITXOR) Expression
 BitwiseShiftExpression ::= Expression (ShiftExpression) Expression
 matchExpression ::= but (LEFT_BRACE MatchExpressionPatternClause (COMMA MatchExpressionPatternClause)* RIGHT_BRACE) {pin(".*")=1}
 ArrowFunctionExpression ::= ArrowFunction
+ServiceConstructorExpression ::= AnnotationAttachment* service ServiceBody {pin=2}
 
 TypeInitExpression ::= initWithoutType | initWithType
 initWithType ::= new UserDefineTypeName LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS {pin=3}
@@ -910,13 +861,10 @@ private StringTemplateTextContent ::= STRING_TEMPLATE_TEXT
 
 AnyIdentifierName ::= identifier | ReservedWord
 
-ReservedWord ::= foreach | map | start | continue
-
+ReservedWord ::= foreach | map | start | continue | OBJECT_INIT
 
 //Siddhi Streams and Tables related
 TableQuery ::= from StreamingInput JoinStreamingInput? SelectClause? OrderByClause? LimitClause? {pin=1}
-
-AggregationQuery ::= from StreamingInput SelectClause? OrderByClause?
 
 DoneStatement ::= done SEMICOLON {pin=1}
 
@@ -1008,25 +956,6 @@ singleBackTickDeprecatedInlineCode ::= SB_DEPRECATED_INLINE_CODE_START SINGLE_BA
 doubleBackTickDeprecatedInlineCode ::= DB_DEPRECATED_INLINE_CODE_START DOUBLE_BACK_TICK_INLINE_CODE? DOUBLE_BACK_TICK_INLINE_CODE_END {pin=1}
 
 tripleBackTickDeprecatedInlineCode ::= TB_DEPRECATED_INLINE_CODE_START TRIPLE_BACK_TICK_INLINE_CODE? TRIPLE_BACK_TICK_INLINE_CODE_END {pin=1}
-
-// Documentation parsing.
-
-documentationAttachment ::= DOCUMENTATION_TEMPLATE_START documentationTemplateContent? DOCUMENTATION_TEMPLATE_END {pin=1}
-
-documentationTemplateContent ::= docText? documentationTemplateAttributeDescription+ | docText
-
-documentationTemplateAttributeDescription ::= DOCUMENTATION_TEMPLATE_ATTRIBUTE_START identifier? DOCUMENTATION_TEMPLATE_ATTRIBUTE_END docText? {pin=1}
-
-docText ::= documentationTemplateInlineCode (DOCUMENTATION_TEMPLATE_TEXT | documentationTemplateInlineCode)*
-            | DOCUMENTATION_TEMPLATE_TEXT  (DOCUMENTATION_TEMPLATE_TEXT | documentationTemplateInlineCode)*
-
-documentationTemplateInlineCode ::= singleBackTickDocInlineCode | doubleBackTickDocInlineCode | tripleBackTickDocInlineCode
-
-singleBackTickDocInlineCode ::= SB_DOC_INLINE_CODE_START SINGLE_BACK_TICK_INLINE_CODE? SINGLE_BACK_TICK_INLINE_CODE_END {pin=1}
-
-doubleBackTickDocInlineCode ::= DB_DOC_INLINE_CODE_START DOUBLE_BACK_TICK_INLINE_CODE? DOUBLE_BACK_TICK_INLINE_CODE_END {pin=1}
-
-tripleBackTickDocInlineCode ::= TB_DOC_INLINE_CODE_START TRIPLE_BACK_TICK_INLINE_CODE? TRIPLE_BACK_TICK_INLINE_CODE_END {pin=1}
 
 // Markdown Documentation parsing
 

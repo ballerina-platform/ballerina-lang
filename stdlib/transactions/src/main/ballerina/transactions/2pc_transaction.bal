@@ -30,8 +30,10 @@ type TwoPhaseCommitTransaction object {
     TransactionState state = TXN_STATE_ACTIVE;
     private boolean possibleMixedOutcome = false;
 
-    new(transactionId, transactionBlockId, coordinationType = "2pc") {
-
+    function __init(string transactionId, int transactionBlockId, string coordinationType = "2pc") {
+        self.transactionId = transactionId;
+        self.transactionBlockId = transactionBlockId;
+        self.coordinationType = coordinationType;
     }
 
     // This function will be called by the initiator
@@ -57,61 +59,29 @@ type TwoPhaseCommitTransaction object {
                 // If all durable participants voted YES (PREPARED or READONLY), next call notify(commit) on all
                 // (durable & volatile) participants and return committed to the initiator
                 var result = self.notifyParticipants(COMMAND_COMMIT, ());
-                match result {
-                    error => {
-                        // return Hazard outcome if a participant cannot successfully end its branch of the transaction
+                if (result is error) {
+                    // return Hazard outcome if a participant cannot successfully end its branch of the transaction
+                    error err = error(OUTCOME_HAZARD);
+                    ret = err;
+                } else {
+                    boolean localCommitSuccessful = commitResourceManagers(self.transactionId, self.transactionBlockId);
+                    if (!localCommitSuccessful) {
                         error err = error(OUTCOME_HAZARD);
+                        // "Local commit failed"
                         ret = err;
-                    }
-                    NotifyResult => {
-                        boolean localCommitSuccessful =
-                            commitResourceManagers(self.transactionId, self.transactionBlockId);
-                        if (!localCommitSuccessful) {
-                            error err = error(OUTCOME_HAZARD);
-                            // "Local commit failed"
-                            ret = err;
-                        } else {
-                            ret = OUTCOME_COMMITTED;
-                        }
+                    } else {
+                        ret = OUTCOME_COMMITTED;
                     }
                 }
             } else {
                 // If some durable participants voted NO, next call notify(abort) on all participants
                 // and return aborted to the initiator
                 var result = self.notifyParticipants(COMMAND_ABORT, ());
-                match result {
-                    error => {
-                        // return Hazard outcome if a participant cannot successfully end its branch of the transaction
-                        error err = error(OUTCOME_HAZARD);
-                        ret = err;
-                    }
-                    NotifyResult => {
-                        boolean localAbortSuccessful =
-                            abortResourceManagers(self.transactionId, self.transactionBlockId);
-                        if (!localAbortSuccessful) {
-                            error err = error(OUTCOME_HAZARD);
-                            ret = err;
-                        } else {
-                            if (self.possibleMixedOutcome) {
-                                ret = OUTCOME_MIXED;
-                            } else {
-                                ret = OUTCOME_ABORTED;
-                            }
-                        }
-                    }
-                }
-            }
-        } else {
-            // If some volatile participants voted NO, next call notify(abort) on all volatile articipants
-            // and return aborted to the initiator
-            var result = self.notifyParticipants(COMMAND_ABORT, PROTOCOL_VOLATILE);
-            match result {
-                error => {
+                if (result is error) {
                     // return Hazard outcome if a participant cannot successfully end its branch of the transaction
                     error err = error(OUTCOME_HAZARD);
                     ret = err;
-                }
-                NotifyResult => {
+                } else {
                     boolean localAbortSuccessful = abortResourceManagers(self.transactionId, self.transactionBlockId);
                     if (!localAbortSuccessful) {
                         error err = error(OUTCOME_HAZARD);
@@ -122,6 +92,27 @@ type TwoPhaseCommitTransaction object {
                         } else {
                             ret = OUTCOME_ABORTED;
                         }
+                    }
+                }
+            }
+        } else {
+            // If some volatile participants voted NO, next call notify(abort) on all volatile articipants
+            // and return aborted to the initiator
+            var result = self.notifyParticipants(COMMAND_ABORT, PROTOCOL_VOLATILE);
+            if (result is error) {
+                // return Hazard outcome if a participant cannot successfully end its branch of the transaction
+                error err = error(OUTCOME_HAZARD);
+                ret = err;
+            } else {
+                boolean localAbortSuccessful = abortResourceManagers(self.transactionId, self.transactionBlockId);
+                if (!localAbortSuccessful) {
+                    error err = error(OUTCOME_HAZARD);
+                    ret = err;
+                } else {
+                    if (self.possibleMixedOutcome) {
+                        ret = OUTCOME_MIXED;
+                    } else {
+                        ret = OUTCOME_ABORTED;
                     }
                 }
             }
@@ -165,45 +156,41 @@ type TwoPhaseCommitTransaction object {
             results[results.length()] = f;
         }
         foreach f in results {
-            ((PrepareResult|error)?, Participant) r = await f;
+            ((PrepareResult|error)?, Participant) r = wait f;
             var (result, participant) = r;
             string participantId = participant.participantId;
-            match result {
-                PrepareResult prepRes => {
-                    if (prepRes == PREPARE_RESULT_PREPARED) {
-                        // All set for a PREPARE_DECISION_COMMIT so we can proceed without doing anything
-                    } else if (prepRes == PREPARE_RESULT_COMMITTED) {
-                        // If one or more participants returns "committed" and the overall prepare fails, we have to
-                        // report a mixed-outcome to the initiator
-                        self.possibleMixedOutcome = true;
-                        // Don't send notify to this participant because it is has already committed.
-                        // We can forget about this participant.
-                        self.removeParticipant(participantId,
-                                "Could not remove committed participant: " + participantId + " from transaction: " +
-                                self.transactionId);
-                        // All set for a PREPARE_DECISION_COMMIT so we can proceed without doing anything
-                    } else if (prepRes == PREPARE_RESULT_READ_ONLY) {
-                        // Don't send notify to this participant because it is read-only.
-                        // We can forget about this participant.
-                        self.removeParticipant(participantId,
-                                "Could not remove read-only participant: " + participantId + " from transaction: " +
-                                self.transactionId);
-                        // All set for a PREPARE_DECISION_COMMIT so we can proceed without doing anything
-                    } else if (prepRes == PREPARE_RESULT_ABORTED) {
-                        // Remove the participant who sent the abort since we don't want to do a notify(Abort) to that
-                        // participant
-                        self.removeParticipant(participantId, "Could not remove aborted participant: " + participantId +
-                                " from transaction: " + self.transactionId);
-                        prepareDecision = PREPARE_DECISION_ABORT;
-                    }
-                }
-                () => {}
-                error err => {
+            if (result is PrepareResult) {
+                if (result == PREPARE_RESULT_PREPARED) {
+                // All set for a PREPARE_DECISION_COMMIT so we can proceed without doing anything
+                } else if (result == PREPARE_RESULT_COMMITTED) {
+                    // If one or more participants returns "committed" and the overall prepare fails, we have to
+                    // report a mixed-outcome to the initiator
+                    self.possibleMixedOutcome = true;
+                    // Don't send notify to this participant because it is has already committed.
+                    // We can forget about this participant.
                     self.removeParticipant(participantId,
-                            "Could not remove prepare failed participant: " + participantId + " from transaction: " +
-                            self.transactionId);
+                    "Could not remove committed participant: " + participantId + " from transaction: " +
+                    self.transactionId);
+                // All set for a PREPARE_DECISION_COMMIT so we can proceed without doing anything
+                } else if (result == PREPARE_RESULT_READ_ONLY) {
+                    // Don't send notify to this participant because it is read-only.
+                    // We can forget about this participant.
+                    self.removeParticipant(participantId,
+                    "Could not remove read-only participant: " + participantId + " from transaction: " +
+                    self.transactionId);
+                // All set for a PREPARE_DECISION_COMMIT so we can proceed without doing anything
+                } else if (result == PREPARE_RESULT_ABORTED) {
+                    // Remove the participant who sent the abort since we don't want to do a notify(Abort) to that
+                    // participant
+                    self.removeParticipant(participantId, "Could not remove aborted participant: " + participantId +
+                    " from transaction: " + self.transactionId);
                     prepareDecision = PREPARE_DECISION_ABORT;
                 }
+            } else if (result is error) {
+                self.removeParticipant(participantId,
+                "Could not remove prepare failed participant: " + participantId + " from transaction: " +
+                self.transactionId);
+                prepareDecision = PREPARE_DECISION_ABORT;
             }
         }
         return prepareDecision;
@@ -218,10 +205,9 @@ type TwoPhaseCommitTransaction object {
 
         }
         foreach f in results {
-            (NotifyResult|error)? result = await f;
-            match result {
-                NotifyResult? => {}
-                error err => notifyResult = err;
+            (NotifyResult|error)? result = wait f;
+            if (result is error) {
+                notifyResult = result;
             }
         }
         return notifyResult;
@@ -233,23 +219,20 @@ type TwoPhaseCommitTransaction object {
         string|error ret = "";
         // return response to the initiator. ( Aborted | Mixed )
         var result = self.notifyParticipants(COMMAND_ABORT, ());
-        match result {
-            error => {
-                // return Hazard outcome if a participant cannot successfully end its branch of the transaction
+        if (result is error) {
+            // return Hazard outcome if a participant cannot successfully end its branch of the transaction
+            error err = error(OUTCOME_HAZARD);
+            ret = err;
+        } else {
+            boolean localAbortSuccessful = abortResourceManagers(self.transactionId, self.transactionBlockId);
+            if (!localAbortSuccessful) {
                 error err = error(OUTCOME_HAZARD);
                 ret = err;
-            }
-            NotifyResult => {
-                boolean localAbortSuccessful = abortResourceManagers(self.transactionId, self.transactionBlockId);
-                if (!localAbortSuccessful) {
-                    error err = error(OUTCOME_HAZARD);
-                    ret = err;
+            } else {
+                if (self.possibleMixedOutcome) {
+                    ret = OUTCOME_MIXED;
                 } else {
-                    if (self.possibleMixedOutcome) {
-                        ret = OUTCOME_MIXED;
-                    } else {
-                        ret = OUTCOME_ABORTED;
-                    }
+                    ret = OUTCOME_ABORTED;
                 }
             }
         }

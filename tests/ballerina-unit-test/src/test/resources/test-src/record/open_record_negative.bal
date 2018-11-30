@@ -1,6 +1,6 @@
 type Person record {
-    string name;
-    int age;
+    string name = "";
+    int age = 0;
     string...
 };
 
@@ -9,8 +9,8 @@ function invalidRestField() {
 }
 
 type PersonA record {
-    string name;
-    int age;
+    string name = "";
+    int age = 0;
 };
 
 function emptyRecordForAnyRestField() {
@@ -22,7 +22,7 @@ type Pet record {
 };
 
 type Bar object {
-    int a;
+    int a = 0;
 };
 
 function testInvalidRestFieldAddition() {

@@ -20,9 +20,7 @@ import ballerina/mime;
 import ballerina/http;
 import ballerina/websub;
 
-endpoint websub:Listener websubEP {
-    port:8181
-};
+listener websub:Listener websubEP = new websub:Listener(8181, config = { host: "0.0.0.0" });
 
 @websub:SubscriberServiceConfig {
     path:"/websub",
@@ -30,8 +28,8 @@ endpoint websub:Listener websubEP {
     topic: "http://one.websub.topic.com",
     hub: config:getAsString("test.hub.url")
 }
-service<websub:Service> websubSubscriber bind websubEP {
-    onNotification (websub:Notification notification) {
+service websubSubscriber on websubEP {
+    resource function onNotification (websub:Notification notification) {
         var payload = notification.getJsonPayload();
         if (payload is json) {
             io:println("WebSub Notification Received: " + payload.toString());
@@ -49,8 +47,8 @@ service<websub:Service> websubSubscriber bind websubEP {
     leaseSeconds: 3650,
     secret: "Kslk30SNF2AChs2"
 }
-service<websub:Service> websubSubscriberTwo bind websubEP {
-    onIntentVerification (endpoint caller, websub:IntentVerificationRequest request) {
+service websubSubscriberTwo on websubEP {
+    resource function onIntentVerification (websub:Caller caller, websub:IntentVerificationRequest request) {
         http:Response response = request.buildSubscriptionVerificationResponse("http://one.websub.topic.com");
         if (response.statusCode == 202) {
             io:println("Intent verified explicitly for subscription change request");
@@ -60,7 +58,7 @@ service<websub:Service> websubSubscriberTwo bind websubEP {
         _ = caller->respond(untaint response);
     }
 
-    onNotification (websub:Notification notification) {
+    resource function onNotification (websub:Notification notification) {
         var payload = notification.getPayloadAsString();
         if (payload is string) {
             io:println("WebSub Notification Received by Two: " + payload);

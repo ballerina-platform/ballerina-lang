@@ -21,7 +21,8 @@ package org.ballerinalang.model.values;
 import io.ballerina.messaging.broker.core.BrokerException;
 import io.ballerina.messaging.broker.core.Consumer;
 import io.ballerina.messaging.broker.core.Message;
-import org.ballerinalang.bre.bvm.CPU;
+import org.ballerinalang.bre.bvm.BVM;
+import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.broker.BallerinaBroker;
 import org.ballerinalang.broker.BallerinaBrokerByteBuf;
 import org.ballerinalang.model.types.BField;
@@ -33,7 +34,6 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.siddhi.core.stream.input.InputHandler;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.program.BLangFunctions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -121,7 +121,7 @@ public class BStream implements BRefType<Object> {
      */
     public void publish(BValue data) {
         BType dataType = data.getType();
-        if (!CPU.checkCast(data, constraintType)) {
+        if (!BVM.checkCast(data, constraintType)) {
             throw new BallerinaException("incompatible types: value of type:" + dataType
                     + " cannot be added to a stream of type:" + this.constraintType);
         }
@@ -137,7 +137,7 @@ public class BStream implements BRefType<Object> {
     public void subscribe(BFunctionPointer functionPointer) {
         BType[] parameters = functionPointer.value().getParamTypes();
         int lastArrayIndex = parameters.length - 1;
-        if (!CPU.isAssignable(constraintType, parameters[lastArrayIndex], new ArrayList<>())) {
+        if (!BVM.isAssignable(constraintType, parameters[lastArrayIndex], new ArrayList<>())) {
             throw new BallerinaException("incompatible function: subscription function needs to be a function"
                                                  + " accepting:" + this.constraintType);
         }
@@ -172,11 +172,10 @@ public class BStream implements BRefType<Object> {
             try {
                 BValue data =
                         ((BallerinaBrokerByteBuf) (message.getContentChunks().get(0).getByteBuf()).unwrap()).getValue();
-                List<BValue> argsList = new ArrayList<>();
-                argsList.addAll(closureArgs);
+                List<BValue> argsList = new ArrayList<>(closureArgs);
                 argsList.add(data);
-                BLangFunctions.invokeCallable(functionPointer.value(),
-                                              argsList.toArray(new BValue[argsList.size()]));
+                BVMExecutor.executeFunction(functionPointer.value().getPackageInfo().getProgramFile(),
+                        functionPointer.value(), argsList.toArray(new BValue[0]));
             } catch (Exception e) {
                 throw new BallerinaException("Error delivering event to subscriber: ", e);
             }

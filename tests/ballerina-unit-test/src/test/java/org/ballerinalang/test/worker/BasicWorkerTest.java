@@ -25,6 +25,8 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.util.Arrays;
+
 /**
  * Basic worker related tests.
  */
@@ -35,7 +37,7 @@ public class BasicWorkerTest {
     @BeforeClass
     public void setup() {
         this.result = BCompileUtil.compile("test-src/workers/basic-worker-actions.bal");
-        Assert.assertEquals(result.getErrorCount(), 0);
+        Assert.assertEquals(result.getErrorCount(), 0, Arrays.asList(result.getDiagnostics()).toString());
     }
     
     @Test

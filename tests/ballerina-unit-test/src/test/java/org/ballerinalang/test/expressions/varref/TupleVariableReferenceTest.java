@@ -335,10 +335,10 @@ public class TupleVariableReferenceTest {
                 "'(int,Foo,(BarObj,string,FooObj),Bar,boolean)', found '(Bar,int,(FooObj,string,BarObj),Foo,boolean)'",
                 90, 35);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg1 +
-                "'((string,(int,(boolean,int))),(float,int))', found 'any'", 120, 36);
+                "'((string,(int,(boolean,int))),(float,int))', found 'any'", 127, 36);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg1 +
-                "'((string,(int,(boolean,int))),(float,int))', found '(string,int,boolean,int,float,int)'", 127, 36);
+                "'((string,(int,(boolean,int))),(float,int))', found '(string,int,boolean,int,float,int)'", 134, 36);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg1 +
-                "'((string,(int,(boolean,int))),(float,int))', found 'any'", 132, 84);
+                "'((string,(int,(boolean,int))),(float,int))', found 'any'", 139, 84);
     }
 }

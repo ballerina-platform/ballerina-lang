@@ -21,7 +21,7 @@ package org.ballerinalang.observe.nativeimpl;
 
 import io.opentracing.Tracer;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.bre.old.WorkerExecutionContext;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.observability.ObservabilityUtils;
@@ -77,7 +77,8 @@ public class OpenTracerBallerinaWrapper {
         }
 
         WorkerExecutionContext workerExecutionContext = context.getParentWorkerExecutionContext();
-        ServiceInfo serviceInfo = BLangVMUtils.getServiceInfo(workerExecutionContext);
+        // TODO fix - rajith
+        ServiceInfo serviceInfo = BLangVMUtils.getServiceInfo(context.getStrand());
         String serviceName;
         if (serviceInfo != null) {
             serviceName = ObservabilityUtils.getFullServiceName(serviceInfo);

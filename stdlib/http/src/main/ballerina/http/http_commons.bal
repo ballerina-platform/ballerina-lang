@@ -188,7 +188,7 @@ type HTTPError record {
 # + headerValue - The header value
 # + return - Returns a tuple containing the value and its parameter map
 //TODO: Make the error nillable
-public extern function parseHeader (string headerValue) returns (string, map)|error;
+public extern function parseHeader (string headerValue) returns (string, map<any>)|error;
 
 function buildRequest(Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns Request {
     Request request = new;
@@ -243,23 +243,31 @@ function buildResponse(Response|string|xml|json|byte[]|io:ReadableByteChannel|mi
 # + httpClient - HTTP client which uses to call the relavant functions
 # + return - The response for the request or an `error` if failed to establish communication with the upstream server
 public function invokeEndpoint (string path, Request outRequest,
-                                HttpOperation requestAction, CallerActions httpClient) returns Response|error {
+                                HttpOperation requestAction, Client httpClient) returns Response|error {
     if (HTTP_GET == requestAction) {
-        return httpClient.get(path, message = outRequest);
+        var result = httpClient->get(path, message = outRequest);
+        return result;
     } else if (HTTP_POST == requestAction) {
-        return httpClient.post(path, outRequest);
+        var result = httpClient->post(path, outRequest);
+        return result;
     } else if (HTTP_OPTIONS == requestAction) {
-        return httpClient.options(path, message = outRequest);
+        var result = httpClient->options(path, message = outRequest);
+        return result;
     } else if (HTTP_PUT == requestAction) {
-        return httpClient.put(path, outRequest);
+        var result = httpClient->put(path, outRequest);
+        return result;
     } else if (HTTP_DELETE == requestAction) {
-        return httpClient.delete(path, outRequest);
+        var result = httpClient->delete(path, outRequest);
+        return result;
     } else if (HTTP_PATCH == requestAction) {
-        return httpClient.patch(path, outRequest);
+        var result = httpClient->patch(path, outRequest);
+        return result;
     } else if (HTTP_FORWARD == requestAction) {
-        return httpClient.forward(path, outRequest);
+        var result = httpClient->forward(path, outRequest);
+        return result;
     } else if (HTTP_HEAD == requestAction) {
-        return httpClient.head(path, message = outRequest);
+        var result = httpClient->head(path, message = outRequest);
+        return result;
     } else {
         return getError();
     }

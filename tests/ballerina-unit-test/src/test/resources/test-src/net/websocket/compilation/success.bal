@@ -29,10 +29,10 @@ service<http:WebSocketService> wsService bind wsCaller {
     onOpen(endpoint caller) {
     }
 
-    onText(endpoint caller, string text, boolean final) {
+    onText(endpoint caller, string text, boolean isFinal) {
     }
 
-    onBinary(endpoint caller, byte[] data, boolean final) {
+    onBinary(endpoint caller, byte[] data, boolean isFinal) {
     }
 
     onClose(endpoint caller, int val, string text) {

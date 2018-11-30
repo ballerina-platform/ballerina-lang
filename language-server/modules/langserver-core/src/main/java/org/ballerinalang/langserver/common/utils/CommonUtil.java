@@ -39,6 +39,7 @@ import org.ballerinalang.langserver.index.LSIndexImpl;
 import org.ballerinalang.langserver.index.dao.BPackageSymbolDAO;
 import org.ballerinalang.langserver.index.dao.DAOType;
 import org.ballerinalang.langserver.index.dto.BPackageSymbolDTO;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -56,7 +57,6 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
@@ -67,6 +67,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
@@ -84,10 +85,12 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -95,6 +98,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -106,6 +110,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -117,6 +122,7 @@ import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
+import static org.ballerinalang.util.BLangConstants.CONSTRUCTOR_FUNCTION_SUFFIX;
 
 /**
  * Common utils to be reuse in language server implementation.
@@ -346,17 +352,17 @@ public class CommonUtil {
     }
 
     /**
-     * Get the top level node type in the line.
+     * Get the top level node type at the cursor line.
      *
-     * @param identifier    Document Identifier
-     * @param startPosition Start position
-     * @param docManager    Workspace document manager
+     * @param identifier Document Identifier
+     * @param cursorLine Cursor line
+     * @param docManager Workspace document manager
      * @return {@link String}   Top level node type
      */
-    public static String topLevelNodeTypeInLine(TextDocumentIdentifier identifier, Position startPosition,
-                                                WorkspaceDocumentManager docManager) {
+    public static String topLevelNodeInLine(TextDocumentIdentifier identifier, int cursorLine,
+                                            WorkspaceDocumentManager docManager) {
         List<String> topLevelKeywords = Arrays.asList("function", "service", "resource", "endpoint", "object",
-                "record");
+                                                      "record");
         LSDocument document = new LSDocument(identifier.getUri());
 
         try {
@@ -364,12 +370,15 @@ public class CommonUtil {
             Path compilationPath = getUntitledFilePath(filePath.toString()).orElse(filePath);
             String fileContent = docManager.getFileContent(compilationPath);
             String[] splitedFileContent = fileContent.split(LINE_SEPARATOR_SPLIT);
-            if ((splitedFileContent.length - 1) >= startPosition.getLine()) {
-                String lineContent = splitedFileContent[startPosition.getLine()];
+            if ((splitedFileContent.length - 1) >= cursorLine) {
+                String lineContent = splitedFileContent[cursorLine];
                 List<String> alphaNumericTokens = new ArrayList<>(Arrays.asList(lineContent.split("[^\\w']+")));
 
-                for (String topLevelKeyword : topLevelKeywords) {
-                    if (alphaNumericTokens.contains(topLevelKeyword)) {
+                ListIterator<String> iterator = alphaNumericTokens.listIterator();
+                while (iterator.hasNext()) {
+                    String topLevelKeyword = iterator.next();
+                    if (topLevelKeywords.contains(topLevelKeyword) &&
+                            (!iterator.hasNext() || !CONSTRUCTOR_FUNCTION_SUFFIX.equals(iterator.next()))) {
                         return topLevelKeyword;
                     }
                 }
@@ -586,22 +595,44 @@ public class CommonUtil {
     }
 
     /**
-     * Check whether a given symbol is an endpoint object or not.
+     * Check whether a given symbol is client object or not.
      *
      * @param bSymbol BSymbol to evaluate
      * @return {@link Boolean}  Symbol evaluation status
      */
-    public static boolean isEndpointObject(BSymbol bSymbol) {
-        if (SymbolKind.OBJECT.equals(bSymbol.kind)) {
-            List<BAttachedFunction> attachedFunctions = ((BObjectTypeSymbol) bSymbol).attachedFuncs;
-            for (BAttachedFunction attachedFunction : attachedFunctions) {
-                if (attachedFunction.funcName.getValue().equals(UtilSymbolKeys.EP_OBJECT_IDENTIFIER)) {
-                    return true;
-                }
-            }
-        }
+    public static boolean isClientObject(BSymbol bSymbol) {
+        return bSymbol.type != null && bSymbol.type.tsymbol != null
+                && SymbolKind.OBJECT.equals(bSymbol.type.tsymbol.kind)
+                && (bSymbol.type.tsymbol.flags & Flags.CLIENT) == Flags.CLIENT;
+    }
 
-        return false;
+    /**
+     * Check whether the symbol is a listener object.
+     *
+     * @param bSymbol           Symbol to evaluate
+     * @return {@link Boolean}  whether listener or not
+     */
+    public static boolean isListenerObject(BSymbol bSymbol) {
+        if (!(bSymbol instanceof BObjectTypeSymbol)) {
+            return false;
+        }
+        List<String> attachedFunctions = ((BObjectTypeSymbol) bSymbol).attachedFuncs.stream()
+                .map(function -> function.funcName.getValue())
+                .collect(Collectors.toList());
+        return attachedFunctions.contains("__start") && attachedFunctions.contains("__stop")
+                && attachedFunctions.contains("__attach");
+    }
+
+    /**
+     * Given an Object type, extract the non-remote functions.
+     *
+     * @param objectTypeSymbol  Object Symbol
+     * @return {@link Map}      Map of filtered scope entries
+     */
+    public static Map<Name, Scope.ScopeEntry> getObjectFunctions(BObjectTypeSymbol objectTypeSymbol) {
+        return objectTypeSymbol.methodScope.entries.entrySet().stream()
+                .filter(entry -> (entry.getValue().symbol.flags & Flags.REMOTE) != Flags.REMOTE)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     /**
@@ -689,7 +720,8 @@ public class CommonUtil {
                     + nameComponents[nameComponents.length - 1];
         }
     }
-/**
+
+    /**
      * Get the last item of the List.
      *
      * @param list  List to get the Last Item
@@ -779,18 +811,15 @@ public class CommonUtil {
             symbolInfoList.addAll(Arrays.asList(freeze, isFrozen));
         }
 
-        if (builtinStampFunctionAllowed(context, bType)) {
-            // For the any data value type, add the stamp builtin function
+        if (isAnyData(context, bType)) {
+            // For the any data value type, add the stamp,clone,create builtin functions
             SymbolInfo stamp = getIterableOpSymbolInfo(Snippet.BUILTIN_STAMP.get(), bType,
                                                        ItemResolverConstants.BUILTIN_STAMP_LABEL, context);
-            symbolInfoList.add(stamp);
-        }
-
-        if (builtinCloneFunctionAllowed(context, bType)) {
-            // For the any data, add the clone builtin function
-            SymbolInfo freeze = getIterableOpSymbolInfo(Snippet.BUILTIN_CLONE.get(), bType,
-                                                        ItemResolverConstants.BUILTIN_CLONE_LABEL, context);
-            symbolInfoList.add(freeze);
+            SymbolInfo clone = getIterableOpSymbolInfo(Snippet.BUILTIN_CLONE.get(), bType,
+                                                       ItemResolverConstants.BUILTIN_CLONE_LABEL, context);
+            SymbolInfo create = getIterableOpSymbolInfo(Snippet.BUILTIN_CREATE.get(), bType,
+                                                        ItemResolverConstants.BUILTIN_CREATE_LABEL, context);
+            symbolInfoList.addAll(Arrays.asList(stamp, clone, create));
         }
 
         // Populate the Builtin Functions
@@ -853,6 +882,23 @@ public class CommonUtil {
     }
 
     /**
+     * Check whether the given node is a worker derivative node.
+     *
+     * @param node              Node to be evaluated
+     * @return {@link Boolean}  whether a worker derivative
+     */
+    public static boolean isWorkerDereivative(BLangNode node) {
+        return (node instanceof BLangSimpleVariableDef)
+                && ((BLangSimpleVariableDef) node).var.expr.type instanceof BFutureType
+                && ((BFutureType) ((BLangSimpleVariableDef) node).var.expr.type).workerDerivative;
+    }
+
+    public static boolean isWithinWorkerDeclaration(BLangNode bLangNode) {
+        return bLangNode instanceof BLangBlockStmt && bLangNode.parent instanceof BLangLambdaFunction
+                && ((BLangLambdaFunction) bLangNode.parent).function.flagSet.contains(Flag.WORKER);
+    }
+
+    /**
      * Get the TopLevel nodes of the current file.
      *
      * @param pkgNode           Current Package node
@@ -864,7 +910,15 @@ public class CommonUtil {
         BLangCompilationUnit filteredCUnit = pkgNode.compUnits.stream()
                 .filter(cUnit -> cUnit.getPosition().getSource().cUnitName.equals(relativeFilePath))
                 .findAny().orElse(null);
-        return filteredCUnit == null ? new ArrayList<>() : new ArrayList<>(filteredCUnit.getTopLevelNodes());
+        List<TopLevelNode> topLevelNodes = filteredCUnit == null
+                ? new ArrayList<>()
+                : new ArrayList<>(filteredCUnit.getTopLevelNodes());
+        
+        // Filter out the lambda functions from the top level nodes
+        return topLevelNodes.stream()
+                .filter(topLevelNode -> !(topLevelNode instanceof BLangFunction
+                        && ((BLangFunction) topLevelNode).flagSet.contains(Flag.LAMBDA)))
+                .collect(Collectors.toList());
     }
 
     private static SymbolInfo getIterableOpSymbolInfo(SnippetBlock operation, @Nullable BType bType, String label,
@@ -969,16 +1023,7 @@ public class CommonUtil {
         return false;
     }
 
-    private static boolean builtinStampFunctionAllowed(LSContext context, BType bType) {
-        CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
-        if (compilerContext != null) {
-            Types types = Types.getInstance(compilerContext);
-            return types.isAnydata(bType);
-        }
-        return false;
-    }
-
-    private static boolean builtinCloneFunctionAllowed(LSContext context, BType bType) {
+    private static boolean isAnyData(LSContext context, BType bType) {
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         if (compilerContext != null) {
             Types types = Types.getInstance(compilerContext);
@@ -1411,6 +1456,19 @@ public class CommonUtil {
             }
             return (parent != null && parent.parent != null)
                     ? lookupFunctionReturnType(functionName, parent.parent) : "any";
+        }
+    }
+
+    /**
+     * Node comparator to compare the nodes by position.                            
+     */
+    public static class BLangNodeComparator implements Comparator<BLangNode> {
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public int compare(BLangNode node1, BLangNode node2) {
+            return node1.getPosition().getStartLine() - node2.getPosition().getStartLine();
         }
     }
 }

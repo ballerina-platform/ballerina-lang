@@ -12,17 +12,17 @@ jms:Session jmsSession = new (jmsConnection, {
         acknowledgementMode: "AUTO_ACKNOWLEDGE"
     });
 
-endpoint jms:TopicPublisher publisher {
+jms:TopicPublisher publisher = new({
     session: jmsSession,
     topicPattern: "testDurableTopicSubscriberPublisher6"
-};
+});
 
 public function main () {
     // Create a Text message.
     var msg = jmsSession.createTextMessage("Test Text");
     if (msg is jms:Message) {
          // Send the Ballerina message to the JMS provider.
-         _ = publisher -> send(msg);
+         _ = publisher->send(msg);
     } else {
          panic msg;
     }

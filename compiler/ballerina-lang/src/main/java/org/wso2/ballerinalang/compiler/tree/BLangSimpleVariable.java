@@ -38,8 +38,6 @@ public class BLangSimpleVariable extends BLangVariable implements SimpleVariable
 
     public BLangIdentifier name;
 
-    public boolean isField;
-
     public BLangSimpleVariable() {
         this.annAttachments = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);

@@ -25,39 +25,27 @@ public type Participant2pcClientConfig record {
     } retryConfig = {};
 };
 
-public type Participant2pcClientEP object {
+public type Participant2pcClientEP client object {
 
-    http:Client httpClient = new;
+    http:Client httpClient;
     Participant2pcClientConfig conf = {};
 
-    public function init(Participant2pcClientConfig c) {
-        endpoint http:Client httpEP {
-            url: c.participantURL,
+    public function __init(Participant2pcClientConfig c) {
+        http:Client httpEP = new(c.participantURL, config = {
             timeoutMillis: c.timeoutMillis,
             retryConfig:{
                 count: c.retryConfig.count, interval: c.retryConfig.interval
             }
-        };
+        });
         self.httpClient = httpEP;
         self.conf = c;
     }
 
-    public function getCallerActions() returns Participant2pcClient {
-        Participant2pcClient client = new;
-        client.clientEP = self;
-        return client;
-    }
-};
-
-public type Participant2pcClient object {
-
-    Participant2pcClientEP clientEP = new;
-
-    public function prepare(string transactionId) returns string|error {
-        endpoint http:Client httpClient = self.clientEP.httpClient;
+    public remote function prepare(string transactionId) returns string|error {
+        http:Client httpClient = self.httpClient;
         http:Request req = new;
         PrepareRequest prepareReq = {transactionId:transactionId};
-        json j = check <json>prepareReq;
+        json j = check json.create(prepareReq);
         req.setJsonPayload(j);
         var result = httpClient->post("/prepare", req);
         http:Response res = check result;
@@ -67,25 +55,25 @@ public type Participant2pcClient object {
             return err;
         } else if (statusCode == http:OK_200) {
             json payload = check res.getJsonPayload();
-            PrepareResponse prepareRes = check <PrepareResponse>payload;
+            PrepareResponse prepareRes = check PrepareResponse.create(payload);
             return prepareRes.message;
         } else {
             error err = error("Prepare failed. Transaction: " + transactionId + ", Participant: " +
-                self.clientEP.conf.participantURL);
+                self.conf.participantURL);
             return err;
         }
     }
 
-    public function notify(string transactionId, string message) returns string|error {
-        endpoint http:Client httpClient = self.clientEP.httpClient;
+    public remote function notify(string transactionId, string message) returns string|error {
+        http:Client httpClient = self.httpClient;
         http:Request req = new;
         NotifyRequest notifyReq = {transactionId:transactionId, message:message};
-        json j = check <json>notifyReq;
+        json j = check json.create(notifyReq);
         req.setJsonPayload(j);
         var result = httpClient->post("/notify", req);
         http:Response res = check result;
         json payload = check res.getJsonPayload();
-        NotifyResponse notifyRes = check <NotifyResponse>payload;
+        NotifyResponse notifyRes = check NotifyResponse.create(payload);
         string msg = notifyRes.message;
         int statusCode = res.statusCode;
         if (statusCode == http:OK_200) {
@@ -97,7 +85,7 @@ public type Participant2pcClient object {
             return participantErr;
         } else { // Some other error state
             error participantErr = error("Notify failed. Transaction: " + transactionId + ", Participant: " +
-                self.clientEP.conf.participantURL);
+                self.conf.participantURL);
             return participantErr;
         }
     }

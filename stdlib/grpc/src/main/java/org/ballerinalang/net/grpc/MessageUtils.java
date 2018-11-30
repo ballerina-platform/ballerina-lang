@@ -34,6 +34,7 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
 import org.ballerinalang.net.grpc.proto.ServiceProtoConstants;
@@ -56,6 +57,8 @@ import java.util.Optional;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.CONTENT_TYPE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.Status.Code.INTERNAL;
+import static org.ballerinalang.net.grpc.Status.Code.UNKNOWN;
 
 /**
  * Util methods to generate protobuf message.
@@ -127,22 +130,32 @@ public class MessageUtils {
     public static BError getConnectorError(BErrorType errorType, Throwable error) {
         BErrorType errType = Optional.ofNullable(errorType).orElse(BTypes.typeError);
         BMap<String, BValue> refData = new BMap<>(errType.detailsType);
-        final String message;
+        String reason = "{ballerina/grpc}";
         if (error instanceof StatusRuntimeException) {
             StatusRuntimeException statusException = (StatusRuntimeException) error;
-            message = statusException.getStatus().toString();
+            reason = reason + statusException.getStatus().getCode().name();
+            String errorDescription = statusException.getStatus().getDescription();
+            if (errorDescription != null) {
+                refData.put("message", new BString(statusException.getStatus().getDescription()));
+            } else if (statusException.getStatus().getCause() != null) {
+                refData.put("message", new BString(statusException.getStatus().getCause().getMessage()));
+            } else {
+                refData.put("message", new BString(UNKNOWN_ERROR));
+            }
         } else {
             if (error.getMessage() == null) {
-                message = UNKNOWN_ERROR;
+                reason = reason + UNKNOWN.name();
+                refData.put("message", new BString(UNKNOWN_ERROR));
             } else {
-                message = error.getMessage();
+                reason = reason + INTERNAL.name();
+                refData.put("message", new BString(error.getMessage()));
             }
         }
-        return new BError(errorType, message, refData);
+        return new BError(errorType, reason, refData);
     }
     
     public static ProgramFile getProgramFile(Resource resource) {
-        return resource.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile();
+        return resource.getResourceInfo().getPackageInfo().getProgramFile();
     }
     
     /**
@@ -320,7 +333,7 @@ public class MessageUtils {
             case HttpURLConnection.HTTP_GATEWAY_TIMEOUT:  // 504
                 return Status.Code.UNAVAILABLE;
             default:
-                return Status.Code.UNKNOWN;
+                return UNKNOWN;
         }
     }
 

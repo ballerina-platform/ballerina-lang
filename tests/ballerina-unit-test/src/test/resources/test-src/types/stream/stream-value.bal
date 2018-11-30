@@ -4,8 +4,8 @@ import ballerina/time;
 stream<Employee> globalEmployeeStream;
 
 type Employee record {
-    int id;
-    string name;
+    int id = 0;
+    string name = "";
 };
 
 type Person record {
@@ -21,10 +21,13 @@ type Captain object {
     private string name;
     private int id;
 
-    new(name, id) {}
+    function __init(string name, int id) {
+        self.name = name;
+        self.id = id;
+    }
 
     function logName() {
-        log:printInfo(name);
+        log:printInfo(self.name);
     }
 };
 
@@ -32,10 +35,13 @@ type Member object {
     private string name;
     private int id;
 
-    new(name, id) {}
+    function __init(string name, int id) {
+        self.name = name;
+        self.id = id;
+    }
 
     function logName() {
-        log:printInfo(name);
+        log:printInfo(self.name);
     }
 };
 
@@ -44,10 +50,14 @@ type Coach object {
     private int registrationId;
     private float salary;
 
-    new(name, registrationId, salary) {}
+    function __init(string name, int registrationId, float salary) {
+        self.name = name;
+        self.registrationId = registrationId;
+        self.salary = salary;
+    }
 
     public function logName() {
-        log:printInfo(name);
+        log:printInfo(self.name);
     }
 };
 
@@ -84,7 +94,7 @@ function testSubscriptionFunctionWithUnassignableTupleTypeParameter() {
 }
 
 int arrayIndex = 0;
-Employee globalEmployee;
+Employee globalEmployee = {};
 
 function testGlobalStream() returns (Employee, Employee, Employee) {
     Employee origEmployee = globalEmployee;

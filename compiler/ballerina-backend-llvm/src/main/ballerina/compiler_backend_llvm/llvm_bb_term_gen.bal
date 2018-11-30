@@ -8,17 +8,25 @@ type BbTermGenrator object {
     bir:BasicBlock bb;
     llvm:LLVMBasicBlockRef bbRef;
 
-    new(builder, bb, bbRef, parent) {
+    function __init(llvm:LLVMBuilderRef builder, bir:BasicBlock bb, llvm:LLVMBasicBlockRef bbRef, FuncGenrator parent) {
+        self.builder = builder;
+        self.parent = parent;
+        self.bb = bb;
+        self.bbRef = bbRef;
     }
 
     function genBasicBlockTerminator(map<FuncGenrator> funcGenrators, map<BbTermGenrator> bbGenrators) {
         llvm:LLVMPositionBuilderAtEnd(self.builder,  self.bbRef);
 
-        match self.bb.terminator {
-            bir:GOTO gotoIns => self.genGoToTerm(gotoIns, bbGenrators);
-            bir:Branch brIns => self.genBranchTerm(brIns, bbGenrators);
-            bir:Call callIns => self.genCallTerm(callIns, funcGenrators, bbGenrators);
-            bir:Return => self.genReturnTerm();
+        var instruction = self.bb.terminator;
+        if (instruction is bir:GOTO) {
+            self.genGoToTerm(instruction, bbGenrators);
+        } else if (instruction is bir:Branch) {
+            self.genBranchTerm(instruction, bbGenrators);
+        } else if (instruction is bir:Call) {
+            self.genCallTerm(instruction, funcGenrators, bbGenrators);
+        } else {
+            self.genReturnTerm();
         }
     }
 
@@ -70,14 +78,12 @@ type BbTermGenrator object {
     function genCallToSamePkgFunc(map<FuncGenrator> funcGenrators, bir:Call callIns, llvm:LLVMValueRef[] args) {
         llvm:LLVMValueRef calleFuncRef = findFuncRefByName(funcGenrators, callIns.name);
         llvm:LLVMValueRef callReturn = llvm:LLVMBuildCall(self.builder, calleFuncRef, args, args.length(), "");
-        match callIns.lhsOp {
-            bir:VarRef lhsOp => {
-                llvm:LLVMValueRef lhsRef = self.parent.getLocalVarRefById(lhsOp.variableDcl.name.value);
-                var loaded = llvm:LLVMBuildStore(self.builder, callReturn, lhsRef);
-            }
-            () => {
-                // void function call, no need to store
-            }
+
+        var result = callIns.lhsOp;
+
+        if (result is bir:VarRef) {
+            llvm:LLVMValueRef lhsRef = self.parent.getLocalVarRefById(result.variableDcl.name.value);
+            var loaded = llvm:LLVMBuildStore(self.builder, callReturn, lhsRef);
         }
 
     }

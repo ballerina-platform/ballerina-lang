@@ -140,6 +140,7 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
             this.restArgs = parent.restArgs;
             this.regIndex = parent.regIndex;
             this.symbol = parent.symbol;
+            this.async = parent.async;
             this.expr = varRef;
             this.type = parent.type;
         }
@@ -221,10 +222,10 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
             this.requiredArgs = iExpr.requiredArgs;
             this.namedArgs = iExpr.namedArgs;
             this.restArgs = iExpr.restArgs;
-            this.type = iExpr.type;
             this.async = iExpr.async;
             this.builtInMethod = builtInFunction;
             this.impConversionExpr = iExpr.impConversionExpr;
+            this.symbol = iExpr.symbol;
         }
 
         @Override

@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.util.cli;
 
-import org.ballerinalang.bre.bvm.CPU;
+import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BStructureType;
@@ -350,7 +350,7 @@ public class ArgumentParser {
         } catch (NumberFormatException e) {
             throw new BLangUsageException("invalid argument '" + argument + "', expected byte value");
         }
-        if (!CPU.isByteLiteral(longValue)) {
+        if (!BVM.isByteLiteral(longValue)) {
             throw new BLangUsageException("invalid argument '" + argument + "', expected byte value, found int");
         }
         return (byte) longValue;

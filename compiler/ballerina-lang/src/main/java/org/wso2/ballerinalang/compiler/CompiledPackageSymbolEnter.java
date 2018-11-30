@@ -34,7 +34,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -53,7 +52,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
@@ -63,6 +61,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.DefaultValueLiteral;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
@@ -226,7 +225,6 @@ public class CompiledPackageSymbolEnter {
         // Define services.
         defineSymbols(dataInStream, rethrow(this::defineService));
 
-
         // Resolve unresolved types.
         resolveTypes();
 
@@ -364,7 +362,11 @@ public class CompiledPackageSymbolEnter {
             invokableSymbol.name =
                     names.fromString(Symbols.getAttachedFuncSymbolName(attachedType.tsymbol.name.value, funcName));
             if (attachedType.tag == TypeTags.OBJECT || attachedType.tag == TypeTags.RECORD) {
-                scopeToDefine = attachedType.tsymbol.scope;
+                if (attachedType.tag == TypeTags.OBJECT) {
+                    scopeToDefine = ((BObjectTypeSymbol) attachedType.tsymbol).methodScope;
+                } else {
+                    scopeToDefine = attachedType.tsymbol.scope;
+                }
                 BAttachedFunction attachedFunc =
                         new BAttachedFunction(names.fromString(funcName), invokableSymbol, funcType);
                 BStructureTypeSymbol structureTypeSymbol = (BStructureTypeSymbol) attachedType.tsymbol;
@@ -462,6 +464,7 @@ public class CompiledPackageSymbolEnter {
         BObjectTypeSymbol symbol = (BObjectTypeSymbol) Symbols.createObjectSymbol(flags, names.fromString(name),
                 this.env.pkgSymbol.pkgID, null, this.env.pkgSymbol);
         symbol.scope = new Scope(symbol);
+        symbol.methodScope = new Scope(symbol);
         BObjectType type = new BObjectType(symbol);
         symbol.type = type;
 
@@ -488,6 +491,8 @@ public class CompiledPackageSymbolEnter {
         if (!type.sealed) {
             String restFieldTypeDesc = getUTF8CPEntryValue(dataInStream);
             type.restFieldType = getBTypeFromDescriptor(restFieldTypeDesc);
+        } else {
+            type.restFieldType = symTable.noType;
         }
 
         // Define Object Fields
@@ -614,41 +619,20 @@ public class CompiledPackageSymbolEnter {
     }
 
     private void defineService(DataInputStream dataInStream) throws IOException {
-        // Read connector name cp index
-        String serviceName = getUTF8CPEntryValue(dataInStream);
-        int flags = dataInStream.readInt();
-        // endpoint type is not required for service symbol.
-        getUTF8CPEntryValue(dataInStream);
-
-        BServiceSymbol serviceSymbol = Symbols.createServiceSymbol(flags,
-                names.fromString(serviceName), this.env.pkgSymbol.pkgID, null, env.pkgSymbol);
-        serviceSymbol.type = new BServiceType(serviceSymbol);
-        this.env.pkgSymbol.scope.define(serviceSymbol.name, serviceSymbol);
+        dataInStream.readInt();
+        dataInStream.readInt();
+        dataInStream.readInt();
+        dataInStream.readInt();
+        dataInStream.readInt();
     }
 
     private void defineResource(DataInputStream dataInStream) throws IOException {
         int resourceCount = dataInStream.readShort();
         for (int j = 0; j < resourceCount; j++) {
             dataInStream.readInt();
-            dataInStream.readInt();
-            int paramNameCPIndexesCount = dataInStream.readShort();
-            for (int k = 0; k < paramNameCPIndexesCount; k++) {
-                dataInStream.readInt();
-            }
-
-            // Read and ignore worker data
-            int noOfWorkerDataBytes = dataInStream.readInt();
-            byte[] workerData = new byte[noOfWorkerDataBytes];
-            int bytesRead = dataInStream.read(workerData);
-            if (bytesRead != noOfWorkerDataBytes) {
-                // TODO throw an error
-            }
-
-            // Read attributes
-            readAttributes(dataInStream);
         }
-        readAttributes(dataInStream);
     }
+
 
     private void defineConstants(DataInputStream dataInStream) throws IOException {
         String constantName = getUTF8CPEntryValue(dataInStream);
@@ -751,6 +735,9 @@ public class CompiledPackageSymbolEnter {
         } else {
             varSymbol = new BVarSymbol(flags, names.fromString(varName), this.env.pkgSymbol.pkgID, varType,
                     enclScope.owner);
+            if (Symbols.isFlagOn(varType.tsymbol.flags, Flags.CLIENT)) {
+                varSymbol.tag = SymTag.ENDPOINT;
+            }
         }
 
         setDocumentation(varSymbol, attrDataMap);
@@ -846,34 +833,34 @@ public class CompiledPackageSymbolEnter {
         }
     }
 
-    private Object getDefaultValue(DataInputStream dataInStream)
+    private DefaultValueLiteral getDefaultValue(DataInputStream dataInStream)
             throws IOException {
         String typeDesc = getUTF8CPEntryValue(dataInStream);
 
         int valueCPIndex;
         switch (typeDesc) {
             case TypeDescriptor.SIG_BOOLEAN:
-                return dataInStream.readBoolean();
+                return new DefaultValueLiteral(dataInStream.readBoolean(), TypeTags.BOOLEAN);
             case TypeDescriptor.SIG_INT:
                 valueCPIndex = dataInStream.readInt();
                 IntegerCPEntry integerCPEntry = (IntegerCPEntry) this.env.constantPool[valueCPIndex];
-                return integerCPEntry.getValue();
+                return new DefaultValueLiteral(integerCPEntry.getValue(), TypeTags.INT);
             case TypeDescriptor.SIG_BYTE:
                 valueCPIndex = dataInStream.readInt();
                 ByteCPEntry byteCPEntry = (ByteCPEntry) this.env.constantPool[valueCPIndex];
-                return byteCPEntry.getValue();
+                return new DefaultValueLiteral(byteCPEntry.getValue(), TypeTags.BYTE);
             case TypeDescriptor.SIG_FLOAT:
                 valueCPIndex = dataInStream.readInt();
                 FloatCPEntry floatCPEntry = (FloatCPEntry) this.env.constantPool[valueCPIndex];
-                return floatCPEntry.getValue();
+                return new DefaultValueLiteral(floatCPEntry.getValue(), TypeTags.FLOAT);
             case TypeDescriptor.SIG_DECIMAL:
                 valueCPIndex = dataInStream.readInt();
                 UTF8CPEntry decimalEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
-                return decimalEntry.getValue();
+                return new DefaultValueLiteral(decimalEntry.getValue(), TypeTags.DECIMAL);
             case TypeDescriptor.SIG_STRING:
                 valueCPIndex = dataInStream.readInt();
                 UTF8CPEntry stringCPEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
-                return stringCPEntry.getValue();
+                return new DefaultValueLiteral(stringCPEntry.getValue(), TypeTags.STRING);
             case TypeDescriptor.SIG_NULL:
                 break;
             default:
@@ -907,14 +894,20 @@ public class CompiledPackageSymbolEnter {
         invokableSymbol.taintTable = new HashMap<>();
         for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
             int paramIndex = taintTableDataInStream.readShort();
-            Boolean returnTaintedStatus = taintTableDataInStream.readBoolean();
-            List<Boolean> parameterTaintedStatusList = new ArrayList<>();
+            TaintRecord.TaintedStatus returnTaintedStatus =
+                    convertByteToTaintedStatus(taintTableDataInStream.readByte());
+            List<TaintRecord.TaintedStatus> parameterTaintedStatusList = new ArrayList<>();
             for (int columnIndex = 1; columnIndex < columnCount; columnIndex++) {
-                parameterTaintedStatusList.add(taintTableDataInStream.readBoolean());
+                parameterTaintedStatusList.add(convertByteToTaintedStatus(taintTableDataInStream.readByte()));
             }
             TaintRecord taintRecord = new TaintRecord(returnTaintedStatus, parameterTaintedStatusList);
             invokableSymbol.taintTable.put(paramIndex, taintRecord);
         }
+    }
+
+    private TaintRecord.TaintedStatus convertByteToTaintedStatus(byte readByte) {
+        return EnumSet.allOf(TaintRecord.TaintedStatus.class).stream()
+                .filter(taintedStatus -> readByte == taintedStatus.getByteValue()).findFirst().get();
     }
 
     private void setDocumentation(BSymbol symbol, Map<AttributeInfo.Kind, byte[]> attrDataMap) throws IOException {
@@ -1172,7 +1165,12 @@ public class CompiledPackageSymbolEnter {
                 pkgSymbol = env.pkgSymbol;
             }
 
-            return lookupUserDefinedType(pkgSymbol, typeName);
+            switch (typeChar) {
+                case 'X':
+                    return symTable.anyServiceType;
+                default:
+                    return lookupUserDefinedType(pkgSymbol, typeName);
+            }
         }
 
         @Override
@@ -1199,6 +1197,7 @@ public class CompiledPackageSymbolEnter {
                     return new BChannelType(TypeTags.CHANNEL, constraint, symTable.channelType.tsymbol);
                 case 'G':
                 case 'T':
+                case 'X':
                 default:
                     return constraint;
             }

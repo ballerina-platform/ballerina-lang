@@ -34,18 +34,11 @@ public function getAsString(@sensitive string key, string default = "") returns 
     if (contains(key)) {
         var value = get(key, STRING);
 
-        match value {
-            string strValue => return strValue;
-            int|float|boolean|map|any[]|() => {
-                error err = error("Invalid value. Expected a 'string'.");
-                panic err;
-            }
-            error err => {
-                // TODO : Fix me. Do we nee cause here ?
-                //map data = { cause: err };
-                error e = error("Invalid value. Expected a 'string'.");
-                panic e;
-            }
+        if (value is string) {
+            return value;
+        } else {
+            error err = error("Invalid value. Expected a 'string'.");
+            panic err;
         }
     }
 
@@ -62,17 +55,11 @@ public function getAsInt(@sensitive string key, int default = 0) returns int {
     if (contains(key)) {
         var value = get(key, INT);
 
-        match value {
-            int intVal => return intVal;
-            string|float|boolean|map|any[]|() x => {
-                error err = error("Invalid value. Expected an 'int'.");
-                panic err;
-            }
-            error err => {
-                //map data = { cause: err };
-                error e = error("Invalid value. Expected an 'int'.");
-                panic e;
-            }
+        if (value is int) {
+            return value;
+        } else {
+            error err = error("Invalid value. Expected an 'int'.");
+            panic err;
         }
     }
 
@@ -81,10 +68,11 @@ public function getAsInt(@sensitive string key, int default = 0) returns int {
         return default;
     }
 
-    var envVar = <int> strVal;
-    match envVar {
-        int intVal => return intVal;
-        error err => panic err;
+    var envVar = int.create(strVal);
+    if (envVar is int) {
+        return envVar;
+    } else {
+        panic envVar;
     }
 }
 
@@ -97,17 +85,11 @@ public function getAsFloat(@sensitive string key, float default = 0.0) returns f
     if (contains(key)) {
         var value = get(key, FLOAT);
 
-        match value {
-            float floatVal => return floatVal;
-            int|string|boolean|map|any[]|() => {
-                error err = error("Invalid value. Expected a 'float'.");
-                panic err;
-            }
-            error err => {
-                //map data = { cause: err };
-                error e = error("Invalid value. Expected a 'float'.");
-                panic e;
-            }
+        if (value is float) {
+            return value;
+        } else {
+            error err = error("Invalid value. Expected a 'float'.");
+            panic err;
         }
     }
 
@@ -116,10 +98,11 @@ public function getAsFloat(@sensitive string key, float default = 0.0) returns f
         return default;
     }
 
-    var envVar = <float> strVal;
-    match envVar {
-        float floatVal => return floatVal;
-        error err => panic err;
+    var envVar = float.create(strVal);
+    if (envVar is float) {
+        return envVar;
+    } else {
+        panic envVar;
     }
 }
 
@@ -132,17 +115,11 @@ public function getAsBoolean(@sensitive string key, boolean default = false) ret
     if (contains(key)) {
         var value = get(key, BOOLEAN);
 
-        match value {
-            boolean booleanVal => return booleanVal;
-            int|float|string|map|any[]|() => {
-                error err = error("Invalid value. Expected a 'boolean'.");
-                panic err;
-            }
-            error err => {
-                //map data = { cause  : err };
-                error e = error("Invalid value. Expected a 'boolean'.");
-                panic e;
-            }
+        if (value is boolean) {
+            return value;
+        } else {
+            error err = error("Invalid value. Expected a 'boolean'.");
+            panic err;
         }
     }
 
@@ -151,27 +128,21 @@ public function getAsBoolean(@sensitive string key, boolean default = false) ret
         return default;
     }
 
-    return <boolean> strVal;
+    return boolean.create(strVal);
 }
 
 # Retrieves the specified configuration value as a map. If there is no mapping, an empty map will be returned.
 #
 # + key - The configuration to be retrieved
 # + return - Configuration value mapped by the key
-public function getAsMap(@sensitive string key) returns map {
+public function getAsMap(@sensitive string key) returns map<any> {
     var value = get(key, MAP);
 
-    match value {
-        map section => return section;
-        int|float|boolean|string|any[]|() => {
-            error err = error("Invalid value. Expected a 'map'.");
-            panic err;
-        }
-        error err => {
-            //map data = { cause: err };
-            error e = error("Invalid value. Expected a 'map'.");
-            panic e;
-        }
+    if (value is map<any>) {
+        return value;
+    } else {
+        error err = error("Invalid value. Expected a 'map'.");
+        panic err;
     }
 }
 

@@ -338,7 +338,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
 
     protected SQLDatasource retrieveDatasource(Context context) {
         BMap<String, BValue> bConnector = (BMap<String, BValue>) context.getRefArgument(0);
-        return (SQLDatasource) bConnector.getNativeData(Constants.CALLER_ACTIONS);
+        return (SQLDatasource) bConnector.getNativeData(Constants.SQL_CLIENT);
     }
 
     private BValueArray constructParameters(Context context, BValueArray parameters) {

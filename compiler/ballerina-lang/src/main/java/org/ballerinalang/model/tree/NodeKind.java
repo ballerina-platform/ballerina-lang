@@ -22,7 +22,6 @@ package org.ballerinalang.model.tree;
  */
 public enum NodeKind {
 
-    ACTION,
     ANNOTATION,
     ANNOTATION_ATTACHMENT,
     ANNOTATION_ATTRIBUTE,
@@ -49,6 +48,7 @@ public enum NodeKind {
     WORKER,
     XMLNS,
     CHANNEL,
+    WAIT_LITERAL_KEY_VALUE,
 
     /* Expressions */
     DOCUMENTATION_ATTRIBUTE,
@@ -56,7 +56,7 @@ public enum NodeKind {
     BINARY_EXPR,
     ELVIS_EXPR,
     BRACED_TUPLE_EXPR,
-    Type_INIT_EXPR,
+    TYPE_INIT_EXPR,
     FIELD_BASED_ACCESS_EXPR,
     INDEX_BASED_ACCESS_EXPR,
     INT_RANGE_EXPR,
@@ -71,7 +71,7 @@ public enum NodeKind {
     RECORD_VARIABLE_REF,
     STRING_TEMPLATE_LITERAL,
     TERNARY_EXPR,
-    AWAIT_EXPR,
+    WAIT_EXPR,
     TRAP_EXPR,
     TYPEDESC_EXPRESSION,
     TYPE_CONVERSION_EXPR,
@@ -97,6 +97,7 @@ public enum NodeKind {
     IS_LIKE,
     DOCUMENTATION_DESCRIPTION,
     DOCUMENTATION_PARAMETER,
+    SERVICE_CONSTRUCTOR,
 
     /* streams/tables expressions */
     SELECT_EXPRESSION,
@@ -133,6 +134,8 @@ public enum NodeKind {
     LOCK,
     WORKER_RECEIVE,
     WORKER_SEND,
+    WORKER_SYNC_SEND,
+    WORKER_FLUSH,
     STREAM,
     SCOPE,
     COMPENSATE,

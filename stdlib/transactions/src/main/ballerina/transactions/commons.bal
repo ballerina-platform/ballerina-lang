@@ -33,7 +33,7 @@ map<TwoPhaseCommitTransaction> participatedTransactions = {};
 # This cache is used for caching HTTP connectors against the URL, since creating connectors is expensive.
 cache:Cache httpClientCache = new;
 
-@final boolean scheduleInit = scheduleTimer(1000, 60000);
+final boolean scheduleInit = scheduleTimer(1000, 60000);
 
 function scheduleTimer(int delay, int interval) returns boolean {
     (function() returns error?) onTriggerFunction = cleanupTransactions;
@@ -79,20 +79,19 @@ function cleanupTransactions() returns error? {
             }
         }
     }
-    worker w2 {
+    worker w2 returns () {
         foreach _, twopcTxn in initiatedTransactions {
             if (time:currentTime().time - twopcTxn.createdTime >= 120000) {
                 if (twopcTxn.state != TXN_STATE_ABORTED) {
                     // Commit the transaction since prepare hasn't been received
                     var result = twopcTxn.twoPhaseCommit();
-                    match result {
-                        string str => {
-                            log:printInfo("Auto-committed initiated transaction: " + twopcTxn.transactionId +
-                                ". Result: " + str);
-                            removeInitiatedTransaction(twopcTxn.transactionId);
-                        }
-                        error err => log:printError("Auto-commit of participated transaction: " +
-                                twopcTxn.transactionId + " failed", err = err);
+                    if (result is string) {
+                        log:printInfo("Auto-committed initiated transaction: " + twopcTxn.transactionId +
+                                ". Result: " + result);
+                        removeInitiatedTransaction(twopcTxn.transactionId);
+                    } else if (result is error) {
+                        log:printError("Auto-commit of participated transaction: " +
+                        twopcTxn.transactionId + " failed", err = result);
                     }
                 }
             }
@@ -103,6 +102,8 @@ function cleanupTransactions() returns error? {
         }
         return ();
     }
+    var value = wait w2;
+    return value;
 }
 
 
@@ -121,7 +122,7 @@ function isValidCoordinationType(string coordinationType) returns boolean {
 
 function protocolCompatible(string coordinationType, Protocol[] participantProtocols) returns boolean {
     boolean participantProtocolIsValid = false;
-    string[] validProtocols = coordinationTypeToProtocolsMap[coordinationType] but { () => [] };
+    string[] validProtocols = coordinationTypeToProtocolsMap[coordinationType] ?: [];
     foreach participantProtocol in participantProtocols {
         foreach validProtocol in validProtocols {
             if (participantProtocol.name == validProtocol) {
@@ -138,20 +139,18 @@ function protocolCompatible(string coordinationType, Protocol[] participantProto
     return participantProtocolIsValid;
 }
 
-function respondToBadRequest(http:Listener conn, string msg) {
-    endpoint http:Listener ep = conn;
+function respondToBadRequest(http:Caller ep, string msg) {
     log:printError(msg);
     http:Response res = new;  res.statusCode = http:BAD_REQUEST_400;
     RequestError requestError = {errorMessage:msg};
-    var resPayload = <json>requestError;
+    var resPayload = json.create(requestError);
     if (resPayload is json) {
         res.setJsonPayload(untaint resPayload);
         var resResult = ep->respond(res);
-        match resResult {
-            error respondErr => {
-                log:printError("Could not send Bad Request error response to caller", err = respondErr);
-            }
-            () => return;
+        if (resResult is error) {
+            log:printError("Could not send Bad Request error response to caller", err = resResult);
+        } else {
+            return;
         }
     } else if (resPayload is error) {
         panic resPayload;
@@ -214,37 +213,39 @@ function registerLocalParticipantWithInitiator(string transactionId, int transac
     string participantId = getParticipantId(transactionBlockId);
     //TODO: Protocol name should be passed down from the transaction statement
     LocalProtocol participantProtocol = {name:PROTOCOL_DURABLE};
-    match (initiatedTransactions[transactionId]) {
-        () => {
-            error err = error("Transaction-Unknown. Invalid TID:" + transactionId);
+    var initiatedTxn = initiatedTransactions[transactionId];
+    if (initiatedTxn is ()) {
+        error err = error("Transaction-Unknown. Invalid TID:" + transactionId);
+        return err;
+    } else if (initiatedTxn is TwoPhaseCommitTransaction) {
+        if (isRegisteredParticipant(participantId, initiatedTxn.participants)) { // Already-Registered
+            error err = error("Already-Registered. TID:" + transactionId + ",participant ID:" + participantId);
             return err;
+        } else if (!protocolCompatible(initiatedTxn.coordinationType, [participantProtocol])) { // Invalid-Protocol
+            error err = error("Invalid-Protocol in local participant. TID:" + transactionId + ",participant ID:" +
+            participantId);
+            return err;
+        } else {
+            //Set initiator protocols
+            TwoPhaseCommitTransaction participatedTxn = new(transactionId, transactionBlockId);
+            //Protocol initiatorProto = {name: PROTOCOL_DURABLE, transactionBlockId:transactionBlockId};
+            //participatedTxn.coordinatorProtocols = [initiatorProto];
+
+            LocalParticipant participant = new(participantId, participatedTxn, [participantProtocol]);
+            initiatedTxn.participants[participantId] = participant;
+
+            string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
+            participatedTransactions[participatedTxnId] = participatedTxn;
+            TransactionContext txnCtx = {transactionId:transactionId, transactionBlockId:transactionBlockId,
+            coordinationType:TWO_PHASE_COMMIT, registerAtURL:registerAtURL};
+            log:printInfo("Registered local participant: " + participantId + " for transaction:" + transactionId);
+            return txnCtx;
         }
-        TwoPhaseCommitTransaction initiatedTxn => {
-            if (isRegisteredParticipant(participantId, initiatedTxn.participants)) { // Already-Registered
-                error err = error("Already-Registered. TID:" + transactionId + ",participant ID:" + participantId);
-                return err;
-            } else if (!protocolCompatible(initiatedTxn.coordinationType, [participantProtocol])) { // Invalid-Protocol
-                error err = error("Invalid-Protocol in local participant. TID:" + transactionId + ",participant ID:" +
-                    participantId);
-                return err;
-            } else {
-    
-                //Set initiator protocols
-                TwoPhaseCommitTransaction participatedTxn = new(transactionId, transactionBlockId);
-                //Protocol initiatorProto = {name: PROTOCOL_DURABLE, transactionBlockId:transactionBlockId};
-                //participatedTxn.coordinatorProtocols = [initiatorProto];
-    
-                LocalParticipant participant = new(participantId, participatedTxn, [participantProtocol]);
-                initiatedTxn.participants[participantId] = <Participant>participant;
-    
-                string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
-                participatedTransactions[participatedTxnId] = participatedTxn;
-                TransactionContext txnCtx = {transactionId:transactionId, transactionBlockId:transactionBlockId,
-                    coordinationType:TWO_PHASE_COMMIT, registerAtURL:registerAtURL};
-                log:printInfo("Registered local participant: " + participantId + " for transaction:" + transactionId);
-                return txnCtx;
-            }
-        }
+    } else {
+        // TODO: Ideally there shouldn't be an `else if` above but else. Once the limitations in type checking are fixed
+        // this `else` block should be removed and the above `else if` block should be replaced with an else.
+        error e = error("Unreachable code");
+        panic e;
     }
 }
 
@@ -265,24 +266,17 @@ function removeInitiatedTransaction(string transactionId) {
 }
 
 function getInitiatorClient(string registerAtURL) returns InitiatorClientEP {
+    InitiatorClientEP initiatorEP;
     if (httpClientCache.hasKey(registerAtURL)) {
-        match (<InitiatorClientEP>httpClientCache.get(registerAtURL)) {
-            error err => panic err;
-            InitiatorClientEP initiatorEP => return initiatorEP;
-        }
+        return <InitiatorClientEP>httpClientCache.get(registerAtURL);
     } else {
         lock {
             if (httpClientCache.hasKey(registerAtURL)) {
-                match (<InitiatorClientEP>httpClientCache.get(registerAtURL)) {
-                    error err => panic err;
-                    InitiatorClientEP initiatorEP => return initiatorEP;
-                }
+                return <InitiatorClientEP>httpClientCache.get(registerAtURL);
             }
-            InitiatorClientEP initiatorEP = new;
-            InitiatorClientConfig config = { registerAtURL: registerAtURL,
-                timeoutMillis: 15000, retryConfig: { count: 2, interval: 5000 }
-            };
-            initiatorEP.init(config);
+            initiatorEP = new({ registerAtURL: registerAtURL, timeoutMillis: 15000,
+                retryConfig: { count: 2, interval: 5000 }
+            });
             httpClientCache.put(registerAtURL, initiatorEP);
             return initiatorEP;
         }
@@ -290,24 +284,17 @@ function getInitiatorClient(string registerAtURL) returns InitiatorClientEP {
 }
 
 function getParticipant2pcClient(string participantURL) returns Participant2pcClientEP {
+    Participant2pcClientEP participantEP;
     if (httpClientCache.hasKey(participantURL)) {
-        match (<Participant2pcClientEP>httpClientCache.get(participantURL)) {
-            error err => panic err;
-            Participant2pcClientEP participantEP => return participantEP;
-        }
+        return <Participant2pcClientEP>httpClientCache.get(participantURL);
     } else {
         lock {
             if (httpClientCache.hasKey(participantURL)) {
-                match (<Participant2pcClientEP>httpClientCache.get(participantURL)) {
-                    error err => panic err;
-                    Participant2pcClientEP participantEP => return participantEP;
-                }
+                return <Participant2pcClientEP>httpClientCache.get(participantURL);
             }
-            Participant2pcClientEP participantEP = new;
-            Participant2pcClientConfig config = { participantURL: participantURL,
+            participantEP = new({ participantURL: participantURL,
                 timeoutMillis: 15000, retryConfig: { count: 2, interval: 5000 }
-            };
-            participantEP.init(config);
+            });
             httpClientCache.put(participantURL, participantEP);
             return participantEP;
         }
@@ -325,8 +312,7 @@ public function registerParticipantWithRemoteInitiator(string transactionId, int
                                                        string registerAtURL, RemoteProtocol[] participantProtocols)
     returns TransactionContext|error {
 
-    endpoint InitiatorClientEP initiatorEP;
-    initiatorEP = getInitiatorClient(registerAtURL);
+    InitiatorClientEP initiatorEP = getInitiatorClient(registerAtURL);
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
 
     // Register with the coordinator only if the participant has not already done so
@@ -339,27 +325,29 @@ public function registerParticipantWithRemoteInitiator(string transactionId, int
     log:printInfo("Registering for transaction: " + participatedTxnId + " with coordinator: " + registerAtURL);
 
     var result = initiatorEP->register(transactionId, transactionBlockId, participantProtocols);
-    match result {
-        error e => {
-            string msg = "Cannot register with coordinator for transaction: " + transactionId;
-            log:printError(msg, err = e);
-            // TODO : Fix me.
-            //map data = { cause: err };
-            error err = error(msg);
-            return err;
-        }
-        RegistrationResponse regRes => {
-            RemoteProtocol[] coordinatorProtocols = regRes.coordinatorProtocols;
-            TwoPhaseCommitTransaction twopcTxn = new(transactionId, transactionBlockId);
-            twopcTxn.coordinatorProtocols = toProtocolArray(coordinatorProtocols);
-            participatedTransactions[participatedTxnId] = twopcTxn;
-            TransactionContext txnCtx = {
-                transactionId:transactionId, transactionBlockId:transactionBlockId,
-                coordinationType:TWO_PHASE_COMMIT, registerAtURL:registerAtURL
-            };
-            log:printInfo("Registered with coordinator for transaction: " + transactionId);
-            return txnCtx;
-        }
+    if (result is error) {
+        string msg = "Cannot register with coordinator for transaction: " + transactionId;
+        log:printError(msg, err = result);
+        // TODO : Fix me.
+        //map data = { cause: err };
+        error err = error(msg);
+        return err;
+    } else if (result is RegistrationResponse) {
+        RemoteProtocol[] coordinatorProtocols = result.coordinatorProtocols;
+        TwoPhaseCommitTransaction twopcTxn = new(transactionId, transactionBlockId);
+        twopcTxn.coordinatorProtocols = toProtocolArray(coordinatorProtocols);
+        participatedTransactions[participatedTxnId] = twopcTxn;
+        TransactionContext txnCtx = {
+            transactionId:transactionId, transactionBlockId:transactionBlockId,
+            coordinationType:TWO_PHASE_COMMIT, registerAtURL:registerAtURL
+        };
+        log:printInfo("Registered with coordinator for transaction: " + transactionId);
+        return txnCtx;
+    } else {
+        // TODO: Ideally there shouldn't be an `else if` above but else. Once the limitations in type checking are fixed
+        // this `else` block should be removed and the above `else if` block should be replaced with an else.
+        error e = error("Unreachable code");
+        panic e;
     }
 }
 

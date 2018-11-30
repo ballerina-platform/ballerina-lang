@@ -135,7 +135,7 @@ public final class GlobalMemoryBlock implements BRefType, LockableStructureType 
     }
 
     @Override
-    public boolean lockIntField(WorkerExecutionContext ctx, int index) {
+    public boolean lockIntField(Strand ctx, int index) {
         /*
         TODO below synchronization is done on non final variable(which is getting changed in copy method)
         This is ok for the time being as below synchronizations are only valid for global memory block which is
@@ -166,7 +166,7 @@ public final class GlobalMemoryBlock implements BRefType, LockableStructureType 
     }
 
     @Override
-    public boolean lockFloatField(WorkerExecutionContext ctx, int index) {
+    public boolean lockFloatField(Strand ctx, int index) {
         /*
         TODO below synchronization is done on non final variable(which is getting changed in copy method)
         This is ok for the time being as below synchronizations are only valid for global memory block which is
@@ -197,7 +197,7 @@ public final class GlobalMemoryBlock implements BRefType, LockableStructureType 
     }
 
     @Override
-    public boolean lockStringField(WorkerExecutionContext ctx, int index) {
+    public boolean lockStringField(Strand ctx, int index) {
         /*
         TODO below synchronization is done on non final variable(which is getting changed in copy method)
         This is ok for the time being as below synchronizations are only valid for global memory block which is
@@ -227,7 +227,7 @@ public final class GlobalMemoryBlock implements BRefType, LockableStructureType 
     }
 
     @Override
-    public boolean lockBooleanField(WorkerExecutionContext ctx, int index) {
+    public boolean lockBooleanField(Strand ctx, int index) {
         /*
         TODO below synchronization is done on non final variable(which is getting changed in copy method)
         This is ok for the time being as below synchronizations are only valid for global memory block which is
@@ -257,7 +257,7 @@ public final class GlobalMemoryBlock implements BRefType, LockableStructureType 
     }
 
     @Override
-    public boolean lockRefField(WorkerExecutionContext ctx, int index) {
+    public boolean lockRefField(Strand ctx, int index) {
         /*
         TODO below synchronization is done on non final variable(which is getting changed in copy method)
         This is ok for the time being as below synchronizations are only valid for global memory block which is

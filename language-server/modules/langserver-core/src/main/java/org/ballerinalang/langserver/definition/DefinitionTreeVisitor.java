@@ -25,7 +25,6 @@ import org.ballerinalang.model.tree.TopLevelNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
-import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -47,7 +46,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
@@ -134,9 +132,10 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
         if (serviceNode.name.getValue()
                 .equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY))) {
 
-            if (serviceNode.serviceTypeStruct != null) {
-                this.acceptNode(serviceNode.serviceTypeStruct);
-            }
+            // TODO: 11/28/18 Fix with the latest service changes 
+//            if (serviceNode.serviceTypeStruct != null) {
+//                this.acceptNode(serviceNode.serviceTypeStruct);
+//            }
 
             if (serviceNode.vars != null) {
                 serviceNode.vars.forEach(this::acceptNode);
@@ -149,14 +148,14 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
             if (serviceNode.endpoints != null) {
                 serviceNode.endpoints.forEach(this::acceptNode);
             }
-
-            if (serviceNode.boundEndpoints != null) {
-                serviceNode.boundEndpoints.forEach(this::acceptNode);
-            }
-
-            if (serviceNode.initFunction != null) {
-                this.acceptNode(serviceNode.initFunction);
-            }
+            
+            // TODO: 11/28/18 Fix with the latest service changes
+//            if (serviceNode.boundEndpoints != null) {
+//                serviceNode.boundEndpoints.forEach(this::acceptNode);
+//            }
+//            if (serviceNode.initFunction != null) {
+//                this.acceptNode(serviceNode.initFunction);
+//            }
         }
     }
 
@@ -170,24 +169,6 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
 
             if (resourceNode.body != null) {
                 this.acceptNode(resourceNode.body);
-            }
-        }
-    }
-
-    @Override
-    public void visit(BLangAction actionNode) {
-        if (actionNode.name.getValue()
-                .equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY))) {
-            if (actionNode.requiredParams != null) {
-                actionNode.requiredParams.forEach(this::acceptNode);
-            }
-
-            if (actionNode.body != null) {
-                acceptNode(actionNode.body);
-            }
-
-            if (actionNode.workers != null) {
-                actionNode.workers.forEach(this::acceptNode);
             }
         }
     }
@@ -297,14 +278,14 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
         if (forkJoin.getWorkers() != null) {
             forkJoin.getWorkers().forEach(this::acceptNode);
         }
-
-        if (forkJoin.joinedBody != null) {
-            this.acceptNode(forkJoin.joinedBody);
-        }
-
-        if (forkJoin.timeoutBody != null) {
-            this.acceptNode(forkJoin.timeoutBody);
-        }
+        // todo need to remove this block
+//        if (forkJoin.joinedBody != null) {
+//            this.acceptNode(forkJoin.joinedBody);
+//        }
+//
+//        if (forkJoin.timeoutBody != null) {
+//            this.acceptNode(forkJoin.timeoutBody);
+//        }
     }
 
     @Override
@@ -416,25 +397,6 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatch.BLangMatchTypedBindingPatternClause patternClauseNode) {
-        if (patternClauseNode.getVariableNode() != null &&
-                patternClauseNode.getVariableNode().getName() != null &&
-                patternClauseNode.getVariableNode().getName().getValue()
-                        .equals(this.context.get(NodeContextKeys.VAR_NAME_OF_NODE_KEY))) {
-            this.context.put(NodeContextKeys.NODE_KEY, patternClauseNode.getVariableNode());
-            terminateVisitor = true;
-        }
-
-        if (patternClauseNode.variable != null) {
-            this.acceptNode(patternClauseNode.variable);
-        }
-
-        if (patternClauseNode.body != null) {
-            this.acceptNode(patternClauseNode.body);
-        }
-    }
-
-    @Override
     public void visit(BLangMatch.BLangMatchStaticBindingPatternClause patternClauseNode) {
         /*ignore*/
     }
@@ -466,15 +428,6 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
             this.acceptNode(typeDefinition.typeNode);
         }
 
-    }
-
-    @Override
-    public void visit(BLangScope scopeNode) {
-        if (scopeNode.scopeBody != null) {
-            this.acceptNode(scopeNode.scopeBody);
-        }
-
-        visit(scopeNode.compensationFunction);
     }
 
     @Override

@@ -32,7 +32,6 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.ObjectTypeInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
-import org.ballerinalang.util.program.BLangFunctions;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -87,7 +86,8 @@ public class BLangVMStructs {
         BValue[] vals = new BValue[values.length + 1];
         vals[0] = bStruct;
         System.arraycopy(values, 0, vals, 1, values.length);
-        BLangFunctions.invokeCallable(objectInfo.initializer, vals);
+        BVMExecutor.executeFunction(objectInfo.initializer.getPackageInfo().getProgramFile(),
+                objectInfo.initializer, vals);
         return bStruct;
     }
 

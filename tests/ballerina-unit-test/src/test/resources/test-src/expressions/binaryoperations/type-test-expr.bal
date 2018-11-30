@@ -234,7 +234,10 @@ public type Person object {
     public string name;
     public string address = "";
 
-    public new (name, age) {}
+    public function __init(string name, int age) {
+        self.age = age;
+        self.name = name;
+    }
 
     public function getName() returns (string) {
         return self.name;
@@ -254,7 +257,10 @@ public type SameAsPerson object {
     public string name;
     public string address = "";
 
-    public new (name, age) {}
+    public function __init(string name, int age) {
+        self.age = age;
+        self.name = name;
+    }
 
     public function getName() returns (string) {
         return self.name;
@@ -305,7 +311,10 @@ public type PersonInOrder object {
     public string name;
     public string address = "";
 
-    public new (name, age) {}
+    public function __init(string name, int age) {
+        self.age = age;
+        self.name = name;
+    }
 
     public function getName() returns (string) {
         return self.name;
@@ -332,7 +341,10 @@ public type PersonNotInOrder object {
         return self.age;
     }
 
-    public new (name, age) {}
+    public function __init(string name, int age) {
+        self.age = age;
+        self.name = name;
+    }
 
     public string name;
 
@@ -388,7 +400,12 @@ public type C4 object {
     *B4;
     public boolean s;
     
-    public new (p, q, r, s) {}
+    public function __init(int p, string q, float r, boolean s) {
+        self.p = p;
+        self.q = q;
+        self.r = r;
+        self.s = s;
+    }
 };
 
 function testPublicObjectEquivalency() returns (string, string, string) {
@@ -426,7 +443,12 @@ type C5 object {
     *B5;
     boolean s;
     
-    new (p, q, r, s) {}
+    public function __init(int p, string q, float r, boolean s) {
+        self.p = p;
+        self.q = q;
+        self.r = r;
+        self.s = s;
+    }
 };
 
 function testPrivateObjectEquivalency() returns (string, string, string) {
@@ -525,16 +547,16 @@ function testTupleWithAssignableTypes_2() returns boolean {
 // ========================== Map ==========================
 
 function testSimpleUnconstrainedMap_1() returns (boolean, boolean) {
-    map m = {"key1": "value1"};
+    map<any> m = {"key1": "value1"};
     boolean b0 = m is map<string>;
     boolean b1 = m is map<json>;
     return (b0, b1);
 }
 
 function testSimpleUnconstrainedMap_2() returns (boolean, boolean, boolean, boolean, boolean) {
-    map m = {"key1": "value1"};
+    map<any> m = {"key1": "value1"};
     any a = m;
-    boolean b0 = a is map;
+    boolean b0 = a is map<any>;
     boolean b1 = a is map<any>;
     boolean b2 = a is map<string>;
     boolean b3 = a is json;
@@ -545,7 +567,7 @@ function testSimpleUnconstrainedMap_2() returns (boolean, boolean, boolean, bool
 function testSimpleConstrainedMap() returns (boolean, boolean, boolean, boolean) {
     map<string> m1 = {"key1": "value1"};
     any m2 = m1;
-    boolean b0 = m2 is map;
+    boolean b0 = m2 is map<any>;
     boolean b1 = m2 is map<any>;
     boolean b2 = m2 is map<string>;
     boolean b3 = m2 is map<json>;

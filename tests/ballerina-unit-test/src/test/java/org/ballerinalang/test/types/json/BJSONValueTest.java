@@ -456,37 +456,37 @@ public class BJSONValueTest {
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: 'null' cannot be cast to 'int'.*")
+            expectedExceptionsMessageRegExp = "error: assertion error: expected 'int', found '\\(\\)'.*")
     public void testNullJsonToInt() {
         BRunUtil.invoke(compileResult, "testNullJsonToInt");
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: 'null' cannot be cast to 'float'.*")
+            expectedExceptionsMessageRegExp = "error: assertion error: expected 'float', found '\\(\\)'.*")
     public void testNullJsonToFloat() {
         BRunUtil.invoke(compileResult, "testNullJsonToFloat");
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: 'null' cannot be cast to 'string'.*")
+            expectedExceptionsMessageRegExp = "error: assertion error: expected 'string', found '\\(\\)'.*")
     public void testNullJsonToString() {
         BRunUtil.invoke(compileResult, "testNullJsonToString");
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: 'null' cannot be cast to 'boolean'.*")
+            expectedExceptionsMessageRegExp = "error: assertion error: expected 'boolean', found '\\(\\)'.*")
     public void testNullJsonToBoolean() {
         BRunUtil.invoke(compileResult, "testNullJsonToBoolean");
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: 'null' cannot be converted to 'map'.*")
+            expectedExceptionsMessageRegExp = "error: cannot stamp 'null' value to type 'map<json>'.*")
     public void testNullJsonToMap() {
         BRunUtil.invoke(compileResult, "testNullJsonToMap");
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: 'null' cannot be converted to 'int\\[\\].*")
+            expectedExceptionsMessageRegExp = "error: assertion error: expected 'int\\[\\]', found '\\(\\)'.*")
     public void testNullJsonToArray() {
         BRunUtil.invoke(compileResult, "testNullJsonToArray");
     }

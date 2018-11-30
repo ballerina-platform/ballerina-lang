@@ -66,7 +66,7 @@ public class IterableOperationsTests {
                                   "incompatible types: expected 'string[]', found '(string,string) " +
                 "collection'", 31, 24);
         BAssertUtil.validateError(negative, index++,
-                                  "incompatible lambda function types: expected 'string', found 'any'", 35, 22);
+                                  "incompatible lambda function types: expected 'string', found 'any'", 35, 27);
         BAssertUtil.validateError(negative, index++,
                                   "incompatible lambda function types: expected 'string', found 'any'", 38, 22);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'int', found '()'", 46, 19);
@@ -98,7 +98,7 @@ public class IterableOperationsTests {
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected 'int[]', found 'string[]'", 93, 30);
         BAssertUtil.validateError(negative, index++,
-                "incompatible types: expected 'map', found '(any) collection'", 99, 22);
+                "incompatible types: expected 'map', found '(any) collection'", 99, 27);
         BAssertUtil.validateError(negative, index++,
                 "cannot assign return value of 'filter' operation here, use a reduce operation", 103, 22);
     }

@@ -42,7 +42,10 @@ public type employee object {
     public int id = 0;
     public int employeeId = 123456;
 
-    public new (age, name) {}
+    public function __init (int age, string name) {
+        self.age = age;
+        self.name = name;
+    }
 
     public function getName() returns (string);
 

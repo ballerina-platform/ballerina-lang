@@ -1,18 +1,18 @@
 type Person record {
-    int a;
+    int a = 0;
     string fname = "John";
-    string lname;
+    string lname = "";
     Info|error info1;
-    Info|() info2;
+    Info|() info2 = ();
 };
 
 type Info record {
     Address|error address1;
-    Address|() address2;
+    Address|() address2 = ();
 };
 
 type Address record {
-    string street;
+    string street = "";
     string city;
     string country = "Sri Lanka";
 };
@@ -41,12 +41,12 @@ function testErrorLiftingOnRHS() {
 }
 
 function testErrorLiftingOnArray() returns Person|error {
-    Person[]|error p;
+    Person[]|error p = error(" ");
     return p[0];
 }
 
 function testSafeNavigateOnErrorOrNull_1() returns string{
-    error|() e;
+    error|() e = ();
     return e!message;
 }
 
@@ -56,7 +56,7 @@ function testSafeNavigateOnErrorOrNull_3() returns string {
 }
 
 type Student record {
-    json info;
+    json info = {};
 };
 
 function testFunctionCallOnJSONInRecord() {

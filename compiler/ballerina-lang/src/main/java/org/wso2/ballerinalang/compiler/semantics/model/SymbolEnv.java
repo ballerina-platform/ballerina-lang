@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model;
 
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -33,6 +34,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
@@ -115,6 +117,16 @@ public class SymbolEnv {
         SymbolEnv objectEnv = createPkgLevelSymbolEnv(node, scope, env);
         objectEnv.enclType = node;
         return objectEnv;
+    }
+
+    public static SymbolEnv createObjectMethodsEnv(BLangObjectTypeNode node, BObjectTypeSymbol objSymbol,
+                                                   SymbolEnv env) {
+        if (objSymbol.methodScope == null) {
+            objSymbol.methodScope = new Scope(env.scope.owner);
+        }
+        SymbolEnv symbolEnv = createPkgLevelSymbolEnv(node, objSymbol.methodScope, env);
+        env.copyTo(symbolEnv);
+        return symbolEnv;
     }
 
     public static SymbolEnv createDummyEnv(BLangFunction node, Scope scope, SymbolEnv env) {

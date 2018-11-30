@@ -3,7 +3,9 @@ import ballerina/internal;
 public type FuncBodyParser object {
     BirChannelReader reader;
     map<VariableDcl> localVarMap;
-    public new(reader, localVarMap) {
+    public function __init(BirChannelReader reader, map<VariableDcl> localVarMap) {
+        self.reader = reader;
+        self.localVarMap = localVarMap;
     }
 
     public function parseBB() returns BasicBlock {
@@ -133,12 +135,11 @@ public type FuncBodyParser object {
 
 function getDecl(map<VariableDcl> localVarMap, string varName) returns VariableDcl {
     var posibalDcl = localVarMap[varName];
-    match posibalDcl {
-        VariableDcl dcl => return dcl;
-        () => {
-            error err = error("local var missing " + varName);
-            panic err;
-        }
+    if (posibalDcl is VariableDcl) {
+        return posibalDcl;
+    } else {
+        error err = error("local var missing " + varName);
+        panic err;
     }
 }
 

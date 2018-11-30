@@ -25,15 +25,17 @@ public type AuthnFilter object {
 
     public AuthnHandlerChain authnHandlerChain;
 
-    public new(authnHandlerChain) {}
+    public function __init(AuthnHandlerChain authnHandlerChain) {
+        self.authnHandlerChain = authnHandlerChain;
+    }
 
     # Request filter method which attempts to authenticated the request.
     #
-    # + listener - The http endpoint
+    # + listenerObj - The http endpoint
     # + request - An inboud HTTP request message
     # + context - A filter context
     # + return - True if the filter succeeds
-    public function filterRequest(Listener listener, Request request, FilterContext context) returns boolean {
+    public function filterRequest(Caller caller, Request request, FilterContext context) returns boolean {
         // get auth config for this resource
         boolean authenticated = false;
         var (isSecured, authProviders) = getResourceAuthConfig(context);
@@ -47,9 +49,9 @@ public type AuthnFilter object {
             }
         } else {
             // not secured, no need to authenticate
-            return isAuthnSuccesfull(listener, true);
+            return isAuthnSuccesfull(caller, true);
         }
-        return isAuthnSuccesfull(listener, authenticated);
+        return isAuthnSuccesfull(caller, authenticated);
     }
 
     public function filterResponse(Response response, FilterContext context) returns boolean {
@@ -59,11 +61,10 @@ public type AuthnFilter object {
 
 # Verifies if the authentication is successful. If not responds to the user.
 #
-# + listener - The http endpoint
+# + callerObj - The http caller
 # + authenticated - Authorization status for the request
 # + return - Authorization result to indicate if the filter can proceed(true) or not(false)
-function isAuthnSuccesfull(Listener listener, boolean authenticated) returns boolean {
-    endpoint Listener caller = listener;
+function isAuthnSuccesfull(Caller caller, boolean authenticated) returns boolean {
     Response response = new;
     if (!authenticated) {
         response.statusCode = 401;
@@ -86,9 +87,9 @@ function getResourceAuthConfig(FilterContext context) returns (boolean, string[]
     string[] authProviderIds = [];
     // get authn details from the resource level
     ListenerAuthConfig? resourceLevelAuthAnn = getAuthAnnotation(ANN_MODULE, RESOURCE_ANN_NAME,
-        reflect:getResourceAnnotations(context.serviceType, context.resourceName));
+        reflect:getResourceAnnotations(context.serviceRef, context.resourceName));
     ListenerAuthConfig? serviceLevelAuthAnn = getAuthAnnotation(ANN_MODULE, SERVICE_ANN_NAME,
-        reflect:getServiceAnnotations(context.serviceType));
+        reflect:getServiceAnnotations(context.serviceRef));
     // check if authentication is enabled
     resourceSecured = isResourceSecured(resourceLevelAuthAnn, serviceLevelAuthAnn);
     // if resource is not secured, no need to check further
@@ -150,19 +151,11 @@ function getAuthAnnotation(string annotationModule, string annotationName, refle
     }
     if (authAnn is reflect:annotationData) {
         if (annotationName == RESOURCE_ANN_NAME) {
-            var resourceConfig = <HttpResourceConfig>authAnn.value;
-            if (resourceConfig is HttpResourceConfig) {
-                return resourceConfig.authConfig;
-            } else if (resourceConfig is error) {
-                panic resourceConfig;
-            }
+            HttpResourceConfig resourceConfig = <HttpResourceConfig>authAnn.value;
+            return resourceConfig.authConfig;
         } else if (annotationName == SERVICE_ANN_NAME) {
-            var serviceConfig = <HttpServiceConfig>authAnn.value;
-            if (serviceConfig is HttpServiceConfig) {
-                return serviceConfig.authConfig;
-            } else if (serviceConfig is error) {
-                panic serviceConfig;
-            }
+            HttpServiceConfig serviceConfig = <HttpServiceConfig>authAnn.value;
+            return serviceConfig.authConfig;
         }
     }
     return ();

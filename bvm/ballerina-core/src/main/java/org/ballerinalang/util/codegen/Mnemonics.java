@@ -197,6 +197,9 @@ public class Mnemonics {
         mnemonics[InstructionCodes.B2S] = "b2s";
         mnemonics[InstructionCodes.B2D] = "b2d";
         mnemonics[InstructionCodes.B2ANY] = "b2any";
+
+        mnemonics[InstructionCodes.TYPE_ASSERTION] = "type_assertion";
+
         mnemonics[InstructionCodes.D2I] = "d2i";
         mnemonics[InstructionCodes.D2F] = "d2f";
         mnemonics[InstructionCodes.D2S] = "d2s";
@@ -238,9 +241,8 @@ public class Mnemonics {
 
         mnemonics[InstructionCodes.WRKSEND] = "wrksend";
         mnemonics[InstructionCodes.WRKRECEIVE] = "wrkreceive";
-        mnemonics[InstructionCodes.FORKJOIN] = "forkjoin";
-        
-        mnemonics[InstructionCodes.AWAIT] = "await";
+
+        mnemonics[InstructionCodes.WAIT] = "wait";
 
         mnemonics[InstructionCodes.BINEWARRAY] = "binewarray";
         mnemonics[InstructionCodes.INEWARRAY] = "inewarray";

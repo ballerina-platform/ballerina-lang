@@ -22,23 +22,29 @@ import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.model.tree.Node;
 import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangResource;
-import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Service scope position resolver.
  */
 public class ServiceScopeResolver extends CursorPositionResolver {
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public boolean isCursorBeforeNode(DiagnosticPos nodePosition, BLangNode node, TreeVisitor treeVisitor,
-                                      LSContext completionContext) {
+    public boolean isCursorBeforeNode(DiagnosticPos nodePosition, TreeVisitor treeVisitor, LSContext completionContext,
+                                      BLangNode node, BSymbol bSymbol) {
         Position position = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();
         DiagnosticPos zeroBasedPo = CommonUtil.toZeroBasedPosition(nodePosition);
         int line = position.getLine();
@@ -52,7 +58,7 @@ public class ServiceScopeResolver extends CursorPositionResolver {
             Map<Name, Scope.ScopeEntry> visibleSymbolEntries =
                     treeVisitor.resolveAllVisibleSymbols(treeVisitor.getSymbolEnv());
             treeVisitor.populateSymbols(visibleSymbolEntries, treeVisitor.getSymbolEnv());
-            treeVisitor.setNextNode(node);
+            treeVisitor.setNextNode(bSymbol);
             treeVisitor.forceTerminateVisitor();
             return true;
         }
@@ -68,30 +74,32 @@ public class ServiceScopeResolver extends CursorPositionResolver {
      * @param curCol        column of the cursor                     
      * @return              {@link Boolean} whether the last child node or not
      */
-    protected boolean isWithinScopeAfterLastChildNode(Node node, TreeVisitor treeVisitor, int curLine, int curCol) {
-        BLangService bLangService = (BLangService) treeVisitor.getBlockOwnerStack().peek();
-        List<BLangResource> resources = bLangService.resources;
-        List<BLangSimpleVariableDef> variableDefs = bLangService.vars;
+    private boolean isWithinScopeAfterLastChildNode(Node node, TreeVisitor treeVisitor, int curLine, int curCol) {
+        BLangObjectTypeNode bLangService = (BLangObjectTypeNode) treeVisitor.getBlockOwnerStack().peek();
+        List<BLangFunction> serviceFunctions = bLangService.getFunctions();
+        List<BLangSimpleVariable> serviceFields = bLangService.getFields().stream()
+                .map(simpleVar -> (BLangSimpleVariable) simpleVar)
+                .collect(Collectors.toList());
+        List<BLangNode> serviceContent = new ArrayList<>(serviceFunctions);
+        serviceContent.addAll(serviceFields);
+        serviceContent.sort(new CommonUtil.BLangNodeComparator());
+
         int serviceEndLine = bLangService.pos.getEndLine();
         int serviceEndCol = bLangService.pos.getEndColumn();
         int nodeEndLine = node.getPosition().getEndLine();
         int nodeEndCol = node.getPosition().getEndColumn();
         boolean isLastChildNode;
 
-        if (resources.isEmpty()) {
-            isLastChildNode = variableDefs.indexOf(node) == (variableDefs.size() - 1);
-        } else {
-            isLastChildNode = resources.indexOf(node) == (resources.size() - 1);
-        }
+        isLastChildNode = !serviceContent.isEmpty() && serviceContent.indexOf(node) == (serviceContent.size() - 1);
 
         boolean isWithinScope =  (isLastChildNode
                 && (curLine < serviceEndLine || (curLine == serviceEndLine && curCol < serviceEndCol))
                 && (nodeEndLine < curLine || (nodeEndLine == curLine && nodeEndCol < curCol)));
-        
+
         if (isWithinScope) {
             treeVisitor.setPreviousNode((BLangNode) node);
         }
-        
+
         return isWithinScope;
     }
 }

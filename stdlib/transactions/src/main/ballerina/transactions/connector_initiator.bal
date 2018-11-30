@@ -25,44 +25,29 @@ type InitiatorClientConfig record {
     } retryConfig = {};
 };
 
-type InitiatorClientEP object {
-    http:Client httpClient = new;
+type InitiatorClientEP client object {
+    http:Client httpClient;
 
-    function init(InitiatorClientConfig conf) {
-        endpoint http:Client httpEP {
-            url:conf.registerAtURL,
-            timeoutMillis:conf.timeoutMillis,
-            retryConfig:{
-                count:conf.retryConfig.count, interval:conf.retryConfig.interval
-            }
-        };
+    function __init(InitiatorClientConfig conf) {
+        http:Client httpEP = new(conf.registerAtURL, config = {
+                timeoutMillis:conf.timeoutMillis,
+                retryConfig:{
+                    count:conf.retryConfig.count,
+                    interval:conf.retryConfig.interval
+                }
+            });
         self.httpClient = httpEP;
     }
 
-    function getCallerActions() returns InitiatorClient {
-        InitiatorClient client = new;
-        client.clientEP = self;
-        return client;
-    }
-};
-
-type InitiatorClient object {
-    InitiatorClientEP clientEP = new;
-
-    new() {
-
-    }
-
-    function register(string transactionId, int transactionBlockId, RemoteProtocol[] participantProtocols)
-        returns RegistrationResponse|error {
-
-        endpoint http:Client httpClient = self.clientEP.httpClient;
+    remote function register(string transactionId, int transactionBlockId, RemoteProtocol[] participantProtocols)
+                 returns RegistrationResponse|error {
+        http:Client httpClient = self.httpClient;
         string participantId = getParticipantId(transactionBlockId);
         RegistrationRequest regReq = {
             transactionId:transactionId, participantId:participantId, participantProtocols:participantProtocols
         };
 
-        json reqPayload = check <json>regReq;
+        json reqPayload = check json.create(regReq);
         http:Request req = new;
         req.setJsonPayload(reqPayload);
         var result = httpClient->post("", req);
@@ -73,6 +58,6 @@ type InitiatorClient object {
             return err;
         }
         json resPayload = check res.getJsonPayload();
-        return <RegistrationResponse>resPayload;
+        return RegistrationResponse.create(resPayload);
     }
 };

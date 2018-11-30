@@ -16,8 +16,8 @@
  */
 package org.ballerinalang.channels;
 
-import org.ballerinalang.bre.bvm.BLangScheduler;
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.bre.bvm.BVMScheduler;
+import org.ballerinalang.bre.bvm.Strand;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BValue;
 
@@ -31,9 +31,8 @@ import java.util.Map;
  */
 public class ChannelManager {
 
-    public static BValue channelReceiverAction(String channelName, BValue key, BType keyType,
-                                                            WorkerExecutionContext ctx, int regIndex,
-                                                            BType receiverType) {
+    public static BValue channelReceiverAction(String channelName, BValue key, BType keyType, Strand ctx, int regIndex,
+                                               BType receiverType) {
 
         Map<String, LinkedList<ChannelRegistry.PendingContext>> channel =
                 ChannelRegistry.getInstance().addChannel(channelName);
@@ -44,7 +43,7 @@ public class ChannelManager {
                 return msg;
             } else {
                 ChannelRegistry.getInstance().addWaitingContext(channelName, key, ctx, regIndex);
-                BLangScheduler.workerWaitForResponse(ctx);
+                BVMScheduler.schedule(ctx);
             }
             return null;
         }

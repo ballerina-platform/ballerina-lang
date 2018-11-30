@@ -1,7 +1,8 @@
 public type PackageParser object {
     BirChannelReader reader;
 
-    public new(reader) {
+    public function __init(BirChannelReader reader) {
+        self.reader = reader;
     }
 
     public function parseVariableDcl() returns VariableDcl {

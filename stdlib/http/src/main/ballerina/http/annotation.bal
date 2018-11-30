@@ -75,7 +75,6 @@ public type Versioning record {
 # Configurations for a WebSocket service.
 #
 # + endpoints - An array of endpoints the service would be attached to
-# + webSocketEndpoints - An array of endpoints the service would be attached to
 # + path - Path of the WebSocket service
 # + subProtocols - Negotiable sub protocol by the service
 # + idleTimeoutInSeconds - Idle timeout for the client connection. This can be triggered by putting
@@ -83,7 +82,6 @@ public type Versioning record {
 # + maxFrameSize - The maximum payload size of a WebSocket frame in bytes
 public type WSServiceConfig record {
     Listener[] endpoints = [];
-    WebSocketListener[] webSocketEndpoints = [];
     string path = "";
     string[] subProtocols = [];
     int idleTimeoutInSeconds = 0;
@@ -133,7 +131,7 @@ public type HttpResourceConfig record {
 # + upgradeService - WebSocket service which should be used after a successful upgrade
 public type WebSocketUpgradeConfig record {
     string upgradePath = "";
-    typedesc upgradeService?;
+    service upgradeService?;
     !...
 };
 

@@ -18,10 +18,7 @@ import ballerina/grpc;
 import ballerina/io;
 
 // Server endpoint configuration
-endpoint grpc:Listener ep7 {
-    host:"localhost",
-    port:9096
-};
+listener grpc:Listener ep4 = new (9096);
 
 @grpc:ServiceConfig {name:"lotsOfGreetings",
     clientStreaming:true}
@@ -29,20 +26,20 @@ endpoint grpc:Listener ep7 {
     descriptor: <string>descriptorMap4[DESCRIPTOR_KEY_4],
     descMap: descriptorMap4
 }
-service HelloWorld7 bind ep7 {
-    onOpen(endpoint caller) {
+service HelloWorld7 on ep4 {
+    resource function onOpen(grpc:Caller caller) {
         io:println("connected sucessfully.");
     }
 
-    onMessage(endpoint caller, string name) {
+    resource function onMessage(grpc:Caller caller, string name) {
         io:println("greet received: " + name);
     }
 
-    onError(endpoint caller, error err) {
+    resource function onError(grpc:Caller caller, error err) {
         io:println("Something unexpected happens at server : " + err.reason());
     }
 
-    onComplete(endpoint caller) {
+    resource function onComplete(grpc:Caller caller) {
         io:println("Server Response");
         error? err = caller->send("Ack");
         if (err is error) {
@@ -53,8 +50,8 @@ service HelloWorld7 bind ep7 {
     }
 }
 
-@final string DESCRIPTOR_KEY_4 = "HelloWorld7.proto";
-map descriptorMap4 =
+const string DESCRIPTOR_KEY_4 = "HelloWorld7.proto";
+map<any> descriptorMap4 =
 {
     "HelloWorld7.proto":"0A1148656C6C6F576F726C64372E70726F746F120C6772706373657276696365731A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F325E0A0B48656C6C6F576F726C6437124F0A0F6C6F74734F664772656574696E6773121C2E676F6F676C652E70726F746F6275662E537472696E6756616C75651A1C2E676F6F676C652E70726F746F6275662E537472696E6756616C75652801620670726F746F33",
 

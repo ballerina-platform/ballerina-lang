@@ -35,7 +35,7 @@ import java.io.PrintStream;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
         functionName = "println",
-        args = {@Argument(name = "a", type = TypeKind.ARRAY, elementType = TypeKind.ANY)},
+        args = {@Argument(name = "values", type = TypeKind.ARRAY, elementType = TypeKind.UNION)},
         isPublic = true
 )
 public class PrintlnAny extends BlockingNativeCallableUnit {

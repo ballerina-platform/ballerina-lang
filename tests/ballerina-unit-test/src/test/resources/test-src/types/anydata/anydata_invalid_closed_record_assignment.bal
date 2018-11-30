@@ -43,20 +43,20 @@ function testInvalidRecordAssignment() {
 }
 
 type ClosedFoo record {
-    int aa;
+    int aa = 0;
     any a;
     !...
 };
 
 type ClosedFoo1 record {
     int ca;
-    Bar2 b;
+    Bar2 b = {};
     !...
 };
 
 type ClosedFoo2 record {
     int ca;
-    Bar b;
+    Bar|() b = ();
     !...
 };
 
@@ -74,27 +74,27 @@ type ClosedFoo4 record {
 
 type ClosedFoo5 record {
     int ca;
-    map m;
+    map<any> m = {};
     !...
 };
 
 type ClosedFoo6 record {
     int ca;
-    map<map<ClosedFoo2>> m;
+    map<map<ClosedFoo2>> m = {};
     !...
 };
 
 type ClosedFoo7 record {
     int ca;
-    any[] ar;
+    any[] ar = [];
     !...
 };
 
 type Bar object {
-    int oa;
+    int oa = 0;
 };
 
 type Bar2 record {
-    int ra;
+    int ra = 0;
     any...
 };

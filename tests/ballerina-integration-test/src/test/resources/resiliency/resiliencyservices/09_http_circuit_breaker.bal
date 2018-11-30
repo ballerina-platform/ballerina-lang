@@ -21,12 +21,9 @@ import ballerina/runtime;
 
 public int forceCloseStateCount = 0;
 
-endpoint http:Listener circuitBreakerEP02 {
-    port:9308
-};
+listener http:Listener circuitBreakerEP02 = new(9308);
 
-endpoint http:Client unhealthyClientEP {
-    url: "http://localhost:8088",
+http:ClientEndpointConfig conf02 = {
     circuitBreaker: {
         rollingWindow: {
             timeWindowMillis: 60000,
@@ -37,57 +34,54 @@ endpoint http:Client unhealthyClientEP {
         resetTimeMillis: 1000,
         statusCodes: [501, 502, 503]
     },
-
     timeoutMillis: 2000
 };
+
+http:Client unhealthyClientEP = new("http://localhost:8088", config = conf02);
 
 @http:ServiceConfig {
     basePath: "/cb"
 }
-service<http:Service> circuitbreaker02 bind circuitBreakerEP02 {
+service circuitbreaker02 on circuitBreakerEP02 {
 
     @http:ResourceConfig {
         methods: ["GET", "POST"],
         path: "/forceclose"
     }
-    invokeForceClose(endpoint caller, http:Request request) {
-        var cbClient = <http:CircuitBreakerClient>unhealthyClientEP.getCallerActions();
-        if (cbClient is http:CircuitBreakerClient) {
-            forceCloseStateCount += 1;
-            runtime:sleep(1000);
-            if (forceCloseStateCount == 3) {
-                runtime:sleep(5000);
-                cbClient.forceClose();
+    resource function invokeForceClose(http:Caller caller, http:Request request) {
+        http:CircuitBreakerClient cbClient = <http:CircuitBreakerClient>unhealthyClientEP.httpClient;
+        forceCloseStateCount += 1;
+        runtime:sleep(1000);
+        if (forceCloseStateCount == 3) {
+            runtime:sleep(5000);
+            cbClient.forceClose();
+        }
+        var backendRes = unhealthyClientEP->forward("/unhealthy", request);
+        if (backendRes is http:Response) {
+            var responseToCaller = caller->respond(backendRes);
+            if (responseToCaller is error) {
+                log:printError("Error sending response", err = responseToCaller);
             }
-            var backendRes = unhealthyClientEP->forward("/unhealthy", request);
-            if (backendRes is http:Response) {
-                var responseToCaller = caller->respond(backendRes);
-                if (responseToCaller is error) {
-                    log:printError("Error sending response", err = responseToCaller);
-                }
-            } else if (backendRes is error) {
-                http:Response response = new;
-                response.statusCode = http:INTERNAL_SERVER_ERROR_500;
-                string errCause = <string> backendRes.detail().message;
-                response.setPayload(errCause);
-                var responseToCaller = caller->respond(response);
-                if (responseToCaller is error) {
-                    log:printError("Error sending response", err = responseToCaller);
-                }
+        } else if (backendRes is error) {
+            http:Response response = new;
+            response.statusCode = http:INTERNAL_SERVER_ERROR_500;
+            string errCause = <string> backendRes.detail().message;
+            response.setPayload(errCause);
+            var responseToCaller = caller->respond(response);
+            if (responseToCaller is error) {
+                log:printError("Error sending response", err = responseToCaller);
             }
-        } else {
-            panic cbClient;
         }
     }
 }
 
 @http:ServiceConfig { basePath: "/unhealthy" }
-service<http:Service> unhealthyService bind { port: 8088 } {
+service unhealthyService on new http:Listener(8088) {
     @http:ResourceConfig {
         methods: ["GET", "POST"],
         path: "/"
     }
-    sayHello(endpoint caller, http:Request req) {
+    resource function sayHello(http:Caller caller, http:Request req) {
         http:Response res = new;
         if (forceCloseStateCount <= 3) {
             runtime:sleep(5000);

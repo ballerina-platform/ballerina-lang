@@ -18,7 +18,7 @@
 package org.ballerinalang.net.grpc.proto;
 
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
-import org.ballerinalang.compiler.plugins.SupportEndpointTypes;
+import org.ballerinalang.compiler.plugins.SupportedResourceParamTypes;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.PackageID;
@@ -62,9 +62,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.DESCRIPTOR_MAP;
-import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
-import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_ENDPOINT_TYPE;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.bytesToHex;
 
 /**
@@ -72,10 +69,12 @@ import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.bytesT
  *
  * @since 1.0
  */
-@SupportEndpointTypes(
-        value = {@SupportEndpointTypes.EndpointType(orgName = ORG_NAME, packageName = PROTOCOL_PACKAGE_GRPC, name =
-                SERVICE_ENDPOINT_TYPE)}
-)
+@SupportedResourceParamTypes(expectedListenerType = @SupportedResourceParamTypes.Type(packageName = "grpc",
+                                                                                      name = "LISTENER"),
+                             paramTypes = {
+                                     @SupportedResourceParamTypes.Type(packageName = "grpc",
+                                                                       name = "Caller")
+                             })
 public class ServiceProtoBuilder extends AbstractCompilerPlugin {
 
     private DiagnosticLog dlog;
@@ -98,13 +97,14 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
     }
 
     @Override
-    public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
+    public void process(ServiceNode service, List<AnnotationAttachmentNode> annotations) {
         try {
+            final BLangService serviceNode = (BLangService) service;
             if (ServiceDefinitionValidator.validate(serviceNode, dlog)) {
-                Optional<BLangVariable> descriptorMapVar = ((ArrayList) ((BLangPackage) ((BLangService) serviceNode)
+                Optional<BLangVariable> descriptorMapVar = ((ArrayList) ((BLangPackage) serviceNode
                         .parent).globalVars).stream().filter(var -> ((BLangSimpleVariable) var).getName().getValue()
                         .equals(DESCRIPTOR_MAP)).findFirst();
-                Optional<BLangVariable> descriptorKey = ((ArrayList) ((BLangPackage) ((BLangService) serviceNode)
+                Optional<BLangVariable> descriptorKey = ((ArrayList) ((BLangPackage) serviceNode
                         .parent).globalVars).stream().filter(var -> ((BLangSimpleVariable) var).getName().getValue()
                         .equals("DESCRIPTOR_KEY")).findFirst();
 
@@ -120,7 +120,7 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
                 }
             }
         } catch (GrpcServerException e) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(), e.getMessage());
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, service.getPosition(), e.getMessage());
         }
     }
 
@@ -180,7 +180,7 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
         BLangIdentifier pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         pkgAlias.setValue("grpc");
         annoAttachment.pkgAlias = pkgAlias;
-        annoAttachment.attachPoint = AttachPoint.SERVICE;
+        annoAttachment.attachPoints.add(AttachPoint.SERVICE);
         literalNode.pos = pos;
         BStructureTypeSymbol bStructSymbol = null;
         BSymbol annTypeSymbol = symResolver.lookupSymbolInPackage(service.pos, pkgEnv,

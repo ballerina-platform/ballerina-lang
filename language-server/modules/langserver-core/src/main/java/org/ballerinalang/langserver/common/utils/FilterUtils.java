@@ -25,10 +25,8 @@ import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
-import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -37,7 +35,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -48,6 +45,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Utilities for filtering the symbols from completion context and symbol information lists.
@@ -79,14 +77,12 @@ public class FilterUtils {
         BType bType = variable.getScopeEntry().symbol.getType();
         BSymbol bVarSymbol = variable.getScopeEntry().symbol;
 
-        if (variable.getScopeEntry().symbol instanceof BEndpointVarSymbol
-                && delimiter.equals(UtilSymbolKeys.RIGHT_ARROW_SYMBOL_KEY)
-                && ((BEndpointVarSymbol) bVarSymbol).getClientFunction.type instanceof BInvokableType) {
+        if (CommonUtil.isClientObject(bVarSymbol)
+                && delimiter.equals(UtilSymbolKeys.RIGHT_ARROW_SYMBOL_KEY)) {
             // Handling action invocations ep -> ...
-            resultList.addAll(getEndpointActions((BEndpointVarSymbol) variable.getScopeEntry().symbol));
+            resultList.addAll(getClientActions((BObjectTypeSymbol) variable.getScopeEntry().symbol.type.tsymbol));
         } else if (delimiter.equals(UtilSymbolKeys.RIGHT_ARROW_SYMBOL_KEY)
-                || delimiter.equals(UtilSymbolKeys.LEFT_ARROW_SYMBOL_KEY)
-                || parserRuleContext instanceof BallerinaParser.WorkerInteractionStatementContext) {
+                || delimiter.equals(UtilSymbolKeys.LEFT_ARROW_SYMBOL_KEY)) {
             // Handling worker-interactions eg. msg -> ... || msg <- ...
             List<SymbolInfo> filteredList = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
             filteredList.removeIf(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol);
@@ -141,6 +137,9 @@ public class FilterUtils {
                         && scopeEntry.symbol.type.toString().equals(modifiedBType.toString())) {
                     // Get the object/records' attached functions and the fields
                     Map<Name, Scope.ScopeEntry> attachedEntries = scopeEntry.symbol.scope.entries;
+                    if (scopeEntry.symbol.kind.equals(SymbolKind.OBJECT)) {
+                        attachedEntries.putAll(CommonUtil.getObjectFunctions(((BObjectTypeSymbol) scopeEntry.symbol)));
+                    }
                     attachedEntries.forEach((entryName, attachedScopeEntry) -> {
                         if (!CommonUtil.isInvalidSymbol(attachedScopeEntry.symbol)) {
                             resultList.add(new SymbolInfo(entryName.getValue(), attachedScopeEntry));
@@ -181,24 +180,18 @@ public class FilterUtils {
 
     /**
      * Get the actions defined over and endpoint.
-     * @param bEndpointVarSymbol    Endpoint variable symbol to evaluate
+     * @param bObjectTypeSymbol    Endpoint variable symbol to evaluate
      * @return {@link List}         List of extracted actions as Symbol Info
      */
-    public static List<SymbolInfo> getEndpointActions(BEndpointVarSymbol bEndpointVarSymbol) {
-        List<SymbolInfo> endpointActions = new ArrayList<>();
-        BType getClientFuncType = bEndpointVarSymbol.getClientFunction.type;
-        BType boundType = ((BInvokableType) getClientFuncType).retType;
-        boundType.tsymbol.scope.entries.forEach((name, scopeEntry) -> {
-            String[] nameComponents = name.toString().split("\\.");
-            if (scopeEntry.symbol instanceof BInvokableSymbol
-                    && !nameComponents[nameComponents.length - 1].equals(UtilSymbolKeys.NEW_KEYWORD_KEY)) {
-                SymbolInfo actionFunctionSymbol =
-                        new SymbolInfo(nameComponents[nameComponents.length - 1], scopeEntry);
-                endpointActions.add(actionFunctionSymbol);
-            }
-        });
-
-        return endpointActions;
+    public static List<SymbolInfo> getClientActions(BObjectTypeSymbol bObjectTypeSymbol) {
+        return bObjectTypeSymbol.methodScope.entries.entrySet().stream()
+                .filter(entry -> (entry.getValue().symbol.flags & Flags.REMOTE) == Flags.REMOTE)
+                .map(entry -> {
+                    String actionName = entry.getKey().getValue();
+                    String[] nameComponents = actionName.split("\\.");
+                    return new SymbolInfo(nameComponents[nameComponents.length - 1], entry.getValue());
+                })
+                .collect(Collectors.toList());
     }
     
     ///////////////////////////

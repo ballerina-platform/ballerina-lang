@@ -1,20 +1,18 @@
 import ballerina/io;
 import ballerina/http;
 
-endpoint http:NonListener testEP {
-    port:9093
-};
+listener http:MockListener testEP = new(9093);
 
 @http:ServiceConfig { 
     basePath: "/foo" 
 }
-service<http:Service> MyService bind testEP {
+service MyService on testEP {
 
     @http:ResourceConfig {
         methods: ["POST"],
         path: "/bar"
     }
-    myResource (endpoint caller, http:Request req) {
+    resource function myResource(http:Caller caller, http:Request req) {
         var stringValue = req.getPayloadAsString();
         if (stringValue is string) {
             string s = stringValue;

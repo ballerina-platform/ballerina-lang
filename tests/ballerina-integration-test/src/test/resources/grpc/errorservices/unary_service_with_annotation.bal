@@ -16,16 +16,14 @@
 import ballerina/grpc;
 import ballerina/io;
 
-endpoint grpc:Listener ep {
-    port:9100
-};
+listener grpc:Listener server8 = new (9100);
 
-service TestService bind ep {
+service TestService on server8 {
     @grpc:ResourceConfig {
         requestType: string,
         responseType: string
     }
-    hello(endpoint caller, string name) {
+    resource function hello(grpc:Caller caller, string name) {
     }
 
     @grpc:ResourceConfig {
@@ -33,34 +31,34 @@ service TestService bind ep {
         responseType: int,
         streaming: true
     }
-    testInt(endpoint caller, int age) {
+    resource function testInt(grpc:Caller caller, int age) {
     }
 
     @grpc:ResourceConfig {
         requestType: float,
         responseType: float
     }
-    testFloat(endpoint caller, float salary) {
+    resource function testFloat(grpc:Caller caller, float salary) {
     }
 
     @grpc:ResourceConfig {
         requestType: boolean,
         responseType: boolean
     }
-    testBoolean(endpoint caller, boolean available) {
+    resource function testBoolean(grpc:Caller caller, boolean available) {
     }
 
     @grpc:ResourceConfig {
         requestType: Request,
         responseType: Response
     }
-    testStruct(endpoint caller, Request msg) {
+    resource function testStruct(grpc:Caller caller, Request msg) {
     }
 
     @grpc:ResourceConfig {
         responseType: string
     }
-    testNoRequest(endpoint caller) {
+    resource function testNoRequest(grpc:Caller caller) {
         string resp = "service invoked with no request";
         io:println("Server send response : " + resp);
         error? err = caller->send(resp);
@@ -73,7 +71,7 @@ service TestService bind ep {
     @grpc:ResourceConfig {
         requestType: string
     }
-    testNoResponse(endpoint caller, string msg) {
+    resource function testNoResponse(grpc:Caller caller, string msg) {
         io:println("Request: " + msg);
     }
 
@@ -82,7 +80,7 @@ service TestService bind ep {
         requestType: Person,
         responseType: string
     }
-    testInputNestedStruct(endpoint caller, Person req) {
+    resource function testInputNestedStruct(grpc:Caller caller, Person req) {
     }
 }
 

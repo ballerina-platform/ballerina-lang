@@ -1132,10 +1132,10 @@ public class SQLDatasourceUtils {
         String globalTransactionId = localTransactionInfo.getGlobalTransactionId();
         int transactionBlockId = localTransactionInfo.getCurrentTransactionBlockId();
 
-        if (localTransactionInfo.isRetryPossible(context.getParentWorkerExecutionContext(), transactionBlockId)) {
+        if (localTransactionInfo.isRetryPossible(context.getStrand(), transactionBlockId)) {
             return;
         }
-        TransactionUtils.notifyTransactionAbort(context.getParentWorkerExecutionContext(), globalTransactionId,
+        TransactionUtils.notifyTransactionAbort(context.getStrand(), globalTransactionId,
                 transactionBlockId);
     }
 
@@ -1176,22 +1176,19 @@ public class SQLDatasourceUtils {
 
     public static BMap<String, BValue> createMultiModeDBClient(Context context, String dbType,
             org.ballerinalang.connector.api.Struct clientEndpointConfig, String urlOptions) {
+        String modeRecordType = clientEndpointConfig.getName();
         String dbPostfix = Constants.SQL_MEMORY_DB_POSTFIX;
         String hostOrPath = "";
-        String host = clientEndpointConfig.getStringField(Constants.EndpointConfig.HOST);
-        String path = clientEndpointConfig.getStringField(Constants.EndpointConfig.PATH);
-        if (!host.isEmpty()) {
+        int port = -1;
+        if (modeRecordType.equals(Constants.SERVER_MODE)) {
             dbPostfix = Constants.SQL_SERVER_DB_POSTFIX;
-            hostOrPath = host;
-        } else if (!path.isEmpty()) {
+            hostOrPath = clientEndpointConfig.getStringField(Constants.EndpointConfig.HOST);;
+            port = (int) clientEndpointConfig.getIntField(Constants.EndpointConfig.PORT);
+        } else if (modeRecordType.equals(Constants.EMBEDDED_MODE)) {
             dbPostfix = Constants.SQL_FILE_DB_POSTFIX;
-            hostOrPath = path;
-        }
-        if (!host.isEmpty() && !path.isEmpty()) {
-            throw new BallerinaException("error in creating db client endpoint: Provide either host or path");
+            hostOrPath = clientEndpointConfig.getStringField(Constants.EndpointConfig.PATH);;
         }
         dbType = dbType + dbPostfix;
-        int port = (int) clientEndpointConfig.getIntField(Constants.EndpointConfig.PORT);
         String name = clientEndpointConfig.getStringField(Constants.EndpointConfig.NAME);
         String username = clientEndpointConfig.getStringField(Constants.EndpointConfig.USERNAME);
         String password = clientEndpointConfig.getStringField(Constants.EndpointConfig.PASSWORD);
@@ -1235,8 +1232,8 @@ public class SQLDatasourceUtils {
         SQLDatasource datasource = new SQLDatasource();
         datasource.init(sqlDatasourceParams);
         BMap<String, BValue> sqlClient = BLangConnectorSPIUtil
-                .createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.CALLER_ACTIONS);
-        sqlClient.addNativeData(Constants.CALLER_ACTIONS, datasource);
+                .createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.SQL_CLIENT);
+        sqlClient.addNativeData(Constants.SQL_CLIENT, datasource);
         return sqlClient;
     }
 

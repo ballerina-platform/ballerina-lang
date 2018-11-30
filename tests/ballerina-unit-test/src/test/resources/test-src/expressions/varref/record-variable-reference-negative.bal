@@ -29,7 +29,7 @@ type Person record {
     string name;
     boolean married;
     Age age;
-    (string, int) extra;
+    (string, int) extra?;
     !...
 };
 
@@ -37,7 +37,7 @@ type Person2 record {
     string name;
     boolean married;
     ClosedAge age;
-    (string, int) extra;
+    (string, int) extra?;
     !...
 };
 
@@ -58,7 +58,7 @@ function testClosedRecordVarRef() {
     string format;
     string extraLetter;
     int extraInt;
-    map theMap;
+    map<any> theMap;
 
     Age age1 = {age:12, format: "Y", three: "three"};
     Person p1 = {name: "Peter", married: true, age: age1, extra: ("extra", 12)};
@@ -90,8 +90,8 @@ type Bar record {
 
 function testInvalidTypes() {
 
-    Bar fooVar1;
-    string fooVar2;
+    Bar fooVar1 = {var1: 0, var2: ("", 0, false)};
+    string fooVar2 = "";
 
     Foo f = {var1: "var1String", var2: {var1: 12, var2: ("barString", 14, true)}};
     {var1: fooVar1, var2: fooVar2};
@@ -103,7 +103,7 @@ function testInvalidTypes() {
     string lName;
     boolean married;
     Person age;
-    map theMap;
+    map<any> theMap;
 
     Person p = {name: "Peter", married: true, age: {age: 12, format: "Y"}};
     {name: fName, age, married, ...theMap} = p; // incompatible types of age field

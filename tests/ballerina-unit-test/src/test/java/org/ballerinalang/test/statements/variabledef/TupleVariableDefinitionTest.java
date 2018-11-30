@@ -392,8 +392,8 @@ public class TupleVariableDefinitionTest {
         BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'BarObj', found 'FooObj'", 55, 97);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'FooObj', found 'BarObj'", 55, 111);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'Bar', found 'Foo'", 55, 120);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg2 + "'any' in type definition", 84, 40);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg2 + "'any' in type definition", 91, 40);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected '((string,(int,(boolean,int))),(float,int))', found 'any'", 94, 84);
+                "incompatible types: expected '((string,(int,(boolean,int))),(float,int))', found 'any'", 101, 84);
     }
 }

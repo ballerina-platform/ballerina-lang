@@ -77,16 +77,13 @@ function validateFieldName (string tableName, string idColumn, string piiColumn)
 # + queryResult - results of the insert query
 # + return - pseudonymized identifier if insert was successful, error if insert failed
 function processInsertResult (string id, int|error queryResult) returns string|error {
-    match queryResult {
-        int rowCount => {
-            if (rowCount > 0) {
-                return id;
-            } else {
-                error err = error("Unable to insert PII with identifier " + id);
-                return err;
-            }
-        }
-        error err => {
+    if (queryResult is error) {
+        return queryResult;
+    } else {
+        if (queryResult > 0) {
+            return id;
+        } else {
+            error err = error("Unable to insert PII with identifier " + id);
             return err;
         }
     }
@@ -97,19 +94,16 @@ function processInsertResult (string id, int|error queryResult) returns string|e
 # + id - pseudonymized identifier getting selected
 # + queryResult - results of the select query
 # + return - personally identifiable information (PII) if select was successful, error if select failed
-function processSelectResult(string id, table<PiiData>|error queryResult) returns string|error {
-    match queryResult {
-        table resultTable => {
-            if (resultTable.hasNext()) {
-                PiiData piiData = check <PiiData> resultTable.getNext();
-                resultTable.close();
-                return piiData.pii;
-            } else {
-                error err = error("Identifier " + id + " is not found in PII store");
-                return err;
-            }
-        }
-        error err => {
+function processSelectResult (string id, table<PiiData>|error queryResult) returns string|error {
+    if (queryResult is error) {
+        return queryResult;
+    } else {
+        if (queryResult.hasNext()) {
+            PiiData piiData = check trap <PiiData>queryResult.getNext();
+            queryResult.close();
+            return piiData.pii;
+        } else {
+            error err = error("Identifier " + id + " is not found in PII store");
             return err;
         }
     }
@@ -121,16 +115,13 @@ function processSelectResult(string id, table<PiiData>|error queryResult) return
 # + queryResult - results of the delete query
 # + return - nil if deletion was successful, error if deletion failed
 function processDeleteResult (string id, int|error queryResult) returns error? {
-    match queryResult {
-        int rowCount => {
-            if (rowCount > 0) {
-                return ();
-            } else {
-                error err = error("Identifier " + id + " is not found in PII store");
-                return err;
-            }
-        }
-        error err => {
+    if (queryResult is error) {
+        return queryResult;
+    } else {
+        if (queryResult > 0) {
+            return ();
+        } else {
+            error err = error("Identifier " + id + " is not found in PII store");
             return err;
         }
     }

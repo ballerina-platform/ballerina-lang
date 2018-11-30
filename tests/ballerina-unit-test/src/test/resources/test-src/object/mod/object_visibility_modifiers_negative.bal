@@ -2,7 +2,6 @@ import pkg1;
 
 type Person object {
 
-
     public function func1();
 
     private function func2();

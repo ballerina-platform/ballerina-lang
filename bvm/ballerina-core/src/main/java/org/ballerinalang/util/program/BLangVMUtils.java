@@ -17,22 +17,23 @@
  */
 package org.ballerinalang.util.program;
 
-import org.ballerinalang.bre.bvm.CPU;
-import org.ballerinalang.bre.bvm.CPU.HandleErrorException;
-import org.ballerinalang.bre.bvm.WorkerData;
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.bre.bvm.StackFrame;
+import org.ballerinalang.bre.bvm.Strand;
+import org.ballerinalang.bre.old.WorkerData;
+import org.ballerinalang.bre.old.WorkerExecutionContext;
+import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BDecimal;
-import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueType;
+import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
@@ -133,59 +134,52 @@ public class BLangVMUtils {
     }
 
     @SuppressWarnings("rawtypes")
-    public static void populateWorkerDataWithValues(WorkerData data, int[] regIndexes, BValue[] vals, BType[] types) {
-        if (vals == null) {
-            return;
-        }
-        for (int i = 0; i < vals.length; i++) {
-            int callersRetRegIndex = regIndexes[i];
-            BType retType = types[i];
-            switch (retType.getTag()) {
-                case TypeTags.INT_TAG:
-                    if (vals[i] == null) {
-                        data.longRegs[callersRetRegIndex] = 0;
-                        break;
-                    }
-                    data.longRegs[callersRetRegIndex] = ((BInteger) vals[i]).intValue();
+    public static void populateWorkerDataWithValues(StackFrame data, int regIndex, BValue val, BType retType) {
+        switch (retType.getTag()) {
+            case TypeTags.INT_TAG:
+                if (val == null) {
+                    data.longRegs[regIndex] = 0;
                     break;
-                case TypeTags.BYTE_TAG:
-                    if (vals[i] == null) {
-                        data.intRegs[callersRetRegIndex] = 0;
-                        break;
-                    }
-                    data.intRegs[callersRetRegIndex] = ((BByte) vals[i]).byteValue();
+                }
+                data.longRegs[regIndex] = ((BInteger) val).intValue();
+                break;
+            case TypeTags.BYTE_TAG:
+                if (val == null) {
+                    data.intRegs[regIndex] = 0;
                     break;
-                case TypeTags.FLOAT_TAG:
-                    if (vals[i] == null) {
-                        data.doubleRegs[callersRetRegIndex] = 0;
-                        break;
-                    }
-                    data.doubleRegs[callersRetRegIndex] = ((BFloat) vals[i]).floatValue();
+                }
+                data.intRegs[regIndex] = ((BByte) val).byteValue();
+                break;
+            case TypeTags.FLOAT_TAG:
+                if (val == null) {
+                    data.doubleRegs[regIndex] = 0;
                     break;
-                case TypeTags.DECIMAL_TAG:
-                    if (vals[i] == null) {
-                        data.refRegs[callersRetRegIndex] = new BDecimal(BigDecimal.ZERO);
-                        break;
-                    }
-                    data.refRegs[callersRetRegIndex] = (BDecimal) vals[i];
+                }
+                data.doubleRegs[regIndex] = ((BFloat) val).floatValue();
+                break;
+            case TypeTags.DECIMAL_TAG:
+                if (val == null) {
+                    data.refRegs[regIndex] = new BDecimal(BigDecimal.ZERO);
                     break;
-                case TypeTags.STRING_TAG:
-                    if (vals[i] == null) {
-                        data.stringRegs[callersRetRegIndex] = BLangConstants.STRING_EMPTY_VALUE;
-                        break;
-                    }
-                    data.stringRegs[callersRetRegIndex] = vals[i].stringValue();
+                }
+                data.refRegs[regIndex] = (BDecimal) val;
+                break;
+            case TypeTags.STRING_TAG:
+                if (val == null) {
+                    data.stringRegs[regIndex] = BLangConstants.STRING_EMPTY_VALUE;
                     break;
-                case TypeTags.BOOLEAN_TAG:
-                    if (vals[i] == null) {
-                        data.intRegs[callersRetRegIndex] = 0;
-                        break;
-                    }
-                    data.intRegs[callersRetRegIndex] = ((BBoolean) vals[i]).booleanValue() ? 1 : 0;
+                }
+                data.stringRegs[regIndex] = val.stringValue();
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                if (val == null) {
+                    data.intRegs[regIndex] = 0;
                     break;
-                default:
-                    data.refRegs[callersRetRegIndex] = (BRefType) vals[i];
-            }
+                }
+                data.intRegs[regIndex] = ((BBoolean) val).booleanValue() ? 1 : 0;
+                break;
+            default:
+                data.refRegs[regIndex] = (BRefType) val;
         }
     }
     
@@ -414,51 +408,47 @@ public class BLangVMUtils {
         }
     }
     
-    public static WorkerExecutionContext handleNativeInvocationError(WorkerExecutionContext parentCtx, BError error) {
-        parentCtx.setError(error);
-        try {
-            CPU.handleError(parentCtx);
-            return parentCtx;
-        } catch (HandleErrorException e) {
-            if (e.ctx != null && !e.ctx.isRootContext()) {
-                return e.ctx;
-            } else {
-                return null;
-            }
-        }
-    }
-    
     public static void log(String msg) {
         PrintStream out = System.out;
         out.println(msg);
     }
     
-    public static void setServiceInfo(WorkerExecutionContext ctx, ServiceInfo serviceInfo) {
+    public static void setServiceInfo(Strand ctx, ServiceInfo serviceInfo) {
         ctx.globalProps.put(SERVICE_INFO_KEY, serviceInfo);
     }
     
-    public static ServiceInfo getServiceInfo(WorkerExecutionContext ctx) {
+    public static ServiceInfo getServiceInfo(Strand ctx) {
         return (ServiceInfo) ctx.globalProps.get(SERVICE_INFO_KEY);
     }
 
-    public static void setTransactionInfo(WorkerExecutionContext ctx, LocalTransactionInfo localTransactionInfo) {
+    public static void setTransactionInfo(Strand ctx, LocalTransactionInfo localTransactionInfo) {
         ctx.globalProps.put(TRANSACTION_INFO_KEY, localTransactionInfo);
     }
 
-    public static LocalTransactionInfo getTransactionInfo(WorkerExecutionContext ctx) {
+    public static LocalTransactionInfo getTransactionInfo(Strand ctx) {
         return (LocalTransactionInfo) ctx.globalProps.get(TRANSACTION_INFO_KEY);
     }
 
-    public static void removeTransactionInfo(WorkerExecutionContext ctx) {
+    public static void removeTransactionInfo(Strand ctx) {
         ctx.globalProps.remove(TRANSACTION_INFO_KEY);
     }
 
-    public static void setGlobalTransactionEnabledStatus(WorkerExecutionContext ctx,
-            boolean isGlobalTransactionEnabled) {
-        ctx.globalProps.put(GLOBAL_TRANSACTION_ENABLED, isGlobalTransactionEnabled);
+    public static void setGlobalTransactionEnabledStatus(Strand strand) {
+        strand.globalProps.put(GLOBAL_TRANSACTION_ENABLED, getGlobalTransactionEnabledFromConfig());
     }
 
-    public static boolean getGlobalTransactionEnabled(WorkerExecutionContext ctx) {
+    public static boolean getGlobalTransactionEnabled(Strand ctx) {
         return (boolean) ctx.globalProps.get(GLOBAL_TRANSACTION_ENABLED);
+    }
+
+    private static boolean getGlobalTransactionEnabledFromConfig() {
+        String distributedTransactionsEnabledConfig = ConfigRegistry.getInstance()
+                .getAsString(Constants.DISTRIBUTED_TRANSACTIONS);
+        boolean distributedTransactionEnabled = true;
+        if (distributedTransactionsEnabledConfig != null
+                && distributedTransactionsEnabledConfig.equals(Constants.FALSE)) {
+            distributedTransactionEnabled = false;
+        }
+        return distributedTransactionEnabled;
     }
 }

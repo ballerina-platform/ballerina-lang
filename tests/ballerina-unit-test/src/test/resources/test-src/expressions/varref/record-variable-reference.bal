@@ -23,7 +23,7 @@ type Person record {
     string name;
     boolean married;
     Age age;
-    (string, int) extra;
+    (string, int) extra?;
     !...
 };
 
@@ -32,7 +32,7 @@ function testVariableAssignment() returns (string, boolean, int, string) {
     boolean married;
     int theAge;
     string format;
-    map theMap;
+    map<any> theMap;
 
     {name: fName, married, age: {age: theAge, format}, ...theMap} = getPerson();
     return (fName, married, theAge, format);
@@ -76,16 +76,16 @@ type OpenRecord record {
     boolean var2;
 };
 
-function testRestParam() returns map {
+function testRestParam() returns map<any> {
     OpenRecord openRecord = {var1: "var1", var2: false, var3: 12, var4: "text"};
     string var1;
     boolean var2;
-    map rest;
+    map<any> rest = {};
     {var1, var2, ...rest} = openRecord;
     return rest;
 }
 
-function testRecordTypeInRecordVarRef() returns (map, int|float, Some) {
+function testRecordTypeInRecordVarRef() returns (map<any>, int|float, Some) {
     map<int> fooVar1;
     int|float barVar1;
     Some var2;
@@ -126,7 +126,7 @@ type Child record {
     (int, Age) yearAndAge;
 };
 
-function testRecordInsideTupleInsideRecord() returns (string[], string, map) {
+function testRecordInsideTupleInsideRecord() returns (string[], string, map<any>) {
     (int, Age) yearAndAge1 = (1992, {age: 26, format: "Y"});
     (int, Age) yearAndAge2 = (1994, {age: 24, format: "x"});
     (int, Age) yearAndAge3 = (1996, {age: 22, format: "Z"});
@@ -136,7 +136,7 @@ function testRecordInsideTupleInsideRecord() returns (string[], string, map) {
 
     string[] namesOfChildren;
     Child[] children;
-    map child;
+    map<any> child = {};
 
     Parent parent = {namesOfChildren: ["A", "B"], children: [ch1, ch2], child: ch3};
     {namesOfChildren, children, ...child} = parent;
@@ -166,7 +166,7 @@ function testRecordInsideTupleInsideRecord2() returns (string, int, int, string)
 function testFieldAndIndexBasedVarRefs() returns (anydata, anydata) {
     (int, Age) yearAndAge3 = (2002, {age: 22, format: "Z"});
     Child ch3 = {name: "D", yearAndAge: yearAndAge3};
-    map<anydata> m;
+    map<anydata> m = {};
     {name: m.var1, yearAndAge: (m["var2"], _)} = ch3;
     return (m.var1, m.var2);
 }

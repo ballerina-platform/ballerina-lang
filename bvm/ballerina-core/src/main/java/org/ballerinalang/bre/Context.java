@@ -17,8 +17,10 @@
  */
 package org.ballerinalang.bre;
 
-import org.ballerinalang.bre.bvm.WorkerData;
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.bre.bvm.StackFrame;
+import org.ballerinalang.bre.bvm.Strand;
+import org.ballerinalang.bre.old.WorkerData;
+import org.ballerinalang.bre.old.WorkerExecutionContext;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
@@ -36,11 +38,16 @@ import java.util.Map;
  */
 public interface Context {
 
+    //TODO remove below method - rajith
     WorkerExecutionContext getParentWorkerExecutionContext();
+
+    Strand getStrand();
 
     CallableUnitInfo getCallableUnitInfo();
 
     WorkerData getLocalWorkerData();
+
+    StackFrame getDataFrame();
 
     DebugContext getDebugContext();
 
@@ -80,8 +87,9 @@ public interface Context {
 
     BValue getNullableRefArgument(int index);
 
-    void setReturnValues(BValue... values);
+    //TODO fix this method signature to set one BValue
+    void setReturnValues(BValue... value);
 
-    BValue[] getReturnValues();
+    BValue getReturnValue();
 
 }

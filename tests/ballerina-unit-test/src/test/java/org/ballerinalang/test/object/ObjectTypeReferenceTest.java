@@ -38,32 +38,47 @@ public class ObjectTypeReferenceTest {
     @Test
     public void testSimpleObjectTypeReferenceNegative_1() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-1-negative.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 9);
+        Assert.assertEquals(negativeResult.getErrorCount(), 21);
         int i = 0;
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'age'", 27, 6);
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'name'", 27, 6);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Employee1' is not an abstract object", 32,
                 6);
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'age'", 44, 6);
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'name'", 44, 6);
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'salary'", 47, 6);
         BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'salary'", 48, 6);
-//        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference in '[Foo, A, B, C, D, E]'", 52, 1);
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'salary'", 48, 6);
         BAssertUtil.validateError(negativeResult, i++,
                 "no implementation found for the function 'getSalary' of non-abstract object 'Manager2'", 96, 5);
         BAssertUtil.validateError(negativeResult, i++,
                 "no implementation found for the function 'getName' of non-abstract object 'Manager2'", 96, 5);
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'salary'", 97, 6);
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'age'", 97, 6);
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'name'", 97, 6);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Q' is not an abstract object", 101, 6);
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'age'", 110, 6);
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'name'", 110, 6);
         BAssertUtil.validateError(negativeResult, i++, "redeclared type reference 'Person1'", 111, 6);
         BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'getName': trying to copy a duplicate " +
                 "function through referenced type 'ObjectWithFunction'", 119, 6);
         BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'getName': trying to copy a duplicate " +
                 "function through referenced type 'ObjectWithRedeclaredFunction_1'", 125, 6);
         BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'x'", 134, 6);
+        BAssertUtil.validateError(negativeResult, i++, "unknown type 'Baz'", 142, 6);
     }
 
     @Test
     public void testSimpleObjectTypeReferenceNegative_2() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-2-negative.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 2);
-        BAssertUtil.validateError(negativeResult, 0, "incompatible types: 'map<string>' is not an abstract object", 18,
-                6);
-        BAssertUtil.validateError(negativeResult, 1, "incompatible types: 'int' is not an abstract object", 20, 6);
+        Assert.assertEquals(negativeResult.getErrorCount(), 5);
+        int i = 0;
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'map<string>' is not an abstract object",
+                18, 6);
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'x'", 19, 6);
+        BAssertUtil.validateError(negativeResult, i++, "uninitialized field 'y'", 19, 6);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'int' is not an abstract object", 20, 6);
+        BAssertUtil.validateError(negativeResult, i++, "unknown type 'YYY'", 29, 6);
     }
 
     @Test
@@ -76,9 +91,9 @@ public class ObjectTypeReferenceTest {
         Assert.assertSame(returns[2].getClass(), BFloat.class);
         Assert.assertSame(returns[3].getClass(), BString.class);
 
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
-        Assert.assertEquals(returns[1].stringValue(), " from inner function");
-        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 0.0);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 99);
+        Assert.assertEquals(returns[1].stringValue(), "sample name 2 from inner function");
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 8.0);
         Assert.assertEquals(returns[3].stringValue(), "HR");
     }
 

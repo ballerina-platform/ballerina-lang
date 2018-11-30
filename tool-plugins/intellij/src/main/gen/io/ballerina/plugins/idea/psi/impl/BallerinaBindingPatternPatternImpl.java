@@ -55,6 +55,12 @@ public class BallerinaBindingPatternPatternImpl extends BallerinaCompositeElemen
 
   @Override
   @Nullable
+  public BallerinaExpression getExpression() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaExpression.class);
+  }
+
+  @Override
+  @Nullable
   public BallerinaStatement getStatement() {
     return PsiTreeUtil.getChildOfType(this, BallerinaStatement.class);
   }
@@ -75,6 +81,12 @@ public class BallerinaBindingPatternPatternImpl extends BallerinaCompositeElemen
   @Nullable
   public PsiElement getRightBrace() {
     return findChildByType(RIGHT_BRACE);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getIf() {
+    return findChildByType(IF);
   }
 
   @Override

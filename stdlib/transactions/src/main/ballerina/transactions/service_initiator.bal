@@ -37,7 +37,7 @@ function getCoordinationTypeToProtocolsMap() returns map<string[]> {
 }
 //# Service on the initiator which is independent from the coordination type and handles registration of remote
 //# participants.
-service InitiatorService bind coordinatorListener {
+service InitiatorService on coordinatorListener {
 
     # register(in: Micro-Transaction-Registration,
     # out: Micro-Transaction-Coordination?,
@@ -72,51 +72,48 @@ service InitiatorService bind coordinatorListener {
         body:"regReq",
         consumes:["application/json"]
     }
-    register(endpoint conn, http:Request req, int transactionBlockId, RegistrationRequest regReq) {
+    resource function register(http:Caller conn, http:Request req, int transactionBlockId, RegistrationRequest regReq) {
         string participantId = regReq.participantId;
         string txnId = regReq.transactionId;
-
-        match (initiatedTransactions[txnId]) {
-            () => {
-                respondToBadRequest(conn, "Transaction-Unknown. Invalid TID:" + txnId);
-            }
-            TwoPhaseCommitTransaction txn => {
-                if (isRegisteredParticipant(participantId, txn.participants)) { // Already-Registered
-                    respondToBadRequest(conn, "Already-Registered. TID:" + txnId + ",participant ID:" + participantId);
-                } else if (!protocolCompatible(txn.coordinationType,
-                    toProtocolArray(regReq.participantProtocols))) { // Invalid-Protocol
-                    respondToBadRequest(conn, "Invalid-Protocol in remote participant. TID:" + txnId +
-                            ",participant ID:" + participantId);
-                } else {
-                    RemoteProtocol[] participantProtocols = regReq.participantProtocols;
-                    RemoteParticipant participant = new(participantId, txn.transactionId, participantProtocols);
-                    txn.participants[participantId] = <Participant>participant;
-                    RemoteProtocol[] coordinatorProtocols = [];
-                    int i = 0;
-                    foreach participantProtocol in participantProtocols {
-                        RemoteProtocol coordinatorProtocol = {
-                            name:participantProtocol.name,
-                            url:getCoordinatorProtocolAt(participantProtocol.name, transactionBlockId)
-                        };
-                        coordinatorProtocols[i] = coordinatorProtocol;
-                        i = i + 1;
+        var initiatedTxn = initiatedTransactions[txnId];
+        if (initiatedTxn is ()) {
+            respondToBadRequest(conn, "Transaction-Unknown. Invalid TID:" + txnId);
+        } else if (initiatedTxn is TwoPhaseCommitTransaction) {
+            if (isRegisteredParticipant(participantId, initiatedTxn.participants)) { // Already-Registered
+                respondToBadRequest(conn, "Already-Registered. TID:" + txnId + ",participant ID:" + participantId);
+            } else if (!protocolCompatible(initiatedTxn.coordinationType,
+                toProtocolArray(regReq.participantProtocols))) { // Invalid-Protocol
+                respondToBadRequest(conn, "Invalid-Protocol in remote participant. TID:" + txnId + ",participant ID:" +
+                participantId);
+            } else {
+                RemoteProtocol[] participantProtocols = regReq.participantProtocols;
+                RemoteParticipant participant = new(participantId, initiatedTxn.transactionId, participantProtocols);
+                initiatedTxn.participants[participantId] = participant;
+                RemoteProtocol[] coordinatorProtocols = [];
+                int i = 0;
+                foreach participantProtocol in participantProtocols {
+                    RemoteProtocol coordinatorProtocol = {
+                        name:participantProtocol.name,
+                        url:getCoordinatorProtocolAt(participantProtocol.name, transactionBlockId)
+                    };
+                    coordinatorProtocols[i] = coordinatorProtocol;
+                    i = i + 1;
+                }
+                RegistrationResponse regRes = {transactionId:txnId, coordinatorProtocols:coordinatorProtocols};
+                var resPayload = json.create(regRes);
+                if (resPayload is json) {
+                    http:Response res = new;
+                    res.statusCode = http:OK_200;
+                    res.setJsonPayload(untaint resPayload);
+                    var resResult = conn->respond(res);
+                    if (resResult is error) {
+                        log:printError("Sending response for register request for transaction " + txnId +
+                                " failed", err = resResult);
+                    } else {
+                        log:printInfo("Registered remote participant: " + participantId + " for transaction: " + txnId);
                     }
-    
-                    RegistrationResponse regRes = {transactionId:txnId, coordinatorProtocols:coordinatorProtocols};
-                    var resPayload = <json>regRes;
-                    if (resPayload is json) {
-                        http:Response res = new; res.statusCode = http:OK_200;
-                        res.setJsonPayload(untaint resPayload);
-                        var resResult = conn->respond(res);
-                        match resResult {
-                            error err => log:printError("Sending response for register request for transaction "
-                                    + txnId + " failed", err = err);
-                            () => log:printInfo("Registered remote participant: " + participantId +
-                                    " for transaction: " + txnId);
-                        }
-                    } else if (resPayload is error) {
-                        panic resPayload;
-                    }
+                } else if (resPayload is error) {
+                    panic resPayload;
                 }
             }
         }

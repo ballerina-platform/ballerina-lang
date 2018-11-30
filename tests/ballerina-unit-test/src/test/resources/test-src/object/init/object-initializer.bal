@@ -1,4 +1,3 @@
-
 import initializers as inp;
 
 public type person object {
@@ -7,8 +6,7 @@ public type person object {
     public string name = "";
     public string address = "";
 
-
-    new (int a = 10, string n = "Charles") {
+    function __init (int a = 10, string n = "Charles") {
         self.name = n;
         self.age = a;
     }
@@ -38,7 +36,7 @@ type employee object {
 
     //TODO: define construvtor as new (int age = 30, string name) once
     // https://github.com/ballerina-platform/ballerina-lang/issues/6849 is fixed.
-    new (int a = 30, name) {
+    function __init (int a = 30, string name) {
         self.name = self.name + name;
         self.age = a;
     }

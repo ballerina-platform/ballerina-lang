@@ -21,13 +21,11 @@ package org.ballerinalang.util.debugger;
 
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.util.codegen.WorkerInfo;
+import org.ballerinalang.bre.bvm.Strand;
 import org.ballerinalang.util.debugger.dto.MessageDTO;
 import org.ballerinalang.util.debugger.util.DebugMsgUtil;
 
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -41,7 +39,7 @@ public class VMDebugClientHandler implements DebugClientHandler {
     private Channel channel = null;
 
     //key - workerId, value - worker context
-    private Map<String, WorkerExecutionContext> contextMap;
+    private Map<String, Strand> contextMap;
 
     VMDebugClientHandler() {
         //Using concurrent map because multiple threads may try to access this concurrently
@@ -49,24 +47,17 @@ public class VMDebugClientHandler implements DebugClientHandler {
     }
 
     @Override
-    public void addWorkerContext(WorkerExecutionContext ctx) {
-        String workerId = generateAndGetWorkerId(ctx.workerInfo);
-        ctx.getDebugContext().setWorkerId(workerId);
+    public void addStrand(Strand strand) {
         //TODO check if that thread id already exist in the map
-        this.contextMap.put(workerId, ctx);
-    }
-
-    private String generateAndGetWorkerId (WorkerInfo workerInfo) {
-        UUID uuid = UUID.randomUUID();
-        return workerInfo.getWorkerName() + "-" + uuid.toString();
+        this.contextMap.put(strand.getId(), strand);
     }
 
     @Override
-    public WorkerExecutionContext getWorkerContext(String workerId) {
+    public Strand getStrand(String workerId) {
         return this.contextMap.get(workerId);
     }
 
-    public Map<String, WorkerExecutionContext> getAllWorkerContexts() {
+    public Map<String, Strand> getAllStrands() {
         return contextMap;
     }
 

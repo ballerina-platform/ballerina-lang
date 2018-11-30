@@ -16,7 +16,7 @@
  */
 package org.ballerinalang.channels;
 
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.bre.bvm.Strand;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 
@@ -56,7 +56,7 @@ public class ChannelRegistry {
      * @param ctx requested context
      * @param regIndex variable index to assign the channel message
      */
-    public void addWaitingContext(String channel, BValue key, WorkerExecutionContext ctx, int regIndex) {
+    public void addWaitingContext(String channel, BValue key, Strand ctx, int regIndex) {
         //add channel if absent
         addChannel(channel);
         Map<String, LinkedList<PendingContext>> channelEntries = channelList.get(channel);
@@ -116,6 +116,6 @@ public class ChannelRegistry {
      */
     public static class PendingContext {
         public int regIndex;
-        public WorkerExecutionContext context;
+        public Strand context;
     }
 }

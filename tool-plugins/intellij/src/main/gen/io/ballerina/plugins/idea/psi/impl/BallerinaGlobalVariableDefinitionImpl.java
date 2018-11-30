@@ -54,9 +54,15 @@ public class BallerinaGlobalVariableDefinitionImpl extends BallerinaNamedElement
   }
 
   @Override
-  @NotNull
+  @Nullable
   public BallerinaTypeName getTypeName() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaTypeName.class));
+    return PsiTreeUtil.getChildOfType(this, BallerinaTypeName.class);
+  }
+
+  @Override
+  @Nullable
+  public BallerinaChannelType getChannelType() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaChannelType.class);
   }
 
   @Override
@@ -66,21 +72,39 @@ public class BallerinaGlobalVariableDefinitionImpl extends BallerinaNamedElement
   }
 
   @Override
-  @Nullable
+  @NotNull
   public PsiElement getSemicolon() {
-    return findChildByType(SEMICOLON);
+    return notNullChild(findChildByType(SEMICOLON));
   }
 
   @Override
   @Nullable
+  public PsiElement getFinal() {
+    return findChildByType(FINAL);
+  }
+
+  @Override
+  @NotNull
   public PsiElement getIdentifier() {
-    return findChildByType(IDENTIFIER);
+    return notNullChild(findChildByType(IDENTIFIER));
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getListener() {
+    return findChildByType(LISTENER);
   }
 
   @Override
   @Nullable
   public PsiElement getPublic() {
     return findChildByType(PUBLIC);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getVar() {
+    return findChildByType(VAR);
   }
 
 }

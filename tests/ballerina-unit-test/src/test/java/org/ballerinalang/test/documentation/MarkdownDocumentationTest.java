@@ -78,7 +78,7 @@ public class MarkdownDocumentationTest {
         Assert.assertNotNull(variableNode);
         BLangMarkdownDocumentation documentationAttachment = variableNode.getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
-        Assert.assertEquals(documentationAttachment.getDocumentation(), "Documentation for testConst constant");
+        Assert.assertEquals(documentationAttachment.getDocumentation(), "Documentation for final global variable.");
 
         LinkedList<BLangMarkdownParameterDocumentation> parameters = documentationAttachment.getParameters();
         Assert.assertEquals(parameters.size(), 0);

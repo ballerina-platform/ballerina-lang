@@ -35,7 +35,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -69,7 +68,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
@@ -164,10 +162,10 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
         if (isReferenced(serviceNode.name.getValue(), servSymbol.owner, servSymbol.pkgID, servSymbol.owner.pkgID)) {
             addLocation(serviceNode, servSymbol.pkgID.name.getValue(), servSymbol.pkgID.name.getValue());
         }
-
-        if (serviceNode.serviceTypeStruct != null) {
-            this.acceptNode(serviceNode.serviceTypeStruct);
-        }
+// TODO: 11/28/18 Fix with the latest Service Changes 
+//        if (serviceNode.serviceTypeStruct != null) {
+//            this.acceptNode(serviceNode.serviceTypeStruct);
+//        }
 
         if (serviceNode.vars != null) {
             serviceNode.vars.forEach(this::acceptNode);
@@ -181,13 +179,13 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
             serviceNode.endpoints.forEach(this::acceptNode);
         }
 
-        if (serviceNode.boundEndpoints != null) {
-            serviceNode.boundEndpoints.forEach(this::acceptNode);
-        }
-
-        if (serviceNode.initFunction != null) {
-            this.acceptNode(serviceNode.initFunction);
-        }
+// TODO: 11/28/18 Fix with the latest Service Changes
+//        if (serviceNode.boundEndpoints != null) {
+//            serviceNode.boundEndpoints.forEach(this::acceptNode);
+//        }
+//        if (serviceNode.initFunction != null) {
+//            this.acceptNode(serviceNode.initFunction);
+//        }
     }
 
     @Override
@@ -205,27 +203,6 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
 
         if (resourceNode.body != null) {
             this.acceptNode(resourceNode.body);
-        }
-    }
-
-    @Override
-    public void visit(BLangAction actionNode) {
-        if (isReferenced(actionNode.name.getValue(), actionNode.symbol.owner, actionNode.symbol.pkgID,
-                         actionNode.symbol.owner.pkgID)) {
-            addLocation(actionNode, actionNode.symbol.pkgID.name.getValue(),
-                        actionNode.symbol.pkgID.name.getValue());
-        }
-
-        if (actionNode.requiredParams != null) {
-            actionNode.requiredParams.forEach(this::acceptNode);
-        }
-
-        if (actionNode.body != null) {
-            acceptNode(actionNode.body);
-        }
-
-        if (actionNode.workers != null) {
-            actionNode.workers.forEach(this::acceptNode);
         }
     }
 
@@ -358,14 +335,14 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
         if (forkJoin.getWorkers() != null) {
             forkJoin.getWorkers().forEach(this::acceptNode);
         }
-
-        if (forkJoin.joinedBody != null) {
-            this.acceptNode(forkJoin.joinedBody);
-        }
-
-        if (forkJoin.timeoutBody != null) {
-            this.acceptNode(forkJoin.timeoutBody);
-        }
+        // todo need to remove this block
+//        if (forkJoin.joinedBody != null) {
+//            this.acceptNode(forkJoin.joinedBody);
+//        }
+//
+//        if (forkJoin.timeoutBody != null) {
+//            this.acceptNode(forkJoin.timeoutBody);
+//        }
     }
 
     @Override
@@ -584,17 +561,6 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatch.BLangMatchTypedBindingPatternClause patternClauseNode) {
-        if (patternClauseNode.variable != null) {
-            this.acceptNode(patternClauseNode.variable);
-        }
-
-        if (patternClauseNode.body != null) {
-            this.acceptNode(patternClauseNode.body);
-        }
-    }
-
-    @Override
     public void visit(BLangMatch.BLangMatchStaticBindingPatternClause patternClauseNode) {
         /*ignore*/
     }
@@ -695,15 +661,6 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
         if (unaryExpr.expr != null) {
             this.acceptNode(unaryExpr.expr);
         }
-    }
-
-    @Override
-    public void visit(BLangScope scopeNode) {
-        if (scopeNode.scopeBody != null) {
-            this.acceptNode(scopeNode.scopeBody);
-        }
-
-        visit(scopeNode.compensationFunction);
     }
 
     @Override

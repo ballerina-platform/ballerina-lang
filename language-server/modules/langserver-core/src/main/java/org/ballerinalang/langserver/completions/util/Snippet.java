@@ -36,7 +36,7 @@ public enum Snippet {
 
     DEF_MAIN_FUNCTION(SnippetGenerator.getMainFunctionSnippet()),
 
-    DEF_NEW_OBJECT_CONSTRUCTOR(SnippetGenerator.getObjectConstructorSnippet()),
+    DEF_NEW_OBJECT_INITIALIZER(SnippetGenerator.getObjectInitializerSnippet()),
 
     DEF_OBJECT_SNIPPET(SnippetGenerator.getObjectDefinitionSnippet()),
 
@@ -60,9 +60,13 @@ public enum Snippet {
     
     
     // Keyword Snippets
-    KW_BIND(SnippetGenerator.getBindSnippet()),
+    KW_ON(SnippetGenerator.getOnSnippet()),
+
+    KW_NEW(SnippetGenerator.getNewKeywordSnippet()),
 
     KW_CHECK(SnippetGenerator.getCheckKeywordSnippet()),
+
+    KW_WAIT(SnippetGenerator.getWaitKeywordSnippet()),
 
     KW_EXTERN(SnippetGenerator.getExternKeywordSnippet()),
 
@@ -144,6 +148,8 @@ public enum Snippet {
     BUILTIN_IS_FROZEN(SnippetGenerator.getBuiltinIsFrozenSnippet()),
 
     BUILTIN_STAMP(SnippetGenerator.getBuiltinStampSnippet()),
+
+    BUILTIN_CREATE(SnippetGenerator.getBuiltinCreateSnippet()),
 
     BUILTIN_IS_NAN(SnippetGenerator.getBuiltinIsNaNSnippet()),
 

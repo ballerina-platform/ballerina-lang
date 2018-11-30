@@ -30,7 +30,11 @@ public type HttpAuthzHandler object {
     public cache:Cache positiveAuthzCache;
     public cache:Cache negativeAuthzCache;
 
-    public new (authStoreProvider, positiveAuthzCache, negativeAuthzCache) {
+    public function __init(auth:AuthStoreProvider authStoreProvider, cache:Cache positiveAuthzCache,
+                                                                                    cache:Cache negativeAuthzCache) {
+        self.authStoreProvider = authStoreProvider;
+        self.positiveAuthzCache = positiveAuthzCache;
+        self.negativeAuthzCache = negativeAuthzCache;
     }
 
     # Checks if the request can be authorized

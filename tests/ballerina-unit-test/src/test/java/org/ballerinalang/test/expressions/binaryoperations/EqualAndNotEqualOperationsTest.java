@@ -805,6 +805,22 @@ public class EqualAndNotEqualOperationsTest {
                 " as unequal.");
     }
 
+    @Test(dataProvider = "selfAndCyclicReferencingPositiveFunctions")
+    public void selfAndCyclicReferencingPositiveFunctions(String testFunctionName) {
+        BValue[] returns = BRunUtil.invoke(result, testFunctionName);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected values to be identified as equal.");
+    }
+
+    @Test(dataProvider = "selfAndCyclicReferencingNegativeFunctions")
+    public void selfAndCyclicReferencingNegativeFunctions(String testFunctionName) {
+        BValue[] returns = BRunUtil.invoke(result, testFunctionName);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected values to be identified as unequal.");
+    }
+
     @Test(description = "Test equal and not equal with errors")
     public void testEqualAndNotEqualNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 38);
@@ -852,9 +868,9 @@ public class EqualAndNotEqualOperationsTest {
         validateError(resultNegative, 29, "operator '!=' not defined for 'int[]' and '(float,float)'", 94, 34);
         validateError(resultNegative, 30, "operator '==' not defined for 'int[]' and '(int,float)'", 97, 22);
         validateError(resultNegative, 31, "operator '!=' not defined for '(int,float)' and 'int[]'", 97, 34);
-        validateError(resultNegative, 32, "operator '==' not defined for '(int,stream)' and '(int,float)'", 111,
+        validateError(resultNegative, 32, "operator '==' not defined for '(int,stream<int>)' and '(int,float)'", 111,
                       22);
-        validateError(resultNegative, 33, "operator '!=' not defined for '(int,float)' and '(int,stream)'", 111,
+        validateError(resultNegative, 33, "operator '!=' not defined for '(int,float)' and '(int,stream<int>)'", 111,
                       34);
         validateError(resultNegative, 34, "operator '==' not defined for 'any' and 'int'", 115, 14);
         validateError(resultNegative, 35, "operator '!=' not defined for 'int' and 'any'", 115, 26);
@@ -1011,6 +1027,26 @@ public class EqualAndNotEqualOperationsTest {
                 {new BString("Hello Ballerina"), new BString("Hi Ballerina")},
                 {new BBoolean(true), new BBoolean(false)},
                 {new BBoolean(false), new BBoolean(true)},
+        };
+    }
+
+    @DataProvider(name = "selfAndCyclicReferencingPositiveFunctions")
+    public Object[][] selfAndCyclicReferencingPositiveFunctions() {
+        return new Object[][]{
+                {"testSelfAndCyclicReferencingMapEqualityPositive"},
+                {"testSelfAndCyclicReferencingJsonEqualityPositive"},
+                {"testSelfAndCyclicReferencingArrayEqualityPositive"},
+                {"testSelfAndCyclicReferencingTupleEqualityPositive"}
+        };
+    }
+
+    @DataProvider(name = "selfAndCyclicReferencingNegativeFunctions")
+    public Object[][] selfAndCyclicReferencingNegativeFunctions() {
+        return new Object[][]{
+                {"testSelfAndCyclicReferencingMapEqualityNegative"},
+                {"testSelfAndCyclicReferencingJsonEqualityNegative"},
+                {"testSelfAndCyclicReferencingArrayEqualityNegative"},
+                {"testSelfAndCyclicReferencingTupleEqualityNegative"}
         };
     }
 }

@@ -43,8 +43,8 @@ public class BallerinaServiceDefinitionImpl extends BallerinaCompositeElementImp
 
   @Override
   @Nullable
-  public BallerinaNameReference getNameReference() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaNameReference.class);
+  public BallerinaExpression getExpression() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaExpression.class);
   }
 
   @Override
@@ -55,26 +55,14 @@ public class BallerinaServiceDefinitionImpl extends BallerinaCompositeElementImp
 
   @Override
   @Nullable
-  public BallerinaServiceEndpointAttachments getServiceEndpointAttachments() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaServiceEndpointAttachments.class);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getGt() {
-    return findChildByType(GT);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getLt() {
-    return findChildByType(LT);
-  }
-
-  @Override
-  @Nullable
   public PsiElement getIdentifier() {
     return findChildByType(IDENTIFIER);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getOn() {
+    return findChildByType(ON);
   }
 
   @Override

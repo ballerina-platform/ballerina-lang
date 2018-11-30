@@ -31,25 +31,21 @@ public class ObjectEquivalencyNegativeTest {
     @Test(description = "Test equivalence of objects that are in the same package")
     public void testEquivalenceOfObjectsInSamePackage() {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object-equivalency-01-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 9);
+        Assert.assertEquals(compileResult.getErrorCount(), 7);
         BAssertUtil.validateError(compileResult, 0,
-                "incompatible types: expected 'person01', found 'person01|error'", 22, 18);
+                "incompatible types: 'employee01' cannot be explicitly typed as 'person01'", 24, 18);
         BAssertUtil.validateError(compileResult, 1,
-                "incompatible types: expected 'person02', found 'person02|error'", 46, 18);
+                "incompatible types: 'employee02' cannot be explicitly typed as 'person02'", 51, 18);
         BAssertUtil.validateError(compileResult, 2,
-                "incompatible types: expected 'person03', found 'person03|error'", 69, 18);
+                "incompatible types: 'employee04' cannot be explicitly typed as 'person04'", 108, 18);
         BAssertUtil.validateError(compileResult, 3,
-                "incompatible types: expected 'person04', found 'person04|error'", 97, 18);
+                "incompatible types: 'employee05' cannot be explicitly typed as 'person05'", 145, 18);
         BAssertUtil.validateError(compileResult, 4,
-                "incompatible types: expected 'person05', found 'person05|error'", 128, 18);
+                "incompatible types: 'employee06' cannot be explicitly typed as 'person06'", 175, 18);
         BAssertUtil.validateError(compileResult, 5,
-                "incompatible types: expected 'person06', found 'person06|error'", 155, 18);
+                "incompatible types: 'employee08' cannot be explicitly typed as 'person08'", 306, 18);
         BAssertUtil.validateError(compileResult, 6,
-                "incompatible types: expected 'person07', found 'person07|error'", 214, 18);
-        BAssertUtil.validateError(compileResult, 7,
-                "incompatible types: expected 'person08', found 'person08|error'", 280, 18);
-        BAssertUtil.validateError(compileResult, 8,
-                "incompatible types: expected 'person09', found 'person09|error'", 346, 18);
+                "incompatible types: 'employee09' cannot be explicitly typed as 'person09'", 375, 18);
     }
 
     @Test(description = "Test equivalence of objects that are in the same package from a third package")
@@ -58,9 +54,8 @@ public class ObjectEquivalencyNegativeTest {
 
         Assert.assertEquals(compileResult.getErrorCount(), 2);
         BAssertUtil.validateError(compileResult, 0,
-                "incompatible types: expected 'org.foo:user', found 'org.foo:userFoo|error'", 11, 23);
+                "incompatible types: 'org.foo.bar:userBar' cannot be explicitly typed as 'org.foo:userFoo'", 11, 23);
         BAssertUtil.validateError(compileResult, 1,
-                "incompatible types: expected 'org.foo:FooObj', found 'org.foo:FooObj|error'", 17, 25);
-
+                "incompatible types: 'org.foo.bar:BarObj' cannot be explicitly typed as 'org.foo:FooObj'", 17, 25);
     }
 }

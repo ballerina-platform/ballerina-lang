@@ -225,8 +225,16 @@ public type ClientInformation record {
     !...
 };
 
+# Model for multi swagger operation definition for ballerina resource.
+#
+# + resourceInformation - list of resource information
+public type MultiResourceInformation record {
+    map<ResourceInformation> resourceInformation;
+    !...
+};
+
 # Presence of this annotation will mark this endpoint to be used as a service endpoint for client generation
-public annotation <endpoint> ClientEndpoint;
+public annotation <client> ClientEndpoint;
 
 # Annotation to configure client code generation.
 public annotation <service> ClientConfig ClientInformation;
@@ -236,3 +244,6 @@ public annotation <service> ServiceInfo ServiceInformation;
 
 # Annotation for additional Swagger information of a Ballerina resource.
 public annotation <resource> ResourceInfo ResourceInformation;
+
+# Annotation for multi Swagger operation information of a Ballerina resource.
+public annotation <resource> MultiResourceInfo MultiResourceInformation;

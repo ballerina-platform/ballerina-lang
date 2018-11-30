@@ -18,7 +18,8 @@
 package org.ballerinalang.model.values;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CPU;
+import org.ballerinalang.bre.bvm.BVM;
+import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.DataIterator;
 import org.ballerinalang.model.types.BStructureType;
@@ -29,7 +30,6 @@ import org.ballerinalang.util.TableIterator;
 import org.ballerinalang.util.TableProvider;
 import org.ballerinalang.util.TableUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.program.BLangFunctions;
 
 import java.util.List;
 import java.util.Map;
@@ -54,7 +54,7 @@ public class BTable implements BRefType<Object>, BCollection {
     private BValueArray primaryKeys;
     private BValueArray indices;
     private boolean tableClosed;
-    private volatile CPU.FreezeStatus freezeStatus = new CPU.FreezeStatus(CPU.FreezeStatus.State.UNFROZEN);
+    private volatile BVM.FreezeStatus freezeStatus = new BVM.FreezeStatus(BVM.FreezeStatus.State.UNFROZEN);
 
     public BTable() {
         this.iterator = null;
@@ -76,7 +76,13 @@ public class BTable implements BRefType<Object>, BCollection {
     public BTable(String query, BTable fromTable, BTable joinTable,
                   BStructureType constraintType, BValueArray params) {
         this.tableProvider = TableProvider.getInstance();
+        if (!fromTable.isInMemoryTable()) {
+            throw new BallerinaException("Table query over a cursor table not supported");
+        }
         if (joinTable != null) {
+            if (!joinTable.isInMemoryTable()) {
+                throw new BallerinaException("Table query over a cursor table not supported");
+            }
             this.tableName = tableProvider.createTable(fromTable.tableName, joinTable.tableName, query,
                     constraintType, params);
         } else {
@@ -208,14 +214,13 @@ public class BTable implements BRefType<Object>, BCollection {
      */
     public void performAddOperation(BMap<String, BValue> data, Context context) {
         synchronized (this) {
-            if (freezeStatus.getState() != CPU.FreezeStatus.State.UNFROZEN) {
+            if (freezeStatus.getState() != BVM.FreezeStatus.State.UNFROZEN) {
                 handleInvalidUpdate(freezeStatus.getState());
             }
         }
 
         try {
             this.addData(data, context);
-            context.setReturnValues();
         } catch (Throwable e) {
             context.setReturnValues(TableUtils.createTableOperationError(context, e));
         }
@@ -242,7 +247,7 @@ public class BTable implements BRefType<Object>, BCollection {
      */
     public void performRemoveOperation(Context context, BFunctionPointer lambdaFunction) {
         synchronized (this) {
-            if (freezeStatus.getState() != CPU.FreezeStatus.State.UNFROZEN) {
+            if (freezeStatus.getState() != BVM.FreezeStatus.State.UNFROZEN) {
                 handleInvalidUpdate(freezeStatus.getState());
             }
         }
@@ -256,9 +261,11 @@ public class BTable implements BRefType<Object>, BCollection {
             }
             int deletedCount = 0;
             while (this.hasNext()) {
+
                 BMap<String, BValue> data = this.getNext();
                 BValue[] args = {data};
-                BValue[] returns = BLangFunctions.invokeCallable(lambdaFunction.value(), args);
+                BValue[] returns = BVMExecutor.executeFunction(lambdaFunction.value().getPackageInfo()
+                        .getProgramFile(), lambdaFunction.value(), args);
                 if (((BBoolean) returns[0]).booleanValue()) {
                     ++deletedCount;
                     tableProvider.deleteData(tableName, data);
@@ -439,7 +446,7 @@ public class BTable implements BRefType<Object>, BCollection {
      * {@inheritDoc}
      */
     @Override
-    public synchronized void attemptFreeze(CPU.FreezeStatus freezeStatus) {
+    public synchronized void attemptFreeze(BVM.FreezeStatus freezeStatus) {
         if (isOpenForFreeze(this.freezeStatus, freezeStatus)) {
             this.freezeStatus = freezeStatus;
         }

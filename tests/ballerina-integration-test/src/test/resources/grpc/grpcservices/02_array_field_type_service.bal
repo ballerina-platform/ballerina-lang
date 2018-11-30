@@ -16,18 +16,17 @@
 import ballerina/grpc;
 import ballerina/io;
 
-endpoint grpc:Listener ep3 {
-    host:"localhost",
-    port:9092
-};
+listener grpc:Listener ep2 = new (9092, config = {
+    host:"localhost"
+});
 
 @grpc:ServiceDescriptor {
     descriptor: <string>descriptorMap2[DESCRIPTOR_KEY_2],
     descMap: descriptorMap2
 }
-service HelloWorld3 bind ep3 {
+service HelloWorld3 on ep2 {
 
-    testIntArrayInput(endpoint caller, TestInt req) {
+    resource function testIntArrayInput(grpc:Caller caller, TestInt req) {
         io:println(req);
         int[] numbers = req.values;
         int result = 0;
@@ -43,7 +42,7 @@ service HelloWorld3 bind ep3 {
         _ = caller->complete();
     }
 
-    testStringArrayInput(endpoint caller, TestString req) {
+    resource function testStringArrayInput(grpc:Caller caller, TestString req) {
         io:println(req);
         string[] values = req.values;
         string result = "";
@@ -59,7 +58,7 @@ service HelloWorld3 bind ep3 {
         _ = caller->complete();
     }
 
-    testFloatArrayInput(endpoint caller, TestFloat req) {
+    resource function testFloatArrayInput(grpc:Caller caller, TestFloat req) {
         io:println(req);
         float[] values = req.values;
         float result = 0.0;
@@ -75,7 +74,7 @@ service HelloWorld3 bind ep3 {
         _ = caller->complete();
     }
 
-    testBooleanArrayInput(endpoint caller, TestBoolean req) {
+    resource function testBooleanArrayInput(grpc:Caller caller, TestBoolean req) {
         io:println(req);
         boolean[] values = req.values;
         boolean result = false;
@@ -91,7 +90,7 @@ service HelloWorld3 bind ep3 {
         _ = caller->complete();
     }
 
-    testStructArrayInput(endpoint caller, TestStruct req) {
+    resource function testStructArrayInput(grpc:Caller caller, TestStruct req) {
         io:println(req);
         A[] values = req.values;
         string result = "";
@@ -107,7 +106,7 @@ service HelloWorld3 bind ep3 {
         _ = caller->complete();
     }
 
-    testIntArrayOutput(endpoint caller) {
+    resource function testIntArrayOutput(grpc:Caller caller) {
         TestInt intArray = {values:[1, 2, 3, 4, 5]};
         error? err = caller->send(intArray);
         if (err is error) {
@@ -118,7 +117,7 @@ service HelloWorld3 bind ep3 {
         _ = caller->complete();
     }
 
-    testStringArrayOutput(endpoint caller) {
+    resource function testStringArrayOutput(grpc:Caller caller) {
         TestString stringArray = {values:["A", "B", "C"]};
         error? err = caller->send(stringArray);
         if (err is error) {
@@ -129,7 +128,7 @@ service HelloWorld3 bind ep3 {
         _ = caller->complete();
     }
 
-    testFloatArrayOutput(endpoint caller) {
+    resource function testFloatArrayOutput(grpc:Caller caller) {
         TestFloat floatArray = {values:[1.1, 1.2, 1.3, 1.4, 1.5]};
         error? err = caller->send(floatArray);
         if (err is error) {
@@ -140,7 +139,7 @@ service HelloWorld3 bind ep3 {
         _ = caller->complete();
     }
 
-    testBooleanArrayOutput(endpoint caller) {
+    resource function testBooleanArrayOutput(grpc:Caller caller) {
         TestBoolean booleanArray = {values:[true, false, true]};
         error? err = caller->send(booleanArray);
         if (err is error) {
@@ -151,7 +150,7 @@ service HelloWorld3 bind ep3 {
         _ = caller->complete();
     }
 
-    testStructArrayOutput(endpoint caller) {
+    resource function testStructArrayOutput(grpc:Caller caller) {
         A a1 = {name:"Sam"};
         A a2 = {name:"John"};
         TestStruct structArray = {values:[a1, a2]};
@@ -189,8 +188,8 @@ type A record {
     string name = "";
 };
 
-@final string DESCRIPTOR_KEY_2 = "HelloWorld3.proto";
-map descriptorMap2 =
+const string DESCRIPTOR_KEY_2 = "HelloWorld3.proto";
+map<any> descriptorMap2 =
 {
     "HelloWorld3.proto":"0A1148656C6C6F576F726C64332E70726F746F120C6772706373657276696365731A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F1A1B676F6F676C652F70726F746F6275662F656D7074792E70726F746F22210A0754657374496E7412160A0676616C756573180120032803520676616C75657322240A0A54657374537472696E6712160A0676616C756573180120032809520676616C75657322230A0954657374466C6F617412160A0676616C756573180120032802520676616C75657322250A0B54657374426F6F6C65616E12160A0676616C756573180120032808520676616C75657322350A0A5465737453747275637412270A0676616C75657318012003280B320F2E6772706373657276696365732E41520676616C75657322170A014112120A046E616D6518012001280952046E616D653284060A0B48656C6C6F576F726C643312470A1174657374496E744172726179496E70757412152E6772706373657276696365732E54657374496E741A1B2E676F6F676C652E70726F746F6275662E496E74363456616C7565124E0A1474657374537472696E674172726179496E70757412182E6772706373657276696365732E54657374537472696E671A1C2E676F6F676C652E70726F746F6275662E537472696E6756616C7565124B0A1374657374466C6F61744172726179496E70757412172E6772706373657276696365732E54657374466C6F61741A1B2E676F6F676C652E70726F746F6275662E466C6F617456616C7565124E0A1574657374426F6F6C65616E4172726179496E70757412192E6772706373657276696365732E54657374426F6F6C65616E1A1A2E676F6F676C652E70726F746F6275662E426F6F6C56616C7565124E0A14746573745374727563744172726179496E70757412182E6772706373657276696365732E546573745374727563741A1C2E676F6F676C652E70726F746F6275662E537472696E6756616C756512430A1274657374496E7441727261794F757470757412162E676F6F676C652E70726F746F6275662E456D7074791A152E6772706373657276696365732E54657374496E7412490A1574657374537472696E6741727261794F757470757412162E676F6F676C652E70726F746F6275662E456D7074791A182E6772706373657276696365732E54657374537472696E6712470A1474657374466C6F617441727261794F757470757412162E676F6F676C652E70726F746F6275662E456D7074791A172E6772706373657276696365732E54657374466C6F6174124B0A1674657374426F6F6C65616E41727261794F757470757412162E676F6F676C652E70726F746F6275662E456D7074791A192E6772706373657276696365732E54657374426F6F6C65616E12490A157465737453747275637441727261794F757470757412162E676F6F676C652E70726F746F6275662E456D7074791A182E6772706373657276696365732E54657374537472756374620670726F746F33",
 

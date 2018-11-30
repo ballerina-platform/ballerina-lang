@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/file;
-
 # Represent all compression related errors.
 #
 # + message - The error message

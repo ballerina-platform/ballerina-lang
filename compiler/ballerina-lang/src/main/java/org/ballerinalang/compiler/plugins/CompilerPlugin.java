@@ -18,17 +18,14 @@
 package org.ballerinalang.compiler.plugins;
 
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.tree.ActionNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.AnnotationNode;
-import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.FunctionNode;
-import org.ballerinalang.model.tree.ResourceNode;
+import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
@@ -65,7 +62,7 @@ public interface CompilerPlugin {
      *
      * @param packageNode package node
      */
-    void process(BLangPackage packageNode);
+    void process(PackageNode packageNode);
 
     /**
      * Processes a testable package node.
@@ -83,22 +80,6 @@ public interface CompilerPlugin {
      * @param annotations a list of annotations attached to the service node
      */
     void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations);
-
-    /**
-     * Processes a list of annotations attached to a resource node.
-     *
-     * @param resourceNode the resource node being annotated
-     * @param annotations  a list of annotations attached to the resource node
-     */
-    void process(ResourceNode resourceNode, List<AnnotationAttachmentNode> annotations);
-
-    /**
-     * Processes a list of annotations attached to a action node.
-     *
-     * @param actionNode  the action node being annotated
-     * @param annotations a list of annotations attached to the action node
-     */
-    void process(ActionNode actionNode, List<AnnotationAttachmentNode> annotations);
 
     /**
      * Processes a list of annotations attached to a object node.
@@ -131,14 +112,6 @@ public interface CompilerPlugin {
      * @param annotations    a list of annotations attached to the annotation node
      */
     void process(AnnotationNode annotationNode, List<AnnotationAttachmentNode> annotations);
-
-    /**
-     * Processes a list of annotations attached to an endpoint node.
-     *
-     * @param endpointNode the endpoint node being annotated
-     * @param annotations  a list of annotations attached to the transformer node
-     */
-    void process(EndpointNode endpointNode, List<AnnotationAttachmentNode> annotations);
 
     /**
      * Notifies when the code generated phase is completed.

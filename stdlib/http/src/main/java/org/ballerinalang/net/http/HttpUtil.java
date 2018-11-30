@@ -256,11 +256,6 @@ public class HttpUtil {
             if (entityBodyRequired && !byteChannelAlreadySet) {
                 populateEntityBody(context, httpMessageStruct, entity, isRequest);
             }
-
-            // Entity cannot be null, since it is not a nullable field in http:Request or http:Response
-            if (entity.isEmpty()) {
-                entity = createNewEntity(context, httpMessageStruct);
-            }
             return new BValue[]{entity};
         } catch (Throwable throwable) {
             return new BValue[]{MimeUtil.createError(context, MIME_ERROR_CODE,
@@ -629,33 +624,33 @@ public class HttpUtil {
     }
 
     /**
-     * Populate connection information.
+     * Populates the HTTP caller with native data.
      *
-     * @param connection Represent the connection struct
-     * @param inboundMsg Represent carbon message.
-     * @param config Service endpoint configuration.
+     * @param caller     Represents the HTTP caller
+     * @param inboundMsg Represents carbon message
+     * @param config     Represents service endpoint configuration
      */
-    public static void enrichConnectionInfo(BMap<String, BValue> connection, HttpCarbonMessage inboundMsg,
-                                            Struct config) {
-        connection.addNativeData(HttpConstants.TRANSPORT_MESSAGE, inboundMsg);
-        connection.put(HttpConstants.HTTP_CONNECTOR_CONFIG_FIELD, (BMap<String, BValue>) config.getVMValue());
+    public static void enrichHttpCallerWithNativeData(BMap<String, BValue> caller, HttpCarbonMessage inboundMsg,
+                                                      Struct config) {
+        caller.addNativeData(HttpConstants.TRANSPORT_MESSAGE, inboundMsg);
+        caller.put(HttpConstants.HTTP_CONNECTOR_CONFIG_FIELD, (BMap<String, BValue>) config.getVMValue());
     }
 
     /**
-     * Populate serviceEndpoint information.
+     * Populates the HTTP caller with connection information.
      *
-     * @param serviceEndpoint Represent the serviceEndpoint struct
-     * @param inboundMsg Represent carbon message.
-     * @param httpResource Represent Http Resource.
-     * @param config Service endpoint configuration.
+     * @param httpCaller   Represents the HTTP caller
+     * @param inboundMsg   Represents the carbon message
+     * @param httpResource Represents the Http Resource
+     * @param config       Represents the service endpoint configuration
      */
-    public static void enrichServiceEndpointInfo(BMap<String, BValue> serviceEndpoint, HttpCarbonMessage inboundMsg,
-                                                 HttpResource httpResource, Struct config) {
+    public static void enrichHttpCallerWithConnectionInfo(BMap<String, BValue> httpCaller, HttpCarbonMessage inboundMsg,
+                                                          HttpResource httpResource, Struct config) {
         BMap<String, BValue> remote = BLangConnectorSPIUtil.createBStruct(
-                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
+                httpResource.getBalResource().getResourceInfo().getPackageInfo().getProgramFile(),
                 PROTOCOL_PACKAGE_HTTP, HttpConstants.REMOTE);
         BMap<String, BValue> local = BLangConnectorSPIUtil.createBStruct(
-                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
+                httpResource.getBalResource().getResourceInfo().getPackageInfo().getProgramFile(),
                 PROTOCOL_PACKAGE_HTTP, HttpConstants.LOCAL);
 
         Object remoteSocketAddress = inboundMsg.getProperty(HttpConstants.REMOTE_ADDRESS);
@@ -666,7 +661,7 @@ public class HttpUtil {
             remote.put(HttpConstants.REMOTE_HOST_FIELD, new BString(remoteHost));
             remote.put(HttpConstants.REMOTE_PORT_FIELD, new BInteger(remotePort));
         }
-        serviceEndpoint.put(HttpConstants.REMOTE_STRUCT_FIELD, remote);
+        httpCaller.put(HttpConstants.REMOTE_STRUCT_FIELD, remote);
 
         Object localSocketAddress = inboundMsg.getProperty(HttpConstants.LOCAL_ADDRESS);
         if (localSocketAddress instanceof InetSocketAddress) {
@@ -676,10 +671,10 @@ public class HttpUtil {
             local.put(HttpConstants.LOCAL_HOST_FIELD, new BString(localHost));
             local.put(HttpConstants.LOCAL_PORT_FIELD, new BInteger(localPort));
         }
-        serviceEndpoint.put(HttpConstants.LOCAL_STRUCT_INDEX, local);
-        serviceEndpoint.put(HttpConstants.SERVICE_ENDPOINT_PROTOCOL_FIELD,
+        httpCaller.put(HttpConstants.LOCAL_STRUCT_INDEX, local);
+        httpCaller.put(HttpConstants.SERVICE_ENDPOINT_PROTOCOL_FIELD,
                 new BString((String) inboundMsg.getProperty(HttpConstants.PROTOCOL)));
-        serviceEndpoint.put(HttpConstants.SERVICE_ENDPOINT_CONFIG_FIELD, (BMap<String, BValue>) config.getVMValue());
+        httpCaller.put(HttpConstants.SERVICE_ENDPOINT_CONFIG_FIELD, (BMap<String, BValue>) config.getVMValue());
     }
 
     /**
@@ -849,9 +844,9 @@ public class HttpUtil {
     private static void setCompressionHeaders(Context context, HttpCarbonMessage requestMsg, HttpCarbonMessage
             outboundResponseMsg) {
         Service serviceInstance = BLangConnectorSPIUtil.getService(context.getProgramFile(),
-                context.getServiceInfo().getType());
+                context.getServiceInfo().serviceValue);
         Annotation configAnnot = getServiceConfigAnnotation(serviceInstance, PROTOCOL_PACKAGE_HTTP);
-        if (configAnnot == null) {
+        if (!checkConfigAnnotationAvailability(configAnnot)) {
             return;
         }
         String contentEncoding = outboundResponseMsg.getHeaders().get(HttpHeaderNames.CONTENT_ENCODING);
@@ -1139,9 +1134,9 @@ public class HttpUtil {
     private static void setChunkingHeader(Context context, HttpCarbonMessage
             outboundResponseMsg) {
         Service serviceInstance = BLangConnectorSPIUtil.getService(context.getProgramFile(),
-                context.getServiceInfo().getType());
+                context.getServiceInfo().serviceValue);
         Annotation configAnnot = getServiceConfigAnnotation(serviceInstance, PROTOCOL_PACKAGE_HTTP);
-        if (configAnnot == null) {
+        if (!checkConfigAnnotationAvailability(configAnnot)) {
             return;
         }
         String transferValue = configAnnot.getValue().getRefField(ANN_CONFIG_ATTR_CHUNKING).getStringValue();
@@ -1309,6 +1304,16 @@ public class HttpUtil {
         } else {
             outboundMessageSource.serialize(messageOutputStream);
         }
+    }
+
+    /**
+     * Check the availability of an annotation.
+     *
+     * @param configAnnotation      Represent the annotation
+     * @return True if the annotation and the annotation value are available
+     */
+    public static boolean checkConfigAnnotationAvailability(Annotation configAnnotation) {
+        return configAnnotation != null && configAnnotation.getValue() != null;
     }
 
     private HttpUtil() {

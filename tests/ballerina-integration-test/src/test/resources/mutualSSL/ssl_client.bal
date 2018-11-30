@@ -18,8 +18,7 @@ import ballerina/config;
 import ballerina/http;
 import ballerina/io;
 
-endpoint http:Client clientEP {
-    url:"https://localhost:9217",
+http:ClientEndpointConfig mutualSslCertClientConf = {
     secureSocket:{
         keyFile: config:getAsString("certificate.key"),
         certFile: config:getAsString("public.cert"),
@@ -28,6 +27,7 @@ endpoint http:Client clientEP {
 };
 
 public function main (string... args) {
+    http:Client clientEP = new("https://localhost:9217", config = mutualSslCertClientConf );
     http:Request req = new;
     var resp = clientEP->get("/echo/");
     if (resp is http:Response) {

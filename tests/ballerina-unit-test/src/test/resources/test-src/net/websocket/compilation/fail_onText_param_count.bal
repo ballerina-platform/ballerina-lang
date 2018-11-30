@@ -27,6 +27,6 @@ endpoint http:WebSocketListener wsCaller {
 }
 service<http:WebSocketService> wsService bind wsCaller {
 
-    onText(endpoint caller, string text, boolean final, string name) {
+    onText(endpoint caller, string text, boolean isFinal, string name) {
     }
 }

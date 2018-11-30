@@ -56,14 +56,14 @@ function arrayLengthAccessTestArrayInitializerCase (int x, int y) returns (int) 
     return tempArr[0];
 }
 
-function arrayLengthAccessTestMapInitializerCase (int x, int y) returns (int) {
+function arrayLengthAccessTestMapInitializerCase (int x, int y) returns (int|error) {
     int[] arr = [];
     arr[0] = x;
     arr[1] = y;
     arr[2] = arr[0] + arr[1];
-    map tempMap = {"length": arr.length()};
+    map<any> tempMap = {"length": arr.length()};
     int length;
-    length =check <int> tempMap.length;
+    length =check int.create(tempMap.length);
     return length;
 }
 
@@ -156,13 +156,13 @@ function arrayLengthAccessTestJSONArrayCase (int x, int y) returns (int) {
 }
 
 function lengthOfMap () returns (int) {
-    map namesMap = {fname:"foo", lname:"bar", sname:"abc", tname:"pqr"};
+    map<any> namesMap = {fname:"foo", lname:"bar", sname:"abc", tname:"pqr"};
     int length = namesMap.length();
     return length;
 }
 
 function lengthOfEmptyMap () returns (int) {
-    map namesMap;
+    map<any> namesMap = {};
     int length = namesMap.length();
     return length;
 }
@@ -222,31 +222,32 @@ function lengthOfEmptyRecord() returns (int) {
 }
 
 function accessLengthOfNullArray() returns (int) {
-    int[] arr;
+    int[] arr = [];
     int length = arr.length();
     return length;
 }
 
 function accessLengthOfNullMap() returns (int) {
-    map m;
+    map<any> m = {};
     int length = m.length();
     return length;
 }
 
 function accessLengthOfNullJson() returns (int) {
-    json j;
+    json j = null;
     int length = j.length();
     return length;
 }
 
 function accessLengthOfNullTuple() returns (int) {
-    (int, int )a;
+    (int, int )a = (0, 0);
     int length = a.length();
     return length;
 }
 
 function accessLengthOfNullXML() returns (int) {
-    xml x;
+    xml t =  xml `a`;
+    xml x = t.*;
     int length = x.length();
     return length;
 }

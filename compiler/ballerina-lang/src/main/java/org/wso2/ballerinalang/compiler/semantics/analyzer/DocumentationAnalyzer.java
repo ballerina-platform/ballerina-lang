@@ -140,7 +140,6 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
     public void visit(BLangService serviceNode) {
         validateNoParameters(serviceNode);
         validateReturnParameter(serviceNode, null, false);
-        serviceNode.getResources().forEach(this::analyzeNode);
     }
 
     @Override

@@ -40,9 +40,12 @@ import java.util.stream.Stream;
 
 import static org.ballerinalang.net.http.HttpConstants.ANN_NAME_INTERRUPTIBLE;
 import static org.ballerinalang.net.http.HttpConstants.AUTO;
+import static org.ballerinalang.net.http.HttpConstants.DEFAULT_BASE_PATH;
 import static org.ballerinalang.net.http.HttpConstants.DEFAULT_HOST;
+import static org.ballerinalang.net.http.HttpConstants.DOLLAR;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
 import static org.ballerinalang.net.http.HttpConstants.PACKAGE_BALLERINA_BUILTIN;
+import static org.ballerinalang.net.http.HttpUtil.checkConfigAnnotationAvailability;
 import static org.ballerinalang.net.http.HttpUtil.sanitizeBasePath;
 
 /**
@@ -143,7 +146,7 @@ public class HttpService implements Cloneable {
 
     public void setBasePath(String basePath) {
         if (basePath == null || basePath.trim().isEmpty()) {
-            this.basePath = HttpConstants.DEFAULT_BASE_PATH.concat(this.getName());
+            this.basePath = DEFAULT_BASE_PATH.concat(this.getName());
         } else {
             String sanitizedPath = sanitizeBasePath(basePath);
             this.basePath = urlDecode(sanitizedPath);
@@ -190,12 +193,7 @@ public class HttpService implements Cloneable {
         Annotation serviceConfigAnnotation = getHttpServiceConfigAnnotation(service);
         httpService.setInterruptible(hasInterruptibleAnnotation(service));
 
-        if (serviceConfigAnnotation == null) {
-            log.debug("serviceConfig not specified in the Service instance, using default base path");
-            //service name cannot start with / hence concat
-            basePathList.add(HttpConstants.DEFAULT_BASE_PATH.concat(httpService.getName()));
-            httpService.setHostName(DEFAULT_HOST);
-        } else {
+        if (checkConfigAnnotationAvailability(serviceConfigAnnotation)) {
             Struct serviceConfig = serviceConfigAnnotation.getValue();
 
             httpService.setCompression(serviceConfig.getRefField(COMPRESSION_FIELD).getStringValue());
@@ -210,6 +208,13 @@ public class HttpService implements Cloneable {
             } else {
                 basePathList.add(basePath);
             }
+        } else {
+            log.debug("serviceConfig not specified in the Service instance, using default base path");
+            //service name cannot start with / hence concat
+            String basePath = httpService.getName().startsWith(DOLLAR) ? DEFAULT_BASE_PATH :
+                    DEFAULT_BASE_PATH.concat(httpService.getName());
+            basePathList.add(basePath);
+            httpService.setHostName(DEFAULT_HOST);
         }
 
         List<HttpResource> httpResources = new ArrayList<>();
@@ -217,7 +222,7 @@ public class HttpService implements Cloneable {
         for (Resource resource : httpService.getBalService().getResources()) {
             Annotation resourceConfigAnnotation =
                     HttpUtil.getResourceConfigAnnotation(resource, HttpConstants.HTTP_PACKAGE_PATH);
-            if (resourceConfigAnnotation != null
+            if (checkConfigAnnotationAvailability(resourceConfigAnnotation)
                     && resourceConfigAnnotation.getValue().getStructField(WEBSOCKET_UPGRADE_FIELD) != null) {
                 HttpResource upgradeResource = HttpResource.buildHttpResource(resource, httpService);
                 upgradeToWebSocketResources.add(upgradeResource);

@@ -17,13 +17,13 @@ type ResultCustomers2 record {
 };
 
 function testSelectData() returns (string) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
     string returnData = "";
     var x = testDB->select("SELECT Name from Customers where registrationID = 1", ());
     json j = getJsonConversionResult(x);
@@ -33,13 +33,13 @@ function testSelectData() returns (string) {
 }
 
 function testGeneratedKeyOnInsert() returns (string) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     string ret = "";
     string[] generatedID = [];
@@ -50,25 +50,25 @@ function testGeneratedKeyOnInsert() returns (string) {
         (_, generatedID) = x;
         ret = generatedID[0];
     } else if (x is error) {
-        ret = <string> x.detail().message;
+        ret = string.create(x.detail().message);
     }
     testDB.stop();
     return ret;
 }
 
 function testCallProcedure() returns (string) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
     string returnData = "";
     var x = trap testDB->call("{call InsertPersonDataInfo(100,'James')}", ());
 
-    if (x is table[]) {
-        var j = <json>x[0];
+    if (x is table<record {}>[]) {
+        var j = json.create(x[0]);
         if (j is json) {
             returnData = io:sprintf("%s", j);
         } else if (j is error) {
@@ -84,13 +84,13 @@ function testCallProcedure() returns (string) {
 }
 
 function testBatchUpdate() returns (string) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     int[] updateCount = [];
     string returnVal = "";
@@ -120,20 +120,20 @@ function testBatchUpdate() returns (string) {
             returnVal = "success";
         }
     } else if (x is error) {
-        returnVal = <string> x.detail().message;
+        returnVal = string.create(x.detail().message);
     }
     testDB.stop();
     return returnVal;
 }
 
 function testInvalidArrayofQueryParameters() returns (string) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     string returnData = "";
     xml x1 = xml `<book>The Lost World</book>`;
@@ -142,15 +142,15 @@ function testInvalidArrayofQueryParameters() returns (string) {
     sql:Parameter para0 = { sqlType: sql:TYPE_INTEGER, value: xmlDataArray };
     var x = trap testDB->select("SELECT FirstName from Customers where registrationID in (?)", (), para0);
 
-    if (x is table) {
-        var j = <json>x;
+    if (x is table<record {}>) {
+        var j = json.create(x);
         if (j is json) {
             returnData = io:sprintf("%s", j);
         } else {
             returnData = j.reason();
         }
     } else if (x is error) {
-        returnData = <string>x.detail().message;
+        returnData = string.create(x.detail().message);
     }
     testDB.stop();
     return returnData;
@@ -158,27 +158,27 @@ function testInvalidArrayofQueryParameters() returns (string) {
 
 function testCallProcedureWithMultipleResultSetsAndLowerConstraintCount(
              ) returns ((string, string)|error|()) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     var ret = testDB->call("{call SelectPersonDataMultiple()}", [ResultCustomers]);
     (string, string)|error|() retVal = ();
-    if (ret is table[]) {
+    if (ret is table<record {}>[]) {
         string firstName1 = "";
         string firstName2 = "";
         while (ret[0].hasNext()) {
-            var rs = <ResultCustomers>ret[0].getNext();
+            var rs = ret[0].getNext();
             if (rs is ResultCustomers) {
                 firstName1 = rs.FIRSTNAME;
             }
         }
         while (ret[1].hasNext()) {
-            var rs = <ResultCustomers>ret[1].getNext();
+            var rs = ret[1].getNext();
             if (rs is ResultCustomers) {
                 firstName2 = rs.FIRSTNAME;
             }
@@ -195,28 +195,28 @@ function testCallProcedureWithMultipleResultSetsAndLowerConstraintCount(
 
 function testCallProcedureWithMultipleResultSetsAndHigherConstraintCount(string jdbcUrl, string userName, string
     password) returns ((string, string)|error|()) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     var ret = testDB->call("{call SelectPersonDataMultiple()}", [ResultCustomers, ResultCustomers2, Person]);
 
     (string, string)|error|() retVal = ();
-    if (ret is table[]) {
+    if (ret is table<record {}>[]) {
         string firstName1 = "";
         string firstName2 = "";
         while (ret[0].hasNext()) {
-            var rs = <ResultCustomers>ret[0].getNext();
+            var rs = ret[0].getNext();
             if (rs is ResultCustomers) {
                 firstName1 = rs.FIRSTNAME;
             }
         }
         while (ret[1].hasNext()) {
-            var rs = <ResultCustomers>ret[1].getNext();
+            var rs = ret[1].getNext();
             if (rs is ResultCustomers) {
                 firstName2 = rs.FIRSTNAME;
             }
@@ -233,27 +233,27 @@ function testCallProcedureWithMultipleResultSetsAndHigherConstraintCount(string 
 
 function testCallProcedureWithMultipleResultSetsAndNilConstraintCount()
              returns (string|(string, string)|error|()) {
-    endpoint h2:Client testDB {
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    };
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
 
     var ret = testDB->call("{call SelectPersonDataMultiple()}", ());
     string|(string, string)|error|() retVal = ();
-    if (ret is table[]) {
+    if (ret is table<record {}>[]) {
         string firstName1 = "";
         string firstName2 = "";
         while (ret[0].hasNext()) {
-            var rs = <ResultCustomers>ret[0].getNext();
+            var rs = ret[0].getNext();
             if (rs is ResultCustomers) {
                 firstName1 = rs.FIRSTNAME;
             }
         }
         while (ret[1].hasNext()) {
-            var rs = <ResultCustomers>ret[1].getNext();
+            var rs = ret[1].getNext();
             if (rs is ResultCustomers) {
                 firstName2 = rs.FIRSTNAME;
             }
@@ -268,17 +268,17 @@ function testCallProcedureWithMultipleResultSetsAndNilConstraintCount()
     return retVal;
 }
 
-function getJsonConversionResult(table|error tableOrError) returns json {
+function getJsonConversionResult(table<record {}>|error tableOrError) returns json {
     json retVal = {};
-    if (tableOrError is table) {
-        var jsonConversionResult = <json>tableOrError;
+    if (tableOrError is table<record {}>) {
+        var jsonConversionResult = json.create(tableOrError);
         if (jsonConversionResult is json) {
             retVal = jsonConversionResult;
         } else if (jsonConversionResult is error) {
-            retVal = {"Error" : <string>jsonConversionResult.detail().message};
+            retVal = {"Error" : string.create(jsonConversionResult.detail().message)};
         }
     } else if (tableOrError is error) {
-        retVal = {"Error" : <string>tableOrError.detail().message};
+        retVal = {"Error" : string.create(tableOrError.detail().message)};
     }
     return retVal;
 }

@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.util;
 
 import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 
 /**
@@ -42,18 +43,16 @@ public class Names {
     public static final Name INVALID = new Name("><");
     public static final Name GEN_VAR_PREFIX = new Name("_$$_");
     public static final Name DEFAULT_VERSION = new Name("0.0.0");
-    public static final Name CAST_OP = new Name("(<type>)");
+    public static final Name ASSERTION_OP = new Name("(<type>)");
     public static final Name CONVERSION_OP = new Name("<<type>>");
+    public static final Name SERVICE = new Name("service");
+    public static final Name ABSTRACT_LISTENER = new Name("AbstractListener");
     public static final Name ERROR = new Name("error");
     public static final Name INIT_FUNCTION_SUFFIX = new Name(".<init>");
     public static final Name START_FUNCTION_SUFFIX = new Name(".<start>");
     public static final Name STOP_FUNCTION_SUFFIX = new Name(".<stop>");
-    public static final Name TEST_INIT_FUNCTION_SUFFIX = new Name(".<testinit>");
-    public static final Name TEST_START_FUNCTION_SUFFIX = new Name(".<teststart>");
-    public static final Name TEST_STOP_FUNCTION_SUFFIX = new Name(".<teststop>");
-    public static final Name INIT_ACTION_SUFFIX = new Name("<init>");
     public static final Name SELF = new Name("self");
-    public static final Name OBJECT_INIT_SUFFIX = new Name("new");
+    public static final Name OBJECT_INIT_SUFFIX = new Name("__init");
     // TODO remove when current project name is read from manifest
     public static final Name ANON_ORG = new Name("$anon");
     public static final Name NIL_VALUE = new Name("()");
@@ -71,9 +70,6 @@ public class Names {
     public static final Name EP_SPI_GET_CALLER_ACTIONS = new Name("getCallerActions");
     public static final Name EP_SPI_START = new Name("start");
     public static final Name EP_SPI_STOP = new Name("stop");
-    // Todo - Remove
-    public static final Name ANNOTATION_FINAL = new Name("final");
-    public static final Name ANNOTATION_READONLY = new Name("readonly");
 
     public CompilerContext context;
 
@@ -108,6 +104,10 @@ public class Names {
 
     public Name fromTypeKind(TypeKind typeKind) {
         return fromString(typeKind.typeName());
+    }
+
+    public Name fromBuiltInMethod(BLangBuiltInMethod builtInMethod) {
+        return fromString(builtInMethod.getName());
     }
 
     public Name merge(Name... names) {

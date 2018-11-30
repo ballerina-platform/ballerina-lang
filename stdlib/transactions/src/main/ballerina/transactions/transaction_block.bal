@@ -31,23 +31,20 @@
 # + return - Newly created/existing TransactionContext for this transaction.
 function beginTransaction(string? transactionId, int transactionBlockId, string registerAtUrl,
                           string coordinationType) returns TransactionContext|error {
-    match transactionId {
-        string txnId => {
-            if (initiatedTransactions.hasKey(txnId)) { // if participant & initiator are in the same process
-                // we don't need to do a network call and can simply do a local function call
-                return registerLocalParticipantWithInitiator(txnId, transactionBlockId, registerAtUrl);
-            } else {
-                //TODO: set the proper protocol
-                string protocolName = PROTOCOL_DURABLE;
-                RemoteProtocol[] protocols = [{
-                    name:protocolName, url:getParticipantProtocolAt(protocolName, transactionBlockId)
-                }];
-                return registerParticipantWithRemoteInitiator(txnId, transactionBlockId, registerAtUrl, protocols);
-            }
+    if (transactionId is string) {
+        if (initiatedTransactions.hasKey(transactionId)) { // if participant & initiator are in the same process
+            // we don't need to do a network call and can simply do a local function call
+            return registerLocalParticipantWithInitiator(transactionId, transactionBlockId, registerAtUrl);
+        } else {
+            //TODO: set the proper protocol
+            string protocolName = PROTOCOL_DURABLE;
+            RemoteProtocol[] protocols = [{
+            name:protocolName, url:getParticipantProtocolAt(protocolName, transactionBlockId)
+            }];
+            return registerParticipantWithRemoteInitiator(transactionId, transactionBlockId, registerAtUrl, protocols);
         }
-        () => {
-            return createTransactionContext(coordinationType, transactionBlockId);
-        }
+    } else {
+        return createTransactionContext(coordinationType, transactionBlockId);
     }
 }
 
@@ -58,21 +55,22 @@ function beginTransaction(string? transactionId, int transactionBlockId, string 
 # + return - nil or error when transaction abortion is successful or not respectively.
 function abortTransaction(string transactionId, int transactionBlockId) returns error? {
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
-    match (participatedTransactions[participatedTxnId]) {
-        TwoPhaseCommitTransaction txn => {
-            return txn.markForAbortion();
+    var txn = participatedTransactions[participatedTxnId];
+    if (txn is TwoPhaseCommitTransaction) {
+        return txn.markForAbortion();
+    } else if (txn is ()) {
+        var initiatedTxn = initiatedTransactions[transactionId];
+        if (initiatedTxn is TwoPhaseCommitTransaction) {
+            return initiatedTxn.markForAbortion();
+        } else {
+            error err = error("Unknown transaction");
+            panic err;
         }
-        () => { 
-            match (initiatedTransactions[transactionId]) {
-                TwoPhaseCommitTransaction txn => {
-                    return txn.markForAbortion();
-                }
-                () => {
-                    error err = error("Unknown transaction");
-                    panic err;
-                }
-            }
-        }
+    } else {
+        // TODO: Ideally there shouldn't be an `else if` above but else. Once the limitations in type checking are fixed
+        // this `else` block should be removed and the above `else if` block should be replaced with an else.
+        error e = error("Unreachable code");
+        panic e;
     }
 }
 
@@ -94,19 +92,22 @@ function endTransaction(string transactionId, int transactionBlockId) returns st
     // Only the initiator can end the transaction. Here we check whether the entity trying to end the transaction is
     // an initiator or just a local participant
     if (!participatedTransactions.hasKey(participatedTxnId)) {
-        match (initiatedTransactions[transactionId]) {
-            () => {
-                return "";
+        var initiatedTxn = initiatedTransactions[transactionId];
+        if (initiatedTxn is ()) {
+            return "";
+        } else if (initiatedTxn is TwoPhaseCommitTransaction) {
+            if (initiatedTxn.state == TXN_STATE_ABORTED) {
+                return initiatedTxn.abortInitiatorTransaction();
+            } else {
+                string|error ret = initiatedTxn.twoPhaseCommit();
+                removeInitiatedTransaction(transactionId);
+                return ret;
             }
-            TwoPhaseCommitTransaction initiatedTxn => {
-                if (initiatedTxn.state == TXN_STATE_ABORTED) {
-                    return initiatedTxn.abortInitiatorTransaction();
-                } else {
-                    string|error ret = initiatedTxn.twoPhaseCommit();
-                    removeInitiatedTransaction(transactionId);
-                    return ret;
-                }
-            }
+        } else {
+            // TODO: Ideally there shouldn't be an `else if` above but `else`. Once the limitations in type checking are
+            // fixed this `else` block should be removed and the above `else if` block should be replaced with an else.
+            error e = error("Unreachable code");
+            panic e;
         }
     } else {
         return "";  // Nothing to do on endTransaction if you are a participant

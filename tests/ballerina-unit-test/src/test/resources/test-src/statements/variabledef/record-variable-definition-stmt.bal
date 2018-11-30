@@ -121,25 +121,25 @@ function getAgeRecord() returns Age {
     return a;
 }
 
-function testRestParameter() returns map {
+function testRestParameter() returns map<any> {
     PersonWithAge p = {name: "John", age: {age:30, format: "YY"}, married: true, work: "SE", other: getAgeRecord()};
     PersonWithAge {name, age: {age, format}, married, ...rest} = p;
     return rest;
 }
 
-function testNestedRestParameter() returns (map, map) {
+function testNestedRestParameter() returns (map<any>, map<any>) {
     PersonWithAge p = {name: "John", age: {age:30, format: "YY", year: 1990}, married: true, work: "SE"};
     PersonWithAge {name, age: {age, format, ...rest1}, married, ...rest2} = p;
     return (rest1, rest2);
 }
 
-function testVariableAssignment() returns (string, int, string, boolean, map) {
+function testVariableAssignment() returns (string, int, string, boolean, map<any>) {
     PersonWithAge person = {name: "Peter", age: {age:29, format: "Y"}, married: true, work: "SE"};
     var {name: fName, age: {age, format}, married, ...rest} = person;
     return (fName, age, format, married, rest);
 }
 
-function testVariableAssignment2() returns (string, int, string, boolean, map) {
+function testVariableAssignment2() returns (string, int, string, boolean, map<any>) {
     PersonWithAge person = {name: "Peter", age: {age:29, format: "Y"}, married: true, work: "SE"};
     var {name: fName, age: {age, format}, married, ...rest} = person;
     fName = "James";
@@ -177,7 +177,7 @@ type Child record {
     (int, Age) yearAndAge;
 };
 
-function testRecordInsideTupleInsideRecord() returns (string[], string, map) {
+function testRecordInsideTupleInsideRecord() returns (string[], string, map<any>) {
     (int, Age) yearAndAge1 = (1992, {age: 26, format: "Y"});
     (int, Age) yearAndAge2 = (1994, {age: 24, format: "X"});
     (int, Age) yearAndAge3 = (1996, {age: 22, format: "Z"});
@@ -203,7 +203,7 @@ function testRecordInsideTupleInsideRecord2() returns (string, int, int, string)
     return (name, yearInt, age, format);
 }
 
-function testRecordInsideTupleInsideRecordWithVar() returns (string[], string, map) {
+function testRecordInsideTupleInsideRecordWithVar() returns (string[], string, map<any>) {
     (int, Age) yearAndAge1 = (1992, {age: 26, format: "Y"});
     (int, Age) yearAndAge2 = (1994, {age: 24, format: "X"});
     (int, Age) yearAndAge3 = (1996, {age: 22, format: "Z"});
@@ -232,7 +232,7 @@ function testRecordInsideTupleInsideRecord2WithVar() returns (string, int, int, 
 type UnionOne record {
     boolean var1;
     int var2;
-    float var3;
+    float var3 = 0;
 };
 
 type UnionTwo record {

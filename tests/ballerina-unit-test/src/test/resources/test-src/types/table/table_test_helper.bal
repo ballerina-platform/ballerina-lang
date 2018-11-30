@@ -22,26 +22,22 @@ type ResultCount record {
 };
 
 function getTableCount(string tablePrefix) returns (int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new(<h2:InMemoryConfig>{
         name: "TABLEDB",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     sql:Parameter p1 = { sqlType: sql:TYPE_VARCHAR, value: tablePrefix };
 
     int count = 0;
     var dt = testDB->select("SELECT count(*) as count FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME
             like ?", ResultCount, p1);
-    if (dt is table) {
+    if (dt is table<ResultCount>) {
         while (dt.hasNext()) {
             var ret = <ResultCount>dt.getNext();
-            if (ret is ResultCount) {
-                count = ret.COUNTVAL;
-            } else if (ret is error) {
-                count = -1;
-            }
+            count = ret.COUNTVAL;
         }
     }
     testDB.stop();
@@ -49,23 +45,19 @@ function getTableCount(string tablePrefix) returns (int) {
 }
 
 function getSessionCount() returns (int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new(<h2:InMemoryConfig>{
         name: "TABLEDB",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     int count = 0;
     var dt = testDB->select("SELECT count(*) as count FROM information_schema.sessions", ResultCount);
-    if (dt is table) {
+    if (dt is table<ResultCount>) {
         while (dt.hasNext()) {
             var ret = <ResultCount>dt.getNext();
-            if (ret is ResultCount) {
-                count = ret.COUNTVAL;
-            } else if (ret is error) {
-                count = -1;
-            }
+            count = ret.COUNTVAL;
         }
     }
     testDB.stop();

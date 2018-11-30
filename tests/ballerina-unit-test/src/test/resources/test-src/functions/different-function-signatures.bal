@@ -145,7 +145,9 @@ public type Employee object {
     public string name = "";
     public int salary = 0;
 
-    new (name = "supun", salary = 100) {
+    function __init(string name = "supun", int salary = 100) {
+        self.name = name;
+        self.salary = salary;
     }
 
     public function getSalary (string n, int b = 0) returns int {

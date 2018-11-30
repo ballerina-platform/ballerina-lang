@@ -14,16 +14,15 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/grpc;
+import ballerina/io;
 
 function testEnum() returns (string) {
-    endpoint testEnumServiceBlockingClient blockingEp {
-        url:"http://localhost:8555"
-    };
+    testEnumServiceBlockingClient blockingEp = new ("http://localhost:8555");
 
     orderInfo orderReq = { id:"100500", mode:r };
     var addResponse = blockingEp->testEnum(orderReq);
     if (addResponse is error) {
-        return "Error from Connector: " + addResponse.reason();
+        return io:sprintf("Error from Connector: %s - %s", addResponse.reason(), <string>addResponse.detail().message);
     } else {
         string result = "";
         (result, _) = addResponse;
@@ -31,89 +30,55 @@ function testEnum() returns (string) {
     }
 }
 
-public type testEnumServiceBlockingStub object {
-    public grpc:Client clientEndpoint = new;
-    public grpc:Stub stub = new;
+public type testEnumServiceBlockingClient client object {
+    private grpc:Client grpcClient = new;
+    private grpc:ClientEndpointConfig config = {};
+    private string url;
 
-    function initStub (grpc:Client ep) {
-        grpc:Stub navStub = new;
-        error? result = navStub.initStub(ep, "blocking", DESCRIPTOR_KEY, descriptorMap);
+    function __init(string url, grpc:ClientEndpointConfig? config = ()) {
+        self.config = config ?: {};
+        self.url = url;
+        // initialize client endpoint.
+        grpc:Client c = new;
+        c.init(self.url, self.config);
+        error? result = c.initStub("blocking", DESCRIPTOR_KEY, getDescriptorMap());
         if (result is error) {
             panic result;
         } else {
-            self.stub = navStub;
+            self.grpcClient = c;
         }
     }
 
-    function testEnum (orderInfo req, grpc:Headers? headers = ()) returns ((string, grpc:Headers)|error) {
-        var unionResp = check self.stub.blockingExecute("grpcservices.testEnumService/testEnum", req, headers = headers);
+    remote function testEnum (orderInfo req, grpc:Headers? headers = ()) returns ((string, grpc:Headers)|error) {
+        var unionResp = check self.grpcClient->blockingExecute("grpcservices.testEnumService/testEnum", req, headers = headers);
         grpc:Headers resHeaders = new;
         any result = ();
         (result, resHeaders) = unionResp;
-        return (<string>result, resHeaders);
+        return (string.create(result), resHeaders);
     }
-
 };
 
-public type testEnumServiceStub object {
-    public grpc:Client clientEndpoint = new;
-    public grpc:Stub stub = new;
+public type testEnumServiceClient client object {
+    private grpc:Client grpcClient = new;
+    private grpc:ClientEndpointConfig config = {};
+    private string url;
 
-    function initStub (grpc:Client ep) {
-        grpc:Stub navStub = new;
-        error? result = navStub.initStub(ep, "non-blocking", DESCRIPTOR_KEY, descriptorMap);
+    function __init(string url, grpc:ClientEndpointConfig? config = ()) {
+        self.config = config ?: {};
+        self.url = url;
+        // initialize client endpoint.
+        grpc:Client c = new;
+        c.init(self.url, self.config);
+        error? result = c.initStub("non-blocking", DESCRIPTOR_KEY, getDescriptorMap());
         if (result is error) {
             panic result;
         } else {
-            self.stub = navStub;
+            self.grpcClient = c;
         }
     }
 
-    function testEnum (orderInfo req, typedesc listener, grpc:Headers? headers = ()) returns (error?) {
-
-        return self.stub.nonBlockingExecute("grpcservices.testEnumService/testEnum", req, listener, headers = headers);
-    }
-
-};
-
-
-public type testEnumServiceBlockingClient object {
-    public grpc:Client client = new;
-    public testEnumServiceBlockingStub stub = new;
-
-    public function init (grpc:ClientEndpointConfig config) {
-        // initialize client endpoint.
-        grpc:Client c = new;
-        c.init(config);
-        self.client = c;
-        // initialize service stub.
-        testEnumServiceBlockingStub s = new;
-        s.initStub(c);
-        self.stub = s;
-    }
-
-    public function getCallerActions () returns testEnumServiceBlockingStub {
-        return self.stub;
-    }
-};
-
-public type testEnumServiceClient object {
-    public grpc:Client client = new;
-    public testEnumServiceStub stub = new;
-
-    public function init (grpc:ClientEndpointConfig config) {
-        // initialize client endpoint.
-        grpc:Client c = new;
-        c.init(config);
-        self.client = c;
-        // initialize service stub.
-        testEnumServiceStub s = new;
-        s.initStub(c);
-        self.stub = s;
-    }
-
-    public function getCallerActions () returns testEnumServiceStub {
-        return self.stub;
+    remote function testEnum (orderInfo req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
+        return self.grpcClient->nonBlockingExecute("grpcservices.testEnumService/testEnum", req, msgListener, headers = headers);
     }
 };
 
@@ -124,13 +89,17 @@ type orderInfo record {
 
 };
 
-public type Mode "r";
+public type Mode r;
 
-@final public Mode r = "r";
+public const r = "r";
 
-@final string DESCRIPTOR_KEY = "testEnumService.proto";
-map descriptorMap = {
-    "testEnumService.proto":"0A1574657374456E756D536572766963652E70726F746F120C6772706373657276696365731A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F22430A096F72646572496E666F120E0A0269641801200128095202696412260A046D6F646518022001280E32122E6772706373657276696365732E4D6F646552046D6F64652A0D0A044D6F646512050A0172100032540A0F74657374456E756D5365727669636512410A0874657374456E756D12172E6772706373657276696365732E6F72646572496E666F1A1C2E676F6F676C652E70726F746F6275662E537472696E6756616C7565620670726F746F33",
-    "google/protobuf/wrappers.proto":"0A0E77726170706572732E70726F746F120F676F6F676C652E70726F746F62756622230A0B446F75626C6556616C756512140A0576616C7565180120012801520576616C756522220A0A466C6F617456616C756512140A0576616C7565180120012802520576616C756522220A0A496E74363456616C756512140A0576616C7565180120012803520576616C756522230A0B55496E74363456616C756512140A0576616C7565180120012804520576616C756522220A0A496E74333256616C756512140A0576616C7565180120012805520576616C756522230A0B55496E74333256616C756512140A0576616C756518012001280D520576616C756522210A09426F6F6C56616C756512140A0576616C7565180120012808520576616C756522230A0B537472696E6756616C756512140A0576616C7565180120012809520576616C756522220A0A427974657356616C756512140A0576616C756518012001280C520576616C756542570A13636F6D2E676F6F676C652E70726F746F627566420D577261707065727350726F746F50015A057479706573F80101A20203475042AA021E476F6F676C652E50726F746F6275662E57656C6C4B6E6F776E5479706573620670726F746F33"
-
-};
+const string DESCRIPTOR_KEY = "testEnumService.proto";
+function getDescriptorMap() returns map<any> {
+    return {
+        "testEnumService.proto":
+        "0A1574657374456E756D536572766963652E70726F746F120C6772706373657276696365731A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F22430A096F72646572496E666F120E0A0269641801200128095202696412260A046D6F646518022001280E32122E6772706373657276696365732E4D6F646552046D6F64652A0D0A044D6F646512050A0172100032540A0F74657374456E756D5365727669636512410A0874657374456E756D12172E6772706373657276696365732E6F72646572496E666F1A1C2E676F6F676C652E70726F746F6275662E537472696E6756616C7565620670726F746F33"
+        ,
+        "google/protobuf/wrappers.proto":
+        "0A0E77726170706572732E70726F746F120F676F6F676C652E70726F746F62756622230A0B446F75626C6556616C756512140A0576616C7565180120012801520576616C756522220A0A466C6F617456616C756512140A0576616C7565180120012802520576616C756522220A0A496E74363456616C756512140A0576616C7565180120012803520576616C756522230A0B55496E74363456616C756512140A0576616C7565180120012804520576616C756522220A0A496E74333256616C756512140A0576616C7565180120012805520576616C756522230A0B55496E74333256616C756512140A0576616C756518012001280D520576616C756522210A09426F6F6C56616C756512140A0576616C7565180120012808520576616C756522230A0B537472696E6756616C756512140A0576616C7565180120012809520576616C756522220A0A427974657356616C756512140A0576616C756518012001280C520576616C756542570A13636F6D2E676F6F676C652E70726F746F627566420D577261707065727350726F746F50015A057479706573F80101A20203475042AA021E476F6F676C652E50726F746F6275662E57656C6C4B6E6F776E5479706573620670726F746F33"
+    };
+}

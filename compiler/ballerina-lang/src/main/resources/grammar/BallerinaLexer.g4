@@ -17,6 +17,7 @@ AS          : 'as' ;
 PUBLIC      : 'public' ;
 PRIVATE     : 'private' ;
 EXTERN      : 'extern' ;
+FINAL       : 'final' ;
 SERVICE     : 'service' ;
 RESOURCE    : 'resource' ;
 FUNCTION    : 'function' ;
@@ -26,14 +27,15 @@ ANNOTATION  : 'annotation' ;
 PARAMETER   : 'parameter' ;
 TRANSFORMER : 'transformer' ;
 WORKER      : 'worker' ;
-ENDPOINT    : 'endpoint' ;
-BIND        : 'bind' ;
+LISTENER    : 'listener' ;
+REMOTE      : 'remote' ;
 XMLNS       : 'xmlns' ;
 RETURNS     : 'returns';
 VERSION     : 'version';
 DEPRECATED  : 'deprecated';
 CHANNEL     : 'channel';
 ABSTRACT    : 'abstract';
+CLIENT      : 'client';
 CONST       : 'const';
 
 FROM        : 'from' { inTableSqlQuery = true; inSiddhiInsertQuery = true; inSiddhiOutputRateLimit = true; } ;
@@ -103,6 +105,7 @@ TYPE_ANYDATA    : 'anydata' ;
 
 VAR         : 'var' ;
 NEW         : 'new' ;
+OBJECT_INIT : '__init' ;
 IF          : 'if' ;
 MATCH       : 'match' ;
 ELSE        : 'else' ;
@@ -135,15 +138,13 @@ IN          : 'in' ;
 LOCK        : 'lock' ;
 UNTAINT     : 'untaint' ;
 START       : 'start' ;
-AWAIT       : 'await' ;
 BUT         : 'but' ;
 CHECK       : 'check' ;
 DONE        : 'done' ;
-SCOPE       : 'scope';
-COMPENSATION: 'compensation';
-COMPENSATE  : 'compensate' ;
 PRIMARYKEY  : 'primarykey' ;
 IS          : 'is' ;
+FLUSH       : 'flush' ;
+WAIT        : 'wait' ;
 
 // Separators
 
@@ -204,7 +205,7 @@ ELLIPSIS    : '...' ;
 PIPE        : '|' ;
 EQUAL_GT    : '=>' ;
 ELVIS       : '?:' ;
-
+SYNCRARROW      : '->>' ;
 
 // Compound Assignment operators.
 
@@ -536,7 +537,7 @@ VARIABLE    : 'variable';
 MODULE      : 'module';
 
 ReferenceType
-    :   TYPE|ENDPOINT|SERVICE|VARIABLE|VAR|ANNOTATION|MODULE|FUNCTION|PARAMETER
+    :   TYPE|SERVICE|VARIABLE|VAR|ANNOTATION|MODULE|FUNCTION|PARAMETER
     ;
 
 DocumentationText

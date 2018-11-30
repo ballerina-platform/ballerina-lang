@@ -28,14 +28,12 @@ public class SymTag {
     public static final int VARIABLE = 1 << 2 | VARIABLE_NAME;
     public static final int STRUCT = 1 << 3 | TYPE | VARIABLE_NAME;
     public static final int ERROR = 1 << 4 | TYPE | VARIABLE_NAME;
-    public static final int SERVICE = 1 << 5 | TYPE | VARIABLE_NAME;
+    public static final int SERVICE = 1 << 5 | TYPE | VARIABLE | VARIABLE_NAME;
     public static final int INVOKABLE = 1 << 6;
     public static final int FUNCTION = 1 << 7 | INVOKABLE | VARIABLE;
-    public static final int ACTION = 1 << 8 | INVOKABLE;
-    public static final int RESOURCE = 1 << 9 | INVOKABLE;
     public static final int WORKER = 1 << 10 | INVOKABLE;
     public static final int ANNOTATION = 1 << 11;
-    public static final int ANNOTATION_ATTRIBUTE = 1 << 12;
+    public static final int LISTENER = 1 << 12;
     public static final int IMPORT = 1 << 13;
     public static final int PACKAGE = 1 << 14 | IMPORT;
     public static final int XMLNS = 1 << 15 | IMPORT;

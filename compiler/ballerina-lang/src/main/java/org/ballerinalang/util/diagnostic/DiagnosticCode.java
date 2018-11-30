@@ -75,6 +75,7 @@ public enum DiagnosticCode {
     INCOMPATIBLE_TYPE_CONSTRAINT("incompatible.type.constraint"),
     WORKER_SEND_RECEIVE_PARAMETER_COUNT_MISMATCH("worker.send.receive.parameter.count.mismatch"),
     INVALID_WORKER_INTERACTION("worker.invalid.worker.interaction"),
+    WORKER_AFTER_RETURN("worker.after.return"),
     INVALID_MULTIPLE_FORK_JOIN_SEND("worker.multiple.fork.join.send"),
     INCOMPATIBLE_TYPE_REFERENCE("incompatible.type.reference"),
     INCOMPATIBLE_RECORD_TYPE_REFERENCE("incompatible.record.type.reference"),
@@ -122,11 +123,23 @@ public enum DiagnosticCode {
     ENDPOINT_INVALID_TYPE_NO_FUNCTION("endpoint.invalid.type.no.function"),
     ENDPOINT_SPI_INVALID_FUNCTION("endpoint.spi.invalid.function"),
 
-    ENDPOINT_NOT_SUPPORT_INTERACTIONS("endpoint.not.support.interactions"),
+    CLIENT_HAS_NO_REMOTE_FUNCTION("client.has.no.remote.function"),
+    REMOTE_FUNCTION_IN_NON_CLIENT_OBJECT("remote.function.in.non.client.object"),
+    RESOURCE_FUNCTION_IN_NON_SERVICE_OBJECT("resource.function.in.non.service.object"),
+    REMOTE_IN_NON_OBJECT_FUNCTION("remote.in.non.object.function"),
+    REMOTE_ON_NON_REMOTE_FUNCTION("remote.on.non.remote.function"),
+    REMOTE_REQUIRED_ON_REMOTE_FUNCTION("remote.required.on.remote.function"),
+    INVALID_ENDPOINT_DECLARATION("invalid.endpoint.declaration"),
+    INVALID_LISTENER_VARIABLE("invalid.listener.var"),
+
     ENDPOINT_NOT_SUPPORT_REGISTRATION("endpoint.not.support.registration"),
     INVALID_ACTION_INVOCATION_SYNTAX("invalid.action.invocation.syntax"),
+    INVALID_RESOURCE_FUNCTION_INVOCATION("invalid.resource.function.invocation"),
     INVALID_ACTION_INVOCATION("invalid.action.invocation"),
     UNDEFINED_ACTION("undefined.action"),
+
+    TYPE_ASSERTION_NOT_YET_SUPPORTED("type.assertion.not.yet.supported.for.type"),
+    INVALID_EXPLICIT_TYPE_FOR_EXPRESSION("invalid.explicit.type.for.expression"),
 
     // Cast and conversion related codes
     INCOMPATIBLE_TYPES_CAST("incompatible.types.cast"),
@@ -229,6 +242,7 @@ public enum DiagnosticCode {
     UNDEFINED_ANNOTATION("undefined.annotation"),
     ANNOTATION_NOT_ALLOWED("annotation.not.allowed"),
     ANNOTATION_ATTACHMENT_NO_VALUE("annotation.attachment.no.value"),
+    ANNOTATION_REQUIRE_RECORD("annotation.require.record"),
     INCOMPATIBLE_TYPES_ARRAY_FOUND("incompatible.types.array.found"),
     CANNOT_GET_ALL_FIELDS("cannot.get.all.fields"),
 
@@ -336,10 +350,19 @@ public enum DiagnosticCode {
     // Dataflow analysis related error codes
     PARTIALLY_INITIALIZED_VARIABLE("partially.initialized.variable"),
 
+    CANNOT_INFER_ERROR_TYPE("cannot.infer.error.type"),
+
     // Seal inbuilt function related codes
     INCOMPATIBLE_STAMP_TYPE("incompatible.stamp.type"),
-    NOT_SUPPORTED_SOURCE_TYPE_FOR_STAMP("not.supported.source.for.stamp")
-    ;
+    NOT_SUPPORTED_SOURCE_TYPE_FOR_STAMP("not.supported.source.for.stamp"),
+
+    // Worker flush action related error codes
+    INVALID_WORKER_FLUSH("invalid.worker.flush.expression"),
+    INVALID_WORKER_FLUSH_FOR_WORKER("invalid.worker.flush.expression.for.worker"),
+
+    // Worker receive and send related error codes
+    INVALID_TYPE_FOR_RECEIVE("invalid.type.for.receive"),
+    INVALID_TYPE_FOR_SEND("invalid.type.for.send");
 
     private String value;
 

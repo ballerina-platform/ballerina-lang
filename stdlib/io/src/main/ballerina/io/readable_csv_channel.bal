@@ -23,7 +23,7 @@ public type ReadableCSVChannel object {
     # + byteChannel - ChracterChannel which will represent the content in the CSV
     # + fs - Field separator which will separate between the records in the CSV
     # + nHeaders - Number of headers which should be skipped prior to reading records
-    public new(ReadableCharacterChannel byteChannel, Separator fs = ",", int nHeaders = 0) {
+    public function __init(ReadableCharacterChannel byteChannel, Separator fs = ",", int nHeaders = 0) {
         if (fs == TAB) {
             self.dc = new ReadableTextRecordChannel(byteChannel, fmt = "TDF");
         } else if (fs == COLON) {
@@ -76,5 +76,5 @@ public type ReadableCSVChannel object {
     #
     # + structType - The object the CSV records should be deserialized
     # + return - Table which represents CSV records or error
-    public extern function getTable(typedesc structType) returns @tainted table|error;
+    public extern function getTable(typedesc structType) returns @tainted table<record {}>|error;
 };

@@ -31,6 +31,7 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BXML;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -81,6 +82,17 @@ public class AnydataTest {
         BMap closedFoo = (BMap) returns[1];
         assertEquals(closedFoo.getType().getName(), "ClosedFoo");
         assertEquals(((BInteger) closedFoo.get("ca")).intValue(), 35);
+    }
+
+    @Test(description = "Test cyclic record types assignment")
+    public void testCyclicRecordAssignment() {
+        BValue[] returns = BRunUtil.invoke(result, "testCyclicRecordAssignment");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BMap<?, ?>);
+        BMap bMap = (BMap) returns[0];
+        Assert.assertEquals(bMap.get("name").stringValue(), "Child");
+        Assert.assertEquals(((BInteger) bMap.get("age")).intValue(), 25);
+        Assert.assertEquals(((BMap) bMap.get("parent")).get("name").stringValue(), "Parent");
     }
 
     @Test(description = "Test XML assignment")
@@ -317,8 +329,8 @@ public class AnydataTest {
         BValue[] returns = BRunUtil.invokeFunction(result, "testAnydataToTuple3");
         assertEquals(returns[0].getType().getTag(), TypeTags.TUPLE_TAG);
         assertEquals(returns[0].getType().toString(),
-                     "((int|float|string|boolean|byte|table|json|xml|ClosedFoo|Foo|map<anydata>|anydata[][]|null," +
-                             "string),int,float)");
+                     "((int|float|string|boolean|byte|table<any>|json|xml|ClosedFoo|Foo|map<anydata>|anydata" +
+                             "[][]|null,string),int,float)");
         assertEquals(returns[0].stringValue(), "(([{\"name\":\"apple\", \"color\":\"red\", \"price\":40}, <book>The " +
                 "Lost World</book>], \"hello world!\"), 123, 23.45)");
     }

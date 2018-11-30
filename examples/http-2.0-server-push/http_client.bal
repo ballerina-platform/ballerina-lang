@@ -2,12 +2,8 @@ import ballerina/http;
 import ballerina/log;
 
 // Create an HTTP client endpoint that can send HTTP/2 messages.
-endpoint http:Client clientEP {
-    url: "http://localhost:7090",
-    // HTTP version is set to 2.0.
-    httpVersion: "2.0"
-
-};
+// HTTP version is set to 2.0.
+http:Client clientEP = new("http://localhost:7090", config = { httpVersion: "2.0" });
 
 public function main() {
 
@@ -16,15 +12,12 @@ public function main() {
     // Submit a request.
     var submissionResult = clientEP->submit("GET", "/http2Service", serviceReq);
 
-    match submissionResult {
-        http:HttpFuture resultantFuture => {
-            httpFuture = resultantFuture;
-        }
-        error resultantErr => {
-            log:printError("Error occurred while submitting a request",
-                            err = resultantErr);
-            return;
-        }
+    if (submissionResult is http:HttpFuture) {
+        httpFuture = submissionResult;
+    } else {
+        log:printError("Error occurred while submitting a request",
+            err = submissionResult);
+        return;
     }
 
     http:PushPromise[] promises = [];
@@ -37,15 +30,12 @@ public function main() {
         // Get the next promise.
         var nextPromiseResult = clientEP->getNextPromise(httpFuture);
 
-        match nextPromiseResult {
-            http:PushPromise resultantPushPromise => {
-                pushPromise = resultantPushPromise;
-            }
-            error resultantErr => {
-                log:printError("Error occurred while fetching a push promise",
-                                err = resultantErr);
-                return;
-            }
+        if (nextPromiseResult is http:PushPromise) {
+            pushPromise = nextPromiseResult;
+        } else {
+            log:printError("Error occurred while fetching a push promise",
+                err = nextPromiseResult);
+            return;
         }
         log:printInfo("Received a promise for " + pushPromise.path);
 
@@ -68,47 +58,39 @@ public function main() {
     // Get the requested resource.
     var result = clientEP->getResponse(httpFuture);
 
-    match result {
-        http:Response resultantResponse => {
-            response = resultantResponse;
-        }
-        error resultantErr => {
-            log:printError("Error occurred while fetching response",
-                            err = resultantErr);
-            return;
-        }
+    if (result is http:Response) {
+        response = result;
+    } else {
+        log:printError("Error occurred while fetching response",
+            err = result);
+        return;
     }
 
     var responsePayload = response.getJsonPayload();
-    match responsePayload {
-        json resultantJsonPayload =>
-              log:printInfo("Response : " + resultantJsonPayload.toString());
-        error e =>
-              log:printError("Expected response payload not received", err = e);
+    if (responsePayload is json) {
+        log:printInfo("Response : " + responsePayload.toString());
+    } else {
+        log:printError("Expected response payload not received",
+          err = responsePayload);
     }
 
     // Fetch required promise responses.
     foreach promise in promises {
         http:Response promisedResponse = new;
         var promisedResponseResult = clientEP->getPromisedResponse(promise);
-        match promisedResponseResult {
-            http:Response resultantPromisedResponse => {
-                promisedResponse = resultantPromisedResponse;
-            }
-            error resultantErr => {
-                log:printError("Error occurred while fetching promised response",
-                                err = resultantErr);
-                return;
-            }
+        if (promisedResponseResult is http:Response) {
+            promisedResponse = promisedResponseResult;
+        } else {
+            log:printError("Error occurred while fetching promised response",
+                err = promisedResponseResult);
+            return;
         }
         var promisedPayload = promisedResponse.getJsonPayload();
-        match promisedPayload {
-            json promisedJsonPayload =>
-                       log:printInfo("Promised resource : " +
-                                      promisedJsonPayload.toString());
-            error e =>
-                  log:printError("Expected promised response payload not received",
-                                  err = e);
+        if (promisedPayload is json) {
+            log:printInfo("Promised resource : " + promisedPayload.toString());
+        } else {
+            log:printError("Expected promised response payload not received",
+                err = promisedPayload);
         }
     }
 

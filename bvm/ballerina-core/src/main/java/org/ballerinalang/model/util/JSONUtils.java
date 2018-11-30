@@ -23,7 +23,7 @@ import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.OMText;
-import org.ballerinalang.bre.bvm.CPU;
+import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.model.TableJSONDataSource;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BField;
@@ -250,7 +250,7 @@ public class JSONUtils {
                 populateJSON(json, key, value, BTypes.typeJSON);
             }
         } else {
-            if (!CPU.checkCast(map, targetType.getConstrainedType())) {
+            if (!BVM.checkCast(map, targetType.getConstrainedType())) {
                 throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
                         targetType, map.getType());
             }
@@ -415,7 +415,7 @@ public class JSONUtils {
 
         BArrayType jsonArray = (BArrayType) json.getType();
         BType elementType = jsonArray.getElementType();
-        if (!CPU.checkCast(element, elementType)) {
+        if (!BVM.checkCast(element, elementType)) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
                     elementType, (element != null) ? element.getType() : BTypes.typeNull);
         }
@@ -723,7 +723,7 @@ public class JSONUtils {
             case TypeTags.BOOLEAN_TAG:
                 return jsonNodeToBool(jsonValue);
             case TypeTags.JSON_TAG:
-                if (jsonValue != null && !CPU.checkCast(jsonValue, targetType)) {
+                if (jsonValue != null && !BVM.checkCast(jsonValue, targetType)) {
                     throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
                             targetType, getTypeName(jsonValue));
                 }

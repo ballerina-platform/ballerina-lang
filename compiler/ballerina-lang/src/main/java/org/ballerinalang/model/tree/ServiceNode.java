@@ -17,16 +17,14 @@
 */
 package org.ballerinalang.model.tree;
 
-import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
-import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
-import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
-import org.ballerinalang.model.tree.statements.XMLNSDeclStatementNode;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
 
 import java.util.List;
 
 /**
  * @since 0.94
+ *
  */
 public interface ServiceNode extends AnnotatableNode, DocumentableNode, TopLevelNode {
     
@@ -34,34 +32,14 @@ public interface ServiceNode extends AnnotatableNode, DocumentableNode, TopLevel
     
     void setName(IdentifierNode name);
 
-    UserDefinedTypeNode getServiceTypeStruct();
+    List<? extends FunctionNode> getResources();
 
-    void setServiceTypeStruct(UserDefinedTypeNode endpointType);
+    boolean isAnonymousService();
 
-    List<? extends VariableDefinitionNode> getVariables();
-    
-    void addVariable(VariableDefinitionNode var);
+    ExpressionNode getAttachExpr();
 
-    List<? extends ResourceNode> getResources();
-    
-    void addResource(ResourceNode resource);
+    UserDefinedTypeNode getUserDefinedTypeNode();
 
-    List<? extends EndpointNode> getEndpointNodes();
-
-    void setInitFunction(FunctionNode function);
-
-    FunctionNode getInitFunction();
-
-    void bindToEndpoint(SimpleVariableReferenceNode endpointRef);
-
-    List<? extends SimpleVariableReferenceNode> getBoundEndpoints();
-
-    RecordLiteralNode getAnonymousEndpointBind();
-
-    void addAnonymousEndpointBind(RecordLiteralNode recordLiteralNode);
-
-    List<? extends XMLNSDeclStatementNode> getNamespaceDeclarations();
-    
-    void addNamespaceDeclaration(XMLNSDeclStatementNode xmlns);
+    TypeDefinition getTypeDefinition();
 
 }

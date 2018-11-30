@@ -42,6 +42,3 @@ function Person.getNameWrapperOutside1() returns string {
 function Person.getNameWrapperOutside2() returns string {
     return self.getNameOut();
 }
-
-
-

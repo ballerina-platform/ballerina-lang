@@ -9,7 +9,3 @@ type Person object {
     public int age = 0;
     public string name = "";
 };
-
-
-
-

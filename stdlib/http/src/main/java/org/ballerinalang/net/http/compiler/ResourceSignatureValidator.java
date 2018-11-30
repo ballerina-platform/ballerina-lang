@@ -1,7 +1,7 @@
 package org.ballerinalang.net.http.compiler;
 
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
-import org.ballerinalang.model.tree.ResourceNode;
+import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -13,9 +13,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.ballerinalang.net.http.HttpConstants.ANN_NAME_RESOURCE_CONFIG;
+import static org.ballerinalang.net.http.HttpConstants.CALLER;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_LISTENER_ENDPOINT;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
-import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT;
 
 /**
  * A utility class for validating an HTTP resource signature at compile time.
@@ -26,7 +27,8 @@ public class ResourceSignatureValidator {
 
     public static final int COMPULSORY_PARAM_COUNT = 2;
 
-    private static final String ENDPOINT_TYPE = PROTOCOL_PACKAGE_HTTP + ":" + SERVICE_ENDPOINT;
+    private static final String ENDPOINT_TYPE = PROTOCOL_PACKAGE_HTTP + ":" + HTTP_LISTENER_ENDPOINT;
+    private static final String CALLER_TYPE = PROTOCOL_PACKAGE_HTTP + ":" + CALLER;
     private static final String HTTP_REQUEST_TYPE = PROTOCOL_PACKAGE_HTTP + ":" + REQUEST;
 
     public static void validate(List<BLangSimpleVariable> signatureParams, DiagnosticLog dlog, DiagnosticPos pos) {
@@ -37,8 +39,8 @@ public class ResourceSignatureValidator {
             return;
         }
 
-        if (!isValidResourceParam(signatureParams.get(0), ENDPOINT_TYPE)) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, pos, "first parameter should be of type " + ENDPOINT_TYPE);
+        if (!isValidResourceParam(signatureParams.get(0), CALLER_TYPE)) {
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, pos, "first parameter should be of type " + CALLER_TYPE);
             return;
         }
 
@@ -53,7 +55,7 @@ public class ResourceSignatureValidator {
 
     @SuppressWarnings("unchecked")
 
-    public static void validateAnnotation(ResourceNode resourceNode, DiagnosticLog dlog) {
+    public static void validateAnnotation(FunctionNode resourceNode, DiagnosticLog dlog) {
         List<AnnotationAttachmentNode> annotations =
                 (List<AnnotationAttachmentNode>) resourceNode.getAnnotationAttachments();
         List<BLangRecordLiteral.BLangRecordKeyValue> annVals = new ArrayList<>();

@@ -1,5 +1,5 @@
 function makeChild(boolean stone, boolean value) returns (boolean) {
-    boolean result;
+    boolean result = false;
     // stone and valuable
     if (stone && value) {
         result = true;

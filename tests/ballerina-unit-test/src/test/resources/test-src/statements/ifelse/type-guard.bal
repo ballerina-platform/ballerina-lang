@@ -204,3 +204,39 @@ function testTypeGuardInElse_4() returns string {
 
     return val;
 }
+
+function testTypeGuardInElse_5() returns string {
+    int|string|float|boolean x = 5;
+    if (x is int|string) {
+        if (x is string) {
+            return "x is string: " + x;
+        } else if (x is int) {
+            int i = x;
+            return "x is int: " + <string> i;
+        } else {
+            return "x is int|string";
+        }
+    } else if (x is string) {
+        return "string: " + x;
+    } else if (x is float) {
+        float f = x;
+        return "float: " + <string> f;
+    } else {
+        return "x is boolean: " + <string> x;
+    }
+}
+
+function testComplexTernary_1() returns string {
+    int|string|float|boolean|int[] x = "string";
+    return x is int ? "int" : (x is float ? "float" : (x is boolean ? "boolean" : (x is int[] ? "int[]" : x)));
+}
+
+function testComplexTernary_2() returns string {
+    int|string|float|boolean|xml x = "string";
+    if (x is int|string|float|boolean) {
+        return x is int ? "int" : (x is float ? "float" : (x is boolean ? "boolean" : x));
+    } else {
+        xml y = x;
+        return "xml";
+    }
+}

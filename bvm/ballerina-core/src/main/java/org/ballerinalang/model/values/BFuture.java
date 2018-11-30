@@ -17,13 +17,13 @@
 */
 package org.ballerinalang.model.values;
 
-import org.ballerinalang.bre.bvm.WorkerResponseContext;
+import org.ballerinalang.bre.bvm.Strand;
 import org.ballerinalang.model.types.BType;
 
 /**
  * Ballerina base value for the "future" type.
  */
-public interface BFuture extends BRefType<WorkerResponseContext> {
+public interface BFuture extends BRefType<Strand> {
 
     /**
      * Cancels the current future, if its possible to do so.

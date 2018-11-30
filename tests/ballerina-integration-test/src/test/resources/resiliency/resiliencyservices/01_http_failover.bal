@@ -21,17 +21,13 @@ import ballerina/io;
 import ballerina/mime;
 import ballerina/runtime;
 
-endpoint http:Listener failoverEP00 {
-    port:9300
-};
+listener http:Listener failoverEP00 = new(9300);
 
 // Create an endpoint with port 8080 for the mock backend services.
-endpoint http:Listener backendEP00 {
-    port: 8080
-};
+listener http:Listener backendEP00 = new(8080);
 
 // Define the failover client end point to call the backend services.
-endpoint http:FailoverClient foBackendEP00 {
+http:FailoverClient foBackendEP00 = new({
     timeoutMillis: 5000,
     failoverCodes: [501, 502, 503],
     intervalMillis: 5000,
@@ -42,10 +38,9 @@ endpoint http:FailoverClient foBackendEP00 {
         { url: "http://localhost:8080/mock" },
         { url: "http://localhost:8080/mock" }
     ]
+});
 
-};
-
-endpoint http:FailoverClient foBackendFailureEP00 {
+http:FailoverClient foBackendFailureEP00 = new({
     timeoutMillis: 5000,
     failoverCodes: [501, 502, 503],
     intervalMillis: 5000,
@@ -55,10 +50,9 @@ endpoint http:FailoverClient foBackendFailureEP00 {
         { url: "http://localhost:8080/echo" },
         { url: "http://localhost:8080/echo" }
     ]
+});
 
-};
-
-endpoint http:FailoverClient foStatusCodesEP00 {
+http:FailoverClient foStatusCodesEP00 = new({
     timeoutMillis: 5000,
     failoverCodes: [501, 502, 503],
     intervalMillis: 5000,
@@ -68,18 +62,17 @@ endpoint http:FailoverClient foStatusCodesEP00 {
         { url: "http://localhost:8080/statuscodes" },
         { url: "http://localhost:8080/statuscodes" }
     ]
-
-};
+});
 
 @http:ServiceConfig {
     basePath: "/fo"
 }
-service<http:Service> failoverDemoService00 bind failoverEP00 {
+service failoverDemoService00 on failoverEP00 {
     @http:ResourceConfig {
         methods: ["GET", "POST"],
         path: "/typical"
     }
-    invokeEndpoint(endpoint caller, http:Request request) {
+    resource function invokeEndpoint(http:Caller caller, http:Request request) {
         var backendRes = foBackendEP00->forward("/", request);
         if (backendRes is http:Response) {
             var responseToCaller = caller->respond(backendRes);
@@ -101,7 +94,7 @@ service<http:Service> failoverDemoService00 bind failoverEP00 {
         methods: ["GET", "POST"],
         path: "/failures"
     }
-    invokeAllFailureEndpoint(endpoint caller, http:Request request) {
+    resource function invokeAllFailureEndpoint(http:Caller caller, http:Request request) {
         var backendRes = foBackendFailureEP00->forward("/", request);
         if (backendRes is http:Response) {
             var responseToCaller = caller->respond(backendRes);
@@ -123,7 +116,7 @@ service<http:Service> failoverDemoService00 bind failoverEP00 {
         methods: ["GET", "POST"],
         path: "/failurecodes"
     }
-    invokeAllFailureStatusCodesEndpoint(endpoint caller, http:Request request) {
+    resource function invokeAllFailureStatusCodesEndpoint(http:Caller caller, http:Request request) {
         var backendRes = foStatusCodesEP00->forward("/", request);
         if (backendRes is http:Response) {
             var responseToCaller = caller->respond(backendRes);
@@ -145,9 +138,8 @@ service<http:Service> failoverDemoService00 bind failoverEP00 {
         methods: ["GET", "POST"],
         path: "/index"
     }
-    failoverStartIndex(endpoint caller, http:Request request) {
-        http:FailoverActions foClient = foBackendEP00.getCallerActions();
-        string startIndex = <string> foClient.succeededEndpointIndex;
+    resource function failoverStartIndex(http:Caller caller, http:Request request) {
+        string startIndex = <string> foBackendEP00.succeededEndpointIndex;
         var backendRes = foBackendEP00->forward("/", request);
         if (backendRes is http:Response) {
             string responseMessage = "Failover start index is : " + startIndex;
@@ -171,12 +163,12 @@ service<http:Service> failoverDemoService00 bind failoverEP00 {
 @http:ServiceConfig {
     basePath: "/echo"
 }
-service echo00 bind backendEP00 {
+service echo00 on backendEP00 {
     @http:ResourceConfig {
         methods: ["POST", "PUT", "GET"],
         path: "/"
     }
-    echoResource(endpoint caller, http:Request req) {
+    resource function echoResource(http:Caller caller, http:Request req) {
         http:Response outResponse = new;
         // Delay the response for 30000 milliseconds to mimic network level delays.
         runtime:sleep(30000);
@@ -192,12 +184,12 @@ public int counter00 = 1;
 @http:ServiceConfig {
     basePath: "/mock"
 }
-service mock00 bind backendEP00 {
+service mock00 on backendEP00 {
     @http:ResourceConfig {
         methods: ["POST", "PUT", "GET"],
         path: "/"
     }
-    mockResource(endpoint caller, http:Request req) {
+    resource function mockResource(http:Caller caller, http:Request req) {
         counter00 += 1;
         if (counter00 % 5 == 0) {
             runtime:sleep(30000);
@@ -249,12 +241,12 @@ service mock00 bind backendEP00 {
 @http:ServiceConfig {
     basePath: "/statuscodes"
 }
-service failureStatusCodeService00 bind backendEP00 {
+service failureStatusCodeService00 on backendEP00 {
     @http:ResourceConfig {
         methods: ["POST", "PUT", "GET"],
         path: "/"
     }
-    errorStatusResource(endpoint caller, http:Request req) {
+    resource function errorStatusResource(http:Caller caller, http:Request req) {
         http:Response outResponse = new;
         outResponse.statusCode = 503;
         outResponse.setPayload("Failure status code scenario");

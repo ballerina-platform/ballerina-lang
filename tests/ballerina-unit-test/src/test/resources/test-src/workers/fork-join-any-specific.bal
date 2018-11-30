@@ -14,7 +14,7 @@ function testForkJoinAnyOfSpecific () returns string[] {
             string m1 = "pqr";
             m1 -> fork;
         }
-    } join (some 1 ABC_Airline, XYZ_Airline) (map airlineResponses) {
+    } join (some 1 ABC_Airline, XYZ_Airline) (map<any> airlineResponses) {
         if (airlineResponses.hasKey("ABC_Airline")) {
             results[0] = <string>airlineResponses.ABC_Airline;
         }
@@ -25,7 +25,7 @@ function testForkJoinAnyOfSpecific () returns string[] {
             results[0] = <string> airlineResponses.PQR_Airline;
         }
         return results;
-    } timeout (3000) (map airlineResponses) {
+    } timeout (3000) (map<any> airlineResponses) {
         return results;
     }
 }

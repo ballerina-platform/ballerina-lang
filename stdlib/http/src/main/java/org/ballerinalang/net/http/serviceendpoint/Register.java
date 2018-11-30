@@ -20,6 +20,7 @@ package org.ballerinalang.net.http.serviceendpoint;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
@@ -38,6 +39,8 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 
+import static org.ballerinalang.net.http.HttpConstants.HTTP_LISTENER_ENDPOINT;
+
 /**
  * Get the ID of the connection.
  *
@@ -47,9 +50,10 @@ import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "register",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = HTTP_LISTENER_ENDPOINT,
                 structPackage = "ballerina/http"),
-        args = {@Argument(name = "serviceType", type = TypeKind.TYPEDESC)},
+        args = {@Argument(name = "serviceType", type = TypeKind.SERVICE),
+                @Argument(name = "annotationData", type = TypeKind.MAP)},
         isPublic = true
 )
 public class Register extends AbstractHttpNativeFunction {
@@ -62,15 +66,17 @@ public class Register extends AbstractHttpNativeFunction {
         HTTPServicesRegistry httpServicesRegistry = getHttpServicesRegistry(serviceEndpoint);
         WebSocketServicesRegistry webSocketServicesRegistry = getWebSocketServicesRegistry(serviceEndpoint);
 
-        // TODO: Check if this is valid.
-        // TODO: In HTTP to WebSocket upgrade register WebSocket service in WebSocketServiceRegistry
-        if (HttpConstants.HTTP_SERVICE_ENDPOINT_NAME.equals(service.getEndpointName())) {
-            httpServicesRegistry.registerService(service);
+        ParamDetail param = service.getResources()[0].getParamDetails().get(0);
+        if (param != null) {
+            String callerType = param.getVarType().toString();
+            if (HttpConstants.HTTP_CALLER_NAME.equals(callerType)) {
+                httpServicesRegistry.registerService(service);
+            } else if (WebSocketConstants.WEBSOCKET_CALLER_NAME.equals(callerType)) {
+                WebSocketService webSocketService = new WebSocketService(service);
+                webSocketServicesRegistry.registerService(webSocketService);
+            }
         }
-        if (WebSocketConstants.WEBSOCKET_ENDPOINT_NAME.equals(service.getEndpointName())) {
-            WebSocketService webSocketService = new WebSocketService(service);
-            webSocketServicesRegistry.registerService(webSocketService);
-        }
+        // TODO: 11/24/18 failure need to be validated in the compile time
 
         if (!isConnectorStarted(serviceEndpoint)) {
             startServerConnector(serviceEndpoint, httpServicesRegistry, webSocketServicesRegistry);

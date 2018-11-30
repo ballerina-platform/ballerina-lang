@@ -16,10 +16,10 @@
 
 import ballerina/file;
 
-endpoint file:Listener localFolder {
+listener file:Listener localFolder = new ({
     path: "target/fs",
     recursive: false
-};
+});
 
-service fileSystem bind localFolder {
+service fileSystem on localFolder {
 }

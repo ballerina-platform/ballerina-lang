@@ -73,6 +73,12 @@ public class BallerinaBuiltInReferenceTypeNameImpl extends BallerinaCompositeEle
 
   @Override
   @Nullable
+  public BallerinaServiceTypeName getServiceTypeName() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaServiceTypeName.class);
+  }
+
+  @Override
+  @Nullable
   public BallerinaStreamTypeName getStreamTypeName() {
     return PsiTreeUtil.getChildOfType(this, BallerinaStreamTypeName.class);
   }

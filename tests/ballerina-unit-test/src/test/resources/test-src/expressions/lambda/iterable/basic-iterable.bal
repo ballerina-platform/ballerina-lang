@@ -1,4 +1,4 @@
-int add;
+int add = 0;
 
 function testInt1 () returns (int, int, int, int, int, float) {
     add = 0;
@@ -27,7 +27,7 @@ function filterIntNegative (int i) returns boolean {
     return i >= 0;
 }
 
-float fadd;
+float fadd = 0;
 function testFloat1() returns (float, int, float, float, float, float){
     fadd = 0.0;
     float[] fa = [1.1, 2.2, -3.3, 4.4, 5.5];
@@ -55,7 +55,7 @@ function filterFloatNegative (float i) returns boolean {
     return i >= 0;
 }
 
-string output;
+string output = "";
 
 function testBasicArray1 (string[] values) returns string {
     output = "";
@@ -125,7 +125,7 @@ function concatString ((string, string) v) returns (string) {
 
 json j1 = {name:"bob", age:10, pass:true, subjects:[{subject:"maths", marks:75}, {subject:"English", marks:85}]};
 
-function jsonTest () returns (string, string[], int, int, string[]) {
+function jsonTest () returns (string, string[], int, int, string[])|error {
     output = "";
     j1.foreach(function (json j) {
                    output = output + j.toString();
@@ -140,7 +140,7 @@ function jsonTest () returns (string, string[], int, int, string[]) {
 
     int i1 = j1.count();
 
-    var ja = check <json[]>j1.subjects;
+    var ja = check json[].create(j1.subjects);
     string[] result = ja.map(function ((int, json) tuple) returns (string) {
                                  var (i, j) = tuple;
                                  return  i + "->" + j.toString();
@@ -149,7 +149,7 @@ function jsonTest () returns (string, string[], int, int, string[]) {
     return (output, sa, i1, j1.count(), result);
 }
 
-function xmlTest() returns (int, int, map) {
+function xmlTest() returns (int, int, map<any>) {
     xml xdata = xml `<p:person xmlns:p="foo" xmlns:q="bar">
         <p:name>bob</p:name>
         <p:address>

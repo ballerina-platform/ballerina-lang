@@ -231,13 +231,13 @@ public class MatchStructuredTuplePatternsTest {
         int i = -1;
         String msg = "Matched with ";
         Assert.assertEquals(results.getRefValue(++i), msg +
-                "FooRec and BarRec : {s:\"S\", i:23, f:5.6} , {f:{s:\"S\", i:23, f:5.6}, b:12}");
+                "FooRec and BarRec : {s:\"S\", i:23, f:5.6} , {b:12, f:{s:\"S\", i:23, f:5.6}}");
         Assert.assertEquals(results.getRefValue(++i), msg + "FooRec and float : {s:\"S\", i:23, f:5.6} , 4.5");
         Assert.assertEquals(results.getRefValue(++i), msg +
-                "BarRec and FooRec : {f:{s:\"S\", i:23, f:5.6}, b:12} , {s:\"S\", i:23, f:5.6}");
-        Assert.assertEquals(results.getRefValue(++i), msg + "BarRec and int : {f:{s:\"S\", i:23, f:5.6}, b:12} , 543");
+                "BarRec and FooRec : {b:12, f:{s:\"S\", i:23, f:5.6}} , {s:\"S\", i:23, f:5.6}");
+        Assert.assertEquals(results.getRefValue(++i), msg + "BarRec and int : {b:12, f:{s:\"S\", i:23, f:5.6}} , 543");
         Assert.assertEquals(results.getRefValue(++i), msg + "float and FooRec : 5.2 , {s:\"S\", i:23, f:5.6}");
-        Assert.assertEquals(results.getRefValue(++i), msg + "int and BarRec : 15 , {f:{s:\"S\", i:23, f:5.6}, b:12}");
+        Assert.assertEquals(results.getRefValue(++i), msg + "int and BarRec : 15 , {b:12, f:{s:\"S\", i:23, f:5.6}}");
         Assert.assertEquals(results.getRefValue(++i), "Default");
         Assert.assertEquals(results.getRefValue(++i), "Default");
     }

@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.langserver.completions.resolvers;
 
-import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
@@ -35,7 +34,6 @@ import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
-import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -113,13 +111,11 @@ public abstract class AbstractItemResolver {
      */
     protected boolean isInvocationOrInteractionOrFieldAccess(LSServiceOperationContext context) {
         List<String> poppedTokens = CommonUtil.popNFromList(CommonUtil.getPoppedTokenStrings(context), 2);
-        ParserRuleContext parserRuleContext = context.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
         return poppedTokens.contains(UtilSymbolKeys.DOT_SYMBOL_KEY)
                 || poppedTokens.contains(UtilSymbolKeys.PKG_DELIMITER_KEYWORD)
                 || poppedTokens.contains(UtilSymbolKeys.RIGHT_ARROW_SYMBOL_KEY)
                 || poppedTokens.contains(UtilSymbolKeys.LEFT_ARROW_SYMBOL_KEY)
-                || poppedTokens.contains(UtilSymbolKeys.BANG_SYMBOL_KEY)
-                || parserRuleContext instanceof BallerinaParser.WorkerInteractionStatementContext;
+                || poppedTokens.contains(UtilSymbolKeys.BANG_SYMBOL_KEY);
     }
 
     /**
@@ -182,6 +178,10 @@ public abstract class AbstractItemResolver {
         // Add the check keyword
         CompletionItem checkKeyword = Snippet.KW_CHECK.get().build(new CompletionItem(), snippetCapability);
         completionItems.add(checkKeyword);
+        
+        // Add the wait keyword
+        CompletionItem waitKeyword = Snippet.KW_CHECK.get().build(new CompletionItem(), snippetCapability);
+        completionItems.add(waitKeyword);
 
         // Add But keyword item
         CompletionItem butKeyword = Snippet.EXPR_MATCH.get().build(new CompletionItem(), snippetCapability);

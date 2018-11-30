@@ -7,7 +7,7 @@ type Department record {
 type Person record {
     string name = "default first name";
     string lname = "";
-    map adrs = {};
+    map<any> adrs = {};
     int age = 999;
     Person? child = ();
 };

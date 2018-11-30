@@ -1,13 +1,12 @@
-
 public type employee object {
 
     public int age = 0;
     public string name = "";
     public string address = "";
 
-
-    public new (int a = 10, name) {
+    public function __init (int a = 10, string name) {
         self.age = a;
+        self.name = name;
     }
 
     public function getAge();
@@ -20,11 +19,9 @@ function employee.getAge() {
 
 // Struct with private initializer
 public type student object {
-
     public int age = 20;
     public string name = "";
     public string address = "";
-
 
     public function getAge();
 

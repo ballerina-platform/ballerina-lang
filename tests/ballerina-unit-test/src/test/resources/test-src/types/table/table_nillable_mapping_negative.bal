@@ -210,13 +210,13 @@ function testAssignNilToNonNillableTimeStamp() returns string {
 }
 
 function testAssignNilToNonNillableField(string field, typedesc recordType) returns string {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
     string dbTable;
     int rowId;
     if (field == "blob_type") {
@@ -228,7 +228,7 @@ function testAssignNilToNonNillableField(string field, typedesc recordType) retu
     }
     var dt = testDB->select("SELECT " + field + " from " + dbTable + " where row_id=?", recordType, rowId);
     string errorMessage = "";
-    if (dt is table) {
+    if (dt is table<record {}>) {
         while (dt.hasNext()) {
             var ret = trap dt.getNext();
             if (ret is error) {
@@ -341,13 +341,13 @@ function testAssignInvalidUnionArray2() returns string {
 }
 
 function testAssignToInvalidUnionField(string field) returns string {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     string dbTable;
     int rowId;
@@ -362,7 +362,7 @@ function testAssignToInvalidUnionField(string field) returns string {
 
     var dt = testDB->select("SELECT " + field + " from " + dbTable + " where row_id=?", InvalidUnion, rowId);
     string errorMessage = "";
-    if (dt is table) {
+    if (dt is table<InvalidUnion>) {
         while (dt.hasNext()) {
             var ret = trap <InvalidUnion>dt.getNext();
             if (ret is error) {
@@ -375,18 +375,18 @@ function testAssignToInvalidUnionField(string field) returns string {
 }
 
 function testAssignArrayToInvalidField(typedesc invalidType, int id) returns string {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     var dt = testDB->select("SELECT int_array, long_array, float_array, boolean_array,
               string_array from ArrayTypes where row_id = ?", invalidType, id);
     string errorMessage = "";
-    if (dt is table) {
+    if (dt is table<invalidType>) {
         while (dt.hasNext()) {
             var ret = trap dt.getNext();
             if (ret is error) {
@@ -399,16 +399,16 @@ function testAssignArrayToInvalidField(typedesc invalidType, int id) returns str
 }
 
 function testInvalidUnionForArrays(typedesc invalidUnion) returns string {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
     var dt = testDB->select("SELECT int_array from ArrayTypes where row_id = 1", invalidUnion);
     string message = "";
-    if (dt is table) {
+    if (dt is table<invalidUnion>) {
         while (dt.hasNext()) {
             var ret = trap dt.getNext();
             if (ret is error) {

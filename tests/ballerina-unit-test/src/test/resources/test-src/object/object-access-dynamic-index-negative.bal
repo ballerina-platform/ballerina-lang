@@ -1,19 +1,21 @@
 type Person object {
     public string name = "default first name";
     public string lname = "";
-    public map adrs = {};
+    public map<any> adrs = {};
     public int age = 999;
 
-    new (name, adrs, age) {
-
+    function __init (string name, map<any> adrs, int age) {
+        self.name = name;
+        self.age = age;
+        self.adrs = adrs;
     }
 };
 
 type ObjectField object {
     public string key = "";
 
-    new (key) {
-
+    function __init (string key) {
+        self.key = key;
     }
 };
 

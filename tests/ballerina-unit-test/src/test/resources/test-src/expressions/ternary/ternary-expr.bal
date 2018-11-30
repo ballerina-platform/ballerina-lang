@@ -32,7 +32,7 @@ function foo (int a, string b, boolean c) returns (string) {
 
 type Person record {
     string name;
-    string location;
+    string location?;
 };
 
 function test6 (string s) returns (string) {
@@ -40,9 +40,9 @@ function test6 (string s) returns (string) {
     return p.name;
 }
 
-function test7 (string s) returns (int) {
-    map m = {"data" : s == "one" ? 1 : 2};
-    var y = check <int>m.data;
+function test7 (string s) returns (int|error) {
+    map<any> m = {"data" : s == "one" ? 1 : 2};
+    var y = check int.create(m.data);
     return y;
 }
 

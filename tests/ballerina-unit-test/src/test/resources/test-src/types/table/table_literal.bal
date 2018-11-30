@@ -68,31 +68,31 @@ function testEmptyTableCreate() returns (int, int) {
     table<Company> dt5 = table{};
     table<Person> dt6;
     table<Company> dt7;
-    table dt8;
+    table<record {}> dt8;
     int count1 = checkTableCount("TABLE_PERSON_%");
     int count2 = checkTableCount("TABLE_COMPANY_%");
     return (count1, count2);
 }
 
 function checkTableCount(string tablePrefix) returns (int) {
-    endpoint h2:Client testDB {
+    h2:Client testDB = new(<h2:InMemoryConfig>{
         name: "TABLEDB",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
-    };
+    });
 
     sql:Parameter p1 = { sqlType: sql:TYPE_VARCHAR, value: tablePrefix };
 
     int count = 0;
     var dt = testDB->select("SELECT count(*) as count FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME like
          ?", ResultCount, p1);
-    if (dt is table) {
+    if (dt is table<ResultCount>) {
         while (dt.hasNext()) {
-            var ret = <ResultCount>dt.getNext();
+            var ret = dt.getNext();
             if (ret is ResultCount) {
                 count = ret.COUNTVAL;
-            } else if (ret is error) {
+            } else {
                 count = -1;
             }
         }
@@ -123,7 +123,7 @@ function testAddData() returns (int, int, int, int[], int[], int[]) {
     int[] dt1data = [];
     int i = 0;
     while (dt3.hasNext()) {
-        var p = <Person>dt3.getNext();
+        var p = dt3.getNext();
         if (p is Person) {
             dt1data[i] = p.id;
         }
@@ -134,7 +134,7 @@ function testAddData() returns (int, int, int, int[], int[], int[]) {
     int[] dt2data = [];
     i = 0;
     while (dt4.hasNext()) {
-        var p = <Person>dt4.getNext();
+        var p = dt4.getNext();
         if (p is Person) {
             dt2data[i] = p.id;
         }
@@ -145,7 +145,7 @@ function testAddData() returns (int, int, int, int[], int[], int[]) {
     int[] ct1data = [];
     i = 0;
     while (ct1.hasNext()) {
-        var p = <Company>ct1.getNext();
+        var p = ct1.getNext();
         if (p is Company) {
             ct1data[i] = p.id;
         }
@@ -177,7 +177,7 @@ function testMultipleAccess() returns (int, int, int[], int[]) {
     int[] dtdata1 = [];
     int i = 0;
     while (dt3.hasNext()) {
-        var p = <Person>dt3.getNext();
+        var p = dt3.getNext();
         if (p is Person) {
             dtdata1[i] = p.id;
         }
@@ -188,7 +188,7 @@ function testMultipleAccess() returns (int, int, int[], int[]) {
     int[] dtdata2 = [];
     i = 0;
     while (dt3.hasNext()) {
-        var p = <Person>dt3.getNext();
+        var p = dt3.getNext();
         if (p is Person) {
             dtdata2[i] = p.id;
         }
@@ -210,7 +210,7 @@ function testLoopingTable() returns (string) {
     string names = "";
 
     while (dt.hasNext()) {
-        var p = <Person>dt.getNext();
+        var p = dt.getNext();
         if (p is Person) {
             names = names + p.name + "_";
         }
@@ -228,7 +228,7 @@ function testToJson() returns (json|error) {
     _ = dt.add(p2);
     _ = dt.add(p3);
 
-    json j = check <json>dt;
+    json j = check json.create(dt);
     return j;
 }
 
@@ -242,7 +242,7 @@ function testToXML() returns (xml|error) {
     _ = dt.add(p2);
     _ = dt.add(p3);
 
-    xml x = check <xml>dt;
+    xml x = check xml.create(dt);
     return x;
 }
 
@@ -258,7 +258,7 @@ function testPrintData() {
     _ = dt.add(p2);
     _ = dt.add(p3);
 
-    io:println(dt);
+   io:println(dt);
 }
 
 function testPrintDataEmptyTable() {
@@ -283,7 +283,7 @@ function testTableWithAllDataToJson() returns (json|error) {
     _ = dt3.add(t1);
     _ = dt3.add(t2);
 
-    json j = check <json>dt3;
+    json j = check json.create(dt3);
     return j;
 }
 
@@ -297,7 +297,7 @@ function testTableWithAllDataToXml() returns (xml|error) {
     _ = dt3.add(t1);
     _ = dt3.add(t2);
 
-    xml x = check <xml>dt3;
+    xml x = check xml.create(dt3);
     return x;
 }
 
@@ -310,12 +310,14 @@ function testTableWithAllDataToStruct() returns (json, xml)|error {
     table<TypeTest> dt3 = table{};
     _ = dt3.add(t1);
 
-    json jData;
-    xml xData;
+    json jData = {};
+    xml xData = xml ` `;
     while (dt3.hasNext()) {
-        TypeTest x = check <TypeTest>dt3.getNext();
-        jData = x.jsonData;
-        xData = x.xmlData;
+        var x = dt3.getNext();
+        if (x is TypeTest) {
+            jData = x.jsonData;
+            xData = x.xmlData;
+        }
     }
     return (jData, xData);
 }
@@ -328,7 +330,7 @@ function testTableWithBlobDataToJson() returns (json|error) {
     table<BlobTypeTest> dt3 = table{};
     _ = dt3.add(t1);
 
-    json j = check <json>dt3;
+    json j = check json.create(dt3);
     return j;
 }
 
@@ -340,7 +342,7 @@ function testTableWithBlobDataToXml() returns (xml|error) {
     table<BlobTypeTest> dt3 = table{};
     _ = dt3.add(t1);
 
-    xml x = check <xml>dt3;
+    xml x = check xml.create(dt3);
     return x;
 }
 
@@ -352,10 +354,12 @@ function testTableWithBlobDataToStruct() returns (byte[]|error) {
     table<BlobTypeTest> dt3 = table{};
     _ = dt3.add(t1);
 
-    byte[] bData;
+    byte[] bData = [];
     while (dt3.hasNext()) {
-        BlobTypeTest x = check <BlobTypeTest>dt3.getNext();
-        bData = x.blobData;
+        var x = dt3.getNext();
+        if (x is BlobTypeTest) {
+            bData = x.blobData;
+        }
     }
     return bData;
 }
@@ -366,7 +370,7 @@ function testTableWithAnyDataToJson() returns (json|error) {
     table<AnyTypeTest> dt3 = table{};
     _ = dt3.add(t1);
 
-    json j = check <json>dt3;
+    json j = check json.create(dt3);
     return j;
 }
 
@@ -376,7 +380,7 @@ function testStructWithDefaultDataToJson() returns (json|error) {
     table<Person> dt3 = table{};
     _ = dt3.add(p1);
 
-    json j = check <json>dt3;
+    json j = check json.create(dt3);
     return j;
 }
 
@@ -386,7 +390,7 @@ function testStructWithDefaultDataToXml() returns (xml|error) {
     table<Person> dt3 = table{};
     _ = dt3.add(p1);
 
-    xml x = check <xml>dt3;
+    xml x = check xml.create(dt3);
     return x;
 }
 
@@ -397,13 +401,13 @@ function testStructWithDefaultDataToStruct() returns (int, float, string, boolea
     table<Person> dt3 = table{};
     _ = dt3.add(p1);
 
-    int iData;
-    float fData;
-    string sData;
-    boolean bData;
+    int iData = -1;
+    float fData = -1;
+    string sData = "";
+    boolean bData = true;
 
     while (dt3.hasNext()) {
-        Person x = check <Person>dt3.getNext();
+        var x = <Person>dt3.getNext();
         iData = x.age;
         fData = x.salary;
         sData = x.name;
@@ -431,7 +435,7 @@ function testTableWithArrayDataToJson() returns (json|error) {
     _ = dt3.add(t1);
     _ = dt3.add(t2);
 
-    json j = check <json>dt3;
+    json j = check json.create(dt3);
     return j;
 }
 
@@ -454,7 +458,7 @@ function testTableWithArrayDataToXml() returns (xml|error) {
     _ = dt3.add(t1);
     _ = dt3.add(t2);
 
-    xml x = check <xml>dt3;
+    xml x = check xml.create(dt3);
     return x;
 }
 
@@ -469,17 +473,19 @@ function testTableWithArrayDataToStruct() returns (int[], float[], string[], boo
     table<ArraTypeTest> dt3 = table{};
     _ = dt3.add(t1);
 
-    int[] intArr;
-    float[] floatArr;
-    string[] stringArr;
-    boolean[] boolArr;
+    int[] intArr = [];
+    float[] floatArr = [];
+    string[] stringArr = [];
+    boolean[] boolArr = [];
 
     while (dt3.hasNext()) {
-        ArraTypeTest x = check <ArraTypeTest>dt3.getNext();
-        intArr = x.intArrData;
-        floatArr = x.floatArrData;
-        stringArr = x.stringArrData;
-        boolArr = x.booleanArrData;
+        var x = dt3.getNext();
+        if (x is ArraTypeTest) {
+            intArr = x.intArrData;
+            floatArr = x.floatArrData;
+            stringArr = x.stringArrData;
+            boolArr = x.booleanArrData;
+        }
     }
     return (intArr, floatArr, stringArr, boolArr);
 }
@@ -495,7 +501,7 @@ function testTableRemoveSuccess() returns (int, json)|error {
     _ = dt.add(p3);
 
     int count = check dt.remove(isBelow35);
-    json j = check <json>dt;
+    json j = check json.create(dt);
 
     return (count, j);
 }
@@ -511,7 +517,7 @@ function testTableRemoveSuccessMultipleMatch() returns (int, json)|error {
     _ = dt.add(p3);
 
     int count = check dt.remove(isJohn);
-    json j = check <json>dt;
+    json j = check json.create(dt);
 
     return (count, j);
 }
@@ -528,7 +534,7 @@ function testTableRemoveFailed() returns (int, json)|error {
     _ = dt.add(p3);
 
     int count = check dt.remove(isBelow35);
-    json j = check <json>dt;
+    json j = check json.create(dt);
 
     return (count, j);
 }
@@ -543,11 +549,11 @@ function testTableAddAndAccess() returns (string, string)|error {
     _ = dt.add(p1);
     _ = dt.add(p2);
 
-    json j1 = check <json>dt;
+    json j1 = check json.create(dt);
     string s1 = j1.toString();
 
     _ = dt.add(p3);
-    json j2 = check <json>dt;
+    json j2 = check json.create(dt);
     string s2 = j2.toString();
 
     return (s1, s2);

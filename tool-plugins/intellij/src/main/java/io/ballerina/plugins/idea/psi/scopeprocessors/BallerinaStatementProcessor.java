@@ -32,7 +32,6 @@ import io.ballerina.plugins.idea.psi.BallerinaRecordKey;
 import io.ballerina.plugins.idea.psi.BallerinaRecordKeyValue;
 import io.ballerina.plugins.idea.psi.BallerinaRecordLiteralExpression;
 import io.ballerina.plugins.idea.psi.BallerinaRecordTypeName;
-import io.ballerina.plugins.idea.psi.BallerinaServiceBody;
 import io.ballerina.plugins.idea.psi.BallerinaStatement;
 import io.ballerina.plugins.idea.psi.BallerinaTimeoutClause;
 import io.ballerina.plugins.idea.psi.BallerinaTypeDefinition;
@@ -227,34 +226,6 @@ public class BallerinaStatementProcessor extends BallerinaScopeProcessorBase {
                     }
                     ballerinaTimeoutClause = PsiTreeUtil.getParentOfType(ballerinaTimeoutClause,
                             BallerinaTimeoutClause.class);
-                }
-
-            } else if (scopeElement instanceof BallerinaVariableDefinitionStatement) {
-                BallerinaVariableDefinitionStatement statement = (BallerinaVariableDefinitionStatement) scopeElement;
-                BallerinaServiceBody ballerinaServiceBody = PsiTreeUtil.getParentOfType(myElement,
-                        BallerinaServiceBody.class);
-                if (ballerinaServiceBody != null) {
-                    List<BallerinaVariableDefinitionStatement> definitionStatements =
-                            ballerinaServiceBody.getVariableDefinitionStatementList();
-                    for (BallerinaVariableDefinitionStatement definitionStatement : definitionStatements) {
-                        PsiElement identifier = null;
-                        if (definitionStatement.getVariableDefinitionStatementWithAssignment() != null) {
-                            identifier = definitionStatement.getVariableDefinitionStatementWithAssignment()
-                                    .getBindingPattern().getIdentifier();
-                        } else if (definitionStatement.getVariableDefinitionStatementWithoutAssignment() != null) {
-                            identifier = definitionStatement.getVariableDefinitionStatementWithoutAssignment()
-                                    .getIdentifier();
-                        }
-                        if (identifier != null) {
-                            int statementEndOffset = definitionStatement.getTextRange().getEndOffset();
-                            if (statementEndOffset >= statement.getTextRange().getEndOffset()) {
-                                continue;
-                            }
-                            if (myElement.getText().equals(identifier.getText())) {
-                                add(identifier);
-                            }
-                        }
-                    }
                 }
             }
         }

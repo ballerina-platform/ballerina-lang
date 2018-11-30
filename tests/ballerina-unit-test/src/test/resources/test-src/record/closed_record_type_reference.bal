@@ -58,7 +58,8 @@ function testValRefType() returns Foo1 {
 type Person object {
     string name;
 
-    new(name){
+    function __init(string name) {
+        self.name = name;
     }
 };
 
@@ -160,4 +161,35 @@ function testReferenceChains() returns Foo4 {
 function testTypeReferencingInBALOs() returns records:BClosedManager {
     records:BClosedManager m = {name:"John Doe", age:25, adr:{city:"Colombo", country:"Sri Lanka"}, company:"WSO2", dept:"Engineering"};
     return m;
+}
+
+// TEST DEFAULT VALUE INIT IN TYPE REFERENCED FIELDS
+
+type PersonRec record {
+    string name = "John Doe";
+    int age = 25;
+    Address adr = {city: "Colombo", country: "Sri Lanka"};
+    !...
+};
+
+type EmployeeRec record {
+    *PersonRec;
+    string company = "WSO2";
+    !...
+};
+
+type ManagerRec record {
+    string dept = "";
+    *EmployeeRec;
+    !...
+};
+
+function testDefaultValueInit() returns ManagerRec {
+    ManagerRec mgr = {};
+    return mgr;
+}
+
+function testDefaultValueInitInBALOs() returns records:BClosedManager {
+    records:BClosedManager mgr = {};
+    return mgr;
 }

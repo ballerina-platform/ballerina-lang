@@ -15,8 +15,8 @@
 // under the License.
 
 type OpenEmployee record {
-    string name;
-    int id;
+    string name = "";
+    int id = 0;
 };
 
 type OpenPerson record {
@@ -25,8 +25,8 @@ type OpenPerson record {
 };
 
 type ClosedEmployee record {
-    string name;
-    int id;
+    string name = "";
+    int id = 0;
     !...
 };
 
@@ -35,7 +35,11 @@ type Abc object {
     float salary;
     private int id;
 
-    public new(name, salary, id) {}
+    public function __init (string name, float salary, int id) {
+        self.name = name;
+        self.salary = salary;
+        self.id = id;
+    }
 };
 
 type Def object {
@@ -44,7 +48,11 @@ type Def object {
     private int id;
     private int idTwo = 0;
 
-    public new(name, salary, id) {}
+    public function __init(string name, float salary, int id) {
+        self.name = name;
+        self.salary = salary;
+        self.id = id;
+    }
 };
 
 function testBooleanRefEquality(boolean a, boolean b) returns boolean {
@@ -110,7 +118,7 @@ function testClosedRecordRefEqualityPositive() returns boolean {
     ClosedEmployee e4 = e3;
     ClosedEmployee e5 = e3;
 
-    ClosedEmployee e6;
+    ClosedEmployee e6 = {};
     ClosedEmployee e7 = e6;
 
     return e1 === e2 && e4 === e5 && isRefEqual(e6, e7) && !(e1 !== e2) && !(e4 !== e5);
@@ -128,7 +136,7 @@ function testClosedRecordRefEqualityNegative() returns boolean {
 }
 
 function testArrayRefEqualityPositive() returns boolean {
-    int[3] a;
+    int[3] a = [0, 0, 0];
     int[3] b = a;
 
     boolean refEquals = a === b && !(a !== b);
@@ -138,7 +146,7 @@ function testArrayRefEqualityPositive() returns boolean {
 
     refEquals = refEquals && a === b && !(a !== b);
 
-    (boolean|float)[][] c;
+    (boolean|float)[][] c = [];
     (boolean|float)[][] d = c;
 
     c = [[true, 1.3], [false, false, 12.2]];
@@ -148,8 +156,8 @@ function testArrayRefEqualityPositive() returns boolean {
 }
 
 function testArrayRefEqualityNegative() returns boolean {
-    int[2] a;
-    int[2] b;
+    int[2] a = [0, 0];
+    int[2] b = [0, 0];
 
     boolean refEquals = a === b || !(a !== b);
 
@@ -165,8 +173,8 @@ function testArrayRefEqualityNegative() returns boolean {
 }
 
 function checkMapRefEqualityPositive() returns boolean {
-    map m1;
-    map m2 = m1;
+    map<any> m1 = {};
+    map<any> m2 = m1;
 
     map<string> m3 = {};
     map<string> m4 = m3;
@@ -186,8 +194,8 @@ function checkMapRefEqualityPositive() returns boolean {
 }
 
 function checkMapRefEqualityNegative() returns boolean {
-    map m1;
-    map m2;
+    map<any> m1 = {};
+    map<any> m2 = {};
 
     boolean equals = m1 === m2 || !(m1 !== m2);
 
@@ -196,8 +204,8 @@ function checkMapRefEqualityNegative() returns boolean {
 
     equals = equals && m1 === m2 || !(m1 !== m2);
 
-    map<int> m3;
-    map<int> m4;
+    map<int> m3 = {};
+    map<int> m4 = {};
 
     m3.one = 1;
     m4.one = 1;
@@ -258,8 +266,8 @@ function checkJsonRefEqualityNegative() returns boolean {
 }
 
 function testIntByteRefEqualityPositive() returns boolean {
-    byte a;
-    int b;
+    byte a = 0;
+    int b = 0;
 
     boolean equals = a === b && !(a !== b);
 
@@ -276,7 +284,7 @@ function testIntByteEqualityNegative() returns boolean {
 }
 
 function testXmlRefEqualityPositive() returns boolean {
-    xml x1;
+    xml x1 = xml `<foo> </foo>`;
     xml x2 = x1;
 
     xml x3 = xml `<book><name>The Lost World<!-- I'm a comment --></name></book>`;

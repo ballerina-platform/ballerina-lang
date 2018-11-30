@@ -79,9 +79,8 @@ public class XMLLiteralTest {
                 53);
 
         // assigning attributes-map to a map
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'map', found " +
-                        "'xml-attributes'", 48,
-                14);
+        BAssertUtil.validateError(negativeResult, index++,
+                "incompatible types: expected 'map', found 'xml-attributes'", 48, 19);
 
         // namespace conflict with package import
         BAssertUtil.validateError(negativeResult, index++, "redeclared symbol 'x'", 52, 5);
@@ -111,8 +110,14 @@ public class XMLLiteralTest {
     @Test
     public void testCombinedExpressionsAsElementName() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/types/xml/xml-invalid-syntax-1.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 1);
+        Assert.assertEquals(negativeResult.getErrorCount(), 5);
         BAssertUtil.validateError(negativeResult, 0, "invalid token '{{'", 3, 24);
+        BAssertUtil.validateError(negativeResult, 0, "invalid token '{{'", 3, 24);
+        BAssertUtil.validateError(negativeResult, 0, "mismatched input '}}'. expecting {'[', '?', '|', Identifier}", 3,
+                28);
+        BAssertUtil.validateError(negativeResult, 0, "mismatched input '}}'. expecting ';'", 3, 46);
+        BAssertUtil.validateError(negativeResult, 0, "mismatched input ';'. expecting {'[', '?', '|', Identifier}", 4,
+                14);
     }
 
     @Test
@@ -392,13 +397,6 @@ public class XMLLiteralTest {
         Assert.assertEquals(returns[2].stringValue(), "{http://ballerina.com/b}foo");
     }
 
-    @Test
-    public void testNullXMLinXMLLiteral() {
-        BValue[] returns = BRunUtil.invoke(result, "testNullXMLinXMLLiteral");
-        Assert.assertTrue(returns[0] instanceof BXML);
-        Assert.assertEquals(returns[0].stringValue(), "<root></root>");
-    }
-
     @Test(expectedExceptions = {BLangRuntimeException.class},
           expectedExceptionsMessageRegExp = "error: invalid xml qualified name: unsupported characters in '11'.*")
     public void testInvalidElementName_1() {
@@ -441,11 +439,5 @@ public class XMLLiteralTest {
         BXML<?> xml = new BXMLItem(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(xml.stringValue(), "<p:person xmlns:p=\"foo\" xmlns:q=\"bar\" " +
                 "xmlns:ns1=\"http://ballerina.com/b\" xmlns:ns0=\"http://ballerina.com/a\">hello</p:person>");
-    }
-
-    @Test
-    public void testServiceLevelXMLNegative() {
-        CompileResult result = BCompileUtil.compile("test-src/types/xml/xml_literals_in_service_negative.bal");
-        BAssertUtil.validateError(result, 0, "redeclared symbol 'ns1'", 12, 5);
     }
 }

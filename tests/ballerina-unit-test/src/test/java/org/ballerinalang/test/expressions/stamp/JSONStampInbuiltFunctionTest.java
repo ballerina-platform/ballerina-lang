@@ -335,4 +335,13 @@ public class JSONStampInbuiltFunctionTest {
         Assert.assertEquals(((BError) error).getReason(), "incompatible stamp operation: 'json' value " +
                 "cannot be stamped as 'map<string>'");
     }
+
+    @Test
+    public void testStampNullJSONToArrayNegative() {
+        BValue[] results = BRunUtil.invoke(compileResult, "stampNullJSONToArrayNegative");
+        BValue error = results[0];
+
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BError) error).getReason(), "cannot stamp 'null' value to type 'StringArray'");
+    }
 }

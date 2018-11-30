@@ -17,29 +17,32 @@
 public type SimpleSelect object {
 
     private function (StreamEvent[]) nextProcessorPointer;
-    private function(StreamEvent o) returns map selectFunc;
+    private function (StreamEvent o) returns map<anydata> selectFunc;
 
 
-    new(nextProcessorPointer, selectFunc) {
+    function __init(function (StreamEvent[]) nextProcessorPointer,
+                    function (StreamEvent o) returns map<anydata> selectFunc) {
+        self.nextProcessorPointer = nextProcessorPointer;
+        self.selectFunc = selectFunc;
     }
 
     public function process(StreamEvent[] streamEvents) {
         StreamEvent[] newStreamEventArr = [];
         int index = 0;
         foreach event in streamEvents {
-            StreamEvent streamEvent = new((OUTPUT, self.selectFunc(event)), event.eventType, event.timestamp);
+            StreamEvent streamEvent = new((OUTPUT, self.selectFunc.call(event)), event.eventType, event.timestamp);
             newStreamEventArr[index] = streamEvent;
             index += 1;
         }
         if (index > 0) {
-            self.nextProcessorPointer(newStreamEventArr);
+            self.nextProcessorPointer.call(newStreamEventArr);
         }
-
     }
 };
 
-public function createSimpleSelect(function (StreamEvent[]) nextProcPointer, function(StreamEvent o) returns map selectFunc)
-        returns SimpleSelect {
+public function createSimpleSelect(function (StreamEvent[]) nextProcPointer, function (StreamEvent o)
+        returns map<anydata> selectFunc)
+                    returns SimpleSelect {
     SimpleSelect simpleSelect = new(nextProcPointer, selectFunc);
     return simpleSelect;
 }

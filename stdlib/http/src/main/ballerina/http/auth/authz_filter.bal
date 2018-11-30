@@ -26,24 +26,25 @@ public type AuthzFilter object {
 
     public HttpAuthzHandler authzHandler;
 
-    public new (authzHandler) {
+    public function __init(HttpAuthzHandler authzHandler) {
+        self.authzHandler = authzHandler;
     }
 
     # Filter function implementation which tries to authorize the request
     #
-    # + listener - `Listener` instance that is the http endpoint
+    # + listenerObj - `Listener` instance that is the http endpoint
     # + request - `Request` instance
     # + context - `FilterContext` instance
     # + return - A flag to indicate if the request flow should be continued(true) or aborted(false), a code and a message
-    public function filterRequest (Listener listener, Request request, FilterContext context) returns boolean {
+    public function filterRequest (Caller caller, Request request, FilterContext context) returns boolean {
 		// first check if the resource is marked to be authenticated. If not, no need to authorize.
         ListenerAuthConfig? resourceLevelAuthAnn = getAuthAnnotation(ANN_MODULE, RESOURCE_ANN_NAME,
-            reflect:getResourceAnnotations(context.serviceType, context.resourceName));
+            reflect:getResourceAnnotations(context.serviceRef, context.resourceName));
         ListenerAuthConfig? serviceLevelAuthAnn = getAuthAnnotation(ANN_MODULE, SERVICE_ANN_NAME,
-            reflect:getServiceAnnotations(context.serviceType));
+            reflect:getServiceAnnotations(context.serviceRef));
         if (!isResourceSecured(resourceLevelAuthAnn, serviceLevelAuthAnn)) {
             // not secured, no need to authorize
-            return isAuthzSuccessfull(listener, true);
+            return isAuthzSuccessfull(caller, true);
         }
 
         string[]? scopes = getScopesForResource(resourceLevelAuthAnn, serviceLevelAuthAnn);
@@ -59,7 +60,7 @@ public type AuthzFilter object {
             // scopes are not defined, no need to authorize
             authorized = true;
         }
-        return isAuthzSuccessfull(listener, authorized);
+        return isAuthzSuccessfull(caller, authorized);
     }
 
     public function filterResponse(Response response, FilterContext context) returns boolean {
@@ -69,11 +70,11 @@ public type AuthzFilter object {
 
 # Verifies if the authorization is successful. If not responds to the user.
 #
+# + callerObj - The http caller
 # + authorized - flag to indicate if authorization is successful or not
 # + return - A boolean flag to indicate if the request flow should be continued(true) or
 #            aborted(false)
-function isAuthzSuccessfull(Listener listener, boolean authorized) returns boolean {
-    endpoint Listener caller = listener;
+function isAuthzSuccessfull(Caller caller, boolean authorized) returns boolean {
     Response response = new;
     if (!authorized) {
         response.statusCode = 403;

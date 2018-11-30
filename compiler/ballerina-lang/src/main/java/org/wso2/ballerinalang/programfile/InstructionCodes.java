@@ -219,6 +219,9 @@ public interface InstructionCodes {
     int F2ANY = 164;
     int S2ANY = 165;
     int B2ANY = 166;
+
+    int TYPE_ASSERTION = 167;
+
     int ANY2I = 168;
     int ANY2F = 169;
     int ANY2S = 170;
@@ -248,9 +251,9 @@ public interface InstructionCodes {
 
     int WRKSEND = 190;
     int WRKRECEIVE = 191;
-    int FORKJOIN = 192;
 
-    int AWAIT = 193;
+    int WORKERSYNCSEND = 192;
+    int WAIT = 193;
 
     int MAP2JSON = 194;
     int JSON2MAP = 195;
@@ -267,8 +270,11 @@ public interface InstructionCodes {
     int SNEWARRAY = 203;
     int BNEWARRAY = 204;
     int RNEWARRAY = 205;
+
     int CLONE = 206;
+    int FLUSH = 207;
     int LENGTHOF = 208;
+    int WAITALL = 209;
 
     int NEWSTRUCT = 210;
     int NEWMAP = 212;

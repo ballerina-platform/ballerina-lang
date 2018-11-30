@@ -4,7 +4,8 @@ import ballerina/io;
 public type ChannelReader object {
     io:ReadableByteChannel byteChannel;
 
-    public new(byteChannel){
+    public function __init(io:ReadableByteChannel byteChannel) {
+        self.byteChannel = byteChannel;
     }
 
     public function readBoolean() returns boolean {

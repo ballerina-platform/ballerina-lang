@@ -4,9 +4,9 @@ import ballerina/io;
 
 public function main() {
     // Client endpoint configuration
-    endpoint HelloWorldBlockingClient helloWorldBlockingEp {
+    HelloWorldBlockingClient helloWorldBlockingEp = new({
         url: "http://localhost:9090"
-    };
+    });
 
     // Writes custom headers to request message.
     grpc:Headers headers = new;
@@ -27,7 +27,7 @@ public function main() {
             io:println("Headers: " + headerValue );
         }
         error err => {
-            io:println("Error from Connector: " + err.message);
+            io:println("Error from Connector: " + err.reason());
         }
     }
 

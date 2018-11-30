@@ -2,41 +2,39 @@ import ballerina/mime;
 import ballerina/http;
 import ballerina/io;
 
-@final string constPath = getConstPath();
+final string constPath = getConstPath();
 
 type Person record {
     string name;
     int age;
 };
 
-endpoint http:NonListener echoEP {
-    port:9090
-};
+listener http:MockListener echoEP  = new(9090);
 
 @http:ServiceConfig {basePath:"/echo"}
-service<http:Service> echo bind echoEP {
+service echo on echoEP {
 
     string serviceLevelStr = "";
-
     string serviceLevelStringVar = "sample value";
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/message"
     }
-    echo (endpoint conn, http:Request req) {
+    resource function echo(http:Caller caller, http:Request req) {
         http:Response res = new;
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 
-    @http:ResourceConfig {
-        methods:["GET"],
-        path:"/message_worker"
-    }
-    echo_worker (endpoint conn, http:Request req) {
+    //TODO:Workers and resource annotations don't work together. To be fixed.
+    //@http:ResourceConfig {
+    //    methods:["GET"],
+    //    path:"/message_worker"
+    //}
+    resource function message_worker(http:Caller caller, http:Request req) {
         worker w1 {
             http:Response res = new;
-            _ = conn -> respond(res);
+            _ = caller->respond(res);
         }
         worker w2 {
             int x = 0;
@@ -48,7 +46,7 @@ service<http:Service> echo bind echoEP {
         methods:["POST"],
         path:"/setString"
     }
-    setString (endpoint conn, http:Request req) {
+    resource function setString(http:Caller caller, http:Request req) {
         http:Response res = new;
         string payloadData = "";
         var payload = req.getTextPayload();
@@ -57,64 +55,64 @@ service<http:Service> echo bind echoEP {
         } else if (payload is string) {
             payloadData = payload;
         }
-        serviceLevelStr = untaint payloadData;
-        _ = conn -> respond(res);
+        self.serviceLevelStr = untaint payloadData;
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/getString"
     }
-    getString (endpoint conn, http:Request req) {
+    resource function getString(http:Caller caller, http:Request req) {
         http:Response res = new;
-        res.setTextPayload(serviceLevelStr);
-        _ = conn -> respond(res);
+        res.setTextPayload(self.serviceLevelStr);
+        _ = caller -> respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"]
     }
-    removeHeaders (endpoint conn, http:Request req) {
+    resource function removeHeaders(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setHeader("header1", "wso2");
         res.setHeader("header2", "ballerina");
         res.setHeader("header3", "hello");
         res.removeAllHeaders();
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/getServiceLevelString"
     }
-    getServiceLevelString (endpoint conn, http:Request req) {
+    resource function getServiceLevelString(http:Caller caller, http:Request req) {
         http:Response res = new;
-        res.setTextPayload(serviceLevelStringVar);
-        _ = conn -> respond(res);
+        res.setTextPayload(self.serviceLevelStringVar);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:constPath
     }
-    connstValueAsAttributeValue (endpoint conn, http:Request req) {
+    resource function connstValueAsAttributeValue(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload("constant path test");
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/testEmptyResourceBody"
     }
-    testEmptyResourceBody (endpoint conn, http:Request req) {
+    resource function testEmptyResourceBody(http:Caller caller, http:Request req) {
     }
 
     @http:ResourceConfig {
         methods:["POST"],
         path:"/getFormParams"
     }
-    getFormParams (endpoint conn, http:Request req) {
+    resource function getFormParams(http:Caller caller, http:Request req) {
         var params = req.getFormParams();
         http:Response res = new;
         if (params is map<string>) {
@@ -132,20 +130,29 @@ service<http:Service> echo bind echoEP {
             string errMsg = <string> params.detail().message;
             res.setTextPayload(errMsg);
         }
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         methods:["PATCH"],
         path:"/modify"
     }
-    modify11 (endpoint conn, http:Request req) {
+    resource function modify11(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.statusCode = 204;
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 }
 
-function getConstPath() returns (string) {
+function getConstPath() returns(string) {
     return "/constantPath";
+}
+
+@http:ServiceConfig
+service hello on echoEP {
+
+    @http:ResourceConfig
+    resource function echo(http:Caller caller, http:Request req) {
+        _ = caller->respond("Uninitialized configs");
+    }
 }

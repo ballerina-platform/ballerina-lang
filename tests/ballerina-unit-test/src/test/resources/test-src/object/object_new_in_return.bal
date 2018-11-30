@@ -1,5 +1,3 @@
-
-
 function testCreateObjectInReturnSameType () returns int {
     return returnSameObectInit().age;
 }
@@ -11,16 +9,16 @@ function testCreateObjectInReturnDifferentType () returns int {
 type Person object {
     public int age = 0;
 
-    new (age) {
-
+    function __init (int age) {
+        self.age = age;
     }
 };
 
 type Employee object {
     public int age = 0;
 
-    new (age, int addVal) {
-        self.age = self.age + addVal;
+    function __init (int age, int addVal) {
+        self.age = age + addVal;
     }
 };
 
@@ -31,6 +29,3 @@ function returnSameObectInit() returns Person {
 function returnDifferentObectInit() returns Person {
     return new Employee(5, 7);
 }
-
-
-

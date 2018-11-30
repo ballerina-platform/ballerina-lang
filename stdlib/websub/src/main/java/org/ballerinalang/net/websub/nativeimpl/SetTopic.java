@@ -35,6 +35,7 @@ import java.util.Optional;
 import static org.ballerinalang.net.http.HttpConstants.DEFAULT_HOST;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_HTTP_ENDPOINT;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERVICE_LISTENER;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERVICE_REGISTRY;
 
 /**
@@ -48,7 +49,8 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERV
         functionName = "setTopic",
         args = {@Argument(name = "webSubServiceName", type = TypeKind.STRING),
                 @Argument(name = "topic", type = TypeKind.STRING)},
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener", structPackage = WEBSUB_PACKAGE),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = WEBSUB_SERVICE_LISTENER,
+                structPackage = WEBSUB_PACKAGE),
         isPublic = true
 )
 public class SetTopic extends AbstractHttpNativeFunction {

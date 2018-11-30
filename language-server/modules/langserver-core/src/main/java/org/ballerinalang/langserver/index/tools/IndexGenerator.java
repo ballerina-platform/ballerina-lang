@@ -23,7 +23,6 @@ import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.index.DTOUtil;
 import org.ballerinalang.langserver.index.LSIndexException;
 import org.ballerinalang.langserver.index.LSIndexImpl;
-import org.ballerinalang.langserver.index.ObjectType;
 import org.ballerinalang.langserver.index.dao.BFunctionSymbolDAO;
 import org.ballerinalang.langserver.index.dao.BObjectTypeSymbolDAO;
 import org.ballerinalang.langserver.index.dao.BOtherTypeSymbolDAO;
@@ -62,9 +61,12 @@ public class IndexGenerator {
 
     private List<BPackageSymbol> getBLangPackages() {
         List<BPackageSymbol> bPackageSymbols = new ArrayList<>();
-        List<String> packages = Arrays.asList("auth", "builtin", "cache", "config", "crypto", "file", "grpc", "h2",
-                "http", "io", "jms", "log", "math", "mime", "mysql", "reflect", "runtime", "sql",
-                "swagger", "system", "task", "time", "transactions", "websub");
+//        List<String> packages = Arrays.asList("auth", "builtin", "cache", "config", "crypto", "file", "grpc", "h2",
+//                "http", "io", "jms", "log", "math", "mime", "mysql", "reflect", "runtime", "sql",
+//                "swagger", "system", "task", "time", "transactions", "websub", "socket");
+        List<String> packages = Arrays.asList(/*"auth", */"builtin"/*, "cache", "config", "crypto", "file",
+                "http", "io", "log",
+                "swagger", "time"*/);
         CompilerContext tempCompilerContext = LSContextManager.getInstance().getBuiltInPackagesCompilerContext();
         packages.forEach(pkg -> {
             try {
@@ -109,12 +111,10 @@ public class IndexGenerator {
             for (BLangPackageContent pkgContent : pkgContentList) {
                 int id = ((BPackageSymbolDAO) lsIndex.getDaoFactory().get(DAOType.PACKAGE_SYMBOL))
                         .insert(pkgContent.getPackageSymbolDTO());
-                DTOUtil.ObjectCategories objectCategories =
-                        DTOUtil.getObjectCategories(pkgContent.getObjectTypeSymbols());
                 insertBLangFunctions(id, pkgContent.getbInvokableSymbols(), lsIndex);
                 insertBLangRecords(id, pkgContent.getRecordTypeSymbols(), lsIndex);
                 insertOtherTypes(id, pkgContent.getOtherTypeSymbols(), lsIndex);
-                insertBLangObjects(id, objectCategories, lsIndex);
+                insertBLangObjects(id, pkgContent.getObjectTypeSymbols(), lsIndex);
             }
         } catch (LSIndexException e) {
             logger.error("Error Insert BLangPackages");
@@ -157,28 +157,31 @@ public class IndexGenerator {
         }
     }
 
-    private void insertBLangObjects(int pkgEntryId, DTOUtil.ObjectCategories categories, LSIndexImpl lsIndex) {
-        List<BFunctionSymbolDTO> objectAttachedFunctions = new ArrayList<>();
-        List<Integer> epIds = insertBLangObjects(pkgEntryId, categories.getEndpoints(), ObjectType.ENDPOINT, lsIndex);
-        List<Integer> actionHolderIds = insertBLangObjects(pkgEntryId, categories.getEndpointActionHolders(),
-                ObjectType.ACTION_HOLDER, lsIndex);
-        List<Integer> objectIds = insertBLangObjects(pkgEntryId, categories.getObjects(), ObjectType.OBJECT, lsIndex);
+    private void insertBLangObjects(int pkgEntryId, List<BObjectTypeSymbol> objects, LSIndexImpl lsIndex)
+            throws LSIndexException {
+        List<BFunctionSymbolDTO> attachedFunctions = new ArrayList<>();
+        List<Integer> objectIds = new ArrayList<>();
 
-        for (int i = 0; i < categories.getEndpointActionHolders().size(); i++) {
-            objectAttachedFunctions.addAll(getObjectAttachedFunctionDTOs(pkgEntryId, actionHolderIds.get(i),
-                    categories.getEndpointActionHolders().get(i)));
+        List<BObjectTypeSymbolDTO> dtos = objects.stream()
+                .filter(symbol -> !CommonUtil.isInvalidSymbol(symbol))
+                .map(object -> DTOUtil.getObjectTypeSymbolDTO(pkgEntryId, object))
+                .collect(Collectors.toList());
+        try {
+            objectIds = ((BObjectTypeSymbolDAO) lsIndex.getDaoFactory().get(DAOType.OBJECT_TYPE)).insertBatch(dtos);
+        } catch (LSIndexException e) {
+            logger.error("Error Insert BLangObjects");
         }
 
-        for (int i = 0; i < categories.getObjects().size(); i++) {
-            objectAttachedFunctions.addAll(getObjectAttachedFunctionDTOs(pkgEntryId, objectIds.get(i),
-                    categories.getObjects().get(i)));
+        if (objectIds.size() != objects.size()) {
+            throw new LSIndexException("Error While inserting Object Type Symbols");
+        }
+
+        for (int i = 0; i < objects.size(); i++) {
+            attachedFunctions.addAll(getObjectAttachedFunctionDTOs(pkgEntryId, objectIds.get(i), objects.get(i)));
         }
 
         try {
-            ((BObjectTypeSymbolDAO) lsIndex.getDaoFactory().get(DAOType.OBJECT_TYPE))
-                    .updateActionHolderIDs(epIds, actionHolderIds);
-            ((BFunctionSymbolDAO) lsIndex.getDaoFactory().get(DAOType.FUNCTION_SYMBOL))
-                    .insertBatch(objectAttachedFunctions);
+            ((BFunctionSymbolDAO) lsIndex.getDaoFactory().get(DAOType.FUNCTION_SYMBOL)).insertBatch(attachedFunctions);
         } catch (LSIndexException e) {
             logger.error("Error Updating Endpoint Action Holders");
         }
@@ -188,19 +191,5 @@ public class IndexGenerator {
         return symbol.attachedFuncs.stream()
                 .map(bAttachedFunction -> DTOUtil.getFunctionDTO(pkgId, objId, bAttachedFunction.symbol))
                 .collect(Collectors.toList());
-    }
-
-    private static List<Integer> insertBLangObjects(int pkgEntryId, List<BObjectTypeSymbol> bLangObjects,
-                                                    ObjectType type, LSIndexImpl lsIndex) {
-        List<BObjectTypeSymbolDTO> dtos = bLangObjects.stream()
-                .filter(symbol -> !CommonUtil.isInvalidSymbol(symbol))
-                .map(object -> DTOUtil.getObjectTypeSymbolDTO(pkgEntryId, object, type))
-                .collect(Collectors.toList());
-        try {
-            return ((BObjectTypeSymbolDAO) lsIndex.getDaoFactory().get(DAOType.OBJECT_TYPE)).insertBatch(dtos);
-        } catch (LSIndexException e) {
-            logger.error("Error Insert BLangObjects");
-        }
-        return new ArrayList<>();
     }
 }

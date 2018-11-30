@@ -109,9 +109,9 @@ public class TypeTestExprTest {
         BAssertUtil.validateError(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 188, 23);
         BAssertUtil.validateError(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 221, 8);
+                "unnecessary condition: expression will always evaluate to 'true'", 226, 8);
         BAssertUtil.validateError(negativeResult, i++,
-                "unnecessary condition: expression will always evaluate to 'true'", 225, 9);
+                "unnecessary condition: expression will always evaluate to 'true'", 230, 9);
     }
 
     @Test

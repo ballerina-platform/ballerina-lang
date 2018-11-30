@@ -13,6 +13,10 @@ type Person object {
     int year = 50;
     string month = "February";
     
-    new (age, name, year, month) {
+    function __init (int age, string name, int year, string month) {
+        self.age = age;
+        self.name = name;
+        self.year = year;
+        self.month = month;
     }
 };

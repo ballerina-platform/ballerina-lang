@@ -47,13 +47,8 @@ public class ErrorServiceTestCase extends BaseTest {
     public void testServiceWithoutPort() {
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "errorservices", "service_without_port.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
-        assertUnaryCompileResult(result);
-        try {
-            BServiceUtil.runService(result);
-            Assert.fail("Service should not start without listener port");
-        } catch (BLangRuntimeException ex) {
-            Assert.assertTrue(ex.getMessage().contains("error: Listener port is not defined!"));
-        }
+        Assert.assertEquals(result.getErrorCount(), 1);
+        Assert.assertEquals(result.getDiagnostics()[0].getMessage(), "not enough arguments in call to 'new()'");
     }
 
     @Test(description = "Test case for running secured unary service without keystore file")

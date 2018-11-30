@@ -107,7 +107,7 @@ public function cloneXML() returns (xml, xml, xml) {
     return (a, x, y);
 }
 
-public function cloneMap() returns (map, map, map) {
+public function cloneMap() returns (map<any>, map<any>, map<any>) {
 
     map<map<map<json>>> a = {};
     map<map<json>> b = {};
@@ -125,7 +125,7 @@ public function cloneMap() returns (map, map, map) {
     return (a, x, y);
 }
 
-public function cloneTable() returns (table, table, table) {
+public function cloneTable() returns (table<Employee>, table<Employee>, table<Employee>) {
 
     Employee e1 = { id: 1, name: "Jane", salary: 300.50 };
     Employee e2 = { id: 2, name: "Anne", salary: 100.50 };
@@ -135,8 +135,8 @@ public function cloneTable() returns (table, table, table) {
         { key id, name, salary },
         [e1, e2]
     };
-    table x = a.clone();
-    table y = a.clone();
+    table<Employee> x = a.clone();
+    table<Employee> y = a.clone();
     _ = a.add(e3);
     _ = y.add(e3);
     return (a, x, y);
@@ -239,13 +239,13 @@ public function cloneNilableInt() returns (any, any, any, any, any, any) {
     return (a, x, y, b, xx, yy);
 }
 
-public function cloneTuple() returns ((map, int[]), (map, int[]), (map, int[])) {
+public function cloneTuple() returns ((map<any>, int[]), (map<any>, int[]), (map<any>, int[])) {
     map<int> m = {};
     m["one"] = 100;
     int[] arr = [200];
     (map<int>, int[]) a = (m, arr);
-    (map, int[]) x = a.clone();
-    (map, int[]) y = a.clone();
+    (map<any>, int[]) x = a.clone();
+    (map<any>, int[]) y = a.clone();
     a[1][0] = 400;
     y[1][0] = 500;
     return (a, x, y);

@@ -1,50 +1,50 @@
 // OPEN RECORDS
 
 type Person record {
-    string name;
-    int age;
-    Address address;
+    string name = "";
+    int age = 0;
+    Address address = {};
 };
 
 type Address record {
-    string street;
-    string city;
+    string street = "";
+    string city = "";
 };
 
 type Foo record {
-    string a;
-    string b;
-    string c;
-    string d;
-    string e;
+    string a = "";
+    string b = "";
+    string c = "";
+    string d = "";
+    string e = "";
 };
 
 type RestrictedFoo record {
-    string a;
-    string b;
-    string c;
-    string d;
-    string e;
+    string a = "";
+    string b = "";
+    string c = "";
+    string d = "";
+    string e = "";
     string...
 };
 
 type Grades record {
-    int maths;
-    int physics;
-    int chemistry;
+    int maths = 0;
+    int physics = 0;
+    int chemistry = 0;
 };
 
 type RestrictedGrades record {
-    int maths;
-    int physics;
-    int chemistry;
+    int maths = 0;
+    int physics = 0;
+    int chemistry = 0;
     int...
 };
 
 type RestrictedBar record {
-    float x;
-    float y;
-    float z;
+    float x = 0.0;
+    float y = 0.0;
+    float z = 0.0;
     float...
 };
 
@@ -91,9 +91,9 @@ function testForeachWithOpenRecords3() returns any[] {
     return values;
 }
 
-function testForeachOpWithOpenRecords() returns map {
+function testForeachOpWithOpenRecords() returns map<any> {
     Person p = { name: "John Doe", age: 25, address: { street: "Palm Grove", city: "Colombo 3" }, height: 5.9 };
-    map rec;
+    map<any> rec = {};
 
     p.foreach(function ((string, any) entry) {
             var (field, value) = entry;
@@ -103,10 +103,10 @@ function testForeachOpWithOpenRecords() returns map {
     return rec;
 }
 
-function testMapOpWithOpenRecords() returns map {
+function testMapOpWithOpenRecords() returns map<any> {
     Person p = { name: "John Doe", age: 25, address: { street: "Palm Grove", city: "Colombo 3" }, profession: "Software Engineer" };
 
-    map newp =  p.map(function ((string, any) entry) returns (string, any) {
+    map<any> newp =  p.map(function ((string, any) entry) returns (string, any) {
            var (field, value) = entry;
             match value {
                 string str => value = str.toLower();
@@ -118,12 +118,12 @@ function testMapOpWithOpenRecords() returns map {
     return newp;
 }
 
-function testFilterOpWithOpenRecords() returns map {
+function testFilterOpWithOpenRecords() returns map<any> {
     Foo f = {a: "A", b: "B", c: "C", d: "D", e: "E", f: "F"};
 
-    map newf = f.filter(function ((string, any) entry) returns boolean {
+    map<any> newf = f.filter(function ((string, any) entry) returns boolean {
         var (field, value) = entry;
-        if (value != "A" && value != "E") {
+        if (value !== "A" && value !== "E") {
             return true;
         }
         return false;
@@ -137,10 +137,10 @@ function testCountOpWithOpenRecords() returns int {
     return f.count();
 }
 
-function testChainedOpsWithOpenRecords() returns map {
+function testChainedOpsWithOpenRecords() returns map<any> {
     Foo f = {a: "AA", b: "BB", c: "CC", d: "DD", e: "EE", f: "FF"};
 
-    map newf = f.map(function ((string, any) entry) returns (string, any) {
+    map<any> newf = f.map(function ((string, any) entry) returns (string, any) {
                     var (field, value) = entry;
                     match value {
                         string str => value = str.toLower();
@@ -150,7 +150,7 @@ function testChainedOpsWithOpenRecords() returns map {
                 })
                 .filter(function ((string, any) entry) returns boolean {
                     var (field, value) = entry;
-                    if (value != "aa" && value != "ee") {
+                    if (value !== "aa" && value !== "ee") {
                         return true;
                     }
                     return false;

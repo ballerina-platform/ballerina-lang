@@ -154,7 +154,7 @@ function testTupleWithAssignableTypes() returns (boolean, boolean, boolean) {
 
 function testSimpleConstrainedMap() returns (boolean, boolean, boolean, boolean, boolean) {
     map<string> m = {"key1": "value1"};
-    boolean b0 = m is map;
+    boolean b0 = m is map<any>;
     boolean b1 = m is map<any>;
     boolean b2 = m is map<string>;
     boolean b3 = m is json;
@@ -210,7 +210,12 @@ public type Z1 object {
     *Y1;
     public boolean s;
     
-    public new (p, q, r, s) {}
+    public function __init(int p, string q, float r, boolean s) {
+        self.p = p;
+        self.q = q;
+        self.r = r;
+        self.s = s;
+    }
 };
 
 function testObjectEquivalency() returns (string, string) {
