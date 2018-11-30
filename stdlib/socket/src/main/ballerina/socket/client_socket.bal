@@ -33,14 +33,21 @@ public type Client client object {
     public function __init(ClientConfig? clientConfig) {
         if (clientConfig is ClientConfig) {
             self.config = clientConfig;
-            self.initEndpoint(clientConfig);
-            self.start();
+            var initResult = self.initEndpoint(clientConfig);
+            if (initResult is error) {
+                panic initResult;
+            }
+            var startResult = self.start();
+            if (startResult is error) {
+                panic startResult;
+            }
         }
+        return ();
     }
 
-    extern function initEndpoint(ClientConfig clientConfig);
+    extern function initEndpoint(ClientConfig clientConfig) returns error?;
 
-    extern function start();
+    extern function start() returns error?;
 
     # Writes given data to the client socket.
     #
