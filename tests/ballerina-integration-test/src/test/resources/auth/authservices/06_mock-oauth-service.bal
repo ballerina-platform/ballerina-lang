@@ -17,22 +17,21 @@
 import ballerina/http;
 import ballerina/io;
 
-endpoint http:Listener tokenlistener {
-    port: 9095,
+listener http:Listener tokenlistener = new(9095, config = {
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
             password: "ballerina"
         }
     }
-};
+});
 
-service<http:Service> foo bind tokenlistener {
+service foo on tokenlistener {
 
     @http:ResourceConfig {
         methods: ["GET"]
     }
-    bar(endpoint caller, http:Request req) {
+    resource function bar(http:Caller caller, http:Request req) {
         http:Response res = new;
         _ = caller->respond(res);
     }
@@ -40,7 +39,7 @@ service<http:Service> foo bind tokenlistener {
     @http:ResourceConfig {
         methods: ["POST"]
     }
-    token(endpoint caller, http:Request req) {
+    resource function token(http:Caller caller, http:Request req) {
         // Mock token refresh resource
         var payload = req.getTextPayload();
         if (payload is string) {
