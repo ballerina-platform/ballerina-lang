@@ -69,7 +69,7 @@ function testTableAddOnConstrainedTable() returns (int) {
 }
 
 function testValidTableVariable() returns (int) {
-    table t1;
+    table<record {}> t1;
     table<Person> t2;
     return 0;
 }
