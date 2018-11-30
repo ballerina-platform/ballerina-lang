@@ -19,46 +19,44 @@
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.expressions.ErrorVariableReferenceNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.expressions.IsLikeExpressionNode;
-import org.ballerinalang.model.tree.types.TypeNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
 /**
- * Represents an is like expression in Ballerina.
- * Syntax: x isLike T
- * 
+ * Implementation of ErrorVariableReferenceNode.
+ *
  * @since 0.985.0
  */
-public class BLangIsLikeExpr extends BLangExpression implements IsLikeExpressionNode {
+public class BLangErrorVarRef extends BLangVariableReference implements ErrorVariableReferenceNode {
+    public BVarSymbol varSymbol;
+    public BLangIdentifier pkgAlias;
+    public BLangVariableReference reason;
+    public BLangVariableReference detail;
 
-    public BLangExpression expr;
-    public BLangType typeNode;
-
-    @Override
-    public BLangExpression getExpression() {
-        return expr;
+    public BLangErrorVarRef() {
     }
 
     @Override
-    public void setExpression(ExpressionNode expr) {
-        this.expr = (BLangExpression) expr;
+    public BLangIdentifier getPackageAlias() {
+        return pkgAlias;
     }
 
     @Override
-    public BLangType getTypeNode() {
-        return typeNode;
+    public ExpressionNode getReason() {
+        return reason;
     }
 
     @Override
-    public void setTypeNode(TypeNode typeNode) {
-        this.typeNode = (BLangType) typeNode;
+    public ExpressionNode getDetail() {
+        return detail;
     }
 
     @Override
-    public NodeKind getKind() {
-        return NodeKind.IS_LIKE;
+    public String toString() {
+        return "error (" + reason + ", " + detail + ")";
     }
 
     @Override
@@ -67,7 +65,7 @@ public class BLangIsLikeExpr extends BLangExpression implements IsLikeExpression
     }
 
     @Override
-    public String toString() {
-        return String.valueOf(expr) + " isLike " + typeNode.type;
+    public NodeKind getKind() {
+        return NodeKind.ERROR_VARIABLE_REF;
     }
 }
