@@ -163,7 +163,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
@@ -1313,11 +1312,6 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangDone doneNode) {
-        result = doneNode;
-    }
-
-    @Override
     public void visit(BLangRetry retryNode) {
         result = retryNode;
     }
@@ -1336,11 +1330,7 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangReturn returnNode) {
         // If the return node do not have an expression, we add `done` statement instead of a return statement. This is
         // to distinguish between returning nil value specifically and not returning any value.
-        if (returnNode.expr == null) {
-            BLangDone doneStmt = (BLangDone) TreeBuilder.createDoneNode();
-            doneStmt.pos = returnNode.pos;
-            result = doneStmt;
-        } else {
+        if (returnNode.expr != null) {
             returnNode.expr = rewriteExpr(returnNode.expr);
         }
         result = returnNode;

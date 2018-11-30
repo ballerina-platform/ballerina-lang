@@ -15,8 +15,6 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/io;
-import ballerina/mime;
 
 http:Client clientEP1 = new("https://localhost:9095/foo", config = {
     auth: {

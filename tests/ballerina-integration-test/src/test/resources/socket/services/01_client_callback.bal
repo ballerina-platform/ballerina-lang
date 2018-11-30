@@ -49,7 +49,7 @@ service echo on echoEP {
         } else if (payload is error) {
             string errMsg = <string> payload.detail().message;
             resp.statusCode = 500;
-            resp.setPayload(errMsg);
+            resp.setPayload(untaint errMsg);
             var responseError = caller->respond(resp);
             if (responseError is error) {
                 io:println("Error sending response: ", responseError.detail().message);
