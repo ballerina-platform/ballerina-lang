@@ -74,6 +74,12 @@ public class ObserveUtils {
         if (!enabled) {
             return;
         }
+        if (strand.respCallback.getObserverContext() == null) {
+            ObserverContext ctx = new ObserverContext();
+            ctx.setConnectorName(strand.currentFrame.callableUnitInfo.attachedToType.toString());
+            ctx.setServiceName(strand.currentFrame.callableUnitInfo.getName());
+            strand.respCallback.setObserverContext(ctx);
+        }
         ObserverContext observerContext = strand.respCallback.getObserverContext();
         observerContext.setServer();
         observerContext.setStarted();
@@ -120,6 +126,7 @@ public class ObserveUtils {
         newObContext.setStarted();
         newObContext.setConnectorName(strand.currentFrame.callableUnitInfo.attachedToType.toString());
         newObContext.setActionName(strand.currentFrame.callableUnitInfo.getName());
+        //TODO double check below logic
         newObContext.setServiceName(parentCtx != null ?
                                             parentCtx.getServiceName() : ObservabilityConstants.UNKNOWN_SERVICE);
         strand.currentFrame.observerContext = newObContext;
