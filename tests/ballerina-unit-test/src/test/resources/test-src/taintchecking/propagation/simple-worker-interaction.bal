@@ -12,6 +12,7 @@ public function main (string... args) {
         data1 -> w1;
     }
 }
+
 function secureFunction (@sensitive string secureIn, string insecureIn) {
 
 }
