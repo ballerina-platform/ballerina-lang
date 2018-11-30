@@ -32,6 +32,10 @@ public class GlobalVarErrorTest {
     public void testStructFieldWithChildPackagePaths() {
         CompileResult resultNegative = BCompileUtil.compile(
                 "test-src/statements/variabledef/global-var-function-negative.bal");
-        BAssertUtil.validateError(resultNegative, 0, "extraneous input ':'", 7, 20);
+        BAssertUtil.validateError(resultNegative, 0, "invalid token ':'", 7, 20);
+        BAssertUtil.validateError(resultNegative, 1, "extraneous input ':'", 7, 20);
+        BAssertUtil.validateError(resultNegative, 2, "extraneous input 'return'", 8, 5);
+        BAssertUtil.validateError(resultNegative, 3, "mismatched input ';'. expecting {'[', '?', '|', Identifier}",
+                                  8, 13);
     }
 }

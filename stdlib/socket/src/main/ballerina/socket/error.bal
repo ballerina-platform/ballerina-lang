@@ -16,6 +16,7 @@
 
 # SocketError will return in a socket related error situation.
 #
+# + message - the cause for the error
 public type SocketError record {
     string message = "";
     !...
