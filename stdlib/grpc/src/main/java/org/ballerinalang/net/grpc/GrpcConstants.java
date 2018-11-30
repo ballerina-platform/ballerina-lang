@@ -47,6 +47,7 @@ public class GrpcConstants {
     public static final String CALLER = "Caller";
     public static final String RESPONSE_OBSERVER = "RESPONSE_OBSERVER";
     public static final String RESPONSE_MESSAGE_DEFINITION = "RESPONSE_DEFINITION";
+    public static final String CALLER_ID = "instanceId";
     public static final int CLIENT_RESPONDER_REF_INDEX = 0;
     public static final int RESPONSE_MESSAGE_REF_INDEX = 1;
 

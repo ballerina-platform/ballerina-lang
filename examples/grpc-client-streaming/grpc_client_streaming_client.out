@@ -1,6 +1,6 @@
 # Create a Ballerina project and a module inside it.
 # Generate client endpoint and stub code using grpc_client_streaming.proto file.
-# For example, if you create a module named 'client', execute the following command to generate stub code.
+# For example, if you create a module named 'client', execute the following command to generate ballerina code.
 $ ballerina grpc --input grpc_client_streaming.proto --output client --mode client
 
 # Once you run the command, `grpc_client_streaming_pb.bal` and `HelloWorld_sample_client.bal` files will be generated inside client directory.
