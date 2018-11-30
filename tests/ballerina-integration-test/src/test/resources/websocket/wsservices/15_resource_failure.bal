@@ -31,10 +31,8 @@ service simple7 on new http:Listener(9097) {
         wsServiceEp.attributes["Query1"] = req.getQueryParams().q1;
     }
 }
-@http:WebSocketServiceConfig {
-    idleTimeoutInSeconds: 10
-}
-service castErrror = @http:WebSocketServiceConfig {} service {
+
+service castErrror = @http:WebSocketServiceConfig {idleTimeoutInSeconds: 10} service {
 
     resource function onText(http:WebSocketCaller wsEp, string text) {
         http:WebSocketClient val;
