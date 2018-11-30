@@ -1,10 +1,10 @@
 import ballerina/http;
 
-service<http:Service> HelloService {
+service HelloService on new http:MockListener(9090){
 
   @POST {}
   @Path {value:"/tweet"}
-  tweet (message m) {
+  resource function tweet (message m) {
       // Following line is invalid.
       int b
       return m;
