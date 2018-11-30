@@ -33,8 +33,8 @@ service dataService on dataServiceListener {
     resource function getData(http:Caller caller, http:Request req) {
 
         var selectRet = testDB->select("SELECT * FROM Data", ());
-        if (selectRet is table) {
-            var xmlConversionRet = <xml>selectRet;
+        if (selectRet is table<record {}>) {
+            var xmlConversionRet = xml.create(selectRet);
             if (xmlConversionRet is xml) {
                 var responseToCaller = caller->respond(untaint xmlConversionRet);
                 if (responseToCaller is error) {

@@ -77,7 +77,7 @@ function getLangClient() {
                 return value;
             });
             return new Promise((resolve, reject) => {
-                webViewRPCHandler.invokeRemoteMethod('astDidChange', [ast, params.documentIdentifier.uri], (resp) => {
+                webViewRPCHandler.invokeRemoteMethod('astDidChange', [ast, params.textDocumentIdentifier.uri], (resp) => {
                     resolve(resp);
                 });
             })

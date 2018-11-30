@@ -15,11 +15,9 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.bre.vm;
+package org.ballerinalang.bre.bvm;
 
-import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.bre.vm.Strand.State;
+import org.ballerinalang.bre.bvm.Strand.State;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;

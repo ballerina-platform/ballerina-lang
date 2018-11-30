@@ -19,7 +19,7 @@
 package org.ballerinalang.net.websub.hub;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.vm.BVMExecutor;
+import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.broker.BallerinaBroker;
 import org.ballerinalang.broker.BallerinaBrokerByteBuf;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;

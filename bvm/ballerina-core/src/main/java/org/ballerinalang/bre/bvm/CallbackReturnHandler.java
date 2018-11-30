@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.bre.vm;
+package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
@@ -26,6 +26,7 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.util.codegen.cpentries.UTF8CPEntry;
+
 import java.util.Map;
 
 /**

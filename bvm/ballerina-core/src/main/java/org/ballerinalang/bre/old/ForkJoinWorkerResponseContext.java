@@ -15,8 +15,10 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.bre.bvm;
+package org.ballerinalang.bre.old;
 
+import org.ballerinalang.bre.bvm.BLangVMErrors;
+import org.ballerinalang.bre.bvm.WorkerDataChannel;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
@@ -70,7 +72,7 @@ public class ForkJoinWorkerResponseContext extends SyncCallableWorkerResponseCon
     }
 
     @Override
-    protected WorkerExecutionContext onReturn(WorkerSignal signal) { 
+    protected WorkerExecutionContext onReturn(WorkerSignal signal) {
         return null;
     }
     
