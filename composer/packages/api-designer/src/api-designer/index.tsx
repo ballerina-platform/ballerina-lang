@@ -408,13 +408,11 @@ class OpenApiVisualizer extends React.Component<OasProps, OpenApiState> {
 
     public onInlineEditChange(openApiJson: any) {
         const { onDidChange } = this.props;
-        debugger;
 
         this.setState({
             openApiJson
         }, () => {
             if (onDidChange) {
-                debugger;
                 onDidChange(EVENTS.ON_INLINE_CHANGE, this.state.openApiJson);
             }
         });
@@ -511,7 +509,7 @@ class OpenApiVisualizer extends React.Component<OasProps, OpenApiState> {
                             <div className="description">
                                 <InlineEdit
                                     changeModel={openApiJson}
-                                    changeAttribute={{key: "info.description"}}
+                                    changeAttribute={{key: "info.description", value: ""}}
                                     inlineEditString={info.description}
                                     placeholderString="Add a description"
                                     isParagraph
@@ -521,7 +519,7 @@ class OpenApiVisualizer extends React.Component<OasProps, OpenApiState> {
                             <div>
                                 <InlineEdit
                                     changeModel={openApiJson}
-                                    changeAttribute={{key: "info.termsOfService"}}
+                                    changeAttribute={{key: "info.termsOfService", value: ""}}
                                     inlineEditString={info.termsOfService}
                                     placeholderString="Add terms of service link."
                                     isURL={{ urlLink: info.termsOfService, urlString: info.termsOfService }}
@@ -532,7 +530,7 @@ class OpenApiVisualizer extends React.Component<OasProps, OpenApiState> {
                                 {info.license ?
                                     <InlineEdit
                                         changeModel={openApiJson}
-                                        changeAttribute={{key: "info.license"}}
+                                        changeAttribute={{key: "info.license", value: ""}}
                                         inlineEditString={info.license.url}
                                         placeholderString="Add license link."
                                         isURL={{ urlLink: info.license.url, urlString: info.license.name }}
@@ -541,7 +539,7 @@ class OpenApiVisualizer extends React.Component<OasProps, OpenApiState> {
                                 :
                                     <InlineEdit
                                         changeModel={openApiJson}
-                                        changeAttribute={{key: "info.license"}}
+                                        changeAttribute={{key: "info.license", value: ""}}
                                         inlineEditString={""}
                                         placeholderString="Add license link."
                                         isURL={{ urlLink: "", urlString: "" }}
@@ -553,7 +551,7 @@ class OpenApiVisualizer extends React.Component<OasProps, OpenApiState> {
                                 {info.contact ?
                                     <InlineEdit
                                         changeModel={openApiJson}
-                                        changeAttribute={{key: "info.contact"}}
+                                        changeAttribute={{key: "info.contact", value: ""}}
                                         inlineEditString={info.contact.url}
                                         placeholderString="Add contact information."
                                         isURL={{ urlLink: info.contact.url, urlString: info.contact.name }}
@@ -562,7 +560,7 @@ class OpenApiVisualizer extends React.Component<OasProps, OpenApiState> {
                                 :
                                     <InlineEdit
                                         changeModel={openApiJson}
-                                        changeAttribute={{key: "info.contact"}}
+                                        changeAttribute={{key: "info.contact", value: ""}}
                                         inlineEditString={""}
                                         placeholderString="Add contact information"
                                         isURL={{ urlLink: "", urlString: "" }}

@@ -38,7 +38,7 @@ export interface URL {
 
 export interface AttributeObject {
     key: string;
-    value?: string;
+    value: string;
 }
 
 export interface InlineEditState {
@@ -75,6 +75,7 @@ class InlineEdit extends React.Component<InlineEditProps, InlineEditState> {
         this.handleDoneEditing = this.handleDoneEditing.bind(this);
         this.enableEditing = this.enableEditing.bind(this);
         this.handleOnTextChange = this.handleOnTextChange.bind(this);
+        this.handleCancelEdit = this.handleCancelEdit.bind(this);
     }
 
     public componentWillReceiveProps(nextProps: InlineEditProps) {
@@ -116,13 +117,19 @@ class InlineEdit extends React.Component<InlineEditProps, InlineEditState> {
                                     value={urlString}
                                     onChange={this.handleOnTextChange}
                                 />
-                                <Form.Button width={1} inverted color="black" icon="check" />
+                                <Form.Button
+                                    width={1}
+                                    inverted
+                                    color="black"
+                                    icon="check"
+                                    onClick={this.handleDoneEditing}
+                                />
                                 <Form.Button
                                     width={1}
                                     inverted
                                     color="black"
                                     icon="close"
-                                    onClick={this.handleDoneEditing}
+                                    onClick={this.handleCancelEdit}
                                 />
                             </Form.Group>
                         </Form>
@@ -213,39 +220,41 @@ class InlineEdit extends React.Component<InlineEditProps, InlineEditState> {
     }
 
     private handleDoneEditing() {
-        const { isURL } = this.props;
-        if (isURL) {
-            this.setState({
-                isEditing: false,
-                stateText: this.state.initialTextValue,
-                urlString: this.state.initialURLStringValue
-            }, () => {
-                const { changeModel, changeAttribute } = this.props;
-                this.handleChangeEvent(changeModel, changeAttribute);
-            });
-        } else {
-            this.setState({
-                isEditing: false
-            }, () => {
-                const { changeModel, changeAttribute } = this.props;
-                this.handleChangeEvent(changeModel, changeAttribute);
-            });
-        }
+        this.setState({
+            isEditing: false
+        }, () => {
+            const { changeModel, changeAttribute } = this.props;
+            this.handleChangeEvent(changeModel, changeAttribute);
+        });
     }
 
     private handleChangeEvent(model: any, attribute: AttributeObject) {
-        const { stateText } = this.state;
+        const { stateText, urlString } = this.state;
 
         switch (attribute.key) {
             case "info.description":
                 model.info.descrption = stateText;
                 break;
             case "info.termsOfService":
+                model.info.termsOfService = stateText;
                 break;
             case "info.license":
+                model.info.license = {
+                    name: urlString,
+                    url: stateText
+                };
                 break;
             case "info.contact":
+                model.info.contact = {
+                    name: urlString,
+                    url: stateText
+                };
                 break;
+            case "resource.name":
+                if (stateText !== "" && model.paths) {
+                    model.paths[stateText] = model.paths[attribute.value];
+                    delete model.paths[attribute.value];
+                }
             default:
                 break;
         }
@@ -253,8 +262,16 @@ class InlineEdit extends React.Component<InlineEditProps, InlineEditState> {
         this.props.onInlineValueChange(model);
     }
 
-    private validateURL(url: string): boolean {
-        return /^(ftp|http|https):\/\/[^ "]+$/.test(url);
+    private handleCancelEdit() {
+        const { isURL } = this.props;
+
+        if (isURL) {
+            this.setState({
+                isEditing: false,
+                stateText: this.state.initialTextValue,
+                urlString: this.state.initialURLStringValue
+            });
+        }
     }
 
 }
