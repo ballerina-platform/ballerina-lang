@@ -4244,7 +4244,7 @@ public class BVM {
         BType expType = typeEntry.getType();
         int retValReg = operands[2];
 
-        HashMap<Integer, SafeStrandCallback> callbackHashMap = new HashMap<>();
+        List<SafeStrandCallback.WaitMultipleCallback> callbackList = new ArrayList<>();
         for (int i = 0; i < c; i = i + 2) {
             int index = i + 3;
             // Get the key
@@ -4252,10 +4252,15 @@ public class BVM {
             // Get the expression followed
             int futureReg = operands[index + 1];
             BFuture future = (BFuture) strand.currentFrame.refRegs[futureReg];
-            callbackHashMap.put(keyRegIndex, (SafeStrandCallback) future.value().respCallback);
+            callbackList.add(new SafeStrandCallback.WaitMultipleCallback(keyRegIndex,
+                                                                         (SafeStrandCallback) future.value().
+                                                                                 respCallback));
         }
-        strand.createWaitHandler(c,  new ArrayList(callbackHashMap.keySet()));
-        return WaitCallbackHandler.handleReturnInWaitMultiple(strand, retValReg, callbackHashMap);
+        strand.createWaitHandler(c, new ArrayList(callbackList.stream()
+                                                              .map(SafeStrandCallback.WaitMultipleCallback::
+                                                                            getKeyRegIndex)
+                                                              .collect(Collectors.toList())));
+        return WaitCallbackHandler.handleReturnInWaitMultiple(strand, retValReg, callbackList);
     }
     /**
      * This is used to propagate the results of {@link BVM#handleError(Strand)} to the

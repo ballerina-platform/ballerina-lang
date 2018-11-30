@@ -28,7 +28,8 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.util.codegen.cpentries.UTF8CPEntry;
-import java.util.Map;
+
+import java.util.List;
 
 /**
  * This represents handler class which handles callback returns.
@@ -78,16 +79,16 @@ public class WaitCallbackHandler {
         return null;
     }
 
-    static Strand handleReturnInWaitMultiple(Strand strand, int retReg, Map<Integer, SafeStrandCallback> callbacks) {
+    static Strand handleReturnInWaitMultiple(Strand strand, int retReg,
+                                             List<SafeStrandCallback.WaitMultipleCallback> callbacks) {
         try {
             strand.acquireExecutionLock();
             if (strand.strandWaitHandler.waitCompleted) {
                 return null;
             }
-            //TODO check whether keyReg can have same value
-            for (Map.Entry<Integer, SafeStrandCallback> entry : callbacks.entrySet()) {
-                Integer keyReg = entry.getKey();
-                SafeStrandCallback callback = entry.getValue();
+            for (SafeStrandCallback.WaitMultipleCallback waitMultipleCallback: callbacks) {
+                Integer keyReg = waitMultipleCallback.getKeyRegIndex();
+                SafeStrandCallback callback = waitMultipleCallback.getCallback();
                 callback.acquireDataLock();
 
                 if (!callback.isDone()) {
@@ -120,7 +121,8 @@ public class WaitCallbackHandler {
         return null;
     }
 
-    private static void copyReturnsInWaitMultiple(StackFrame sf, SafeStrandCallback strandCallback, int retReg, int keyReg) {
+    private static void copyReturnsInWaitMultiple(StackFrame sf, SafeStrandCallback strandCallback, int retReg,
+                                                  int keyReg) {
         String keyValue = ((UTF8CPEntry) sf.constPool[keyReg]).getValue();
         switch (strandCallback.retType.getTag()) {
             case TypeTags.INT_TAG:
@@ -144,7 +146,8 @@ public class WaitCallbackHandler {
         }
     }
 
-    private static boolean copyReturnsInWait(Strand strand, SafeStrandCallback strandCallback, BType expType, int retReg) {
+    private static boolean copyReturnsInWait(Strand strand, SafeStrandCallback strandCallback, BType expType,
+                                             int retReg) {
         StackFrame sf = strand.currentFrame;
         if (expType.getTag() == TypeTags.UNION_TAG) {
             switch (strandCallback.retType.getTag()) {
@@ -165,7 +168,8 @@ public class WaitCallbackHandler {
                     break;
                 default:
                     BRefType<?> refRetVal = strandCallback.getRefRetVal();
-                    if (BVM.checkIsType(refRetVal, BTypes.typeError) && strand.strandWaitHandler.callBacksRemaining != 0) {
+                    if (BVM.checkIsType(refRetVal, BTypes.typeError) &&
+                            strand.strandWaitHandler.callBacksRemaining != 0) {
                         return false;
                     }
                     sf.refRegs[retReg] = strandCallback.getRefRetVal();
