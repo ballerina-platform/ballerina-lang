@@ -20,6 +20,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
@@ -184,15 +185,27 @@ public class TypeAssertionExpressionsTest {
     }
 
     @Test
+    public void testAssertionPanicWithCheckTrap() {
+        BValue[] returns = BRunUtil.invoke(result, "testAssertionPanicWithCheckTrap", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BError.class);
+        Assert.assertEquals(((BError) returns[0]).getReason(), "assertion error: expected 'PersonObject', found " +
+                "'EmployeeObject'");
+    }
+
+    @Test
     public void testAssertionNegatives() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 3);
+        Assert.assertEquals(resultNegative.getErrorCount(), 5);
         int errIndex = 0;
         validateError(resultNegative, errIndex++, "incompatible types: 'Def' cannot be explicitly typed as 'Abc'",
                       19, 15);
         validateError(resultNegative, errIndex++, "incompatible types: 'map<int>' cannot be explicitly typed as 'map'",
-                      22, 14);
-        validateError(resultNegative, errIndex, "incompatible types: 'stream<int|string>' cannot be explicitly " +
-                              "typed as 'stream<int|json>'", 25, 27);
+                      22, 19);
+        validateError(resultNegative, errIndex++, "type assertion not yet supported for type 'table<Employee>'",
+                      28, 17);
+        validateError(resultNegative, errIndex++, "type assertion not yet supported for type 'stream<int|json>'",
+                      32, 27);
+        validateError(resultNegative, errIndex, "type assertion not yet supported for type 'future<int>'", 36, 22);
     }
 
     @DataProvider

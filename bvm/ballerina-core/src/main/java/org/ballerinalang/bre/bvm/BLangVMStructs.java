@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.bre.bvm;
 
-import org.ballerinalang.bre.vm.BVMExecutor;
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;

@@ -2,7 +2,7 @@
     "cases": [
         {
             "arguments": {
-                "node.line": 38,
+                "node.line": 34,
                 "node.column": 20
             },
             "expected": {

@@ -27,7 +27,7 @@ function testAssignment() {
 // Updating constant in a worker.
 function testWorkerInteractions() {
     worker w1 {
-        x <- w2; // Updating constant.
+        x = <- w2; // Updating constant.
     }
     worker w2 {
         30 -> w1;
