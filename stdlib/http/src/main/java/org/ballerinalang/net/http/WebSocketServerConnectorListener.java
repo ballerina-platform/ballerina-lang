@@ -27,7 +27,7 @@ import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.services.ErrorHandlerUtils;
-import org.ballerinalang.util.observability.ObservabilityUtils;
+import org.ballerinalang.util.observability.ObserveUtils;
 import org.ballerinalang.util.observability.ObserverContext;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
@@ -37,8 +37,6 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
-
-import java.util.Optional;
 
 import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONNECTION_FIELD;
 import static org.ballerinalang.util.observability.ObservabilityConstants.SERVER_CONNECTOR_WEBSOCKET;
@@ -80,12 +78,13 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
             httpConnection.addNativeData(HttpConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER, connectionManager);
 
             // TODO: Need to revisit this code of observation.
-            Optional<ObserverContext> observerContext = ObservabilityUtils.startServerObservation(
-                    SERVER_CONNECTOR_WEBSOCKET, wsService.getServiceInfo(), balResource.getName(),
-                    null);
+            ObserverContext observerContext = new ObserverContext();
+            observerContext.setConnectorName(SERVER_CONNECTOR_WEBSOCKET);
+            observerContext.setServiceName(ObserveUtils.getFullServiceName(wsService.getServiceInfo()));
+            observerContext.setResourceName(balResource.getName());
 
             Executor.submit(balResource, new OnUpgradeResourceCallableUnitCallback(webSocketHandshaker, wsService),
-                            null, observerContext.orElse(null), signatureParams);
+                            null, observerContext, signatureParams);
 
         } else {
             WebSocketUtil.handleHandshake(wsService, connectionManager, null, webSocketHandshaker, null, null);

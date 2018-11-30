@@ -25,7 +25,7 @@ import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.observability.ObservabilityUtils;
+import org.ballerinalang.util.observability.ObserveUtils;
 import org.ballerinalang.util.observability.ObserverContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +34,6 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_TRACE_PROPERTIES;
 import static org.ballerinalang.util.observability.ObservabilityConstants.SERVER_CONNECTOR_HTTP;
@@ -103,20 +102,22 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         BValue[] signatureParams = HttpDispatcher.getSignatureParameters(httpResource, inboundMessage, endpointConfig);
         Resource balResource = httpResource.getBalResource();
 
-        Optional<ObserverContext> observerContext = ObservabilityUtils.startServerObservation(SERVER_CONNECTOR_HTTP,
-                httpResource.getParentService().getBalService().getServiceInfo(), balResource.getName(), null);
-        observerContext.ifPresent(ctx -> {
-            Map<String, String> httpHeaders = new HashMap<>();
-            inboundMessage.getHeaders().forEach(entry -> httpHeaders.put(entry.getKey(), entry.getValue()));
-            ctx.addProperty(PROPERTY_TRACE_PROPERTIES, httpHeaders);
-            ctx.addTag(TAG_KEY_HTTP_METHOD, (String) inboundMessage.getProperty(HttpConstants.HTTP_METHOD));
-            ctx.addTag(TAG_KEY_PROTOCOL, (String) inboundMessage.getProperty(HttpConstants.PROTOCOL));
-            ctx.addTag(TAG_KEY_HTTP_URL, (String) inboundMessage.getProperty(HttpConstants.REQUEST_URL));
-        });
+        ObserverContext observerContext = new ObserverContext();
+        observerContext.setConnectorName(SERVER_CONNECTOR_HTTP);
+        observerContext.setServiceName(ObserveUtils.getFullServiceName(httpResource.getParentService().getBalService()
+                                                                                   .getServiceInfo()));
+        observerContext.setResourceName(balResource.getName());
+
+        Map<String, String> httpHeaders = new HashMap<>();
+        inboundMessage.getHeaders().forEach(entry -> httpHeaders.put(entry.getKey(), entry.getValue()));
+        observerContext.addProperty(PROPERTY_TRACE_PROPERTIES, httpHeaders);
+        observerContext.addTag(TAG_KEY_HTTP_METHOD, (String) inboundMessage.getProperty(HttpConstants.HTTP_METHOD));
+        observerContext.addTag(TAG_KEY_PROTOCOL, (String) inboundMessage.getProperty(HttpConstants.PROTOCOL));
+        observerContext.addTag(TAG_KEY_HTTP_URL, (String) inboundMessage.getProperty(HttpConstants.REQUEST_URL));
 
         CallableUnitCallback callback = new HttpCallableUnitCallback(inboundMessage);
         //TODO handle BallerinaConnectorException
-        Executor.submit(balResource, callback, properties, observerContext.orElse(null), signatureParams);
+        Executor.submit(balResource, callback, properties, observerContext, signatureParams);
     }
 
     protected boolean accessed(HttpCarbonMessage inboundMessage) {

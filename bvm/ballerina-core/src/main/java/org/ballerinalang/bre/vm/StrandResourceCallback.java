@@ -36,6 +36,8 @@ public class StrandResourceCallback extends StrandCallback {
 
     @Override
     public void signal() {
+        // TODO: 11/30/18 Need to fix this properly
+//        super.signal();
         if (super.getErrorVal() != null) {
             resourceCallback.notifyFailure(super.getErrorVal());
             return;

@@ -53,6 +53,10 @@ public class ObserverContext {
 
     private ObserverContext parent;
 
+    public String strandName;
+
+    public String callableName;
+
     public ObserverContext() {
         this.properties = new HashMap<>();
         this.tags = new HashMap<>();

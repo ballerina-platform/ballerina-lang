@@ -24,6 +24,7 @@ import org.ballerinalang.util.codegen.Instruction;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
+import org.ballerinalang.util.observability.ObserverContext;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,6 +35,8 @@ import java.util.Map;
  * @since 0.985.0
  */
 public class StackFrame {
+
+    public int flags = -1;
 
     public long[] longRegs;
 
@@ -60,6 +63,8 @@ public class StackFrame {
 
     // Return registry index
     int retReg;
+
+    public ObserverContext observerContext;
 
     public StackFrame() {}
 

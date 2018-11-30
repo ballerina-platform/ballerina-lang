@@ -38,6 +38,7 @@ import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.util.observability.ObserveUtils;
 import org.ballerinalang.util.observability.ObserverContext;
 import org.ballerinalang.util.program.BLangVMUtils;
 
@@ -152,6 +153,11 @@ public class BVMExecutor {
                 resourceInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), -1);
         copyArgValues(args, idf, resourceInfo.getParamTypes());
         strand.pushFrame(idf);
+
+        // Start the server observation
+        observerContext.strandName = strand.getId();
+        observerContext.callableName = resourceInfo.getName();
+        ObserveUtils.startResourceObservation(strand, observerContext);
 
         BVMScheduler.stateChange(strand, State.NEW, State.RUNNABLE);
         BVMScheduler.schedule(strand);

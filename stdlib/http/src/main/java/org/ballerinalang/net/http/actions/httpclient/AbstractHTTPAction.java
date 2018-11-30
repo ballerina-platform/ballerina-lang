@@ -41,9 +41,8 @@ import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.observability.ObservabilityConstants;
-import org.ballerinalang.util.observability.ObservabilityUtils;
+import org.ballerinalang.util.observability.ObserveUtils;
 import org.ballerinalang.util.observability.ObserverContext;
-import org.ballerinalang.util.transactions.LocalTransactionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
@@ -61,7 +60,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Optional;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.ACCEPT_ENCODING;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION;
@@ -138,9 +136,9 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
 
     protected void prepareOutboundRequest(Context context, String path, HttpCarbonMessage outboundRequest) {
         if (context.isInTransaction()) {
-            LocalTransactionInfo localTransactionInfo = context.getLocalTransactionInfo();
-            outboundRequest.setHeader(HttpConstants.HEADER_X_XID, localTransactionInfo.getGlobalTransactionId());
-            outboundRequest.setHeader(HttpConstants.HEADER_X_REGISTER_AT_URL, localTransactionInfo.getURL());
+//            LocalTransactionInfo localTransactionInfo = context.getLocalTransactionInfo();
+//            outboundRequest.setHeader(HttpConstants.HEADER_X_XID, localTransactionInfo.getGlobalTransactionId());
+//            outboundRequest.setHeader(HttpConstants.HEADER_X_REGISTER_AT_URL, localTransactionInfo.getURL());
         }
         try {
             String uri = getServiceUri(context) + path;
@@ -328,7 +326,7 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
 
         HttpUtil.checkAndObserveHttpRequest(dataContext.context, outboundRequestMsg);
 
-        final HTTPClientConnectorListener httpClientConnectorLister = ObservabilityUtils.isObservabilityEnabled() ?
+        final HTTPClientConnectorListener httpClientConnectorLister = ObserveUtils.isObservabilityEnabled() ?
                 new ObservableHttpClientConnectorListener(dataContext) :
                 new HTTPClientConnectorListener(dataContext);
         final HttpMessageDataStreamer outboundMsgDataStreamer = getHttpMessageDataStreamer(outboundRequestMsg);
@@ -505,9 +503,8 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
         }
 
         private void addHttpStatusCode(int statusCode) {
-            Optional<ObserverContext> observerContext = ObservabilityUtils.getParentContext(context);
-            observerContext.ifPresent(ctx -> ctx.addTag(ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE,
-                    String.valueOf(statusCode)));
+            ObserverContext observerContext = ObserveUtils.getParentObserverContext(context);
+            observerContext.addTag(ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE, String.valueOf(statusCode));
         }
     }
 }

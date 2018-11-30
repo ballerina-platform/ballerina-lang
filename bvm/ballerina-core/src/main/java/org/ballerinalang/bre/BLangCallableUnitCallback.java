@@ -23,6 +23,7 @@ import org.ballerinalang.bre.vm.StackFrame;
 import org.ballerinalang.bre.vm.Strand;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BError;
+import org.ballerinalang.util.observability.ObserveUtils;
 import org.ballerinalang.util.program.BLangVMUtils;
 
 /**
@@ -51,6 +52,7 @@ public class BLangCallableUnitCallback implements CallableUnitCallback {
     @Override
     public void notifySuccess() {
         if (strand.fp > 0) {
+            ObserveUtils.stopCallableObservation(strand);
             strand.popFrame();
             StackFrame sf = strand.currentFrame;
             BLangVMUtils.populateWorkerDataWithValues(sf, this.retReg,
@@ -66,6 +68,7 @@ public class BLangCallableUnitCallback implements CallableUnitCallback {
     @Override
     public void notifyFailure(BError error) {
         if (strand.fp > 0) {
+            ObserveUtils.stopCallableObservation(strand);
             strand.popFrame();
             StackFrame sf = strand.currentFrame;
             strand.setError(error);

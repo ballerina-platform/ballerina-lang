@@ -128,7 +128,7 @@ import org.ballerinalang.util.exceptions.BLangMapStoreException;
 import org.ballerinalang.util.exceptions.BLangNullReferenceException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
-import org.ballerinalang.util.observability.ObserverContext;
+import org.ballerinalang.util.observability.ObserveUtils;
 import org.ballerinalang.util.program.BLangVMUtils;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
 import org.ballerinalang.util.transactions.TransactionConstants;
@@ -398,6 +398,7 @@ public class BVM {
                         sf.refRegs[j] = new BTypeDescValue(typeEntry.getType());
                         break;
                     case InstructionCodes.HALT:
+                        ObserveUtils.stopCallableObservation(strand);
                         if (strand.fp > 0) {
                             strand.popFrame();
                             break;
@@ -750,6 +751,7 @@ public class BVM {
                         }
                         break;
                     case InstructionCodes.RET:
+                        ObserveUtils.stopCallableObservation(strand);
                         if (strand.fp > 0) {
                             strand.popFrame();
                             break;
@@ -839,13 +841,13 @@ public class BVM {
         //TODO refactor when worker info is removed from compiler
         StackFrame df = new StackFrame(callableUnitInfo.getPackageInfo(), callableUnitInfo,
                 callableUnitInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), retReg);
+        df.flags = flags;
         copyArgValues(strand.currentFrame, df, argRegs, callableUnitInfo.getParamTypes());
 
         if (!FunctionFlags.isAsync(flags)) {
             strand.pushFrame(df);
+            ObserveUtils.startCallableObservation(strand, flags);
             if (callableUnitInfo.isNative()) {
-                // This is to return the current thread in case of non blocking call
-                df.ip = -1;
                 return invokeNativeCallable(callableUnitInfo, strand, df, retReg, flags);
             }
             return strand;
@@ -855,6 +857,7 @@ public class BVM {
         Strand calleeStrand = new Strand(strand.programFile, callableUnitInfo.getName(),
                 strand.globalProps, strndCallback, strand.wdChannels);
         calleeStrand.pushFrame(df);
+        ObserveUtils.startCallableObservation(calleeStrand, flags);
         if (callableUnitInfo.isNative()) {
             Context nativeCtx = new NativeCallContext(calleeStrand, callableUnitInfo, df);
             NativeCallableUnit nativeCallable = callableUnitInfo.getNativeCallableUnit();
@@ -881,11 +884,12 @@ public class BVM {
         try {
             //                    TODO fix - rajith
 //            ObserverContext observerContext = checkAndStartNativeCallableObservation(ctx, callableUnitInfo, flags);
-            ObserverContext observerContext = null;
+//            ObserverContext observerContext = null;
             if (nativeCallable.isBlocking()) {
                 nativeCallable.execute(ctx, null);
 
                 if (strand.fp > 0) {
+                    ObserveUtils.stopCallableObservation(strand);
                     strand.popFrame();
                     StackFrame retFrame = strand.currentFrame;
                     BLangVMUtils.populateWorkerDataWithValues(retFrame, retReg, ctx.getReturnValue(), retType);
@@ -895,30 +899,28 @@ public class BVM {
 //                checkAndStopCallableObservation(observerContext, flags);
                 /* we want the parent to continue, since we got the response of the native call already */
                 strand.respCallback.signal();
-                return strand;
+                return null;
             }
-            CallableUnitCallback callback = getNativeCallableUnitCallback(strand, sf, ctx, observerContext,
-                    retReg, retType, flags);
+            CallableUnitCallback callback = getNativeCallableUnitCallback(strand, sf, ctx, retReg, retType, flags);
             nativeCallable.execute(ctx, callback);
-            return strand;
+            return null;
         } catch (BLangNullReferenceException e) {
             strand.setError(BLangVMErrors.createNullRefException(strand));
         } catch (Throwable e) {
             strand.setError(BLangVMErrors.createError(strand, e.getMessage()));
         }
+        ObserveUtils.stopCallableObservation(strand);
         strand.popFrame();
         handleError(strand);
         return strand;
     }
 
     private static CallableUnitCallback getNativeCallableUnitCallback(Strand strand, StackFrame parentDf, Context ctx,
-                                                                      ObserverContext observerContext, int retReg,
-                                                                      BType retType, int flags) {
-        BLangCallableUnitCallback callback = new BLangCallableUnitCallback(ctx, strand, retReg, retType);
+                                                                      int retReg, BType retType, int flags) {
         //                    TODO fix - rajith
 //        return (ObservabilityUtils.isObservabilityEnabled() && FunctionFlags.isObserved(flags)) ?
 //                new CallableUnitCallbackObserver(observerContext, callback) : callback;
-        return callback;
+        return new BLangCallableUnitCallback(ctx, strand, retReg, retType);
     }
 
 
@@ -4052,6 +4054,7 @@ public class BVM {
             sf.refRegs[match.regIndex] = strand.getError();
             strand.setError(null);
         } else if (strand.fp > 0) {
+            ObserveUtils.stopCallableObservation(strand);
             strand.popFrame();
             handleError(strand);
         } else {

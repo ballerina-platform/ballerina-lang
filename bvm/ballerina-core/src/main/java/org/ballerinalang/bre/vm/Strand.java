@@ -20,6 +20,7 @@ package org.ballerinalang.bre.vm;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.DebugContext;
+import org.ballerinalang.util.observability.ObserverContext;
 import org.ballerinalang.util.program.BLangVMUtils;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
 
@@ -68,6 +69,8 @@ public class Strand {
     public WDChannels parentChannels;
 
     public WDChannels wdChannels;
+
+    public ObserverContext observerContext;
 
     public Strand(ProgramFile programFile, String name, Map<String, Object> properties, StrandCallback respCallback,
                   WDChannels parentChannels) {

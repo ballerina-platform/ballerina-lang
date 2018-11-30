@@ -20,6 +20,8 @@ package org.ballerinalang.bre.vm;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.util.observability.ObserveUtils;
+import org.ballerinalang.util.observability.ObserverContext;
 
 /**
  * Default VM callback implementation.
@@ -35,6 +37,7 @@ public class StrandCallback implements BVMCallback {
     private int intVal;
     private BRefType<?> refVal;
     private BError error;
+    public ObserverContext observerContext;
 
     protected BType retType; //TODO may be this is wrong, we should take the type in wait expression -check this
 
@@ -44,7 +47,7 @@ public class StrandCallback implements BVMCallback {
 
     @Override
     public void signal() {
-        //TODO
+        ObserveUtils.stopObservation(observerContext);
     }
 
     @Override
@@ -115,6 +118,11 @@ public class StrandCallback implements BVMCallback {
     @Override
     public BError getErrorVal() {
         return error;
+    }
+
+    @Override
+    public void setObserverContext(ObserverContext context) {
+        observerContext = context;
     }
 
 }
