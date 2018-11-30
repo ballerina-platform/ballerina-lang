@@ -116,7 +116,7 @@ public class TransactionResourceManager {
      * @param committed          function pointer to invoke when this transaction committed
      * @param aborted            function pointer to invoke when this transaction aborted
      * @param strand             ballerina strand of the participant
-     * @since 0.985.0
+     * @since 0.990.0
      */
     public void registerParticipation(String gTransactionId, int transactionBlockId, BFunctionPointer committed,
                                       BFunctionPointer aborted, Strand strand) {

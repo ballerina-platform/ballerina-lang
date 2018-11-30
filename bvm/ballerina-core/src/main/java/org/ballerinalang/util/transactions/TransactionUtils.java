@@ -73,13 +73,6 @@ public class TransactionUtils {
         invokeCoordinatorFunction(ctx, TransactionConstants.COORDINATOR_ABORT_TRANSACTION, args);
     }
 
-    public static boolean isInitiator(Strand ctx, String globalTransactionId,
-            int transactionBlockId) {
-        BValue[] args = {new BString(globalTransactionId), new BInteger(transactionBlockId)};
-        BValue[] returns = invokeCoordinatorFunction(ctx, TransactionConstants.COORDINATOR_IS_INITIATOR, args);
-        return ((BBoolean) returns[0]).booleanValue();
-    }
-
     private static void checkTransactionCoordinatorError(BValue value, String errMsg) {
         if (value.getType().getTag() == TypeTags.ERROR_TAG) {
             throw new BallerinaException(errMsg + ((BError) value).reason);

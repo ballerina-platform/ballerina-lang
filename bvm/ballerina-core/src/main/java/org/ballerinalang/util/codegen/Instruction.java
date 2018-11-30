@@ -423,7 +423,7 @@ public class Instruction {
      * <p>
      * The TR_BEGIN instruction performs transaction initialisation and transaction participant initialisation.
      *
-     * @since 0.985.0
+     * @since 0.990.0
      */
     public static class InstructionTrBegin extends Instruction {
         public final int transactionType;
@@ -460,7 +460,7 @@ public class Instruction {
      * <p>
      * The TR_END instruction performs transaction ending in multiple stages of the transaction.
      *
-     * @since 0.985.0
+     * @since 0.990.0
      */
     public static class InstructionTrEnd extends Instruction {
         public final int endType;
@@ -494,7 +494,7 @@ public class Instruction {
      * <p>
      * The TR_RETRY instruction performs transaction retry.
      *
-     * @since 0.985.0
+     * @since 0.990.0
      */
     public static class InstructionTrRetry extends Instruction {
         public final int blockId;

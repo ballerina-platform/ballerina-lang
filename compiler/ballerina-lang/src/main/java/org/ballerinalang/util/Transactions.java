@@ -22,7 +22,7 @@ import static org.wso2.ballerinalang.compiler.util.Names.ORG_NAME_SEPARATOR;
 /**
  * Hold transaction related entities.
  *
- * @since  0.985.0
+ * @since 0.95.5
  */
 public class Transactions {
     public static final String TRANSACTION_ANNOTATION_NAME = "transactions" + ORG_NAME_SEPARATOR + "Participant";
@@ -38,7 +38,7 @@ public class Transactions {
     /**
      * Type of transaction, initiator or participant.
      *
-     * @since 0.985.0
+     * @since 0.990.0
      */
     public enum TransactionType {
         INITIATOR(0),

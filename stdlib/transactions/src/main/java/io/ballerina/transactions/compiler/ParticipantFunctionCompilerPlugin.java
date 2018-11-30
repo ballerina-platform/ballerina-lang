@@ -29,7 +29,7 @@ import java.util.List;
 /**
  * Compiler plugin for processing transaction participant function annotations.
  *
- * @since 0.985.0
+ * @since 0.990.0
  */
 @SupportedAnnotationPackages(value = {"ballerina/transactions"})
 public class ParticipantFunctionCompilerPlugin extends AbstractCompilerPlugin {

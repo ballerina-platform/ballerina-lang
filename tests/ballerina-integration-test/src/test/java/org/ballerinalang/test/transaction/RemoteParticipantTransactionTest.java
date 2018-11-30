@@ -35,7 +35,7 @@ import static org.testng.Assert.assertEquals;
 /**
  * Test cases for remote participant annotation.
  *
- * @since 0.985.0
+ * @since 0.990.0
  */
 @Test(groups = "transactions-test")
 public class RemoteParticipantTransactionTest extends BaseTest {
