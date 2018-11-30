@@ -2,16 +2,17 @@ import ballerina/io;
 import ballerina/log;
 
 public type Person record {
-    string name;
-    int age;
-    float income;
-    boolean isMarried;
+    string name = "";
+    int age = 0;
+    float income = 0.0;
+    boolean isMarried = false;
+    !...
 };
 
 //Serialize record into binary
 function serialize(Person p, io:WritableByteChannel byteChannel) {
     io:WritableDataChannel dc = new io:WritableDataChannel(byteChannel);
-    var length = lengthof p.name.toByteArray("UTF-8");
+    var length = p.name.toByteArray("UTF-8").length();
     var lengthResult = dc.writeInt32(length);
     var nameResult = dc.writeString(p.name, "UTF-8");
     var ageResult = dc.writeInt16(p.age);
@@ -22,44 +23,48 @@ function serialize(Person p, io:WritableByteChannel byteChannel) {
 
 //Deserialize record into binary
 function deserialize(io:ReadableByteChannel byteChannel) returns Person {
-    Person person;
-    int nameLength;
+    Person person = {};
+    int nameLength = 0;
     string nameValue;
     io:ReadableDataChannel dc = new io:ReadableDataChannel(byteChannel);
     //Read 32 bit singed integer
-    match dc.readInt32() {
-        int namel => nameLength = namel;
-        error e =>
+    var int32Result = dc.readInt32();
+    if (int32Result is int) {
+        nameLength = int32Result;
+    } else if (int32Result is error) {
         log:printError("Error occurred while reading name length",
-            err = e);
+                        err = int32Result);
     }
     //Read UTF-8 encoded string represented through specified amount of bytes
-    match dc.readString(nameLength, "UTF-8") {
-        string name => person.name = name;
-        error e =>
-        log:printError("Error occurred while reading name",
-            err = e);
+    var strResult = dc.readString(nameLength, "UTF-8");
+    if (strResult is string) {
+        person.name = strResult;
+    } else if (strResult is error) {
+        log:printError("Error occurred while reading name", err = strResult);
     }
     //Read 16 bit signed integer
-    match dc.readInt16() {
-        int age => person.age = age;
-        error e =>
+    var int16Result = dc.readInt16();
+    if (int16Result is int) {
+        person.age = int16Result;
+    } else if (int16Result is error) {
         log:printError("Error occurred while reading age",
-            err = e);
+                        err = int16Result);
     }
     //Read 64 bit signed float
-    match dc.readFloat64() {
-        float income => person.income = income;
-        error e =>
+    var float64Result = dc.readFloat64();
+    if (float64Result is float) {
+        person.income = float64Result;
+    } else if (float64Result is error) {
         log:printError("Error occurred while reading income",
-            err = e);
+                        err = float64Result);
     }
     //Read boolean
-    match dc.readBool() {
-        boolean isMarried => person.isMarried = isMarried;
-        error e =>
+    var boolResult = dc.readBool();
+    if (boolResult is boolean) {
+        person.isMarried = boolResult;
+    } else if (boolResult is error) {
         log:printError("Error occurred while reading marital status",
-            err = e);
+                        err = boolResult);
     }
     //Finally close the data channel
     var closeResult = dc.close();
@@ -79,7 +84,8 @@ function readRecordFromFile(string path) returns Person {
 }
 
 public function main() {
-    Person wPerson = {name:"Ballerina", age:21, income:1543.12, isMarried:true};
+    Person wPerson = { name: "Ballerina", age: 21,
+                       income: 1543.12, isMarried: true };
     //Write record to file
     writeRecordToFile(wPerson, "./files/person.bin");
     io:println("Person record successfully written to file");

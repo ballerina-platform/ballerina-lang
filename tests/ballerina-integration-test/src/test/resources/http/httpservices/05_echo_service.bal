@@ -36,7 +36,7 @@ service echo1 on echoEP1 {
         } else if (payload is error) {
             resp.statusCode = 500;
             string errMsg = <string> payload.detail().message;
-            resp.setPayload(errMsg);
+            resp.setPayload(untaint errMsg);
             log:printError("Failed to retrieve payload from request: " + payload.reason());
             var responseError = caller->respond(resp);
             if (responseError is error) {

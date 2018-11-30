@@ -42,7 +42,6 @@ public class EmbeddedDirectoryServer {
     private LdapServer ldapService;
     private File workDir;
 
-
     /**
      * Add a new partition to the server.
      *

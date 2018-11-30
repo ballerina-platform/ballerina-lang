@@ -33,6 +33,7 @@ import java.util.Map;
  */
 @Test(groups = "auth-test")
 public class ServiceLevelAuthnTest extends AuthBaseTest {
+
     private final int servicePort = 9094;
     private final int servicePortForExpiredCertificateTest = 9101;
 
@@ -68,6 +69,7 @@ public class ServiceLevelAuthnTest extends AuthBaseTest {
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
     }
+
     @Test(description = "Auth with JWT signed with expired trusted certificate")
     public void testAuthnWithJWTSignedWithExpiredTrustedCertificate() throws Exception {
         // JWT used in the test:
