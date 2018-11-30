@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.util.transactions;
 
-import org.ballerinalang.bre.vm.Strand;
+import org.ballerinalang.bre.bvm.Strand;
 
 import java.util.HashMap;
 import java.util.Map;

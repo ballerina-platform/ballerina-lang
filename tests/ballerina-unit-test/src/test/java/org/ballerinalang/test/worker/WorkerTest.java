@@ -45,7 +45,7 @@ public class WorkerTest {
         BValue[] vals = BRunUtil.invoke(result, "workerSendToWorker", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         BInteger ret = (BInteger) vals[0];
-        Assert.assertEquals(ret.intValue(), 52);
+        Assert.assertEquals(ret.intValue(), 41);
     }
 
     @Test

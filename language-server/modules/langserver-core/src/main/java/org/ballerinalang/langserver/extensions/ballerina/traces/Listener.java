@@ -44,12 +44,18 @@ public class Listener {
     }
 
     /**
-     * Start listening.
+     * Start listening for netorklogs
+     * @return started port
      */
-    public void startListener() {
+    public int startListener() {
+        try {
+            listenSocket = new ServerSocket(0);
+        } catch (IOException e) {
+            logger.error("Error starting network logs listener", e);
+            return 0;
+        }
         Runnable listener = () -> {
             try {
-                listenSocket = new ServerSocket(5010);
                 while (!listenSocket.isClosed()) {
                     Socket dataSocket = listenSocket.accept();
                     logReader = new BufferedReader(new InputStreamReader(dataSocket.getInputStream(), "UTF-8"));
@@ -67,11 +73,12 @@ public class Listener {
                     }
                 }
             } catch (IOException e) {
-                logger.error("Error starting trace logs listener", e);
+                logger.error("Error listening to network logs", e);
             }
         };
         Thread serverThread = new Thread(listener);
         serverThread.start();
+        return listenSocket.getLocalPort();
     }
 
     /**

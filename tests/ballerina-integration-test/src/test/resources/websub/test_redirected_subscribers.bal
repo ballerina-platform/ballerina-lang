@@ -27,8 +27,9 @@ listener websub:Listener websubEP = new websub:Listener(8484);
     resourceUrl: "http://localhost:8081/original/one",
     leaseSeconds: 3600,
     secret: "Kslk30SNF2AChs2",
-    followRedirects: {
-        enabled: true
+    subscriptionClientConfig: { followRedirects: {
+            enabled: true
+        }
     }
 }
 service websubSubscriber on websubEP {
@@ -48,8 +49,9 @@ service websubSubscriber on websubEP {
     resourceUrl: "http://localhost:8081/original/two",
     leaseSeconds: 1200,
     secret: "SwklSSf42DLA",
-    followRedirects: {
-        enabled: true
+    subscriptionClientConfig: { followRedirects: {
+            enabled: true
+        }
     }
 }
 service websubSubscriberTwo on websubEP {
