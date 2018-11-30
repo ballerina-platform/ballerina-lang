@@ -300,18 +300,15 @@ public class SealedArrayTest {
         BAssertUtil.validateError(
                 resultNegative, 11, "ambiguous type 'int|int[]|int[4]|int[5]'", 65, 40);
         BAssertUtil.validateError(
-                resultNegative, 12, "unreachable pattern: preceding patterns are too" +
-                        " general or the pattern ordering is not correct", 73, 9);
+                resultNegative, 12, "size mismatch in sealed array. expected '4', but found '2'", 81, 18);
         BAssertUtil.validateError(
-                resultNegative, 13, "size mismatch in sealed array. expected '4', but found '2'", 78, 18);
+                resultNegative, 13, "size mismatch in sealed array. expected '4', but found '5'", 82, 18);
         BAssertUtil.validateError(
-                resultNegative, 14, "size mismatch in sealed array. expected '4', but found '5'", 79, 18);
+                resultNegative, 14, "array index out of range: index: '4', size: '4'", 85, 8);
         BAssertUtil.validateError(
-                resultNegative, 15, "array index out of range: index: '4', size: '4'", 82, 8);
+                resultNegative, 15, "invalid usage of sealed type: can not infer array size", 87, 21);
         BAssertUtil.validateError(
-                resultNegative, 16, "invalid usage of sealed type: can not infer array size", 84, 21);
-        BAssertUtil.validateError(
-                resultNegative, 17, "incompatible types: expected 'json[3]', found 'json[]'", 86, 18);
+                resultNegative, 16, "incompatible types: expected 'json[3]', found 'json[]'", 89, 18);
     }
 
     @Test(description = "Test accessing invalid index of sealed array",

@@ -17,14 +17,12 @@
 // Super Type
 type Person record {
     string name = "";
-    !...
 };
 
 // Assignable to Person type
 type Employee record {
     string name = "";
     boolean intern = false;
-    !...
 };
 
 // Assignable to Employee type and Person Type
@@ -55,8 +53,8 @@ function testValidArrayAssignment() returns (boolean, int)|error {
     personArray[0] = employee1;
     personArray[1] = intern1;
 
-    Employee e = check <Employee> personArray[0];
-    Intern i = check <Intern> personArray[1];
+    Employee e =  <Employee> personArray[0];
+    Intern i =  <Intern> personArray[1];
     return (e.intern, i.salary);
 }
 

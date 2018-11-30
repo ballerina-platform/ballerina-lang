@@ -15,16 +15,14 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/io;
-import ballerina/auth;
 
 http:AuthProvider basicAuthProvider07 = {
-    scheme:"basic",
-    authStoreProvider:"config"
+    scheme: "basic",
+    authStoreProvider: "config"
 };
 
 listener http:Listener listener07 = new(9098, config = {
-    authProviders:[basicAuthProvider07],
+    authProviders: [basicAuthProvider07],
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
@@ -34,8 +32,8 @@ listener http:Listener listener07 = new(9098, config = {
 });
 
 service echo7 on listener07 {
-    resource function test7 (http:Caller caller, http:Request req) {
-        http:Response res = new;
-        _ = caller -> respond(res);
+
+    resource function test7(http:Caller caller, http:Request req) {
+        _ = caller->respond(());
     }
 }

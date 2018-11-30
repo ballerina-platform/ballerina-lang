@@ -14,14 +14,15 @@ listener jms:SimpleQueueReceiver consumerEndpoint = new({
 service jmsListener on consumerEndpoint {
 
     // This resource is invoked when a message is received.
-    resource function onMessage(jms:QueueReceiverCaller consumer , jms:Message message) {
+    resource function onMessage(jms:QueueReceiverCaller consumer,
+        jms:Message message) {
         // Retrieve the text message.
         var messageText = message.getTextMessageContent();
         if (messageText is string) {
             log:printInfo("Message : " + messageText);
         } else {
             log:printError("Error occurred while reading message",
-            err=messageText);
+            err = messageText);
         }
     }
 }

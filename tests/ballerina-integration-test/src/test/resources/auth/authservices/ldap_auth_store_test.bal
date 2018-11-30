@@ -64,6 +64,7 @@ listener http:Listener ep = new(9096, config = {
     }
 }
 service helloService on ep {
+
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/disableAuthz"
