@@ -78,6 +78,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -749,6 +750,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 null, env.scope.owner);
         boolean unresolvedReference = false;
         for (BLangRecordVarRef.BLangRecordVarRefKeyValue recordRefField : varRefExpr.recordRefFields) {
+            ((BLangVariableReference) recordRefField.variableReference).lhsVar = true;
             checkExpr(recordRefField.variableReference, env);
             BVarSymbol bVarSymbol = getVarSymbolForRecordVariableReference(recordRefField.variableReference);
             if (bVarSymbol == null) {
@@ -784,6 +786,11 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         resultType = bRecordType;
+    }
+
+    @Override
+    public void visit(BLangErrorVarRef varRefExpr) {
+        // TODO: Complete
     }
 
     @Override
@@ -2824,9 +2831,11 @@ public class TypeChecker extends BLangNodeVisitor {
                     checkExpr(expression, env, symTable.noType);
                 }
                 return symResolver.createSymbolForCreateOperator(iExpr.pos, new Name(function.getName()),
-                                                                 functionArgList, iExpr.expr);
+                        functionArgList, iExpr.expr);
             case CALL:
                 return getFunctionPointerCallSymbol(iExpr);
+            case DETAIL:
+                return symResolver.createSymbolForDetailBuiltInMethod(iExpr.name, iExpr.expr.type);
             default:
                 return symTable.notFoundSymbol;
         }

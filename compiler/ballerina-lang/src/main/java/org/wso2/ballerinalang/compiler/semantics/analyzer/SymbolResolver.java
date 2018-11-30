@@ -56,6 +56,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -96,6 +97,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -364,6 +366,14 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         return resolveTargetSymbolForStamping(targetType, variableSourceType, name, pos);
+    }
+
+    public BSymbol createSymbolForDetailBuiltInMethod(BLangIdentifier name, BType type) {
+        if (type.tag != TypeTags.ERROR) {
+            return symTable.notFoundSymbol;
+        }
+        return symTable.createOperator(names.fromIdNode(name), new ArrayList<>(),
+                ((BErrorType) type).detailType, InstructionCodes.DETAIL);
     }
 
     public BSymbol createSymbolForCreateOperator(DiagnosticPos pos, Name name, List<BLangExpression> functionArgList,
@@ -912,7 +922,11 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public void visit(BLangErrorType errorTypeNode) {
-        if (errorTypeNode.reasonType == null && errorTypeNode.detailType == null) {
+        BType reasonType = Optional.ofNullable(errorTypeNode.reasonType)
+                .map(bLangType -> resolveTypeNode(bLangType, env)).orElse(symTable.stringType);
+        BType detailType = Optional.ofNullable(errorTypeNode.detailType)
+                .map(bLangType -> resolveTypeNode(bLangType, env)).orElse(symTable.mapType);
+        if (reasonType == symTable.stringType && detailType == symTable.mapType) {
             resultType = symTable.errorType;
             return;
         }
@@ -921,7 +935,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         BErrorTypeSymbol errorTypeSymbol = Symbols
                 .createErrorSymbol(Flags.asMask(EnumSet.noneOf(Flag.class)), Names.EMPTY, env.enclPkg.symbol.pkgID,
                         null, env.scope.owner);
-        BErrorType errorType = new BErrorType(errorTypeSymbol, null, null);
+        BErrorType errorType = new BErrorType(errorTypeSymbol, reasonType, detailType);
         errorTypeSymbol.type = errorType;
 
         resultType = errorType;
