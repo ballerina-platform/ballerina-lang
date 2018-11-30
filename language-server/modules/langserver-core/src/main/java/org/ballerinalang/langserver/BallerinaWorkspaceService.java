@@ -168,7 +168,8 @@ public class BallerinaWorkspaceService implements WorkspaceService {
         }
 
         /**
-         * Returns value;
+         * Returns value.
+         *
          * @return value
          */
         public String getValue() {
