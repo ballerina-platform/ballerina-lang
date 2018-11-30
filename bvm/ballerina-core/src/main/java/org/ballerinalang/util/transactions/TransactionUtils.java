@@ -44,15 +44,27 @@ public class TransactionUtils {
                 new BString(protocol)
         };
         BValue[] returns = invokeCoordinatorFunction(ctx, TransactionConstants.COORDINATOR_BEGIN_TRANSACTION, args);
-        checkTransactionCoordinatorError(returns[0], ctx, "error in transaction start: ");
+        checkTransactionCoordinatorError(returns[0], "error in global transaction start: ");
         return returns;
     }
 
-    public static void notifyTransactionEnd(Strand ctx, String globalTransactionId,
+    public static CoordinatorCommit notifyTransactionEnd(Strand ctx, String globalTransactionId,
             int transactionBlockId) {
         BValue[] args = {new BString(globalTransactionId), new BInteger(transactionBlockId)};
         BValue[] returns = invokeCoordinatorFunction(ctx, TransactionConstants.COORDINATOR_END_TRANSACTION, args);
-        checkTransactionCoordinatorError(returns[0], ctx, "error in transaction end: ");
+        checkTransactionCoordinatorError(returns[0], "error in transaction end: ");
+
+        switch (returns[0].getType().getTag()) {
+            case TypeTags.STRING_TAG:
+                String statusMessage = returns[0].stringValue();
+                if (statusMessage.equals("committed")) {
+                    return CoordinatorCommit.COMMITTED;
+                }
+                return CoordinatorCommit.ABORTED;
+            default:
+                throw new IllegalStateException("Transaction coordinator returned unexpected result upon trx end: "
+                        + returns[0].stringValue());
+        }
     }
 
     public static void notifyTransactionAbort(Strand ctx, String globalTransactionId,
@@ -61,16 +73,9 @@ public class TransactionUtils {
         invokeCoordinatorFunction(ctx, TransactionConstants.COORDINATOR_ABORT_TRANSACTION, args);
     }
 
-    public static boolean isInitiator(Strand ctx, String globalTransactionId,
-            int transactionBlockId) {
-        BValue[] args = {new BString(globalTransactionId), new BInteger(transactionBlockId)};
-        BValue[] returns = invokeCoordinatorFunction(ctx, TransactionConstants.COORDINATOR_IS_INITIATOR, args);
-        return ((BBoolean) returns[0]).booleanValue();
-    }
-
-    private static void checkTransactionCoordinatorError(BValue value, Strand ctx, String errMsg) {
+    private static void checkTransactionCoordinatorError(BValue value, String errMsg) {
         if (value.getType().getTag() == TypeTags.ERROR_TAG) {
-            throw new BallerinaException(errMsg + ((BError) value).details);
+            throw new BallerinaException(errMsg + ((BError) value).reason);
         }
     }
 
@@ -78,5 +83,24 @@ public class TransactionUtils {
         PackageInfo packageInfo = ctx.programFile.getPackageInfo(TransactionConstants.COORDINATOR_PACKAGE);
         FunctionInfo functionInfo = packageInfo.getFunctionInfo(functionName);
         return BVMExecutor.executeFunction(functionInfo.getPackageInfo().getProgramFile(), functionInfo, args);
+    }
+
+    /**
+     * Indicate status of distributed transactions.
+     */
+    public enum CoordinatorCommit {
+        COMMITTED,
+        ABORTED,
+        ERROR;
+
+        private String status;
+
+        public String getStatus() {
+            return this.status;
+        }
+
+        public void setStatus(String status) {
+            this.status = status;
+        }
     }
 }

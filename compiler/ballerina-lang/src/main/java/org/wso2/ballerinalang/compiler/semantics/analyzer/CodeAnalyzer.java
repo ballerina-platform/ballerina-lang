@@ -201,11 +201,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private Stack<Boolean> loopWithintransactionCheckStack = new Stack<>();
     private Stack<Boolean> returnWithintransactionCheckStack = new Stack<>();
     private Stack<Boolean> doneWithintransactionCheckStack = new Stack<>();
-    private Stack<Boolean> transactionWithinHandlerCheckStack = new Stack<>();
     private BLangNode parent;
     private Names names;
     private SymbolEnv env;
     private final Stack<HashSet<BType>> returnTypes = new Stack<>();
+    private boolean withinAbortedBlock;
+    private boolean withinCommittedBlock;
 
     public static CodeAnalyzer getInstance(CompilerContext context) {
         CodeAnalyzer codeGenerator = context.get(CODE_ANALYZER_KEY);
@@ -318,9 +319,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private void visitFunction(BLangFunction funcNode) {
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
-        if (funcNode.symbol.isTransactionHandler) {
-            transactionWithinHandlerCheckStack.push(true);
-        }
         this.returnWithintransactionCheckStack.push(true);
         this.doneWithintransactionCheckStack.push(true);
         this.returnTypes.push(new HashSet<>());
@@ -338,15 +336,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             /* the function returns, but none of the statements surely returns */
             if (invokableReturns && !this.statementReturns) {
                 this.dlog.error(funcNode.pos, DiagnosticCode.INVOKABLE_MUST_RETURN,
-                                funcNode.getKind().toString().toLowerCase());
+                        funcNode.getKind().toString().toLowerCase());
             }
         }
         this.returnTypes.pop();
         this.returnWithintransactionCheckStack.pop();
         this.doneWithintransactionCheckStack.pop();
-        if (funcNode.symbol.isTransactionHandler) {
-            transactionWithinHandlerCheckStack.pop();
-        }
     }
 
     private boolean isPublicInvokableNode(BLangInvokableNode invNode) {
@@ -381,6 +376,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.returnWithintransactionCheckStack.push(false);
         this.doneWithintransactionCheckStack.push(false);
         this.transactionCount++;
+        if (this.transactionCount > 1) {
+            this.dlog.error(transactionNode.pos, DiagnosticCode.NESTED_TRANSACTIONS_ARE_INVALID);
+        }
         analyzeNode(transactionNode.transactionBody, env);
         this.transactionCount--;
         this.resetLastStatement();
@@ -391,12 +389,27 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.resetLastStatement();
             this.withinRetryBlock = false;
         }
+
+        if (transactionNode.abortedBody != null) {
+            this.withinAbortedBlock = true;
+            analyzeNode(transactionNode.abortedBody, env);
+            this.resetStatementReturns();
+            this.resetLastStatement();
+            this.withinAbortedBlock = false;
+        }
+
+        if (transactionNode.committedBody != null) {
+            this.withinCommittedBlock = true;
+            analyzeNode(transactionNode.committedBody, env);
+            this.resetStatementReturns();
+            this.resetLastStatement();
+            this.withinCommittedBlock = false;
+        }
+
         this.returnWithintransactionCheckStack.pop();
         this.loopWithintransactionCheckStack.pop();
         this.doneWithintransactionCheckStack.pop();
         analyzeExpr(transactionNode.retryCount);
-        analyzeExpr(transactionNode.onCommitFunction);
-        analyzeExpr(transactionNode.onAbortFunction);
     }
 
     @Override
@@ -411,7 +424,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangRetry retryNode) {
         if (this.transactionCount == 0) {
-            this.dlog.error(retryNode.pos, DiagnosticCode.FAIL_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK);
+            this.dlog.error(retryNode.pos, DiagnosticCode.RETRY_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK);
             return;
         }
         this.lastStatement = true;
@@ -1865,8 +1878,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isValidTransactionBlock() {
-        return (this.transactionWithinHandlerCheckStack.empty() || !this.transactionWithinHandlerCheckStack.peek()) &&
-                !this.withinRetryBlock;
+        return !(this.withinRetryBlock || this.withinAbortedBlock || this.withinCommittedBlock);
     }
 
     private void validateMainFunction(BLangFunction funcNode) {
