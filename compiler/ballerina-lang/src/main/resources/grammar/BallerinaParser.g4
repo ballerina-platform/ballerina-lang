@@ -53,9 +53,8 @@ serviceBodyMember
     ;
 
 callableUnitBody
-    :   LEFT_BRACE statement* workerDeclaration* statement* RIGHT_BRACE
+    : LEFT_BRACE statement* (workerDeclaration+ statement*)? RIGHT_BRACE
     ;
-
 
 functionDefinition
     :   (PUBLIC)? (REMOTE)? (EXTERN)? FUNCTION ((Identifier | typeName) DOT)? callableUnitSignature (callableUnitBody | SEMICOLON)
