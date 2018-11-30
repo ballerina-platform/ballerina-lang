@@ -538,6 +538,15 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerSyncSendExpr syncSendExpr) {
+        BSymbol symbol = symResolver.lookupSymbol(env, names.fromIdNode(syncSendExpr.workerIdentifier),
+                                                  SymTag.VARIABLE);
+
+        if (symTable.notFoundSymbol.equals(symbol)) {
+            syncSendExpr.workerType = symTable.semanticError;
+        } else {
+            syncSendExpr.workerType = symbol.type;
+        }
+
         syncSendExpr.env = this.env;
         checkExpr(syncSendExpr.expr, this.env);
 
@@ -625,7 +634,8 @@ public class TypeChecker extends BLangNodeVisitor {
         boolean isTopLevel = false;
         switch (this.env.node.getKind()) {
             case BLOCK:
-                isTopLevel = env.enclInvokable.body == env.node;
+                isTopLevel = true;
+                //handled in code analyzer
                 break;
             case VARIABLE:
             case EXPRESSION_STATEMENT:
