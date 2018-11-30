@@ -545,6 +545,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangErrorVariable varNode) {
+        dlog.error(varNode.pos, DiagnosticCode.ERROR_BINDING_PATTERN_NOT_SUPPORTED);
         // TODO: Complete
     }
 
@@ -1010,6 +1011,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangErrorVariableDef varDefNode) {
+        dlog.error(varDefNode.pos, DiagnosticCode.ERROR_BINDING_PATTERN_NOT_SUPPORTED);
         // TODO: Complete
     }
 
@@ -1086,6 +1088,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangErrorDestructure errorDeStmt) {
+        dlog.error(errorDeStmt.pos, DiagnosticCode.ERROR_BINDING_PATTERN_NOT_SUPPORTED);
         // TODO: Complete
     }
 
