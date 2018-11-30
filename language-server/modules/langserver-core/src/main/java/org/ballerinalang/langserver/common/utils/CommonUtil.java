@@ -39,6 +39,7 @@ import org.ballerinalang.langserver.index.LSIndexImpl;
 import org.ballerinalang.langserver.index.dao.BPackageSymbolDAO;
 import org.ballerinalang.langserver.index.dao.DAOType;
 import org.ballerinalang.langserver.index.dto.BPackageSymbolDTO;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -66,6 +67,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
@@ -83,10 +85,12 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -878,6 +882,23 @@ public class CommonUtil {
     }
 
     /**
+     * Check whether the given node is a worker derivative node.
+     *
+     * @param node              Node to be evaluated
+     * @return {@link Boolean}  whether a worker derivative
+     */
+    public static boolean isWorkerDereivative(BLangNode node) {
+        return (node instanceof BLangSimpleVariableDef)
+                && ((BLangSimpleVariableDef) node).var.expr.type instanceof BFutureType
+                && ((BFutureType) ((BLangSimpleVariableDef) node).var.expr.type).workerDerivative;
+    }
+
+    public static boolean isWithinWorkerDeclaration(BLangNode bLangNode) {
+        return bLangNode instanceof BLangBlockStmt && bLangNode.parent instanceof BLangLambdaFunction
+                && ((BLangLambdaFunction) bLangNode.parent).function.flagSet.contains(Flag.WORKER);
+    }
+
+    /**
      * Get the TopLevel nodes of the current file.
      *
      * @param pkgNode           Current Package node
@@ -889,7 +910,15 @@ public class CommonUtil {
         BLangCompilationUnit filteredCUnit = pkgNode.compUnits.stream()
                 .filter(cUnit -> cUnit.getPosition().getSource().cUnitName.equals(relativeFilePath))
                 .findAny().orElse(null);
-        return filteredCUnit == null ? new ArrayList<>() : new ArrayList<>(filteredCUnit.getTopLevelNodes());
+        List<TopLevelNode> topLevelNodes = filteredCUnit == null
+                ? new ArrayList<>()
+                : new ArrayList<>(filteredCUnit.getTopLevelNodes());
+        
+        // Filter out the lambda functions from the top level nodes
+        return topLevelNodes.stream()
+                .filter(topLevelNode -> !(topLevelNode instanceof BLangFunction
+                        && ((BLangFunction) topLevelNode).flagSet.contains(Flag.LAMBDA)))
+                .collect(Collectors.toList());
     }
 
     private static SymbolInfo getIterableOpSymbolInfo(SnippetBlock operation, @Nullable BType bType, String label,
