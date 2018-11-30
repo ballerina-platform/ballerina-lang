@@ -38,6 +38,11 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG
 import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
 import static org.ballerinalang.util.tracer.TraceConstants.KEY_SPAN;
 
+/**
+ * Util class used for observability.
+ *
+ * @since 0.985.0
+ */
 public class ObserveUtils {
     private static final List<BallerinaObserver> observers = new CopyOnWriteArrayList<>();
     private static final boolean enabled;
@@ -54,19 +59,19 @@ public class ObserveUtils {
         observers.add(observer);
     }
 
-    public static void startResourceObservation(Strand strand, ObserverContext observerContext) {
+    public static void startResourceObservation(Strand strand) {
         if (!enabled) {
             return;
         }
+        ObserverContext observerContext = strand.respCallback.getObserverContext();
         observerContext.setServer();
         observerContext.setStarted();
-        strand.observerContext = observerContext;
         strand.currentFrame.observerContext = observerContext;
         observers.forEach(observer -> observer.startServerObservation(observerContext));
     }
 
     public static void stopObservation(ObserverContext observerContext) {
-        if (!enabled || observerContext == null) {
+        if (!enabled) {
             return;
         }
         if (observerContext.isServer()) {
@@ -77,19 +82,33 @@ public class ObserveUtils {
         observerContext.setFinished();
     }
 
-    public static void startCallableObservation(Strand strand, int flags) {
+    public static void startCallableObservation(Strand strand, int flags) { // Sync
         if (!enabled) {
             return;
         }
         StackFrame previousFrame = strand.peekFrame(1);
-        ObserverContext parentCtx = previousFrame == null ? strand.observerContext : previousFrame.observerContext;
+        ObserverContext parentCtx = previousFrame == null ?
+                strand.respCallback.getObserverContext() : previousFrame.observerContext;
         if (!FunctionFlags.isObserved(flags)) {
             strand.currentFrame.observerContext = parentCtx;
             return;
         }
         ObserverContext newObContext = new ObserverContext();
-        newObContext.strandName = strand.getId();
-        newObContext.callableName = strand.currentFrame.callableUnitInfo.getName();
+        newObContext.setParent(parentCtx);
+        newObContext.setStarted();
+        newObContext.setConnectorName(strand.currentFrame.callableUnitInfo.attachedToType.toString());
+        newObContext.setActionName(strand.currentFrame.callableUnitInfo.getName());
+        newObContext.setServiceName(parentCtx.getServiceName());
+        strand.currentFrame.observerContext = newObContext;
+        observers.forEach(observer -> observer.startClientObservation(newObContext));
+
+    }
+
+    public static void startCallableObservation(Strand strand, ObserverContext parentCtx) { // Async
+        if (!enabled) {
+            return;
+        }
+        ObserverContext newObContext = new ObserverContext();
         newObContext.setParent(parentCtx);
         newObContext.setStarted();
         newObContext.setConnectorName(strand.currentFrame.callableUnitInfo.attachedToType.toString());
@@ -98,11 +117,10 @@ public class ObserveUtils {
         strand.currentFrame.observerContext = newObContext;
         strand.respCallback.setObserverContext(newObContext);
         observers.forEach(observer -> observer.startClientObservation(newObContext));
-
     }
 
     public static void stopCallableObservation(Strand strand) {
-        if (!enabled || strand.observerContext ==  null) {
+        if (!enabled) {
             return;
         }
 
@@ -157,7 +175,7 @@ public class ObserveUtils {
         if (enabled) {
             return context.getStrand().currentFrame.observerContext;
         }
-        return  new ObserverContext();
+        return new ObserverContext();
     }
 
     // TODO: 11/30/18 Check the usages of this method

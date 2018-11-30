@@ -37,7 +37,7 @@ public class StrandCallback implements BVMCallback {
     private int intVal;
     private BRefType<?> refVal;
     private BError error;
-    public ObserverContext observerContext;
+    private ObserverContext observerContext;
 
     protected BType retType; //TODO may be this is wrong, we should take the type in wait expression -check this
 
@@ -122,7 +122,12 @@ public class StrandCallback implements BVMCallback {
 
     @Override
     public void setObserverContext(ObserverContext context) {
-        observerContext = context;
+        this.observerContext = context;
+    }
+
+    @Override
+    public ObserverContext getObserverContext() {
+        return this.observerContext;
     }
 
 }

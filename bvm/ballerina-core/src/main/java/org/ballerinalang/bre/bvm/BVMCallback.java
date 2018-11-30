@@ -132,4 +132,6 @@ public interface BVMCallback {
     BError getErrorVal();
 
     void setObserverContext(ObserverContext context);
+
+    ObserverContext getObserverContext();
 }

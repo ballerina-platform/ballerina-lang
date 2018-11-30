@@ -37,7 +37,6 @@ public class StrandWaitCallback extends StrandCallback {
 
     @Override
     public void signal() {
-        super.signal();
         this.check.release();
     }
 

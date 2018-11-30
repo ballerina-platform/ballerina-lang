@@ -18,6 +18,7 @@
 package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.util.observability.ObserverContext;
 
 /**
  * VM callback implementation which can be used for resource execution.
@@ -28,15 +29,15 @@ public class StrandResourceCallback extends StrandCallback {
 
     private CallableUnitCallback resourceCallback;
 
-    StrandResourceCallback(BType retType, CallableUnitCallback resourceCallback) {
+    StrandResourceCallback(BType retType, CallableUnitCallback resourceCallback, ObserverContext observerContext) {
         super(retType);
+        super.setObserverContext(observerContext);
         this.resourceCallback = resourceCallback;
     }
 
     @Override
     public void signal() {
-        // TODO: 11/30/18 Need to fix this properly
-//        super.signal();
+        super.signal();
         if (super.getErrorVal() != null) {
             resourceCallback.notifyFailure(super.getErrorVal());
             return;

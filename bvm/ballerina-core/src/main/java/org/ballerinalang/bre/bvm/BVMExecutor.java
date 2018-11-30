@@ -130,7 +130,7 @@ public class BVMExecutor {
             globalProps.putAll(properties);
         }
 
-        StrandResourceCallback strandCallback = new StrandResourceCallback(null, responseCallback);
+        StrandResourceCallback strandCallback = new StrandResourceCallback(null, responseCallback, observerContext);
         Strand strand = new Strand(programFile, resourceInfo.getName(), globalProps, strandCallback, null);
 
         BLangVMUtils.setGlobalTransactionEnabledStatus(strand);
@@ -148,10 +148,7 @@ public class BVMExecutor {
         copyArgValues(args, idf, resourceInfo.getParamTypes());
         strand.pushFrame(idf);
 
-        // Start the server observation
-        observerContext.strandName = strand.getId();
-        observerContext.callableName = resourceInfo.getName();
-        ObserveUtils.startResourceObservation(strand, observerContext);
+        ObserveUtils.startResourceObservation(strand);
 
         BVMScheduler.stateChange(strand, State.NEW, State.RUNNABLE);
         BVMScheduler.schedule(strand);

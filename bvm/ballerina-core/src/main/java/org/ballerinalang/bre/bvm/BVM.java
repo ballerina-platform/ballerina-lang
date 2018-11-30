@@ -398,8 +398,8 @@ public class BVM {
                         sf.refRegs[j] = new BTypeDescValue(typeEntry.getType());
                         break;
                     case InstructionCodes.HALT:
-                        ObserveUtils.stopCallableObservation(strand);
                         if (strand.fp > 0) {
+                            ObserveUtils.stopCallableObservation(strand);
                             strand.popFrame();
                             break;
                         }
@@ -752,8 +752,8 @@ public class BVM {
                         }
                         break;
                     case InstructionCodes.RET:
-                        ObserveUtils.stopCallableObservation(strand);
                         if (strand.fp > 0) {
+                            ObserveUtils.stopCallableObservation(strand);
                             strand.popFrame();
                             break;
                         }
@@ -858,7 +858,7 @@ public class BVM {
         Strand calleeStrand = new Strand(strand.programFile, callableUnitInfo.getName(),
                 strand.globalProps, strndCallback, strand.wdChannels);
         calleeStrand.pushFrame(df);
-        ObserveUtils.startCallableObservation(calleeStrand, flags);
+        ObserveUtils.startCallableObservation(calleeStrand, strand.respCallback.getObserverContext());
         if (callableUnitInfo.isNative()) {
             Context nativeCtx = new NativeCallContext(calleeStrand, callableUnitInfo, df);
             NativeCallableUnit nativeCallable = callableUnitInfo.getNativeCallableUnit();
@@ -883,9 +883,6 @@ public class BVM {
         Context ctx = new NativeCallContext(strand, callableUnitInfo, sf);
         NativeCallableUnit nativeCallable = callableUnitInfo.getNativeCallableUnit();
         try {
-            //                    TODO fix - rajith
-//            ObserverContext observerContext = checkAndStartNativeCallableObservation(ctx, callableUnitInfo, flags);
-//            ObserverContext observerContext = null;
             if (nativeCallable.isBlocking()) {
                 nativeCallable.execute(ctx, null);
 
@@ -896,9 +893,6 @@ public class BVM {
                     BLangVMUtils.populateWorkerDataWithValues(retFrame, retReg, ctx.getReturnValue(), retType);
                     return strand;
                 }
-                //                    TODO fix - rajith
-//                checkAndStopCallableObservation(observerContext, flags);
-                /* we want the parent to continue, since we got the response of the native call already */
                 strand.respCallback.signal();
                 return null;
             }
