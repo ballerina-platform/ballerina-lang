@@ -2269,7 +2269,7 @@ public class BLangPackageBuilder {
         BLangBlockStmt committedBlock = (BLangBlockStmt) this.blockNodeStack.pop();
         committedBlock.pos = currentPos;
         transactionNode.addWS(ws);
-        transactionNode.addCommittedBody(committedBlock);
+        transactionNode.setCommittedBody(committedBlock);
     }
 
     public void startAbortedBlock() {
@@ -2281,7 +2281,7 @@ public class BLangPackageBuilder {
         BLangBlockStmt abortedBlock = (BLangBlockStmt) this.blockNodeStack.pop();
         abortedBlock.pos = currentPos;
         transactionNode.addWS(ws);
-        transactionNode.addAbortedBody(abortedBlock);
+        transactionNode.setAbortedBody(abortedBlock);
     }
 
     void endTransactionStmt(DiagnosticPos pos, Set<Whitespace> ws) {

@@ -26,7 +26,7 @@ import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.observability.ObserverContext;
 import org.ballerinalang.util.program.BLangFunctions;
-import org.ballerinalang.util.transactions.LocalTransactionInfo;
+import org.ballerinalang.util.transactions.TransactionLocalContext;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -66,11 +66,10 @@ public class ResourceExecutor {
             context.globalProps.putAll(properties);
             if (properties.get(Constants.GLOBAL_TRANSACTION_ID) != null) {
                 String globalTransactionId = properties.get(Constants.GLOBAL_TRANSACTION_ID).toString();
-                LocalTransactionInfo localTransactionInfo = new LocalTransactionInfo(
+                TransactionLocalContext trxContext = TransactionLocalContext.createTransactionParticipantLocalCtx(
                         globalTransactionId,
                         properties.get(Constants.TRANSACTION_URL).toString(), "2pc");
-                context.setLocalTransactionInfo(localTransactionInfo);
-//                registerTransactionInfection(responseCallback, globalTransactionId, context);
+                context.setLocalTransactionInfo(trxContext);
             }
         }
 //        //required for tracking compensations
@@ -79,17 +78,4 @@ public class ResourceExecutor {
         BLangFunctions.invokeServiceCallable(resourceInfo, context, observerContext, args.toArray(new BValue[0]),
                 responseCallback);
     }
-
-//    private static void registerTransactionInfection(CallableUnitCallback responseCallBack,
-//                                                     String globalTransactionId,
-//                                                     Strand workerExecutionContext) {
-//        if (globalTransactionId != null && responseCallBack instanceof TransactableCallableUnitCallback) {
-//            TransactableCallableUnitCallback trxCallBack = (TransactableCallableUnitCallback) responseCallBack;
-//            TransactionResourceManager manager = TransactionResourceManager.getInstance();
-//            BFunctionPointer onAbort = trxCallBack.getTransactionOnAbort();
-//            BFunctionPointer onCommit = trxCallBack.getTransactionOnCommit();
-//            manager.registerParticipation(globalTransactionId, trxCallBack.getTransactionBlockId(),
-//                    onCommit, onAbort, workerExecutionContext);
-//        }
-//    }
 }

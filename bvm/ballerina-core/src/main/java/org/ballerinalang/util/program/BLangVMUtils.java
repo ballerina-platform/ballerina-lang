@@ -42,7 +42,7 @@ import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
-import org.ballerinalang.util.transactions.LocalTransactionInfo;
+import org.ballerinalang.util.transactions.TransactionLocalContext;
 
 import java.io.PrintStream;
 import java.math.BigDecimal;
@@ -438,12 +438,12 @@ public class BLangVMUtils {
         return (ServiceInfo) ctx.globalProps.get(SERVICE_INFO_KEY);
     }
 
-    public static void setTransactionInfo(Strand ctx, LocalTransactionInfo localTransactionInfo) {
-        ctx.globalProps.put(TRANSACTION_INFO_KEY, localTransactionInfo);
+    public static void setTransactionInfo(Strand ctx, TransactionLocalContext transactionLocalContext) {
+        ctx.globalProps.put(TRANSACTION_INFO_KEY, transactionLocalContext);
     }
 
-    public static LocalTransactionInfo getTransactionInfo(Strand ctx) {
-        return (LocalTransactionInfo) ctx.globalProps.get(TRANSACTION_INFO_KEY);
+    public static TransactionLocalContext getTransactionInfo(Strand ctx) {
+        return (TransactionLocalContext) ctx.globalProps.get(TRANSACTION_INFO_KEY);
     }
 
     public static void removeTransactionInfo(Strand ctx) {

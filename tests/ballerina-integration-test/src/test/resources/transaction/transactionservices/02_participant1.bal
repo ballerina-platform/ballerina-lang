@@ -226,7 +226,7 @@ function noOp_localParticipant() {
     onabort:onLocalParticipantAbort1
 }
 function nonInfectable_localParticipant() {
-    log:printInfo("nonInfectable_localParticipant");
+    io:println("nonInfectable_localParticipant");
 }
 
 @transactions:Participant {

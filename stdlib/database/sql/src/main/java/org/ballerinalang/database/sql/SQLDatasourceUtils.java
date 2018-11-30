@@ -43,7 +43,7 @@ import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.transactions.BallerinaTransactionContext;
-import org.ballerinalang.util.transactions.LocalTransactionInfo;
+import org.ballerinalang.util.transactions.TransactionLocalContext;
 import org.ballerinalang.util.transactions.TransactionResourceManager;
 import org.ballerinalang.util.transactions.TransactionUtils;
 
@@ -1124,19 +1124,19 @@ public class SQLDatasourceUtils {
     }
 
     public static void handleErrorOnTransaction(Context context) {
-        LocalTransactionInfo localTransactionInfo = context.getLocalTransactionInfo();
-        if (localTransactionInfo == null) {
+        TransactionLocalContext transactionLocalContext = context.getLocalTransactionInfo();
+        if (transactionLocalContext == null) {
             return;
         }
-        SQLDatasourceUtils.notifyTxMarkForAbort(context, localTransactionInfo);
+        SQLDatasourceUtils.notifyTxMarkForAbort(context, transactionLocalContext);
     }
 
-    private static void notifyTxMarkForAbort(Context context, LocalTransactionInfo localTransactionInfo) {
-        String globalTransactionId = localTransactionInfo.getGlobalTransactionId();
-        int transactionBlockId = localTransactionInfo.getCurrentTransactionBlockId();
+    private static void notifyTxMarkForAbort(Context context, TransactionLocalContext transactionLocalContext) {
+        String globalTransactionId = transactionLocalContext.getGlobalTransactionId();
+        int transactionBlockId = transactionLocalContext.getCurrentTransactionBlockId();
 
-        localTransactionInfo.markFailure();
-        if (localTransactionInfo.isRetryPossible(context.getStrand(), transactionBlockId)) {
+        transactionLocalContext.markFailure();
+        if (transactionLocalContext.isRetryPossible(context.getStrand(), transactionBlockId)) {
             return;
         }
         TransactionUtils.notifyTransactionAbort(context.getStrand(), globalTransactionId,
@@ -1596,10 +1596,10 @@ public class SQLDatasourceUtils {
         }
         String connectorId = datasource.getConnectorId();
         boolean isXAConnection = datasource.isXAConnection();
-        LocalTransactionInfo localTransactionInfo = context.getLocalTransactionInfo();
-        String globalTxId = localTransactionInfo.getGlobalTransactionId();
-        int currentTxBlockId = localTransactionInfo.getCurrentTransactionBlockId();
-        BallerinaTransactionContext txContext = localTransactionInfo.getTransactionContext(connectorId);
+        TransactionLocalContext transactionLocalContext = context.getLocalTransactionInfo();
+        String globalTxId = transactionLocalContext.getGlobalTransactionId();
+        int currentTxBlockId = transactionLocalContext.getCurrentTransactionBlockId();
+        BallerinaTransactionContext txContext = transactionLocalContext.getTransactionContext(connectorId);
         if (txContext == null) {
             if (isXAConnection) {
                 XAConnection xaConn = datasource.getXADataSource().getXAConnection();
@@ -1612,7 +1612,7 @@ public class SQLDatasourceUtils {
                 conn.setAutoCommit(false);
                 txContext = new SQLTransactionContext(conn);
             }
-            localTransactionInfo.registerTransactionContext(connectorId, txContext);
+            transactionLocalContext.registerTransactionContext(connectorId, txContext);
             TransactionResourceManager.getInstance().register(globalTxId, currentTxBlockId, txContext);
         } else {
             conn = ((SQLTransactionContext) txContext).getConnection();

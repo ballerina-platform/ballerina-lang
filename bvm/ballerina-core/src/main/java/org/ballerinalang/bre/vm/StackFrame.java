@@ -62,7 +62,7 @@ public class StackFrame {
     int retReg;
 
     // Indicate this frame belong to a transaction participant
-    public boolean transactionParticipant;
+    TransactionParticipantType trxParticipant;
 
     public StackFrame() {}
 
@@ -112,6 +112,12 @@ public class StackFrame {
         this.constPool = packageInfo.getConstPoolEntries();
         this.code = packageInfo.getInstructions();
         this.retReg = retReg;
+    }
+
+    enum TransactionParticipantType {
+        LOCAL_PARTICIPANT,
+        REMOTE_PARTICIPANT,
+        NON_PARTICIPANT
     }
         
 }

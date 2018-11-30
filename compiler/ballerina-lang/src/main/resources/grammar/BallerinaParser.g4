@@ -566,7 +566,11 @@ expressionStmt
     ;
 
 transactionStatement
-    :   transactionClause onretryClause? (committedClause | abortedClause)*
+    :   transactionClause onretryClause? committedAbortedClauses
+    ;
+
+committedAbortedClauses
+    :  ((committedClause? abortedClause?) | (abortedClause? committedClause?))
     ;
 
 transactionClause

@@ -37,7 +37,7 @@ public interface TransactionNode extends StatementNode {
 
     void setRetryCount(ExpressionNode retryCount);
 
-    void addCommittedBody(BlockNode committedBlock);
+    void setCommittedBody(BlockNode committedBlock);
 
-    void addAbortedBody(BlockNode abortedBlock);
+    void setAbortedBody(BlockNode abortedBlock);
 }

@@ -112,8 +112,6 @@ public enum DiagnosticCode {
     TRANSACTION_CANNOT_BE_USED_WITHIN_HANDLER("transaction.cannot.be.used.within.handler"),
     NESTED_TRANSACTIONS_ARE_INVALID("nested.transactions.are.invalid"),
     INVALID_FUNCTION_POINTER_ASSIGNMENT_FOR_HANDLER("invalid.function.pointer.assignment.for.handler"),
-    ONLY_SINGLE_COMMITTED_BLOCK_ALLOWED("only.single.committed.block.allowed"),
-    ONLY_SINGLE_ABORTED_BLOCK_ALLOWED("only.single.aborted.block.allowed"),
 
     // Service, endpoint related errors codes
     SERVICE_OBJECT_TYPE_REQUIRED("service.object.type.required"),

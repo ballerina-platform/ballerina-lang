@@ -24,11 +24,11 @@ import java.util.Map;
 import java.util.Stack;
 
 /**
- * {@code LocalTransactionInfo} stores the transaction related information.
+ * {@code TransactionLocalContext} stores the transaction related information.
  *
  * @since 0.964.0
  */
-public class LocalTransactionInfo {
+public class TransactionLocalContext {
 
     private String globalTransactionId;
     private String url;
@@ -42,8 +42,9 @@ public class LocalTransactionInfo {
     private Stack<TransactionFailure> transactionFailure;
     private static final TransactionResourceManager transactionResourceManager =
             TransactionResourceManager.getInstance();
+    private boolean isResourceParticipant;
 
-    public LocalTransactionInfo(String globalTransactionId, String url, String protocol) {
+    private TransactionLocalContext(String globalTransactionId, String url, String protocol) {
         this.globalTransactionId = globalTransactionId;
         this.url = url;
         this.protocol = protocol;
@@ -53,6 +54,17 @@ public class LocalTransactionInfo {
         this.transactionContextStore = new HashMap<>();
         transactionBlockIdStack = new Stack<>();
         transactionFailure = new Stack<>();
+    }
+
+    public static TransactionLocalContext createTransactionParticipantLocalCtx(String globalTransactionId,
+                                                                               String url, String protocol) {
+        TransactionLocalContext localContext = new TransactionLocalContext(globalTransactionId, url, protocol);
+        localContext.setResourceParticipant(true);
+        return localContext;
+    }
+
+    public static TransactionLocalContext create(String globalTransactionId, String url, String protocol) {
+        return new TransactionLocalContext(globalTransactionId, url, protocol);
     }
 
     public String getGlobalTransactionId() {
@@ -141,6 +153,10 @@ public class LocalTransactionInfo {
         transactionResourceManager.notifyLocalParticipantFailure(globalTransactionId, bockId);
     }
 
+    public void notifyLocalRemoteParticipantFailure() {
+        TransactionResourceManager.getInstance().notifyResourceFailure(globalTransactionId);
+    }
+
     public boolean onTransactionEnd(int transactionBlockId) {
         boolean isOuterTx = false;
         transactionBlockIdStack.pop();
@@ -190,6 +206,14 @@ public class LocalTransactionInfo {
             return null;
         }
         return transactionFailure.peek();
+    }
+
+    public boolean isResourceParticipant() {
+        return isResourceParticipant;
+    }
+
+    public void setResourceParticipant(boolean resourceParticipant) {
+        isResourceParticipant = resourceParticipant;
     }
 
     /**

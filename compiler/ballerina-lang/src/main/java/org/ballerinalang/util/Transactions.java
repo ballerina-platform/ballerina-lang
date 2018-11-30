@@ -42,7 +42,8 @@ public class Transactions {
      */
     public enum TransactionType {
         INITIATOR(0),
-        PARTICIPANT(1);
+        PARTICIPANT(1),
+        REMOTE_PARTICIPANT(2);
 
         public final int value;
 

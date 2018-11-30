@@ -1534,8 +1534,8 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangTransaction transactionNode) {
         transactionNode.transactionBody = rewrite(transactionNode.transactionBody, env);
         transactionNode.onRetryBody = rewrite(transactionNode.onRetryBody, env);
-        transactionNode.committedBodyList = rewrite(transactionNode.committedBodyList, env);
-        transactionNode.abortedBodyList = rewrite(transactionNode.abortedBodyList, env);
+        transactionNode.committedBody = rewrite(transactionNode.committedBody, env);
+        transactionNode.abortedBody = rewrite(transactionNode.abortedBody, env);
         transactionNode.retryCount = rewriteExpr(transactionNode.retryCount);
         result = transactionNode;
     }

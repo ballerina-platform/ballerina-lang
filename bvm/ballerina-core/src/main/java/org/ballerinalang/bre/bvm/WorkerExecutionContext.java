@@ -25,7 +25,7 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 import org.ballerinalang.util.debugger.DebugContext;
-import org.ballerinalang.util.transactions.LocalTransactionInfo;
+import org.ballerinalang.util.transactions.TransactionLocalContext;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -164,11 +164,11 @@ public class WorkerExecutionContext {
 //        return BLangVMUtils.getTransactionInfo(this) != null;
     }
 
-    public void setLocalTransactionInfo(LocalTransactionInfo localTransactionInfo) {
-//        BLangVMUtils.setTransactionInfo(this, localTransactionInfo);
+    public void setLocalTransactionInfo(TransactionLocalContext transactionLocalContext) {
+//        BLangVMUtils.setTransactionInfo(this, transactionLocalContext);
     }
 
-    public LocalTransactionInfo getLocalTransactionInfo() {
+    public TransactionLocalContext getLocalTransactionInfo() {
         return null;
 //        return BLangVMUtils.getTransactionInfo(this);
     }

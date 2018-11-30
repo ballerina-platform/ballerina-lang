@@ -24,17 +24,14 @@ import org.ballerinalang.model.tree.statements.TransactionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * @since 0.94
  */
 public class BLangTransaction extends BLangStatement implements TransactionNode {
     public BLangBlockStmt transactionBody;
     public BLangBlockStmt onRetryBody;
-    public List<BLangBlockStmt> committedBodyList = new ArrayList<>();
-    public List<BLangBlockStmt> abortedBodyList = new ArrayList<>();
+    public BLangBlockStmt committedBody;
+    public BLangBlockStmt abortedBody;
     public BLangExpression retryCount;
 
     public BLangTransaction() {
@@ -79,13 +76,13 @@ public class BLangTransaction extends BLangStatement implements TransactionNode 
     }
 
     @Override
-    public void addCommittedBody(BlockNode committedBlock) {
-        this.committedBodyList.add((BLangBlockStmt) committedBlock);
+    public void setCommittedBody(BlockNode committedBlock) {
+        this.committedBody = (BLangBlockStmt) committedBlock;
     }
 
     @Override
-    public void addAbortedBody(BlockNode abortedBlock) {
-        this.abortedBodyList.add((BLangBlockStmt) abortedBlock);
+    public void setAbortedBody(BlockNode abortedBlock) {
+        this.abortedBody = (BLangBlockStmt) abortedBlock;
     }
 
     @Override

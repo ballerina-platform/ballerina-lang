@@ -673,11 +673,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (transactionNode.onRetryBody != null) {
             transactionNode.onRetryBody.accept(this);
         }
-        if (!transactionNode.committedBodyList.isEmpty()) {
-            transactionNode.committedBodyList.get(0).accept(this);
+        if (transactionNode.committedBody != null) {
+            transactionNode.committedBody.accept(this);
         }
-        if (!transactionNode.abortedBodyList.isEmpty()) {
-            transactionNode.abortedBodyList.get(0).accept(this);
+        if (transactionNode.abortedBody != null) {
+            transactionNode.abortedBody.accept(this);
         }
         overridingAnalysis = true;
     }

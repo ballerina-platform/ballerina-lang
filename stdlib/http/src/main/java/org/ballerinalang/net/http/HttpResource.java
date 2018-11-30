@@ -21,7 +21,6 @@ import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.Value;
-import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.transactions.TransactionConstants;
@@ -69,27 +68,13 @@ public class HttpResource {
     private HttpService parentService;
     private boolean transactionInfectable = true; //default behavior
     private boolean interruptible;
-    private BFunctionPointer transactionOnCommitFunc;
-    private BFunctionPointer transactionOnAbortFunc;
 
     private boolean transactionAnnotated = false;
-
-
-    private int participantBlockId;
-
 
     protected HttpResource(Resource resource, HttpService parentService) {
         this.balResource = resource;
         this.parentService = parentService;
         this.producesSubTypes = new ArrayList<>();
-    }
-
-    private static int genParticipantId() {
-        return currentParticipantId.incrementAndGet();
-    }
-
-    public int getParticipantBlockId() {
-        return participantBlockId;
     }
 
     public boolean isTransactionAnnotated() {
@@ -238,25 +223,7 @@ public class HttpResource {
                         TransactionConstants.TRANSACTION_PACKAGE_PATH);
         if (transactionConfigAnnotation != null) {
             httpResource.transactionAnnotated = true;
-            Struct annotationStruct = transactionConfigAnnotation.getValue();
-            Value onCommitField = annotationStruct.getRefField(TransactionConstants.ANN_NAME_TRX_ONCOMMIT_FUNC);
-            if (onCommitField != null) {
-                BFunctionPointer oncommitFunc = (BFunctionPointer) onCommitField.getVMValue();
-                httpResource.setTransactionOnCommitFunc(oncommitFunc);
-            }
-
-            Value onAbortField = annotationStruct.getRefField(TransactionConstants.ANN_NAME_TRX_ONABORT_FUNC);
-            if (onAbortField != null) {
-                BFunctionPointer onabortFunc = (BFunctionPointer) onAbortField.getVMValue();
-                httpResource.setTransactionOnAbortFunc(onabortFunc);
-            }
-
-            httpResource.setTransactionBlockId(genParticipantId());
         }
-    }
-
-    private void setTransactionBlockId(int participantId) {
-        this.participantBlockId = participantId;
     }
 
     protected static Annotation getResourceConfigAnnotation(Resource resource) {
@@ -317,21 +284,5 @@ public class HttpResource {
     private void prepareAndValidateSignatureParams() {
         signatureParams = new SignatureParams(this, balResource.getParamDetails());
         signatureParams.validate();
-    }
-
-    public void setTransactionOnCommitFunc(BFunctionPointer transactionOnCommitFunc) {
-        this.transactionOnCommitFunc = transactionOnCommitFunc;
-    }
-
-    public BFunctionPointer getTransactionOnCommitFunc() {
-        return transactionOnCommitFunc;
-    }
-
-    public void setTransactionOnAbortFunc(BFunctionPointer transactionOnAbortFunc) {
-        this.transactionOnAbortFunc = transactionOnAbortFunc;
-    }
-
-    public BFunctionPointer getTransactionOnAbortFunc() {
-        return transactionOnAbortFunc;
     }
 }

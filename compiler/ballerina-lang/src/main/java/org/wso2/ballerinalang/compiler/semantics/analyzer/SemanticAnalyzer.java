@@ -1325,12 +1325,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             analyzeStmt(transactionNode.onRetryBody, env);
         }
 
-        if (!transactionNode.committedBodyList.isEmpty()) {
-            analyzeStmt(transactionNode.committedBodyList.get(0), env);
+        if (transactionNode.committedBody != null) {
+            analyzeStmt(transactionNode.committedBody, env);
         }
 
-        if (!transactionNode.abortedBodyList.isEmpty()) {
-            analyzeStmt(transactionNode.abortedBodyList.get(0), env);
+        if (transactionNode.abortedBody != null) {
+            analyzeStmt(transactionNode.abortedBody, env);
         }
 
         if (transactionNode.retryCount != null) {

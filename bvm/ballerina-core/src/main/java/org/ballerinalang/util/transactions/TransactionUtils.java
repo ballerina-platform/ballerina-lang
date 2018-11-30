@@ -45,7 +45,7 @@ public class TransactionUtils {
                 new BString(protocol)
         };
         BValue[] returns = invokeCoordinatorFunction(ctx, TransactionConstants.COORDINATOR_BEGIN_TRANSACTION, args);
-        checkTransactionCoordinatorError(returns[0], ctx, "error in transaction start: ");
+        checkTransactionCoordinatorError(returns[0], ctx, "error in global transaction start: ");
         return returns;
     }
 
@@ -83,7 +83,7 @@ public class TransactionUtils {
 
     private static void checkTransactionCoordinatorError(BValue value, Strand ctx, String errMsg) {
         if (value.getType().getTag() == TypeTags.ERROR_TAG) {
-            throw new BallerinaException(errMsg + ((BError) value).details);
+            throw new BallerinaException(errMsg + ((BError) value).reason);
         }
     }
 

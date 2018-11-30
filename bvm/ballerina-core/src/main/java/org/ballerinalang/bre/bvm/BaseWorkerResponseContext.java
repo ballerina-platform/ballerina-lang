@@ -19,7 +19,7 @@ package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.util.debugger.DebugCommand;
-import org.ballerinalang.util.transactions.LocalTransactionInfo;
+import org.ballerinalang.util.transactions.TransactionLocalContext;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -165,16 +165,16 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
     }
 
     void signalTransactionError(WorkerSignal signal) {
-        LocalTransactionInfo localTransactionInfo = signal.getSourceContext().getLocalTransactionInfo();
-        if (localTransactionInfo == null) {
+        TransactionLocalContext transactionLocalContext = signal.getSourceContext().getLocalTransactionInfo();
+        if (transactionLocalContext == null) {
             return;
         }
-        localTransactionInfo.notifyLocalParticipantFailure();
+        transactionLocalContext.notifyLocalParticipantFailure();
     }
 
     void signalTransactionParticipantSuccess(WorkerSignal signal) {
-        LocalTransactionInfo localTransactionInfo = signal.getSourceContext().getLocalTransactionInfo();
-        if (localTransactionInfo == null) {
+        TransactionLocalContext transactionLocalContext = signal.getSourceContext().getLocalTransactionInfo();
+        if (transactionLocalContext == null) {
             return;
         }
     }

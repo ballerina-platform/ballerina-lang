@@ -21,7 +21,6 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
-import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -1760,47 +1759,49 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     private void emitTransactionParticipantBeginIfApplicable(BLangBlockStmt body) {
         BLangNode parent = body.parent;
-        if (parent == null) {
+        if (parent == null || parent.getKind() != NodeKind.FUNCTION) {
             return;
         }
-        // Resource functions are not applicable for local transaction participants, they are remote participants.
-        if (parent instanceof BLangFunction) {
-            Set<Flag> flagSet = ((BLangFunction) parent).flagSet;
-            if (flagSet != null && flagSet.contains(Flag.RESOURCE)) {
-                return;
-            }
-            BLangFunction function = (BLangFunction) parent;
-            List<BLangAnnotationAttachment> participantAnnotation = function.annAttachments.stream()
-                    .filter(a -> Transactions.isTransactionsAnnotation(a.pkgAlias.value, a.annotationName.value))
-                    .collect(Collectors.toList());
-            if (participantAnnotation.isEmpty()) {
-                // function not annotated for transaction participation.
-                return;
-            }
-
-            transactionIndex++;
-            BLangAnnotationAttachment annotation = participantAnnotation.get(0);
-            Operand abortedFuncRegIndex = new RegIndex(-1, TypeTags.INVOKABLE);
-            Operand committedFuncRegIndex = new RegIndex(-1, TypeTags.INVOKABLE);
-
-            for (BLangRecordKeyValue keyValuePair : ((BLangRecordLiteral) annotation.expr).getKeyValuePairs()) {
-                if (((BLangLiteral) keyValuePair.getKey()).value.equals(Transactions.TRX_ONABORT_FUNC)) {
-                    abortedFuncRegIndex.value = getFuncRefCPIndex(
-                            (BInvokableSymbol) ((BLangSimpleVarRef) keyValuePair.getValue()).symbol);
-                }
-                if (((BLangLiteral) keyValuePair.getKey()).value.equals(Transactions.TRX_ONCOMMIT_FUNC)) {
-                    committedFuncRegIndex.value = getFuncRefCPIndex(
-                            (BInvokableSymbol) ((BLangSimpleVarRef) keyValuePair.getValue()).symbol);
-                }
-            }
-            // Participate in transaction.
-            Operand transactionIndexOperand = getOperand(transactionIndex);
-            Operand transactionType = getOperand(Transactions.TransactionType.PARTICIPANT.value);
-            RegIndex retryCountRegIndex = getRegIndex(TypeTags.INT);
-            this.emit(InstructionCodes.TR_BEGIN, transactionType, transactionIndexOperand, retryCountRegIndex,
-                    committedFuncRegIndex, abortedFuncRegIndex);
+        BLangFunction function = (BLangFunction) parent;
+        List<BLangAnnotationAttachment> participantAnnotation = function.annAttachments.stream()
+                .filter(a -> Transactions.isTransactionsAnnotation(a.pkgAlias.value, a.annotationName.value))
+                .collect(Collectors.toList());
+        if (participantAnnotation.isEmpty()) {
+            // function not annotated for transaction participation.
+            return;
         }
+
+        transactionIndex++;
+        BLangAnnotationAttachment annotation = participantAnnotation.get(0);
+        Operand abortedFuncRegIndex = new RegIndex(-1, TypeTags.INVOKABLE);
+        Operand committedFuncRegIndex = new RegIndex(-1, TypeTags.INVOKABLE);
+
+        for (BLangRecordKeyValue keyValuePair : ((BLangRecordLiteral) annotation.expr).getKeyValuePairs()) {
+            if (((BLangLiteral) keyValuePair.getKey()).value.equals(Transactions.TRX_ONABORT_FUNC)) {
+                abortedFuncRegIndex.value = getFuncRefCPIndex(
+                        (BInvokableSymbol) ((BLangSimpleVarRef) keyValuePair.getValue()).symbol);
+            }
+            if (((BLangLiteral) keyValuePair.getKey()).value.equals(Transactions.TRX_ONCOMMIT_FUNC)) {
+                committedFuncRegIndex.value = getFuncRefCPIndex(
+                        (BInvokableSymbol) ((BLangSimpleVarRef) keyValuePair.getValue()).symbol);
+            }
+        }
+        // Participate in transaction.
+        Operand transactionIndexOperand = getOperand(transactionIndex);
+        int participantType = getParticipantTypeTag(function);
+        Operand transactionType = getOperand(participantType);
+        RegIndex retryCountRegIndex = getRegIndex(TypeTags.INT);
+        this.emit(InstructionCodes.TR_BEGIN, transactionType, transactionIndexOperand, retryCountRegIndex,
+                committedFuncRegIndex, abortedFuncRegIndex);
     }
+
+    private int getParticipantTypeTag(BLangFunction function) {
+        if (Symbols.isFlagOn((function).symbol.flags, Flags.RESOURCE)) {
+            return Transactions.TransactionType.REMOTE_PARTICIPANT.value;
+        }
+        return Transactions.TransactionType.PARTICIPANT.value;
+    }
+
 
     private void visitInvokableNodeParams(BInvokableSymbol invokableSymbol, CallableUnitInfo callableUnitInfo,
                                           LocalVariableAttributeInfo localVarAttrInfo) {
@@ -2917,10 +2918,10 @@ public class CodeGenerator extends BLangNodeVisitor {
         failInstructions.pop();
 
         // Committed body.
-        if (!transactionNode.committedBodyList.isEmpty()) {
+        if (transactionNode.committedBody != null) {
             boolean prevRegIndexResetDisabledState = this.regIndexResetDisabled;
             this.regIndexResetDisabled = true;
-            this.genNode(transactionNode.committedBodyList.get(0), this.env);
+            this.genNode(transactionNode.committedBody, this.env);
             this.regIndexResetDisabled = prevRegIndexResetDisabledState;
 
         }
@@ -2952,10 +2953,10 @@ public class CodeGenerator extends BLangNodeVisitor {
         transStmtAbortEndAddr.value = nextIP();
         emit(InstructionCodes.TR_END, transactionIndexOperand,
                 getOperand(Transactions.TransactionStatus.ABORTED.value()), trEndStatusReg, errorRegIndex);
-        if (!transactionNode.abortedBodyList.isEmpty()) {
+        if (transactionNode.abortedBody != null) {
             boolean prevRegIndexResetDisabledState = this.regIndexResetDisabled;
             this.regIndexResetDisabled = true;
-            this.genNode(transactionNode.abortedBodyList.get(0), this.env);
+            this.genNode(transactionNode.abortedBody, this.env);
             this.regIndexResetDisabled = prevRegIndexResetDisabledState;
         }
 

@@ -125,30 +125,15 @@ public class TransactionResourceManager {
                                       BFunctionPointer aborted, Strand strand) {
         localParticipants.computeIfAbsent(gTransactionId, gid -> new ConcurrentSkipListSet<>()).add(transactionBlockId);
 
-        LocalTransactionInfo localTransactionInfo = strand.getLocalTransactionInfo();
+        TransactionLocalContext transactionLocalContext = strand.getLocalTransactionContext();
         registerCommittedFunction(transactionBlockId, committed);
         registerAbortedFunction(transactionBlockId, aborted);
-        localTransactionInfo.beginTransactionBlock(transactionBlockId, 1);
+        transactionLocalContext.beginTransactionBlock(transactionBlockId, 1);
 
         BValue[] bValues = TransactionUtils.notifyTransactionBegin(strand,
-                localTransactionInfo.getGlobalTransactionId(),
-                localTransactionInfo.getURL(), transactionBlockId, localTransactionInfo.getProtocol());
+                transactionLocalContext.getGlobalTransactionId(),
+                transactionLocalContext.getURL(), transactionBlockId, transactionLocalContext.getProtocol());
         log.info("participant registered: " + bValues[0]);
-    }
-
-    /**
-     * Register a participant in the local transaction. This is intended for participant function registration.
-     *
-     * @param gTransactionId global transaction id
-     * @param blockId        unique id for this participant
-     * @param committed      function pointer to invoke when this transaction committed
-     * @param aborted        function pointer to invoke when this transaction aborted
-     * @since 0.985.0
-     */
-    public void registerLocalParticipant(String gTransactionId, String blockId, BFunctionPointer committed,
-                                         BFunctionPointer aborted) {
-        participantRegistry.register(gTransactionId, blockId, committed, aborted);
-
     }
 
     /**

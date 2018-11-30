@@ -135,7 +135,8 @@ public class MicroTransactionTestCase extends BaseTest {
         assertFalse(participantState.localParticipantCommittedFunctionCalled);
     }
 
-    @Test(/*dependsOnMethods = {"testRemoteParticipantAbort"}*/)
+    //@Test(dependsOnMethods = {"testRemoteParticipantAbort"})
+    @Test(dependsOnMethods = {"testInitiatorAbort"})
     public void testLocalParticipantSuccess() throws IOException {
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(initiatorServicePort,
                 "testLocalParticipantSuccess"));
@@ -188,7 +189,7 @@ public class MicroTransactionTestCase extends BaseTest {
         assertFalse(participantState.localParticipantCommittedFunctionCalled);
     }
 
-    @Test(/*dependsOnMethods = {"testLocalParticipantAbort"}*/)
+    @Test()
     public void testTransactionInfectableFalse() throws IOException {
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(initiatorServicePort,
                 "testTransactionInfectableFalse"));

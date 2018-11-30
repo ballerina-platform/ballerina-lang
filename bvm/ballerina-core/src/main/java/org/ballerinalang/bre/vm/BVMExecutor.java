@@ -39,8 +39,8 @@ import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.observability.ObserverContext;
 import org.ballerinalang.util.program.BLangVMUtils;
-import org.ballerinalang.util.transactions.LocalTransactionInfo;
 import org.ballerinalang.util.transactions.TransactableCallableUnitCallback;
+import org.ballerinalang.util.transactions.TransactionLocalContext;
 import org.ballerinalang.util.transactions.TransactionResourceManager;
 
 import java.util.HashMap;
@@ -154,10 +154,9 @@ public class BVMExecutor {
         String gTransactionId = (String) properties.get(Constants.GLOBAL_TRANSACTION_ID);
         if (gTransactionId != null) {
             String globalTransactionId = properties.get(Constants.GLOBAL_TRANSACTION_ID).toString();
-            LocalTransactionInfo localTransactionInfo = new LocalTransactionInfo(
-                    globalTransactionId,
+            TransactionLocalContext transactionLocalContext = TransactionLocalContext.create(globalTransactionId,
                     properties.get(Constants.TRANSACTION_URL).toString(), "2pc");
-            strand.setLocalTransactionInfo(localTransactionInfo);
+            strand.setLocalTransactionInfo(transactionLocalContext);
             registerTransactionInfection(responseCallback, gTransactionId, strand);
         }
     }
