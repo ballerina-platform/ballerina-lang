@@ -339,8 +339,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         BLangInvocation orderByProcessMethodInvocation = ASTBuilderUtil.
                 createInvocationExprForMethod(orderBy.pos, orderByProcessInvokableSymbol, args, symResolver);
         orderByProcessMethodInvocation.argExprs = args;
-        BLangSimpleVariable orderByProcessInvokableTypeVariable =
-                ASTBuilderUtil.createVariable(orderBy.pos, getVariableName(ORDER_BY_PROCESS_FUNC_REFERENCE),
+        BLangSimpleVariable orderByProcessInvokableTypeVariable = ASTBuilderUtil.
+                createVariable(orderBy.pos, getVariableName(ORDER_BY_PROCESS_FUNC_REFERENCE),
                         orderByProcessInvokableType, orderByProcessMethodInvocation,
                         orderByProcessInvokableTypeVarSymbol);
 

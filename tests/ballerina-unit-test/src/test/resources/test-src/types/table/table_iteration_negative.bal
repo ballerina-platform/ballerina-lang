@@ -65,21 +65,21 @@ function createTable() returns (table<Employee>) {
     return dt;
 }
 
-function testInCompatibleInput() returns (table) {
+function testInCompatibleInput() returns (table<record {}>) {
     table<Employee> dt = createTable();
 
     table<EmployeeSalary> t = dt.select(getSalaryInCompatibleInput);
     return t;
 }
 
-function testIncompatibleOutput() returns (table) {
+function testIncompatibleOutput() returns (table<record {}>) {
     table<Employee> dt = createTable();
 
     table<EmployeeSalary> t = dt.select(getSalaryIncompatibleOutput);
     return t;
 }
 
-function testIncompatibleInputOutput() returns (table) {
+function testIncompatibleInputOutput() returns (table<record {}>) {
     table<Employee> dt = createTable();
 
     table<EmployeeSalary> t = dt.select(getSalaryIncompatibleInputOutput);
