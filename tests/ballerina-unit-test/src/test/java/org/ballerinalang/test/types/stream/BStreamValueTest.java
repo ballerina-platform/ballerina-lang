@@ -58,8 +58,8 @@ public class BStreamValueTest {
                                   + " 'stream<Person>', found 'stream<Employee>'", 24, 37);
         BAssertUtil.validateError(failureResult, 3, "incompatible types: expected"
                                   + " 'stream<Person>', found 'stream'", 30, 37);
-        BAssertUtil.validateError(failureResult, 4, "incompatible types: 'stream<Person>'"
-                                  + " cannot be explicitly typed as 'stream<Employee>'", 41, 26);
+        BAssertUtil.validateError(failureResult, 4, "type assertion not yet supported for type 'stream<Employee>'",
+                                  41, 26);
     }
 
     @Test(description = "Test publishing records of invalid type to a stream",
