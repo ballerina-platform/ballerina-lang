@@ -265,7 +265,6 @@ statement
     |   namespaceDeclarationStatement
     |   foreverStatement
     |   streamingQueryStatement
-    |   doneStatement
     ;
 
 variableDefinitionStatement
@@ -878,10 +877,6 @@ tableQuery
 
 foreverStatement
     :   FOREVER LEFT_BRACE  streamingQueryStatement+ RIGHT_BRACE
-    ;
-
-doneStatement
-    :   DONE SEMICOLON
     ;
 
 streamingQueryStatement

@@ -86,7 +86,7 @@ service {
                     verifyIntentAndAddSubscription(callback, topic, params);
                 }
             }
-            done;
+            return;
         } else if (mode == MODE_REGISTER) {
             if (!hubRemotePublishingEnabled || !hubTopicRegistrationRequired) {
                 response.statusCode = http:BAD_REQUEST_400;
@@ -96,7 +96,7 @@ service {
                 if (responseError is error) {
                     log:printError("Error responding on remote topic registration failure", err = responseError);
                 }
-                done;
+                return;
             }
 
             var registerStatus = registerTopicAtHub(topic);
@@ -122,7 +122,7 @@ service {
                 if (responseError is error) {
                     log:printError("Error responding on remote topic unregistration failure", err = responseError);
                 }
-                done;
+                return;
             }
 
             var unregisterStatus = unregisterTopicAtHub(topic);
@@ -150,7 +150,8 @@ service {
 
             if (mode == MODE_PUBLISH && hubRemotePublishingEnabled) {
                 if (!hubTopicRegistrationRequired || isTopicRegistered(topic)) {
-                    byte[]|error binaryPayload;
+                    byte [0] arr = [];
+                    byte[]|error binaryPayload = arr;
                     string stringPayload;
                     string contentType = "";
                     if (hubRemotePublishMode == PUBLISH_MODE_FETCH) {
@@ -173,10 +174,10 @@ service {
                             if (responseError is error) {
                                 log:printError("Error responding on update fetch failure", err = responseError);
                             }
-                            done;
+                            return;
                         } else {
                             // should never reach here
-                            done;
+                            return;
                         }
                     } else {
                         binaryPayload = request.getBinaryPayload();
@@ -202,7 +203,7 @@ service {
                             log:printError("Error responding on payload extraction failure for"
                                                     + " publish request", err = responseError);
                         }
-                        done;
+                        return;
                     }
 
                     if (publishStatus is error) {
@@ -218,7 +219,7 @@ service {
                             log:printError("Error responding on update notification for topic[" + topic
                                                     + "]", err = responseError);
                         }
-                        done;
+                        return;
                     }
                 } else {
                     string errorMessage = "Publish request denied for unregistered topic[" + topic + "]";

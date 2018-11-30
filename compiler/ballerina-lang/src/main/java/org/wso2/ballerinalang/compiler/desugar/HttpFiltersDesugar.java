@@ -45,9 +45,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -67,7 +67,7 @@ import static org.wso2.ballerinalang.compiler.util.Names.GEN_VAR_PREFIX;
  *          caller.conn.filterContext = _$$_filterContext;
  *          foreach _$$_filter in caller.config.filters {
  *              if(!_$$_filter.filterRequest()){
- *                  Done;
+ *                  return;
  *              }
  *          }
  * </pre></blockquote>
@@ -220,7 +220,7 @@ public class HttpFiltersDesugar {
      *  caller.conn.filterContext = _$$_filterContext;
      *  foreach _$$_filter in caller.config.filters {
      *      if(!_$$_filter.filterRequest()){
-     *          Done;
+     *          return;
      *      }
      *  }
      * </pre></blockquote>
@@ -289,11 +289,11 @@ public class HttpFiltersDesugar {
         filterRef.symbol = new BVarSymbol(0, new Name(filterVarName), resourceNode.symbol.pkgID, filterType,
                                           resourceNode.symbol);
 
-        BLangDone doneNode = (BLangDone) TreeBuilder.createDoneNode();
-        doneNode.pos = resourceNode.pos;
+        BLangReturn returnNode = (BLangReturn) TreeBuilder.createReturnNode();
+        returnNode.pos = resourceNode.pos;
 
-        BLangBlockStmt doneStatement = ASTBuilderUtil.createBlockStmt(resourceNode.pos,
-                                                                      createSingletonArrayList(doneNode));
+        BLangBlockStmt returnStatement = ASTBuilderUtil.createBlockStmt(resourceNode.pos,
+                                                                      createSingletonArrayList(returnNode));
 
         BLangSimpleVarRef requestRef = new BLangSimpleVarRef();
         BLangSimpleVariable requestVar = resourceNode.requiredParams.get(REQUEST_PARAM_NUM);
@@ -326,7 +326,7 @@ public class HttpFiltersDesugar {
 
         BLangIf ifNode = (BLangIf) TreeBuilder.createIfElseStatementNode();
         ifNode.pos = resourceNode.pos;
-        ifNode.body = doneStatement;
+        ifNode.body = returnStatement;
         ifNode.expr = ifBraceExpr;
 
         BLangBlockStmt ifStatement = ASTBuilderUtil.createBlockStmt(resourceNode.pos,
