@@ -977,10 +977,9 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     // TODO: Resolving function pointers and perform analysis.
                     if (analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS_COMPLETE && invocationExpr.builtinMethodInvocation
                             && invocationExpr.builtInMethod == BLangBuiltInMethod.CALL) {
-                            this.taintedStatus = TaintedStatus.IGNORED;
-                            analyzerPhase = AnalyzerPhase.LOOP_ANALYSIS_COMPLETE;
-                            return;
-                        }
+                        this.taintedStatus = TaintedStatus.IGNORED;
+                        analyzerPhase = AnalyzerPhase.LOOP_ANALYSIS_COMPLETE;
+                        return;
                     }
                     // If taint-table of invoked function is not generated yet, add it to the blocked list for latter
                     // processing.
