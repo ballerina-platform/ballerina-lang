@@ -70,7 +70,8 @@ http:ClientEndpointConfig clientEPConfig = {
     }
 };
 public function main() {
-    http:Client clientEP = new("https://localhost:9095", config = clientEPConfig);
+    http:Client clientEP = new("https://localhost:9095",
+                                config = clientEPConfig);
     // Create a request.
     var resp = clientEP->get("/hello");
     if (resp is http:Response) {

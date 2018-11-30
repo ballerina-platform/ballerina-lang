@@ -47,7 +47,8 @@ http:ClientEndpointConfig clientEPConfig = {
 };
 // You have to run the service before running this main function.
 public function main() {
-    http:Client clientEP = new("https://localhost:9095", config = clientEPConfig);
+    http:Client clientEP = new("https://localhost:9095",
+                                config = clientEPConfig);
     // Sends an outbound request.
     var resp = clientEP->get("/hello/");
     if (resp is http:Response) {
