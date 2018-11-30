@@ -290,12 +290,10 @@ public class HttpFiltersDesugar {
         filterRef.type = filterType;
         filterRef.pos = resourceNode.pos;
 
-
         // Create a new variable definition. This is needed for the foreach node.
         BLangSimpleVariable variable = ASTBuilderUtil.createVariable(resourceNode.pos, filterVarName, filterType,
-                null, filterRef.symbol);
+                null, (BVarSymbol) filterRef.symbol);
         BLangSimpleVariableDef variableDefinition = ASTBuilderUtil.createVariableDef(resourceNode.pos, variable);
-
 
         BLangLiteral returnName = new BLangLiteral();
         returnName.value = Names.NIL_VALUE;
