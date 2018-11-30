@@ -104,7 +104,7 @@ function handleNestedParts(mime:Entity parentPart) {
     }
 }
 
-// The content logic that handles the body parts
+//The content logic that handles the body parts
 //vary based on your requirement.
 function handleContent(mime:Entity bodyPart) {
     string baseType = getBaseType(bodyPart.getContentType());
@@ -141,7 +141,7 @@ function handleContent(mime:Entity bodyPart) {
         var payload = bodyPart.getByteChannel();
         if (payload is io:ReadableByteChannel) {
             io:WritableByteChannel destinationChannel =
-            io:openWritableFile("ReceivedFile.pdf");
+                                    io:openWritableFile("ReceivedFile.pdf");
             var result = copy(payload, destinationChannel);
             if (result is error) {
                 log:printError("error occurred while performing copy ", err = result);
@@ -166,7 +166,7 @@ function getBaseType(string contentType) returns string {
 }
 
 
-// Copies content from the source channel to the destination channel.
+// Copies the content from the source channel to the destination channel.
 function copy(io:ReadableByteChannel src, io:WritableByteChannel dst) returns error? {
     int readCount = 1;
     byte[] readContent;
