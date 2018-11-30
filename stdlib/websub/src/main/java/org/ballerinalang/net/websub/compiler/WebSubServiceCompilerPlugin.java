@@ -81,7 +81,7 @@ public class WebSubServiceCompilerPlugin extends AbstractCompilerPlugin {
                                        + "' annotation");
         }
 
-        BType listenerType = ((BLangService) serviceNode).listerType;
+        BType listenerType = ((BLangService) serviceNode).listenerType;
         if (listenerType != null && !WEBSUB_LISTENER.equals(listenerType.getDesc())) {
             return;
         }
