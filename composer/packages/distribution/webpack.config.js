@@ -2,9 +2,9 @@ const path = require('path');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
-const ExtractVSCodeThemeCSS = new ExtractTextPlugin({
+const ExtractDefaultThemeCSS = new ExtractTextPlugin({
     filename: (getPath) => {
-        return getPath('themes/ballerina-vscode.css').replace('themes/js', 'css');
+        return getPath('themes/ballerina-default.css').replace('themes/js', 'css');
     },
     allChunks: true
 });
@@ -15,15 +15,15 @@ module.exports = {
         apiEditor: './src/api-editor.ts',
     },
     output: {
-      path: path.resolve(__dirname, 'build'),
-      filename: '[name].js',
-      library: 'ballerinaComposer',
-      libraryTarget: 'umd'
+        path: path.resolve(__dirname, 'build'),
+        filename: '[name].js',
+        library: 'ballerinaComposer',
+        libraryTarget: 'umd'
     },
     resolve: {
         alias: {
             '../../theme.config$': path.join(
-                __dirname, 'node_modules/@ballerina/theme/src/themes/vscode/theme.config')
+                __dirname, 'node_modules/@ballerina/theme/src/themes/default/theme.config')
         },
         extensions: ['.tsx', '.ts', '.js', '.json']
     },
@@ -33,10 +33,10 @@ module.exports = {
                 use: ['style-loader', 'css-loader']
             },
             {
-                use: ExtractVSCodeThemeCSS.extract({
+                use: ExtractDefaultThemeCSS.extract({
                     use: ['css-loader', 'less-loader']
                 }),
-                test: /(themes).vscode.*\.less$/,
+                test: /(themes).default.*\.less$/,
             },
             {
                 exclude: /(themes).*\.less/,
@@ -64,7 +64,7 @@ module.exports = {
         ]
     },
     plugins: [
-        ExtractVSCodeThemeCSS
+        ExtractDefaultThemeCSS
     ],
     watchOptions: {
         ignored: /(node_modules|build)/
