@@ -49,7 +49,7 @@ under the License.
             <package name="org.ballerinalang.test.statements.*">
                 <exclude name="org.ballerinalang.test.statements.transform.*"/>
             </package>
-            <!--package name="org.ballerinalang.test.types.*"/>-->
+            <package name="org.ballerinalang.test.types.*"/>
             <package name="org.ballerinalang.test.access.*"/>
             <package name="org.ballerinalang.test.functions.*"/>
             <package name="org.ballerinalang.test.worker.*"/>
@@ -70,7 +70,7 @@ under the License.
             <package name="org.ballerinalang.test.services.cors"/>
             <package name="org.ballerinalang.test.services.configuration"/>
             <package name="org.ballerinalang.test.services.dispatching"/>
-            <!--<package name="org.ballerinalang.test.natives.*"/>-->
+            <package name="org.ballerinalang.test.natives.*"/>
             <package name="org.ballerinalang.test.parser.*"/>
             <package name="org.ballerinalang.test.launch.*"/>
             <package name="org.ballerinalang.test.lock.*"/>
@@ -86,7 +86,7 @@ under the License.
             <package name="org.ballerinalang.test.object.*"/>
             <package name="org.ballerinalang.test.record.*"/>
             <package name="org.ballerinalang.test.net.grpc"/>
-            <!--package name="org.ballerinalang.test.runtime.*"/>-->
+            <package name="org.ballerinalang.test.runtime.*"/>
             <package name="org.ballerinalang.test.balo.*" />
             <package name="org.ballerinalang.test.compression.*"/>
             <package name="org.ballerinalang.test.variable.shadowing.*" />

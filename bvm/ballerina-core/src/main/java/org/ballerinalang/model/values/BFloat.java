@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.model.values;
 
-import org.ballerinalang.bre.bvm.CPU;
+import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -46,7 +46,7 @@ public final class BFloat extends BValueType implements BRefType<Double> {
             throw new BallerinaException("'float' value '" + value + "' cannot be converted to 'int'");
         }
 
-        if (!CPU.isFloatWithinIntRange(value)) {
+        if (!BVM.isFloatWithinIntRange(value)) {
             throw new BallerinaException("out of range 'float' value '" + value + "' cannot be converted to 'int'");
         }
         return Math.round(value);

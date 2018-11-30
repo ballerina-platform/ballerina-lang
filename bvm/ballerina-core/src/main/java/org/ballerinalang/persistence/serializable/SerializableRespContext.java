@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.persistence.serializable;
 
-import org.ballerinalang.bre.bvm.CallableWorkerResponseContext;
+import org.ballerinalang.bre.old.CallableWorkerResponseContext;
 import org.ballerinalang.persistence.Deserializer;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ProgramFile;

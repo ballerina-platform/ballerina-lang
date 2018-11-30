@@ -17,9 +17,7 @@
 */
 package org.ballerinalang.bre.bvm;
 
-import org.ballerinalang.bre.vm.BVMScheduler;
-import org.ballerinalang.bre.vm.Strand;
-import org.ballerinalang.bre.vm.Strand.State;
+import org.ballerinalang.bre.bvm.Strand.State;
 
 import java.util.ArrayDeque;
 import java.util.Arrays;

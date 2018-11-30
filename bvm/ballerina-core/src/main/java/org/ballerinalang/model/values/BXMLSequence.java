@@ -19,7 +19,7 @@ package org.ballerinalang.model.values;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.OMText;
-import org.ballerinalang.bre.vm.BVM;
+import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.XMLNodeType;
 import org.ballerinalang.util.BLangConstants;

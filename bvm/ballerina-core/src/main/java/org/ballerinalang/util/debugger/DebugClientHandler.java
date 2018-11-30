@@ -18,7 +18,7 @@
 package org.ballerinalang.util.debugger;
 
 import io.netty.channel.Channel;
-import org.ballerinalang.bre.vm.Strand;
+import org.ballerinalang.bre.bvm.Strand;
 import org.ballerinalang.util.debugger.dto.MessageDTO;
 
 import java.util.Map;

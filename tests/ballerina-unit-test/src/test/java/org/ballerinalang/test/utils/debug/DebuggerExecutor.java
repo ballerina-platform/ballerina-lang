@@ -18,7 +18,7 @@
 package org.ballerinalang.test.utils.debug;
 
 import org.ballerinalang.BLangProgramRunner;
-import org.ballerinalang.bre.vm.BVMExecutor;
+import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.util.codegen.FunctionInfo;
