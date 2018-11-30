@@ -413,6 +413,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTransaction transactionNode) {
+        analyzeNode(transactionNode.transactionBody, env);
+        analyzeNode(transactionNode.onRetryBody, env);
+        analyzeNode(transactionNode.committedBody, env);
+        analyzeNode(transactionNode.abortedBody, env);
     }
 
     @Override

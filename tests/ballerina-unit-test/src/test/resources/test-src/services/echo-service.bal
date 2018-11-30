@@ -128,7 +128,7 @@ service echo on echoEP {
             res.setJsonPayload(untaint responseJson);
         } else if (params is error) {
             string errMsg = <string> params.detail().message;
-            res.setTextPayload(errMsg);
+            res.setPayload(untaint errMsg);
         }
         _ = caller->respond(res);
     }
