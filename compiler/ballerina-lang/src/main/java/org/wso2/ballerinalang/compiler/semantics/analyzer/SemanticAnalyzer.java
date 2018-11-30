@@ -1280,7 +1280,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             } else if (exprType != symTable.semanticError && serviceNode.listenerType == null) {
                 serviceNode.listenerType = exprType;
             } else if (exprType != symTable.semanticError) {
-                this.types.isAssignable(exprType, serviceNode.listenerType);
+                this.types.isSameType(exprType, serviceNode.listenerType);
             }
 
             if (attachExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
