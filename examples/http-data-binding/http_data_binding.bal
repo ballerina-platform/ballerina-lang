@@ -96,7 +96,8 @@ function isValid(boolean|error result) returns boolean {
     if (result is boolean) {
         return result;
     } if (result is error) {
-        panic result;
+        log:printError(result.reason(), err = result);
+        return false;
     }
     return false;
 }
