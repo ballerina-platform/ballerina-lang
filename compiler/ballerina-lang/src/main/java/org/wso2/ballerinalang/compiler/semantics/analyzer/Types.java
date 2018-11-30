@@ -206,8 +206,8 @@ public class Types {
                 unresolvedTypes.add(type);
                 BRecordType recordType = (BRecordType) type;
                 List<BType> fieldTypes = recordType.fields.stream()
-                        .map(field -> field.type)
-                        .collect(Collectors.toList());
+                                                          .map(field -> field.type)
+                                                          .collect(Collectors.toList());
                 return isAnydata(fieldTypes, unresolvedTypes) &&
                         (recordType.sealed || isAnydata(recordType.restFieldType, unresolvedTypes));
             case TypeTags.UNION:
@@ -218,7 +218,7 @@ public class Types {
                 return isAnydata(((BArrayType) type).eType, unresolvedTypes);
             case TypeTags.FINITE:
                 Set<BType> valSpaceTypes = ((BFiniteType) type).valueSpace.stream()
-                        .map(val -> val.type).collect(
+                                                                          .map(val -> val.type).collect(
                                 Collectors.toSet());
                 return isAnydata(valSpaceTypes, unresolvedTypes);
             default:
@@ -1209,10 +1209,6 @@ public class Types {
                 return createConversionOperatorSymbol(s, t, false, InstructionCodes.JSON2MAP);
             } else if (s.tag == TypeTags.ANYDATA) {
                 return createConversionOperatorSymbol(s, t, false, InstructionCodes.ANY2MAP);
-            } else if (t.constraint.tag != TypeTags.ANY) {
-                // Semantically fail rest of the casts for Constrained Maps.
-                // Eg:- ANY2MAP cast is undefined for Constrained Maps.
-                return symTable.notFoundSymbol;
             }
 
             return symResolver.resolveOperator(Names.CONVERSION_OP, Lists.of(s, t));
@@ -1229,12 +1225,12 @@ public class Types {
             if (isSameType(s, t)) {
                 return createConversionOperatorSymbol(s, t, true, InstructionCodes.NOP);
             } else if (s.tag == TypeTags.OBJECT || s.tag == TypeTags.RECORD) {
-                //                TODO: do type checking and fail for obvious incompatible types
-                //                if (checkStructToJSONConvertibility(s)) {
-                //                    return createConversionOperatorSymbol(s, t, false, InstructionCodes.T2JSON);
-                //                } else {
-                //                    return symTable.notFoundSymbol;
-                //                }
+//                TODO: do type checking and fail for obvious incompatible types
+//                if (checkStructToJSONConvertibility(s)) {
+//                    return createConversionOperatorSymbol(s, t, false, InstructionCodes.T2JSON);
+//                } else {
+//                    return symTable.notFoundSymbol;
+//                }
                 return createConversionOperatorSymbol(s, t, false, InstructionCodes.T2JSON);
             } else if (s.tag == TypeTags.JSON) {
                 if (t.constraint.tag == TypeTags.NONE) {
@@ -1744,11 +1740,11 @@ public class Types {
     /**
      * Retrieves member types of the specified type, expanding maps/arrays of/constrained by unions types to individual
      * maps/arrays.
-     * <p>
+     *
      * e.g., (string|int)[] would cause three entries --> string[], int[], (string|int)[]
      *
      * @param bType the type for which member types needs to be identified
-     * @return a set containing all the retrieved member types
+     * @return  a set containing all the retrieved member types
      */
     private Set<BType> expandAndGetMemberTypesRecursive(BType bType) {
         Set<BType> memberTypes = new HashSet<>();
@@ -1813,7 +1809,7 @@ public class Types {
 
         for (int i = 0; i < lhsType.getTupleTypes().size(); i++) {
             if (!equalityIntersectionExists(expandAndGetMemberTypesRecursive(lhsMemberTypes.get(i)),
-                    expandAndGetMemberTypesRecursive(rhsMemberTypes.get(i)))) {
+                                            expandAndGetMemberTypesRecursive(rhsMemberTypes.get(i)))) {
                 return false;
             }
         }
@@ -1850,7 +1846,7 @@ public class Types {
                     if (rhsTypes.stream().anyMatch(
                             rhsMemberType -> rhsMemberType.tag == TypeTags.ARRAY &&
                                     arrayTupleEqualityIntersectionExists((BArrayType) rhsMemberType,
-                                            (BTupleType) lhsMemberType))) {
+                                                                         (BTupleType) lhsMemberType))) {
                         return true;
                     }
                     break;
@@ -1866,7 +1862,7 @@ public class Types {
                     if (rhsTypes.stream().anyMatch(
                             rhsMemberType -> rhsMemberType.tag == TypeTags.TUPLE &&
                                     arrayTupleEqualityIntersectionExists((BArrayType) lhsMemberType,
-                                            (BTupleType) rhsMemberType))) {
+                                                                         (BTupleType) rhsMemberType))) {
                         return true;
                     }
                     break;
@@ -1881,9 +1877,9 @@ public class Types {
 
                     if (rhsTypes.stream().anyMatch(rhsMemberType -> rhsMemberType.tag == TypeTags.JSON &&
                             (((BJSONType) rhsMemberType).constraint == symTable.noType ||
-                                    mapRecordEqualityIntersectionExists((BMapType) lhsMemberType,
-                                            (BRecordType)
-                                                    ((BJSONType) rhsMemberType).constraint)))) {
+                                     mapRecordEqualityIntersectionExists((BMapType) lhsMemberType,
+                                                                         (BRecordType)
+                                                                         ((BJSONType) rhsMemberType).constraint)))) {
                         // at this point it is guaranteed that the map is anydata
                         return true;
                     }
@@ -1891,7 +1887,7 @@ public class Types {
                     if (rhsTypes.stream().anyMatch(
                             rhsMemberType -> rhsMemberType.tag == TypeTags.RECORD &&
                                     mapRecordEqualityIntersectionExists((BMapType) lhsMemberType,
-                                            (BRecordType) rhsMemberType))) {
+                                                                        (BRecordType) rhsMemberType))) {
                         return true;
                     }
                     break;
@@ -1906,23 +1902,23 @@ public class Types {
                     if (rhsTypes.stream().anyMatch(
                             rhsMemberType -> rhsMemberType.tag == TypeTags.RECORD &&
                                     recordEqualityIntersectionExists((BRecordType) lhsMemberType,
-                                            (BRecordType) rhsMemberType))) {
+                                                                     (BRecordType) rhsMemberType))) {
                         return true;
                     }
 
                     if (rhsTypes.stream().anyMatch(
                             rhsMemberType -> rhsMemberType.tag == TypeTags.JSON &&
                                     (((BJSONType) rhsMemberType).constraint == symTable.noType ||
-                                            recordEqualityIntersectionExists((BRecordType) lhsMemberType,
-                                                    (BRecordType) ((BJSONType) rhsMemberType)
-                                                            .constraint)))) {
+                                             recordEqualityIntersectionExists((BRecordType) lhsMemberType,
+                                                                              (BRecordType) ((BJSONType) rhsMemberType)
+                                                                                      .constraint)))) {
                         return true;
                     }
 
                     if (rhsTypes.stream().anyMatch(
                             rhsMemberType -> rhsMemberType.tag == TypeTags.MAP &&
                                     mapRecordEqualityIntersectionExists((BMapType) rhsMemberType,
-                                            (BRecordType) lhsMemberType))) {
+                                                                        (BRecordType) lhsMemberType))) {
                         return true;
                     }
                     break;
@@ -1950,7 +1946,7 @@ public class Types {
 
         return tupleType.tupleTypes.stream()
                 .allMatch(tupleMemType -> equalityIntersectionExists(elementTypes,
-                        expandAndGetMemberTypesRecursive(tupleMemType)));
+                                                                     expandAndGetMemberTypesRecursive(tupleMemType)));
     }
 
     private boolean allRecordFieldsEqualityIntersectionExists(BRecordType lhsType, BRecordType rhsType) {
@@ -1962,7 +1958,7 @@ public class Types {
 
             if (match.isPresent()) {
                 if (!equalityIntersectionExists(expandAndGetMemberTypesRecursive(lhsField.type),
-                        expandAndGetMemberTypesRecursive(match.get().type))) {
+                                                expandAndGetMemberTypesRecursive(match.get().type))) {
                     return false;
                 }
             } else {
@@ -1975,7 +1971,7 @@ public class Types {
                 }
 
                 if (!equalityIntersectionExists(expandAndGetMemberTypesRecursive(lhsField.type),
-                        expandAndGetMemberTypesRecursive(rhsType.restFieldType))) {
+                                                expandAndGetMemberTypesRecursive(rhsType.restFieldType))) {
                     return false;
                 }
             }
@@ -1988,13 +1984,13 @@ public class Types {
 
         if (!recordType.sealed &&
                 !equalityIntersectionExists(mapConstrTypes,
-                        expandAndGetMemberTypesRecursive(recordType.restFieldType))) {
+                                            expandAndGetMemberTypesRecursive(recordType.restFieldType))) {
             return false;
         }
 
         return recordType.fields.stream().allMatch(
                 fieldType -> equalityIntersectionExists(mapConstrTypes,
-                        expandAndGetMemberTypesRecursive(fieldType.type)));
+                                                        expandAndGetMemberTypesRecursive(fieldType.type)));
     }
 
     private boolean jsonEqualityIntersectionExists(BJSONType jsonType, Set<BType> typeSet) {
@@ -2008,20 +2004,20 @@ public class Types {
 
                         // Check constrained JSON compatibility
                         if (equalityIntersectionExists(expandAndGetMemberTypesRecursive((jsonType).constraint),
-                                expandAndGetMemberTypesRecursive(
-                                        ((BJSONType) type).constraint))) {
+                                                       expandAndGetMemberTypesRecursive(
+                                                               ((BJSONType) type).constraint))) {
                             return true;
                         }
                         break;
                     case TypeTags.MAP:
                         if (mapRecordEqualityIntersectionExists((BMapType) type,
-                                (BRecordType) (jsonType).constraint)) {
+                                                                (BRecordType) (jsonType).constraint)) {
                             return true;
                         }
                         break;
                     case TypeTags.RECORD:
                         if (equalityIntersectionExists(expandAndGetMemberTypesRecursive((jsonType).constraint),
-                                expandAndGetMemberTypesRecursive(type))) {
+                                                       expandAndGetMemberTypesRecursive(type))) {
                             return true;
                         }
                 }
@@ -2044,15 +2040,22 @@ public class Types {
         return false;
     }
 
-    public BType getRemainingType(BType originalType, Set<BType> removeTypes) {
+    public BType getRemainingType(BType originalType, Set<BType> typesToRemove) {
+        return getRemainingType(originalType, new BUnionType(null, typesToRemove, false));
+    }
+
+    public BType getRemainingType(BType originalType, BType typeToRemove) {
         if (originalType.tag != TypeTags.UNION) {
             return originalType;
         }
 
-        List<BType> types = getAllTypes(new BUnionType(null, removeTypes, false));
-        List<BType> remainingTypes = getAllTypes(originalType).stream()
-                .filter(type -> types.stream().noneMatch(memberType -> isSameType(memberType, type)))
-                .collect(Collectors.toList());
+        List<BType> removeTypes = getAllTypes(typeToRemove);
+        return getRemainingType(originalType, removeTypes);
+    }
+
+    private BType getRemainingType(BType originalType, List<BType> removeTypes) {
+        List<BType> remainingTypes = getAllTypes(originalType);
+        removeTypes.forEach(removeType -> remainingTypes.removeIf(type -> isSameType(type, removeType)));
 
         if (remainingTypes.size() == 1) {
             return remainingTypes.get(0);
@@ -2061,22 +2064,37 @@ public class Types {
         return new BUnionType(null, new HashSet<>(remainingTypes), remainingTypes.contains(symTable.nilType));
     }
 
-    public BType getRemainingType(BType originalType, BType removeType) {
-        if (originalType.tag != TypeTags.UNION) {
-            return originalType;
+    public BType getSafeType(BType type, boolean liftError) {
+        // Since JSON, ANY and ANYDATA by default contain null, we need to create a new respective type which
+        // is not-nullable.
+        switch (type.tag) {
+            case TypeTags.JSON:
+                BJSONType jsonType = (BJSONType) type;
+                return new BJSONType(jsonType.tag, jsonType.constraint, jsonType.tsymbol, false);
+            case TypeTags.ANY:
+                return new BAnyType(type.tag, type.tsymbol, false);
+            case TypeTags.ANYDATA:
+                return new BAnydataType(type.tag, type.tsymbol, false);
         }
 
-        List<BType> types = getAllTypes(removeType);
-        List<BType> remainingTypes = getAllTypes(originalType).stream()
-                .filter(type -> types.stream()
-                        .noneMatch(memberType -> isSameType(memberType, type)))
-                .collect(Collectors.toList());
-
-        if (remainingTypes.size() == 1) {
-            return remainingTypes.get(0);
+        if (type.tag != TypeTags.UNION) {
+            return type;
         }
 
-        return new BUnionType(null, new HashSet<>(remainingTypes), remainingTypes.contains(symTable.nilType));
+        BUnionType unionType = (BUnionType) type;
+        BUnionType errorLiftedType =
+                new BUnionType(null, new LinkedHashSet<>(unionType.memberTypes), unionType.isNullable());
+
+        // Lift nil always. Lift error only if safe navigation is used.
+        errorLiftedType.memberTypes.remove(symTable.nilType);
+        if (liftError) {
+            errorLiftedType.memberTypes.remove(symTable.errorType);
+        }
+
+        if (errorLiftedType.memberTypes.size() == 1) {
+            return errorLiftedType.memberTypes.toArray(new BType[0])[0];
+        }
+        return errorLiftedType;
     }
 
     private List<BType> getAllTypes(BType type) {
@@ -2091,7 +2109,7 @@ public class Types {
 
     /**
      * Type vector of size two, to hold the source and the target types.
-     *
+     * 
      * @since 0.982.0
      */
     private static class TypePair {

@@ -165,6 +165,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerUtils;
+import org.wso2.ballerinalang.compiler.util.Constants;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -951,7 +952,9 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 });
             }
             this.taintedStatus = exprTaintedStatus;
-        } else if (invocationExpr.builtinMethodInvocation) {
+        } else if (invocationExpr.builtinMethodInvocation && (invocationExpr.builtInMethod != BLangBuiltInMethod.CALL
+                || invocationExpr.symbol.name.value.startsWith(Constants.WORKER_LAMBDA_VAR_PREFIX))) {
+            //TODO: Remove "WORKER_LAMBDA_VAR_PREFIX" check after worker interaction analysis is in place.
             analyzeBuiltInMethodInvocation(invocationExpr);
         } else {
             BInvokableSymbol invokableSymbol = (BInvokableSymbol) invocationExpr.symbol;
@@ -999,8 +1002,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             case REASON:
             case DETAIL:
             case STACKTRACE:
-                //TODO:write proper taint analysis
-                this.taintedStatus = TaintedStatus.UNTAINTED;
+                invocationExpr.expr.accept(this);
                 break;
             default:
                 throw new AssertionError("Taint checking failed for built-in method: " + builtInMethod);
@@ -1249,7 +1251,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
-        /* ignore */
+        this.taintedStatus = TaintedStatus.UNTAINTED;
     }
 
     @Override
@@ -1314,7 +1316,17 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
-        // TODO: Fix me.
+        TaintedStatus reasonTaintedStatus = TaintedStatus.UNTAINTED;
+        TaintedStatus detailsTaintedStatus = TaintedStatus.UNTAINTED;
+        if (errorConstructorExpr.reasonExpr != null) {
+            errorConstructorExpr.reasonExpr.accept(this);
+            reasonTaintedStatus = this.taintedStatus;
+        }
+        if (errorConstructorExpr.detailsExpr != null) {
+            errorConstructorExpr.detailsExpr.accept(this);
+            detailsTaintedStatus = this.taintedStatus;
+        }
+        this.taintedStatus = getCombinedTaintedStatus(reasonTaintedStatus, detailsTaintedStatus);
     }
 
     @Override

@@ -2338,7 +2338,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             funcInfo.attachedToTypeCPIndex = getTypeCPIndex(funcNode.receiver.type).value;
         }
 
-        this.addWorkerInfoEntries(funcInfo, funcNode.getWorkers());
+        this.addWorkerInfoEntries(funcInfo, funcNode);
 
         // Add parameter default value info
         addParameterAttributeInfo(funcSymbol, funcInfo);
@@ -2356,12 +2356,11 @@ public class CodeGenerator extends BLangNodeVisitor {
                 generateFunctionSig(callableUnitInfo.paramTypes, bInvokableType.retType));
     }
 
-    private void addWorkerInfoEntries(CallableUnitInfo callableUnitInfo, List<BLangWorker> workers) {
+    private void addWorkerInfoEntries(CallableUnitInfo callableUnitInfo, BLangFunction funcNode) {
         UTF8CPEntry workerNameCPEntry = new UTF8CPEntry("default");
         int workerNameCPIndex = this.currentPkgInfo.addCPEntry(workerNameCPEntry);
-        WorkerInfo defaultWorkerInfo = new WorkerInfo(workerNameCPIndex, "default");
-        callableUnitInfo.defaultWorkerInfo = defaultWorkerInfo;
-        for (BLangWorker worker : workers) {
+        callableUnitInfo.defaultWorkerInfo = new WorkerInfo(workerNameCPIndex, funcNode.defaultWorkerName.value);
+        for (BLangWorker worker : funcNode.getWorkers()) {
             workerNameCPEntry = new UTF8CPEntry(worker.name.value);
             workerNameCPIndex = currentPkgInfo.addCPEntry(workerNameCPEntry);
             WorkerInfo workerInfo = new WorkerInfo(workerNameCPIndex, worker.getName().value);

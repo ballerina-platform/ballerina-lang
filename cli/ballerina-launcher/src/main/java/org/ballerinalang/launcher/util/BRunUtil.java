@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.launcher.util;
 
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.bre.vm.BVMExecutor;
+import org.ballerinalang.bre.bvm.BVMExecutor;
+import org.ballerinalang.bre.old.WorkerExecutionContext;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.FunctionInfo;

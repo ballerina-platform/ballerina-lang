@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.bre.bvm.VarLock;
-import org.ballerinalang.bre.vm.BVM;
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;

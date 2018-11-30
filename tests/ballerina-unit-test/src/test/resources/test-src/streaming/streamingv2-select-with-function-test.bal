@@ -46,7 +46,7 @@ function startSelectQuery() returns (TeacherOutput[]) {
 
     testSelectQuery();
 
-    outputStream.subscribe(printTeachers);
+    outputStream.subscribe(function (TeacherOutput e) {printTeachers(e);});
     foreach var t in teachers {
         inputStream.publish(t);
     }

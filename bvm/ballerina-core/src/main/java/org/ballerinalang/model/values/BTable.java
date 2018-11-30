@@ -18,8 +18,8 @@
 package org.ballerinalang.model.values;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.vm.BVM;
-import org.ballerinalang.bre.vm.BVMExecutor;
+import org.ballerinalang.bre.bvm.BVM;
+import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.DataIterator;
 import org.ballerinalang.model.types.BStructureType;

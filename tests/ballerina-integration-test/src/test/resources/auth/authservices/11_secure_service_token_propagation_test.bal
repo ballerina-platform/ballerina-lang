@@ -13,8 +13,7 @@ http:AuthProvider basicAuthProvider11 = {
     }
 };
 
-endpoint http:Listener listener11 {
-    port:9192,
+listener http:Listener listener11 = new(9192, config = {
     authProviders:[basicAuthProvider11],
     secureSocket: {
         keyStore: {
@@ -22,32 +21,28 @@ endpoint http:Listener listener11 {
             password: "ballerina"
         }
     }
-};
+});
 
-endpoint http:Client nyseEP03 {
-    url: "http://localhost:9193",
+http:Client nyseEP03 = new("http://localhost:9193", config = {
     auth: {scheme: "JWT"}
-};
+});
 
 @http:ServiceConfig {basePath:"/passthrough"}
-service<http:Service> passthroughService03 bind listener11 {
+service passthroughService03 on listener11 {
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/"
     }
-    passthrough (endpoint caller, http:Request clientRequest) {
+    resource function passthrough (http:Caller caller, http:Request clientRequest) {
         var response = nyseEP03 -> get("/nyseStock/stocks", message = untaint clientRequest);
-        match response {
-            http:Response httpResponse => {
-                _ = caller -> respond(httpResponse);
-            }
-            error err => {
+        if (response is http:Response) {
+                _ = caller -> respond(response);
+        } else if (response is error) {
                 http:Response errorResponse = new;
                 json errMsg = {"error":"error occurred while invoking the service"};
                 errorResponse.setJsonPayload(errMsg);
                 _ = caller -> respond(errorResponse);
-            }
         }
     }
 }
@@ -63,8 +58,7 @@ http:AuthProvider jwtAuthProvider03 = {
     }
 };
 
-endpoint http:Listener listener2 {
-    port:9193,
+listener http:Listener listener2 = new(9193, config = {
     authProviders:[jwtAuthProvider03],
     secureSocket: {
         keyStore: {
@@ -72,16 +66,16 @@ endpoint http:Listener listener2 {
             password: "ballerina"
         }
     }
-};
+});
 
 @http:ServiceConfig {basePath:"/nyseStock"}
-service<http:Service> nyseStockQuote03 bind listener2 {
+service nyseStockQuote03 on listener2 {
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/stocks"
     }
-    stocks (endpoint caller, http:Request clientRequest) {
+    resource function stocks (http:Caller caller, http:Request clientRequest) {
         http:Response res = new;
         json payload = {"exchange":"nyse", "name":"IBM", "value":"127.50"};
         res.setJsonPayload(payload);
