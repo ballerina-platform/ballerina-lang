@@ -94,8 +94,8 @@ import org.ballerinalang.util.codegen.Instruction.InstructionCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionIteratorNext;
 import org.ballerinalang.util.codegen.Instruction.InstructionLock;
 import org.ballerinalang.util.codegen.Instruction.InstructionTrBegin;
-import org.ballerinalang.util.codegen.Instruction.InstructionTrRetry;
 import org.ballerinalang.util.codegen.Instruction.InstructionTrEnd;
+import org.ballerinalang.util.codegen.Instruction.InstructionTrRetry;
 import org.ballerinalang.util.codegen.Instruction.InstructionUnLock;
 import org.ballerinalang.util.codegen.Instruction.InstructionVCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionWRKSendReceive;
@@ -3123,11 +3123,7 @@ public class BVM {
             return;
         }
 
-        boolean isGlobalTransactionEnabled = strand.getGlobalTransactionEnabled();
-        TransactionLocalContext transactionLocalContext = isGlobalTransactionEnabled ?
-                createAndNotifyGlobalTx(strand, transactionBlockId) :
-                createLocalOnlyTransaction();
-
+        TransactionLocalContext transactionLocalContext = createAndNotifyGlobalTx(strand, transactionBlockId);
         strand.setLocalTransactionInfo(transactionLocalContext);
         transactionLocalContext.beginTransactionBlock(transactionBlockId, retryCount);
     }
@@ -3318,16 +3314,12 @@ public class BVM {
             // Will set this reg if there is failure in global coordinated trx.
             strand.currentFrame.intRegs[statusRegIndex] = 0;
 
-            if (strand.getGlobalTransactionEnabled()) {
-                TransactionUtils.CoordinatorCommit coordinatorStatus =
-                        notifyGlobalPrepareAndCommit(strand, transactionBlockId, transactionLocalContext);
+            TransactionUtils.CoordinatorCommit coordinatorStatus =
+                    notifyGlobalPrepareAndCommit(strand, transactionBlockId, transactionLocalContext);
 
-                if (!TransactionUtils.CoordinatorCommit.COMMITTED.equals(coordinatorStatus)) {
-                    // Coordinator returned un-committed status, hence skip committed block, and goto failed block.
-                    strand.currentFrame.intRegs[statusRegIndex] = 1;
-                }
-            } else {
-                notifyLocalPrepareAndCommit(transactionBlockId, transactionLocalContext);
+            if (!TransactionUtils.CoordinatorCommit.COMMITTED.equals(coordinatorStatus)) {
+                // Coordinator returned un-committed status, hence skip committed block, and goto failed block.
+                strand.currentFrame.intRegs[statusRegIndex] = 1;
             }
         } else {
             // Tx failed, branch to retry block.
@@ -3351,20 +3343,10 @@ public class BVM {
                 transactionLocalContext.getGlobalTransactionId(), transactionBlockId);
     }
 
-    private static boolean notifyLocalPrepareAndCommit(int transactionBlockId,
-                                                       TransactionLocalContext transactionLocalContext) {
-        TransactionResourceManager.getInstance()
-                .prepare(transactionLocalContext.getGlobalTransactionId(), transactionBlockId);
-        return TransactionResourceManager.getInstance()
-                .notifyCommit(transactionLocalContext.getGlobalTransactionId(), transactionBlockId);
-    }
-
     private static void notifyTransactionAbort(Strand strand, int transactionBlockId,
                                                TransactionLocalContext transactionLocalContext) {
-        if (strand.getGlobalTransactionEnabled()) {
-            TransactionUtils.notifyTransactionAbort(strand, transactionLocalContext.getGlobalTransactionId(),
-                    transactionBlockId);
-        }
+        TransactionUtils.notifyTransactionAbort(strand, transactionLocalContext.getGlobalTransactionId(),
+                transactionBlockId);
         TransactionResourceManager.getInstance()
                 .notifyAbort(transactionLocalContext.getGlobalTransactionId(), transactionBlockId, false);
     }

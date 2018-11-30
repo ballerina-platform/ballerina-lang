@@ -127,14 +127,6 @@ public class TransactionLocalContext {
                 return false; //Retry count exceeded
             }
         }
-
-        //Participant transactions/nested transactions are not allowed to retry. That is because participant tx
-        //cannot start running 2pc protocol and it is done only via initiator. Also with participant retries, the number
-        //of retries become very large.
-        boolean isGlobalTransactionEnabled = context.getGlobalTransactionEnabled();
-        if (!isGlobalTransactionEnabled) {
-            return true;
-        }
         return true;
     }
 

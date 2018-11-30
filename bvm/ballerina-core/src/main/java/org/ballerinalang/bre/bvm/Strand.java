@@ -146,10 +146,6 @@ public class Strand {
         return BLangVMUtils.getTransactionInfo(this);
     }
 
-    public boolean getGlobalTransactionEnabled() {
-        return BLangVMUtils.getGlobalTransactionEnabled(this);
-    }
-
     public void createWaitHandler(int callBacksRemaining, List<Integer> callBacksToWaitFor) {
         this.strandWaitHandler = new StrandWaitHandler(callBacksRemaining, callBacksToWaitFor);
     }
@@ -173,7 +169,7 @@ public class Strand {
     /**
      * Strand execution states.
      */
-    public static enum State {
+    public enum State {
         NEW,
         RUNNABLE,
         PAUSED,

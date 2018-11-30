@@ -134,9 +134,7 @@ public class BVMExecutor {
         StrandResourceCallback strandCallback = new StrandResourceCallback(null, responseCallback);
         Strand strand = new Strand(programFile, resourceInfo.getName(), globalProps, strandCallback, null);
 
-        BLangVMUtils.setGlobalTransactionEnabledStatus(strand);
         infectResourceFunction(responseCallback, strand);
-
         BLangVMUtils.setServiceInfo(strand, serviceInfo);
 
         StackFrame idf = new StackFrame(resourceInfo.getPackageInfo(), resourceInfo,
@@ -181,8 +179,6 @@ public class BVMExecutor {
 
         StrandWaitCallback strandCallback = new StrandWaitCallback(callableInfo.getRetParamTypes()[0]);
         Strand strand = new Strand(programFile, callableInfo.getName(), globalProps, strandCallback,  null);
-
-        BLangVMUtils.setGlobalTransactionEnabledStatus(strand);
 
         StackFrame idf = new StackFrame(callableInfo.getPackageInfo(), callableInfo,
                 callableInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), -1);
