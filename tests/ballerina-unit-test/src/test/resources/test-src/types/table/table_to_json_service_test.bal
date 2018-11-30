@@ -42,8 +42,8 @@ service MyService on testEP {
         var selectRet = testDB->select("SELECT int_type, long_type, float_type, double_type,
                   boolean_type, string_type from DataTable WHERE row_id = 1", ());
         json result = {};
-        if (selectRet is table) {
-            var ret = <json>selectRet;
+        if (selectRet is table<record {}>) {
+            var ret = json.create(selectRet);
             if (ret is json) {
                 result = ret;
             } else if (ret is error) {
@@ -55,8 +55,8 @@ service MyService on testEP {
 
         http:Response res = new;
         res.setPayload(untaint result);
-        var result = caller->respond(res);
-        if (result is error) {
+        var respondResult = caller->respond(res);
+        if (respondResult is error) {
             io:println("Error sending response");
         }
     }
@@ -78,8 +78,8 @@ service MyService on testEP {
                   boolean_type, string_type from DataTable WHERE row_id = 1", ());
         json result = {};
         string statusVal = "ERROR";
-        if (selectRet is table) {
-            var ret = <json>selectRet;
+        if (selectRet is table<record {}>) {
+            var ret = json.create(selectRet);
             if (ret is json) {
                 result = ret;
                 statusVal = "SUCCESS";
@@ -93,8 +93,8 @@ service MyService on testEP {
 
         http:Response res = new;
         res.setPayload(untaint j);
-        var result = caller->respond(res);
-        if (result is error) {
+        var respondResult = caller->respond(res);
+        if (respondResult is error) {
             io:println("Error sending response");
         }
     }

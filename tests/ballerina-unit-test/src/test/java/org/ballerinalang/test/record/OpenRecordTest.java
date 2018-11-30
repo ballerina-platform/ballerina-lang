@@ -490,4 +490,16 @@ public class OpenRecordTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testFuncPtrAsRecordField");
         Assert.assertEquals(returns[0].stringValue(), "Doe, John");
     }
+
+    @Test(description = "Test nil-able function pointer invocation")
+    public void testNilableFuncPtrInvocation() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testNilableFuncPtrInvocation");
+        Assert.assertEquals(returns[0].stringValue(), "Bob White");
+    }
+
+    @Test(description = "Test nil-able function pointer invocation")
+    public void testNilableFuncPtrInvocation2() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testNilableFuncPtrInvocation2");
+        Assert.assertNull(returns[0]);
+    }
 }

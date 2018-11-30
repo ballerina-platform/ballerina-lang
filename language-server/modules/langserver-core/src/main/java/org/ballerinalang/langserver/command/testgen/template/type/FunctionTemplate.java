@@ -43,15 +43,16 @@ public class FunctionTemplate extends AbstractTestTemplate {
     private final String dataProviderReturnType;
     private final String dataProviderReturnValue;
     private final String testFunctionParams;
-    private final boolean isVoidFunction;
+    private final boolean hasReturnType;
+    private final boolean hasParams;
 
-    public FunctionTemplate(BiConsumer<String, String> importsConsumer,
-                            BLangPackage builtTestFile, BLangFunction function) {
-        super(builtTestFile);
+    public FunctionTemplate(BLangPackage builtTestFile, BLangFunction function,
+                            BiConsumer<Integer, Integer> focusLineAcceptor, TestFunctionGenerator generator) {
+        super(builtTestFile, focusLineAcceptor);
         String functionName = function.name.value;
-        TestFunctionGenerator generator = new TestFunctionGenerator(importsConsumer, builtTestFile.packageID, function);
         this.testFunctionName = getSafeFunctionName("test" + upperCaseFirstLetter(functionName));
-        this.isVoidFunction = (function.returnTypeNode == null || function.returnTypeNode.type instanceof BNilType);
+        this.hasReturnType = (function.returnTypeNode != null && !(function.returnTypeNode.type instanceof BNilType));
+        this.hasParams = (generator.getNamesSpace().length > 1);
         this.functionInvocations = generator.getTargetFuncInvocations();
         this.dataProviderBasedFunctionInvocation =
                 generator.getTargetFuncReturnType() + " actual = " + generator.getTargetFuncInvocation() + ";";
@@ -68,25 +69,28 @@ public class FunctionTemplate extends AbstractTestTemplate {
      */
     @Override
     public void render(RendererOutput rendererOutput) throws TestGeneratorException {
-        String filename = (isVoidFunction) ? "voidFunction.bal" : "returnTypedFunction.bal";
+        String filename = (hasReturnType) ? "returnTypedFunction.bal" : "voidFunction.bal";
         RendererOutput functionOutput = new TemplateBasedRendererOutput(filename);
         functionOutput.put(PlaceHolder.OTHER.get("testFunctionName"), testFunctionName);
         String functionInvocationLine;
-        if (isVoidFunction) {
-            StringJoiner lines = new StringJoiner(LINE_SEPARATOR);
-            functionInvocations.forEach(
-                    invocation -> lines.add("    " + invocation + ";")
-            );
-            functionInvocationLine = lines.toString();
-        } else {
+        if (hasReturnType) {
             functionInvocationLine = dataProviderBasedFunctionInvocation;
             functionOutput.put(PlaceHolder.OTHER.get("dataProviderReturnType"), dataProviderReturnType);
             functionOutput.put(PlaceHolder.OTHER.get("dataProviderReturnValue"), dataProviderReturnValue);
             functionOutput.put(PlaceHolder.OTHER.get("testFunctionParams"), testFunctionParams);
+        } else {
+            StringJoiner lines = new StringJoiner(LINE_SEPARATOR);
+            if (hasParams) {
+                functionInvocations.forEach(invocation -> lines.add("    " + invocation + ";"));
+            } else {
+                lines.add("    " + functionInvocations.get(0) + ";");
+            }
+            functionInvocationLine = lines.toString();
         }
         functionOutput.put(PlaceHolder.OTHER.get("actual"), functionInvocationLine);
 
         //Append to root template
-        rendererOutput.append(PlaceHolder.CONTENT, functionOutput.getRenderedContent());
+        rendererOutput.setFocusLineAcceptor(testFunctionName, focusLineAcceptor);
+        rendererOutput.append(PlaceHolder.CONTENT, LINE_SEPARATOR + functionOutput.getRenderedContent());
     }
 }

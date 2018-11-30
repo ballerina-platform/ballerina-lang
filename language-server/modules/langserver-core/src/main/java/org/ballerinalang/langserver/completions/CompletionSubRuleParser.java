@@ -95,6 +95,8 @@ public class CompletionSubRuleParser {
         if (symbolEnvNode == null || symbolEnvNode instanceof BLangPackage) {
             // Parse with compilation unit context
             parseWithinCompilationUnit(context);
+        } else if (symbolEnvNode instanceof BLangBlockStmt && CommonUtil.isWithinWorkerDeclaration(symbolEnvNode)) {
+            parseWithinWorkerDeclaration(context);
         } else if (symbolEnvNode instanceof BLangBlockStmt) {
             // Parse with function definition context
             parseWithinFunctionDefinition(context);
@@ -153,6 +155,13 @@ public class CompletionSubRuleParser {
         String functionRule = "function testFunction () {" + CommonUtil.LINE_SEPARATOR + "\t" + tokenString +
                 CommonUtil.LINE_SEPARATOR + "}";
         getParser(context, functionRule).functionDefinition();
+    }
+
+    private static void parseWithinWorkerDeclaration(LSContext context) {
+        String tokenString = getCombinedTokenString(context);
+        String functionRule = "worker w1 {" + CommonUtil.LINE_SEPARATOR + "\t" + tokenString +
+                CommonUtil.LINE_SEPARATOR + "}";
+        getParser(context, functionRule).workerDeclaration();
     }
 
     private static void parseWithinServiceDefinition(LSContext context) {
