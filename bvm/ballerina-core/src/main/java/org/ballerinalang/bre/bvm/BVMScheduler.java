@@ -27,6 +27,7 @@ import org.ballerinalang.model.values.BError;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.exceptions.BLangNullReferenceException;
+import org.ballerinalang.util.observability.ObserveUtils;
 import org.ballerinalang.util.program.BLangVMUtils;
 
 import java.util.List;
@@ -217,6 +218,8 @@ public class BVMScheduler {
             try {
                 this.nativeCallable.execute(this.nativeCtx, callback);
                 if (strand.fp > 0) {
+                    // Stop the observation context before popping the stack frame
+                    ObserveUtils.stopCallableObservation(strand);
                     strand.popFrame();
                     StackFrame retFrame = strand.currentFrame;
                     BLangVMUtils.populateWorkerDataWithValues(retFrame, this.nativeCtx.getDataFrame().retReg,
@@ -234,6 +237,8 @@ public class BVMScheduler {
                 strandCountDown();
             }
             strand.setError(error);
+            // Stop the observation context before popping the stack frame
+            ObserveUtils.stopCallableObservation(strand);
             strand.popFrame();
             BVM.handleError(strand);
             execute(strand);

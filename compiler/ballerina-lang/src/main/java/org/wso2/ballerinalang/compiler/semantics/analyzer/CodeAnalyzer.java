@@ -1585,7 +1585,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
         boolean isWorker = false;
-        if (bLangLambdaFunction.parent instanceof BLangSimpleVariable) {
+        if (bLangLambdaFunction.parent.getKind() == NodeKind.VARIABLE) {
             String workerVarName = ((BLangSimpleVariable) bLangLambdaFunction.parent).name.value;
             if (workerVarName.startsWith(WORKER_LAMBDA_VAR_PREFIX)) {
                 String workerName = workerVarName.substring(1);
@@ -1897,8 +1897,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
                         systemRunning = true;
                     }
+                    otherSM.node.sendsToThis.add(worker.workerId);
                 }
-
             }
         } while (systemRunning);
         if (!workerActionSystem.everyoneDone()) {
