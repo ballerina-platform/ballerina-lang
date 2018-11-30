@@ -30,7 +30,7 @@ service Chat bind listener {
         foreach id, con in consMap {
             ep = con;
             error? err = ep->send(msg);
-            io:println(err.message but { () => "" });
+            io:println(err.message ?: "");
         }
     }
 
@@ -51,7 +51,7 @@ service Chat bind listener {
         foreach id, con in consMap {
             ep = con;
             error? err = ep->send(msg);
-            io:println(err.message but { () => "" });
+            io:println(err.message ?: "");
         }
     }
 }

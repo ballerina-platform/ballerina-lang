@@ -455,6 +455,27 @@
                 <classifier>ballerina-binary-repo</classifier>
             </dependency>
 
+            <!-- ballerina-socket -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-socket</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-socket</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-socket</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+
             <!-- ballerina-jms -->
             <dependency>
                 <groupId>org.ballerinalang</groupId>
@@ -1631,6 +1652,7 @@
                 <module>stdlib/http</module>
                 <module>stdlib/swagger</module>
                 <module>stdlib/io</module>
+                <module>stdlib/socket</module>
                 <module>stdlib/internal</module>
                 <module>stdlib/log-api</module>
                 <module>stdlib/transactions</module>
@@ -1687,11 +1709,12 @@
                 <module>tests/observability-test-utils</module>
                 <module>tests/ballerina-integration-test-utils</module>
                 <module>tests/ballerina-integration-test</module>
+                <module>tests/composer-integration-tests</module>
                 <module>tests/ballerina-tools-integration-test</module>
                 <module>tests/ballerina-compiler-plugin-test</module>
                 <module>tool-plugins/intellij</module>
                 <module>tool-plugins/vscode</module>
-                <!--<module>tool-plugins/theia</module> -->
+                <module>tool-plugins/theia</module>
 
                 <module>benchmarks</module>
             </modules>
@@ -1714,6 +1737,7 @@
                 <module>stdlib/http</module>
                 <module>stdlib/swagger</module>
                 <module>stdlib/io</module>
+                <module>stdlib/socket</module>
                 <module>stdlib/internal</module>
                 <module>stdlib/log-api</module>
                 <module>stdlib/transactions</module>
@@ -1767,6 +1791,7 @@
                 <module>tests/observability-test-utils</module>
                 <module>tests/ballerina-integration-test-utils</module>
                 <module>tests/ballerina-integration-test</module>
+                <module>tests/composer-integration-tests</module>
             </modules>
         </profile>
         <profile>
@@ -1793,6 +1818,7 @@
                 <module>stdlib/http</module>
                 <module>stdlib/swagger</module>
                 <module>stdlib/io</module>
+                <module>stdlib/socket</module>
                 <module>stdlib/internal</module>
                 <module>stdlib/log-api</module>
                 <module>stdlib/transactions</module>
@@ -1851,6 +1877,7 @@
                 <module>tests/observability-test-utils</module>
                 <module>tests/ballerina-integration-test-utils</module>
                 <module>tests/ballerina-integration-test</module>
+                <module>tests/composer-integration-tests</module>
                 <module>tests/ballerina-tools-integration-test</module>
 
                 <!-- Intellij build disabled in default build -->

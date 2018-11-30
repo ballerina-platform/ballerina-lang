@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -69,6 +70,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -236,17 +238,30 @@ public class Types {
     }
 
     private boolean isLikeAnydata(BType type) {
+        return isLikeAnydata(type, new HashSet<>());
+    }
+    
+    private boolean isLikeAnydata(BType type, Set<BType> unresolvedTypes) {
         int typeTag = type.tag;
         if (typeTag == TypeTags.ANY) {
             return true;
         }
 
         // check for anydata element/member types as part of recursive calls with structured/union types
-        if (isAnydata(type)) {
+        if (type.tag == TypeTags.RECORD) {
+            if (unresolvedTypes.contains(type)) {
+                return true;
+            } else {
+                unresolvedTypes.add(type);
+                if (isAnydata(type)) {
+                    return true;
+                }
+            }
+        } else if (isAnydata(type)) {
             return true;
         }
 
-        if (type.tag == TypeTags.MAP && isLikeAnydata(((BMapType) type).constraint)) {
+        if (type.tag == TypeTags.MAP && isLikeAnydata(((BMapType) type).constraint, unresolvedTypes)) {
             return true;
         }
 
@@ -254,20 +269,20 @@ public class Types {
             BRecordType recordType = (BRecordType) type;
             return recordType.fields.stream()
                     .noneMatch(field -> !Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL) &&
-                            !(isLikeAnydata(field.type)));
+                            !(isLikeAnydata(field.type, unresolvedTypes)));
         }
 
         if (type.tag == TypeTags.UNION) {
             BUnionType unionType = (BUnionType) type;
-            return unionType.memberTypes.stream().anyMatch(this::isLikeAnydata);
+            return unionType.memberTypes.stream().anyMatch(bType -> isLikeAnydata(bType, unresolvedTypes));
         }
 
         if (type.tag == TypeTags.TUPLE) {
             BTupleType tupleType = (BTupleType) type;
-            return tupleType.getTupleTypes().stream().allMatch(this::isLikeAnydata);
+            return tupleType.getTupleTypes().stream().allMatch(bType -> isLikeAnydata(bType, unresolvedTypes));
         }
 
-        return type.tag == TypeTags.ARRAY && isLikeAnydata(((BArrayType) type).eType);
+        return type.tag == TypeTags.ARRAY && isLikeAnydata(((BArrayType) type).eType, unresolvedTypes);
     }
 
     public boolean isBrandedType(BType type) {
@@ -490,7 +505,8 @@ public class Types {
             return true;
         }
 
-        if (target.tag == TypeTags.SERVICE && source.tag == TypeTags.SERVICE) {
+        if (target.getKind() == TypeKind.SERVICE && source.getKind() == TypeKind.SERVICE) {
+            // Special casing services, until we figure out service type concept.
             return true;
         }
 
@@ -879,6 +895,19 @@ public class Types {
         return targetType.accept(conversionVisitor, sourceType);
     }
 
+    BSymbol getTypeAssertionOperator(BType sourceType, BType targetType) {
+        if (sourceType.tag == TypeTags.SEMANTIC_ERROR || targetType.tag == TypeTags.SEMANTIC_ERROR) {
+            return createConversionOperatorSymbol(sourceType, targetType, true, InstructionCodes.NOP);
+        }
+
+        if (isValueType(targetType)) {
+            return symResolver.getExplicitlyTypedExpressionSymbol(sourceType, targetType);
+        } else if (isAssignable(targetType, sourceType)) {
+            return symResolver.createTypeAssertionSymbol(sourceType, targetType);
+        }
+        return symTable.notFoundSymbol;
+    }
+
     public BType getElementType(BType type) {
         if (type.tag != TypeTags.ARRAY) {
             return type;
@@ -1193,11 +1222,7 @@ public class Types {
                 return createConversionOperatorSymbol(s, t, false, InstructionCodes.JSON2MAP);
             } else if (s.tag == TypeTags.ANYDATA) {
                 return createConversionOperatorSymbol(s, t, false, InstructionCodes.ANY2MAP);
-            } else if (t.constraint.tag != TypeTags.ANY) {
-                // Semantically fail rest of the casts for Constrained Maps.
-                // Eg:- ANY2MAP cast is undefined for Constrained Maps.
-                return symTable.notFoundSymbol;
-            }
+            } 
 
             return symResolver.resolveOperator(Names.CONVERSION_OP, Lists.of(s, t));
         }
@@ -1677,14 +1702,14 @@ public class Types {
             BFiniteType expType = (BFiniteType) type;
             boolean foundMember = expType.valueSpace
                     .stream()
-                    .map(memberLiteral -> {
+                    .anyMatch(memberLiteral -> {
                         if (((BLangLiteral) memberLiteral).value == null) {
                             return literalExpr.value == null;
                         } else {
-                            return ((BLangLiteral) memberLiteral).value.equals(literalExpr.value);
+                            return (((BLangLiteral) memberLiteral).value.equals(literalExpr.value) &&
+                                    ((BLangLiteral) memberLiteral).typeTag == literalExpr.typeTag);
                         }
-                    })
-                    .anyMatch(found -> found);
+                    });
             return foundMember;
         }
         return false;
@@ -2028,45 +2053,71 @@ public class Types {
         return false;
     }
 
-    public BType getRemainingType(BType originalType, Set<BType> set) {
-        if (originalType.tag != TypeTags.UNION) {
-            return originalType;
-        }
-
-        List<BType> memberTypes = new ArrayList<>(((BUnionType) originalType).getMemberTypes());
-
-        for (BType removeType : set) {
-            if (removeType.tag != TypeTags.UNION) {
-                memberTypes.remove(removeType);
-            } else {
-                ((BUnionType) removeType).getMemberTypes().forEach(type -> memberTypes.remove(type));
-            }
-
-            if (memberTypes.size() == 1) {
-                return memberTypes.get(0);
-            }
-        }
-
-        return new BUnionType(null, new HashSet<>(memberTypes), memberTypes.contains(symTable.nilType));
+    public BType getRemainingType(BType originalType, Set<BType> typesToRemove) {
+        return getRemainingType(originalType, new BUnionType(null, typesToRemove, false));
     }
 
-    public BType getRemainingType(BType originalType, BType removeType) {
+    public BType getRemainingType(BType originalType, BType typeToRemove) {
         if (originalType.tag != TypeTags.UNION) {
             return originalType;
         }
 
-        List<BType> memberTypes = new ArrayList<>(((BUnionType) originalType).getMemberTypes());
-        if (removeType.tag != TypeTags.UNION) {
-            memberTypes.remove(removeType);
-        } else {
-            ((BUnionType) removeType).getMemberTypes().forEach(type -> memberTypes.remove(type));
+        List<BType> removeTypes = getAllTypes(typeToRemove);
+        return getRemainingType(originalType, removeTypes);
+    }
+
+    private BType getRemainingType(BType originalType, List<BType> removeTypes) {
+        List<BType> remainingTypes = getAllTypes(originalType);
+        removeTypes.forEach(removeType -> remainingTypes.removeIf(type -> isSameType(type, removeType)));
+
+        if (remainingTypes.size() == 1) {
+            return remainingTypes.get(0);
         }
 
-        if (memberTypes.size() == 1) {
-            return memberTypes.get(0);
+        return new BUnionType(null, new HashSet<>(remainingTypes), remainingTypes.contains(symTable.nilType));
+    }
+
+    public BType getSafeType(BType type, boolean liftError) {
+        // Since JSON, ANY and ANYDATA by default contain null, we need to create a new respective type which
+        // is not-nullable.
+        switch (type.tag) {
+            case TypeTags.JSON:
+                BJSONType jsonType = (BJSONType) type;
+                return new BJSONType(jsonType.tag, jsonType.constraint, jsonType.tsymbol, false);
+            case TypeTags.ANY:
+                return new BAnyType(type.tag, type.tsymbol, false);
+            case TypeTags.ANYDATA:
+                return new BAnydataType(type.tag, type.tsymbol, false);
         }
 
-        return new BUnionType(null, new HashSet<>(memberTypes), memberTypes.contains(symTable.nilType));
+        if (type.tag != TypeTags.UNION) {
+            return type;
+        }
+
+        BUnionType unionType = (BUnionType) type;
+        BUnionType errorLiftedType =
+                new BUnionType(null, new LinkedHashSet<>(unionType.memberTypes), unionType.isNullable());
+
+        // Lift nil always. Lift error only if safe navigation is used.
+        errorLiftedType.memberTypes.remove(symTable.nilType);
+        if (liftError) {
+            errorLiftedType.memberTypes.remove(symTable.errorType);
+        }
+
+        if (errorLiftedType.memberTypes.size() == 1) {
+            return errorLiftedType.memberTypes.toArray(new BType[0])[0];
+        }
+        return errorLiftedType;
+    }
+
+    private List<BType> getAllTypes(BType type) {
+        if (type.tag != TypeTags.UNION) {
+            return Lists.of(type);
+        }
+
+        List<BType> memberTypes = new ArrayList<>();
+        ((BUnionType) type).getMemberTypes().forEach(memberType -> memberTypes.addAll(getAllTypes(memberType)));
+        return memberTypes;
     }
 
     /**

@@ -2,17 +2,15 @@ import ballerina/mime;
 import ballerina/http;
 import ballerina/io;
 
-endpoint http:NonListener mockEP {
-    port:9090
-};
+listener http:MockListener mockEP = new(9090);
 
 @http:ServiceConfig {basePath:"/test"}
-service<http:Service> echo bind mockEP {
+service echo on mockEP {
     @http:ResourceConfig {
         methods:["POST"],
         path:"/largepayload"
     }
-    getPayloadFromFileChannel (endpoint caller, http:Request request) {
+    resource function getPayloadFromFileChannel(http:Caller caller, http:Request request) {
         http:Response response = new;
         mime:Entity responseEntity = new;
 
@@ -26,4 +24,21 @@ service<http:Service> echo bind mockEP {
         response.setEntity(responseEntity);
         _ = caller -> respond(response);
     }
+}
+
+
+function testHeaderWithRequest() returns (string) {
+    http:Request request = new;
+    mime:Entity entity = new;
+    entity.setHeader("123Authorization", "123Basicxxxxxx");
+    request.setEntity(entity);
+    return (request.getHeader("123Authorization"));
+}
+
+function testHeaderWithResponse() returns (string) {
+    http:Response response = new;
+    mime:Entity entity = new;
+    entity.setHeader("123Authorization", "123Basicxxxxxx");
+    response.setEntity(entity);
+    return (response.getHeader("123Authorization"));
 }

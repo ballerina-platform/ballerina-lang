@@ -132,9 +132,10 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
         if (serviceNode.name.getValue()
                 .equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY))) {
 
-            if (serviceNode.serviceTypeStruct != null) {
-                this.acceptNode(serviceNode.serviceTypeStruct);
-            }
+            // TODO: 11/28/18 Fix with the latest service changes 
+//            if (serviceNode.serviceTypeStruct != null) {
+//                this.acceptNode(serviceNode.serviceTypeStruct);
+//            }
 
             if (serviceNode.vars != null) {
                 serviceNode.vars.forEach(this::acceptNode);
@@ -147,14 +148,14 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
             if (serviceNode.endpoints != null) {
                 serviceNode.endpoints.forEach(this::acceptNode);
             }
-
-            if (serviceNode.boundEndpoints != null) {
-                serviceNode.boundEndpoints.forEach(this::acceptNode);
-            }
-
-            if (serviceNode.initFunction != null) {
-                this.acceptNode(serviceNode.initFunction);
-            }
+            
+            // TODO: 11/28/18 Fix with the latest service changes
+//            if (serviceNode.boundEndpoints != null) {
+//                serviceNode.boundEndpoints.forEach(this::acceptNode);
+//            }
+//            if (serviceNode.initFunction != null) {
+//                this.acceptNode(serviceNode.initFunction);
+//            }
         }
     }
 
@@ -396,25 +397,6 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatch.BLangMatchTypedBindingPatternClause patternClauseNode) {
-        if (patternClauseNode.getVariableNode() != null &&
-                patternClauseNode.getVariableNode().getName() != null &&
-                patternClauseNode.getVariableNode().getName().getValue()
-                        .equals(this.context.get(NodeContextKeys.VAR_NAME_OF_NODE_KEY))) {
-            this.context.put(NodeContextKeys.NODE_KEY, patternClauseNode.getVariableNode());
-            terminateVisitor = true;
-        }
-
-        if (patternClauseNode.variable != null) {
-            this.acceptNode(patternClauseNode.variable);
-        }
-
-        if (patternClauseNode.body != null) {
-            this.acceptNode(patternClauseNode.body);
-        }
-    }
-
-    @Override
     public void visit(BLangMatch.BLangMatchStaticBindingPatternClause patternClauseNode) {
         /*ignore*/
     }
@@ -446,15 +428,6 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
             this.acceptNode(typeDefinition.typeNode);
         }
 
-    }
-
-    @Override
-    public void visit(BLangScope scopeNode) {
-        if (scopeNode.scopeBody != null) {
-            this.acceptNode(scopeNode.scopeBody);
-        }
-
-        visit(scopeNode.compensationFunction);
     }
 
     @Override

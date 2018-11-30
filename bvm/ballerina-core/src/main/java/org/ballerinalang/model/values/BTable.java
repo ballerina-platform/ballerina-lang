@@ -18,8 +18,8 @@
 package org.ballerinalang.model.values;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.vm.BVM;
-import org.ballerinalang.bre.vm.BVMExecutor;
+import org.ballerinalang.bre.bvm.BVM;
+import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.DataIterator;
 import org.ballerinalang.model.types.BStructureType;
@@ -76,7 +76,13 @@ public class BTable implements BRefType<Object>, BCollection {
     public BTable(String query, BTable fromTable, BTable joinTable,
                   BStructureType constraintType, BRefValueArray params) {
         this.tableProvider = TableProvider.getInstance();
+        if (!fromTable.isInMemoryTable()) {
+            throw new BallerinaException("Table query over a cursor table not supported");
+        }
         if (joinTable != null) {
+            if (!joinTable.isInMemoryTable()) {
+                throw new BallerinaException("Table query over a cursor table not supported");
+            }
             this.tableName = tableProvider.createTable(fromTable.tableName, joinTable.tableName, query,
                     constraintType, params);
         } else {

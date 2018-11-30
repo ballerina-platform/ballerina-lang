@@ -2,11 +2,11 @@ import ballerina/jms;
 import ballerina/io;
 
 // Create a queue sender
-endpoint jms:SimpleQueueSender queueSender {
+jms:SimpleQueueSender queueSender = new({
     initialContextFactory: "bmbInitialContextFactory",
     providerUrl: "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5772'",
     queueName: "MyPropQueue"
-};
+});
 
 public function main () {
     // Create a Text message.
@@ -29,7 +29,7 @@ public function main () {
               panic returnVal;
          }
          // Send the Ballerina message to the JMS provider.
-         _ = queueSender -> send(msg);
+         _ = queueSender->send(msg);
     } else {
          panic msg;
     }

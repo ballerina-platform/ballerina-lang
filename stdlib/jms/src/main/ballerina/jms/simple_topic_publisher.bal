@@ -16,9 +16,9 @@
 
 import ballerina/log;
 
-# JMS SimpleTopicPublisher endpoint
+# JMS Simplified TopicPublisher endpoint
 #
-# + config - SimpleTopicPublisher enpoint configuration
+# + config - Used to store configurations related to a JMS SimpleTopicPublisher
 public type SimpleTopicPublisher client object {
 
     public SimpleTopicPublisherEndpointConfiguration config = {};
@@ -60,7 +60,7 @@ public type SimpleTopicPublisher client object {
             return session.createTextMessage(message);
         } else {
             string errorMessage = "Session cannot be nil";
-            map errorDetail = { message: errorMessage };
+            map<any> errorDetail = { message: errorMessage };
             error e = error(JMS_ERROR_CODE, errorDetail);
             panic e;
         }
@@ -69,13 +69,13 @@ public type SimpleTopicPublisher client object {
     #
     # + message - Message body to create a map message
     # + return - Message or nil if the session is nil
-    public function createMapMessage(map message) returns Message|error {
+    public function createMapMessage(map<any> message) returns Message|error {
         var session = self.session;
         if (session is Session) {
             return session.createMapMessage(message);
         } else {
             string errorMessage = "Session cannot be nil";
-            map errorDetail = { message: errorMessage };
+            map<any> errorDetail = { message: errorMessage };
             error e = error(JMS_ERROR_CODE, errorDetail);
             panic e;
         }
@@ -104,16 +104,16 @@ public type SimpleTopicPublisher client object {
 # + initialContextFactory - JMS provider specific inital context factory
 # + providerUrl - JMS provider specific provider URL used to configure a connection
 # + connectionFactoryName - JMS connection factory to be used in creating JMS connections
-# + acknowledgementMode - specifies the session mode that will be used. Legal values are "AUTO_ACKNOWLEDGE",
+# + acknowledgementMode - Specifies the session mode that will be used. Legal values are "AUTO_ACKNOWLEDGE",
 #                         "CLIENT_ACKNOWLEDGE", "SESSION_TRANSACTED" and "DUPS_OK_ACKNOWLEDGE"
-# + properties - Additional properties use in initializing the initial context
+# + properties - Additional properties used when initializing the initial context
 # + topicPattern - Name of the target queue
 public type SimpleTopicPublisherEndpointConfiguration record {
     string initialContextFactory = "bmbInitialContextFactory";
     string providerUrl = "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'";
     string connectionFactoryName = "ConnectionFactory";
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
-    map properties = {};
+    map<any> properties = {};
     string topicPattern = "";
     !...
 };

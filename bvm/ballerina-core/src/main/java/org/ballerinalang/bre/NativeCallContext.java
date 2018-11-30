@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.bre;
 
-import org.ballerinalang.bre.bvm.WorkerData;
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.bre.vm.StackFrame;
-import org.ballerinalang.bre.vm.Strand;
+import org.ballerinalang.bre.bvm.StackFrame;
+import org.ballerinalang.bre.bvm.Strand;
+import org.ballerinalang.bre.old.WorkerData;
+import org.ballerinalang.bre.old.WorkerExecutionContext;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.exceptions.ArgumentOutOfRangeException;
@@ -119,7 +119,7 @@ public class NativeCallContext implements Context {
     @Override
     public boolean isInTransaction() {
 //        return this.parentCtx.isInTransaction();//TODO fix - rajith
-        return true;
+        return false;
     }
 
     @Override

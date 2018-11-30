@@ -93,4 +93,3 @@ function addToGlobalTempDiffArray(TempDiffInfo s) {
     tempDiffInfoArray[index] = s;
     index = index + 1;
 }
-

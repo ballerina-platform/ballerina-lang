@@ -29,10 +29,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
@@ -60,15 +58,6 @@ public class BLangMatch extends BLangStatement implements MatchNode {
     @Override
     public BLangExpression getExpression() {
         return expr;
-    }
-
-    @Override
-    public List<BLangMatchTypedBindingPatternClause> getTypedPatternClauses() {
-        return patternClauses
-                .stream()
-                .filter(pattern -> NodeKind.MATCH_TYPED_PATTERN_CLAUSE == (pattern.getKind()))
-                .map(BLangMatchTypedBindingPatternClause.class::cast)
-                .collect(Collectors.toList());
     }
 
     @Override
@@ -129,10 +118,6 @@ public class BLangMatch extends BLangStatement implements MatchNode {
             implements MatchTypedBindingPatternNode {
 
         public BLangSimpleVariable variable;
-
-        // This field is used to capture types that are matched to this pattern.
-        public Set<BType> matchedTypesDirect = new HashSet<>();
-        public Set<BType> matchedTypesIndirect = new HashSet<>();
 
         @Override
         public NodeKind getKind() {

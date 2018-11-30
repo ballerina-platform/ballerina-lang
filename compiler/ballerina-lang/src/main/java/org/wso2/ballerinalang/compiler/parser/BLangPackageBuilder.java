@@ -62,7 +62,6 @@ import org.ballerinalang.model.tree.clauses.WindowClauseNode;
 import org.ballerinalang.model.tree.clauses.WithinClause;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.LiteralNode;
-import org.ballerinalang.model.tree.expressions.MatchExpressionNode.MatchExpressionPatternNode;
 import org.ballerinalang.model.tree.expressions.TableQueryExpression;
 import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
 import org.ballerinalang.model.tree.expressions.XMLLiteralNode;
@@ -131,8 +130,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
@@ -184,7 +181,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStaticBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchTypedBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
@@ -355,8 +351,6 @@ public class BLangPackageBuilder {
     private Deque<BLangMatch> matchStmtStack;
 
     private PatternStreamingInputNode recentStreamingPatternInputNode;
-
-    private Stack<List<MatchExpressionPatternNode>> matchExprPatternNodeListStack = new Stack<>();
 
     private Stack<Set<Whitespace>> operatorWs = new Stack<>();
 
@@ -1505,6 +1499,8 @@ public class BLangPackageBuilder {
 
     void addWorker(DiagnosticPos pos, Set<Whitespace> ws, String workerName, boolean retParamsAvail) {
         endCallableUnitBody(ws);
+        // change default worker name
+        ((BLangFunction) this.invokableNodeStack.peek()).defaultWorkerName.value = workerName;
         addLambdaFunctionDef(pos, ws, false, retParamsAvail, false);
         String workerLambdaName = WORKER_LAMBDA_VAR_PREFIX + workerName;
         addSimpleVariableDefStatement(pos, ws, workerLambdaName, true, true, true);
@@ -2392,28 +2388,6 @@ public class BLangPackageBuilder {
         startBlock();
     }
 
-    void addMatchStmtSimpleBindingPattern(DiagnosticPos pos, Set<Whitespace> ws, String identifier) {
-        BLangMatchTypedBindingPatternClause patternClause =
-                (BLangMatchTypedBindingPatternClause) TreeBuilder.createMatchStatementSimpleBindingPattern();
-        patternClause.pos = pos;
-        patternClause.addWS(ws);
-
-        // Create a variable node
-        String patternIdentifier = identifier == null ? Names.IGNORE.value : identifier;
-        BLangSimpleVariable var = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
-        var.pos = pos;
-        var.setName(this.createIdentifier(patternIdentifier));
-        var.setTypeNode(this.typeNodeStack.pop());
-        if (identifier != null) {
-            Set<Whitespace> varDefWS = removeNthFromStart(ws, 0);
-            var.addWS(varDefWS);
-        }
-        patternClause.variable = var;
-        patternClause.body = (BLangBlockStmt) blockNodeStack.pop();
-        patternClause.body.pos = pos;
-        this.matchStmtStack.peekFirst().patternClauses.add(patternClause);
-    }
-
     void addMatchStmtStaticBindingPattern(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangMatchStaticBindingPatternClause patternClause =
                 (BLangMatchStaticBindingPatternClause) TreeBuilder.createMatchStatementStaticBindingPattern();
@@ -2528,6 +2502,7 @@ public class BLangPackageBuilder {
         typeDef.typeNode = (BLangType) this.typeNodeStack.pop();
         typeDef.pos = pos;
         this.compUnit.addTopLevelNode(typeDef);
+        serviceNode.serviceTypeDefinition = typeDef;
         serviceNode.serviceUDT = createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(),
                 typeDef.name);
 
@@ -3428,40 +3403,6 @@ public class BLangPackageBuilder {
             addImportPackageDeclaration(pos, null, Names.STREAMS_ORG.value, nameComps, null,
                     nameComps.get(nameComps.size() - 1));
         }
-    }
-
-    void startMatchExpression() {
-        this.matchExprPatternNodeListStack.add(new ArrayList<>());
-    }
-
-    void addMatchExprPattern(DiagnosticPos pos, Set<Whitespace> ws, String identifier) {
-        BLangMatchExprPatternClause pattern = (BLangMatchExprPatternClause) TreeBuilder.createMatchExpressionPattern();
-        pattern.expr = (BLangExpression) this.exprNodeStack.pop();
-        pattern.pos = pos;
-        pattern.addWS(ws);
-
-        String patternIdentifier = identifier == null ? Names.IGNORE.value : identifier;
-        BLangSimpleVariable var = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
-        var.pos = pos;
-        var.setName(this.createIdentifier(patternIdentifier));
-        var.setTypeNode(this.typeNodeStack.pop());
-        if (identifier != null) {
-            Set<Whitespace> varDefWS = removeNthFromStart(ws, 0);
-            var.addWS(varDefWS);
-        }
-        pattern.variable = var;
-
-        this.matchExprPatternNodeListStack.peek().add(pattern);
-    }
-
-    void endMatchExpression(DiagnosticPos pos, Set<Whitespace> ws) {
-        BLangMatchExpression matchExpr = (BLangMatchExpression) TreeBuilder.createMatchExpression();
-        this.matchExprPatternNodeListStack.pop()
-                .forEach(pattern -> matchExpr.patternClauses.add((BLangMatchExprPatternClause) pattern));
-        matchExpr.expr = (BLangExpression) this.exprNodeStack.pop();
-        matchExpr.pos = pos;
-        matchExpr.addWS(ws);
-        addExpressionNode(matchExpr);
     }
 
     BLangLambdaFunction getScopesFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean bodyExists, String name) {

@@ -132,21 +132,19 @@ function testMappingToNillableTypeFields() returns (int?, int?, float?,
     if (dt is table<NillableDataTypes>) {
         while (dt.hasNext()) {
             var rs = <NillableDataTypes>dt.getNext();
-            if (rs is NillableDataTypes) {
-                int_type = rs.int_type;
-                long_type = rs.long_type;
-                float_type = rs.float_type;
-                double_type = rs.double_type;
-                boolean_type = rs.boolean_type;
-                string_type = rs.string_type;
-                numeric_type = rs.numeric_type;
-                decimal_type = rs.decimal_type;
-                real_type = rs.real_type;
-                tinyint_type = rs.tinyint_type;
-                smallint_type = rs.smallint_type;
-                clob_type = rs.clob_type;
-                binary_type = rs.binary_type;
-            }
+            int_type = rs.int_type;
+            long_type = rs.long_type;
+            float_type = rs.float_type;
+            double_type = rs.double_type;
+            boolean_type = rs.boolean_type;
+            string_type = rs.string_type;
+            numeric_type = rs.numeric_type;
+            decimal_type = rs.decimal_type;
+            real_type = rs.real_type;
+            tinyint_type = rs.tinyint_type;
+            smallint_type = rs.smallint_type;
+            clob_type = rs.clob_type;
+            binary_type = rs.binary_type;
         }
     }
     testDB.stop();
@@ -164,15 +162,13 @@ function testMappingToNillableTypeFieldsBlob() returns (byte[]?) {
         poolOptions: { maximumPoolSize: 1 }
     });
     byte[]? blob_type = ();
-    transaction {
-        var dt = testDB->select("SELECT blob_type from DataTypeTableNillableBlob where
+    var dt = testDB->select("SELECT blob_type from DataTypeTableNillableBlob where
     row_id=3", NillableBlob);
-        if (dt is table<NillableDataTypes>) {
-            while (dt.hasNext()) {
-                var rs = <NillableBlob>dt.getNext();
-                if (rs is NillableBlob) {
-                    blob_type = rs.blob_type;
-                }
+    if (dt is table<NillableDataTypes>) {
+        while (dt.hasNext()) {
+            var rs = dt.getNext();
+            if (rs is NillableBlob) {
+                blob_type = rs.blob_type;
             }
         }
     }
@@ -223,14 +219,14 @@ function testMappingDatesToNillableTimeType() returns (int, int, int,
     var dt = testDB->select("SELECT date_type, time_type, timestamp_type, datetime_type
                 from DateTimeTypes where row_id = 150", ResultDatesWithNillableTimeType);
 
-    if (dt is table) {
+    if (dt is table<ResultDatesWithNillableTimeType>) {
         while (dt.hasNext()) {
-            var rs = <ResultDatesWithNillableTimeType>dt.getNext();
+            var rs = dt.getNext();
             if (rs is ResultDatesWithNillableTimeType) {
-                dateRetrieved = rs.DATE_TYPE.time but { () => -1 };
-                timeRetrieved = rs.TIME_TYPE.time but { () => -1 };
-                timestampRetrieved = rs.TIMESTAMP_TYPE.time but { () => -1 };
-                datetimeRetrieved = rs.DATETIME_TYPE.time but { () => -1 };
+                dateRetrieved = rs.DATE_TYPE.time ?: -1;
+                timeRetrieved = rs.TIME_TYPE.time ?: -1;
+                timestampRetrieved = rs.TIMESTAMP_TYPE.time ?: -1;
+                datetimeRetrieved = rs.DATETIME_TYPE.time ?: -1;
             }
         }
     }
@@ -269,12 +265,12 @@ function testMappingDatesToNillableIntType(int datein, int timein,
 
     if (dt is table<ResultDatesWithNillableIntType>) {
         while (dt.hasNext()) {
-            var rs = <ResultDatesWithNillableIntType>dt.getNext();
+            var rs = dt.getNext();
             if (rs is ResultDatesWithNillableIntType) {
-                time = rs.TIME_TYPE but { () => -1 };
-                date = rs.DATE_TYPE but { () => -1 };
-                timestamp = rs.TIMESTAMP_TYPE but { () => -1 };
-                datetime = rs.DATETIME_TYPE but { () => -1 };
+                time = rs.TIME_TYPE ?: -1;
+                date = rs.DATE_TYPE ?: -1;
+                timestamp = rs.TIMESTAMP_TYPE ?: -1;
+                datetime = rs.DATETIME_TYPE ?: -1;
             }
         }
     }
@@ -310,14 +306,14 @@ timein, int timestampin) returns (string, string, string,
     var dt = testDB->select("SELECT date_type, time_type, timestamp_type, datetime_type
                 from DateTimeTypes where row_id = 152", ResultDatesWithNillableStringType);
 
-    if (dt is table) {
+    if (dt is table<ResultDatesWithNillableStringType>) {
         while (dt.hasNext()) {
-            var rs = <ResultDatesWithNillableStringType>dt.getNext();
+            var rs = dt.getNext();
             if (rs is ResultDatesWithNillableStringType) {
-                time = rs.TIME_TYPE but { () => "nil" };
-                date = rs.DATE_TYPE but { () => "nil" };
-                timestamp = rs.TIMESTAMP_TYPE but { () => "nil" };
-                datetime = rs.DATETIME_TYPE but { () => "nil" };
+                time = rs.TIME_TYPE ?: "nil";
+                date = rs.DATE_TYPE ?: "nil";
+                timestamp = rs.TIMESTAMP_TYPE ?: "nil";
+                datetime = rs.DATETIME_TYPE ?: "nil";
             }
         }
     }
@@ -360,7 +356,7 @@ function testMappingNullToNillableTypes() returns (int?, int?, float?,
 
     if (dt is table<NillableDataTypes>) {
         while (dt.hasNext()) {
-            var rs = <NillableDataTypes>dt.getNext();
+            var rs = dt.getNext();
             if (rs is NillableDataTypes) {
                 int_type = rs.int_type;
                 long_type = rs.long_type;
@@ -403,7 +399,7 @@ function testMappingNullToNillableTypesBlob() returns byte[]? {
 
     if (dt is table<NillableBlob>) {
         while (dt.hasNext()) {
-            var rs = <NillableBlob>dt.getNext();
+            var rs = dt.getNext();
             if (rs is NillableBlob) {
                 blob_type = rs.blob_type;
             }
@@ -432,9 +428,9 @@ function testMapArrayToNonNillableTypeWithNillableElementType()
     string?[] string_arr = [];
     boolean?[] boolean_arr = [];
 
-    if (dt is table) {
+    if (dt is table<ResultMapNonNillableTypeNillableElements>) {
         while (dt.hasNext()) {
-            var rs = <ResultMapNonNillableTypeNillableElements>dt.getNext();
+            var rs = dt.getNext();
             if (rs is ResultMapNonNillableTypeNillableElements) {
                 int_arr = rs.INT_ARRAY;
                 long_arr = rs.LONG_ARRAY;
@@ -467,9 +463,9 @@ function testMapArrayToNillableTypeWithNillableElementType() returns (
     string?[]? string_arr = ();
     boolean?[]? boolean_arr = ();
 
-    if (dt is table) {
+    if (dt is table<ResultMapNillable>) {
         while (dt.hasNext()) {
-            var rs = <ResultMapNillable>dt.getNext();
+            var rs = dt.getNext();
             if (rs is ResultMapNillable) {
                 int_arr = rs.INT_ARRAY;
                 long_arr = rs.LONG_ARRAY;
@@ -501,9 +497,9 @@ function testMapArrayToNillableTypeWithNonNillableElementType()
     string[]? string_arr = ();
     boolean[]? boolean_arr = ();
 
-    if (dt is table) {
+    if (dt is table<ResultMapNillableTypeNonNillableElements>) {
         while (dt.hasNext()) {
-            var rs = <ResultMapNillableTypeNonNillableElements>dt.getNext();
+            var rs = dt.getNext();
             if (rs is ResultMapNillableTypeNonNillableElements) {
                 int_arr = rs.INT_ARRAY;
                 long_arr = rs.LONG_ARRAY;
@@ -536,9 +532,9 @@ function testMapNillIncludedArrayNonNillableTypeWithNillableElementType(
     string?[] string_arr = [];
     boolean?[] boolean_arr = [];
 
-    if (dt is table) {
+    if (dt is table<ResultMapNonNillableTypeNillableElements>) {
         while (dt.hasNext()) {
-            var rs = <ResultMapNonNillableTypeNillableElements>dt.getNext();
+            var rs = dt.getNext();
             if (rs is ResultMapNonNillableTypeNillableElements) {
                 int_arr = rs.INT_ARRAY;
                 long_arr = rs.LONG_ARRAY;
@@ -571,9 +567,9 @@ function testMapNillIncludedArrayNillableTypeWithNillableElementType()
     string?[]? string_arr = ();
     boolean?[]? boolean_arr = ();
 
-    if (dt is table) {
+    if (dt is table<ResultMapNillable>) {
         while (dt.hasNext()) {
-            var rs = <ResultMapNillable>dt.getNext();
+            var rs = dt.getNext();
             if (rs is ResultMapNillable) {
                 int_arr = rs.INT_ARRAY;
                 long_arr = rs.LONG_ARRAY;
@@ -606,9 +602,9 @@ function testMapNilArrayToNillableTypeWithNonNillableElementTypes()
     string[]? string_arr = ();
     boolean[]? boolean_arr = ();
 
-    if (dt is table) {
+    if (dt is table<ResultMapNillableTypeNonNillableElements>) {
         while (dt.hasNext()) {
-            var rs = <ResultMapNillableTypeNonNillableElements>dt.getNext();
+            var rs = dt.getNext();
             if (rs is ResultMapNillableTypeNonNillableElements) {
                 int_arr = rs.INT_ARRAY;
                 long_arr = rs.LONG_ARRAY;
@@ -641,9 +637,9 @@ function testMapNilArrayToNillableTypeWithNillableElementTypes()
     string?[]? string_arr = ();
     boolean?[]? boolean_arr = ();
 
-    if (dt is table) {
+    if (dt is table<ResultMapNillable>) {
         while (dt.hasNext()) {
-            var rs = <ResultMapNillable>dt.getNext();
+            var rs = dt.getNext();
             if (rs is ResultMapNillable) {
                 int_arr = rs.INT_ARRAY;
                 long_arr = rs.LONG_ARRAY;
@@ -676,9 +672,9 @@ function testMapNillElementsOnlyArray()
     string?[] string_arr = [];
     boolean?[] boolean_arr = [];
 
-    if (dt is table) {
+    if (dt is table<ResultMapNonNillableTypeNillableElements>) {
         while (dt.hasNext()) {
-            var rs = <ResultMapNonNillableTypeNillableElements>dt.getNext();
+            var rs = dt.getNext();
             if (rs is ResultMapNonNillableTypeNillableElements) {
                 int_arr = rs.INT_ARRAY;
                 long_arr = rs.LONG_ARRAY;

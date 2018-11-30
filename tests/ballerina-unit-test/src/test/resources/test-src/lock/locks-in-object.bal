@@ -24,11 +24,10 @@ function lockFieldInSameObject() returns string {
      worker w1 {
          p1.update("*");
      }
-     worker w2 {
-         p1.update("#");
-         runtime:sleep(10);
-         return p1.stars;
-     }
+
+     p1.update("#");
+     runtime:sleep(10);
+     return p1.stars;
  }
 
 //----------------------------------------------------
@@ -51,9 +50,8 @@ function workerFunc() {
         increment();
     }
 
-    worker w2 {
-        increment();
-    }
+    runtime:sleep(10);
+    increment();
 
 }
 
@@ -80,9 +78,8 @@ function workerFuncParam(Student param, person p) {
         incrementParam(param,p);
     }
 
-    worker w2 {
-        incrementParam(param,p);
-    }
+    runtime:sleep(10);
+    incrementParam(param,p);
 
 }
 

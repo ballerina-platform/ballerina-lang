@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.model.util;
 
-import org.ballerinalang.bre.vm.BVM;
+import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.util.exceptions.BLangFreezeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 

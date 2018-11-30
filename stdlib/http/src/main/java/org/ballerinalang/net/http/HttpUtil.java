@@ -255,11 +255,6 @@ public class HttpUtil {
             if (entityBodyRequired && !byteChannelAlreadySet) {
                 populateEntityBody(context, httpMessageStruct, entity, isRequest);
             }
-
-            // Entity cannot be null, since it is not a nullable field in http:Request or http:Response
-            if (entity.isEmpty()) {
-                entity = createNewEntity(context, httpMessageStruct);
-            }
             return new BValue[]{entity};
         } catch (Throwable throwable) {
             return new BValue[]{MimeUtil.createError(context, MIME_ERROR_CODE,
@@ -850,7 +845,7 @@ public class HttpUtil {
         Service serviceInstance = BLangConnectorSPIUtil.getService(context.getProgramFile(),
                 context.getServiceInfo().serviceValue);
         Annotation configAnnot = getServiceConfigAnnotation(serviceInstance, PROTOCOL_PACKAGE_HTTP);
-        if (configAnnot == null) {
+        if (!checkConfigAnnotationAvailability(configAnnot)) {
             return;
         }
         String contentEncoding = outboundResponseMsg.getHeaders().get(HttpHeaderNames.CONTENT_ENCODING);
@@ -1138,7 +1133,7 @@ public class HttpUtil {
         Service serviceInstance = BLangConnectorSPIUtil.getService(context.getProgramFile(),
                 context.getServiceInfo().serviceValue);
         Annotation configAnnot = getServiceConfigAnnotation(serviceInstance, PROTOCOL_PACKAGE_HTTP);
-        if (configAnnot == null) {
+        if (!checkConfigAnnotationAvailability(configAnnot)) {
             return;
         }
         String transferValue = configAnnot.getValue().getRefField(ANN_CONFIG_ATTR_CHUNKING).getStringValue();
@@ -1306,6 +1301,16 @@ public class HttpUtil {
         } else {
             outboundMessageSource.serialize(messageOutputStream);
         }
+    }
+
+    /**
+     * Check the availability of an annotation.
+     *
+     * @param configAnnotation      Represent the annotation
+     * @return True if the annotation and the annotation value are available
+     */
+    public static boolean checkConfigAnnotationAvailability(Annotation configAnnotation) {
+        return configAnnotation != null && configAnnotation.getValue() != null;
     }
 
     private HttpUtil() {

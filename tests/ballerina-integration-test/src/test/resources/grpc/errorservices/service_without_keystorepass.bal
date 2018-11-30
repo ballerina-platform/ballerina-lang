@@ -16,9 +16,8 @@
 import ballerina/grpc;
 import ballerina/io;
 
-listener grpc:Server server5 = new ({
+listener grpc:Listener server5 = new (8085, config = {
     host:"localhost",
-    port:8085,
     secureSocket:{
         keyStore:{
             path:"${ballerina.home}/bre/security/ballerinaKeystore.p12"
@@ -54,7 +53,7 @@ service HelloWorld85 on server5 {
 }
 
 const string DESCRIPTOR_KEY_9 = "HelloWorld85.proto";
-map descriptorMap9 =
+map<any> descriptorMap9 =
 {
     "HelloWorld85.proto":"0A1248656C6C6F576F726C6438352E70726F746F120C6772706373657276696365731A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F32530A0C48656C6C6F576F726C64383512430A0568656C6C6F121C2E676F6F676C652E70726F746F6275662E537472696E6756616C75651A1C2E676F6F676C652E70726F746F6275662E537472696E6756616C7565620670726F746F33",
 

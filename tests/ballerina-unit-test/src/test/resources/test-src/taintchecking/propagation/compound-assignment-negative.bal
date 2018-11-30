@@ -8,10 +8,13 @@ public function main (string... args) returns error? {
     x1 += "static";
     secureFunction(x1, x1);
 
-    int x3;
-    x3 = check <int>args[0];
-    x3 += 1;
-    secureFunction(x3,x3);
+    var x3 = int.create(args[0]);
+    if (x3 is int) {
+        x3 += 1;
+        secureFunction(x3,x3);
+    } else {
+        panic x3;
+    }
     return ();
 }
 

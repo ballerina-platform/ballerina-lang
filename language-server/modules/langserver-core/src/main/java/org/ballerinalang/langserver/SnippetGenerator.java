@@ -53,14 +53,23 @@ public class SnippetGenerator {
                                 SnippetType.SNIPPET);
     }
 
-
     /**
-     * Get Bind statement Snippet Block.
+     * Get On keyword Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
-    public static SnippetBlock getBindSnippet() {
-        return new SnippetBlock(ItemResolverConstants.BIND, "bind ", ItemResolverConstants.KEYWORD_TYPE,
+    public static SnippetBlock getOnSnippet() {
+        return new SnippetBlock(ItemResolverConstants.ON, "on ", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
+    }
+
+    /**
+     * Get new keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getNewKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.NEW, "new ", ItemResolverConstants.KEYWORD_TYPE,
                                 SnippetType.KEYWORD);
     }
 
@@ -92,6 +101,16 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getCheckKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.CHECK_KEYWORD, "check ", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
+    }
+
+    /**
+     * Get Wait Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getWaitKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.WAIT_KEYWORD, "wait ", ItemResolverConstants.KEYWORD_TYPE,
                                 SnippetType.KEYWORD);
     }
 
@@ -155,9 +174,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getForkJoinStatementSnippet() {
-        String snippet = "fork {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR
-                + "} join (${2:all}) (map ${3:results}) {" + CommonUtil.LINE_SEPARATOR + "\t${4}"
-                + CommonUtil.LINE_SEPARATOR + "}";
+        String snippet = "fork {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.FORK, snippet, ItemResolverConstants.STATEMENT_TYPE,
                                 SnippetType.STATEMENT);
     }
@@ -252,14 +269,14 @@ public class SnippetGenerator {
     }
 
     /**
-     * Get ObjectConstructor Snippet Block.
+     * Get Object Initializer Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
-    public static SnippetBlock getObjectConstructorSnippet() {
-        String snippet = "public new(${1:args}) {" + CommonUtil.LINE_SEPARATOR + "\t${2}" + CommonUtil.LINE_SEPARATOR
-                + "}";
-        return new SnippetBlock(ItemResolverConstants.NEW_OBJECT_CONSTRUCTOR_TYPE, snippet,
+    public static SnippetBlock getObjectInitializerSnippet() {
+        String snippet = "public function __init(${1:any arg}) {" + CommonUtil.LINE_SEPARATOR + "\t${2}" +
+                CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.NEW_OBJECT_INITIALIZER_TYPE, snippet,
                                 ItemResolverConstants.SNIPPET_TYPE, SnippetType.SNIPPET);
     }
 
@@ -602,6 +619,15 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getBuiltinStampSnippet() {
         return new SnippetBlock(ItemResolverConstants.BUILTIN_STAMP_LABEL, "stamp(${1});", "", SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get create Builtin Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getBuiltinCreateSnippet() {
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_CREATE_LABEL, "create(${1});", "", SnippetType.SNIPPET);
     }
 
     /**

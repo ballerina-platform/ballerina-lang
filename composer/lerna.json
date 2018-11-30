@@ -1,0 +1,7 @@
+{
+  "packages": [
+    "packages/*",
+    "tools/*"
+  ],
+  "version": "0.983.1-SNAPSHOT"
+}

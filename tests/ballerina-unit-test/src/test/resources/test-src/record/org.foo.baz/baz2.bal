@@ -7,7 +7,7 @@ public type FooDepartment record {
 public type FooPerson record {
     string name = "default first name";
     string lname = "";
-    map adrs = {};
+    map<any> adrs = {};
     int age = 999;
     FooFamily family = {};
     FooPerson? parent = ();
@@ -35,15 +35,15 @@ public type FooEmployee record {
 };
 
 public function createRecord() returns FooPerson {
-    map address1 = {};
-    map address = {"country":"USA", "state":"CA"};
+    map<any> address1 = {};
+    map<any> address = {"country":"USA", "state":"CA"};
     FooPerson emp = {name:"Jack", adrs:address, age:25};
     return emp;
 }
 
 public function createRecordOfRecord () returns FooDepartment {
 
-    map address = {"country":"USA", "state":"CA"};
+    map<any> address = {"country":"USA", "state":"CA"};
     FooPerson emp1 = {name:"Jack", adrs:address, age:25};
     FooPerson emp2 = {};
     FooPerson[] emps = [emp1, emp2];

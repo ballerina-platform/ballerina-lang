@@ -1,14 +1,14 @@
-function duplicatedMapKeys() returns (map) {
-    map dupKey = {key: "value-1", key: "value-2"};
+function duplicatedMapKeys() returns (map<any>) {
+    map<any> dupKey = {key: "value-1", key: "value-2"};
     return dupKey;
 }
 
-function duplicatedMapKeysStrKey() returns (map) {
-    map dupKey = {key: "value-1", "key": "value-2"};
+function duplicatedMapKeysStrKey() returns (map<any>) {
+    map<any> dupKey = {key: "value-1", "key": "value-2"};
     return dupKey;
 }
 
-function duplicatedMapKeysBothStrKey() returns (map) {
-    map dupKey = {"key": "value-1", "key": "value-2"};
+function duplicatedMapKeysBothStrKey() returns (map<any>) {
+    map<any> dupKey = {"key": "value-1", "key": "value-2"};
     return dupKey;
 }

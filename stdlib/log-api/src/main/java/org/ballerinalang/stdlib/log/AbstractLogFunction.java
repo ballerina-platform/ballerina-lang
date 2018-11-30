@@ -19,8 +19,8 @@
 package org.ballerinalang.stdlib.log;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.bre.vm.BVMExecutor;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.logging.util.BLogLevel;
 import org.ballerinalang.model.values.BClosure;
@@ -108,6 +108,7 @@ public abstract class AbstractLogFunction extends BlockingNativeCallableUnit {
 
     //TODO merge below and above methods(below one new bvm)
     protected String getPackagePath(Context ctx) {
-        return ctx.getParentWorkerExecutionContext().callableUnitInfo.getPackageInfo().getPkgPath();
+        // TODO add API method a suitable way to get package path or does this simply returns "ballerina/log"?
+        return ctx.getStrand().currentFrame.callableUnitInfo.getPackageInfo().getPkgPath();
     }
 }

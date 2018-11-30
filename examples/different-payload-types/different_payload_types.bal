@@ -4,14 +4,12 @@ import ballerina/log;
 import ballerina/mime;
 
 //Client endpoint.
-endpoint http:Client clientEP {
-    url: "http://localhost:9091/backEndService"
-};
+http:Client clientEP = new("http://localhost:9091/backEndService");
 
 //Service to test HTTP client actions with different payload types.
-service<http:Service> actionService bind { port: 9090 } {
+service actionService on new http:Listener(9090) {
 
-    messageUsage(endpoint caller, http:Request req) {
+    resource function messageUsage(http:Caller caller, http:Request req) {
 
         //GET action without any payload.
         var response = clientEP->get("/greeting");
@@ -49,7 +47,7 @@ service<http:Service> actionService bind { port: 9090 } {
 
         //POST action with byte channel as payload. Xince the file path is static
         //`untaint` is used to denote that the byte channel is trusted .
-        response = check clientEP->post("/image", untaint byteChannel);
+        response = clientEP->post("/image", untaint byteChannel);
         handleResponse(response);
 
         //Create a json body part.
@@ -62,68 +60,83 @@ service<http:Service> actionService bind { port: 9090 } {
 
         //POST action with body parts as payload.
         mime:Entity[] bodyParts = [part1, part2];
-        response = check clientEP->post("/echo", bodyParts);
+        response = clientEP->post("/echo", bodyParts);
         handleResponse(response);
 
-        caller->respond("Client actions successfully executed!") but {
-            error err => log:printError(err.message, err = err)
-        };
+        var result = caller->respond("Client actions successfully executed!");
+        handleError(result);
     }
 }
 
 //Back end service that send out different payload types as response.
-service<http:Service> backEndService bind { port: 9091 } {
+service backEndService on new http:Listener(9091) {
 
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/greeting"
     }
-    replyText(endpoint client, http:Request req) {
-        _ = client->respond("Hello");
+    resource function replyText(http:Caller caller, http:Request req) {
+        _ = caller->respond("Hello");
     }
 
     @http:ResourceConfig {
         methods: ["POST"],
         path: "/echo"
     }
-    directResponse(endpoint client, http:Request req) {
+    resource function directResponse(http:Caller caller, http:Request req) {
         if (req.hasHeader("content-type")) {
             string baseType = getBaseType(req.getContentType());
 
             if (mime:TEXT_PLAIN == baseType) {
-                string textValue = check req.getTextPayload();
-                client->respond(untaint textValue) but {
-                    error err => log:printError(err.message, err = err)
-                };
+                var returnValue = req.getTextPayload();
+                string textValue = "";
+                if (returnValue is string) {
+                    textValue = returnValue;
+                } else if (returnValue is error) {
+                    textValue = string.create(returnValue.detail().message);
+                }
+                var result = caller->respond(untaint textValue);
+                handleError(result);
 
             } else if (mime:APPLICATION_XML == baseType) {
-                xml xmlValue = check req.getXmlPayload();
-                client->respond(untaint xmlValue) but {
-                    error err => log:printError(err.message, err = err)
-                };
+                var xmlValue = req.getXmlPayload();
+                if (xmlValue is xml) {
+                    var result = caller->respond(untaint xmlValue);
+                    handleError(result);
+                } else if (xmlValue is error) {
+                    sendErrorMsg(caller, xmlValue);
+                }
 
             } else if (mime:APPLICATION_JSON == baseType) {
-                json jsonValue = check req.getJsonPayload();
-                client->respond(untaint jsonValue) but {
-                    error err => log:printError(err.message, err = err)
-                };
+                var jsonValue = req.getJsonPayload();
+                if (jsonValue is json) {
+                    var result = caller->respond(untaint jsonValue);
+                    handleError(result);
+                } else if (jsonValue is error) {
+                    sendErrorMsg(caller, jsonValue);
+                }
 
             } else if (mime:APPLICATION_OCTET_STREAM == baseType) {
-                byte[] blobValue = check req.getBinaryPayload();
-                client->respond(untaint blobValue) but {
-                    error err => log:printError(err.message, err = err)
-                };
+                var blobValue = req.getBinaryPayload();
+                if (blobValue is byte[]) {
+                    var result = caller->respond(untaint blobValue);
+                    handleError(result);
+                } else if (blobValue is error) {
+                    sendErrorMsg(caller, blobValue);
+                }
 
             } else if (mime:MULTIPART_FORM_DATA == baseType) {
-                mime:Entity[] bodyParts = check req.getBodyParts();
-                client->respond(untaint bodyParts) but {
-                    error err => log:printError(err.message, err = err)
-                };
+                var bodyParts = req.getBodyParts();
+                if (bodyParts is mime:Entity[]) {
+                    var result = caller->respond(untaint bodyParts);
+                    handleError(result);
+                } else if (bodyParts is error) {
+                    sendErrorMsg(caller, bodyParts);
+                }
             }
         } else {
-            client->respond(()) but {
-                error err => log:printError(err.message, err = err)
-            };
+            var result = caller->respond(());
+            handleError(result);
         }
     }
 
@@ -131,61 +144,97 @@ service<http:Service> backEndService bind { port: 9091 } {
         methods: ["POST"],
         path: "/image"
     }
-    sendByteChannel(endpoint client, http:Request req) {
-        byte[] bytes = check req.getBinaryPayload();
-        http:Response response = new;
-        response.setBinaryPayload(untaint bytes, contentType = mime:IMAGE_PNG);
-        client->respond(response) but {
-            error err => log:printError(err.message, err = err)
-        };
+    resource function sendByteChannel(http:Caller caller, http:Request req) {
+        var bytes = req.getBinaryPayload();
+        if (bytes is byte[]) {
+            http:Response response = new;
+            response.setBinaryPayload(untaint bytes, contentType = mime:IMAGE_PNG);
+            var result = caller->respond(response);
+            handleError(result);
+        } else if (bytes is error) {
+            sendErrorMsg(caller, bytes);
+        }
     }
 }
 
 //Handle response data received from HTTP client actions.
-function handleResponse(http:Response|error returnValue) {
-    match returnValue {
-        http:Response response => {
-            //Print the content type of the received data.
-            if (response.hasHeader("content-type")) {
-                string baseType = getBaseType(response.getContentType());
+function handleResponse(http:Response|error response) {
+    if (response is http:Response) {
+        //Print the content type of the received data.
+        if (response.hasHeader("content-type")) {
+            string baseType = getBaseType(response.getContentType());
 
-                if (mime:TEXT_PLAIN == baseType) {
-                    log:printInfo("Text data: " + check response.getTextPayload());
-
-                } else if (mime:APPLICATION_XML == baseType) {
-                    xml xmlData = check response.getXmlPayload();
-                    log:printInfo("Xml data: " + xmlData.getTextValue());
-
-                } else if (mime:APPLICATION_JSON == baseType) {
-                    json jsonData = check response.getJsonPayload();
-                    log:printInfo("Json data: " +  jsonData.toString());
-
-                } else if (mime:APPLICATION_OCTET_STREAM == baseType) {
-                    log:printInfo("Response contains binary data: " +
-                            check response.getPayloadAsString());
-
-                } else if (mime:MULTIPART_FORM_DATA == baseType) {
-                    log:printInfo("Response contains body parts: ");
-                    mime:Entity[] returnParts = check response.getBodyParts();
-                    handleBodyParts(returnParts);
-
-                } else if (mime:IMAGE_PNG == baseType) {
-                    log:printInfo("Response contains an image");
+            if (mime:TEXT_PLAIN == baseType) {
+                var payload = response.getTextPayload();
+                if (payload is string) {
+                    log:printInfo("Text data: " + payload);
+                } else if (payload is error) {
+                    log:printError("Error in parsing text data", err = payload);
                 }
-            } else {
-                log:printInfo("There's no body in response");
+            } else if (mime:APPLICATION_XML == baseType) {
+                var payload = response.getXmlPayload();
+                if (payload is xml) {
+                    string strValue = io:sprintf("%s", payload);
+                    log:printInfo("Xml data: " + strValue);
+                } else if (payload is error) {
+                    log:printError("Error in parsing xml data", err = payload);
+                }
+            } else if (mime:APPLICATION_JSON == baseType) {
+                var payload = response.getJsonPayload();
+                if (payload is json) {
+                    log:printInfo("Json data: " + payload.toString());
+                } else if (payload is error) {
+                    log:printError("Error in parsing json data", err = payload);
+                }
+            } else if (mime:APPLICATION_OCTET_STREAM == baseType) {
+                var payload = response.getPayloadAsString();
+                if (payload is string) {
+                    log:printInfo("Response contains binary data: " + payload);
+                } else if (payload is error) {
+                    log:printError("Error in parsing binary data", err = payload);
+                }
+            } else if (mime:MULTIPART_FORM_DATA == baseType) {
+                log:printInfo("Response contains body parts: ");
+                var payload = response.getBodyParts();
+                if (payload is mime:Entity[]) {
+                    handleBodyParts(payload);
+                } else if (payload is error) {
+                    log:printError("Error in parsing multipart data", err = payload);
+                }
+            } else if (mime:IMAGE_PNG == baseType) {
+                log:printInfo("Response contains an image");
             }
+        } else {
+            log:printInfo("Entity body is not available");
         }
-        error err => {
-            log:printError(err.message, err = err);
-        }
+    } else if (response is error) {
+        log:printError(response.reason(), err = response);
+    }
+}
+
+function sendErrorMsg(http:Caller caller, error err) {
+    http:Response res = new;
+    res.statusCode = 500;
+    res.setPayload(untaint string.create(err.detail().message));
+    var result = caller->respond(res);
+    handleError(result);
+}
+
+function handleError(error? result) {
+    if (result is error) {
+        log:printError(result.reason(), err = result);
     }
 }
 
 //Get the base type from a given content type.
 function getBaseType(string contentType) returns string {
-    mime:MediaType mediaType = check mime:getMediaType(contentType);
-    return mediaType.getBaseType();
+    var result = mime:getMediaType(contentType);
+    if (result is mime:MediaType) {
+        return result.getBaseType();
+    } else if (result is error) {
+        panic result;
+    }
+    return "";
 }
 
 //Loop through body parts and print its content.
@@ -193,11 +242,20 @@ function handleBodyParts(mime:Entity[] bodyParts) {
     foreach bodyPart in bodyParts {
         string baseType = getBaseType(bodyPart.getContentType());
         if (mime:APPLICATION_JSON == baseType) {
-            json payload = check bodyPart.getJson();
-            log:printInfo("Json Part: " + payload.toString());
+            var payload = bodyPart.getJson();
+            if (payload is json) {
+                log:printInfo("Json Part: " + payload.toString());
+            } else if (payload is error) {
+                log:printError(payload.reason(), err = payload);
+            }
         }
         if (mime:TEXT_PLAIN == baseType) {
-            log:printInfo("Text Part: " + check bodyPart.getText());
+                var payload = bodyPart.getText();
+            if (payload is string) {
+                log:printInfo("Text Part: " + payload);
+            } else if (payload is error) {
+                log:printError(payload.reason(), err = payload);
+            }
         }
     }
 }

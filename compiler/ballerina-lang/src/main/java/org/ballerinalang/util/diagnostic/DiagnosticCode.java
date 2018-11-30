@@ -75,6 +75,7 @@ public enum DiagnosticCode {
     INCOMPATIBLE_TYPE_CONSTRAINT("incompatible.type.constraint"),
     WORKER_SEND_RECEIVE_PARAMETER_COUNT_MISMATCH("worker.send.receive.parameter.count.mismatch"),
     INVALID_WORKER_INTERACTION("worker.invalid.worker.interaction"),
+    WORKER_AFTER_RETURN("worker.after.return"),
     INVALID_MULTIPLE_FORK_JOIN_SEND("worker.multiple.fork.join.send"),
     INCOMPATIBLE_TYPE_REFERENCE("incompatible.type.reference"),
     INCOMPATIBLE_RECORD_TYPE_REFERENCE("incompatible.record.type.reference"),
@@ -136,6 +137,9 @@ public enum DiagnosticCode {
     INVALID_RESOURCE_FUNCTION_INVOCATION("invalid.resource.function.invocation"),
     INVALID_ACTION_INVOCATION("invalid.action.invocation"),
     UNDEFINED_ACTION("undefined.action"),
+
+    TYPE_ASSERTION_NOT_YET_SUPPORTED("type.assertion.not.yet.supported.for.type"),
+    INVALID_EXPLICIT_TYPE_FOR_EXPRESSION("invalid.explicit.type.for.expression"),
 
     // Cast and conversion related codes
     INCOMPATIBLE_TYPES_CAST("incompatible.types.cast"),
@@ -238,6 +242,7 @@ public enum DiagnosticCode {
     UNDEFINED_ANNOTATION("undefined.annotation"),
     ANNOTATION_NOT_ALLOWED("annotation.not.allowed"),
     ANNOTATION_ATTACHMENT_NO_VALUE("annotation.attachment.no.value"),
+    ANNOTATION_REQUIRE_RECORD("annotation.require.record"),
     INCOMPATIBLE_TYPES_ARRAY_FOUND("incompatible.types.array.found"),
     CANNOT_GET_ALL_FIELDS("cannot.get.all.fields"),
 

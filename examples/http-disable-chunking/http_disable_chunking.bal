@@ -23,13 +23,19 @@ service<http:Service> chunkingSample bind { port: 9092 } {
         match result {
             http:Response clientResponse => {
                 //send the response back to the caller.
-                caller->respond(clientResponse) but { error e => log:printError("Error sending response", err = e) };
+                var result = caller->respond(clientResponse);
+                if (result is error) {
+                   log:printError("Error sending response", err = result);
+                }
             }
             error responseError => {
                 http:Response errorResponse = new;
                 json errMsg = { "error": "error occurred while invoking the service" };
                 errorResponse.setPayload(errMsg);
-                caller->respond(errorResponse) but { error e => log:printError("Error sending response", err = e) };
+                var result = caller->respond(errorResponse);
+                if (result is error) {
+                   log:printError("Error sending response", err = result);
+                }
             }
         }
     }
@@ -73,6 +79,9 @@ service<http:Service> echo bind { port: 9090 } {
             // Since there is no validation error, mark the `value` as trusted data and set to the response.
             res.setPayload({ "Outbound request content": untaint value });
         }
-        caller->respond(res) but { error e => log:printError("Error sending response from echo service", err = e) };
+        var result = caller->respond(res);
+        if (result is error) {
+           log:printError("Error sending response from echo service", err = result);
+        }
     }
 }

@@ -26,7 +26,9 @@ service helloWorld bind helloWorldEP {
     sayHello(endpoint caller, http:Request req) {
         http:Response res = new;
         res.setPayload("Hello World!");
-        caller->respond(res) but {
-                    error e => log:printError("Error in responding ", err = e) };
+        var result = caller->respond(res);
+        if (result is error) {
+            log:printError("Error in responding ", err = result);
+        }
     }
 }

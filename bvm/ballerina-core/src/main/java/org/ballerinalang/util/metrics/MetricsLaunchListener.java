@@ -18,7 +18,7 @@
 package org.ballerinalang.util.metrics;
 
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.bre.bvm.BLangScheduler;
+import org.ballerinalang.bre.old.BLangScheduler;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.util.LaunchListener;
 import org.ballerinalang.util.metrics.noop.NoOpMetricProvider;

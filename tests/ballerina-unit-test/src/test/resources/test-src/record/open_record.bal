@@ -1,3 +1,19 @@
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 type Department record {
     string dptName = "";
     Person[] employees = [];
@@ -6,7 +22,7 @@ type Department record {
 type Person record {
     string name = "default first name";
     string lname = "";
-    map adrs = {};
+    map<any> adrs = {};
     int age = 999;
     Family family = {};
     Person? parent = ();
@@ -21,7 +37,7 @@ type Family record {
 type Employee record {
     string name = "default first name";
     string lname = "";
-    map address = {};
+    map<any> address = {};
     int age = 999;
     Family family = {};
     Person? parent = ();
@@ -30,7 +46,7 @@ type Employee record {
 
 function testStructOfStruct () returns string {
 
-    map address = {"country":"USA", "state":"CA"};
+    map<any> address = {"country":"USA", "state":"CA"};
     Person emp1 = {name:"Jack", adrs:address, age:25};
     Person emp2 = {};
     Person[] emps = [emp1, emp2];
@@ -42,7 +58,7 @@ function testStructOfStruct () returns string {
 }
 
 function testReturnStructAttributes () returns string {
-    map address = {"country":"USA", "state":"CA"};
+    map<any> address = {"country":"USA", "state":"CA"};
     string[] chldrn = [];
     Family fmly = {children:chldrn};
     Person emp1 = {name:"Jack", adrs:address, age:25, family:fmly};
@@ -69,7 +85,7 @@ function testStructExpressionAsIndex () returns string {
     Family fmly = {};
     fmly.children = [];
     Person emp2 = {};
-    map address = {"country":"USA", "state":"CA"};
+    map<any> address = {"country":"USA", "state":"CA"};
     Person emp1 = {name:"Jack", adrs:address, age:25, family:fmly};
 
     emp1.adrs["street"] = "20";
@@ -259,7 +275,7 @@ function testBooleanRestFieldRHSIndexAccess() returns (boolean?, boolean?) {
 type Person6 record {
     string name = "";
     int age = 0;
-    map...
+    map<any>...
 };
 
 function testMapRestField() returns Person6 {
@@ -267,16 +283,16 @@ function testMapRestField() returns Person6 {
     return p;
 }
 
-function testMapRestFieldRHSAccess() returns map {
+function testMapRestFieldRHSAccess() returns map<any> {
     Person6 p = {};
-    map misc = p.misc;
+    map<any> misc = p.misc;
     return misc;
 }
 
-function testMapRestFieldRHSIndexAccess() returns (map?, map?) {
-    map misc = {};
+function testMapRestFieldRHSIndexAccess() returns (map<any>?, map<any>?) {
+    map<any> misc = {};
     Person6 p = {misc:misc};
-    map? invMap = p["invMap"];
+    map<any>? invMap = p["invMap"];
     return (p["misc"], invMap);
 }
 
@@ -432,4 +448,25 @@ function testFuncPtrAsRecordField() returns string {
     };
 
     return p.fullName.call();
+}
+
+type PersonB record {
+    string fname = "";
+    string lname = "";
+    (function (string, string) returns string)? getName = ();
+};
+
+function testNilableFuncPtrInvocation() returns string? {
+    PersonB bob = {fname:"Bob", lname:"White"};
+    bob.getName = function (string fname, string lname) returns string {
+        return fname + " " + lname;
+    };
+    string? x = bob.getName.call(bob.fname, bob.lname);
+    return x;
+}
+
+function testNilableFuncPtrInvocation2() returns string? {
+    PersonB bob = {fname:"Bob", lname:"White"};
+    string? x = bob.getName.call(bob.fname, bob.lname);
+    return x;
 }

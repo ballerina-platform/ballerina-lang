@@ -31,7 +31,7 @@ type Employee record {
 };
 
 type ValueType int|float|string|boolean|byte;
-type DataType ValueType|table|json|xml|Bar|map<anydata>|anydata[]|();
+type DataType ValueType|table<any>|json|xml|Bar|map<anydata>|anydata[]|();
 
 function testInvalidAssignmentsWithLiterals() {
     anydata adrl = {a: 15};
@@ -52,7 +52,7 @@ function testInvalidAssignmentsWithLiterals() {
 function testInvalidMapAssignments() {
     anydata ad;
 
-    map m = {};
+    map<any> m = {};
     ad = m;
 
     map<any> m2 = {};
@@ -67,13 +67,13 @@ function testInvalidMapAssignments() {
     map<typedesc> mtd = {};
     ad = mtd;
 
-    map<stream> mst = {};
+    map<stream<any>> mst = {};
     ad = mst;
 
     map<any[]> mar = {};
     ad = mar;
 
-    map<map<map>> mnested = {};
+    map<map<map<any>>> mnested = {};
     ad = mnested;
 
     map<Foo> mr = {};
@@ -104,13 +104,13 @@ function testInvalidArrayAssignments() {
     typedesc[] atd = [];
     ad = atd;
 
-    stream[] ast = [];
+    stream<any>[] ast = [];
     ad = ast;
 
     any[][] a2a = [];
     ad = a2a;
 
-    map[] am = [];
+    map<any>[] am = [];
     ad = am;
 
     map<Bar>[] ambar = [];

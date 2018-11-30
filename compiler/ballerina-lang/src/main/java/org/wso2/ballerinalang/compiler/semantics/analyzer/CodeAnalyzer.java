@@ -158,6 +158,7 @@ import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -203,6 +204,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private BLangNode parent;
     private Names names;
     private SymbolEnv env;
+    private final Stack<HashSet<BType>> returnTypes = new Stack<>();
 
     public static CodeAnalyzer getInstance(CompilerContext context) {
         CodeAnalyzer codeGenerator = context.get(CODE_ANALYZER_KEY);
@@ -316,6 +318,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         this.returnWithintransactionCheckStack.push(true);
         this.doneWithintransactionCheckStack.push(true);
+        this.returnTypes.push(new HashSet<>());
         this.resetFunction();
         if (Symbols.isNative(funcNode.symbol)) {
             return;
@@ -333,6 +336,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                                 funcNode.getKind().toString().toLowerCase());
             }
         }
+        this.returnTypes.pop();
         this.returnWithintransactionCheckStack.pop();
         this.doneWithintransactionCheckStack.pop();
         if (funcNode.symbol.isTransactionHandler) {
@@ -453,6 +457,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         this.statementReturns = true;
         analyzeExpr(returnStmt.expr);
+        this.returnTypes.peek().add(returnStmt.expr.type);
     }
 
     @Override
@@ -471,9 +476,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangMatch matchStmt) {
         analyzeExpr(matchStmt.expr);
-        if (!matchStmt.getTypedPatternClauses().isEmpty()) {
-            analyzeTypeMatchPatterns(matchStmt);
-        }
 
         if (!matchStmt.getStaticPatternClauses().isEmpty()) {
             analyzeStaticMatchPatterns(matchStmt);
@@ -806,85 +808,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         return false;
     }
 
-    private void analyzeTypeMatchPatterns(BLangMatch matchStmt) {
-        if (matchStmt.exprTypes.isEmpty()) {
-            return;
-        }
-
-        boolean unmatchedExprTypesAvailable = false;
-
-        // TODO Handle **any** as a expr type.. special case it..
-        // TODO Complete the exhaustive tests with any, struct and connector types
-        // TODO Handle the case where there are incompatible types. e.g. input string : pattern int and pattern string
-
-        List<BType> unmatchedExprTypes = new ArrayList<>();
-        for (BType exprType : matchStmt.exprTypes) {
-            boolean assignable = false;
-            for (BLangMatch.BLangMatchTypedBindingPatternClause pattern : matchStmt.getTypedPatternClauses()) {
-                BType patternType = pattern.variable.type;
-                if (exprType.tag == TypeTags.SEMANTIC_ERROR || patternType.tag == TypeTags.SEMANTIC_ERROR) {
-                    return;
-                }
-
-                assignable = this.types.isAssignable(exprType, patternType);
-                if (assignable) {
-                    pattern.matchedTypesDirect.add(exprType);
-                    break;
-                } else if (exprType.tag == TypeTags.ANY) {
-                    pattern.matchedTypesIndirect.add(exprType);
-                } else if (exprType.tag == TypeTags.JSON &&
-                        this.types.isAssignable(patternType, exprType)) {
-                    pattern.matchedTypesIndirect.add(exprType);
-                } else if ((exprType.tag == TypeTags.OBJECT || exprType.tag == TypeTags.RECORD)
-                        && this.types.isAssignable(patternType, exprType)) {
-                    pattern.matchedTypesIndirect.add(exprType);
-                } else if (exprType.tag == TypeTags.BYTE && patternType.tag == TypeTags.INT) {
-                    pattern.matchedTypesDirect.add(exprType);
-                    break;
-                } else {
-                    // TODO Support other assignable types
-                }
-            }
-
-            if (!assignable) {
-                unmatchedExprTypes.add(exprType);
-            }
-        }
-
-        if (!unmatchedExprTypes.isEmpty()) {
-            unmatchedExprTypesAvailable = true;
-            dlog.error(matchStmt.pos, DiagnosticCode.MATCH_STMT_CANNOT_GUARANTEE_A_MATCHING_PATTERN,
-                    unmatchedExprTypes);
-        }
-
-        boolean matchedPatternsAvailable = false;
-        for (int i = matchStmt.getTypedPatternClauses().size() - 1; i >= 0; i--) {
-            BLangMatch.BLangMatchTypedBindingPatternClause pattern = matchStmt.getTypedPatternClauses().get(i);
-            if (pattern.matchedTypesDirect.isEmpty() && pattern.matchedTypesIndirect.isEmpty()) {
-                if (matchedPatternsAvailable) {
-                    dlog.error(pattern.pos, DiagnosticCode.MATCH_STMT_UNMATCHED_PATTERN);
-                } else {
-                    dlog.error(pattern.pos, DiagnosticCode.MATCH_STMT_UNREACHABLE_PATTERN);
-                }
-            } else {
-                matchedPatternsAvailable = true;
-            }
-        }
-
-        // Execute the following block if there are no unmatched expression types
-        if (!unmatchedExprTypesAvailable) {
-            this.checkStatementExecutionValidity(matchStmt);
-            boolean matchStmtReturns = true;
-            for (BLangMatch.BLangMatchTypedBindingPatternClause patternClause : matchStmt.getTypedPatternClauses()) {
-                analyzeNode(patternClause.body, env);
-                matchStmtReturns = matchStmtReturns && this.statementReturns;
-                this.resetStatementReturns();
-            }
-
-            this.statementReturns = matchStmtReturns;
-        }
-    }
-
     @Override
     public void visit(BLangForeach foreach) {
         this.loopWithintransactionCheckStack.push(true);
@@ -945,8 +868,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangService serviceNode) {
-        SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode, serviceNode.symbol.scope, env);
-        serviceNode.resources.forEach(res -> analyzeNode(res, serviceEnv));
     }
 
     public void visit(BLangResource resourceNode) {
@@ -1124,6 +1045,21 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         if (!this.inWorker()) {
             return;
+        }
+        Set<BType> returnTypesUpToNow = this.returnTypes.peek();
+        HashSet<BType> returnTypeAndSendType = new HashSet<>();
+        for (BType returnType : returnTypesUpToNow) {
+            if (returnType.tag == TypeTags.ERROR) {
+                returnTypeAndSendType.add(returnType);
+            } else {
+                this.dlog.error(workerSendNode.pos, DiagnosticCode.WORKER_AFTER_RETURN);
+            }
+        }
+        returnTypeAndSendType.add(workerSendNode.expr.type);
+        if (returnTypeAndSendType.size() > 1) {
+            workerSendNode.type = new BUnionType(null, returnTypeAndSendType, false);
+        } else {
+            workerSendNode.type = workerSendNode.expr.type;
         }
         this.workerActionSystemStack.peek().addWorkerAction(workerSendNode);
         analyzeExpr(workerSendNode.expr);
@@ -1681,6 +1617,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (!enclInvokableHasErrorReturn) {
             dlog.error(checkedExpr.expr.pos, DiagnosticCode.CHECKED_EXPR_NO_ERROR_RETURN_IN_ENCL_INVOKABLE);
         }
+
+        returnTypes.peek().add(exprType);
     }
 
     @Override
@@ -1765,7 +1703,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private <E extends BLangExpression> void analyzeExprs(List<E> nodeList) {
         for (int i = 0; i < nodeList.size(); i++) {
-            nodeList.get(i).accept(this);
+            analyzeExpr(nodeList.get(i));
         }
     }
 
@@ -1839,8 +1777,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private void validateWorkerActionParameters(BLangWorkerSend send, BLangWorkerReceive receive) {
-        this.typeChecker.checkExpr(send.expr, send.env, receive.type);
-        addImplicitCast(send.expr.type, receive);
+        types.checkType(receive, send.type, receive.type);
+        addImplicitCast(send.type, receive);
     }
 
     private void validateWorkerActionParameters(BLangWorkerSyncSendExpr send, BLangWorkerReceive receive) {

@@ -139,7 +139,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStaticBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchTypedBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
@@ -1092,8 +1091,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             SymbolEnv ifBodyEnv = SymbolEnv.createBlockEnv(ifNode.body, env);
             for (Entry<BVarSymbol, BType> entry : typeGuards.entrySet()) {
                 BVarSymbol originalVarSymbol = entry.getKey();
-                BVarSymbol varSymbol = new BVarSymbol(0, originalVarSymbol.name, ifBodyEnv.scope.owner.pkgID,
-                        entry.getValue(), this.env.scope.owner);
+                BVarSymbol varSymbol = symbolEnter.createVarSymbol(0, entry.getValue(), originalVarSymbol.name,
+                                                                   this.env);
                 symbolEnter.defineShadowedSymbol(ifNode.expr.pos, varSymbol, ifBodyEnv);
 
                 // Cache the type guards, to be reused at the desugar.
@@ -1129,13 +1128,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatch matchNode) {
-
-        //first fail if both static and typed patterns have been defined in the match stmt
-        if (!matchNode.getTypedPatternClauses().isEmpty() && !matchNode.getStaticPatternClauses().isEmpty()) {
-            dlog.error(matchNode.pos, DiagnosticCode.INVALID_PATTERN_CLAUSES_IN_MATCH_STMT);
-            return;
-        }
-
         List<BType> exprTypes;
         BType exprType = typeChecker.checkExpr(matchNode.expr, env, symTable.noType);
         if (exprType.tag == TypeTags.UNION) {
@@ -1150,19 +1142,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             patternClause.accept(this);
         });
         matchNode.exprTypes = exprTypes;
-    }
-
-    public void visit(BLangMatchTypedBindingPatternClause patternClause) {
-        // If the variable is not equal to '_', then define the variable in the block scope
-        if (!patternClause.variable.name.value.endsWith(Names.IGNORE.value)) {
-            SymbolEnv blockEnv = SymbolEnv.createBlockEnv(patternClause.body, env);
-            symbolEnter.defineNode(patternClause.variable, blockEnv);
-            analyzeStmt(patternClause.body, blockEnv);
-            return;
-        }
-
-        symbolEnter.defineNode(patternClause.variable, this.env);
-        analyzeStmt(patternClause.body, this.env);
     }
 
     public void visit(BLangMatchStaticBindingPatternClause patternClause) {
@@ -1299,6 +1278,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (!types.checkListenerCompatibility(env, exprType)) {
             dlog.error(serviceNode.attachExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, Names.ABSTRACT_LISTENER,
                     exprType);
+        } else {
+            serviceNode.listerType = exprType;
         }
 
         // TODO : Fix this.
@@ -1307,7 +1288,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             if (!Symbols.isFlagOn(attachExpr.symbol.flags, Flags.LISTENER)) {
                 dlog.error(serviceNode.attachExpr.pos, DiagnosticCode.SYNTAX_ERROR, "invalid listener attachment");
             }
-        } else if (serviceNode.attachExpr.getKind() != NodeKind.Type_INIT_EXPR) {
+        } else if (serviceNode.attachExpr.getKind() != NodeKind.TYPE_INIT_EXPR) {
             dlog.error(serviceNode.attachExpr.pos, DiagnosticCode.SYNTAX_ERROR, "invalid listener attachment");
         }
     }
@@ -2038,8 +2019,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // var a = { x : y };
         // var a = new ;
         final NodeKind kind = expr.getKind();
-        if (kind == RECORD_LITERAL_EXPR || kind == NodeKind.ARRAY_LITERAL_EXPR
-                || (kind == NodeKind.Type_INIT_EXPR && ((BLangTypeInit) expr).userDefinedType == null)) {
+        if (kind == RECORD_LITERAL_EXPR || kind == NodeKind.ARRAY_LITERAL_EXPR || (kind == NodeKind.TYPE_INIT_EXPR
+                && ((BLangTypeInit) expr).userDefinedType == null)) {
             dlog.error(expr.pos, DiagnosticCode.INVALID_ANY_VAR_DEF);
             return false;
         }

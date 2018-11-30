@@ -18,7 +18,7 @@
 package org.ballerinalang.test.utils.debug;
 
 import io.netty.channel.Channel;
-import org.ballerinalang.bre.vm.Strand;
+import org.ballerinalang.bre.bvm.Strand;
 import org.ballerinalang.util.debugger.DebugClientHandler;
 import org.ballerinalang.util.debugger.DebugException;
 import org.ballerinalang.util.debugger.dto.MessageDTO;

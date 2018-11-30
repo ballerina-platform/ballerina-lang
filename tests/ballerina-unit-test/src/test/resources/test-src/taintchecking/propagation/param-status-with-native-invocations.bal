@@ -17,18 +17,18 @@
 import ballerina/mysql;
 import ballerina/io;
 
-endpoint mysql:Client mysqlDB {
+mysql:Client mysqlDB = new({
     host: "localhost",
     port: 3306,
     name: "ballerinademo",
     username: "demouser",
     password: "password@123",
     dbOptions: { useSSL: false}
-};
+});
 
 public function main(string... args) returns error? {
     string s1 = "static-value";
     io:println(s1);
-    table t1 = check mysqlDB->select("SELECT id, age, name from employee where name = " + s1, ());
+    table<any> t1 = check mysqlDB->select("SELECT id, age, name from employee where name = " + s1, ());
     return;
 }

@@ -66,7 +66,7 @@ public type Listener object {
     # should happen for the services bound to the endpoint.
     #
     # + return - `map[]` array of maps containing subscription details for each service
-    extern function retrieveSubscriptionParameters() returns map[];
+    extern function retrieveSubscriptionParameters() returns map<any>[];
 
 };
 
@@ -98,32 +98,25 @@ function Listener.__stop() returns error? {
 }
 
 function Listener.sendSubscriptionRequests() {
-    map[] subscriptionDetailsArray = self.retrieveSubscriptionParameters();
+    map<any>[] subscriptionDetailsArray = self.retrieveSubscriptionParameters();
 
     foreach subscriptionDetails in subscriptionDetailsArray {
         if (subscriptionDetails.keys().length() == 0) {
             continue;
         }
 
+        // TODO: fix retrieveSubscriptionParameters to put values as relevant types.
         string strSubscribeOnStartUp = <string>subscriptionDetails.subscribeOnStartUp;
-        boolean subscribeOnStartUp = <boolean>strSubscribeOnStartUp;
+        boolean subscribeOnStartUp = boolean.create(strSubscribeOnStartUp);
 
         if (subscribeOnStartUp) {
             string resourceUrl = <string>subscriptionDetails.resourceUrl;
             string hub = <string>subscriptionDetails.hub;
             string topic = <string>subscriptionDetails.topic;
 
-            http:SecureSocket? newSecureSocket;
-            var secureSocket = <http:SecureSocket>subscriptionDetails.secureSocket;
-            newSecureSocket = secureSocket is http:SecureSocket ? secureSocket : ();
-
-            http:AuthConfig? auth;
-            var httpAuth = <http:AuthConfig>subscriptionDetails.auth;
-            auth = httpAuth is http:AuthConfig ? httpAuth : ();
-
-            http:FollowRedirects? followRedirects;
-            var httpFollowRedirects = <http:FollowRedirects>subscriptionDetails.followRedirects;
-            followRedirects = httpFollowRedirects is http:FollowRedirects ? httpFollowRedirects : ();
+            var clientConfig = trap <http:ClientEndpointConfig>subscriptionDetails.subscriptionClientConfig;
+            http:ClientEndpointConfig? subscriptionClientConfig =
+                                                clientConfig is http:ClientEndpointConfig ? clientConfig : ();
 
             if (hub == "" || topic == "") {
                 if (resourceUrl == "") {
@@ -131,7 +124,7 @@ function Listener.sendSubscriptionRequests() {
                         "Subscription Request not sent since hub and/or topic and resource URL are unavailable");
                     return;
                 }
-                var discoveredDetails = retrieveHubAndTopicUrl(resourceUrl, auth, newSecureSocket, followRedirects);
+                var discoveredDetails = retrieveHubAndTopicUrl(resourceUrl, subscriptionClientConfig);
                 if (discoveredDetails is (string, string)) {
                     var (retHub, retTopic) = discoveredDetails;
                     var hubDecodeResponse = http:decode(retHub, "UTF-8");
@@ -157,7 +150,7 @@ function Listener.sendSubscriptionRequests() {
                     continue;
                 }
             }
-            invokeClientConnectorForSubscription(hub, auth, newSecureSocket, followRedirects, subscriptionDetails);
+            invokeClientConnectorForSubscription(hub, subscriptionClientConfig, subscriptionDetails);
         }
     }
 }
@@ -221,14 +214,11 @@ public type ExtensionConfig record {
 # The function called to discover hub and topic URLs defined by a resource URL.
 #
 # + resourceUrl - The resource URL advertising hub and topic URLs
+# + subscriptionClientConfig - The configuration for subscription client
 # + return - `(string, string)` (hub, topic) URLs if successful, `error` if not
-function retrieveHubAndTopicUrl(string resourceUrl, http:AuthConfig? auth, http:SecureSocket? localSecureSocket,
-                                http:FollowRedirects? followRedirects) returns @tainted (string, string)|error {
-    http:Client resourceEP = new http:Client(resourceUrl, config = {
-        auth: auth,
-        secureSocket: localSecureSocket,
-        followRedirects:followRedirects
-    });
+function retrieveHubAndTopicUrl(string resourceUrl, http:ClientEndpointConfig? subscriptionClientConfig)
+                                            returns @tainted (string, string)|error {
+    http:Client resourceEP = new http:Client(resourceUrl, config = subscriptionClientConfig);
     http:Request request = new;
     var discoveryResponse = resourceEP->get("", message = request);
     error websubError = error("Dummy");
@@ -244,7 +234,7 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:AuthConfig? auth, http:
         }
     } else if (discoveryResponse is error) {
         string errCause = <string> discoveryResponse.detail().message;
-        map errorDetail = { message : "Error occurred with WebSub discovery for Resource URL [" +
+        map<any> errorDetail = { message : "Error occurred with WebSub discovery for Resource URL [" +
                                 resourceUrl + "]: " + errCause };
         websubError = error(WEBSUB_ERROR_CODE, errorDetail);
     }
@@ -254,14 +244,10 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:AuthConfig? auth, http:
 # Function to invoke the WebSubSubscriberConnector's actions for subscription.
 #
 # + hub - The hub to which the subscription request is to be sent
+# + subscriptionClientConfig - The configuration for subscription client
 # + subscriptionDetails - Map containing subscription details
-function invokeClientConnectorForSubscription(string hub, http:AuthConfig? auth, http:SecureSocket? localSecureSocket,
-                                              http:FollowRedirects? followRedirects, map subscriptionDetails) {
-    Client websubHubClientEP = new Client(hub, config = {
-        clientSecureSocket: localSecureSocket,
-        auth: auth,
-        followRedirects: followRedirects
-    });
+function invokeClientConnectorForSubscription(string hub, http:ClientEndpointConfig? subscriptionClientConfig, map<any> subscriptionDetails) {
+    Client websubHubClientEP = new Client(hub, config = subscriptionClientConfig);
 
     string topic = <string>subscriptionDetails.topic;
     string callback = <string>subscriptionDetails.callback;
@@ -274,7 +260,7 @@ function invokeClientConnectorForSubscription(string hub, http:AuthConfig? auth,
     int leaseSeconds = 0;
 
     string strLeaseSeconds = <string>subscriptionDetails.leaseSeconds;
-    var convIntLeaseSeconds = <int>strLeaseSeconds;
+    var convIntLeaseSeconds = int.create(strLeaseSeconds);
     if (convIntLeaseSeconds is int) {
         leaseSeconds = convIntLeaseSeconds;
     } else if (convIntLeaseSeconds is error) {

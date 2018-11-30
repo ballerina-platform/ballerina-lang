@@ -71,18 +71,12 @@ public type HttpCache object {
     }
 
     function get (string key) returns Response {
-        Response response = new;
-        var cacheEntry = <Response[]> self.cache.get(key);
-        if (cacheEntry is Response[]) {
-            response = cacheEntry[cacheEntry.length() - 1];
-        } else if (cacheEntry is error) {
-            panic cacheEntry;
-        }
-        return response;
+        Response[] cacheEntry = <Response[]> self.cache.get(key);
+        return cacheEntry[cacheEntry.length() - 1];
     }
 
     function getAll (string key) returns Response[]|() {
-        var cacheEntry = <Response[]> self.cache.get(key);
+        var cacheEntry = trap <Response[]> self.cache.get(key);
         if (cacheEntry is Response[]) {
             return cacheEntry;
         }
