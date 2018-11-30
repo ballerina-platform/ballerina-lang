@@ -982,7 +982,7 @@ function testArrayToJson1() returns json|error {
     int[] x = [];
     x[0] = 10;
     x[1] = 15;
-    json j = check json.convert(x);
+    json j = json.convert(x);
     return j;
 }
 

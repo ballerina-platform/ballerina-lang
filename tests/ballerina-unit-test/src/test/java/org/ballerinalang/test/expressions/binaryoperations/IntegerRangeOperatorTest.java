@@ -20,9 +20,9 @@ import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -50,12 +50,12 @@ public class IntegerRangeOperatorTest {
         BValue[] returns = BRunUtil.invoke(result, "testClosedIntRange", args);
         Assert.assertEquals(returns.length, 1);
 
-        BIntArray returnArray = (BIntArray) returns[0];
+        BValueArray returnArray = (BValueArray) returns[0];
         int expectedSize = endValue - startValue + 1;
         Assert.assertEquals(returnArray.size(), expectedSize, "Incorrect number of values returned for Closed "
                 + "Integer Range " + startValue + " ... " + endValue);
         for (int i = 0; i < expectedSize; i++) {
-            Assert.assertEquals(returnArray.get(i), startValue + i, "Incorrect value found at index: " + i);
+            Assert.assertEquals(returnArray.getInt(i), startValue + i, "Incorrect value found at index: " + i);
         }
     }
 
@@ -67,12 +67,12 @@ public class IntegerRangeOperatorTest {
         BValue[] returns = BRunUtil.invoke(result, "testClosedIntRange", args);
         Assert.assertEquals(returns.length, 1);
 
-        BIntArray returnArray = (BIntArray) returns[0];
+        BValueArray returnArray = (BValueArray) returns[0];
         int expectedSize = 1;
         Assert.assertEquals(returnArray.size(), expectedSize, "Incorrect number of values returned for Closed "
                 + "Integer Range " + startValue + " ... " + endValue);
         for (int i = 0; i < expectedSize; i++) {
-            Assert.assertEquals(returnArray.get(i), startValue + i, "Incorrect value found at index: " + i);
+            Assert.assertEquals(returnArray.getInt(i), startValue + i, "Incorrect value found at index: " + i);
         }
     }
 
@@ -84,7 +84,7 @@ public class IntegerRangeOperatorTest {
         BValue[] returns = BRunUtil.invoke(result, "testClosedIntRange", args);
         Assert.assertEquals(returns.length, 1);
 
-        BIntArray returnArray = (BIntArray) returns[0];
+        BValueArray returnArray = (BValueArray) returns[0];
         int expectedSize = 0;
         Assert.assertEquals(returnArray.size(), expectedSize, "Incorrect number of values returned for Closed "
                 + "Integer Range " + startValue + " ... " + endValue);
@@ -98,12 +98,12 @@ public class IntegerRangeOperatorTest {
         BValue[] returns = BRunUtil.invoke(result, "testClosedIntRangeAsArray", args);
         Assert.assertEquals(returns.length, 1);
 
-        BIntArray returnArray = (BIntArray) returns[0];
+        BValueArray returnArray = (BValueArray) returns[0];
         int expectedSize = endValue - startValue + 1;
         Assert.assertEquals(returnArray.size(), expectedSize, "Incorrect number of values returned for Closed "
                 + "Integer Range " + startValue + " ... " + endValue + " accessed as an array");
         for (int i = 0; i < expectedSize; i++) {
-            Assert.assertEquals(returnArray.get(i), startValue + i, "Incorrect value found at index: " + i);
+            Assert.assertEquals(returnArray.getInt(i), startValue + i, "Incorrect value found at index: " + i);
         }
     }
 
@@ -115,12 +115,12 @@ public class IntegerRangeOperatorTest {
         BValue[] returns = BRunUtil.invoke(result, "testHalfOpenIntRange", args);
         Assert.assertEquals(returns.length, 1);
 
-        BIntArray returnArray = (BIntArray) returns[0];
+        BValueArray returnArray = (BValueArray) returns[0];
         int expectedSize = endValue - startValue;
         Assert.assertEquals(returnArray.size(), expectedSize, "Incorrect number of values returned for Half"
                 + " Open Integer Range " + startValue + " ..< " + endValue);
         for (int i = 0; i < expectedSize; i++) {
-            Assert.assertEquals(returnArray.get(i), startValue + i, "Incorrect value found at index: " + i);
+            Assert.assertEquals(returnArray.getInt(i), startValue + i, "Incorrect value found at index: " + i);
         }
     }
 
@@ -132,7 +132,7 @@ public class IntegerRangeOperatorTest {
         BValue[] returns = BRunUtil.invoke(result, "testHalfOpenIntRange", args);
         Assert.assertEquals(returns.length, 1);
 
-        BIntArray returnArray = (BIntArray) returns[0];
+        BValueArray returnArray = (BValueArray) returns[0];
         int expectedSize = 0;
         Assert.assertEquals(returnArray.size(), expectedSize, "Incorrect number of values returned for Half"
                 + " Open Integer Range " + startValue + " ..< " + endValue);
@@ -146,7 +146,7 @@ public class IntegerRangeOperatorTest {
         BValue[] returns = BRunUtil.invoke(result, "testHalfOpenIntRange", args);
         Assert.assertEquals(returns.length, 1);
 
-        BIntArray returnArray = (BIntArray) returns[0];
+        BValueArray returnArray = (BValueArray) returns[0];
         int expectedSize = 0;
         Assert.assertEquals(returnArray.size(), expectedSize, "Incorrect number of values returned for Half"
                 + " Open Integer Range " + startValue + " ..< " + endValue);
@@ -160,12 +160,12 @@ public class IntegerRangeOperatorTest {
         BValue[] returns = BRunUtil.invoke(result, "testHalfOpenIntRangeAsArray", args);
         Assert.assertEquals(returns.length, 1);
 
-        BIntArray returnArray = (BIntArray) returns[0];
+        BValueArray returnArray = (BValueArray) returns[0];
         int expectedSize = endValue - startValue;
         Assert.assertEquals(returnArray.size(), expectedSize, "Incorrect number of values returned for Half "
                 + "Open Integer Range " + startValue + " ..< " + endValue + " accessed as an array");
         for (int i = 0; i < expectedSize; i++) {
-            Assert.assertEquals(returnArray.get(i), startValue + i, "Incorrect value found at index: " + i);
+            Assert.assertEquals(returnArray.getInt(i), startValue + i, "Incorrect value found at index: " + i);
         }
     }
 
