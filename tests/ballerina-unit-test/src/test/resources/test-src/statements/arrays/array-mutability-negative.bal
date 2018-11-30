@@ -17,7 +17,6 @@
 // Super Type
 type Person record {
     string name = "";
-    !...
 };
 
 // Assignable to Person type
@@ -27,6 +26,7 @@ type Employee record {
     !...
 };
 
+//  Negative scenarios
 function mismatchingCovariace() {
     Employee[] x1 = [];
     Person[] x2 = x1;
