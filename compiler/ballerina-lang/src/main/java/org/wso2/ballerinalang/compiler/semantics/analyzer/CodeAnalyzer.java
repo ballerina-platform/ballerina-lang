@@ -169,6 +169,7 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
 import static org.wso2.ballerinalang.compiler.util.Constants.MAIN_FUNCTION_NAME;
 import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_PREFIX;
 
@@ -309,7 +310,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         try {
 
             this.initNewWorkerActionSystem();
-            this.workerActionSystemStack.peek().startWorkerActionStateMachine("default", funcNode.pos, funcNode);
+            this.workerActionSystemStack.peek().startWorkerActionStateMachine(DEFAULT_WORKER_NAME,
+                                                                              funcNode.pos,
+                                                                              funcNode);
             this.visitFunction(funcNode);
             this.workerActionSystemStack.peek().endWorkerActionStateMachine();
         } finally {
@@ -1052,7 +1055,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isDefaultWorkerCommunication(String workerIdentifier) {
-        return workerIdentifier.equals("default");
+        return workerIdentifier.equals(DEFAULT_WORKER_NAME);
     }
 
     private boolean workerExists(BType type, String workerName) {

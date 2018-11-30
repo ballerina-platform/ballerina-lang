@@ -151,6 +151,7 @@ import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MIN_VALUE;
+import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
 import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_PREFIX;
 
 /**
@@ -630,7 +631,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private boolean isInTopLevelWorkerEnv() {
         // Two scenarios are handled here when a variable comes as an assignment and when it is defined as a variable
-
+        //TODO: move this method to CodeAnalyzer
         boolean isTopLevel = false;
         switch (this.env.node.getKind()) {
             case BLOCK:
@@ -646,7 +647,8 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private boolean workerExists(SymbolEnv env, String workerName) {
-        if (workerName.equals("default")) {
+        //TODO: move this method to CodeAnalyzer
+        if (workerName.equals(DEFAULT_WORKER_NAME)) {
            return true;
         }
         BSymbol symbol = this.symResolver.lookupSymbol(env, new Name(workerName), SymTag.VARIABLE);
