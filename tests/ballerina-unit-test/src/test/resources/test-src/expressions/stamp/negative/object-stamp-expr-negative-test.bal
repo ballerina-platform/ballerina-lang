@@ -60,7 +60,7 @@ function stampObjectsToXML() returns xml {
 
 function stampObjectsToMap() returns map<any> {
     PersonObj p = new PersonObj();
-    map<any> mapValue = map.stamp(p);
+    map<any> mapValue = map<any>.stamp(p);
 
     return mapValue;
 }

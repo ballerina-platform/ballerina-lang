@@ -61,6 +61,11 @@ public class BLangMatch extends BLangStatement implements MatchNode {
     }
 
     @Override
+    public List<BLangMatchBindingPatternClause> getPatternClauses() {
+        return patternClauses;
+    }
+
+    @Override
     public List<BLangMatchStaticBindingPatternClause> getStaticPatternClauses() {
         return patternClauses
                 .stream()

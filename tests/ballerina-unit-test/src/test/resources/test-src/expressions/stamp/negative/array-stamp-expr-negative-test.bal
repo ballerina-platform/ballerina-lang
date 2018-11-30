@@ -55,7 +55,7 @@ function stampAnyArrayToObject() returns EmployeeObject {
 function stampAnyArrayToMap() returns map<any> {
 
     anydata[] anyArray = ["Mohan", "Single", "LK2014"];
-    map<any> mapValue = map.stamp(anyArray);
+    map<any> mapValue = map<any>.stamp(anyArray);
 
     return mapValue;
 }

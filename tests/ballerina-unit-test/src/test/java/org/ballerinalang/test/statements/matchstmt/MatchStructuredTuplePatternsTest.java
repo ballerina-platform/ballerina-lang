@@ -74,17 +74,6 @@ public class MatchStructuredTuplePatternsTest {
         Assert.assertEquals(bString.stringValue(), "Matched Values : S, (23, 5.6)");
     }
 
-    @Test(description = "Test basics of structured pattern match statement 4")
-    public void testMatchStatementBasics4() {
-        BValue[] returns = BRunUtil.invoke(result, "testStructuredMatchPatternsBasic4", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-
-        BString bString = (BString) returns[0];
-
-        Assert.assertEquals(bString.stringValue(), "Matched Values : (\"S\", (23, 5.6))");
-    }
-
     @Test(description = "Test basics of structured pattern match statement 5")
     public void testMatchStatementBasics5() {
         BValue[] returns = BRunUtil.invoke(result, "testStructuredMatchPatternsBasics5", new BValue[]{});

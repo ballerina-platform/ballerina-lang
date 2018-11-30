@@ -204,7 +204,8 @@ ELLIPSIS    : '...' ;
 PIPE        : '|' ;
 EQUAL_GT    : '=>' ;
 ELVIS       : '?:' ;
-SYNCRARROW      : '->>' ;
+SYNCRARROW  : '->>' ;
+UNDERSCORE  : '_' ;
 
 // Compound Assignment operators.
 
