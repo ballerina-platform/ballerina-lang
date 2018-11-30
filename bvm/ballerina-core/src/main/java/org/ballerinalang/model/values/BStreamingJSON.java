@@ -33,13 +33,13 @@ import java.io.Writer;
  * 
  * @since 0.981.0
  */
-public class BStreamingJSON extends BRefValueArray {
+public class BStreamingJSON extends BValueArray {
 
     JSONDataSource datasource;
 
     public BStreamingJSON(JSONDataSource datasource) {
         this.datasource = datasource;
-        this.values = (BRefType[]) newArrayInstance(BRefType.class);
+        this.refValues = (BRefType[]) newArrayInstance(BRefType.class);
         this.arrayType = new BArrayType(BTypes.typeJSON);
     }
 
@@ -64,14 +64,14 @@ public class BStreamingJSON extends BRefValueArray {
     }
 
     @Override
-    public BRefType<?> get(long index) {
+    public BRefType<?> getRefValue(long index) {
         // If the the index is larger than the size, and datasource has more content,
         // then read data from data-source until the index, or until the end of the data-source.
         while (index >= size && datasource.hasNext()) {
             appendToCache(datasource.next());
         }
 
-        return super.get(index);
+        return super.getRefValue(index);
     }
 
     public void serialize(JsonGenerator gen) {
@@ -84,7 +84,7 @@ public class BStreamingJSON extends BRefValueArray {
 
             // First serialize the values loaded to memory
             for (int i = 0; i < size; i++) {
-                gen.serialize(values[i]);
+                gen.serialize(refValues[i]);
             }
 
             // Then serialize remaining data in the data-source
@@ -112,7 +112,7 @@ public class BStreamingJSON extends BRefValueArray {
         if (datasource.hasNext()) {
             buildDatasource();
         }
-        return values;
+        return refValues;
     }
 
     @Override

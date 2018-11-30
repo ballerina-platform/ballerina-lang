@@ -17,15 +17,10 @@
 */
 package org.ballerinalang.model.types;
 
-import org.ballerinalang.model.values.BBooleanArray;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BDecimalArray;
-import org.ballerinalang.model.values.BFloatArray;
-import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BNewArray;
-import org.ballerinalang.model.values.BRefValueArray;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 
 /**
@@ -74,20 +69,16 @@ public class BArrayType extends BType implements BIndexedType {
             int tag = elementType.getTag();
             switch (tag) {
                 case TypeTags.INT_TAG:
-                    return (V) new BIntArray(size);
                 case TypeTags.FLOAT_TAG:
-                    return (V) new BFloatArray(size);
+                case TypeTags.BOOLEAN_TAG:
+                case TypeTags.STRING_TAG:
+                case TypeTags.BYTE_TAG:
+                    return (V) new BValueArray(elementType, size);
                 case TypeTags.DECIMAL_TAG:
                     return (V) new BDecimalArray(size);
-                case TypeTags.BOOLEAN_TAG:
-                    return (V) new BBooleanArray(size);
-                case TypeTags.STRING_TAG:
-                    return (V) new BStringArray(size);
-                case TypeTags.BYTE_TAG:
-                    return (V) new BByteArray(size);
                 case TypeTags.ARRAY_TAG: // fall through
                 default:
-                    return (V) new BRefValueArray(this);
+                    return (V) new BValueArray(this);
             }
         } else {
             return getEmptyValue();
@@ -99,19 +90,15 @@ public class BArrayType extends BType implements BIndexedType {
         int tag = elementType.getTag();
         switch (tag) {
             case TypeTags.INT_TAG:
-                return (V) new BIntArray();
             case TypeTags.FLOAT_TAG:
-                return (V) new BFloatArray();
+            case TypeTags.BOOLEAN_TAG:
+            case TypeTags.STRING_TAG:
+            case TypeTags.BYTE_TAG:
+                return (V) new BValueArray(elementType);
             case TypeTags.DECIMAL_TAG:
                 return (V) new BDecimalArray();
-            case TypeTags.BOOLEAN_TAG:
-                return (V) new BBooleanArray();
-            case TypeTags.STRING_TAG:
-                return (V) new BStringArray();
-            case TypeTags.BYTE_TAG:
-                return (V) new BByteArray();
             default:
-                return (V) new BRefValueArray();
+                return (V) new BValueArray();
         }
     }
 

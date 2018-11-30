@@ -27,10 +27,10 @@ import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JSONUtils;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.net.uri.URIUtil;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -227,7 +227,7 @@ public class HttpDispatcher {
                     return bxml;
                 case TypeTags.ARRAY_TAG:
                     if (((BArrayType) entityBodyType).getElementType().getTag() == TypeTags.BYTE_TAG) {
-                        BByteArray blobDataSource = EntityBodyHandler.constructBlobDataSource(inRequestEntity);
+                        BValueArray blobDataSource = EntityBodyHandler.constructBlobDataSource(inRequestEntity);
                         EntityBodyHandler.addMessageDataSource(inRequestEntity, blobDataSource);
                         return blobDataSource;
                     } else if (((BArrayType) entityBodyType).getElementType().getTag() == TypeTags.RECORD_TYPE_TAG) {

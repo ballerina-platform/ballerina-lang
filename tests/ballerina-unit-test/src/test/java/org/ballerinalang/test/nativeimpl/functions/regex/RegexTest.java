@@ -23,8 +23,8 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -64,10 +64,10 @@ public class RegexTest {
     public void testFindAll() {
         BValue[] args = { new BString("This is a sentence."), new BString("[a-zA-Z]*is") };
         BValue[] returns = BRunUtil.invoke(result, "findAll", args);
-        Assert.assertTrue(returns[0] instanceof BStringArray);
-        BStringArray bStringArray = (BStringArray) returns[0];
-        Assert.assertEquals(bStringArray.get(0), "This");
-        Assert.assertEquals(bStringArray.get(1), "is");
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        BValueArray bStringArray = (BValueArray) returns[0];
+        Assert.assertEquals(bStringArray.getString(0), "This");
+        Assert.assertEquals(bStringArray.getString(1), "is");
     }
 
     @Test(description = "Test for executing on replace all regex method")

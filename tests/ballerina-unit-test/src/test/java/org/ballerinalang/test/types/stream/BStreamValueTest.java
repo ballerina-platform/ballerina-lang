@@ -20,14 +20,12 @@ import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -150,16 +148,16 @@ public class BStreamValueTest {
     @Test(description = "Test receipt of multiple record events with correct subscription and publishing")
     public void testStreamPublishingAndSubscriptionForMultipleRecordEvents() {
         BValue[] returns = BRunUtil.invoke(result, "testStreamPublishingAndSubscriptionForMultipleRecordEvents");
-        BRefValueArray publishedEmployeeEvents = (BRefValueArray) returns[0];
-        BRefValueArray receivedEmployeeEvents = (BRefValueArray) returns[1];
+        BValueArray publishedEmployeeEvents = (BValueArray) returns[0];
+        BValueArray receivedEmployeeEvents = (BValueArray) returns[1];
 
         Assert.assertNotNull(publishedEmployeeEvents);
         Assert.assertNotNull(receivedEmployeeEvents);
         Assert.assertEquals(receivedEmployeeEvents.size(), publishedEmployeeEvents.size(), "Number of Employee "
                 + "Events received does not match the number published");
         for (int i = 0; i < publishedEmployeeEvents.size(); i++) {
-            BMap<String, BValue> publishedEmployeeEvent = (BMap<String, BValue>) publishedEmployeeEvents.get(i);
-            BMap<String, BValue> receivedEmployeeEvent = (BMap<String, BValue>) receivedEmployeeEvents.get(i);
+            BMap<String, BValue> publishedEmployeeEvent = (BMap<String, BValue>) publishedEmployeeEvents.getRefValue(i);
+            BMap<String, BValue> receivedEmployeeEvent = (BMap<String, BValue>) receivedEmployeeEvents.getRefValue(i);
             Assert.assertEquals(publishedEmployeeEvent.getType().getName(), receivedEmployeeEvent.getType().getName());
             Assert.assertEquals(((BInteger) receivedEmployeeEvent.get("id")).intValue(),
                     ((BInteger) publishedEmployeeEvent.get("id")).intValue(),
@@ -173,15 +171,15 @@ public class BStreamValueTest {
     @Test(description = "Test receipt of multiple integer events with correct subscription and publishing")
     public void testStreamPublishingAndSubscriptionForMultipleIntegerEvents() {
         BValue[] returns = BRunUtil.invoke(result, "testStreamPublishingAndSubscriptionForIntegerStream");
-        BIntArray publishedIntegerEvents = (BIntArray) returns[0];
-        BIntArray receivedIntegerEvents = (BIntArray) returns[1];
+        BValueArray publishedIntegerEvents = (BValueArray) returns[0];
+        BValueArray receivedIntegerEvents = (BValueArray) returns[1];
 
         Assert.assertNotNull(publishedIntegerEvents);
         Assert.assertNotNull(receivedIntegerEvents);
         Assert.assertEquals(receivedIntegerEvents.size(), publishedIntegerEvents.size(), "Number of Integer "
                 + "Events received does not match the number published");
         for (int i = 0; i < publishedIntegerEvents.size(); i++) {
-            Assert.assertEquals(receivedIntegerEvents.get(i), publishedIntegerEvents.get(i),
+            Assert.assertEquals(receivedIntegerEvents.getInt(i), publishedIntegerEvents.getInt(i),
                                 "Received Integer event does not match the published boolean event");
         }
     }
@@ -189,15 +187,15 @@ public class BStreamValueTest {
     @Test(description = "Test receipt of multiple boolean events with correct subscription and publishing")
     public void testStreamPublishingAndSubscriptionForMultipleBooleanEvents() {
         BValue[] returns = BRunUtil.invoke(result, "testStreamPublishingAndSubscriptionForBooleanStream");
-        BBooleanArray publishedBooleanEvents = (BBooleanArray) returns[0];
-        BBooleanArray receivedBooleanEvents = (BBooleanArray) returns[1];
+        BValueArray publishedBooleanEvents = (BValueArray) returns[0];
+        BValueArray receivedBooleanEvents = (BValueArray) returns[1];
 
         Assert.assertNotNull(publishedBooleanEvents);
         Assert.assertNotNull(receivedBooleanEvents);
         Assert.assertEquals(receivedBooleanEvents.size(), publishedBooleanEvents.size(), "Number of Boolean "
                 + "Events received does not match the number published");
         for (int i = 0; i < publishedBooleanEvents.size(); i++) {
-            Assert.assertEquals(receivedBooleanEvents.get(i), publishedBooleanEvents.get(i),
+            Assert.assertEquals(receivedBooleanEvents.getBoolean(i), publishedBooleanEvents.getBoolean(i),
                                 "Received boolean event does not match the published boolean event");
         }
     }
@@ -205,14 +203,14 @@ public class BStreamValueTest {
     @Test(description = "Test receipt of stream constrained by union type with correct subscription and publishing")
     public void testStreamPublishingAndSubscriptionForUnionTypeStream() {
         BValue[] returns = BRunUtil.invoke(result, "testStreamPublishingAndSubscriptionForUnionTypeStream");
-        assertEventEquality((BRefValueArray) returns[0], (BRefValueArray) returns[1]);
+        assertEventEquality((BValueArray) returns[0], (BValueArray) returns[1]);
     }
 
     @Test(description = "Test receipt of stream constrained by tuple type with correct subscription and publishing")
     public void testStreamPublishingAndSubscriptionForTupleTypeStream() {
         BValue[] returns = BRunUtil.invoke(result, "testStreamPublishingAndSubscriptionForTupleTypeStream");
-        BRefValueArray publishedEvents = (BRefValueArray) returns[0];
-        BRefValueArray receivedEvents = (BRefValueArray) returns[1];
+        BValueArray publishedEvents = (BValueArray) returns[0];
+        BValueArray receivedEvents = (BValueArray) returns[1];
 
         Assert.assertNotNull(publishedEvents);
         Assert.assertNotNull(receivedEvents);
@@ -220,7 +218,7 @@ public class BStreamValueTest {
                 + "match the number published: Received" + receivedEvents.stringValue() + ", but Expected"
                 + publishedEvents.stringValue() + ", ");
         for (int i = 0; i < publishedEvents.size(); i++) {
-            Assert.assertEquals(receivedEvents.get(i), publishedEvents.get(i),
+            Assert.assertEquals(receivedEvents.getRefValue(i), publishedEvents.getRefValue(i),
                                 "Received event does not match the published event");
         }
     }
@@ -244,19 +242,19 @@ public class BStreamValueTest {
     @Test(description = "Test receipt of stream constrained by any type with correct subscription and publishing")
     public void testStreamPublishingAndSubscriptionForAnyTypeStream() {
         BValue[] returns = BRunUtil.invoke(result, "testStreamPublishingAndSubscriptionForAnyTypeStream");
-        assertEventEquality((BRefValueArray) returns[0], (BRefValueArray) returns[1]);
+        assertEventEquality((BValueArray) returns[0], (BValueArray) returns[1]);
     }
 
     @Test(description = "Test stream publish with structurally equivalent records")
     public void testStreamsPublishingForStructurallyEquivalentRecords() {
         BValue[] returns = BRunUtil.invoke(result, "testStreamsPublishingForStructurallyEquivalentRecords");
-        assertEventEquality((BRefValueArray) returns[0], (BRefValueArray) returns[1]);
+        assertEventEquality((BValueArray) returns[0], (BValueArray) returns[1]);
     }
 
     @Test(description = "Test stream publish with structurally equivalent objects")
     public void testStreamsPublishingForStructurallyEquivalentObjects() {
         BValue[] returns = BRunUtil.invoke(result, "testStreamsPublishingForStructurallyEquivalentObjects");
-        assertEventEquality((BRefValueArray) returns[0], (BRefValueArray) returns[1]);
+        assertEventEquality((BValueArray) returns[0], (BValueArray) returns[1]);
     }
 
     @Test(description = "Test receipt of stream constrained by union type with correct publishing and subscribing "
@@ -265,28 +263,28 @@ public class BStreamValueTest {
         long intVal = 100;
         BValue[] returns = BRunUtil.invoke(result, "testStreamPublishingAndSubscriptionForAssignableUnionTypeStream",
                                            new BValue[]{ new BInteger(intVal) });
-        BRefValueArray publishedEvents = (BRefValueArray) returns[0];
-        BRefValueArray receivedEvents = (BRefValueArray) returns[1];
+        BValueArray publishedEvents = (BValueArray) returns[0];
+        BValueArray receivedEvents = (BValueArray) returns[1];
 
         Assert.assertNotNull(publishedEvents);
         Assert.assertNotNull(receivedEvents);
         Assert.assertEquals(receivedEvents.size(), publishedEvents.size(), "Number of Events received does not "
                 + "match the number published");
         for (int i = 0; i < publishedEvents.size() - 1; i++) {
-            Assert.assertEquals(receivedEvents.get(i), publishedEvents.get(i),
+            Assert.assertEquals(receivedEvents.getRefValue(i), publishedEvents.getRefValue(i),
                                 "Received event does not match the published event");
         }
-        Assert.assertEquals(receivedEvents.get(receivedEvents.size() - 1).value(), intVal,
+        Assert.assertEquals(receivedEvents.getRefValue(receivedEvents.size() - 1).value(), intVal,
                             "Received event does not match the expected casted value");
     }
 
-    private void assertEventEquality(BRefValueArray publishedEvents, BRefValueArray receivedEvents) {
+    private void assertEventEquality(BValueArray publishedEvents, BValueArray receivedEvents) {
         Assert.assertNotNull(publishedEvents);
         Assert.assertNotNull(receivedEvents);
         Assert.assertEquals(receivedEvents.size(), publishedEvents.size(), "Number of Events received does not "
                 + "match the number published");
         for (int i = 0; i < publishedEvents.size(); i++) {
-            Assert.assertEquals(receivedEvents.get(i), publishedEvents.get(i),
+            Assert.assertEquals(receivedEvents.getRefValue(i), publishedEvents.getRefValue(i),
                                 "Received event does not match the published event");
         }
     }

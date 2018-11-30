@@ -21,10 +21,10 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -204,20 +204,20 @@ public class ClosureTest {
     public void testByteAndBoolean() {
         BValue[] returns = BRunUtil.invoke(compileResult, "test27");
         Assert.assertEquals(returns.length, 3);
-        Assert.assertSame(returns[0].getClass(), BByteArray.class);
-        Assert.assertSame(returns[1].getClass(), BByteArray.class);
-        Assert.assertSame(returns[2].getClass(), BByteArray.class);
-        BByteArray blob1 = (BByteArray) returns[0];
-        BByteArray blob2 = (BByteArray) returns[1];
-        BByteArray blob3 = (BByteArray) returns[2];
+        Assert.assertSame(returns[0].getClass(), BValueArray.class);
+        Assert.assertSame(returns[1].getClass(), BValueArray.class);
+        Assert.assertSame(returns[2].getClass(), BValueArray.class);
+        BValueArray blob1 = (BValueArray) returns[0];
+        BValueArray blob2 = (BValueArray) returns[1];
+        BValueArray blob3 = (BValueArray) returns[2];
         assertJBytesWithBBytes(new byte[]{13, 7, 4, 3}, blob1);
         assertJBytesWithBBytes(new byte[]{3, 13, 5, 7, 3}, blob2);
         assertJBytesWithBBytes(new byte[]{1, 2, 3, 13, 7}, blob3);
     }
 
-    private void assertJBytesWithBBytes(byte[] jBytes, BByteArray bBytes) {
+    private void assertJBytesWithBBytes(byte[] jBytes, BValueArray bBytes) {
         for (int i = 0; i < jBytes.length; i++) {
-            Assert.assertEquals(bBytes.get(i), jBytes[i], "Invalid byte value returned.");
+            Assert.assertEquals(bBytes.getByte(i), jBytes[i], "Invalid byte value returned.");
         }
     }
 

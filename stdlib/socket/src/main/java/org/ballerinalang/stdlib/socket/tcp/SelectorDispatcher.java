@@ -21,10 +21,10 @@ package org.ballerinalang.stdlib.socket.tcp;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,7 +80,7 @@ class SelectorDispatcher {
             ProgramFile programFile = readReady.getResourceInfo().getPackageInfo().getProgramFile();
             BMap<String, BValue> caller = SocketUtils
                     .createClient(programFile, (SocketChannel) socketService.getSocketChannel());
-            BValue[] params = { caller, new BByteArray(SocketUtils.getByteArrayFromByteBuffer(buffer)) };
+            BValue[] params = { caller, new BValueArray(SocketUtils.getByteArrayFromByteBuffer(buffer)) };
             Executor.submit(readReady, new TCPSocketCallback(), null, null, params);
         } catch (BallerinaConnectorException e) {
             invokeOnError(socketService, e.getMessage());
