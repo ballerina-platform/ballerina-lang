@@ -7,8 +7,7 @@ http:AuthProvider basicAuthProvider04 = {
     authStoreProvider:"config"
 };
 
-endpoint http:Listener listener04 {
-    port:9093,
+listener http:Listener listener04 = new(9093, config = {
     authProviders:[basicAuthProvider04],
     secureSocket: {
         keyStore: {
@@ -16,12 +15,12 @@ endpoint http:Listener listener04 {
             password: "ballerina"
         }
     }
-};
+});
 
 @http:ServiceConfig {
     basePath:"/echo"
 }
-service<http:Service> echo04 bind listener04 {
+service echo04 on listener04 {
     @http:ResourceConfig {
         methods:["GET"],
         path:"/test",
@@ -30,7 +29,7 @@ service<http:Service> echo04 bind listener04 {
             scopes:["scope2"]
         }
     }
-    echo (endpoint caller, http:Request req) {
+    resource function echo (http:Caller caller, http:Request req) {
         http:Response res = new;
         _ = caller -> respond(res);
     }

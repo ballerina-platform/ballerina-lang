@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.persistence;
 
-import org.ballerinalang.bre.bvm.BLangScheduler;
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.bre.old.BLangScheduler;
+import org.ballerinalang.bre.old.WorkerExecutionContext;
 import org.ballerinalang.persistence.states.RuntimeStates;
 import org.ballerinalang.persistence.states.State;
 import org.ballerinalang.persistence.store.PersistenceStore;

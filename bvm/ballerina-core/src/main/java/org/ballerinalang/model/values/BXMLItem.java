@@ -33,7 +33,8 @@ import org.apache.axiom.om.impl.llom.OMAttributeImpl;
 import org.apache.axiom.om.impl.llom.OMDocumentImpl;
 import org.apache.axiom.om.impl.llom.OMElementImpl;
 import org.apache.axiom.om.impl.llom.OMProcessingInstructionImpl;
-import org.ballerinalang.bre.vm.BVM;
+import org.ballerinalang.bre.bvm.BVM;
+import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.XMLNodeType;
@@ -319,7 +320,7 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public BMap<?, ?> getAttributesMap() {
-        BMap<String, BString> attrMap = new BMap<>();
+        BMap<String, BString> attrMap = new BMap<>(new BMapType(BTypes.typeString));
 
         if (nodeType != XMLNodeType.ELEMENT) {
             return attrMap;

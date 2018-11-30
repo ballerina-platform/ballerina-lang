@@ -18,7 +18,7 @@
 
 package org.ballerinalang.test.checkpointing;
 
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.bre.old.WorkerExecutionContext;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BArrayType;

@@ -1,1 +1,0 @@
-require('../src/default-theme/semantic.less');

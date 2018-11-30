@@ -13,7 +13,7 @@ public function main() {
     cache.put("Name", "Ballerina");
 
     // This fetches the cached value.
-    string name;
+    string name = "";
     if (cache.hasKey("Name")){
         name = <string>cache.get("Name");
     }

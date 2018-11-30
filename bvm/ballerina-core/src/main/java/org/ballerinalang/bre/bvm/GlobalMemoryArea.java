@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.bre.bvm;
 
-import org.ballerinalang.bre.vm.Strand;
 import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.values.BRefType;
