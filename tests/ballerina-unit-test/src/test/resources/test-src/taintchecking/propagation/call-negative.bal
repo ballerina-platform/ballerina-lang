@@ -14,28 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/http;
-import ballerina/io;
-import ballerina/auth;
+public function main (string... args) {
+    secureFunction.call(args[0], args[0]);
+}
 
-http:AuthProvider basicAuthProvider07 = {
-    scheme:"basic",
-    authStoreProvider:"config"
-};
+public function secureFunction (@sensitive any secureIn, any insecureIn) {
 
-listener http:Listener listener07 = new(9098, config = {
-    authProviders:[basicAuthProvider07],
-    secureSocket: {
-        keyStore: {
-            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
-            password: "ballerina"
-        }
-    }
-});
-
-service echo7 on listener07 {
-    resource function test7 (http:Caller caller, http:Request req) {
-        http:Response res = new;
-        _ = caller -> respond(res);
-    }
 }

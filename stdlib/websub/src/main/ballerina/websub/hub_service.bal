@@ -194,7 +194,7 @@ service {
                         publishStatus = publishToInternalHub(topic, notification);
                     } else if (binaryPayload is error) {
                         string errorCause = <string> binaryPayload.detail().message;
-                        string errorMessage = "Error extracting payload: " + errorCause;
+                        string errorMessage = "Error extracting payload: " + untaint errorCause;
                         log:printError(errorMessage);
                         response.statusCode = http:BAD_REQUEST_400;
                         response.setTextPayload(errorMessage);

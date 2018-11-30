@@ -1,15 +1,15 @@
 import ballerina/http;
 
-endpoint http:Listener listener {
+listener http:Listener server {
     port:9600
 };
 
 channel<json> chn;
 
 @interruptible
-service<http:Service> channelService bind listener {
+service channelService on server {
 
-    receiveChannelMessage (endpoint caller, http:Request request) {
+    resource function receiveChannelMessage (http:Caller caller, http:Request request) {
 
         http:Response response = new;
         json result;
@@ -20,7 +20,7 @@ service<http:Service> channelService bind listener {
     }
 
 
-    sendChannelMessage (endpoint caller, http:Request request) {
+    resource function sendChannelMessage (http:Caller caller, http:Request request) {
 
         // Create object to carry data back to caller
         http:Response response = new;

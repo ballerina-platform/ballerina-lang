@@ -26,11 +26,12 @@ service echo on echoEP {
         _ = caller->respond(res);
     }
 
-    @http:ResourceConfig {
-        methods:["GET"],
-        path:"/message_worker"
-    }
-    resource function echo_worker(http:Caller caller, http:Request req) {
+    //TODO:Workers and resource annotations don't work together. To be fixed.
+    //@http:ResourceConfig {
+    //    methods:["GET"],
+    //    path:"/message_worker"
+    //}
+    resource function message_worker(http:Caller caller, http:Request req) {
         worker w1 {
             http:Response res = new;
             _ = caller->respond(res);
