@@ -869,8 +869,9 @@ public class BLangPackageBuilder {
         }
     }
 
-    void startLambdaFunctionDef(PackageID pkgID, int annotCount) {
-        startFunctionDef(annotCount);
+    void startLambdaFunctionDef(PackageID pkgID) {
+        // Passing zero for annotation count as Lambdas can't have annotations.
+        startFunctionDef(0);
         BLangFunction lambdaFunction = (BLangFunction) this.invokableNodeStack.peek();
         lambdaFunction.setName(createIdentifier(anonymousModelHelper.getNextAnonymousFunctionKey(pkgID)));
         lambdaFunction.addFlag(Flag.LAMBDA);
@@ -1490,7 +1491,7 @@ public class BLangPackageBuilder {
     }
 
     void startWorker(PackageID pkgID) {
-        this.startLambdaFunctionDef(pkgID, 0);
+        this.startLambdaFunctionDef(pkgID);
         BLangFunction lambdaFunction = (BLangFunction) this.invokableNodeStack.peek();
         lambdaFunction.addFlag(Flag.WORKER);
         this.startBlock();
@@ -3126,7 +3127,7 @@ public class BLangPackageBuilder {
         StreamActionNode streamActionNode = TreeBuilder.createStreamActionNode();
         ((BLangStreamAction) streamActionNode).pos = pos;
         this.streamActionNodeStack.push(streamActionNode);
-        this.startLambdaFunctionDef(packageID, 0);
+        this.startLambdaFunctionDef(packageID);
         this.startBlock();
     }
 
