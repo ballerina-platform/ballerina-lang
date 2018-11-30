@@ -199,7 +199,7 @@ public class StampInbuiltFunctionNegativeTest {
         //Negative test case to confirm xml cannot be stamped as map.
         BAssertUtil.validateError(xmlNegativeTestCompileResult, 6,
                 "incompatible stamp type: type 'xml' cannot be stamped as type 'map'",
-                53, 20);
+                53, 25);
 
         //Negative test case to confirm xml cannot be stamped as array.
         BAssertUtil.validateError(xmlNegativeTestCompileResult, 8,
@@ -261,7 +261,7 @@ public class StampInbuiltFunctionNegativeTest {
         //Negative test case to confirm object cannot be stamped as map.
         BAssertUtil.validateError(objectNegativeTestCompileResult, 6,
                 "stamp function on type 'PersonObj' is not supported",
-                63, 20);
+                63, 25);
 
         //Negative test case to confirm object cannot be stamped as array.
         BAssertUtil.validateError(objectNegativeTestCompileResult, 8,
@@ -297,7 +297,7 @@ public class StampInbuiltFunctionNegativeTest {
         //Negative test case to confirm array cannot be stamped as map.
         BAssertUtil.validateError(arrayNegativeTestCompileResult, 6,
                 "incompatible stamp type: type 'anydata[]' cannot be stamped as type 'map'",
-                58, 20);
+                58, 25);
     }
 
     @Test
@@ -328,7 +328,7 @@ public class StampInbuiltFunctionNegativeTest {
         //Negative test case to confirm tuple cannot be stamped as map.
         BAssertUtil.validateError(tupleNegativeTestCompileResult, 8,
                 "incompatible stamp type: type '(string,string,string)' cannot be stamped as type 'map'",
-                70, 20);
+                70, 25);
     }
 
     @Test
