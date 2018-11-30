@@ -79,7 +79,7 @@ type Protocol record {
 
 function testJSONToStructCast () returns string | error {
     json j = {data:"data", plist:[{name:"a", url:"h1"}, {name:"b", url:"h2"}]};
-    var result = check Protocols.create(j);
+    var result = check Protocols.convert(j);
     output = "";
     foreach protocol in result.plist {
         concatString(protocol.name + "-" + protocol.url);

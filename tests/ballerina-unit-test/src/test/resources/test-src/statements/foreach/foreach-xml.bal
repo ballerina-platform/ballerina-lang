@@ -20,7 +20,7 @@ function concatIntString (int i, string v) {
 function testXMLWithArityOne () returns (string) {
     output = "";
     foreach x in xdata {
-        var s = string.create(x);
+        var s = string.convert(x);
         concatString(s);
     }
     return output;
@@ -29,7 +29,7 @@ function testXMLWithArityOne () returns (string) {
 function testXMLWithArityTwo () returns (string) {
     output = "";
     foreach i,x in xdata {
-        var s = string.create(x);
+        var s = string.convert(x);
         concatIntString(i,s);
     }
     return output;
@@ -38,7 +38,7 @@ function testXMLWithArityTwo () returns (string) {
 function testXMLWithArityChildren () returns (string) {
     output = "";
     foreach i,x in xdata.*.elements() {
-        var s = string.create(x);
+        var s = string.convert(x);
         concatIntString(i,s);
     }
     return output;
