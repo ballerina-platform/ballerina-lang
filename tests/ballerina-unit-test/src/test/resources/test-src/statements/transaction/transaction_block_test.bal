@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-
 public type TrxError record {
     string message;
     error? cause;
@@ -103,7 +101,7 @@ function functionWithATransactionStmt() returns string {
 }
 
 string ss = "";
-function rentimeNestedTransactionErrorTraped() returns string {
+function runtimeNestedTransactionErrorTraped() returns string {
     ss = "";
     ss += runtimeNestedTransactions(true);
     return ss;

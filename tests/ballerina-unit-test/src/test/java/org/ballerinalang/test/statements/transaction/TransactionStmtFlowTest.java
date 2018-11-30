@@ -263,7 +263,7 @@ public class TransactionStmtFlowTest {
         BAssertUtil
                 .validateError(resultNegative, 6, "return statement cannot be used to exit from a transaction", 67, 17);
         BAssertUtil
-                .validateError(resultNegative, 7, "done statement cannot be used to exit from a transaction", 82, 13);
+                .validateError(resultNegative, 7, "return statement cannot be used to exit from a transaction", 82, 13);
         BAssertUtil
                 .validateError(resultNegative, 8, "return statement cannot be used to exit from a transaction", 97, 21);
         BAssertUtil.validateError(resultNegative, 9, "return statement cannot be used to exit from a transaction", 101,

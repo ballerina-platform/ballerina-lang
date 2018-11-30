@@ -382,7 +382,7 @@ service initiatorService on new http:Listener(8888) {
     resource function remoteParticipantStartNestedTransaction(http:Caller caller, http:Request req) {
         string result = initiateNestedTransactionInRemote("nestedInRemote");
         http:Response res = new;
-        res.setPayload(result);
+        res.setPayload(untaint result);
         var r = caller->respond(res);
         if (r is error) {
             log:printError("Error sending response: " + result, err = r);
@@ -397,7 +397,7 @@ service initiatorService on new http:Listener(8888) {
 
         string result = initiateNestedTransactionInRemote("nestedInRemotesLocalParticipant");
         http:Response res = new;
-        res.setPayload(result);
+        res.setPayload(untaint result);
         var r = caller->respond(res);
         if (r is error) {
             log:printError("Error sending response: " + result, err = r);
@@ -412,7 +412,7 @@ service initiatorService on new http:Listener(8888) {
 
         string result = initiateNestedTransactionInRemote("nestedTrxInNonParticipantLocalFunc");
         http:Response res = new;
-        res.setPayload(result);
+        res.setPayload(untaint result);
         var r = caller->respond(res);
         if (r is error) {
             log:printError("Error sending response: " + result, err = r);

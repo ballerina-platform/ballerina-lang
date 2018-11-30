@@ -78,7 +78,7 @@ public class TransactionBlockTest {
     @Test
     public void testTransactionStmtWithTrxStatementInCalleeFunctionErrorAbortTrapped() {
         BValue[] params = {};
-        BValue[] result = BRunUtil.invoke(programFile, "rentimeNestedTransactionErrorTraped", params);
+        BValue[] result = BRunUtil.invoke(programFile, "runtimeNestedTransactionErrorTraped", params);
         Assert.assertEquals(result[0].stringValue(), " in func trapped" +
                 "[err: dynamically nested transactions are not allowed] outer-committed endTrx");
     }

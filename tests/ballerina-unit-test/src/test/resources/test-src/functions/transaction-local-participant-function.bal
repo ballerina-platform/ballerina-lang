@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/io;
-import ballerina/log;
 import ballerina/transactions;
 
 string S = "";
@@ -32,12 +31,12 @@ public function participantFoo() {
 
 public function commitFunc(string trxId) {
     S = S + " commitFun";
-    log:printInfo("commitFunc");
+    io:println("commitFunc");
 }
 
 public function abortFunc(string trxId) {
     S = S + " abortFunc";
-    log:printInfo("abortFunc");
+    io:println("abortFunc");
 }
 
 

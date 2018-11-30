@@ -321,14 +321,6 @@ public class TransactionResourceManager {
         }
     }
 
-    private void invokeAbortedFunction(String transactionId, int transactionBlockId) {
-        BFunctionPointer fp = abortedFuncRegistry.get(transactionBlockId);
-        BValue[] args = {new BString(transactionId + ":" + transactionBlockId)};
-        if (fp != null) {
-            BVMExecutor.executeFunction(fp.value().getPackageInfo().getProgramFile(), fp.value(), args);
-        }
-    }
-
     public void notifyResourceFailure(String gTransactionId) {
         failedResourceParticipantSet.add(gTransactionId);
         // The resource excepted (uncaught).
