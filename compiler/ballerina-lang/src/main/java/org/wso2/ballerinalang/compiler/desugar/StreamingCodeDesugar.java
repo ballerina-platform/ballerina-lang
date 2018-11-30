@@ -1412,7 +1412,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         Set<BVarSymbol> closureVarSymbols = new LinkedHashSet<>();
         closureVarSymbols.add(lambdaFunctionVariable.symbol);
 
-        BLangType returnType = ASTBuilderUtil.createTypeNode(symTable.nilType);
+        BLangType returnType = ASTBuilderUtil.createTypeNode(symTable.booleanType);
 
         //Create new lambda function to process the output events
         BLangLambdaFunction havingLambdaFunction = createLambdaFunction(pos,
