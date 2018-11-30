@@ -31,7 +31,7 @@ public class ConstantNegativeTest {
     @Test
     public void testNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/constant/constant-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 58);
+        Assert.assertEquals(compileResult.getErrorCount(), 56);
 
         int index = 0;
         int offset = 1;
@@ -71,7 +71,6 @@ public class ConstantNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'E|F', found 'D|E'",
                 offset += 18, 11);
         BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[UVW, UVW]'", offset += 7, 1);
-        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'UVW'", offset, 6);
         BAssertUtil.validateError(compileResult, index++, "unknown type 'SSS'", offset += 5, 18);
         BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[IJK, IJK]'", offset, 1);
         BAssertUtil.validateError(compileResult, index++, "unknown type 'RST'", offset += 5, 20);
@@ -83,7 +82,6 @@ public class ConstantNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[ACE, BDF, CEG, EGI, ACE]'",
                 offset, 1);
         BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[ACE, BDF, CEG, ACE]'", offset, 1);
-        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'ACE'", offset, 6);
         BAssertUtil.validateError(compileResult, index++, "unknown type 'DFH'", offset += 2, 26);
         BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[BDF, CEG, EGI, BDF]'", offset, 1);
         BAssertUtil.validateError(compileResult, index++, "cyclic type reference in '[BDF, CEG, EGI, ACE, BDF]'",

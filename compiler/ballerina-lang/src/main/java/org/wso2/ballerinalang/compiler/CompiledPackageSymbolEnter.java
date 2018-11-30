@@ -491,6 +491,8 @@ public class CompiledPackageSymbolEnter {
         if (!type.sealed) {
             String restFieldTypeDesc = getUTF8CPEntryValue(dataInStream);
             type.restFieldType = getBTypeFromDescriptor(restFieldTypeDesc);
+        } else {
+            type.restFieldType = symTable.noType;
         }
 
         // Define Object Fields

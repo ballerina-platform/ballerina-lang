@@ -1091,8 +1091,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             SymbolEnv ifBodyEnv = SymbolEnv.createBlockEnv(ifNode.body, env);
             for (Entry<BVarSymbol, BType> entry : typeGuards.entrySet()) {
                 BVarSymbol originalVarSymbol = entry.getKey();
-                BVarSymbol varSymbol = new BVarSymbol(0, originalVarSymbol.name, ifBodyEnv.scope.owner.pkgID,
-                        entry.getValue(), this.env.scope.owner);
+                BVarSymbol varSymbol = symbolEnter.createVarSymbol(0, entry.getValue(), originalVarSymbol.name,
+                                                                   this.env);
                 symbolEnter.defineShadowedSymbol(ifNode.expr.pos, varSymbol, ifBodyEnv);
 
                 // Cache the type guards, to be reused at the desugar.

@@ -35,6 +35,7 @@ import org.ballerinalang.langserver.extensions.ballerina.symbol.BallerinaSymbolS
 import org.ballerinalang.langserver.extensions.ballerina.traces.BallerinaTraceService;
 import org.ballerinalang.langserver.extensions.ballerina.traces.BallerinaTraceServiceImpl;
 import org.ballerinalang.langserver.extensions.ballerina.traces.Listener;
+import org.ballerinalang.langserver.extensions.ballerina.traces.ProviderOptions;
 import org.ballerinalang.langserver.index.LSIndexImpl;
 import org.eclipse.lsp4j.CompletionOptions;
 import org.eclipse.lsp4j.ExecuteCommandOptions;
@@ -53,6 +54,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+
+import static org.ballerinalang.langserver.BallerinaWorkspaceService.Experimental.INTROSPECTION;
 
 /**
  * Language server implementation for Ballerina.
@@ -123,17 +126,20 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
         TextDocumentClientCapabilities textDocCapabilities = params.getCapabilities().getTextDocument();
         ((BallerinaTextDocumentService) this.textService).setClientCapabilities(textDocCapabilities);
 
-        Map<String, Boolean> experimentalCapabilities =
+        Map<String, Boolean> experimentalClientCapabilities =
                 (LinkedTreeMap<String, Boolean>) params.getCapabilities().getExperimental();
 
-        if (experimentalCapabilities != null && experimentalCapabilities.get("introspection")) {
-            ballerinaTraceListener.startListener();
-        }
+        BallerinaWorkspaceService workspaceService = (BallerinaWorkspaceService) this.workspaceService;
+        workspaceService.setExperimentalClientCapabilities(experimentalClientCapabilities);
 
         // Set AST provider and examples provider capabilities
-        HashMap<String, Boolean> experimentalServerCapabilities = new HashMap<String, Boolean>();
+        HashMap<String, Object> experimentalServerCapabilities = new HashMap<String, Object>();
         experimentalServerCapabilities.put("astProvider", true);
         experimentalServerCapabilities.put("examplesProvider", true);
+        if (experimentalClientCapabilities != null && experimentalClientCapabilities.get(INTROSPECTION.getValue())) {
+            int port = ballerinaTraceListener.startListener();
+            experimentalServerCapabilities.put("introspection", new ProviderOptions(port));
+        }
         res.getCapabilities().setExperimental(experimentalServerCapabilities);
 
         return CompletableFuture.supplyAsync(() -> res);

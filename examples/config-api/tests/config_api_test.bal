@@ -2,7 +2,7 @@ import ballerina/test;
 import ballerina/io;
 import ballerina/http;
 
-boolean serviceStarted;
+boolean serviceStarted = false;
 
 function startService() {
     //serviceStarted = test:startServices("config-api");
@@ -16,20 +16,26 @@ function startService() {
 }
 function testFunc() {
     // Invoking the main function
-    endpoint http:Client httpEndpoint {url: "https://localhost:9095"};
+    http:Client httpEndpoint = new("https://localhost:8085", config = {
+        secureSocket:{
+            trustStore:{
+                path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                password: "ballerina"
+            }
+        }
+    });
     // Chck whether the server is started
     //test:assertTrue(serviceStarted, msg = "Unable to start the service");
 
-    string response1 = "Hello World!";
+    string expectedValue = "Hello World!";
 
     // Send a GET request to the specified endpoint
     var response = httpEndpoint->get("/hello");
-    match response {
-        http:Response resp => {
-            var res = check resp.getTextPayload();
-            test:assertEquals(res, response1);
-        }
-        error err => test:assertFail(msg = "Failed to call the endpoint:");
+    if (response is http:Response) {
+        var res = response.getTextPayload();
+        test:assertEquals(res, expectedValue);
+    } else {
+        test:assertFail(msg = "Failed to call the endpoint:");
     }
 }
 

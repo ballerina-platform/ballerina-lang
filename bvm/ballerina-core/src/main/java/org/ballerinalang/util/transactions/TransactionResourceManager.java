@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.util.transactions;
 
-import org.ballerinalang.bre.vm.BVMExecutor;
-import org.ballerinalang.bre.vm.Strand;
+import org.ballerinalang.bre.bvm.BVMExecutor;
+import org.ballerinalang.bre.bvm.Strand;
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;

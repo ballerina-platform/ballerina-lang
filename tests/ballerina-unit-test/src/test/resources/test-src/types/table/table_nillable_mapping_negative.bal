@@ -228,7 +228,7 @@ function testAssignNilToNonNillableField(string field, typedesc recordType) retu
     }
     var dt = testDB->select("SELECT " + field + " from " + dbTable + " where row_id=?", recordType, rowId);
     string errorMessage = "";
-    if (dt is table) {
+    if (dt is table<record {}>) {
         while (dt.hasNext()) {
             var ret = trap dt.getNext();
             if (ret is error) {
@@ -362,7 +362,7 @@ function testAssignToInvalidUnionField(string field) returns string {
 
     var dt = testDB->select("SELECT " + field + " from " + dbTable + " where row_id=?", InvalidUnion, rowId);
     string errorMessage = "";
-    if (dt is table) {
+    if (dt is table<InvalidUnion>) {
         while (dt.hasNext()) {
             var ret = trap <InvalidUnion>dt.getNext();
             if (ret is error) {
@@ -386,7 +386,7 @@ function testAssignArrayToInvalidField(typedesc invalidType, int id) returns str
     var dt = testDB->select("SELECT int_array, long_array, float_array, boolean_array,
               string_array from ArrayTypes where row_id = ?", invalidType, id);
     string errorMessage = "";
-    if (dt is table) {
+    if (dt is table<invalidType>) {
         while (dt.hasNext()) {
             var ret = trap dt.getNext();
             if (ret is error) {
@@ -408,7 +408,7 @@ function testInvalidUnionForArrays(typedesc invalidUnion) returns string {
     });
     var dt = testDB->select("SELECT int_array from ArrayTypes where row_id = 1", invalidUnion);
     string message = "";
-    if (dt is table) {
+    if (dt is table<invalidUnion>) {
         while (dt.hasNext()) {
             var ret = trap dt.getNext();
             if (ret is error) {

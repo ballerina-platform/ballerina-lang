@@ -55,13 +55,10 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntermediateCollectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
@@ -498,19 +495,16 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
-        int maskOptional = Flags.asMask(EnumSet.of(Flag.OPTIONAL));
-
         recordTypeNode.fields.addAll(recordTypeNode.referencedFields);
         // Add struct level variables to the init function.
         recordTypeNode.fields.stream()
                 // Only add a field if it is required. Checking if it's required is enough since non-defaultable
                 // required fields will have been caught in the type checking phase.
                 .filter(field -> !recordTypeNode.initFunction.initFunctionStmts.containsKey(field.symbol) &&
-                            !Symbols.isFlagOn(field.symbol.flags, maskOptional))
+                        !Symbols.isOptional(field.symbol))
                 .filter(field -> field.expr != null)
                 .forEachOrdered(field -> {
-                    recordTypeNode.initFunction.initFunctionStmts.put(field.symbol,
-                            createAssignmentStmt(field));
+                    recordTypeNode.initFunction.initFunctionStmts.put(field.symbol, createAssignmentStmt(field));
                 });
 
         //Adding init statements to the init function.
@@ -518,6 +512,26 @@ public class Desugar extends BLangNodeVisitor {
                 .values().toArray(new BLangStatement[0]);
         for (int i = 0; i < recordTypeNode.initFunction.initFunctionStmts.size(); i++) {
             recordTypeNode.initFunction.body.stmts.add(i, initStmts[i]);
+        }
+
+        // Add invocations for the initializers of each of the type referenced records. Here, the initializers of the
+        // referenced types are invoked on the current record type.
+        for (BLangType typeRef : recordTypeNode.typeRefs) {
+            BVarSymbol receiverSym = recordTypeNode.initFunction.receiver.symbol;
+            BInvokableSymbol dupInitFuncSym = ASTBuilderUtil.duplicateInvokableSymbol(
+                    ((BRecordTypeSymbol) typeRef.type.tsymbol).initializerFunc.symbol);
+            dupInitFuncSym.receiverSymbol = receiverSym;
+
+            BLangInvocation initInv = ASTBuilderUtil.createInvocationExpr(typeRef.pos, dupInitFuncSym,
+                                                                          new ArrayList<>(), symResolver);
+            initInv.expr = ASTBuilderUtil.createVariableRef(recordTypeNode.initFunction.receiver.pos, receiverSym);
+            initInv = rewriteExpr(initInv);
+
+            BLangExpressionStmt exprStmt = ASTBuilderUtil.createExpressionStmt(typeRef.pos,
+                                                                               recordTypeNode.initFunction.body);
+            exprStmt.expr = initInv;
+            initInv.parent = exprStmt;
+            exprStmt.parent = recordTypeNode.initFunction.body;
         }
 
         result = recordTypeNode;
@@ -1885,6 +1899,7 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.STREAM:
             case TypeTags.FUTURE:
             case TypeTags.OBJECT:
+            case TypeTags.RECORD:
                 List<BLangExpression> argExprs = new ArrayList<>(iExpr.requiredArgs);
                 argExprs.add(0, iExpr.expr);
                 final BLangAttachedFunctionInvocation attachedFunctionInvocation =
@@ -3792,7 +3807,7 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangMatchTypedBindingPatternClause getSuccessPattern(BLangAccessExpression accessExpr,
             BLangSimpleVariable tempResultVar, boolean liftError) {
-        BType type = getSafeType(accessExpr.expr.type, liftError);
+        BType type = types.getSafeType(accessExpr.expr.type, liftError);
         String successPatternVarName = GEN_VAR_PREFIX.value + "t_match_success";
         BLangSimpleVariable successPatternVar = ASTBuilderUtil.createVariable(accessExpr.pos, successPatternVarName,
                 type, null, new BVarSymbol(0, names.fromString(successPatternVarName), this.env.scope.owner.pkgID, type,
@@ -3821,40 +3836,6 @@ public class Desugar extends BLangNodeVisitor {
                 ASTBuilderUtil.createMatchStatementPattern(accessExpr.pos, successPatternVar, patternBody);
         this.safeNavigationAssignment = assignmentStmt;
         return successPattern;
-    }
-
-    private BType getSafeType(BType type, boolean liftError) {
-
-        // Since JSON, ANY and ANYDATA is by default contains null, we need to create a new respective type which
-        // is not-nullable.
-        switch (type.tag) {
-            case TypeTags.JSON:
-                BJSONType jsonType = (BJSONType) type;
-                return new BJSONType(jsonType.tag, jsonType.constraint, jsonType.tsymbol, false);
-            case TypeTags.ANY:
-                return new BAnyType(type.tag, type.tsymbol, false);
-            case TypeTags.ANYDATA:
-                return new BAnydataType(type.tag, type.tsymbol, false);
-        }
-
-        if (type.tag != TypeTags.UNION) {
-            return type;
-        }
-
-        BUnionType unionType = (BUnionType) type;
-        BUnionType errorLiftedType =
-                new BUnionType(null, new LinkedHashSet<>(unionType.memberTypes), unionType.isNullable());
-
-        // Lift nil always. Lift error only if safe navigation is used.
-        errorLiftedType.memberTypes.remove(symTable.nilType);
-        if (liftError) {
-            errorLiftedType.memberTypes.remove(symTable.errorType);
-        }
-
-        if (errorLiftedType.memberTypes.size() == 1) {
-            return errorLiftedType.memberTypes.toArray(new BType[0])[0];
-        }
-        return errorLiftedType;
     }
 
     private boolean safeNavigateLHS(BLangExpression expr) {
@@ -3965,7 +3946,7 @@ public class Desugar extends BLangNodeVisitor {
         } else {
             varRef = cloneExpression((BLangVariableReference) originalAccessExpr.expr);
         }
-        varRef.type = getSafeType(originalAccessExpr.expr.type, false);
+        varRef.type = types.getSafeType(originalAccessExpr.expr.type, false);
 
         BLangAccessExpression accessExpr;
         switch (originalAccessExpr.getKind()) {
@@ -4016,7 +3997,7 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangExpression getDefaultValueExpr(BLangAccessExpression accessExpr) {
         BType fieldType = accessExpr.originalType;
-        BType type = getSafeType(accessExpr.expr.type, false);
+        BType type = types.getSafeType(accessExpr.expr.type, false);
         switch (type.tag) {
             case TypeTags.JSON:
                 if (accessExpr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR &&
@@ -4120,7 +4101,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private boolean isDefaultableMappingType(BType type) {
-        switch (getSafeType(type, false).tag) {
+        switch (types.getSafeType(type, false).tag) {
             case TypeTags.JSON:
             case TypeTags.MAP:
             case TypeTags.RECORD:
