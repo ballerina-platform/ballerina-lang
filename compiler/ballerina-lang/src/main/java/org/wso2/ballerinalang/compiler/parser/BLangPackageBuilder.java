@@ -637,9 +637,9 @@ public class BLangPackageBuilder {
         this.varListStack.push(new ArrayList<>());
     }
 
-    void startFunctionDef() {
+    void startFunctionDef(int annotCount) {
         FunctionNode functionNode = TreeBuilder.createFunctionNode();
-        attachAnnotations(functionNode);
+        attachAnnotations(functionNode, annotCount);
         attachMarkdownDocumentations(functionNode);
         attachDeprecatedNode(functionNode);
         this.invokableNodeStack.push(functionNode);
@@ -870,8 +870,8 @@ public class BLangPackageBuilder {
         }
     }
 
-    void startLambdaFunctionDef(PackageID pkgID) {
-        startFunctionDef();
+    void startLambdaFunctionDef(PackageID pkgID, int annotCount) {
+        startFunctionDef(annotCount);
         BLangFunction lambdaFunction = (BLangFunction) this.invokableNodeStack.peek();
         lambdaFunction.setName(createIdentifier(anonymousModelHelper.getNextAnonymousFunctionKey(pkgID)));
         lambdaFunction.addFlag(Flag.LAMBDA);
@@ -1491,7 +1491,7 @@ public class BLangPackageBuilder {
     }
 
     void startWorker(PackageID pkgID) {
-        this.startLambdaFunctionDef(pkgID);
+        this.startLambdaFunctionDef(pkgID, 0);
         BLangFunction lambdaFunction = (BLangFunction) this.invokableNodeStack.peek();
         lambdaFunction.addFlag(Flag.WORKER);
         this.startBlock();
@@ -3132,7 +3132,7 @@ public class BLangPackageBuilder {
         StreamActionNode streamActionNode = TreeBuilder.createStreamActionNode();
         ((BLangStreamAction) streamActionNode).pos = pos;
         this.streamActionNodeStack.push(streamActionNode);
-        this.startLambdaFunctionDef(packageID);
+        this.startLambdaFunctionDef(packageID, 0);
         this.startBlock();
     }
 
