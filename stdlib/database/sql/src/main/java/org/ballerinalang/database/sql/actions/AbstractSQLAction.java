@@ -48,7 +48,7 @@ import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.observability.ObservabilityConstants;
-import org.ballerinalang.util.observability.ObservabilityUtils;
+import org.ballerinalang.util.observability.ObserveUtils;
 import org.ballerinalang.util.observability.ObserverContext;
 
 import java.math.BigDecimal;
@@ -73,7 +73,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.TimeZone;
 import javax.sql.rowset.CachedRowSet;
 import javax.sql.rowset.RowSetProvider;
@@ -319,21 +318,21 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
     }
 
     protected void checkAndObserveSQLAction(Context context, SQLDatasource datasource, String query) {
-        Optional<ObserverContext> observerContext = ObservabilityUtils.getParentContext(context);
-        observerContext.ifPresent(ctx -> {
-            ctx.addTag(TAG_KEY_PEER_ADDRESS, datasource.getPeerAddress());
-            ctx.addTag(TAG_KEY_DB_INSTANCE, datasource.getDatabaseName());
-            ctx.addTag(TAG_KEY_DB_STATEMENT, query);
-            ctx.addTag(TAG_KEY_DB_TYPE, TAG_DB_TYPE_SQL);
-        });
+        if (ObserveUtils.isObservabilityEnabled()) {
+            ObserverContext observerContext = ObserveUtils.getObserverContextOfCurrentFrame(context);
+            observerContext.addTag(TAG_KEY_PEER_ADDRESS, datasource.getPeerAddress());
+            observerContext.addTag(TAG_KEY_DB_INSTANCE, datasource.getDatabaseName());
+            observerContext.addTag(TAG_KEY_DB_STATEMENT, query);
+            observerContext.addTag(TAG_KEY_DB_TYPE, TAG_DB_TYPE_SQL);
+        }
     }
 
     protected void checkAndObserveSQLError(Context context, String message) {
-        Optional<ObserverContext> observerContext = ObservabilityUtils.getParentContext(context);
-        observerContext.ifPresent(ctx -> {
-            ctx.addProperty(ObservabilityConstants.PROPERTY_ERROR, Boolean.TRUE);
-            ctx.addProperty(ObservabilityConstants.PROPERTY_ERROR_MESSAGE, message);
-        });
+        if (ObserveUtils.isObservabilityEnabled()) {
+            ObserverContext observerContext = ObserveUtils.getObserverContextOfCurrentFrame(context);
+            observerContext.addProperty(ObservabilityConstants.PROPERTY_ERROR, Boolean.TRUE);
+            observerContext.addProperty(ObservabilityConstants.PROPERTY_ERROR_MESSAGE, message);
+        }
     }
 
     protected SQLDatasource retrieveDatasource(Context context) {

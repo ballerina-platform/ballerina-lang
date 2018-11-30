@@ -67,6 +67,6 @@ function stampTupleToObject() returns EmployeeObj {
 function stampTupleToMap() returns map<any> {
     (string, string, string) tupleValue = ("Mohan", "single", "LK2014");
 
-    map<any> mapValue = map.stamp(tupleValue);
+    map<any> mapValue = map<any>.stamp(tupleValue);
     return mapValue;
 }

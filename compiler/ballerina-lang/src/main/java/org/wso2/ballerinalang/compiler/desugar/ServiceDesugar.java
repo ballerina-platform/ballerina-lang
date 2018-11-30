@@ -92,13 +92,13 @@ public class ServiceDesugar {
                 .forEach(varNode -> rewriteListener(varNode, env));
     }
 
-    void rewriteListener(BLangSimpleVariable variable, SymbolEnv env) {
+    private void rewriteListener(BLangSimpleVariable variable, SymbolEnv env) {
         rewriteListenerLifeCycleFunction(env.enclPkg.startFunction, variable, env, START_METHOD);
         rewriteListenerLifeCycleFunction(env.enclPkg.stopFunction, variable, env, STOP_METHOD);
     }
 
-    void rewriteListenerLifeCycleFunction(BLangFunction lifeCycleFunction, BLangSimpleVariable variable, SymbolEnv env,
-            String method) {
+    private void rewriteListenerLifeCycleFunction(BLangFunction lifeCycleFunction, BLangSimpleVariable variable,
+            SymbolEnv env, String method) {
         // This method will generate and add following statement to give life cycle function.
         //
         //  _ = [check] var.__start/__stop();
@@ -145,44 +145,49 @@ public class ServiceDesugar {
         ASTBuilderUtil.defineVariable(serviceVar, env.enclPkg.symbol, names);
         env.enclPkg.globalVars.add(serviceVar);
 
-        if (service.attachExpr == null) {
+        if (service.attachedExprs.isEmpty()) {
             return;
         }
 
-        //      if y is anonymous   ->      y = y(expr)
-        BLangSimpleVarRef listenerVarRef;
-        if (service.attachExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-            listenerVarRef = (BLangSimpleVarRef) service.attachExpr;
-        } else {
-            // Define anonymous listener variable.
-            BLangSimpleVariable listenerVar = ASTBuilderUtil
-                    .createVariable(pos, LISTENER + service.name.value, service.attachExpr.type, service.attachExpr,
-                            null);
-            ASTBuilderUtil.defineVariable(listenerVar, env.enclPkg.symbol, names);
-            listenerVar.symbol.flags |= Flags.LISTENER;
-            env.enclPkg.globalVars.add(listenerVar);
-            listenerVarRef = ASTBuilderUtil.createVariableRef(pos, listenerVar.symbol);
+        int count = 0;
+        for (BLangExpression attachExpr : service.attachedExprs) {
+            //      if y is anonymous   ->      y = y(expr)
+            BLangSimpleVarRef listenerVarRef;
+            if (attachExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                listenerVarRef = (BLangSimpleVarRef) attachExpr;
+            } else {
+                // Define anonymous listener variable.
+                BLangSimpleVariable listenerVar = ASTBuilderUtil
+                        .createVariable(pos, LISTENER + service.name.value + count++, attachExpr.type, attachExpr,
+                                null);
+                ASTBuilderUtil.defineVariable(listenerVar, env.enclPkg.symbol, names);
+                listenerVar.symbol.flags |= Flags.LISTENER;
+                env.enclPkg.globalVars.add(listenerVar);
+                listenerVarRef = ASTBuilderUtil.createVariableRef(pos, listenerVar.symbol);
+            }
+            service.listenerName = listenerVarRef.variableName.value;
+
+            //      (.<init>)              ->      y.__attach(x, {});
+            // Find correct symbol.
+            final Name functionName = names
+                    .fromString(Symbols.getAttachedFuncSymbolName(attachExpr.type.tsymbol.name.value, ATTACH_METHOD));
+            BInvokableSymbol methodInvocationSymbol = (BInvokableSymbol) symResolver
+                    .lookupMemberSymbol(pos, ((BObjectTypeSymbol) listenerVarRef.type.tsymbol).methodScope, env,
+                            functionName, SymTag.INVOKABLE);
+
+            // TODO : De-sugar annotations map.
+
+            // Create method invocation
+            List<BLangExpression> args = new ArrayList<>();
+            args.add(ASTBuilderUtil.createVariableRef(pos, serviceVar.symbol));
+            args.add(ASTBuilderUtil.createEmptyRecordLiteral(pos, symTable.mapType));
+
+            addMethodInvocation(pos, listenerVarRef, methodInvocationSymbol, args, attachments);
         }
-        service.listenerName = listenerVarRef.variableName.value;
-
-        //      (.<init>)              ->      y.__attach(x, {});
-        // Find correct symbol.
-        final Name functionName = names.fromString(
-                Symbols.getAttachedFuncSymbolName(service.attachExpr.type.tsymbol.name.value, ATTACH_METHOD));
-        BInvokableSymbol methodInvocationSymbol = (BInvokableSymbol) symResolver
-                .lookupMemberSymbol(pos, ((BObjectTypeSymbol) listenerVarRef.type.tsymbol).methodScope, env,
-                        functionName, SymTag.INVOKABLE);
-
-        // Create method invocation
-        List<BLangExpression> args = new ArrayList<>();
-        args.add(ASTBuilderUtil.createVariableRef(pos, serviceVar.symbol));
-        args.add(ASTBuilderUtil.createEmptyRecordLiteral(pos, symTable.mapType));
-
-        addMethodInvocation(pos, listenerVarRef, methodInvocationSymbol, args, attachments);
     }
 
-    void addMethodInvocation(DiagnosticPos pos, BLangSimpleVarRef varRef, BInvokableSymbol methodInvocationSymbol,
-            List<BLangExpression> args, BLangBlockStmt body) {
+    private void addMethodInvocation(DiagnosticPos pos, BLangSimpleVarRef varRef,
+            BInvokableSymbol methodInvocationSymbol, List<BLangExpression> args, BLangBlockStmt body) {
         // Create method invocation
         final BLangInvocation methodInvocation = ASTBuilderUtil
                 .createInvocationExprForMethod(pos, methodInvocationSymbol, args, symResolver);
@@ -191,7 +196,7 @@ public class ServiceDesugar {
         BLangExpression rhsExpr = methodInvocation;
         // Add optional check.
         if (((BInvokableType) methodInvocationSymbol.type).retType.tag == TypeTags.UNION
-                || ((BUnionType) methodInvocationSymbol.retType).memberTypes.stream()
+                && ((BUnionType) ((BInvokableType) methodInvocationSymbol.type).retType).memberTypes.stream()
                 .anyMatch(type -> type.tag == TypeTags.ERROR)) {
             final BLangCheckedExpr checkExpr = ASTBuilderUtil.createCheckExpr(pos, methodInvocation, symTable.anyType);
             checkExpr.equivalentErrorTypeList.add(symTable.errorType);

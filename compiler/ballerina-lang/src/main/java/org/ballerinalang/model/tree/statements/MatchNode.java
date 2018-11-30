@@ -73,6 +73,8 @@ public interface MatchNode {
 
     ExpressionNode getExpression();
 
+    List<? extends MatchBindingPatternNode> getPatternClauses();
+
     List<? extends MatchStaticBindingPatternNode> getStaticPatternClauses();
 
     List<? extends MatchStructuredBindingPatternNode> getStructuredPatternClauses();
