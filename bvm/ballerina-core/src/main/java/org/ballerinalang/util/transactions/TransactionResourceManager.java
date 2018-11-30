@@ -55,7 +55,6 @@ public class TransactionResourceManager {
     private Map<Integer, BFunctionPointer> committedFuncRegistry;
     private Map<Integer, BFunctionPointer> abortedFuncRegistry;
 
-    private ParticipantRegistry participantRegistry;
     private ConcurrentSkipListSet<String> failedResourceParticipantSet = new ConcurrentSkipListSet<>();
     private ConcurrentSkipListSet<String> failedLocalParticipantSet = new ConcurrentSkipListSet<>();
     private ConcurrentHashMap<String, ConcurrentSkipListSet<Integer>> localParticipants = new ConcurrentHashMap<>();
@@ -65,7 +64,6 @@ public class TransactionResourceManager {
         xidRegistry = new HashMap<>();
         committedFuncRegistry = new HashMap<>();
         abortedFuncRegistry = new HashMap<>();
-        participantRegistry = new ParticipantRegistry();
     }
 
     public static TransactionResourceManager getInstance() {
@@ -163,9 +161,6 @@ public class TransactionResourceManager {
         }
 
         boolean status = true;
-        if (participantRegistry.hasParticipants(transactionId)) {
-            status = participantRegistry.prepareCommit(transactionId);
-        }
         if (failedResourceParticipantSet.contains(transactionId) || failedLocalParticipantSet.contains(transactionId)) {
             // resource participant reported failure.
             status = false;
@@ -308,13 +303,11 @@ public class TransactionResourceManager {
     void rollbackTransaction(String transactionId, int transactionBlockId) {
         endXATransaction(transactionId, transactionBlockId);
         notifyAbort(transactionId, transactionBlockId, true);
-        participantRegistry.participantFailed(transactionId);
     }
 
     private void removeContextsFromRegistry(String transactionCombinedId, String gTransactionId) {
         resourceRegistry.remove(transactionCombinedId);
         xidRegistry.remove(transactionCombinedId);
-        participantRegistry.remove(gTransactionId);
     }
 
     private String generateCombinedTransactionId(String transactionId, int transactionBlockId) {
@@ -327,10 +320,6 @@ public class TransactionResourceManager {
         if (fp != null) {
             BVMExecutor.executeFunction(fp.value().getPackageInfo().getProgramFile(), fp.value(), args);
         }
-        List<BFunctionPointer> funcs = participantRegistry.getCommittedFuncs(transactionId);
-        invokeFunctions(args, funcs);
-        participantRegistry.purge(transactionId);
-
     }
 
     private void invokeAbortedFunction(String transactionId, int transactionBlockId) {
@@ -339,26 +328,9 @@ public class TransactionResourceManager {
         if (fp != null) {
             BVMExecutor.executeFunction(fp.value().getPackageInfo().getProgramFile(), fp.value(), args);
         }
-        // todo: even though this is called aborted function, it actually is a rollback function.
-        // Temporarily disabling invocation of abort functions.
-        //        List<BFunctionPointer> funcs = participantRegistry.getAbortedFuncs(transactionId);
-        //        invokeFunctions(args, funcs);
-        participantRegistry.purge(transactionId);
-    }
-
-    private void invokeFunctions(BValue[] args, List<BFunctionPointer> funcs) {
-        if (funcs != null) {
-            for (BFunctionPointer func : funcs) {
-                if (func != null) {
-                    FunctionInfo funcInfo = func.value();
-                    BVMExecutor.executeFunction(funcInfo.getPackageInfo().getProgramFile(), funcInfo, args);
-                }
-            }
-        }
     }
 
     public void notifyResourceFailure(String gTransactionId) {
-        participantRegistry.participantFailed(gTransactionId);
         failedResourceParticipantSet.add(gTransactionId);
         // The resource excepted (uncaught).
         log.info("Trx infected callable unit excepted id : " + gTransactionId);
@@ -369,8 +341,5 @@ public class TransactionResourceManager {
         if (participantBlockIds != null && participantBlockIds.contains(blockId)) {
             failedLocalParticipantSet.add(gTransactionId);
         }
-        String uniqueName = Integer.toString(blockId);
-        participantRegistry.participantFailed(gTransactionId, uniqueName);
     }
-
 }
