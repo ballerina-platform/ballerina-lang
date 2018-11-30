@@ -35,13 +35,13 @@ public interface BallerinaGlobalVariableDefinition extends BallerinaCompositeEle
   @Nullable
   PsiElement getAssign();
 
-  @NotNull
+  @Nullable
   PsiElement getSemicolon();
 
   @Nullable
   PsiElement getFinal();
 
-  @NotNull
+  @Nullable
   PsiElement getIdentifier();
 
   @Nullable

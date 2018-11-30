@@ -78,7 +78,6 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.ELSE_IF_CLAUSE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ELVIS;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ENTRY_BINDING_PATTERN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ENTRY_REF_BINDING_PATTERN;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.ENUM;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.EQUAL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.EQUAL_GT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ERROR;
@@ -276,7 +275,6 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(EXTERN).spaceIf(true)
                 .around(RESOURCE).spaceIf(true)
                 .around(OBJECT).spaceIf(true)
-                .around(ENUM).spaceIf(true)
                 .around(WORKER).spaceIf(true)
                 .around(XMLNS).spaceIf(true)
                 .around(RETURNS).spaceIf(true)

@@ -251,10 +251,13 @@ ConstantDefinition ::= PUBLIC? CONST TypeName? identifier ASSIGN Expression SEMI
 
 //private AttachmentPointsRecover ::= !(GT | Identifier | SEMICOLON)
 
-GlobalVariableDefinition ::= public? listener? TypeName identifier (ASSIGN Expression)? SEMICOLON
-                            | public? final (TypeName | var) identifier ASSIGN Expression SEMICOLON
-                            | channelType identifier SEMICOLON
+GlobalVariableDefinition ::= finalVariableDefinition
+                            | nonFinalVariableDefinition
+                            | channelDefinition
 
+private finalVariableDefinition ::= public? final (TypeName | var) identifier ASSIGN Expression SEMICOLON {pin=2}
+private nonFinalVariableDefinition ::=  public? listener? TypeName identifier (ASSIGN Expression)? SEMICOLON
+private channelDefinition ::= channelType identifier SEMICOLON
 channelType ::= channel (LT TypeName GT) {pin=1}
 
 // Todo - Need to update the service?
@@ -270,7 +273,7 @@ WorkerDefinition ::= worker identifier ReturnParameter? WorkerBody {
     recoverWhile=WorkerDefinitionRecover
 }
 
-private WorkerDefinitionRecover ::= !(worker|'}')
+private WorkerDefinitionRecover ::= !(worker|'}'|return)
 
 WorkerBody ::= LEFT_BRACE Block RIGHT_BRACE {pin=1}
 
@@ -386,7 +389,7 @@ Statement ::=
 // Todo - Add more tokens (for record destructuring and panic)
 // Note - Literals are added for worker interactions - 10 -> w2;
 // NULL_LITERAL is added for match pattern -  null => return "error";
-private StatementRecover ::= !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|SYMBOLIC_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|int|string|float|decimal|boolean|byte|any|anydata|json|xml|xmlns|map|table|function|stream|'('|'}'|';'|typedesc|future|var|while|match|foreach|continue|break|fork|try|throw|return|abort|retry|fail|lock|transaction|if|forever|object|check|error|panic|from|worker|done|identifier)
+private StatementRecover ::= !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|SYMBOLIC_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|int|string|float|decimal|boolean|byte|any|anydata|json|xml|xmlns|map|table|function|stream|'('|'}'|';'|typedesc|future|var|while|match|foreach|continue|break|fork|try|throw|return|abort|retry|fail|lock|transaction|if|forever|object|check|error|panic|from|worker|record|done|identifier)
 
 // Note - VariableDefinitionStatementInService
 //TODO - change pin
@@ -688,7 +691,7 @@ BitwiseShiftExpression ::= Expression (ShiftExpression) Expression
 ArrowFunctionExpression ::= ArrowFunction
 ServiceConstructorExpression ::= AnnotationAttachment* service ServiceBody {pin=2}
 
-TypeInitExpression ::= initWithoutType | initWithType
+TypeInitExpression ::= initWithType | initWithoutType
 initWithType ::= new UserDefineTypeName LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS {pin=3}
 initWithoutType ::= new (LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS)?
 
