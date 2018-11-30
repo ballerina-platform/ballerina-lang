@@ -132,7 +132,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
@@ -418,6 +417,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTransaction transactionNode) {
+        analyzeNode(transactionNode.transactionBody, env);
+        analyzeNode(transactionNode.onRetryBody, env);
+        analyzeNode(transactionNode.committedBody, env);
+        analyzeNode(transactionNode.abortedBody, env);
     }
 
     @Override
@@ -680,13 +683,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangAbort abortNode) {
-    }
-
-    @Override
-    public void visit(BLangDone doneNode) {
-        // 'done' statement will exit from the worker. There will be no uninitialized
-        // variables left after the 'done' statement.
-        this.uninitializedVars.clear();
     }
 
     @Override

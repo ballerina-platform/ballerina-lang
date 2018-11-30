@@ -49,6 +49,11 @@ export const Panel: React.StatelessComponent<{
                         bBox={titleTextBBox}
                         value={title}
                         className="panel-title"
+                        onChange={(newValue) => {
+                            // tslint:disable-next-line:no-console
+                            console.log("New value for title is", newValue);
+                            // TODO update model's identifier
+                        }}
                     />
                 </g>
                 <g className="panel-body">

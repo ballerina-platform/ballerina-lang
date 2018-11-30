@@ -23,9 +23,9 @@ import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStreamingJSON;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -287,9 +287,9 @@ public class JsonGenerator {
                     break;
                 }
                 this.writeStartArray();
-                BRefValueArray jsonArray = (BRefValueArray) json;
+                BValueArray jsonArray = (BValueArray) json;
                 for (int i = 0; i < jsonArray.size(); i++) {
-                    this.serialize(jsonArray.get(i));
+                    this.serialize(jsonArray.getRefValue(i));
                 }
                 this.writeEndArray();
                 break;

@@ -1166,12 +1166,6 @@ public class SymbolResolver extends BLangNodeVisitor {
     private boolean isStampSupportedForTargetType(BType targetType) {
 
         switch (targetType.tag) {
-            case TypeTags.ARRAY:
-                //Primitive type array does not support stamp because primitive arrays aren't using ref registry.
-                int arrayConstraintTypeTag = ((BArrayType) targetType).eType.tag;
-                return !(arrayConstraintTypeTag == TypeTags.INT || arrayConstraintTypeTag == TypeTags.BOOLEAN ||
-                        arrayConstraintTypeTag == TypeTags.FLOAT || arrayConstraintTypeTag == TypeTags.BYTE ||
-                        arrayConstraintTypeTag == TypeTags.STRING || arrayConstraintTypeTag == TypeTags.DECIMAL);
             case TypeTags.INT:
             case TypeTags.BOOLEAN:
             case TypeTags.STRING:
@@ -1194,12 +1188,6 @@ public class SymbolResolver extends BLangNodeVisitor {
     private boolean isStampSupportedForSourceType(BType sourceType) {
 
         switch (sourceType.tag) {
-            case TypeTags.ARRAY:
-                // Primitive type array does not support stamp because primitive arrays are not using ref registry.
-                int arrayConstraintTypeTag = ((BArrayType) sourceType).eType.tag;
-                return !(arrayConstraintTypeTag == TypeTags.INT || arrayConstraintTypeTag == TypeTags.BOOLEAN ||
-                        arrayConstraintTypeTag == TypeTags.FLOAT || arrayConstraintTypeTag == TypeTags.BYTE ||
-                        arrayConstraintTypeTag == TypeTags.STRING || arrayConstraintTypeTag == TypeTags.DECIMAL);
             case TypeTags.INT:
             case TypeTags.BOOLEAN:
             case TypeTags.STRING:

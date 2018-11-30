@@ -28,11 +28,7 @@ function testJSONArray () returns (string) {
 
 function testArrayOfJSON () returns string | error {
     output = "";
-    json[] array;
-    match <json[]> j1.subjects {
-        json[] arr1 => array = arr1;
-        error err1 => return err1;
-    }
+    json[] array = check trap <json[]> j1.subjects;
     foreach i, j in array {
         concatIntString(i, j.toString());
     }
@@ -83,16 +79,12 @@ type Protocol record {
 
 function testJSONToStructCast () returns string | error {
     json j = {data:"data", plist:[{name:"a", url:"h1"}, {name:"b", url:"h2"}]};
-    match <Protocols> j {
-        Protocols p => {
-                output = "";
-                foreach protocol in p.plist {
-                    concatString(protocol.name + "-" + protocol.url);
-                }
-                return output;
-        }
-        error err => return err;
+    var result = check Protocols.create(j);
+    output = "";
+    foreach protocol in result.plist {
+        concatString(protocol.name + "-" + protocol.url);
     }
+    return output;
 }
 
 function testAddWhileIteration () returns (string) {

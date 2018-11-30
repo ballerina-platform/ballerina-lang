@@ -23,6 +23,7 @@ import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.transactions.TransactionConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,10 +68,16 @@ public class HttpResource {
     private boolean transactionInfectable = true; //default behavior
     private boolean interruptible;
 
+    private boolean transactionAnnotated = false;
+
     protected HttpResource(Resource resource, HttpService parentService) {
         this.balResource = resource;
         this.parentService = parentService;
         this.producesSubTypes = new ArrayList<>();
+    }
+
+    public boolean isTransactionAnnotated() {
+        return transactionAnnotated;
     }
 
     public String getName() {
@@ -183,6 +190,7 @@ public class HttpResource {
         Annotation resourceConfigAnnotation = getResourceConfigAnnotation(resource);
         httpResource.setInterruptible(httpService.isInterruptible() || hasInterruptibleAnnotation(resource));
 
+        setupTransactionAnnotations(resource, httpResource);
         if (checkConfigAnnotationAvailability(resourceConfigAnnotation)) {
             Struct resourceConfig = resourceConfigAnnotation.getValue();
             httpResource.setPath(resourceConfig.getStringField(PATH_FIELD));
@@ -204,6 +212,14 @@ public class HttpResource {
         httpResource.setPath(resource.getName());
         httpResource.prepareAndValidateSignatureParams();
         return httpResource;
+    }
+
+    private static void setupTransactionAnnotations(Resource resource, HttpResource httpResource) {
+        Annotation transactionConfigAnnotation = HttpUtil.getTransactionConfigAnnotation(resource,
+                        TransactionConstants.TRANSACTION_PACKAGE_PATH);
+        if (transactionConfigAnnotation != null) {
+            httpResource.transactionAnnotated = true;
+        }
     }
 
     protected static Annotation getResourceConfigAnnotation(Resource resource) {
@@ -265,5 +281,4 @@ public class HttpResource {
         signatureParams = new SignatureParams(this, balResource.getParamDetails());
         signatureParams.validate();
     }
-
 }

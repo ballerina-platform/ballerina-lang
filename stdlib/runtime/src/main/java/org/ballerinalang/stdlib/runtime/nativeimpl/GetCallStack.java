@@ -20,7 +20,7 @@ package org.ballerinalang.stdlib.runtime.nativeimpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
@@ -36,7 +36,7 @@ public class GetCallStack extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        final BRefValueArray bRefValueArray = BLangVMErrors.generateCallStack(
+        final BValueArray bRefValueArray = BLangVMErrors.generateCallStack(
                 context.getParentWorkerExecutionContext(), context.getCallableUnitInfo());
         context.setReturnValues(bRefValueArray);
     }

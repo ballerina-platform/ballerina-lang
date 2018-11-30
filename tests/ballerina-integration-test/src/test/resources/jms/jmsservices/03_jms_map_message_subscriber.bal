@@ -11,9 +11,9 @@ jms:Connection conn2 = new ({
 
 // Initialize a JMS session on top of the created connection.
 jms:Session jmsSession2 = new (conn2, {
-        // Optional property. Defaults to AUTO_ACKNOWLEDGE
-        acknowledgementMode: "AUTO_ACKNOWLEDGE"
-    });
+    // Optional property. Defaults to AUTO_ACKNOWLEDGE
+    acknowledgementMode: "AUTO_ACKNOWLEDGE"
+});
 
 // Initialize a Queue consumer using the created session.
 listener jms:TopicSubscriber topicSubscriber2 = new({
@@ -32,10 +32,7 @@ service jmsListener2 on topicSubscriber2 {
              io:print(messageRetrieved["b"]);
              io:print(messageRetrieved["c"]);
              io:println(messageRetrieved["d"]);
-             var retrievedBlob = <byte[]>messageRetrieved["e"];
-             if (retrievedBlob is error) {
-                  panic retrievedBlob;
-             }
+             byte[] retrievedBlob = <byte[]>messageRetrieved["e"];
         } else {
              panic messageRetrieved;
         }

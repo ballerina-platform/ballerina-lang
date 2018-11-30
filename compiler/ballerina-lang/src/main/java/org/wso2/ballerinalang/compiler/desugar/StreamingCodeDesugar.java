@@ -619,10 +619,10 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         // [streams:sum(), streams:count(), ... etc], 2nd arg
         BLangExpression aggregateArray = createAggregatorArray(selectClause);
 
-        // (streams:StreamEvent e) => string, 3rd arg
-        BLangExpression groupingLambda = createGroupByLambda(selectClause);
+        // ((streams:StreamEvent e) returns string)[], 3rd arg
+        BLangExpression groupingLambda = createGroupByLambdas(selectClause);
 
-        // (streams:StreamEvent e, streams:Aggregator[] aggregatorArr)  => any, 4th arg of createSelect
+        // (streams:StreamEvent e, streams:Aggregator[] aggregatorArr)  returns map<anydata>, 4th arg of createSelect
         BLangExpression aggregatorLambda = createAggregatorLambda(selectClause);
 
 
@@ -669,7 +669,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private BLangArrayLiteral createAggregatorArray(BLangSelectClause selectClause) {
         BLangArrayLiteral expr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
         expr.exprs = new ArrayList<>();
-        expr.type = new BArrayType(symTable.anyType);
 
         List<SelectExpressionNode> selectExpressions = selectClause.getSelectExpressions();
         for (SelectExpressionNode select : selectExpressions) {
@@ -690,6 +689,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 }
             }
         }
+        expr.type = new BArrayType(symResolver.resolvePkgSymbol(selectClause.pos, env, Names.STREAMS_MODULE)
+                .scope.lookup(new Name(AGGREGATOR_OBJECT_NAME)).symbol.type);
         return expr;
     }
 
@@ -867,22 +868,35 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 selectLambdaClosureVarSymbols, selectLambdaReturnType);
     }
 
-    //TODO: change this to pass an array of lambdas
-    private BLangLambdaFunction createGroupByLambda(BLangSelectClause selectClause) {
-        BLangSimpleVariable varGroupByStreamEvent = this.createStreamEventArgVariable(
-                getVariableName(SELECT_LAMBDA_PARAM_REFERENCE), selectClause.pos, env);
-        BLangType typeNode = ASTBuilderUtil.createTypeNode(symTable.stringType);
-        // (streams:StreamEvent e) => string { .. }
-        BLangLambdaFunction groupingLambda = createLambdaWithVarArg(selectClause.pos, new BLangSimpleVariable[]{
-                varGroupByStreamEvent}, typeNode);
-        BLangBlockStmt groupByLambda = groupingLambda.function.body;
+    private BLangExpression createGroupByLambdas(BLangSelectClause selectClause) {
+        BLangArrayLiteral arr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
+        arr.exprs = new ArrayList<>();
+        selectClause.getGroupBy().getVariables()
+                .forEach(groupingVar -> arr.exprs.add(createGroupByLambda((BLangExpression) groupingVar)));
+        arr.type = new BArrayType(arr.exprs.get(0).type);
+        arr.pos = ((BLangGroupBy) selectClause.getGroupBy()).pos;
+        return arr;
+    }
 
-        //e.data;
-        BLangIndexBasedAccess mapFieldAccessExpr = createMapAccessExprFromStreamEvent(varGroupByStreamEvent,
-                (BLangExpression) selectClause.getGroupBy().getVariables().get(0));
-        // return check <string>e.data[<fieldName in string>];
-        BLangExpression conversionExpr = desugar.addConversionExprIfRequired(mapFieldAccessExpr,
-                symTable.stringType);
+    private BLangExpression createGroupByLambda(BLangExpression expr) {
+        BLangSimpleVariable varStreamEvent = this.createStreamEventArgVariable(
+                getVariableName(SELECT_LAMBDA_PARAM_REFERENCE), expr.pos, env);
+        BLangType typeNode = ASTBuilderUtil.createTypeNode(symTable.anydataType);
+        // (streams:StreamEvent e) returns anydata { .. }
+        BLangLambdaFunction groupingLambda = createLambdaWithVarArg(expr.pos, new BLangSimpleVariable[]{varStreamEvent},
+                typeNode);
+        BLangBlockStmt groupByLambda = groupingLambda.function.body;
+        BLangExpression mapAccessExpr;
+
+        if (expr.getKind() == NodeKind.INVOCATION) { // func(e.data[<fieldName in string>])
+            mapAccessExpr = refactorInvocationWithIndexBasedArgs((BVarSymbol)
+                    createEventDataFieldAccessExpr(expr.pos, varStreamEvent.symbol).symbol, (BLangInvocation) expr);
+        } else {
+            // e.data[<fieldName in string>]
+            mapAccessExpr = createMapAccessExprFromStreamEvent(varStreamEvent, expr);
+        }
+        // return <anydata>e.data[<fieldName in string>];
+        BLangExpression conversionExpr = desugar.addConversionExprIfRequired(mapAccessExpr, symTable.anydataType);
         addReturnGroupByFieldStmt(groupByLambda, conversionExpr);
         return groupingLambda;
     }
@@ -914,13 +928,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         BLangSimpleVariable streamEventVarArg =
                 this.createStreamEventArgVariable(getVariableName(SELECT_LAMBDA_PARAM_REFERENCE),
                         selectClause.pos, env);
-//        BLangConstrainedType typeNode = (BLangConstrainedType) TreeBuilder.createConstrainedTypeNode();
-//        BLangBuiltInRefTypeNode refTypeNode = (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
-//        refTypeNode.typeKind = TypeKind.MAP;
-//        BLangValueType constraintTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
-//        constraintTypeNode.setTypeKind(TypeKind.ANYDATA);
-//        typeNode.constraint = constraintTypeNode;
-//        typeNode.type = refTypeNode;
         TypeNode typeNode = ASTBuilderUtil.createTypeNode(createAnydataConstraintMapType());
         BLangLambdaFunction simpleSelectLambdaFunction = createLambdaWithVarArg(selectClause.pos,
                 new BLangSimpleVariable[]{streamEventVarArg}, typeNode);
@@ -1412,7 +1419,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         Set<BVarSymbol> closureVarSymbols = new LinkedHashSet<>();
         closureVarSymbols.add(lambdaFunctionVariable.symbol);
 
-        BLangType returnType = ASTBuilderUtil.createTypeNode(symTable.nilType);
+        BLangType returnType = ASTBuilderUtil.createTypeNode(symTable.booleanType);
 
         //Create new lambda function to process the output events
         BLangLambdaFunction havingLambdaFunction = createLambdaFunction(pos,

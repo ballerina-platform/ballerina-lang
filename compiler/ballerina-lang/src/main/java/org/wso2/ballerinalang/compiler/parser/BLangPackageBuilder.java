@@ -173,7 +173,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
@@ -641,9 +640,9 @@ public class BLangPackageBuilder {
         this.varListStack.push(new ArrayList<>());
     }
 
-    void startFunctionDef() {
+    void startFunctionDef(int annotCount) {
         FunctionNode functionNode = TreeBuilder.createFunctionNode();
-        attachAnnotations(functionNode);
+        attachAnnotations(functionNode, annotCount);
         attachMarkdownDocumentations(functionNode);
         attachDeprecatedNode(functionNode);
         this.invokableNodeStack.push(functionNode);
@@ -915,7 +914,8 @@ public class BLangPackageBuilder {
     }
 
     void startLambdaFunctionDef(PackageID pkgID) {
-        startFunctionDef();
+        // Passing zero for annotation count as Lambdas can't have annotations.
+        startFunctionDef(0);
         BLangFunction lambdaFunction = (BLangFunction) this.invokableNodeStack.peek();
         lambdaFunction.setName(createIdentifier(anonymousModelHelper.getNextAnonymousFunctionKey(pkgID)));
         lambdaFunction.addFlag(Flag.LAMBDA);
@@ -2317,6 +2317,30 @@ public class BLangPackageBuilder {
         transactionNode.setOnRetryBody(onretryBlock);
     }
 
+    public void startCommittedBlock() {
+        startBlock();
+    }
+
+    public void endCommittedBlock(DiagnosticPos currentPos, Set<Whitespace> ws) {
+        TransactionNode transactionNode = transactionNodeStack.peek();
+        BLangBlockStmt committedBlock = (BLangBlockStmt) this.blockNodeStack.pop();
+        committedBlock.pos = currentPos;
+        transactionNode.addWS(ws);
+        transactionNode.setCommittedBody(committedBlock);
+    }
+
+    public void startAbortedBlock() {
+        startBlock();
+    }
+
+    public void endAbortedBlock(DiagnosticPos currentPos, Set<Whitespace> ws) {
+        TransactionNode transactionNode = transactionNodeStack.peek();
+        BLangBlockStmt abortedBlock = (BLangBlockStmt) this.blockNodeStack.pop();
+        abortedBlock.pos = currentPos;
+        transactionNode.addWS(ws);
+        transactionNode.setAbortedBody(abortedBlock);
+    }
+
     void endTransactionStmt(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangTransaction transaction = (BLangTransaction) transactionNodeStack.pop();
         transaction.pos = pos;
@@ -2342,13 +2366,6 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(abortNode);
     }
 
-    void addDoneStatement(DiagnosticPos pos, Set<Whitespace> ws) {
-        BLangDone doneNode = (BLangDone) TreeBuilder.createDoneNode();
-        doneNode.pos = pos;
-        doneNode.addWS(ws);
-        addStmtToCurrentBlock(doneNode);
-    }
-
     void addRetryStatement(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangRetry retryNode = (BLangRetry) TreeBuilder.createRetryNode();
         retryNode.pos = pos;
@@ -2360,18 +2377,6 @@ public class BLangPackageBuilder {
         BLangTransaction transaction = (BLangTransaction) transactionNodeStack.peek();
         transaction.addWS(ws);
         transaction.retryCount = (BLangExpression) exprNodeStack.pop();
-    }
-
-    void addCommittedBlock(Set<Whitespace> ws) {
-        BLangTransaction transaction = (BLangTransaction) transactionNodeStack.peek();
-        transaction.addWS(ws);
-        transaction.onCommitFunction = (BLangExpression) exprNodeStack.pop();
-    }
-
-    void addAbortedBlock(Set<Whitespace> ws) {
-        BLangTransaction transaction = (BLangTransaction) transactionNodeStack.peek();
-        transaction.addWS(ws);
-        transaction.onAbortFunction = (BLangExpression) exprNodeStack.pop();
     }
 
     void startIfElseNode(DiagnosticPos pos) {

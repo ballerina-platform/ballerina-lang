@@ -20,11 +20,15 @@ package org.ballerinalang.test.expressions.stamp;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.types.BAnydataType;
+import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BStringType;
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -133,8 +137,8 @@ public class TupleTypeStampInbuiltFunctionTest {
         Assert.assertEquals(tupleValue1.stringValue(), "Mohan");
         Assert.assertEquals(tupleValue1.getType().getClass(), BStringType.class);
 
-        Assert.assertEquals(tupleValue2.getType().getClass(), BRecordType.class);
-        Assert.assertEquals(tupleValue2.getType().getName(), "Teacher");
+        Assert.assertEquals(tupleValue2.getType().getClass(), BMapType.class);
+        Assert.assertEquals(((BMapType) tupleValue2.getType()).getConstrainedType().getClass(), BAnydataType.class);
     }
 
     @Test
@@ -170,5 +174,28 @@ public class TupleTypeStampInbuiltFunctionTest {
         Assert.assertEquals(((BValue) ((BMap) arrayValue2).getMap().get("school")).getType().getClass(),
                 BStringType.class);
     }
-}
 
+    @Test
+    public void testStampTupleToBasicArray() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampTupleToBasicArray");
+        Assert.assertEquals(((BValueArray) results[0]).getInt(0), 1);
+        Assert.assertEquals(((BValueArray) results[0]).getInt(1), 2);
+    }
+
+    @Test
+    public void testStampTupleToAnydataTuple() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampTupleToAnydataTuple");
+        Assert.assertEquals(((BInteger) results[0]).value().intValue(), 1);
+        Assert.assertEquals(((BInteger) results[1]).value().intValue(), 2);
+    }
+
+    @Test
+    public void testStampAnydataTupleToBasicTypeTuple() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampAnydataTupleToBasicTypeTuple");
+        Assert.assertEquals(((BInteger) results[0]).value().intValue(), 1);
+        Assert.assertEquals(((BInteger) results[1]).value().intValue(), 2);
+    }
+}

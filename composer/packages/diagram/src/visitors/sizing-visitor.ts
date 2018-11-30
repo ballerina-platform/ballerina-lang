@@ -1,6 +1,6 @@
 import {
     Assignment, ASTNode, ASTUtil, Block,
-    ExpressionStatement, Foreach, Function, If, VariableDef, Visitor, While
+    ExpressionStatement, Foreach, Function, If, VariableDef, VisibleEndpoint, Visitor, While
 } from "@ballerina/ast-model";
 import * as _ from "lodash";
 import { DiagramConfig } from "../config/default";
@@ -29,7 +29,7 @@ const config: DiagramConfig = DiagramUtils.getConfig();
  * @return {object} {width,text}
  */
 
-function getTextWidth(text: string, minWidth = config.statement.width , maxWidth = config.statement.maxWidth) {
+function getTextWidth(text: string, minWidth = config.statement.width, maxWidth = config.statement.maxWidth) {
     textElement.innerHTML = _.escape(text);
     let width = config.statement.padding.left +
         textElement.getComputedTextLength() + config.statement.padding.right;
@@ -65,7 +65,7 @@ function sizeStatement(node: ASTNode) {
     const viewState: ViewState = node.viewState;
     const label = getTextWidth(ASTUtil.genSource(node));
     viewState.bBox.h = config.statement.height;
-    viewState.bBox.w = (config.statement.width > label.w) ? config.statement.width : label.w ;
+    viewState.bBox.w = (config.statement.width > label.w) ? config.statement.width : label.w;
     viewState.bBox.label = label.text;
 }
 
@@ -79,25 +79,39 @@ export const visitor: Visitor = {
         const client = viewState.client;
         const defaultWorker = viewState.defaultWorker;
 
+        // Initialize the client width and height to default.
         client.h = config.lifeLine.line.height + (config.lifeLine.header.height * 2);
         client.w = config.lifeLine.width;
 
-        defaultWorker.h = node.body!.viewState.bBox.h + (config.lifeLine.header.height * 2)
+        // Size default worker
+        defaultWorker.bBox.h = node.body!.viewState.bBox.h + (config.lifeLine.header.height * 2)
             + config.statement.height; // for bottom plus
-        defaultWorker.w = config.lifeLine.width;
+        defaultWorker.bBox.w = node.body!.viewState.bBox.w;
+        defaultWorker.lifeline.h = defaultWorker.bBox.h;
+        defaultWorker.lifeline.w = config.lifeLine.width;
+        defaultWorker.bBox.leftMargin = node.body!.viewState.bBox.leftMargin;
 
-        const lineHeight = (client.h > defaultWorker.h) ? client.h : defaultWorker.h;
+        const lineHeight = (client.h > defaultWorker.bBox.h) ? client.h : defaultWorker.bBox.h;
         // Sync up the heights of lifelines
-        client.h = defaultWorker.h = lineHeight;
+        client.h = defaultWorker.bBox.h = lineHeight;
 
-        body.w = config.panel.padding.left + config.panel.padding.right;
+        // Size endpoints
+        let endpointWidth = 0;
+        if (node.VisibleEndpoints) {
+            node.VisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
+                if (!endpoint.caller) {
+                    endpoint.viewState.bBox.w = config.lifeLine.width;
+                    endpoint.viewState.bBox.h = client.h;
+                    endpointWidth += endpoint.viewState.bBox.w + config.lifeLine.gutter.h;
+                }
+            });
+        }
+
+        body.w = config.panel.padding.left + endpointWidth + config.panel.padding.right;
         body.h = config.panel.padding.top + lineHeight + config.panel.padding.bottom;
 
         header.w = config.panelHeading.padding.left + config.panelHeading.padding.right;
         header.h = config.panelHeading.height;
-
-        // Set the margin
-        defaultWorker.leftMargin = (defaultWorker.w / 2);
 
         viewState.bBox.w = (body.w > header.w) ? body.w : header.w;
         viewState.bBox.h = body.h + header.h;
@@ -121,7 +135,7 @@ export const visitor: Visitor = {
         const bodyBBox: SimpleBBox = node.body.viewState.bBox;
 
         viewState.bBox.w = node.body.viewState.bBox.w;
-        viewState.bBox.h = node.body.viewState.bBox.h + config.flowCtrl.header.height
+        viewState.bBox.h = node.body.viewState.bBox.h + config.flowCtrl.condition.height
             + config.flowCtrl.whileGap + config.flowCtrl.bottomMargin;
         // If body has a left margin assign to while
         // tslint:disable-next-line:prefer-conditional-expression
@@ -137,7 +151,7 @@ export const visitor: Visitor = {
         const bodyBBox: SimpleBBox = node.body.viewState.bBox;
 
         viewState.bBox.w = node.body.viewState.bBox.w;
-        viewState.bBox.h = node.body.viewState.bBox.h + config.flowCtrl.header.height
+        viewState.bBox.h = node.body.viewState.bBox.h + config.flowCtrl.foreach.height
             + config.flowCtrl.whileGap + config.flowCtrl.bottomMargin;
         // If body has a left margin assign to while
         // tslint:disable-next-line:prefer-conditional-expression
@@ -153,7 +167,7 @@ export const visitor: Visitor = {
         const bodyBBox: SimpleBBox = node.body.viewState.bBox;
 
         viewState.bBox.w = node.body.viewState.bBox.w;
-        viewState.bBox.h = node.body.viewState.bBox.h + config.flowCtrl.header.height
+        viewState.bBox.h = node.body.viewState.bBox.h + config.flowCtrl.condition.height
             + config.flowCtrl.bottomMargin;
         // If body has a left margin assign to while
         // tslint:disable-next-line:prefer-conditional-expression

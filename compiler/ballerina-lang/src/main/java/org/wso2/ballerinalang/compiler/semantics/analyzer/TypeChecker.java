@@ -152,6 +152,7 @@ import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MIN_VALUE;
+import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
 import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_PREFIX;
 
 /**
@@ -539,6 +540,15 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerSyncSendExpr syncSendExpr) {
+        BSymbol symbol = symResolver.lookupSymbol(env, names.fromIdNode(syncSendExpr.workerIdentifier),
+                                                  SymTag.VARIABLE);
+
+        if (symTable.notFoundSymbol.equals(symbol)) {
+            syncSendExpr.workerType = symTable.semanticError;
+        } else {
+            syncSendExpr.workerType = symbol.type;
+        }
+
         syncSendExpr.env = this.env;
         checkExpr(syncSendExpr.expr, this.env);
 
@@ -571,15 +581,16 @@ public class TypeChecker extends BLangNodeVisitor {
             visitChannelReceive(workerReceiveExpr, symbol);
             return;
         }
-
         if (!isInTopLevelWorkerEnv()) {
             this.dlog.error(workerReceiveExpr.pos, DiagnosticCode.INVALID_WORKER_RECEIVE_POSITION);
         }
 
-        String workerName = workerReceiveExpr.workerIdentifier.getValue();
-        if (!this.workerExists(this.env, workerName)) {
-            this.dlog.error(workerReceiveExpr.pos, DiagnosticCode.UNDEFINED_WORKER, workerName);
+        if (symTable.notFoundSymbol.equals(symbol)) {
+            workerReceiveExpr.workerType = symTable.semanticError;
+        } else {
+            workerReceiveExpr.workerType = symbol.type;
         }
+
         // We cannot predict the type of the receive expression as it depends on the type of the data sent by the other
         // worker/channel. Since receive is an expression now we infer the type of it from the lhs of the statement.
         workerReceiveExpr.type = this.expType;
@@ -621,27 +632,26 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private boolean isInTopLevelWorkerEnv() {
         // Two scenarios are handled here when a variable comes as an assignment and when it is defined as a variable
-        // definition: i = <- W1 and var i = <- W1;
-        if (!env.enclInvokable.flagSet.contains(Flag.WORKER)) {
-            return false;
-        }
-
+        //TODO: move this method to CodeAnalyzer
         boolean isTopLevel = false;
         switch (this.env.node.getKind()) {
             case BLOCK:
-                isTopLevel = env.enclInvokable.body == env.node;
-                break;
-            case EXPRESSION_STATEMENT:
-                isTopLevel = env.enclEnv.node == env.enclInvokable.body;
+                isTopLevel = true;
+                //handled in code analyzer
                 break;
             case VARIABLE:
-                //TODO:(workers) fix
+            case EXPRESSION_STATEMENT:
+                isTopLevel = env.enclEnv.node == env.enclInvokable.body;
                 break;
         }
         return isTopLevel;
     }
 
     private boolean workerExists(SymbolEnv env, String workerName) {
+        //TODO: move this method to CodeAnalyzer
+        if (workerName.equals(DEFAULT_WORKER_NAME)) {
+           return true;
+        }
         BSymbol symbol = this.symResolver.lookupSymbol(env, new Name(workerName), SymTag.VARIABLE);
         return symbol != this.symTable.notFoundSymbol &&
                symbol.type.tag == TypeTags.FUTURE &&
@@ -1426,8 +1436,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BType expType = conversionExpr.expr.getKind() == NodeKind.RECORD_LITERAL_EXPR ? targetType : symTable.noType;
         BType sourceType = checkExpr(conversionExpr.expr, env, expType);
 
-        if (targetType.tag == TypeTags.TABLE || targetType.tag == TypeTags.STREAM ||
-                targetType.tag == TypeTags.FUTURE) {
+        if (targetType.tag == TypeTags.STREAM || targetType.tag == TypeTags.FUTURE) {
             dlog.error(conversionExpr.pos, DiagnosticCode.TYPE_ASSERTION_NOT_YET_SUPPORTED, targetType);
         } else {
             BSymbol symbol = symResolver.resolveTypeConversionOrAssertionOperator(sourceType, targetType);

@@ -22,9 +22,9 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.model.values.BXMLSequence;
@@ -235,7 +235,7 @@ public class XMLLiteralTest {
         Assert.assertEquals(seq.stringValue(), "hello aaa<bbb good morning <fname>John</fname> <lname>Doe</lname>. "
                 + "Have a nice day!<foo>123</foo><bar></bar>");
 
-        BRefValueArray items = seq.value();
+        BValueArray items = seq.value();
         Assert.assertEquals(items.size(), 7);
     }
 
@@ -257,7 +257,7 @@ public class XMLLiteralTest {
                         + "<bar xmlns=\"http://ballerina.com/\" xmlns:ns0=\"http://ballerina.com/a\" "
                         + "xmlns:ns1=\"http://ballerina.com/c\" ns1:status=\"complete\"></bar>");
 
-        BRefValueArray items = seq.value();
+        BValueArray items = seq.value();
         Assert.assertEquals(items.size(), 2);
     }
 
