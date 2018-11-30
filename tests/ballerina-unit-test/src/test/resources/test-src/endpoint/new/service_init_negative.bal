@@ -1,32 +1,12 @@
-listener ABC ex = new;
+listener ABC ep = new;
 
-service name on ex {
-
+service on ep {
+    string name;
 
     resource function foo(string b) {
-        self.bar(b);
     }
 
     resource function bar(string b) {
-
-    }
-}
-
-string xx = "some test";
-
-service name on xx {
-    string id;
-
-    resource function foo(string b) {
-    }
-}
-
-service on ex {
-
-
-    resource function foo(string b) {
-    }
-    function foo(string b) {
     }
 }
 
@@ -35,7 +15,8 @@ public type ABC object {
     *AbstractListener;
 
     public function __start() returns error?{
-        return;
+        error e = error("startError");
+        return e;
     }
 
     public function __stop() returns error? {
@@ -47,7 +28,6 @@ public type ABC object {
     }
 };
 
-service on invalidVar {
-    resource function foo(string b) {
-    }
+function test1 (){
+
 }
