@@ -113,7 +113,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
@@ -415,15 +414,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangAbort abortNode) {
         if (this.transactionCount == 0) {
             this.dlog.error(abortNode.pos, DiagnosticCode.ABORT_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK);
-            return;
-        }
-        this.lastStatement = true;
-    }
-
-    @Override
-    public void visit(BLangDone doneNode) {
-        if (checkReturnValidityInTransaction()) {
-            this.dlog.error(doneNode.pos, DiagnosticCode.DONE_CANNOT_BE_USED_TO_EXIT_TRANSACTION);
             return;
         }
         this.lastStatement = true;

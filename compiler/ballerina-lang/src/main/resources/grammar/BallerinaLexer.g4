@@ -140,7 +140,6 @@ UNTAINT     : 'untaint' ;
 START       : 'start' ;
 BUT         : 'but' ;
 CHECK       : 'check' ;
-DONE        : 'done' ;
 PRIMARYKEY  : 'primarykey' ;
 IS          : 'is' ;
 FLUSH       : 'flush' ;

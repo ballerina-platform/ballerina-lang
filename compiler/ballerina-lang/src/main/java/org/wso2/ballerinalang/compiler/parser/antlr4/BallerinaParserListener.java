@@ -2336,16 +2336,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitForeverStatement(BallerinaParser.ForeverStatementContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#doneStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterDoneStatement(BallerinaParser.DoneStatementContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#doneStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitDoneStatement(BallerinaParser.DoneStatementContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#streamingQueryStatement}.
 	 * @param ctx the parse tree
 	 */

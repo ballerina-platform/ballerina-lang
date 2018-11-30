@@ -26,8 +26,6 @@ public function testSelectWithUntaintedQueryProducingTaintedReturn(string... arg
             var rs = <Employee>output.getNext();
             testFunction(rs.name);
         }
-    } else {
-        panic output;
     }
     testDB.stop();
     return;
