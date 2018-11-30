@@ -98,7 +98,7 @@ class InlineEdit extends React.Component<InlineEditProps, InlineEditState> {
         if (isEditing) {
             if (isURL) {
                 return (
-                    <div className={"inline-editor editing " + classDefinition}>
+                    <div className={`inline-editor editing  ${classDefinition}}`}>
                         <Form>
                             <Form.Group widths="5" inline>
                                 <Form.Input

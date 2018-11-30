@@ -73,14 +73,14 @@ class OpenApiResource extends React.Component<OpenApiResourceProps, OpenApiResou
                     onClick={onExpandEvent} >
                     <Icon name={isExpandAll || active ? "chevron down" : "chevron right"}></Icon>
                     <OpenApiContextConsumer>
-                        {(appContext: OpenApiContext | null) => {
+                        {(appContext: OpenApiContext) => {
                             return (
                                 <InlineEdit
-                                    changeModel={appContext!.openApiJson}
+                                    changeModel={appContext.openApiJson}
                                     changeAttribute={{key: "resource.name", value: openApiResource}}
                                     inlineEditString={openApiResource}
                                     placeholderString="Add a description"
-                                    onInlineValueChange={appContext!.onInlineEditChange}
+                                    onInlineValueChange={appContext.onInlineEditChange}
                                 />
                             );
                         }}

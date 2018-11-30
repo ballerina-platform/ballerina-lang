@@ -92,15 +92,15 @@ class OpenApiResource extends React.Component<OpenApiResourceProps, OpenApiResou
                 <Accordion.Title className="op-title " index={currIndex} onClick={handleExpand}>
                     <span className="op-method">{operationType}</span>
                     <OpenApiContextConsumer>
-                        {(appContext: OpenApiContext | null) => {
+                        {(appContext: OpenApiContext) => {
                             return (
                                 <InlineEdit
-                                    changeModel={appContext!.openApiJson}
+                                    changeModel={appContext.openApiJson}
                                     changeAttribute={{key: "operation.summary", value: operationType}}
                                     classDefinition="op-summary"
                                     inlineEditString={operationObject.summary}
                                     placeholderString="Add a summary"
-                                    onInlineValueChange={appContext!.onInlineEditChange}
+                                    onInlineValueChange={appContext.onInlineEditChange}
                                 />
                             );
                         }}
@@ -112,14 +112,14 @@ class OpenApiResource extends React.Component<OpenApiResourceProps, OpenApiResou
                 </Accordion.Title>
                 <Accordion.Content active={activeIndex === currIndex}>
                     <OpenApiContextConsumer>
-                        {(appContext: OpenApiContext | null) => {
+                        {(appContext: OpenApiContext) => {
                             return (
                                 <InlineEdit
-                                    changeModel={appContext!.openApiJson}
+                                    changeModel={appContext.openApiJson}
                                     changeAttribute={{key: "operation.description", value: operationType}}
                                     inlineEditString={operationObject.description}
                                     placeholderString="Add a description"
-                                    onInlineValueChange={appContext!.onInlineEditChange}
+                                    onInlineValueChange={appContext.onInlineEditChange}
                                 />
                             );
                         }}
@@ -133,10 +133,10 @@ class OpenApiResource extends React.Component<OpenApiResourceProps, OpenApiResou
                         </div>
                         {showAddParameter &&
                             <OpenApiContextConsumer>
-                                {(appContext: OpenApiContext | null) => {
+                                {(appContext: OpenApiContext) => {
                                     return (
                                         <OpenApiAddParameter
-                                            openApiJson={appContext!.openApiJson}
+                                            openApiJson={appContext.openApiJson}
                                             onAddParameter={appContext!.onDidAddParameter}
                                             operation={operationType}
                                             resourcePath={resourcePath}
@@ -163,11 +163,11 @@ class OpenApiResource extends React.Component<OpenApiResourceProps, OpenApiResou
                         </div>
                         {showAddResponse && OpenApiContextConsumer &&
                             <OpenApiContextConsumer>
-                                {(appContext: OpenApiContext | null) => {
+                                {(appContext: OpenApiContext) => {
                                     return (
                                         <OpenApiAddResponse
-                                            openApiJson={appContext!.openApiJson}
-                                            onAddResponse={appContext!.onDidAddResponse}
+                                            openApiJson={appContext.openApiJson}
+                                            onAddResponse={appContext.onDidAddResponse}
                                             operation={operationType}
                                             resourcePath={resourcePath}
                                             handleClose={this.handleShowAddResponse}
