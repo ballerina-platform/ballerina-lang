@@ -61,6 +61,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Optional;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.ACCEPT_ENCODING;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION;
@@ -504,10 +505,9 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
         }
 
         private void addHttpStatusCode(int statusCode) {
-            if (ObserveUtils.isObservabilityEnabled()) {
-                ObserverContext observerContext = ObserveUtils.getObserverContextOfCurrentFrame(context);
-                observerContext.addTag(ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE, String.valueOf(statusCode));
-            }
+            Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(context);
+            observerContext.ifPresent(ctx -> ctx.addTag(ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE,
+                                                        String.valueOf(statusCode)));
         }
     }
 }

@@ -31,6 +31,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Supplier;
 
@@ -205,11 +206,11 @@ public class ObserveUtils {
         if (!tracingEnabled) {
             return;
         }
-        ObserverContext observerContext = getObserverContextOfCurrentFrame(context);
-        if (observerContext == null) {
+        Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(context);
+        if (!observerContext.isPresent()) {
             return;
         }
-        BSpan span = (BSpan) observerContext.getProperty(KEY_SPAN);
+        BSpan span = (BSpan) observerContext.get().getProperty(KEY_SPAN);
         if (span == null) {
             return;
         }
@@ -237,11 +238,8 @@ public class ObserveUtils {
      * @param context current context
      * @return observer context of the current frame
      */
-    public static ObserverContext getObserverContextOfCurrentFrame(Context context) {
-        if (enabled) {
-            return context.getStrand().currentFrame.observerContext;
-        }
-        return null;
+    public static Optional<ObserverContext> getObserverContextOfCurrentFrame(Context context) {
+        return enabled ? Optional.of(context.getStrand().currentFrame.observerContext) : Optional.empty();
     }
 
     /**
