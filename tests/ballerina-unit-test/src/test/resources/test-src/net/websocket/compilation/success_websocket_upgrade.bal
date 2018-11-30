@@ -19,11 +19,9 @@ import ballerina/http;
 
 final string REMOTE_BACKEND_URL = "ws://localhost:15500/websocket";
 
-endpoint http:Listener httpCaller {
-    port: 9090
-};
+listener http:Listener httpListener = new(9090);
 
-service<http:Service> proxy bind httpCaller {
+service proxy on httpListener {
 
     @http:ResourceConfig {
         webSocketUpgrade: {
@@ -32,7 +30,7 @@ service<http:Service> proxy bind httpCaller {
 
         }
     }
-    websocketProxy(endpoint caller, http:Request req) {
+    resource function websocketProxy(http:Caller caller, http:Request req) {
     }
 
     @http:ResourceConfig {
@@ -40,7 +38,7 @@ service<http:Service> proxy bind httpCaller {
         path: "/hello"
     }
 
-    sayHello(endpoint caller, http:Request req) {
+    resource function sayHello(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload("Successful");
         _ = caller->respond(res);
@@ -48,9 +46,9 @@ service<http:Service> proxy bind httpCaller {
 
 }
 
-service<http:WebSocketService> wsService {
+service wsService = @http:WebSocketServiceConfig {} service {
 
-    onOpen(endpoint caller) {
+    resource function onOpen(http:WebSocketCaller caller) {
     }
 
-}
+};
