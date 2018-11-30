@@ -15,11 +15,14 @@
 // under the License.
 
 # Provides the gRPC actions for interacting with caller.
+#
+# + instanceId - The connection id
+# + remoteAddress - The remote address
+# + localAddress - The local address
 public type Caller client object {
 
     public Remote remoteDetails = {};
     public Local local = {};
-    public string protocol = "";
 
     private int instanceId = -1;
 
