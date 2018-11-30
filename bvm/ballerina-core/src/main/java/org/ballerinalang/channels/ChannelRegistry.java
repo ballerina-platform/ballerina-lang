@@ -16,7 +16,7 @@
  */
 package org.ballerinalang.channels;
 
-import org.ballerinalang.bre.vm.Strand;
+import org.ballerinalang.bre.bvm.Strand;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 

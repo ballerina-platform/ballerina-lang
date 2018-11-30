@@ -55,9 +55,9 @@
                         stroke-width: @diagram-condition-line-stroke-width;
                     }
                     .hide-line {
-                        stroke: ~"@{@{color}-diagram-panel-header-background-color}";
+                        stroke: ~"@{@{color}-diagram-panel-body-background-color}";
                         stroke-width: 2px;
-                    } 
+                    }
                     .arrow-head {
                         fill: ~"@{@{color}-diagram-arrow-head-color}";
                     }
@@ -67,21 +67,9 @@
                 }
             }
         }
-    }
-}
-
-body {
-    & {
-        .diagram("light");
-    }
-    &.dark {
-        .diagram("dark");
-    }
-    .diagram-container {
         .diagram-controllers {
             .top-menu {
                 padding: 8px 35px 8px 30px;
-
                 .left.menu {
                     .item {
                         margin-right: 8px;
@@ -100,6 +88,9 @@ body {
                     .zoom-controllers,
                     .add-definitions {
                         margin-left: 8px;
+                    }
+                    .button {
+                        z-index: 1;
                     }
                 }
             }
@@ -121,5 +112,13 @@ body {
     }
     .endpoint-search-dialog {
         top: 15px;
+    }
+}
+
+body {
+    .diagram("light");
+    
+    &.dark {
+        .diagram("dark");
     }
 }

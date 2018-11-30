@@ -16,6 +16,7 @@
 
 package org.ballerinalang.swagger.test;
 
+import org.apache.commons.io.FileUtils;
 import org.ballerinalang.swagger.CodeGenerator;
 import org.ballerinalang.swagger.exception.BallerinaOpenApiException;
 import org.ballerinalang.swagger.model.GenSrcFile;
@@ -25,7 +26,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,7 +48,7 @@ public class CodeGeneratorTest {
             try {
                 Files.createDirectory(projectPath);
             } catch (IOException e) {
-                e.printStackTrace();
+                // Ignore.
             }
         }
     }
@@ -142,7 +142,7 @@ public class CodeGeneratorTest {
         try {
             FileUtils.deleteDirectory(projectPath.toFile());
         } catch (IOException e) {
-            e.printStackTrace();
+            // Ignore.
         }
     }
 }

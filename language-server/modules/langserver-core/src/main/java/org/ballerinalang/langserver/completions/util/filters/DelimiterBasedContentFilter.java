@@ -35,13 +35,11 @@ import org.ballerinalang.langserver.index.dto.BPackageSymbolDTO;
 import org.ballerinalang.langserver.index.dto.BRecordTypeSymbolDTO;
 import org.ballerinalang.langserver.index.dto.OtherTypeSymbolDTO;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.util.Flags;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
@@ -86,36 +84,20 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
         }
         List<SymbolInfo> visibleSymbols = ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
         SymbolInfo symbol = FilterUtils.getVariableByName(symbolToken, visibleSymbols);
-//        ParserRuleContext parserRuleContext = ctx.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
-
-          // ToDo fix with worker actions
-//        boolean isWorkerInteraction = UtilSymbolKeys.RIGHT_ARROW_SYMBOL_KEY.equals(delimiter)
-//                || parserRuleContext instanceof BallerinaParser.WorkerInteractionStatementContext;
-//
-//        boolean isWorkerReply = UtilSymbolKeys.LEFT_ARROW_SYMBOL_KEY.equals(delimiter)
-//                || parserRuleContext instanceof BallerinaParser.WorkerInteractionStatementContext;
-
-        boolean isWorkerInteraction = false;
-        boolean isWorkerReply = false;
+        boolean isWorkerReceive = UtilSymbolKeys.LEFT_ARROW_SYMBOL_KEY.equals(delimiter);
         boolean isActionInvocation = UtilSymbolKeys.RIGHT_ARROW_SYMBOL_KEY.equals(delimiter)
                 && CommonUtil.isClientObject(symbol.getScopeEntry().symbol);
+        boolean isWorkerSend = !isActionInvocation && UtilSymbolKeys.RIGHT_ARROW_SYMBOL_KEY.equals(delimiter);
 
         if (UtilSymbolKeys.DOT_SYMBOL_KEY.equals(delimiter) || UtilSymbolKeys.BANG_SYMBOL_KEY.equals(delimiter)
                 || isActionInvocation) {
             returnSymbolsInfoList.addAll(FilterUtils.getInvocationAndFieldSymbolsOnVar(ctx, symbolToken, delimiter,
                     visibleSymbols));
-        } else if (isWorkerInteraction || isWorkerReply) {
-            // Handle worker interactions
-            List<SymbolInfo> filteredList = FilterUtils.getInvocationAndFieldSymbolsOnVar(ctx, symbolToken, delimiter,
-                    visibleSymbols);
-            filteredList.removeIf(symbolInfo -> {
-                BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-                return bSymbol instanceof BInvokableSymbol && ((bSymbol.flags & Flags.ATTACHED) == Flags.ATTACHED);
-            });
-            if (isWorkerInteraction && !poppedTokens.contains(UtilSymbolKeys.COMMA_SYMBOL_KEY)) {
-                SymbolInfo fork = new SymbolInfo("fork", symbol.getScopeEntry());
-                filteredList.add(fork);
-            }
+        } else if (isWorkerSend || isWorkerReceive) {
+            List<SymbolInfo> filteredList = visibleSymbols.stream()
+                    .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol.type instanceof BFutureType
+                    && ((BFutureType) symbolInfo.getScopeEntry().symbol.type).workerDerivative)
+                    .collect(Collectors.toList());
             returnSymbolsInfoList.addAll(filteredList);
         } else if (UtilSymbolKeys.PKG_DELIMITER_KEYWORD.equals(delimiter)) {
             // We are filtering the package functions, actions and the types
