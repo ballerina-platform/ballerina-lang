@@ -2894,8 +2894,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // Retry transaction.
         Operand txConclusionEndAddr = getOperand(-1);
-        this.emit(InstructionCodes.TR_RETRY, transactionIndexOperand, transStmtAbortEndAddr, txConclusionEndAddr,
-                trEndStatusReg);
+        this.emit(InstructionCodes.TR_RETRY, transactionIndexOperand, transStmtAbortEndAddr, trEndStatusReg);
 
         // Process transaction statements.
         boolean prevRegResetState = this.regIndexResetDisabled;

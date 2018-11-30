@@ -1329,19 +1329,38 @@ public class PackageInfoReader {
                     k = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j, k));
                     break;
+                case InstructionCodes.TR_RETRY:
+                    i = codeStream.readInt();
+                    j = codeStream.readInt();
+                    k = codeStream.readInt();
+                    packageInfo.addInstruction(new Instruction.InstructionTrRetry(opcode, i, j, k));
+                    break;
                 case InstructionCodes.NEWQNAME:
                 case InstructionCodes.NEWXMLELEMENT:
-                case InstructionCodes.TR_RETRY:
                 case InstructionCodes.MAPLOAD:
                 case InstructionCodes.ERROR:
-                case InstructionCodes.TR_END:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();
                     h = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j, k, h));
                     break;
+                case InstructionCodes.TR_END:
+                    i = codeStream.readInt();
+                    j = codeStream.readInt();
+                    k = codeStream.readInt();
+                    h = codeStream.readInt();
+                    packageInfo.addInstruction(new Instruction.InstructionTrEnd(opcode, i, j, k, h));
+                    break;
                 case InstructionCodes.TR_BEGIN:
+                    i = codeStream.readInt();
+                    j = codeStream.readInt();
+                    k = codeStream.readInt();
+                    h = codeStream.readInt();
+                    l = codeStream.readInt();
+                    packageInfo.addInstruction(new Instruction.InstructionTrBegin(opcode, i, j, k, h, l));
+                    break;
+
                 case InstructionCodes.NEWTABLE:
                     i = codeStream.readInt();
                     j = codeStream.readInt();

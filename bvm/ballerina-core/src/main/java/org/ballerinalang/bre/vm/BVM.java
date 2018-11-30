@@ -97,6 +97,9 @@ import org.ballerinalang.util.codegen.Instruction;
 import org.ballerinalang.util.codegen.Instruction.InstructionCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionIteratorNext;
 import org.ballerinalang.util.codegen.Instruction.InstructionLock;
+import org.ballerinalang.util.codegen.Instruction.InstructionTrBegin;
+import org.ballerinalang.util.codegen.Instruction.InstructionTrRetry;
+import org.ballerinalang.util.codegen.Instruction.InstructionTrEnd;
 import org.ballerinalang.util.codegen.Instruction.InstructionUnLock;
 import org.ballerinalang.util.codegen.Instruction.InstructionVCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionWRKSendReceive;
@@ -432,11 +435,8 @@ public class BVM {
                         execIntegerRangeOpcodes(sf, operands);
                         break;
                     case InstructionCodes.TR_RETRY:
-                        i = operands[0];
-                        j = operands[1];
-                        k = operands[2];
-                        l = operands[3];
-                        retryTransaction(strand, i, j, k, l);
+                        InstructionTrRetry trRetry = (InstructionTrRetry) instruction;
+                        retryTransaction(strand, trRetry.blockId, trRetry.abortEndIp, trRetry.trStatusReg);
                         break;
                     case InstructionCodes.CALL:
                         callIns = (InstructionCALL) instruction;
@@ -455,20 +455,13 @@ public class BVM {
                         }
                         break;
                     case InstructionCodes.TR_BEGIN:
-                        int h;
-                        i = operands[0];
-                        j = operands[1];
-                        k = operands[2];
-                        h = operands[3];
-                        l = operands[4];
-                        beginTransaction(strand, i, j, k, h, l);
+                        InstructionTrBegin trBegin = (InstructionTrBegin) instruction;
+                        beginTransaction(strand, trBegin.transactionType, trBegin.blockId, trBegin.retryCountReg,
+                                trBegin.committedFuncIndex, trBegin.abortedFuncIndex);
                         break;
                     case InstructionCodes.TR_END:
-                        i = operands[0];
-                        j = operands[1];
-                        k = operands[2];
-                        h = operands[3];
-                        endTransaction(strand, i, j, k, h);
+                        InstructionTrEnd trEnd = (InstructionTrEnd) instruction;
+                        endTransaction(strand, trEnd.blockId, trEnd.endType, trEnd.statusRegIndex, trEnd.errorRegIndex);
                         break;
                     case InstructionCodes.WRKSEND:
                         InstructionWRKSendReceive wrkSendIns = (InstructionWRKSendReceive) instruction;
@@ -3225,8 +3218,7 @@ public class BVM {
         return TransactionLocalContext.create(globalTransactionId, null, null);
     }
 
-    private static void retryTransaction(Strand strand, int transactionBlockId, int trAbortEndIp,
-                                         int trEndEndIp, int trEndStatusReg) {
+    private static void retryTransaction(Strand strand, int transactionBlockId, int trAbortEndIp, int trEndStatusReg) {
         strand.currentFrame.intRegs[trEndStatusReg] = 0; // set trend status to normal.
         TransactionLocalContext transactionLocalContext = strand.getLocalTransactionContext();
         transactionLocalContext.getAndClearFailure();
@@ -3249,12 +3241,12 @@ public class BVM {
         strand.currentFrame.ip = trAbortEndIp;
     }
 
-    private static void endTransaction(Strand strand, int txBlockId, int status,
-                                       int statusRegIndex, int errorRegIndex) {
+    private static void endTransaction(Strand strand, int txBlockId, int endType, int statusRegIndex,
+                                       int errorRegIndex) {
         TransactionLocalContext localTxInfo = strand.getLocalTransactionContext();
         try {
             //In success case no need to do anything as with the transaction end phase it will be committed.
-            switch (Transactions.TransactionStatus.getConst(status)) {
+            switch (Transactions.TransactionStatus.getConst(endType)) {
                 case BLOCK_END: // 0
                     // set statusReg
                     transactionBlockEnd(strand, txBlockId, statusRegIndex, localTxInfo, errorRegIndex);
@@ -3269,7 +3261,7 @@ public class BVM {
                     transactionEndEnd(strand, txBlockId, localTxInfo);
                     break;
                 default:
-                    throw new IllegalArgumentException("Invalid transaction end status: " + status);
+                    throw new IllegalArgumentException("Invalid transaction end endType: " + endType);
             }
         } catch (Throwable e) {
             strand.setError(BLangVMErrors.createError(strand, e.getMessage()));
