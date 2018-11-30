@@ -180,7 +180,7 @@ function copy(io:ReadableByteChannel src, io:WritableByteChannel dst) returns er
     return;
 }
 
-//Closes the byte channel
+//Closes the byte channel.
 function close(io:ReadableByteChannel|io:WritableByteChannel ch) {
     abstract object {
         public function close() returns error?;
