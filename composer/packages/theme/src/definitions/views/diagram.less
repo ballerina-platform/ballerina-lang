@@ -1,6 +1,7 @@
 .diagram(@color) {
     background: ~"@{@{color}-diagram-background-color}";
     font-size: @diagram-font-size;
+    font-family: Monaco, Consolas, "Courier New", monospace, "@{diagram-icon-font}";
 
     .diagram-container {
         background: ~"@{@{color}-diagram-background-color}";
@@ -15,7 +16,6 @@
                     fill: ~"@{@{color}-diagram-panel-header-background-color}";
 
                     .panel-icon {
-                        font-family: @diagram-icon-font;
                     }
                     text {
                         fill: ~"@{@{color}-diagram-panel-header-text-color}";
@@ -39,6 +39,12 @@
                             text-anchor: middle;
                         }
                     }
+                    .dropdown-trigger {
+                        .dropdown {
+                            .trigger-icon {
+                            }
+                        }
+                    }
                     .condition {
                         .label {
                             text-anchor: middle;
@@ -55,9 +61,9 @@
                         stroke-width: @diagram-condition-line-stroke-width;
                     }
                     .hide-line {
-                        stroke: ~"@{@{color}-diagram-panel-header-background-color}";
+                        stroke: ~"@{@{color}-diagram-panel-body-background-color}";
                         stroke-width: 2px;
-                    } 
+                    }
                     .arrow-head {
                         fill: ~"@{@{color}-diagram-arrow-head-color}";
                     }
@@ -67,17 +73,6 @@
                 }
             }
         }
-    }
-}
-
-body {
-    & {
-        .diagram("light");
-    }
-    &.dark {
-        .diagram("dark");
-    }
-    .diagram-container {
         .diagram-controllers {
             .top-menu {
                 padding: 8px 35px 8px 30px;
@@ -123,5 +118,13 @@ body {
     }
     .endpoint-search-dialog {
         top: 15px;
+    }
+}
+
+body {
+    .diagram("light");
+    
+    &.dark {
+        .diagram("dark");
     }
 }

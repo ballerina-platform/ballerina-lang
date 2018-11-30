@@ -13,42 +13,34 @@ export const ForeachBox: React.StatelessComponent<{
     }> = ({
         x, y, label, expression
     }) => {
-        const hHeight = (config.flowCtrl.header.height / 2);
+        const hHeight = (config.flowCtrl.foreach.height / 2);
+        const hWidth = (config.flowCtrl.foreach.width / 2);
 
-        const labelProps = { x , y};
+        const labelProps = { x , y };
         const conditionProps = {x, y};
         const p1 = { x: 0, y: 0};
         const p2 = { x: 0, y: 0};
         const p3 = { x: 0, y: 0};
         const p4 = { x: 0, y: 0};
-        const trueProps = { x: 0, y: 0};
-        const falseProps = { x: 0, y: 0};
-        //     p1
-        //     /\
-        // p4 /  \ p2
-        //    \  /
-        //     \/
-        //     p3
-        p1.x = x;
+        //    p1___________p2
+        //     |           |
+        //     |           |
+        //     |___________|
+        //    p3           p4
+        p1.x = x - hWidth;
         p1.y = y - hHeight;
 
-        p2.x = x + hHeight;
-        p2.y = y;
+        p2.x = x + hWidth;
+        p2.y = y - hHeight;
 
-        p3.x = x;
+        p3.x = p2.x;
         p3.y = y + hHeight;
 
-        p4.x = x - hHeight;
-        p4.y = y;
+        p4.x = p1.x;
+        p4.y = y + hHeight;
 
-        conditionProps.x = x + (hHeight / 2) + 5;
-        conditionProps.y = y + (hHeight / 2) + 5;
-
-        trueProps.x = p3.x - 30;
-        trueProps.y = p3.y + 5;
-
-        falseProps.x = p2.x + 5;
-        falseProps.y = p2.y - 10;
+        conditionProps.x = x ;
+        conditionProps.y = y + (hHeight / 2);
 
         return (
             <g className="condition">
@@ -56,6 +48,5 @@ export const ForeachBox: React.StatelessComponent<{
                     points={`${p1.x},${p1.y} ${p2.x},${p2.y} ${p3.x},${p3.y} ${p4.x},${p4.y} ${p1.x},${p1.y}`}
                 />
                 <text {...labelProps} className="label">{label}</text>
-                <text {...conditionProps} className="label">{expression}</text>
             </g>);
     };

@@ -66,6 +66,9 @@ public class StackFrame {
 
     public ObserverContext observerContext;
 
+    // Indicate this frame belong to a transaction participant
+    TransactionParticipantType trxParticipant;
+
     public StackFrame() {}
 
     public StackFrame(PackageInfo packageInfo, CallableUnitInfo callableUnitInfo, CodeAttributeInfo ci, int retReg,
@@ -92,5 +95,11 @@ public class StackFrame {
         this.retReg = retReg;
         this.invocationFlags = invocationFlags;
     }
-        
+
+    enum TransactionParticipantType {
+        LOCAL_PARTICIPANT,
+        REMOTE_PARTICIPANT,
+        NON_PARTICIPANT
+    }
+
 }

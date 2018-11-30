@@ -59,6 +59,7 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.observability.ObserveUtils;
 import org.ballerinalang.util.observability.ObserverContext;
+import org.ballerinalang.util.transactions.TransactionConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
@@ -1054,6 +1055,21 @@ public class HttpUtil {
         }
 
         return annotationList.isEmpty() ? null : annotationList.get(0);
+    }
+
+    public static Annotation getTransactionConfigAnnotation(Resource resource, String transactionPackagePath) {
+        List<Annotation> annotationList = resource.getAnnotationList(transactionPackagePath,
+                TransactionConstants.ANN_NAME_TRX_PARTICIPANT_CONFIG);
+
+        if (annotationList == null || annotationList.isEmpty()) {
+            return null;
+        }
+        if (annotationList.size() > 1) {
+            throw new BallerinaException(
+                    "multiple transaction configuration annotations found in resource: " +
+                            resource.getServiceName() + "." + resource.getName());
+        }
+        return annotationList.get(0);
     }
 
     private static int getIntValue(long val) {

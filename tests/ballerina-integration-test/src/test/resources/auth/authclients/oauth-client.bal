@@ -15,11 +15,8 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/io;
-import ballerina/mime;
 
-endpoint http:Client clientEP1 {
-    url: "https://localhost:9095/foo",
+http:Client clientEP1 = new("https://localhost:9095/foo", config = {
     auth: {
         scheme: http:OAUTH2,
         refreshToken: "5Aep861..zRMyCurAUgnwQaEjnCVqxK2utna7Mm4nb9UamD7BW50R2huecjSaLlv5mT1z_TViZ",
@@ -28,10 +25,9 @@ endpoint http:Client clientEP1 {
         refreshUrl: "https://localhost:9095/foo/token",
         credentialBearer: http:POST_BODY_BEARER
     }
-};
+});
 
-endpoint http:Client clientEP2 {
-    url: "https://localhost:9095/foo",
+http:Client clientEP2 = new("https://localhost:9095/foo", config = {
     auth: {
         scheme: http:OAUTH2,
         refreshToken: "5Aep861..zRMyCurAUgnwQaEjnCVqxK2utna7Mm4nb9UamD7BW50R2huecjSaLlv5mT1z_TViZ",
@@ -40,10 +36,9 @@ endpoint http:Client clientEP2 {
         refreshUrl: "https://localhost:9095/foo/token",
         credentialBearer: http:AUTH_HEADER_BEARER
     }
-};
+});
 
-endpoint http:Client clientEP3 {
-    url: "https://localhost:9095/foo",
+http:Client clientEP3 = new("https://localhost:9095/foo", config = {
     auth: {
         scheme: http:OAUTH2,
         refreshToken: "5Aep861..zRMyCurAUgnwQaEjnCVqxK2utna7Mm4nb9UamD7BW50R2huecjSaLlv5mT1z_TViZ",
@@ -51,10 +46,9 @@ endpoint http:Client clientEP3 {
         clientSecret: "9205371918321623741",
         refreshUrl: "https://localhost:9095/foo/token"
     }
-};
+});
 
-endpoint http:Client clientEP4 {
-    url: "https://localhost:9095/foo",
+http:Client clientEP4 = new("https://localhost:9095/foo", config = {
     auth: {
         scheme: http:OAUTH2,
         refreshToken: "5Aep861..zRMyCurAUgnwQaEjnCVqxK2utna7Mm4nb9UamD7BW50R2huecjSaLlv5mT1z_TViZ",
@@ -63,10 +57,9 @@ endpoint http:Client clientEP4 {
         refreshUrl: "https://localhost:9095/foo/token",
         scopes: ["token-scope1", "token-scope2"]
     }
-};
+});
 
-endpoint http:Client clientEP5 {
-    url: "https://localhost:9095/foo",
+http:Client clientEP5 = new("https://localhost:9095/foo", config = {
     auth: {
         scheme: http:OAUTH2,
         refreshToken: "5Aep861..zRMyCurAUgnwQaEjnCVqxK2utna7Mm4nb9UamD7BW50R2huecjSaLlv5mT1z_TViZ",
@@ -77,7 +70,7 @@ endpoint http:Client clientEP5 {
         scopes: ["token-scope1", "token-scope2"]
 
     }
-};
+});
 
 public function main(string arg) {
     if (arg == "POST_BODY_BEARER") {

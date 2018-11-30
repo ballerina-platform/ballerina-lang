@@ -32,14 +32,14 @@ function testServerStreaming(string name) returns int {
         io:println("Connected successfully");
     }
 
-    int wait = 0;
+    int waitCount = 0;
     while(total < 4) {
         runtime:sleep(1000);
         io:println("msg count: " + total);
-        if (wait > 10) {
+        if (waitCount > 10) {
             break;
         }
-        wait += 1;
+        waitCount += 1;
     }
     io:println("Client got response successfully.");
     io:println("responses count: " + total);
@@ -80,7 +80,7 @@ public type HelloWorldClient client object {
         // initialize client endpoint.
         grpc:Client c = new;
         c.init(self.url, self.config);
-        error? result = c.initStub("non-blocking", DESCRIPTOR_KEY, getDescriptorMap());
+        error? result = c.initStub("non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
         if (result is error) {
             panic result;
         } else {
@@ -93,8 +93,8 @@ public type HelloWorldClient client object {
     }
 };
 
-const string DESCRIPTOR_KEY = "HelloWorld45.proto";
-function getDescriptorMap() returns map<any> {
+const string ROOT_DESCRIPTOR = "0A1248656C6C6F576F726C6434352E70726F746F120C6772706373657276696365731A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F325D0A0C48656C6C6F576F726C643435124D0A0D6C6F74734F665265706C696573121C2E676F6F676C652E70726F746F6275662E537472696E6756616C75651A1C2E676F6F676C652E70726F746F6275662E537472696E6756616C75653001620670726F746F33";
+function getDescriptorMap() returns map<string> {
     return {
         "HelloWorld45.proto":
         "0A1248656C6C6F576F726C6434352E70726F746F120C6772706373657276696365731A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F325D0A0C48656C6C6F576F726C643435124D0A0D6C6F74734F665265706C696573121C2E676F6F676C652E70726F746F6275662E537472696E6756616C75651A1C2E676F6F676C652E70726F746F6275662E537472696E6756616C75653001620670726F746F33"

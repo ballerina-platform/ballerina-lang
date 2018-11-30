@@ -30,9 +30,17 @@ export interface OpenApiContext {
     onDidAddOperation: (operation: OpenApiOperation) => void;
     onDidAddParameter: (operation: OpenApiParameter) => void;
     onDidAddResponse: (response: OpenApiResponse) => void;
+    onInlineEditChange: (openApiJson: any) => void;
 }
 
-const context = React.createContext<OpenApiContext | null>(null);
+const context = React.createContext<OpenApiContext>({
+    onDidAddOperation: () => {/* tslint:disable:no-empty */},
+    onDidAddParameter: () => {/* tslint:disable:no-empty */},
+    onDidAddResource: () => {/* tslint:disable:no-empty */},
+    onDidAddResponse: () => {/* tslint:disable:no-empty */},
+    onInlineEditChange: () => {/* tslint:disable:no-empty */},
+    openApiJson: {},
+});
 
 export const OpenApiContextProvider = context.Provider;
 export const OpenApiContextConsumer = context.Consumer;

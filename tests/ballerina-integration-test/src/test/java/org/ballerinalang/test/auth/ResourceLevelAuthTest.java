@@ -31,11 +31,11 @@ import java.util.Map;
  */
 @Test(groups = "auth-test")
 public class ResourceLevelAuthTest extends AuthBaseTest {
+
     private final int servicePort = 9093;
 
     @Test(description = "Authn and authz success test case")
-    public void testAuthSuccessWithResourceLevelConfigs()
-            throws Exception {
+    public void testAuthSuccessWithResourceLevelConfigs() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Basic aXN1cnU6eHh4");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
@@ -45,8 +45,7 @@ public class ResourceLevelAuthTest extends AuthBaseTest {
     }
 
     @Test(description = "Authn success and authz failure test case")
-    public void testAuthzFailureWithResourceLevelConfigs()
-            throws Exception {
+    public void testAuthzFailureWithResourceLevelConfigs() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Basic aXNoYXJhOmFiYw==");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
@@ -56,8 +55,7 @@ public class ResourceLevelAuthTest extends AuthBaseTest {
     }
 
     @Test(description = "Authn and authz failure test case")
-    public void testAuthFailureWithResourceLevelConfigs()
-            throws Exception {
+    public void testAuthFailureWithResourceLevelConfigs() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Basic dGVzdDp0ZXN0MTIz");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),

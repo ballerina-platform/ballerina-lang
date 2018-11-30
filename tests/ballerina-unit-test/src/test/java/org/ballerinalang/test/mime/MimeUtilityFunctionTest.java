@@ -27,11 +27,11 @@ import org.ballerinalang.mime.util.MultipartDecoder;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.util.XMLUtils;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.utils.Base64ByteChannel;
@@ -182,11 +182,11 @@ public class MimeUtilityFunctionTest {
     @Test
     public void testMimeBase64EncodeBlob() {
         String expectedValue = "SGVsbG8gQmFsbGVyaW5h";
-        BValue[] args = new BValue[]{new BByteArray("Hello Ballerina".getBytes())};
+        BValue[] args = new BValue[]{new BValueArray("Hello Ballerina".getBytes())};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testMimeBase64EncodeBlob", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
                 "Invalid return value");
-        ByteArrayUtils.assertJBytesWithBBytes(((BByteArray) returnValues[0]).getBytes(), expectedValue.getBytes());
+        ByteArrayUtils.assertJBytesWithBBytes(((BValueArray) returnValues[0]).getBytes(), expectedValue.getBytes());
     }
 
     @Test
@@ -221,11 +221,11 @@ public class MimeUtilityFunctionTest {
     @Test
     public void testMimeBase64DecodeBlob() {
         String expectedValue = "Hello Ballerina";
-        BValue[] args = new BValue[]{new BByteArray("SGVsbG8gQmFsbGVyaW5h".getBytes())};
+        BValue[] args = new BValue[]{new BValueArray("SGVsbG8gQmFsbGVyaW5h".getBytes())};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testMimeBase64DecodeBlob", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
                 "Invalid return value");
-        ByteArrayUtils.assertJBytesWithBBytes(((BByteArray) returnValues[0]).getBytes(), expectedValue.getBytes());
+        ByteArrayUtils.assertJBytesWithBBytes(((BValueArray) returnValues[0]).getBytes(), expectedValue.getBytes());
     }
 
     @Test
@@ -306,18 +306,18 @@ public class MimeUtilityFunctionTest {
     @Test(description = "Set byte array data to entity and get the content back from entity as a byte array")
     public void testGetAndSetByteArray() {
         String content = "ballerina";
-        BByteArray byteContent = new BByteArray(content.getBytes());
+        BValueArray byteContent = new BValueArray(content.getBytes());
         BValue[] args = {byteContent};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetAndGetByteArray", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(new String(((BByteArray) returns[0]).getBytes()), content);
+        Assert.assertEquals(new String(((BValueArray) returns[0]).getBytes()), content);
     }
 
     @Test(description = "Test whether the byte array content can be " +
             "retrieved properly when it is called multiple times")
     public void testGetByteArrayMoreThanOnce() {
         String content = "ballerina";
-        BByteArray byteContent = new BByteArray(content.getBytes());
+        BValueArray byteContent = new BValueArray(content.getBytes());
         BValue[] args = {byteContent};
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetByteArrayMultipleTimes", args);
         Assert.assertEquals(returns.length, 1);
@@ -332,7 +332,7 @@ public class MimeUtilityFunctionTest {
             BValue[] args = {new BString(file.getAbsolutePath())};
             BValue[] returns = BRunUtil.invoke(compileResult, "testSetFileAsEntityBody", args);
             Assert.assertEquals(returns.length, 1);
-            Assert.assertEquals(new String(((BByteArray) returns[0]).getBytes()), "Hello Ballerina!",
+            Assert.assertEquals(new String(((BValueArray) returns[0]).getBytes()), "Hello Ballerina!",
                     "Entity body is not properly set");
         } catch (IOException e) {
             log.error("Error occurred in testSetFileAsEntityBody", e.getMessage());
@@ -349,7 +349,7 @@ public class MimeUtilityFunctionTest {
             BValue[] args = {byteChannelStruct};
             BValue[] returns = BRunUtil.invoke(compileResult, "testSetByteChannel", args);
             Assert.assertEquals(returns.length, 1);
-            Assert.assertEquals(new String(((BByteArray) returns[0]).getBytes()), "Hello Ballerina!",
+            Assert.assertEquals(new String(((BValueArray) returns[0]).getBytes()), "Hello Ballerina!",
                     "Entity body is not properly set");
         } catch (IOException e) {
             log.error("Error occurred in testSetByteChannel", e.getMessage());
@@ -575,11 +575,11 @@ public class MimeUtilityFunctionTest {
     @Test
     public void testSetBodyAndGetByteArray() {
         String content = "ballerina";
-        BByteArray byteContent = new BByteArray(content.getBytes());
+        BValueArray byteContent = new BValueArray(content.getBytes());
         BValue[] args = {byteContent};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetBodyAndGetByteArray", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(new String(((BByteArray) returns[0]).getBytes()), content);
+        Assert.assertEquals(new String(((BValueArray) returns[0]).getBytes()), content);
     }
 
     @Test
@@ -699,7 +699,7 @@ public class MimeUtilityFunctionTest {
             BValue[] returns = BRunUtil.invoke(compileResult, "testByteArrayWithContentType", args);
             Assert.assertEquals(returns.length, 1);
             //Change this accordingly when https://github.com/ballerina-platform/ballerina-lang/issues/10079 is fixed
-            Assert.assertEquals(new String(((BByteArray) returns[0]).getBytes()), "{\"code\":\"123\"}",
+            Assert.assertEquals(new String(((BValueArray) returns[0]).getBytes()), "{\"code\":\"123\"}",
                     "Entity body is not properly set");
         } catch (IOException e) {
             log.error("Error occurred in testByteArrayWithContentType", e.getMessage());
@@ -718,7 +718,7 @@ public class MimeUtilityFunctionTest {
             BValue[] args = {byteChannelStruct, contentType};
             BValue[] returns = BRunUtil.invoke(compileResult, "testByteArrayWithContentType", args);
             Assert.assertEquals(returns.length, 1);
-            Assert.assertEquals(new String(((BByteArray) returns[0]).getBytes()), "{\"test\":\"菜鸟驿站\"}",
+            Assert.assertEquals(new String(((BValueArray) returns[0]).getBytes()), "{\"test\":\"菜鸟驿站\"}",
                     "Entity body is not properly set");
         } catch (IOException e) {
             log.error("Error occurred in testByteArrayWithCharset", e.getMessage());

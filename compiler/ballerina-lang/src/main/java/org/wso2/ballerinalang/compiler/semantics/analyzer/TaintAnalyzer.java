@@ -41,6 +41,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
+import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -130,7 +131,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
@@ -165,6 +167,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerUtils;
+import org.wso2.ballerinalang.compiler.util.Constants;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -402,6 +405,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangErrorVariable bLangErrorVariable) {
+        // TODO: Complete
+    }
+
+    @Override
     public void visit(BLangSimpleVariable varNode) {
         if (varNode.expr != null) {
             SymbolEnv varInitEnv = SymbolEnv.createVarInitEnv(varNode, env, varNode.symbol);
@@ -561,11 +569,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangDone abortNode) {
-        /* ignore */
-    }
-
-    @Override
     public void visit(BLangRetry retryNode) {
         /* ignore */
     }
@@ -673,6 +676,12 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (transactionNode.onRetryBody != null) {
             transactionNode.onRetryBody.accept(this);
         }
+        if (transactionNode.committedBody != null) {
+            transactionNode.committedBody.accept(this);
+        }
+        if (transactionNode.abortedBody != null) {
+            transactionNode.abortedBody.accept(this);
+        }
         overridingAnalysis = true;
     }
 
@@ -705,6 +714,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             BLangRecordVarRefKeyValue varRefExpr = stmt.varRef.recordRefFields.get(varIndex);
             visitAssignment(varRefExpr.variableReference, taintedStatus, stmt.pos);
         }
+    }
+
+    @Override
+    public void visit(BLangErrorDestructure stmt) {
+        // TODO: Complete
     }
 
     @Override
@@ -952,7 +966,9 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 });
             }
             this.taintedStatus = exprTaintedStatus;
-        } else if (invocationExpr.builtinMethodInvocation) {
+        } else if (invocationExpr.builtinMethodInvocation && (invocationExpr.builtInMethod != BLangBuiltInMethod.CALL
+                || invocationExpr.symbol.name.value.startsWith(Constants.WORKER_LAMBDA_VAR_PREFIX))) {
+            //TODO: Remove "WORKER_LAMBDA_VAR_PREFIX" check after worker interaction analysis is in place.
             analyzeBuiltInMethodInvocation(invocationExpr);
         } else {
             BInvokableSymbol invokableSymbol = (BInvokableSymbol) invocationExpr.symbol;
@@ -968,6 +984,16 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     this.taintedStatus = TaintedStatus.IGNORED;
                     analyzerPhase = AnalyzerPhase.LOOP_ANALYSIS_COMPLETE;
                 } else {
+                    // When "call" is use to invoke function pointers, taint-table of the actual function to be invoked
+                    // is not known. Therefore, if the analyzer is blocked on such function pointer invocation, skip
+                    // taint analysis and consider the outcome of the invocation as untainted.
+                    // TODO: Resolving function pointers and perform analysis.
+                    if (analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS_COMPLETE && invocationExpr.builtinMethodInvocation
+                            && invocationExpr.builtInMethod == BLangBuiltInMethod.CALL) {
+                        this.taintedStatus = TaintedStatus.IGNORED;
+                        analyzerPhase = AnalyzerPhase.LOOP_ANALYSIS_COMPLETE;
+                        return;
+                    }
                     // If taint-table of invoked function is not generated yet, add it to the blocked list for latter
                     // processing.
                     addToBlockedList(invocationExpr);
@@ -1000,8 +1026,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             case REASON:
             case DETAIL:
             case STACKTRACE:
-                //TODO:write proper taint analysis
-                this.taintedStatus = TaintedStatus.UNTAINTED;
+                invocationExpr.expr.accept(this);
                 break;
             default:
                 throw new AssertionError("Taint checking failed for built-in method: " + builtInMethod);
@@ -1250,7 +1275,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
-        /* ignore */
+        this.taintedStatus = TaintedStatus.UNTAINTED;
     }
 
     @Override
@@ -1315,7 +1340,17 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
-        // TODO: Fix me.
+        TaintedStatus reasonTaintedStatus = TaintedStatus.UNTAINTED;
+        TaintedStatus detailsTaintedStatus = TaintedStatus.UNTAINTED;
+        if (errorConstructorExpr.reasonExpr != null) {
+            errorConstructorExpr.reasonExpr.accept(this);
+            reasonTaintedStatus = this.taintedStatus;
+        }
+        if (errorConstructorExpr.detailsExpr != null) {
+            errorConstructorExpr.detailsExpr.accept(this);
+            detailsTaintedStatus = this.taintedStatus;
+        }
+        this.taintedStatus = getCombinedTaintedStatus(reasonTaintedStatus, detailsTaintedStatus);
     }
 
     @Override
@@ -1508,6 +1543,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordVariableDef bLangRecordVariableDef) {
         visit(bLangRecordVariableDef.var);
+    }
+
+    @Override
+    public void visit(BLangErrorVariableDef bLangErrorVariableDef) {
+        visit(bLangErrorVariableDef.errorVariable);
     }
 
     /**
