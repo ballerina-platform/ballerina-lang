@@ -515,7 +515,7 @@ function testDone() {
         int i = 0;
         if (i == 0) {
             workerTest = workerTest + " beforeDone";
-            done;
+            return;
         }
     }
 }

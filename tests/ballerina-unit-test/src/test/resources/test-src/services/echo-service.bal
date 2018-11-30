@@ -50,7 +50,7 @@ service echo on echoEP {
         string payloadData = "";
         var payload = req.getTextPayload();
         if (payload is error) {
-            done;
+            return;
         } else if (payload is string) {
             payloadData = payload;
         }
