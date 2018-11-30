@@ -384,9 +384,9 @@ public class NativeConversionTest {
         BRefValueArray array = (BRefValueArray) anyArrayStruct.get("a");
 
         Assert.assertEquals(array.getType().toString(), "int[]");
-        Assert.assertEquals(((BInteger)(array).get(0)).intValue(), 4);
-        Assert.assertEquals(((BInteger)(array).get(1)).intValue(), 3);
-        Assert.assertEquals(((BInteger)(array).get(2)).intValue(), 9);
+        Assert.assertEquals(((BInteger) (array).get(0)).intValue(), 4);
+        Assert.assertEquals(((BInteger) (array).get(1)).intValue(), 3);
+        Assert.assertEquals(((BInteger) (array).get(2)).intValue(), 9);
     }
 
     @Test(description = "Test converting a JSON string array to string array")
