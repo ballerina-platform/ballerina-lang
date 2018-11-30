@@ -30,6 +30,7 @@ export interface OpenApiContext {
     onDidAddOperation: (operation: OpenApiOperation) => void;
     onDidAddParameter: (operation: OpenApiParameter) => void;
     onDidAddResponse: (response: OpenApiResponse) => void;
+    onInlineEditChange: (openApiJson: any) => void;
 }
 
 const context = React.createContext<OpenApiContext | null>(null);
