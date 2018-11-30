@@ -9,17 +9,17 @@ function copy(io:ReadableByteChannel src,
     // Here is how to read all the content from
     // the source and copy it to the destination.
     while (readCount > 0) {
-        //Operation would attempt to read a maximum of 1000 bytes, the
-        //operation would return with the available content which could be
-        //< 1000
+        // The operation attempts to read a maximum of 1000 bytes and returns
+        // with the available content, which could be < 1000.
         (byte[], int) result = check src.read(1000);
         (readContent, readCount) = result;
-        //The operation would write the given content into the channel
+        // The operation writes the given content into the channel
         var writeResult = check dst.write(readContent, 0);
     }
     return;
 }
 
+// Closes a given readable or writable byte channel
 function close(io:ReadableByteChannel|io:WritableByteChannel ch) {
     abstract object {
         public function close() returns error?;
@@ -33,9 +33,12 @@ function close(io:ReadableByteChannel|io:WritableByteChannel ch) {
 public function main() {
     string srcPath = "./files/ballerina.jpg";
     string dstPath = "./files/ballerinaCopy.jpg";
+    // Initializes the readable byte channel
     io:ReadableByteChannel srcCh = io:openReadableFile(srcPath);
+    // Initializes the writable byte channel
     io:WritableByteChannel dstCh = io:openWritableFile(dstPath);
     io:println("Start to copy files from " + srcPath + " to " + dstPath);
+    // Copy the source byte channel to the target byte channel
     var result = copy(srcCh, dstCh);
     if (result is error) {
         log:printError("error occurred while performing copy ", err = result);
@@ -43,6 +46,7 @@ public function main() {
         io:println("File copy completed. The copied file could be located in " +
                     dstPath);
     }
+    // Close the connections
     close(srcCh);
     close(dstCh);
 }

@@ -1,6 +1,7 @@
 import ballerina/io;
 import ballerina/log;
 
+// Closes a readable channel
 function closeRc(io:ReadableCharacterChannel rc) {
     var result = rc.close();
     if (result is error) {
@@ -9,6 +10,7 @@ function closeRc(io:ReadableCharacterChannel rc) {
     }
 }
 
+// Closes a writable channel
 function closeWc(io:WritableCharacterChannel wc) {
     var result = wc.close();
     if (result is error) {
@@ -17,12 +19,12 @@ function closeWc(io:WritableCharacterChannel wc) {
     }
 }
 
+// Writes json to a given path
 function write(json content, string path) returns error? {
-    // Create a writable byte channel from the given path
+    // Creates a writable byte channel from the given path
     io:WritableByteChannel wbc = io:openWritableFile(path);
-    // Derive the character channel from the byte channel
+    // Derives the character channel from the byte channel
     io:WritableCharacterChannel wch = new(wbc, "UTF8");
-    // This is how json content is written via the character channel
     var result = wch.writeJson(content);
     if (result is error) {
         closeWc(wch);
@@ -33,12 +35,12 @@ function write(json content, string path) returns error? {
     }
 }
 
+// Reads json from a given path
 function read(string path) returns json|error {
-    // Create a readable byte channel from the given path
+    // Creates a readable byte channel from the given path
     io:ReadableByteChannel rbc = io:openReadableFile(path);
-    // Derive the character channel from the byte channel
+    // Derives the character channel from the byte channel
     io:ReadableCharacterChannel rch = new(rbc, "UTF8");
-    // This is how json content is read from the character channel
     var result = rch.readJson();
     if (result is error) {
         closeRc(rch);
@@ -51,7 +53,7 @@ function read(string path) returns json|error {
 
 public function main() {
     string filePath = "./files/sample.json";
-    //Create json content from string
+    // Creates json content from string
     json j1 = { "Store": {
         "@id": "AST",
         "name": "Anne",
@@ -63,13 +65,13 @@ public function main() {
     }
     };
     io:println("Preparing to write json file");
-    // Write the content
+    // Writes the content
     var wResult = write(j1, filePath);
     if (wResult is error) {
         log:printError("Error occurred while writing json: ", err = wResult);
     } else {
         io:println("Preparing to read the content written");
-        // Read the content
+        // Reads the content
         var rResult = read(filePath);
         if (rResult is error) {
             log:printError("Error occurred while reading json: ",

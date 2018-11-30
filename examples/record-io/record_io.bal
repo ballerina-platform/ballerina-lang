@@ -56,6 +56,7 @@ function process(io:ReadableTextRecordChannel srcRecordChannel,
     return;
 }
 
+// Closes readabale text record channel
 function closeRc(io:ReadableTextRecordChannel rc) {
     var closeResult = rc.close();
     if (closeResult is error) {
@@ -64,6 +65,7 @@ function closeRc(io:ReadableTextRecordChannel rc) {
     }
 }
 
+// Closes writable channel
 function closeWc(io:WritableTextRecordChannel wc) {
     var closeResult = wc.close();
     if (closeResult is error) {
@@ -94,6 +96,7 @@ public function main() {
         io:println("Processing completed. The processed file is located in ",
                     dstFileName);
     }
+    // Closes the channels
     closeRc(srcRecordChannel);
     closeWc(dstRecordChannel);
 }
