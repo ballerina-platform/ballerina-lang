@@ -15,7 +15,7 @@ listener jms:SimpleQueueReceiver consumerEndpoint = new({
 service jmsListener on consumerEndpoint {
 
     resource function onMessage(jms:QueueReceiver consumer,
-         jms:Message message) {
+        jms:Message message) {
         var textContent = message.getTextMessageContent();
         if (textContent is string) {
             log:printInfo("Message received from broker. Payload: " +

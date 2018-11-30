@@ -5,7 +5,7 @@ import ballerina/log;
 jms:Connection conn = new({
     initialContextFactory:"bmbInitialContextFactory",
     providerUrl:"amqp://admin:admin@carbon/carbon"
-                +"?brokerlist='tcp://localhost:5672'"
+                + "?brokerlist='tcp://localhost:5672'"
 });
 
 // This initializes a JMS session on top of the created connection.
@@ -16,8 +16,8 @@ jms:Session jmsSession = new(conn, {
 
 // This initializes a queue receiver using the created session.
 listener jms:QueueReceiver consumerEndpoint = new({
-   session:jmsSession,
-   queueName:"MyQueue"
+    session:jmsSession,
+    queueName:"MyQueue"
 });
 
 // This binds the created consumer to the listener service.

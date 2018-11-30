@@ -46,11 +46,8 @@ service httpService on new http:Listener(9090) {
 // - If  WebSocketServiceConfig is defined without the path, sub protocols, idle timeout etc... can be configured.
 // - If path is defined in the WebSocketServiceConfig it shall be ignored.
 // - This service can also be bound to a different endpoint in which case the path configuration becomes useful.
-//@http:WebSocketServiceConfig {
-//
-//}
-service wsService = @http:WebSocketServiceConfig {subProtocols: ["xml, json"],
-                                   idleTimeoutInSeconds: 20} service {
+service wsService = @http:WebSocketServiceConfig {subProtocols: ["xml, json"]
+                                         ,idleTimeoutInSeconds: 20} service {
 
     resource function onOpen(http:WebSocketCaller caller) {
         io:println("New WebSocket connection: " + caller.id);

@@ -24,13 +24,14 @@ listener jms:QueueReceiver consumerEndpoint = new({
 service jmsListener on consumerEndpoint {
 
     // This resource is invoked when a message is received.
-    resource function onMessage(jms:QueueReceiverCaller consumer, jms:Message message) {
+    resource function onMessage(jms:QueueReceiverCaller consumer,
+    jms:Message message) {
         // This retrieves the text message.
         var result = message.getTextMessageContent();
         if (result is string) {
             log:printInfo("Message : " + result);
             // This acknowledges the received message using the acknowledge function
-               //of the queue receiver endpoint.
+            // of the queue receiver endpoint.
             var ack = consumer->acknowledge(message);
             if (ack is error) {
                 log:printError("Error occurred while acknowledging message",
