@@ -3,12 +3,7 @@
 $ ballerina run check.bal
 validating bob...
 bob has a valid city
-Bob's result 1:true
-bob has a valid city
-Bob's result 2:true
+Bob's result:true
 
 validating tom...
-Tom's result 1:address not found {}
-error: address not found {}
-	at main(check.bal:66)
-	   validateAddressAgain(check.bal:44)
+Tom's result:address not found {}

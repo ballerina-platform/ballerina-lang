@@ -1,4 +1,6 @@
-// The `any` data type is the root of the Ballerina data types. It can represent a variable of any type excluding error type.
-// When you do not have prior knowledge of the data type of your variable, you can assign `any` as the type.
-// Values of these variables can come from dynamic content such as the request and response messages and the user input.
-// The `any` type allows you to skip compile-time data type checks.
+// The `any` type is the root of the Ballerina types. It can represent a variable of any type excluding error type.
+// `any` is an union type which consists
+// anydata | object | function pointers | stream | channel | service types.
+// When you do not have prior knowledge of the type of your variable, you can assign `any` as the type.
+// Values of these variables can come from dynamic content such as the request and response message references and
+// Ballerina reference variable types. The `any` type allows you to skip compile-time type checks.
