@@ -21,6 +21,7 @@ import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -34,9 +35,27 @@ public class ServiceTest {
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
           expectedExceptionsMessageRegExp = ".*error: startError.*")
-    public void testServiceInitTest() {
+    public void testServiceInitNegativeTest() {
         CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/new/service_init_negative.bal");
         BRunUtil.invoke(compileResult, "test1");
+    }
+
+    @Test(expectedExceptions = { BLangRuntimeException.class },
+          expectedExceptionsMessageRegExp = ".*error: startError.*")
+    public void testServiceInitPanicNegativeTest() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/new/service_init_panic_negative.bal");
+        BRunUtil.invoke(compileResult, "test1");
+    }
+
+    @Test
+    public void testMultipleServiceTest() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/new/service_multiple.bal");
+        final BValue[] result = BRunUtil.invoke(compileResult, "test1");
+        Assert.assertEquals(result.length, 2, "expected two return type");
+        Assert.assertNotNull(result[0]);
+        Assert.assertNotNull(result[1]);
+        Assert.assertEquals(result[0].stringValue(), "2");
+        Assert.assertEquals(result[1].stringValue(), "0");
     }
 
     @Test

@@ -814,8 +814,8 @@ public class BallerinaParser extends Parser {
 	public static class ServiceDefinitionContext extends ParserRuleContext {
 		public TerminalNode SERVICE() { return getToken(BallerinaParser.SERVICE, 0); }
 		public TerminalNode ON() { return getToken(BallerinaParser.ON, 0); }
-		public ExpressionContext expression() {
-			return getRuleContext(ExpressionContext.class,0);
+		public ExpressionListContext expressionList() {
+			return getRuleContext(ExpressionListContext.class,0);
 		}
 		public ServiceBodyContext serviceBody() {
 			return getRuleContext(ServiceBodyContext.class,0);
@@ -856,7 +856,7 @@ public class BallerinaParser extends Parser {
 			setState(512);
 			match(ON);
 			setState(513);
-			expression(0);
+			expressionList();
 			setState(514);
 			serviceBody();
 			}
@@ -17419,7 +17419,7 @@ public class BallerinaParser extends Parser {
 		"\3\2\2\2\u01fc\u01f8\3\2\2\2\u01fc\u01f9\3\2\2\2\u01fc\u01fa\3\2\2\2\u01fc"+
 		"\u01fb\3\2\2\2\u01fd\r\3\2\2\2\u01fe\u0200\7\t\2\2\u01ff\u0201\7\u00c4"+
 		"\2\2\u0200\u01ff\3\2\2\2\u0200\u0201\3\2\2\2\u0201\u0202\3\2\2\2\u0202"+
-		"\u0203\7\35\2\2\u0203\u0204\5\u00fa~\2\u0204\u0205\5\20\t\2\u0205\17\3"+
+		"\u0203\7\35\2\2\u0203\u0204\5\u00dco\2\u0204\u0205\5\20\t\2\u0205\17\3"+
 		"\2\2\2\u0206\u020a\7\u0089\2\2\u0207\u0209\5\22\n\2\u0208\u0207\3\2\2"+
 		"\2\u0209\u020c\3\2\2\2\u020a\u0208\3\2\2\2\u020a\u020b\3\2\2\2\u020b\u020d"+
 		"\3\2\2\2\u020c\u020a\3\2\2\2\u020d\u020e\7\u008a\2\2\u020e\21\3\2\2\2"+

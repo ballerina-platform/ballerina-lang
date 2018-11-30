@@ -2509,7 +2509,7 @@ public class BLangPackageBuilder {
         this.compUnit.addTopLevelNode(serviceNode);
 
         if (!isAnonServiceValue) {
-            serviceNode.attachExpr = (BLangExpression) this.exprNodeStack.pop();
+            this.exprNodeListStack.pop().forEach(expr -> serviceNode.attachedExprs.add((BLangExpression) expr));
             return;
         }
         final BLangServiceConstructorExpr serviceConstNode = (BLangServiceConstructorExpr) TreeBuilder

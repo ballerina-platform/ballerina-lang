@@ -40,7 +40,7 @@ definition
     ;
 
 serviceDefinition
-    :   SERVICE Identifier? ON expression serviceBody
+    :   SERVICE Identifier? ON expressionList serviceBody
     ;
 
 serviceBody

@@ -334,8 +334,8 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
                                             .equals(tsym.pkgID.name.value))) {
                         notifier.accept(plugin, Collections.unmodifiableList(attachments));
                         // Hacking till we figure out service type.
-                        if (serviceNode.listerType == null) {
-                            serviceNode.listerType = serviceListenerMap.get(plugin);
+                        if (serviceNode.listenerType == null) {
+                            serviceNode.listenerType = serviceListenerMap.get(plugin);
                         }
                         // We have to invoke the plugin one time per service, if only there is one matching service.
                         break definitionLoop;
