@@ -40,12 +40,10 @@ import io.swagger.models.properties.Property;
 import io.swagger.models.properties.StringProperty;
 import org.ballerinalang.ballerina.swagger.convertor.ConverterUtils;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
-import org.ballerinalang.model.tree.ResourceNode;
-import org.ballerinalang.model.tree.FunctionNode;
-import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.net.http.HttpConstants;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -56,9 +54,9 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import javax.ws.rs.core.MediaType;
 
 import static org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
@@ -90,11 +88,12 @@ public class SwaggerResourceMapper {
      * @param resources Resource array to be convert.
      * @return map of string and swagger path objects.
      */
-    protected Map<String, Path> convertResourceToPath(List<? extends ResourceNode> resources) {
+    protected Map<String, Path> convertResourceToPath(List<BLangFunction> resources) {
         Map<String, Path> pathMap = new HashMap<>();
-        for (ResourceNode resource : resources) {
-            if (this.getHttpMethods(resource, false).size() == 0
-                    || this.getHttpMethods(resource, false).size() > 1) {
+        for (BLangFunction resource : resources) {
+            List<String> methods = this.getHttpMethods(resource, false);
+            if (methods.size() == 0
+                    || methods.size() > 1) {
                 useMultiResourceMapper(pathMap, resource);
             } else {
                 useDefaultResourceMapper(pathMap, resource);
@@ -109,16 +108,18 @@ public class SwaggerResourceMapper {
      * @param pathMap  The map with paths that should be updated.
      * @param resource The ballerina resource.
      */
-    private void useMultiResourceMapper(Map<String, Path> pathMap, ResourceNode resource) {
+    private void useMultiResourceMapper(Map<String, Path> pathMap, BLangFunction resource) {
         List<String> httpMethods = this.getHttpMethods(resource, false);
         String path = this.getPath(resource);
         Path pathObject = new Path();
-        Operation operation = null;
+        Operation operation;
         if (httpMethods.size() > 1) {
+            int i = 1;
             for (String httpMethod : httpMethods) {
                 //Iterate through http methods and fill path map.
-                operation = this.convertResourceToOperation(resource, httpMethod).getOperation();
-                pathObject.set(httpMethod.toLowerCase(), operation);
+                operation = this.convertResourceToOperation(resource, httpMethod, i).getOperation();
+                pathObject.set(httpMethod.toLowerCase(Locale.ENGLISH), operation);
+                i++;
             }
         }
         pathMap.put(path, pathObject);
@@ -130,9 +131,9 @@ public class SwaggerResourceMapper {
      * @param pathMap  The map with paths that should be updated.
      * @param resource The ballerina resource.
      */
-    private void useDefaultResourceMapper(Map<String, Path> pathMap, ResourceNode resource) {
+    private void useDefaultResourceMapper(Map<String, Path> pathMap, BLangFunction resource) {
         String httpMethod = getHttpMethods(resource, true).get(0);
-        OperationAdaptor operationAdaptor = this.convertResourceToOperation(resource, httpMethod);
+        OperationAdaptor operationAdaptor = this.convertResourceToOperation(resource, httpMethod, 1);
         operationAdaptor.setHttpOperation(httpMethod);
         Path path = pathMap.get(operationAdaptor.getPath());
         if (path == null) {
@@ -173,7 +174,7 @@ public class SwaggerResourceMapper {
      * @param resource Resource array to be convert.
      * @return Operation Adaptor object of given resource
      */
-    private OperationAdaptor convertResourceToOperation(ResourceNode resource, String httpMethod) {
+    private OperationAdaptor convertResourceToOperation(BLangFunction resource, String httpMethod, int idIncrement) {
         OperationAdaptor op = new OperationAdaptor();
         if (resource != null) {
             op.setHttpOperation(httpMethod);
@@ -186,7 +187,7 @@ public class SwaggerResourceMapper {
             // Replacing all '_' with ' ' to keep the consistency with what we are doing in swagger -> bal
             // @see BallerinaOperation#buildContext
             String resName = resource.getName().getValue().replaceAll("_", " ");
-            op.getOperation().setOperationId(getUUID(resName));
+            op.getOperation().setOperationId(getOperationId(idIncrement, resName));
             op.getOperation().setParameters(null);
 
             // Parsing annotations.
@@ -204,9 +205,8 @@ public class SwaggerResourceMapper {
      * @param postFix string post fix to attach to ID
      * @return {@link String} generated UUID
      */
-    private String getUUID(String postFix) {
-        String uuid = UUID.randomUUID().toString();
-        return uuid + "-" + postFix;
+    private String getOperationId(int idIncrement, String postFix) {
+        return "operation" + idIncrement + "-" + postFix;
     }
 
     /**
@@ -215,7 +215,7 @@ public class SwaggerResourceMapper {
      * @param resource The ballerina resource definition.
      * @param op       The swagger operation.
      */
-    private void parseResponsesAnnotationAttachment(ResourceNode resource, Operation op) {
+    private void parseResponsesAnnotationAttachment(BLangFunction resource, Operation op) {
         AnnotationAttachmentNode annotation = ConverterUtils.getAnnotationFromList("Responses", swaggerAlias,
                 resource.getAnnotationAttachments());
 
@@ -293,7 +293,7 @@ public class SwaggerResourceMapper {
      * @param resource         The ballerina resource definition.
      * @param operationAdaptor The swagger operation.
      */
-    private void addResourceParameters(ResourceNode resource, OperationAdaptor operationAdaptor) {
+    private void addResourceParameters(BLangFunction resource, OperationAdaptor operationAdaptor) {
         //Set Path
         AnnotationAttachmentNode annotation = ConverterUtils
                 .getAnnotationFromList(HttpConstants.ANN_NAME_RESOURCE_CONFIG, httpAlias,
@@ -394,7 +394,7 @@ public class SwaggerResourceMapper {
      * @param resource  The resource definition.
      * @param operation The swagger operation.
      */
-    private void parseResourceInfo(ResourceNode resource, Operation operation, String httpMethod) {
+    private void parseResourceInfo(BLangFunction resource, Operation operation, String httpMethod) {
         AnnotationAttachmentNode multiResourceInfoAnnotation = ConverterUtils
                 .getAnnotationFromList(ConverterConstants.ANNON_MULTI_RES_INFO, swaggerAlias,
                         resource.getAnnotationAttachments());
@@ -509,7 +509,7 @@ public class SwaggerResourceMapper {
      * @param resource  The ballerina resource definition.
      * @param operation The swagger operation.
      */
-    private void parseResourceConfigAnnotationAttachment(ResourceNode resource, OperationAdaptor operation) {
+    private void parseResourceConfigAnnotationAttachment(BLangFunction resource, OperationAdaptor operation) {
         AnnotationAttachmentNode annotation = ConverterUtils
                 .getAnnotationFromList(HttpConstants.ANN_NAME_RESOURCE_CONFIG, httpAlias,
                         resource.getAnnotationAttachments());
@@ -571,7 +571,7 @@ public class SwaggerResourceMapper {
      * @param useDefaults True to add default http methods, else false.
      * @return A list of http methods.
      */
-    private List<String> getHttpMethods(ResourceNode resource, boolean useDefaults) {
+    private List<String> getHttpMethods(BLangFunction resource, boolean useDefaults) {
         AnnotationAttachmentNode annotation = ConverterUtils
                 .getAnnotationFromList(HttpConstants.ANN_NAME_RESOURCE_CONFIG, httpAlias,
                         resource.getAnnotationAttachments());
@@ -610,7 +610,7 @@ public class SwaggerResourceMapper {
      * @param resource The ballerina resource.
      * @return The path value.
      */
-    private String getPath(ResourceNode resource) {
+    private String getPath(BLangFunction resource) {
         String path = "/" + resource.getName();
         AnnotationAttachmentNode annotation = ConverterUtils
                 .getAnnotationFromList(HttpConstants.ANN_NAME_RESOURCE_CONFIG, httpAlias,
@@ -634,7 +634,7 @@ public class SwaggerResourceMapper {
      * Builds a Swagger {@link Parameter} for provided parameter location.
      *
      * @param in              location of the parameter in the request definition
-     * @param paramAttributes
+     * @param paramAttributes parameter attributes for the operation
      * @return Swagger {@link Parameter} for parameter location {@code in}
      */
     private Parameter buildParameter(String in, Map<String, BLangExpression> paramAttributes) {
