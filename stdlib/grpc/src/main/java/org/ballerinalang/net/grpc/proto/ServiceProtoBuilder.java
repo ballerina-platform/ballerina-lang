@@ -80,9 +80,9 @@ import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.bytesT
  *
  * @since 1.0
  */
-@SupportedResourceParamTypes(expectedListenerType = @SupportedResourceParamTypes.Type(packageName =
-        PROTOCOL_PACKAGE_GRPC, name = LISTENER), paramTypes = {@SupportedResourceParamTypes.Type(packageName =
-        PROTOCOL_PACKAGE_GRPC, name = CALLER)})
+@SupportedResourceParamTypes(
+        expectedListenerType = @SupportedResourceParamTypes.Type(packageName = PROTOCOL_PACKAGE_GRPC, name = LISTENER),
+        paramTypes = {@SupportedResourceParamTypes.Type(packageName = PROTOCOL_PACKAGE_GRPC, name = CALLER)})
 public class ServiceProtoBuilder extends AbstractCompilerPlugin {
 
     private DiagnosticLog dlog;
