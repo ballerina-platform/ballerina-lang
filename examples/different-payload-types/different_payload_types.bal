@@ -205,7 +205,7 @@ function handleResponse(http:Response|error response) {
                 log:printInfo("Response contains an image");
             }
         } else {
-            log:printInfo("There's no body in response");
+            log:printInfo("Entity body is not available");
         }
     } else if (response is error) {
         log:printError(response.reason(), err = response);
