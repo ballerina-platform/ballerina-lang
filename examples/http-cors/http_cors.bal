@@ -11,7 +11,7 @@ import ballerina/log;
         maxAge: 84900
     }
 }
-service<http:Service> crossOriginService bind { port: 9092 } {
+service crossOriginService on new http:Listener(9092) {
 
     string respErr = "Failed to respond to the caller";
 
@@ -25,13 +25,13 @@ service<http:Service> crossOriginService bind { port: 9092 } {
             allowHeaders: ["X-Content-Type-Options", "X-PINGOTHER"]
         }
     }
-    companyInfo(endpoint caller, http:Request req) {
+    resource function companyInfo(http:Caller caller, http:Request req) {
         http:Response res = new;
         json responseJson = { "type": "middleware" };
         res.setJsonPayload(responseJson);
         var result = caller->respond(res);
         if (result is error) {
-           log:printError(respErr, err = result);
+           log:printError(result.reason(), err = result);
         }
     }
 
@@ -40,13 +40,13 @@ service<http:Service> crossOriginService bind { port: 9092 } {
         methods: ["POST"],
         path: "/lang"
     }
-    langInfo(endpoint caller, http:Request req) {
+    resource function langInfo(http:Caller caller, http:Request req) {
         http:Response res = new;
         json responseJson = { "lang": "Ballerina" };
         res.setJsonPayload(responseJson);
         var result = caller->respond(res);
         if (result is error) {
-           log:printError(respErr, err = result);
+           log:printError(result.reason(), err = result);
         }
     }
 }
