@@ -59,6 +59,7 @@
                         <phase>compile</phase>
                         <configuration>
                             <skip>${maven.test.skip}</skip>
+                            <skip>${skipTests}</skip>
                             <executable>${npm.executable}</executable>
                             <arguments>
                                 <argument>run</argument>

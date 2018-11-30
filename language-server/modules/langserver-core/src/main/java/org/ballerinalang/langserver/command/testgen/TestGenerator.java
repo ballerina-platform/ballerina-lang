@@ -147,9 +147,8 @@ public class TestGenerator {
         } else if (bLangNode instanceof BLangService || (fallback = fallBackNode instanceof BLangService)) {
             // A Service
             BLangService service = (!fallback) ? ((BLangService) bLangNode) : (BLangService) fallBackNode;
-//            String owner = (service.serviceTypeStruct.type != null && service.serviceTypeStruct.type.tsymbol != null) ?
-//                    service.serviceTypeStruct.type.tsymbol.owner.name.value :
-//                    null;
+//            String owner = (service.serviceTypeStruct.type != null && service.serviceTypeStruct.type.tsymbol != null) 
+//                    ? service.serviceTypeStruct.type.tsymbol.owner.name.value : null;
             // TODO: Fix with the latest changes
             String owner = "";
             String serviceTypeName = ""/*service.serviceTypeStruct.typeName.value*/;

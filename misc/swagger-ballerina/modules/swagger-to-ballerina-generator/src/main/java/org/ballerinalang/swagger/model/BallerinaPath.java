@@ -47,6 +47,7 @@ public class BallerinaPath implements BallerinaSwaggerObject<BallerinaPath, Path
     public BallerinaPath() {
         this.operations = new LinkedHashSet<>();
         this.sameResourceOperations = new LinkedHashSet<>();
+        this.sameResourceOperationExists = false;
     }
 
     @Override
@@ -148,5 +149,9 @@ public class BallerinaPath implements BallerinaSwaggerObject<BallerinaPath, Path
 
     private void setSameResourceOperationExists(boolean sameResourceOperationExists) {
         this.sameResourceOperationExists = sameResourceOperationExists;
+    }
+
+    public boolean isSameResourceOperationExists() {
+        return sameResourceOperationExists;
     }
 }

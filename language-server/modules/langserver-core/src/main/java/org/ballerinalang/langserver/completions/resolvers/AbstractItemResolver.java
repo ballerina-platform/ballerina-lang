@@ -178,6 +178,10 @@ public abstract class AbstractItemResolver {
         // Add the check keyword
         CompletionItem checkKeyword = Snippet.KW_CHECK.get().build(new CompletionItem(), snippetCapability);
         completionItems.add(checkKeyword);
+        
+        // Add the wait keyword
+        CompletionItem waitKeyword = Snippet.KW_CHECK.get().build(new CompletionItem(), snippetCapability);
+        completionItems.add(waitKeyword);
 
         // Add But keyword item
         CompletionItem butKeyword = Snippet.EXPR_MATCH.get().build(new CompletionItem(), snippetCapability);

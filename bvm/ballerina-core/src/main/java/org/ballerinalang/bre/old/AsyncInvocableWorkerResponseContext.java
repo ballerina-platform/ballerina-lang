@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.bre.bvm;
+package org.ballerinalang.bre.old;
 
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.program.BLangVMUtils;

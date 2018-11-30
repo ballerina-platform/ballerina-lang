@@ -1499,6 +1499,8 @@ public class BLangPackageBuilder {
 
     void addWorker(DiagnosticPos pos, Set<Whitespace> ws, String workerName, boolean retParamsAvail) {
         endCallableUnitBody(ws);
+        // change default worker name
+        ((BLangFunction) this.invokableNodeStack.peek()).defaultWorkerName.value = workerName;
         addLambdaFunctionDef(pos, ws, false, retParamsAvail, false);
         String workerLambdaName = WORKER_LAMBDA_VAR_PREFIX + workerName;
         addSimpleVariableDefStatement(pos, ws, workerLambdaName, true, true, true);
