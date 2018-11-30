@@ -47,7 +47,7 @@ public class ArrayTest {
     @Test
     public void testFloatArrayLength() {
         BValueArray arrayValue = new BValueArray(BTypes.typeFloat);
-        arrayValue.add(0, 10);
+        arrayValue.add(0, 10f);
         arrayValue.add(1, 11.1f);
         arrayValue.add(2, 12.2f);
 

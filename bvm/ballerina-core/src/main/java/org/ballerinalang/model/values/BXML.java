@@ -271,7 +271,7 @@ public abstract class BXML<T> implements BRefType<T>, BCollection {
     @Override
     public void stamp(BType type) {
         if (type.getTag() == TypeTags.ANYDATA_TAG) {
-            type = CPU.resolveMatchingTypeForUnion(this, type);
+            type = BVM.resolveMatchingTypeForUnion(this, type);
         }
         this.type = type;
     }

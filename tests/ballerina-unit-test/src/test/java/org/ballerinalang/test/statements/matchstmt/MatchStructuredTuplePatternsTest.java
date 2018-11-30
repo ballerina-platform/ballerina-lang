@@ -95,10 +95,10 @@ public class MatchStructuredTuplePatternsTest {
 
         int i = -1;
         String msg = "Matched with ";
-        Assert.assertEquals(results.getRefValue(++i), msg + "single var : 66.6");
-        Assert.assertEquals(results.getRefValue(++i), msg + "two vars : Hello, 12");
-        Assert.assertEquals(results.getRefValue(++i), msg + "two vars : 4.5, true");
-        Assert.assertEquals(results.getRefValue(++i), msg + "three vars : 6.7, Test, false");
+        Assert.assertEquals(results.getString(++i), msg + "single var : 66.6");
+        Assert.assertEquals(results.getString(++i), msg + "two vars : Hello, 12");
+        Assert.assertEquals(results.getString(++i), msg + "two vars : 4.5, true");
+        Assert.assertEquals(results.getString(++i), msg + "three vars : 6.7, Test, false");
     }
 
     @Test(description = "Test structured pattern match statement complex 1")
@@ -111,11 +111,11 @@ public class MatchStructuredTuplePatternsTest {
 
         int i = -1;
         String msg = "Matched with ";
-        Assert.assertEquals(results.getRefValue(++i), msg + "single var : 66.6");
-        Assert.assertEquals(results.getRefValue(++i), msg + "two vars : Hello, 34");
-        Assert.assertEquals(results.getRefValue(++i), msg + "four vars : 66.6, Test, 456, true");
-        Assert.assertEquals(results.getRefValue(++i), msg + "three vars : 5.6, Ballerina, false");
-        Assert.assertEquals(results.getRefValue(++i), msg + "single var : (\"Bal\", 543, 67.8)");
+        Assert.assertEquals(results.getString(++i), msg + "single var : 66.6");
+        Assert.assertEquals(results.getString(++i), msg + "two vars : Hello, 34");
+        Assert.assertEquals(results.getString(++i), msg + "four vars : 66.6, Test, 456, true");
+        Assert.assertEquals(results.getString(++i), msg + "three vars : 5.6, Ballerina, false");
+        Assert.assertEquals(results.getString(++i), msg + "single var : (\"Bal\", 543, 67.8)");
     }
 
     @Test(description = "Test structured pattern match statement complex 2")
@@ -128,10 +128,10 @@ public class MatchStructuredTuplePatternsTest {
 
         int i = -1;
         String msg = "Matched with ";
-        Assert.assertEquals(results.getRefValue(++i), "Default");
-        Assert.assertEquals(results.getRefValue(++i), msg + "two vars : Hello, 34");
-        Assert.assertEquals(results.getRefValue(++i), msg + "three vars : 66.6, Test, (true, 456)");
-        Assert.assertEquals(results.getRefValue(++i), msg + "three vars : 5.6, Ballerina, false");
+        Assert.assertEquals(results.getString(++i), "Default");
+        Assert.assertEquals(results.getString(++i), msg + "two vars : Hello, 34");
+        Assert.assertEquals(results.getString(++i), msg + "three vars : 66.6, Test, (true, 456)");
+        Assert.assertEquals(results.getString(++i), msg + "three vars : 5.6, Ballerina, false");
     }
 
     @Test(description = "Test structured pattern match statement complex 3")
@@ -144,11 +144,11 @@ public class MatchStructuredTuplePatternsTest {
 
         int i = -1;
         String msg = "Matched with ";
-        Assert.assertEquals(results.getRefValue(++i), msg + "single var : 66.6");
-        Assert.assertEquals(results.getRefValue(++i), msg + "two vars : Hello, 34");
-        Assert.assertEquals(results.getRefValue(++i), msg + "four vars : 66.6, Test, 456, true");
-        Assert.assertEquals(results.getRefValue(++i), msg + "three vars : 5.6, Ballerina, false");
-        Assert.assertEquals(results.getRefValue(++i), msg + "single var : (\"Bal\", 543, 67.8)");
+        Assert.assertEquals(results.getString(++i), msg + "single var : 66.6");
+        Assert.assertEquals(results.getString(++i), msg + "two vars : Hello, 34");
+        Assert.assertEquals(results.getString(++i), msg + "four vars : 66.6, Test, 456, true");
+        Assert.assertEquals(results.getString(++i), msg + "three vars : 5.6, Ballerina, false");
+        Assert.assertEquals(results.getString(++i), msg + "single var : (\"Bal\", 543, 67.8)");
     }
 
 
@@ -162,10 +162,10 @@ public class MatchStructuredTuplePatternsTest {
 
         int i = -1;
         String msg = "Matched with ";
-        Assert.assertEquals(results.getRefValue(++i), "Default");
-        Assert.assertEquals(results.getRefValue(++i), msg + "two vars : Hello, 34");
-        Assert.assertEquals(results.getRefValue(++i), msg + "three vars : 66.6, Test, (true, 456)");
-        Assert.assertEquals(results.getRefValue(++i), msg + "three vars : 5.6, Ballerina, false");
+        Assert.assertEquals(results.getString(++i), "Default");
+        Assert.assertEquals(results.getString(++i), msg + "two vars : Hello, 34");
+        Assert.assertEquals(results.getString(++i), msg + "three vars : 66.6, Test, (true, 456)");
+        Assert.assertEquals(results.getString(++i), msg + "three vars : 5.6, Ballerina, false");
     }
 
     @Test(description = "Test structured pattern match with type guard 1")
@@ -178,11 +178,11 @@ public class MatchStructuredTuplePatternsTest {
 
         int i = -1;
         String msg = "Matched with ";
-        Assert.assertEquals(results.getRefValue(++i), msg + "string : Hello added text with 45");
-        Assert.assertEquals(results.getRefValue(++i), msg + "float : 9.0 with true");
-        Assert.assertEquals(results.getRefValue(++i), msg + "int : false with 3460");
-        Assert.assertEquals(results.getRefValue(++i), msg + "boolean : 455, true");
-        Assert.assertEquals(results.getRefValue(++i), msg + "default type - float : 5.6");
+        Assert.assertEquals(results.getString(++i), msg + "string : Hello added text with 45");
+        Assert.assertEquals(results.getString(++i), msg + "float : 9.0 with true");
+        Assert.assertEquals(results.getString(++i), msg + "int : false with 3460");
+        Assert.assertEquals(results.getString(++i), msg + "boolean : 455, true");
+        Assert.assertEquals(results.getString(++i), msg + "default type - float : 5.6");
     }
 
 
@@ -196,11 +196,11 @@ public class MatchStructuredTuplePatternsTest {
 
         int i = -1;
         String msg = "Matched with ";
-        Assert.assertEquals(results.getRefValue(++i), msg + "string : Hello added text with 45");
-        Assert.assertEquals(results.getRefValue(++i), msg + "float : 10.2 with true and 67");
-        Assert.assertEquals(results.getRefValue(++i), msg + "int : true with 3523 and 7.8");
-        Assert.assertEquals(results.getRefValue(++i), msg + "boolean : 678, false");
-        Assert.assertEquals(results.getRefValue(++i), "Default");
+        Assert.assertEquals(results.getString(++i), msg + "string : Hello added text with 45");
+        Assert.assertEquals(results.getString(++i), msg + "float : 10.2 with true and 67");
+        Assert.assertEquals(results.getString(++i), msg + "int : true with 3523 and 7.8");
+        Assert.assertEquals(results.getString(++i), msg + "boolean : 678, false");
+        Assert.assertEquals(results.getString(++i), "Default");
     }
 
     @Test(description = "Test structured pattern match with type guard 3")
@@ -213,11 +213,11 @@ public class MatchStructuredTuplePatternsTest {
 
         int i = -1;
         String msg = "Matched with ";
-        Assert.assertEquals(results.getRefValue(++i), msg + "string : Hello added text with 50 with 11.0");
-        Assert.assertEquals(results.getRefValue(++i), msg + "float : 10.2 and boolean with true and 67");
-        Assert.assertEquals(results.getRefValue(++i), msg + "boolean : true and int with 3523 and float with 7.8");
-        Assert.assertEquals(results.getRefValue(++i), msg + "boolean : 678, false");
-        Assert.assertEquals(results.getRefValue(++i), "Default");
+        Assert.assertEquals(results.getString(++i), msg + "string : Hello added text with 50 with 11.0");
+        Assert.assertEquals(results.getString(++i), msg + "float : 10.2 and boolean with true and 67");
+        Assert.assertEquals(results.getString(++i), msg + "boolean : true and int with 3523 and float with 7.8");
+        Assert.assertEquals(results.getString(++i), msg + "boolean : 678, false");
+        Assert.assertEquals(results.getString(++i), "Default");
     }
 
     @Test(description = "Test structured pattern match with type guard 4")
@@ -230,16 +230,16 @@ public class MatchStructuredTuplePatternsTest {
 
         int i = -1;
         String msg = "Matched with ";
-        Assert.assertEquals(results.getRefValue(++i), msg +
+        Assert.assertEquals(results.getString(++i), msg +
                 "FooRec and BarRec : {s:\"S\", i:23, f:5.6} , {b:12, f:{s:\"S\", i:23, f:5.6}}");
-        Assert.assertEquals(results.getRefValue(++i), msg + "FooRec and float : {s:\"S\", i:23, f:5.6} , 4.5");
-        Assert.assertEquals(results.getRefValue(++i), msg +
+        Assert.assertEquals(results.getString(++i), msg + "FooRec and float : {s:\"S\", i:23, f:5.6} , 4.5");
+        Assert.assertEquals(results.getString(++i), msg +
                 "BarRec and FooRec : {b:12, f:{s:\"S\", i:23, f:5.6}} , {s:\"S\", i:23, f:5.6}");
-        Assert.assertEquals(results.getRefValue(++i), msg + "BarRec and int : {b:12, f:{s:\"S\", i:23, f:5.6}} , 543");
-        Assert.assertEquals(results.getRefValue(++i), msg + "float and FooRec : 5.2 , {s:\"S\", i:23, f:5.6}");
-        Assert.assertEquals(results.getRefValue(++i), msg + "int and BarRec : 15 , {b:12, f:{s:\"S\", i:23, f:5.6}}");
-        Assert.assertEquals(results.getRefValue(++i), "Default");
-        Assert.assertEquals(results.getRefValue(++i), "Default");
+        Assert.assertEquals(results.getString(++i), msg + "BarRec and int : {b:12, f:{s:\"S\", i:23, f:5.6}} , 543");
+        Assert.assertEquals(results.getString(++i), msg + "float and FooRec : 5.2 , {s:\"S\", i:23, f:5.6}");
+        Assert.assertEquals(results.getString(++i), msg + "int and BarRec : 15 , {b:12, f:{s:\"S\", i:23, f:5.6}}");
+        Assert.assertEquals(results.getString(++i), "Default");
+        Assert.assertEquals(results.getString(++i), "Default");
     }
 
     @Test(description = "Test structured pattern match with type guard 5")
@@ -252,12 +252,12 @@ public class MatchStructuredTuplePatternsTest {
 
         int i = -1;
         String msg = "Matched with ";
-        Assert.assertEquals(results.getRefValue(++i), msg + "string : Hello added text with 50 with 11.0");
-        Assert.assertEquals(results.getRefValue(++i), msg + "float : 10.2 and boolean with true and 67");
-        Assert.assertEquals(results.getRefValue(++i), msg + "boolean : true and int with 3523 and float with 7.8");
-        Assert.assertEquals(results.getRefValue(++i), msg + "boolean : 678, false");
-        Assert.assertEquals(results.getRefValue(++i), msg + "int : 876");
-        Assert.assertEquals(results.getRefValue(++i), "Default");
+        Assert.assertEquals(results.getString(++i), msg + "string : Hello added text with 50 with 11.0");
+        Assert.assertEquals(results.getString(++i), msg + "float : 10.2 and boolean with true and 67");
+        Assert.assertEquals(results.getString(++i), msg + "boolean : true and int with 3523 and float with 7.8");
+        Assert.assertEquals(results.getString(++i), msg + "boolean : 678, false");
+        Assert.assertEquals(results.getString(++i), msg + "int : 876");
+        Assert.assertEquals(results.getString(++i), "Default");
     }
 
 }

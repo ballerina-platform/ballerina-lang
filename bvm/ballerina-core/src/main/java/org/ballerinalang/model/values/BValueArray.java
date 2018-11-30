@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.model.values;
 
-import org.ballerinalang.bre.bvm.CPU;
+import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BType;
@@ -145,11 +145,6 @@ public class BValueArray extends BNewArray implements Serializable {
         }
     }
 
-    private void setArrayElementType(BType type) {
-        super.arrayType = new BArrayType(type);
-        this.elementType = type;
-    }
-
     public BValueArray() {
         refValues = (BRefType[]) newArrayInstance(BRefType.class);
     }
@@ -275,7 +270,7 @@ public class BValueArray extends BNewArray implements Serializable {
                 if (arrayValues[i] != null) {
                     BType memberType = ((BTupleType) type).getTupleTypes().get(i);
                     if (memberType.getTag() == TypeTags.ANYDATA_TAG || memberType.getTag() == TypeTags.JSON_TAG) {
-                        memberType = CPU.resolveMatchingTypeForUnion(arrayValues[i], memberType);
+                        memberType = BVM.resolveMatchingTypeForUnion(arrayValues[i], memberType);
                         ((BTupleType) type).getTupleTypes().set(i, memberType);
                     }
                     arrayValues[i].stamp(memberType);
@@ -292,20 +287,20 @@ public class BValueArray extends BNewArray implements Serializable {
             BRefType<?>[] arrayValues = this.getValues();
             for (int i = 0; i < this.size(); i++) {
                 if (arrayValues[i] != null) {
-                    arrayValues[i].stamp(CPU.resolveMatchingTypeForUnion(arrayValues[i], type));
+                    arrayValues[i].stamp(BVM.resolveMatchingTypeForUnion(arrayValues[i], type));
                 }
             }
             type = new BArrayType(type);
         } else if (type.getTag() == TypeTags.UNION_TAG) {
             for (BType memberType : ((BUnionType) type).getMemberTypes()) {
-                if (CPU.checkIsLikeType(this, memberType)) {
+                if (BVM.checkIsLikeType(this, memberType)) {
                     this.stamp(memberType);
                     type = memberType;
                     break;
                 }
             }
         } else if (type.getTag() == TypeTags.ANYDATA_TAG) {
-            type = CPU.resolveMatchingTypeForUnion(this, type);
+            type = BVM.resolveMatchingTypeForUnion(this, type);
             this.stamp(type);
         } else {
             BType arrayElementType = ((BArrayType) type).getElementType();
@@ -471,26 +466,6 @@ public class BValueArray extends BNewArray implements Serializable {
         return stringValue();
     }
 
-    private String getJSONString() {
-        ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-        JsonGenerator gen = new JsonGenerator(byteOut);
-        try {
-            gen.serialize(this);
-            gen.flush();
-        } catch (IOException e) {
-            throw new BallerinaException("Error in converting JSON to a string: " + e.getMessage(), e);
-        }
-        return new String(byteOut.toByteArray());
-    }
-
-    private BType getElementType(BType type) {
-        if (type.getTag() != TypeTags.ARRAY_TAG) {
-            return type;
-        }
-
-        return getElementType(((BArrayType) type).getElementType());
-    }
-
     @Override
     public SerializableRefType serialize(SerializableState state) {
 
@@ -518,17 +493,75 @@ public class BValueArray extends BNewArray implements Serializable {
      * {@inheritDoc}
      */
     @Override
-    public synchronized void attemptFreeze(CPU.FreezeStatus freezeStatus) {
+    public synchronized void attemptFreeze(BVM.FreezeStatus freezeStatus) {
         if (!isOpenForFreeze(this.freezeStatus, freezeStatus)) {
             return;
         }
 
         this.freezeStatus = freezeStatus;
-        for (int i = 0; i < this.size; i++) {
-            if (this.getRefValue(i) != null) {
-                this.getRefValue(i).attemptFreeze(freezeStatus);
+
+        if (elementType == null || !(elementType.getTag() == TypeTags.INT_TAG ||
+                elementType.getTag() == TypeTags.STRING_TAG || elementType.getTag() == TypeTags.BOOLEAN_TAG ||
+                elementType.getTag() == TypeTags.FLOAT_TAG || elementType.getTag() == TypeTags.BYTE_TAG)) {
+            for (int i = 0; i < this.size; i++) {
+                if (this.getRefValue(i) != null) {
+                    this.getRefValue(i).attemptFreeze(freezeStatus);
+                }
             }
         }
+    }
+
+    @Override
+    public void grow(int newLength) {
+        if (elementType != null) {
+            switch (elementType.getTag()) {
+                case TypeTags.INT_TAG:
+                    intValues = Arrays.copyOf(intValues, newLength);
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    booleanValues = Arrays.copyOf(booleanValues, newLength);
+                    break;
+                case TypeTags.BYTE_TAG:
+                    byteValues = Arrays.copyOf(byteValues, newLength);
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    floatValues = Arrays.copyOf(floatValues, newLength);
+                    break;
+                case TypeTags.STRING_TAG:
+                    stringValues = Arrays.copyOf(stringValues, newLength);
+                    break;
+                default:
+                    refValues = Arrays.copyOf(refValues, newLength);
+                    break;
+            }
+        } else {
+            refValues = Arrays.copyOf(refValues, newLength);
+        }
+    }
+
+    private void setArrayElementType(BType type) {
+        super.arrayType = new BArrayType(type);
+        this.elementType = type;
+    }
+
+    private String getJSONString() {
+        ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+        JsonGenerator gen = new JsonGenerator(byteOut);
+        try {
+            gen.serialize(this);
+            gen.flush();
+        } catch (IOException e) {
+            throw new BallerinaException("Error in converting JSON to a string: " + e.getMessage(), e);
+        }
+        return new String(byteOut.toByteArray());
+    }
+
+    private BType getElementType(BType type) {
+        if (type.getTag() != TypeTags.ARRAY_TAG) {
+            return type;
+        }
+
+        return getElementType(((BArrayType) type).getElementType());
     }
 
     /**
@@ -536,7 +569,7 @@ public class BValueArray extends BNewArray implements Serializable {
      */
     private void handleFrozenArrayValue() {
         synchronized (this) {
-            if (freezeStatus.getState() != CPU.FreezeStatus.State.UNFROZEN) {
+            if (freezeStatus.getState() != BVM.FreezeStatus.State.UNFROZEN) {
                 handleInvalidUpdate(freezeStatus.getState());
             }
         }
@@ -628,33 +661,5 @@ public class BValueArray extends BNewArray implements Serializable {
         this.elementType = arrayElementType;
         this.arrayType = type;
         refValues = null;
-    }
-
-    @Override
-    public void grow(int newLength) {
-        if (elementType != null) {
-            switch (elementType.getTag()) {
-                case TypeTags.INT_TAG:
-                    intValues = Arrays.copyOf(intValues, newLength);
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    booleanValues = Arrays.copyOf(booleanValues, newLength);
-                    break;
-                case TypeTags.BYTE_TAG:
-                    byteValues = Arrays.copyOf(byteValues, newLength);
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    floatValues = Arrays.copyOf(floatValues, newLength);
-                    break;
-                case TypeTags.STRING_TAG:
-                    stringValues = Arrays.copyOf(stringValues, newLength);
-                    break;
-                default:
-                    refValues = Arrays.copyOf(refValues, newLength);
-                    break;
-            }
-        } else {
-            refValues = Arrays.copyOf(refValues, newLength);
-        }
     }
 }

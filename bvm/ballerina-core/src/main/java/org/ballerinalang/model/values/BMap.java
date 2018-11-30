@@ -356,7 +356,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
             if (((BJSONType) type).getConstrainedType() != null) {
                 this.stamp(((BJSONType) type).getConstrainedType());
             } else {
-                type = CPU.resolveMatchingTypeForUnion(this, type);
+                type = BVM.resolveMatchingTypeForUnion(this, type);
             }
         } else if (type.getTag() == TypeTags.MAP_TAG) {
             for (Object value : this.values()) {
@@ -387,7 +387,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
                 }
             }
         } else if (type.getTag() == TypeTags.ANYDATA_TAG) {
-            type = CPU.resolveMatchingTypeForUnion(this, type);
+            type = BVM.resolveMatchingTypeForUnion(this, type);
         }
 
         this.type = type;

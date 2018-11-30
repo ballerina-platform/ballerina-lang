@@ -54,7 +54,6 @@ import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BCallableFuture;
 import org.ballerinalang.model.values.BClosure;
 import org.ballerinalang.model.values.BCollection;

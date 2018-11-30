@@ -396,9 +396,9 @@ public class CloneOperationTest {
     public void testReturnValues() {
         BValue[] results = BRunUtil.invoke(result, "cloneReturnValues");
         Assert.assertNotNull(results);
-        Assert.assertEquals(((BValueArray) results[0]).getRefValue(0), 100);
-        Assert.assertEquals(((BValueArray) results[1]).getRefValue(0), 20);
-        Assert.assertEquals(((BValueArray) results[2]).getRefValue(0), 1000);
+        Assert.assertEquals(((BValueArray) results[0]).getInt(0), 100);
+        Assert.assertEquals(((BValueArray) results[1]).getInt(0), 20);
+        Assert.assertEquals(((BValueArray) results[2]).getInt(0), 1000);
         Assert.assertTrue(results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
     }
 
@@ -406,9 +406,9 @@ public class CloneOperationTest {
     public void testCloneArrayOfArrays() {
         BValue[] results = BRunUtil.invoke(result, "cloneArrayOfArrays");
         Assert.assertNotNull(results);
-        Assert.assertEquals(((BValueArray) ((BValueArray) results[0]).getRefValue(0)).getRefValue(0), 400);
-        Assert.assertEquals(((BValueArray) ((BValueArray) results[1]).getRefValue(0)).getRefValue(0), 200);
-        Assert.assertEquals(((BValueArray) ((BValueArray) results[2]).getRefValue(0)).getRefValue(0), 500);
+        Assert.assertEquals(((BValueArray) ((BValueArray) results[0]).getRefValue(0)).getInt(0), 400);
+        Assert.assertEquals(((BValueArray) ((BValueArray) results[1]).getRefValue(0)).getInt(0), 200);
+        Assert.assertEquals(((BValueArray) ((BValueArray) results[2]).getRefValue(0)).getInt(0), 500);
         Assert.assertTrue(results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
     }
 

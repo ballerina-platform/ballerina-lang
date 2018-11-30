@@ -96,10 +96,10 @@ public class MatchStructuredRecordPatternsTest {
 
         int i = -1;
         String msg = "Matched with ";
-        Assert.assertEquals(results.getRefValue(++i), msg + "two vars : Hello, 150");
-        Assert.assertEquals(results.getRefValue(++i), msg + "two vars : 12.4, true");
-        Assert.assertEquals(results.getRefValue(++i), msg + "three vars : Hello, 150, true");
-        Assert.assertEquals(results.getRefValue(++i), msg + "single var : Hello");
+        Assert.assertEquals(results.getString(++i), msg + "two vars : Hello, 150");
+        Assert.assertEquals(results.getString(++i), msg + "two vars : 12.4, true");
+        Assert.assertEquals(results.getString(++i), msg + "three vars : Hello, 150, true");
+        Assert.assertEquals(results.getString(++i), msg + "single var : Hello");
     }
 
     @Test(description = "Test structured pattern match statement complex 1")
@@ -112,9 +112,9 @@ public class MatchStructuredRecordPatternsTest {
 
         int i = -1;
         String msg = "Matched with ";
-        Assert.assertEquals(results.getRefValue(++i), msg + "two vars : Ballerina, 500");
-        Assert.assertEquals(results.getRefValue(++i), msg + "three vars : Language, Ballerina, 500");
-        Assert.assertEquals(results.getRefValue(++i), msg + "single var : bar2");
+        Assert.assertEquals(results.getString(++i), msg + "two vars : Ballerina, 500");
+        Assert.assertEquals(results.getString(++i), msg + "three vars : Language, Ballerina, 500");
+        Assert.assertEquals(results.getString(++i), msg + "single var : bar2");
     }
 
     @Test(description = "Test structured pattern runtime matching")
@@ -127,12 +127,12 @@ public class MatchStructuredRecordPatternsTest {
 
         int i = -1;
         String msg = "Matched with ";
-        Assert.assertEquals(results.getRefValue(++i), msg + "five vars : S, 23, 5.6, 50, true");
-        Assert.assertEquals(results.getRefValue(++i), msg + "three vars : S, 23, 5.6");
-        Assert.assertEquals(results.getRefValue(++i), msg + "four vars : S, 23, 5.6, 12");
-        Assert.assertEquals(results.getRefValue(++i), msg + "five vars : S, 23, 5.6, 50, true");
-        Assert.assertEquals(results.getRefValue(++i), msg + "three vars : S, 23, 5.6");
-        Assert.assertEquals(results.getRefValue(++i), msg + "four vars : S, 23, 5.6, 12");
+        Assert.assertEquals(results.getString(++i), msg + "five vars : S, 23, 5.6, 50, true");
+        Assert.assertEquals(results.getString(++i), msg + "three vars : S, 23, 5.6");
+        Assert.assertEquals(results.getString(++i), msg + "four vars : S, 23, 5.6, 12");
+        Assert.assertEquals(results.getString(++i), msg + "five vars : S, 23, 5.6, 50, true");
+        Assert.assertEquals(results.getString(++i), msg + "three vars : S, 23, 5.6");
+        Assert.assertEquals(results.getString(++i), msg + "four vars : S, 23, 5.6, 12");
     }
 
     @Test(description = "Test structured pattern match with type guard 1")
@@ -144,11 +144,11 @@ public class MatchStructuredRecordPatternsTest {
         BValueArray results = (BValueArray) returns[0];
         int i = -1;
         String msg = "Matched with ";
-        Assert.assertEquals(results.getRefValue(++i), msg + "string : Hello added text with 45");
-        Assert.assertEquals(results.getRefValue(++i), msg + "record int : Ballerina with 512");
-        Assert.assertEquals(results.getRefValue(++i), msg + "record with ClosedBar1 : Language with Ballerina");
-        Assert.assertEquals(results.getRefValue(++i), msg + "boolean : 455, true");
-        Assert.assertEquals(results.getRefValue(++i), msg + "default type - float : 5.6");
+        Assert.assertEquals(results.getString(++i), msg + "string : Hello added text with 45");
+        Assert.assertEquals(results.getString(++i), msg + "record int : Ballerina with 512");
+        Assert.assertEquals(results.getString(++i), msg + "record with ClosedBar1 : Language with Ballerina");
+        Assert.assertEquals(results.getString(++i), msg + "boolean : 455, true");
+        Assert.assertEquals(results.getString(++i), msg + "default type - float : 5.6");
     }
 
     @Test(description = "Test structured pattern match with type guard 2")
@@ -161,9 +161,9 @@ public class MatchStructuredRecordPatternsTest {
 
         int i = -1;
         String msg = "Matched with ";
-        Assert.assertEquals(results.getRefValue(++i), msg + "string and int : Ballerina");
-        Assert.assertEquals(results.getRefValue(++i), msg + "string and ClosedBar1 : Ballerina");
-        Assert.assertEquals(results.getRefValue(++i), msg + "Default");
+        Assert.assertEquals(results.getString(++i), msg + "string and int : Ballerina");
+        Assert.assertEquals(results.getString(++i), msg + "string and ClosedBar1 : Ballerina");
+        Assert.assertEquals(results.getString(++i), msg + "Default");
     }
 
     @Test(description = "Test structured pattern match with type guard 3")
@@ -176,9 +176,9 @@ public class MatchStructuredRecordPatternsTest {
 
         int i = -1;
         String msg = "Matched with ";
-        Assert.assertEquals(results.getRefValue(++i), msg + "foo : 18.6");
-        Assert.assertEquals(results.getRefValue(++i), msg + "bar : 17");
-        Assert.assertEquals(results.getRefValue(++i), msg + "default : true");
+        Assert.assertEquals(results.getString(++i), msg + "foo : 18.6");
+        Assert.assertEquals(results.getString(++i), msg + "bar : 17");
+        Assert.assertEquals(results.getString(++i), msg + "default : true");
     }
 
     @Test(description = "Test structured pattern match with type guard 3")
@@ -191,9 +191,9 @@ public class MatchStructuredRecordPatternsTest {
 
         int i = -1;
         String msg = "Matched with ";
-        Assert.assertEquals(results.getRefValue(++i), msg + "restparam : {}");
-        Assert.assertEquals(results.getRefValue(++i), msg + "restparam : {\"var2\":true}");
-        Assert.assertEquals(results.getRefValue(++i), msg + "restparam : {\"var2\":true, \"var3\":true}");
+        Assert.assertEquals(results.getString(++i), msg + "restparam : {}");
+        Assert.assertEquals(results.getString(++i), msg + "restparam : {\"var2\":true}");
+        Assert.assertEquals(results.getString(++i), msg + "restparam : {\"var2\":true, \"var3\":true}");
     }
 
     @Test(description = "Test structured pattern with closed record")
@@ -206,7 +206,7 @@ public class MatchStructuredRecordPatternsTest {
 
         int i = -1;
         String msg = "Matched with ";
-        Assert.assertEquals(results.getRefValue(++i), msg + "closed pattern");
-        Assert.assertEquals(results.getRefValue(++i), msg + "opened pattern");
+        Assert.assertEquals(results.getString(++i), msg + "closed pattern");
+        Assert.assertEquals(results.getString(++i), msg + "opened pattern");
     }
 }

@@ -75,8 +75,8 @@ public class CircuitBreakerTest {
 
         Assert.assertEquals(returnVals.length, 2);
 
-        BRefValueArray responses = (BValueArray) returnVals[0];
-        BRefValueArray errs = (BValueArray) returnVals[1];
+        BValueArray responses = (BValueArray) returnVals[0];
+        BValueArray errs = (BValueArray) returnVals[1];
 
         for (int i = 0; i < responses.size(); i++) {
             long statusCode;
@@ -112,8 +112,8 @@ public class CircuitBreakerTest {
 
         Assert.assertEquals(returnVals.length, 2);
 
-        BRefValueArray responses = (BValueArray) returnVals[0];
-        BRefValueArray errs = (BValueArray) returnVals[1];
+        BValueArray responses = (BValueArray) returnVals[0];
+        BValueArray errs = (BValueArray) returnVals[1];
 
         for (int i = 0; i < responses.size(); i++) {
             long statusCode;

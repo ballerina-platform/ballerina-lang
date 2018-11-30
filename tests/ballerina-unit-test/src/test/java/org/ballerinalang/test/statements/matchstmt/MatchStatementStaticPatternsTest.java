@@ -55,13 +55,13 @@ public class MatchStatementStaticPatternsTest {
 
         int i = -1;
         String msg = "Value is ";
-        Assert.assertEquals(results.getRefValue(++i), msg + "'12'");
-        Assert.assertEquals(results.getRefValue(++i), msg + "'Hello'");
-        Assert.assertEquals(results.getRefValue(++i), msg + "'true'");
-        Assert.assertEquals(results.getRefValue(++i), msg + "'15'");
-        Assert.assertEquals(results.getRefValue(++i), msg + "'HelloAgain'");
-        Assert.assertEquals(results.getRefValue(++i), msg + "'false'");
-        Assert.assertEquals(results.getRefValue(++i), msg + "'Default'");
+        Assert.assertEquals(results.getString(++i), msg + "'12'");
+        Assert.assertEquals(results.getString(++i), msg + "'Hello'");
+        Assert.assertEquals(results.getString(++i), msg + "'true'");
+        Assert.assertEquals(results.getString(++i), msg + "'15'");
+        Assert.assertEquals(results.getString(++i), msg + "'HelloAgain'");
+        Assert.assertEquals(results.getString(++i), msg + "'false'");
+        Assert.assertEquals(results.getString(++i), msg + "'Default'");
     }
 
     @Test(description = "Test basics of static pattern match statement 2")
@@ -75,12 +75,12 @@ public class MatchStatementStaticPatternsTest {
 
         int i = -1;
         String msg = "Value is ";
-        Assert.assertEquals(results.getRefValue(++i), msg + "'12'");
-        Assert.assertEquals(results.getRefValue(++i), msg + "'15 & HelloWorld'");
-        Assert.assertEquals(results.getRefValue(++i), msg + "'HelloAgain & 34'");
-        Assert.assertEquals(results.getRefValue(++i), msg + "'Default'");
-        Assert.assertEquals(results.getRefValue(++i), msg + "'15 & 34'");
-        Assert.assertEquals(results.getRefValue(++i), msg + "'true'");
+        Assert.assertEquals(results.getString(++i), msg + "'12'");
+        Assert.assertEquals(results.getString(++i), msg + "'15 & HelloWorld'");
+        Assert.assertEquals(results.getString(++i), msg + "'HelloAgain & 34'");
+        Assert.assertEquals(results.getString(++i), msg + "'Default'");
+        Assert.assertEquals(results.getString(++i), msg + "'15 & 34'");
+        Assert.assertEquals(results.getString(++i), msg + "'true'");
     }
 
     @Test(description = "Test static patterns with or conditions 1")
@@ -94,17 +94,17 @@ public class MatchStatementStaticPatternsTest {
 
         int i = -1;
         String msg = "Value is ";
-        Assert.assertEquals(results.getRefValue(++i), msg + ": 12");
-        Assert.assertEquals(results.getRefValue(++i), msg + ": Hello");
-        Assert.assertEquals(results.getRefValue(++i), msg + ": true");
-        Assert.assertEquals(results.getRefValue(++i), msg + ": 15");
-        Assert.assertEquals(results.getRefValue(++i), msg + ": HelloAgain");
-        Assert.assertEquals(results.getRefValue(++i), msg + ": false");
-        Assert.assertEquals(results.getRefValue(++i), "Default value is : NothingToMatch");
-        Assert.assertEquals(results.getRefValue(++i), msg + ": 13");
-        Assert.assertEquals(results.getRefValue(++i), msg + ": 14");
-        Assert.assertEquals(results.getRefValue(++i), msg + ": World");
-        Assert.assertEquals(results.getRefValue(++i), msg + ": Test");
+        Assert.assertEquals(results.getString(++i), msg + ": 12");
+        Assert.assertEquals(results.getString(++i), msg + ": Hello");
+        Assert.assertEquals(results.getString(++i), msg + ": true");
+        Assert.assertEquals(results.getString(++i), msg + ": 15");
+        Assert.assertEquals(results.getString(++i), msg + ": HelloAgain");
+        Assert.assertEquals(results.getString(++i), msg + ": false");
+        Assert.assertEquals(results.getString(++i), "Default value is : NothingToMatch");
+        Assert.assertEquals(results.getString(++i), msg + ": 13");
+        Assert.assertEquals(results.getString(++i), msg + ": 14");
+        Assert.assertEquals(results.getString(++i), msg + ": World");
+        Assert.assertEquals(results.getString(++i), msg + ": Test");
     }
 
     @Test(description = "Test static patterns with or conditions 2")
@@ -118,17 +118,17 @@ public class MatchStatementStaticPatternsTest {
 
         int i = -1;
         String msg = "Value is ";
-        Assert.assertEquals(results.getRefValue(++i), msg + ": 15");
-        Assert.assertEquals(results.getRefValue(++i), msg + ": (12, \"Ballerina\")");
-        Assert.assertEquals(results.getRefValue(++i), msg + ": (12, \"Ballerina\")");
-        Assert.assertEquals(results.getRefValue(++i), msg + ": (15, \"Ballerina\")");
-        Assert.assertEquals(results.getRefValue(++i), msg + ": (20, \"Ballerina\")");
-        Assert.assertEquals(results.getRefValue(++i), msg + ": (20, \"Balo\")");
-        Assert.assertEquals(results.getRefValue(++i), "Default Value is : (20, \"NothingToMatch\")");
-        Assert.assertEquals(results.getRefValue(++i), msg + ": (15, \"Bal\", 100)");
-        Assert.assertEquals(results.getRefValue(++i), "Default Value is : (15, \"Bal\", 200, 230)");
-        Assert.assertEquals(results.getRefValue(++i), msg + ": (15, \"Bal\", \"Ballerina\", 5678, \"Test\")");
-        Assert.assertEquals(results.getRefValue(++i),
+        Assert.assertEquals(results.getString(++i), msg + ": 15");
+        Assert.assertEquals(results.getString(++i), msg + ": (12, \"Ballerina\")");
+        Assert.assertEquals(results.getString(++i), msg + ": (12, \"Ballerina\")");
+        Assert.assertEquals(results.getString(++i), msg + ": (15, \"Ballerina\")");
+        Assert.assertEquals(results.getString(++i), msg + ": (20, \"Ballerina\")");
+        Assert.assertEquals(results.getString(++i), msg + ": (20, \"Balo\")");
+        Assert.assertEquals(results.getString(++i), "Default Value is : (20, \"NothingToMatch\")");
+        Assert.assertEquals(results.getString(++i), msg + ": (15, \"Bal\", 100)");
+        Assert.assertEquals(results.getString(++i), "Default Value is : (15, \"Bal\", 200, 230)");
+        Assert.assertEquals(results.getString(++i), msg + ": (15, \"Bal\", \"Ballerina\", 5678, \"Test\")");
+        Assert.assertEquals(results.getString(++i),
                 "Default Value is : (15, \"Bal\", \"Ballerina\", 5678, \"NothingToMatch\")");
     }
 
@@ -143,20 +143,20 @@ public class MatchStatementStaticPatternsTest {
 
         int i = -1;
         String msg = "Value is ";
-        Assert.assertEquals(results.getRefValue(++i), msg + ": 1st pattern - {x:12, y:\"Ballerina\"}");
-        Assert.assertEquals(results.getRefValue(++i), msg + ": 4th pattern - {\"x\":10, \"y\":\"B\"}");
-        Assert.assertEquals(results.getRefValue(++i), msg + ": 2nd pattern - {x:12, y:\"Ballerina\", z:true}");
-        Assert.assertEquals(results.getRefValue(++i), "Value is Default pattern - {\"x\":10, \"z\":\"Ballerina\"}");
-        Assert.assertEquals(results.getRefValue(++i), msg +
+        Assert.assertEquals(results.getString(++i), msg + ": 1st pattern - {x:12, y:\"Ballerina\"}");
+        Assert.assertEquals(results.getString(++i), msg + ": 4th pattern - {\"x\":10, \"y\":\"B\"}");
+        Assert.assertEquals(results.getString(++i), msg + ": 2nd pattern - {x:12, y:\"Ballerina\", z:true}");
+        Assert.assertEquals(results.getString(++i), "Value is Default pattern - {\"x\":10, \"z\":\"Ballerina\"}");
+        Assert.assertEquals(results.getString(++i), msg +
                 ": 5th pattern - {x:15, y:(\"John\", {x:12, y:\"Ballerina\"}, \"Snow\"), z:15.1}");
-        Assert.assertEquals(results.getRefValue(++i),
+        Assert.assertEquals(results.getString(++i),
                 "Value is Default pattern - {x:15, y:(\"Stark\", {x:12, y:\"Ballerina\"}, \"Sansa\"), z:15.1}");
-        Assert.assertEquals(results.getRefValue(++i), msg +
+        Assert.assertEquals(results.getString(++i), msg +
                 ": 3rd pattern - {x:15, y:(\"Stark\", {x:12, y:\"Ballerina\", z:true}, \"Sansa\"), z:15.1}");
-        Assert.assertEquals(results.getRefValue(++i), msg +
+        Assert.assertEquals(results.getString(++i), msg +
                 ": 3rd pattern - {x:40, y:(\"Tyrion\", {x:12, y:\"Ballerina\"}, \"Lanister\"), z:56.9}");
-        Assert.assertEquals(results.getRefValue(++i), msg + ": 4th pattern - 16");
-        Assert.assertEquals(results.getRefValue(++i), "Value is Default pattern - 12");
+        Assert.assertEquals(results.getString(++i), msg + ": 4th pattern - 16");
+        Assert.assertEquals(results.getString(++i), "Value is Default pattern - 12");
     }
 
     @Test(description = "Test static patterns with or conditions 4")
@@ -170,21 +170,21 @@ public class MatchStatementStaticPatternsTest {
 
         int i = -1;
         String msg = "Value is ";
-        Assert.assertEquals(results.getRefValue(++i), msg + ": 1st pattern - {x:12, y:\"Ballerina\"}");
-        Assert.assertEquals(results.getRefValue(++i), msg + ": 4th pattern - {\"x\":10, \"y\":\"B\"}");
-        Assert.assertEquals(results.getRefValue(++i), msg + ": 2nd pattern - {x:12, y:\"Ballerina\", z:true}");
-        Assert.assertEquals(results.getRefValue(++i), "Value is Default pattern - {\"x\":10, \"z\":\"Ballerina\"}");
-        Assert.assertEquals(results.getRefValue(++i), msg +
+        Assert.assertEquals(results.getString(++i), msg + ": 1st pattern - {x:12, y:\"Ballerina\"}");
+        Assert.assertEquals(results.getString(++i), msg + ": 4th pattern - {\"x\":10, \"y\":\"B\"}");
+        Assert.assertEquals(results.getString(++i), msg + ": 2nd pattern - {x:12, y:\"Ballerina\", z:true}");
+        Assert.assertEquals(results.getString(++i), "Value is Default pattern - {\"x\":10, \"z\":\"Ballerina\"}");
+        Assert.assertEquals(results.getString(++i), msg +
                 ": 5th pattern - {x:15, y:(\"John\", {x:12, y:\"Ballerina\"}, \"Snow\"), z:15.1}");
-        Assert.assertEquals(results.getRefValue(++i),
+        Assert.assertEquals(results.getString(++i),
                 "Value is Default pattern - {x:15, y:(\"Stark\", {x:12, y:\"Ballerina\"}, \"Sansa\"), z:15.1}");
-        Assert.assertEquals(results.getRefValue(++i), msg +
+        Assert.assertEquals(results.getString(++i), msg +
                 ": 3rd pattern - {x:15, y:(\"Stark\", {x:12, y:\"Ballerina\", z:true}, \"Sansa\"), z:15.1}");
-        Assert.assertEquals(results.getRefValue(++i), msg +
+        Assert.assertEquals(results.getString(++i), msg +
                 ": 3rd pattern - {x:40, y:(\"Tyrion\", {x:12, y:\"Ballerina\"}, \"Lanister\"), z:56.9}");
-        Assert.assertEquals(results.getRefValue(++i), msg + ": 4th pattern - 16");
-        Assert.assertEquals(results.getRefValue(++i), "Value is Default pattern - 12");
-        Assert.assertEquals(results.getRefValue(++i), "Value is Default pattern - 7.8");
+        Assert.assertEquals(results.getString(++i), msg + ": 4th pattern - 16");
+        Assert.assertEquals(results.getString(++i), "Value is Default pattern - 12");
+        Assert.assertEquals(results.getString(++i), "Value is Default pattern - 7.8");
     }
 
     @Test(description = "Test record static match pattern")
@@ -199,11 +199,11 @@ public class MatchStatementStaticPatternsTest {
 
         int i = -1;
         String msg = "Value is ";
-        Assert.assertEquals(results.getRefValue(++i), msg + "'x: 12, y: Ballerina'");
-        Assert.assertEquals(results.getRefValue(++i), msg + "'x: 10, y: B'");
-        Assert.assertEquals(results.getRefValue(++i), msg + "'15'");
-        Assert.assertEquals(results.getRefValue(++i), msg + "'x: 12, y: Ballerina, z: true'");
-        Assert.assertEquals(results.getRefValue(++i), msg + "'Default'");
+        Assert.assertEquals(results.getString(++i), msg + "'x: 12, y: Ballerina'");
+        Assert.assertEquals(results.getString(++i), msg + "'x: 10, y: B'");
+        Assert.assertEquals(results.getString(++i), msg + "'15'");
+        Assert.assertEquals(results.getString(++i), msg + "'x: 12, y: Ballerina, z: true'");
+        Assert.assertEquals(results.getString(++i), msg + "'Default'");
     }
 
     @Test(description = "Test tuple static match pattern")
@@ -218,12 +218,12 @@ public class MatchStatementStaticPatternsTest {
 
         int i = -1;
         String msg = "Value is ";
-        Assert.assertEquals(results.getRefValue(++i), msg + "'(12, Ballerina)'");
-        Assert.assertEquals(results.getRefValue(++i), msg + "'(12, Ballerina)'");
-        Assert.assertEquals(results.getRefValue(++i), msg + "'(15)'");
-        Assert.assertEquals(results.getRefValue(++i), msg + "'(15, Bal, 100)'");
-        Assert.assertEquals(results.getRefValue(++i), msg + "'(15, Ballerina)'");
-        Assert.assertEquals(results.getRefValue(++i), msg + "'Default'");
+        Assert.assertEquals(results.getString(++i), msg + "'(12, Ballerina)'");
+        Assert.assertEquals(results.getString(++i), msg + "'(12, Ballerina)'");
+        Assert.assertEquals(results.getString(++i), msg + "'(15)'");
+        Assert.assertEquals(results.getString(++i), msg + "'(15, Bal, 100)'");
+        Assert.assertEquals(results.getString(++i), msg + "'(15, Ballerina)'");
+        Assert.assertEquals(results.getString(++i), msg + "'Default'");
     }
 
     @Test(description = "Test complex static match pattern")
@@ -237,7 +237,7 @@ public class MatchStatementStaticPatternsTest {
         Assert.assertEquals(1, results.size());
 
         int i = -1;
-        Assert.assertEquals(results.getRefValue(++i), "Value is 'Correct'");
+        Assert.assertEquals(results.getString(++i), "Value is 'Correct'");
     }
 
 //    @Test(description = "Test matching finite type")
