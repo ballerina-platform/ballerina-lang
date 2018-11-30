@@ -26,8 +26,8 @@ import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -294,7 +294,7 @@ public class SafeNavigationTest {
         Assert.assertTrue(returns[1] instanceof BString);
         Assert.assertEquals(returns[1].stringValue(), "null");
 
-        Assert.assertTrue(returns[2] instanceof BStringArray);
+        Assert.assertTrue(returns[2] instanceof BValueArray);
         Assert.assertEquals(returns[2].stringValue(), "[]");
     }
 

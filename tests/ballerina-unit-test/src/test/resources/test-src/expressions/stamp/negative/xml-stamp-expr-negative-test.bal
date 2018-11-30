@@ -50,7 +50,7 @@ function stampXMLToMap() returns map<any> {
 
     xml xmlValue = xml `<book>The Lost World</book>`;
 
-    map<any> mapValue = map.stamp(xmlValue);
+    map<any> mapValue = map<any>.stamp(xmlValue);
     return mapValue;
 }
 

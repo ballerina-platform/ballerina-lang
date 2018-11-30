@@ -24,51 +24,51 @@ import org.ballerinalang.model.util.serializer.BValueDeserializer;
 import org.ballerinalang.model.util.serializer.BValueSerializer;
 import org.ballerinalang.model.util.serializer.SerializationBValueProvider;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 
 /**
- * Provide mapping between {@link BRefValueArray} and {@link BValue} representation of it.
+ * Provide mapping between {@link BValueArray} and {@link BValue} representation of it.
  *
  * @since 0.982.0
  */
-public class BRefValueArrayBValueProvider implements SerializationBValueProvider<BRefValueArray> {
+public class BRefValueArrayBValueProvider implements SerializationBValueProvider<BValueArray> {
 
     private static final String ARRAY_TYPE = "arrayType";
 
     @Override
     public String typeName() {
-        return BRefValueArray.class.getSimpleName();
+        return BValueArray.class.getSimpleName();
     }
 
     @Override
     public Class<?> getType() {
-        return BRefValueArray.class;
+        return BValueArray.class;
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public BPacket toBValue(BRefValueArray array, BValueSerializer serializer) {
+    public BPacket toBValue(BValueArray array, BValueSerializer serializer) {
         BRefType[] newArray = new BRefType[(int) array.size()];
         for (int i = 0; i < array.size(); i++) {
-            newArray[i] = (BRefType) serializer.toBValue(array.get(i), Object.class);
+            newArray[i] = (BRefType) serializer.toBValue(array.getRefValue(i), Object.class);
         }
         return BPacket
-                .from(typeName(), new BRefValueArray(newArray, array.getType()))
+                .from(typeName(), new BValueArray(newArray, array.getType()))
                 .put(ARRAY_TYPE, new BString(array.getType().toString()));
     }
 
     @Override
-    public BRefValueArray toObject(BPacket packet, BValueDeserializer bValueDeserializer) {
-        BRefValueArray refValueArray = (BRefValueArray) packet.getValue();
+    public BValueArray toObject(BPacket packet, BValueDeserializer bValueDeserializer) {
+        BValueArray refValueArray = (BValueArray) packet.getValue();
         BRefType[] newArray = new BRefType[(int) refValueArray.size()];
         for (int i = 0; i < newArray.length; i++) {
-            newArray[i] = (BRefType) bValueDeserializer.deserialize(refValueArray.get(i), BRefType.class);
+            newArray[i] = (BRefType) bValueDeserializer.deserialize(refValueArray.getRefValue(i), BRefType.class);
         }
         BString arrayType = (BString) packet.get(ARRAY_TYPE);
         BType bType = BTypes.fromString(arrayType.stringValue());
 
-        return new BRefValueArray(newArray, bType);
+        return new BValueArray(newArray, bType);
     }
 }

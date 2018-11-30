@@ -117,8 +117,8 @@ function foo() {
 
     streams:Select select = streams:createSelect(function (streams:StreamEvent[] e) {orderByProcess.process(e);},
         aggregatorArr,
-        [function (streams:StreamEvent e) returns string {
-            return <string>e.data["inputStream.name"];
+        [function (streams:StreamEvent e) returns anydata {
+            return e.data["inputStream.name"];
         }],
         function (streams:StreamEvent e, streams:Aggregator[] aggregatorArr1) returns map<anydata> {
             streams:Sum sumAggregator1 = <streams:Sum>aggregatorArr1[0];

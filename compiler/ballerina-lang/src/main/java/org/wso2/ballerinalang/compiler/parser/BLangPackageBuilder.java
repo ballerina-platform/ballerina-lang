@@ -80,6 +80,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
+import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -120,6 +121,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -171,6 +173,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
@@ -636,9 +640,9 @@ public class BLangPackageBuilder {
         this.varListStack.push(new ArrayList<>());
     }
 
-    void startFunctionDef() {
+    void startFunctionDef(int annotCount) {
         FunctionNode functionNode = TreeBuilder.createFunctionNode();
-        attachAnnotations(functionNode);
+        attachAnnotations(functionNode, annotCount);
         attachMarkdownDocumentations(functionNode);
         attachDeprecatedNode(functionNode);
         this.invokableNodeStack.push(functionNode);
@@ -697,6 +701,46 @@ public class BLangPackageBuilder {
         memberVar.addWS(ws);
         this.varStack.push(memberVar);
         return memberVar;
+    }
+
+    void addErrorVariableDefStatment(DiagnosticPos pos, Set<Whitespace> ws, boolean isDeclaredWithVar) {
+        BLangErrorVariable var = (BLangErrorVariable) this.varStack.pop();
+        BLangErrorVariableDef varDefNode = (BLangErrorVariableDef) TreeBuilder.createErrorVariableDefinitionNode();
+        Set<Whitespace> wsOfSemiColon = removeNthFromLast(ws, 0);
+        var.setInitialExpression(this.exprNodeStack.pop());
+        varDefNode.pos = pos;
+        varDefNode.setVariable(var);
+        varDefNode.addWS(wsOfSemiColon);
+        var.isDeclaredWithVar = isDeclaredWithVar;
+        if (!isDeclaredWithVar) {
+            var.setTypeNode(this.typeNodeStack.pop());
+        }
+        addStmtToCurrentBlock(varDefNode);
+    }
+
+    void addErrorVariable(DiagnosticPos pos, Set<Whitespace> ws, String reasonIdentifier, String detailIdentifier,
+                          boolean hasRecordVariable) {
+        BLangErrorVariable errorVariable = (BLangErrorVariable) TreeBuilder.createErrorVariableNode();
+        errorVariable.pos = pos;
+        errorVariable.addWS(ws);
+        errorVariable.reason = (BLangSimpleVariable) generateBasicVarNodeWithoutType(pos, ws, reasonIdentifier, false);
+        if (hasRecordVariable) {
+            errorVariable.detail = this.varStack.pop();
+        } else if (detailIdentifier != null) {
+            errorVariable.detail = (BLangVariable) generateBasicVarNodeWithoutType(pos, ws, detailIdentifier, false);
+        }
+        this.varStack.push(errorVariable);
+    }
+
+    void addErrorVariableReference(DiagnosticPos pos, Set<Whitespace> ws, boolean hasDetailExpr) {
+        BLangErrorVarRef errorVarRef = (BLangErrorVarRef) TreeBuilder.createErrorVariableReferenceNode();
+        errorVarRef.pos = pos;
+        errorVarRef.addWS(ws);
+        if (hasDetailExpr) {
+            errorVarRef.detail = (BLangVariableReference) this.exprNodeStack.pop();
+        }
+        errorVarRef.reason = (BLangVariableReference) this.exprNodeStack.pop();
+        this.exprNodeStack.push(errorVarRef);
     }
 
     void addTupleVariable(DiagnosticPos pos, Set<Whitespace> ws, int members) {
@@ -870,7 +914,8 @@ public class BLangPackageBuilder {
     }
 
     void startLambdaFunctionDef(PackageID pkgID) {
-        startFunctionDef();
+        // Passing zero for annotation count as Lambdas can't have annotations.
+        startFunctionDef(0);
         BLangFunction lambdaFunction = (BLangFunction) this.invokableNodeStack.peek();
         lambdaFunction.setName(createIdentifier(anonymousModelHelper.getNextAnonymousFunctionKey(pkgID)));
         lambdaFunction.addFlag(Flag.LAMBDA);
@@ -1370,6 +1415,11 @@ public class BLangPackageBuilder {
         binaryExpressionNode.lhsExpr = (BLangExpression) exprNodeStack.pop();
         binaryExpressionNode.opKind = OperatorKind.valueFrom(operator);
         addExpressionNode(binaryExpressionNode);
+    }
+
+    void createUnderscoreIdentifierExpr(DiagnosticPos pos, Set<Whitespace> ws) {
+        addNameReference(pos, ws, null, "_");
+        createSimpleVariableReference(pos, ws);
     }
 
     void createElvisExpr(DiagnosticPos pos, Set<Whitespace> ws) {
@@ -2115,26 +2165,32 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(assignmentNode);
     }
 
-    void addTupleDestructuringStatement(DiagnosticPos pos, Set<Whitespace> ws, boolean varDeclaration) {
+    void addTupleDestructuringStatement(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangTupleDestructure stmt = (BLangTupleDestructure) TreeBuilder.createTupleDestructureStatementNode();
         stmt.pos = pos;
         stmt.addWS(ws);
-        stmt.setDeclaredWithVar(varDeclaration);
         stmt.expr = (BLangExpression) exprNodeStack.pop();
         stmt.varRef = (BLangTupleVarRef) exprNodeStack.pop();
         stmt.addWS(ws);
         addStmtToCurrentBlock(stmt);
     }
 
-    public void addRecordDestructuringStatement(DiagnosticPos pos, Set<Whitespace> ws, boolean declaredWithVar) {
+    void addRecordDestructuringStatement(DiagnosticPos pos, Set<Whitespace> ws) {
 
         BLangRecordDestructure stmt = (BLangRecordDestructure) TreeBuilder.createRecordDestructureStatementNode();
         stmt.pos = pos;
         stmt.addWS(ws);
-        stmt.setDeclaredWithVar(declaredWithVar);
-
         stmt.expr = (BLangExpression) exprNodeStack.pop();
         stmt.varRef = (BLangRecordVarRef) exprNodeStack.pop();
+        addStmtToCurrentBlock(stmt);
+    }
+
+    void addErrorDestructuringStatement(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangErrorDestructure stmt = (BLangErrorDestructure) TreeBuilder.createErrorDestructureStatementNode();
+        stmt.pos = pos;
+        stmt.addWS(ws);
+        stmt.expr = (BLangExpression) exprNodeStack.pop();
+        stmt.varRef = (BLangErrorVarRef) exprNodeStack.pop();
         addStmtToCurrentBlock(stmt);
     }
 

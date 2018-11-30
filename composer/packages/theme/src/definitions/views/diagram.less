@@ -1,6 +1,7 @@
 .diagram(@color) {
     background: ~"@{@{color}-diagram-background-color}";
     font-size: @diagram-font-size;
+    font-family: Monaco, Consolas, "Courier New", monospace, "@{diagram-icon-font}";
 
     .diagram-container {
         background: ~"@{@{color}-diagram-background-color}";
@@ -15,7 +16,6 @@
                     fill: ~"@{@{color}-diagram-panel-header-background-color}";
 
                     .panel-icon {
-                        font-family: @diagram-icon-font;
                     }
                     text {
                         fill: ~"@{@{color}-diagram-panel-header-text-color}";
@@ -37,6 +37,12 @@
                             fill: ~"@{@{color}-diagram-life-line-text-color}";
                             stroke-width: 0;
                             text-anchor: middle;
+                        }
+                    }
+                    .dropdown-trigger {
+                        .dropdown {
+                            .trigger-icon {
+                            }
                         }
                     }
                     .condition {

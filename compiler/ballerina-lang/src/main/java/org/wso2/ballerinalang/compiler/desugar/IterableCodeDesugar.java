@@ -326,7 +326,6 @@ public class IterableCodeDesugar {
                 final BLangTupleDestructure tupleAssign = (BLangTupleDestructure) TreeBuilder
                         .createTupleDestructureStatementNode();
                 tupleAssign.pos = pos;
-                tupleAssign.declaredWithVar = true;
                 foreachStmt.body.addStatement(tupleAssign);
                 tupleAssign.expr = ASTBuilderUtil.createVariableRef(pos, ctx.getLastOperation().retVar.symbol);
                 BLangTupleVarRef bLangTupleVarRef = new BLangTupleVarRef();
