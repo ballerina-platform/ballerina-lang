@@ -920,12 +920,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                 || (ctx.parent instanceof BallerinaParser.MatchPatternClauseContext))) {
             this.pkgBuilder.addBindingPatternMemberVariable(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
         }
-
-        if ((ctx.underscore() != null) && ((ctx.parent instanceof BallerinaParser.TupleBindingPatternContext)
-                || (ctx.parent instanceof BallerinaParser.FieldBindingPatternContext)
-                || (ctx.parent instanceof BallerinaParser.MatchPatternClauseContext))) {
-            this.pkgBuilder.addBindingPatternMemberVariable(getCurrentPos(ctx), getWS(ctx), "_");
-        }
     }
 
     @Override
@@ -975,9 +969,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         } else if (ctx.bindingPattern().Identifier() != null) {
             this.pkgBuilder.addSimpleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
                     ctx.bindingPattern().Identifier().getText(), isFinal, isDeclaredWithVar, isExpressionAvailable);
-        } else if (ctx.bindingPattern().underscore() != null) {
-            this.pkgBuilder.addSimpleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
-                    "_", isFinal, isDeclaredWithVar, isExpressionAvailable);
         } else if (ctx.bindingPattern().structuredBindingPattern().recordBindingPattern() != null) {
             this.pkgBuilder.addRecordVariableDefStatement(getCurrentPos(ctx), getWS(ctx), isFinal, isDeclaredWithVar);
         } else if (ctx.bindingPattern().structuredBindingPattern().errorBindingPattern() != null) {

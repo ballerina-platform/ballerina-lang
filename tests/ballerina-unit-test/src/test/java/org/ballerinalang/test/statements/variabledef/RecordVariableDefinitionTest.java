@@ -261,17 +261,9 @@ public class RecordVariableDefinitionTest {
         Assert.assertNull(returns[5]);
     }
 
-    @Test(description = "Test record variable with ignore")
-    public void testRecordVariableWithIgnore() {
-        BValue[] returns = BRunUtil.invoke(result, "testRecordVariableWithIgnore");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals(returns[0].stringValue(), "Peter");
-        Assert.assertEquals(returns[1].stringValue(), "Peter");
-    }
-
     @Test
     public void testNegativeRecordVariables() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 18);
+        Assert.assertEquals(resultNegative.getErrorCount(), 16);
         String redeclaredSymbol = "redeclared symbol ";
         int i = -1;
         BAssertUtil.validateError(resultNegative, ++i, redeclaredSymbol + "'fName'", 37, 26);
@@ -297,16 +289,12 @@ public class RecordVariableDefinitionTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'UnionOne|UnionTwo', found 'UnionRec1'", 143, 66);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'string|boolean', found 'string|boolean?'", 144, 25);
+                "incompatible types: expected 'string|boolean', found 'boolean|string?'", 144, 25);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'int|float', found 'int|float?'", 144, 31);
+                "incompatible types: expected 'int|float', found 'float|int?'", 144, 31);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'string', found 'anydata'", 154, 13);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'string', found 'string?'", 154, 31);
-        BAssertUtil.validateError(resultNegative, ++i,
-                "no new variables on left side", 159, 10);
-        BAssertUtil.validateError(resultNegative, ++i,
-                "no new variables on left side", 160, 10);
     }
 }

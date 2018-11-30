@@ -392,7 +392,6 @@ matchPatternClause
 
 bindingPattern
     :   Identifier
-    |   underscore
     |   structuredBindingPattern
     ;
 
@@ -402,7 +401,7 @@ structuredBindingPattern
     |   errorBindingPattern
     ;
 
- errorBindingPattern
+errorBindingPattern
     :   TYPE_ERROR LEFT_PARENTHESIS Identifier (COMMA (Identifier | recordBindingPattern))? RIGHT_PARENTHESIS
     ;
 

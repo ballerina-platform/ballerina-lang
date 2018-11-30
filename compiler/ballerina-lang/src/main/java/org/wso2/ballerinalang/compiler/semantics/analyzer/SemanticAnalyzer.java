@@ -556,13 +556,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
 
             BLangSimpleVariable simpleVariable = (BLangSimpleVariable) variable;
-            Name varName = names.fromIdNode(simpleVariable.name);
-            if (varName == Names.IGNORE) {
-                simpleVariable.type = symTable.noType;
-                dlog.error(simpleVariable.pos, DiagnosticCode.UNDERSCORE_NOT_ALLOWED);
-                return;
-            }
-
             simpleVariable.type = rhsType;
 
             int ownerSymTag = env.scope.owner.tag;
@@ -686,27 +679,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return false;
         }
 
-        int ignoredCount = 0;
         for (int i = 0; i < varNode.memberVariables.size(); i++) {
             BLangVariable var = varNode.memberVariables.get(i);
-            if (var.getKind() == NodeKind.VARIABLE) {
-                // '_' is allowed in tuple variables. Not allowed if all variables are named as '_'
-                BLangSimpleVariable simpleVar = (BLangSimpleVariable) var;
-                Name varName = names.fromIdNode(simpleVar.name);
-                if (varName == Names.IGNORE) {
-                    ignoredCount++;
-                    simpleVar.type = symTable.noType;
-                    continue;
-                }
-            }
             var.type = tupleTypeNode.tupleTypes.get(i);
             var.accept(this);
         }
 
-        if (ignoredCount == varNode.memberVariables.size()) {
-            dlog.error(varNode.pos, DiagnosticCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT);
-            return false;
-        }
         return true;
     }
 
@@ -810,21 +788,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 .collect(Collectors.toMap(field -> field.getName().getValue(), field -> field));
 
         boolean validRecord = true;
-        int ignoredCount = 0;
         for (BLangRecordVariableKeyValueNode variable : recordVar.variableList) {
             // Infer the type of each variable in recordVariable from the given record type
             // so that symbol enter is done recursively
             BLangVariable value = (BLangVariable) variable.getValue();
-            if (value.getKind() == NodeKind.VARIABLE) {
-                // '_' is allowed in tuple variables. Not allowed if all variables are named as '_'
-                BLangSimpleVariable simpleVar = (BLangSimpleVariable) value;
-                Name varName = names.fromIdNode(simpleVar.name);
-                if (varName == Names.IGNORE) {
-                    ignoredCount++;
-                    simpleVar.type = symTable.noType;
-                    continue;
-                }
-            }
             if (!recordVarTypeFields.containsKey(variable.getKey().getValue())) {
                 if (recordVarType.sealed) {
                     validRecord = false;
@@ -849,11 +816,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
             value.type = recordVarTypeFields.get((variable.getKey().getValue())).type;
             value.accept(this);
-        }
-
-        if (ignoredCount == recordVar.variableList.size()) {
-            dlog.error(recordVar.pos, DiagnosticCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT);
-            return false;
         }
 
         if (recordVar.restParam != null) {
@@ -985,14 +947,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangSimpleVariableDef varDefNode) {
-        // This will prevent cases Eg:- int _ = 100;
-        // We have prevented '_' from registering variable symbol at SymbolEnter, Hence this validation added.
-        Name varName = names.fromIdNode(varDefNode.var.name);
-        if (varName == Names.IGNORE) {
-            dlog.error(varDefNode.var.pos, DiagnosticCode.UNDERSCORE_NOT_ALLOWED);
-            return;
-        }
-
         analyzeDef(varDefNode.var, env);
     }
 
@@ -1330,7 +1284,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 BType lhsType = checkStaticMatchPatternLiteralType(binaryExpr.lhsExpr);
                 BType rhsType = checkStaticMatchPatternLiteralType(binaryExpr.rhsExpr);
                 if (lhsType.tag == TypeTags.NONE || rhsType.tag == TypeTags.NONE) {
-                    dlog.error(expression.pos, DiagnosticCode.INVALID_LITERAL_FOR_MATCH_PATTERN);
+                    dlog.error(binaryExpr.pos, DiagnosticCode.INVALID_LITERAL_FOR_MATCH_PATTERN);
                     expression.type = symTable.errorType;
                     return expression.type;
                 }
@@ -1346,6 +1300,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                                     && typeChecker.checkExpr(recLiteralKeyValue.key.expr, this.env).tag
                                     == TypeTags.STRING)) {
                         BType fieldType = checkStaticMatchPatternLiteralType(recLiteralKeyValue.valueExpr);
+                        if (fieldType.tag == TypeTags.NONE) {
+                            dlog.error(recLiteralKeyValue.valueExpr.pos,
+                                    DiagnosticCode.INVALID_LITERAL_FOR_MATCH_PATTERN);
+                            expression.type = symTable.errorType;
+                            return expression.type;
+                        }
                         types.setImplicitCastExpr(recLiteralKeyValue.valueExpr, fieldType, symTable.anyType);
                     } else {
                         recLiteralKeyValue.key.expr.type = symTable.errorType;
@@ -1357,7 +1317,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 BLangBracedOrTupleExpr bracedOrTupleExpr = (BLangBracedOrTupleExpr) expression;
                 List<BType> results = new ArrayList<>();
                 for (int i = 0; i < bracedOrTupleExpr.expressions.size(); i++) {
-                    results.add(checkStaticMatchPatternLiteralType(bracedOrTupleExpr.expressions.get(i)));
+                    BType literalType = checkStaticMatchPatternLiteralType(bracedOrTupleExpr.expressions.get(i));
+                    if (literalType.tag == TypeTags.NONE) { // not supporting '_' for now
+                        dlog.error(bracedOrTupleExpr.expressions.get(i).pos,
+                                DiagnosticCode.INVALID_LITERAL_FOR_MATCH_PATTERN);
+                        expression.type = symTable.errorType;
+                        return expression.type;
+                    }
+                    results.add(literalType);
                 }
 
                 if (bracedOrTupleExpr.expressions.size() > 1) {

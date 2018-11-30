@@ -206,10 +206,3 @@ function testVarDefWithUnionType6() returns (int|float|string, int|boolean|strin
     (string, int)|(int, boolean)|(float, string) (a, b) = ("Test", 23);
     return (a, b);
 }
-
-function testTupleVariableWithIgnore() returns (string, string) {
-    (string, boolean) tuple = ("Peter", true);
-    (string, boolean) (name, _) = tuple;
-    var (name1, _) = tuple;
-    return (name, name1);
-}

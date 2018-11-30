@@ -740,6 +740,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 null, env.scope.owner);
         boolean unresolvedReference = false;
         for (BLangRecordVarRef.BLangRecordVarRefKeyValue recordRefField : varRefExpr.recordRefFields) {
+            ((BLangVariableReference) recordRefField.variableReference).lhsVar = true;
             checkExpr(recordRefField.variableReference, env);
             BVarSymbol bVarSymbol = getVarSymbolForRecordVariableReference(recordRefField.variableReference);
             if (bVarSymbol == null) {

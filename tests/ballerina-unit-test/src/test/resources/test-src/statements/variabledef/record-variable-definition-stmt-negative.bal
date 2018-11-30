@@ -153,9 +153,3 @@ function testMapRecordVar() returns (string, anydata, any, string) { // incompat
 
     return (var1, var2, var3, var10);
 }
-
-function testRecordVarWithAllIgnoreVars() {
-    Age rec = {age: 12, format: "Y"};
-    Age {age: _, format: _} = rec; // no new variables on left side
-    var {age: _, format: _} = rec; // no new variables on left side
-}
