@@ -49,7 +49,7 @@ function startAggregationWithGroupByQuery() returns TeacherOutput[] {
 
     foo();
 
-    outputStream.subscribe(printTeachers);
+    outputStream.subscribe(function(TeacherOutput e) {printTeachers(e);});
     foreach t in teachers {
         inputStream.publish(t);
     }

@@ -28,7 +28,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.FunctionFlags;
-import org.ballerinalang.util.TransactionStatus;
+import org.ballerinalang.util.Transactions;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -320,6 +320,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     private Stack<Instruction> failInstructions = new Stack<>();
     private Stack<Integer> tryCatchErrorRangeFromIPStack = new Stack<>();
     private Stack<Integer> tryCatchErrorRangeToIPStack = new Stack<>();
+    private Stack<RegIndex> abortedFromStatus = new Stack<>();
 
     private int workerChannelCount = 0;
 
@@ -1753,11 +1754,58 @@ public class CodeGenerator extends BLangNodeVisitor {
             workerInfo.codeAttributeInfo.codeAddrs = nextIP();
             this.lvIndexes = lvIndexCopy;
             this.currentWorkerInfo = workerInfo;
+            this.emitTransactionParticipantBeginIfApplicable(body);
             this.genNode(body, invokableSymbolEnv);
         }
         this.endWorkerInfoUnit(workerInfo.codeAttributeInfo);
         this.emit(InstructionCodes.HALT);
     }
+
+    private void emitTransactionParticipantBeginIfApplicable(BLangBlockStmt body) {
+        BLangNode parent = body.parent;
+        if (parent == null || parent.getKind() != NodeKind.FUNCTION) {
+            return;
+        }
+        BLangFunction function = (BLangFunction) parent;
+        List<BLangAnnotationAttachment> participantAnnotation = function.annAttachments.stream()
+                .filter(a -> Transactions.isTransactionsAnnotation(a.pkgAlias.value, a.annotationName.value))
+                .collect(Collectors.toList());
+        if (participantAnnotation.isEmpty()) {
+            // function not annotated for transaction participation.
+            return;
+        }
+
+        transactionIndex++;
+        BLangAnnotationAttachment annotation = participantAnnotation.get(0);
+        Operand abortedFuncRegIndex = new RegIndex(-1, TypeTags.INVOKABLE);
+        Operand committedFuncRegIndex = new RegIndex(-1, TypeTags.INVOKABLE);
+
+        for (BLangRecordKeyValue keyValuePair : ((BLangRecordLiteral) annotation.expr).getKeyValuePairs()) {
+            if (((BLangLiteral) keyValuePair.getKey()).value.equals(Transactions.TRX_ONABORT_FUNC)) {
+                abortedFuncRegIndex.value = getFuncRefCPIndex(
+                        (BInvokableSymbol) ((BLangSimpleVarRef) keyValuePair.getValue()).symbol);
+            }
+            if (((BLangLiteral) keyValuePair.getKey()).value.equals(Transactions.TRX_ONCOMMIT_FUNC)) {
+                committedFuncRegIndex.value = getFuncRefCPIndex(
+                        (BInvokableSymbol) ((BLangSimpleVarRef) keyValuePair.getValue()).symbol);
+            }
+        }
+        // Participate in transaction.
+        Operand transactionIndexOperand = getOperand(transactionIndex);
+        int participantType = getParticipantTypeTag(function);
+        Operand transactionType = getOperand(participantType);
+        RegIndex retryCountRegIndex = getRegIndex(TypeTags.INT);
+        this.emit(InstructionCodes.TR_BEGIN, transactionType, transactionIndexOperand, retryCountRegIndex,
+                committedFuncRegIndex, abortedFuncRegIndex);
+    }
+
+    private int getParticipantTypeTag(BLangFunction function) {
+        if (Symbols.isFlagOn((function).symbol.flags, Flags.RESOURCE)) {
+            return Transactions.TransactionType.REMOTE_PARTICIPANT.value;
+        }
+        return Transactions.TransactionType.PARTICIPANT.value;
+    }
+
 
     private void visitInvokableNodeParams(BInvokableSymbol invokableSymbol, CallableUnitInfo callableUnitInfo,
                                           LocalVariableAttributeInfo localVarAttrInfo) {
@@ -2830,78 +2878,108 @@ public class CodeGenerator extends BLangNodeVisitor {
             retryCountRegIndex = transactionNode.retryCount.regIndex;
         }
 
-        Operand committedFuncRegIndex = new RegIndex(-1, TypeTags.INVOKABLE);
-        if (transactionNode.onCommitFunction != null) {
-            committedFuncRegIndex.value = getFuncRefCPIndex(
-                    (BInvokableSymbol) ((BLangFunctionVarRef) transactionNode.onCommitFunction).symbol);
-        }
-
-        Operand abortedFuncRegIndex = new RegIndex(-1, TypeTags.INVOKABLE);
-        if (transactionNode.onAbortFunction != null) {
-            abortedFuncRegIndex.value = getFuncRefCPIndex(
-                    (BInvokableSymbol) ((BLangFunctionVarRef) transactionNode.onAbortFunction).symbol);
-        }
-
-        ErrorTableAttributeInfo errorTable = getErrorTable(currentPkgInfo);
-        Operand transStmtEndAddr = getOperand(-1);
         Operand transStmtAbortEndAddr = getOperand(-1);
         Operand transStmtFailEndAddr = getOperand(-1);
         Instruction gotoAbortTransBlockEnd = InstructionFactory.get(InstructionCodes.GOTO, transStmtAbortEndAddr);
         Instruction gotoFailTransBlockEnd = InstructionFactory.get(InstructionCodes.GOTO, transStmtFailEndAddr);
 
+        RegIndex trEndStatusReg = getRegIndex(TypeTags.BOOLEAN);
+        abortedFromStatus.push(trEndStatusReg);
         abortInstructions.push(gotoAbortTransBlockEnd);
         failInstructions.push(gotoFailTransBlockEnd);
 
-        //start transaction
-        this.emit(InstructionCodes.TR_BEGIN, transactionIndexOperand, retryCountRegIndex, committedFuncRegIndex,
-                abortedFuncRegIndex);
-        Operand transBlockStartAddr = getOperand(nextIP());
+        // Start transaction.
+        Operand minusOne = getOperand(-1);
+        Operand transactionType = getOperand(Transactions.TransactionType.INITIATOR.value);
+        this.emit(InstructionCodes.TR_BEGIN, transactionType, transactionIndexOperand, retryCountRegIndex,
+                minusOne, minusOne);
+        Operand retryInstructionAddress = getOperand(nextIP());
 
-        //retry transaction;
-        Operand retryEndWithThrowAddr = getOperand(-1);
-        Operand retryEndWithNoThrowAddr = getOperand(-1);
-        this.emit(InstructionCodes.TR_RETRY, transactionIndexOperand, retryEndWithThrowAddr, retryEndWithNoThrowAddr);
+        // Retry transaction.
+        Operand txConclusionEndAddr = getOperand(-1);
+        this.emit(InstructionCodes.TR_RETRY, transactionIndexOperand, transStmtAbortEndAddr, trEndStatusReg);
 
-        //process transaction statements
+        // Process transaction statements.
+        boolean prevRegResetState = this.regIndexResetDisabled;
+        this.regIndexResetDisabled = true;
         this.genNode(transactionNode.transactionBody, this.env);
+        this.regIndexResetDisabled = prevRegResetState;
 
-        //end the transaction
-        int transBlockEndAddr = nextIP();
-        this.emit(InstructionCodes.TR_END, transactionIndexOperand, getOperand(TransactionStatus.SUCCESS.value()));
+        // Last instruction of the transaction block.
+        int trErrorHandlerAddress = nextIP();
+        int transBlockFinalAddr = trErrorHandlerAddress;
+        RegIndex errorRegIndex = getRegIndex(TypeTags.ERROR);
+        // End the transaction.
+        this.emit(InstructionCodes.TR_END, transactionIndexOperand,
+                getOperand(Transactions.TransactionStatus.BLOCK_END.value()), trEndStatusReg, errorRegIndex);
+        // If transaction in failed state, goto retry.
+        this.emit(InstructionCodes.BR_TRUE, trEndStatusReg, transStmtFailEndAddr);
 
         abortInstructions.pop();
+        abortedFromStatus.pop();
         failInstructions.pop();
 
-        emit(InstructionCodes.GOTO, transStmtEndAddr);
-
-        // CodeGen for error handling.
-        int errorTargetIP = nextIP();
-        transStmtFailEndAddr.value = errorTargetIP;
-        emit(InstructionCodes.TR_END, transactionIndexOperand, getOperand(TransactionStatus.FAILED.value()));
-        if (transactionNode.onRetryBody != null) {
-            this.genNode(transactionNode.onRetryBody, this.env);
+        // Committed body.
+        if (transactionNode.committedBody != null) {
+            boolean prevRegIndexResetDisabledState = this.regIndexResetDisabled;
+            this.regIndexResetDisabled = true;
+            this.genNode(transactionNode.committedBody, this.env);
+            this.regIndexResetDisabled = prevRegIndexResetDisabledState;
 
         }
-        emit(InstructionCodes.GOTO, transBlockStartAddr);
-        retryEndWithThrowAddr.value = nextIP();
-        emit(InstructionCodes.TR_END, transactionIndexOperand, getOperand(TransactionStatus.END.value()));
 
-        emit(InstructionCodes.PANIC, getOperand(-1));
-        ErrorTableEntry errorTableEntry = new ErrorTableEntry(transBlockStartAddr.value, transBlockEndAddr,
-                errorTargetIP, null);
+        emit(InstructionCodes.GOTO, txConclusionEndAddr);
+
+        // CodeGen for error handling.
+        transStmtFailEndAddr.value = nextIP();
+        emit(InstructionCodes.TR_END, transactionIndexOperand,
+                getOperand(Transactions.TransactionStatus.FAILED.value()), trEndStatusReg, errorRegIndex);
+        // If retry possible run on-retry block, otherwise goto retry instruction.
+        emit(InstructionCodes.BR_FALSE, trEndStatusReg, retryInstructionAddress);
+        if (transactionNode.onRetryBody != null) {
+            boolean prevRegIndexResetDisabledState = this.regIndexResetDisabled;
+            this.regIndexResetDisabled = true;
+            this.genNode(transactionNode.onRetryBody, this.env);
+            this.regIndexResetDisabled = prevRegIndexResetDisabledState;
+
+        }
+        emit(InstructionCodes.GOTO, retryInstructionAddress);
+
+        // Steal error handling within transaction block to tx error handling section.
+        ErrorTableAttributeInfo errorTable = getErrorTable(currentPkgInfo);
+        ErrorTableEntry errorTableEntry = new ErrorTableEntry(retryInstructionAddress.value, transBlockFinalAddr,
+                trErrorHandlerAddress, errorRegIndex);
         errorTable.addErrorTableEntry(errorTableEntry);
 
+        // Aborted block.
         transStmtAbortEndAddr.value = nextIP();
-        emit(InstructionCodes.TR_END, transactionIndexOperand, getOperand(TransactionStatus.ABORTED.value()));
+        emit(InstructionCodes.TR_END, transactionIndexOperand,
+                getOperand(Transactions.TransactionStatus.ABORTED.value()), trEndStatusReg, errorRegIndex);
+        if (transactionNode.abortedBody != null) {
+            boolean prevRegIndexResetDisabledState = this.regIndexResetDisabled;
+            this.regIndexResetDisabled = true;
+            this.genNode(transactionNode.abortedBody, this.env);
+            this.regIndexResetDisabled = prevRegIndexResetDisabledState;
+        }
 
+        // Conclude transaction handling.
         int transactionEndIp = nextIP();
-        transStmtEndAddr.value = transactionEndIp;
-        retryEndWithNoThrowAddr.value = transactionEndIp;
-        emit(InstructionCodes.TR_END, transactionIndexOperand, getOperand(TransactionStatus.END.value()));
+        txConclusionEndAddr.value = transactionEndIp;
+        emit(InstructionCodes.TR_END, transactionIndexOperand, getOperand(Transactions.TransactionStatus.END.value()),
+                trEndStatusReg, errorRegIndex);
+
+        // Rethrow captured exceptions, if available.
+        Operand oneAfterRethrowInstructionAddress = getOperand(-1);
+        emit(InstructionCodes.BR_FALSE, trEndStatusReg, oneAfterRethrowInstructionAddress);
+        emit(InstructionCodes.PANIC, errorRegIndex);
+        oneAfterRethrowInstructionAddress.value = nextIP();
     }
 
     public void visit(BLangAbort abortNode) {
         generateFinallyInstructions(abortNode, NodeKind.TRANSACTION);
+        RegIndex index = abortedFromStatus.peek();
+        // Set aborted reason reg to false.
+        this.emit(InstructionCodes.BNE, index, index, index);
         this.emit(abortInstructions.peek());
     }
 

@@ -1528,9 +1528,9 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangTransaction transactionNode) {
         transactionNode.transactionBody = rewrite(transactionNode.transactionBody, env);
         transactionNode.onRetryBody = rewrite(transactionNode.onRetryBody, env);
+        transactionNode.committedBody = rewrite(transactionNode.committedBody, env);
+        transactionNode.abortedBody = rewrite(transactionNode.abortedBody, env);
         transactionNode.retryCount = rewriteExpr(transactionNode.retryCount);
-        transactionNode.onCommitFunction = rewriteExpr(transactionNode.onCommitFunction);
-        transactionNode.onAbortFunction = rewriteExpr(transactionNode.onAbortFunction);
         result = transactionNode;
     }
 
@@ -3332,6 +3332,7 @@ public class Desugar extends BLangNodeVisitor {
         conversionExpr.targetType = lhsType;
         conversionExpr.conversionSymbol = conversionSymbol;
         conversionExpr.type = lhsType;
+        conversionExpr.pos = expr.pos;
         return conversionExpr;
     }
 

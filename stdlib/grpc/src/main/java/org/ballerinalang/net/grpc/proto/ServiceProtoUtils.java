@@ -428,7 +428,7 @@ public class ServiceProtoUtils {
                     throw new GrpcServerException("Invalid message type. Message type doesn't have type symbol");
                 }
 
-                if ("ballerina/grpc:Listener".equals(tempType.tsymbol.toString()) || "ballerina/grpc:Headers"
+                if ("ballerina/grpc:Caller".equals(tempType.tsymbol.toString()) || "ballerina/grpc:Headers"
                         .equals(tempType.tsymbol.toString())) {
                     continue;
                 }
