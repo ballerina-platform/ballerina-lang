@@ -25,7 +25,6 @@ import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -45,7 +44,7 @@ public class TransactionUtils {
                 new BString(protocol)
         };
         BValue[] returns = invokeCoordinatorFunction(ctx, TransactionConstants.COORDINATOR_BEGIN_TRANSACTION, args);
-        checkTransactionCoordinatorError(returns[0], ctx, "error in global transaction start: ");
+        checkTransactionCoordinatorError(returns[0], "error in global transaction start: ");
         return returns;
     }
 
@@ -53,7 +52,7 @@ public class TransactionUtils {
             int transactionBlockId) {
         BValue[] args = {new BString(globalTransactionId), new BInteger(transactionBlockId)};
         BValue[] returns = invokeCoordinatorFunction(ctx, TransactionConstants.COORDINATOR_END_TRANSACTION, args);
-        checkTransactionCoordinatorError(returns[0], ctx, "error in transaction end: ");
+        checkTransactionCoordinatorError(returns[0], "error in transaction end: ");
 
         switch (returns[0].getType().getTag()) {
             case TypeTags.STRING_TAG:
@@ -81,7 +80,7 @@ public class TransactionUtils {
         return ((BBoolean) returns[0]).booleanValue();
     }
 
-    private static void checkTransactionCoordinatorError(BValue value, Strand ctx, String errMsg) {
+    private static void checkTransactionCoordinatorError(BValue value, String errMsg) {
         if (value.getType().getTag() == TypeTags.ERROR_TAG) {
             throw new BallerinaException(errMsg + ((BError) value).reason);
         }
@@ -91,10 +90,6 @@ public class TransactionUtils {
         PackageInfo packageInfo = ctx.programFile.getPackageInfo(TransactionConstants.COORDINATOR_PACKAGE);
         FunctionInfo functionInfo = packageInfo.getFunctionInfo(functionName);
         return BVMExecutor.executeFunction(functionInfo.getPackageInfo().getProgramFile(), functionInfo, args);
-    }
-
-    public static String getUniqueName(CallableUnitInfo callableUnitInfo) {
-        return callableUnitInfo.getPkgPath() + ":" + callableUnitInfo.getName();
     }
 
     /**

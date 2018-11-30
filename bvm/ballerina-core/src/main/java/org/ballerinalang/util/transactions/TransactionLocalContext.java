@@ -180,16 +180,12 @@ public class TransactionLocalContext {
         transactionFailure.push(TransactionFailure.at(-1));
     }
 
-    public void clearFailure() {
-        transactionFailure.clear();
-    }
-
     public TransactionFailure getAndClearFailure() {
         if (transactionFailure.empty()) {
             return null;
         }
         TransactionFailure failure = transactionFailure.pop();
-        clearFailure();
+        transactionFailure.clear();
         return failure;
     }
 
