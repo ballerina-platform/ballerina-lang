@@ -264,7 +264,7 @@ service testService_2 on testEP {
             response.setPayload(untaint stringPayload);
         } else if (stringPayload is error) {
             string errMsg = <string> stringPayload.detail().message;
-            response.setPayload(errMsg);
+            response.setPayload(untaint errMsg);
         }
         _ = caller -> respond(response);
     }
