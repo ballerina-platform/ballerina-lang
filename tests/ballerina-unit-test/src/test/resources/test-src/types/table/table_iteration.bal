@@ -374,9 +374,9 @@ function testCloseConnectionPool() returns (int) {
     var dt = testDB->select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SESSIONS",
         ResultCount);
     int count = -1;
-    if (dt is table) {
+    if (dt is table<ResultCount>) {
         while (dt.hasNext()) {
-            var rs = <ResultCount>dt.getNext();
+            var rs = dt.getNext();
             if (rs is ResultCount) {
                 count = rs.COUNTVAL;
             }
@@ -391,7 +391,7 @@ function testSelect() returns (json) {
     table<Employee> dt = createTable();
 
     table<EmployeeSalary> salaryTable = dt.select(getEmployeeSalary);
-    var ret = <json>salaryTable;
+    var ret = json.create(salaryTable);
     json res = {};
     if (ret is json) {
         res = ret;
@@ -405,7 +405,7 @@ function testSelectCompatibleLambdaInput() returns (json) {
     table<Employee> dt = createTable();
 
     table<EmployeeSalary> salaryTable = dt.select(getEmployeeSalaryCompatibleInput);
-    var ret = <json>salaryTable;
+    var ret = json.create(salaryTable);
     json res = {};
     if (ret is json) {
         res = ret;
@@ -419,7 +419,7 @@ function testSelectCompatibleLambdaOutput() returns (json) {
     table<Employee> dt = createTable();
 
     table<EmployeeSalary> salaryTable = dt.select(getEmployeeSalaryCompatibleOutput);
-    var ret = <json>salaryTable;
+    var ret = json.create(salaryTable);
     json res = {};
     if (ret is json) {
         res = ret;
@@ -433,7 +433,7 @@ function testSelectCompatibleLambdaInputOutput() returns (json) {
     table<Employee> dt = createTable();
 
     table<EmployeeSalary> salaryTable = dt.select(getEmployeeSalaryCompatibleInputOutput);
-    var ret = <json>salaryTable;
+    var ret = json.create(salaryTable);
     json res = {};
     if (ret is json) {
         res = ret;

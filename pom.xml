@@ -1695,7 +1695,7 @@
                 <module>language-server</module>
                 <module>misc/docerina</module>
                 <module>misc/ballerina-maven-plugins</module>
-                <!--<module>misc/swagger-ballerina</module>-->
+                <module>misc/swagger-ballerina</module>
                 <module>misc/testerina</module>
                 <module>misc/toml-parser</module>
                 <module>misc/metrics-extensions</module>
@@ -1779,7 +1779,7 @@
                 <module>language-server</module>
                 <module>misc/docerina</module>
                 <module>misc/ballerina-maven-plugins</module>
-                <!--<module>misc/swagger-ballerina</module>-->
+                <module>misc/swagger-ballerina</module>
                 <module>misc/testerina</module>
                 <module>misc/toml-parser</module>
                 <module>misc/metrics-extensions</module>
@@ -1862,7 +1862,7 @@
                 <module>language-server</module>
                 <module>misc/ballerina-maven-plugins</module>
                 <module>misc/docerina</module>
-                <!--<module>misc/swagger-ballerina</module>-->
+                <module>misc/swagger-ballerina</module>
                 <module>misc/testerina</module>
                 <module>misc/toml-parser</module>
                 <module>misc/metrics-extensions</module>
