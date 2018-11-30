@@ -4,7 +4,8 @@ import ballerina/log;
 // This initializes a JMS connection with the provider.
 jms:Connection conn = new({
     initialContextFactory:"bmbInitialContextFactory",
-    providerUrl:"amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'"
+    providerUrl:"amqp://admin:admin@carbon/carbon?"
+          +"brokerlist='tcp://localhost:5672'"
 });
 
 // This initializes a JMS session on top of the created connection.
@@ -24,14 +25,15 @@ listener jms:DurableTopicSubscriber subscriberEndpoint = new({
 service jmsListener on subscriberEndpoint {
 
     // This resource is invoked when a message is received.
-    resource function onMessage(jms:QueueReceiverCaller consumer , jms:Message message) {
+    resource function onMessage(jms:TopicSubscriberCaller consumer ,
+            jms:Message message) {
         // Retrieve the text message.
         var messageText = message.getTextMessageContent();
         if (messageText is string) {
             log:printInfo("Message : " + messageText);
         } else {
             log:printError("Error occurred while reading message",
-               err=messageText);
+            err = messageText);
         }
     }
 }

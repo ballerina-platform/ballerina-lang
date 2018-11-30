@@ -26,3 +26,22 @@ public function workerSendToWorker() returns int {
     return (wait w2) + 1;
 }
 
+function workerSendToDefault() returns int{
+    worker w1 {
+        int x = 50;
+        x -> default;
+    }
+    int y = <- w1;
+    return y + 1;
+}
+
+function workerSendFromDefault() returns int{
+    worker w1 returns int {
+        int y = <- default;
+        return y;
+    }
+    int x = 50;
+    x -> w1;
+
+    return (wait w1) + 1;
+}

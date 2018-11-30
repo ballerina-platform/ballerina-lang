@@ -124,7 +124,7 @@ public class BallerinaFileBuilder {
             if (descriptor == rootDescriptor) {
                 // Add root descriptor.
                 Descriptor rootDesc = Descriptor.newBuilder(descriptor).build();
-                stubFileObject.setRootDescriptorKey(rootDesc.getKey());
+                stubFileObject.setRootDescriptor(rootDesc.getData());
                 stubFileObject.addDescriptor(rootDesc);
 
                 // Add dependent descriptors.

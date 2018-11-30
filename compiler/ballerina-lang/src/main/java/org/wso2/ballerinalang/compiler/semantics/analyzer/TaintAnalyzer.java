@@ -668,6 +668,12 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (transactionNode.onRetryBody != null) {
             transactionNode.onRetryBody.accept(this);
         }
+        if (transactionNode.committedBody != null) {
+            transactionNode.committedBody.accept(this);
+        }
+        if (transactionNode.abortedBody != null) {
+            transactionNode.abortedBody.accept(this);
+        }
         overridingAnalysis = true;
     }
 
@@ -965,6 +971,16 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     this.taintedStatus = TaintedStatus.IGNORED;
                     analyzerPhase = AnalyzerPhase.LOOP_ANALYSIS_COMPLETE;
                 } else {
+                    // When "call" is use to invoke function pointers, taint-table of the actual function to be invoked
+                    // is not known. Therefore, if the analyzer is blocked on such function pointer invocation, skip
+                    // taint analysis and consider the outcome of the invocation as untainted.
+                    // TODO: Resolving function pointers and perform analysis.
+                    if (analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS_COMPLETE && invocationExpr.builtinMethodInvocation
+                            && invocationExpr.builtInMethod == BLangBuiltInMethod.CALL) {
+                        this.taintedStatus = TaintedStatus.IGNORED;
+                        analyzerPhase = AnalyzerPhase.LOOP_ANALYSIS_COMPLETE;
+                        return;
+                    }
                     // If taint-table of invoked function is not generated yet, add it to the blocked list for latter
                     // processing.
                     addToBlockedList(invocationExpr);

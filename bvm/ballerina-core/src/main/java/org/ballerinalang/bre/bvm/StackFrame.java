@@ -61,6 +61,9 @@ public class StackFrame {
     // Return registry index
     int retReg;
 
+    // Indicate this frame belong to a transaction participant
+    TransactionParticipantType trxParticipant;
+
     public StackFrame() {}
 
     public StackFrame(CallableUnitInfo callableUnitInfo, int retTypeTag) {
@@ -109,6 +112,12 @@ public class StackFrame {
         this.constPool = packageInfo.getConstPoolEntries();
         this.code = packageInfo.getInstructions();
         this.retReg = retReg;
+    }
+
+    enum TransactionParticipantType {
+        LOCAL_PARTICIPANT,
+        REMOTE_PARTICIPANT,
+        NON_PARTICIPANT
     }
         
 }
