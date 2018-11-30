@@ -59,7 +59,6 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.DECIMAL_INTEGER_LITER
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DEPRECATED;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DESCENDING;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DONE;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOUBLE_COLON;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ELSE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ELVIS;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.EQUAL_GT;
@@ -143,6 +142,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.SNAPSHOT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.START;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.STREAM;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.STRING;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.SYNCRARROW;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TABLE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.THROW;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRANSACTION;
@@ -193,7 +193,7 @@ public class BallerinaParserDefinition implements ParserDefinition {
                     RIGHT, LEFT, FULL, UNIDIRECTIONAL, SECOND, SECONDS, MINUTE, MINUTES, HOUR, HOURS, DAY, DAYS, MONTH,
                     MONTHS, YEAR, YEARS, FOREVER, LIMIT, ASCENDING, DESCENDING);
 
-    public static final TokenSet OPERATORS = TokenSet.create(DOUBLE_COLON, ELVIS, EQUAL_GT, LARROW, RARROW);
+    public static final TokenSet OPERATORS = TokenSet.create(ELVIS, EQUAL_GT, LARROW, RARROW, SYNCRARROW);
 
     public static final TokenSet BAD_CHARACTER = TokenSet.create(TokenType.BAD_CHARACTER);
 
