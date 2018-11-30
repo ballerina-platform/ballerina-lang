@@ -418,7 +418,7 @@ public class ASTBuilderUtil {
         return argsExpr;
     }
 
-    static BLangInvocation createInvocationExpr(DiagnosticPos pos, BInvokableSymbol invokableSymbol,
+    public static BLangInvocation createInvocationExpr(DiagnosticPos pos, BInvokableSymbol invokableSymbol,
                                                 List<BLangSimpleVariable> requiredArgs, SymbolResolver symResolver) {
         return createInvocationExpr(pos, invokableSymbol, requiredArgs, new ArrayList<>(), new ArrayList<>(),
                 symResolver);
@@ -470,7 +470,7 @@ public class ASTBuilderUtil {
         return varRefs;
     }
 
-    static BLangSimpleVarRef createVariableRef(DiagnosticPos pos, BVarSymbol varSymbol) {
+    static BLangSimpleVarRef createVariableRef(DiagnosticPos pos, BSymbol varSymbol) {
         final BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
         varRef.pos = pos;
         varRef.variableName = createIdentifier(pos, varSymbol.name.value);

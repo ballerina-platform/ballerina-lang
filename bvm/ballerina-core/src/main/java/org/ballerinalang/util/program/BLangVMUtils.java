@@ -17,32 +17,27 @@
  */
 package org.ballerinalang.util.program;
 
-import org.ballerinalang.bre.bvm.CPU;
-import org.ballerinalang.bre.bvm.CPU.HandleErrorException;
-import org.ballerinalang.bre.bvm.WorkerData;
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.bre.vm.StackFrame;
-import org.ballerinalang.bre.vm.Strand;
-import org.ballerinalang.config.ConfigRegistry;
+import org.ballerinalang.bre.bvm.StackFrame;
+import org.ballerinalang.bre.bvm.Strand;
+import org.ballerinalang.bre.old.WorkerData;
+import org.ballerinalang.bre.old.WorkerExecutionContext;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BDecimal;
-import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueType;
-import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
-import org.ballerinalang.util.transactions.LocalTransactionInfo;
+import org.ballerinalang.util.transactions.TransactionLocalContext;
 
 import java.io.PrintStream;
 import java.math.BigDecimal;
@@ -55,8 +50,6 @@ public class BLangVMUtils {
     public static final String SERVICE_INFO_KEY = "SERVICE_INFO";
 
     private static final String TRANSACTION_INFO_KEY = "TRANSACTION_INFO";
-
-    private static final String GLOBAL_TRANSACTION_ENABLED = "GLOBAL_TRANSACTION_ENABLED";
 
     public static void copyArgValues(WorkerData caller, WorkerData callee, int[] argRegs, BType[] paramTypes) {
         int longRegIndex = -1;
@@ -411,20 +404,6 @@ public class BLangVMUtils {
         }
     }
     
-    public static WorkerExecutionContext handleNativeInvocationError(WorkerExecutionContext parentCtx, BError error) {
-        parentCtx.setError(error);
-        try {
-            CPU.handleError(parentCtx);
-            return parentCtx;
-        } catch (HandleErrorException e) {
-            if (e.ctx != null && !e.ctx.isRootContext()) {
-                return e.ctx;
-            } else {
-                return null;
-            }
-        }
-    }
-    
     public static void log(String msg) {
         PrintStream out = System.out;
         out.println(msg);
@@ -438,34 +417,15 @@ public class BLangVMUtils {
         return (ServiceInfo) ctx.globalProps.get(SERVICE_INFO_KEY);
     }
 
-    public static void setTransactionInfo(Strand ctx, LocalTransactionInfo localTransactionInfo) {
-        ctx.globalProps.put(TRANSACTION_INFO_KEY, localTransactionInfo);
+    public static void setTransactionInfo(Strand ctx, TransactionLocalContext transactionLocalContext) {
+        ctx.globalProps.put(TRANSACTION_INFO_KEY, transactionLocalContext);
     }
 
-    public static LocalTransactionInfo getTransactionInfo(Strand ctx) {
-        return (LocalTransactionInfo) ctx.globalProps.get(TRANSACTION_INFO_KEY);
+    public static TransactionLocalContext getTransactionInfo(Strand ctx) {
+        return (TransactionLocalContext) ctx.globalProps.get(TRANSACTION_INFO_KEY);
     }
 
     public static void removeTransactionInfo(Strand ctx) {
         ctx.globalProps.remove(TRANSACTION_INFO_KEY);
-    }
-
-    public static void setGlobalTransactionEnabledStatus(Strand strand) {
-        strand.globalProps.put(GLOBAL_TRANSACTION_ENABLED, getGlobalTransactionEnabledFromConfig());
-    }
-
-    public static boolean getGlobalTransactionEnabled(Strand ctx) {
-        return (boolean) ctx.globalProps.get(GLOBAL_TRANSACTION_ENABLED);
-    }
-
-    private static boolean getGlobalTransactionEnabledFromConfig() {
-        String distributedTransactionsEnabledConfig = ConfigRegistry.getInstance()
-                .getAsString(Constants.DISTRIBUTED_TRANSACTIONS);
-        boolean distributedTransactionEnabled = true;
-        if (distributedTransactionsEnabledConfig != null
-                && distributedTransactionsEnabledConfig.equals(Constants.FALSE)) {
-            distributedTransactionEnabled = false;
-        }
-        return distributedTransactionEnabled;
     }
 }

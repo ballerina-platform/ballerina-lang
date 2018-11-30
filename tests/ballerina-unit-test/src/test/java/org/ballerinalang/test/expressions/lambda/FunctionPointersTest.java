@@ -251,8 +251,8 @@ public class FunctionPointersTest {
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = ".*error: error, message: 'function \\(Student\\) returns \\(int\\)' " +
-                    "cannot be cast to 'function \\(Person\\) returns \\(int\\)'.*")
+            expectedExceptionsMessageRegExp = ".*error: assertion error: expected 'function \\(Person\\) returns " +
+                    "\\(int\\)', found 'function \\(Student\\) returns \\(int\\).*")
     public void testAnyToFuncPointerConversion_2() {
         BRunUtil.invoke(fpProgram, "testAnyToFuncPointerConversion_2");
     }

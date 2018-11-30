@@ -43,7 +43,7 @@ import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.transactions.BallerinaTransactionContext;
-import org.ballerinalang.util.transactions.LocalTransactionInfo;
+import org.ballerinalang.util.transactions.TransactionLocalContext;
 import org.ballerinalang.util.transactions.TransactionResourceManager;
 import org.ballerinalang.util.transactions.TransactionUtils;
 
@@ -1124,19 +1124,19 @@ public class SQLDatasourceUtils {
     }
 
     public static void handleErrorOnTransaction(Context context) {
-        LocalTransactionInfo localTransactionInfo = context.getLocalTransactionInfo();
-        if (localTransactionInfo == null) {
+        TransactionLocalContext transactionLocalContext = context.getLocalTransactionInfo();
+        if (transactionLocalContext == null) {
             return;
         }
-        SQLDatasourceUtils.notifyTxMarkForAbort(context, localTransactionInfo);
-        throw new BallerinaException(BLangVMErrors.TRANSACTION_ERROR);
+        SQLDatasourceUtils.notifyTxMarkForAbort(context, transactionLocalContext);
     }
 
-    private static void notifyTxMarkForAbort(Context context, LocalTransactionInfo localTransactionInfo) {
-        String globalTransactionId = localTransactionInfo.getGlobalTransactionId();
-        int transactionBlockId = localTransactionInfo.getCurrentTransactionBlockId();
+    private static void notifyTxMarkForAbort(Context context, TransactionLocalContext transactionLocalContext) {
+        String globalTransactionId = transactionLocalContext.getGlobalTransactionId();
+        int transactionBlockId = transactionLocalContext.getCurrentTransactionBlockId();
 
-        if (localTransactionInfo.isRetryPossible(context.getStrand(), transactionBlockId)) {
+        transactionLocalContext.markFailure();
+        if (transactionLocalContext.isRetryPossible(context.getStrand(), transactionBlockId)) {
             return;
         }
         TransactionUtils.notifyTransactionAbort(context.getStrand(), globalTransactionId,
@@ -1180,22 +1180,19 @@ public class SQLDatasourceUtils {
 
     public static BMap<String, BValue> createMultiModeDBClient(Context context, String dbType,
             org.ballerinalang.connector.api.Struct clientEndpointConfig, String urlOptions) {
+        String modeRecordType = clientEndpointConfig.getName();
         String dbPostfix = Constants.SQL_MEMORY_DB_POSTFIX;
         String hostOrPath = "";
-        String host = clientEndpointConfig.getStringField(Constants.EndpointConfig.HOST);
-        String path = clientEndpointConfig.getStringField(Constants.EndpointConfig.PATH);
-        if (!host.isEmpty()) {
+        int port = -1;
+        if (modeRecordType.equals(Constants.SERVER_MODE)) {
             dbPostfix = Constants.SQL_SERVER_DB_POSTFIX;
-            hostOrPath = host;
-        } else if (!path.isEmpty()) {
+            hostOrPath = clientEndpointConfig.getStringField(Constants.EndpointConfig.HOST);;
+            port = (int) clientEndpointConfig.getIntField(Constants.EndpointConfig.PORT);
+        } else if (modeRecordType.equals(Constants.EMBEDDED_MODE)) {
             dbPostfix = Constants.SQL_FILE_DB_POSTFIX;
-            hostOrPath = path;
-        }
-        if (!host.isEmpty() && !path.isEmpty()) {
-            throw new BallerinaException("error in creating db client endpoint: Provide either host or path");
+            hostOrPath = clientEndpointConfig.getStringField(Constants.EndpointConfig.PATH);;
         }
         dbType = dbType + dbPostfix;
-        int port = (int) clientEndpointConfig.getIntField(Constants.EndpointConfig.PORT);
         String name = clientEndpointConfig.getStringField(Constants.EndpointConfig.NAME);
         String username = clientEndpointConfig.getStringField(Constants.EndpointConfig.USERNAME);
         String password = clientEndpointConfig.getStringField(Constants.EndpointConfig.PASSWORD);
@@ -1596,10 +1593,10 @@ public class SQLDatasourceUtils {
         }
         String connectorId = datasource.getConnectorId();
         boolean isXAConnection = datasource.isXAConnection();
-        LocalTransactionInfo localTransactionInfo = context.getLocalTransactionInfo();
-        String globalTxId = localTransactionInfo.getGlobalTransactionId();
-        int currentTxBlockId = localTransactionInfo.getCurrentTransactionBlockId();
-        BallerinaTransactionContext txContext = localTransactionInfo.getTransactionContext(connectorId);
+        TransactionLocalContext transactionLocalContext = context.getLocalTransactionInfo();
+        String globalTxId = transactionLocalContext.getGlobalTransactionId();
+        int currentTxBlockId = transactionLocalContext.getCurrentTransactionBlockId();
+        BallerinaTransactionContext txContext = transactionLocalContext.getTransactionContext(connectorId);
         if (txContext == null) {
             if (isXAConnection) {
                 XAConnection xaConn = datasource.getXADataSource().getXAConnection();
@@ -1612,7 +1609,7 @@ public class SQLDatasourceUtils {
                 conn.setAutoCommit(false);
                 txContext = new SQLTransactionContext(conn);
             }
-            localTransactionInfo.registerTransactionContext(connectorId, txContext);
+            transactionLocalContext.registerTransactionContext(connectorId, txContext);
             TransactionResourceManager.getInstance().register(globalTxId, currentTxBlockId, txContext);
         } else {
             conn = ((SQLTransactionContext) txContext).getConnection();

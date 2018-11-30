@@ -36,6 +36,7 @@ import java.util.Map;
  */
 @Test(groups = "auth-test")
 public class AuthnWithoutHTTPAnnotationsTest extends AuthBaseTest {
+
     private final int servicePort = 9098;
 
     @Test(description = "Authn and authz success test case")
@@ -59,5 +60,4 @@ public class AuthnWithoutHTTPAnnotationsTest extends AuthBaseTest {
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
     }
-
 }

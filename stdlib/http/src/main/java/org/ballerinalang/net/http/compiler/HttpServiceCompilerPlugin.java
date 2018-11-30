@@ -43,11 +43,11 @@ import static org.ballerinalang.net.http.HttpConstants.ANN_NAME_HTTP_SERVICE_CON
  * @since 0.965.0
  */
 @SupportedResourceParamTypes(expectedListenerType = @SupportedResourceParamTypes.Type(packageName = "http",
-                                                                                      name = "Listener"),
-                             paramTypes = {
-                                     @SupportedResourceParamTypes.Type(packageName = "http",
-                                                                       name = "Caller")
-                             }
+                                                                                        name = "Listener"),
+                            paramTypes = {
+                                    @SupportedResourceParamTypes.Type(packageName = "http", name = "Caller"),
+                                    @SupportedResourceParamTypes.Type(packageName = "http", name = "Request")
+                            }
 )
 public class HttpServiceCompilerPlugin extends AbstractCompilerPlugin {
 

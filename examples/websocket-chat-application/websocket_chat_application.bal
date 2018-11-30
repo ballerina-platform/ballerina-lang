@@ -25,7 +25,7 @@ service chatAppUpgrader on new http:Listener(9090) {
             if (err is error) {
                 log:printError("Error cancelling handshake", err = err);
             }
-            done;
+            return;
         }
         map<string> headers = {};
         wsEp = caller->acceptWebSocketUpgrade(headers);

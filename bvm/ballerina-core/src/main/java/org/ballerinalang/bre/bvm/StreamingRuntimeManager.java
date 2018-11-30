@@ -18,7 +18,6 @@
 
 package org.ballerinalang.bre.bvm;
 
-import org.ballerinalang.bre.vm.BVMExecutor;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BStructureType;

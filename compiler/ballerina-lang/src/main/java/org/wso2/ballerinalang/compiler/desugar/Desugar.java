@@ -55,13 +55,10 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntermediateCollectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
@@ -166,7 +163,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
@@ -1326,11 +1322,6 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangDone doneNode) {
-        result = doneNode;
-    }
-
-    @Override
     public void visit(BLangRetry retryNode) {
         result = retryNode;
     }
@@ -1349,11 +1340,7 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangReturn returnNode) {
         // If the return node do not have an expression, we add `done` statement instead of a return statement. This is
         // to distinguish between returning nil value specifically and not returning any value.
-        if (returnNode.expr == null) {
-            BLangDone doneStmt = (BLangDone) TreeBuilder.createDoneNode();
-            doneStmt.pos = returnNode.pos;
-            result = doneStmt;
-        } else {
+        if (returnNode.expr != null) {
             returnNode.expr = rewriteExpr(returnNode.expr);
         }
         result = returnNode;
@@ -1551,9 +1538,9 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangTransaction transactionNode) {
         transactionNode.transactionBody = rewrite(transactionNode.transactionBody, env);
         transactionNode.onRetryBody = rewrite(transactionNode.onRetryBody, env);
+        transactionNode.committedBody = rewrite(transactionNode.committedBody, env);
+        transactionNode.abortedBody = rewrite(transactionNode.abortedBody, env);
         transactionNode.retryCount = rewriteExpr(transactionNode.retryCount);
-        transactionNode.onCommitFunction = rewriteExpr(transactionNode.onCommitFunction);
-        transactionNode.onAbortFunction = rewriteExpr(transactionNode.onAbortFunction);
         result = transactionNode;
     }
 
@@ -3351,6 +3338,7 @@ public class Desugar extends BLangNodeVisitor {
         conversionExpr.targetType = lhsType;
         conversionExpr.conversionSymbol = conversionSymbol;
         conversionExpr.type = lhsType;
+        conversionExpr.pos = expr.pos;
         return conversionExpr;
     }
 
@@ -3810,7 +3798,7 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangMatchTypedBindingPatternClause getSuccessPattern(BLangAccessExpression accessExpr,
             BLangSimpleVariable tempResultVar, boolean liftError) {
-        BType type = getSafeType(accessExpr.expr.type, liftError);
+        BType type = types.getSafeType(accessExpr.expr.type, liftError);
         String successPatternVarName = GEN_VAR_PREFIX.value + "t_match_success";
         BLangSimpleVariable successPatternVar = ASTBuilderUtil.createVariable(accessExpr.pos, successPatternVarName,
                 type, null, new BVarSymbol(0, names.fromString(successPatternVarName), this.env.scope.owner.pkgID, type,
@@ -3839,40 +3827,6 @@ public class Desugar extends BLangNodeVisitor {
                 ASTBuilderUtil.createMatchStatementPattern(accessExpr.pos, successPatternVar, patternBody);
         this.safeNavigationAssignment = assignmentStmt;
         return successPattern;
-    }
-
-    private BType getSafeType(BType type, boolean liftError) {
-
-        // Since JSON, ANY and ANYDATA is by default contains null, we need to create a new respective type which
-        // is not-nullable.
-        switch (type.tag) {
-            case TypeTags.JSON:
-                BJSONType jsonType = (BJSONType) type;
-                return new BJSONType(jsonType.tag, jsonType.constraint, jsonType.tsymbol, false);
-            case TypeTags.ANY:
-                return new BAnyType(type.tag, type.tsymbol, false);
-            case TypeTags.ANYDATA:
-                return new BAnydataType(type.tag, type.tsymbol, false);
-        }
-
-        if (type.tag != TypeTags.UNION) {
-            return type;
-        }
-
-        BUnionType unionType = (BUnionType) type;
-        BUnionType errorLiftedType =
-                new BUnionType(null, new LinkedHashSet<>(unionType.memberTypes), unionType.isNullable());
-
-        // Lift nil always. Lift error only if safe navigation is used.
-        errorLiftedType.memberTypes.remove(symTable.nilType);
-        if (liftError) {
-            errorLiftedType.memberTypes.remove(symTable.errorType);
-        }
-
-        if (errorLiftedType.memberTypes.size() == 1) {
-            return errorLiftedType.memberTypes.toArray(new BType[0])[0];
-        }
-        return errorLiftedType;
     }
 
     private boolean safeNavigateLHS(BLangExpression expr) {
@@ -3983,7 +3937,7 @@ public class Desugar extends BLangNodeVisitor {
         } else {
             varRef = cloneExpression((BLangVariableReference) originalAccessExpr.expr);
         }
-        varRef.type = getSafeType(originalAccessExpr.expr.type, false);
+        varRef.type = types.getSafeType(originalAccessExpr.expr.type, false);
 
         BLangAccessExpression accessExpr;
         switch (originalAccessExpr.getKind()) {
@@ -4034,7 +3988,7 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangExpression getDefaultValueExpr(BLangAccessExpression accessExpr) {
         BType fieldType = accessExpr.originalType;
-        BType type = getSafeType(accessExpr.expr.type, false);
+        BType type = types.getSafeType(accessExpr.expr.type, false);
         switch (type.tag) {
             case TypeTags.JSON:
                 if (accessExpr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR &&
@@ -4138,7 +4092,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private boolean isDefaultableMappingType(BType type) {
-        switch (getSafeType(type, false).tag) {
+        switch (types.getSafeType(type, false).tag) {
             case TypeTags.JSON:
             case TypeTags.MAP:
             case TypeTags.RECORD:

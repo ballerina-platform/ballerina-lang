@@ -31,6 +31,7 @@ import java.util.Map;
  */
 @Test(groups = "auth-test")
 public class AuthzConfigInheritanceTest extends AuthBaseTest {
+
     private final int servicePort = 9092;
 
     @Test(description = "Authn and authz success test case")

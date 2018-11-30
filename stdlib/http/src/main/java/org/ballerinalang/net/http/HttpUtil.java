@@ -59,6 +59,7 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.observability.ObservabilityUtils;
 import org.ballerinalang.util.observability.ObserverContext;
+import org.ballerinalang.util.transactions.TransactionConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
@@ -846,7 +847,7 @@ public class HttpUtil {
         Service serviceInstance = BLangConnectorSPIUtil.getService(context.getProgramFile(),
                 context.getServiceInfo().serviceValue);
         Annotation configAnnot = getServiceConfigAnnotation(serviceInstance, PROTOCOL_PACKAGE_HTTP);
-        if (configAnnot == null) {
+        if (!checkConfigAnnotationAvailability(configAnnot)) {
             return;
         }
         String contentEncoding = outboundResponseMsg.getHeaders().get(HttpHeaderNames.CONTENT_ENCODING);
@@ -1057,6 +1058,21 @@ public class HttpUtil {
         return annotationList.isEmpty() ? null : annotationList.get(0);
     }
 
+    public static Annotation getTransactionConfigAnnotation(Resource resource, String transactionPackagePath) {
+        List<Annotation> annotationList = resource.getAnnotationList(transactionPackagePath,
+                TransactionConstants.ANN_NAME_TRX_PARTICIPANT_CONFIG);
+
+        if (annotationList == null || annotationList.isEmpty()) {
+            return null;
+        }
+        if (annotationList.size() > 1) {
+            throw new BallerinaException(
+                    "multiple transaction configuration annotations found in resource: " +
+                            resource.getServiceName() + "." + resource.getName());
+        }
+        return annotationList.get(0);
+    }
+
     private static int getIntValue(long val) {
         int intVal = (int) val;
 
@@ -1136,7 +1152,7 @@ public class HttpUtil {
         Service serviceInstance = BLangConnectorSPIUtil.getService(context.getProgramFile(),
                 context.getServiceInfo().serviceValue);
         Annotation configAnnot = getServiceConfigAnnotation(serviceInstance, PROTOCOL_PACKAGE_HTTP);
-        if (configAnnot == null) {
+        if (!checkConfigAnnotationAvailability(configAnnot)) {
             return;
         }
         String transferValue = configAnnot.getValue().getRefField(ANN_CONFIG_ATTR_CHUNKING).getStringValue();
@@ -1304,6 +1320,16 @@ public class HttpUtil {
         } else {
             outboundMessageSource.serialize(messageOutputStream);
         }
+    }
+
+    /**
+     * Check the availability of an annotation.
+     *
+     * @param configAnnotation      Represent the annotation
+     * @return True if the annotation and the annotation value are available
+     */
+    public static boolean checkConfigAnnotationAvailability(Annotation configAnnotation) {
+        return configAnnotation != null && configAnnotation.getValue() != null;
     }
 
     private HttpUtil() {

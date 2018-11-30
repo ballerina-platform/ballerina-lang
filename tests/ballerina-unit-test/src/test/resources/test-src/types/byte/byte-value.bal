@@ -55,7 +55,7 @@ function testByteToIntConversion(byte b) returns int {
 
 function testSafeCasting() returns int|error {
   any abc = byteReturn();
-  int val = check <int> abc;
+  int val = check int.create(abc);
   return val;
 }
 
@@ -66,7 +66,7 @@ function byteReturn() returns any {
 
 function testAnyToByteCasting() returns byte|error {
   any val = 45;
-  byte i = check <byte> val;
+  byte i = check byte.create(val);
   return i;
 }
 
@@ -148,13 +148,13 @@ function testByteOrIntMatch2() returns byte|int|string[]|Foo|error {
 
 function testByteOrIntMatch3() returns int {
     var result = byteOrInt(1);
-    int x = result is byte ? 456 : (result is int ? -123 : (result is string[] ? 789 : (result is Foo ? 8765 : result is error ? 1135 : result)));
+    int x = result is byte ? 456 : (result is int ? -123 : (result is string[] ? 789 : (result is Foo ? 8765 : 1135)));
     return x;
 }
 
 function testByteOrIntMatch4() returns int {
     var result = byteOrInt(2);
-    int x = result is byte ? 456 : (result is int ? -123 : (result is string[] ? 789 : (result is Foo ? 8765 : result is error ? 1135 : result)));
+    int x = result is byte ? 456 : (result is int ? -123 : (result is string[] ? 789 : (result is Foo ? 8765 : 1135)));
     return x;
 }
 
@@ -179,12 +179,12 @@ function testWorkerWithByteVariable() {
     byte a = 10;
     byte b = 12;
     a -> w2;
-    b <- w2;
+    b = <- w2;
   }
   worker w2 {
     byte a = 0;
     byte b = 15;
-    a <- w1;
+    a = <- w1;
     b -> w1;
   }
 }

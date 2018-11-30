@@ -17,9 +17,10 @@
  */
 package org.ballerinalang.test.types.any;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -32,12 +33,8 @@ public class BAnyTypeInvalidCastError {
     public void testInvalidAnyCasting() {
         CompileResult resultNegative = BCompileUtil.compile("test-src/types/any/any-type-cast-negative.bal");
 
-        Assert.assertEquals(resultNegative.getErrorCount(), 1);
-
-        BAssertUtil.validateError(resultNegative, 0, 3, 15);
-        BAssertUtil.validateErrorMessageOnly(resultNegative, 0,
-                "incompatible types: expected 'float', found ");
-        BAssertUtil.validateErrorMessageOnly(resultNegative, 0, new String[] {"float|error", "error|float"});
-        //TODO: This needs to have another error, for casting a null value. Add that check when it's fixed.
+        Assert.assertEquals(resultNegative.getErrorCount(), 0);
+        BValue[] returns = BRunUtil.invoke(resultNegative, "invalidCastingError", new BValue[]{});
+        Assert.assertEquals(returns[0].stringValue(), "assertion error: expected 'float', found 'string' {}");
     }
 }

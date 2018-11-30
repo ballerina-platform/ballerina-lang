@@ -21,7 +21,7 @@ package org.ballerinalang.observe.nativeimpl;
 
 import io.opentracing.Tracer;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.bre.old.WorkerExecutionContext;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.observability.ObservabilityUtils;

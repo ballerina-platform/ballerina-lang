@@ -22,7 +22,7 @@ function getIt () returns (function (int, string) returns (float|error)) {
 }
 
 function test (int x, string s) returns (float|error) {
-    var y = check <int>s;
+    var y = check int.create(s);
     float f = x * 1.0 * y;
     return f;
 }
