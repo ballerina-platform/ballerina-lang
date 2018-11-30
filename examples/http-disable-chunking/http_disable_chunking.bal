@@ -52,7 +52,7 @@ service echo on new http:Listener(9090) {
         if (req.hasHeader("content-length")) {
             value = req.getHeader("content-length");
             //Perform data validation for content-length.
-            if (check value.matches("\\d+")) {
+            if (isValid(value.matches("\\d+"))) {
                 value = "Length-" + value;
             } else {
                 res.statusCode = 400;
@@ -69,7 +69,8 @@ service echo on new http:Listener(9090) {
                 validationErrorFound = true;
             }
         } else {
-            value = "Neither Transfer-Encoding nor content-length header found";
+            value =
+                "Neither Transfer-Encoding nor content-length header found";
         }
 
         if (!validationErrorFound) {
@@ -78,8 +79,18 @@ service echo on new http:Listener(9090) {
         }
         var result = caller->respond(res);
         if (result is error) {
-           log:printError("Error sending response from echo service", err = result);
+           log:printError("Error sending response from echo service",
+                        err = result);
         }
         return ();
     }
+}
+
+function isValid(boolean|error value) returns boolean {
+    if (value is boolean) {
+        return value;
+    } else if (value is error) {
+        panic(value);
+    }
+    return false;
 }
