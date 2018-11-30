@@ -54,32 +54,27 @@ import org.ballerinalang.model.util.ListUtils;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BByte;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BCallableFuture;
 import org.ballerinalang.model.values.BClosure;
 import org.ballerinalang.model.values.BCollection;
 import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BFuture;
-import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BIntRange;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BIterator;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStream;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BValueType;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLAttributes;
@@ -153,7 +148,6 @@ import java.util.Stack;
 import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
 import static org.ballerinalang.util.BLangConstants.BBYTE_MAX_VALUE;
@@ -297,7 +291,7 @@ public class BVM {
                     case InstructionCodes.BACONST:
                         cpIndex = operands[0];
                         i = operands[1];
-                        sf.refRegs[i] = new BByteArray(((BlobCPEntry) sf.constPool[cpIndex]).getValue());
+                        sf.refRegs[i] = new BValueArray(((BlobCPEntry) sf.constPool[cpIndex]).getValue());
                         break;
 
                     case InstructionCodes.IMOVE:
@@ -638,33 +632,33 @@ public class BVM {
                     case InstructionCodes.INEWARRAY:
                         i = operands[0];
                         j = operands[2];
-                        sf.refRegs[i] = new BIntArray((int) sf.longRegs[j]);
+                        sf.refRegs[i] = new BValueArray(BTypes.typeInt, (int) sf.longRegs[j]);
                         break;
                     case InstructionCodes.BINEWARRAY:
                         i = operands[0];
                         j = operands[2];
-                        sf.refRegs[i] = new BByteArray((int) sf.longRegs[j]);
+                        sf.refRegs[i] = new BValueArray(BTypes.typeByte, (int) sf.longRegs[j]);
                         break;
                     case InstructionCodes.FNEWARRAY:
                         i = operands[0];
                         j = operands[2];
-                        sf.refRegs[i] = new BFloatArray((int) sf.longRegs[j]);
+                        sf.refRegs[i] = new BValueArray(BTypes.typeFloat, (int) sf.longRegs[j]);
                         break;
                     case InstructionCodes.SNEWARRAY:
                         i = operands[0];
                         j = operands[2];
-                        sf.refRegs[i] = new BStringArray((int) sf.longRegs[j]);
+                        sf.refRegs[i] = new BValueArray(BTypes.typeString, (int) sf.longRegs[j]);
                         break;
                     case InstructionCodes.BNEWARRAY:
                         i = operands[0];
                         j = operands[2];
-                        sf.refRegs[i] = new BBooleanArray((int) sf.longRegs[j]);
+                        sf.refRegs[i] = new BValueArray(BTypes.typeBoolean, (int) sf.longRegs[j]);
                         break;
                     case InstructionCodes.RNEWARRAY:
                         i = operands[0];
                         cpIndex = operands[1];
                         typeRefCPEntry = (TypeRefCPEntry) sf.constPool[cpIndex];
-                        sf.refRegs[i] = new BRefValueArray(typeRefCPEntry.getType());
+                        sf.refRegs[i] = new BValueArray(typeRefCPEntry.getType());
                         break;
                     case InstructionCodes.NEWSTRUCT:
                         createNewStruct(operands, sf);
@@ -682,9 +676,9 @@ public class BVM {
                         k = operands[3];
                         l = operands[4];
                         typeRefCPEntry = (TypeRefCPEntry) sf.constPool[cpIndex];
-                        BStringArray indexColumns = (BStringArray) sf.refRegs[j];
-                        BStringArray keyColumns = (BStringArray) sf.refRegs[k];
-                        BRefValueArray dataRows = (BRefValueArray) sf.refRegs[l];
+                        BValueArray indexColumns = (BValueArray) sf.refRegs[j];
+                        BValueArray keyColumns = (BValueArray) sf.refRegs[k];
+                        BValueArray dataRows = (BValueArray) sf.refRegs[l];
                         sf.refRegs[i] = new BTable(typeRefCPEntry.getType(), indexColumns, keyColumns, dataRows);
                         break;
                     case InstructionCodes.NEWSTREAM:
@@ -1445,7 +1439,7 @@ public class BVM {
         int i = operands[0];
         int j = operands[1];
         int k = operands[2];
-        sf.refRegs[k] = new BIntArray(LongStream.rangeClosed(sf.longRegs[i], sf.longRegs[j]).toArray());
+        sf.refRegs[k] = new BValueArray(LongStream.rangeClosed(sf.longRegs[i], sf.longRegs[j]).toArray());
     }
 
     private static void execLoadOpcodes(Strand ctx, StackFrame sf, int opcode, int[] operands) {
@@ -1455,11 +1449,7 @@ public class BVM {
         int pkgIndex;
         int lvIndex; // Index of the local variable
 
-        BIntArray bIntArray;
-        BByteArray bByteArray;
-        BFloatArray bFloatArray;
-        BStringArray bStringArray;
-        BBooleanArray bBooleanArray;
+        BValueArray bValueArray;
         BMap<String, BRefType> bMap;
 
         switch (opcode) {
@@ -1492,9 +1482,9 @@ public class BVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                bIntArray = Optional.of((BIntArray) sf.refRegs[i]).get();
+                bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
-                    sf.longRegs[k] = bIntArray.get(sf.longRegs[j]);
+                    sf.longRegs[k] = bValueArray.getInt(sf.longRegs[j]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
@@ -1504,9 +1494,9 @@ public class BVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                bByteArray = Optional.of((BByteArray) sf.refRegs[i]).get();
+                bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
-                    sf.intRegs[k] = bByteArray.get(sf.longRegs[j]);
+                    sf.intRegs[k] = bValueArray.getByte(sf.longRegs[j]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
@@ -1516,9 +1506,9 @@ public class BVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                bFloatArray = Optional.of((BFloatArray) sf.refRegs[i]).get();
+                bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
-                    sf.doubleRegs[k] = bFloatArray.get(sf.longRegs[j]);
+                    sf.doubleRegs[k] = bValueArray.getFloat(sf.longRegs[j]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
@@ -1528,9 +1518,9 @@ public class BVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                bStringArray = Optional.of((BStringArray) sf.refRegs[i]).get();
+                bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
-                    sf.stringRegs[k] = bStringArray.get(sf.longRegs[j]);
+                    sf.stringRegs[k] = bValueArray.getString(sf.longRegs[j]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
@@ -1540,9 +1530,9 @@ public class BVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                bBooleanArray = Optional.of((BBooleanArray) sf.refRegs[i]).get();
+                bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
-                    sf.intRegs[k] = bBooleanArray.get(sf.longRegs[j]);
+                    sf.intRegs[k] = bValueArray.getBoolean(sf.longRegs[j]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
@@ -1638,11 +1628,7 @@ public class BVM {
         int k;
         int pkgIndex;
 
-        BIntArray bIntArray;
-        BByteArray bByteArray;
-        BFloatArray bFloatArray;
-        BStringArray bStringArray;
-        BBooleanArray bBooleanArray;
+        BValueArray bValueArray;
         BMap<String, BRefType> bMap;
 
         switch (opcode) {
@@ -1650,9 +1636,9 @@ public class BVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                bIntArray = Optional.of((BIntArray) sf.refRegs[i]).get();
+                bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
-                    bIntArray.add(sf.longRegs[j], sf.longRegs[k]);
+                    bValueArray.add(sf.longRegs[j], sf.longRegs[k]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
@@ -1662,9 +1648,9 @@ public class BVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                bByteArray = Optional.of((BByteArray) sf.refRegs[i]).get();
+                bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
-                    bByteArray.add(sf.longRegs[j], (byte) sf.intRegs[k]);
+                    bValueArray.add(sf.longRegs[j], (byte) sf.intRegs[k]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
@@ -1674,9 +1660,9 @@ public class BVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                bFloatArray = Optional.of((BFloatArray) sf.refRegs[i]).get();
+                bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
-                    bFloatArray.add(sf.longRegs[j], sf.doubleRegs[k]);
+                    bValueArray.add(sf.longRegs[j], sf.doubleRegs[k]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
@@ -1686,9 +1672,9 @@ public class BVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                bStringArray = Optional.of((BStringArray) sf.refRegs[i]).get();
+                bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
-                    bStringArray.add(sf.longRegs[j], sf.stringRegs[k]);
+                    bValueArray.add(sf.longRegs[j], sf.stringRegs[k]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
@@ -1698,9 +1684,9 @@ public class BVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                bBooleanArray = Optional.of((BBooleanArray) sf.refRegs[i]).get();
+                bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
-                    bBooleanArray.add(sf.longRegs[j], sf.intRegs[k]);
+                    bValueArray.add(sf.longRegs[j], sf.intRegs[k]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
@@ -3657,7 +3643,7 @@ public class BVM {
     }
 
     private static boolean checkTupleCast(BValue sourceValue, BType targetType, List<TypePair> unresolvedTypes) {
-        BRefValueArray source = (BRefValueArray) sourceValue;
+        BValueArray source = (BValueArray) sourceValue;
         BTupleType target = (BTupleType) targetType;
         List<BType> targetTupleTypes = target.getTupleTypes();
         if (source.size() != targetTupleTypes.size()) {
@@ -4030,12 +4016,13 @@ public class BVM {
                     return false;
                 }
                 BArrayType arrayType = (BArrayType) targetType;
-                BRefValueArray array = (BRefValueArray) json;
+                BValueArray array = (BValueArray) json;
                 for (int i = 0; i < array.size(); i++) {
                     // get the element type of source and json, and recursively check for json casting.
                     BType sourceElementType = sourceType.getTag() == TypeTags.ARRAY_TAG
                             ? ((BArrayType) sourceType).getElementType() : sourceType;
-                    if (!checkJSONCast(array.get(i), sourceElementType, arrayType.getElementType(), unresolvedTypes)) {
+                    if (!checkJSONCast(array.getRefValue(i), sourceElementType, arrayType.getElementType(),
+                            unresolvedTypes)) {
                         return false;
                     }
                 }
@@ -4602,6 +4589,45 @@ public class BVM {
         return true;
     }
 
+    public static BType resolveMatchingTypeForUnion(BValue value, BType type) {
+        if (checkIsLikeType(value, BTypes.typeInt)) {
+            return BTypes.typeInt;
+        }
+
+        if (checkIsLikeType(value, BTypes.typeFloat)) {
+            return BTypes.typeFloat;
+        }
+
+        if (checkIsLikeType(value, BTypes.typeString)) {
+            return BTypes.typeString;
+        }
+
+        if (checkIsLikeType(value, BTypes.typeBoolean)) {
+            return BTypes.typeBoolean;
+        }
+
+        if (checkIsLikeType(value, BTypes.typeByte)) {
+            return BTypes.typeByte;
+        }
+
+        BType anydataArrayType = new BArrayType(type);
+        if (checkIsLikeType(value, anydataArrayType)) {
+            return anydataArrayType;
+        }
+
+        if (checkIsLikeType(value, BTypes.typeXML)) {
+            return BTypes.typeXML;
+        }
+
+        BType anydataMapType = new BMapType(type);
+        if (checkIsLikeType(value, anydataMapType)) {
+            return anydataMapType;
+        }
+
+        //not possible
+        return null;
+    }
+
     public static boolean checkIsLikeType(BValue sourceValue, BType targetType) {
         BType sourceType = sourceValue == null ? BTypes.typeNull : sourceValue.getType();
         if (checkIsType(sourceType, targetType, new ArrayList<>())) {
@@ -4649,11 +4675,11 @@ public class BVM {
                     case TypeTags.BYTE_TAG:
                         return true;
                     default:
-                        return Arrays.stream(((BRefValueArray) sourceValue).getValues())
+                        return Arrays.stream(((BValueArray) sourceValue).getValues())
                                 .allMatch(value -> checkIsLikeType(value, targetType));
                 }
             case TypeTags.TUPLE_TAG:
-                return Arrays.stream(((BRefValueArray) sourceValue).getValues())
+                return Arrays.stream(((BValueArray) sourceValue).getValues())
                         .allMatch(value -> checkIsLikeType(value, targetType));
             case TypeTags.ANYDATA_TAG:
                 return true;
@@ -4666,27 +4692,44 @@ public class BVM {
     }
 
     private static boolean checkIsLikeTupleType(BValue sourceValue, BTupleType targetType) {
-        if (!(sourceValue instanceof BRefValueArray)) {
+        if (!(sourceValue instanceof BValueArray)) {
             return false;
         }
 
-        BRefValueArray source = (BRefValueArray) sourceValue;
+        BValueArray source = (BValueArray) sourceValue;
         if (source.size() != targetType.getTupleTypes().size()) {
             return false;
         }
 
-        return IntStream.range(0, (int) source.size())
-                .allMatch(i -> checkIsLikeType(source.get(i), targetType.getTupleTypes().get(i)));
+        if (source.elementType == BTypes.typeInt || source.elementType == BTypes.typeString ||
+                source.elementType == BTypes.typeFloat || source.elementType == BTypes.typeBoolean ||
+                source.elementType == BTypes.typeByte) {
+            int bound = (int) source.size();
+            for (int i = 0; i < bound; i++) {
+                if (!checkIsType(source.elementType, targetType.getTupleTypes().get(i), new ArrayList<>())) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        int bound = (int) source.size();
+        for (int i = 0; i < bound; i++) {
+            if (!checkIsLikeType(source.getRefValue(i), targetType.getTupleTypes().get(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static boolean checkIsLikeArrayType(BValue sourceValue, BArrayType targetType) {
-        if (!(sourceValue instanceof BRefValueArray)) {
+        if (!(sourceValue instanceof BValueArray)) {
             return false;
         }
 
         BType arrayElementType = targetType.getElementType();
-        BRefType<?>[] arrayValues = ((BRefValueArray) sourceValue).getValues();
-        for (int i = 0; i < ((BRefValueArray) sourceValue).size(); i++) {
+        BRefType<?>[] arrayValues = ((BValueArray) sourceValue).getValues();
+        for (int i = 0; i < ((BValueArray) sourceValue).size(); i++) {
             if (!checkIsLikeType(arrayValues[i], arrayElementType)) {
                 return false;
             }
@@ -4711,8 +4754,8 @@ public class BVM {
         if (targetType.getConstrainedType() != null) {
             return checkIsLikeType(sourceValue, targetType.getConstrainedType());
         } else if (sourceValue.getType().getTag() == TypeTags.ARRAY_TAG) {
-            BRefType<?>[] arrayValues = ((BRefValueArray) sourceValue).getValues();
-            for (int i = 0; i < ((BRefValueArray) sourceValue).size(); i++) {
+            BRefType<?>[] arrayValues = ((BValueArray) sourceValue).getValues();
+            for (int i = 0; i < ((BValueArray) sourceValue).size(); i++) {
                 if (!checkIsLikeType(arrayValues[i], targetType)) {
                     return false;
                 }

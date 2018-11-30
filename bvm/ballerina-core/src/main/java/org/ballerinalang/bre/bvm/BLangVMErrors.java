@@ -26,8 +26,8 @@ import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -132,8 +132,8 @@ public class BLangVMErrors {
         }
     }
 
-    public static BRefValueArray generateCallStack(WorkerExecutionContext context, CallableUnitInfo nativeCUI) {
-        BRefValueArray callStack = new BRefValueArray();
+    public static BValueArray generateCallStack(WorkerExecutionContext context, CallableUnitInfo nativeCUI) {
+        BValueArray callStack = new BValueArray();
         long index = 0;
         if (nativeCUI != null) {
             callStack.add(index, getStackFrame(context.programFile, nativeCUI, 0));

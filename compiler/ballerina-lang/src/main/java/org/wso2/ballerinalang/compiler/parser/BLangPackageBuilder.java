@@ -636,9 +636,9 @@ public class BLangPackageBuilder {
         this.varListStack.push(new ArrayList<>());
     }
 
-    void startFunctionDef() {
+    void startFunctionDef(int annotCount) {
         FunctionNode functionNode = TreeBuilder.createFunctionNode();
-        attachAnnotations(functionNode);
+        attachAnnotations(functionNode, annotCount);
         attachMarkdownDocumentations(functionNode);
         attachDeprecatedNode(functionNode);
         this.invokableNodeStack.push(functionNode);
@@ -870,7 +870,8 @@ public class BLangPackageBuilder {
     }
 
     void startLambdaFunctionDef(PackageID pkgID) {
-        startFunctionDef();
+        // Passing zero for annotation count as Lambdas can't have annotations.
+        startFunctionDef(0);
         BLangFunction lambdaFunction = (BLangFunction) this.invokableNodeStack.peek();
         lambdaFunction.setName(createIdentifier(anonymousModelHelper.getNextAnonymousFunctionKey(pkgID)));
         lambdaFunction.addFlag(Flag.LAMBDA);

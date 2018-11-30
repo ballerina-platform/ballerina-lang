@@ -24,10 +24,9 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -56,7 +55,7 @@ public class BDecimalUsageTest {
     public void testDecimalArray() {
         BValue[] returns = BRunUtil.invoke(result, "testDecimalArray", new BValue[]{});
         Assert.assertEquals(returns.length, 4);
-        Assert.assertSame(returns[0].getClass(), BRefValueArray.class);
+        Assert.assertSame(returns[0].getClass(), BValueArray.class);
         Assert.assertSame(returns[1].getClass(), BInteger.class);
         Assert.assertSame(returns[2].getClass(), BDecimal.class);
         Assert.assertSame(returns[3].getClass(), BDecimal.class);
@@ -83,7 +82,7 @@ public class BDecimalUsageTest {
         Assert.assertEquals(returns.length, 4);
         Assert.assertSame(returns[0].getClass(), BMap.class);
         Assert.assertSame(returns[1].getClass(), BInteger.class);
-        Assert.assertSame(returns[2].getClass(), BStringArray.class);
+        Assert.assertSame(returns[2].getClass(), BValueArray.class);
         Assert.assertSame(returns[3].getClass(), BDecimal.class);
 
         String mapAsString = returns[0].stringValue();

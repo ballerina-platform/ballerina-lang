@@ -21,19 +21,15 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BByte;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BFloatArray;
-import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -978,36 +974,36 @@ public class EqualAndNotEqualOperationsTest {
     @DataProvider(name = "equalArrayValues")
     public Object[][] equalArrayValues() {
         return new Object[][]{
-                {new BIntArray(new long[]{1, 2, 3}), new BIntArray(new long[]{1, 2, 3})},
-                {new BFloatArray(new double[]{1.11, 12.2, 3.0}), new BFloatArray(new double[]{1.11, 12.2, 3.0})},
-                {new BStringArray(new String[]{"\"hi\"", "\"from\"", "\"ballerina\""}),
-                        new BStringArray(new String[]{"\"hi\"", "\"from\"", "\"ballerina\""})},
-                {new BBooleanArray(new int[]{0, 1}), new BBooleanArray(new int[]{0, 1})},
-                {new BByteArray(new byte[]{0, 25, 23}), new BByteArray(new byte[]{0, 25, 23})}
+                {new BValueArray(new long[]{1, 2, 3}), new BValueArray(new long[]{1, 2, 3})},
+                {new BValueArray(new double[]{1.11, 12.2, 3.0}), new BValueArray(new double[]{1.11, 12.2, 3.0})},
+                {new BValueArray(new String[]{"\"hi\"", "\"from\"", "\"ballerina\""}),
+                        new BValueArray(new String[]{"\"hi\"", "\"from\"", "\"ballerina\""})},
+                {new BValueArray(new int[]{0, 1}), new BValueArray(new int[]{0, 1})},
+                {new BValueArray(new byte[]{0, 25, 23}), new BValueArray(new byte[]{0, 25, 23})}
         };
     }
 
     @DataProvider(name = "unequalArrayValues")
     public Object[][] unequalArrayValues() {
         return new Object[][]{
-                {new BIntArray(new long[]{1, 2, 3}), new BIntArray(new long[]{3, 2, 1})},
-                {new BIntArray(new long[]{1, 2, 3, 4, 5, 6}), new BIntArray(new long[]{1, 2, 3})},
-                {new BIntArray(new long[]{1, 2, 3}), new BIntArray(new long[]{1, 2, 3, 4, 5, 6})},
-                {new BFloatArray(new double[]{1.11, 12.2, 3.0}), new BFloatArray(new double[]{3.0, 12.2, 1.11})},
-                {new BFloatArray(new double[]{1.11, 12.2, 3.0, 3.2}), new BFloatArray(new double[]{1.11, 12.2, 3.0})},
-                {new BFloatArray(new double[]{1.11, 12.2, 3.0}), new BFloatArray(new double[]{1.11, 12.2, 3.0, 3.2})},
-                {new BStringArray(new String[]{"\"hi\"", "\"from\"", "\"ballerina\""}),
-                        new BStringArray(new String[]{"\"ballerina\"", "\"from\"", "\"hi\""})},
-                {new BStringArray(new String[]{"\"hi\"", "\"from\"", "\"ballerina\"", "\"!\""}),
-                        new BStringArray(new String[]{"\"hi\"", "\"from\"", "\"ballerina\""})},
-                {new BStringArray(new String[]{"\"hi\"", "\"from\"", "\"ballerina\""}),
-                        new BStringArray(new String[]{"\"first\"", "\"hi\"", "\"from\"", "\"ballerina\""})},
-                {new BBooleanArray(new int[]{0, 1}), new BBooleanArray(new int[]{1, 0})},
-                {new BBooleanArray(new int[]{0, 1, 1}), new BBooleanArray(new int[]{0, 1})},
-                {new BBooleanArray(new int[]{0, 1}), new BBooleanArray(new int[]{0, 1, 0})},
-                {new BByteArray(new byte[]{0, 123, 22}), new BByteArray(new byte[]{0, 22, 123})},
-                {new BByteArray(new byte[]{0, 123, 22, 9}), new BByteArray(new byte[]{0, 123, 22})},
-                {new BByteArray(new byte[]{0, 123, 22}), new BByteArray(new byte[]{0, 123})}
+                {new BValueArray(new long[]{1, 2, 3}), new BValueArray(new long[]{3, 2, 1})},
+                {new BValueArray(new long[]{1, 2, 3, 4, 5, 6}), new BValueArray(new long[]{1, 2, 3})},
+                {new BValueArray(new long[]{1, 2, 3}), new BValueArray(new long[]{1, 2, 3, 4, 5, 6})},
+                {new BValueArray(new double[]{1.11, 12.2, 3.0}), new BValueArray(new double[]{3.0, 12.2, 1.11})},
+                {new BValueArray(new double[]{1.11, 12.2, 3.0, 3.2}), new BValueArray(new double[]{1.11, 12.2, 3.0})},
+                {new BValueArray(new double[]{1.11, 12.2, 3.0}), new BValueArray(new double[]{1.11, 12.2, 3.0, 3.2})},
+                {new BValueArray(new String[]{"\"hi\"", "\"from\"", "\"ballerina\""}),
+                        new BValueArray(new String[]{"\"ballerina\"", "\"from\"", "\"hi\""})},
+                {new BValueArray(new String[]{"\"hi\"", "\"from\"", "\"ballerina\"", "\"!\""}),
+                        new BValueArray(new String[]{"\"hi\"", "\"from\"", "\"ballerina\""})},
+                {new BValueArray(new String[]{"\"hi\"", "\"from\"", "\"ballerina\""}),
+                        new BValueArray(new String[]{"\"first\"", "\"hi\"", "\"from\"", "\"ballerina\""})},
+                {new BValueArray(new int[]{0, 1}), new BValueArray(new int[]{1, 0})},
+                {new BValueArray(new int[]{0, 1, 1}), new BValueArray(new int[]{0, 1})},
+                {new BValueArray(new int[]{0, 1}), new BValueArray(new int[]{0, 1, 0})},
+                {new BValueArray(new byte[]{0, 123, 22}), new BValueArray(new byte[]{0, 22, 123})},
+                {new BValueArray(new byte[]{0, 123, 22, 9}), new BValueArray(new byte[]{0, 123, 22})},
+                {new BValueArray(new byte[]{0, 123, 22}), new BValueArray(new byte[]{0, 123})}
         };
     }
 

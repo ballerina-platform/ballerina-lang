@@ -70,11 +70,3 @@ function stampTupleToMap() returns map<any> {
     map<any> mapValue = map.stamp(tupleValue);
     return mapValue;
 }
-
-function stampTupleToArray() returns string[] {
-    (string, string, string) tupleValue = ("Mohan", "single", "LK2014");
-
-    string[] arrayValue = string[].stamp(tupleValue);
-    return arrayValue;
-}
-

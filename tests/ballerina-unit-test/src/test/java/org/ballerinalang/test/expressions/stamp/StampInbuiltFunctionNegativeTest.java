@@ -70,7 +70,7 @@ public class StampInbuiltFunctionNegativeTest {
     @Test
     public void testStampNegativeTest() {
 
-        Assert.assertEquals(compileResult.getErrorCount(), 14);
+        Assert.assertEquals(compileResult.getErrorCount(), 12);
 
         //Negative test case to verify the unsupported type for stamp operation.
         BAssertUtil.validateError(compileResult, 0,
@@ -89,7 +89,7 @@ public class StampInbuiltFunctionNegativeTest {
 
         //Negative test case to confirm primitive types are not supported for stamp operation.
         BAssertUtil.validateError(compileResult, 6,
-                "stamp function on type 'string[]' is not supported",
+                "incompatible stamp type: type 'string[]' cannot be stamped as type 'any'",
                 55, 20);
 
         //Negative test case to confirm values cannot be stamped as primitive type.
@@ -97,15 +97,10 @@ public class StampInbuiltFunctionNegativeTest {
                 "incompatible stamp type: type 'any' cannot be stamped as type 'string'",
                 62, 27);
 
-        //Negative test case to confirm values cannot be stamped as primitive type arrays.
-        BAssertUtil.validateError(compileResult, 10,
-                "incompatible stamp type: type 'json' cannot be stamped as type 'int[]'",
-                71, 26);
-
         //Negative test case to confirm invalid types cannot be used as argument for stamp function.
-        BAssertUtil.validateError(compileResult, 12,
+        BAssertUtil.validateError(compileResult, 10,
                 "undefined symbol 'TestType'",
-                79, 24);
+                70, 24);
     }
 
     @Test
@@ -308,7 +303,7 @@ public class StampInbuiltFunctionNegativeTest {
     @Test
     public void testTupleStampNegativeTest() {
 
-        Assert.assertEquals(tupleNegativeTestCompileResult.getErrorCount(), 12);
+        Assert.assertEquals(tupleNegativeTestCompileResult.getErrorCount(), 10);
 
         //Negative test case to confirm tuple cannot be stamped as record.
         BAssertUtil.validateError(tupleNegativeTestCompileResult, 0,
@@ -334,11 +329,6 @@ public class StampInbuiltFunctionNegativeTest {
         BAssertUtil.validateError(tupleNegativeTestCompileResult, 8,
                 "incompatible stamp type: type '(string,string,string)' cannot be stamped as type 'map'",
                 70, 20);
-
-        //Negative test case to confirm tuple cannot be stamped as object.
-        BAssertUtil.validateError(tupleNegativeTestCompileResult, 10,
-                "incompatible stamp type: type '(string,string,string)' cannot be stamped as type 'string[]'",
-                77, 27);
     }
 
     @Test

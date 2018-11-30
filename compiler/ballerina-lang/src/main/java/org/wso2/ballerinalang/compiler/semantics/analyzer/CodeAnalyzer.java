@@ -169,6 +169,7 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
 import static org.wso2.ballerinalang.compiler.util.Constants.MAIN_FUNCTION_NAME;
 import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_PREFIX;
 
@@ -309,7 +310,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         try {
 
             this.initNewWorkerActionSystem();
-            this.workerActionSystemStack.peek().startWorkerActionStateMachine("default", funcNode.pos);
+            this.workerActionSystemStack.peek().startWorkerActionStateMachine(DEFAULT_WORKER_NAME,
+                                                                              funcNode.pos,
+                                                                              funcNode);
             this.visitFunction(funcNode);
             this.workerActionSystemStack.peek().endWorkerActionStateMachine();
         } finally {
@@ -1052,7 +1055,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isDefaultWorkerCommunication(String workerIdentifier) {
-        return workerIdentifier.equals("default");
+        return workerIdentifier.equals(DEFAULT_WORKER_NAME);
     }
 
     private boolean workerExists(BType type, String workerName) {
@@ -1127,14 +1130,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         // Validate worker synchronous send
         validateActions(syncSendExpr.pos, syncSendExpr);
         String workerName = syncSendExpr.workerIdentifier.getValue();
-        boolean allowedLocation = isCommunicationAllowedLocation(workerName);
-        if (!allowedLocation) {
+        WorkerActionSystem was = this.workerActionSystemStack.peek();
+
+        if (!isCommunicationAllowedLocation(workerName)) {
             this.dlog.error(syncSendExpr.pos, DiagnosticCode.INVALID_WORKER_SEND_POSITION);
-            return;
+            was.hasErrors = true;
         }
 
-        WorkerActionSystem was = this.workerActionSystemStack.peek();
-        if (!this.workerExists(syncSendExpr.type, workerName)) {
+        if (!this.workerExists(syncSendExpr.workerType, workerName)) {
             this.dlog.error(syncSendExpr.pos, DiagnosticCode.UNDEFINED_WORKER, workerName);
             was.hasErrors = true;
         }
@@ -1158,7 +1161,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         String workerName = workerReceiveNode.workerIdentifier.getValue();
         boolean allowedLocation = isCommunicationAllowedLocation(workerName);
         if (!allowedLocation) {
-            this.dlog.error(workerReceiveNode.pos, DiagnosticCode.INVALID_WORKER_SEND_POSITION);
+            this.dlog.error(workerReceiveNode.pos, DiagnosticCode.INVALID_WORKER_RECEIVE_POSITION);
             was.hasErrors = true;
         }
 
@@ -1346,7 +1349,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             if (kind == NodeKind.ASSIGNMENT || kind == NodeKind.EXPRESSION_STATEMENT
                     || kind == NodeKind.TUPLE_DESTRUCTURE || kind == NodeKind.VARIABLE) {
                 return;
-            } else if (kind == NodeKind.CHECK_EXPR || kind == NodeKind.MATCH_EXPRESSION || kind == NodeKind.TRAP_EXPR) {
+            } else if (kind == NodeKind.CHECK_EXPR || kind == NodeKind.BRACED_TUPLE_EXPR ||
+                       kind == NodeKind.MATCH_EXPRESSION || kind == NodeKind.TRAP_EXPR) {
                 parent = parent.parent;
                 continue;
             } else if (kind == NodeKind.ELVIS_EXPR
@@ -1393,9 +1397,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         List<BLangWorkerSend> sendStmts = getAsyncSendStmtsOfWorker(currentWrkerAction);
         if (flushWrkIdentifier != null) {
             List<BLangWorkerSend> sendsToGivenWrkr = sendStmts.stream()
-                                                              .filter(bLangNode -> bLangNode.workerIdentifier
-                                                                      .equals(flushWrkIdentifier))
-                                                     .collect(Collectors.toList());
+                                                              .filter(bLangNode -> bLangNode.workerIdentifier.equals
+                                                                      (flushWrkIdentifier))
+                                                              .collect(Collectors.toList());
             if (sendsToGivenWrkr.size() == 0) {
                 this.dlog.error(workerFlushExpr.pos, DiagnosticCode.INVALID_WORKER_FLUSH_FOR_WORKER, flushWrkIdentifier,
                                 currentWrkerAction.currentWorkerId());
@@ -1527,13 +1531,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
         boolean isWorker = false;
-        if (bLangLambdaFunction.parent instanceof BLangSimpleVariable) {
+        if (bLangLambdaFunction.parent.getKind() == NodeKind.VARIABLE) {
             String workerVarName = ((BLangSimpleVariable) bLangLambdaFunction.parent).name.value;
             if (workerVarName.startsWith(WORKER_LAMBDA_VAR_PREFIX)) {
                 String workerName = workerVarName.substring(1);
                 isWorker = true;
                 this.workerActionSystemStack.peek().startWorkerActionStateMachine(workerName,
-                                                                                  bLangLambdaFunction.function.pos);
+                                                                                  bLangLambdaFunction.function.pos,
+                                                                                  bLangLambdaFunction.function);
             }
         }
 
@@ -1835,10 +1840,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                         }
                         otherSM.next();
                         worker.next();
+
                         systemRunning = true;
                     }
+                    otherSM.node.sendsToThis.add(worker.workerId);
                 }
-
             }
         } while (systemRunning);
         if (!workerActionSystem.everyoneDone()) {
@@ -1911,8 +1917,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         private boolean hasErrors = false;
 
 
-        public void startWorkerActionStateMachine(String workerId, DiagnosticPos pos) {
-            workerActionStateMachines.push(new WorkerActionStateMachine(pos, workerId));
+        public void startWorkerActionStateMachine(String workerId, DiagnosticPos pos, BLangFunction node) {
+            workerActionStateMachines.push(new WorkerActionStateMachine(pos, workerId, node));
         }
 
         public void endWorkerActionStateMachine() {
@@ -1964,10 +1970,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         public DiagnosticPos pos;
         public String workerId;
+        public BLangFunction node;
 
-        public WorkerActionStateMachine(DiagnosticPos pos, String workerId) {
+        public WorkerActionStateMachine(DiagnosticPos pos, String workerId, BLangFunction node) {
             this.pos = pos;
             this.workerId = workerId;
+            this.node = node;
         }
 
         public boolean done() {

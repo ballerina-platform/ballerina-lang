@@ -21,10 +21,9 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -39,10 +38,10 @@ public class ForkJoinInFunctionTest {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(result, "testForkJoinAll", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BIntArray);
-        Assert.assertEquals(((BIntArray) returns[0]).size(), 2);
-        Assert.assertEquals(((BIntArray) returns[0]).get(0), 234);
-        Assert.assertEquals(((BIntArray) returns[0]).get(1), 500);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        Assert.assertEquals(((BValueArray) returns[0]).size(), 2);
+        Assert.assertEquals(((BValueArray) returns[0]).getInt(0), 234);
+        Assert.assertEquals(((BValueArray) returns[0]).getInt(1), 500);
     }
 
     @Test(description = "Test Fork Join with empty timeout block")
@@ -51,10 +50,10 @@ public class ForkJoinInFunctionTest {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(result, "testForkJoinWithEmptyTimeoutBlock", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BIntArray);
-        Assert.assertEquals(((BIntArray) returns[0]).size(), 2);
-        Assert.assertEquals(((BIntArray) returns[0]).get(0), 234);
-        Assert.assertEquals(((BIntArray) returns[0]).get(1), 500);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        Assert.assertEquals(((BValueArray) returns[0]).size(), 2);
+        Assert.assertEquals(((BValueArray) returns[0]).getInt(0), 234);
+        Assert.assertEquals(((BValueArray) returns[0]).getInt(1), 500);
     }
 
     @Test(description = "Test Fork Join Any")
@@ -63,8 +62,8 @@ public class ForkJoinInFunctionTest {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(result, "testForkJoinAny", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BStringArray);
-        Assert.assertEquals(((BStringArray) returns[0]).size(), 1);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        Assert.assertEquals(((BValueArray) returns[0]).size(), 1);
     }
 
     @Test(description = "Test Fork Join All of specific")
@@ -73,8 +72,8 @@ public class ForkJoinInFunctionTest {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(result, "testForkJoinAllOfSpecific", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BStringArray);
-        Assert.assertEquals(((BStringArray) returns[0]).size(), 2);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        Assert.assertEquals(((BValueArray) returns[0]).size(), 2);
     }
 
     @Test(description = "Test Fork Join Any of specific")
@@ -83,8 +82,8 @@ public class ForkJoinInFunctionTest {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(result, "testForkJoinAnyOfSpecific", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BStringArray);
-        Assert.assertEquals(((BStringArray) returns[0]).size(), 1);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        Assert.assertEquals(((BValueArray) returns[0]).size(), 1);
     }
 
     @Test(description = "Test Fork Join Without Timeout Expression")

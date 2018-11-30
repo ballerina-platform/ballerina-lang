@@ -75,7 +75,8 @@ public class UnionTypeStampInbuiltFunctionTest {
 
         Assert.assertEquals(results.length, 1);
         Assert.assertEquals(employee0.size(), 4);
-        Assert.assertEquals(employee0.getType().getClass(), BJSONType.class);
+        Assert.assertEquals(employee0.getType().getClass(), BMapType.class);
+        Assert.assertEquals(((BMapType) employee0.getType()).getConstrainedType().getClass(), BJSONType.class);
 
         Assert.assertEquals(employee0.get("batch").stringValue(), "LK2014");
         Assert.assertEquals(employee0.get("batch").getType().getClass(), BStringType.class);
