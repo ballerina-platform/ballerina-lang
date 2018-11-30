@@ -64,6 +64,7 @@ listener http:Listener authEP = new(9097, config = {
     }
 }
 service authService on authEP {
+
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/failAuthz",
