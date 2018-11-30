@@ -55,10 +55,20 @@ public class ObserveUtils {
         enabled = configRegistry.getAsBoolean(CONFIG_METRICS_ENABLED) || tracingEnabled;
     }
 
+    /**
+     * Add metrics and tracing observers.
+     *
+     * @param observer metrics or tracing observer
+     */
     public static void addObserver(BallerinaObserver observer) {
         observers.add(observer);
     }
 
+    /**
+     * Start observability for the resource invocation.
+     *
+     * @param strand strand
+     */
     public static void startResourceObservation(Strand strand) {
         if (!enabled) {
             return;
@@ -70,6 +80,11 @@ public class ObserveUtils {
         observers.forEach(observer -> observer.startServerObservation(observerContext));
     }
 
+    /**
+     * Stop observation of an observer context.
+     *
+     * @param observerContext observer context to be stopped
+     */
     public static void stopObservation(ObserverContext observerContext) {
         if (!enabled) {
             return;
@@ -82,7 +97,13 @@ public class ObserveUtils {
         observerContext.setFinished();
     }
 
-    public static void startCallableObservation(Strand strand, int flags) { // Sync
+    /**
+     * Start observability for the synchronous function/action invocations.
+     *
+     * @param strand current frame
+     * @param flags  action invocation flags
+     */
+    public static void startCallableObservation(Strand strand, int flags) {
         if (!enabled) {
             return;
         }
@@ -98,20 +119,29 @@ public class ObserveUtils {
         newObContext.setStarted();
         newObContext.setConnectorName(strand.currentFrame.callableUnitInfo.attachedToType.toString());
         newObContext.setActionName(strand.currentFrame.callableUnitInfo.getName());
-        newObContext.setServiceName(parentCtx.getServiceName());
+        newObContext.setServiceName(parentCtx != null ?
+                                            parentCtx.getServiceName() : ObservabilityConstants.UNKNOWN_SERVICE);
         strand.currentFrame.observerContext = newObContext;
         observers.forEach(observer -> observer.startClientObservation(newObContext));
 
     }
 
-    public static void startCallableObservation(Strand strand, ObserverContext parentCtx) { // Async
+    /**
+     * Start observability for the asynchronous function/action invocations.
+     *
+     * @param strand    callee strand
+     * @param parentCtx parent observer context
+     */
+    public static void startCallableObservation(Strand strand, ObserverContext parentCtx) {
         if (!enabled) {
             return;
         }
         ObserverContext newObContext = new ObserverContext();
         newObContext.setParent(parentCtx);
         newObContext.setStarted();
-        newObContext.setConnectorName(strand.currentFrame.callableUnitInfo.attachedToType.toString());
+        String connectorName = strand.currentFrame.callableUnitInfo.attachedToType != null ?
+                strand.currentFrame.callableUnitInfo.attachedToType.toString() : "ballerina:worker";
+        newObContext.setConnectorName(connectorName);
         newObContext.setActionName(strand.currentFrame.callableUnitInfo.getName());
         newObContext.setServiceName(parentCtx.getServiceName());
         strand.currentFrame.observerContext = newObContext;
@@ -119,23 +149,41 @@ public class ObserveUtils {
         observers.forEach(observer -> observer.startClientObservation(newObContext));
     }
 
+    /**
+     * Stop observability for both synchronous and asynchronous function/action invocations.
+     *
+     * @param strand current strand
+     */
     public static void stopCallableObservation(Strand strand) {
         if (!enabled) {
             return;
         }
 
-        if (!FunctionFlags.isObserved(strand.currentFrame.flags)) {
+        if (!FunctionFlags.isObserved(strand.currentFrame.invocationFlags)) {
+            strand.peekFrame(1).observerContext = strand.currentFrame.observerContext;
             return;
         }
         stopObservation(strand.currentFrame.observerContext);
     }
 
+    /**
+     * Get the full service name.
+     *
+     * @param serviceInfo service info
+     * @return service name
+     */
     public static String getFullServiceName(ServiceInfo serviceInfo) {
         BType serviceInfoType = serviceInfo.getType();
         return serviceInfoType.getPackagePath().equals(PACKAGE_SEPARATOR) ? serviceInfoType.getName()
                 : serviceInfoType.getPackagePath() + PACKAGE_SEPARATOR + serviceInfoType.getName();
     }
 
+    /**
+     * Get context properties of the observer context.
+     *
+     * @param observerContext observer context
+     * @return property map
+     */
     public static Map<String, String> getContextProperties(ObserverContext observerContext) {
         BSpan bSpan = (BSpan) observerContext.getProperty(KEY_SPAN);
         if (bSpan != null) {
@@ -144,12 +192,20 @@ public class ObserveUtils {
         return Collections.emptyMap();
     }
 
+    /**
+     * Log the provided message to the active span.
+     *
+     * @param context    current context
+     * @param logLevel   log level
+     * @param logMessage message to be logged
+     * @param isError    if its an error or not
+     */
     public static void logMessageToActiveSpan(Context context, String logLevel, Supplier<String> logMessage,
                                               boolean isError) {
         if (!tracingEnabled) {
             return;
         }
-        ObserverContext observerContext = getParentObserverContext(context);
+        ObserverContext observerContext = getObserverContextOfCurrentFrame(context);
         if (observerContext == null) {
             return;
         }
@@ -166,23 +222,38 @@ public class ObserveUtils {
         }
     }
 
+    /**
+     * Check if observability is enabled or not.
+     *
+     * @return true if observability is enabled else false
+     */
     public static boolean isObservabilityEnabled() {
         return enabled;
     }
 
-    // TODO: 11/30/18 Check the usages of this method
-    public static ObserverContext getParentObserverContext(Context context) {
+    /**
+     * Get observer context of the current frame.
+     *
+     * @param context current context
+     * @return observer context of the current frame
+     */
+    public static ObserverContext getObserverContextOfCurrentFrame(Context context) {
         if (enabled) {
             return context.getStrand().currentFrame.observerContext;
         }
-        return new ObserverContext();
+        return null;
     }
 
-    // TODO: 11/30/18 Check the usages of this method
-    public static void setObserverContextToCurrentFrame(Strand str, ObserverContext observerContext) {
+    /**
+     * Set the observer context to the current frame.
+     *
+     * @param strand          current strand
+     * @param observerContext observer context to be set
+     */
+    public static void setObserverContextToCurrentFrame(Strand strand, ObserverContext observerContext) {
         if (!enabled) {
             return;
         }
-        str.currentFrame.observerContext = observerContext;
+        strand.currentFrame.observerContext = observerContext;
     }
 }

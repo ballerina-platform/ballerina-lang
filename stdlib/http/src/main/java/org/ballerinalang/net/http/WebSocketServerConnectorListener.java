@@ -38,7 +38,6 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
-import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONNECTION_FIELD;
 import static org.ballerinalang.util.observability.ObservabilityConstants.SERVER_CONNECTOR_WEBSOCKET;
 
 /**
@@ -76,10 +75,13 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
             httpConnection.addNativeData(HttpConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER, connectionManager);
 
             // TODO: Need to revisit this code of observation.
-            ObserverContext observerContext = new ObserverContext();
-            observerContext.setConnectorName(SERVER_CONNECTOR_WEBSOCKET);
-            observerContext.setServiceName(ObserveUtils.getFullServiceName(wsService.getServiceInfo()));
-            observerContext.setResourceName(balResource.getName());
+            ObserverContext observerContext = null;
+            if (ObserveUtils.isObservabilityEnabled()) {
+                observerContext = new ObserverContext();
+                observerContext.setConnectorName(SERVER_CONNECTOR_WEBSOCKET);
+                observerContext.setServiceName(ObserveUtils.getFullServiceName(wsService.getServiceInfo()));
+                observerContext.setResourceName(balResource.getName());
+            }
 
             Executor.submit(balResource, new OnUpgradeResourceCallableUnitCallback(webSocketHandshaker, wsService),
                             null, observerContext, signatureParams);

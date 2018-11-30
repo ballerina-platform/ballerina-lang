@@ -29,6 +29,7 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueType;
 import org.ballerinalang.runtime.Constants;
+import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -144,10 +145,11 @@ public class BVMExecutor {
         BLangVMUtils.setServiceInfo(strand, serviceInfo);
 
         StackFrame idf = new StackFrame(resourceInfo.getPackageInfo(), resourceInfo,
-                resourceInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), -1);
+                                        resourceInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), -1,
+                                        FunctionFlags.NOTHING);
         copyArgValues(args, idf, resourceInfo.getParamTypes());
         strand.pushFrame(idf);
-
+        // Start observation after pushing the stack frame
         ObserveUtils.startResourceObservation(strand);
 
         BVMScheduler.stateChange(strand, State.NEW, State.RUNNABLE);
@@ -168,7 +170,7 @@ public class BVMExecutor {
         BLangVMUtils.setGlobalTransactionEnabledStatus(strand);
 
         StackFrame idf = new StackFrame(callableInfo.getPackageInfo(), callableInfo,
-                callableInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), -1);
+                callableInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), -1, FunctionFlags.NOTHING);
         copyArgValues(args, idf, callableInfo.getParamTypes());
         strand.pushFrame(idf);
 

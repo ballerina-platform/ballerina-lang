@@ -26,7 +26,6 @@ import org.ballerinalang.logging.util.BLogLevel;
 import org.ballerinalang.model.values.BClosure;
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.observability.ObservabilityUtils;
 import org.ballerinalang.util.observability.ObserveUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -102,18 +102,22 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         BValue[] signatureParams = HttpDispatcher.getSignatureParameters(httpResource, inboundMessage, endpointConfig);
         Resource balResource = httpResource.getBalResource();
 
-        ObserverContext observerContext = new ObserverContext();
-        observerContext.setConnectorName(SERVER_CONNECTOR_HTTP);
-        observerContext.setServiceName(ObserveUtils.getFullServiceName(httpResource.getParentService().getBalService()
-                                                                                   .getServiceInfo()));
-        observerContext.setResourceName(balResource.getName());
+        ObserverContext observerContext = null;
+        if (ObserveUtils.isObservabilityEnabled()) {
+            observerContext = new ObserverContext();
+            observerContext.setConnectorName(SERVER_CONNECTOR_HTTP);
+            observerContext.setServiceName(ObserveUtils.getFullServiceName(httpResource.getParentService()
+                                                                                       .getBalService()
+                                                                                       .getServiceInfo()));
+            observerContext.setResourceName(balResource.getName());
 
-        Map<String, String> httpHeaders = new HashMap<>();
-        inboundMessage.getHeaders().forEach(entry -> httpHeaders.put(entry.getKey(), entry.getValue()));
-        observerContext.addProperty(PROPERTY_TRACE_PROPERTIES, httpHeaders);
-        observerContext.addTag(TAG_KEY_HTTP_METHOD, (String) inboundMessage.getProperty(HttpConstants.HTTP_METHOD));
-        observerContext.addTag(TAG_KEY_PROTOCOL, (String) inboundMessage.getProperty(HttpConstants.PROTOCOL));
-        observerContext.addTag(TAG_KEY_HTTP_URL, (String) inboundMessage.getProperty(HttpConstants.REQUEST_URL));
+            Map<String, String> httpHeaders = new HashMap<>();
+            inboundMessage.getHeaders().forEach(entry -> httpHeaders.put(entry.getKey(), entry.getValue()));
+            observerContext.addProperty(PROPERTY_TRACE_PROPERTIES, httpHeaders);
+            observerContext.addTag(TAG_KEY_HTTP_METHOD, (String) inboundMessage.getProperty(HttpConstants.HTTP_METHOD));
+            observerContext.addTag(TAG_KEY_PROTOCOL, (String) inboundMessage.getProperty(HttpConstants.PROTOCOL));
+            observerContext.addTag(TAG_KEY_HTTP_URL, (String) inboundMessage.getProperty(HttpConstants.REQUEST_URL));
+        }
 
         CallableUnitCallback callback = new HttpCallableUnitCallback(inboundMessage);
         //TODO handle BallerinaConnectorException

@@ -131,7 +131,17 @@ public interface BVMCallback {
      */
     BError getErrorVal();
 
+    /**
+     * Method to set the observation context of the callback.
+     *
+     * @param context observer context
+     */
     void setObserverContext(ObserverContext context);
 
+    /**
+     * Method to get the observation context of the callback.
+     *
+     * @return observer context of the callback
+     */
     ObserverContext getObserverContext();
 }

@@ -52,6 +52,7 @@ public class BLangCallableUnitCallback implements CallableUnitCallback {
     @Override
     public void notifySuccess() {
         if (strand.fp > 0) {
+            // Stop the observation context before popping the stack frame
             ObserveUtils.stopCallableObservation(strand);
             strand.popFrame();
             StackFrame sf = strand.currentFrame;
@@ -68,6 +69,7 @@ public class BLangCallableUnitCallback implements CallableUnitCallback {
     @Override
     public void notifyFailure(BError error) {
         if (strand.fp > 0) {
+            // Stop the observation context before popping the stack frame
             ObserveUtils.stopCallableObservation(strand);
             strand.popFrame();
             StackFrame sf = strand.currentFrame;

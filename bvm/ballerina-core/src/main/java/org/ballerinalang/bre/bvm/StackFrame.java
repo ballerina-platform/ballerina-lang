@@ -17,8 +17,8 @@
 */
 package org.ballerinalang.bre.bvm;
 
-import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.Instruction;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -36,7 +36,7 @@ import java.util.Map;
  */
 public class StackFrame {
 
-    public int flags = -1;
+    public int invocationFlags = FunctionFlags.NOTHING;
 
     public long[] longRegs;
 
@@ -68,32 +68,8 @@ public class StackFrame {
 
     public StackFrame() {}
 
-    public StackFrame(CallableUnitInfo callableUnitInfo, int retTypeTag) {
-        int maxRetRegSize = 1; // Since we have single value return, this is 1
-        switch (retTypeTag) {
-            case TypeTags.INT_TAG:
-                this.longRegs = new long[maxRetRegSize];
-                break;
-            case TypeTags.BYTE_TAG:
-                this.intRegs = new int[maxRetRegSize];
-                break;
-            case TypeTags.FLOAT_TAG:
-                this.doubleRegs = new double[maxRetRegSize];
-                break;
-            case TypeTags.STRING_TAG:
-                this.stringRegs = new String[maxRetRegSize];
-                break;
-            case TypeTags.BOOLEAN_TAG:
-                this.intRegs = new int[maxRetRegSize];
-                break;
-            default:
-                this.refRegs = new BRefType[maxRetRegSize];
-                break;
-        }
-        this.callableUnitInfo = callableUnitInfo;
-    }
-
-    public StackFrame(PackageInfo packageInfo, CallableUnitInfo callableUnitInfo, CodeAttributeInfo ci, int retReg) {
+    public StackFrame(PackageInfo packageInfo, CallableUnitInfo callableUnitInfo, CodeAttributeInfo ci, int retReg,
+                      int invocationFlags) {
         if (ci.maxLongRegs > 0) {
             this.longRegs = new long[ci.maxLongRegs];
         }
@@ -114,6 +90,7 @@ public class StackFrame {
         this.constPool = packageInfo.getConstPoolEntries();
         this.code = packageInfo.getInstructions();
         this.retReg = retReg;
+        this.invocationFlags = invocationFlags;
     }
         
 }

@@ -47,6 +47,7 @@ public class StrandCallback implements BVMCallback {
 
     @Override
     public void signal() {
+        // Stop observation
         ObserveUtils.stopObservation(observerContext);
     }
 

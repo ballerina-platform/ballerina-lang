@@ -218,6 +218,7 @@ public class BVMScheduler {
             try {
                 this.nativeCallable.execute(this.nativeCtx, callback);
                 if (strand.fp > 0) {
+                    // Stop the observation context before popping the stack frame
                     ObserveUtils.stopCallableObservation(strand);
                     strand.popFrame();
                     StackFrame retFrame = strand.currentFrame;
@@ -235,8 +236,9 @@ public class BVMScheduler {
             } finally {
                 strandCountDown();
             }
-            ObserveUtils.stopCallableObservation(strand);
             strand.setError(error);
+            // Stop the observation context before popping the stack frame
+            ObserveUtils.stopCallableObservation(strand);
             strand.popFrame();
             BVM.handleError(strand);
             execute(strand);

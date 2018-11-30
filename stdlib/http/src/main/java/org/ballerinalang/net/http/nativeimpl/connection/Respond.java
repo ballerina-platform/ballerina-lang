@@ -90,10 +90,11 @@ public class Respond extends ConnectionAction {
             outboundResponseMsg.completeMessage();
         }
 
-        ObserverContext observerContext = ObserveUtils.getParentObserverContext(context);
-        observerContext.addTag(TAG_KEY_HTTP_STATUS_CODE, String.valueOf(outboundResponseStruct
-                                                                                .get(RESPONSE_STATUS_CODE_FIELD)));
-
+        if (ObserveUtils.isObservabilityEnabled()) {
+            ObserverContext observerContext = ObserveUtils.getObserverContextOfCurrentFrame(context);
+            observerContext.addTag(TAG_KEY_HTTP_STATUS_CODE, String.valueOf(outboundResponseStruct
+                                                                                    .get(RESPONSE_STATUS_CODE_FIELD)));
+        }
         try {
             if (pipeliningRequired(inboundRequestMsg)) {
                 if (log.isDebugEnabled()) {

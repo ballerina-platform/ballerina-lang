@@ -503,8 +503,10 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
         }
 
         private void addHttpStatusCode(int statusCode) {
-            ObserverContext observerContext = ObserveUtils.getParentObserverContext(context);
-            observerContext.addTag(ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE, String.valueOf(statusCode));
+            if (ObserveUtils.isObservabilityEnabled()) {
+                ObserverContext observerContext = ObserveUtils.getObserverContextOfCurrentFrame(context);
+                observerContext.addTag(ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE, String.valueOf(statusCode));
+            }
         }
     }
 }

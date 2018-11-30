@@ -399,6 +399,7 @@ public class BVM {
                         break;
                     case InstructionCodes.HALT:
                         if (strand.fp > 0) {
+                            // Stop the observation context before popping the stack frame
                             ObserveUtils.stopCallableObservation(strand);
                             strand.popFrame();
                             break;
@@ -753,6 +754,7 @@ public class BVM {
                         break;
                     case InstructionCodes.RET:
                         if (strand.fp > 0) {
+                            // Stop the observation context before popping the stack frame
                             ObserveUtils.stopCallableObservation(strand);
                             strand.popFrame();
                             break;
@@ -841,15 +843,15 @@ public class BVM {
                                        int[] argRegs, int retReg, int flags) {
         //TODO refactor when worker info is removed from compiler
         StackFrame df = new StackFrame(callableUnitInfo.getPackageInfo(), callableUnitInfo,
-                callableUnitInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), retReg);
-        df.flags = flags;
+                callableUnitInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), retReg, flags);
         copyArgValues(strand.currentFrame, df, argRegs, callableUnitInfo.getParamTypes());
 
-        if (!FunctionFlags.isAsync(flags)) {
+        if (!FunctionFlags.isAsync(df.invocationFlags)) {
             strand.pushFrame(df);
-            ObserveUtils.startCallableObservation(strand, flags);
+            // Start observation after pushing the stack frame
+            ObserveUtils.startCallableObservation(strand, df.invocationFlags);
             if (callableUnitInfo.isNative()) {
-                return invokeNativeCallable(callableUnitInfo, strand, df, retReg, flags);
+                return invokeNativeCallable(callableUnitInfo, strand, df, retReg, df.invocationFlags);
             }
             return strand;
         }
@@ -858,6 +860,7 @@ public class BVM {
         Strand calleeStrand = new Strand(strand.programFile, callableUnitInfo.getName(),
                 strand.globalProps, strndCallback, strand.wdChannels);
         calleeStrand.pushFrame(df);
+        // Start observation after pushing the stack frame
         ObserveUtils.startCallableObservation(calleeStrand, strand.respCallback.getObserverContext());
         if (callableUnitInfo.isNative()) {
             Context nativeCtx = new NativeCallContext(calleeStrand, callableUnitInfo, df);
@@ -887,6 +890,7 @@ public class BVM {
                 nativeCallable.execute(ctx, null);
 
                 if (strand.fp > 0) {
+                    // Stop the observation context before popping the stack frame
                     ObserveUtils.stopCallableObservation(strand);
                     strand.popFrame();
                     StackFrame retFrame = strand.currentFrame;
@@ -904,6 +908,7 @@ public class BVM {
         } catch (Throwable e) {
             strand.setError(BLangVMErrors.createError(strand, e.getMessage()));
         }
+        // Stop the observation context before popping the stack frame
         ObserveUtils.stopCallableObservation(strand);
         strand.popFrame();
         handleError(strand);
@@ -912,9 +917,6 @@ public class BVM {
 
     private static CallableUnitCallback getNativeCallableUnitCallback(Strand strand, StackFrame parentDf, Context ctx,
                                                                       int retReg, BType retType, int flags) {
-        //                    TODO fix - rajith
-//        return (ObservabilityUtils.isObservabilityEnabled() && FunctionFlags.isObserved(flags)) ?
-//                new CallableUnitCallbackObserver(observerContext, callback) : callback;
         return new BLangCallableUnitCallback(ctx, strand, retReg, retType);
     }
 
@@ -4145,6 +4147,7 @@ public class BVM {
             sf.refRegs[match.regIndex] = strand.getError();
             strand.setError(null);
         } else if (strand.fp > 0) {
+            // Stop the observation context before popping the stack frame
             ObserveUtils.stopCallableObservation(strand);
             strand.popFrame();
             handleError(strand);

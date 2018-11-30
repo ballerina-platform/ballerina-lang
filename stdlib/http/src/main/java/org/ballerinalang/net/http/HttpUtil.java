@@ -1108,18 +1108,20 @@ public class HttpUtil {
     }
 
     public static void checkAndObserveHttpRequest(Context context, HttpCarbonMessage message) {
-        ObserverContext observerContext = ObserveUtils.getParentObserverContext(context);
-        HttpUtil.injectHeaders(message, ObserveUtils.getContextProperties(observerContext));
-        observerContext.addTag(TAG_KEY_HTTP_METHOD, String.valueOf(message.getProperty(HttpConstants.HTTP_METHOD)));
-        observerContext.addTag(TAG_KEY_HTTP_URL, String.valueOf(message.getProperty(HttpConstants.TO)));
-        observerContext.addTag(TAG_KEY_PEER_ADDRESS, message.getProperty(PROPERTY_HTTP_HOST) + ":" +
-                message.getProperty(PROPERTY_HTTP_PORT));
-         // Add HTTP Status Code tag. The HTTP status code will be set using the response message.
-         // Sometimes the HTTP status code will not be set due to errors etc. Therefore, it's very important to set
-         // some value to HTTP Status Code to make sure that tags will not change depending on various
-         // circumstances.
-         // HTTP Status code must be a number.
-         observerContext.addTag(TAG_KEY_HTTP_STATUS_CODE, Integer.toString(0));
+        if (ObserveUtils.isObservabilityEnabled()) {
+            ObserverContext observerContext = ObserveUtils.getObserverContextOfCurrentFrame(context);
+            HttpUtil.injectHeaders(message, ObserveUtils.getContextProperties(observerContext));
+            observerContext.addTag(TAG_KEY_HTTP_METHOD, String.valueOf(message.getProperty(HttpConstants.HTTP_METHOD)));
+            observerContext.addTag(TAG_KEY_HTTP_URL, String.valueOf(message.getProperty(HttpConstants.TO)));
+            observerContext.addTag(TAG_KEY_PEER_ADDRESS, message.getProperty(PROPERTY_HTTP_HOST) + ":" +
+                    message.getProperty(PROPERTY_HTTP_PORT));
+            // Add HTTP Status Code tag. The HTTP status code will be set using the response message.
+            // Sometimes the HTTP status code will not be set due to errors etc. Therefore, it's very important to set
+            // some value to HTTP Status Code to make sure that tags will not change depending on various
+            // circumstances.
+            // HTTP Status code must be a number.
+            observerContext.addTag(TAG_KEY_HTTP_STATUS_CODE, Integer.toString(0));
+        }
     }
 
     public static void injectHeaders(HttpCarbonMessage msg, Map<String, String> headers) {
