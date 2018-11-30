@@ -64,5 +64,12 @@ public @interface SupportedResourceParamTypes {
          * @return name of the package
          */
         String packageName();
+
+        /**
+         * Name of the organization.
+         *
+         * @return name of the organization
+         */
+        String orgName() default "ballerina";
     }
 }
