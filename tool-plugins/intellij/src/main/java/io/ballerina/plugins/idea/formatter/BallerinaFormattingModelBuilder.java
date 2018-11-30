@@ -98,6 +98,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.FINALLY_CLAUSE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FINITE_TYPE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FIRST;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FLOATING_POINT_LITERAL;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.FLUSH;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FOLLOWED;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FOR;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FOREACH;
@@ -176,6 +177,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.PRIVATE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.PUBLIC;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RANGE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RARROW;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECORD_FIELD_DEFINITION_LIST;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECORD_KEY_VALUE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECORD_LITERAL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECORD_LITERAL_BODY;
@@ -211,6 +213,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.START;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.STATEMENT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.STREAM;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.SUB;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.SYNCRARROW;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TABLE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.THROW;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRANSACTION;
@@ -230,6 +233,8 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.VAR;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.VARIABLE_REFERENCE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.VARIABLE_REFERENCE_EXPRESSION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.VERSION;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.WAIT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.WAIT_KEY_VALUE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.WHERE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.WHERE_CLAUSE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.WHILE;
@@ -240,6 +245,9 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.WITH;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.WITHIN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.WORKER;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.WORKER_BODY;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.WORKER_RECEIVE_EXPRESSION;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.WORKER_SEND_ASYNC_EXPRESSION;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.WORKER_SEND_ASYNC_STATEMENT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.XMLNS;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.YEAR;
 
@@ -283,6 +291,8 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(IS).spaceIf(true)
                 .around(TRAP).spaceIf(true)
                 .around(PANIC).spaceIf(true)
+                .around(FLUSH).spaceIf(true)
+                .around(WAIT).spaceIf(true)
 
                 .around(LISTENER).spaceIf(true)
                 .around(VAR).spaceIf(true)
@@ -446,6 +456,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .between(RECORD_KEY_VALUE, RIGHT_BRACE).spaceIf(false)
                 .between(LEFT_BRACE, RIGHT_BRACE).spaceIf(false)
                 .around(RECORD_LITERAL_BODY).spaceIf(true)
+                .around(RECORD_FIELD_DEFINITION_LIST).spaceIf(true)
 
                 // Statements
                 .between(LEFT_BRACE, RIGHT_BRACE).spaceIf(false)
@@ -573,9 +584,15 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(AND).spaceIf(true)
                 .around(OR).spaceIf(true)
 
+                //Workers
                 .aroundInside(RARROW, ACTION_INVOCATION).spaceIf(false)
                 .between(IDENTIFIER, WORKER_BODY).spaceIf(true)
                 .between(EXPRESSION_LIST, RARROW).spaceIf(true)
+                .aroundInside(RARROW, WORKER_SEND_ASYNC_STATEMENT).spaceIf(true)
+                .aroundInside(SYNCRARROW, WORKER_SEND_ASYNC_EXPRESSION).spaceIf(false)
+                .afterInside(LARROW, WORKER_RECEIVE_EXPRESSION).spaceIf(false)
+                .between(LEFT_BRACE,WAIT_KEY_VALUE).spaceIf(true)
+                .between(WAIT_KEY_VALUE, RIGHT_BRACE).spaceIf(true)
                 .around(RARROW).spaceIf(false)
 
                 .around(LARROW).spaceIf(true)

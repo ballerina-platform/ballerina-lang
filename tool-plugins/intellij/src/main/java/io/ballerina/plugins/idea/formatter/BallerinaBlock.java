@@ -187,9 +187,12 @@ public class BallerinaBlock extends AbstractBlock {
         // Todo - Refactor into separate helper methods
         if (childElementType == BallerinaTypes.BLOCK) {
             return Indent.getNormalIndent();
-        } else if (/*parentElementType == BallerinaTypes.RECORD_KEY_VALUE
-                ||*/ parentElementType == BallerinaTypes.RECORD_LITERAL_BODY) {
+        } else if (parentElementType == BallerinaTypes.RECORD_LITERAL_BODY) {
             return Indent.getNormalIndent();
+        } else if (parentElementType == BallerinaTypes.WAIT_FOR_COLLECTION) {
+            if (childElementType != BallerinaTypes.LEFT_BRACE && childElementType != BallerinaTypes.RIGHT_BRACE) {
+                return Indent.getNormalIndent();
+            }
         } else if (childElementType == BallerinaTypes.LINE_COMMENT && (
                 parentElementType == BallerinaTypes.CALLABLE_UNIT_BODY
                         || parentElementType == BallerinaTypes.IF_CLAUSE
