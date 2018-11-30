@@ -53,7 +53,7 @@ public class RemoteParticipantTransactionTest extends BaseTest {
         serverInstance = new BServerInstance(balServer);
         HashMap<String, String> envProperties = new HashMap<>();
 //        envProperties.put("BAL_JAVA_DEBUG", "5005");
-        serverInstance.startServer(basePath, "participantService", args, envProperties, requiredPorts);
+        serverInstance.startServer(basePath, "participantservice", args, envProperties, requiredPorts);
     }
 
 
