@@ -888,7 +888,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         BLangBlockStmt groupByLambda = groupingLambda.function.body;
         BLangExpression mapAccessExpr;
 
-        if (expr.getKind()== NodeKind.INVOCATION) { // func(e.data[<fieldName in string>])
+        if (expr.getKind() == NodeKind.INVOCATION) { // func(e.data[<fieldName in string>])
             mapAccessExpr = refactorInvocationWithIndexBasedArgs((BVarSymbol)
                     createEventDataFieldAccessExpr(expr.pos, varStreamEvent.symbol).symbol, (BLangInvocation) expr);
         } else {
