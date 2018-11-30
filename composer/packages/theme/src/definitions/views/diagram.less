@@ -1,6 +1,7 @@
 .diagram(@color) {
     background: ~"@{@{color}-diagram-background-color}";
     font-size: @diagram-font-size;
+    font-family: Monaco, Consolas, "Courier New", monospace, "@{diagram-icon-font}";
 
     .diagram-container {
         background: ~"@{@{color}-diagram-background-color}";
@@ -15,7 +16,6 @@
                     fill: ~"@{@{color}-diagram-panel-header-background-color}";
 
                     .panel-icon {
-                        font-family: @diagram-icon-font;
                     }
                     text {
                         fill: ~"@{@{color}-diagram-panel-header-text-color}";
@@ -42,7 +42,6 @@
                     .dropdown-trigger {
                         .dropdown {
                             .trigger-icon {
-                                font-family: "font-ballerina"
                             }
                         }
                     }
