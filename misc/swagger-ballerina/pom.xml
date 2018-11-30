@@ -39,7 +39,6 @@
     <modules>
         <module>modules/swagger-to-ballerina-generator</module>
         <module>modules/ballerina-to-swagger</module>
-        <module>modules/ballerina-code-generator</module>
+        <!--<module>modules/ballerina-code-generator</module>-->
     </modules>
-
 </project>
