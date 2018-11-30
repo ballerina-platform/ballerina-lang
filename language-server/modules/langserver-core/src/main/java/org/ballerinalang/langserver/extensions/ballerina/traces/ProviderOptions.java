@@ -16,6 +16,9 @@
 
 package org.ballerinalang.langserver.extensions.ballerina.traces;
 
+/**
+ * Provider options information for tracing.
+ */
 public class ProviderOptions {
     int port;
     boolean enabled;
