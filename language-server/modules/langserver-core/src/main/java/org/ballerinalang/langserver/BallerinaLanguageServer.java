@@ -136,6 +136,7 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
         HashMap<String, Object> experimentalServerCapabilities = new HashMap<String, Object>();
         experimentalServerCapabilities.put("astProvider", true);
         experimentalServerCapabilities.put("examplesProvider", true);
+        experimentalServerCapabilities.put("apiEditorProvider", true);
         if (experimentalClientCapabilities != null && experimentalClientCapabilities.get(INTROSPECTION.getValue())) {
             int port = ballerinaTraceListener.startListener();
             experimentalServerCapabilities.put("introspection", new ProviderOptions(port));
