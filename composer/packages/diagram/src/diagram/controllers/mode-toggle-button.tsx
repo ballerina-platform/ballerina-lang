@@ -1,5 +1,5 @@
 import React, { StatelessComponent } from "react";
-import { Button } from "semantic-ui-react";
+import { Button, Icon, Menu } from "semantic-ui-react";
 import { DiagramContext, DiagramMode } from "../diagram-context";
 
 export const ModeToggleButton: StatelessComponent<{}> = (
@@ -16,24 +16,23 @@ export const ModeToggleButton: StatelessComponent<{}> = (
                     ? "Expand Code"
                     : "Collapse Code";
                 return (
-                    <Button.Group>
-                        <Button
-                            icon
-                            onClick={() => {
-                                if (currentMode === DiagramMode.ACTION) {
-                                    diagContext.changeMode(DiagramMode.DEFAULT);
-                                } else {
-                                    diagContext.changeMode(DiagramMode.ACTION);
-                                }
-                            }}
-                        >
-                            <i
-                                className={`fw ${icon}`}
-                                title={toolTip}
-                            />
-                        </Button>
-                        {children}
-                    </Button.Group>
+                    <Menu.Item>
+                        <Button.Group>
+                            <Button
+                                icon
+                                onClick={() => {
+                                    if (currentMode === DiagramMode.ACTION) {
+                                        diagContext.changeMode(DiagramMode.DEFAULT);
+                                    } else {
+                                        diagContext.changeMode(DiagramMode.ACTION);
+                                    }
+                                }}
+                            >
+                                <Icon className={`fw ${icon}`} title={toolTip} />
+                            </Button>
+                            {children}
+                        </Button.Group>
+                    </Menu.Item>
                 );
             }}
         </DiagramContext.Consumer>

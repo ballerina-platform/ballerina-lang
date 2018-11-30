@@ -1,5 +1,5 @@
 import React, { StatelessComponent } from "react";
-import { Button } from "semantic-ui-react";
+import { Button, Icon } from "semantic-ui-react";
 import { DiagramContext } from "../diagram-context";
 
 export const ZoomOutButton: StatelessComponent<{}> = (
@@ -10,7 +10,7 @@ export const ZoomOutButton: StatelessComponent<{}> = (
             {(diagContext) => {
                 return (
                     <Button icon onClick={diagContext.zoomOut}>
-                        <i className="fw fw-zoom-out" title="Zoom Out" />
+                        <Icon className='fw fw-zoom-out' title='Zoom Out' />
                         {children}
                     </Button>
                 );
