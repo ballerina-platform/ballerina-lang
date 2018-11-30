@@ -46,7 +46,7 @@ function testFloatToIntWithMultipleArguments() returns int {
 
 function testFloatToIntWithNoArguments() {
     float a = 5.0;
-    return int.convert(a);
+    return int.convert();
 }
 
 function testObjectToJson() returns json|error {
