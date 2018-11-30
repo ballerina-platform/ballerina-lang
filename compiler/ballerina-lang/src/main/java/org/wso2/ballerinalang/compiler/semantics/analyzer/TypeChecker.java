@@ -2581,6 +2581,7 @@ public class TypeChecker extends BLangNodeVisitor {
                         break;
                     }
                 }
+                // TODO: 11/30/18 FIX ME!!! https://github.com/ballerina-platform/ballerina-lang/issues/9386
                 actualType = symTable.jsonType;
                 break;
             case TypeTags.XML:
