@@ -27,7 +27,7 @@ import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.debugger.DebugContext;
-import org.ballerinalang.util.transactions.LocalTransactionInfo;
+import org.ballerinalang.util.transactions.TransactionLocalContext;
 
 import java.util.Map;
 
@@ -71,7 +71,7 @@ public interface Context {
 
     ProgramFile getProgramFile();
 
-    LocalTransactionInfo getLocalTransactionInfo();
+    TransactionLocalContext getLocalTransactionInfo();
 
     long getIntArgument(int index);
 

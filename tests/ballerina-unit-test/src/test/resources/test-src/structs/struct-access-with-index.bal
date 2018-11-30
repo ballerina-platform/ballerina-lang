@@ -25,19 +25,14 @@ function testCreateStruct () returns (string?, map<any>?, int?) {
 }
 
 function testStructOfStruct () returns (string) {
-
     map<any> address = {"country":"USA", "state":"CA"};
     Person emp1 = {name:"Jack", adrs:address, age:25};
     Person emp2 = {};
     Person[] emps = [emp1, emp2];
     Department dpt = {employees:emps};
 
-    string country = "";
     var result = dpt["employees"][0]["adrs"]["country"];
-    if (result is any) {
-        country = <string> result;
-    }
-    return country;
+    return result is () ? "" : <string> result;
 }
 
 function testReturnStructAttributes () returns string? {

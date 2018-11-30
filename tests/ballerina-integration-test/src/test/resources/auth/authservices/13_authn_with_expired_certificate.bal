@@ -27,8 +27,7 @@ http:AuthProvider jwtAuthProvider4 = {
     }
 };
 
-endpoint http:Listener listener13 {
-    port:9101,
+listener http:Listener listener13 = new(9101, config = {
     authProviders:[jwtAuthProvider4],
     secureSocket: {
         keyStore: {
@@ -36,11 +35,11 @@ endpoint http:Listener listener13 {
             password: "ballerina"
         }
     }
-};
+});
 
-service<http:Service> echo13 bind listener13 {
-    test13 (endpoint caller, http:Request req) {
-        http:Response res = new;
-        _ = caller -> respond(res);
+service echo13 on listener13 {
+
+    resource function test13 (http:Caller caller, http:Request req) {
+        _ = caller -> respond(());
     }
 }

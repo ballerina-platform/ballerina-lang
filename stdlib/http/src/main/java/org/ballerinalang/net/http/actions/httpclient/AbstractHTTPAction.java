@@ -43,7 +43,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.observability.ObservabilityConstants;
 import org.ballerinalang.util.observability.ObservabilityUtils;
 import org.ballerinalang.util.observability.ObserverContext;
-import org.ballerinalang.util.transactions.LocalTransactionInfo;
+import org.ballerinalang.util.transactions.TransactionLocalContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
@@ -138,9 +138,9 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
 
     protected void prepareOutboundRequest(Context context, String path, HttpCarbonMessage outboundRequest) {
         if (context.isInTransaction()) {
-            LocalTransactionInfo localTransactionInfo = context.getLocalTransactionInfo();
-            outboundRequest.setHeader(HttpConstants.HEADER_X_XID, localTransactionInfo.getGlobalTransactionId());
-            outboundRequest.setHeader(HttpConstants.HEADER_X_REGISTER_AT_URL, localTransactionInfo.getURL());
+            TransactionLocalContext transactionLocalContext = context.getLocalTransactionInfo();
+            outboundRequest.setHeader(HttpConstants.HEADER_X_XID, transactionLocalContext.getGlobalTransactionId());
+            outboundRequest.setHeader(HttpConstants.HEADER_X_REGISTER_AT_URL, transactionLocalContext.getURL());
         }
         try {
             String uri = getServiceUri(context) + path;

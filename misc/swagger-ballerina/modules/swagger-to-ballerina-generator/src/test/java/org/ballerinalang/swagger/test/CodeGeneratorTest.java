@@ -134,6 +134,7 @@ public class CodeGeneratorTest {
                 {"noOperationId.yaml", "noOperationId.bal"},
                 {"multiMethodResources.yaml", "multiMethodResources.bal"},
                 {"nonEmptyPath.yaml", "nonEmptyPath.bal"},
+                {"petstore.yaml", "petstore.bal"},
         };
     }
 

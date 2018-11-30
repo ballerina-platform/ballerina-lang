@@ -21,7 +21,7 @@ import org.ballerinalang.model.values.BError;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.program.BLangVMUtils;
-import org.ballerinalang.util.transactions.LocalTransactionInfo;
+import org.ballerinalang.util.transactions.TransactionLocalContext;
 
 import java.util.List;
 import java.util.Map;
@@ -138,16 +138,12 @@ public class Strand {
         return BLangVMUtils.getTransactionInfo(this) != null;
     }
 
-    public void setLocalTransactionInfo(LocalTransactionInfo localTransactionInfo) {
-        BLangVMUtils.setTransactionInfo(this, localTransactionInfo);
+    public void setLocalTransactionContext(TransactionLocalContext transactionLocalContext) {
+        BLangVMUtils.setTransactionInfo(this, transactionLocalContext);
     }
 
-    public LocalTransactionInfo getLocalTransactionInfo() {
+    public TransactionLocalContext getLocalTransactionContext() {
         return BLangVMUtils.getTransactionInfo(this);
-    }
-
-    public boolean getGlobalTransactionEnabled() {
-        return BLangVMUtils.getGlobalTransactionEnabled(this);
     }
 
     public void createWaitHandler(int callBacksRemaining, List<Integer> callBacksToWaitFor) {
@@ -173,7 +169,7 @@ public class Strand {
     /**
      * Strand execution states.
      */
-    public static enum State {
+    public enum State {
         NEW,
         RUNNABLE,
         PAUSED,

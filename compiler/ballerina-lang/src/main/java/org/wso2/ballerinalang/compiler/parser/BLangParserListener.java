@@ -1771,7 +1771,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (isInErrorState) {
             return;
         }
-
         this.pkgBuilder.addTransactionBlock(getCurrentPos(ctx), getWS(ctx));
     }
 
@@ -1841,24 +1840,60 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void exitAbortStatement(BallerinaParser.AbortStatementContext ctx) {
+    public void enterCommittedClause(BallerinaParser.CommittedClauseContext ctx) {
         if (isInErrorState) {
             return;
         }
 
-        this.pkgBuilder.addAbortStatement(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.startCommittedBlock();
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void exitDoneStatement(BallerinaParser.DoneStatementContext ctx) {
+    public void exitCommittedClause(BallerinaParser.CommittedClauseContext ctx) {
         if (isInErrorState) {
             return;
         }
 
-        this.pkgBuilder.addDoneStatement(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.endCommittedBlock(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void enterAbortedClause(BallerinaParser.AbortedClauseContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.startAbortedBlock();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitAbortedClause(BallerinaParser.AbortedClauseContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.endAbortedBlock(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitAbortStatement(BallerinaParser.AbortStatementContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.addAbortStatement(getCurrentPos(ctx), getWS(ctx));
     }
 
     /**
@@ -1882,28 +1917,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
         this.pkgBuilder.addRetryCountExpression(getWS(ctx));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitOncommitStatement(BallerinaParser.OncommitStatementContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-        this.pkgBuilder.addCommittedBlock(getWS(ctx));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitOnabortStatement(BallerinaParser.OnabortStatementContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-        this.pkgBuilder.addAbortedBlock(getWS(ctx));
     }
 
     /**

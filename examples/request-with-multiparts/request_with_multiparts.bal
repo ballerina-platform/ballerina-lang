@@ -5,7 +5,7 @@ import ballerina/mime;
 http:Client clientEP = new("http://localhost:9090");
 
 @http:ServiceConfig {basePath: "/multiparts"}
-// Binding the listener to the service.
+//Binds the listener to the service.
 service multipartDemoService on new http:Listener(9090) {
 
     @http:ResourceConfig {
@@ -14,7 +14,7 @@ service multipartDemoService on new http:Listener(9090) {
     }
     resource function multipartReceiver(http:Caller caller, http:Request request) {
         http:Response response = new;
-        // Extract the bodyparts from the request.
+        // Extracts bodyparts from the request.
         var bodyParts = request.getBodyParts();
         if (bodyParts is mime:Entity[]) {
             foreach part in bodyParts {
@@ -70,7 +70,6 @@ service multipartDemoService on new http:Listener(9090) {
         var returnResponse = clientEP->post("/multiparts/decode", request);
         if (returnResponse is http:Response) {
             var result = caller->respond(returnResponse);
-
             if (result is error) {
                 log:printError("Error sending response", err = result);
             }
@@ -94,29 +93,32 @@ function handleContent(mime:Entity bodyPart) {
     if (mediaType is mime:MediaType) {
         string baseType = mediaType.getBaseType();
         if (mime:APPLICATION_XML == baseType || mime:TEXT_XML == baseType) {
-            //Extract the xml data from the body part and print it.
+            //Extracts xml data from the body part.
             var payload = bodyPart.getXml();
             if (payload is xml) {
                 log:printInfo(string.convert(payload));
             } else if (payload is error) {
                 log:printError(string.convert(payload.detail().message));
             }
+
         } else if (mime:APPLICATION_JSON == baseType) {
-            //Extract the json data from the body part and print it.
+            //Extracts json data from the body part.
             var payload = bodyPart.getJson();
             if (payload is json) {
                 log:printInfo(payload.toString());
             } else if (payload is error) {
                 log:printError(string.convert(payload.detail().message));
             }
+
         } else if (mime:TEXT_PLAIN == baseType) {
-            //Extract the text data from the body part and print it.
+            //Extracts text data from the body part.
             var payload = bodyPart.getText();
             if (payload is string) {
                 log:printInfo(payload);
             } else if (payload is error) {
                 log:printError(string.convert(payload.detail().message));
             }
+
         }
     }
 }
