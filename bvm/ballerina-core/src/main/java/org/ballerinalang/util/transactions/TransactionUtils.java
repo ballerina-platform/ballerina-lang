@@ -20,7 +20,6 @@ package org.ballerinalang.util.transactions;
 import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.bre.bvm.Strand;
 import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
