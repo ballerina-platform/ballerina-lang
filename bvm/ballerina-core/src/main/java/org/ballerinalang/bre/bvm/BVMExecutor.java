@@ -30,12 +30,14 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueType;
 import org.ballerinalang.runtime.Constants;
+import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.util.observability.ObserveUtils;
 import org.ballerinalang.util.observability.ObserverContext;
 import org.ballerinalang.util.program.BLangVMUtils;
 import org.ballerinalang.util.transactions.TransactionLocalContext;
@@ -130,16 +132,19 @@ public class BVMExecutor {
             globalProps.putAll(properties);
         }
 
-        StrandResourceCallback strandCallback = new StrandResourceCallback(null, responseCallback);
+        StrandResourceCallback strandCallback = new StrandResourceCallback(null, responseCallback, observerContext);
         Strand strand = new Strand(programFile, resourceInfo.getName(), globalProps, strandCallback, null);
 
         infectResourceFunction(responseCallback, strand);
         BLangVMUtils.setServiceInfo(strand, serviceInfo);
 
         StackFrame idf = new StackFrame(resourceInfo.getPackageInfo(), resourceInfo,
-                resourceInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), -1);
+                                        resourceInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), -1,
+                                        FunctionFlags.NOTHING);
         copyArgValues(args, idf, resourceInfo.getParamTypes());
         strand.pushFrame(idf);
+        // Start observation after pushing the stack frame
+        ObserveUtils.startResourceObservation(strand);
 
         BVMScheduler.stateChange(strand, State.NEW, State.RUNNABLE);
         BVMScheduler.schedule(strand);
@@ -167,7 +172,7 @@ public class BVMExecutor {
         Strand strand = new Strand(programFile, callableInfo.getName(), globalProps, strandCallback,  null);
 
         StackFrame idf = new StackFrame(callableInfo.getPackageInfo(), callableInfo,
-                callableInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), -1);
+                callableInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), -1, FunctionFlags.NOTHING);
         copyArgValues(args, idf, callableInfo.getParamTypes());
         strand.pushFrame(idf);
 
