@@ -21,10 +21,9 @@ listener jms:QueueReceiver queueReceiver = new({
 
 public function main() {
     jms:QueueReceiverCaller caller = queueReceiver.getCallerActions();
-    // This keeps the JMS session alive until the message is received by the
-    // JMS provider.
+    // This keeps the JMS session alive until the message is received by the JMS provider.
     // If the message is not received within five seconds, the session times out.
-    var result = caller->receive(timeoutInMilliSeconds=5000);
+    var result = caller->receive(timeoutInMilliSeconds = 5000);
 
     if (result is jms:Message) {
         // This is executed if the message is received.
@@ -38,8 +37,10 @@ public function main() {
     } else if (result is ()) {
         // This is executed if the message is not received within five seconds.
         log:printInfo("Message not received");
+
     } else {
         // This is executed if an error occurs.
-        log:printInfo("Error receiving message : " + <string>result.detail().message);
+        log:printInfo("Error receiving message : " +
+                <string>result.detail().message);
     }
 }
