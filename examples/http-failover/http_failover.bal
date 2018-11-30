@@ -5,12 +5,12 @@ import ballerina/runtime;
 // Create an endpoint with port 8080 for the mock backend services.
 listener http:Listener backendEP = new(8080);
 
-// Define the failover client end point to call the backend services.
+// Define the failover client endpoint to call the backend services.
 http:FailoverClient foBackendEP = new({
         timeoutMillis: 5000,
         failoverCodes: [501, 502, 503],
         intervalMillis: 5000,
-        // Define set of HTTP Clients that needs to be Failover.
+        // Define a set of HTTP Clients that are targeted for failover.
         targets: [
             { url: "http://localhost:3000/mock1" },
             { url: "http://localhost:8080/echo" },
@@ -34,11 +34,11 @@ service failoverDemoService on new http:Listener(9090) {
         var backendResponse = foBackendEP->get("/", message = request);
 
         // `is` operator is used to separate out union-type returns.
-        // The type of backendResponse variable is the union of http:Response and error.
-        // If a response is returned, backendResponse is treated as an  http:Response
+        // The type of `backendResponse` variable is the union of `http:Response` and `error`.
+        // If a response is returned, `backendResponse` is treated as an `http:Response`
         // within the if-block and the normal process runs.
-        // If the service returns an error, backendResponse is implicitly
-        // converted to an error within the else block.
+        // If the service returns an `error`, `backendResponse` is implicitly
+        // converted to an `error` within the else block.
         if (backendResponse is http:Response) {
 
             var responseToCaller = caller->respond(backendResponse);

@@ -22,9 +22,9 @@ http:Client backendClientEP = new("http://localhost:8080", config = {
                 // This is measured in milliseconds.
                 // The `RollingWindow` is divided into buckets
                 //  and slides by these increments.
-                // For example, if this timeWindowMillis is set to
-                // 10000 milliseconds and bucketSizeMillis 2000.
-                // Then RollingWindow breaks into sub windows with
+                // For example, if this `timeWindowMillis` is set to
+                // 10000 milliseconds and `bucketSizeMillis` 2000.
+                // Then `RollingWindow` breaks into sub windows with
                 // 2-second buckets and stats are collected with
                 // respect to the buckets. As time rolls a new bucket
                 // will be appended to the end of the window and the
@@ -46,9 +46,9 @@ http:Client backendClientEP = new("http://localhost:8080", config = {
             // The time period (in milliseconds) to wait before
             // attempting to make another request to the upstream service.
             // When the failure threshold exceeds, the circuit trips to
-            // OPEN state. Once the circuit is in OPEN state
+            // `OPEN` state. Once the circuit is in `OPEN` state
             // circuit breaker waits for the time configured in `resetTimeMillis`
-            // and switch the circuit to the HALF_OPEN state.
+            // and switch the circuit to the `HALF_OPEN` state.
             resetTimeMillis: 10000,
 
             // HTTP response status codes that are considered as failures
@@ -75,11 +75,11 @@ service circuitbreaker on new http:Listener(9090) {
         var backendResponse = backendClientEP->forward("/hello", request);
 
         // `is` operator is used to separate out union-type returns.
-        // The type of backendResponse variable is the union of http:Response and error.
-        // If a response is returned, backendResponse is treated as an  http:Response
+        // The type of `backendResponse` variable is the union of `http:Response` and `error`.
+        // If a response is returned, `backendResponse` is treated as an `http:Response`
         // within the if-block and the normal process runs.
-        // If the service returns an error, backendResponse is implicitly
-        // converted to an error within the else block.
+        // If the service returns an `error`, `backendResponse` is implicitly
+        // converted to an `error` within the else block.
         if (backendResponse is http:Response) {
 
             var responseToCaller = caller->respond(backendResponse);

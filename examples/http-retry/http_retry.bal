@@ -18,8 +18,8 @@ http:Client backendClientEP = new("http://localhost:8080", config = {
             backOffFactor: 2.0,
 
             // Upper limit of the retry interval in milliseconds
-            // If interval into backOffFactor value exceeded
-            // maxWaitInterval interval values. maxWaitInterval
+            // If `interval` into `backOffFactor` value exceeded
+            // `maxWaitInterval` interval value. `maxWaitInterval`
             // will be considered as the retry intrval.
             maxWaitInterval: 20000
 
@@ -43,11 +43,11 @@ service retryDemoService on new http:Listener(9090) {
         var backendResponse = backendClientEP->forward("/hello", request);
 
         // `is` operator is used to separate out union-type returns.
-        // The type of backendResponse variable is the union of http:Response and error.
-        // If a response is returned, backendResponse is treated as an  http:Response
+        // The type of `backendResponse` variable is the union of `http:Response` and `error`.
+        // If a response is returned, `backendResponse` is treated as an `http:Response`
         // within the if-block and the normal process runs.
-        // If the service returns an error, backendResponse is implicitly
-        // converted to an error within the else block.
+        // If the service returns an `error`, `backendResponse` is implicitly
+        // converted to an `error` within the else block.
         if (backendResponse is http:Response) {
 
             var responseToCaller = caller->respond(backendResponse);

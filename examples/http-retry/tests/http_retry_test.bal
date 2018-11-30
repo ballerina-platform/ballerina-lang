@@ -14,7 +14,7 @@ function startService() {
 }
 function testFunc() {
     http:Client httpEndpoint = new("http://localhost:9090");
-    // Chck whether the server is started
+    // Check whether the server is started
     //test:assertTrue(serviceStarted, msg = "Unable to start the service");
 
     // Send a GET request to the specified endpoint
