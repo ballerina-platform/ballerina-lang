@@ -14,10 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# SocketError will return in a socket related error situation.
-#
-# + message - the cause for the error
-public type SocketError record {
-    string message = "";
-    !...
-};
+public function main (string... args) {
+    secureFunction.call("static-data", "static-data");
+}
+
+public function secureFunction (@sensitive any secureIn, any insecureIn) {
+
+}
