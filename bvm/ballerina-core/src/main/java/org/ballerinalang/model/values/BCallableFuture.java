@@ -17,9 +17,10 @@
 */
 package org.ballerinalang.model.values;
 
-import org.ballerinalang.bre.vm.BVMScheduler;
-import org.ballerinalang.bre.vm.Strand;
-import org.ballerinalang.bre.vm.Strand.State;
+import org.ballerinalang.bre.bvm.BVMScheduler;
+import org.ballerinalang.bre.bvm.SafeStrandCallback;
+import org.ballerinalang.bre.bvm.Strand;
+import org.ballerinalang.bre.bvm.Strand.State;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 
@@ -72,14 +73,12 @@ public class BCallableFuture implements BFuture {
 
     @Override
     public boolean isDone() {
-//        return this.respCtx.isDone();
-        return true;
+        return ((SafeStrandCallback) strand.respCallback).isDone();
     }
 
     @Override
     public boolean isCancelled() {
-//        return this.respCtx.isCancelled();
-        return true;
+        return strand.state == State.TERMINATED;
     }
 
 }

@@ -41,7 +41,8 @@ public @interface SupportedResourceParamTypes {
      */
     Type[] paramTypes();
 
-    Type expectedListenerType();
+    Type expectedListenerType() default @Type(name = "",
+                                              packageName = "");
 
     /**
      * Represents endpoint type.

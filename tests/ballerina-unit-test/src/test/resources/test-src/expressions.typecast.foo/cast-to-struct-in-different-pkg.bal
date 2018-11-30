@@ -4,10 +4,10 @@ import expressions.typecast.foo.bar;
 public type Person record {
     string name;
     int age;
-    Person? parent;
+    Person? parent = ();
     json info;
-    map<any> address;
-    int[] marks;
+    map<anydata> address = {};
+    int[] marks = [];
 };
 
 function testCastToStructInDifferentPkg() returns (bar:Student|error) {
@@ -22,5 +22,5 @@ function testCastToStructInDifferentPkg() returns (bar:Student|error) {
                  };
     string statusKey = "status";
     
-    return <bar:Student>p1;
+    return p1;
 }

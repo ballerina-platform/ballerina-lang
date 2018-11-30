@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.util;
 
 import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 
 /**
@@ -103,6 +104,10 @@ public class Names {
 
     public Name fromTypeKind(TypeKind typeKind) {
         return fromString(typeKind.typeName());
+    }
+
+    public Name fromBuiltInMethod(BLangBuiltInMethod builtInMethod) {
+        return fromString(builtInMethod.getName());
     }
 
     public Name merge(Name... names) {

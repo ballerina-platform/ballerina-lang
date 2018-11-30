@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.model.values;
 
-import org.ballerinalang.bre.vm.Strand;
+import org.ballerinalang.bre.bvm.Strand;
 import org.ballerinalang.model.types.BType;
 
 /**

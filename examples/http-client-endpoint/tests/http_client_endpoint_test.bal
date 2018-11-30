@@ -33,24 +33,6 @@ function testFunc() {
         "url": "https://postman-echo.com/post"
     };
 
-    json jsonRes3 = {
-        "args": {},
-        "data": { "method": "PUT", "payload": "Hello World" },
-        "files": {},
-        "form": {},
-        "json": {"method":"PUT","payload":"Hello World"},
-        "url": "https://postman-echo.com/put"
-    };
-
-    json jsonRes4 = {
-        "args": {},
-        "data": "<request>\n                        <method>PATCH</method>\n                        <payload>Hello World!</payload>\n                      </request>",
-        "files": {},
-        "form": {},
-        "json": null,
-        "url": "https://postman-echo.com/patch"
-    };
-
     json jsonRes5 = {
         "args": {},
         "data": "DELETE: Hello World",
@@ -67,31 +49,19 @@ function testFunc() {
 
     // Remove the headers since the user-agent will be different
     // from ballerina version to version.
-    json res = check <json>outputs[1];
+    json res = <json>outputs[1];
     res.remove("headers");
     test:assertEquals(res, jsonRes1);
 
     test:assertEquals(outputs[2], "\nPOST request:");
 
-    res = check <json>outputs[3];
+    res = <json>outputs[3];
     res.remove("headers");
     test:assertEquals(res, jsonRes2);
 
-    test:assertEquals(outputs[4], "\nPUT request:");
+    test:assertEquals(outputs[4], "\nDELETE request:");
 
-    res = check <json>outputs[5];
-    res.remove("headers");
-    test:assertEquals(res, jsonRes3);
-
-    test:assertEquals(outputs[6], "\nPATCH request:");
-
-    res = check <json>outputs[7];
-    res.remove("headers");
-    test:assertEquals(res, jsonRes4);
-
-    test:assertEquals(outputs[8], "\nDELETE request:");
-
-    res = check <json>outputs[9];
+    res = <json>outputs[5];
     res.remove("headers");
     test:assertEquals(res, jsonRes5);
 }

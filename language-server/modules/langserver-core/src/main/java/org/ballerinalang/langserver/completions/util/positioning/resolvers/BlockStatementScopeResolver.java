@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
@@ -38,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Block statement scope position resolver.
@@ -101,7 +103,11 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
 
     private boolean isNodeLastStatement(BLangBlockStmt bLangBlockStmt, Node blockOwner, Node node) {
         if (bLangBlockStmt != null) {
-            return (bLangBlockStmt.stmts.indexOf(node) == (bLangBlockStmt.stmts.size() - 1));
+            List<BLangStatement> statements = bLangBlockStmt.stmts.stream()
+                    .filter(bLangStatement -> !CommonUtil.isWorkerDereivative(bLangStatement))
+                    .collect(Collectors.toList());
+            statements.sort(new CommonUtil.BLangNodeComparator());
+            return (statements.indexOf(node) == (statements.size() - 1));
         } else if (blockOwner instanceof BLangTypeDefinition
                 && ((BLangTypeDefinition) blockOwner).typeNode instanceof BLangObjectTypeNode) {
             List<BLangSimpleVariable> structFields = (List<BLangSimpleVariable>)

@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.model.values;
 
-import org.ballerinalang.bre.vm.Strand;
+import org.ballerinalang.bre.bvm.Strand;
 
 /**
  * The {@code LockableStructureType} represents a lockable structure type in Ballerina.
