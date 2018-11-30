@@ -390,6 +390,37 @@ public class Instruction {
     }
 
     /**
+     * {@code {@link InstructionWRKSyncSend}} represents synchronous worker send in Ballerina bytecode.
+     */
+    public static class InstructionWRKSyncSend extends Instruction {
+        public int channelRefCPIndex;
+        public WorkerDataChannelInfo dataChannelInfo;
+        public int sigCPIndex;
+        public BType type;
+        public int reg;
+        public int retReg;
+
+        InstructionWRKSyncSend(int opcode, int channelRefCPIndex, WorkerDataChannelInfo dataChannelInfo,
+                               int sigCPIndex, BType type, int reg, int retReg) {
+            super(opcode);
+            this.channelRefCPIndex = channelRefCPIndex;
+            this.dataChannelInfo = dataChannelInfo;
+            this.sigCPIndex = sigCPIndex;
+            this.type = type;
+            this.reg = reg;
+            this.retReg = retReg;
+        }
+        @Override
+        public String toString() {
+            StringJoiner sj = new StringJoiner(" ");
+            sj.add(String.valueOf(channelRefCPIndex));
+            sj.add(String.valueOf(sigCPIndex));
+            sj.add(String.valueOf(reg));
+            return Mnemonics.getMnem(opcode) + " " + sj.toString();
+        }
+    }
+
+    /**
      * {@code {@link InstructionScopeEnd}} represents end of a SCOPE block in Ballerina bytecode.
      */
     public static class InstructionScopeEnd extends Instruction {

@@ -30,6 +30,7 @@ import java.util.Queue;
 public class WorkerDataChannel {
 
     private Strand pendingCtx;
+    private WaitingSender waitingSender;
 
     @SuppressWarnings("rawtypes")
     private Queue<WorkerResult> channel = new LinkedList<>();
@@ -43,12 +44,37 @@ public class WorkerDataChannel {
             this.pendingCtx = null;
         }
     }
+
+    /**
+     * Put data for async send.
+     * @param data - data to be sent over the channel
+     * @param waitingCtx - sending context, that will be paused
+     * @param retReg - Reg index to assign result of the send
+     */
+    public synchronized void putData(BRefType data, Strand waitingCtx, int retReg) {
+        this.channel.add(new WorkerResult(data, true));
+        this.waitingSender = new WaitingSender(waitingCtx, retReg);
+        BVMScheduler.stateChange(waitingCtx, State.RUNNABLE, State.PAUSED);
+        if (this.pendingCtx != null) {
+            BVMScheduler.stateChange(this.pendingCtx, State.PAUSED, State.RUNNABLE);
+            BVMScheduler.schedule(this.pendingCtx);
+            this.pendingCtx = null;
+        }
+    }
     
     @SuppressWarnings("rawtypes")
     public synchronized WorkerResult tryTakeData(Strand ctx) {
         WorkerResult result = this.channel.peek();
         if (result != null) {
             this.channel.remove();
+            if (waitingSender != null) {
+                if (result.isSync) {
+                    waitingSender.waitingCtx.currentFrame.refRegs[waitingSender.returnReg] = null;
+                }
+                //will continue if this is a sync wait, will try to flush again if blocked on flush
+                BVMScheduler.stateChange(this.pendingCtx, State.PAUSED, State.RUNNABLE);
+                BVMScheduler.schedule(waitingSender.waitingCtx);
+            }
             return result;
         } else {
             this.pendingCtx = ctx;
@@ -56,6 +82,17 @@ public class WorkerDataChannel {
             BVMScheduler.stateChange(ctx, State.RUNNABLE, State.PAUSED);
             return null;
         }
+    }
+
+    public synchronized boolean tryFlush(Strand ctx) {
+        if (!channel.isEmpty()) {
+            waitingSender = new WaitingSender(ctx);
+            //flush should wait and need to recheck upon fetching data
+            ctx.currentFrame.ip--;
+            BVMScheduler.stateChange(ctx, State.RUNNABLE, State.PAUSED);
+            return false;
+        }
+        return true;
     }
 
     @SuppressWarnings("rawtypes")
@@ -73,11 +110,38 @@ public class WorkerDataChannel {
     public static class WorkerResult {
 
         public BRefType value;
+        public boolean isSync;
+
 
         public WorkerResult(BRefType value) {
             this.value = value;
         }
 
+        public WorkerResult(BRefType value, boolean sync) {
+            this.value = value;
+            this.isSync = sync;
+        }
+
     }
 
+    /**
+     * This represents the sender of the channel. If the sender is available, then we assume it is waiting for the
+     * data retrieval. Upon fetching data, it will be resumed if a sync send or will try to flush.
+     */
+    public static class WaitingSender {
+
+        public Strand waitingCtx;
+        public int returnReg;
+
+        public WaitingSender(Strand strand, int reg) {
+
+            this.waitingCtx = strand;
+            this.returnReg = reg;
+        }
+
+        public WaitingSender(Strand strand) {
+
+            this.waitingCtx = strand;
+        }
+    }
 }

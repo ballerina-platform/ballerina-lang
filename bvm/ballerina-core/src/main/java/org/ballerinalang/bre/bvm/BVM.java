@@ -489,8 +489,12 @@ public class BVM {
                         // TODO fix - rajith
                         break;
                     case InstructionCodes.WORKERSYNCSEND:
-                        // TODO fix - rajith
-                        break;
+                        Instruction.InstructionWRKSyncSend syncSendIns =
+                                (Instruction.InstructionWRKSyncSend) instruction;
+                        handleWorkerSyncSend(strand, syncSendIns.dataChannelInfo, syncSendIns.type,
+                                syncSendIns.reg, syncSendIns.retReg);
+                        //worker data channel will resume this upon data retrieval
+                        return;
                     case InstructionCodes.PANIC:
                         i = operands[0];
                         if (i >= 0) {
@@ -815,6 +819,13 @@ public class BVM {
                 handleError(strand);
             }
         }
+    }
+
+    private static void handleWorkerSyncSend(Strand strand, WorkerDataChannelInfo dataChannelInfo, BType type,
+                                                int reg, int retReg) {
+        BRefType val = extractValue(strand.currentFrame, type, reg);
+        WorkerDataChannel dataChannel = WDChannels.getChannelFromStrand(strand, dataChannelInfo.getChannelName());
+        dataChannel.putData(val, strand, retReg);
     }
 
     private static void createClone(Strand ctx, int[] operands, StackFrame sf) {
@@ -3234,12 +3245,8 @@ public class BVM {
     private static void handleWorkerSend(Strand ctx, WorkerDataChannelInfo workerDataChannelInfo,
                                          BType type, int reg) {
         BRefType val = extractValue(ctx.currentFrame, type, reg);
-        WorkerDataChannel dataChannel = getWorkerChannel(ctx, workerDataChannelInfo.getChannelName());
+        WorkerDataChannel dataChannel = WDChannels.getChannelFromStrand(ctx, workerDataChannelInfo.getChannelName());
         dataChannel.putData(val);
-    }
-
-    private static WorkerDataChannel getWorkerChannel(Strand ctx, String name) {
-        return ctx.parentChannels.getWorkerDataChannel(name);
     }
 
     private static BRefType extractValue(StackFrame data, BType type, int reg) {
@@ -3268,7 +3275,7 @@ public class BVM {
 
     private static boolean handleWorkerReceive(Strand ctx, WorkerDataChannelInfo workerDataChannelInfo,
                                                BType type, int reg) {
-        WorkerDataChannel.WorkerResult passedInValue = getWorkerChannel(
+        WorkerDataChannel.WorkerResult passedInValue = WDChannels.getChannelFromStrand(
                 ctx, workerDataChannelInfo.getChannelName()).tryTakeData(ctx);
         if (passedInValue != null) {
             StackFrame currentFrame = ctx.currentFrame;

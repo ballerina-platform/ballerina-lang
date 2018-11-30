@@ -1376,7 +1376,17 @@ public class PackageInfoReader {
                     // TODO fix - rajith
                     break;
                 case InstructionCodes.WORKERSYNCSEND:
-                    // TODO fix - rajith
+                    int syncChannelRefCPIndex = codeStream.readInt();
+                    WorkerDataChannelRefCPEntry syncChannelRefCPEntry = (WorkerDataChannelRefCPEntry)
+                            packageInfo.getCPEntry(syncChannelRefCPIndex);
+                    int syncSigCPIndex = codeStream.readInt();
+                    UTF8CPEntry syncSigCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(syncSigCPIndex);
+                    BType syncSendType = getParamTypes(packageInfo, syncSigCPEntry.getValue())[0];
+                    int exprIndex = codeStream.readInt();
+                    int syncSendIndex = codeStream.readInt();
+                    packageInfo.addInstruction(new Instruction.InstructionWRKSyncSend(opcode, syncChannelRefCPIndex,
+                            syncChannelRefCPEntry.getWorkerDataChannelInfo(), syncSigCPIndex, syncSendType, exprIndex
+                            , syncSendIndex));
                     break;
                 case InstructionCodes.IGLOAD:
                 case InstructionCodes.FGLOAD:

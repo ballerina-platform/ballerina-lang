@@ -45,4 +45,8 @@ public class WDChannels {
         }
         return channel;
     }
+
+    public static WorkerDataChannel getChannelFromStrand(Strand ctx, String name) {
+        return ctx.parentChannels.getWorkerDataChannel(name);
+    }
 }
