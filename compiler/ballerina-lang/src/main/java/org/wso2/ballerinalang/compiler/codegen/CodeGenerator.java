@@ -138,7 +138,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
@@ -2330,7 +2329,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             funcInfo.attachedToTypeCPIndex = getTypeCPIndex(funcNode.receiver.type).value;
         }
 
-        this.addWorkerInfoEntries(funcInfo, funcNode.getWorkers());
+        this.addWorkerInfoEntries(funcInfo, funcNode);
 
         // Add parameter default value info
         addParameterAttributeInfo(funcSymbol, funcInfo);
@@ -2348,12 +2347,11 @@ public class CodeGenerator extends BLangNodeVisitor {
                 generateFunctionSig(callableUnitInfo.paramTypes, bInvokableType.retType));
     }
 
-    private void addWorkerInfoEntries(CallableUnitInfo callableUnitInfo, List<BLangWorker> workers) {
+    private void addWorkerInfoEntries(CallableUnitInfo callableUnitInfo, BLangFunction funcNode) {
         UTF8CPEntry workerNameCPEntry = new UTF8CPEntry("default");
         int workerNameCPIndex = this.currentPkgInfo.addCPEntry(workerNameCPEntry);
-        WorkerInfo defaultWorkerInfo = new WorkerInfo(workerNameCPIndex, "default");
-        callableUnitInfo.defaultWorkerInfo = defaultWorkerInfo;
-        for (BLangWorker worker : workers) {
+        callableUnitInfo.defaultWorkerInfo = new WorkerInfo(workerNameCPIndex, funcNode.defaultWorkerName.value);
+        for (BLangWorker worker : funcNode.getWorkers()) {
             workerNameCPEntry = new UTF8CPEntry(worker.name.value);
             workerNameCPIndex = currentPkgInfo.addCPEntry(workerNameCPEntry);
             WorkerInfo workerInfo = new WorkerInfo(workerNameCPIndex, worker.getName().value);
@@ -2899,11 +2897,6 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangAbort abortNode) {
         generateFinallyInstructions(abortNode, NodeKind.TRANSACTION);
         this.emit(abortInstructions.peek());
-    }
-
-    public void visit(BLangDone doneNode) {
-        generateFinallyInstructions(doneNode, NodeKind.DONE);
-        this.emit(InstructionCodes.HALT);
     }
 
     public void visit(BLangRetry retryNode) {

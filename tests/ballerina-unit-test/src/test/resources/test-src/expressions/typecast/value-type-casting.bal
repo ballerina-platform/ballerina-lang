@@ -18,7 +18,7 @@ function intToBoolean (int value) returns (boolean) {
 
 function intToAny (int value) returns (any) {
     any result;
-    result = <any>value;
+    result = value;
     return result;
 }
 
@@ -42,31 +42,31 @@ function floatToBoolean (float value) returns (boolean) {
 
 function floatToAny (float value) returns (any) {
     any result;
-    result = <any>value;
+    result = value;
     return result;
 }
 
 function stringToInt(string value) returns (int|error) {
     int result;
-    result = check <int>value;
+    result = check int.create(value);
     return result;
 }
 
 function stringToFloat(string value) returns (float|error) {
     float result;
-    result = check <float>value;
+    result = check float.create(value);
     return result;
 }
 
 function stringToBoolean(string value) returns (boolean) {
     boolean result;
-    result = <boolean>value;
+    result = boolean.create(value);
     return result;
 }
 
 function stringToAny(string value) returns (any) {
     any result;
-    result = <any>value;
+    result = value;
     return result;
 }
 
@@ -90,7 +90,7 @@ function booleanToString(boolean value) returns (string) {
 
 function booleanToAny(boolean value) returns (any) {
     any result;
-    result = <any>value;
+    result = value;
     return result;
 }
 
@@ -98,7 +98,7 @@ function anyToInt () returns (int|error) {
     int i = 5;
     any a = i;
     int value;
-    value = check <int>a;
+    value = check trap <int>a;
     return value;
 }
 
@@ -106,7 +106,7 @@ function anyToFloat () returns (float|error) {
     float f = 5.0;
     any a = f;
     float value;
-    value = check <float>a;
+    value = check trap <float>a;
     return value;
 }
 
@@ -122,7 +122,7 @@ function anyToBoolean () returns (boolean|error) {
     boolean b = false;
     any a = b;
     boolean value;
-    value = check <boolean>a;
+    value = check trap <boolean>a;
     return value;
 }
 

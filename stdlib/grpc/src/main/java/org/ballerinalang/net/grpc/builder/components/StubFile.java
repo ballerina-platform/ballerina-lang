@@ -28,7 +28,7 @@ import java.util.TreeSet;
  * @since 0.982.0
  */
 public class StubFile {
-    private String rootDescriptorKey;
+    private String rootDescriptor;
     private Set<Descriptor> descriptors = new TreeSet<>((descriptor1, descriptor2) -> {
         if (descriptor1.getKey().equalsIgnoreCase(descriptor2.getKey())) {
             return 0;
@@ -48,12 +48,12 @@ public class StubFile {
         return fileName;
     }
 
-    public String getRootDescriptorKey() {
-        return rootDescriptorKey;
+    public String getRootDescriptor() {
+        return rootDescriptor;
     }
 
-    public void setRootDescriptorKey(String rootDescriptorKey) {
-        this.rootDescriptorKey = rootDescriptorKey;
+    public void setRootDescriptor(String rootDescriptor) {
+        this.rootDescriptor = rootDescriptor;
     }
 
     public void addDescriptor(Descriptor descriptor) {

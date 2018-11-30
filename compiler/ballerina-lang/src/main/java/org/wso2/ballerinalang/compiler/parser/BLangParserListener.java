@@ -1855,18 +1855,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void exitDoneStatement(BallerinaParser.DoneStatementContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        this.pkgBuilder.addDoneStatement(getCurrentPos(ctx), getWS(ctx));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void exitRetryStatement(BallerinaParser.RetryStatementContext ctx) {
         if (isInErrorState) {
             return;

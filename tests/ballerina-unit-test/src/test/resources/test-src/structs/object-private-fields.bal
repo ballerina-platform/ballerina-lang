@@ -63,8 +63,7 @@ public function testCompileTimeStructEqWithPrivateFields () returns (string, str
     e.employeeId = 123;
     e.id = 458;
 
-    // This is a safe cast
-    person p = <person>e;
+    person p = e;
     return (p.name, p.zipcode, p.ssn, p.id);
 }
 
@@ -76,8 +75,7 @@ public function testCompileTimeStructEqWithPrivateFieldsTwoPackages () returns (
     e.employeeId = 123;
     e.id = 458;
 
-    // This is a safe cast
-    foo:userObject u = <foo:userObject>e;
+    foo:userObject u = e;
     return (u.age, u.name, u.zipcode);
 }
 
@@ -89,11 +87,10 @@ public function testRuntimeStructEqWithPrivateFields () returns (string, string,
     e.employeeId = 123;
     e.id = 458;
 
-    // This is a safe cast
-    person p = <person> e;
+    person p = e;
 
     // Now I want p back to be an employee instance
-    var e1 = check <employee> p;
+    var e1 = check trap <employee> p;
 
 
     return (e1.name, e1.zipcode, e1.ssn, e1.id, e1.employeeId);
@@ -106,23 +103,23 @@ public function testRuntimeStructEqWithPrivateFieldsTwoPackages1 () returns (str
     e.ssn = "123-56-7890";
     e.id = 458;
 
-    // This is a safe cast
-    foo:userObject u = <foo:userObject>e;
+    foo:userObject u = e;
 
     // Now I want convert u back to be an employee instance.
-    var p = check <person> u;
-
-
-    return (p.name, p.zipcode, p.ssn, p.id);
+    if(u is person) {
+        return (u.name, u.zipcode, u.ssn, u.id);
+    } else {
+        error err = error("'u' is not a person");
+        return err;
+    }
 }
 
-public function testRuntimeStructEqWithPrivateFieldsTwoPackages2 () returns (string, int)|error {
+public function testRuntimeStructEqWithPrivateFieldsTwoPackages2 () returns (string, int) {
     foo:userObject u = foo:newUserObject();
 
-    // This is a safe cast
-    var uA = <userA>u;
+    var uA = u;
 
     // This is a unsafe cast
-    var uB = check <userB> uA;
+    var uB = uA;
     return (uB.name, uB.age);
 }

@@ -6,17 +6,17 @@ function testCreateConfigAuthProvider() returns (auth:ConfigAuthStoreProvider) {
     return configAuthStoreProvider;
 }
 
-function testAuthenticationOfNonExistingUser () returns (boolean) {
+function testAuthenticationOfNonExistingUser() returns (boolean) {
     auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
     return configAuthStoreProvider.authenticate("amila", "abc");
 }
 
-function testAuthenticationOfNonExistingPassword () returns (boolean) {
+function testAuthenticationOfNonExistingPassword() returns (boolean) {
     auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
     return configAuthStoreProvider.authenticate("isuru", "xxy");
 }
 
-function testAuthentication () returns (boolean) {
+function testAuthentication() returns (boolean) {
     auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
     return configAuthStoreProvider.authenticate("isuru", "xxx");
 }
