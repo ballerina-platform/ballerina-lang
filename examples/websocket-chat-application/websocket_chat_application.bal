@@ -25,7 +25,7 @@ service<http:Service> chatAppUpgrader bind { port: 9090 } {
             if (err is error) {
                 log:printError("Error cancelling handshake", err = err);
             }
-            done;
+            return;
         }
         map<string> headers;
         wsEp = caller->acceptWebSocketUpgrade(headers);

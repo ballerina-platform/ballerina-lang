@@ -55,6 +55,7 @@ public class BTable implements BRefType<Object>, BCollection {
     private BValueArray indices;
     private boolean tableClosed;
     private volatile BVM.FreezeStatus freezeStatus = new BVM.FreezeStatus(BVM.FreezeStatus.State.UNFROZEN);
+    private BType type;
 
     public BTable() {
         this.iterator = null;
@@ -62,7 +63,7 @@ public class BTable implements BRefType<Object>, BCollection {
         this.nextPrefetched = false;
         this.hasNextVal = false;
         this.tableName = null;
-        this.constraintType = null;
+        this.type = BTypes.typeTable;
     }
 
     public BTable(String tableName, BStructureType constraintType) {
@@ -71,6 +72,7 @@ public class BTable implements BRefType<Object>, BCollection {
         this.tableProvider = null;
         this.tableName = tableName;
         this.constraintType = constraintType;
+        this.type = new BTableType(constraintType);
     }
 
     public BTable(String query, BTable fromTable, BTable joinTable,
@@ -89,6 +91,7 @@ public class BTable implements BRefType<Object>, BCollection {
             this.tableName = tableProvider.createTable(fromTable.tableName, query, constraintType, params);
         }
         this.constraintType = constraintType;
+        this.type = new BTableType(constraintType);
     }
 
     public BTable(BType type, BValueArray indexColumns, BValueArray keyColumns, BValueArray dataRows) {
@@ -97,6 +100,7 @@ public class BTable implements BRefType<Object>, BCollection {
         this.tableProvider = TableProvider.getInstance();
         this.tableName = tableProvider.createTable(constrainedType, keyColumns, indexColumns);
         this.constraintType = (BStructureType) constrainedType;
+        this.type = new BTableType(constraintType);
         this.primaryKeys = keyColumns;
         this.indices = indexColumns;
         //Insert initial data
@@ -145,7 +149,7 @@ public class BTable implements BRefType<Object>, BCollection {
 
     @Override
     public BType getType() {
-        return BTypes.typeTable;
+        return this.type;
     }
 
     @Override

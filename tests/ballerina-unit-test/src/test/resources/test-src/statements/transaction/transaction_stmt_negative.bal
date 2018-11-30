@@ -79,7 +79,7 @@ function testInvalidDoneWithinTransaction() {
         workerTest = workerTest + " withinTx";
         if (i == 0) {
             workerTest = workerTest + " beforeDone";
-            done;
+            return;
         }
     }
     workerTest = workerTest + " beforeReturn";
