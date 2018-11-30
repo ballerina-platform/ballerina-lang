@@ -16,6 +16,7 @@
 
 import ballerina/runtime;
 import ballerina/streams;
+import ballerina/io;
 
 type InputRecord record {
     string id;

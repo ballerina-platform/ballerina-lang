@@ -61,7 +61,7 @@ public class TupleMutabilityTest {
     @Test(description = "Check if correct type is saved in covariant tuple with record type ",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    ".*error: 'Employee' cannot be cast to 'Intern'.*")
+                    ".*error: assertion error: expected 'Intern', found 'Employee'.*")
     public void testInvalidCast() {
         BRunUtil.invoke(compileResult, "testInvalidCast");
     }
@@ -109,13 +109,13 @@ public class TupleMutabilityTest {
         int i = 0;
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected '(Employee,Employee)', found '(Person,Employee)'",
-                33, 31);
+                35, 31);
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected '(boolean|float|Person,int)', found '(boolean|float,int?)'",
-                37, 38);
+                39, 38);
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected '((int?,boolean?),Person?)', found '((int|string,boolean),Person)'",
-                41, 38);
+                43, 38);
     }
 
     @Test
