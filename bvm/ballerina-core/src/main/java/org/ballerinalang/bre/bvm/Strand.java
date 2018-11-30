@@ -138,7 +138,7 @@ public class Strand {
         return BLangVMUtils.getTransactionInfo(this) != null;
     }
 
-    public void setLocalTransactionInfo(TransactionLocalContext transactionLocalContext) {
+    public void setLocalTransactionContext(TransactionLocalContext transactionLocalContext) {
         BLangVMUtils.setTransactionInfo(this, transactionLocalContext);
     }
 

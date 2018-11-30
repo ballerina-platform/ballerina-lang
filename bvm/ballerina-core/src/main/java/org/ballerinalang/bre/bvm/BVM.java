@@ -3124,12 +3124,19 @@ public class BVM {
         }
 
         TransactionLocalContext transactionLocalContext = createAndNotifyGlobalTx(strand, transactionBlockId);
-        strand.setLocalTransactionInfo(transactionLocalContext);
+        strand.setLocalTransactionContext(transactionLocalContext);
         transactionLocalContext.beginTransactionBlock(transactionBlockId, retryCount);
     }
 
     private static void beginRemoteParticipant(Strand strand, int transactionBlockId, int committedFuncIndex,
                                                int abortedFuncIndex) {
+        TransactionLocalContext localTransactionContext = strand.getLocalTransactionContext();
+        if (localTransactionContext == null) {
+            // No transaction available to participate,
+            // We have no business here. This is a no-op.
+            return;
+        }
+
         // Register committed function handler if exists.
         BFunctionPointer fpCommitted = null;
         if (committedFuncIndex != -1) {
@@ -3144,7 +3151,6 @@ public class BVM {
             fpAborted = new BFunctionPointer(funcRefCPEntry.getFunctionInfo());
         }
 
-        TransactionLocalContext localTransactionContext = strand.getLocalTransactionContext();
         localTransactionContext.setResourceParticipant(true);
         String globalTransactionId = localTransactionContext.getGlobalTransactionId();
         localTransactionContext.beginTransactionBlock(transactionBlockId, -1);
@@ -3220,7 +3226,7 @@ public class BVM {
                 int allowedRetryCount = transactionLocalContext.getAllowedRetryCount(transactionBlockId);
                 newLocalTransaction.beginTransactionBlock(transactionBlockId,
                         allowedRetryCount - 1);
-                strand.setLocalTransactionInfo(newLocalTransaction);
+                strand.setLocalTransactionContext(newLocalTransaction);
             }
             strand.getLocalTransactionContext().incrementCurrentRetryCount(transactionBlockId);
             strand.setError(null);

@@ -153,7 +153,7 @@ public class BVMExecutor {
             String url = strand.globalProps.get(Constants.TRANSACTION_URL).toString();
             TransactionLocalContext transactionLocalContext = TransactionLocalContext.create(globalTransactionId,
                     url, "2pc");
-            strand.setLocalTransactionInfo(transactionLocalContext);
+            strand.setLocalTransactionContext(transactionLocalContext);
             registerTransactionInfection(responseCallback, gTransactionId, strand);
         }
     }
