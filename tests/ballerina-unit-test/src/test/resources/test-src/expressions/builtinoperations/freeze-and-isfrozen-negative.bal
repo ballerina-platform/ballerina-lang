@@ -23,7 +23,7 @@ function testFreezeOnValuesOfNonAnydataType() {
     PersonObj p = new;
     PersonObj q = p.freeze();
 
-    stream<int> intSt;
+    stream<int> intSt = new;
     _ = intSt.freeze();
 
     future<boolean> boolFuture;

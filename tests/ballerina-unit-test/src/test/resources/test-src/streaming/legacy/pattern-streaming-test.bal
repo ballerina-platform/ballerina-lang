@@ -36,9 +36,9 @@ type TempDiffInfo record {
 
 TempDiffInfo[] tempDiffInfoArray = [];
 int index = 0;
-stream<RoomTempInfo> tempStream;
-stream<RegulatorInfo> regulatorStream;
-stream<TempDiffInfo> tempDiffStream;
+stream<RoomTempInfo> tempStream = new;
+stream<RegulatorInfo> regulatorStream = new;
+stream<TempDiffInfo> tempDiffStream = new;
 
 function testPatternQuery () {
 
@@ -113,9 +113,9 @@ RoomKeyAction[] roomActions2 = [];
 RoomKeyAction[] roomActions3 = [];
 RoomKeyAction[] roomActions4 = [];
 
-stream<RegulatorState> regulatorStateChangeStream;
-stream<RoomKeyAction> roomKeyStream;
-stream<RoomKeyAction> regulatorActionStream;
+stream<RegulatorState> regulatorStateChangeStream = new;
+stream<RoomKeyAction> roomKeyStream = new;
+stream<RoomKeyAction> regulatorActionStream = new;
 
 function testPatternQueryWithOr() {
     forever {
@@ -173,9 +173,9 @@ function addToGlobalRoomActions(RoomKeyAction s) {
     index = index + 1;
 }
 
-stream<RegulatorState> regulatorStateChangeStream2;
-stream<RoomKeyAction> roomKeyStream2;
-stream<RoomKeyAction> regulatorActionStream2;
+stream<RegulatorState> regulatorStateChangeStream2 = new;
+stream<RoomKeyAction> roomKeyStream2 = new;
+stream<RoomKeyAction> regulatorActionStream2 = new;
 
 function testPatternQueryWithAnd() {
     forever {
@@ -230,9 +230,9 @@ function addToGlobalRoomActions2(RoomKeyAction s) {
     index = index + 1;
 }
 
-stream<RegulatorState> regulatorStateChangeStream3;
-stream<RoomKeyAction> roomKeyStream3;
-stream<RoomKeyAction> regulatorActionStream3;
+stream<RegulatorState> regulatorStateChangeStream3 = new;
+stream<RoomKeyAction> roomKeyStream3 = new;
+stream<RoomKeyAction> regulatorActionStream3 = new;
 
 function testPatternQueryWithNot() {
     forever {
@@ -288,9 +288,9 @@ function addToGlobalRoomActions3(RoomKeyAction s) {
     index = index + 1;
 }
 
-stream<RegulatorState> regulatorStateChangeStream4;
-stream<RoomKeyAction> roomKeyStream4;
-stream<RoomKeyAction> regulatorActionStream4;
+stream<RegulatorState> regulatorStateChangeStream4 = new;
+stream<RoomKeyAction> roomKeyStream4 = new;
+stream<RoomKeyAction> regulatorActionStream4 = new;
 
 function testPatternQueryWithFor() {
     forever {
@@ -342,9 +342,9 @@ function addToGlobalRoomActions4(RoomKeyAction s) {
 
 TempDiffInfo[] tempDiffInfoArray6 = [];
 int index6 = 0;
-stream<RoomTempInfo> tempStream6;
-stream<RegulatorInfo> regulatorStream6;
-stream<TempDiffInfo> tempDiffStream6;
+stream<RoomTempInfo> tempStream6 = new;
+stream<RegulatorInfo> regulatorStream6 = new;
+stream<TempDiffInfo> tempDiffStream6 = new;
 
 function testPatternQuery6 () {
 
