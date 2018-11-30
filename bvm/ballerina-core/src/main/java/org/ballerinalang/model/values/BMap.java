@@ -352,8 +352,12 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
 
     @Override
     public void stamp(BType type) {
-        if (type.getTag() == TypeTags.JSON_TAG && ((BJSONType) type).getConstrainedType() != null) {
-            this.stamp(((BJSONType) type).getConstrainedType());
+        if (type.getTag() == TypeTags.JSON_TAG) {
+            if (((BJSONType) type).getConstrainedType() != null) {
+                this.stamp(((BJSONType) type).getConstrainedType());
+            } else {
+                type = BVM.resolveMatchingTypeForUnion(this, type);
+            }
         } else if (type.getTag() == TypeTags.MAP_TAG) {
             for (Object value : this.values()) {
                 if (value != null) {
@@ -382,6 +386,8 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
                     break;
                 }
             }
+        } else if (type.getTag() == TypeTags.ANYDATA_TAG) {
+            type = BVM.resolveMatchingTypeForUnion(this, type);
         }
 
         this.type = type;

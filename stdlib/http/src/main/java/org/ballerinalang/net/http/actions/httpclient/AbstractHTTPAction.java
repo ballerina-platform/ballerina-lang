@@ -33,8 +33,8 @@ import org.ballerinalang.model.InterruptibleNativeCallableUnit;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.net.http.CompressionConfigState;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
@@ -396,7 +396,7 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
      */
     private void serializeMultiparts(BMap<String, BValue> entityStruct, OutputStream messageOutputStream,
                                      String boundaryString) throws IOException {
-        BRefValueArray bodyParts = EntityBodyHandler.getBodyPartArray(entityStruct);
+        BValueArray bodyParts = EntityBodyHandler.getBodyPartArray(entityStruct);
         if (bodyParts != null && bodyParts.size() > 0) {
             serializeMultipartDataSource(messageOutputStream, boundaryString, entityStruct);
         } else { //If the content is in a byte channel
