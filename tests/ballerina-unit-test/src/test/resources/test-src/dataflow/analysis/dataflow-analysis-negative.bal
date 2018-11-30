@@ -578,7 +578,7 @@ service<http:Service> testService bind testEP {
         int c;
 
         if (true) {
-            done;
+            return;
         } else {
             c = 3;
         }

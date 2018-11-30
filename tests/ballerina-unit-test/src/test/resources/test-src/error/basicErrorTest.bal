@@ -55,3 +55,15 @@ public function testCustomErrorDetails() returns error {
     TrxError err = error("trxErr", { data: "test" });
     return err;
 }
+
+public function testCustomErrorDetails2() returns string {
+    TrxError err = error("trxErr", { data: "test" });
+    TrxErrorData errorData = err.detail();
+    return errorData.data;
+}
+
+public function testErrorWithErrorConstructor() returns string {
+    error<string, TrxErrorData> err = error("trxErr", { data: "test" });
+    TrxErrorData errorData = err.detail();
+    return errorData.data;
+}

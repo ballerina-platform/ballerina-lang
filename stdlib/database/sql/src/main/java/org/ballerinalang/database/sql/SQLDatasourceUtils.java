@@ -30,20 +30,16 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BBooleanArray;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BFloatArray;
-import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.transactions.BallerinaTransactionContext;
-import org.ballerinalang.util.transactions.LocalTransactionInfo;
+import org.ballerinalang.util.transactions.TransactionLocalContext;
 import org.ballerinalang.util.transactions.TransactionResourceManager;
 import org.ballerinalang.util.transactions.TransactionUtils;
 
@@ -600,8 +596,8 @@ public class SQLDatasourceUtils {
 
     private static byte[] getByteArray(BValue value) {
         byte[] val = null;
-        if (value instanceof BByteArray) {
-            val = ((BByteArray) value).getBytes();
+        if (value instanceof BValueArray) {
+            val = ((BValueArray) value).getBytes();
         } else if (value instanceof BString) {
             val = getBytesFromBase64String(value.stringValue());
         }
@@ -724,40 +720,40 @@ public class SQLDatasourceUtils {
         int arrayLength;
         switch (typeTag) {
         case TypeTags.INT_TAG:
-            arrayLength = (int) ((BIntArray) value).size();
+            arrayLength = (int) ((BValueArray) value).size();
             arrayData = new Long[arrayLength];
             for (int i = 0; i < arrayLength; i++) {
-                arrayData[i] = ((BIntArray) value).get(i);
+                arrayData[i] = ((BValueArray) value).getInt(i);
             }
             return new Object[] { arrayData, Constants.SQLDataTypes.BIGINT };
         case TypeTags.FLOAT_TAG:
-            arrayLength = (int) ((BFloatArray) value).size();
+            arrayLength = (int) ((BValueArray) value).size();
             arrayData = new Double[arrayLength];
             for (int i = 0; i < arrayLength; i++) {
-                arrayData[i] = ((BFloatArray) value).get(i);
+                arrayData[i] = ((BValueArray) value).getFloat(i);
             }
             return new Object[] { arrayData, Constants.SQLDataTypes.DOUBLE };
         case TypeTags.STRING_TAG:
-            arrayLength = (int) ((BStringArray) value).size();
+            arrayLength = (int) ((BValueArray) value).size();
             arrayData = new String[arrayLength];
             for (int i = 0; i < arrayLength; i++) {
-                arrayData[i] = ((BStringArray) value).get(i);
+                arrayData[i] = ((BValueArray) value).getString(i);
             }
             return new Object[] { arrayData, Constants.SQLDataTypes.VARCHAR };
         case TypeTags.BOOLEAN_TAG:
-            arrayLength = (int) ((BBooleanArray) value).size();
+            arrayLength = (int) ((BValueArray) value).size();
             arrayData = new Boolean[arrayLength];
             for (int i = 0; i < arrayLength; i++) {
-                arrayData[i] = ((BBooleanArray) value).get(i) > 0;
+                arrayData[i] = ((BValueArray) value).getBoolean(i) > 0;
             }
             return new Object[] { arrayData, Constants.SQLDataTypes.BOOLEAN };
         case TypeTags.ARRAY_TAG:
             BType elementType = ((BArrayType) ((BArrayType) value.getType()).getElementType()).getElementType();
             if (elementType.getTag() == TypeTags.BYTE_TAG) {
-                arrayLength = (int) ((BByteArray) value).size();
+                arrayLength = (int) ((BValueArray) value).size();
                 arrayData = new Blob[arrayLength];
                 for (int i = 0; i < arrayLength; i++) {
-                    arrayData[i] = ((BByteArray) value).get(i);
+                    arrayData[i] = ((BValueArray) value).getByte(i);
                 }
                 return new Object[] { arrayData, Constants.SQLDataTypes.BLOB };
             } else {
@@ -829,7 +825,7 @@ public class SQLDatasourceUtils {
             case TypeTags.ARRAY_TAG:
                 BType elementType = ((BArrayType) field.getFieldType()).getElementType();
                 if (elementType.getTag() == TypeTags.BYTE_TAG) {
-                    structData[i] = ((BByteArray) bValue).getBytes();
+                    structData[i] = ((BValueArray) bValue).getBytes();
                     break;
                 } else {
                     throw new BallerinaException("unsupported data type for struct parameter: " + structuredSQLType);
@@ -1124,19 +1120,19 @@ public class SQLDatasourceUtils {
     }
 
     public static void handleErrorOnTransaction(Context context) {
-        LocalTransactionInfo localTransactionInfo = context.getLocalTransactionInfo();
-        if (localTransactionInfo == null) {
+        TransactionLocalContext transactionLocalContext = context.getLocalTransactionInfo();
+        if (transactionLocalContext == null) {
             return;
         }
-        SQLDatasourceUtils.notifyTxMarkForAbort(context, localTransactionInfo);
-        throw new BallerinaException(BLangVMErrors.TRANSACTION_ERROR);
+        SQLDatasourceUtils.notifyTxMarkForAbort(context, transactionLocalContext);
     }
 
-    private static void notifyTxMarkForAbort(Context context, LocalTransactionInfo localTransactionInfo) {
-        String globalTransactionId = localTransactionInfo.getGlobalTransactionId();
-        int transactionBlockId = localTransactionInfo.getCurrentTransactionBlockId();
+    private static void notifyTxMarkForAbort(Context context, TransactionLocalContext transactionLocalContext) {
+        String globalTransactionId = transactionLocalContext.getGlobalTransactionId();
+        int transactionBlockId = transactionLocalContext.getCurrentTransactionBlockId();
 
-        if (localTransactionInfo.isRetryPossible(context.getStrand(), transactionBlockId)) {
+        transactionLocalContext.markFailure();
+        if (transactionLocalContext.isRetryPossible(context.getStrand(), transactionBlockId)) {
             return;
         }
         TransactionUtils.notifyTransactionAbort(context.getStrand(), globalTransactionId,
@@ -1593,10 +1589,10 @@ public class SQLDatasourceUtils {
         }
         String connectorId = datasource.getConnectorId();
         boolean isXAConnection = datasource.isXAConnection();
-        LocalTransactionInfo localTransactionInfo = context.getLocalTransactionInfo();
-        String globalTxId = localTransactionInfo.getGlobalTransactionId();
-        int currentTxBlockId = localTransactionInfo.getCurrentTransactionBlockId();
-        BallerinaTransactionContext txContext = localTransactionInfo.getTransactionContext(connectorId);
+        TransactionLocalContext transactionLocalContext = context.getLocalTransactionInfo();
+        String globalTxId = transactionLocalContext.getGlobalTransactionId();
+        int currentTxBlockId = transactionLocalContext.getCurrentTransactionBlockId();
+        BallerinaTransactionContext txContext = transactionLocalContext.getTransactionContext(connectorId);
         if (txContext == null) {
             if (isXAConnection) {
                 XAConnection xaConn = datasource.getXADataSource().getXAConnection();
@@ -1609,7 +1605,7 @@ public class SQLDatasourceUtils {
                 conn.setAutoCommit(false);
                 txContext = new SQLTransactionContext(conn);
             }
-            localTransactionInfo.registerTransactionContext(connectorId, txContext);
+            transactionLocalContext.registerTransactionContext(connectorId, txContext);
             TransactionResourceManager.getInstance().register(globalTxId, currentTxBlockId, txContext);
         } else {
             conn = ((SQLTransactionContext) txContext).getConnection();

@@ -126,3 +126,99 @@ function stampArrayValueToTuple() returns (Employee, Student)|error {
     return returnValue;
 }
 
+//-------------------- Basic type array stamp ---------------------------------------------------------------
+
+function stampJSONToBasicArray() returns int[]|error {
+    json jsonValue = [1, 2, 3, 4];
+    int[]|error returnArray = int[].stamp(jsonValue);
+
+    return returnArray;
+}
+
+function stampAnydataToBasicArray() returns int[]|error {
+    anydata anydataValue = [1, 2, 3, 4];
+    int[]|error returnArray = int[].stamp(anydataValue);
+
+    return returnArray;
+}
+
+function stampAnydataArrayToBasicArray() returns int[]|error {
+    anydata[] anydataArray = [1, 2, 3, 4];
+    int[]|error returnArray = int[].stamp(anydataArray);
+
+    return returnArray;
+}
+
+function stampJSONArrayToBasicArray() returns int[]|error {
+    json[] jsonValue = [1, 2, 3, 4];
+    int[]|error returnArray = int[].stamp(jsonValue);
+
+    return returnArray;
+}
+
+function stampBasicArrayToJSON() returns json|error {
+    int[] intArrayValue = [1, 2, 3, 4];
+    json|error returnValue = json.stamp(intArrayValue);
+
+    return returnValue;
+}
+
+function stampBasicArrayToAnydata() returns anydata|error {
+    int[] intArrayValue = [1, 2, 3, 4];
+    anydata|error returnValue = anydata.stamp(intArrayValue);
+
+    return returnValue;
+}
+
+function stampBasicArrayToAnydataArray() returns anydata[]|error {
+    int[] intArrayValue = [1, 2, 3, 4];
+    anydata[]|error returnValue = anydata[].stamp(intArrayValue);
+
+    return returnValue;
+}
+
+function stampBasicArrayToJSONArray() returns json[]|error {
+    int[] intArrayValue = [1, 2, 3, 4];
+    json[]|error returnValue = json[].stamp(intArrayValue);
+
+    return returnValue;
+}
+
+function stampBasicArrayToTuple() returns (int,int)|error {
+    int[] intArrayValue = [1, 2];
+    (int,int)|error returnValue = (int,int).stamp(intArrayValue);
+
+    return returnValue;
+}
+
+function stampAnydataBasicArrayToTuple() returns (int,int)|error {
+    int[] intArrayValue = [1, 2];
+    anydata anydataValue = intArrayValue;
+    (int,int)|error returnValue = (int,int).stamp(anydataValue);
+
+    return returnValue;
+}
+
+function stampBasicArrayToAnydataTuple() returns (anydata,anydata)|error {
+    int[] intArrayValue = [1, 2];
+    (anydata,anydata)|error returnValue = (anydata,anydata).stamp(intArrayValue);
+
+    return returnValue;
+}
+
+function stampBasicArrayToBasicArray() returns int[] {
+    int[] intArrayValue = [1, 2];
+    int[] returnValue = int[].stamp(intArrayValue);
+
+    return returnValue;
+}
+
+function stampBasicMapArrayToAnydataMapArray() returns map<anydata>[] {
+    map<int> map1 = {a: 5, b: 10};
+    map<int> map2 = {a: 15, b: 20};
+
+    map<int>[] intMap = [map1, map2];
+    map<anydata>[] anydataMap = map<anydata>[].stamp(intMap);
+
+    return anydataMap;
+}

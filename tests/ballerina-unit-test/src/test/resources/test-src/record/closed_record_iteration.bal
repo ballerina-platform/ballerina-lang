@@ -84,11 +84,11 @@ function testMapOpWithClosedRecords() returns map<any> {
 
     map<any> newp =  p.map(function ((string, any) entry) returns (string, any) {
            var (field, value) = entry;
-            match value {
-                string str => value = str.toLower();
-                any => {}
-            }
-            return (field, value);
+           if value is string {
+               value = value.toLower();
+               return (field, value);
+           }
+           return (field, value);
         });
         
     return newp;

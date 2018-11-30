@@ -21,10 +21,9 @@ package org.ballerinalang.observe.nativeimpl;
 
 import io.opentracing.Tracer;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.old.WorkerExecutionContext;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.util.codegen.ServiceInfo;
-import org.ballerinalang.util.observability.ObservabilityUtils;
+import org.ballerinalang.util.observability.ObserveUtils;
 import org.ballerinalang.util.observability.ObserverContext;
 import org.ballerinalang.util.observability.TracingUtils;
 import org.ballerinalang.util.program.BLangVMUtils;
@@ -32,7 +31,6 @@ import org.ballerinalang.util.tracer.TracersStore;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
@@ -76,12 +74,11 @@ public class OpenTracerBallerinaWrapper {
             return -1;
         }
 
-        WorkerExecutionContext workerExecutionContext = context.getParentWorkerExecutionContext();
         // TODO fix - rajith
         ServiceInfo serviceInfo = BLangVMUtils.getServiceInfo(context.getStrand());
         String serviceName;
         if (serviceInfo != null) {
-            serviceName = ObservabilityUtils.getFullServiceName(serviceInfo);
+            serviceName = ObserveUtils.getFullServiceName(serviceInfo);
         } else {
             serviceName = UNKNOWN_SERVICE;
         }
@@ -96,8 +93,10 @@ public class OpenTracerBallerinaWrapper {
         tags.forEach((observerContext::addTag));
 
         if (parentSpanId == SYSTEM_TRACE_INDICATOR) {
-            ObservabilityUtils.getParentContext(context).ifPresent(observerContext::setParent);
-            ObservabilityUtils.setObserverContextToWorkerExecutionContext(workerExecutionContext, observerContext);
+            if (ObserveUtils.isObservabilityEnabled()) {
+                observerContext.setParent(ObserveUtils.getObserverContextOfCurrentFrame(context));
+            }
+            ObserveUtils.setObserverContextToCurrentFrame(context.getStrand(), observerContext);
             return startSpan(observerContext, true, spanName);
         } else if (parentSpanId != ROOT_SPAN_INDICATOR) {
             ObserverContext parentOContext = observerContextList.get(parentSpanId);
@@ -122,15 +121,18 @@ public class OpenTracerBallerinaWrapper {
     /**
      * Method to mark a span as finished.
      *
+     *
+     * @param context current context
      * @param spanId id of the Span
      * @return boolean to indicate if span was finished
      */
-    public boolean finishSpan(int spanId) {
+    public boolean finishSpan(Context context, int spanId) {
         if (!enabled) {
             return false;
         }
         ObserverContext observerContext = observerContextList.get(spanId);
         if (observerContext != null) {
+            ObserveUtils.setObserverContextToCurrentFrame(context.getStrand(), observerContext.getParent());
             TracingUtils.stopObservation(observerContext);
             observerContext.setFinished();
             observerContextList.remove(spanId);
@@ -155,9 +157,9 @@ public class OpenTracerBallerinaWrapper {
         }
         ObserverContext observerContext = observerContextList.get(spanId);
         if (spanId == -1) {
-            Optional<ObserverContext> observer = ObservabilityUtils.getParentContext(context);
-            if (observer.isPresent()) {
-                observer.get().addTag(tagKey, tagValue);
+            ObserverContext observer = ObserveUtils.getObserverContextOfCurrentFrame(context);
+            if (observer != null) {
+                observer.addTag(tagKey, tagValue);
                 return true;
             }
         }

@@ -20,9 +20,10 @@ package org.ballerinalang.test.service.grpc.sample;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.TestUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -47,7 +48,7 @@ public class ClientStreamingTestCase extends GrpcBaseTest {
 
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "client_streaming_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
-        BStringArray stringArray = new BStringArray();
+        BValueArray stringArray = new BValueArray(BTypes.typeString);
         stringArray.add(0, "Hi Sam");
         stringArray.add(1, "Hey Sam");
         stringArray.add(1, "GM Sam");

@@ -21,7 +21,7 @@ export const While: React.StatelessComponent<{
             expression: ASTUtil.genSource(model.condition),
             label: "while",
             x: viewState.bBox.x,
-            y: viewState.bBox.y + (config.flowCtrl.header.height / 2),
+            y: viewState.bBox.y + (config.flowCtrl.condition.height / 2),
         };
 
         // Continue Line
@@ -39,7 +39,7 @@ export const While: React.StatelessComponent<{
         p3.x = p2.x;
         p3.y = conditionProps.y;
 
-        p4.x = p1.x - (config.flowCtrl.header.height / 2);
+        p4.x = p1.x - (config.flowCtrl.condition.height / 2);
         p4.y = conditionProps.y;
 
         body.push(DiagramUtils.getComponents(model.body));
@@ -50,7 +50,7 @@ export const While: React.StatelessComponent<{
         const r3 = { x: 0, y: 0};
         const r4 = { x: 0, y: 0};
 
-        r1.x = conditionProps.x + (config.flowCtrl.header.height / 2);
+        r1.x = conditionProps.x + (config.flowCtrl.condition.height / 2);
         r1.y = conditionProps.y;
 
         r2.x = conditionProps.x +  model.body.viewState.bBox.w;

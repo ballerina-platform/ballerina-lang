@@ -89,16 +89,12 @@ type Protocol record {
 
 function testJSONToStructCast () returns string|error {
     json j = {data:"data", plist:[{name:"a", url:"h1"}, {name:"b", url:"h2"}]};
-    var p = Protocols.create(j);
-    if p is Protocols {
-        output = "";
-        foreach var protocol in p.plist {
-            concatString(protocol.name + "-" + protocol.url);
-        }
-        return output;
-    } else {
-        return p;
+    var result = check Protocols.create(j);
+    output = "";
+    foreach var protocol in result.plist {
+        concatString(protocol.name + "-" + protocol.url);
     }
+    return output;
 }
 
 function testAddWhileIteration () returns string|error {

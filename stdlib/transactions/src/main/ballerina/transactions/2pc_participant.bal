@@ -19,13 +19,6 @@ import ballerina/log;
 # This represents the protocol associated with the coordination type.
 #
 # + name - protocol name
-type Protocol record {
-    string name = "";
-};
-
-# This represents the protocol associated with the coordination type.
-#
-# + name - protocol name
 type LocalProtocol record {
     string name = "";
 };
@@ -39,6 +32,8 @@ public type RemoteProtocol record {
     string name = "";
     string url = "";
 };
+
+public type UProtocol LocalProtocol|RemoteProtocol;
 
 type Participant abstract object {
 

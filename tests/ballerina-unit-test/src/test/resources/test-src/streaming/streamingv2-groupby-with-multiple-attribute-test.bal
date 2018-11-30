@@ -52,7 +52,7 @@ function startGroupByQueryWithMultipleAttributes() returns TeacherOutput[] {
 
     foo();
 
-    outputStream.subscribe(printTeachers);
+    outputStream.subscribe(function(TeacherOutput e) {printTeachers(e);});
     foreach var t in teachers {
         inputStream.publish(t);
     }
@@ -61,7 +61,7 @@ function startGroupByQueryWithMultipleAttributes() returns TeacherOutput[] {
     while(true) {
         runtime:sleep(500);
         count += 1;
-        if((lengthof globalTeacherOutputArray) == 4 || count == 10) {
+        if((globalTeacherOutputArray.length()) == 4 || count == 10) {
             break;
         }
     }

@@ -1741,12 +1741,12 @@ public class Types {
      * Retrieves member types of the specified type, expanding maps/arrays of/constrained by unions types to individual
      * maps/arrays.
      *
-     * e.g., (string|int)[] would cause three entries --> string[], int[], (string|int)[]
+     * e.g., (string|int)[] would cause three entries as string[], int[], (string|int)[]
      *
      * @param bType the type for which member types needs to be identified
      * @return  a set containing all the retrieved member types
      */
-    private Set<BType> expandAndGetMemberTypesRecursive(BType bType) {
+    public Set<BType> expandAndGetMemberTypesRecursive(BType bType) {
         Set<BType> memberTypes = new HashSet<>();
         switch (bType.tag) {
             case TypeTags.BYTE:

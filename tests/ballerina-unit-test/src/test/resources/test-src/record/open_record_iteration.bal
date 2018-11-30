@@ -108,11 +108,11 @@ function testMapOpWithOpenRecords() returns map<any> {
 
     map<any> newp =  p.map(function ((string, any) entry) returns (string, any) {
            var (field, value) = entry;
-            match value {
-                string str => value = str.toLower();
-                any => {}
-            }
-            return (field, value);
+           if value is string {
+               value = value.toLower();
+               return (field, value);
+           }
+           return(field, value);
         });
         
     return newp;
@@ -142,9 +142,9 @@ function testChainedOpsWithOpenRecords() returns map<any> {
 
     map<any> newf = f.map(function ((string, any) entry) returns (string, any) {
                     var (field, value) = entry;
-                    match value {
-                        string str => value = str.toLower();
-                        any => {}
+                    if value is string {
+                        value = value.toLower();
+                        return (field, value);
                     }
                     return (field, value);
                 })
@@ -322,9 +322,8 @@ function testChainedOpsWithOpenRecords3() returns map<float> {
 
     map<float> m = grades.map(function ((string, any) entry) returns (string, int) {
         var (subj, grade) = entry;
-        match grade {
-            int g => return (subj, g + 10);
-            any => {}
+        if grade is int {
+            return (subj, grade + 10);
         }
         return (subj, -1);
     })

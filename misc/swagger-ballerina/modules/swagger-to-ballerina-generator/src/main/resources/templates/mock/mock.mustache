@@ -33,11 +33,11 @@ service {{cut info.title " "}} on {{#servers}}ep{{@index}}{{#unless @last}}, {{/
                 description: "{{description}}"{{/if}}{{#if externalDocs}},
                 externalDocs: {{>doc}}{{/if}}{{#if parameters}},
                 parameters: [{{#parameters}}{
-                    name: "{{name}}",
-                    param_type: "{{schema.type}}",
+                    name: "{{name}}",{{#schema}}
+                    paramType: "{{type}}",{{/schema}}
                     inInfo: "{{in}}",
-                    description: "{{description}}", {{#required}}
-                    required: {{required}},{{/required}} {{#deprecated}}
+                    description: "{{description}}",{{#required}}
+                    required: {{required}},{{/required}}{{#deprecated}}
                     discontinued: {{deprecated}},{{/deprecated}}
                     allowEmptyValue: "{{allowEmptyValue}}"
                 }{{#unless @last}},{{/unless}}{{/parameters}}]{{/if}}
@@ -67,9 +67,10 @@ service {{cut info.title " "}} on {{#servers}}ep{{@index}}{{#unless @last}}, {{/
         parameters: [{{#parameters}}
             {
                 name: "{{name}}",
-                inInfo: "{{in}}",
-                description: "{{description}}", {{#required}}
-                required: {{required}},{{/required}} {{#deprecated}}
+                inInfo: "{{in}}",{{#schema}}
+                paramType: "{{type}}",{{/schema}}
+                description: "{{description}}",{{#required}}
+                required: {{required}},{{/required}}{{#deprecated}}
                 discontinued: {{deprecated}},{{/deprecated}}
                 allowEmptyValue: "{{allowEmptyValue}}"
             }{{#unless @last}},{{/unless}}{{/parameters}}

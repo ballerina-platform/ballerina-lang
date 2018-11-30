@@ -67,6 +67,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -164,7 +165,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
@@ -620,6 +622,11 @@ public class Desugar extends BLangNodeVisitor {
         result = varNode;
     }
 
+    @Override
+    public void visit(BLangErrorVariable varNode) {
+        result = varNode;
+    }
+
     // Statements
 
     @Override
@@ -701,6 +708,11 @@ public class Desugar extends BLangNodeVisitor {
         createVarDefStmts(varNode, blockStmt, mapVariable.symbol, null);
 
         result = rewrite(blockStmt, env);
+    }
+
+    @Override
+    public void visit(BLangErrorVariableDef varDefNode) {
+        // TODO: complete
     }
 
     /**
@@ -1223,6 +1235,12 @@ public class Desugar extends BLangNodeVisitor {
         result = rewrite(blockStmt, env);
     }
 
+    @Override
+    public void visit(BLangErrorDestructure errorDestructure) {
+        // TODO: Complete
+        result = errorDestructure;
+    }
+
     private void createVarRefAssignmentStmts(BLangRecordVarRef parentRecordVarRef, BLangBlockStmt parentBlockStmt,
                                              BVarSymbol recordVarSymbol, BLangIndexBasedAccess parentIndexAccessExpr) {
         final List<BLangRecordVarRefKeyValue> variableRefList = parentRecordVarRef.recordRefFields;
@@ -1325,11 +1343,6 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangDone doneNode) {
-        result = doneNode;
-    }
-
-    @Override
     public void visit(BLangRetry retryNode) {
         result = retryNode;
     }
@@ -1348,11 +1361,7 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangReturn returnNode) {
         // If the return node do not have an expression, we add `done` statement instead of a return statement. This is
         // to distinguish between returning nil value specifically and not returning any value.
-        if (returnNode.expr == null) {
-            BLangDone doneStmt = (BLangDone) TreeBuilder.createDoneNode();
-            doneStmt.pos = returnNode.pos;
-            result = doneStmt;
-        } else {
+        if (returnNode.expr != null) {
             returnNode.expr = rewriteExpr(returnNode.expr);
         }
         result = returnNode;
@@ -1686,9 +1695,9 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangTransaction transactionNode) {
         transactionNode.transactionBody = rewrite(transactionNode.transactionBody, env);
         transactionNode.onRetryBody = rewrite(transactionNode.onRetryBody, env);
+        transactionNode.committedBody = rewrite(transactionNode.committedBody, env);
+        transactionNode.abortedBody = rewrite(transactionNode.abortedBody, env);
         transactionNode.retryCount = rewriteExpr(transactionNode.retryCount);
-        transactionNode.onCommitFunction = rewriteExpr(transactionNode.onCommitFunction);
-        transactionNode.onAbortFunction = rewriteExpr(transactionNode.onAbortFunction);
         result = transactionNode;
     }
 
@@ -3618,6 +3627,7 @@ public class Desugar extends BLangNodeVisitor {
         conversionExpr.targetType = lhsType;
         conversionExpr.conversionSymbol = conversionSymbol;
         conversionExpr.type = lhsType;
+        conversionExpr.pos = expr.pos;
         return conversionExpr;
     }
 

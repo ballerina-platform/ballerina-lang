@@ -47,7 +47,7 @@ function startPipelineQuery() returns (TeacherOutput[]) {
 
     testPipelineQuery();
 
-    finalOutputStream.subscribe(printTeachers);
+    finalOutputStream.subscribe(function(TeacherOutput e) {printTeachers(e);});
     foreach var t in teachers {
         inputStream.publish(t);
     }

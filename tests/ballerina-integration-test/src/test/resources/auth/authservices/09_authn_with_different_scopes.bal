@@ -17,10 +17,10 @@
 import ballerina/http;
 
 http:AuthProvider jwtAuthProvider3 = {
-    scheme:"jwt",
-    issuer:"ballerina",
+    scheme: "jwt",
+    issuer: "ballerina",
     audience: "ballerina",
-    certificateAlias:"ballerina",
+    certificateAlias: "ballerina",
     trustStore: {
         path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
         password: "ballerina"
@@ -28,7 +28,7 @@ http:AuthProvider jwtAuthProvider3 = {
 };
 
 listener http:Listener listener09 = new(9100, config = {
-    authProviders:[jwtAuthProvider3],
+    authProviders: [jwtAuthProvider3],
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
@@ -38,13 +38,13 @@ listener http:Listener listener09 = new(9100, config = {
 });
 
 @http:ServiceConfig {
-    authConfig:{
-        scopes:["test-scope"]
+    authConfig: {
+        scopes: ["test-scope"]
     }
 }
 service echo9 on listener09 {
+
     resource function test9(http:Caller caller, http:Request req) {
-        http:Response res = new;
-        _ = caller -> respond(res);
+        _ = caller->respond(());
     }
 }

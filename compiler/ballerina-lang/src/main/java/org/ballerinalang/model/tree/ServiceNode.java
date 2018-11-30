@@ -36,7 +36,7 @@ public interface ServiceNode extends AnnotatableNode, DocumentableNode, TopLevel
 
     boolean isAnonymousService();
 
-    ExpressionNode getAttachExpr();
+    List<? extends ExpressionNode> getAttachedExprs();
 
     UserDefinedTypeNode getUserDefinedTypeNode();
 

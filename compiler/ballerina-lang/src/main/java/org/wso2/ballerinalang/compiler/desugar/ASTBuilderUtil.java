@@ -414,7 +414,7 @@ public class ASTBuilderUtil {
         return argsExpr;
     }
 
-    static BLangInvocation createInvocationExpr(DiagnosticPos pos, BInvokableSymbol invokableSymbol,
+    public static BLangInvocation createInvocationExpr(DiagnosticPos pos, BInvokableSymbol invokableSymbol,
                                                 List<BLangSimpleVariable> requiredArgs, SymbolResolver symResolver) {
         return createInvocationExpr(pos, invokableSymbol, requiredArgs, new ArrayList<>(), new ArrayList<>(),
                 symResolver);

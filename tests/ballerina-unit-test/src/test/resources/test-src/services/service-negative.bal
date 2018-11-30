@@ -25,7 +25,7 @@ service FooService on echoEP {
 
     function test4 (string dummyParam) {
         io:println("test4-before");
-        done;
+        return;
         io:println("test4-after");
     }
 

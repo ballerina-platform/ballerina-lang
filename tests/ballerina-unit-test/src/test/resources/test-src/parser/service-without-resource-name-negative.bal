@@ -1,8 +1,8 @@
 import ballerina/http;
 
-service<http:Service> HelloService {
+service HelloService on new http:MockListener(9090) {
 
 
-  (endpoint caller, http:Request request) {
+  (http:Caller caller, http:Request request) {
   }
 }

@@ -40,7 +40,7 @@ function startFilterQuery() returns (Employee[]) {
 
     testFilterQuery();
 
-    outputStream.subscribe(printTeachers);
+    outputStream.subscribe(function(Employee e) {printTeachers(e);});
     foreach var e in employeeArr {
         inputStream.publish(e);
     }

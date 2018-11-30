@@ -91,8 +91,8 @@ function streamFunc() {
     // create selector
     streams:Select select = streams:createSelect(function (streams:StreamEvent[] e) { outFilter.process(e);},
         aggregators,
-        [function (streams:StreamEvent e) returns string {
-            return <string>e.data["inputStream.category"];
+        [function (streams:StreamEvent e) returns anydata {
+            return e.data["inputStream.category"];
         }],
         function (streams:StreamEvent e, streams:Aggregator[] aggregatorArray) returns map<anydata> {
             streams:Sum iSumAggregator1 = <streams:Sum>aggregatorArray[0];
