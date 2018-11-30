@@ -135,7 +135,7 @@ export const visitor: Visitor = {
         const bodyBBox: SimpleBBox = node.body.viewState.bBox;
 
         viewState.bBox.w = node.body.viewState.bBox.w;
-        viewState.bBox.h = node.body.viewState.bBox.h + config.flowCtrl.header.height
+        viewState.bBox.h = node.body.viewState.bBox.h + config.flowCtrl.condition.height
             + config.flowCtrl.whileGap + config.flowCtrl.bottomMargin;
         // If body has a left margin assign to while
         // tslint:disable-next-line:prefer-conditional-expression
@@ -151,7 +151,7 @@ export const visitor: Visitor = {
         const bodyBBox: SimpleBBox = node.body.viewState.bBox;
 
         viewState.bBox.w = node.body.viewState.bBox.w;
-        viewState.bBox.h = node.body.viewState.bBox.h + config.flowCtrl.header.height
+        viewState.bBox.h = node.body.viewState.bBox.h + config.flowCtrl.foreach.height
             + config.flowCtrl.whileGap + config.flowCtrl.bottomMargin;
         // If body has a left margin assign to while
         // tslint:disable-next-line:prefer-conditional-expression
@@ -167,7 +167,7 @@ export const visitor: Visitor = {
         const bodyBBox: SimpleBBox = node.body.viewState.bBox;
 
         viewState.bBox.w = node.body.viewState.bBox.w;
-        viewState.bBox.h = node.body.viewState.bBox.h + config.flowCtrl.header.height
+        viewState.bBox.h = node.body.viewState.bBox.h + config.flowCtrl.condition.height
             + config.flowCtrl.bottomMargin;
         // If body has a left margin assign to while
         // tslint:disable-next-line:prefer-conditional-expression

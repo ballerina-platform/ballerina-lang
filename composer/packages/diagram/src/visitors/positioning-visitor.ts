@@ -122,24 +122,24 @@ export const visitor: Visitor = {
     beginVisitWhile(node: While) {
         const viewState: ViewState = node.viewState;
         node.body.viewState.bBox.x = viewState.bBox.x;
-        node.body.viewState.bBox.y = viewState.bBox.y + config.flowCtrl.header.height;
+        node.body.viewState.bBox.y = viewState.bBox.y + config.flowCtrl.condition.height;
     },
 
     beginVisitForeach(node: Foreach) {
         const viewState: ViewState = node.viewState;
         node.body.viewState.bBox.x = viewState.bBox.x;
-        node.body.viewState.bBox.y = viewState.bBox.y + config.flowCtrl.header.height;
+        node.body.viewState.bBox.y = viewState.bBox.y + config.flowCtrl.foreach.height;
     },
 
     beginVisitIf(node: If) {
         const viewState: ViewState = node.viewState;
         node.body.viewState.bBox.x = viewState.bBox.x;
-        node.body.viewState.bBox.y = viewState.bBox.y + config.flowCtrl.header.height;
+        node.body.viewState.bBox.y = viewState.bBox.y + config.flowCtrl.condition.height;
 
         if (node.elseStatement) {
             node.elseStatement.viewState.bBox.x = viewState.bBox.x + node.body.viewState.bBox.w;
             node.elseStatement.viewState.bBox.y = viewState.bBox.y +
-                config.flowCtrl.header.height + node.body.viewState.bBox.h;
+                config.flowCtrl.condition.height + node.body.viewState.bBox.h;
         }
     }
 };
