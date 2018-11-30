@@ -44,6 +44,7 @@ public class SafeStrandCallback extends StrandCallback {
 
     @Override
     public void signal() {
+        super.signal();
         try {
             this.callbackWaitHandler.dataLock.lock();
             this.done = true;
