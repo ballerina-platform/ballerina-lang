@@ -44,7 +44,7 @@ function startLengthBatchwindowTest1() returns (TeacherOutput[]) {
 
     testLengthBatchwindow();
 
-    outputStreamLengthBatchTest1.subscribe(printTeachers);
+    outputStreamLengthBatchTest1.subscribe(function(TeacherOutput e) {printTeachers(e);});
     foreach t in teachers {
         inputStreamLengthBatchTest1.publish(t);
     }

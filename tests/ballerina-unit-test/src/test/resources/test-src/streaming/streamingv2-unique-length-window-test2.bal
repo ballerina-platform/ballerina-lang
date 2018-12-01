@@ -52,7 +52,7 @@ function startUniqueLengthwindowTest2() returns TeacherOutput[] {
 
     testUniqueLengthwindow();
 
-    outputStreamUniqueLengthTest2.subscribe(printTeachers);
+    outputStreamUniqueLengthTest2.subscribe(function(TeacherOutput e) {printTeachers(e);});
     foreach t in teachers {
         inputStreamUniqueLengthTest2.publish(t);
         runtime:sleep(500);

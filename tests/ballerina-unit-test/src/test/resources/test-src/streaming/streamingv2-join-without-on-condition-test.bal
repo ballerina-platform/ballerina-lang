@@ -39,7 +39,7 @@ int index = 0;
 
 stream<Stock> stockStream = new;
 stream<Twitter> twitterStream = new;
-stream<StockWithPrice> stockWithPriceStream;
+stream<StockWithPrice> stockWithPriceStream = new;
 
 function testJoinQuery() {
 
