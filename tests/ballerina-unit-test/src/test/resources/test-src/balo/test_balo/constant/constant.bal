@@ -234,3 +234,12 @@ function testStringTypeWithoutType() returns StringTypeWithoutType {
     StringTypeWithoutType t = "Ballerina rocks";
     return t;
 }
+
+// -----------------------------------------------------------
+
+function testFloatAsFiniteType() returns (foo:FiniteFloatType, foo:FiniteFloatType) {
+    foo:FiniteFloatType f1 = 2.0;
+    foo:FiniteFloatType f2 = 4.0;
+
+    return (f1, f2);
+}
