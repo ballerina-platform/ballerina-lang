@@ -86,8 +86,8 @@ public class ServerSocketTest {
         try {
             BServiceUtil.setupProgramFile(this, "test-src/socket/server_socket_duplicate_port_negative.bal");
         } catch (BLangRuntimeException e) {
-            String errorStr = e.getMessage().substring(0, 68);
-            Assert.assertEquals(errorStr, "error: Unable to start the socket service: Address already in use {}");
+            String errorStr = e.getMessage().substring(47, 47 + 58);
+            Assert.assertEquals(errorStr, "Unable to start the socket service: Address already in use");
         }
     }
 
