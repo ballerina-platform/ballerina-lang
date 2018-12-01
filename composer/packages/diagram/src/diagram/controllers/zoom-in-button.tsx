@@ -10,7 +10,7 @@ export const ZoomInButton: StatelessComponent<{}> = (
             {(diagContext) => {
                 return (
                     <Button icon onClick={diagContext.zoomIn}>
-                        <Icon className='fw fw-zoom-in' title='Zoom In' />
+                        <Icon className="fw fw-zoom-in" title="Zoom In" />
                         {children}
                     </Button>
                 );

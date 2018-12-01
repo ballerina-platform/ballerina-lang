@@ -10,7 +10,7 @@ export const ZoomFitButton: StatelessComponent<{}> = (
             {(diagContext) => {
                 return (
                     <Button icon onClick={diagContext.zoomFit}>
-                        <Icon className='fw fw-fit' title='Zoom Fit' />
+                        <Icon className="fw fw-fit" title="Zoom Fit" />
                         {children}
                     </Button>
                 );

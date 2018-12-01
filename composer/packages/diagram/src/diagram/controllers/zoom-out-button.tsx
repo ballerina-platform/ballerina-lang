@@ -10,7 +10,7 @@ export const ZoomOutButton: StatelessComponent<{}> = (
             {(diagContext) => {
                 return (
                     <Button icon onClick={diagContext.zoomOut}>
-                        <Icon className='fw fw-zoom-out' title='Zoom Out' />
+                        <Icon className="fw fw-zoom-out" title="Zoom Out" />
                         {children}
                     </Button>
                 );
