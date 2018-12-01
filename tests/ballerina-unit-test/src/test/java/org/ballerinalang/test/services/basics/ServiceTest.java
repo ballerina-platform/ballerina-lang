@@ -270,7 +270,7 @@ public class ServiceTest {
     //TODO: add more test cases
 
     /* Negative cases */
-    @Test(description = "verify code analyzer errors in services.")
+    @Test(description = "verify code analyzer errors in services.", groups = {"broken"})
     public void testCheckCodeAnalyzerErrors() {
         BAssertUtil.validateError(negativeResult, 0, "break cannot be used outside of a loop", 10, 9);
         BAssertUtil.validateError(negativeResult, 1, "continue cannot be used outside of a loop", 16, 9);

@@ -410,7 +410,7 @@ public class BJSONValueTest {
         Assert.assertEquals(returns[0].stringValue(), "[[1, 2, 3], [3, 4, 5], [7, 8, 9]]");
     }
 
-    @Test
+    @Test(groups = {"broken"})
     public void testJsonToJsonArrayCasting() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJsonToJsonArrayCasting");
         Assert.assertTrue(returns[0] instanceof BValueArray);
