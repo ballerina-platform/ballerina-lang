@@ -5,7 +5,7 @@ import {
 import * as _ from "lodash";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
-import { FunctionViewState, SimpleBBox, StmntViewState, ViewState } from "../view-model";
+import { EndpointViewState, FunctionViewState, SimpleBBox, StmntViewState, ViewState } from "../view-model";
 
 // Following element is created to calculate the width of a text rendered in an svg.
 // Please see getTextWidth on how we do the calculation.
@@ -80,6 +80,8 @@ function sizeStatement(node: ASTNode) {
                 let actionName = ASTUtil.genSource(action as Invocation).split("->").pop();
                 actionName = (actionName) ? actionName : "";
                 viewState.bBox.label = getTextWidth(actionName).text;
+                // Set visible to true so we can only draw used endpoints.
+                (element.viewState as EndpointViewState).visible = true;
             }
         });
     }
@@ -130,7 +132,7 @@ export const visitor: Visitor = {
         let endpointWidth = 0;
         if (node.VisibleEndpoints) {
             node.VisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
-                if (!endpoint.caller) {
+                if (!endpoint.caller && endpoint.viewState.visible) {
                     endpoint.viewState.bBox.w = config.lifeLine.width;
                     endpoint.viewState.bBox.h = client.h;
                     endpointWidth += endpoint.viewState.bBox.w + config.lifeLine.gutter.h;
