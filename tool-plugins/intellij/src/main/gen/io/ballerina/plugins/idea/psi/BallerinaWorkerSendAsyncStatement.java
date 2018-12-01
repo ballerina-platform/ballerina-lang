@@ -21,15 +21,21 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaValueTypeTypeExpression extends BallerinaExpression {
+public interface BallerinaWorkerSendAsyncStatement extends BallerinaCompositeElement {
 
   @NotNull
-  BallerinaValueTypeName getValueTypeName();
+  List<BallerinaExpression> getExpressionList();
+
+  @Nullable
+  PsiElement getComma();
 
   @NotNull
-  PsiElement getDot();
+  PsiElement getRarrow();
 
-  @NotNull
+  @Nullable
+  PsiElement getSemicolon();
+
+  @Nullable
   PsiElement getIdentifier();
 
 }

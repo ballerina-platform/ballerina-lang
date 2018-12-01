@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaTimeoutClauseImpl extends BallerinaCompositeElementImpl implements BallerinaTimeoutClause {
+public class BallerinaWorkerSendAsyncStatementImpl extends BallerinaCompositeElementImpl implements BallerinaWorkerSendAsyncStatement {
 
-  public BallerinaTimeoutClauseImpl(@NotNull ASTNode node) {
+  public BallerinaWorkerSendAsyncStatementImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitTimeoutClause(this);
+    visitor.visitWorkerSendAsyncStatement(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -42,33 +42,33 @@ public class BallerinaTimeoutClauseImpl extends BallerinaCompositeElementImpl im
   }
 
   @Override
-  @Nullable
-  public BallerinaExpression getExpression() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaExpression.class);
+  @NotNull
+  public List<BallerinaExpression> getExpressionList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaExpression.class);
   }
 
   @Override
   @Nullable
-  public BallerinaTimeoutClauseBody getTimeoutClauseBody() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaTimeoutClauseBody.class);
+  public PsiElement getComma() {
+    return findChildByType(COMMA);
+  }
+
+  @Override
+  @NotNull
+  public PsiElement getRarrow() {
+    return notNullChild(findChildByType(RARROW));
   }
 
   @Override
   @Nullable
-  public BallerinaTypeName getTypeName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaTypeName.class);
+  public PsiElement getSemicolon() {
+    return findChildByType(SEMICOLON);
   }
 
   @Override
   @Nullable
   public PsiElement getIdentifier() {
     return findChildByType(IDENTIFIER);
-  }
-
-  @Override
-  @NotNull
-  public PsiElement getTimeout() {
-    return notNullChild(findChildByType(TIMEOUT));
   }
 
 }

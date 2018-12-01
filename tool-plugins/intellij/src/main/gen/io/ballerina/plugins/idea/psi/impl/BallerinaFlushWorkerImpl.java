@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaScopeClauseImpl extends BallerinaCompositeElementImpl implements BallerinaScopeClause {
+public class BallerinaFlushWorkerImpl extends BallerinaCompositeElementImpl implements BallerinaFlushWorker {
 
-  public BallerinaScopeClauseImpl(@NotNull ASTNode node) {
+  public BallerinaFlushWorkerImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitScopeClause(this);
+    visitor.visitFlushWorker(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -43,32 +43,14 @@ public class BallerinaScopeClauseImpl extends BallerinaCompositeElementImpl impl
 
   @Override
   @NotNull
-  public List<BallerinaStatement> getStatementList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaStatement.class);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getLeftBrace() {
-    return findChildByType(LEFT_BRACE);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getRightBrace() {
-    return findChildByType(RIGHT_BRACE);
+  public PsiElement getFlush() {
+    return notNullChild(findChildByType(FLUSH));
   }
 
   @Override
   @Nullable
   public PsiElement getIdentifier() {
     return findChildByType(IDENTIFIER);
-  }
-
-  @Override
-  @NotNull
-  public PsiElement getScope() {
-    return notNullChild(findChildByType(SCOPE));
   }
 
 }

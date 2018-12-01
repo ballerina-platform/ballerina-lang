@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaCompensationClauseImpl extends BallerinaCompositeElementImpl implements BallerinaCompensationClause {
+public class BallerinaWaitExpressionImpl extends BallerinaExpressionImpl implements BallerinaWaitExpression {
 
-  public BallerinaCompensationClauseImpl(@NotNull ASTNode node) {
+  public BallerinaWaitExpressionImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitCompensationClause(this);
+    visitor.visitWaitExpression(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -43,14 +43,20 @@ public class BallerinaCompensationClauseImpl extends BallerinaCompositeElementIm
 
   @Override
   @Nullable
-  public BallerinaCallableUnitBody getCallableUnitBody() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaCallableUnitBody.class);
+  public BallerinaExpression getExpression() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaExpression.class);
+  }
+
+  @Override
+  @Nullable
+  public BallerinaWaitForCollection getWaitForCollection() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaWaitForCollection.class);
   }
 
   @Override
   @NotNull
-  public PsiElement getCompensation() {
-    return notNullChild(findChildByType(COMPENSATION));
+  public PsiElement getWait() {
+    return notNullChild(findChildByType(WAIT));
   }
 
 }

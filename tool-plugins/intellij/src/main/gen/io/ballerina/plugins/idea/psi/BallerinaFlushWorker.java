@@ -21,15 +21,12 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaBuiltInReferenceTypeTypeExpression extends BallerinaExpression {
+public interface BallerinaFlushWorker extends BallerinaCompositeElement {
 
   @NotNull
-  BallerinaBuiltInReferenceTypeName getBuiltInReferenceTypeName();
+  PsiElement getFlush();
 
-  @NotNull
-  PsiElement getDot();
-
-  @NotNull
+  @Nullable
   PsiElement getIdentifier();
 
 }

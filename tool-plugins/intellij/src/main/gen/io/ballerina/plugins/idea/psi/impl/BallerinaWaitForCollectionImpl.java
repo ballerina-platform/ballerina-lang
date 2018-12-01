@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaNamedPatternImpl extends BallerinaCompositeElementImpl implements BallerinaNamedPattern {
+public class BallerinaWaitForCollectionImpl extends BallerinaCompositeElementImpl implements BallerinaWaitForCollection {
 
-  public BallerinaNamedPatternImpl(@NotNull ASTNode node) {
+  public BallerinaWaitForCollectionImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitNamedPattern(this);
+    visitor.visitWaitForCollection(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -42,45 +42,21 @@ public class BallerinaNamedPatternImpl extends BallerinaCompositeElementImpl imp
   }
 
   @Override
-  @Nullable
-  public BallerinaBlock getBlock() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaBlock.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaStatement getStatement() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaStatement.class);
+  @NotNull
+  public List<BallerinaWaitKeyValue> getWaitKeyValueList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaWaitKeyValue.class);
   }
 
   @Override
   @NotNull
-  public BallerinaTypeName getTypeName() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaTypeName.class));
-  }
-
-  @Override
-  @NotNull
-  public PsiElement getEqualGt() {
-    return notNullChild(findChildByType(EQUAL_GT));
-  }
-
-  @Override
-  @Nullable
   public PsiElement getLeftBrace() {
-    return findChildByType(LEFT_BRACE);
+    return notNullChild(findChildByType(LEFT_BRACE));
   }
 
   @Override
   @Nullable
   public PsiElement getRightBrace() {
     return findChildByType(RIGHT_BRACE);
-  }
-
-  @Override
-  @NotNull
-  public PsiElement getIdentifier() {
-    return notNullChild(findChildByType(IDENTIFIER));
   }
 
 }

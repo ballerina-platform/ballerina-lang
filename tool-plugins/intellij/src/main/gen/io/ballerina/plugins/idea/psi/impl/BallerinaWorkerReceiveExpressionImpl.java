@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaWorkerInteractionStatementImpl extends BallerinaCompositeElementImpl implements BallerinaWorkerInteractionStatement {
+public class BallerinaWorkerReceiveExpressionImpl extends BallerinaExpressionImpl implements BallerinaWorkerReceiveExpression {
 
-  public BallerinaWorkerInteractionStatementImpl(@NotNull ASTNode node) {
+  public BallerinaWorkerReceiveExpressionImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitWorkerInteractionStatement(this);
+    visitor.visitWorkerReceiveExpression(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -43,14 +43,26 @@ public class BallerinaWorkerInteractionStatementImpl extends BallerinaCompositeE
 
   @Override
   @Nullable
-  public BallerinaTriggerWorker getTriggerWorker() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaTriggerWorker.class);
+  public BallerinaExpression getExpression() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaExpression.class);
   }
 
   @Override
   @Nullable
-  public BallerinaWorkerReply getWorkerReply() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaWorkerReply.class);
+  public PsiElement getComma() {
+    return findChildByType(COMMA);
+  }
+
+  @Override
+  @NotNull
+  public PsiElement getLarrow() {
+    return notNullChild(findChildByType(LARROW));
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getIdentifier() {
+    return findChildByType(IDENTIFIER);
   }
 
 }

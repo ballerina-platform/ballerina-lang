@@ -76,10 +76,7 @@ public class BallerinaIdentifier extends LeafPsiElement implements PsiNameIdenti
             } else if (!(superParent instanceof BallerinaCallableUnitSignature)) {
                 return new BallerinaNameReferenceReference(this);
             }
-        } else if (parent instanceof BallerinaWorkerReply) {
-            return new BallerinaNameReferenceReference(this);
-        } else if (parent instanceof BallerinaTriggerWorker) {
-            return new BallerinaNameReferenceReference(this);
+        new BallerinaNameReferenceReference(this);
         } else if (parent instanceof BallerinaAttachedObject) {
             return new BallerinaTypeReference(this);
         } else if (parent instanceof BallerinaCallableUnitSignature) {

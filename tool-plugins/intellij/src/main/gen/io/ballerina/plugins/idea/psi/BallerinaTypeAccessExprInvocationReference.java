@@ -21,21 +21,12 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaTimeoutClause extends BallerinaCompositeElement {
-
-  @Nullable
-  BallerinaExpression getExpression();
-
-  @Nullable
-  BallerinaTimeoutClauseBody getTimeoutClauseBody();
-
-  @Nullable
-  BallerinaTypeName getTypeName();
-
-  @Nullable
-  PsiElement getIdentifier();
+public interface BallerinaTypeAccessExprInvocationReference extends BallerinaVariableReference {
 
   @NotNull
-  PsiElement getTimeout();
+  BallerinaInvocation getInvocation();
+
+  @NotNull
+  BallerinaTypeAccessExpression getTypeAccessExpression();
 
 }

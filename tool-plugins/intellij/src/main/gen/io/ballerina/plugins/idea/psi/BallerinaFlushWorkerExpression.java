@@ -21,15 +21,9 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaCompensateStatement extends BallerinaCompositeElement {
-
-  @Nullable
-  PsiElement getSemicolon();
+public interface BallerinaFlushWorkerExpression extends BallerinaExpression {
 
   @NotNull
-  PsiElement getCompensate();
-
-  @Nullable
-  PsiElement getIdentifier();
+  BallerinaFlushWorker getFlushWorker();
 
 }
