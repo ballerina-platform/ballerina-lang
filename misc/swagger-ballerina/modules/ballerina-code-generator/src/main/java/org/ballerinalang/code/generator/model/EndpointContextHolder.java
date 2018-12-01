@@ -56,14 +56,14 @@ public class EndpointContextHolder {
      */
     public static EndpointContextHolder buildContext(BLangService service, BLangSimpleVariable ep) {
         EndpointContextHolder endpoint = null;
-        if (service == null || service.getAttachExpr() == null
-                || service.getAttachExpr().getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+        if (service == null || service.getAttachedExprs().isEmpty()
+                || service.getAttachedExprs().get(0).getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
             return null;
         }
 
 //        for (SimpleVariableReferenceNode node : service.getAttachExpr()) {
 
-        SimpleVariableReferenceNode node = (SimpleVariableReferenceNode) service.getAttachExpr();
+        SimpleVariableReferenceNode node = (SimpleVariableReferenceNode) service.getAttachedExprs().get(0);
         if (node.getVariableName().equals(ep.getName())) {
             endpoint = new EndpointContextHolder();
             AnnotationAttachmentNode ann = GeneratorUtils

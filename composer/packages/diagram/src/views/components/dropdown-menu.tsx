@@ -1,3 +1,4 @@
+import { getCodePoint } from "@ballerina/font";
 import React, { StatelessComponent } from "react";
 import { Dropdown } from "semantic-ui-react";
 import { SimplePoint } from "../../view-model/simple-point";
@@ -19,7 +20,10 @@ export interface DropDownItem {
 export const DropDownMenu: StatelessComponent<DropDownMenuProps> =
     ({ triggerPosition, className, items, triggerIcon }) => {
     return <DropDownMenuTrigger position={triggerPosition}>
-            <Dropdown icon={triggerIcon} style={{ position: "fixed" }} className={className} >
+            <Dropdown
+                inline
+                icon={<span className="trigger-icon">{getCodePoint(triggerIcon)}</span>}
+                className={className} >
                 <Dropdown.Menu>
                     {items.map((item) => (
                          <Dropdown.Item

@@ -475,4 +475,106 @@ public class Instruction {
             return Mnemonics.getMnem(opcode) + " " + sj.toString();
         }
     }
+
+    /**
+     * {@code InstructionTrBegin} represents the TR_BEGIN instruction in Ballerina bytecode.
+     * <p>
+     * The TR_BEGIN instruction performs transaction initialisation and transaction participant initialisation.
+     *
+     * @since 0.990.0
+     */
+    public static class InstructionTrBegin extends Instruction {
+        public final int transactionType;
+        public final int blockId;
+        public final int retryCountReg;
+        public final int committedFuncIndex;
+        public final int abortedFuncIndex;
+
+        InstructionTrBegin(int opcode, int transactionType, int blockId, int retryCountReg,
+                           int committedFuncIndex, int abortedFuncIndex) {
+            super(opcode);
+
+            this.transactionType = transactionType;
+            this.blockId = blockId;
+            this.retryCountReg = retryCountReg;
+            this.committedFuncIndex = committedFuncIndex;
+            this.abortedFuncIndex = abortedFuncIndex;
+        }
+
+        @Override
+        public String toString() {
+            StringJoiner sj = new StringJoiner(" ");
+            sj.add(String.valueOf(transactionType));
+            sj.add(String.valueOf(blockId));
+            sj.add(String.valueOf(retryCountReg));
+            sj.add(String.valueOf(committedFuncIndex));
+            sj.add(String.valueOf(abortedFuncIndex));
+            return Mnemonics.getMnem(opcode) + " " + sj.toString();
+        }
+    }
+
+    /**
+     * {@code InstructionEnd} represents the TR_END instruction in Ballerina bytecode.
+     * <p>
+     * The TR_END instruction performs transaction ending in multiple stages of the transaction.
+     *
+     * @since 0.990.0
+     */
+    public static class InstructionTrEnd extends Instruction {
+        public final int endType;
+        public final int blockId;
+        public final int statusRegIndex;
+        public final int errorRegIndex;
+
+        InstructionTrEnd(int opcode, int blockId, int endType,
+                           int statusRegIndex, int errorRegIndex) {
+            super(opcode);
+
+            this.blockId = blockId;
+            this.endType = endType;
+            this.statusRegIndex = statusRegIndex;
+            this.errorRegIndex = errorRegIndex;
+        }
+
+        @Override
+        public String toString() {
+            StringJoiner sj = new StringJoiner(" ");
+            sj.add(String.valueOf(endType));
+            sj.add(String.valueOf(blockId));
+            sj.add(String.valueOf(statusRegIndex));
+            sj.add(String.valueOf(errorRegIndex));
+            return Mnemonics.getMnem(opcode) + " " + sj.toString();
+        }
+    }
+
+    /**
+     * {@code InstructionRetry} represents the TR_RETRY instruction in Ballerina bytecode.
+     * <p>
+     * The TR_RETRY instruction performs transaction retry.
+     *
+     * @since 0.990.0
+     */
+    public static class InstructionTrRetry extends Instruction {
+        public final int blockId;
+        public final int abortEndIp;
+        public final int trStatusReg;
+
+        InstructionTrRetry(int opcode, int blockId,
+                           int abortEndIp, int trStatusReg) {
+            super(opcode);
+
+            this.blockId = blockId;
+            this.abortEndIp = abortEndIp;
+            this.trStatusReg = trStatusReg;
+        }
+
+        @Override
+        public String toString() {
+            StringJoiner sj = new StringJoiner(" ");
+            sj.add(String.valueOf(blockId));
+            sj.add(String.valueOf(abortEndIp));
+            sj.add(String.valueOf(trStatusReg));
+            return Mnemonics.getMnem(opcode) + " " + sj.toString();
+        }
+    }
 }

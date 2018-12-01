@@ -1,10 +1,3 @@
-/*-------------------
-       Globals 
---------------------*/
-
-@white: #fff;
-
-
 /*---------------------------
        Diagram Globals 
 ----------------------------*/
@@ -25,12 +18,12 @@
        Panel 
 --------------------*/
 
-@light-diagram-panel-header-background-color: transparent;
-@dark-diagram-panel-header-background-color: transparent;
+@light-diagram-panel-header-background-color: @light-diagram-background-color;
+@dark-diagram-panel-header-background-color: @dark-diagram-background-color;
 @light-diagram-panel-header-text-color: @light-diagram-base-text-color;
 @dark-diagram-panel-header-text-color: @dark-diagram-base-text-color;
-@light-diagram-panel-body-background-color: transparent;
-@dark-diagram-panel-body-background-color: transparent;
+@light-diagram-panel-body-background-color: @light-diagram-background-color;
+@dark-diagram-panel-body-background-color: @dark-diagram-background-color;
 
 
 /*-------------------

@@ -29,7 +29,6 @@ import java.net.Socket;
 
 /**
  * TraceLogs Listener.
- *
  */
 public class Listener {
 
@@ -44,7 +43,8 @@ public class Listener {
     }
 
     /**
-     * Start listening for netorklogs
+     * Start listening for netorklogs.
+     *
      * @return started port
      */
     public int startListener() {

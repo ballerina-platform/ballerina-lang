@@ -23,7 +23,7 @@ import com.intellij.psi.PsiElement;
 
 public interface BallerinaBindingPatternPattern extends BallerinaCompositeElement {
 
-  @NotNull
+  @Nullable
   BallerinaBindingPattern getBindingPattern();
 
   @Nullable
@@ -35,7 +35,7 @@ public interface BallerinaBindingPatternPattern extends BallerinaCompositeElemen
   @Nullable
   BallerinaStatement getStatement();
 
-  @NotNull
+  @Nullable
   PsiElement getEqualGt();
 
   @Nullable

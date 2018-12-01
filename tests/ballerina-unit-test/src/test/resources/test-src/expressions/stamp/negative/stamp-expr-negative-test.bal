@@ -64,15 +64,6 @@ function stampAnyToString() returns string? {
     return stringValue;
 }
 
-
-function stampJSONArrayToPrimitiveTypeArray() returns int []{
-
-    json intArray = [1, 2, 3, 4];
-    int [] returnArray = int[].stamp(intArray);
-
-    return returnArray;
-}
-
 function seaWithInvalidTypedesc() returns json {
 
     json jsonValue = [1, false, null, "foo", { first: "John", last: "Pala" }];

@@ -48,6 +48,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -72,6 +73,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangChannelLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangJSONLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStreamLiteral;
@@ -118,7 +120,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
@@ -250,10 +253,6 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangDone doneNode) {
-        throw new AssertionError();
-    }
-
     public void visit(BLangRetry retryNode) {
         throw new AssertionError();
     }
@@ -323,6 +322,10 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangRecordDestructure stmt) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangErrorDestructure stmt) {
         throw new AssertionError();
     }
 
@@ -438,6 +441,10 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangRecordVarRef varRefExpr) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangErrorVarRef varRefExpr) {
         throw new AssertionError();
     }
 
@@ -726,6 +733,10 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BLangChannelLiteral channelLiteral) {
+        throw new AssertionError();
+    }
+
     public void visit(BFunctionPointerInvocation bFunctionPointerInvocation) {
         throw new AssertionError();
     }
@@ -787,6 +798,14 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangRecordVariableDef bLangRecordVariableDef) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangErrorVariable bLangErrorVariable) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangErrorVariableDef bLangErrorVariableDef) {
         throw new AssertionError();
     }
 

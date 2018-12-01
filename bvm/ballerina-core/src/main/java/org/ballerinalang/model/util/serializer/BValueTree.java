@@ -24,9 +24,9 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.lang.reflect.Array;
@@ -51,11 +51,11 @@ import static org.ballerinalang.model.util.serializer.ObjectHelper.getTrimmedCla
  */
 public class BValueTree implements BValueSerializer {
     private static final BValueProvider bValueProvider = BValueProvider.getInstance();
-    private final BRefValueArrays bRefValueArrays;
+    private final BValueArrays bValueArrays;
     private final ObjectUID objectUID = new ObjectUID();
 
     BValueTree() {
-        bRefValueArrays = new BRefValueArrays(this);
+        bValueArrays = new BValueArrays(this);
     }
 
     /**
@@ -131,7 +131,7 @@ public class BValueTree implements BValueSerializer {
     }
 
     private BMap<String, BValue> listToBValue(List list) {
-        BRefValueArray array = new BRefValueArray(new BArrayType(BTypes.typeAny));
+        BValueArray array = new BValueArray(new BArrayType(BTypes.typeAny));
         for (Object item : list) {
             array.append(toBValue(item, null));
         }
@@ -150,25 +150,25 @@ public class BValueTree implements BValueSerializer {
     private BRefType arrayFrom(Object src) {
         Class<?> srcClass = src.getClass();
         if (srcClass == int[].class) {
-            return bRefValueArrays.from((int[]) src);
+            return bValueArrays.from((int[]) src);
         }
         if (srcClass == long[].class) {
-            return bRefValueArrays.from((long[]) src);
+            return bValueArrays.from((long[]) src);
         }
         if (srcClass == double[].class) {
-            return bRefValueArrays.from((double[]) src);
+            return bValueArrays.from((double[]) src);
         }
         if (srcClass == float[].class) {
-            return bRefValueArrays.from((float[]) src);
+            return bValueArrays.from((float[]) src);
         }
         if (srcClass == char[].class) {
-            return bRefValueArrays.from((char[]) src);
+            return bValueArrays.from((char[]) src);
         }
         if (srcClass == byte[].class) {
-            return bRefValueArrays.from((byte[]) src);
+            return bValueArrays.from((byte[]) src);
         }
         if (srcClass == short[].class) {
-            return bRefValueArrays.from((short[]) src);
+            return bValueArrays.from((short[]) src);
         }
         if (srcClass == String[].class
                 || srcClass == Integer[].class
@@ -178,7 +178,7 @@ public class BValueTree implements BValueSerializer {
                 || srcClass == Character[].class
                 || srcClass == Byte[].class
                 || srcClass == Short[].class) {
-            return bRefValueArrays.from((Object[]) src);
+            return bValueArrays.from((Object[]) src);
         }
         return null;
     }
@@ -232,7 +232,7 @@ public class BValueTree implements BValueSerializer {
     }
 
     private BMap<String, BValue> arrayToBValue(Object array) {
-        BRefValueArray bArray = new BRefValueArray(new BArrayType(BTypes.typeAny));
+        BValueArray bArray = new BValueArray(new BArrayType(BTypes.typeAny));
         int arrayLength = Array.getLength(array);
         for (int i = 0; i < arrayLength; i++) {
             bArray.append(toBValue(Array.get(array, i), null));

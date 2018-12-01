@@ -42,9 +42,9 @@ public class BallerinaBindingPatternPatternImpl extends BallerinaCompositeElemen
   }
 
   @Override
-  @NotNull
+  @Nullable
   public BallerinaBindingPattern getBindingPattern() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaBindingPattern.class));
+    return PsiTreeUtil.getChildOfType(this, BallerinaBindingPattern.class);
   }
 
   @Override
@@ -66,9 +66,9 @@ public class BallerinaBindingPatternPatternImpl extends BallerinaCompositeElemen
   }
 
   @Override
-  @NotNull
+  @Nullable
   public PsiElement getEqualGt() {
-    return notNullChild(findChildByType(EQUAL_GT));
+    return findChildByType(EQUAL_GT);
   }
 
   @Override

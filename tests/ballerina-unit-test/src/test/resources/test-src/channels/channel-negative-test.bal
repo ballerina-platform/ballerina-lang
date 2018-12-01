@@ -1,4 +1,4 @@
-channel<json> chn;
+channel<json> chn = new;
 
 function workerWithChannels() returns xml {
     worker w1 {
@@ -15,8 +15,8 @@ function workerWithChannels() returns xml {
     }
 }
 
-channel<map> mapChannel;
-channel<(json,json)> tupleChan;
+channel<map<any>> mapChannel = new;
+channel<(json,json)> tupleChan = new;
 
 function myFunc() {
     json key = {"id":50, name:"john"};
@@ -24,7 +24,7 @@ function myFunc() {
     msg -> lastChan, key;
 }
 
-channel<string> lastChan;
+channel<string> lastChan = new;
 
-@readonly
-channel<string> annoChan;
+@sensitive
+channel<string> annoChan = new;

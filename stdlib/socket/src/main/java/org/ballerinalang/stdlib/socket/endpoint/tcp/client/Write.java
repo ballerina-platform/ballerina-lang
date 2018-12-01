@@ -21,10 +21,10 @@ package org.ballerinalang.stdlib.socket.endpoint.tcp.client;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.socket.SocketConstants;
@@ -60,7 +60,7 @@ public class Write extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BMap<String, BValue> clientEndpoint = (BMap<String, BValue>) context.getRefArgument(0);
         final SocketChannel socketChannel = (SocketChannel) clientEndpoint.getNativeData(SocketConstants.SOCKET_KEY);
-        BByteArray content = (BByteArray) context.getRefArgument(1);
+        BValueArray content = (BValueArray) context.getRefArgument(1);
         byte[] byteContent = content.getBytes();
         if (log.isDebugEnabled()) {
             log.debug("No of byte going to write[" + socketChannel.hashCode() + "]: " + byteContent.length);

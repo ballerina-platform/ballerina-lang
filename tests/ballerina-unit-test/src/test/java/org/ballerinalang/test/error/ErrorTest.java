@@ -128,4 +128,16 @@ public class ErrorTest {
         Assert.assertEquals(((BError) returns[0]).details.getType().getTag(), TypeTags.RECORD_TYPE_TAG);
         Assert.assertEquals(((BError) returns[0]).details.getType().getName(), "TrxErrorData");
     }
+
+    @Test
+    public void testCustomErrorDetails2() {
+        BValue[] returns = BRunUtil.invoke(basicErrorTest, "testCustomErrorDetails2");
+        Assert.assertEquals(returns[0].stringValue(), "test");
+    }
+
+    @Test
+    public void testErrorWithErrorConstructor() {
+        BValue[] returns = BRunUtil.invoke(basicErrorTest, "testErrorWithErrorConstructor");
+        Assert.assertEquals(returns[0].stringValue(), "test");
+    }
 }

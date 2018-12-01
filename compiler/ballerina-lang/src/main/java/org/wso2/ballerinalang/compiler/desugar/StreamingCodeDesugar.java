@@ -36,7 +36,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -65,7 +64,6 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -75,7 +73,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
@@ -376,8 +373,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             refactoredExpr = refactorVarRefAfterSelect(varRef, symTable.anyType);
         } else if (expr.getKind() == NodeKind.INVOCATION) {
             BLangInvocation invocation = (BLangInvocation) expr;
-            refactoredExpr = generateConversionExpr(refactorInvocationAfterSelect(invocation), symTable.anyType,
-                    symResolver);
+            refactoredExpr = desugar.addConversionExprIfRequired(refactorInvocationAfterSelect(invocation),
+                    symTable.anyType);
         }
 
         addReturnStmt(expr.pos, lambdaBody, refactoredExpr);
@@ -485,8 +482,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         BLangExpression createInvocation = builtCreateInvocation(mapVarRef);
 
         //<TeacherOutput>TeacherOutput.create(m);
-        BLangTypeConversionExpr outputTypeConversionExpr = generateConversionExpr(createInvocation, outputEventType,
-                symResolver);
+        BLangExpression outputTypeConversionExpr = desugar.addConversionExprIfRequired(createInvocation,
+                outputEventType);
 
         //TeacherOutput t = <TeacherOutput>TeacherOutput.stamp(m.clone());
         BLangAssignment assignment = ASTBuilderUtil.createAssignmentStmt(outputLambdaFunc.function.pos, foreachBody);
@@ -622,10 +619,10 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         // [streams:sum(), streams:count(), ... etc], 2nd arg
         BLangExpression aggregateArray = createAggregatorArray(selectClause);
 
-        // (streams:StreamEvent e) => string, 3rd arg
-        BLangExpression groupingLambda = createGroupByLambda(selectClause);
+        // ((streams:StreamEvent e) returns string)[], 3rd arg
+        BLangExpression groupingLambda = createGroupByLambdas(selectClause);
 
-        // (streams:StreamEvent e, streams:Aggregator[] aggregatorArr)  => any, 4th arg of createSelect
+        // (streams:StreamEvent e, streams:Aggregator[] aggregatorArr)  returns map<anydata>, 4th arg of createSelect
         BLangExpression aggregatorLambda = createAggregatorLambda(selectClause);
 
 
@@ -672,7 +669,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private BLangArrayLiteral createAggregatorArray(BLangSelectClause selectClause) {
         BLangArrayLiteral expr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
         expr.exprs = new ArrayList<>();
-        expr.type = new BArrayType(symTable.anyType);
 
         List<SelectExpressionNode> selectExpressions = selectClause.getSelectExpressions();
         for (SelectExpressionNode select : selectExpressions) {
@@ -693,6 +689,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 }
             }
         }
+        expr.type = new BArrayType(symResolver.resolvePkgSymbol(selectClause.pos, env, Names.STREAMS_MODULE)
+                .scope.lookup(new Name(AGGREGATOR_OBJECT_NAME)).symbol.type);
         return expr;
     }
 
@@ -870,22 +868,35 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 selectLambdaClosureVarSymbols, selectLambdaReturnType);
     }
 
-    //TODO: change this to pass an array of lambdas
-    private BLangLambdaFunction createGroupByLambda(BLangSelectClause selectClause) {
-        BLangSimpleVariable varGroupByStreamEvent = this.createStreamEventArgVariable(
-                getVariableName(SELECT_LAMBDA_PARAM_REFERENCE), selectClause.pos, env);
-        BLangType typeNode = ASTBuilderUtil.createTypeNode(symTable.stringType);
-        // (streams:StreamEvent e) => string { .. }
-        BLangLambdaFunction groupingLambda = createLambdaWithVarArg(selectClause.pos, new BLangSimpleVariable[]{
-                varGroupByStreamEvent}, typeNode);
-        BLangBlockStmt groupByLambda = groupingLambda.function.body;
+    private BLangExpression createGroupByLambdas(BLangSelectClause selectClause) {
+        BLangArrayLiteral arr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
+        arr.exprs = new ArrayList<>();
+        selectClause.getGroupBy().getVariables()
+                .forEach(groupingVar -> arr.exprs.add(createGroupByLambda((BLangExpression) groupingVar)));
+        arr.type = new BArrayType(arr.exprs.get(0).type);
+        arr.pos = ((BLangGroupBy) selectClause.getGroupBy()).pos;
+        return arr;
+    }
 
-        //e.data;
-        BLangIndexBasedAccess mapFieldAccessExpr = createMapAccessExprFromStreamEvent(varGroupByStreamEvent,
-                (BLangExpression) selectClause.getGroupBy().getVariables().get(0));
-        // return check <string>e.data[<fieldName in string>];
-        BLangTypeConversionExpr conversionExpr = generateConversionExpr(mapFieldAccessExpr, symTable.stringType,
-                symResolver);
+    private BLangExpression createGroupByLambda(BLangExpression expr) {
+        BLangSimpleVariable varStreamEvent = this.createStreamEventArgVariable(
+                getVariableName(SELECT_LAMBDA_PARAM_REFERENCE), expr.pos, env);
+        BLangType typeNode = ASTBuilderUtil.createTypeNode(symTable.anydataType);
+        // (streams:StreamEvent e) returns anydata { .. }
+        BLangLambdaFunction groupingLambda = createLambdaWithVarArg(expr.pos, new BLangSimpleVariable[]{varStreamEvent},
+                typeNode);
+        BLangBlockStmt groupByLambda = groupingLambda.function.body;
+        BLangExpression mapAccessExpr;
+
+        if (expr.getKind() == NodeKind.INVOCATION) { // func(e.data[<fieldName in string>])
+            mapAccessExpr = refactorInvocationWithIndexBasedArgs((BVarSymbol)
+                    createEventDataFieldAccessExpr(expr.pos, varStreamEvent.symbol).symbol, (BLangInvocation) expr);
+        } else {
+            // e.data[<fieldName in string>]
+            mapAccessExpr = createMapAccessExprFromStreamEvent(varStreamEvent, expr);
+        }
+        // return <anydata>e.data[<fieldName in string>];
+        BLangExpression conversionExpr = desugar.addConversionExprIfRequired(mapAccessExpr, symTable.anydataType);
         addReturnGroupByFieldStmt(groupByLambda, conversionExpr);
         return groupingLambda;
     }
@@ -917,13 +928,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         BLangSimpleVariable streamEventVarArg =
                 this.createStreamEventArgVariable(getVariableName(SELECT_LAMBDA_PARAM_REFERENCE),
                         selectClause.pos, env);
-//        BLangConstrainedType typeNode = (BLangConstrainedType) TreeBuilder.createConstrainedTypeNode();
-//        BLangBuiltInRefTypeNode refTypeNode = (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
-//        refTypeNode.typeKind = TypeKind.MAP;
-//        BLangValueType constraintTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
-//        constraintTypeNode.setTypeKind(TypeKind.ANYDATA);
-//        typeNode.constraint = constraintTypeNode;
-//        typeNode.type = refTypeNode;
         TypeNode typeNode = ASTBuilderUtil.createTypeNode(createAnydataConstraintMapType());
         BLangLambdaFunction simpleSelectLambdaFunction = createLambdaWithVarArg(selectClause.pos,
                 new BLangSimpleVariable[]{streamEventVarArg}, typeNode);
@@ -1415,7 +1419,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         Set<BVarSymbol> closureVarSymbols = new LinkedHashSet<>();
         closureVarSymbols.add(lambdaFunctionVariable.symbol);
 
-        BLangType returnType = ASTBuilderUtil.createTypeNode(symTable.nilType);
+        BLangType returnType = ASTBuilderUtil.createTypeNode(symTable.booleanType);
 
         //Create new lambda function to process the output events
         BLangLambdaFunction havingLambdaFunction = createLambdaFunction(pos,
@@ -1540,10 +1544,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             refactoredVarRef = createMapVariableIndexAccessExpr(mapVarArgs.get(mapVarArgs.size() - 1).symbol,
                     ASTBuilderUtil.createLiteral(varRefExpr.pos, symTable.stringType, "OUTPUT." + varRefExpr
                             .variableName.value));
-            refactoredVarRef = generateConversionExpr(refactoredVarRef, expType, symResolver);
-            if (refactoredVarRef.getKind() == NodeKind.TYPE_CONVERSION_EXPR) {
-                refactoredVarRef = createCheckedExpr((BLangTypeConversionExpr) refactoredVarRef);
-            }
+            refactoredVarRef = desugar.addConversionExprIfRequired(refactoredVarRef, expType);
         } else {
             refactoredVarRef = varRefExpr;
         }
@@ -1608,20 +1609,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         return ASTBuilderUtil.createVariable(pos, variableName, varType, null, varSymbol);
     }
 
-    private static BLangTypeConversionExpr generateConversionExpr(BLangExpression expr, BType target,
-                                                                  SymbolResolver symResolver) {
-        // Box value using cast expression.
-        final BLangTypeConversionExpr conversion = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
-        conversion.pos = expr.pos;
-        conversion.expr = expr;
-
-        conversion.targetType = target;
-        conversion.conversionSymbol = (BOperatorSymbol) symResolver
-                .resolveTypeConversionOrAssertionOperator(expr.type, target);
-        conversion.type = ((BInvokableType) conversion.conversionSymbol.type).retType;
-        return conversion;
-    }
-
     private static BVarSymbol getOutputEventFieldSymbol(BType outputEventType, String fieldName) {
         List<BField> recordTypeFieldList = ((BRecordType) outputEventType).fields;
         for (BField field : recordTypeFieldList) {
@@ -1683,8 +1670,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 setInvocationToRecordKeyValue(recordKeyValue, streamEventSymbol, aggregatorArraySymbol,
                         aggregatorIndex, selectExpression, groupBy);
             } else {
-                recordKeyValue.valueExpr = generateConversionExpr((BLangExpression) selectExpression.getExpression(),
-                        ((BLangExpression) selectExpression.getExpression()).type, symResolver);
+                recordKeyValue.valueExpr = desugar.addConversionExprIfRequired((BLangExpression) selectExpression
+                        .getExpression(), symTable.anydataType);
             }
             recordKeyValueList.add(recordKeyValue);
         }
@@ -1710,7 +1697,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             } else {
                 invocation = refactorInvocationWithIndexBasedArgs((BVarSymbol)
                         createEventDataFieldAccessExpr(invocation.pos, streamEventSymbol).symbol, invocation);
-                recordKeyValue.valueExpr = generateConversionExpr(invocation, symTable.anyType, symResolver);
+                recordKeyValue.valueExpr = desugar.addConversionExprIfRequired(invocation, symTable.anydataType);
             }
         }
     }
@@ -1725,8 +1712,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                         (((BLangFieldBasedAccess) expression).expr.type.tag == TypeTags.STREAM)) {
                     BLangFieldBasedAccess expr = (BLangFieldBasedAccess) expression;
                     BLangExpression fieldAccessExpr = createMapVariableIndexAccessExpr(mapVarSymbol, expr);
-                    expressionList.add(createCheckedExpr(generateConversionExpr(fieldAccessExpr,
-                            expr.type, symResolver)));
+                    expressionList.add(desugar.addConversionExprIfRequired(fieldAccessExpr, expr.type));
                 } else if (expression.getKind() == NodeKind.SIMPLE_VARIABLE_REF && isInHaving) {
                     BLangSimpleVarRef varRef = (BLangSimpleVarRef) expression;
                     expressionList.add(refactorVarRefAfterSelect(varRef, varRef.symbol.type));
@@ -1822,16 +1808,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         BLangIndexBasedAccess indexAccessExpr = ASTBuilderUtil.createIndexAccessExpr(fieldVarRef, indexExpr);
         indexAccessExpr.type = ((BArrayType) aggregatorArraySymbol.type).eType;
         return indexAccessExpr;
-    }
-
-    private BLangCheckedExpr createCheckedExpr(BLangTypeConversionExpr conversionExpr) {
-        BLangCheckedExpr checkedExpr = (BLangCheckedExpr) TreeBuilder.createCheckExpressionNode();
-
-        checkedExpr.expr = conversionExpr;
-        checkedExpr.type = conversionExpr.targetType;
-        checkedExpr.equivalentErrorTypeList = Collections.singletonList(symTable.errorType);
-        checkedExpr.pos = conversionExpr.pos;
-        return checkedExpr;
     }
 
     private BLangIndexBasedAccess createMapVariableIndexAccessExpr(BVarSymbol mapVariableSymbol,

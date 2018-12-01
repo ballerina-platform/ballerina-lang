@@ -30,6 +30,7 @@ import org.ballerinalang.channels.ChannelRegistry;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BAttachedFunction;
+import org.ballerinalang.model.types.BErrorType;
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BFiniteType;
 import org.ballerinalang.model.types.BFunctionType;
@@ -53,39 +54,34 @@ import org.ballerinalang.model.util.ListUtils;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BByte;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BCallableFuture;
 import org.ballerinalang.model.values.BClosure;
 import org.ballerinalang.model.values.BCollection;
 import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BFuture;
-import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BIntRange;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BIterator;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStream;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BValueType;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLAttributes;
 import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.BXMLSequence;
 import org.ballerinalang.util.FunctionFlags;
-import org.ballerinalang.util.TransactionStatus;
+import org.ballerinalang.util.Transactions;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ErrorTableEntry;
 import org.ballerinalang.util.codegen.FunctionInfo;
@@ -93,6 +89,9 @@ import org.ballerinalang.util.codegen.Instruction;
 import org.ballerinalang.util.codegen.Instruction.InstructionCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionIteratorNext;
 import org.ballerinalang.util.codegen.Instruction.InstructionLock;
+import org.ballerinalang.util.codegen.Instruction.InstructionTrBegin;
+import org.ballerinalang.util.codegen.Instruction.InstructionTrEnd;
+import org.ballerinalang.util.codegen.Instruction.InstructionTrRetry;
 import org.ballerinalang.util.codegen.Instruction.InstructionUnLock;
 import org.ballerinalang.util.codegen.Instruction.InstructionVCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionWRKSendReceive;
@@ -124,10 +123,10 @@ import org.ballerinalang.util.exceptions.BLangMapStoreException;
 import org.ballerinalang.util.exceptions.BLangNullReferenceException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
-import org.ballerinalang.util.observability.ObserverContext;
+import org.ballerinalang.util.observability.ObserveUtils;
 import org.ballerinalang.util.program.BLangVMUtils;
-import org.ballerinalang.util.transactions.LocalTransactionInfo;
 import org.ballerinalang.util.transactions.TransactionConstants;
+import org.ballerinalang.util.transactions.TransactionLocalContext;
 import org.ballerinalang.util.transactions.TransactionResourceManager;
 import org.ballerinalang.util.transactions.TransactionUtils;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
@@ -149,7 +148,6 @@ import java.util.Stack;
 import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
 import static org.ballerinalang.util.BLangConstants.BBYTE_MAX_VALUE;
@@ -293,7 +291,7 @@ public class BVM {
                     case InstructionCodes.BACONST:
                         cpIndex = operands[0];
                         i = operands[1];
-                        sf.refRegs[i] = new BByteArray(((BlobCPEntry) sf.constPool[cpIndex]).getValue());
+                        sf.refRegs[i] = new BValueArray(((BlobCPEntry) sf.constPool[cpIndex]).getValue());
                         break;
 
                     case InstructionCodes.IMOVE:
@@ -399,6 +397,8 @@ public class BVM {
                         break;
                     case InstructionCodes.HALT:
                         if (strand.fp > 0) {
+                            // Stop the observation context before popping the stack frame
+                            ObserveUtils.stopCallableObservation(strand);
                             strand.popFrame();
                             break;
                         }
@@ -428,10 +428,8 @@ public class BVM {
                         execIntegerRangeOpcodes(sf, operands);
                         break;
                     case InstructionCodes.TR_RETRY:
-                        i = operands[0];
-                        j = operands[1];
-                        k = operands[2];
-                        retryTransaction(strand, i, j, k);
+                        InstructionTrRetry trRetry = (InstructionTrRetry) instruction;
+                        retryTransaction(strand, trRetry.blockId, trRetry.abortEndIp, trRetry.trStatusReg);
                         break;
                     case InstructionCodes.CALL:
                         callIns = (InstructionCALL) instruction;
@@ -450,16 +448,13 @@ public class BVM {
                         }
                         break;
                     case InstructionCodes.TR_BEGIN:
-                        i = operands[0];
-                        j = operands[1];
-                        k = operands[2];
-                        l = operands[3];
-                        beginTransaction(strand, i, j, k, l);
+                        InstructionTrBegin trBegin = (InstructionTrBegin) instruction;
+                        beginTransaction(strand, trBegin.transactionType, trBegin.blockId, trBegin.retryCountReg,
+                                trBegin.committedFuncIndex, trBegin.abortedFuncIndex);
                         break;
                     case InstructionCodes.TR_END:
-                        i = operands[0];
-                        j = operands[1];
-                        endTransaction(strand, i, j);
+                        InstructionTrEnd trEnd = (InstructionTrEnd) instruction;
+                        endTransaction(strand, trEnd.blockId, trEnd.endType, trEnd.statusRegIndex, trEnd.errorRegIndex);
                         break;
                     case InstructionCodes.WRKSEND:
                         InstructionWRKSendReceive wrkSendIns = (InstructionWRKSendReceive) instruction;
@@ -512,7 +507,7 @@ public class BVM {
                         handleError(strand);
                         break;
                     case InstructionCodes.ERROR:
-                        createNewError(operands, sf);
+                        createNewError(operands, strand, sf);
                         break;
                     case InstructionCodes.REASON:
                     case InstructionCodes.DETAIL:
@@ -646,33 +641,33 @@ public class BVM {
                     case InstructionCodes.INEWARRAY:
                         i = operands[0];
                         j = operands[2];
-                        sf.refRegs[i] = new BIntArray((int) sf.longRegs[j]);
+                        sf.refRegs[i] = new BValueArray(BTypes.typeInt, (int) sf.longRegs[j]);
                         break;
                     case InstructionCodes.BINEWARRAY:
                         i = operands[0];
                         j = operands[2];
-                        sf.refRegs[i] = new BByteArray((int) sf.longRegs[j]);
+                        sf.refRegs[i] = new BValueArray(BTypes.typeByte, (int) sf.longRegs[j]);
                         break;
                     case InstructionCodes.FNEWARRAY:
                         i = operands[0];
                         j = operands[2];
-                        sf.refRegs[i] = new BFloatArray((int) sf.longRegs[j]);
+                        sf.refRegs[i] = new BValueArray(BTypes.typeFloat, (int) sf.longRegs[j]);
                         break;
                     case InstructionCodes.SNEWARRAY:
                         i = operands[0];
                         j = operands[2];
-                        sf.refRegs[i] = new BStringArray((int) sf.longRegs[j]);
+                        sf.refRegs[i] = new BValueArray(BTypes.typeString, (int) sf.longRegs[j]);
                         break;
                     case InstructionCodes.BNEWARRAY:
                         i = operands[0];
                         j = operands[2];
-                        sf.refRegs[i] = new BBooleanArray((int) sf.longRegs[j]);
+                        sf.refRegs[i] = new BValueArray(BTypes.typeBoolean, (int) sf.longRegs[j]);
                         break;
                     case InstructionCodes.RNEWARRAY:
                         i = operands[0];
                         cpIndex = operands[1];
                         typeRefCPEntry = (TypeRefCPEntry) sf.constPool[cpIndex];
-                        sf.refRegs[i] = new BRefValueArray(typeRefCPEntry.getType());
+                        sf.refRegs[i] = new BValueArray(typeRefCPEntry.getType());
                         break;
                     case InstructionCodes.NEWSTRUCT:
                         createNewStruct(operands, sf);
@@ -690,9 +685,9 @@ public class BVM {
                         k = operands[3];
                         l = operands[4];
                         typeRefCPEntry = (TypeRefCPEntry) sf.constPool[cpIndex];
-                        BStringArray indexColumns = (BStringArray) sf.refRegs[j];
-                        BStringArray keyColumns = (BStringArray) sf.refRegs[k];
-                        BRefValueArray dataRows = (BRefValueArray) sf.refRegs[l];
+                        BValueArray indexColumns = (BValueArray) sf.refRegs[j];
+                        BValueArray keyColumns = (BValueArray) sf.refRegs[k];
+                        BValueArray dataRows = (BValueArray) sf.refRegs[l];
                         sf.refRegs[i] = new BTable(typeRefCPEntry.getType(), indexColumns, keyColumns, dataRows);
                         break;
                     case InstructionCodes.NEWSTREAM:
@@ -759,6 +754,8 @@ public class BVM {
                         break;
                     case InstructionCodes.RET:
                         if (strand.fp > 0) {
+                            // Stop the observation context before popping the stack frame
+                            ObserveUtils.stopCallableObservation(strand);
                             strand.popFrame();
                             break;
                         }
@@ -865,15 +862,15 @@ public class BVM {
                                        int[] argRegs, int retReg, int flags) {
         //TODO refactor when worker info is removed from compiler
         StackFrame df = new StackFrame(callableUnitInfo.getPackageInfo(), callableUnitInfo,
-                callableUnitInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), retReg);
+                callableUnitInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), retReg, flags);
         copyArgValues(strand.currentFrame, df, argRegs, callableUnitInfo.getParamTypes());
 
-        if (!FunctionFlags.isAsync(flags)) {
+        if (!FunctionFlags.isAsync(df.invocationFlags)) {
             strand.pushFrame(df);
+            // Start observation after pushing the stack frame
+            ObserveUtils.startCallableObservation(strand, df.invocationFlags);
             if (callableUnitInfo.isNative()) {
-                // This is to return the current thread in case of non blocking call
-                df.ip = -1;
-                return invokeNativeCallable(callableUnitInfo, strand, df, retReg, flags);
+                return invokeNativeCallable(callableUnitInfo, strand, df, retReg, df.invocationFlags);
             }
             return strand;
         }
@@ -882,6 +879,8 @@ public class BVM {
         Strand calleeStrand = new Strand(strand.programFile, callableUnitInfo.getName(),
                 strand.globalProps, strndCallback, strand.wdChannels);
         calleeStrand.pushFrame(df);
+        // Start observation after pushing the stack frame
+        ObserveUtils.startCallableObservation(calleeStrand, strand.respCallback.getObserverContext());
         if (callableUnitInfo.isNative()) {
             Context nativeCtx = new NativeCallContext(calleeStrand, callableUnitInfo, df);
             NativeCallableUnit nativeCallable = callableUnitInfo.getNativeCallableUnit();
@@ -906,26 +905,21 @@ public class BVM {
         Context ctx = new NativeCallContext(strand, callableUnitInfo, sf);
         NativeCallableUnit nativeCallable = callableUnitInfo.getNativeCallableUnit();
         try {
-            //                    TODO fix - rajith
-//            ObserverContext observerContext = checkAndStartNativeCallableObservation(ctx, callableUnitInfo, flags);
-            ObserverContext observerContext = null;
             if (nativeCallable.isBlocking()) {
                 nativeCallable.execute(ctx, null);
 
                 if (strand.fp > 0) {
+                    // Stop the observation context before popping the stack frame
+                    ObserveUtils.stopCallableObservation(strand);
                     strand.popFrame();
                     StackFrame retFrame = strand.currentFrame;
                     BLangVMUtils.populateWorkerDataWithValues(retFrame, retReg, ctx.getReturnValue(), retType);
                     return strand;
                 }
-                //                    TODO fix - rajith
-//                checkAndStopCallableObservation(observerContext, flags);
-                /* we want the parent to continue, since we got the response of the native call already */
                 strand.respCallback.signal();
                 return null;
             }
-            CallableUnitCallback callback = getNativeCallableUnitCallback(strand, sf, ctx, observerContext,
-                    retReg, retType, flags);
+            CallableUnitCallback callback = new BLangCallableUnitCallback(ctx, strand, retReg, retType);
             nativeCallable.execute(ctx, callback);
             return null;
         } catch (BLangNullReferenceException e) {
@@ -933,24 +927,12 @@ public class BVM {
         } catch (Throwable e) {
             strand.setError(BLangVMErrors.createError(strand, e.getMessage()));
         }
+        // Stop the observation context before popping the stack frame
+        ObserveUtils.stopCallableObservation(strand);
         strand.popFrame();
         handleError(strand);
         return strand;
     }
-
-    private static CallableUnitCallback getNativeCallableUnitCallback(Strand strand, StackFrame parentDf, Context ctx,
-                                                                      ObserverContext observerContext, int retReg,
-                                                                      BType retType, int flags) {
-        BLangCallableUnitCallback callback = new BLangCallableUnitCallback(ctx, strand, retReg, retType);
-        //                    TODO fix - rajith
-//        return (ObservabilityUtils.isObservabilityEnabled() && FunctionFlags.isObserved(flags)) ?
-//                new CallableUnitCallbackObserver(observerContext, callback) : callback;
-        return callback;
-    }
-
-
-
-
 
     private static void copyArgValues(StackFrame caller, StackFrame callee, int[] argRegs, BType[] paramTypes) {
         int longRegIndex = -1;
@@ -983,13 +965,15 @@ public class BVM {
         }
     }
 
-    private static void createNewError(int[] operands, StackFrame sf) {
+    private static void createNewError(int[] operands, Strand strand, StackFrame sf) {
         int i = operands[0];
         int j = operands[1];
         int k = operands[2];
         int l = operands[3];
         TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) sf.constPool[i];
-        sf.refRegs[l] = new BError(typeRefCPEntry.getType(), sf.stringRegs[j], sf.refRegs[k]);
+        sf.refRegs[l] = (BRefType<?>) BLangVMErrors
+                .createError(strand, true, (BErrorType) typeRefCPEntry.getType(), sf.stringRegs[j],
+                        (BMap<String, BValue>) sf.refRegs[k]);
     }
 
     private static void handleErrorBuiltinMethods(int opcode, int[] operands, StackFrame sf) {
@@ -1470,7 +1454,7 @@ public class BVM {
         int i = operands[0];
         int j = operands[1];
         int k = operands[2];
-        sf.refRegs[k] = new BIntArray(LongStream.rangeClosed(sf.longRegs[i], sf.longRegs[j]).toArray());
+        sf.refRegs[k] = new BValueArray(LongStream.rangeClosed(sf.longRegs[i], sf.longRegs[j]).toArray());
     }
 
     private static void execLoadOpcodes(Strand ctx, StackFrame sf, int opcode, int[] operands) {
@@ -1480,11 +1464,7 @@ public class BVM {
         int pkgIndex;
         int lvIndex; // Index of the local variable
 
-        BIntArray bIntArray;
-        BByteArray bByteArray;
-        BFloatArray bFloatArray;
-        BStringArray bStringArray;
-        BBooleanArray bBooleanArray;
+        BValueArray bValueArray;
         BMap<String, BRefType> bMap;
 
         switch (opcode) {
@@ -1517,9 +1497,9 @@ public class BVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                bIntArray = Optional.of((BIntArray) sf.refRegs[i]).get();
+                bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
-                    sf.longRegs[k] = bIntArray.get(sf.longRegs[j]);
+                    sf.longRegs[k] = bValueArray.getInt(sf.longRegs[j]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
@@ -1529,9 +1509,9 @@ public class BVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                bByteArray = Optional.of((BByteArray) sf.refRegs[i]).get();
+                bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
-                    sf.intRegs[k] = bByteArray.get(sf.longRegs[j]);
+                    sf.intRegs[k] = bValueArray.getByte(sf.longRegs[j]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
@@ -1541,9 +1521,9 @@ public class BVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                bFloatArray = Optional.of((BFloatArray) sf.refRegs[i]).get();
+                bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
-                    sf.doubleRegs[k] = bFloatArray.get(sf.longRegs[j]);
+                    sf.doubleRegs[k] = bValueArray.getFloat(sf.longRegs[j]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
@@ -1553,9 +1533,9 @@ public class BVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                bStringArray = Optional.of((BStringArray) sf.refRegs[i]).get();
+                bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
-                    sf.stringRegs[k] = bStringArray.get(sf.longRegs[j]);
+                    sf.stringRegs[k] = bValueArray.getString(sf.longRegs[j]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
@@ -1565,9 +1545,9 @@ public class BVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                bBooleanArray = Optional.of((BBooleanArray) sf.refRegs[i]).get();
+                bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
-                    sf.intRegs[k] = bBooleanArray.get(sf.longRegs[j]);
+                    sf.intRegs[k] = bValueArray.getBoolean(sf.longRegs[j]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
@@ -1663,11 +1643,7 @@ public class BVM {
         int k;
         int pkgIndex;
 
-        BIntArray bIntArray;
-        BByteArray bByteArray;
-        BFloatArray bFloatArray;
-        BStringArray bStringArray;
-        BBooleanArray bBooleanArray;
+        BValueArray bValueArray;
         BMap<String, BRefType> bMap;
 
         switch (opcode) {
@@ -1675,9 +1651,9 @@ public class BVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                bIntArray = Optional.of((BIntArray) sf.refRegs[i]).get();
+                bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
-                    bIntArray.add(sf.longRegs[j], sf.longRegs[k]);
+                    bValueArray.add(sf.longRegs[j], sf.longRegs[k]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
@@ -1687,9 +1663,9 @@ public class BVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                bByteArray = Optional.of((BByteArray) sf.refRegs[i]).get();
+                bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
-                    bByteArray.add(sf.longRegs[j], (byte) sf.intRegs[k]);
+                    bValueArray.add(sf.longRegs[j], (byte) sf.intRegs[k]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
@@ -1699,9 +1675,9 @@ public class BVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                bFloatArray = Optional.of((BFloatArray) sf.refRegs[i]).get();
+                bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
-                    bFloatArray.add(sf.longRegs[j], sf.doubleRegs[k]);
+                    bValueArray.add(sf.longRegs[j], sf.doubleRegs[k]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
@@ -1711,9 +1687,9 @@ public class BVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                bStringArray = Optional.of((BStringArray) sf.refRegs[i]).get();
+                bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
-                    bStringArray.add(sf.longRegs[j], sf.stringRegs[k]);
+                    bValueArray.add(sf.longRegs[j], sf.stringRegs[k]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
@@ -1723,9 +1699,9 @@ public class BVM {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                bBooleanArray = Optional.of((BBooleanArray) sf.refRegs[i]).get();
+                bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
-                    bBooleanArray.add(sf.longRegs[j], sf.intRegs[k]);
+                    bValueArray.add(sf.longRegs[j], sf.intRegs[k]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
@@ -3120,129 +3096,279 @@ public class BVM {
         sf.refRegs[i] = new BMap<>(structInfo.getType());
     }
 
-    private static void beginTransaction(Strand ctx, int transactionBlockId, int retryCountRegIndex,
-                                         int committedFuncIndex, int abortedFuncIndex) {
-        //If global tx enabled, it is managed via transaction coordinator. Otherwise it is managed locally without
-        //any interaction with the transaction coordinator.
-        boolean isGlobalTransactionEnabled = ctx.getGlobalTransactionEnabled();
+    private static void beginTransaction(Strand strand, int transactionType, int transactionBlockId,
+                                         int retryCountRegIndex, int committedFuncIndex, int abortedFuncIndex) {
+        if (transactionType == Transactions.TransactionType.PARTICIPANT.value) {
+            beginTransactionLocalParticipant(strand, transactionBlockId, committedFuncIndex, abortedFuncIndex);
+            return;
+        } else if (transactionType == Transactions.TransactionType.REMOTE_PARTICIPANT.value) {
+            beginRemoteParticipant(strand, transactionBlockId, committedFuncIndex, abortedFuncIndex);
+            return;
+        }
 
         //Transaction is attempted three times by default to improve resiliency
         int retryCount = TransactionConstants.DEFAULT_RETRY_COUNT;
         if (retryCountRegIndex != -1) {
-            retryCount = (int) ctx.currentFrame.longRegs[retryCountRegIndex];
+            retryCount = (int) strand.currentFrame.longRegs[retryCountRegIndex];
             if (retryCount < 0) {
-                ctx.setError(BLangVMErrors
-                        .createError(ctx, BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_RETRY_COUNT)));
-                handleError(ctx);
+                strand.setError(BLangVMErrors
+                        .createError(strand, BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_RETRY_COUNT)));
+                handleError(strand);
                 return;
             }
         }
 
-        //Register committed function handler if exists.
+        // If global tx enabled, it is managed via transaction coordinator.
+        // Otherwise it is managed locally without any interaction with the transaction coordinator.
+        if (strand.getLocalTransactionContext() != null) {
+            // starting a transaction within already infected transaction.
+            createAndSetDynamicNestedTrxError(strand);
+            handleError(strand);
+            return;
+        }
+
+        TransactionLocalContext transactionLocalContext = createAndNotifyGlobalTx(strand, transactionBlockId);
+        strand.setLocalTransactionContext(transactionLocalContext);
+        transactionLocalContext.beginTransactionBlock(transactionBlockId, retryCount);
+    }
+
+    private static void beginRemoteParticipant(Strand strand, int transactionBlockId, int committedFuncIndex,
+                                               int abortedFuncIndex) {
+        TransactionLocalContext localTransactionContext = strand.getLocalTransactionContext();
+        if (localTransactionContext == null) {
+            // No transaction available to participate,
+            // We have no business here. This is a no-op.
+            return;
+        }
+
+        // Register committed function handler if exists.
+        BFunctionPointer fpCommitted = null;
         if (committedFuncIndex != -1) {
-            FunctionRefCPEntry funcRefCPEntry = (FunctionRefCPEntry) ctx.currentFrame.constPool[committedFuncIndex];
-            BFunctionPointer fpCommitted = new BFunctionPointer(funcRefCPEntry.getFunctionInfo());
-            TransactionResourceManager.getInstance().registerCommittedFunction(transactionBlockId, fpCommitted);
+            FunctionRefCPEntry funcRefCPEntry = (FunctionRefCPEntry) strand.currentFrame.constPool[committedFuncIndex];
+            fpCommitted = new BFunctionPointer(funcRefCPEntry.getFunctionInfo());
         }
 
-        //Register aborted function handler if exists.
+        // Register aborted function handler if exists.
+        BFunctionPointer fpAborted = null;
         if (abortedFuncIndex != -1) {
-            FunctionRefCPEntry funcRefCPEntry = (FunctionRefCPEntry) ctx.currentFrame.constPool[abortedFuncIndex];
-            BFunctionPointer fpAborted = new BFunctionPointer(funcRefCPEntry.getFunctionInfo());
-            TransactionResourceManager.getInstance().registerAbortedFunction(transactionBlockId, fpAborted);
+            FunctionRefCPEntry funcRefCPEntry = (FunctionRefCPEntry) strand.currentFrame.constPool[abortedFuncIndex];
+            fpAborted = new BFunctionPointer(funcRefCPEntry.getFunctionInfo());
         }
 
-        LocalTransactionInfo localTransactionInfo = ctx.getLocalTransactionInfo();
-        if (localTransactionInfo == null) {
-            String globalTransactionId;
-            String protocol = null;
-            String url = null;
-            if (isGlobalTransactionEnabled) {
-                BValue[] returns = TransactionUtils.notifyTransactionBegin(ctx, null, null, transactionBlockId,
-                        TransactionConstants.DEFAULT_COORDINATION_TYPE);
-                BMap<String, BValue> txDataStruct = (BMap<String, BValue>) returns[0];
-                globalTransactionId = txDataStruct.get(TransactionConstants.TRANSACTION_ID).stringValue();
-                protocol = txDataStruct.get(TransactionConstants.CORDINATION_TYPE).stringValue();
-                url = txDataStruct.get(TransactionConstants.REGISTER_AT_URL).stringValue();
-            } else {
-                globalTransactionId = UUID.randomUUID().toString().replaceAll("-", "");
-            }
-            localTransactionInfo = new LocalTransactionInfo(globalTransactionId, url, protocol);
-            ctx.setLocalTransactionInfo(localTransactionInfo);
-        } else {
-            if (isGlobalTransactionEnabled) {
-                TransactionUtils.notifyTransactionBegin(ctx, localTransactionInfo.getGlobalTransactionId(),
-                        localTransactionInfo.getURL(), transactionBlockId, localTransactionInfo.getProtocol());
-            }
-        }
-        localTransactionInfo.beginTransactionBlock(transactionBlockId, retryCount);
+        localTransactionContext.setResourceParticipant(true);
+        String globalTransactionId = localTransactionContext.getGlobalTransactionId();
+        localTransactionContext.beginTransactionBlock(transactionBlockId, -1);
+        TransactionResourceManager.getInstance()
+                .registerParticipation(globalTransactionId, transactionBlockId, fpCommitted, fpAborted, strand);
+        strand.currentFrame.trxParticipant = StackFrame.TransactionParticipantType.REMOTE_PARTICIPANT;
+
     }
 
-    private static void retryTransaction(Strand ctx, int transactionBlockId,
-                                         int startOfAbortIP, int startOfNoThrowEndIP) {
-        LocalTransactionInfo localTransactionInfo = ctx.getLocalTransactionInfo();
-        if (!localTransactionInfo.isRetryPossible(ctx, transactionBlockId)) {
-            if (ctx.getError() == null) {
-                ctx.currentFrame.ip = startOfNoThrowEndIP;
-            } else {
-                String errorMsg = ctx.getError().reason;
-                if (BLangVMErrors.TRANSACTION_ERROR.equals(errorMsg)) {
-                    ctx.currentFrame.ip = startOfNoThrowEndIP;
-                } else {
-                    ctx.currentFrame.ip = startOfAbortIP;
-                }
-            }
-        }
-        localTransactionInfo.incrementCurrentRetryCount(transactionBlockId);
+    private static void createAndSetDynamicNestedTrxError(Strand strand) {
+        BError error = BLangVMErrors.createError(strand, BLangExceptionHelper.getErrorMessage(
+                RuntimeErrors.INVALID_DYNAMICALLY_NESTED_TRANSACTION));
+        strand.setError(error);
     }
 
-    private static void endTransaction(Strand ctx, int transactionBlockId, int status) {
-        LocalTransactionInfo localTransactionInfo = ctx.getLocalTransactionInfo();
-        boolean isGlobalTransactionEnabled = ctx.getGlobalTransactionEnabled();
-        boolean notifyCoordinator;
+    private static void beginTransactionLocalParticipant(Strand strand, int transactionBlockId,
+                                                         int committedFuncIndex, int abortedFuncIndex) {
+        TransactionLocalContext transactionLocalContext = strand.getLocalTransactionContext();
+        if (transactionLocalContext == null) {
+            // No transaction available to participate,
+            // We have no business here. This is a no-op.
+            return;
+        }
+
+        // Register committed function handler if exists.
+        TransactionResourceManager transactionResourceManager = TransactionResourceManager.getInstance();
+        BFunctionPointer fpCommitted = null;
+        if (committedFuncIndex != -1) {
+            FunctionRefCPEntry funcRefCPEntry = (FunctionRefCPEntry) strand.currentFrame.constPool[committedFuncIndex];
+            fpCommitted = new BFunctionPointer(funcRefCPEntry.getFunctionInfo());
+            transactionResourceManager.registerCommittedFunction(transactionBlockId, fpCommitted);
+        }
+
+        // Register aborted function handler if exists.
+        BFunctionPointer fpAborted = null;
+        if (abortedFuncIndex != -1) {
+            FunctionRefCPEntry funcRefCPEntry = (FunctionRefCPEntry) strand.currentFrame.constPool[abortedFuncIndex];
+            fpAborted = new BFunctionPointer(funcRefCPEntry.getFunctionInfo());
+            transactionResourceManager.registerAbortedFunction(transactionBlockId, fpAborted);
+        }
+
+        transactionLocalContext.beginTransactionBlock(transactionBlockId, 1);
+        transactionResourceManager.registerParticipation(transactionLocalContext.getGlobalTransactionId(),
+                transactionBlockId, fpCommitted, fpAborted, strand);
+        // this call frame is a transaction participant.
+        strand.currentFrame.trxParticipant = StackFrame.TransactionParticipantType.LOCAL_PARTICIPANT;
+    }
+
+    private static TransactionLocalContext createAndNotifyGlobalTx(Strand ctx, int transactionBlockId) {
+        BValue[] txResult = TransactionUtils.notifyTransactionBegin(ctx, null, null,
+                transactionBlockId, TransactionConstants.DEFAULT_COORDINATION_TYPE);
+
+        BMap<String, BValue> txDataStruct = (BMap<String, BValue>) txResult[0];
+        String globalTransactionId = txDataStruct.get(TransactionConstants.TRANSACTION_ID).stringValue();
+        String url = txDataStruct.get(TransactionConstants.REGISTER_AT_URL).stringValue();
+        String protocol = txDataStruct.get(TransactionConstants.CORDINATION_TYPE).stringValue();
+
+        return TransactionLocalContext.create(globalTransactionId, url, protocol);
+    }
+
+    private static TransactionLocalContext createLocalOnlyTransaction() {
+        String globalTransactionId = UUID.randomUUID().toString().replaceAll("-", "");
+        return TransactionLocalContext.create(globalTransactionId, null, null);
+    }
+
+    private static void retryTransaction(Strand strand, int transactionBlockId, int trAbortEndIp, int trEndStatusReg) {
+        strand.currentFrame.intRegs[trEndStatusReg] = 0; // set trend status to normal.
+        TransactionLocalContext transactionLocalContext = strand.getLocalTransactionContext();
+        transactionLocalContext.getAndClearFailure();
+        if (transactionLocalContext.isRetryPossible(strand, transactionBlockId)) {
+            if (transactionLocalContext.isRetryAttempt(transactionBlockId)) {
+                TransactionLocalContext newLocalTransaction = createAndNotifyGlobalTx(strand, transactionBlockId);
+                int allowedRetryCount = transactionLocalContext.getAllowedRetryCount(transactionBlockId);
+                newLocalTransaction.beginTransactionBlock(transactionBlockId,
+                        allowedRetryCount - 1);
+                strand.setLocalTransactionContext(newLocalTransaction);
+            }
+            strand.getLocalTransactionContext().incrementCurrentRetryCount(transactionBlockId);
+            strand.setError(null);
+            // todo: communicate re-try intent to coordinator
+            // tr_end will communicate the tx ending to coordinator
+            return;
+        }
+
+        strand.currentFrame.intRegs[trEndStatusReg] = 1;
+        strand.currentFrame.ip = trAbortEndIp;
+    }
+
+    private static void endTransaction(Strand strand, int txBlockId, int endType, int statusRegIndex,
+                                       int errorRegIndex) {
+        TransactionLocalContext localTxInfo = strand.getLocalTransactionContext();
         try {
             //In success case no need to do anything as with the transaction end phase it will be committed.
-            if (status == TransactionStatus.FAILED.value()) {
-                notifyCoordinator = localTransactionInfo.onTransactionFailed(ctx, transactionBlockId);
-                if (notifyCoordinator) {
-                    if (isGlobalTransactionEnabled) {
-                        TransactionUtils.notifyTransactionAbort(ctx, localTransactionInfo.getGlobalTransactionId(),
-                                transactionBlockId);
-                    } else {
-                        TransactionResourceManager.getInstance()
-                                .notifyAbort(localTransactionInfo.getGlobalTransactionId(), transactionBlockId, false);
-                    }
-                }
-            } else if (status == TransactionStatus.ABORTED.value()) {
-                if (isGlobalTransactionEnabled) {
-                    TransactionUtils.notifyTransactionAbort(ctx, localTransactionInfo.getGlobalTransactionId(),
-                            transactionBlockId);
-                } else {
-                    TransactionResourceManager.getInstance()
-                            .notifyAbort(localTransactionInfo.getGlobalTransactionId(), transactionBlockId, false);
-                }
-            } else if (status == TransactionStatus.SUCCESS.value()) {
-                //We dont' need to notify the coordinator in this case. If it does not receive abort from the tx
-                //it will commit at the end message
-                if (!isGlobalTransactionEnabled) {
-                    TransactionResourceManager.getInstance()
-                            .prepare(localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
-                    TransactionResourceManager.getInstance()
-                            .notifyCommit(localTransactionInfo.getGlobalTransactionId(), transactionBlockId);
-                }
-            } else if (status == TransactionStatus.END.value()) { //status = 1 Transaction end
-                boolean isOuterTx = localTransactionInfo.onTransactionEnd(transactionBlockId);
-                if (isGlobalTransactionEnabled) {
-                    TransactionUtils.notifyTransactionEnd(ctx, localTransactionInfo.getGlobalTransactionId(),
-                            transactionBlockId);
-                }
-                if (isOuterTx) {
-                    BLangVMUtils.removeTransactionInfo(ctx);
-                }
+            switch (Transactions.TransactionStatus.getConst(endType)) {
+                case BLOCK_END: // 0
+                    // set statusReg
+                    transactionBlockEnd(strand, txBlockId, statusRegIndex, localTxInfo, errorRegIndex);
+                    break;
+                case FAILED: // -1
+                    transactionFailedEnd(strand, txBlockId, localTxInfo, statusRegIndex);
+                    break;
+                case ABORTED: // -2
+                    transactionAbortedEnd(strand, txBlockId, localTxInfo, statusRegIndex, errorRegIndex);
+                    break;
+                case END: // 1
+                    transactionEndEnd(strand, txBlockId, localTxInfo);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Invalid transaction end endType: " + endType);
             }
         } catch (Throwable e) {
-            ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
-            handleError(ctx);
+            strand.setError(BLangVMErrors.createError(strand, e.getMessage()));
+            handleError(strand);
+        }
+    }
+
+    private static void transactionAbortedEnd(Strand strand, int txBlockId, TransactionLocalContext localTxInfo,
+                                              int statusRegIndex, int errorRegIndex) {
+        // Notify only if, aborted by 'abort' statement.
+        if (strand.currentFrame.intRegs[statusRegIndex] == 0) {
+            notifyTransactionAbort(strand, txBlockId, localTxInfo);
+        }
+        setErrorRethrowReg(strand, statusRegIndex, errorRegIndex);
+    }
+
+    private static void setErrorRethrowReg(Strand strand, int statusRegIndex, int errorRegIndex) {
+        if (strand.getError() != null) {
+            BError cause = strand.getError();
+            if (cause != null) {
+                strand.setError(cause);
+                strand.currentFrame.refRegs[errorRegIndex] = cause; // panic on this error.
+            }
+            // Next 2 instructions re-throw this error.
+            strand.currentFrame.intRegs[statusRegIndex] = 1;
+            return;
+        }
+        // Skip rethrow instruction, since there is no error.
+        strand.currentFrame.intRegs[statusRegIndex] = 0;
+    }
+
+    private static void transactionEndEnd(Strand strand, int transactionBlockId,
+                                          TransactionLocalContext transactionLocalContext) {
+        boolean isOuterTx = transactionLocalContext.onTransactionEnd(transactionBlockId);
+        if (isOuterTx) {
+            BLangVMUtils.removeTransactionInfo(strand);
+        }
+    }
+
+    private static void transactionBlockEnd(Strand strand, int transactionBlockId, int statusRegIndex,
+                                            TransactionLocalContext transactionLocalContext, int errorRegIndex) {
+        // Tx reached end of block, it may or may not successfully finished.
+        TransactionLocalContext.TransactionFailure failure = transactionLocalContext.getFailure();
+
+        BError error = null;
+        BRefType<?> errorVal = strand.currentFrame.refRegs[errorRegIndex];
+        if (errorVal != null && errorVal.getType().getTag() == TypeTags.ERROR_TAG) {
+            error = (BError) errorVal;
+        }
+
+        if (error != null && strand.getError() == null) {
+            strand.setError(error);
+            strand.currentFrame.refRegs[errorRegIndex] = null;
+        }
+
+        if (failure == null && error == null && strand.getError() == null) {
+            // Skip branching to retry block as there is no local failure.
+            // Will set this reg if there is failure in global coordinated trx.
+            strand.currentFrame.intRegs[statusRegIndex] = 0;
+
+            TransactionUtils.CoordinatorCommit coordinatorStatus =
+                    notifyGlobalPrepareAndCommit(strand, transactionBlockId, transactionLocalContext);
+
+            if (!TransactionUtils.CoordinatorCommit.COMMITTED.equals(coordinatorStatus)) {
+                // Coordinator returned un-committed status, hence skip committed block, and goto failed block.
+                strand.currentFrame.intRegs[statusRegIndex] = 1;
+            }
+        } else {
+            // Tx failed, branch to retry block.
+            strand.currentFrame.intRegs[statusRegIndex] = 1;
+
+            // This could be a transaction failure from a native/std library. Or due to an an error/exception.
+            // If transaction is not already marked as failed do so now for future references.
+            if (failure == null) {
+                transactionLocalContext.markFailure();
+            }
+            boolean notifyCoordinator = transactionLocalContext.onTransactionFailed(strand, transactionBlockId);
+            if (notifyCoordinator) {
+                notifyTransactionAbort(strand, transactionBlockId, transactionLocalContext);
+            }
+        }
+    }
+
+    private static TransactionUtils.CoordinatorCommit notifyGlobalPrepareAndCommit(
+            Strand ctx, int transactionBlockId, TransactionLocalContext transactionLocalContext) {
+        return TransactionUtils.notifyTransactionEnd(ctx,
+                transactionLocalContext.getGlobalTransactionId(), transactionBlockId);
+    }
+
+    private static void notifyTransactionAbort(Strand strand, int transactionBlockId,
+                                               TransactionLocalContext transactionLocalContext) {
+        TransactionUtils.notifyTransactionAbort(strand, transactionLocalContext.getGlobalTransactionId(),
+                transactionBlockId);
+        TransactionResourceManager.getInstance()
+                .notifyAbort(transactionLocalContext.getGlobalTransactionId(), transactionBlockId, false);
+    }
+
+    private static void transactionFailedEnd(Strand strand, int transactionBlockId,
+                                             TransactionLocalContext transactionLocalContext,
+                                             int runOnRetryBlockRegIndex) {
+        // Invoking tr_end with transaction status of FAILED means tx has failed for some reason.
+        if (transactionLocalContext.isRetryPossible(strand, transactionBlockId)) {
+            strand.currentFrame.intRegs[runOnRetryBlockRegIndex] = 1;
+        } else {
+            strand.currentFrame.intRegs[runOnRetryBlockRegIndex] = 0;
         }
     }
 
@@ -3414,7 +3540,8 @@ public class BVM {
      * @return          true if the lhsType is any or is the same as rhsType
      */
     private static boolean isSameOrAnyType(BType rhsType, BType lhsType) {
-        return lhsType.getTag() == TypeTags.ANY_TAG || rhsType.equals(lhsType);
+        return (lhsType.getTag() == TypeTags.ANY_TAG && rhsType.getTag() != TypeTags.ERROR_TAG) || rhsType
+                .equals(lhsType);
     }
 
     private static boolean checkCastByType(BType rhsType, BType lhsType, List<TypePair> unresolvedTypes) {
@@ -3527,7 +3654,7 @@ public class BVM {
     }
 
     private static boolean checkTupleCast(BValue sourceValue, BType targetType, List<TypePair> unresolvedTypes) {
-        BRefValueArray source = (BRefValueArray) sourceValue;
+        BValueArray source = (BValueArray) sourceValue;
         BTupleType target = (BTupleType) targetType;
         List<BType> targetTupleTypes = target.getTupleTypes();
         if (source.size() != targetTupleTypes.size()) {
@@ -3900,12 +4027,13 @@ public class BVM {
                     return false;
                 }
                 BArrayType arrayType = (BArrayType) targetType;
-                BRefValueArray array = (BRefValueArray) json;
+                BValueArray array = (BValueArray) json;
                 for (int i = 0; i < array.size(); i++) {
                     // get the element type of source and json, and recursively check for json casting.
                     BType sourceElementType = sourceType.getTag() == TypeTags.ARRAY_TAG
                             ? ((BArrayType) sourceType).getElementType() : sourceType;
-                    if (!checkJSONCast(array.get(i), sourceElementType, arrayType.getElementType(), unresolvedTypes)) {
+                    if (!checkJSONCast(array.getRefValue(i), sourceElementType, arrayType.getElementType(),
+                            unresolvedTypes)) {
                         return false;
                     }
                 }
@@ -4161,7 +4289,6 @@ public class BVM {
 
     public static void handleError(Strand strand) {
         StackFrame sf = strand.currentFrame;
-        BLangVMErrors.attachStackFrame(strand.getError(), strand.programFile, sf);
         // TODO: Fix me
         int ip = sf.ip;
         ip--;
@@ -4171,13 +4298,31 @@ public class BVM {
             sf.refRegs[match.regIndex] = strand.getError();
             strand.setError(null);
         } else if (strand.fp > 0) {
-            strand.popFrame();
+            // Stop the observation context before popping the stack frame
+            ObserveUtils.stopCallableObservation(strand);
+            StackFrame popedFrame = strand.popFrame();
+            signalTransactionError(strand, popedFrame.trxParticipant);
             handleError(strand);
         } else {
             strand.respCallback.setError(strand.getError());
+            signalTransactionError(strand, StackFrame.TransactionParticipantType.REMOTE_PARTICIPANT);
             //Below is to return current thread from VM
             sf.ip = -1;
             strand.respCallback.signal();
+        }
+    }
+
+    private static void signalTransactionError(Strand strand,
+                                               StackFrame.TransactionParticipantType transactionParticipant) {
+        TransactionLocalContext transactionLocalContext = strand.getLocalTransactionContext();
+        if (transactionLocalContext == null) {
+            return;
+        }
+        boolean resourceParticipant = transactionLocalContext.isResourceParticipant();
+        if (resourceParticipant && transactionParticipant == StackFrame.TransactionParticipantType.REMOTE_PARTICIPANT) {
+            transactionLocalContext.notifyLocalRemoteParticipantFailure();
+        } else if (transactionParticipant == StackFrame.TransactionParticipantType.LOCAL_PARTICIPANT) {
+            transactionLocalContext.notifyLocalParticipantFailure();
         }
     }
 
@@ -4457,6 +4602,45 @@ public class BVM {
         return true;
     }
 
+    public static BType resolveMatchingTypeForUnion(BValue value, BType type) {
+        if (checkIsLikeType(value, BTypes.typeInt)) {
+            return BTypes.typeInt;
+        }
+
+        if (checkIsLikeType(value, BTypes.typeFloat)) {
+            return BTypes.typeFloat;
+        }
+
+        if (checkIsLikeType(value, BTypes.typeString)) {
+            return BTypes.typeString;
+        }
+
+        if (checkIsLikeType(value, BTypes.typeBoolean)) {
+            return BTypes.typeBoolean;
+        }
+
+        if (checkIsLikeType(value, BTypes.typeByte)) {
+            return BTypes.typeByte;
+        }
+
+        BType anydataArrayType = new BArrayType(type);
+        if (checkIsLikeType(value, anydataArrayType)) {
+            return anydataArrayType;
+        }
+
+        if (checkIsLikeType(value, BTypes.typeXML)) {
+            return BTypes.typeXML;
+        }
+
+        BType anydataMapType = new BMapType(type);
+        if (checkIsLikeType(value, anydataMapType)) {
+            return anydataMapType;
+        }
+
+        //not possible
+        return null;
+    }
+
     public static boolean checkIsLikeType(BValue sourceValue, BType targetType) {
         BType sourceType = sourceValue == null ? BTypes.typeNull : sourceValue.getType();
         if (checkIsType(sourceType, targetType, new ArrayList<>())) {
@@ -4504,11 +4688,11 @@ public class BVM {
                     case TypeTags.BYTE_TAG:
                         return true;
                     default:
-                        return Arrays.stream(((BRefValueArray) sourceValue).getValues())
+                        return Arrays.stream(((BValueArray) sourceValue).getValues())
                                 .allMatch(value -> checkIsLikeType(value, targetType));
                 }
             case TypeTags.TUPLE_TAG:
-                return Arrays.stream(((BRefValueArray) sourceValue).getValues())
+                return Arrays.stream(((BValueArray) sourceValue).getValues())
                         .allMatch(value -> checkIsLikeType(value, targetType));
             case TypeTags.ANYDATA_TAG:
                 return true;
@@ -4521,27 +4705,44 @@ public class BVM {
     }
 
     private static boolean checkIsLikeTupleType(BValue sourceValue, BTupleType targetType) {
-        if (!(sourceValue instanceof BRefValueArray)) {
+        if (!(sourceValue instanceof BValueArray)) {
             return false;
         }
 
-        BRefValueArray source = (BRefValueArray) sourceValue;
+        BValueArray source = (BValueArray) sourceValue;
         if (source.size() != targetType.getTupleTypes().size()) {
             return false;
         }
 
-        return IntStream.range(0, (int) source.size())
-                .allMatch(i -> checkIsLikeType(source.get(i), targetType.getTupleTypes().get(i)));
+        if (source.elementType == BTypes.typeInt || source.elementType == BTypes.typeString ||
+                source.elementType == BTypes.typeFloat || source.elementType == BTypes.typeBoolean ||
+                source.elementType == BTypes.typeByte) {
+            int bound = (int) source.size();
+            for (int i = 0; i < bound; i++) {
+                if (!checkIsType(source.elementType, targetType.getTupleTypes().get(i), new ArrayList<>())) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        int bound = (int) source.size();
+        for (int i = 0; i < bound; i++) {
+            if (!checkIsLikeType(source.getRefValue(i), targetType.getTupleTypes().get(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static boolean checkIsLikeArrayType(BValue sourceValue, BArrayType targetType) {
-        if (!(sourceValue instanceof BRefValueArray)) {
+        if (!(sourceValue instanceof BValueArray)) {
             return false;
         }
 
         BType arrayElementType = targetType.getElementType();
-        BRefType<?>[] arrayValues = ((BRefValueArray) sourceValue).getValues();
-        for (int i = 0; i < ((BRefValueArray) sourceValue).size(); i++) {
+        BRefType<?>[] arrayValues = ((BValueArray) sourceValue).getValues();
+        for (int i = 0; i < ((BValueArray) sourceValue).size(); i++) {
             if (!checkIsLikeType(arrayValues[i], arrayElementType)) {
                 return false;
             }
@@ -4566,8 +4767,8 @@ public class BVM {
         if (targetType.getConstrainedType() != null) {
             return checkIsLikeType(sourceValue, targetType.getConstrainedType());
         } else if (sourceValue.getType().getTag() == TypeTags.ARRAY_TAG) {
-            BRefType<?>[] arrayValues = ((BRefValueArray) sourceValue).getValues();
-            for (int i = 0; i < ((BRefValueArray) sourceValue).size(); i++) {
+            BRefType<?>[] arrayValues = ((BValueArray) sourceValue).getValues();
+            for (int i = 0; i < ((BValueArray) sourceValue).size(); i++) {
                 if (!checkIsLikeType(arrayValues[i], targetType)) {
                     return false;
                 }

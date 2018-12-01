@@ -345,8 +345,12 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     private File getSwaggerFile(String oasDefinition) throws IOException {
         File oasTempFile = File.createTempFile("oasTempFile", ".json");
         BufferedWriter bw = new BufferedWriter(new FileWriter(oasTempFile));
-        bw.write(oasDefinition);
-        bw.close();
+        try {
+            bw.write(oasDefinition);
+        } finally {
+            bw.close();
+        }
+
         return oasTempFile;
     }
 
@@ -530,7 +534,8 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                                     JsonObject matchedKey = matchedKeyValue.getAsJsonObject("key");
                                     JsonObject sourceKey = sourceKeyValue.getAsJsonObject("key");
                                     if (matchedKey.getAsJsonObject("variableName").get("value").getAsString()
-                                            .equals(sourceKey.getAsJsonObject("variableName").get("value").getAsString())) {
+                                            .equals(sourceKey.getAsJsonObject("variableName").get("value")
+                                                    .getAsString())) {
                                         matchedObj = matchedKeyValue;
                                         break;
                                     }

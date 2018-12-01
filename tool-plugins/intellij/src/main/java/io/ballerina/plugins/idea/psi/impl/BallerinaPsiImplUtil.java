@@ -74,7 +74,6 @@ import io.ballerina.plugins.idea.psi.BallerinaInvocationReference;
 import io.ballerina.plugins.idea.psi.BallerinaJsonTypeName;
 import io.ballerina.plugins.idea.psi.BallerinaMapTypeName;
 import io.ballerina.plugins.idea.psi.BallerinaNameReference;
-import io.ballerina.plugins.idea.psi.BallerinaNamedPattern;
 import io.ballerina.plugins.idea.psi.BallerinaNamespaceDeclaration;
 import io.ballerina.plugins.idea.psi.BallerinaNullableTypeName;
 import io.ballerina.plugins.idea.psi.BallerinaObjectFieldDefinition;
@@ -724,14 +723,6 @@ public class BallerinaPsiImplUtil {
                 } else if (parent instanceof BallerinaCatchClause) {
                     return CachedValueProvider.Result.create(
                             ((BallerinaCatchClause) parent).getTypeName(), variableReference);
-                } else if (parent instanceof BallerinaNamedPattern) {
-                    BallerinaNamedPattern ballerinaNamedPattern = (BallerinaNamedPattern) parent;
-                    BallerinaTypeName typeName = ballerinaNamedPattern.getTypeName();
-                    if (typeName instanceof BallerinaArrayTypeName && !(variableReference.getNextSibling()
-                            instanceof BallerinaIndex)) {
-                        return CachedValueProvider.Result.create(null, variableReference);
-                    }
-                    return CachedValueProvider.Result.create(getTypeNameFromNamedPattern(typeName), variableReference);
                 } else if (parent instanceof BallerinaNameReference) {
                     PsiElement superParent = parent.getParent();
                     if (superParent instanceof BallerinaVariableReference) {

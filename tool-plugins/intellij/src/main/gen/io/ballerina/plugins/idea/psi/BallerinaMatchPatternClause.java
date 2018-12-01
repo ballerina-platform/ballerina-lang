@@ -29,10 +29,4 @@ public interface BallerinaMatchPatternClause extends BallerinaCompositeElement {
   @Nullable
   BallerinaExpressionPattern getExpressionPattern();
 
-  @Nullable
-  BallerinaNamedPattern getNamedPattern();
-
-  @Nullable
-  BallerinaUnnamedPattern getUnnamedPattern();
-
 }
