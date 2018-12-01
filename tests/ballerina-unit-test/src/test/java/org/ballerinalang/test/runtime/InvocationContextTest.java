@@ -41,55 +41,55 @@ public class InvocationContextTest {
     }
 
     @Test(description = "Test case for accessing invocationId from invocation context")
-    public void testInvocationId() throws Exception {
+    public void testInvocationId() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testInvocationId");
         Assert.assertTrue(returns[0] instanceof BString);
     }
 
     @Test(description = "Test case for processing userId in authentication context")
-    public void testUserId() throws Exception {
+    public void testUserId() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testUserId");
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test(description = "Test case for processing username in authentication context")
-    public void testUsername() throws Exception {
+    public void testUsername() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testUsername");
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test(description = "Test case for processing user claims in authentication context")
-    public void testUserClaims() throws Exception {
+    public void testUserClaims() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testUserClaims");
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test(description = "Test case for processing allowedScopes in authentication context")
-    public void testAllowedScopes() throws Exception {
+    public void testAllowedScopes() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAllowedScopes");
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test(description = "Test case for processing authType in authentication context")
-    public void testAuthType() throws Exception {
+    public void testAuthType() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthType");
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test(description = "Test case for processing authToken in authentication context")
-    public void testAuthToken() throws Exception {
+    public void testAuthToken() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAuthToken");
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test(description = "Test case for custom attributes in Invocation Context")
-    public void testCustomAttributes() throws Exception {
+    public void testCustomAttributes() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAttributes");
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
