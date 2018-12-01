@@ -33,14 +33,11 @@ public class BDecimalValueNegativeTest {
     @Test
     public void testDecimalValue() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/decimal/decimal_value_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 5);
+        Assert.assertEquals(compileResult.getErrorCount(), 3);
 
         int index = 0;
 
-        String expectedError = "invalid token 'decimal'";
-        BAssertUtil.validateError(compileResult, index++, expectedError, 23, 5);
-
-        expectedError = "mismatched input 'decimal'. expecting {'is', ';', '?', '+', '-', '*', '/', '%', '==', " +
+        String expectedError = "mismatched input 'decimal'. expecting {'is', ';', '?', '+', '-', '*', '/', '%', '==', " +
                 "'!=', '>', '<', '>=', '<=', '&&', '||', '===', '!==', '&', '^', '...', '|', '?:', '->>', '..<'}";
         BAssertUtil.validateError(compileResult, index++, expectedError, 23, 5);
 
@@ -48,9 +45,6 @@ public class BDecimalValueNegativeTest {
         BAssertUtil.validateError(compileResult, index++, expectedError, 23, 21);
 
         expectedError = "extraneous input '23.04'";
-        BAssertUtil.validateError(compileResult, index++, expectedError, 26, 18);
-
-        expectedError = "extraneous input '}'";
-        BAssertUtil.validateError(compileResult, index, expectedError, 27, 1);
+        BAssertUtil.validateError(compileResult, index, expectedError, 26, 18);
     }
 }
