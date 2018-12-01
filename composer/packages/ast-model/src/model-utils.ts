@@ -49,23 +49,26 @@ export function traversNode(node: ASTNode, visitor: Visitor) {
     }
 }
 
-export function isActionInvocation(node: ASTNode): string | boolean {
-    let isAction = false;
-    let variableName = "";
+export function isActionInvocation(node: ASTNode): Invocation | boolean {
+    let invocation;
     traversNode(node, {
         beginVisitInvocation(element: Invocation) {
             if (element.actionInvocation) {
-                isAction = true;
-                if (element.expression && ASTKindChecker.isSimpleVariableRef(element.expression)) {
-                    const simpleVariableRef = element.expression as SimpleVariableRef;
-                    variableName = simpleVariableRef.variableName.value;
-                }
+                invocation = element;
             }
         }
     });
-    if (isAction) {
+    if (invocation) {
         // Return identifire of the endpoint.
-        return variableName;
+        return invocation;
     }
-    return isAction;
+    return false;
+}
+
+export function getEndpointName(node: Invocation): string | undefined {
+    if (node.expression && ASTKindChecker.isSimpleVariableRef(node.expression)) {
+        const simpleVariableRef = node.expression as SimpleVariableRef;
+        return simpleVariableRef.variableName.value;
+    }
+    return;
 }

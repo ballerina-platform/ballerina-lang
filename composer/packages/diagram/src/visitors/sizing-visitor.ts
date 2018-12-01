@@ -1,6 +1,6 @@
 import {
     Assignment, ASTNode, ASTUtil, Block,
-    ExpressionStatement, Foreach, Function, If, VariableDef, VisibleEndpoint, Visitor, While
+    ExpressionStatement, Foreach, Function, If, Invocation, VariableDef, VisibleEndpoint, Visitor, While
 } from "@ballerina/ast-model";
 import * as _ from "lodash";
 import { DiagramConfig } from "../config/default";
@@ -71,11 +71,15 @@ function sizeStatement(node: ASTNode) {
     const action = ASTUtil.isActionInvocation(node);
     if (action) {
         // find the endpoint view state
+        const epName = ASTUtil.getEndpointName(action as Invocation);
         endpointHolder.forEach((element: VisibleEndpoint) => {
-            if (element.name === action) {
+            if (element.name === epName) {
                 viewState.endpoint = element.viewState;
                 viewState.isAction = true;
-                viewState.bBox.h += 15;
+                viewState.bBox.h = config.statement.actionHeight;
+                let actionName = ASTUtil.genSource(action as Invocation).split("->").pop();
+                actionName = (actionName) ? actionName : "";
+                viewState.bBox.label = getTextWidth(actionName).text;
             }
         });
     }
