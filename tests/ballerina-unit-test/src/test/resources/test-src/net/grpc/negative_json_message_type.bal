@@ -16,16 +16,13 @@
 import ballerina/io;
 import ballerina/grpc;
 
-endpoint grpc:Listener ep {
-    host:"localhost",
-    port:9090
-};
+listener grpc:Listener ep = new (9000);
 
 // This is negative testcase, json field type is not supported currently. So we should be compilation error.
 // Unsupported field type, field type json currently not supported.
-service UnsupportedJsonType bind ep {
+service UnsupportedJsonType on ep {
 
-    testInputJsonType(endpoint caller, JsonMessage msg) {
+    resource function testInputJsonType(grpc:Caller caller, JsonMessage msg) {
         io:println(msg);
         string message = "Testing Json types";
         error? err = caller->send(message);
@@ -37,7 +34,7 @@ service UnsupportedJsonType bind ep {
         _ = caller->complete();
     }
 
-    testOutputJsonType(endpoint caller, string msg) {
+    resource function testOutputJsonType(grpc:Caller caller, string msg) {
         io:println(msg);
         JsonMessage jsonMsg = {};
         error? err = caller->send(jsonMsg);
