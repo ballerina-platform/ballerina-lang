@@ -171,8 +171,9 @@ public class Instruction {
             this.sigCPIndex = sigCPIndex;
             this.type = type;
             this.reg = reg;
-            this.channelInSameStrand = isWorkerSend ? dataChannelInfo.getSource().equals(BLangConstants.DEFAULT_WORKER_NAME)
-                    : dataChannelInfo.getTarget().equals(BLangConstants.DEFAULT_WORKER_NAME);
+            this.channelInSameStrand = isWorkerSend ? dataChannelInfo.getSource()
+                    .equals(BLangConstants.DEFAULT_WORKER_NAME) : dataChannelInfo.getTarget()
+                    .equals(BLangConstants.DEFAULT_WORKER_NAME);
         }
 
         @Override
