@@ -66,7 +66,7 @@ public class ForkJoinInFunctionTest {
         BValue[] returns = BRunUtil.invoke(result, "forkJoinWithWorkers", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].getClass(), BInteger.class);
-        long returnInt =((BInteger) returns[0]).intValue();
+        long returnInt = ((BInteger) returns[0]).intValue();
         Assert.assertEquals(returnInt, 10);
     }
 }
