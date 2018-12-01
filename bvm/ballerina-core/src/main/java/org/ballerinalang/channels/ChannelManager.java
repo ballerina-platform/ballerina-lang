@@ -16,7 +16,6 @@
  */
 package org.ballerinalang.channels;
 
-import org.ballerinalang.bre.bvm.BVMScheduler;
 import org.ballerinalang.bre.bvm.Strand;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BValue;
@@ -41,10 +40,8 @@ public class ChannelManager {
             BValue msg = DatabaseUtils.getMessage(channelName, key, keyType, receiverType);
             if (msg != null) {
                 return msg;
-            } else {
-                ChannelRegistry.getInstance().addWaitingContext(channelName, key, ctx, regIndex);
-                BVMScheduler.schedule(ctx);
             }
+            ChannelRegistry.getInstance().addWaitingContext(channelName, key, ctx, regIndex);
             return null;
         }
     }
