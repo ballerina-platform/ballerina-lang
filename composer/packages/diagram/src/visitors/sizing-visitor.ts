@@ -111,14 +111,20 @@ export const visitor: Visitor = {
         // Size default worker
         defaultWorker.bBox.h = node.body!.viewState.bBox.h + (config.lifeLine.header.height * 2)
             + config.statement.height; // for bottom plus
-        defaultWorker.bBox.w = node.body!.viewState.bBox.w;
-        defaultWorker.lifeline.h = defaultWorker.bBox.h;
+        defaultWorker.bBox.w = (node.body!.viewState.bBox.w) ? node.body!.viewState.bBox.w :
+            config.lifeLine.width;
         defaultWorker.lifeline.w = config.lifeLine.width;
-        defaultWorker.bBox.leftMargin = node.body!.viewState.bBox.leftMargin;
+        // tslint:disable-next-line:prefer-conditional-expression
+        if (node.body!.viewState.bBox.leftMargin) {
+            defaultWorker.bBox.leftMargin = node.body!.viewState.bBox.leftMargin;
+        } else {
+            defaultWorker.bBox.leftMargin = config.lifeLine.leftMargin;
+        }
 
         const lineHeight = (client.h > defaultWorker.bBox.h) ? client.h : defaultWorker.bBox.h;
         // Sync up the heights of lifelines
         client.h = defaultWorker.bBox.h = lineHeight;
+        defaultWorker.lifeline.h = defaultWorker.bBox.h; // Set the height of lifeline.
 
         // Size endpoints
         let endpointWidth = 0;
@@ -159,7 +165,7 @@ export const visitor: Visitor = {
         const viewState: ViewState = node.viewState;
         const bodyBBox: SimpleBBox = node.body.viewState.bBox;
 
-        viewState.bBox.w = node.body.viewState.bBox.w;
+        viewState.bBox.w = node.body.viewState.bBox.w + config.flowCtrl.rightMargin;
         viewState.bBox.h = node.body.viewState.bBox.h + config.flowCtrl.condition.height
             + config.flowCtrl.whileGap + config.flowCtrl.bottomMargin;
         // If body has a left margin assign to while
@@ -175,7 +181,7 @@ export const visitor: Visitor = {
         const viewState: ViewState = node.viewState;
         const bodyBBox: SimpleBBox = node.body.viewState.bBox;
 
-        viewState.bBox.w = node.body.viewState.bBox.w;
+        viewState.bBox.w = node.body.viewState.bBox.w + config.flowCtrl.rightMargin;
         viewState.bBox.h = node.body.viewState.bBox.h + config.flowCtrl.foreach.height
             + config.flowCtrl.whileGap + config.flowCtrl.bottomMargin;
         // If body has a left margin assign to while
