@@ -28,8 +28,8 @@ function testAsyncNonNativeBasic3() returns int {
 }
 
 function testAsyncNonNativeBasic4() returns int {
-  future f1 = start addGlobal(1, 2);
-  wait f1;
+  future<any> f1 = start addGlobal(1, 2);
+  _ = wait f1;
   return globalResult;
 }
 
@@ -43,12 +43,12 @@ function testAsyncNonNativeBasic6() returns boolean {
   boolean a = f1.isDone();
   float v1 = wait f1;
   boolean b = f1.isDone();
-  future f2 = start infiniteFunc();
+  future<any> f2 = start infiniteFunc();
   boolean c = f2.isCancelled();
   boolean d = f2.cancel();
-  future f3 = start io:println("NATIVE ASYNC BLOCKING");
+  future<any> f3 = start io:println("NATIVE ASYNC BLOCKING");
   boolean e = f3.cancel();
-  future f4 = start runtime:sleep(100);
+  future<any> f4 = start runtime:sleep(100);
   boolean f = f4.cancel();
   return !a && v1 == 10.0 && b && !c && d && !e && !f;
 }
