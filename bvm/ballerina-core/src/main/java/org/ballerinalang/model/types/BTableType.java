@@ -82,6 +82,10 @@ public class BTableType extends BType {
             return true;
         }
 
+        if (constraint == null || other.constraint == null) {
+            return false;
+        }
+
         return constraint.equals(other.constraint);
     }
 }
