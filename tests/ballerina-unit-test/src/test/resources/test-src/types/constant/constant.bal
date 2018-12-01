@@ -191,6 +191,17 @@ function testFloatWithoutType() returns float {
 
 // -----------------------------------------------------------
 
+type FiniteFloatType floatWithType|floatWithoutType;
+
+function testFloatAsFiniteType() returns (FiniteFloatType, FiniteFloatType) {
+    FiniteFloatType f1 = 2.0;
+    FiniteFloatType f2 = 4.0;
+
+    return (f1, f2);
+}
+
+// -----------------------------------------------------------
+
 const decimal decimalWithType = 50.0;
 
 function testDecimalWithType() returns decimal {
