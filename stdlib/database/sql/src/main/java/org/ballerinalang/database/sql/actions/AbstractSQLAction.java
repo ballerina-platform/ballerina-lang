@@ -98,6 +98,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
     private Calendar utcCalendar;
     private static final BTupleType executeUpdateWithKeysTupleType = new BTupleType(
             Arrays.asList(BTypes.typeInt, new BArrayType(BTypes.typeString)));
+    private static final String MYSQL = "mysql";
 
     public AbstractSQLAction() {
         utcCalendar = Calendar.getInstance(TimeZone.getTimeZone(Constants.TIMEZONE_UTC));
@@ -209,16 +210,21 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             conn = SQLDatasourceUtils.getDatabaseConnection(context, datasource, false);
             stmt = getPreparedCall(conn, datasource, query, generatedParams);
             createProcessedStatement(conn, stmt, generatedParams, datasource.getDatabaseProductName());
-            resultSets = executeStoredProc(stmt);
             boolean refCursorOutParamsPresent = generatedParams != null && isRefCursorOutParamPresent(generatedParams);
-            boolean resultSetsReturned = !resultSets.isEmpty();
+            boolean resultSetsReturned = false;
             TableResourceManager rm = null;
             boolean requiredToReturnTables = structTypes != null && structTypes.size() > 0;
-            if ((resultSetsReturned && requiredToReturnTables) || refCursorOutParamsPresent) {
+            if (requiredToReturnTables) {
+                resultSets = executeStoredProc(stmt, datasource.getDatabaseProductName());
+                resultSetsReturned = !resultSets.isEmpty();
+            } else {
+                stmt.execute();
+            }
+            if (resultSetsReturned || refCursorOutParamsPresent) {
                 rm = new TableResourceManager(conn, stmt, !isInTransaction);
             }
             setOutParameters(context, stmt, parameters, rm);
-            if (resultSetsReturned && requiredToReturnTables) {
+            if (resultSetsReturned) {
                 rm.addAllResultSets(resultSets);
                 // If a result set has been returned from the stored procedure it needs to be pushed in to return
                 // values
@@ -242,7 +248,12 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                                                      String databaseProductName)
             throws SQLException {
         BValueArray bTables = new BValueArray(new BArrayType(BTypes.typeTable));
-        if (structTypes == null || resultSets.size() != structTypes.size()) {
+        // TODO: "mysql" equality condition is part of the temporary fix to support returning the result set in the case
+        // of stored procedures returning only one result set in MySQL. Refer ballerina-platform/ballerina-lang#8643
+        if (databaseProductName.contains(MYSQL) && structTypes.size() > 1) {
+            throw new BallerinaException(
+                    "Retrieving result sets from stored procedures returning more than one result set, is not supported ");
+        } else if (structTypes == null || resultSets.size() != structTypes.size()) {
             throw new BallerinaException(
                     "Mismatching record type count: " + (structTypes == null ? 0 : structTypes.size()) + " and "
                             + "returned result set count: " + resultSets.size() + " from the stored procedure");
@@ -903,7 +914,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         return false;
     }
 
-    private List<ResultSet> executeStoredProc(CallableStatement stmt) throws SQLException {
+    private List<ResultSet> executeStoredProc(CallableStatement stmt, String databaseProductName) throws SQLException {
         boolean resultAndNoUpdateCount = stmt.execute();
         List<ResultSet> resultSets = new ArrayList<>();
         ResultSet result;
@@ -919,6 +930,13 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                 // Current result is a ResultSet
                 result = stmt.getResultSet();
                 resultSets.add(result);
+                if (databaseProductName.contains(MYSQL)) {
+                    // TODO: "mysql" equality condition is part of the temporary fix to support returning the result
+                    // set in the case of stored procedures returning only one result set in MySQL. Refer
+                    // ballerina-platform/ballerina-lang#8643
+                    break;
+                }
+
             }
             // This point reaches if current result was an update count. So it is needed to capture any remaining
             // results
