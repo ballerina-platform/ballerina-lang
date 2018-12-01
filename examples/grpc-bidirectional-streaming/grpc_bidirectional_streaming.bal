@@ -12,8 +12,8 @@ service Chat on new grpc:Listener(9090) {
 
     //This resource is triggered when a new caller connection is initialized.
     resource function onOpen(grpc:Caller caller) {
-        io:println(string `{{caller.getInstanceId()}} connected to chat`);
-        self.consMap[<string>caller.getInstanceId()] = caller;
+        io:println(string `{{caller.getId()}} connected to chat`);
+        self.consMap[<string>caller.getId()] = caller;
     }
 
     //This resource is triggered when the caller sends a request message to the service.
@@ -40,9 +40,9 @@ service Chat on new grpc:Listener(9090) {
     //This resource is triggered when the caller sends a notification to the server to indicate that it has finished sending messages.
     resource function onComplete(grpc:Caller caller) {
         grpc:Caller ep;
-        string msg = string `{{caller.getInstanceId()}} left the chat`;
+        string msg = string `{{caller.getId()}} left the chat`;
         io:println(msg);
-        var v = self.consMap.remove(<string>caller.getInstanceId());
+        var v = self.consMap.remove(<string>caller.getId());
         foreach id, con in self.consMap {
             ep = con;
             error? err = ep->send(msg);
