@@ -35,7 +35,7 @@ public class WaitActionsNegativeTest {
     @BeforeClass
     public void setup() {
         this.result = BCompileUtil.compile("test-src/workers/wait-actions-negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 20, "Wait actions negative test error count");
+        Assert.assertEquals(result.getErrorCount(), 19, "Wait actions negative test error count");
     }
 
     @Test(description = "Test negative scenarios of worker actions")
@@ -66,9 +66,6 @@ public class WaitActionsNegativeTest {
                                   66, 29);
         index++;
         BAssertUtil.validateError(result, index, "operator '|' not defined for 'future<int>' and 'future<string>'",
-                                  67, 33);
-        index++;
-        BAssertUtil.validateError(result, index, "operator '|' cannot be applied to type 'future'",
                                   67, 33);
         index++;
         BAssertUtil.validateError(result, index, "incompatible types: expected 'future<future<int|string>>', found " +

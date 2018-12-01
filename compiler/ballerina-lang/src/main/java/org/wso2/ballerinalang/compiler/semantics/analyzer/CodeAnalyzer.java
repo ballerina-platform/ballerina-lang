@@ -1519,9 +1519,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         // So check if immediate parent is a binary expression and if the current binary expression operator kind
         // is bitwise OR
         if (parentNode.getKind() != NodeKind.BINARY_EXPR && binaryExpr.opKind == OperatorKind.BITWISE_OR) {
-            dlog.error(binaryExpr.pos, DiagnosticCode.OPERATOR_NOT_SUPPORTED, OperatorKind.BITWISE_OR,
-                       symTable.futureType);
-                return false;
+            // Check if the binary expression type is already a semantic error. If so it means the error has been added
+            // to the diagnostic log before, so no need to duplicate the error.
+            if (symTable.semanticError != binaryExpr.type) {
+                dlog.error(binaryExpr.pos, DiagnosticCode.OPERATOR_NOT_SUPPORTED, OperatorKind.BITWISE_OR,
+                           symTable.futureType);
+            }
+            return false;
         }
 
         if (parentNode.getKind() == NodeKind.BINARY_EXPR) {
