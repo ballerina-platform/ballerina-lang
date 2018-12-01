@@ -51,7 +51,7 @@ public class SafeNavigationTest {
 
     @Test
     public void testNegativeCases() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 11);
+        Assert.assertEquals(negativeResult.getErrorCount(), 12);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string?', found 'string|error'",
                 25, 19);
@@ -65,6 +65,7 @@ public class SafeNavigationTest {
                 "error lifting operator cannot be used in the target expression of an assignment", 40, 5);
         BAssertUtil.validateError(negativeResult, i++,
                 "error lifting operator cannot be used in the target expression of an assignment", 40, 5);
+        BAssertUtil.validateError(negativeResult, i++, "cannot infer type of the error from 'Person[]|error'", 44, 24);
         BAssertUtil.validateError(negativeResult, i++,
                 "invalid operation: type 'Person[]|error' does not support indexing", 45, 12);
         BAssertUtil.validateError(negativeResult, i++, "safe navigation operator not required for type 'error?'", 50,
