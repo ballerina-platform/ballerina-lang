@@ -31,8 +31,8 @@ type TeacherOutput record{
 };
 
 int index = 0;
-stream<Teacher> inputStreamExternalTimeBatchTest4;
-stream<TeacherOutput > outputStreamExternalTimeBatchTest4;
+stream<Teacher> inputStreamExternalTimeBatchTest4 = new;
+stream<TeacherOutput > outputStreamExternalTimeBatchTest4 = new;
 TeacherOutput[] globalEmployeeArray = [];
 
 function startExternalTimeBatchwindowTest4() returns (TeacherOutput[]) {

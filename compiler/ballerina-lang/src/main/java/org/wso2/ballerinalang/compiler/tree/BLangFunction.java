@@ -53,6 +53,8 @@ public class BLangFunction extends BLangInvokableNode implements FunctionNode {
 
     public boolean isTypeChecked = false;
 
+    public LinkedHashSet<String> sendsToThis = new LinkedHashSet<>();
+
     public SimpleVariableNode getReceiver() {
         return receiver;
     }

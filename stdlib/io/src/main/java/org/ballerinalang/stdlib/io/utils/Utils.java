@@ -23,11 +23,11 @@ import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
@@ -154,7 +154,7 @@ public class Utils {
     public static void encode(Context context, BValue input, String charset, boolean isMimeSpecific) {
         switch (input.getType().getTag()) {
             case TypeTags.ARRAY_TAG:
-                encodeBlob(context, ((BByteArray) input).getBytes(), isMimeSpecific);
+                encodeBlob(context, ((BValueArray) input).getBytes(), isMimeSpecific);
                 break;
             case TypeTags.OBJECT_TYPE_TAG:
             case TypeTags.RECORD_TYPE_TAG:
@@ -183,7 +183,7 @@ public class Utils {
     public static void decode(Context context, BValue encodedInput, String charset, boolean isMimeSpecific) {
         switch (encodedInput.getType().getTag()) {
             case TypeTags.ARRAY_TAG:
-                decodeBlob(context, ((BByteArray) encodedInput).getBytes(), isMimeSpecific);
+                decodeBlob(context, ((BValueArray) encodedInput).getBytes(), isMimeSpecific);
                 break;
             case TypeTags.OBJECT_TYPE_TAG:
             case TypeTags.RECORD_TYPE_TAG:
@@ -345,7 +345,7 @@ public class Utils {
         } else {
             encodedContent = Base64.getEncoder().encode(bytes);
         }
-        context.setReturnValues(new BByteArray(encodedContent));
+        context.setReturnValues(new BValueArray(encodedContent));
     }
 
 
@@ -363,6 +363,6 @@ public class Utils {
         } else {
             decodedContent = Base64.getDecoder().decode(encodedContent);
         }
-        context.setReturnValues(new BByteArray(decodedContent));
+        context.setReturnValues(new BValueArray(decodedContent));
     }
 }

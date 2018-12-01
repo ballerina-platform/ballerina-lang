@@ -27,9 +27,8 @@ import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefValueArray;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -171,9 +170,9 @@ public class RecordVariableDefinitionTest {
         BValue[] returns = BRunUtil.invoke(result, "testTupleVarDefInRecordVarDef");
         Assert.assertEquals(returns.length, 7);
         Assert.assertEquals(returns[0].stringValue(), "Mark");
-        Assert.assertEquals(((BInteger) ((BRefValueArray) returns[1]).get(0)).intValue(), 1);
-        Assert.assertEquals(((BInteger) ((BRefValueArray) returns[1]).get(1)).intValue(), 1);
-        Assert.assertEquals(((BInteger) ((BRefValueArray) returns[1]).get(2)).intValue(), 1990);
+        Assert.assertEquals(((BInteger) ((BValueArray) returns[1]).getRefValue(0)).intValue(), 1);
+        Assert.assertEquals(((BInteger) ((BValueArray) returns[1]).getRefValue(1)).intValue(), 1);
+        Assert.assertEquals(((BInteger) ((BValueArray) returns[1]).getRefValue(2)).intValue(), 1990);
         Assert.assertEquals(((BByte) returns[2]).intValue(), 1);
         Assert.assertEquals(returns[3].stringValue(), "Mark");
         Assert.assertEquals(((BInteger) returns[4]).intValue(), 1);
@@ -185,13 +184,13 @@ public class RecordVariableDefinitionTest {
     public void testRecordInsideTupleInsideRecord() {
         BValue[] returns = BRunUtil.invoke(result, "testRecordInsideTupleInsideRecord");
         Assert.assertEquals(returns.length, 3);
-        Assert.assertEquals(((BStringArray) returns[0]).get(0), "A");
-        Assert.assertEquals(((BStringArray) returns[0]).get(1), "B");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(0), "A");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(1), "B");
         Assert.assertEquals(returns[1].stringValue(), "A");
         BMap child = (BMap) ((BMap) returns[2]).get("child");
         Assert.assertEquals(child.get("name").stringValue(), "C");
-        Assert.assertEquals(((BInteger) ((BRefValueArray) child.get("yearAndAge")).get(0)).intValue(), 1996);
-        Assert.assertEquals(((BMap) ((BRefValueArray) child.get("yearAndAge")).get(1)).get("format").stringValue(),
+        Assert.assertEquals(((BInteger) ((BValueArray) child.get("yearAndAge")).getRefValue(0)).intValue(), 1996);
+        Assert.assertEquals(((BMap) ((BValueArray) child.get("yearAndAge")).getRefValue(1)).get("format").stringValue(),
                 "Z");
     }
 
@@ -209,13 +208,13 @@ public class RecordVariableDefinitionTest {
     public void testRecordInsideTupleInsideRecordWithVar() {
         BValue[] returns = BRunUtil.invoke(result, "testRecordInsideTupleInsideRecordWithVar");
         Assert.assertEquals(returns.length, 3);
-        Assert.assertEquals(((BStringArray) returns[0]).get(0), "A");
-        Assert.assertEquals(((BStringArray) returns[0]).get(1), "B");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(0), "A");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(1), "B");
         Assert.assertEquals(returns[1].stringValue(), "A");
         BMap child = (BMap) ((BMap) returns[2]).get("child");
         Assert.assertEquals(child.get("name").stringValue(), "C");
-        Assert.assertEquals(((BInteger) ((BRefValueArray) child.get("yearAndAge")).get(0)).intValue(), 1996);
-        Assert.assertEquals(((BMap) ((BRefValueArray) child.get("yearAndAge")).get(1)).get("format").stringValue(),
+        Assert.assertEquals(((BInteger) ((BValueArray) child.get("yearAndAge")).getRefValue(0)).intValue(), 1996);
+        Assert.assertEquals(((BMap) ((BValueArray) child.get("yearAndAge")).getRefValue(1)).get("format").stringValue(),
                 "Z");
     }
 
@@ -239,9 +238,31 @@ public class RecordVariableDefinitionTest {
         Assert.assertEquals(((BMap) returns[2]).get("restP1").stringValue(), "stringP1");
     }
 
+    @Test(description = "Test record variable with Union Type")
+    public void testUnionRecordVariable() {
+        BValue[] returns = BRunUtil.invoke(result, "testUnionRecordVariable");
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertEquals(returns[0].stringValue(), "A");
+        Assert.assertEquals(returns[1].stringValue(), "B");
+        Assert.assertNull(returns[2]);
+        Assert.assertNull(returns[3]);
+    }
+
+    @Test(description = "Test record variable with Map Type")
+    public void testMapRecordVar() {
+        BValue[] returns = BRunUtil.invoke(result, "testMapRecordVar");
+        Assert.assertEquals(returns.length, 6);
+        Assert.assertEquals(returns[0].stringValue(), "A");
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
+        Assert.assertNull(returns[2]);
+        Assert.assertEquals(returns[3].stringValue(), "B");
+        Assert.assertEquals(returns[4].stringValue(), "C");
+        Assert.assertNull(returns[5]);
+    }
+
     @Test
     public void testNegativeRecordVariables() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 11);
+        Assert.assertEquals(resultNegative.getErrorCount(), 16);
         String redeclaredSymbol = "redeclared symbol ";
         int i = -1;
         BAssertUtil.validateError(resultNegative, ++i, redeclaredSymbol + "'fName'", 37, 26);
@@ -264,5 +285,15 @@ public class RecordVariableDefinitionTest {
                 "incompatible types: expected 'string', found 'boolean'", 99, 14);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'boolean', found 'string'", 100, 15);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "incompatible types: expected 'UnionOne|UnionTwo', found 'UnionRec1'", 143, 66);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "incompatible types: expected 'string|boolean', found 'boolean|string?'", 144, 25);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "incompatible types: expected 'int|float', found 'float|int?'", 144, 31);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "incompatible types: expected 'string', found 'anydata'", 154, 13);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "incompatible types: expected 'string', found 'string?'", 154, 31);
     }
 }

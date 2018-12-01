@@ -24,8 +24,8 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -57,10 +57,10 @@ public class WebSubDiscoveryResponseParserTest {
         Assert.assertEquals(returns.length, 2);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), TOPIC_ONE, "incorrect topic extraction from discovery response");
-        Assert.assertTrue(returns[1] instanceof BStringArray);
-        BStringArray hubs = (BStringArray) returns[1];
+        Assert.assertTrue(returns[1] instanceof BValueArray);
+        BValueArray hubs = (BValueArray) returns[1];
         Assert.assertEquals(hubs.size(), 1, "incorrect no. of hubs extracted from discovery response");
-        Assert.assertEquals(hubs.get(0), HUB_ONE, "incorrect hub extraction from discovery response");
+        Assert.assertEquals(hubs.getString(0), HUB_ONE, "incorrect hub extraction from discovery response");
     }
 
     @Test(description = "Test discovery parsing for topic and multiple hubs",
@@ -70,12 +70,12 @@ public class WebSubDiscoveryResponseParserTest {
         Assert.assertEquals(returns.length, 2);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), TOPIC_ONE, "incorrect topic extraction from discovery response");
-        Assert.assertTrue(returns[1] instanceof BStringArray);
-        BStringArray hubs = (BStringArray) returns[1];
+        Assert.assertTrue(returns[1] instanceof BValueArray);
+        BValueArray hubs = (BValueArray) returns[1];
         Assert.assertEquals(hubs.size(), 3, "incorrect no. of hubs extracted from discovery response");
-        Assert.assertEquals(hubs.get(0), HUB_ONE, "incorrect first hub extraction from discovery response");
-        Assert.assertEquals(hubs.get(1), HUB_TWO, "incorrect second hub extraction from discovery response");
-        Assert.assertEquals(hubs.get(2), HUB_THREE, "incorrect third hub extraction from discovery response");
+        Assert.assertEquals(hubs.getString(0), HUB_ONE, "incorrect first hub extraction from discovery response");
+        Assert.assertEquals(hubs.getString(1), HUB_TWO, "incorrect second hub extraction from discovery response");
+        Assert.assertEquals(hubs.getString(2), HUB_THREE, "incorrect third hub extraction from discovery response");
     }
 
     @Test(description = "Test discovery parsing with unavailable topic", dataProvider = "topicUnavailableTests")

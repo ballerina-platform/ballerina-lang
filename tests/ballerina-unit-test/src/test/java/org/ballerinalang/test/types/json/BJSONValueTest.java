@@ -27,9 +27,9 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BNewArray;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -242,49 +242,49 @@ public class BJSONValueTest {
     @Test
     public void testUpdateStringInArray() {
         BValue[] returns = BRunUtil.invokeFunction(compileResult, "testUpdateStringInArray");
-        Assert.assertTrue(returns[0] instanceof BRefValueArray);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
         Assert.assertEquals(returns[0].stringValue(), "[\"a\", \"d\", \"c\"]");
     }
 
     @Test
     public void testUpdateIntInArray() {
         BValue[] returns = BRunUtil.invokeFunction(compileResult, "testUpdateIntInArray");
-        Assert.assertTrue(returns[0] instanceof BRefValueArray);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
         Assert.assertEquals(returns[0].stringValue(), "[\"a\", 64, \"c\"]");
     }
 
     @Test
     public void testUpdateFloatInArray() {
         BValue[] returns = BRunUtil.invokeFunction(compileResult, "testUpdateFloatInArray");
-        Assert.assertTrue(returns[0] instanceof BRefValueArray);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
         Assert.assertEquals(returns[0].stringValue(), "[\"a\", 4.72, \"c\"]");
     }
 
     @Test
     public void testUpdateBooleanInArray() {
         BValue[] returns = BRunUtil.invokeFunction(compileResult, "testUpdateBooleanInArray");
-        Assert.assertTrue(returns[0] instanceof BRefValueArray);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
         Assert.assertEquals(returns[0].stringValue(), "[\"a\", true, \"c\"]");
     }
 
     @Test
     public void testUpdateNullInArray() {
         BValue[] returns = BRunUtil.invokeFunction(compileResult, "testUpdateNullInArray");
-        Assert.assertTrue(returns[0] instanceof BRefValueArray);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
         Assert.assertEquals(returns[0].stringValue(), "[\"a\", null, \"c\"]");
     }
 
     @Test
     public void testUpdateJsonInArray() {
         BValue[] returns = BRunUtil.invokeFunction(compileResult, "testUpdateJsonInArray");
-        Assert.assertTrue(returns[0] instanceof BRefValueArray);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
         Assert.assertEquals(returns[0].stringValue(), "[\"a\", {\"country\":\"SriLanka\"}, \"c\"]");
     }
 
     @Test
     public void testUpdateJsonArrayInArray() {
         BValue[] returns = BRunUtil.invokeFunction(compileResult, "testUpdateJsonArrayInArray");
-        Assert.assertTrue(returns[0] instanceof BRefValueArray);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
         Assert.assertEquals(returns[0].stringValue(), "[\"a\", [1, 2, 3], \"c\"]");
     }
 
@@ -314,7 +314,7 @@ public class BJSONValueTest {
     @Test()
     public void testSetArrayOutofBoundElement() {
         BValue[] returns = BRunUtil.invokeFunction(compileResult, "testSetArrayOutofBoundElement");
-        Assert.assertTrue(returns[0] instanceof BRefValueArray);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
         Assert.assertEquals(returns[0].stringValue(), "[1, 2, 3, null, null, null, null, 8]");
     }
 
@@ -340,7 +340,7 @@ public class BJSONValueTest {
     @Test
     public void testSetToNonObjectWithKey() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetToNonObjectWithKey");
-        Assert.assertTrue(returns[0] instanceof BRefValueArray);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
         Assert.assertTrue(returns[1] instanceof BString);
         Assert.assertTrue(returns[2] instanceof BBoolean);
         Assert.assertEquals(returns[0].stringValue(), "[1, 2, 3]");
@@ -406,14 +406,14 @@ public class BJSONValueTest {
     @Test
     public void testJsonArrayToJsonCasting() {
         BValue[] returns = BRunUtil.invokeFunction(compileResult, "testJsonArrayToJsonCasting");
-        Assert.assertTrue(returns[0] instanceof BRefValueArray);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
         Assert.assertEquals(returns[0].stringValue(), "[[1, 2, 3], [3, 4, 5], [7, 8, 9]]");
     }
 
     @Test
     public void testJsonToJsonArrayCasting() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJsonToJsonArrayCasting");
-        Assert.assertTrue(returns[0] instanceof BRefValueArray);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
         Assert.assertEquals(returns[0].stringValue(), "[[1, 2, 3], [3, 4, 5], [7, 8, 9]]");
     }
 
@@ -422,7 +422,7 @@ public class BJSONValueTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJsonToJsonArrayInvalidCasting");
         Assert.assertTrue(returns[0] instanceof BError);
         String errorMsg = ((BError) returns[0]).getReason();
-        Assert.assertEquals(errorMsg, "'json[]' cannot be cast to 'json[][][]'");
+        Assert.assertEquals(errorMsg, "incompatible stamp operation: 'json[]' value cannot be stamped as 'json[][][]'");
     }
 
     @Test
@@ -437,7 +437,7 @@ public class BJSONValueTest {
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error:.*'null' cannot be cast to 'string'.*")
+            expectedExceptionsMessageRegExp = ".*error: assertion error: expected 'string', found '\\(\\)' .*")
     public void testGetFromNull() {
         BRunUtil.invoke(compileResult, "testGetFromNull");
     }

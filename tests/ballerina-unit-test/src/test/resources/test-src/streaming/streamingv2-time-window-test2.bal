@@ -21,12 +21,19 @@ type Teacher record {
     int age;
     string status;
     string school;
+};
+
+type Person record {
+    string name;
+    int age;
+    string status;
+    string school;
     int count;
 };
 
 int index = 0;
-stream<Teacher> inputStreamTimeWindowTest2;
-stream<Teacher > outputStreamTimeWindowTest2;
+stream<Teacher> inputStreamTimeWindowTest2 = new;
+stream<Person> outputStreamTimeWindowTest2 = new;
 Teacher[] globalEmployeeArray = [];
 
 function startTimeWindowTest2() returns (Teacher[]) {
@@ -74,7 +81,7 @@ function testTimeWindow() {
         select inputStreamTimeWindowTest2.name, inputStreamTimeWindowTest2.age, inputStreamTimeWindowTest2.status, inputStreamTimeWindowTest2
         .school, count() as count
         group by inputStreamTimeWindowTest2.school
-        => (Teacher [] emp) {
+        => (Person [] emp) {
             foreach e in emp {
                 outputStreamTimeWindowTest2.publish(e);
             }
@@ -82,11 +89,11 @@ function testTimeWindow() {
     }
 }
 
-function printTeachers(Teacher e) {
+function printTeachers(Person e) {
     addToGlobalEmployeeArray(e);
 }
 
-function addToGlobalEmployeeArray(Teacher e) {
+function addToGlobalEmployeeArray(Person e) {
     globalEmployeeArray[index] = e;
     index = index + 1;
 }

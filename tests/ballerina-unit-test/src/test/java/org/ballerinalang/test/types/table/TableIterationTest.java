@@ -22,8 +22,8 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.utils.SQLDBUtils.TestDatabase;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
@@ -132,24 +132,24 @@ public class TableIterationTest {
     public void testMapTable() {
         BValue[] returns = BRunUtil.invoke(result, "testMapTable");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BStringArray) returns[0]).get(0), "John");
-        Assert.assertEquals(((BStringArray) returns[0]).get(1), "Anne");
-        Assert.assertEquals(((BStringArray) returns[0]).get(2), "Mary");
-        Assert.assertEquals(((BStringArray) returns[0]).get(3), "Peter");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(0), "John");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(1), "Anne");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(2), "Mary");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(3), "Peter");
     }
 
     @Test(groups = "TableIterationTest", description = "Check map with filter operation")
     public void testMapWithFilterTable() {
         BValue[] returns = BRunUtil.invoke(result, "testMapWithFilterTable");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BStringArray) returns[0]).get(0), "Peter");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(0), "Peter");
     }
 
     @Test(groups = "TableIterationTest", description = "Check filter with map operation")
     public void testFilterWithMapTable() {
         BValue[] returns = BRunUtil.invoke(result, "testFilterWithMapTable");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BStringArray) returns[0]).get(0), "Peter");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(0), "Peter");
     }
 
     @Test(groups = "TableIterationTest", description = "Check filter count and map operation")

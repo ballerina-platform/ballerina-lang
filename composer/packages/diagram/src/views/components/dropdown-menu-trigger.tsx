@@ -22,7 +22,11 @@ export const DropDownMenuTrigger: StatelessComponent<DropDownMenuTriggerProps> =
                     {...foreignObjectBBox}
                     className={"dropdown-trigger"}
                 >
-                    {children}
+                    <div
+                        style={{ position: "fixed" }}
+                    >
+                        {children}
+                    </div>
                 </foreignObject>;
         }}
     </DiagramContext.Consumer>;

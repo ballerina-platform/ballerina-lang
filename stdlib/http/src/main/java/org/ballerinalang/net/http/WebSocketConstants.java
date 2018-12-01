@@ -27,7 +27,7 @@ public class WebSocketConstants {
     public static final String WEBSOCKET_CLIENT_ENDPOINT_NAME = "ballerina/http:WebSocketClient";
     public static final String WEBSOCKET_CONNECTOR = "WebSocketConnector";
     public static final String WEBSOCKET_CALLER = "WebSocketCaller";
-    public static final String WEBSOCKET_CLIENT_ENDPOINT = "WebSocketClient";
+    public static final String WEBSOCKET_CLIENT = "WebSocketClient";
     public static final String WEBSOCKET_SERVICE = "WebSocketService";
     public static final String WEBSOCKET_CLIENT_SERVICE = "WebSocketClientService";
 

@@ -21,9 +21,9 @@ import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -203,7 +203,7 @@ public class NativeGen {
 
     private static BValue[] getFunctionArgs(BIRPackage bir, String targetPath, boolean dumpLLVMIR) {
         BValue[] args = new BValue[3];
-        args[0] = new BByteArray(getBinaryForm(bir));
+        args[0] = new BValueArray(getBinaryForm(bir));
         args[1] = new BString(targetPath);
         args[2] = new BBoolean(dumpLLVMIR);
         return args;

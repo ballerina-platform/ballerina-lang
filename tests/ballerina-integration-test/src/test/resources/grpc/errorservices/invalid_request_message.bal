@@ -21,9 +21,9 @@ listener grpc:Listener server1 = new (9090, config = {
 
 service HelloWorld on server1 {
     resource function invalidReqType(grpc:Caller caller, string? name) {
-        string input = name is string ? name : "";
+        string input = name ?: "";
         string message = "Hello " + input;
-        error? err = caller->send(message);
+        _ = caller->send(message);
         _ = caller->complete();
     }
 }

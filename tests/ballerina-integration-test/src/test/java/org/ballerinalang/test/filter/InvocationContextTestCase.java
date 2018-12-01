@@ -32,7 +32,7 @@ import java.util.Map;
  * Test cases for writing/reading to/from the InvocationContext.
  */
 @Test(groups = "filter-test")
-public class InvocationContextTestCase extends FilterBaseTest {
+public class InvocationContextTestCase extends FilterTestCommons {
 
     @Test(description = "Single filter execution success case")
     public void testCustomAttributes() throws Exception {

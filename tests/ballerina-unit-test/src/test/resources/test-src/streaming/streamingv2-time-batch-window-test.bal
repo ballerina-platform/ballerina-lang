@@ -29,8 +29,8 @@ type TeacherOutput record{
 };
 
 int index = 0;
-stream<Teacher> inputStreamTimeBatchTest1;
-stream<TeacherOutput > outputStreamTimeBatchTest1;
+stream<Teacher> inputStreamTimeBatchTest1 = new;
+stream<TeacherOutput > outputStreamTimeBatchTest1 = new;
 TeacherOutput[] globalEmployeeArray = [];
 
 function startTimeBatchwindowTest1() returns (TeacherOutput[]) {

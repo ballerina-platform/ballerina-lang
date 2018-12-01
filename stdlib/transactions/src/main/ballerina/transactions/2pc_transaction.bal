@@ -25,7 +25,7 @@ type TwoPhaseCommitTransaction object {
     string coordinationType;
     boolean isInitiated = false; // Indicates whether this is a transaction that was initiated or is participated in
     map<Participant> participants = {};
-    Protocol[] coordinatorProtocols = [];
+    UProtocol[] coordinatorProtocols = [];
     int createdTime = time:currentTime().time;
     TransactionState state = TXN_STATE_ACTIVE;
     private boolean possibleMixedOutcome = false;
@@ -45,14 +45,23 @@ type TwoPhaseCommitTransaction object {
         // Prepare local resource managers
         boolean localPrepareSuccessful = prepareResourceManagers(self.transactionId, self.transactionBlockId);
         if (!localPrepareSuccessful) {
-            error err = error("Local prepare failed");
-            return err;
+            log:printInfo("Local prepare failed, aborting..");
+            var result = self.notifyParticipants(COMMAND_ABORT, ());
+            if (result is error) {
+                return "hazard";
+            } else {
+                match result {
+                    "committed" => { return "committed"; }
+                    "aborted" => { return "aborted"; }
+                }
+            }
+            return "aborted";
         }
 
         // Prepare phase & commit phase
         // First call prepare on all volatile participants
         PrepareDecision prepareVolatilesDecision = self.prepareParticipants(PROTOCOL_VOLATILE);
-        if (prepareVolatilesDecision == PREPARE_DECISION_COMMIT) {
+        if (localPrepareSuccessful && prepareVolatilesDecision == PREPARE_DECISION_COMMIT) {
             // if all volatile participants voted YES, Next call prepare on all durable participants
             PrepareDecision prepareDurablesDecision = self.prepareParticipants(PROTOCOL_DURABLE);
             if (prepareDurablesDecision == PREPARE_DECISION_COMMIT) {
