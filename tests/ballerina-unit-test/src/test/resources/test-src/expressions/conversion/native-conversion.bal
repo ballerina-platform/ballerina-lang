@@ -150,7 +150,7 @@ function testStructToJson () returns json|error {
 //    Person2 p = {   name:"Child",
 //                    age:25
 //                };
-//    json<Person2> j = check json<Person2>.convert(p);
+//    json<Person2> j = json<Person2>.convert(p);
 //    return j;
 //}
 //
@@ -620,7 +620,7 @@ function testNullJsonToStruct () returns Person {
 
 function testNullStructToJson () returns (json | error) {
     Person? p = ();
-    var j = check json.convert(p);
+    var j = json.convert(p);
     return j;
 }
 
@@ -665,7 +665,7 @@ type PhoneBook record {
 
 function testStructWithStringArrayToJSON () returns json|error {
     PhoneBook phonebook = {names:["John", "Doe"]};
-    var phonebookJson = check json.convert(phonebook);
+    var phonebookJson = json.convert(phonebook);
     return phonebookJson;
 }
 
@@ -789,7 +789,7 @@ function structWithComplexMapToJson() returns (json | error) {
     map<any> m = {"a":a, "b":b, "c":c, "d":d, "e":e, "f":f, "g":g, "h":null};
     
     Info info = {foo : m};
-    var js = check json.convert(info);
+    var js =  json.convert(info);
     return js;
 }
 
@@ -811,7 +811,7 @@ function structWithComplexArraysToJson() returns (json | error) {
     PersonA p1 = {name:""};
     PersonA p2 = {name:""};
     ComplexArrayStruct t = {a:[4, 6, 9], b:[4.6, 7.5], c:[true, true, false], d:["apple", "orange"], e:[m1, m2], f:[p1, p2], g:[g]};
-    var js = check json.convert(t);
+    var js = json.convert(t);
     return js;
 }
 
