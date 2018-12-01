@@ -1449,7 +1449,8 @@ public class PackageInfoReader {
                     UTF8CPEntry sigCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(sigCPIndex);
                     BType bType = getParamTypes(packageInfo, sigCPEntry.getValue())[0];
                     packageInfo.addInstruction(new InstructionWRKSendReceive(opcode, channelRefCPIndex,
-                            channelRefCPEntry.getWorkerDataChannelInfo(), sigCPIndex, bType, codeStream.readInt()));
+                            channelRefCPEntry.getWorkerDataChannelInfo(), sigCPIndex, bType,
+                            codeStream.readInt(), opcode == InstructionCodes.WRKSEND));
                     break;
                 case InstructionCodes.CHNRECEIVE:
                     BType keyType = null;

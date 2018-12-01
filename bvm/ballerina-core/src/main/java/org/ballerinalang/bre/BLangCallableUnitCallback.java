@@ -62,8 +62,6 @@ public class BLangCallableUnitCallback implements CallableUnitCallback {
             return;
         }
         strand.respCallback.signal();
-//        //TODO fix - rajith
-//        BLangScheduler.handleInterruptibleAfterCallback(this.parentCtx);
     }
 
     @Override
@@ -79,8 +77,6 @@ public class BLangCallableUnitCallback implements CallableUnitCallback {
         }
         strand.respCallback.setError(error);
         strand.respCallback.signal();
-        //TODO fix - rajith
-//        BLangScheduler.handleInterruptibleAfterCallback(this.parentCtx);
     }
 
 }
