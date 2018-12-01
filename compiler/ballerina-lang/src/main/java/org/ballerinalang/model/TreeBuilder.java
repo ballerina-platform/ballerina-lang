@@ -538,7 +538,7 @@ public class TreeBuilder {
         return new BLangArrowFunction();
     }
 
-    public static TypeInitNode createObjectInitNode() {
+    public static TypeInitNode createInitNode() {
         return new BLangTypeInit();
     }
 

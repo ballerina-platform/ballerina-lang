@@ -35,15 +35,15 @@ public class SwaggerEndpointMapper {
      */
     public Swagger convertBoundEndpointsToSwagger(List<BLangSimpleVariable> endpoints, ServiceNode service,
                                                   Swagger swagger) {
-        if (endpoints == null || service == null || service.getAttachExpr() == null
-                || service.getAttachExpr().getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+        if (endpoints == null || service == null || service.getAttachedExprs().isEmpty()
+                || service.getAttachedExprs().get(0).getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
             return swagger;
         }
         if (swagger == null) {
             return new Swagger();
         }
 
-        SimpleVariableReferenceNode node = (SimpleVariableReferenceNode) service.getAttachExpr();
+        SimpleVariableReferenceNode node = (SimpleVariableReferenceNode) service.getAttachedExprs().get(0);
         for (BLangSimpleVariable ep : endpoints) {
             // At the moment only the last bound endpoint will be populated in swagger
             // we need to move to OAS3 models to support multiple server support

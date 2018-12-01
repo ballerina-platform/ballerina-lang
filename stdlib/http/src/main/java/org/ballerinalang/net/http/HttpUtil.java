@@ -107,6 +107,7 @@ import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSI
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION_CONTENT_TYPES;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION_ENABLE;
 import static org.ballerinalang.net.http.HttpConstants.AUTO;
+import static org.ballerinalang.net.http.HttpConstants.COLON;
 import static org.ballerinalang.net.http.HttpConstants.ENABLED_PROTOCOLS;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_CERTIFICATE;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY;
@@ -434,11 +435,20 @@ public class HttpUtil {
         sendPipelinedResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
     }
 
-    public static void handleFailure(HttpCarbonMessage requestMessage, BError error) {
-        String errorMsg = error.reason;
+    static void handleFailure(HttpCarbonMessage requestMessage, BError error) {
+        String errorMsg = getErrorMessage(error);
         int statusCode = getStatusCode(requestMessage, errorMsg);
         ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
         sendPipelinedResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
+    }
+
+    private static String getErrorMessage(BError error) {
+        String errorMsg = error.reason;
+        BMap<String, BValue> errorDetails = (BMap<String, BValue>) error.getDetails();
+        if (!errorDetails.isEmpty()) {
+            errorMsg = errorMsg.concat(COLON + errorDetails.get(HTTP_ERROR_MESSAGE));
+        }
+        return errorMsg;
     }
 
     private static int getStatusCode(HttpCarbonMessage requestMessage, String errorMsg) {

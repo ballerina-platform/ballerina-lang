@@ -25,6 +25,7 @@ public function main() {
     // Create a text message.
         var msg = jmsSession.createTextMessage("Hello from Ballerina");
         if (msg is jms:Message) {
+            // Send the message to the JMS provider.
             var result = queueSender->send(msg);
             if (result is error) {
                 log:printError("Error occurred while sending message", err = result);

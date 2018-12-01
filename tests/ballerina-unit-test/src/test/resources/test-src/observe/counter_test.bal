@@ -21,12 +21,11 @@ function testCounterError() returns (float) {
     counter1.increment(amount = 5);
     observe:Gauge gauge = new("requests_total", desc = "Total requests.", tags = tags);
     error? err = gauge.register();
-    match err {
-        error e => panic e;
-        () => {
-            gauge.increment(amount = 5.0);
-            return gauge.getValue();
-        }
+    if err is error {
+        panic err;
+    } else {
+        gauge.increment(amount = 5.0);
+        return gauge.getValue();
     }
 }
 

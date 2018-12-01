@@ -37,57 +37,53 @@ public class WebSocketResourceValidator {
     private static final String INVALID_RESOURCE_SIGNATURE_FOR = "Invalid resource signature for ";
     private static final String RESOURCE_IN_SERVICE = " resource in service ";
 
-    public static void validate(String serviceName, BLangFunction resource, DiagnosticLog dlog, boolean isClient) {
+    public static void validate(BLangFunction resource, DiagnosticLog dlog, boolean isClient) {
         switch (resource.getName().getValue()) {
             case WebSocketConstants.RESOURCE_NAME_ON_OPEN:
             case WebSocketConstants.RESOURCE_NAME_ON_IDLE_TIMEOUT:
-                validateOnOpenResource(serviceName, resource, dlog, isClient);
+                validateOnOpenResource(resource, dlog, isClient);
                 break;
             case WebSocketConstants.RESOURCE_NAME_ON_TEXT:
-                validateOnTextResource(serviceName, resource, dlog, isClient);
+                validateOnTextResource(resource, dlog, isClient);
                 break;
             case WebSocketConstants.RESOURCE_NAME_ON_BINARY:
-                validateOnBinaryResource(serviceName, resource, dlog, isClient);
+                validateOnBinaryResource(resource, dlog, isClient);
                 break;
             case WebSocketConstants.RESOURCE_NAME_ON_PING:
             case WebSocketConstants.RESOURCE_NAME_ON_PONG:
-                validateOnPingPongResource(serviceName, resource, dlog, isClient);
+                validateOnPingPongResource(resource, dlog, isClient);
                 break;
             case WebSocketConstants.RESOURCE_NAME_ON_CLOSE:
-                validateOnCloseResource(serviceName, resource, dlog, isClient);
+                validateOnCloseResource(resource, dlog, isClient);
                 break;
             case WebSocketConstants.RESOURCE_NAME_ON_ERROR:
-                validateOnErrorResource(serviceName, resource, dlog, isClient);
+                validateOnErrorResource(resource, dlog, isClient);
                 break;
             default:
                 dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos,
-                                   "Invalid resource name " + resource.getName().getValue() + " in service " +
-                                           serviceName);
+                                   "Invalid resource name " + resource.getName().getValue() + " in service ");
         }
 
     }
 
-    private static void validateOnOpenResource(String serviceName, BLangFunction resource, DiagnosticLog dlog,
-                                               boolean isClient) {
+    private static void validateOnOpenResource(BLangFunction resource, DiagnosticLog dlog, boolean isClient) {
         if (!isClient || !resource.getName().getValue().equals(WebSocketConstants.RESOURCE_NAME_ON_OPEN)) {
             List<BLangSimpleVariable> paramDetails = resource.getParameters();
-            validateParamDetailsSize(paramDetails, 1, serviceName, resource, dlog);
-            validateEndpointParameter(serviceName, resource, dlog, paramDetails, isClient);
+            validateParamDetailsSize(paramDetails, 1, resource, dlog);
+            validateEndpointParameter(resource, dlog, paramDetails, isClient);
         } else {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos,
-                               "onOpen resource is not supported for " + WebSocketConstants.WEBSOCKET_CLIENT_SERVICE +
-                                       " " + serviceName);
+                               "onOpen resource is not supported for " + WebSocketConstants.WEBSOCKET_CLIENT_SERVICE);
         }
     }
 
-    private static void validateOnTextResource(String serviceName, BLangFunction resource, DiagnosticLog dlog,
-                                               boolean isClient) {
+    private static void validateOnTextResource(BLangFunction resource, DiagnosticLog dlog, boolean isClient) {
         List<BLangSimpleVariable> paramDetails = resource.getParameters();
-        validateParamDetailsSize(paramDetails, 2, 3, serviceName, resource, dlog);
-        validateEndpointParameter(serviceName, resource, dlog, paramDetails, isClient);
+        validateParamDetailsSize(paramDetails, 2, 3, resource, dlog);
+        validateEndpointParameter(resource, dlog, paramDetails, isClient);
         if (paramDetails.size() < 2) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
-                    + resource.getName().getValue() + RESOURCE_IN_SERVICE + serviceName +
+                    + resource.getName().getValue() + RESOURCE_IN_SERVICE +
                     ": A second parameter needs to be specified");
         }
         BType secondParamType = paramDetails.get(1).type;
@@ -98,98 +94,93 @@ public class WebSocketResourceValidator {
                         ((BArrayType) secondParamType).getElementType().tag !=
                                 org.ballerinalang.model.types.TypeTags.BYTE_TAG))) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
-                    + resource.getName().getValue() + RESOURCE_IN_SERVICE + serviceName +
+                    + resource.getName().getValue() + RESOURCE_IN_SERVICE +
                     ": The second parameter should be a string, json, xml, byte[] or a record type");
         } else if (paramDetails.size() == 3) {
             if (!"string".equals(secondParamType.toString())) {
                 dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
-                        + resource.getName().getValue() + RESOURCE_IN_SERVICE + serviceName +
+                        + resource.getName().getValue() + RESOURCE_IN_SERVICE +
                         ": Final fragment is not valid if the second parameter is not a string");
             } else if (!"boolean".equals(paramDetails.get(2).type.toString())) {
                 dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
-                        + resource.getName().getValue() + RESOURCE_IN_SERVICE + serviceName +
+                        + resource.getName().getValue() + RESOURCE_IN_SERVICE +
                         ": The third parameter should be a boolean");
             }
         }
     }
 
-    private static void validateOnBinaryResource(String serviceName, BLangFunction resource, DiagnosticLog dlog,
-                                                 boolean isClient) {
+    private static void validateOnBinaryResource(BLangFunction resource, DiagnosticLog dlog, boolean isClient) {
         List<BLangSimpleVariable> paramDetails = resource.getParameters();
-        validateParamDetailsSize(paramDetails, 2, 3, serviceName, resource, dlog);
-        validateEndpointParameter(serviceName, resource, dlog, paramDetails, isClient);
+        validateParamDetailsSize(paramDetails, 2, 3, resource, dlog);
+        validateEndpointParameter(resource, dlog, paramDetails, isClient);
         if (paramDetails.size() < 2 || !"byte[]".equals(paramDetails.get(1).type.toString())) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
-                    + resource.getName().getValue() + RESOURCE_IN_SERVICE + serviceName +
+                    + resource.getName().getValue() + RESOURCE_IN_SERVICE +
                     ": The second parameter should be a byte[]");
         }
         if (paramDetails.size() == 3 && !"boolean".equals(paramDetails.get(2).type.toString())) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
-                    + resource.getName().getValue() + RESOURCE_IN_SERVICE + serviceName +
+                    + resource.getName().getValue() + RESOURCE_IN_SERVICE +
                     ": The third parameter should be a boolean");
         }
     }
 
-    private static void validateOnPingPongResource(String serviceName, BLangFunction resource, DiagnosticLog dlog,
-                                                   boolean isClient) {
+    private static void validateOnPingPongResource(BLangFunction resource, DiagnosticLog dlog, boolean isClient) {
         List<BLangSimpleVariable> paramDetails = resource.getParameters();
-        validateParamDetailsSize(paramDetails, 2, serviceName, resource, dlog);
-        validateEndpointParameter(serviceName, resource, dlog, paramDetails, isClient);
+        validateParamDetailsSize(paramDetails, 2, resource, dlog);
+        validateEndpointParameter(resource, dlog, paramDetails, isClient);
         if (paramDetails.size() < 2 || !"byte[]".equals(paramDetails.get(1).type.toString())) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
-                    + resource.getName().getValue() + RESOURCE_IN_SERVICE + serviceName +
+                    + resource.getName().getValue() + RESOURCE_IN_SERVICE +
                     ": The second parameter should be a byte[]");
         }
     }
 
-    private static void validateOnCloseResource(String serviceName, BLangFunction resource, DiagnosticLog dlog,
-                                                boolean isClient) {
+    private static void validateOnCloseResource(BLangFunction resource, DiagnosticLog dlog, boolean isClient) {
         List<BLangSimpleVariable> paramDetails = resource.getParameters();
-        validateParamDetailsSize(paramDetails, 3, serviceName, resource, dlog);
-        validateEndpointParameter(serviceName, resource, dlog, paramDetails, isClient);
+        validateParamDetailsSize(paramDetails, 3, resource, dlog);
+        validateEndpointParameter(resource, dlog, paramDetails, isClient);
         if (paramDetails.size() < 2 || TypeTags.INT != paramDetails.get(1).type.tag) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR +
-                    resource.getName().getValue() + RESOURCE_IN_SERVICE + serviceName +
+                    resource.getName().getValue() + RESOURCE_IN_SERVICE +
                     ": The second parameter should be an int");
         }
         if (paramDetails.size() < 3 || TypeTags.STRING != paramDetails.get(2).type.tag) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
-                    + resource.getName().getValue() + RESOURCE_IN_SERVICE + serviceName +
+                    + resource.getName().getValue() + RESOURCE_IN_SERVICE +
                     ": The third parameter should be a string");
         }
     }
 
-    private static void validateOnErrorResource(String serviceName, BLangFunction resource, DiagnosticLog dlog,
-                                                boolean isClient) {
+    private static void validateOnErrorResource(BLangFunction resource, DiagnosticLog dlog, boolean isClient) {
         List<BLangSimpleVariable> paramDetails = resource.getParameters();
-        validateParamDetailsSize(paramDetails, 2, serviceName, resource, dlog);
-        validateEndpointParameter(serviceName, resource, dlog, paramDetails, isClient);
+        validateParamDetailsSize(paramDetails, 2, resource, dlog);
+        validateEndpointParameter(resource, dlog, paramDetails, isClient);
         if (paramDetails.size() < 2 || !"error".equals(paramDetails.get(1).type.toString())) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, String.format(
-                    "Invalid resource signature for %s resource in service %s: The second parameter should be an error",
-                    resource.getName().getValue(), serviceName));
+                    "Invalid resource signature for %s resource in service : The second parameter should be an error",
+                    resource.getName().getValue()));
         }
     }
 
     private static void validateParamDetailsSize(List<BLangSimpleVariable> paramDetails, int expectedSize,
-            String serviceName, BLangFunction resource, DiagnosticLog dlog) {
+                                                 BLangFunction resource, DiagnosticLog dlog) {
         if (paramDetails == null || paramDetails.size() != expectedSize) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
-                    + resource.getName().getValue() + RESOURCE_IN_SERVICE + serviceName +
+                    + resource.getName().getValue() + RESOURCE_IN_SERVICE +
                     ": Expected parameter count = " + expectedSize);
         }
     }
 
     private static void validateParamDetailsSize(List<BLangSimpleVariable> paramDetails, int min, int max,
-            String serviceName, BLangFunction resource, DiagnosticLog dlog) {
+                                                 BLangFunction resource, DiagnosticLog dlog) {
         if (paramDetails == null || paramDetails.size() < min || paramDetails.size() > max) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
-                    + resource.getName().getValue() + RESOURCE_IN_SERVICE + serviceName +
-                    ": Unexpected parameter count");
+                    + resource.getName().getValue() + RESOURCE_IN_SERVICE + ": Unexpected parameter count");
         }
     }
 
-    private static void validateEndpointParameter(String serviceName, BLangFunction resource, DiagnosticLog dlog,
+    private static void validateEndpointParameter(BLangFunction resource, DiagnosticLog dlog,
                                                   List<BLangSimpleVariable> paramDetails, boolean isClient) {
         if (paramDetails == null || paramDetails.isEmpty() ||
                 (!isClient && !WebSocketConstants.WEBSOCKET_CALLER_NAME.equals(
@@ -197,7 +188,7 @@ public class WebSocketResourceValidator {
                 (isClient && !WebSocketConstants.WEBSOCKET_CLIENT_ENDPOINT_NAME.equals(
                         paramDetails.get(0).type.toString()))) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
-                    + resource.getName().getValue() + RESOURCE_IN_SERVICE + serviceName +
+                    + resource.getName().getValue() + RESOURCE_IN_SERVICE +
                     ": The first parameter should be an endpoint");
         }
     }
