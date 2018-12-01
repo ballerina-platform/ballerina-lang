@@ -422,7 +422,7 @@ public class BJSONValueTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJsonToJsonArrayInvalidCasting");
         Assert.assertTrue(returns[0] instanceof BError);
         String errorMsg = ((BError) returns[0]).getReason();
-        Assert.assertEquals(errorMsg, "'json[]' cannot be cast to 'json[][][]'");
+        Assert.assertEquals(errorMsg, "incompatible stamp operation: 'json[]' value cannot be stamped as 'json[][][]'");
     }
 
     @Test
@@ -437,7 +437,7 @@ public class BJSONValueTest {
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error:.*'null' cannot be cast to 'string'.*")
+            expectedExceptionsMessageRegExp = ".*error: assertion error: expected 'string', found '\\(\\)' .*")
     public void testGetFromNull() {
         BRunUtil.invoke(compileResult, "testGetFromNull");
     }
