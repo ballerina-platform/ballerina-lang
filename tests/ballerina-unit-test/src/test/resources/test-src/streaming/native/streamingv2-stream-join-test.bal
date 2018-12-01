@@ -107,7 +107,7 @@ function joinFunc() {
     // On condition
     function (map<anydata>, map<anydata>) returns boolean conditionFunc =
     function (map<anydata> lsh, map<anydata> rhs) returns boolean {
-        return lsh["stockStream.symbol"] == rhs["twitterStream.company"];
+        return <string>lsh["stockStream.symbol"] == <string>rhs["twitterStream.company"];
     };
 
     // Join processor
