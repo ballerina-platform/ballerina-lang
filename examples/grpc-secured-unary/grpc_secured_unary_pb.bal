@@ -1,6 +1,7 @@
 import ballerina/grpc;
 import ballerina/io;
 
+// Generated blocking client endpoint based on the service definition.
 public type HelloWorldBlockingClient client object {
     private grpc:Client grpcClient = new;
     private grpc:ClientEndpointConfig config = {};
@@ -22,16 +23,16 @@ public type HelloWorldBlockingClient client object {
 
 
     remote function hello(string req, grpc:Headers? headers = ()) returns ((string, grpc:Headers)|error) {
-
-var payload = check self.grpcClient->blockingExecute("HelloWorld/hello", req, headers = headers);
-grpc:Headers resHeaders = new;
-any result = ();
-(result, resHeaders) = payload;
-return (string.create(result), resHeaders);
-}
+        var payload = check self.grpcClient->blockingExecute("HelloWorld/hello", req, headers = headers);
+        grpc:Headers resHeaders = new;
+        any result = ();
+        (result, resHeaders) = payload;
+        return (string.create(result), resHeaders);
+    }
 
 };
 
+// Generated non-blocking client endpoint based on the service definition.
 public type HelloWorldClient client object {
     private grpc:Client grpcClient = new;
     private grpc:ClientEndpointConfig config = {};
@@ -53,7 +54,6 @@ public type HelloWorldClient client object {
 
 
     remote function hello(string req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
-
         return self.grpcClient->nonBlockingExecute("HelloWorld/hello", req, msgListener, headers = headers);
     }
 

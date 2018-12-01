@@ -1,6 +1,7 @@
 import ballerina/grpc;
 import ballerina/io;
 
+// Generated non-blocking client endpoint based on the service definition.
 public type ChatClient client object {
     private grpc:Client grpcClient = new;
     private grpc:ClientEndpointConfig config = {};

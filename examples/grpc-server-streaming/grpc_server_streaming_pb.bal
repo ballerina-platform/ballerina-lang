@@ -1,6 +1,7 @@
 import ballerina/grpc;
 import ballerina/io;
 
+// Generated non-blocking client endpoint based on the service definition.
 public type HelloWorldClient client object {
     private grpc:Client grpcClient = new;
     private grpc:ClientEndpointConfig config = {};
@@ -22,7 +23,6 @@ public type HelloWorldClient client object {
 
 
     remote function lotsOfReplies(string req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
-
         return self.grpcClient->nonBlockingExecute("HelloWorld/lotsOfReplies", req, msgListener, headers = headers);
     }
 
