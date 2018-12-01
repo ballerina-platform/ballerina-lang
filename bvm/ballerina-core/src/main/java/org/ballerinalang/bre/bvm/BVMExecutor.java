@@ -131,7 +131,7 @@ public class BVMExecutor {
             globalProps.putAll(properties);
         }
 
-        StrandResourceCallback strandCallback = new StrandResourceCallback(null, responseCallback, observerContext);
+        StrandResourceCallback strandCallback = new StrandResourceCallback(null, responseCallback);
         Strand strand = new Strand(programFile, resourceInfo.getName(), globalProps, strandCallback, null);
 
         infectResourceFunction(responseCallback, strand);
@@ -143,7 +143,7 @@ public class BVMExecutor {
         copyArgValues(args, idf, resourceInfo.getParamTypes());
         strand.pushFrame(idf);
         // Start observation after pushing the stack frame
-        ObserveUtils.startResourceObservation(strand);
+        ObserveUtils.startResourceObservation(strand, observerContext);
 
         BVMScheduler.stateChange(strand, State.NEW, State.RUNNABLE);
         BVMScheduler.schedule(strand);

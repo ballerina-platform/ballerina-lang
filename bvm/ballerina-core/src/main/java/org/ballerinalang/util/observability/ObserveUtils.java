@@ -24,7 +24,9 @@ import org.ballerinalang.bre.bvm.Strand;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.util.FunctionFlags;
+import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
+import org.ballerinalang.util.program.BLangVMUtils;
 import org.ballerinalang.util.tracer.BSpan;
 
 import java.util.Collections;
@@ -68,23 +70,46 @@ public class ObserveUtils {
     /**
      * Start observability for the resource invocation.
      *
-     * @param strand strand
+     * @param strand          strand
+     * @param observerContext observer context
      */
-    public static void startResourceObservation(Strand strand) {
+    public static void startResourceObservation(Strand strand, ObserverContext observerContext) {
         if (!enabled) {
             return;
         }
-        if (strand.respCallback.getObserverContext() == null) {
+        if (observerContext == null) {
+            CallableUnitInfo callableUnitInfo = strand.currentFrame.callableUnitInfo;
             ObserverContext ctx = new ObserverContext();
-            ctx.setConnectorName(strand.currentFrame.callableUnitInfo.attachedToType.toString());
-            ctx.setServiceName(strand.currentFrame.callableUnitInfo.getName());
+            ctx.setConnectorName(callableUnitInfo.getPkgPath());
+            ctx.setServiceName(ObserveUtils.getFullServiceName(callableUnitInfo.attachedToType.getName(),
+                                                               callableUnitInfo.getPkgPath()));
+            ctx.setResourceName(callableUnitInfo.getName());
             strand.respCallback.setObserverContext(ctx);
+        } else {
+            strand.respCallback.setObserverContext(observerContext);
         }
-        ObserverContext observerContext = strand.respCallback.getObserverContext();
-        observerContext.setServer();
-        observerContext.setStarted();
-        strand.currentFrame.observerContext = observerContext;
-        observers.forEach(observer -> observer.startServerObservation(observerContext));
+        ObserverContext newObContext = strand.respCallback.getObserverContext();
+        newObContext.setServer();
+        newObContext.setStarted();
+        strand.currentFrame.observerContext = newObContext;
+        observers.forEach(observer -> observer.startServerObservation(newObContext));
+    }
+
+    /**
+     * Get full service name with the package path.
+     *
+     * @param serviceName service name
+     * @param pkgPath     package path
+     * @return full qualified service name
+     */
+    private static String getFullServiceName(String serviceName, String pkgPath) {
+        if (serviceName == null) {
+            return ObservabilityConstants.UNKNOWN_SERVICE;
+        }
+        if (pkgPath.equals(PACKAGE_SEPARATOR)) {
+            return serviceName;
+        }
+        return pkgPath + PACKAGE_SEPARATOR + serviceName;
     }
 
     /**
@@ -126,12 +151,21 @@ public class ObserveUtils {
         newObContext.setStarted();
         newObContext.setConnectorName(strand.currentFrame.callableUnitInfo.attachedToType.toString());
         newObContext.setActionName(strand.currentFrame.callableUnitInfo.getName());
-        //TODO double check below logic
-        newObContext.setServiceName(parentCtx != null ?
-                                            parentCtx.getServiceName() : ObservabilityConstants.UNKNOWN_SERVICE);
+        newObContext.setServiceName(getServiceName(strand));
         strand.currentFrame.observerContext = newObContext;
         observers.forEach(observer -> observer.startClientObservation(newObContext));
 
+    }
+
+    /**
+     * Get service name from the current strand.
+     *
+     * @param strand current strand
+     * @return service name
+     */
+    private static String getServiceName(Strand strand) {
+        ServiceInfo serviceInfo = BLangVMUtils.getServiceInfo(strand);
+        return serviceInfo != null ? getFullServiceName(serviceInfo) : ObservabilityConstants.UNKNOWN_SERVICE;
     }
 
     /**
@@ -151,7 +185,7 @@ public class ObserveUtils {
                 strand.currentFrame.callableUnitInfo.attachedToType.toString() : "ballerina:worker";
         newObContext.setConnectorName(connectorName);
         newObContext.setActionName(strand.currentFrame.callableUnitInfo.getName());
-        newObContext.setServiceName(parentCtx.getServiceName());
+        newObContext.setServiceName(getServiceName(strand));
         strand.currentFrame.observerContext = newObContext;
         strand.respCallback.setObserverContext(newObContext);
         observers.forEach(observer -> observer.startClientObservation(newObContext));
