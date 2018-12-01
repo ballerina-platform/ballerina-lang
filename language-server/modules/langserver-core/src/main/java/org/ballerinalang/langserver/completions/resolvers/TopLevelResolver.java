@@ -92,7 +92,6 @@ public class TopLevelResolver extends AbstractItemResolver {
         completionItems.add(getStaticItem(Snippet.STMT_NAMESPACE_DECLARATION, snippetCapability));
         completionItems.add(getStaticItem(Snippet.DEF_OBJECT_SNIPPET, snippetCapability));
         completionItems.add(getStaticItem(Snippet.DEF_RECORD, snippetCapability));
-        completionItems.add(getStaticItem(Snippet.DEF_ENDPOINT, snippetCapability));
         completionItems.add(getStaticItem(Snippet.KW_TYPE, snippetCapability));
         completionItems.add(getStaticItem(Snippet.KW_PUBLIC, snippetCapability));
         // TODO: 11/19/18 Enable when the Final Keyword support enabled from the core 

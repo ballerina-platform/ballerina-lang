@@ -29,8 +29,8 @@ type TeacherOutput record{
 };
 
 int index = 0;
-stream<Teacher> inputStreamUniqueLengthTest2;
-stream<TeacherOutput> outputStreamUniqueLengthTest2;
+stream<Teacher> inputStreamUniqueLengthTest2 = new;
+stream<TeacherOutput> outputStreamUniqueLengthTest2 = new;
 TeacherOutput[] globalEmployeeArray = [];
 
 function startUniqueLengthwindowTest2() returns TeacherOutput[] {
@@ -52,7 +52,7 @@ function startUniqueLengthwindowTest2() returns TeacherOutput[] {
 
     testUniqueLengthwindow();
 
-    outputStreamUniqueLengthTest2.subscribe(printTeachers);
+    outputStreamUniqueLengthTest2.subscribe(function(TeacherOutput e) {printTeachers(e);});
     foreach t in teachers {
         inputStreamUniqueLengthTest2.publish(t);
         runtime:sleep(500);

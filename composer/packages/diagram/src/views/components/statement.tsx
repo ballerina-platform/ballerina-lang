@@ -3,7 +3,8 @@ import { ASTNode} from "@ballerina/ast-model";
 import * as React from "react";
 import { DiagramConfig } from "../../config/default";
 import { DiagramUtils } from "../../diagram/diagram-utils";
-import { ViewState } from "../../view-model";
+import { StmntViewState } from "../../view-model";
+import { ActionInvocation } from "./action-invocation";
 
 const config: DiagramConfig = DiagramUtils.getConfig();
 
@@ -12,7 +13,7 @@ export const Statement: React.StatelessComponent<{
     }> = ({
         model
     }) => {
-        const viewState: ViewState = model.viewState;
+        const viewState: StmntViewState = model.viewState;
 
         const statementProps = {
             className: "statement",
@@ -21,7 +22,8 @@ export const Statement: React.StatelessComponent<{
         };
 
         return (
-            <g className="panel">
-                <text {...statementProps}>{viewState.bBox.label}</text>
+            <g className="statement">
+                {viewState.isAction && <ActionInvocation model={viewState} action={viewState.bBox.label} />}
+                {!viewState.isAction && <text {...statementProps}>{viewState.bBox.label}</text>}
             </g>);
     };
