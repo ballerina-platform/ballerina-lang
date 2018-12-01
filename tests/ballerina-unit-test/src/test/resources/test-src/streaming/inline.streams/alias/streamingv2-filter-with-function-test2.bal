@@ -26,7 +26,7 @@ type Teacher record {
 };
 
 int index = 0;
-stream<Teacher> outputStream;
+stream<Teacher> outputStream = new;
 Teacher[] globalEmployeeArray = [];
 
 function startFilterQuery() returns (Teacher[]) {
@@ -39,7 +39,7 @@ function startFilterQuery() returns (Teacher[]) {
     teachers[1] = t2;
     teachers[2] = t3;
 
-    stream<Teacher> inputStream;
+    stream<Teacher> inputStream = new;
     testFilterQuery(inputStream);
 
     outputStream.subscribe(printTeachers);

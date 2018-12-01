@@ -29,8 +29,8 @@ type TeacherOutput record{
 };
 
 int index = 0;
-stream<Teacher> inputStreamLengthbatchTest2;
-stream<TeacherOutput > outputStreamLengthBatchTest2;
+stream<Teacher> inputStreamLengthbatchTest2 = new;
+stream<TeacherOutput > outputStreamLengthBatchTest2 = new;
 TeacherOutput[] globalEmployeeArray = [];
 
 function startLengthBatchwindowTest2() returns (TeacherOutput[]) {

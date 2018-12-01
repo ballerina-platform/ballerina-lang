@@ -30,9 +30,9 @@ type TeacherOutput record{
 };
 
 int index = 0;
-stream<Teacher> inputStream;
-stream<Teacher> outputStream;
-stream<TeacherOutput> finalOutputStream;
+stream<Teacher> inputStream = new;
+stream<Teacher> outputStream = new;
+stream<TeacherOutput> finalOutputStream = new;
 TeacherOutput[] globalEmployeeArray = [];
 
 function startPipelineQuery() returns (TeacherOutput[]) {
