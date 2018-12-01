@@ -3542,6 +3542,8 @@ public class BVM {
                 case TypeTags.NULL_TAG:
                 case TypeTags.JSON_TAG:
                     return true;
+                case TypeTags.MAP_TAG:
+                    return checkCastByType(((BMapType) rhsType).getConstrainedType(), lhsType, unresolvedTypes);
                 case TypeTags.ARRAY_TAG:
                     if (((BJSONType) lhsType).getConstrainedType() != null) {
                         return false;
@@ -4718,8 +4720,15 @@ public class BVM {
             return false;
         }
 
+        BValueArray source = (BValueArray) sourceValue;
+        if (source.elementType == BTypes.typeInt || source.elementType == BTypes.typeString ||
+                source.elementType == BTypes.typeFloat || source.elementType == BTypes.typeBoolean ||
+                source.elementType == BTypes.typeByte) {
+            return checkIsType(source.elementType, targetType.getElementType(), new ArrayList<>());
+        }
+        
         BType arrayElementType = targetType.getElementType();
-        BRefType<?>[] arrayValues = ((BValueArray) sourceValue).getValues();
+        BRefType<?>[] arrayValues = source.getValues();
         for (int i = 0; i < ((BValueArray) sourceValue).size(); i++) {
             if (!checkIsLikeType(arrayValues[i], arrayElementType)) {
                 return false;
@@ -4745,7 +4754,14 @@ public class BVM {
         if (targetType.getConstrainedType() != null) {
             return checkIsLikeType(sourceValue, targetType.getConstrainedType());
         } else if (sourceValue.getType().getTag() == TypeTags.ARRAY_TAG) {
-            BRefType<?>[] arrayValues = ((BValueArray) sourceValue).getValues();
+            BValueArray source = (BValueArray) sourceValue;
+            if (source.elementType == BTypes.typeInt || source.elementType == BTypes.typeString ||
+                    source.elementType == BTypes.typeFloat || source.elementType == BTypes.typeBoolean ||
+                    source.elementType == BTypes.typeByte) {
+                return checkIsType(source.elementType, targetType, new ArrayList<>());
+            }
+            
+            BRefType<?>[] arrayValues = source.getValues();
             for (int i = 0; i < ((BValueArray) sourceValue).size(); i++) {
                 if (!checkIsLikeType(arrayValues[i], targetType)) {
                     return false;
@@ -4754,6 +4770,12 @@ public class BVM {
         } else if (sourceValue.getType().getTag() == TypeTags.MAP_TAG) {
             for (BValue value : ((BMap) sourceValue).values()) {
                 if (!checkIsLikeType(value, targetType)) {
+                    return false;
+                }
+            }
+        } else if (sourceValue.getType().getTag() == TypeTags.RECORD_TYPE_TAG) {
+            for (Object object : ((BMap) sourceValue).getMap().values()) {
+                if (!checkIsLikeType((BValue) object, targetType)) {
                     return false;
                 }
             }
