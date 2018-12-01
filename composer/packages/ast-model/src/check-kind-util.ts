@@ -239,6 +239,10 @@ export class ASTKindChecker {
     return node.kind === "PatternStreamingInput";
   }
 
+  public static isRecordDestructure(node: ASTNode) {
+    return node.kind === "RecordDestructure";
+  }
+
   public static isRecordLiteralExpr(node: ASTNode) {
     return node.kind === "RecordLiteralExpr";
   }

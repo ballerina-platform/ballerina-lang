@@ -53,6 +53,7 @@ import static org.ballerinalang.test.utils.debug.Util.createBreakNodeLocations;
 /**
  * Test Cases for {@link Debugger}.
  */
+@Test(groups = "broken")
 public class VMDebuggerTest {
 
     private static final String FILE = "test-debug.bal";

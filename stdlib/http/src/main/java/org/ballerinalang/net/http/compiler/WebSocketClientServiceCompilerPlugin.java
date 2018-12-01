@@ -33,7 +33,6 @@ import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_CLIENT;
  * @since 0.965.0
  */
 @SupportedResourceParamTypes(
-        expectedListenerType = @SupportedResourceParamTypes.Type(packageName = "http", name = "WebSocketListener"),
         paramTypes = {@SupportedResourceParamTypes.Type(packageName = "http", name = WEBSOCKET_CLIENT)})
 public class WebSocketClientServiceCompilerPlugin extends AbstractCompilerPlugin {
 

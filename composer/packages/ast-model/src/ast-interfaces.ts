@@ -210,6 +210,7 @@ export interface Block extends ASTNode {
     | Match
     | Next
     | Panic
+    | RecordDestructure
     | Retry
     | Return
     | Throw
@@ -758,7 +759,10 @@ export interface MarkdownDocumentation extends ASTNode {
 }
 
 export interface Match extends ASTNode {
-  expression: SimpleVariableRef;
+  expression: BracedTupleExpr | SimpleVariableRef;
+  patternClauses: Array<
+    MatchStaticPatternClause | MatchStructuredPatternClause
+  >;
   position: any;
   staticPatternClauses: MatchStaticPatternClause[];
   structuredPatternClauses: MatchStructuredPatternClause[];
@@ -767,12 +771,11 @@ export interface Match extends ASTNode {
 
 export interface MatchStaticPatternClause extends ASTNode {
   literal:
-    | ArrayLiteralExpr
     | BinaryExpr
     | BracedTupleExpr
     | Literal
     | RecordLiteralExpr
-    | TypedescExpression;
+    | SimpleVariableRef;
   position: any;
   statement: Block;
   ws: any[];
@@ -879,6 +882,13 @@ export interface PatternStreamingInput extends ASTNode {
   ws?: any[];
 }
 
+export interface RecordDestructure extends ASTNode {
+  expression: Invocation | Literal | RecordLiteralExpr | SimpleVariableRef;
+  position: any;
+  variableRefs: RecordVariableRef;
+  ws: any[];
+}
+
 export interface RecordLiteralExpr extends ASTNode {
   isExpression?: boolean;
   keyValuePairs: RecordLiteralKeyValue[];
@@ -962,7 +972,7 @@ export interface RecordVariable extends ASTNode {
   service: boolean;
   symbolType: string[];
   testable: boolean;
-  typeNode?: UserDefinedType;
+  typeNode?: UnionTypeNode | UserDefinedType;
   variables: any;
   worker: boolean;
   ws?: any[];
@@ -1045,7 +1055,7 @@ export interface SelectExpression extends ASTNode {
 export interface Service extends ASTNode {
   annotationAttachments: AnnotationAttachment[];
   anonymousService: boolean;
-  attachExpr?: SimpleVariableRef | TypeInitExpr;
+  attachedExprs: Array<SimpleVariableRef | TypeInitExpr>;
   deprecatedAttachments: any;
   isServiceTypeUnavailable: boolean;
   markdownDocumentationAttachment?: MarkdownDocumentation;
@@ -1221,14 +1231,7 @@ export interface Try extends ASTNode {
 }
 
 export interface TupleDestructure extends ASTNode {
-  declaredWithVar: boolean;
-  expression:
-    | BracedTupleExpr
-    | Invocation
-    | Literal
-    | RecordLiteralExpr
-    | SimpleVariableRef
-    | WorkerReceive;
+  expression: BracedTupleExpr | Invocation | SimpleVariableRef | WorkerReceive;
   position: any;
   variableRefs: Array<
     FieldBasedAccessExpr | SimpleVariableRef | TupleVariableRef
@@ -1428,7 +1431,6 @@ export interface TypedescExpression extends ASTNode {
     | ArrayType
     | BuiltInRefType
     | ConstrainedType
-    | ErrorType
     | TupleTypeNode
     | UnionTypeNode
     | UserDefinedType
@@ -1678,6 +1680,7 @@ export interface WorkerFlush extends ASTNode {
 
 export interface WorkerReceive extends ASTNode {
   isExpression?: boolean;
+  keyExpression?: SimpleVariableRef;
   position: any;
   symbolType: string[];
   workerName: Identifier;
@@ -1690,6 +1693,7 @@ export interface WorkerSend extends ASTNode {
     | IndexBasedAccessExpr
     | Literal
     | SimpleVariableRef;
+  keyExpression?: SimpleVariableRef;
   position: any;
   symbolType: string[];
   workerName: Identifier;

@@ -84,3 +84,17 @@
 
 @diagram-condition-stroke-width: @diagram-stroke-width;
 @diagram-condition-line-stroke-width: @diagram-stroke-width;
+
+
+/*-------------------
+       Buttons 
+--------------------*/
+
+@diagram-button-background-color: #00B5AD;
+@diagram-button-text-color: #fff;
+
+@dark-diagram-button-background-color: @diagram-button-background-color;
+@dark-diagram-button-text-color: @diagram-button-text-color;
+
+@light-diagram-button-background-color: @diagram-button-background-color;
+@light-diagram-button-text-color: @diagram-button-text-color;

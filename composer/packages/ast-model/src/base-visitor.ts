@@ -201,6 +201,9 @@ export interface Visitor {
   beginVisitPatternStreamingInput?(node: Ballerina.PatternStreamingInput): void;
   endVisitPatternStreamingInput?(node: Ballerina.PatternStreamingInput): void;
 
+  beginVisitRecordDestructure?(node: Ballerina.RecordDestructure): void;
+  endVisitRecordDestructure?(node: Ballerina.RecordDestructure): void;
+
   beginVisitRecordLiteralExpr?(node: Ballerina.RecordLiteralExpr): void;
   endVisitRecordLiteralExpr?(node: Ballerina.RecordLiteralExpr): void;
 
