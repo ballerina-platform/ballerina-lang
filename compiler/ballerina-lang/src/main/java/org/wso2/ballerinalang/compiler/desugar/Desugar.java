@@ -419,9 +419,6 @@ public class Desugar extends BLangNodeVisitor {
 
         pkgNode.globalVars.forEach(globalVar -> {
             BLangAssignment assignment = createAssignmentStmt(globalVar);
-            if (assignment.expr == null) {
-                assignment.expr = getInitExpr(globalVar);
-            }
             if (assignment.expr != null) {
                 pkgNode.initFunction.body.stmts.add(assignment);
             }
@@ -637,13 +634,6 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangSimpleVariableDef varDefNode) {
         varDefNode.var = rewrite(varDefNode.var, env);
-
-        BLangSimpleVariable varNode = varDefNode.var;
-        // Generate default init expression, if rhs expr is null
-        if (varNode.expr == null) {
-            varNode.expr = getInitExpr(varNode);
-        }
-
         result = varDefNode;
     }
 
@@ -1640,8 +1630,6 @@ public class Desugar extends BLangNodeVisitor {
             expr = new BLangStructLiteral(recordLiteral.keyValuePairs, recordLiteral.type);
         } else if (recordLiteral.type.tag == TypeTags.MAP) {
             expr = new BLangMapLiteral(recordLiteral.keyValuePairs, recordLiteral.type);
-        } else if (recordLiteral.type.tag == TypeTags.STREAM) {
-            expr = new BLangStreamLiteral(recordLiteral.type, recordLiteral.name);
         } else {
             expr = new BLangJSONLiteral(recordLiteral.keyValuePairs, recordLiteral.type);
         }
@@ -1921,13 +1909,19 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     public void visit(BLangTypeInit typeInitExpr) {
-        if (typeInitExpr.type.tag == TypeTags.OBJECT &&
-                typeInitExpr.objectInitInvocation.symbol == null) {
-            typeInitExpr.objectInitInvocation.symbol =
-                    ((BObjectTypeSymbol) typeInitExpr.type.tsymbol).initializerFunc.symbol;
+        switch (typeInitExpr.type.tag) {
+            case TypeTags.STREAM:
+            case TypeTags.CHANNEL:
+                result = getInitExpr(typeInitExpr.type, typeInitExpr);
+                break;
+            default:
+                if (typeInitExpr.type.tag == TypeTags.OBJECT && typeInitExpr.initInvocation.symbol == null) {
+                    typeInitExpr.initInvocation.symbol =
+                            ((BObjectTypeSymbol) typeInitExpr.type.tsymbol).initializerFunc.symbol;
+                }
+                typeInitExpr.initInvocation = rewriteExpr(typeInitExpr.initInvocation);
+                result = typeInitExpr;
         }
-        typeInitExpr.objectInitInvocation = rewriteExpr(typeInitExpr.objectInitInvocation);
-        result = typeInitExpr;
     }
 
     @Override
@@ -3344,8 +3338,11 @@ public class Desugar extends BLangNodeVisitor {
             conversionSymbol = Symbols.createConversionOperatorSymbol(rhsType, lhsType, symTable.errorType, false, true,
                     InstructionCodes.NOP, null, null);
         } else if (lhsType.tag == TypeTags.MAP || rhsType.tag == TypeTags.MAP) {
+            conversionSymbol = Symbols.createConversionOperatorSymbol(rhsType, lhsType, symTable.errorType, false, true,
+                                                                      InstructionCodes.NOP, null, null);
+        } else if (lhsType.tag == TypeTags.TABLE || rhsType.tag == TypeTags.TABLE) {
             conversionSymbol = Symbols.createConversionOperatorSymbol(rhsType, lhsType, symTable.errorType, false,
-                    true, InstructionCodes.NOP, null, null);
+                                                                      true, InstructionCodes.NOP, null, null);
         } else {
             conversionSymbol = (BConversionOperatorSymbol) symResolver.resolveConversionOperator(rhsType, lhsType);
         }
@@ -4177,12 +4174,24 @@ public class Desugar extends BLangNodeVisitor {
         }
     }
 
-    private BLangExpression getInitExpr(BLangSimpleVariable varNode) {
-        switch (varNode.type.tag) {
+    private BLangExpression getInitExpr(BType type, BLangTypeInit typeInitExpr) {
+        String identifier;
+        switch (typeInitExpr.parent.getKind()) {
+            case ASSIGNMENT:
+                identifier = ((BLangSimpleVarRef) ((BLangAssignment) typeInitExpr.parent).varRef).symbol.name.value;
+                break;
+            case VARIABLE:
+                identifier = ((BLangSimpleVariable) typeInitExpr.parent).name.value;
+                break;
+            default:
+                return null;
+                // shouldn't reach here - todo need to fix as param
+        }
+        switch (type.tag) {
             case TypeTags.STREAM:
-                return new BLangStreamLiteral(varNode.type, varNode.name);
+                return new BLangStreamLiteral(type, identifier);
             case TypeTags.CHANNEL:
-                return new BLangChannelLiteral(varNode.type, varNode.name);
+                return new BLangChannelLiteral(type, identifier);
             default:
                 return null;
         }

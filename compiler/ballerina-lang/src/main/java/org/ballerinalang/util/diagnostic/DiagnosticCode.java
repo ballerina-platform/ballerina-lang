@@ -42,6 +42,8 @@ public enum DiagnosticCode {
     TABLE_KEY_EXPECTED("table.key.expected"),
     OBJECT_TYPE_NOT_ALLOWED("object.type.not.allowed"),
     UNDEFINED_STRUCTURE_FIELD("undefined.field.in.structure"),
+    TYPE_NOT_ALLOWED_WITH_NEW("type.not.allowed.with.new"),
+    STREAM_INIT_NOT_ALLOWED_HERE("stream.initialization.not.allowed.here"),
     CANNOT_INFER_OBJECT_TYPE_FROM_LHS("cannot.infer.object.type.from.lhs"),
     OBJECT_UNINITIALIZED_FIELD("object.uninitialized.field"),
     CYCLIC_TYPE_REFERENCE("cyclic.type.reference"),

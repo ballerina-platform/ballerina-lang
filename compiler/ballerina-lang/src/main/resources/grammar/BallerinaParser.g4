@@ -123,7 +123,7 @@ constantDefinition
 globalVariableDefinition
     :   PUBLIC? LISTENER? typeName Identifier (ASSIGN expression)? SEMICOLON
     |   PUBLIC? FINAL (typeName | VAR) Identifier ASSIGN expression SEMICOLON
-    |   channelType Identifier SEMICOLON
+    |   channelType Identifier ASSIGN expression SEMICOLON
     ;
 
 channelType

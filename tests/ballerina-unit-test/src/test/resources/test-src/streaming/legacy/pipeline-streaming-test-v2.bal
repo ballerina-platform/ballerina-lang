@@ -32,9 +32,9 @@ type Teacher record {
 StatusCount[] globalStatusCountArray = [];
 int index = 0;
 
-stream<StatusCount> filteredStatusCountStream2;
-stream<Teacher> preProcessedStatusCountStream;
-stream<Teacher> teacherStream6;
+stream<StatusCount> filteredStatusCountStream2 = new;
+stream<Teacher> preProcessedStatusCountStream = new;
+stream<Teacher> teacherStream6 = new;
 
 function testPipelineQuery() {
 
