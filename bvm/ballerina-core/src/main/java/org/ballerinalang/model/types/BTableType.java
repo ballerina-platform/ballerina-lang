@@ -70,4 +70,18 @@ public class BTableType extends BType {
             return super.toString() + "<" + constraint.getName() + ">";
         }
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!super.equals(obj) || !(obj instanceof BTableType)) {
+            return false;
+        }
+
+        BTableType other = (BTableType) obj;
+        if (constraint == other.constraint) {
+            return true;
+        }
+
+        return constraint.equals(other.constraint);
+    }
 }
