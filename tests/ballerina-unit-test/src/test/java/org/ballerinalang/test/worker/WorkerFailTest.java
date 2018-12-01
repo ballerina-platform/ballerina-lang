@@ -40,10 +40,12 @@ public class WorkerFailTest {
         Assert.assertEquals(result.getErrorCount(), 1);
     }
     
-    @Test(enabled = false)
+    @Test
     public void invalidWorkerSendReceive() {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-worker-send-receive.bal");
+        String message = Arrays.toString(result.getDiagnostics());
         Assert.assertEquals(result.getErrorCount(), 1);
+        Assert.assertTrue(message.contains(" interactions are invalid"), message);
     }
     
     @Test(enabled = false)
@@ -116,5 +118,28 @@ public class WorkerFailTest {
         Assert.assertTrue(message.contains("can not be used after a non-error return"), message);
     }
 
+    @Test
+    public void invalidSendInIf() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-send-in-if.bal");
+        String message = Arrays.toString(result.getDiagnostics());
+        Assert.assertEquals(result.getErrorCount(), 1, message);
+        Assert.assertTrue(message.contains("invalid worker send statement position"), message);
+    }
+
+    @Test
+    public void invalidSyncSendInIf() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-sync-send-in-if.bal");
+        String message = Arrays.toString(result.getDiagnostics());
+        Assert.assertEquals(result.getErrorCount(), 1, message);
+        Assert.assertTrue(message.contains("invalid worker send statement position"), message);
+    }
+
+    @Test
+    public void invalidReceiveInIf() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-receive-in-if.bal");
+        String message = Arrays.toString(result.getDiagnostics());
+        Assert.assertEquals(result.getErrorCount(), 1, message);
+        Assert.assertTrue(message.contains("invalid worker receive statement position"), message);
+    }
 
 }

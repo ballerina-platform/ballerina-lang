@@ -26,10 +26,10 @@ import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.WebSocketServicesRegistry;
@@ -172,14 +172,14 @@ public class InitWebSubSubscriberServiceEndpoint extends BlockingNativeCallableU
     private static void populateResourceDetailsByHeader(BMap<String, BValue> headerResourceMap,
                                                         HashMap<String, String[]> resourceDetails) {
         headerResourceMap.getMap().values().forEach(value -> populateResourceDetails(resourceDetails,
-                                                                                     (BRefValueArray) value));
+                                                                                     (BValueArray) value));
     }
 
     private static void populateResourceDetailsByPayload(BMap<String, BMap<String, BValue>> payloadKeyResourceMap,
                                                          HashMap<String, String[]> resourceDetails) {
         payloadKeyResourceMap.getMap().values().forEach(mapByKey -> {
             mapByKey.getMap().values().forEach(value -> populateResourceDetails(resourceDetails,
-                                                                                (BRefValueArray) value));
+                                                                                (BValueArray) value));
         });
     }
 
@@ -189,13 +189,13 @@ public class InitWebSubSubscriberServiceEndpoint extends BlockingNativeCallableU
         headerAndPayloadKeyResourceMap.getMap().values().forEach(mapByHeader -> {
             mapByHeader.getMap().values().forEach(mapByKey -> {
                 mapByKey.getMap().values().forEach(value -> populateResourceDetails(resourceDetails,
-                                                                                    (BRefValueArray) value));
+                                                                                    (BValueArray) value));
             });
         });
     }
 
     private static void populateResourceDetails(HashMap<String, String[]> resourceDetails,
-                                                BRefValueArray resourceDetailTuple) {
+                                                BValueArray resourceDetailTuple) {
         String resourceName = resourceDetailTuple.getBValue(0).stringValue();
         BStructureType paramDetails = (BStructureType) ((BTypeDescValue) (resourceDetailTuple).getBValue(1)).value();
         resourceDetails.put(resourceName, new String[]{paramDetails.getPackagePath(), paramDetails.getName()});

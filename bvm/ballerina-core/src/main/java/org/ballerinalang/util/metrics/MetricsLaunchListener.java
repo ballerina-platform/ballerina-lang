@@ -25,7 +25,7 @@ import org.ballerinalang.util.metrics.noop.NoOpMetricProvider;
 import org.ballerinalang.util.metrics.noop.NoOpMetricReporter;
 import org.ballerinalang.util.metrics.spi.MetricProvider;
 import org.ballerinalang.util.metrics.spi.MetricReporter;
-import org.ballerinalang.util.observability.ObservabilityUtils;
+import org.ballerinalang.util.observability.ObserveUtils;
 import org.ballerinalang.util.tracer.exception.InvalidConfigurationException;
 
 import java.io.PrintStream;
@@ -76,7 +76,7 @@ public class MetricsLaunchListener implements LaunchListener {
                         + e.getMessage());
             }
             // Add Metrics Observer
-            ObservabilityUtils.addObserver(new BallerinaMetricsObserver());
+            ObserveUtils.addObserver(new BallerinaMetricsObserver());
         }
     }
 

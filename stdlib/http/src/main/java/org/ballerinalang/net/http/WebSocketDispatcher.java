@@ -38,12 +38,12 @@ import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.util.XMLNodeType;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.net.uri.URITemplateException;
 import org.ballerinalang.services.ErrorHandlerUtils;
@@ -169,7 +169,7 @@ public class WebSocketDispatcher {
                     break;
                 case TypeTags.ARRAY_TAG:
                     if (((BArrayType) dataType).getElementType().getTag() == TypeTags.BYTE_TAG) {
-                        bValues[1] = new BByteArray(
+                        bValues[1] = new BValueArray(
                                 aggregateString.getBytes(Charset.forName(MimeConstants.UTF_8)));
                     }
                     break;
@@ -201,7 +201,7 @@ public class WebSocketDispatcher {
         List<ParamDetail> paramDetails = onBinaryMessageResource.getParamDetails();
         BValue[] bValues = new BValue[paramDetails.size()];
         bValues[0] = connectionInfo.getWebSocketEndpoint();
-        bValues[1] = new BByteArray(binaryMessage.getByteArray());
+        bValues[1] = new BValueArray(binaryMessage.getByteArray());
         if (paramDetails.size() == 3) {
             bValues[2] = new BBoolean(binaryMessage.isFinalFragment());
         }
@@ -230,7 +230,7 @@ public class WebSocketDispatcher {
         List<ParamDetail> paramDetails = onPingMessageResource.getParamDetails();
         BValue[] bValues = new BValue[paramDetails.size()];
         bValues[0] = connectionInfo.getWebSocketEndpoint();
-        bValues[1] = new BByteArray(controlMessage.getByteArray());
+        bValues[1] = new BValueArray(controlMessage.getByteArray());
         Executor.submit(onPingMessageResource, new WebSocketResourceCallableUnitCallback(webSocketConnection), null,
                         null, bValues);
     }
@@ -247,7 +247,7 @@ public class WebSocketDispatcher {
         List<ParamDetail> paramDetails = onPongMessageResource.getParamDetails();
         BValue[] bValues = new BValue[paramDetails.size()];
         bValues[0] = connectionInfo.getWebSocketEndpoint();
-        bValues[1] = new BByteArray(controlMessage.getByteArray());
+        bValues[1] = new BValueArray(controlMessage.getByteArray());
         Executor.submit(onPongMessageResource, new WebSocketResourceCallableUnitCallback(webSocketConnection), null,
                         null, bValues);
     }

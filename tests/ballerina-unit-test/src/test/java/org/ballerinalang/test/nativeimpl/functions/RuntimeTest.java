@@ -20,9 +20,9 @@ package org.ballerinalang.test.nativeimpl.functions;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -52,12 +52,12 @@ public class RuntimeTest {
 
     @Test
     public void testConcurrentSleep() {
-        BIntArray result = (BIntArray) BRunUtil.invoke(compileResult, "testConcurrentSleep")[0];
-        Assert.assertTrue(checkWithErrorMargin(result.get(0), 1000, 500));
-        Assert.assertTrue(checkWithErrorMargin(result.get(1), 1000, 500));
-        Assert.assertTrue(checkWithErrorMargin(result.get(2), 2000, 500));
-        Assert.assertTrue(checkWithErrorMargin(result.get(3), 2000, 500));
-        Assert.assertTrue(checkWithErrorMargin(result.get(4), 1000, 500));
+        BValueArray result = (BValueArray) BRunUtil.invoke(compileResult, "testConcurrentSleep")[0];
+        Assert.assertTrue(checkWithErrorMargin(result.getInt(0), 1000, 500));
+        Assert.assertTrue(checkWithErrorMargin(result.getInt(1), 1000, 500));
+        Assert.assertTrue(checkWithErrorMargin(result.getInt(2), 2000, 500));
+        Assert.assertTrue(checkWithErrorMargin(result.getInt(3), 2000, 500));
+        Assert.assertTrue(checkWithErrorMargin(result.getInt(4), 1000, 500));
     }
 
     private boolean checkWithErrorMargin(long actual, long expected, long error) {

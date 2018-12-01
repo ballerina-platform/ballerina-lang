@@ -26,8 +26,8 @@ import org.ballerinalang.model.util.serializer.JsonSerializerConst;
 import org.ballerinalang.model.util.serializer.SerializationBValueProvider;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 
 import java.util.ArrayList;
 
@@ -50,7 +50,7 @@ public class ArrayListBValueProvider implements SerializationBValueProvider<Arra
 
     @Override
     public BPacket toBValue(ArrayList list, BValueSerializer serializer) {
-        BRefValueArray array = new BRefValueArray(new BArrayType(BTypes.typeAny));
+        BValueArray array = new BValueArray(new BArrayType(BTypes.typeAny));
         for (Object item : list) {
             array.append((BRefType) serializer.toBValue(item, null));
         }
@@ -63,12 +63,12 @@ public class ArrayListBValueProvider implements SerializationBValueProvider<Arra
     @Override
     public ArrayList toObject(BPacket packet, BValueDeserializer bValueDeserializer) {
         BInteger length = (BInteger) packet.get(JsonSerializerConst.LENGTH_TAG);
-        BRefValueArray array = (BRefValueArray) packet.getValue();
+        BValueArray array = (BValueArray) packet.getValue();
         ArrayList arrayList = new ArrayList((int) length.intValue());
 
         int i = 0;
         for (; i < array.size(); i++) {
-            arrayList.add(bValueDeserializer.deserialize(array.get(i), null));
+            arrayList.add(bValueDeserializer.deserialize(array.getRefValue(i), null));
         }
         for (; i < length.intValue(); i++) {
             arrayList.add(i, null);
