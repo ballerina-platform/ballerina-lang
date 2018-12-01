@@ -27,12 +27,12 @@ import org.ballerinalang.model.values.BValueArray;
  *
  * @since 0.982.0
  */
-class BRefValueArrays {
+class BValueArrays {
     private static final BArrayType B_INT_ARRAY_TYPE = new BArrayType(BTypes.typeInt);
     private static final BArrayType B_FLOAT_ARRAY_TYPE = new BArrayType(BTypes.typeFloat);
     private final BValueSerializer serializer;
 
-    BRefValueArrays(BValueSerializer serializer) {
+    BValueArrays(BValueSerializer serializer) {
         this.serializer = serializer;
     }
 

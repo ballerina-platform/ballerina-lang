@@ -45,16 +45,6 @@ public class JsonSerializerTest {
     private static final String STRING_1 = "String1";
     private static final String STRING_2 = "String2";
 
-    @BeforeClass
-    public void setup() {
-        TestStorageProvider storageProvider = new TestStorageProvider();
-        PersistenceStore.setStorageProvider(storageProvider);
-        CompileResult compileResult = BCompileUtil.compile("test-src/checkpointing/checkpoint.bal");
-        TestDebugger debugger = new TestDebugger(compileResult.getProgFile());
-        compileResult.getProgFile().setDebugger(debugger);
-
-    }
-
     @Test(description = "Test serializing any ArrayList")
     public void testObjectSerializationToJson() {
         JsonSerializer jsonSerializer = new JsonSerializer();
