@@ -6,6 +6,42 @@
   "source": "function/source/iterableOperation5.bal",
   "items": [
     {
+      "label":"remove(string key)",
+      "kind":"Function",
+      "detail":"Function",
+      "documentation":"Removes each element that matches the given key.\n",
+      "sortText":"121",
+      "insertText":"remove(${1:key})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"toString()(string)",
+      "kind":"Function",
+      "detail":"Function",
+      "documentation":"Converts a JSON object to a string representation.\n",
+      "sortText":"121",
+      "insertText":"toString()",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"getKeys()(string[])",
+      "kind":"Function",
+      "detail":"Function",
+      "documentation":"Returns an array of keys contained in the specified JSON.\n",
+      "sortText":"121",
+      "insertText":"getKeys()",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"toXML($anonType$builtin$0 options)(xml|error)",
+      "kind":"Function",
+      "detail":"Function",
+      "documentation":"Converts a JSON object to a XML representation.\n",
+      "sortText":"121",
+      "insertText":"toXML(${1:options})",
+      "insertTextFormat":"Snippet"
+    },
+    {
       "label":"foreach(\u003c@lambda:function\u003e)",
       "kind":"Function",
       "detail":"Function",
@@ -35,6 +71,54 @@
       "detail":"Function",
       "sortText":"121",
       "insertText":"count();",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"length()",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"121",
+      "insertText":"length();",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"freeze()",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"121",
+      "insertText":"freeze();",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"isFrozen()",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"121",
+      "insertText":"isFrozen();",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"stamp(anydata a)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"121",
+      "insertText":"stamp(${1});",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"clone()",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"121",
+      "insertText":"clone();",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"create(anydata a)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"121",
+      "insertText":"create(${1});",
       "insertTextFormat":"Snippet"
     }
   ]

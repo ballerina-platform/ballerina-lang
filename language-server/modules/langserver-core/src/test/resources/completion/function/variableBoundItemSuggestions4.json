@@ -9,7 +9,8 @@
       "label":"equalsIgnoreCase(string anotherString)(boolean)",
       "kind":"Function",
       "detail":"Function",
-      "sortText":"121",
+      "documentation":"Compares two strings, ignoring the case of the strings.\n",
+      "sortText":"120",
       "insertText":"equalsIgnoreCase(${1:anotherString})",
       "insertTextFormat":"Snippet"
     },
@@ -17,7 +18,8 @@
       "label":"toUpper()(string)",
       "kind":"Function",
       "detail":"Function",
-      "sortText":"121",
+      "documentation":"Returns a string with all the characters converted to uppercase.\n",
+      "sortText":"120",
       "insertText":"toUpper()",
       "insertTextFormat":"Snippet"
     },
@@ -25,7 +27,8 @@
       "label":"substring(int startIndex, int endIndex)(string)",
       "kind":"Function",
       "detail":"Function",
-      "sortText":"121",
+      "documentation":"Returns a new string that is the substring of the specified string.\n",
+      "sortText":"120",
       "insertText":"substring(${1:startIndex}, ${2:endIndex})",
       "insertTextFormat":"Snippet"
     },
@@ -33,7 +36,8 @@
       "label":"lastIndexOf(string substring)(int)",
       "kind":"Function",
       "detail":"Function",
-      "sortText":"121",
+      "documentation":"Returns the first index of the last occurence of the substring within the specified string.\n",
+      "sortText":"120",
       "insertText":"lastIndexOf(${1:substring})",
       "insertTextFormat":"Snippet"
     },
@@ -41,7 +45,8 @@
       "label":"replaceFirst(string regex, string replaceWith)(string)",
       "kind":"Function",
       "detail":"Function",
-      "sortText":"121",
+      "documentation":"Replaces the first instance of the replacePattern with the replaceWith string and returns the result.\n",
+      "sortText":"120",
       "insertText":"replaceFirst(${1:regex}, ${2:replaceWith})",
       "insertTextFormat":"Snippet"
     },
@@ -49,7 +54,8 @@
       "label":"length()(int)",
       "kind":"Function",
       "detail":"Function",
-      "sortText":"121",
+      "documentation":"Returns the length of the specified string.\n",
+      "sortText":"120",
       "insertText":"length()",
       "insertTextFormat":"Snippet"
     },
@@ -57,7 +63,8 @@
       "label":"contains(string substring)(boolean)",
       "kind":"Function",
       "detail":"Function",
-      "sortText":"121",
+      "documentation":"Returns a Boolean value indicating whether a string contains the specified substring.\n",
+      "sortText":"120",
       "insertText":"contains(${1:substring})",
       "insertTextFormat":"Snippet"
     },
@@ -65,7 +72,8 @@
       "label":"indexOf(string substring)(int)",
       "kind":"Function",
       "detail":"Function",
-      "sortText":"121",
+      "documentation":"Returns the first index of the first occurence of the substring within the specified string.\n",
+      "sortText":"120",
       "insertText":"indexOf(${1:substring})",
       "insertTextFormat":"Snippet"
     },
@@ -73,7 +81,8 @@
       "label":"trim()(string)",
       "kind":"Function",
       "detail":"Function",
-      "sortText":"121",
+      "documentation":"Returns a trimmed string by omitting the leading and trailing whitespaces of the original string.\n",
+      "sortText":"120",
       "insertText":"trim()",
       "insertTextFormat":"Snippet"
     },
@@ -81,7 +90,8 @@
       "label":"hasSuffix(string suffix)(boolean)",
       "kind":"Function",
       "detail":"Function",
-      "sortText":"121",
+      "documentation":"Returns a Boolean value indicating whether the string ends with specified suffix.\n",
+      "sortText":"120",
       "insertText":"hasSuffix(${1:suffix})",
       "insertTextFormat":"Snippet"
     },
@@ -89,7 +99,8 @@
       "label":"unescape()(string)",
       "kind":"Function",
       "detail":"Function",
-      "sortText":"121",
+      "documentation":"Returns an unescaped string by omitting the escape characters of the original string.\n",
+      "sortText":"120",
       "insertText":"unescape()",
       "insertTextFormat":"Snippet"
     },
@@ -97,7 +108,8 @@
       "label":"toLower()(string)",
       "kind":"Function",
       "detail":"Function",
-      "sortText":"121",
+      "documentation":"Returns a string with all the characters converted to lowercase.\n",
+      "sortText":"120",
       "insertText":"toLower()",
       "insertTextFormat":"Snippet"
     },
@@ -105,7 +117,8 @@
       "label":"hasPrefix(string prefix)(boolean)",
       "kind":"Function",
       "detail":"Function",
-      "sortText":"121",
+      "documentation":"Returns a Boolean value indicating whether a string starts with the specified prefix.\n",
+      "sortText":"120",
       "insertText":"hasPrefix(${1:prefix})",
       "insertTextFormat":"Snippet"
     },
@@ -113,7 +126,8 @@
       "label":"replaceAll(string regex, string replaceWith)(string)",
       "kind":"Function",
       "detail":"Function",
-      "sortText":"121",
+      "documentation":"Replaces each substring of the string that matches the given regular expression with the given replacement.\n",
+      "sortText":"120",
       "insertText":"replaceAll(${1:regex}, ${2:replaceWith})",
       "insertTextFormat":"Snippet"
     },
@@ -121,7 +135,8 @@
       "label":"replace(string regex, string replaceWith)(string)",
       "kind":"Function",
       "detail":"Function",
-      "sortText":"121",
+      "documentation":"Replaces all instances of the replacePattern string with the replaceWith string and returns the result.\n",
+      "sortText":"120",
       "insertText":"replace(${1:regex}, ${2:replaceWith})",
       "insertTextFormat":"Snippet"
     },
@@ -129,7 +144,8 @@
       "label":"split(string regex)(string[])",
       "kind":"Function",
       "detail":"Function",
-      "sortText":"121",
+      "documentation":"Splits the string with the given regular expression to produce a string array.\n",
+      "sortText":"120",
       "insertText":"split(${1:regex})",
       "insertTextFormat":"Snippet"
     },
@@ -137,7 +153,8 @@
       "label":"findAll(string regex)(string[]|error)",
       "kind":"Function",
       "detail":"Function",
-      "sortText":"121",
+      "documentation":"Finds all the strings matching the regular expression.\n",
+      "sortText":"120",
       "insertText":"findAll(${1:regex})",
       "insertTextFormat":"Snippet"
     },
@@ -145,7 +162,8 @@
       "label":"matches(string regex)(boolean|error)",
       "kind":"Function",
       "detail":"Function",
-      "sortText":"121",
+      "documentation":"Returns a Boolean value indicating whether the string matches the regular expression.\n",
+      "sortText":"120",
       "insertText":"matches(${1:regex})",
       "insertTextFormat":"Snippet"
     },
@@ -153,7 +171,8 @@
       "label":"base64Encode(string charset \u003d utf-8)(string|error)",
       "kind":"Function",
       "detail":"Function",
-      "sortText":"121",
+      "documentation":"Encode a given string with Base64 encoding scheme.\n",
+      "sortText":"120",
       "insertText":"base64Encode(charset \u003d ${2:\"utf-8\"})",
       "insertTextFormat":"Snippet"
     },
@@ -161,7 +180,8 @@
       "label":"base64Decode(string charset \u003d utf-8)(string|error)",
       "kind":"Function",
       "detail":"Function",
-      "sortText":"121",
+      "documentation":"Decode a given string with Base64 encoding scheme.\n",
+      "sortText":"120",
       "insertText":"base64Decode(charset \u003d ${2:\"utf-8\"})",
       "insertTextFormat":"Snippet"
     },
@@ -169,7 +189,8 @@
       "label":"base16ToBase64Encode()(string)",
       "kind":"Function",
       "detail":"Function",
-      "sortText":"121",
+      "documentation":"Encodes a base16 encoded string to base64 encoding.\n",
+      "sortText":"120",
       "insertText":"base16ToBase64Encode()",
       "insertTextFormat":"Snippet"
     },
@@ -177,7 +198,8 @@
       "label":"base64ToBase16Encode()(string)",
       "kind":"Function",
       "detail":"Function",
-      "sortText":"121",
+      "documentation":"Encodes a base64 encoded string to base16 encoding.\n",
+      "sortText":"120",
       "insertText":"base64ToBase16Encode()",
       "insertTextFormat":"Snippet"
     },
@@ -185,8 +207,49 @@
       "label":"toByteArray(string encoding)(byte[])",
       "kind":"Function",
       "detail":"Function",
-      "sortText":"121",
+      "documentation":"Converts string to a byte array.\n",
+      "sortText":"120",
       "insertText":"toByteArray(${1:encoding})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"freeze()",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"freeze();",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"isFrozen()",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"isFrozen();",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"stamp(anydata a)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"stamp(${1});",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"clone()",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"clone();",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"create(anydata a)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"create(${1});",
       "insertTextFormat":"Snippet"
     }
   ]

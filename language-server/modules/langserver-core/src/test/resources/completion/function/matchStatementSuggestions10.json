@@ -42,7 +42,7 @@
       "kind":"Snippet",
       "detail":"Statement",
       "sortText":"200",
-      "insertText":"fork {\n\t${1}\n} join (${2:all}) (map ${3:results}) {\n\t${4}\n}",
+      "insertText":"fork {\n\t${1}\n}",
       "insertTextFormat":"Snippet"
     },
     {
@@ -140,7 +140,7 @@
       "insertText":"xml"
     },
     {
-      "label":"queryTableWithJoinClause(string sqlQuery, table fromTable, table joinTable, any parameters, any retType)(table)",
+      "label":"queryTableWithJoinClause(string sqlQuery, table fromTable, table joinTable, any parameters, any retType)(table\u003c$anonType$builtin$8\u003e)",
       "kind":"Function",
       "detail":"Function",
       "documentation":"Execute the given sql query to fetch the records and return as a new in memory table.\n",
@@ -164,7 +164,7 @@
       "insertText":"byte"
     },
     {
-      "label":"queryTableWithoutJoinClause(string sqlQuery, table fromTable, any parameters, any retType)(table)",
+      "label":"queryTableWithoutJoinClause(string sqlQuery, table fromTable, any parameters, any retType)(table\u003c$anonType$builtin$10\u003e)",
       "kind":"Function",
       "detail":"Function",
       "documentation":"Execute the given sql query to fetch the records and return as a new in memory table.\n",
@@ -194,6 +194,13 @@
       "detail":"BType",
       "sortText":"170",
       "insertText":"stream"
+    },
+    {
+      "label":"AbstractListener",
+      "kind":"Class",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"AbstractListener"
     },
     {
       "label":"map",
@@ -350,18 +357,18 @@
       "insertText":"int"
     },
     {
-      "label":"docData",
-      "kind":"Class",
-      "detail":"BType",
-      "sortText":"170",
-      "insertText":"docData"
-    },
-    {
       "label":"boolean",
       "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"boolean"
+    },
+    {
+      "label":"service",
+      "kind":"Keyword",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"service"
     },
     {
       "label":"ballerina/http",
@@ -388,11 +395,11 @@
           "range":{
             "start":{
               "line":1,
-              "character":20
+              "character":21
             },
             "end":{
               "line":1,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/transactions;\n"
@@ -410,11 +417,11 @@
           "range":{
             "start":{
               "line":1,
-              "character":20
+              "character":21
             },
             "end":{
               "line":1,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/websub;\n"
@@ -432,11 +439,11 @@
           "range":{
             "start":{
               "line":1,
-              "character":20
+              "character":21
             },
             "end":{
               "line":1,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/grpc;\n"
@@ -454,11 +461,11 @@
           "range":{
             "start":{
               "line":1,
-              "character":20
+              "character":21
             },
             "end":{
               "line":1,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/reflect;\n"
@@ -476,11 +483,11 @@
           "range":{
             "start":{
               "line":1,
-              "character":20
+              "character":21
             },
             "end":{
               "line":1,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/log;\n"
@@ -498,11 +505,11 @@
           "range":{
             "start":{
               "line":1,
-              "character":20
+              "character":21
             },
             "end":{
               "line":1,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/time;\n"
@@ -520,11 +527,11 @@
           "range":{
             "start":{
               "line":1,
-              "character":20
+              "character":21
             },
             "end":{
               "line":1,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/test;\n"
@@ -542,11 +549,11 @@
           "range":{
             "start":{
               "line":1,
-              "character":20
+              "character":21
             },
             "end":{
               "line":1,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/runtime;\n"
@@ -564,11 +571,11 @@
           "range":{
             "start":{
               "line":1,
-              "character":20
+              "character":21
             },
             "end":{
               "line":1,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/swagger;\n"
@@ -586,11 +593,11 @@
           "range":{
             "start":{
               "line":1,
-              "character":20
+              "character":21
             },
             "end":{
               "line":1,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/file;\n"
@@ -608,11 +615,11 @@
           "range":{
             "start":{
               "line":1,
-              "character":20
+              "character":21
             },
             "end":{
               "line":1,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/sql;\n"
@@ -630,11 +637,11 @@
           "range":{
             "start":{
               "line":1,
-              "character":20
+              "character":21
             },
             "end":{
               "line":1,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/internal;\n"
@@ -652,11 +659,11 @@
           "range":{
             "start":{
               "line":1,
-              "character":20
+              "character":21
             },
             "end":{
               "line":1,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/mysql;\n"
@@ -674,11 +681,11 @@
           "range":{
             "start":{
               "line":1,
-              "character":20
+              "character":21
             },
             "end":{
               "line":1,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/mime;\n"
@@ -696,11 +703,11 @@
           "range":{
             "start":{
               "line":1,
-              "character":20
+              "character":21
             },
             "end":{
               "line":1,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/task;\n"
@@ -718,11 +725,11 @@
           "range":{
             "start":{
               "line":1,
-              "character":20
+              "character":21
             },
             "end":{
               "line":1,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/crypto;\n"
@@ -740,11 +747,11 @@
           "range":{
             "start":{
               "line":1,
-              "character":20
+              "character":21
             },
             "end":{
               "line":1,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/cache;\n"
@@ -762,11 +769,11 @@
           "range":{
             "start":{
               "line":1,
-              "character":20
+              "character":21
             },
             "end":{
               "line":1,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/auth;\n"
@@ -784,11 +791,11 @@
           "range":{
             "start":{
               "line":1,
-              "character":20
+              "character":21
             },
             "end":{
               "line":1,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/jms;\n"
@@ -806,11 +813,11 @@
           "range":{
             "start":{
               "line":1,
-              "character":20
+              "character":21
             },
             "end":{
               "line":1,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/system;\n"
@@ -828,11 +835,11 @@
           "range":{
             "start":{
               "line":1,
-              "character":20
+              "character":21
             },
             "end":{
               "line":1,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/h2;\n"
@@ -857,11 +864,11 @@
           "range":{
             "start":{
               "line":1,
-              "character":20
+              "character":21
             },
             "end":{
               "line":1,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/math;\n"
@@ -879,11 +886,11 @@
           "range":{
             "start":{
               "line":1,
-              "character":20
+              "character":21
             },
             "end":{
               "line":1,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/config;\n"
