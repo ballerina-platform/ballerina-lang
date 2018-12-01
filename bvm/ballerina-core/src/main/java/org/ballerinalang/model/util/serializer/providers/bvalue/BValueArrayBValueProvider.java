@@ -140,12 +140,14 @@ public class BValueArrayBValueProvider implements SerializationBValueProvider<BV
                 }
                 target = new BValueArray(arr);
             }
-        } else {
+        }
+        if (target == null) {
             target = new BValueArray(type);
             for (int i = 0; i < array.size(); i++) {
                 target.add(i, (BRefType<?>) bValueDeserializer.deserialize(array.getRefValue(i), null));
             }
         }
+
         return target;
     }
 }
