@@ -26,7 +26,6 @@ import org.ballerinalang.model.util.serializer.BValueDeserializer;
 import org.ballerinalang.model.util.serializer.BValueSerializer;
 import org.ballerinalang.model.util.serializer.SerializationBValueProvider;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 
@@ -54,49 +53,58 @@ public class BValueArrayBValueProvider implements SerializationBValueProvider<BV
 
         long size = array.size();
         BValueArray target = new BValueArray(new BArrayType(BTypes.typeAny));
-        BType elementType = ((BArrayType) array.getType()).getElementType();
+        BValue elemType = serializer.toBValue(array.getType(), null);
 
-        if (elementType == BTypes.typeInt) {
-            for (int i = 0; i < size; i++) {
-                BValue value = serializer.toBValue(array.getInt(i), Integer.class);
-                target.add(i, (BRefType) value);
+        if (array.getType().getTag() == TypeTags.ARRAY_TAG) {
+            BType elementType = ((BArrayType) array.getType()).getElementType();
+            if (elementType == BTypes.typeInt) {
+                for (int i = 0; i < size; i++) {
+                    BValue value = serializer.toBValue(array.getInt(i), Integer.class);
+                    target.add(i, (BRefType) value);
+                }
+            } else if (elementType == BTypes.typeBoolean) {
+                for (int i = 0; i < size; i++) {
+                    BValue value = serializer.toBValue(array.getBoolean(i), Boolean.class);
+                    target.add(i, (BRefType) value);
+                }
+            } else if (elementType == BTypes.typeByte) {
+                for (int i = 0; i < size; i++) {
+                    BValue value = serializer.toBValue(array.getByte(i), Byte.class);
+                    target.add(i, (BRefType) value);
+                }
+            } else if (elementType == BTypes.typeFloat) {
+                for (int i = 0; i < size; i++) {
+                    BValue value = serializer.toBValue(array.getFloat(i), Double.class);
+                    target.add(i, (BRefType) value);
+                }
+            } else if (elementType == BTypes.typeString) {
+                for (int i = 0; i < size; i++) {
+                    BValue value = serializer.toBValue(array.getString(i), String.class);
+                    target.add(i, (BRefType) value);
+                }
+            } else {
+                serializeRefObjArray(array, serializer, size, target);
             }
-        } else if (elementType == BTypes.typeBoolean) {
-            for (int i = 0; i < size; i++) {
-                BValue value = serializer.toBValue(array.getBoolean(i), Boolean.class);
-                target.add(i, (BRefType) value);
-            }
-        } else if (elementType == BTypes.typeByte) {
-            for (int i = 0; i < size; i++) {
-                BValue value = serializer.toBValue(array.getByte(i), Byte.class);
-                target.add(i, (BRefType) value);
-            }
-        } else if (elementType == BTypes.typeFloat) {
-            for (int i = 0; i < size; i++) {
-                BValue value = serializer.toBValue(array.getFloat(i), Double.class);
-                target.add(i, (BRefType) value);
-            }
-        } else if (elementType == BTypes.typeString) {
-            for (int i = 0; i < size; i++) {
-                BValue value = serializer.toBValue(array.getString(i), String.class);
-                target.add(i, (BRefType) value);
-            }
-        } else {
-            for (int i = 0; i < size; i++) {
-                BValue value = serializer.toBValue(array.getRefValue(i), null);
-                target.add(i, (BRefType) value);
-            }
+        } else if (array.getType().getTag() == TypeTags.TUPLE_TAG) {
+            serializeRefObjArray(array, serializer, size, target);
         }
 
-        return BPacket.from(typeName(), target).put(TYPE, new BString(elementType.getName()));
+        return BPacket.from(typeName(), target).put(TYPE, elemType);
+    }
+
+    private void serializeRefObjArray(BValueArray array, BValueSerializer serializer, long size, BValueArray target) {
+        for (int i = 0; i < size; i++) {
+            BValue value = serializer.toBValue(array.getRefValue(i), null);
+            target.add(i, (BRefType) value);
+        }
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public BValueArray toObject(BPacket packet, BValueDeserializer bValueDeserializer) {
         BValueArray array = (BValueArray) packet.getValue();
-        BString elemTypeName = (BString) packet.get(TYPE);
-        BType type = BTypes.getTypeFromName(elemTypeName.stringValue());
+        BType type = (BType) bValueDeserializer.deserialize(packet.get(TYPE), BType.class);
+        //BType type = BTypes.getTypeFromName(elemTypeName.stringValue());
         int size = (int) array.size();
         BValueArray target = null;
         if (type.getTag() == TypeTags.INT_TAG) {
@@ -130,7 +138,7 @@ public class BValueArrayBValueProvider implements SerializationBValueProvider<BV
             }
             target = new BValueArray(arr);
         } else {
-            target = new BValueArray(new BArrayType(type));
+            target = new BValueArray(type);
             for (int i = 0; i < array.size(); i++) {
                 target.add(i, (BRefType<?>) bValueDeserializer.deserialize(array.getRefValue(i), null));
             }

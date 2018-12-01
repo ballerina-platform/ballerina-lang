@@ -35,3 +35,7 @@ function getThatStudent() returns Student {
     Student s = { name: "Mic", age:17, grades:g };
     return s;
 }
+
+function giveATuple() returns (int ,(string, int, float)) {
+    return (1, ("ABC", 42, 0.012345));
+}

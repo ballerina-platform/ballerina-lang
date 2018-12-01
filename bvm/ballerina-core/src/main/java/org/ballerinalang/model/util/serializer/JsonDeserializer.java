@@ -289,7 +289,7 @@ class JsonDeserializer implements BValueDeserializer {
      * @return instance of given type.
      */
     private Object createInstance(BMap<String, BValue> jsonNode, Class<?> target) {
-        if (Enum.class.isAssignableFrom(target)) {
+        if (target != null && Enum.class.isAssignableFrom(target)) {
             return createEnumInstance(jsonNode);
         }
         if (jsonNode.hasKey(TYPE_TAG)) {
