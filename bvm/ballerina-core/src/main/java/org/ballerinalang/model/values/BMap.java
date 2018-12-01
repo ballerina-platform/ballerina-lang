@@ -462,7 +462,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
             }
 
             Map.Entry<K, V> next = iterator.next();
-            BRefValueArray tuple = new BRefValueArray(tupleType);
+            BValueArray tuple = new BValueArray(tupleType);
             BString key = new BString((String) next.getKey());
             tuple.add(0, key);
             BRefType value = (BRefType<?>) next.getValue();
