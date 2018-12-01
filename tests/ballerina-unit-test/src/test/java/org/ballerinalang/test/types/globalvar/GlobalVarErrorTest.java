@@ -21,6 +21,7 @@ package org.ballerinalang.test.types.globalvar;
 import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
@@ -32,10 +33,7 @@ public class GlobalVarErrorTest {
     public void testStructFieldWithChildPackagePaths() {
         CompileResult resultNegative = BCompileUtil.compile(
                 "test-src/statements/variabledef/global-var-function-negative.bal");
-        BAssertUtil.validateError(resultNegative, 0, "invalid token ':'", 7, 20);
-        BAssertUtil.validateError(resultNegative, 1, "extraneous input ':'", 7, 20);
-        BAssertUtil.validateError(resultNegative, 2, "extraneous input 'return'", 8, 5);
-        BAssertUtil.validateError(resultNegative, 3, "mismatched input ';'. expecting {'[', '?', '|', Identifier}",
-                                  8, 13);
+        Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        BAssertUtil.validateError(resultNegative, 0, "extraneous input ':'", 7, 20);
     }
 }

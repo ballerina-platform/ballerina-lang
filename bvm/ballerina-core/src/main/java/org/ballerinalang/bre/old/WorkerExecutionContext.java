@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.bre.old;
 
-import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.Instruction;
@@ -73,8 +72,6 @@ public class WorkerExecutionContext {
 
     private DebugContext debugContext;
 
-    private static final String DISTRIBUTED_TRANSACTIONS = "b7a.distributed.transactions.enabled";
-
     private static final String FALSE = "false";
 
     public boolean interruptible;
@@ -85,7 +82,6 @@ public class WorkerExecutionContext {
         this.programFile = programFile;
         this.globalProps = new HashMap<>();
         this.runInCaller = true;
-        configureDistributedTransactions();
     }
     
     public WorkerExecutionContext(BError error) {
@@ -203,16 +199,5 @@ public class WorkerExecutionContext {
     @Override
     public boolean equals(Object rhs) {
         return this == rhs;
-    }
-
-    private void configureDistributedTransactions() {
-        String distributedTransactionsEnabledConfig = ConfigRegistry.getInstance()
-                .getAsString(DISTRIBUTED_TRANSACTIONS);
-        boolean distributedTransactionEnabled = true;
-        if (distributedTransactionsEnabledConfig != null && distributedTransactionsEnabledConfig.equals(FALSE)) {
-            distributedTransactionEnabled = false;
-        }
-        throw new IllegalStateException("Pre-strand distributed trx config.");
-        //BLangVMUtils.setGlobalTransactionEnabledStatus(this, distributedTransactionEnabled);
     }
 }

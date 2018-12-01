@@ -22,6 +22,7 @@ import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.DeprecatedNode;
 import org.ballerinalang.model.tree.EndpointNode;
+import org.ballerinalang.model.tree.ErrorVariableNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.ImportPackageNode;
@@ -61,6 +62,7 @@ import org.ballerinalang.model.tree.expressions.BracedOrTupleExpression;
 import org.ballerinalang.model.tree.expressions.CheckedExpressionNode;
 import org.ballerinalang.model.tree.expressions.ElvisExpressionNode;
 import org.ballerinalang.model.tree.expressions.ErrorConstructorNode;
+import org.ballerinalang.model.tree.expressions.ErrorVariableReferenceNode;
 import org.ballerinalang.model.tree.expressions.FieldBasedAccessNode;
 import org.ballerinalang.model.tree.expressions.IndexBasedAccessNode;
 import org.ballerinalang.model.tree.expressions.IntRangeExpression;
@@ -105,6 +107,7 @@ import org.ballerinalang.model.tree.statements.BreakNode;
 import org.ballerinalang.model.tree.statements.CatchNode;
 import org.ballerinalang.model.tree.statements.CompoundAssignmentNode;
 import org.ballerinalang.model.tree.statements.ContinueNode;
+import org.ballerinalang.model.tree.statements.ErrorDestructureNode;
 import org.ballerinalang.model.tree.statements.ExpressionStatementNode;
 import org.ballerinalang.model.tree.statements.ForeachNode;
 import org.ballerinalang.model.tree.statements.ForeverNode;
@@ -146,6 +149,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
+import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -188,6 +192,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
@@ -238,6 +243,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
@@ -323,6 +330,10 @@ public class TreeBuilder {
         return new BLangRecordVariable();
     }
 
+    public static ErrorVariableNode createErrorVariableNode() {
+        return new BLangErrorVariable();
+    }
+
     public static EndpointNode createEndpointNode() {
         return new BLangEndpoint();
     }
@@ -357,6 +368,10 @@ public class TreeBuilder {
 
     public static RecordDestructureNode createRecordDestructureStatementNode() {
         return new BLangRecordDestructure();
+    }
+
+    public static ErrorDestructureNode createErrorDestructureStatementNode() {
+        return new BLangErrorDestructure();
     }
 
     public static ExpressionStatementNode createExpressionStatementNode() {
@@ -397,6 +412,10 @@ public class TreeBuilder {
 
     public static VariableDefinitionNode createRecordVariableDefinitionNode() {
         return new BLangRecordVariableDef();
+    }
+
+    public static VariableDefinitionNode createErrorVariableDefinitionNode() {
+        return new BLangErrorVariableDef();
     }
 
     public static ValueTypeNode createValueTypeNode() {
@@ -449,6 +468,10 @@ public class TreeBuilder {
 
     public static RecordVariableReferenceNode createRecordVariableReferenceNode() {
         return new BLangRecordVarRef();
+    }
+
+    public static ErrorVariableReferenceNode createErrorVariableReferenceNode() {
+        return new BLangErrorVarRef();
     }
 
     public static SimpleVariableReferenceNode createSimpleVariableReferenceNode() {
@@ -515,7 +538,7 @@ public class TreeBuilder {
         return new BLangArrowFunction();
     }
 
-    public static TypeInitNode createObjectInitNode() {
+    public static TypeInitNode createInitNode() {
         return new BLangTypeInit();
     }
 

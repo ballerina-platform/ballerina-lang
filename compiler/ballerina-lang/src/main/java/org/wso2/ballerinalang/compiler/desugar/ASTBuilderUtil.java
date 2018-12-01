@@ -598,7 +598,7 @@ public class ASTBuilderUtil {
     }
 
     static BLangTypeInit createEmptyTypeInit(DiagnosticPos pos, BType type) {
-        BLangTypeInit objectInitNode = (BLangTypeInit) TreeBuilder.createObjectInitNode();
+        BLangTypeInit objectInitNode = (BLangTypeInit) TreeBuilder.createInitNode();
         objectInitNode.pos = pos;
         objectInitNode.type = type;
 
@@ -614,7 +614,7 @@ public class ASTBuilderUtil {
         invocationNode.name = nameNode;
         invocationNode.pkgAlias = pkgNameNode;
 
-        objectInitNode.objectInitInvocation = invocationNode;
+        objectInitNode.initInvocation = invocationNode;
         return objectInitNode;
     }
 

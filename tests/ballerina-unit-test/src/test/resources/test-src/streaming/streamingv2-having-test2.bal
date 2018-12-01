@@ -22,8 +22,8 @@ type Employee record {
 };
 
 int index = 0;
-stream<Employee> inputStream;
-stream<Employee> outputStream;
+stream<Employee> inputStream = new;
+stream<Employee> outputStream = new;
 Employee[] globalEmployeeArray = [];
 
 function startFilterQuery() returns (Employee[]) {

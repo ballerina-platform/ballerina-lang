@@ -41,7 +41,7 @@ import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.observability.ObservabilityConstants;
-import org.ballerinalang.util.observability.ObservabilityUtils;
+import org.ballerinalang.util.observability.ObserveUtils;
 import org.ballerinalang.util.observability.ObserverContext;
 import org.ballerinalang.util.transactions.TransactionLocalContext;
 import org.slf4j.Logger;
@@ -328,7 +328,7 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
 
         HttpUtil.checkAndObserveHttpRequest(dataContext.context, outboundRequestMsg);
 
-        final HTTPClientConnectorListener httpClientConnectorLister = ObservabilityUtils.isObservabilityEnabled() ?
+        final HTTPClientConnectorListener httpClientConnectorLister = ObserveUtils.isObservabilityEnabled() ?
                 new ObservableHttpClientConnectorListener(dataContext) :
                 new HTTPClientConnectorListener(dataContext);
         final HttpMessageDataStreamer outboundMsgDataStreamer = getHttpMessageDataStreamer(outboundRequestMsg);
@@ -505,9 +505,9 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
         }
 
         private void addHttpStatusCode(int statusCode) {
-            Optional<ObserverContext> observerContext = ObservabilityUtils.getParentContext(context);
+            Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(context);
             observerContext.ifPresent(ctx -> ctx.addTag(ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE,
-                    String.valueOf(statusCode)));
+                                                        String.valueOf(statusCode)));
         }
     }
 }

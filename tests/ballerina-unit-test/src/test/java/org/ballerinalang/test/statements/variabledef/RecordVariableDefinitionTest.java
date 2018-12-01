@@ -238,9 +238,31 @@ public class RecordVariableDefinitionTest {
         Assert.assertEquals(((BMap) returns[2]).get("restP1").stringValue(), "stringP1");
     }
 
+    @Test(description = "Test record variable with Union Type")
+    public void testUnionRecordVariable() {
+        BValue[] returns = BRunUtil.invoke(result, "testUnionRecordVariable");
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertEquals(returns[0].stringValue(), "A");
+        Assert.assertEquals(returns[1].stringValue(), "B");
+        Assert.assertNull(returns[2]);
+        Assert.assertNull(returns[3]);
+    }
+
+    @Test(description = "Test record variable with Map Type")
+    public void testMapRecordVar() {
+        BValue[] returns = BRunUtil.invoke(result, "testMapRecordVar");
+        Assert.assertEquals(returns.length, 6);
+        Assert.assertEquals(returns[0].stringValue(), "A");
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
+        Assert.assertNull(returns[2]);
+        Assert.assertEquals(returns[3].stringValue(), "B");
+        Assert.assertEquals(returns[4].stringValue(), "C");
+        Assert.assertNull(returns[5]);
+    }
+
     @Test
     public void testNegativeRecordVariables() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 11);
+        Assert.assertEquals(resultNegative.getErrorCount(), 16);
         String redeclaredSymbol = "redeclared symbol ";
         int i = -1;
         BAssertUtil.validateError(resultNegative, ++i, redeclaredSymbol + "'fName'", 37, 26);
@@ -263,5 +285,15 @@ public class RecordVariableDefinitionTest {
                 "incompatible types: expected 'string', found 'boolean'", 99, 14);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'boolean', found 'string'", 100, 15);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "incompatible types: expected 'UnionOne|UnionTwo', found 'UnionRec1'", 143, 66);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "incompatible types: expected 'string|boolean', found 'boolean|string?'", 144, 25);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "incompatible types: expected 'int|float', found 'float|int?'", 144, 31);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "incompatible types: expected 'string', found 'anydata'", 154, 13);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "incompatible types: expected 'string', found 'string?'", 154, 31);
     }
 }

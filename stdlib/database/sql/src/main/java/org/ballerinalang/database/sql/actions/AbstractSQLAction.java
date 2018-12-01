@@ -48,7 +48,7 @@ import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.observability.ObservabilityConstants;
-import org.ballerinalang.util.observability.ObservabilityUtils;
+import org.ballerinalang.util.observability.ObserveUtils;
 import org.ballerinalang.util.observability.ObserverContext;
 
 import java.math.BigDecimal;
@@ -319,7 +319,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
     }
 
     protected void checkAndObserveSQLAction(Context context, SQLDatasource datasource, String query) {
-        Optional<ObserverContext> observerContext = ObservabilityUtils.getParentContext(context);
+        Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(context);
         observerContext.ifPresent(ctx -> {
             ctx.addTag(TAG_KEY_PEER_ADDRESS, datasource.getPeerAddress());
             ctx.addTag(TAG_KEY_DB_INSTANCE, datasource.getDatabaseName());
@@ -329,7 +329,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
     }
 
     protected void checkAndObserveSQLError(Context context, String message) {
-        Optional<ObserverContext> observerContext = ObservabilityUtils.getParentContext(context);
+        Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(context);
         observerContext.ifPresent(ctx -> {
             ctx.addProperty(ObservabilityConstants.PROPERTY_ERROR, Boolean.TRUE);
             ctx.addProperty(ObservabilityConstants.PROPERTY_ERROR_MESSAGE, message);

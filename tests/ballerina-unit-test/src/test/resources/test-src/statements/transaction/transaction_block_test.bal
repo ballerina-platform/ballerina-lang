@@ -42,7 +42,6 @@ function testTransactionStmtWithCommitedAndAbortedBlocks(int failureCutOff, bool
             a = a + " aborting";
             abort;
         }
-
         a = a + " endTrx";
     } onretry {
         a = a + " retry";
@@ -116,4 +115,169 @@ function runtimeNestedTransactionsError() returns string {
         ss += " [err: " + res.reason() + "]";
     }
     return ss;
+}
+
+function testAbortStatementWithNoAbortBlock() returns (string) {
+    string a = "";
+    a = a + "start";
+    int count = 0;
+    transaction with retries=2 {
+        a += " in-trx";
+        abort;
+    } onretry {
+        a += " retry";
+    } committed {
+        a += " committed";
+    }
+    a += " end";
+    return a;
+}
+
+function testAbortStatementWithAbortBlock() returns (string) {
+    string a = "";
+    a = a + "start";
+    int count = 0;
+    transaction with retries=2 {
+        a += " in-trx";
+        abort;
+    } onretry {
+        a += " retry";
+    } committed {
+        a += " committed";
+    } aborted {
+        a += " aborted";
+    }
+    a += " end";
+    return a;
+}
+
+function testTrxSuccessWithAbortBlock() returns (string) {
+    string a = "";
+    a = a + "start";
+    int count = 0;
+    transaction with retries=2 {
+        a += " in-trx";
+    } onretry {
+        a += " retry";
+    } committed {
+        a += " committed";
+    } aborted {
+        a += " aborted";
+    }
+    a += " end";
+    return a;
+}
+
+function testAbortedCommittedBlockMixedUpCommitted() returns (string) {
+    string a = "";
+    a = a + "start";
+    int count = 0;
+    transaction with retries=2 {
+        a += " in-trx";
+    } onretry {
+        a += " retry";
+    } aborted {
+        a += " aborted";
+    } committed {
+        a += " committed";
+    }
+    a += " end";
+    return a;
+}
+
+function testAbortedCommittedBlockMixedUpAborted() returns (string) {
+    string a = "";
+    a = a + "start";
+    int count = 0;
+    transaction with retries=2 {
+        a += " in-trx";
+        abort;
+    } onretry {
+        a += " retry";
+    } aborted {
+        a += " aborted";
+    } committed {
+        a += " committed";
+    }
+    a += " end";
+    return a;
+}
+
+function testAbortedCommittedBlockMixedUpNoRetryBlockAborted() returns (string) {
+    string a = "";
+    a = a + "start";
+    int count = 0;
+    transaction with retries=2 {
+        a += " in-trx";
+        abort;
+    } aborted {
+        a += " aborted";
+    } committed {
+        a += " committed";
+    }
+    a += " end";
+    return a;
+}
+
+function testAbortedCommittedBlockMixedUpNoRetryBlockCommitted() returns (string) {
+    string a = "";
+    a = a + "start";
+    int count = 0;
+    transaction with retries=2 {
+        a += " in-trx";
+    } aborted {
+        a += " aborted";
+    } committed {
+        a += " committed";
+    }
+    a += " end";
+    return a;
+}
+
+
+function multipleTrxSequence(boolean abort1, boolean abort2, boolean fail1, boolean fail2) returns string {
+    string a = "start";
+    int count = 0;
+    boolean failed1 = false;
+    boolean failed2 = false;
+
+    transaction with retries=2 {
+        a += " in-trx-1";
+        if (abort1) {
+            abort;
+        }
+        if (fail1 && !failed1) {
+            failed1 = true;
+            error err = error("TransactionError");
+            panic err;
+        }
+    } onretry {
+        a += " retry-1";
+    } committed {
+        a += " committed-1";
+    } aborted {
+        a += " aborted-1";
+    }
+
+    a += " end-1";
+
+    transaction with retries=2 {
+        a += " in-trx-2";
+        if (abort2) {
+            abort;
+        }
+        if (fail2 && !failed2) {
+            failed2 = true;
+            error err = error("TransactionError");
+            panic err;
+        }
+    } onretry {
+        a += " retry-2";
+    } committed {
+        a += " committed-2";
+    } aborted {
+        a += " aborted-2";
+    }
+    a += " end-2";
+    return a;
 }

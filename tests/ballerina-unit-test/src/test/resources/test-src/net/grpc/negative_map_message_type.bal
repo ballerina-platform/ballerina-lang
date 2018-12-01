@@ -16,16 +16,13 @@
 import ballerina/io;
 import ballerina/grpc;
 
-endpoint grpc:Listener ep {
-    host:"localhost",
-    port:9090
-};
+listener grpc:Listener ep = new (9000);
 
 // This is negative testcase, map field type is not supported currently. So we should be compilation error.
 // Unsupported field type, field type map currently not supported.
-service UnsupportedMapType bind ep {
+service UnsupportedMapType on ep {
 
-    testInputMapType(endpoint caller, MapMessage msg) {
+    resource function testInputMapType(grpc:Caller caller, MapMessage msg) {
         io:println(msg);
         string message = "Testing Map types";
         error? err = caller->send(message);
@@ -37,7 +34,7 @@ service UnsupportedMapType bind ep {
         _ = caller->complete();
     }
 
-    testOutputMapType(endpoint caller, string msg) {
+    resource function testOutputMapType(grpc:Caller caller, string msg) {
         io:println(msg);
         MapMessage message = {};
         error? err = caller->send(message);
@@ -53,5 +50,3 @@ service UnsupportedMapType bind ep {
 type MapMessage record {
     map<any> payload = {};
 };
-
-

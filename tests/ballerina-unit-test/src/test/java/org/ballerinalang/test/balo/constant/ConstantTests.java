@@ -253,4 +253,13 @@ public class ConstantTests {
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "Ballerina rocks");
     }
+
+    @Test
+    public void testFloatAsFiniteType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testFloatAsFiniteType");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertNotNull(returns[1]);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 2.0);
+        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 4.0);
+    }
 }

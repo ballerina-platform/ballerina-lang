@@ -28,9 +28,9 @@ public class WebSubSubscriberConstants {
     public static final String GENERIC_SUBSCRIBER_SERVICE_TYPE = "Service";
     public static final String WEBSUB_SERVICE_REGISTRY = "WEBSUB_SERVICE_REGISTRY";
 
-    public static final String SERVICE_ENDPOINT = "Listener";
     public static final String SERVICE_ENDPOINT_CONFIG_NAME = "config";
     public static final String ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG = "SubscriberServiceConfig";
+    public static final String WEBSUB = "websub";
     public static final String WEBSUB_PACKAGE = "ballerina/websub";
     public static final String WEBSUB_SERVICE_LISTENER = "Listener";
     public static final String WEBSUB_SERVICE_CALLER = "Caller";

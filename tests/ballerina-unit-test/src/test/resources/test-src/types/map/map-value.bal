@@ -90,8 +90,7 @@ function testMapSynchronization() returns (int) {
         }
     }
 
-    _ = wait w1;
-    _ = wait w1;
+    _ = wait {w1, w2};
 
     return m.length();
 }

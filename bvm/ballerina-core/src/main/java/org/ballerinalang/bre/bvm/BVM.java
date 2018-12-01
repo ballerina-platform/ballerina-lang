@@ -30,6 +30,7 @@ import org.ballerinalang.channels.ChannelRegistry;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BAttachedFunction;
+import org.ballerinalang.model.types.BErrorType;
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BFiniteType;
 import org.ballerinalang.model.types.BFunctionType;
@@ -122,7 +123,7 @@ import org.ballerinalang.util.exceptions.BLangMapStoreException;
 import org.ballerinalang.util.exceptions.BLangNullReferenceException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
-import org.ballerinalang.util.observability.ObserverContext;
+import org.ballerinalang.util.observability.ObserveUtils;
 import org.ballerinalang.util.program.BLangVMUtils;
 import org.ballerinalang.util.transactions.TransactionConstants;
 import org.ballerinalang.util.transactions.TransactionLocalContext;
@@ -396,6 +397,8 @@ public class BVM {
                         break;
                     case InstructionCodes.HALT:
                         if (strand.fp > 0) {
+                            // Stop the observation context before popping the stack frame
+                            ObserveUtils.stopCallableObservation(strand);
                             strand.popFrame();
                             break;
                         }
@@ -497,7 +500,7 @@ public class BVM {
                         handleError(strand);
                         break;
                     case InstructionCodes.ERROR:
-                        createNewError(operands, sf);
+                        createNewError(operands, strand, sf);
                         break;
                     case InstructionCodes.REASON:
                     case InstructionCodes.DETAIL:
@@ -744,6 +747,8 @@ public class BVM {
                         break;
                     case InstructionCodes.RET:
                         if (strand.fp > 0) {
+                            // Stop the observation context before popping the stack frame
+                            ObserveUtils.stopCallableObservation(strand);
                             strand.popFrame();
                             break;
                         }
@@ -821,7 +826,7 @@ public class BVM {
 
         if (!checkIsLikeType(refRegVal, BTypes.typeAnydata)) {
             sf.refRegs[j] = BLangVMErrors.createError(ctx, BLangExceptionHelper
-                    .getErrorMessage(RuntimeErrors.UNSUPPORTED_CLONE_OPERATION, refRegVal, refRegVal.getType()));
+                    .getErrorMessage(RuntimeErrors.UNSUPPORTED_CLONE_OPERATION, refRegVal.getType()));
             return;
         }
         sf.refRegs[j] = (BRefType<?>) refRegVal.copy(new HashMap<>());
@@ -831,15 +836,15 @@ public class BVM {
                                        int[] argRegs, int retReg, int flags) {
         //TODO refactor when worker info is removed from compiler
         StackFrame df = new StackFrame(callableUnitInfo.getPackageInfo(), callableUnitInfo,
-                callableUnitInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), retReg);
+                callableUnitInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), retReg, flags);
         copyArgValues(strand.currentFrame, df, argRegs, callableUnitInfo.getParamTypes());
 
-        if (!FunctionFlags.isAsync(flags)) {
+        if (!FunctionFlags.isAsync(df.invocationFlags)) {
             strand.pushFrame(df);
+            // Start observation after pushing the stack frame
+            ObserveUtils.startCallableObservation(strand, df.invocationFlags);
             if (callableUnitInfo.isNative()) {
-                // This is to return the current thread in case of non blocking call
-                df.ip = -1;
-                return invokeNativeCallable(callableUnitInfo, strand, df, retReg, flags);
+                return invokeNativeCallable(callableUnitInfo, strand, df, retReg, df.invocationFlags);
             }
             return strand;
         }
@@ -848,6 +853,8 @@ public class BVM {
         Strand calleeStrand = new Strand(strand.programFile, callableUnitInfo.getName(),
                 strand.globalProps, strndCallback, strand.wdChannels);
         calleeStrand.pushFrame(df);
+        // Start observation after pushing the stack frame
+        ObserveUtils.startCallableObservation(calleeStrand, strand.respCallback.getObserverContext());
         if (callableUnitInfo.isNative()) {
             Context nativeCtx = new NativeCallContext(calleeStrand, callableUnitInfo, df);
             NativeCallableUnit nativeCallable = callableUnitInfo.getNativeCallableUnit();
@@ -872,26 +879,21 @@ public class BVM {
         Context ctx = new NativeCallContext(strand, callableUnitInfo, sf);
         NativeCallableUnit nativeCallable = callableUnitInfo.getNativeCallableUnit();
         try {
-            //                    TODO fix - rajith
-//            ObserverContext observerContext = checkAndStartNativeCallableObservation(ctx, callableUnitInfo, flags);
-            ObserverContext observerContext = null;
             if (nativeCallable.isBlocking()) {
                 nativeCallable.execute(ctx, null);
 
                 if (strand.fp > 0) {
+                    // Stop the observation context before popping the stack frame
+                    ObserveUtils.stopCallableObservation(strand);
                     strand.popFrame();
                     StackFrame retFrame = strand.currentFrame;
                     BLangVMUtils.populateWorkerDataWithValues(retFrame, retReg, ctx.getReturnValue(), retType);
                     return strand;
                 }
-                //                    TODO fix - rajith
-//                checkAndStopCallableObservation(observerContext, flags);
-                /* we want the parent to continue, since we got the response of the native call already */
                 strand.respCallback.signal();
                 return null;
             }
-            CallableUnitCallback callback = getNativeCallableUnitCallback(strand, sf, ctx, observerContext,
-                    retReg, retType, flags);
+            CallableUnitCallback callback = new BLangCallableUnitCallback(ctx, strand, retReg, retType);
             nativeCallable.execute(ctx, callback);
             return null;
         } catch (BLangNullReferenceException e) {
@@ -899,24 +901,12 @@ public class BVM {
         } catch (Throwable e) {
             strand.setError(BLangVMErrors.createError(strand, e.getMessage()));
         }
+        // Stop the observation context before popping the stack frame
+        ObserveUtils.stopCallableObservation(strand);
         strand.popFrame();
         handleError(strand);
         return strand;
     }
-
-    private static CallableUnitCallback getNativeCallableUnitCallback(Strand strand, StackFrame parentDf, Context ctx,
-                                                                      ObserverContext observerContext, int retReg,
-                                                                      BType retType, int flags) {
-        BLangCallableUnitCallback callback = new BLangCallableUnitCallback(ctx, strand, retReg, retType);
-        //                    TODO fix - rajith
-//        return (ObservabilityUtils.isObservabilityEnabled() && FunctionFlags.isObserved(flags)) ?
-//                new CallableUnitCallbackObserver(observerContext, callback) : callback;
-        return callback;
-    }
-
-
-
-
 
     private static void copyArgValues(StackFrame caller, StackFrame callee, int[] argRegs, BType[] paramTypes) {
         int longRegIndex = -1;
@@ -949,13 +939,15 @@ public class BVM {
         }
     }
 
-    private static void createNewError(int[] operands, StackFrame sf) {
+    private static void createNewError(int[] operands, Strand strand, StackFrame sf) {
         int i = operands[0];
         int j = operands[1];
         int k = operands[2];
         int l = operands[3];
         TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) sf.constPool[i];
-        sf.refRegs[l] = new BError(typeRefCPEntry.getType(), sf.stringRegs[j], sf.refRegs[k]);
+        sf.refRegs[l] = (BRefType<?>) BLangVMErrors
+                .createError(strand, true, (BErrorType) typeRefCPEntry.getType(), sf.stringRegs[j],
+                        (BMap<String, BValue>) sf.refRegs[k]);
     }
 
     private static void handleErrorBuiltinMethods(int opcode, int[] operands, StackFrame sf) {
@@ -3526,7 +3518,8 @@ public class BVM {
      * @return          true if the lhsType is any or is the same as rhsType
      */
     private static boolean isSameOrAnyType(BType rhsType, BType lhsType) {
-        return lhsType.getTag() == TypeTags.ANY_TAG || rhsType.equals(lhsType);
+        return (lhsType.getTag() == TypeTags.ANY_TAG && rhsType.getTag() != TypeTags.ERROR_TAG) || rhsType
+                .equals(lhsType);
     }
 
     private static boolean checkCastByType(BType rhsType, BType lhsType, List<TypePair> unresolvedTypes) {
@@ -3549,6 +3542,8 @@ public class BVM {
                 case TypeTags.NULL_TAG:
                 case TypeTags.JSON_TAG:
                     return true;
+                case TypeTags.MAP_TAG:
+                    return checkCastByType(((BMapType) rhsType).getConstrainedType(), lhsType, unresolvedTypes);
                 case TypeTags.ARRAY_TAG:
                     if (((BJSONType) lhsType).getConstrainedType() != null) {
                         return false;
@@ -4274,7 +4269,6 @@ public class BVM {
 
     public static void handleError(Strand strand) {
         StackFrame sf = strand.currentFrame;
-        BLangVMErrors.attachStackFrame(strand.getError(), strand.programFile, sf);
         // TODO: Fix me
         int ip = sf.ip;
         ip--;
@@ -4284,6 +4278,8 @@ public class BVM {
             sf.refRegs[match.regIndex] = strand.getError();
             strand.setError(null);
         } else if (strand.fp > 0) {
+            // Stop the observation context before popping the stack frame
+            ObserveUtils.stopCallableObservation(strand);
             StackFrame popedFrame = strand.popFrame();
             signalTransactionError(strand, popedFrame.trxParticipant);
             handleError(strand);
@@ -4724,8 +4720,15 @@ public class BVM {
             return false;
         }
 
+        BValueArray source = (BValueArray) sourceValue;
+        if (source.elementType == BTypes.typeInt || source.elementType == BTypes.typeString ||
+                source.elementType == BTypes.typeFloat || source.elementType == BTypes.typeBoolean ||
+                source.elementType == BTypes.typeByte) {
+            return checkIsType(source.elementType, targetType.getElementType(), new ArrayList<>());
+        }
+        
         BType arrayElementType = targetType.getElementType();
-        BRefType<?>[] arrayValues = ((BValueArray) sourceValue).getValues();
+        BRefType<?>[] arrayValues = source.getValues();
         for (int i = 0; i < ((BValueArray) sourceValue).size(); i++) {
             if (!checkIsLikeType(arrayValues[i], arrayElementType)) {
                 return false;
@@ -4751,7 +4754,14 @@ public class BVM {
         if (targetType.getConstrainedType() != null) {
             return checkIsLikeType(sourceValue, targetType.getConstrainedType());
         } else if (sourceValue.getType().getTag() == TypeTags.ARRAY_TAG) {
-            BRefType<?>[] arrayValues = ((BValueArray) sourceValue).getValues();
+            BValueArray source = (BValueArray) sourceValue;
+            if (source.elementType == BTypes.typeInt || source.elementType == BTypes.typeString ||
+                    source.elementType == BTypes.typeFloat || source.elementType == BTypes.typeBoolean ||
+                    source.elementType == BTypes.typeByte) {
+                return checkIsType(source.elementType, targetType, new ArrayList<>());
+            }
+            
+            BRefType<?>[] arrayValues = source.getValues();
             for (int i = 0; i < ((BValueArray) sourceValue).size(); i++) {
                 if (!checkIsLikeType(arrayValues[i], targetType)) {
                     return false;
@@ -4760,6 +4770,12 @@ public class BVM {
         } else if (sourceValue.getType().getTag() == TypeTags.MAP_TAG) {
             for (BValue value : ((BMap) sourceValue).values()) {
                 if (!checkIsLikeType(value, targetType)) {
+                    return false;
+                }
+            }
+        } else if (sourceValue.getType().getTag() == TypeTags.RECORD_TYPE_TAG) {
+            for (Object object : ((BMap) sourceValue).getMap().values()) {
+                if (!checkIsLikeType((BValue) object, targetType)) {
                     return false;
                 }
             }

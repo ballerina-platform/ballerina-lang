@@ -35,7 +35,6 @@ import io.ballerina.plugins.idea.psi.BallerinaCompositeElement;
 import io.ballerina.plugins.idea.psi.BallerinaDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaFile;
 import io.ballerina.plugins.idea.psi.BallerinaFunctionDefinition;
-import io.ballerina.plugins.idea.psi.BallerinaMatchExpressionPatternClause;
 import io.ballerina.plugins.idea.psi.BallerinaNameReference;
 import io.ballerina.plugins.idea.psi.BallerinaNamespaceDeclaration;
 import io.ballerina.plugins.idea.psi.BallerinaOnCommitStatement;
@@ -194,17 +193,6 @@ public class BallerinaTopLevelScopeProcessor extends BallerinaScopeProcessorBase
                                     if (elementType == BallerinaTypes.COMMA
                                             || elementType == BallerinaTypes.LEFT_BRACE) {
                                         insertHandler = ParenthesisInsertHandler.INSTANCE;
-                                    }
-                                }
-                                BallerinaMatchExpressionPatternClause patternClause =
-                                        PsiTreeUtil.getParentOfType(myElement,
-                                                BallerinaMatchExpressionPatternClause.class);
-                                if (publicFieldsOnly != null) {
-                                    if (child.isPublic()) {
-                                        myResult.addElement(BallerinaCompletionUtils
-                                                .createFunctionLookupElementWithSemicolon(child, insertHandler,
-                                                        patternClause == null));
-                                        lookupElementsFound = true;
                                     }
                                 } else {
 

@@ -28,8 +28,6 @@ public enum Snippet {
     // Definition Snippets
     DEF_ANNOTATION(SnippetGenerator.getAnnotationDefSnippet()),
 
-    DEF_ENDPOINT(SnippetGenerator.getEndpointSnippet()),
-
     DEF_FUNCTION(SnippetGenerator.getFunctionDefSnippet()),
 
     DEF_FUNCTION_SIGNATURE(SnippetGenerator.getFunctionSignatureSnippet()),

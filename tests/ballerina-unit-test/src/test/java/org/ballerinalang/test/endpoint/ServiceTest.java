@@ -19,7 +19,10 @@ package org.ballerinalang.test.endpoint;
 
 import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -29,16 +32,31 @@ import org.testng.annotations.Test;
  * @since 0.985.0
  */
 public class ServiceTest {
-    //    private CompileResult remoteBasic;
-    //
-    //    @BeforeClass
-    //    public void setupServiceBasic() {
-    //        //        remoteBasic = BCompileUtil.compile("test-src/endpoint/new/service_basic.bal");
-    //    }
-    //
-    //    public void testServiceBasic() {
-    //
-    //    }
+
+    @Test(expectedExceptions = { BLangRuntimeException.class },
+          expectedExceptionsMessageRegExp = ".*error: startError.*")
+    public void testServiceInitNegativeTest() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/new/service_init_negative.bal");
+        BRunUtil.invoke(compileResult, "test1");
+    }
+
+    @Test(expectedExceptions = { BLangRuntimeException.class },
+          expectedExceptionsMessageRegExp = ".*error: startError.*")
+    public void testServiceInitPanicNegativeTest() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/new/service_init_panic_negative.bal");
+        BRunUtil.invoke(compileResult, "test1");
+    }
+
+    @Test
+    public void testMultipleServiceTest() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/new/service_multiple.bal");
+        final BValue[] result = BRunUtil.invoke(compileResult, "test1");
+        Assert.assertEquals(result.length, 2, "expected two return type");
+        Assert.assertNotNull(result[0]);
+        Assert.assertNotNull(result[1]);
+        Assert.assertEquals(result[0].stringValue(), "2");
+        Assert.assertEquals(result[1].stringValue(), "0");
+    }
 
     @Test
     public void testServiceBasicsNegative() {
@@ -47,10 +65,13 @@ public class ServiceTest {
         BAssertUtil
                 .validateError(compileResult, errIdx++, "resource function can not be invoked with in a service", 7, 9);
         BAssertUtil.validateError(compileResult, errIdx++, "redeclared symbol 'name'", 17, 9);
+        BAssertUtil.validateError(compileResult, errIdx++, "redeclared symbol 'name'", 17, 9);
         BAssertUtil.validateError(compileResult, errIdx++,
                 "incompatible types: expected 'AbstractListener', found 'string'", 17, 17);
         BAssertUtil.validateError(compileResult, errIdx++, "invalid listener attachment", 17, 17);
-        BAssertUtil.validateError(compileResult, errIdx++, "redeclared symbol '$anonType$2.foo'", 29, 14);
+        BAssertUtil.validateError(compileResult, errIdx++, "uninitialized field 'id'", 18, 5);
+        BAssertUtil.validateError(compileResult, errIdx++, "redeclared symbol '$anonType$0.foo'", 29, 14);
+        BAssertUtil.validateError(compileResult, errIdx++, "undefined symbol 'invalidVar'", 50, 12);
         Assert.assertEquals(compileResult.getErrorCount(), errIdx);
     }
 

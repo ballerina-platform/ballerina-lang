@@ -43,7 +43,7 @@ under the License.
         </groups>
         <packages>
             <package name="org.ballerinalang.test.vm.*"/>
-            <!--package name="org.ballerinalang.test.annotations.*"/>-->
+            <package name="org.ballerinalang.test.annotations.*"/>
             <package name="org.ballerinalang.test.expressions.*"/>
             <package name="org.ballerinalang.test.documentation.*"/>
             <package name="org.ballerinalang.test.statements.*">
@@ -61,9 +61,9 @@ under the License.
             </package>
             <package name="org.ballerinalang.test.h2"/>
             <package name="org.ballerinalang.test.net.*"/>
-            <!--package name="org.ballerinalang.test.debugger.*"/>-->
+            <package name="org.ballerinalang.test.debugger.*"/>
             <package name="org.ballerinalang.test.structs.*"/>
-            <!--package name="org.ballerinalang.test.endpoint.*"/>-->
+            <package name="org.ballerinalang.test.endpoint.*"/>
             <package name="org.ballerinalang.test.closures.*"/>
             <package name="org.ballerinalang.test.services.nativeimpl.*"/>
             <package name="org.ballerinalang.test.services.basics"/>

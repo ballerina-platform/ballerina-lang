@@ -22,6 +22,7 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefType;
@@ -29,12 +30,14 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueType;
 import org.ballerinalang.runtime.Constants;
+import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.util.observability.ObserveUtils;
 import org.ballerinalang.util.observability.ObserverContext;
 import org.ballerinalang.util.program.BLangVMUtils;
 import org.ballerinalang.util.transactions.TransactionLocalContext;
@@ -136,9 +139,12 @@ public class BVMExecutor {
         BLangVMUtils.setServiceInfo(strand, serviceInfo);
 
         StackFrame idf = new StackFrame(resourceInfo.getPackageInfo(), resourceInfo,
-                resourceInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), -1);
+                                        resourceInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), -1,
+                                        FunctionFlags.NOTHING);
         copyArgValues(args, idf, resourceInfo.getParamTypes());
         strand.pushFrame(idf);
+        // Start observation after pushing the stack frame
+        ObserveUtils.startResourceObservation(strand, observerContext);
 
         BVMScheduler.stateChange(strand, State.NEW, State.RUNNABLE);
         BVMScheduler.schedule(strand);
@@ -166,7 +172,7 @@ public class BVMExecutor {
         Strand strand = new Strand(programFile, callableInfo.getName(), globalProps, strandCallback,  null);
 
         StackFrame idf = new StackFrame(callableInfo.getPackageInfo(), callableInfo,
-                callableInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), -1);
+                callableInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), -1, FunctionFlags.NOTHING);
         copyArgValues(args, idf, callableInfo.getParamTypes());
         strand.pushFrame(idf);
 
@@ -254,7 +260,8 @@ public class BVMExecutor {
      */
     private static void invokePackageInitFunctions(ProgramFile programFile) {
         for (PackageInfo info : programFile.getPackageInfoEntries()) {
-            execute(programFile, info.getInitFunctionInfo(), new BValue[0], null, true);
+            BValue result = execute(programFile, info.getInitFunctionInfo(), new BValue[0], null, true);
+            validateInvocationError(result);
         }
     }
 
@@ -266,7 +273,8 @@ public class BVMExecutor {
      */
     private static void invokePackageStartFunctions(ProgramFile programFile) {
         for (PackageInfo info : programFile.getPackageInfoEntries()) {
-            execute(programFile, info.getStartFunctionInfo(), new BValue[0], null, true);
+            BValue result = execute(programFile, info.getStartFunctionInfo(), new BValue[0], null, true);
+            validateInvocationError(result);
         }
     }
 
@@ -278,7 +286,20 @@ public class BVMExecutor {
      */
     private static void invokePackageStopFunctions(ProgramFile programFile) {
         for (PackageInfo info : programFile.getPackageInfoEntries()) {
-            execute(programFile, info.getStopFunctionInfo(), new BValue[0], null, true);
+            BValue result = execute(programFile, info.getStopFunctionInfo(), new BValue[0], null, true);
+            validateInvocationError(result);
+        }
+    }
+
+    /**
+     * This will validate given BValue is an BError and then convert it into
+     * Ballerina exception. This method will be used to validate module life cycle methods.
+     *
+     * @value BValue to be validated.
+     */
+    private static void validateInvocationError(BValue value) {
+        if (value != null && value.getType().getTag() == TypeTags.ERROR_TAG) {
+            throw new BLangRuntimeException("error: " + BLangVMErrors.getPrintableStackTrace((BError) value));
         }
     }
 }

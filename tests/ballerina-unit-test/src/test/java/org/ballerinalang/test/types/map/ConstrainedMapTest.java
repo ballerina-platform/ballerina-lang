@@ -446,8 +446,8 @@ public class ConstrainedMapTest {
                 "testJsonToStructConversionStructWithConstrainedMapNegative");
         Assert.assertTrue(returns[0] instanceof BError);
         String errorMsg = ((BError) returns[0]).getReason();
-        Assert.assertEquals(errorMsg, "cannot convert 'json' to type 'PersonComplexTwo': error while mapping " +
-                "'address': incompatible types: expected 'int', found 'string' in json");
+        Assert.assertEquals(errorMsg, "incompatible stamp operation: 'json' value cannot be stamped as " +
+                "'PersonComplexTwo'");
     }
 
     @Test(description = "Test constrained map with union retrieving string value.")

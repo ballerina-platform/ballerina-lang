@@ -61,12 +61,6 @@ public class BallerinaStatementImpl extends BallerinaCompositeElementImpl implem
 
   @Override
   @Nullable
-  public BallerinaCompensateStatement getCompensateStatement() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaCompensateStatement.class);
-  }
-
-  @Override
-  @Nullable
   public BallerinaCompoundAssignmentStatement getCompoundAssignmentStatement() {
     return PsiTreeUtil.getChildOfType(this, BallerinaCompoundAssignmentStatement.class);
   }
@@ -151,12 +145,6 @@ public class BallerinaStatementImpl extends BallerinaCompositeElementImpl implem
 
   @Override
   @Nullable
-  public BallerinaScopeStatement getScopeStatement() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaScopeStatement.class);
-  }
-
-  @Override
-  @Nullable
   public BallerinaStreamingQueryStatement getStreamingQueryStatement() {
     return PsiTreeUtil.getChildOfType(this, BallerinaStreamingQueryStatement.class);
   }
@@ -193,8 +181,8 @@ public class BallerinaStatementImpl extends BallerinaCompositeElementImpl implem
 
   @Override
   @Nullable
-  public BallerinaWorkerInteractionStatement getWorkerInteractionStatement() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaWorkerInteractionStatement.class);
+  public BallerinaWorkerSendAsyncStatement getWorkerSendAsyncStatement() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaWorkerSendAsyncStatement.class);
   }
 
   @Override
