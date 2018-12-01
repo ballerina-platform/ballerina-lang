@@ -3344,8 +3344,11 @@ public class Desugar extends BLangNodeVisitor {
             conversionSymbol = Symbols.createConversionOperatorSymbol(rhsType, lhsType, symTable.errorType, false, true,
                     InstructionCodes.NOP, null, null);
         } else if (lhsType.tag == TypeTags.MAP || rhsType.tag == TypeTags.MAP) {
+            conversionSymbol = Symbols.createConversionOperatorSymbol(rhsType, lhsType, symTable.errorType, false, true,
+                                                                      InstructionCodes.NOP, null, null);
+        } else if (lhsType.tag == TypeTags.TABLE || rhsType.tag == TypeTags.TABLE) {
             conversionSymbol = Symbols.createConversionOperatorSymbol(rhsType, lhsType, symTable.errorType, false,
-                    true, InstructionCodes.NOP, null, null);
+                                                                      true, InstructionCodes.NOP, null, null);
         } else {
             conversionSymbol = (BConversionOperatorSymbol) symResolver.resolveConversionOperator(rhsType, lhsType);
         }
