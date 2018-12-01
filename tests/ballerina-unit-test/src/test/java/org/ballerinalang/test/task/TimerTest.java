@@ -117,7 +117,8 @@ public class TimerTest {
         BRunUtil.invokeStateful(timerCompileResult, "stopTask");
     }
 
-    @Test(description = "Tests running a timer started within workers")
+    @Test(description = "Tests running a timer started within workers",
+          enabled = false)
     public void testSimpleExecutionWithWorkers() {
         CompileResult timerCompileResult = BCompileUtil.compileAndSetup("test-src/task/timer-workers.bal");
         printDiagnostics(timerCompileResult);
@@ -146,7 +147,8 @@ public class TimerTest {
         assertEquals(((BInteger) counts[1]).intValue(), -1, "Count hasn't been reset");
     }
 
-    @Test(description = "Tests running a timer started within workers  where the onTrigger function generates an error")
+    @Test(description = "Tests running a timer started within workers  where the onTrigger function generates an error",
+          enabled = false)
     public void testExecutionWithWorkersAndErrorFn() {
         CompileResult timerCompileResult = BCompileUtil.compileAndSetup("test-src/task/timer-workers.bal");
         printDiagnostics(timerCompileResult);

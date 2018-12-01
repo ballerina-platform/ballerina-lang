@@ -15,8 +15,8 @@ function scheduleTimer(int w1Delay, int w1Interval, int w2Delay, int w2Interval,
     worker default {
         errorMsgW1 = errMsgW1;
         errorMsgW2 = errMsgW2;
-        timer1 <- w1;
-        timer2 <- w2;
+        timer1 =<- w1;
+        timer2 =<- w2;
     }
     worker w1 {
         task:Timer? t;
