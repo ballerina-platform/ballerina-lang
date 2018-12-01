@@ -21,7 +21,7 @@ type Teacher record {
     int age;
     string status;
     string school;
-    int count;
+    int count = 0;
 };
 
 int index = 0;
@@ -48,7 +48,7 @@ function startLengthWindowTest() returns (Teacher[]) {
 
     testLengthWindow();
 
-    outputStreamLengthWindowTest.subscribe(printTeachers);
+    outputStreamLengthWindowTest.subscribe(function(Teacher e) {printTeachers(e);});
     foreach t in teachers {
         inputStreamLengthWindowTest.publish(t);
     }

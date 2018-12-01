@@ -82,7 +82,7 @@ function startTableJoinQuery() returns (StockWithPrice[]) {
     Twitter t1 = { user: "User1", tweet: "Hello WSO2, happy to be a user.", company: "WSO2" };
     Twitter t2 = { user: "User2", tweet: "Hello IBM, happy to be a user.", company: "IBM" };
 
-    stockWithPriceStream.subscribe(printCompanyStockPrice);
+    stockWithPriceStream.subscribe(function (StockWithPrice e) {printCompanyStockPrice(e);});
 
     twitterStream.publish(t1);
     runtime:sleep(1000);

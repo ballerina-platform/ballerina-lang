@@ -42,7 +42,7 @@ function startFilterQuery() returns (Teacher[]) {
     stream<Teacher> inputStream = new;
     testFilterQuery(inputStream);
 
-    outputStream.subscribe(printTeachers);
+    outputStream.subscribe(function (Teacher e) {printTeachers(e);});
     foreach t in teachers {
         inputStream.publish(t);
     }

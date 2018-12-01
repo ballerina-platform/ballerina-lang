@@ -52,7 +52,7 @@ function startExternalTimeBatchwindowTest6() returns (TeacherOutput[]) {
 
     testExternalTimeBatchwindow6();
 
-    outputStreamExternalTimeBatchTest6.subscribe(printTeachers);
+    outputStreamExternalTimeBatchTest6.subscribe(function(TeacherOutput e) {printTeachers(e);});
     foreach t in teachers {
         inputStreamExternalTimeBatchTest6.publish(t);
         runtime:sleep(450);

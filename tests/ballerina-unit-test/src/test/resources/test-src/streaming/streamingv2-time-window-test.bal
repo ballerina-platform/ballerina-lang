@@ -39,7 +39,7 @@ function startTimeWindowTest() returns (Teacher[]) {
 
     testTimeWindow();
 
-    outputStreamTimeWindowTest.subscribe(printTeachers);
+    outputStreamTimeWindowTest.subscribe(function(Teacher e) {printTeachers(e);});
     foreach t in teachers {
         inputStreamTimeWindowTest.publish(t);
     }

@@ -46,7 +46,7 @@ function startTimeLengthwindowTest1() returns (TeacherOutput[]) {
 
     testTimeLengthwindow();
 
-    outputStreamTimeLengthWindowTest1.subscribe(printTeachers);
+    outputStreamTimeLengthWindowTest1.subscribe(function(TeacherOutput e) {printTeachers(e);});
     foreach t in teachers {
         inputStreamTimeLengthWindowTest1.publish(t);
         runtime:sleep(500);

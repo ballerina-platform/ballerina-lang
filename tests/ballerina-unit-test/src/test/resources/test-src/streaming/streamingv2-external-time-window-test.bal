@@ -54,7 +54,7 @@ function startExternalTimeWindowTest() returns (TeacherOutput[]) {
 
     testExternalTimeWindow();
 
-    outputStreamExternalTimeTest.subscribe(printTeachers);
+    outputStreamExternalTimeTest.subscribe(function(TeacherOutput e) {printTeachers(e);});
     foreach t in teachers {
         inputStreamExternalTimeTest.publish(t);
         runtime:sleep(450);

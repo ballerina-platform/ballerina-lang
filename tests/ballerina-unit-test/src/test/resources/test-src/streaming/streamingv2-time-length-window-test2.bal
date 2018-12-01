@@ -54,7 +54,7 @@ function startTimeLengthwindowTest2() returns (TeacherOutput[]) {
 
     testTimeLengthwindow();
 
-    outputStreamTimeLengthTest2.subscribe(printTeachers);
+    outputStreamTimeLengthTest2.subscribe(function(TeacherOutput e) {printTeachers(e);});
     foreach t in teachers {
         inputStreamTimeLengthWindowTest2.publish(t);
         runtime:sleep(450);

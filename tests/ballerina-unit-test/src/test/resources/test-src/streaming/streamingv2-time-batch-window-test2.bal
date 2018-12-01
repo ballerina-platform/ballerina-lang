@@ -44,7 +44,7 @@ function startTimeBatchwindowTest2() returns (TeacherOutput[]) {
 
     testTimeBatchwindow();
 
-    outputStreamTimeBatchTest2.subscribe(printTeachers);
+    outputStreamTimeBatchTest2.subscribe(function(TeacherOutput e) {printTeachers(e);});
 
     inputStreamTimeBatchTest2.publish(t1);
     inputStreamTimeBatchTest2.publish(t2);

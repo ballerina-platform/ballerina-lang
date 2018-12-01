@@ -56,7 +56,7 @@ function startTimeWindowTest2() returns (Teacher[]) {
 
     testTimeWindow();
 
-    outputStreamTimeWindowTest2.subscribe(printTeachers);
+    outputStreamTimeWindowTest2.subscribe(function(Person e) {printTeachers(e);});
     foreach t in teachers {
         inputStreamTimeWindowTest2.publish(t);
         runtime:sleep(1200);
