@@ -5,7 +5,7 @@ import {
 import * as _ from "lodash";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
-import { FunctionViewState, SimpleBBox, ViewState } from "../view-model";
+import { FunctionViewState, SimpleBBox, StmntViewState, ViewState } from "../view-model";
 
 // Following element is created to calculate the width of a text rendered in an svg.
 // Please see getTextWidth on how we do the calculation.
@@ -62,14 +62,35 @@ function getTextWidth(text: string, minWidth = config.statement.width, maxWidth 
 }
 
 function sizeStatement(node: ASTNode) {
-    const viewState: ViewState = node.viewState;
+    const viewState: StmntViewState = node.viewState;
     const label = getTextWidth(ASTUtil.genSource(node));
     viewState.bBox.h = config.statement.height;
     viewState.bBox.w = (config.statement.width > label.w) ? config.statement.width : label.w;
     viewState.bBox.label = label.text;
+    // Check if statement is action invocation
+    const action = ASTUtil.isActionInvocation(node);
+    if (action) {
+        // find the endpoint view state
+        endpointHolder.forEach((element: VisibleEndpoint) => {
+            if (element.name === action) {
+                viewState.endpoint = element.viewState;
+                viewState.isAction = true;
+                viewState.bBox.h += 15;
+            }
+        });
+    }
 }
 
+let endpointHolder: VisibleEndpoint[] = [];
+
 export const visitor: Visitor = {
+
+    // tslint:disable-next-line:ban-types
+    beginVisitFunction(node: Function) {
+        if (node.VisibleEndpoints && !node.lambda) {
+            endpointHolder = node.VisibleEndpoints;
+        }
+    },
 
     // tslint:disable-next-line:ban-types
     endVisitFunction(node: Function) {
