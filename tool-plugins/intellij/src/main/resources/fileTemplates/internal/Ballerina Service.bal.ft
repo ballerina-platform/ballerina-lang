@@ -1,16 +1,20 @@
 import ballerina/http;
 import ballerina/log;
 
-// By default, Ballerina assumes that the service is to be exposed via HTTP/1.1.
-service<http:Service> hello bind { port: 9090 } {
+// By default, Ballerina exposes a service via HTTP/1.1.
+service hello on new http:Listener(9090) {
 
-    // All resources are invoked with arguments of server connector and request.
-    sayHello(endpoint caller, http:Request req) {
+    // Invoke all resources with arguments of server connector and request.
+    resource function sayHello(http:Caller caller, http:Request req) {
         http:Response res = new;
-        // A util method that can be used to set a string payload.
+
+        // Use a util method to set a string payload.
         res.setPayload("Hello, World!");
 
-        // Sends the response back to the caller.
-        caller->respond(res) but { error e => log:printError("Error sending response", err = e) };
+        // Send the response back to the caller.
+        var result = caller->respond(res);
+        if (result is error) {
+            log:printError("Error sending response", err = result);
+        }
     }
 }
