@@ -29,7 +29,7 @@ public interface BallerinaTupleBindingPattern extends BallerinaCompositeElement 
   @NotNull
   PsiElement getLeftParenthesis();
 
-  @Nullable
+  @NotNull
   PsiElement getRightParenthesis();
 
 }
