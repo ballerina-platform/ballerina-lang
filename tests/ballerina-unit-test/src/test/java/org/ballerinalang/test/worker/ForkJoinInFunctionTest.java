@@ -30,6 +30,7 @@ import org.testng.annotations.Test;
 /**
  * Test cases for usages of fork-join in functions.
  */
+@Test(groups = "broken")
 public class ForkJoinInFunctionTest {
 
     @Test(description = "Test Fork Join All")
