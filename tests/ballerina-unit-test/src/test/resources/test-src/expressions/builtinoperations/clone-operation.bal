@@ -355,7 +355,7 @@ public function cloneFrozenAnydata() returns (any, any) {
     return (p, q);
 }
 
-public function cloneNonAnydata() returns (any, any| error) {
+public function cloneNonAnydata() returns (any, any|error) {
     Employee p = {id: 100, name: "Alex", salary: 300.5};
     (Employee, any) x = (p, Employee);
     ((Employee, any) | error) q = x.clone();

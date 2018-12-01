@@ -26,7 +26,8 @@
                 "rimraf",
                 "semantic-ui-react",
                 "semantic-ui-css",
-                "typescript"
+                "typescript",
+                "classnames"
               ]
             ]
           }

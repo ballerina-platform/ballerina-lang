@@ -145,18 +145,6 @@ public class SnippetGenerator {
     }
 
     /**
-     * Get Endpoint Snippet Block.
-     *
-     * @return {@link SnippetBlock}     Generated Snippet Block
-     */
-    public static SnippetBlock getEndpointSnippet() {
-        String snippet = "endpoint ${1:http:Listener} ${2:listener} {" + CommonUtil.LINE_SEPARATOR + "\t${3}"
-                + CommonUtil.LINE_SEPARATOR + "};";
-        return new SnippetBlock(ItemResolverConstants.ENDPOINT, snippet, ItemResolverConstants.SNIPPET_TYPE,
-                                SnippetType.SNIPPET);
-    }
-
-    /**
      * Get Foreach Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
