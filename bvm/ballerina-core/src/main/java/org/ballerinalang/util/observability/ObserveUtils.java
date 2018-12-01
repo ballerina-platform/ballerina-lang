@@ -39,6 +39,7 @@ import java.util.function.Supplier;
 
 import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
 import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
+import static org.ballerinalang.util.observability.ObservabilityConstants.UNKNOWN_CONNECTOR;
 import static org.ballerinalang.util.tracer.TraceConstants.KEY_SPAN;
 
 /**
@@ -77,39 +78,31 @@ public class ObserveUtils {
         if (!enabled) {
             return;
         }
-        if (observerContext == null) {
+        ObserverContext newObContext = observerContext;
+        if (newObContext == null) {
             CallableUnitInfo callableUnitInfo = strand.currentFrame.callableUnitInfo;
-            ObserverContext ctx = new ObserverContext();
-            ctx.setConnectorName(callableUnitInfo.getPkgPath());
-            ctx.setServiceName(ObserveUtils.getFullServiceName(callableUnitInfo.attachedToType.getName(),
-                                                               callableUnitInfo.getPkgPath()));
-            ctx.setResourceName(callableUnitInfo.getName());
-            strand.respCallback.setObserverContext(ctx);
-        } else {
-            strand.respCallback.setObserverContext(observerContext);
+            newObContext = new ObserverContext();
+            newObContext.setConnectorName(UNKNOWN_CONNECTOR);
+            newObContext.setServiceName(getFullServiceName(callableUnitInfo.attachedToType));
+            newObContext.setResourceName(callableUnitInfo.getName());
         }
-        ObserverContext newObContext = strand.respCallback.getObserverContext();
+        strand.respCallback.setObserverContext(newObContext);
         newObContext.setServer();
         newObContext.setStarted();
         strand.currentFrame.observerContext = newObContext;
-        observers.forEach(observer -> observer.startServerObservation(newObContext));
+        ObserverContext finalNewObContext = newObContext;
+        observers.forEach(observer -> observer.startServerObservation(finalNewObContext));
     }
 
     /**
      * Get full service name with the package path.
      *
-     * @param serviceName service name
-     * @param pkgPath     package path
+     * @param serviceInfoType service info type
      * @return full qualified service name
      */
-    private static String getFullServiceName(String serviceName, String pkgPath) {
-        if (serviceName == null) {
-            return ObservabilityConstants.UNKNOWN_SERVICE;
-        }
-        if (pkgPath.equals(PACKAGE_SEPARATOR)) {
-            return serviceName;
-        }
-        return pkgPath + PACKAGE_SEPARATOR + serviceName;
+    private static String getFullServiceName(BType serviceInfoType) {
+        return serviceInfoType.getPackagePath().equals(PACKAGE_SEPARATOR) ? serviceInfoType.getName()
+                : serviceInfoType.getPackagePath() + PACKAGE_SEPARATOR + serviceInfoType.getName();
     }
 
     /**
@@ -247,7 +240,7 @@ public class ObserveUtils {
         if (!tracingEnabled) {
             return;
         }
-        Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(context);
+        Optional<ObserverContext> observerContext = getObserverContextOfCurrentFrame(context);
         if (!observerContext.isPresent()) {
             return;
         }
