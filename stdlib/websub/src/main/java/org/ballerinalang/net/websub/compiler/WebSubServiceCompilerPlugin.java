@@ -93,9 +93,6 @@ public class WebSubServiceCompilerPlugin extends AbstractCompilerPlugin {
                                        + GENERIC_SUBSCRIBER_SERVICE_TYPE);
             return;
         }
-        resources.forEach(res -> {
-            validateDefaultResources(res, dlog);
-        });
 
         if (resources.size() < 1
                 || (resources.size() == 1
@@ -105,6 +102,10 @@ public class WebSubServiceCompilerPlugin extends AbstractCompilerPlugin {
                                        + "specified with " + WEBSUB_PACKAGE + ":" +
                                        GENERIC_SUBSCRIBER_SERVICE_TYPE);
         }
+
+        resources.forEach(res -> {
+            validateDefaultResources(res, dlog);
+        });
     }
 
 }
