@@ -32,8 +32,8 @@ type TeacherOutput record {
 };
 
 int index = 0;
-stream<Teacher> inputStream;
-stream<TeacherOutput> outputStream;
+stream<Teacher> inputStream = new;
+stream<TeacherOutput> outputStream = new;
 
 TeacherOutput[] globalEmployeeArray = [];
 

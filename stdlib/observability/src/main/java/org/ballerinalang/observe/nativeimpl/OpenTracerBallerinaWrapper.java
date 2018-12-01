@@ -31,6 +31,7 @@ import org.ballerinalang.util.tracer.TracersStore;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
@@ -93,9 +94,7 @@ public class OpenTracerBallerinaWrapper {
         tags.forEach((observerContext::addTag));
 
         if (parentSpanId == SYSTEM_TRACE_INDICATOR) {
-            if (ObserveUtils.isObservabilityEnabled()) {
-                observerContext.setParent(ObserveUtils.getObserverContextOfCurrentFrame(context));
-            }
+            ObserveUtils.getObserverContextOfCurrentFrame(context).ifPresent(observerContext::setParent);
             ObserveUtils.setObserverContextToCurrentFrame(context.getStrand(), observerContext);
             return startSpan(observerContext, true, spanName);
         } else if (parentSpanId != ROOT_SPAN_INDICATOR) {
@@ -157,9 +156,9 @@ public class OpenTracerBallerinaWrapper {
         }
         ObserverContext observerContext = observerContextList.get(spanId);
         if (spanId == -1) {
-            ObserverContext observer = ObserveUtils.getObserverContextOfCurrentFrame(context);
-            if (observer != null) {
-                observer.addTag(tagKey, tagValue);
+            Optional<ObserverContext> observer = ObserveUtils.getObserverContextOfCurrentFrame(context);
+            if (observer.isPresent()) {
+                observer.get().addTag(tagKey, tagValue);
                 return true;
             }
         }

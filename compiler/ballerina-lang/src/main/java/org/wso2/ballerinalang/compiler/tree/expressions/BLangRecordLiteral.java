@@ -23,7 +23,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
@@ -42,11 +41,6 @@ import static org.ballerinalang.model.tree.NodeKind.RECORD_LITERAL_KEY_VALUE;
  * @since 0.94
  */
 public class BLangRecordLiteral extends BLangExpression implements RecordLiteralNode {
-
-    /**
-     * The identifier of this node.
-     */
-    public BLangIdentifier name;
 
     public List<BLangRecordKeyValue> keyValuePairs;
 
@@ -212,9 +206,11 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
      */
     public static class BLangStreamLiteral extends BLangRecordLiteral {
 
-        public BLangStreamLiteral(BType streamType, BLangIdentifier name) {
+        public String streamName;
+
+        public BLangStreamLiteral(BType streamType, String streamName) {
             this.type = streamType;
-            this.name = name;
+            this.streamName = streamName;
         }
 
         @Override
@@ -230,9 +226,11 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
      */
     public static class BLangChannelLiteral extends BLangRecordLiteral {
 
-        public BLangChannelLiteral(BType channelType, BLangIdentifier name) {
+        public String channelName;
+
+        public BLangChannelLiteral(BType channelType, String channelName) {
             this.type = channelType;
-            this.name = name;
+            this.channelName = channelName;
         }
 
         @Override

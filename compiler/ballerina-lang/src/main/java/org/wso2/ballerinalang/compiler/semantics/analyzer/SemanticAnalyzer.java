@@ -464,9 +464,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 dlog.error(varNode.pos, DiagnosticCode.SEALED_ARRAY_TYPE_NOT_INITIALIZED);
                 return;
             }
-            if ((varNode.symbol.type.tag != TypeTags.CHANNEL && varNode.symbol.type.tag != TypeTags.STREAM &&
-                    varNode.symbol.owner.tag == SymTag.PACKAGE) || Symbols
-                    .isFlagOn(varNode.symbol.flags, Flags.LISTENER)) {
+            if (varNode.symbol.owner.tag == SymTag.PACKAGE || Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER)) {
                 dlog.error(varNode.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, varNode.name);
             }
             return;
@@ -1412,22 +1410,25 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (serviceNode.isAnonymousServiceValue) {
             return;
         }
-        final BType exprType = typeChecker.checkExpr(serviceNode.attachExpr, env);
-        if (!types.checkListenerCompatibility(env, exprType)) {
-            dlog.error(serviceNode.attachExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, Names.ABSTRACT_LISTENER,
-                    exprType);
-        } else {
-            serviceNode.listerType = exprType;
-        }
 
-        // TODO : Fix this.
-        if (serviceNode.attachExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-            final BLangSimpleVarRef attachExpr = (BLangSimpleVarRef) serviceNode.attachExpr;
-            if (!Symbols.isFlagOn(attachExpr.symbol.flags, Flags.LISTENER)) {
-                dlog.error(serviceNode.attachExpr.pos, DiagnosticCode.SYNTAX_ERROR, "invalid listener attachment");
+        for (BLangExpression attachExpr : serviceNode.attachedExprs) {
+            final BType exprType = typeChecker.checkExpr(attachExpr, env);
+            if (exprType != symTable.semanticError && !types.checkListenerCompatibility(env, exprType)) {
+                dlog.error(attachExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, Names.ABSTRACT_LISTENER, exprType);
+            } else if (exprType != symTable.semanticError && serviceNode.listenerType == null) {
+                serviceNode.listenerType = exprType;
+            } else if (exprType != symTable.semanticError) {
+                this.types.isSameType(exprType, serviceNode.listenerType);
             }
-        } else if (serviceNode.attachExpr.getKind() != NodeKind.TYPE_INIT_EXPR) {
-            dlog.error(serviceNode.attachExpr.pos, DiagnosticCode.SYNTAX_ERROR, "invalid listener attachment");
+
+            if (attachExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                final BLangSimpleVarRef attachVarRef = (BLangSimpleVarRef) attachExpr;
+                if (attachVarRef.symbol != null && !Symbols.isFlagOn(attachVarRef.symbol.flags, Flags.LISTENER)) {
+                    dlog.error(attachVarRef.pos, DiagnosticCode.INVALID_LISTENER_ATTACHMENT);
+                }
+            } else if (attachExpr.getKind() != NodeKind.TYPE_INIT_EXPR) {
+                dlog.error(attachExpr.pos, DiagnosticCode.INVALID_LISTENER_ATTACHMENT);
+            }
         }
     }
 

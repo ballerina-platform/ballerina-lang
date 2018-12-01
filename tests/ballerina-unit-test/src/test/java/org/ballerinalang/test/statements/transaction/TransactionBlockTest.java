@@ -92,6 +92,105 @@ public class TransactionBlockTest {
     }
 
     @Test
+    public void testAbortStatementWithNoAbortBlock() {
+        BValue[] params = {};
+        BValue[] result = BRunUtil.invoke(programFile, "testAbortStatementWithNoAbortBlock", params);
+        Assert.assertEquals(result[0].stringValue(), "start in-trx end");
+    }
+
+    @Test
+    public void testAbortStatementWithAbortBlock() {
+        BValue[] params = {};
+        BValue[] result = BRunUtil.invoke(programFile, "testAbortStatementWithAbortBlock", params);
+        Assert.assertEquals(result[0].stringValue(), "start in-trx aborted end");
+    }
+
+    @Test
+    public void testTrxSuccessWithAbortBlock() {
+        BValue[] params = {};
+        BValue[] result = BRunUtil.invoke(programFile, "testTrxSuccessWithAbortBlock", params);
+        Assert.assertEquals(result[0].stringValue(), "start in-trx committed end");
+    }
+
+    @Test
+    public void testAbortedCommitedBlockMixedUpAborted() {
+        BValue[] params = {};
+        BValue[] result = BRunUtil.invoke(programFile, "testAbortedCommittedBlockMixedUpAborted", params);
+        Assert.assertEquals(result[0].stringValue(), "start in-trx aborted end");
+    }
+
+    @Test
+    public void testAbortedCommitedBlockMixedUpCommitted() {
+        BValue[] params = {};
+        BValue[] result = BRunUtil.invoke(programFile, "testAbortedCommittedBlockMixedUpCommitted", params);
+        Assert.assertEquals(result[0].stringValue(), "start in-trx committed end");
+    }
+
+    @Test
+    public void testAbortedCommitedBlockMixedUpNoRetryBlockCommitted() {
+        BValue[] params = {};
+        BValue[] result = BRunUtil.invoke(programFile, "testAbortedCommittedBlockMixedUpNoRetryBlockCommitted", params);
+        Assert.assertEquals(result[0].stringValue(), "start in-trx committed end");
+    }
+
+    @Test
+    public void testAbortedCommitedBlockMixedUpNoRetryBlockAborted() {
+        BValue[] params = {};
+        BValue[] result = BRunUtil.invoke(programFile, "testAbortedCommittedBlockMixedUpNoRetryBlockAborted", params);
+        Assert.assertEquals(result[0].stringValue(), "start in-trx aborted end");
+    }
+
+    @Test
+    public void multipleTrxSequenceSuccess() {
+        String result = executeMultipleTrxSequence(false, false, false, false);
+        Assert.assertEquals(result, "start in-trx-1 committed-1 end-1 in-trx-2 committed-2 end-2");
+    }
+
+    @Test
+    public void multipleTrxSequenceAbortFirst() {
+        String result = executeMultipleTrxSequence(true, false, false, false);
+        Assert.assertEquals(result, "start in-trx-1 aborted-1 end-1 in-trx-2 committed-2 end-2");
+    }
+
+    @Test
+    public void multipleTrxSequenceAbortSecond() {
+        String result = executeMultipleTrxSequence(false, true, false, false);
+        Assert.assertEquals(result, "start in-trx-1 committed-1 end-1 in-trx-2 aborted-2 end-2");
+    }
+
+    @Test
+    public void multipleTrxSequenceAbortBoth() {
+        String result = executeMultipleTrxSequence(true, true, false, false);
+        Assert.assertEquals(result, "start in-trx-1 aborted-1 end-1 in-trx-2 aborted-2 end-2");
+    }
+
+    @Test
+    public void multipleTrxSequenceFailFirst() {
+        String result = executeMultipleTrxSequence(false, false, true, false);
+        Assert.assertEquals(result, "start in-trx-1 retry-1 in-trx-1 committed-1 end-1 in-trx-2 committed-2 end-2");
+    }
+
+    @Test
+    public void multipleTrxSequenceFailSecond() {
+        String result = executeMultipleTrxSequence(false, false, false, true);
+        Assert.assertEquals(result, "start in-trx-1 committed-1 end-1 in-trx-2 retry-2 in-trx-2 committed-2 end-2");
+    }
+
+    @Test
+    public void multipleTrxSequenceFailBoth() {
+        String result = executeMultipleTrxSequence(false, false, true, true);
+        Assert.assertEquals(result, "start in-trx-1 retry-1 in-trx-1 committed-1 end-1 " +
+                "in-trx-2 retry-2 in-trx-2 committed-2 end-2");
+    }
+
+    private String executeMultipleTrxSequence(boolean abort1, boolean abort2, boolean fail1, boolean fail2) {
+        BValue[] params = {new BBoolean(abort1), new BBoolean(abort2),
+                new BBoolean(fail1), new BBoolean(fail2)};
+        BValue[] result = BRunUtil.invoke(programFile, "multipleTrxSequence", params);
+        return result[0].stringValue();
+    }
+
+    @Test
     public void testTransactionStmtWithFailureAndAbort() {
         BValue[] returns = runFunctionWithTxConfig(1, true);
         Assert.assertEquals(returns[0].stringValue(), "start fc-1 inTrx blowUp retry inTrx aborting aborted end");

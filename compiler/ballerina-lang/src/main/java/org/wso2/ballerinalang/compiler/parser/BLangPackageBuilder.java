@@ -1024,11 +1024,11 @@ public class BLangPackageBuilder {
 
     void addTypeInitExpression(DiagnosticPos pos, Set<Whitespace> ws, String initName, boolean typeAvailable,
                                boolean exprAvailable) {
-        BLangTypeInit objectInitNode = (BLangTypeInit) TreeBuilder.createObjectInitNode();
-        objectInitNode.pos = pos;
-        objectInitNode.addWS(ws);
+        BLangTypeInit initNode = (BLangTypeInit) TreeBuilder.createInitNode();
+        initNode.pos = pos;
+        initNode.addWS(ws);
         if (typeAvailable) {
-            objectInitNode.userDefinedType = (BLangUserDefinedType) typeNodeStack.pop();
+            initNode.userDefinedType = (BLangUserDefinedType) typeNodeStack.pop();
         }
 
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
@@ -1039,11 +1039,11 @@ public class BLangPackageBuilder {
             Set<Whitespace> cws = commaWsStack.pop();
             exprNodes.forEach(exprNode -> {
                 invocationNode.argExprs.add((BLangExpression) exprNode);
-                objectInitNode.argsExpr.add((BLangExpression) exprNode);
+                initNode.argsExpr.add((BLangExpression) exprNode);
 
             });
             invocationNode.addWS(cws);
-            objectInitNode.addWS(cws);
+            initNode.addWS(cws);
         }
 
         //TODO check whether pkgName can be be empty
@@ -1054,8 +1054,8 @@ public class BLangPackageBuilder {
         invocationNode.addWS(nameReference.ws);
         invocationNode.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
 
-        objectInitNode.objectInitInvocation = invocationNode;
-        this.addExpressionNode(objectInitNode);
+        initNode.initInvocation = invocationNode;
+        this.addExpressionNode(initNode);
     }
 
     private void markVariableAsFinal(BLangVariable variable) {
@@ -2569,7 +2569,7 @@ public class BLangPackageBuilder {
         this.compUnit.addTopLevelNode(serviceNode);
 
         if (!isAnonServiceValue) {
-            serviceNode.attachExpr = (BLangExpression) this.exprNodeStack.pop();
+            this.exprNodeListStack.pop().forEach(expr -> serviceNode.attachedExprs.add((BLangExpression) expr));
             return;
         }
         final BLangServiceConstructorExpr serviceConstNode = (BLangServiceConstructorExpr) TreeBuilder

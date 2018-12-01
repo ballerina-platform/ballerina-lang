@@ -71,11 +71,14 @@ service jmsListener on consumerEndpoint {
         // Create a new text message
         var msg = queueSender.createTextMessage("Hello From Ballerina!");
         if (msg is jms:Message) {
+            // Set JMS header, Correlation ID
             var cid = msg.setCorrelationID("Msg:1");
             if (cid is error) {
                 log:printError("Error setting correlation id",
                           err = cid);
             }
+
+            // Set JMS string property
             var stringProp = msg.setStringProperty("Instruction",
                                "Do a perfect Pirouette");
             if (stringProp is error) {

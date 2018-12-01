@@ -34,8 +34,8 @@ type TeacherOutput record {
 };
 
 int index = 0;
-stream<Teacher> inputStream;
-stream<TeacherOutput> outputStream;
+stream<Teacher> inputStream = new;
+stream<TeacherOutput> outputStream = new;
 
 TeacherOutput[] globalEmployeeArray = [];
 
@@ -100,7 +100,6 @@ function createStreamingConstruct() {
         foreach m in events {
             // just cast input map into the output type
             var t = <TeacherOutput>TeacherOutput.stamp(m.clone());
-            io:println(t);
             outputStream.publish(t);
         }
     };

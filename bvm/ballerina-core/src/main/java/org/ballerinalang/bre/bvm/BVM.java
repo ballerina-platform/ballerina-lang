@@ -30,6 +30,7 @@ import org.ballerinalang.channels.ChannelRegistry;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BAttachedFunction;
+import org.ballerinalang.model.types.BErrorType;
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BFiniteType;
 import org.ballerinalang.model.types.BFunctionType;
@@ -499,7 +500,7 @@ public class BVM {
                         handleError(strand);
                         break;
                     case InstructionCodes.ERROR:
-                        createNewError(operands, sf);
+                        createNewError(operands, strand, sf);
                         break;
                     case InstructionCodes.REASON:
                     case InstructionCodes.DETAIL:
@@ -892,7 +893,7 @@ public class BVM {
                 strand.respCallback.signal();
                 return null;
             }
-            CallableUnitCallback callback = getNativeCallableUnitCallback(strand, sf, ctx, retReg, retType, flags);
+            CallableUnitCallback callback = new BLangCallableUnitCallback(ctx, strand, retReg, retType);
             nativeCallable.execute(ctx, callback);
             return null;
         } catch (BLangNullReferenceException e) {
@@ -906,15 +907,6 @@ public class BVM {
         handleError(strand);
         return strand;
     }
-
-    private static CallableUnitCallback getNativeCallableUnitCallback(Strand strand, StackFrame parentDf, Context ctx,
-                                                                      int retReg, BType retType, int flags) {
-        return new BLangCallableUnitCallback(ctx, strand, retReg, retType);
-    }
-
-
-
-
 
     private static void copyArgValues(StackFrame caller, StackFrame callee, int[] argRegs, BType[] paramTypes) {
         int longRegIndex = -1;
@@ -947,13 +939,15 @@ public class BVM {
         }
     }
 
-    private static void createNewError(int[] operands, StackFrame sf) {
+    private static void createNewError(int[] operands, Strand strand, StackFrame sf) {
         int i = operands[0];
         int j = operands[1];
         int k = operands[2];
         int l = operands[3];
         TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) sf.constPool[i];
-        sf.refRegs[l] = new BError(typeRefCPEntry.getType(), sf.stringRegs[j], sf.refRegs[k]);
+        sf.refRegs[l] = (BRefType<?>) BLangVMErrors
+                .createError(strand, true, (BErrorType) typeRefCPEntry.getType(), sf.stringRegs[j],
+                        (BMap<String, BValue>) sf.refRegs[k]);
     }
 
     private static void handleErrorBuiltinMethods(int opcode, int[] operands, StackFrame sf) {
@@ -3524,7 +3518,8 @@ public class BVM {
      * @return          true if the lhsType is any or is the same as rhsType
      */
     private static boolean isSameOrAnyType(BType rhsType, BType lhsType) {
-        return lhsType.getTag() == TypeTags.ANY_TAG || rhsType.equals(lhsType);
+        return (lhsType.getTag() == TypeTags.ANY_TAG && rhsType.getTag() != TypeTags.ERROR_TAG) || rhsType
+                .equals(lhsType);
     }
 
     private static boolean checkCastByType(BType rhsType, BType lhsType, List<TypePair> unresolvedTypes) {
@@ -4272,7 +4267,6 @@ public class BVM {
 
     public static void handleError(Strand strand) {
         StackFrame sf = strand.currentFrame;
-        BLangVMErrors.attachStackFrame(strand.getError(), strand.programFile, sf);
         // TODO: Fix me
         int ip = sf.ip;
         ip--;

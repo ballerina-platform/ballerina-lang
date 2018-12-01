@@ -172,7 +172,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
@@ -1005,8 +1004,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private void addUninitializedVar(BLangVariable variable) {
-        if (variable.symbol.type.tag != TypeTags.CHANNEL &&
-            variable.symbol.type.tag != TypeTags.STREAM && !this.uninitializedVars.containsKey(variable.symbol)) {
+        if (!this.uninitializedVars.containsKey(variable.symbol)) {
             this.uninitializedVars.put(variable.symbol, InitStatus.UN_INIT);
         }
     }

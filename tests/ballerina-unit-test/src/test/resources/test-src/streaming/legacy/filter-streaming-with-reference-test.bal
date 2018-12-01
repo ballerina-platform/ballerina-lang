@@ -49,8 +49,8 @@ function testFilterQuery(stream<Employee> employeeStream, stream<Teacher> teache
 
 function startFilterQuery() returns (Employee[]) {
 
-    stream<Employee> employeeStream5;
-    stream<Teacher> teacherStream8;
+    stream<Employee> employeeStream5 = new;
+    stream<Teacher> teacherStream8 = new;
     testFilterQuery(employeeStream5, teacherStream8);
 
     Teacher t1 = {name:"Raja", age:25, status:"single", batch:"LK2014", school:"Hindu College"};

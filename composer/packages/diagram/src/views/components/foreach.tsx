@@ -53,7 +53,7 @@ export const Foreach: React.StatelessComponent<{
         r1.x = conditionProps.x + (config.flowCtrl.foreach.width / 2);
         r1.y = conditionProps.y;
 
-        r2.x = conditionProps.x +  model.body.viewState.bBox.w;
+        r2.x = conditionProps.x +  model.body.viewState.bBox.w - config.flowCtrl.rightMargin;
         r2.y = r1.y;
 
         r3.x = r2.x;
