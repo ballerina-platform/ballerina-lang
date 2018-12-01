@@ -110,14 +110,8 @@ public class XMLLiteralTest {
     @Test
     public void testCombinedExpressionsAsElementName() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/types/xml/xml-invalid-syntax-1.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 5);
+        Assert.assertEquals(negativeResult.getErrorCount(), 1);
         BAssertUtil.validateError(negativeResult, 0, "invalid token '{{'", 3, 24);
-        BAssertUtil.validateError(negativeResult, 0, "invalid token '{{'", 3, 24);
-        BAssertUtil.validateError(negativeResult, 0, "mismatched input '}}'. expecting {'[', '?', '|', Identifier}", 3,
-                28);
-        BAssertUtil.validateError(negativeResult, 0, "mismatched input '}}'. expecting ';'", 3, 46);
-        BAssertUtil.validateError(negativeResult, 0, "mismatched input ';'. expecting {'[', '?', '|', Identifier}", 4,
-                14);
     }
 
     @Test
