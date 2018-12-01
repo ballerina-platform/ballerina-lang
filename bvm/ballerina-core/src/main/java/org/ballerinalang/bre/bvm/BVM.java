@@ -184,7 +184,7 @@ public class BVM {
         StackFrame sf = strand.currentFrame;
 
         while (sf.ip >= 0) {
-            if (strand.state == Strand.State.TERMINATED) {
+            if (strand.aborted) {
                 strand.currentFrame.ip = -1;
                 return;
             }
@@ -4799,8 +4799,9 @@ public class BVM {
         for (Map.Entry targetTypeEntry : targetTypeField.entrySet()) {
             String fieldName = targetTypeEntry.getKey().toString();
 
+            int flags = targetType.getFields().get(fieldName).flags;
             if (!(((BMap) sourceValue).getMap().containsKey(fieldName)) &&
-                    !(Flags.isFlagOn(targetType.getFields().get(fieldName).flags, Flags.OPTIONAL))) {
+                    (!Flags.isFlagOn(flags, Flags.OPTIONAL) && Flags.isFlagOn(flags, Flags.REQUIRED))) {
                 return false;
             }
         }

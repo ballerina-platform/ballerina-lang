@@ -419,15 +419,15 @@ function testMapOfElementTypeRefArray () returns ((string, int)) {
 }
 
 type PersonComplex record {
-    string name;
-    int age;
-    PersonComplex? parent;
-    json info;
-    map<string> address;
-    int[] marks;
-    anydata a;
-    float score;
-    boolean alive;
+    string name = "";
+    int age = 0;
+    PersonComplex? parent = ();
+    json info = ();
+    map<string> address = {};
+    int[] marks = [];
+    anydata a = ();
+    float score = 0.0;
+    boolean alive = false;
     !...
 };
 
@@ -463,15 +463,15 @@ function testJsonToStructConversionStructWithConstrainedMap () returns (string, 
 }
 
 type PersonComplexTwo record {
-    string name;
-    int age;
-    PersonComplexTwo? parent;
-    json info;
-    map<int> address;
-    int[] marks;
-    anydata a;
-    float score;
-    boolean alive;
+    string name = "";
+    int age = 0;
+    PersonComplexTwo? parent = ();
+    json info = ();
+    map<int> address = {};
+    int[] marks = [];
+    anydata a = ();
+    float score = 0.0;
+    boolean alive = false;
     !...
 };
 
