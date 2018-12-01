@@ -90,8 +90,7 @@ public class ObserveUtils {
         newObContext.setServer();
         newObContext.setStarted();
         strand.currentFrame.observerContext = newObContext;
-        ObserverContext finalNewObContext = newObContext;
-        observers.forEach(observer -> observer.startServerObservation(finalNewObContext));
+        observers.forEach(observer -> observer.startServerObservation(strand.currentFrame.observerContext));
     }
 
     /**
