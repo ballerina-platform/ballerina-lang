@@ -37,7 +37,7 @@ public class ChannelsNegativeTest {
     public void setup() {
 
         result = BCompileUtil.compile("test-src/channels/channel-negative-test.bal");
-        Assert.assertEquals(result.getErrorCount(), 7, "Channels negative test error count");
+        Assert.assertEquals(result.getErrorCount(), 5, "Channels negative test error count");
 
     }
 
@@ -67,15 +67,15 @@ public class ChannelsNegativeTest {
         Assert.assertEquals(result.getDiagnostics()[2].getPosition().getStartColumn(), 1, "Incorrect column position " +
                 "for " +
                 "channel constraint error");
-        Assert.assertEquals(result.getDiagnostics()[4].getMessage(), "incompatible types: 'channel' cannot be " +
+        Assert.assertEquals(result.getDiagnostics()[3].getMessage(), "incompatible types: 'channel' cannot be " +
                 "constrained with '(json,json)'", "Channel constraint type error message");
     }
 
     @Test(description = "Test invalid annotations", groups = CHANNEL_TEST)
     public void checkInvalidAnnotations() {
-        Assert.assertEquals(result.getDiagnostics()[6].getPosition().getStartLine(), 29, "Wrong channel annotation " +
+        Assert.assertEquals(result.getDiagnostics()[4].getPosition().getStartLine(), 29, "Wrong channel annotation " +
                 "position line number");
-        Assert.assertEquals(result.getDiagnostics()[6].getMessage(), "annotation 'ballerina/builtin:readonly' is not " +
-                "allowed in channel", "@readonly annotation for channels error message");
+        Assert.assertEquals(result.getDiagnostics()[4].getMessage(), "annotation 'ballerina/builtin:sensitive' is " +
+                "not allowed in channel", "@sensitive annotation for channels error message");
     }
 }

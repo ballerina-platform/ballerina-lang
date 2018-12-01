@@ -32,8 +32,8 @@ type Teacher record {
 StatusCount[] globalStatusCountArray = [];
 int index = 0;
 
-stream<StatusCount> statusCountStream1;
-stream<Teacher> teacherStream5;
+stream<StatusCount> statusCountStream1 = new;
+stream<Teacher> teacherStream5 = new;
 
 function testWindowQuery() {
 
