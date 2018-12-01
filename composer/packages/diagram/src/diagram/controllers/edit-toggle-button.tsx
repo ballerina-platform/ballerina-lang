@@ -1,5 +1,5 @@
 import React, { StatelessComponent } from "react";
-import { Menu } from "semantic-ui-react";
+import { Button, Icon, Menu } from "semantic-ui-react";
 import { DiagramContext } from "../diagram-context";
 
 export const EditToggleButton: StatelessComponent<{}> = (
@@ -18,12 +18,10 @@ export const EditToggleButton: StatelessComponent<{}> = (
                     ? "Close Edit"
                     : "Edit";
                 return (
-                    <Menu.Item onClick={diagContext.toggleEditing}
-                        className={`menu-button ui button ${className}`}
-                    >
-                        <i className={`fw ${icon} menu-icon-right`} />
-                        <span className="text">{text}</span>
-                        {children}
+                    <Menu.Item onClick={diagContext.toggleEditing}>
+                        <Button className={`icon ${className}`}>
+                            <Icon className={`fw ${icon}`} /> {text}
+                        </Button>
                     </Menu.Item>
                 );
             }}

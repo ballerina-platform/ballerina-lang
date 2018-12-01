@@ -1,6 +1,6 @@
 import { ASTNode, ASTUtil, CompilationUnit } from "@ballerina/ast-model";
 import React, { StatelessComponent } from "react";
-import { Dropdown } from "semantic-ui-react";
+import { Dropdown, Menu } from "semantic-ui-react";
 import { DiagramContext } from "../diagram-context";
 
 const definitions: any[] = [{
@@ -21,6 +21,7 @@ export const AddDefinitionsMenu: StatelessComponent<{}> = (
         <DiagramContext.Consumer>
             {(diagContext) => {
                 return (diagContext.editingEnabled &&
+                    <Menu.Item>
                         <Dropdown
                             button
                             className="icon primary add-definitions"
@@ -50,9 +51,9 @@ export const AddDefinitionsMenu: StatelessComponent<{}> = (
                                         </Dropdown.Item>);
                                     })
                                 }
-                                { children }
                             </Dropdown.Menu>
                         </Dropdown>
+                    </Menu.Item>
                 );
             }}
         </DiagramContext.Consumer>

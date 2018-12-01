@@ -1,5 +1,5 @@
 import React, { StatelessComponent } from "react";
-import { Button } from "semantic-ui-react";
+import { Button, Menu } from "semantic-ui-react";
 import { DiagramContext } from "../diagram-context";
 import { ZoomFitButton } from "./zoom-fit-button";
 import { ZoomInButton } from "./zoom-in-button";
@@ -12,12 +12,13 @@ export const ZoomControllers: StatelessComponent<{}> = (
         <DiagramContext.Consumer>
             {(diagContext) => {
                 return (!diagContext.editingEnabled &&
-                    <Button.Group className="zoom-controllers">
-                        <ZoomInButton />
-                        <ZoomOutButton />
-                        <ZoomFitButton />
-                        {children}
-                    </Button.Group>
+                    <Menu.Item>
+                        <Button.Group className="zoom-controllers">
+                            <ZoomInButton />
+                            <ZoomOutButton />
+                            <ZoomFitButton />
+                        </Button.Group>
+                    </Menu.Item>
                 );
             }}
         </DiagramContext.Consumer>
