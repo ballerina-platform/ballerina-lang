@@ -91,7 +91,7 @@ export const visitor: Visitor = {
             bodyViewState.bBox.y = defaultWorker.bBox.y + config.lifeLine.header.height;
         }
 
-        // Size endpoints
+        // Position endpoints
         if (node.VisibleEndpoints) {
             let epX = defaultWorker.bBox.x + defaultWorker.bBox.w
                 + config.lifeLine.gutter.h;

@@ -66,6 +66,13 @@
                     .statement {
                         font-size: @diagram-statement-font-size;
                     }
+                    .action-invocation {
+                        line {
+                            stroke: ~"@{@{color}-diagram-arrow-head-color}";
+                            stroke-width: 1px;
+                        }
+                        fill: ~"@{@{color}-diagram-arrow-head-color}";
+                    }
                 }
             }
         }
