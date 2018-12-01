@@ -52,7 +52,8 @@ public class EntityBodyReceived implements SenderState {
     }
 
     @Override
-    public void writeOutboundRequestBody(ChannelHandlerContext ctx, HttpContent httpContent) {
+    public void writeOutboundRequestBody(ChannelHandlerContext ctx, HttpContent httpContent, Http2MessageStateContext
+            http2MessageStateContext) {
         // Response is already received, hence the outgoing data frames need to be released.
         releaseContent(httpContent);
     }

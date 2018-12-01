@@ -55,7 +55,6 @@ import static org.wso2.transport.http.netty.contract.Constants.HTTP_METHOD;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_VERSION;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_X_FORWARDED_FOR;
 import static org.wso2.transport.http.netty.contract.Constants.TO;
-import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.releaseDataFrame;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.validatePromisedStreamState;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.writeHttp2Headers;
 
@@ -102,9 +101,14 @@ public class SendingEntityBody implements ListenerState {
     }
 
     @Override
-    public void readInboundRequestBody(Http2SourceHandler http2SourceHandler, Http2DataFrame dataFrame) {
-        // Response is already started to send, hence the incoming data frames need to be released.
-        releaseDataFrame(http2SourceHandler, dataFrame);
+    public void readInboundRequestBody(Http2SourceHandler http2SourceHandler, Http2DataFrame dataFrame) throws
+            Http2Exception {
+        // In bidirectional streaming case, while sending the request data frames, server response data frames can
+        // receive. In order to handle it. we need to change the states depending on the action.
+        http2MessageStateContext.setListenerState(new ReceivingEntityBody(http2MessageStateContext, Boolean.TRUE));
+        http2MessageStateContext.getListenerState().readInboundRequestBody(http2SourceHandler, dataFrame);
+        // PREVIOUS: Response is already started to send, hence the incoming data frames need to be released.
+        // PREVIOUS: releaseDataFrame(http2SourceHandler, dataFrame);
     }
 
     @Override

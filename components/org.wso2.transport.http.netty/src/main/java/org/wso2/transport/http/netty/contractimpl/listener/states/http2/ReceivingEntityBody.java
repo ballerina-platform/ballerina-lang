@@ -45,9 +45,15 @@ public class ReceivingEntityBody implements ListenerState {
     private static final Logger LOG = LoggerFactory.getLogger(ReceivingEntityBody.class);
 
     private final Http2MessageStateContext http2MessageStateContext;
+    private boolean headerSent = false;
 
     ReceivingEntityBody(Http2MessageStateContext http2MessageStateContext) {
         this.http2MessageStateContext = http2MessageStateContext;
+    }
+
+    ReceivingEntityBody(Http2MessageStateContext http2MessageStateContext, boolean respHeaderSent) {
+        this(http2MessageStateContext);
+        this.headerSent = respHeaderSent;
     }
 
     @Override
@@ -87,10 +93,20 @@ public class ReceivingEntityBody implements ListenerState {
                                           int streamId) throws Http2Exception {
         // When receiving entity body, if payload is not consumed by the server, this method is invoked if server is
         // going to send the response back.
-        http2MessageStateContext.setListenerState(
-                new SendingHeaders(http2OutboundRespListener, http2MessageStateContext));
-        http2MessageStateContext.getListenerState()
-                .writeOutboundResponseHeaders(http2OutboundRespListener, outboundResponseMsg, httpContent, streamId);
+        if (headerSent) {
+            // response header already sent. move the state to SendingEntityBody.
+            http2MessageStateContext.setListenerState(
+                    new SendingEntityBody(http2OutboundRespListener, http2MessageStateContext));
+            http2MessageStateContext.getListenerState()
+                    .writeOutboundResponseBody(http2OutboundRespListener, outboundResponseMsg, httpContent, streamId);
+        } else {
+            // Move the state to SendingHeaders.
+            http2MessageStateContext.setListenerState(
+                    new SendingHeaders(http2OutboundRespListener, http2MessageStateContext));
+            http2MessageStateContext.getListenerState()
+                    .writeOutboundResponseHeaders(http2OutboundRespListener, outboundResponseMsg, httpContent,
+                            streamId);
+        }
     }
 
     @Override

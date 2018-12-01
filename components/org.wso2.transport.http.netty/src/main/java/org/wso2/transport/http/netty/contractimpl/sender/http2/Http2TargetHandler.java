@@ -155,12 +155,13 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
 
         private void writeOutboundRequest(ChannelHandlerContext ctx, HttpContent msg) throws Http2Exception {
             try {
-                http2MessageStateContext.getSenderState().writeOutboundRequestBody(ctx, msg);
+                http2MessageStateContext.getSenderState().writeOutboundRequestBody(ctx, msg, http2MessageStateContext);
             } catch (RuntimeException ex) {
                 httpOutboundRequest.getHttp2MessageStateContext()
                         .setSenderState(new SendingEntityBody(Http2TargetHandler.this, this));
                 httpOutboundRequest.getHttp2MessageStateContext()
-                        .getSenderState().writeOutboundRequestBody(ctx, new DefaultLastHttpContent());
+                        .getSenderState().writeOutboundRequestBody(ctx, new DefaultLastHttpContent(),
+                        http2MessageStateContext);
             }
         }
 

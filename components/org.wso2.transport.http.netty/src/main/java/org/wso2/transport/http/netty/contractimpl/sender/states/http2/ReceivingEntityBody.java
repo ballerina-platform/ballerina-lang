@@ -23,6 +23,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http2.Http2Exception;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
@@ -34,6 +35,9 @@ import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
+import java.io.IOException;
+
+import static org.wso2.transport.http.netty.contract.Constants.INBOUND_RESPONSE_ALREADY_RECEIVED;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.releaseContent;
 
 /**
@@ -47,10 +51,17 @@ public class ReceivingEntityBody implements SenderState {
 
     private final Http2TargetHandler http2TargetHandler;
     private final Http2ClientChannel http2ClientChannel;
+    private Http2TargetHandler.Http2RequestWriter http2RequestWriter = null;
 
     ReceivingEntityBody(Http2TargetHandler http2TargetHandler) {
         this.http2TargetHandler = http2TargetHandler;
         this.http2ClientChannel = http2TargetHandler.getHttp2ClientChannel();
+    }
+
+    ReceivingEntityBody(Http2TargetHandler http2TargetHandler, Http2TargetHandler.Http2RequestWriter
+            http2RequestWriter) {
+        this(http2TargetHandler);
+        this.http2RequestWriter = http2RequestWriter;
     }
 
     @Override
@@ -59,9 +70,19 @@ public class ReceivingEntityBody implements SenderState {
     }
 
     @Override
-    public void writeOutboundRequestBody(ChannelHandlerContext ctx, HttpContent httpContent) {
-        // Response is already receiving, hence the outgoing data frames need to be released.
-        releaseContent(httpContent);
+    public void writeOutboundRequestBody(ChannelHandlerContext ctx, HttpContent httpContent, Http2MessageStateContext
+            http2MessageStateContext) throws Http2Exception {
+        // In bidirectional streaming case, while sending the request data frames, server response data frames can
+        // receive. In order to handle it. we need to change the states depending on the action.
+        if (http2RequestWriter != null) {
+            http2MessageStateContext.setSenderState(new SendingEntityBody(http2TargetHandler, http2RequestWriter));
+            http2MessageStateContext.getSenderState().writeOutboundRequestBody(ctx, httpContent,
+                    http2MessageStateContext);
+        } else {
+            //Response is already receiving, if request writer does not exist the outgoing data frames need to be
+            // released.
+            releaseContent(httpContent);
+        }
     }
 
     @Override
@@ -98,6 +119,7 @@ public class ReceivingEntityBody implements SenderState {
             onResponseDataRead(outboundMsgHolder, streamId, endOfStream, data);
         }
         if (endOfStream) {
+            outboundMsgHolder.getRequest().setIoException(new IOException(INBOUND_RESPONSE_ALREADY_RECEIVED));
             http2MessageStateContext.setSenderState(new EntityBodyReceived(http2TargetHandler));
         }
     }

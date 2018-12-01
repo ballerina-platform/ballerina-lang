@@ -84,7 +84,8 @@ public class SendingHeaders implements SenderState {
     }
 
     @Override
-    public void writeOutboundRequestBody(ChannelHandlerContext ctx, HttpContent httpContent) throws Http2Exception {
+    public void writeOutboundRequestBody(ChannelHandlerContext ctx, HttpContent httpContent, Http2MessageStateContext
+            http2MessageStateContext) throws Http2Exception {
         writeOutboundRequestHeaders(ctx, httpContent);
     }
 
@@ -128,7 +129,7 @@ public class SendingHeaders implements SenderState {
             http2MessageStateContext.setSenderState(new RequestCompleted(http2TargetHandler));
         } else {
             http2MessageStateContext.setSenderState(new SendingEntityBody(http2TargetHandler, http2RequestWriter));
-            http2MessageStateContext.getSenderState().writeOutboundRequestBody(ctx, msg);
+            http2MessageStateContext.getSenderState().writeOutboundRequestBody(ctx, msg, http2MessageStateContext);
         }
     }
 
