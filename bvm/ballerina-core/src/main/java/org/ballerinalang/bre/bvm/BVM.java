@@ -1068,8 +1068,8 @@ public class BVM {
                 keyType, dataType);
         if (pendingCtx != null) {
             //inject the value to the ctx
-            copyArgValueForWorkerReceive(ctx.currentFrame, pendingCtx.regIndex, dataType, dataVal);
-            BVMScheduler.schedule(ctx);
+            copyArgValueForWorkerReceive(pendingCtx.context.currentFrame, pendingCtx.regIndex, dataType, dataVal);
+            BVMScheduler.schedule(pendingCtx.context);
         }
     }
 
