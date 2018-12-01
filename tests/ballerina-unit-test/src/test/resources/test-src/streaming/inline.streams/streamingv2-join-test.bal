@@ -38,7 +38,7 @@ type StockWithPrice record {
 StockWithPrice[] globalEventsArray = [];
 int index = 0;
 
-stream<StockWithPrice> stockWithPriceStream;
+stream<StockWithPrice> stockWithPriceStream = new;
 
 function testJoinQuery(stream<Stock> ss, stream<Twitter> tt) {
 
@@ -57,8 +57,8 @@ function testJoinQuery(stream<Stock> ss, stream<Twitter> tt) {
 
 function startJoinQuery() returns (StockWithPrice[]) {
 
-    stream<Stock> stockStream;
-    stream<Twitter> twitterStream;
+    stream<Stock> stockStream = new;
+    stream<Twitter> twitterStream = new;
 
     testJoinQuery(stockStream, twitterStream);
 

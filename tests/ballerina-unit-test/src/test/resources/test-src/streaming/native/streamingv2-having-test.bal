@@ -29,8 +29,8 @@ type OutputRecord record {
     int sum;
 };
 
-stream<InputRecord> inputStream;
-stream<OutputRecord> outputStream;
+stream<InputRecord> inputStream = new;
+stream<OutputRecord> outputStream = new;
 int index = 0;
 OutputRecord[] outputDataArray = [];
 
