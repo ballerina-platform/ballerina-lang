@@ -499,10 +499,8 @@ public class MapStampInbuiltFunctionTest {
 
         Assert.assertEquals(mapValue.getType().getClass(), BMapType.class);
         Assert.assertEquals(((BMapType) mapValue.getType()).getConstrainedType().getClass(), BAnydataType.class);
-        Assert.assertEquals(mapValue.getMap().get("a").getType().getName(), "Teacher");
-        Assert.assertEquals(mapValue.getMap().get("a").getType().getClass(), BRecordType.class);
-        Assert.assertEquals(mapValue.getMap().get("b").getType().getName(), "Teacher");
-        Assert.assertEquals(mapValue.getMap().get("b").getType().getClass(), BRecordType.class);
+        Assert.assertEquals(mapValue.getMap().get("a").getType().getClass(), BMapType.class);
+        Assert.assertEquals(mapValue.getMap().get("b").getType().getClass(), BMapType.class);
     }
 
     @Test
