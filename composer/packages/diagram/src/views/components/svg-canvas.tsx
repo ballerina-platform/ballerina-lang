@@ -2,6 +2,8 @@ import * as React from "react";
 import { DiagramContext } from "../../diagram/index";
 import { CompilationUnitViewState } from "../../view-model/index";
 
+const overlayGroupRef = React.createRef<SVGGElement>();
+
 export const SvgCanvas: React.StatelessComponent<{
         model: CompilationUnitViewState,
         zoom: number
@@ -17,17 +19,20 @@ export const SvgCanvas: React.StatelessComponent<{
                 };
                 const viewBox =  `0 0 ${bBox.w} ${bBox.h}`;
                 return (
-                    <div style={{ width: svgSize.w * zoom, height: svgSize.h * zoom }} >
-                        <svg
-                            className="diagram-canvas"
-                            preserveAspectRatio="xMinYMin"
-                            width={svgSize.w * zoom}
-                            height={svgSize.h * zoom}
-                            viewBox={viewBox}
-                        >
-                            {children}
-                        </svg >
-                    </div>
+                    <DiagramContext.Provider value={{ ...diagContext, overlayGroupRef }} >
+                        <div style={{ width: svgSize.w * zoom, height: svgSize.h * zoom }} >
+                            <svg
+                                className="diagram-canvas"
+                                preserveAspectRatio="xMinYMin"
+                                width={svgSize.w * zoom}
+                                height={svgSize.h * zoom}
+                                viewBox={viewBox}
+                            >
+                                {children}
+                                <g ref={overlayGroupRef} className="diagram-overlay" />
+                            </svg >
+                        </div>
+                    </DiagramContext.Provider>
                 );
             }}
         </DiagramContext.Consumer>

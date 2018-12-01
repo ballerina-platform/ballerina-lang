@@ -1,7 +1,7 @@
 import React, { Fragment } from "react";
 import { SimplePoint } from "../../view-model/simple-point";
-import { DropDownMenu } from "./dropdown-menu";
 import { EndpointSearchDialog } from "./endpoint-search-dialog";
+import { SVGDropDownMenu } from "./svg-dropdown-menu";
 
 export class AddWorkerOrEndpointMenu extends React.Component<{
         triggerPosition: SimplePoint;
@@ -19,7 +19,7 @@ export class AddWorkerOrEndpointMenu extends React.Component<{
         const { triggerPosition, onAddWorker, onAddEndpoint } = this.props;
 
         return <Fragment>
-            <DropDownMenu
+            <SVGDropDownMenu
                     triggerPosition={triggerPosition}
                     triggerIcon="add"
                     items={[

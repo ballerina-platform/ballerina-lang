@@ -55,13 +55,9 @@ class CallableUnitBodyItemSorter extends CompletionItemSorter {
     }
 
     private void populateWhenCursorBeforeOrAfterEp(List<CompletionItem> completionItems, boolean snippetCapability) {
-        CompletionItem epSnippet = this.getEndpointSnippet(snippetCapability);
         CompletionItem workerSnippet = this.getWorkerSnippet(snippetCapability);
         this.setPriorities(completionItems);
-
-        epSnippet.setSortText(Priority.PRIORITY150.toString());
         workerSnippet.setSortText(Priority.PRIORITY160.toString());
-        completionItems.add(epSnippet);
         completionItems.add(workerSnippet);
     }
 

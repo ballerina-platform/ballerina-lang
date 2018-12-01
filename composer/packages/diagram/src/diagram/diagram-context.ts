@@ -17,6 +17,7 @@ export interface IDiagramContext {
     zoomOut: () => void;
     zoomFit: () => void;
     langClient?: IBallerinaLangClient;
+    overlayGroupRef?: React.RefObject<SVGGElement>;
 }
 
 const defaultDiagramContext: IDiagramContext = {

@@ -20,7 +20,6 @@ package org.ballerinalang.langserver.completions.util.sorters;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Priority;
-import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.List;
@@ -44,10 +43,6 @@ public abstract class CompletionItemSorter {
      */
     void setPriorities(List<CompletionItem> completionItems) {
         completionItems.forEach(this::setPriority);
-    }
-
-    CompletionItem getEndpointSnippet(boolean snippetCapability) {
-        return Snippet.DEF_ENDPOINT.get().build(new CompletionItem(), snippetCapability);
     }
 
     /**

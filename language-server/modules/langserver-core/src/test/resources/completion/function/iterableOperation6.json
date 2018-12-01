@@ -36,6 +36,54 @@
       "sortText":"121",
       "insertText":"count();",
       "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"length()",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"121",
+      "insertText":"length();",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"freeze()",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"121",
+      "insertText":"freeze();",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"isFrozen()",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"121",
+      "insertText":"isFrozen();",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"stamp(anydata a)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"121",
+      "insertText":"stamp(${1});",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"clone()",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"121",
+      "insertText":"clone();",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"create(anydata a)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"121",
+      "insertText":"create(${1});",
+      "insertTextFormat":"Snippet"
     }
   ]
 }

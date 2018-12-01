@@ -7,12 +7,14 @@
   "items": [
     {
       "label":"ballerina/io",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"io"
     },
     {
       "label":"ballerina/transactions",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"transactions",
@@ -21,11 +23,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":20
+              "character":21
             },
             "end":{
               "line":0,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/transactions;\n"
@@ -34,6 +36,7 @@
     },
     {
       "label":"ballerina/websub",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"websub",
@@ -42,11 +45,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":20
+              "character":21
             },
             "end":{
               "line":0,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/websub;\n"
@@ -55,6 +58,7 @@
     },
     {
       "label":"ballerina/grpc",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"grpc",
@@ -63,11 +67,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":20
+              "character":21
             },
             "end":{
               "line":0,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/grpc;\n"
@@ -76,6 +80,7 @@
     },
     {
       "label":"ballerina/reflect",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"reflect",
@@ -84,11 +89,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":20
+              "character":21
             },
             "end":{
               "line":0,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/reflect;\n"
@@ -97,6 +102,7 @@
     },
     {
       "label":"ballerina/log",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"log",
@@ -105,11 +111,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":20
+              "character":21
             },
             "end":{
               "line":0,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/log;\n"
@@ -118,6 +124,7 @@
     },
     {
       "label":"ballerina/time",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"time",
@@ -126,11 +133,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":20
+              "character":21
             },
             "end":{
               "line":0,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/time;\n"
@@ -138,7 +145,30 @@
       ]
     },
     {
+      "label":"ballerina/test",
+      "kind":"Module",
+      "detail":"Package",
+      "sortText":"140",
+      "insertText":"test",
+      "additionalTextEdits":[
+        {
+          "range":{
+            "start":{
+              "line":0,
+              "character":21
+            },
+            "end":{
+              "line":0,
+              "character":21
+            }
+          },
+          "newText":"\nimport ballerina/test;\n"
+        }
+      ]
+    },
+    {
       "label":"ballerina/runtime",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"runtime",
@@ -147,11 +177,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":20
+              "character":21
             },
             "end":{
               "line":0,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/runtime;\n"
@@ -160,6 +190,7 @@
     },
     {
       "label":"ballerina/swagger",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"swagger",
@@ -168,11 +199,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":20
+              "character":21
             },
             "end":{
               "line":0,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/swagger;\n"
@@ -181,6 +212,7 @@
     },
     {
       "label":"ballerina/file",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"file",
@@ -189,11 +221,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":20
+              "character":21
             },
             "end":{
               "line":0,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/file;\n"
@@ -202,6 +234,7 @@
     },
     {
       "label":"ballerina/sql",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"sql",
@@ -210,11 +243,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":20
+              "character":21
             },
             "end":{
               "line":0,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/sql;\n"
@@ -223,6 +256,7 @@
     },
     {
       "label":"ballerina/internal",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"internal",
@@ -231,11 +265,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":20
+              "character":21
             },
             "end":{
               "line":0,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/internal;\n"
@@ -244,6 +278,7 @@
     },
     {
       "label":"ballerina/http",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"http",
@@ -252,11 +287,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":20
+              "character":21
             },
             "end":{
               "line":0,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/http;\n"
@@ -265,6 +300,7 @@
     },
     {
       "label":"ballerina/mysql",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"mysql",
@@ -273,11 +309,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":20
+              "character":21
             },
             "end":{
               "line":0,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/mysql;\n"
@@ -286,6 +322,7 @@
     },
     {
       "label":"ballerina/mime",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"mime",
@@ -294,11 +331,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":20
+              "character":21
             },
             "end":{
               "line":0,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/mime;\n"
@@ -307,6 +344,7 @@
     },
     {
       "label":"ballerina/task",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"task",
@@ -315,11 +353,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":20
+              "character":21
             },
             "end":{
               "line":0,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/task;\n"
@@ -328,6 +366,7 @@
     },
     {
       "label":"ballerina/crypto",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"crypto",
@@ -336,11 +375,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":20
+              "character":21
             },
             "end":{
               "line":0,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/crypto;\n"
@@ -349,6 +388,7 @@
     },
     {
       "label":"ballerina/cache",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"cache",
@@ -357,11 +397,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":20
+              "character":21
             },
             "end":{
               "line":0,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/cache;\n"
@@ -370,6 +410,7 @@
     },
     {
       "label":"ballerina/auth",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"auth",
@@ -378,11 +419,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":20
+              "character":21
             },
             "end":{
               "line":0,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/auth;\n"
@@ -391,6 +432,7 @@
     },
     {
       "label":"ballerina/jms",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"jms",
@@ -399,11 +441,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":20
+              "character":21
             },
             "end":{
               "line":0,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/jms;\n"
@@ -412,6 +454,7 @@
     },
     {
       "label":"ballerina/system",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"system",
@@ -420,11 +463,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":20
+              "character":21
             },
             "end":{
               "line":0,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/system;\n"
@@ -433,6 +476,7 @@
     },
     {
       "label":"ballerina/h2",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"h2",
@@ -441,11 +485,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":20
+              "character":21
             },
             "end":{
               "line":0,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/h2;\n"
@@ -454,12 +498,14 @@
     },
     {
       "label":"ballerina/builtin",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"builtin"
     },
     {
       "label":"ballerina/math",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"math",
@@ -468,11 +514,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":20
+              "character":21
             },
             "end":{
               "line":0,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/math;\n"
@@ -481,6 +527,7 @@
     },
     {
       "label":"ballerina/config",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"config",
@@ -489,11 +536,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":20
+              "character":21
             },
             "end":{
               "line":0,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/config;\n"
