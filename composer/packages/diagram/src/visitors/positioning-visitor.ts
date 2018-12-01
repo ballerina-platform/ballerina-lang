@@ -96,7 +96,7 @@ export const visitor: Visitor = {
             let epX = defaultWorker.bBox.x + defaultWorker.bBox.w
                 + config.lifeLine.gutter.h;
             node.VisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
-                if (!endpoint.caller) {
+                if (!endpoint.caller && endpoint.viewState.visible) {
                     endpoint.viewState.bBox.x = epX;
                     endpoint.viewState.bBox.y = defaultWorker.bBox.y;
                     epX = epX + endpoint.viewState.bBox.w + config.lifeLine.gutter.h;

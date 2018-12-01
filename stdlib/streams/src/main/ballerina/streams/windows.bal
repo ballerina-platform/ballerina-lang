@@ -40,8 +40,8 @@ public type LengthWindow object {
         self.nextProcessPointer = nextProcessPointer;
         self.windowParameters = windowParameters;
         self.linkedList = new;
-        self.initParameters(windowParameters);
         self.size = 0;
+        self.initParameters(windowParameters);
     }
 
     public function initParameters(any[] parameters) {
