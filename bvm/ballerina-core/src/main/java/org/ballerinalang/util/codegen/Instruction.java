@@ -421,6 +421,33 @@ public class Instruction {
     }
 
     /**
+     * {@code {@link InstructionFlush}} represents worker flush in Ballerina bytecode.
+     */
+    public static class InstructionFlush extends Instruction {
+
+        public int retReg;
+        public String[] channels;
+
+        InstructionFlush(int opcode, int retReg, String[] channels) {
+
+            super(opcode);
+            this.retReg = retReg;
+            this.channels = channels;
+        }
+
+        @Override
+        public String toString() {
+
+            StringJoiner sj = new StringJoiner(" ");
+            sj.add(String.valueOf(retReg));
+            for (int i = 0; i < channels.length; i++) {
+                sj.add(channels[i]);
+            }
+            return Mnemonics.getMnem(opcode) + " " + sj.toString();
+        }
+    }
+
+    /**
      * {@code {@link InstructionScopeEnd}} represents end of a SCOPE block in Ballerina bytecode.
      */
     public static class InstructionScopeEnd extends Instruction {

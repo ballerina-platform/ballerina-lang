@@ -865,6 +865,9 @@ public class CodeGenerator extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorkerFlushExpr workerFlushExpr) {
         List<Operand> operands = new ArrayList<>();
+        RegIndex exprIndex = calcAndGetExprRegIndex(workerFlushExpr);
+        operands.add(exprIndex);
+        operands.add(getOperand(workerFlushExpr.workerIdentifierList.size()));
         for (BLangIdentifier wrkrName : workerFlushExpr.workerIdentifierList) {
             WorkerDataChannelInfo workerDataChannelInfo = this.getWorkerDataChannelInfo
                     (this.currentCallableUnitInfo, this.currentWorkerInfo.getWorkerName(), wrkrName.value);

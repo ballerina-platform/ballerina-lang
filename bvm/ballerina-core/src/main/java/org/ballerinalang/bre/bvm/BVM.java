@@ -486,7 +486,10 @@ public class BVM {
                                 chnSendIns.keyType, chnSendIns.keyReg);
                         break;
                     case InstructionCodes.FLUSH:
-                        // TODO fix - rajith
+                        Instruction.InstructionFlush flushIns = (Instruction.InstructionFlush) instruction;
+                        if (!handleFlush(strand, flushIns.retReg, flushIns.channels)) {
+                            return;
+                        }
                         break;
                     case InstructionCodes.WORKERSYNCSEND:
                         Instruction.InstructionWRKSyncSend syncSendIns =
@@ -819,6 +822,18 @@ public class BVM {
                 handleError(strand);
             }
         }
+    }
+
+    private static boolean handleFlush(Strand strand, int retReg, String[] channels) {
+
+        for (int i = 0; i < channels.length; i++) {
+            WorkerDataChannel dataChannel = WDChannels.getChannelFromStrand(strand, channels[i]);
+            if (!dataChannel.tryFlush(strand, retReg)) {
+                return false;
+            }
+        }
+        strand.currentFrame.refRegs[retReg] = null;
+        return true;
     }
 
     private static void handleWorkerSyncSend(Strand strand, WorkerDataChannelInfo dataChannelInfo, BType type,

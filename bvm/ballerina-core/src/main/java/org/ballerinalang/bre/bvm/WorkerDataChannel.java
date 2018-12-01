@@ -84,10 +84,10 @@ public class WorkerDataChannel {
         }
     }
 
-    public synchronized boolean tryFlush(Strand ctx) {
+    public synchronized boolean tryFlush(Strand ctx, int retReg) {
         if (!channel.isEmpty()) {
-            waitingSender = new WaitingSender(ctx);
-            //flush should wait and need to recheck upon fetching data
+            waitingSender = new WaitingSender(ctx, retReg);
+            //flush should wait and need to rerun upon fetching data
             ctx.currentFrame.ip--;
             BVMScheduler.stateChange(ctx, State.RUNNABLE, State.PAUSED);
             return false;
@@ -137,11 +137,6 @@ public class WorkerDataChannel {
 
             this.waitingCtx = strand;
             this.returnReg = reg;
-        }
-
-        public WaitingSender(Strand strand) {
-
-            this.waitingCtx = strand;
         }
     }
 }

@@ -1373,7 +1373,16 @@ public class PackageInfoReader {
                     packageInfo.addInstruction(InstructionFactory.get(opcode, oprds));
                     break;
                 case InstructionCodes.FLUSH:
-                    // TODO fix - rajith
+                    int retReg = codeStream.readInt();
+                    int workerCount  = codeStream.readInt();
+                    String[] workerList = new String[workerCount];
+                    for (int wrkCount = 0; wrkCount < workerCount; wrkCount++) {
+                        int channelRefCPIndex = codeStream.readInt();
+                        WorkerDataChannelRefCPEntry channelRefCPEntry = (WorkerDataChannelRefCPEntry)
+                                packageInfo.getCPEntry(channelRefCPIndex);
+                        workerList[wrkCount] = channelRefCPEntry.getWorkerDataChannelInfo().getChannelName();
+                    }
+                    packageInfo.addInstruction(new Instruction.InstructionFlush(opcode, retReg, workerList));
                     break;
                 case InstructionCodes.WORKERSYNCSEND:
                     int syncChannelRefCPIndex = codeStream.readInt();
