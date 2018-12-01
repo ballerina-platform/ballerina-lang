@@ -184,7 +184,7 @@ public class BVM {
         StackFrame sf = strand.currentFrame;
 
         while (sf.ip >= 0) {
-            if (strand.state == Strand.State.TERMINATED) {
+            if (strand.aborted) {
                 strand.currentFrame.ip = -1;
                 return;
             }

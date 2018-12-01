@@ -71,7 +71,7 @@ public class BasicAsyncOperationsTest {
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 31.0);
     }
     
-    @Test(enabled = false)
+    @Test
     public void testAsyncNonNativeBasic6() {
         BValue[] returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic6", new BValue[0]);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
