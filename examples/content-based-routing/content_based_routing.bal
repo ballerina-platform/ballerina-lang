@@ -20,9 +20,7 @@ service contentBasedRouting on new http:Listener(9090) {
 
         if (jsonMsg is json) {
                 //Get the string value relevant to the key `name`.
-            string nameString;
-
-            nameString = jsonMsg["name"].toString();
+            string nameString = jsonMsg["name"].toString();
             (http:Response|error|()) clientResponse;
 
             if (nameString == "sanFrancisco") {
@@ -53,7 +51,7 @@ service contentBasedRouting on new http:Listener(9090) {
         } else if (jsonMsg is error) {
             http:Response res = new;
             res.statusCode = 500;
-            res.setPayload(<string> jsonMsg.detail().message);
+            res.setPayload(untaint <string> jsonMsg.detail().message);
 
             var result = outboundEP->respond(res);
             if (result is error) {

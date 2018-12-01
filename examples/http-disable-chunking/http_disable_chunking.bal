@@ -42,8 +42,7 @@ service echo on new http:Listener(9090) {
     @http:ResourceConfig {
         path: "/"
     }
-    resource function echoResource(http:Caller caller, http:Request req)
-                                returns error? {
+    resource function echoResource(http:Caller caller, http:Request req) {
         string value;
 
         http:Response res = new;
@@ -82,15 +81,12 @@ service echo on new http:Listener(9090) {
            log:printError("Error sending response from echo service",
                         err = result);
         }
-        return ();
     }
 }
 
 function isValid(boolean|error value) returns boolean {
     if (value is boolean) {
         return value;
-    } else if (value is error) {
-        panic(value);
     }
     return false;
 }
