@@ -151,6 +151,7 @@ export const visitor: Visitor = {
     endVisitBlock(node: Block) {
         const viewState: ViewState = node.viewState;
         let height = 0;
+        viewState.bBox.w = config.statement.width;
         node.statements.forEach((element) => {
             viewState.bBox.w = (viewState.bBox.w < element.viewState.bBox.w)
                 ? element.viewState.bBox.w : viewState.bBox.w;
@@ -158,7 +159,7 @@ export const visitor: Visitor = {
                 ? element.viewState.bBox.leftMargin : viewState.bBox.leftMargin;
             height += element.viewState.bBox.h;
         });
-        viewState.bBox.h = height;
+        viewState.bBox.h = (height === 0) ? config.statement.height : height;
     },
 
     endVisitWhile(node: While) {
