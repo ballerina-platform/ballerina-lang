@@ -25,6 +25,7 @@ import org.ballerinalang.test.balo.BaloCreator;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -81,7 +82,9 @@ public class DocumentationTest {
         Assert.assertEquals(personNameSymbol.markdownDocumentation.parameters.size(), 0);
         Assert.assertNull(personNameSymbol.markdownDocumentation.returnValueDescription);
 
-        BSymbol getNameFuncSymbol = personSymbol.scope.lookup(new Name("Person.getName")).symbol;
+        BObjectTypeSymbol personObjSymbol = (BObjectTypeSymbol) personSymbol;
+
+        BSymbol getNameFuncSymbol = personObjSymbol.methodScope.lookup(new Name("Person.getName")).symbol;
         Assert.assertNotNull(getNameFuncSymbol.markdownDocumentation);
         Assert.assertEquals(getNameFuncSymbol.markdownDocumentation.description.replaceAll
                 (CARRIAGE_RETURN_CHAR, EMPTY_STRING), "get the users name.");
@@ -89,7 +92,7 @@ public class DocumentationTest {
         Assert.assertEquals(getNameFuncSymbol.markdownDocumentation.parameters.get(0).description
                 .replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING), "integer value");
 
-        BSymbol isMaleFuncSymbol = personSymbol.scope.lookup(new Name("Person.isMale")).symbol;
+        BSymbol isMaleFuncSymbol = personObjSymbol.methodScope.lookup(new Name("Person.isMale")).symbol;
         Assert.assertNotNull(isMaleFuncSymbol.markdownDocumentation);
         Assert.assertEquals(isMaleFuncSymbol.markdownDocumentation.description.replaceAll(CARRIAGE_RETURN_CHAR,
                 EMPTY_STRING), "Indicate whether this is a male or female.");
