@@ -23,20 +23,13 @@ import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
-import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
-import org.ballerinalang.util.observability.CallbackObserver;
-import org.ballerinalang.util.observability.ObservabilityUtils;
-import org.ballerinalang.util.observability.ObserverContext;
 
 import java.io.PrintStream;
-import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.LongAdder;
-
-//import org.ballerinalang.bre.bvm.CPU.HandleErrorException;
 
 /**
  * This represents the Ballerina worker scheduling functionality. 
@@ -226,16 +219,16 @@ public class BLangScheduler {
 
     private static void checkAndObserveNativeAsync(Context nativeCtx, AsyncInvocableWorkerResponseContext respCtx,
                                               CallableUnitInfo callableUnitInfo, int flags) {
-        if (ObservabilityUtils.isObservabilityEnabled() && FunctionFlags.isObserved(flags)) {
-            Optional<ObserverContext> observerContext = ObservabilityUtils
-                    .startClientObservation(callableUnitInfo.attachedToType.toString(),
-                            callableUnitInfo.getName(), nativeCtx.getParentWorkerExecutionContext());
-            if (observerContext.isPresent()) {
-                respCtx.registerResponseCallback(new CallbackObserver(observerContext.get()));
-                ObservabilityUtils.setObserverContextToWorkerExecutionContext(
-                        nativeCtx.getParentWorkerExecutionContext(), observerContext.get());
-            }
-        }
+//        if (ObservabilityUtils.isObservabilityEnabled() && FunctionFlags.isObserved(flags)) {
+//            Optional<ObserverContext> observerContext = ObservabilityUtils
+//                    .startClientObservation(callableUnitInfo.attachedToType.toString(),
+//                            callableUnitInfo.getName(), nativeCtx.getParentWorkerExecutionContext());
+//            if (observerContext.isPresent()) {
+//                respCtx.registerResponseCallback(new CallbackObserver(observerContext.get()));
+//                ObservabilityUtils.setObserverContextToWorkerExecutionContext(
+//                        nativeCtx.getParentWorkerExecutionContext(), observerContext.get());
+//            }
+//        }
     }
 
     /**

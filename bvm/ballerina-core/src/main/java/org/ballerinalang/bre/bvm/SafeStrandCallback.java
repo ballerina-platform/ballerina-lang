@@ -19,7 +19,9 @@ package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.bre.bvm.Strand.State;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.values.BError;
 
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
@@ -31,6 +33,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @since 0.985.0
  */
 public class SafeStrandCallback extends StrandCallback {
+    private static PrintStream errStream = System.err;
 
     private volatile boolean done;
 
@@ -75,6 +78,15 @@ public class SafeStrandCallback extends StrandCallback {
         } finally {
             this.callbackWaitHandler.dataLock.unlock();
         }
+    }
+
+    @Override
+    public void setError(BError error) {
+        super.setError(error);
+        //Printing current stack trace for strand callback
+        //This will be printed regardless of the parent strand handling this error or not.
+        //This may be improved to log the error only if parent strand doesn't handle it.
+        errStream.println("error: " + BLangVMErrors.getPrintableStackTrace(error));
     }
 
     void acquireDataLock() {
