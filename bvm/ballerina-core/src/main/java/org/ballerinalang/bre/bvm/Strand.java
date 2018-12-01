@@ -50,7 +50,7 @@ public class Strand {
 
     private DebugContext debugContext;
 
-    public BVMCallback respCallback;
+    public StrandCallback respCallback;
 
     private BError error;
 
@@ -58,21 +58,13 @@ public class Strand {
 
     public StrandWaitHandler strandWaitHandler;
 
-    //TODO try to generalize below to normal data channels
-    public WDChannels parentChannels;
-
-    public WDChannels wdChannels;
-
-    public Strand(ProgramFile programFile, String name, Map<String, Object> properties, StrandCallback respCallback,
-                  WDChannels parentChannels) {
+    public Strand(ProgramFile programFile, String name, Map<String, Object> properties, StrandCallback respCallback) {
         this.programFile = programFile;
         this.respCallback = respCallback;
         this.callStack = new StackFrame[DEFAULT_CONTROL_STACK_SIZE];
         this.state = State.NEW;
         this.globalProps = properties;
         this.id = name + "-" + UUID.randomUUID().toString();
-        this.parentChannels = parentChannels;
-        this.wdChannels = new WDChannels();
         initDebugger();
     }
 

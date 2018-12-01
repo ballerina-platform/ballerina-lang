@@ -66,6 +66,7 @@ import org.ballerinalang.util.codegen.attributes.ParamDefaultValueAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.ParameterAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.TaintTableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.VarTypeCountAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.WorkerSendInsAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.BlobCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ByteCPEntry;
@@ -963,6 +964,15 @@ public class PackageInfoReader {
                     localVarAttrInfo.addLocalVarInfo(localVariableInfo);
                 }
                 return localVarAttrInfo;
+            case WORKER_SEND_INS:
+                WorkerSendInsAttributeInfo workerSendInsAttrInfo = new WorkerSendInsAttributeInfo(attribNameCPIndex);
+                int sendInsCount = dataInStream.readShort();
+                workerSendInsAttrInfo.sendsIns = new String[sendInsCount];
+                for (int i = 0; i < sendInsCount; i++) {
+                    UTF8CPEntry stringCPEntry = (UTF8CPEntry) constantPool.getCPEntry(dataInStream.readInt());
+                    workerSendInsAttrInfo.sendsIns[i] = stringCPEntry.getValue();
+                }
+                return workerSendInsAttrInfo;
             case LINE_NUMBER_TABLE_ATTRIBUTE:
                 LineNumberTableAttributeInfo lnNoTblAttrInfo = new LineNumberTableAttributeInfo(attribNameCPIndex);
                 int lineNoInfoCount = dataInStream.readInt();

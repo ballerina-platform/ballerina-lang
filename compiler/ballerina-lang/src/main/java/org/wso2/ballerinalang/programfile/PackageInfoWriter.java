@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.programfile.attributes.ParamDefaultValueAttributeI
 import org.wso2.ballerinalang.programfile.attributes.ParameterAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.TaintTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.VarTypeCountAttributeInfo;
+import org.wso2.ballerinalang.programfile.attributes.WorkerSendInsAttributeInfo;
 import org.wso2.ballerinalang.programfile.cpentries.ActionRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.BlobCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ByteCPEntry;
@@ -566,6 +567,14 @@ public class PackageInfoWriter {
                     attrDataOutStream.writeInt(docAttrInfo.returnParameterDescriptionCPIndex);
                 } else {
                     attrDataOutStream.writeBoolean(false);
+                }
+                break;
+            case WORKER_SEND_INS:
+                WorkerSendInsAttributeInfo wrkAttrInfo = (WorkerSendInsAttributeInfo) attributeInfo;
+                int[] sendIns = wrkAttrInfo.getWorkerSendIns();
+                attrDataOutStream.writeShort(sendIns.length);
+                for (int CPIndex : sendIns) {
+                    attrDataOutStream.writeInt(CPIndex);
                 }
                 break;
         }

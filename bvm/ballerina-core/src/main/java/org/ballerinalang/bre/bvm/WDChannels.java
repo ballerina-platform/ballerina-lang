@@ -53,6 +53,6 @@ public class WDChannels {
      * @return worker data channel for the given name
      */
     public static WorkerDataChannel getChannelFromStrand(Strand ctx, String name) {
-        return ctx.parentChannels.getWorkerDataChannel(name);
+        return ((SafeStrandCallback) ctx.respCallback).parentChannels.getWorkerDataChannel(name);
     }
 }

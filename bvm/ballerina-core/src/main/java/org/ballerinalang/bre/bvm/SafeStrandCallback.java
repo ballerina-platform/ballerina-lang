@@ -36,10 +36,18 @@ public class SafeStrandCallback extends StrandCallback {
 
     private CallbackWaitHandler callbackWaitHandler;
 
+    //TODO try to generalize below to normal data channels
+    WDChannels parentChannels;
+
+    WDChannels wdChannels;
+
+    String[] sendIns;
+
     SafeStrandCallback(BType retType) {
         super(retType);
         this.callbackWaitHandler = new CallbackWaitHandler();
         this.done = false;
+        this.wdChannels = new WDChannels();
     }
 
     @Override
@@ -48,6 +56,9 @@ public class SafeStrandCallback extends StrandCallback {
         try {
             this.callbackWaitHandler.dataLock.lock();
             this.done = true;
+            if (this.getErrorVal() != null) {
+                //mark all channels as errored
+            }
             if (this.callbackWaitHandler.waitingStrand == null) {
                 return;
             }
@@ -75,6 +86,12 @@ public class SafeStrandCallback extends StrandCallback {
         } finally {
             this.callbackWaitHandler.dataLock.unlock();
         }
+    }
+
+    @Override
+    public WDChannels getWorkerDataChannels() {
+
+        return this.wdChannels;
     }
 
     void acquireDataLock() {

@@ -209,6 +209,7 @@ import org.wso2.ballerinalang.programfile.attributes.ParamDefaultValueAttributeI
 import org.wso2.ballerinalang.programfile.attributes.ParameterAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.TaintTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.VarTypeCountAttributeInfo;
+import org.wso2.ballerinalang.programfile.attributes.WorkerSendInsAttributeInfo;
 import org.wso2.ballerinalang.programfile.cpentries.BlobCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ByteCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPool;
@@ -227,6 +228,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -2391,6 +2393,9 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Add parameter default value info
         addParameterAttributeInfo(funcSymbol, funcInfo);
 
+        // Add worker send ins
+        addWorkerSendInsAttributeInfo(funcNode.sendsToThis, funcInfo);
+
         // Add documentation attributes
         addDocAttachmentAttrInfo(funcNode.symbol.markdownDocumentation, funcInfo);
 
@@ -3735,6 +3740,20 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // Add parameter default values
         addParameterDefaultValues(funcSymbol, callableUnitInfo);
+    }
+
+    private void addWorkerSendInsAttributeInfo(LinkedHashSet<String> sendIns, CallableUnitInfo callableUnitInfo) {
+        int workerSendInsAttNameIndex = addUTF8CPEntry(currentPkgInfo, AttributeInfo.Kind.WORKER_SEND_INS.value());
+        WorkerSendInsAttributeInfo workerSendInsAttributeInfo =
+                new WorkerSendInsAttributeInfo(workerSendInsAttNameIndex);
+        int[] sendInIndexes = new int[sendIns.size()];
+        int i = 0;
+        for (String worker : sendIns) {
+            sendInIndexes[i++] = addUTF8CPEntry(currentPkgInfo, worker);
+        }
+
+        workerSendInsAttributeInfo.sendsIns = sendInIndexes;
+        callableUnitInfo.addAttributeInfo(AttributeInfo.Kind.WORKER_SEND_INS, workerSendInsAttributeInfo);
     }
 
     private void addParameterDefaultValues(BInvokableSymbol funcSymbol, CallableUnitInfo callableUnitInfo) {
