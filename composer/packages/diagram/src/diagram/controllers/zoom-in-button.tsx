@@ -11,7 +11,6 @@ export const ZoomInButton: StatelessComponent<{}> = (
                 return (
                     <Button icon onClick={diagContext.zoomIn}>
                         <Icon className="fw fw-zoom-in" title="Zoom In" />
-                        {children}
                     </Button>
                 );
             }}

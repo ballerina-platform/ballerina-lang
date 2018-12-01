@@ -51,7 +51,6 @@ export const AddDefinitionsMenu: StatelessComponent<{}> = (
                                         </Dropdown.Item>);
                                     })
                                 }
-                                { children }
                             </Dropdown.Menu>
                         </Dropdown>
                     </Menu.Item>

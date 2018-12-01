@@ -17,7 +17,6 @@ export const ZoomControllers: StatelessComponent<{}> = (
                             <ZoomInButton />
                             <ZoomOutButton />
                             <ZoomFitButton />
-                            {children}
                         </Button.Group>
                     </Menu.Item>
                 );

@@ -30,7 +30,6 @@ export const ModeToggleButton: StatelessComponent<{}> = (
                             >
                                 <Icon className={`fw ${icon}`} title={toolTip} />
                             </Button>
-                            {children}
                         </Button.Group>
                     </Menu.Item>
                 );
