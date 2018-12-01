@@ -429,7 +429,8 @@ public class ConstrainedMapTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 25);
     }
 
-    @Test(description = "Test json to struct conversion where struct is included with constrained map.")
+    @Test(description = "Test json to struct conversion where struct is included with constrained map.",
+          groups = { "broken" })
     public void testJsonToStructConversionStructWithConstrainedMap() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJsonToStructConversionStructWithConstrainedMap");
         Assert.assertNotNull(returns[0]);
