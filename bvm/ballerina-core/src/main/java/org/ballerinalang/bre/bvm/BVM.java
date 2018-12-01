@@ -893,7 +893,7 @@ public class BVM {
                 strand.respCallback.signal();
                 return null;
             }
-            CallableUnitCallback callback = getNativeCallableUnitCallback(strand, sf, ctx, retReg, retType, flags);
+            CallableUnitCallback callback = new BLangCallableUnitCallback(ctx, strand, retReg, retType);
             nativeCallable.execute(ctx, callback);
             return null;
         } catch (BLangNullReferenceException e) {
@@ -907,15 +907,6 @@ public class BVM {
         handleError(strand);
         return strand;
     }
-
-    private static CallableUnitCallback getNativeCallableUnitCallback(Strand strand, StackFrame parentDf, Context ctx,
-                                                                      int retReg, BType retType, int flags) {
-        return new BLangCallableUnitCallback(ctx, strand, retReg, retType);
-    }
-
-
-
-
 
     private static void copyArgValues(StackFrame caller, StackFrame callee, int[] argRegs, BType[] paramTypes) {
         int longRegIndex = -1;
