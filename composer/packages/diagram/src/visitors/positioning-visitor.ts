@@ -82,7 +82,7 @@ export const visitor: Visitor = {
         // Position drop down menu for adding workers and endpoints
         viewState.menuTrigger.x = defaultWorker.bBox.x + defaultWorker.bBox.w
             + config.lifeLine.gutter.h;
-        viewState.menuTrigger.y = defaultWorker.bBox.y;
+        viewState.menuTrigger.y = defaultWorker.bBox.y + config.lifeLine.header.height / 2;
 
         // Position the body block node
         if (node.body) {
