@@ -4924,6 +4924,8 @@ public class BVM {
             case TypeTags.ARRAY_TAG:
                 // Element type of the array should be 'is type' JSON
                 return checkIsType(((BArrayType) sourceType).getElementType(), targetType, unresolvedTypes);
+            case TypeTags.MAP_TAG:
+                return checkCastByType(((BMapType) sourceType).getConstrainedType(), targetType, unresolvedTypes);
             default:
                 return false;
         }
