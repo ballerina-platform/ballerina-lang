@@ -26,6 +26,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -232,6 +233,61 @@ public class WaitForAllActionsTest {
         BValue[] returns = BRunUtil.invoke(result, "waitTest16");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "0");
+    }
+
+    @Test
+    public void waitTest17() {
+        BValue[] returns = BRunUtil.invoke(result, "waitTest17");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BMap) returns[0]).getMap().values().size(), 2);
+        Assert.assertEquals(((BMap) returns[0]).getMap().values().size(), 2);
+        Assert.assertTrue(Arrays.asList("{\"f2\":150, \"f1\":7}", "{\"f1\":7, \"f2\":150}")
+                                .contains(((BMap) returns[0]).getMap().values().toArray()[0].toString()));
+        Assert.assertTrue(Arrays.asList("{\"name\":\"hello foo\", \"id\":12}", "{\"id\":\"12\", " +
+                "\"name\":\"hello foo\"}").contains(((BMap) returns[0]).getMap().values().toArray()[1].toString()));
+    }
+
+    @Test
+    public void waitTest18() {
+        BValue[] returns = BRunUtil.invoke(result, "waitTest18");
+
+        Map<String, String> expectedMap = new HashMap<>();
+        expectedMap.put("f5", "hello foo");
+        expectedMap.put("f1", "7");
+
+        Assert.assertEquals(returns.length, 1);
+        Map<String, String> resultMap = new HashMap<>();
+        ((BMap) returns[0]).getMap().forEach((o, o2) -> resultMap.put(o.toString(), o2.toString()));
+        Assert.assertTrue(mapsAreEqual(expectedMap, resultMap));
+    }
+
+    @Test
+    public void waitTest19() {
+        BValue[] returns = BRunUtil.invoke(result, "waitTest19");
+
+        Map<String, String> expectedMap = new HashMap<>();
+        expectedMap.put("w1", "30");
+        expectedMap.put("w2", "16");
+
+        Assert.assertEquals(returns.length, 1);
+        Map<String, String> resultMap = new HashMap<>();
+        ((BMap) returns[0]).getMap().forEach((o, o2) -> resultMap.put(o.toString(), o2.toString()));
+        Assert.assertTrue(mapsAreEqual(expectedMap, resultMap));
+    }
+
+
+    @Test
+    public void waitTest20() {
+        BValue[] returns = BRunUtil.invoke(result, "waitTest20");
+
+        Map<String, String> expectedMap = new HashMap<>();
+        expectedMap.put("w2", "hello world");
+        expectedMap.put("w3", "15");
+
+        Assert.assertEquals(returns.length, 1);
+        Map<String, String> resultMap = new HashMap<>();
+        ((BMap) returns[0]).getMap().forEach((o, o2) -> resultMap.put(o.toString(), o2.toString()));
+        Assert.assertTrue(mapsAreEqual(expectedMap, resultMap));
     }
 
     /**

@@ -13,6 +13,8 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/runtime;
+import ballerina/io;
 
 function waitTest1() returns map<anydata> { // {f1: 7, f2: 22, f4: "hello foo", f6: true}
     future<int> f1 = start add_1(5, 2);
@@ -160,6 +162,73 @@ function waitTest16() returns int {
     } else {
         return 1;
     }
+}
+
+function waitTest17() returns any{
+    worker w1  returns any {
+        future<int> f1 = start add_1(5, 2);
+        future<int> f2 = start add_3(50, 100);
+        any result = wait {f1, f2};
+        return result;
+    }
+    worker w2 returns any {
+        future<int> f1 = start add_1(6, 6);
+        future<string> f2 = start concat("foo");
+        map <int|string> m = wait {id: f1, name : f2};
+        runtime:sleep(2000);
+        return m;
+    }
+    any a = wait {f1: w1, f2: w2};
+    return a;
+}
+
+function waitTest18() returns secondRec{
+    secondRec r = {};
+    worker w1  returns secondRec {
+        future<int> f1 = start add_1(5, 2);
+        future<string> f2 = start concat("foo");
+        secondRec result = wait {f1, f5: f2};
+        return result;
+    }
+    r = wait w1;
+    return r;
+}
+
+function waitTest19() returns map<int>{
+    fork {
+        worker w1 returns int{
+            int x = 30;
+            return x;
+        }
+        worker w2 returns int{
+            int y = 15;
+            int g = y + 1;
+            return g;
+        }
+    }
+    map<int> results = wait {w1, w2};
+    worker wy { }
+    return results;
+}
+
+function waitTest20() returns map<int|string> {
+    fork {
+        worker w1 returns int {
+            string a = "hello world";
+            a -> w2;
+            int b = <- w2;
+            return b;
+        }
+        worker w2 returns string {
+            string a = "no message";
+            int b = 15;
+            a = <- w1;
+            b -> w1;
+            return a;
+        }
+    }
+    map<int|string> results = wait {w3: w1, w2};
+    return results;
 }
 
 type firstRec record {
