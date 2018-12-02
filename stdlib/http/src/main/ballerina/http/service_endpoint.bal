@@ -60,6 +60,7 @@ public type Listener object {
     # Gets invoked when attaching a service to the endpoint.
     #
     # + s - The service that needs to be attached
+    # + return - An `error` if there is any error occured during the service attachment process or else nil
     extern function register(service s, map<any> annotationData) returns error?;
 
     # Starts the registered service.

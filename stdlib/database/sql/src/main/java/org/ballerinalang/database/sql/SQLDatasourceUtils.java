@@ -1129,7 +1129,7 @@ public class SQLDatasourceUtils {
 
     private static void notifyTxMarkForAbort(Context context, TransactionLocalContext transactionLocalContext) {
         String globalTransactionId = transactionLocalContext.getGlobalTransactionId();
-        int transactionBlockId = transactionLocalContext.getCurrentTransactionBlockId();
+        String transactionBlockId = transactionLocalContext.getCurrentTransactionBlockId();
 
         transactionLocalContext.markFailure();
         if (transactionLocalContext.isRetryPossible(context.getStrand(), transactionBlockId)) {
@@ -1591,7 +1591,7 @@ public class SQLDatasourceUtils {
         boolean isXAConnection = datasource.isXAConnection();
         TransactionLocalContext transactionLocalContext = context.getLocalTransactionInfo();
         String globalTxId = transactionLocalContext.getGlobalTransactionId();
-        int currentTxBlockId = transactionLocalContext.getCurrentTransactionBlockId();
+        String currentTxBlockId = transactionLocalContext.getCurrentTransactionBlockId();
         BallerinaTransactionContext txContext = transactionLocalContext.getTransactionContext(connectorId);
         if (txContext == null) {
             if (isXAConnection) {

@@ -54,6 +54,7 @@ import org.ballerinalang.model.values.BXMLSequence;
 import org.ballerinalang.util.codegen.StructFieldInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
+import org.ballerinalang.util.exceptions.BLangFreezeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 
@@ -302,10 +303,9 @@ public class JSONUtils {
      * Convert {@link BTable} to JSON.
      *
      * @param table {@link BTable} to be converted to {@link BStreamingJSON}
-     * @param isInTransaction   Within a transaction or not
      * @return JSON representation of the provided table
      */
-    public static BRefType<?> toJSON(BTable table, boolean isInTransaction) {
+    public static BRefType<?> toJSON(BTable table) {
         TableJSONDataSource jsonDataSource = new TableJSONDataSource(table);
         if (table.isInMemoryTable()) {
             return jsonDataSource.build();
@@ -350,6 +350,8 @@ public class JSONUtils {
 
         try {
             ((BMap<String, BValue>) json).put(elementName, element);
+        } catch (BLangFreezeException e) {
+            throw e;
         } catch (Throwable t) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_SET_ERROR, t.getMessage());
         }

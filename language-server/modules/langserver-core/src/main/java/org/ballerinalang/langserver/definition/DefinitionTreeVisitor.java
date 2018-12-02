@@ -83,7 +83,9 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
             terminateVisitor = true;
             acceptNode(null);
         } else {
-            topLevelNodes.forEach(topLevelNode -> acceptNode((BLangNode) topLevelNode));
+            topLevelNodes.stream()
+                    .filter(CommonUtil.checkInvalidTypesDefs())
+                    .forEach(topLevelNode -> acceptNode((BLangNode) topLevelNode));
         }
     }
 

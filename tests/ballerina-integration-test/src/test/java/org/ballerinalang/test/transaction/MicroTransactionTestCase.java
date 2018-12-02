@@ -109,34 +109,6 @@ public class MicroTransactionTestCase extends BaseTest {
     }
 
     @Test(dependsOnMethods = {"testInitiatorAbort"})
-    @Ignore
-    public void testRemoteParticipantAbort() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(initiatorServicePort,
-                "testRemoteParticipantAbort"));
-        assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-
-        HttpResponse initiatorStateRes = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(initiatorServicePort,
-                "getState"));
-        State initiatorState = new State(initiatorStateRes.getData());
-        assertFalse(initiatorState.abortedByInitiator);
-        assertFalse(initiatorState.abortedByLocalParticipant);
-        assertTrue(initiatorState.abortedFunctionCalled);
-        assertFalse(initiatorState.committedFunctionCalled);
-        assertFalse(initiatorState.localParticipantCommittedFunctionCalled);
-        assertTrue(initiatorState.localParticipantAbortedFunctionCalled);
-
-        HttpResponse participant1StateRes = HttpClientRequest.doGet(
-                serverInstance.getServiceURLHttp(participant1ServicePort, "getState"));
-        State participantState = new State(participant1StateRes.getData());
-        assertTrue(participantState.abortedByParticipant);
-        assertTrue(participantState.abortedFunctionCalled);
-        assertFalse(participantState.committedFunctionCalled);
-        assertTrue(participantState.localParticipantAbortedFunctionCalled);
-        assertFalse(participantState.localParticipantCommittedFunctionCalled);
-    }
-
-    //@Test(dependsOnMethods = {"testRemoteParticipantAbort"})
-    @Test(dependsOnMethods = {"testInitiatorAbort"})
     public void testLocalParticipantSuccess() throws IOException {
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(initiatorServicePort,
                 "testLocalParticipantSuccess"));
@@ -287,7 +259,6 @@ public class MicroTransactionTestCase extends BaseTest {
         assertTrue(participant2State.localParticipantCommittedFunctionCalled);
     }
 
-    @Ignore
     @Test(dependsOnMethods = {"testSaveToDatabaseSuccessfulInParticipant"})
     public void testSaveToDatabaseFailedInParticipant() throws IOException {
         HttpResponse response =
@@ -309,7 +280,6 @@ public class MicroTransactionTestCase extends BaseTest {
         assertFalse(initiatorState.committedFunctionCalled);
         assertFalse(initiatorState.localParticipantCommittedFunctionCalled);
         assertTrue(initiatorState.abortedFunctionCalled);
-        assertTrue(initiatorState.localParticipantAbortedFunctionCalled);
 
         HttpResponse participant1StateRes = HttpClientRequest.doGet(
                 serverInstance.getServiceURLHttp(participant1ServicePort, "getState"));
@@ -317,16 +287,12 @@ public class MicroTransactionTestCase extends BaseTest {
         assertFalse(participant1State.abortedByParticipant);
         assertFalse(participant1State.committedFunctionCalled);
         assertFalse(participant1State.localParticipantCommittedFunctionCalled);
-        assertTrue(participant1State.abortedFunctionCalled);
-        assertTrue(participant1State.localParticipantAbortedFunctionCalled);
 
         HttpResponse participant2StateRes = HttpClientRequest.doGet(
                 serverInstance.getServiceURLHttp(participant2ServicePort, "getState"));
         State participant2State = new State(participant2StateRes.getData());
         assertFalse(participant2State.committedFunctionCalled);
         assertFalse(participant2State.localParticipantCommittedFunctionCalled);
-        assertTrue(participant2State.abortedFunctionCalled);
-        assertTrue(participant2State.localParticipantAbortedFunctionCalled);
     }
 
     private static void copyFile(File source, File dest) throws IOException {

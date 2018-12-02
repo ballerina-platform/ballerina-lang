@@ -17,7 +17,7 @@
 public type TransactionContext record {
     string contextVersion = "1.0";
     string transactionId = "";
-    int transactionBlockId = 0;
+    string transactionBlockId = "";
     string coordinationType = "";
     string registerAtURL = "";
 };

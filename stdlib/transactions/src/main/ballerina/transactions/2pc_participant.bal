@@ -169,7 +169,7 @@ type LocalParticipant object {
         return ((), self);
     }
 
-    function prepareMe(string transactionId, int transactionBlockId) returns PrepareResult|error {
+    function prepareMe(string transactionId, string transactionBlockId) returns PrepareResult|error {
         string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
         if (!participatedTransactions.hasKey(participatedTxnId)) {
             error err = error(TRANSACTION_UNKNOWN);
@@ -218,7 +218,7 @@ type LocalParticipant object {
         return (); // No matching protocol
     }
 
-    function notifyMe(string action, int participatedTxnBlockId) returns NotifyResult|error {
+    function notifyMe(string action, string participatedTxnBlockId) returns NotifyResult|error {
         string participatedTxnId = getParticipatedTransactionId(self.participatedTxn.transactionId, participatedTxnBlockId);
         if (action == COMMAND_COMMIT) {
             if (self.participatedTxn.state == TXN_STATE_PREPARED) {

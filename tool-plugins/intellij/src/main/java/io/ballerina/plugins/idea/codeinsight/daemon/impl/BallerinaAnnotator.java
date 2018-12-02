@@ -30,16 +30,17 @@ import com.intellij.psi.util.PsiTreeUtil;
 import io.ballerina.plugins.idea.highlighting.BallerinaSyntaxHighlightingColors;
 import io.ballerina.plugins.idea.psi.BallerinaAnnotationAttachment;
 import io.ballerina.plugins.idea.psi.BallerinaAnyIdentifierName;
-import io.ballerina.plugins.idea.psi.BallerinaCallableUnitSignature;
 import io.ballerina.plugins.idea.psi.BallerinaCompletePackageName;
 import io.ballerina.plugins.idea.psi.BallerinaFloatingPointLiteral;
-import io.ballerina.plugins.idea.psi.BallerinaFunctionDefinition;
+import io.ballerina.plugins.idea.psi.BallerinaFunctionNameReference;
 import io.ballerina.plugins.idea.psi.BallerinaGlobalVariableDefinition;
-import io.ballerina.plugins.idea.psi.BallerinaIdentifier;
 import io.ballerina.plugins.idea.psi.BallerinaIntegerLiteral;
+import io.ballerina.plugins.idea.psi.BallerinaInvocation;
 import io.ballerina.plugins.idea.psi.BallerinaNameReference;
+import io.ballerina.plugins.idea.psi.BallerinaObjectFunctionDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaPackageReference;
 import io.ballerina.plugins.idea.psi.BallerinaRecordKey;
+import io.ballerina.plugins.idea.psi.BallerinaServiceDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaTableColumn;
 import io.ballerina.plugins.idea.psi.BallerinaTypeDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaTypes;
@@ -76,11 +77,6 @@ public class BallerinaAnnotator implements Annotator {
                 if (parent instanceof BallerinaAnnotationAttachment) {
                     Annotation annotation = holder.createInfoAnnotation(element, null);
                     annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.ANNOTATION);
-                }
-            } else if (element instanceof BallerinaAnyIdentifierName || element instanceof BallerinaIdentifier) {
-                if ((parent instanceof BallerinaCallableUnitSignature)
-                        || ((parent instanceof BallerinaTypeDefinition))) {
-                    annotateKeyword(element, holder, BallerinaSyntaxHighlightingColors.RESERVED_WORDS, false);
                 }
             } else if (elementType == BallerinaTypes.SEMICOLON || elementType == BallerinaTypes.COMMA) {
                 annotateKeyword(element, holder, BallerinaSyntaxHighlightingColors.KEYWORD, false);
@@ -192,17 +188,25 @@ public class BallerinaAnnotator implements Annotator {
                             annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.KEYWORD);
                         }
                     }
+                // Highlights "self" keyword only inside object type contexts.
                 } else if ("self".equals(element.getText())) {
-                    BallerinaTypeDefinition typeDefinition = PsiTreeUtil
-                            .getParentOfType(element, BallerinaTypeDefinition.class);
-                    BallerinaFunctionDefinition functionDefinition = PsiTreeUtil
-                            .getParentOfType(element, BallerinaFunctionDefinition.class);
-                    if (typeDefinition == null && (functionDefinition == null
-                            || functionDefinition.getAttachedObject() == null)) {
-                        return;
+                    BallerinaObjectFunctionDefinition objectContext = PsiTreeUtil
+                            .getParentOfType(element, BallerinaObjectFunctionDefinition.class);
+                    if (objectContext != null) {
+                        Annotation annotation = holder.createInfoAnnotation(element, null);
+                        annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.KEYWORD);
                     }
-                    Annotation annotation = holder.createInfoAnnotation(element, null);
-                    annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.KEYWORD);
+                // Highlights function names.
+                } else if (parent instanceof BallerinaAnyIdentifierName
+                        && !(parent.getParent() instanceof BallerinaInvocation)
+                        && !(parent.getParent() instanceof BallerinaFunctionNameReference)) {
+                    annotateKeyword(element, holder, BallerinaSyntaxHighlightingColors.RESERVED_WORD, false);
+                // Highlights type names.
+                } else if (parent instanceof BallerinaTypeDefinition) {
+                    annotateKeyword(element, holder, BallerinaSyntaxHighlightingColors.RESERVED_WORD, false);
+                // Highlights Service names.
+                } else if (parent instanceof BallerinaServiceDefinition) {
+                    annotateKeyword(element, holder, BallerinaSyntaxHighlightingColors.RESERVED_WORD, false);
                 }
             }
         } else if (element instanceof BallerinaFloatingPointLiteral || element instanceof BallerinaIntegerLiteral) {

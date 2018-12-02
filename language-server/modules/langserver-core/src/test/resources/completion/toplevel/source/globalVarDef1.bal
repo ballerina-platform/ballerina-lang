@@ -3,13 +3,7 @@ import ballerina/http;
 
 int a = 
 
-endpoint http:Listener pkg1Endpoint1 {
-    port: 9090
-};
-
-public endpoint http:Listener pkg1Endpoint2 {
-    port: 9090
-};
+http:Listener ep = new(9090);
 
 public type pkg1Obj1 object {
     

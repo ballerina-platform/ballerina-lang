@@ -743,4 +743,11 @@ public class NativeConversionTest {
         Assert.assertTrue(returns[0] instanceof BMap);
         Assert.assertEquals(returns[0].stringValue(), "{f:3.0}");
     }
+
+    @Test(description = "Test result is json after converting record to json")
+    public void testRecordToJsonWithIsJson() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testRecordToJsonWithIsJson");
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
 }

@@ -81,7 +81,14 @@ service participant2 on participant2EP02 {
 
     @transactions:Participant {}
     resource function testSaveToDatabaseFailedInParticipant(http:Caller ep, http:Request req) {
-        saveToDatabase(ep, req, true);
+        io:println("testSaveToDatabaseFailedInParticipant");
+        var er = trap saveToDatabase(ep, req, true);
+        if (er is error) {
+            http:Response res = new;
+            res.statusCode = 200;
+            res.setTextPayload("error in SaveToDatabase: " + er.reason());
+            var resp2 = ep->respond(res);
+        }
     }
 
     @http:ResourceConfig {
@@ -128,6 +135,14 @@ function saveToDatabase(http:Caller conn, http:Request req, boolean shouldAbort)
     var helperRes = trap saveToDatabaseUpdateHelper1(uuid);
     if (helperRes is error) {
         io:println("FAILED!!!");
+    } else {
+        io:println("saved");
+    }
+
+    if(shouldAbort) {
+        io:println("panicking");
+        error er = error("Some error occured in particpant after saving to Database");
+        panic er;
     }
 
     res.setTextPayload(uuid);
@@ -138,10 +153,6 @@ function saveToDatabase(http:Caller conn, http:Request req, boolean shouldAbort)
     } else {
         io:print("");
     }
-    if(shouldAbort) {
-        log:printInfo("can not abort from a participant function");
-    }
-
 }
 
 function saveToDatabaseUpdateHelper1(string uuid) {

@@ -165,9 +165,12 @@ service participant1 on participant1EP01 {
         testSaveToDatabaseFailedInParticipant_localParticipant();
         http:Request newReq = new;
         var result = participant2EP01 -> get("/testSaveToDatabaseFailedInParticipant", message = newReq);
+        io:println("response reveived from participant1");
         if (result is http:Response) {
+            io:print("testSaveToDatabaseFailedInParticipant response received.");
             res = result;
         } else {
+            io:print("testSaveToDatabaseFailedInParticipant errored");
             res.statusCode = 500;
         }
         _ = ep -> respond(res);

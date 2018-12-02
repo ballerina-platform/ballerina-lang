@@ -57,8 +57,10 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -344,13 +346,10 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
      */
     private File getSwaggerFile(String oasDefinition) throws IOException {
         File oasTempFile = File.createTempFile("oasTempFile", ".json");
-        BufferedWriter bw = new BufferedWriter(new FileWriter(oasTempFile));
-        try {
+        try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(oasTempFile),
+                StandardCharsets.UTF_8))) {
             bw.write(oasDefinition);
-        } finally {
-            bw.close();
         }
-
         return oasTempFile;
     }
 
