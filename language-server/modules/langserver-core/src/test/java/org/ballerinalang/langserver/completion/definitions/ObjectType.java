@@ -31,8 +31,6 @@ public class ObjectType extends CompletionTest {
     public Object[][] dataProvider() {
         return new Object[][] {
                 {"objectTest1.json", "object"},
-                {"objectTest2.json", "object"},
-                {"objectTest3.json", "object"},
         };
     }
 }
