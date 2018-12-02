@@ -30,7 +30,7 @@ service HelloWorld3 on ep2 {
         io:println(req);
         int[] numbers = req.values;
         int result = 0;
-        foreach number in numbers {
+        foreach var number in numbers {
             result = result + number;
         }
         error? err = caller->send(result);
@@ -46,7 +46,7 @@ service HelloWorld3 on ep2 {
         io:println(req);
         string[] values = req.values;
         string result = "";
-        foreach value in values {
+        foreach var value in values {
             result = result + "," + value;
         }
         error? err = caller->send(result);
@@ -62,7 +62,7 @@ service HelloWorld3 on ep2 {
         io:println(req);
         float[] values = req.values;
         float result = 0.0;
-        foreach value in values {
+        foreach var value in values {
             result = result + value;
         }
         error? err = caller->send(result);
@@ -78,7 +78,7 @@ service HelloWorld3 on ep2 {
         io:println(req);
         boolean[] values = req.values;
         boolean result = false;
-        foreach value in values {
+        foreach var value in values {
             result = result || value;
         }
         error? err = caller->send(result);
@@ -94,7 +94,7 @@ service HelloWorld3 on ep2 {
         io:println(req);
         A[] values = req.values;
         string result = "";
-        foreach value in values {
+        foreach var value in values {
             result = result + "," + value.name;
         }
         error? err = caller->send(result);
