@@ -43,7 +43,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -362,7 +362,7 @@ public class IterableAnalyzer {
                 logNotEnoughVariablesError(op, 1);
                 return Lists.of(symTable.semanticError);
             } else if (op.arity == 1) {
-                Set<BType> types = new HashSet<>();
+                Set<BType> types = new LinkedHashSet<>();
                 types.add(symTable.stringType);
                 types.add(symTable.xmlType);
                 return Lists.of(new BUnionType(null, types, false));
