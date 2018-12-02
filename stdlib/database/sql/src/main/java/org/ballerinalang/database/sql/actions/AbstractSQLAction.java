@@ -250,7 +250,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         BValueArray bTables = new BValueArray(new BArrayType(BTypes.typeTable));
         // TODO: "mysql" equality condition is part of the temporary fix to support returning the result set in the case
         // of stored procedures returning only one result set in MySQL. Refer ballerina-platform/ballerina-lang#8643
-        if (databaseProductName.contains(MYSQL) && structTypes.size() > 1) {
+        if (databaseProductName.contains(MYSQL) && (structTypes != null && structTypes.size() > 1)) {
             throw new BallerinaException(
                     "Retrieving result sets from stored procedures returning more than one result set, is not supported ");
         } else if (structTypes == null || resultSets.size() != structTypes.size()) {
