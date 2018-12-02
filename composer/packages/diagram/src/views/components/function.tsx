@@ -15,11 +15,12 @@ export const Function = (props: {model: FunctionNode}) => {
             <LifeLine title="Client" icon="client" model={viewState.client}/>
             <LifeLine title="Default" icon="worker" model={viewState.defaultWorker.lifeline}/>
             { model.body && <Block model={model.body} />}
-            { model.VisibleEndpoints && model.VisibleEndpoints.map((element: VisibleEndpoint) => {
-                if (element.viewState.visible) {
+            { model.VisibleEndpoints && model.VisibleEndpoints
+                .filter((element) => element.viewState.visible)
+                .map((element: VisibleEndpoint) => {
                     return <LifeLine title={element.name} icon="endpoint" model={element.viewState.bBox} />;
-                }
-            })}
+                })
+            }
             <AddWorkerOrEndpointMenu
                 triggerPosition={viewState.menuTrigger}
                 onAddEndpoint={(epDef: any) => {
