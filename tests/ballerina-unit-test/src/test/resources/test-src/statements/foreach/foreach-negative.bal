@@ -17,7 +17,7 @@ function test2(){
 
 function test3(){
     string[] data = ["mon", "tue", "wed", "thu", "fri"];
-    foreach var (i, _) in data {
+    foreach var (i, j) in data {
         io:println(i + " ");
     }
     io:println(i);
@@ -46,7 +46,7 @@ function test5(){
 
 function test6(){
     string[] data = ["mon", "tue", "wed", "thu", "fri"];
-    foreach var (_, _, _) in data {
+    foreach var (i, j, k) in data {
         io:println("hello");
     }
 }
