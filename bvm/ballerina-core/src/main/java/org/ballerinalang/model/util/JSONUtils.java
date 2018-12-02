@@ -303,10 +303,9 @@ public class JSONUtils {
      * Convert {@link BTable} to JSON.
      *
      * @param table {@link BTable} to be converted to {@link BStreamingJSON}
-     * @param isInTransaction   Within a transaction or not
      * @return JSON representation of the provided table
      */
-    public static BRefType<?> toJSON(BTable table, boolean isInTransaction) {
+    public static BRefType<?> toJSON(BTable table) {
         TableJSONDataSource jsonDataSource = new TableJSONDataSource(table);
         if (table.isInMemoryTable()) {
             return jsonDataSource.build();

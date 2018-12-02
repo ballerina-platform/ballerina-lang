@@ -107,4 +107,12 @@ public class TransactionLocalParticipantFunctionTest {
         Assert.assertEquals(s, " in-trx in-non-participant traped: local-participant after-local-participant " +
                 "in-trx-last-line aborted |");
     }
+
+    @Test
+    public void testTransactionTransactionOnlyInfectCallsInSameStrand() {
+        BValue[] params = {};
+        BValue[] ret = BRunUtil.invoke(result, "participantInNonStrand", params);
+        String s = ret[0].stringValue();
+        Assert.assertEquals(s, " in-trx from-startANewStrand last-line committed | error in otherStrand: error!!!");
+    }
 }
