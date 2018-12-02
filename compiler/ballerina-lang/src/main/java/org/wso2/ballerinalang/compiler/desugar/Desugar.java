@@ -3433,7 +3433,7 @@ public class Desugar extends BLangNodeVisitor {
                 String fieldName = recordVariable.variableList.get(i).key.value;
                 BType fieldType = getStructuredBindingPatternType(
                         recordVariable.variableList.get(i).valueBindingPattern);
-                BVarSymbol fieldSymbol = new BVarSymbol(0, names.fromString(fieldName), env.enclPkg.symbol.pkgID,
+                BVarSymbol fieldSymbol = new BVarSymbol(Flags.REQUIRED, names.fromString(fieldName), env.enclPkg.symbol.pkgID,
                         fieldType, recordSymbol);
 
                 fields.add(new BField(names.fromString(fieldName), fieldSymbol));
