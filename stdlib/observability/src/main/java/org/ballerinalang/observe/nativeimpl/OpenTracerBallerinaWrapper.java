@@ -94,6 +94,7 @@ public class OpenTracerBallerinaWrapper {
         tags.forEach((observerContext::addTag));
 
         if (parentSpanId == SYSTEM_TRACE_INDICATOR) {
+            observerContext.setSystemSpan(true);
             ObserveUtils.getObserverContextOfCurrentFrame(context).ifPresent(observerContext::setParent);
             ObserveUtils.setObserverContextToCurrentFrame(context.getStrand(), observerContext);
             return startSpan(observerContext, true, spanName);
@@ -131,7 +132,9 @@ public class OpenTracerBallerinaWrapper {
         }
         ObserverContext observerContext = observerContextList.get(spanId);
         if (observerContext != null) {
-            ObserveUtils.setObserverContextToCurrentFrame(context.getStrand(), observerContext.getParent());
+            if (observerContext.isSystemSpan()) {
+                ObserveUtils.setObserverContextToCurrentFrame(context.getStrand(), observerContext.getParent());
+            }
             TracingUtils.stopObservation(observerContext);
             observerContext.setFinished();
             observerContextList.remove(spanId);
