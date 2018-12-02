@@ -220,20 +220,6 @@ public class IterableOperationsTests {
     }
 
     @Test
-    public void testJSON() {
-        BValue[] returns = BRunUtil.invoke(basic, "jsonTest");
-        Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 5);
-        Assert.assertEquals(returns[0].stringValue(), "bob10true[{\"subject\":\"maths\", \"marks\":75}, " +
-                "{\"subject\":\"English\", \"marks\":85}]");
-        Assert.assertEquals(returns[1].stringValue(), "[\"bob\"]");
-        Assert.assertEquals(returns[2].stringValue(), "4");
-        Assert.assertEquals(returns[3].stringValue(), "4");
-        Assert.assertEquals(returns[4].stringValue(), "[\"0->{\"subject\":\"maths\", \"marks\":75}\", " +
-                "\"1->{\"subject\":\"English\", \"marks\":85}\"]");
-    }
-
-    @Test
     public void testXML() {
         BValue[] returns = BRunUtil.invoke(basic, "xmlTest");
         Assert.assertNotNull(returns);
