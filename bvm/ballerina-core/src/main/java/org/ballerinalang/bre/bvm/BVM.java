@@ -5055,13 +5055,11 @@ public class BVM {
                                                  List<TypePair> unresolvedTypes) {
         // handle unconstrained tables returned by actions
         if (sourceConstraint == null) {
-//            // enable this block once invalid constraints are not allowed
-//            if (targetConstraint.getTag() == TypeTags.RECORD_TYPE_TAG) {
-//                BRecordType targetConstrRecord = (BRecordType) targetConstraint;
-//                return !targetConstrRecord.sealed && targetConstrRecord.restFieldType == BTypes.typeAnydata;
-//            }
-//            return false;
-            return true;
+            if (targetConstraint.getTag() == TypeTags.RECORD_TYPE_TAG) {
+                BRecordType targetConstrRecord = (BRecordType) targetConstraint;
+                return !targetConstrRecord.sealed && targetConstrRecord.restFieldType == BTypes.typeAnydata;
+            }
+            return targetConstraint.getTag() == TypeTags.TYPEDESC_TAG;
         }
 
         return checkIsType(sourceConstraint, targetConstraint, unresolvedTypes);
