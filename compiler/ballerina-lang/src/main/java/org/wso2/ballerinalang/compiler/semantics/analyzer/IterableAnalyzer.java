@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -42,8 +43,10 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * {@code {@link IterableAnalyzer}} validates iterable collection related semantics.
@@ -359,7 +362,10 @@ public class IterableAnalyzer {
                 logNotEnoughVariablesError(op, 1);
                 return Lists.of(symTable.semanticError);
             } else if (op.arity == 1) {
-                return Lists.of(symTable.xmlType);
+                Set<BType> types = new HashSet<>();
+                types.add(symTable.stringType);
+                types.add(symTable.xmlType);
+                return Lists.of(new BUnionType(null, types, false));
             }
             logTooManyVariablesError(op);
             return Lists.of(symTable.semanticError);
