@@ -21,9 +21,9 @@ import org.ballerinalang.bre.bvm.Strand.State;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BError;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.io.PrintStream;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -71,7 +71,8 @@ public class SafeStrandCallback extends StrandCallback {
                 return;
             }
             Strand resultStrand = WaitCallbackHandler.handleReturnInWait(this.callbackWaitHandler.waitingStrand,
-                                                                         this.callbackWaitHandler.expType, this.callbackWaitHandler.retReg, this);
+                                                                         this.callbackWaitHandler.expType,
+                                                                         this.callbackWaitHandler.retReg, this);
             if (resultStrand != null) {
                 BVMScheduler.stateChange(resultStrand, State.PAUSED, State.RUNNABLE);
                 BVMScheduler.schedule(resultStrand);
