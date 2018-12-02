@@ -30,6 +30,7 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -135,8 +136,8 @@ public class StructImpl extends AnnotatableNode implements Struct {
         Map<String, Value> valueMap = new LinkedHashMap<>();
         final BIterator bIterator = refField.newIterator();
         while (bIterator.hasNext()) {
-            final BValue next = bIterator.getNext();
-            valueMap.put(next.stringValue(), ValueImpl.createValue(next));
+            final BValueArray next = (BValueArray)bIterator.getNext();
+            valueMap.put(next.getRefValue(0).stringValue(), ValueImpl.createValue(next.getRefValue(1)));
         }
         return valueMap;
     }
