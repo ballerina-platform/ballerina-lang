@@ -136,7 +136,7 @@ public class StructImpl extends AnnotatableNode implements Struct {
         Map<String, Value> valueMap = new LinkedHashMap<>();
         final BIterator bIterator = refField.newIterator();
         while (bIterator.hasNext()) {
-            final BValueArray next = (BValueArray)bIterator.getNext();
+            final BValueArray next = (BValueArray) bIterator.getNext();
             valueMap.put(next.getRefValue(0).stringValue(), ValueImpl.createValue(next.getRefValue(1)));
         }
         return valueMap;
