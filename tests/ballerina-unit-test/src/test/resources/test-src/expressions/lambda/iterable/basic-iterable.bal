@@ -141,13 +141,12 @@ function xmlTest() returns (int, int, map<any>) {
     </p:person>`;
     int nodeCount = xdata.*.count();
     int elementCount = xdata.*.elements().count();
-    io:println(xdata.*.elements()[1].*.elements());
+
+    index = -1;
     map<xml> m = xdata.*.elements()[1].*.elements()
-                 .map(function ((int, xml) tuple) returns (string, xml) {
-                          io:println(tuple);
-                          var (i, x) = tuple;
-                          io:println(i, " : ", x);
-                          return (<string>i, x);
+                 .map(function (xml x) returns (string, xml) {
+                          index += 1;
+                          return (string.create(index), x);
                       });
     return (nodeCount, elementCount, m);
 }
