@@ -2040,6 +2040,8 @@ public class TypeChecker extends BLangNodeVisitor {
             requiredParamsCount = ((BInvokableSymbol) iExpr.symbol).params.size();
         }
 
+        iExpr.requiredArgs = new ArrayList<>();
+
         // Split the different argument types: required args, named args and rest args
         int i = 0;
         BLangExpression vararg = null;

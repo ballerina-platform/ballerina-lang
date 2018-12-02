@@ -182,6 +182,15 @@ function getTeacherRecord() returns Teacher {
     return t1;
 }
 
+function stampFunctionReferenceWithArgs() returns Employee {
+    Employee e = Employee.stamp(getTeacherRecordWithArgs(23));
+    return e;
+}
+
+function getTeacherRecordWithArgs(int i) returns Teacher {
+    Teacher t1 = { name: "Raja", age: i, status: "single", batch: "LK2014", school: "Hindu College" };
+    return t1;
+}
 
 function stampOpenRecordToTypeClosedRecord() returns NonAcademicStaff|error  {
     Teacher teacher = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };

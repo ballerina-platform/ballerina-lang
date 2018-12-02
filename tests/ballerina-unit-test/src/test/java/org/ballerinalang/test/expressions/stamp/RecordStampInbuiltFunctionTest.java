@@ -246,6 +246,24 @@ public class RecordStampInbuiltFunctionTest {
     }
 
     @Test
+    public void testStampFunctionReferenceWithArgs() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampFunctionReferenceWithArgs");
+        BMap<String, BValue> employee0 = (BMap<String, BValue>) results[0];
+
+        Assert.assertEquals(results.length, 1);
+
+        Assert.assertEquals(employee0.get("age").getType().getTag(), TypeTags.INT_TAG);
+        Assert.assertEquals(employee0.get("age").stringValue(), "23");
+
+        Assert.assertEquals(employee0.get("batch").getType().getClass(), BStringType.class);
+        Assert.assertEquals(employee0.get("batch").stringValue(), "LK2014");
+
+        Assert.assertEquals(employee0.get("school").getType().getClass(), BStringType.class);
+        Assert.assertEquals(employee0.get("school").stringValue(), "Hindu College");
+    }
+
+    @Test
     public void testStampOpenRecordToTypeClosedRecord() {
 
         BValue[] results = BRunUtil.invoke(compileResult, "stampOpenRecordToTypeClosedRecord");
