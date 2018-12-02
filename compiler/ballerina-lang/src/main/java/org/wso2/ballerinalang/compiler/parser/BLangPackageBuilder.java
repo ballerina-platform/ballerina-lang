@@ -2542,42 +2542,58 @@ public class BLangPackageBuilder {
 
     void endServiceDef(DiagnosticPos pos, Set<Whitespace> ws, String serviceName, DiagnosticPos identifierPos,
             boolean isAnonServiceValue) {
+        // Any Service can be represented in two major components.
+        //  1) A anonymous type node (Object)
+        //  2) Variable assignment with "serviceName".
+        //      This is a global variable if the service is defined in module level.
+        //      Otherwise (isAnonServiceValue = true) it is a local variable definition, which is written by user.
         BLangService serviceNode = (BLangService) serviceNodeStack.pop();
         serviceNode.pos = pos;
         serviceNode.addWS(ws);
         serviceNode.isAnonymousServiceValue = isAnonServiceValue;
+        String serviceTypeName = this.anonymousModelHelper.getNextAnonymousServiceTypeKey(pos.src.pkgID, serviceName);
         if (serviceName == null) {
-            serviceName = this.anonymousModelHelper.getNextAnonymousTypeKey(pos.src.pkgID);
+            serviceName = this.anonymousModelHelper.getNextAnonymousServiceVarKey(pos.src.pkgID);
             identifierPos = pos;
         }
-        BLangIdentifier identifier = (BLangIdentifier) createIdentifier(serviceName);
-        identifier.pos = identifierPos;
-        serviceNode.setName(identifier);
-
-        // Define type nodeDefinition.
-        BLangTypeDefinition typeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
-        typeDef.setName(identifier);
-        typeDef.flagSet.add(Flag.SERVICE);
-
-        typeDef.typeNode = (BLangType) this.typeNodeStack.pop();
-        typeDef.pos = pos;
-        this.compUnit.addTopLevelNode(typeDef);
-        serviceNode.serviceTypeDefinition = typeDef;
-        serviceNode.serviceUDT = createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(),
-                typeDef.name);
-
-        this.compUnit.addTopLevelNode(serviceNode);
-
+        BLangIdentifier serviceVar = (BLangIdentifier) createIdentifier(serviceName);
+        serviceVar.pos = identifierPos;
+        serviceNode.setName(serviceVar);
         if (!isAnonServiceValue) {
             this.exprNodeListStack.pop().forEach(expr -> serviceNode.attachedExprs.add((BLangExpression) expr));
-            return;
         }
+        // We add all service nodes to top level, only for future reference.
+        this.compUnit.addTopLevelNode(serviceNode);
+
+        // 1) Define type nodeDefinition for service type.
+        BLangTypeDefinition typeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
+        BLangIdentifier serviceTypeID = (BLangIdentifier) createIdentifier(serviceTypeName);
+        serviceTypeID.pos = pos;
+        typeDef.setName(serviceTypeID);
+        typeDef.flagSet.add(Flag.SERVICE);
+        typeDef.typeNode = (BLangType) this.typeNodeStack.pop();
+        typeDef.pos = pos;
+        serviceNode.serviceTypeDefinition = typeDef;
+        this.compUnit.addTopLevelNode(typeDef);
+
+        // 2) Create service constructor.
         final BLangServiceConstructorExpr serviceConstNode = (BLangServiceConstructorExpr) TreeBuilder
                 .createServiceConstructorNode();
         serviceConstNode.serviceNode = serviceNode;
         serviceConstNode.pos = pos;
         serviceConstNode.addWS(ws);
         addExpressionNode(serviceConstNode);
+
+        // Crate Global variable for service.
+        if (!isAnonServiceValue) {
+            BLangSimpleVariable var = (BLangSimpleVariable) generateBasicVarNodeWithoutType(pos, Collections.emptySet(),
+                    serviceName, true);
+            var.flagSet.add(Flag.FINAL);
+            var.flagSet.add(Flag.SERVICE);
+            var.isDeclaredWithVar = true;
+            serviceNode.variableNode = var;
+            this.compUnit.addTopLevelNode(var);
+        }
     }
 
     void createXMLQName(DiagnosticPos pos, Set<Whitespace> ws, String localname, String prefix) {

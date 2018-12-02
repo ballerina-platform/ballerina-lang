@@ -64,13 +64,13 @@ public class ServiceTest {
         int errIdx = 0;
         BAssertUtil
                 .validateError(compileResult, errIdx++, "resource function can not be invoked with in a service", 7, 9);
-        BAssertUtil.validateError(compileResult, errIdx++, "redeclared symbol 'name'", 17, 9);
+        BAssertUtil.validateError(compileResult, errIdx++, "redeclared symbol 'name'", 17, 1);
         BAssertUtil.validateError(compileResult, errIdx++, "redeclared symbol 'name'", 17, 9);
         BAssertUtil.validateError(compileResult, errIdx++,
                 "incompatible types: expected 'AbstractListener', found 'string'", 17, 17);
         BAssertUtil.validateError(compileResult, errIdx++, "invalid listener attachment", 17, 17);
         BAssertUtil.validateError(compileResult, errIdx++, "uninitialized field 'id'", 18, 5);
-        BAssertUtil.validateError(compileResult, errIdx++, "redeclared symbol '$anonType$0.foo'", 29, 14);
+        BAssertUtil.validateError(compileResult, errIdx++, "redeclared symbol '$service$2.foo'", 29, 14);
         BAssertUtil.validateError(compileResult, errIdx++, "undefined symbol 'invalidVar'", 50, 12);
         Assert.assertEquals(compileResult.getErrorCount(), errIdx);
     }

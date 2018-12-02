@@ -29,18 +29,13 @@ import java.util.Objects;
 public class ServiceInfo extends StructureTypeInfo {
 
     public int serviceTypeCPIndex;
-    public int listenerTypeCPIndex;
-    public int listenerNameCPIndex;
 
     public List<Integer> resourcesCPIndex = new ArrayList<>();
 
-    public ServiceInfo(int pkgPathCPIndex, int nameCPIndex, int flags, int serviceTypeCPIndex, int listenerTypeCPIndex,
-            int listenerNameCPIndex) {
+    public ServiceInfo(int pkgPathCPIndex, int nameCPIndex, int flags, int serviceTypeCPIndex) {
 
         super(pkgPathCPIndex, nameCPIndex, flags);
         this.serviceTypeCPIndex = serviceTypeCPIndex;
-        this.listenerTypeCPIndex = listenerTypeCPIndex;
-        this.listenerNameCPIndex = listenerNameCPIndex;
     }
 
     @Override

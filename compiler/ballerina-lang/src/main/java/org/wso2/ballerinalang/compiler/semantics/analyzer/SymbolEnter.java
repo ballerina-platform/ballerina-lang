@@ -543,7 +543,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 names.fromIdNode(serviceNode.name), env.enclPkg.symbol.pkgID, serviceNode.type, env.scope.owner);
         serviceSymbol.markdownDocumentation = getMarkdownDocAttachment(serviceNode.markdownDocumentationAttachment);
 
-        BType serviceObjectType = symResolver.resolveTypeNode(serviceNode.serviceUDT, env);
+        BType serviceObjectType = serviceNode.serviceTypeDefinition.symbol.type;
         serviceNode.symbol = serviceSymbol;
         serviceNode.symbol.type = new BServiceType(serviceObjectType.tsymbol);
         defineSymbol(serviceNode.name.pos, serviceSymbol);
