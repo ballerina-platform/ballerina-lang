@@ -23,7 +23,6 @@ import org.ballerinalang.langserver.command.testgen.renderer.RendererOutput;
 import org.ballerinalang.langserver.command.testgen.renderer.TemplateBasedRendererOutput;
 import org.ballerinalang.langserver.command.testgen.template.type.FunctionTemplate;
 import org.ballerinalang.langserver.command.testgen.template.type.HttpServiceTemplate;
-import org.ballerinalang.langserver.command.testgen.template.type.WSClientServiceTemplate;
 import org.ballerinalang.langserver.command.testgen.template.type.WSServiceTemplate;
 import org.ballerinalang.model.tree.EndpointNode;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -95,7 +94,7 @@ public class RootTemplate extends AbstractTestTemplate {
      * Create root template for a http service.
      *
      * @param service           service
-     * @param init
+     * @param init              {@link BLangTypeInit}
      * @param builtTestFile     built test file package
      * @param focusLineAcceptor focus line acceptor
      * @return root template
@@ -112,7 +111,7 @@ public class RootTemplate extends AbstractTestTemplate {
      * Create root template for a websocket service.
      *
      * @param service           service
-     * @param init
+     * @param init              {@link BLangTypeInit}
      * @param builtTestFile     built test file package
      * @param focusLineAcceptor focus line acceptor
      * @return root template
@@ -131,7 +130,7 @@ public class RootTemplate extends AbstractTestTemplate {
      * Create root template for a client websocket service.
      *
      * @param service           service
-     * @param init
+     * @param init              {@link BLangTypeInit}
      * @param builtTestFile     built test file package
      * @param focusLineAcceptor focus line acceptor
      * @return root template
@@ -186,14 +185,6 @@ public class RootTemplate extends AbstractTestTemplate {
             BLangService service = pair.getLeft();
             BLangTypeInit init = pair.getRight();
             new WSServiceTemplate(builtTestFile, service, init, focusLineAcceptor).render(rendererOutput);
-        }
-
-        // Render WS-ClientService tests
-        for (Pair<BLangService, BLangTypeInit> pair: httpWSClientServices) {
-            BLangService service = pair.getLeft();
-            BLangTypeInit init = pair.getRight();
-            new WSClientServiceTemplate(builtTestFile, init, service, globalFunctions, focusLineAcceptor)
-                    .render(rendererOutput);
         }
     }
 }
