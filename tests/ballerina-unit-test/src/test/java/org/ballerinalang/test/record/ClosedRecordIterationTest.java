@@ -64,8 +64,8 @@ public class ClosedRecordIterationTest {
 
         // Test invalid no. of args with foreach loop
         BAssertUtil.validateError(closedRecNegatives, index++,
-                                  "invalid tuple binding pattern; member variable count mismatch with member type count",
-                                  43, 17);
+                "invalid tuple binding pattern; member variable count mismatch with member type count",
+                43, 17);
 
         BAssertUtil.validateError(closedRecNegatives, index++, "undefined symbol 'val'", 44, 19);
 

@@ -1459,7 +1459,7 @@ function testToJsonAndAccessFromMiddle() returns (json, int) {
     return (result, result.length());
 }
 
-function testToJsonAndIterate() returns (json, int) {
+function testToJsonAndIterate() returns (json, int)|error {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -1472,7 +1472,7 @@ function testToJsonAndIterate() returns (json, int) {
     json result = getJsonConversionResult(selectRet);
     json j = [];
     int i = 0;
-    foreach var row in result {
+    foreach var row in check json[].create(result) {
         j[i] = row;
         i += 1;
     }
