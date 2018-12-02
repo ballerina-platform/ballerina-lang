@@ -252,7 +252,8 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         // of stored procedures returning only one result set in MySQL. Refer ballerina-platform/ballerina-lang#8643
         if (databaseProductName.contains(MYSQL) && (structTypes != null && structTypes.size() > 1)) {
             throw new BallerinaException(
-                    "Retrieving result sets from stored procedures returning more than one result set, is not supported ");
+                    "Retrieving result sets from stored procedures returning more than one result set, is not "
+                            + "supported");
         } else if (structTypes == null || resultSets.size() != structTypes.size()) {
             throw new BallerinaException(
                     "Mismatching record type count: " + (structTypes == null ? 0 : structTypes.size()) + " and "
