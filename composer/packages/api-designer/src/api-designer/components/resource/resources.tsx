@@ -84,7 +84,7 @@ class OpenApiResourceList extends React.Component<OasResourceListProps, OpenApiR
                 this.setState({
                     activeIndex: [],
                     expandAll: false
-                })
+                });
             } else if (!collapseOnExpandAll.includes(Number(data.index))) {
                 this.setState({
                     collapseOnExpandAll: [...this.state.collapseOnExpandAll, Number(data.index)]
