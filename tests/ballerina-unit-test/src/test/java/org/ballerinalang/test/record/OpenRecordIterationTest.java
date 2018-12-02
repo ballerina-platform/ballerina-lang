@@ -23,13 +23,10 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BFloatArray;
-import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefValueArray;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -114,17 +111,17 @@ public class OpenRecordIterationTest {
         String[] expectedFields = new String[]{"name", "age", "address"};
         BValue[] returns = BRunUtil.invoke(result, "testForeachWithOpenRecords");
 
-        BStringArray fields = (BStringArray) returns[0];
+        BValueArray fields = (BValueArray) returns[0];
         for (int i = 0; i < fields.size(); i++) {
-            Assert.assertEquals(fields.get(i), expectedFields[i]);
+            Assert.assertEquals(fields.getString(i), expectedFields[i]);
         }
 
-        BRefValueArray values = (BRefValueArray) returns[1];
-        Assert.assertEquals(values.get(0).stringValue(), "John Doe");
-        Assert.assertEquals(((BInteger) values.get(1)).intValue(), 25);
-        Assert.assertTrue(values.get(2) instanceof BMap);
+        BValueArray values = (BValueArray) returns[1];
+        Assert.assertEquals(values.getRefValue(0).stringValue(), "John Doe");
+        Assert.assertEquals(((BInteger) values.getRefValue(1)).intValue(), 25);
+        Assert.assertTrue(values.getRefValue(2) instanceof BMap);
 
-        BMap addressRecord = (BMap) values.get(2);
+        BMap addressRecord = (BMap) values.getRefValue(2);
         Assert.assertEquals(addressRecord.get("street").stringValue(), "Palm Grove");
         Assert.assertEquals(addressRecord.get("city").stringValue(), "Colombo 3");
     }
@@ -134,18 +131,18 @@ public class OpenRecordIterationTest {
         String[] expectedFields = new String[]{"name", "age", "address", "height"};
         BValue[] returns = BRunUtil.invoke(result, "testForeachWithOpenRecords2");
 
-        BStringArray fields = (BStringArray) returns[0];
+        BValueArray fields = (BValueArray) returns[0];
         for (int i = 0; i < fields.size(); i++) {
-            Assert.assertEquals(fields.get(i), expectedFields[i]);
+            Assert.assertEquals(fields.getString(i), expectedFields[i]);
         }
 
-        BRefValueArray values = (BRefValueArray) returns[1];
-        Assert.assertEquals(values.get(0).stringValue(), "John Doe");
-        Assert.assertEquals(((BInteger) values.get(1)).intValue(), 25);
-        Assert.assertTrue(values.get(2) instanceof BMap);
-        Assert.assertEquals(((BFloat) values.get(3)).floatValue(), 5.9);
+        BValueArray values = (BValueArray) returns[1];
+        Assert.assertEquals(values.getRefValue(0).stringValue(), "John Doe");
+        Assert.assertEquals(((BInteger) values.getRefValue(1)).intValue(), 25);
+        Assert.assertTrue(values.getRefValue(2) instanceof BMap);
+        Assert.assertEquals(((BFloat) values.getRefValue(3)).floatValue(), 5.9);
 
-        BMap addressRecord = (BMap) values.get(2);
+        BMap addressRecord = (BMap) values.getRefValue(2);
         Assert.assertEquals(addressRecord.get("street").stringValue(), "Palm Grove");
         Assert.assertEquals(addressRecord.get("city").stringValue(), "Colombo 3");
     }
@@ -239,12 +236,12 @@ public class OpenRecordIterationTest {
         Assert.assertEquals(foo.get("d").stringValue(), "dd");
         Assert.assertEquals(foo.get("e").stringValue(), "ee");
 
-        BStringArray fooArr = (BStringArray) returns[1];
-        Assert.assertEquals(fooArr.get(0), "aa");
-        Assert.assertEquals(fooArr.get(1), "bb");
-        Assert.assertEquals(fooArr.get(2), "cc");
-        Assert.assertEquals(fooArr.get(3), "dd");
-        Assert.assertEquals(fooArr.get(4), "ee");
+        BValueArray fooArr = (BValueArray) returns[1];
+        Assert.assertEquals(fooArr.getString(0), "aa");
+        Assert.assertEquals(fooArr.getString(1), "bb");
+        Assert.assertEquals(fooArr.getString(2), "cc");
+        Assert.assertEquals(fooArr.getString(3), "dd");
+        Assert.assertEquals(fooArr.getString(4), "ee");
     }
 
     @Test(description = "Test case for map op on open records with all int fields")
@@ -258,11 +255,11 @@ public class OpenRecordIterationTest {
         Assert.assertEquals(((BInteger) gradesMap.get("chemistry")).intValue(), 75);
         Assert.assertEquals(((BInteger) gradesMap.get("english")).intValue(), 88);
 
-        BIntArray gradesArr = (BIntArray) returns[1];
-        Assert.assertEquals(gradesArr.get(0), 90);
-        Assert.assertEquals(gradesArr.get(1), 85);
-        Assert.assertEquals(gradesArr.get(2), 75);
-        Assert.assertEquals(gradesArr.get(3), 88);
+        BValueArray gradesArr = (BValueArray) returns[1];
+        Assert.assertEquals(gradesArr.getInt(0), 90);
+        Assert.assertEquals(gradesArr.getInt(1), 85);
+        Assert.assertEquals(gradesArr.getInt(2), 75);
+        Assert.assertEquals(gradesArr.getInt(3), 88);
     }
 
     @Test(description = "Test case for map op on open records with all float fields")
@@ -277,11 +274,11 @@ public class OpenRecordIterationTest {
         Assert.assertEquals(((BFloat) gradesMap.get("z")).floatValue(), c + 10);
         Assert.assertEquals(((BFloat) gradesMap.get("p")).floatValue(), p + 10);
 
-        BFloatArray gradesArr = (BFloatArray) returns[1];
-        Assert.assertEquals(gradesArr.get(0), a + 10);
-        Assert.assertEquals(gradesArr.get(1), b + 10);
-        Assert.assertEquals(gradesArr.get(2), c + 10);
-        Assert.assertEquals(gradesArr.get(3), p + 10);
+        BValueArray gradesArr = (BValueArray) returns[1];
+        Assert.assertEquals(gradesArr.getFloat(0), a + 10);
+        Assert.assertEquals(gradesArr.getFloat(1), b + 10);
+        Assert.assertEquals(gradesArr.getFloat(2), c + 10);
+        Assert.assertEquals(gradesArr.getFloat(3), p + 10);
     }
 
     @Test(description = "Test case for filter op on open records with all string fields")
@@ -297,11 +294,11 @@ public class OpenRecordIterationTest {
         Assert.assertEquals(foo.get("e").stringValue(), e);
         Assert.assertEquals(foo.get("f").stringValue(), f);
 
-        BStringArray fooArr = (BStringArray) returns[1];
+        BValueArray fooArr = (BValueArray) returns[1];
         Assert.assertEquals(fooArr.size(), 3);
-        Assert.assertEquals(fooArr.get(0), a);
-        Assert.assertEquals(fooArr.get(1), e);
-        Assert.assertEquals(fooArr.get(2), f);
+        Assert.assertEquals(fooArr.getString(0), a);
+        Assert.assertEquals(fooArr.getString(1), e);
+        Assert.assertEquals(fooArr.getString(2), f);
     }
 
     @Test(description = "Test case for filter op on open records with all int fields")
@@ -315,11 +312,11 @@ public class OpenRecordIterationTest {
         Assert.assertNull(gradesMap.get("chemistry"));
         Assert.assertEquals(((BInteger) gradesMap.get("english")).intValue(), e);
 
-        BIntArray fooArr = (BIntArray) returns[1];
+        BValueArray fooArr = (BValueArray) returns[1];
         Assert.assertEquals(fooArr.size(), 3);
-        Assert.assertEquals(fooArr.get(0), m);
-        Assert.assertEquals(fooArr.get(1), p);
-        Assert.assertEquals(fooArr.get(2), e);
+        Assert.assertEquals(fooArr.getInt(0), m);
+        Assert.assertEquals(fooArr.getInt(1), p);
+        Assert.assertEquals(fooArr.getInt(2), e);
     }
 
     @Test(description = "Test case for map op on open records with all float fields")
@@ -334,11 +331,11 @@ public class OpenRecordIterationTest {
         Assert.assertNull(gradesMap.get("z"));
         Assert.assertEquals(((BFloat) gradesMap.get("p")).floatValue(), p);
 
-        BFloatArray gradesArr = (BFloatArray) returns[1];
+        BValueArray gradesArr = (BValueArray) returns[1];
         Assert.assertEquals(gradesArr.size(), 3);
-        Assert.assertEquals(gradesArr.get(0), a);
-        Assert.assertEquals(gradesArr.get(1), b);
-        Assert.assertEquals(gradesArr.get(2), p);
+        Assert.assertEquals(gradesArr.getFloat(0), a);
+        Assert.assertEquals(gradesArr.getFloat(1), b);
+        Assert.assertEquals(gradesArr.getFloat(2), p);
     }
 
     @Test(description = "Test case for terminal ops on open records with all int fields")

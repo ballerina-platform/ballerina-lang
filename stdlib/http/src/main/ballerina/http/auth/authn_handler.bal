@@ -19,7 +19,7 @@
 #
 # + name - Name of the http authn handler
 public type HttpAuthnHandler abstract object {
-    public string name;
+    public string name = "";
 
     # Checks if the request can be authenticated with the relevant `HttpAuthnHandler` implementation
     #

@@ -35,12 +35,13 @@ import org.ballerinalang.mime.util.EntityWrapper;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeConstants;
 import org.ballerinalang.mime.util.MimeUtil;
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructureType;
-import org.ballerinalang.model.values.BByteArray;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.net.http.HttpConstants;
@@ -109,12 +110,12 @@ public class Util {
      * From a given list of body parts get a ballerina value array.
      *
      * @param bodyParts List of body parts
-     * @return BRefValueArray representing an array of entities
+     * @return BValueArray representing an array of entities
      */
-    static BRefValueArray getArrayOfBodyParts(ArrayList<BMap<String, BValue>> bodyParts) {
+    static BValueArray getArrayOfBodyParts(ArrayList<BMap<String, BValue>> bodyParts) {
         BStructureType typeOfBodyPart = (BStructureType) bodyParts.get(0).getType();
         BMap<String, BValue>[] result = bodyParts.toArray(new BMap[bodyParts.size()]);
-        return new BRefValueArray(result, typeOfBodyPart);
+        return new BValueArray(result, new BArrayType(typeOfBodyPart));
     }
 
     /**
@@ -376,7 +377,7 @@ public class Util {
      * @param bodyParts  Represent body parts that needs to be added to multipart entity
      * @return A test carbon message to be used for invoking the service with.
      */
-    static HTTPTestRequest getCarbonMessageWithBodyParts(Map<String, Object> messageMap, BRefValueArray bodyParts) {
+    static HTTPTestRequest getCarbonMessageWithBodyParts(Map<String, Object> messageMap, BValueArray bodyParts) {
         HTTPTestRequest cMsg = (HTTPTestRequest) messageMap.get(CARBON_MESSAGE);
         BMap<String, BValue> request = (BMap<String, BValue>) messageMap.get(BALLERINA_REQUEST);
         BMap<String, BValue> entity = (BMap<String, BValue>) messageMap.get(MULTIPART_ENTITY);
@@ -429,8 +430,8 @@ public class Util {
         BMap<String, BValue> entityStruct = requestStruct.get(REQUEST_ENTITY_FIELD) != null ?
                 (BMap<String, BValue>) requestStruct.get(REQUEST_ENTITY_FIELD) : null;
         if (entityStruct != null) {
-            BRefValueArray bodyParts = entityStruct.getNativeData(BODY_PARTS) != null ?
-                    (BRefValueArray) entityStruct.getNativeData(BODY_PARTS) : null;
+            BValueArray bodyParts = entityStruct.getNativeData(BODY_PARTS) != null ?
+                    (BValueArray) entityStruct.getNativeData(BODY_PARTS) : null;
             if (bodyParts != null) {
                 HttpDataFactory dataFactory = new DefaultHttpDataFactory(DefaultHttpDataFactory.MINSIZE);
                 setDataFactory(dataFactory);
@@ -438,7 +439,7 @@ public class Util {
                     HttpPostRequestEncoder nettyEncoder = new HttpPostRequestEncoder(dataFactory,
                             outboundRequest.getNettyHttpRequest(), true);
                     for (int i = 0; i < bodyParts.size(); i++) {
-                        BMap<String, BValue> bodyPart = (BMap<String, BValue>) bodyParts.get(i);
+                        BMap<String, BValue> bodyPart = (BMap<String, BValue>) bodyParts.getRefValue(i);
                         encodeBodyPart(nettyEncoder, outboundRequest.getNettyHttpRequest(),
                                 bodyPart);
                     }
@@ -650,12 +651,18 @@ public class Util {
         Assert.assertEquals(textData.stringValue(), "Ballerina text body part");
 
         EntityBodyHandler.populateBodyContent(bodyPart, mimeParts.get(3));
-        BByteArray blobDataSource = EntityBodyHandler.constructBlobDataSource(bodyPart);
+        BValueArray blobDataSource = EntityBodyHandler.constructBlobDataSource(bodyPart);
         Assert.assertNotNull(blobDataSource);
 
         ByteArrayOutputStream outStream = new ByteArrayOutputStream();
         blobDataSource.serialize(outStream);
         Assert.assertEquals(new String(outStream.toByteArray(), StandardCharsets.UTF_8),
                 "Ballerina binary file part");
+    }
+
+    public static void verifyMimeError(BValue returnValue, String errMsg) {
+        Assert.assertEquals(((BError) returnValue).getReason(), MimeConstants.MIME_ERROR_CODE);
+        Assert.assertEquals(((BMap) ((BError) returnValue).getDetails()).get(MimeConstants.MIME_ERROR_MESSAGE)
+                .stringValue(), errMsg);
     }
 }

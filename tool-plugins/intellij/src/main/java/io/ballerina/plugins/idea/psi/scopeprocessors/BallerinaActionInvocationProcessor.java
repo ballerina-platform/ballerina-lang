@@ -23,19 +23,9 @@ import com.intellij.psi.PsiReference;
 import com.intellij.psi.ResolveState;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
-import io.ballerina.plugins.idea.psi.BallerinaEndpointDefinition;
-import io.ballerina.plugins.idea.psi.BallerinaEndpointParameter;
-import io.ballerina.plugins.idea.psi.BallerinaEndpointType;
-import io.ballerina.plugins.idea.psi.BallerinaNameReference;
-import io.ballerina.plugins.idea.psi.BallerinaServiceDefinition;
-import io.ballerina.plugins.idea.psi.BallerinaServiceEndpointAttachments;
-import io.ballerina.plugins.idea.psi.BallerinaTypeDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaTypes;
-import io.ballerina.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
 
 /**
  * Responsible for resolving and completing action invocations.
@@ -48,7 +38,7 @@ public class BallerinaActionInvocationProcessor extends BallerinaScopeProcessorB
     private final PsiElement myElement;
 
     public BallerinaActionInvocationProcessor(@Nullable CompletionResultSet result, @NotNull PsiElement element,
-                                              boolean isCompletion) {
+            boolean isCompletion) {
         super(element, element, isCompletion);
         myResult = result;
         myElement = element;
@@ -76,91 +66,6 @@ public class BallerinaActionInvocationProcessor extends BallerinaScopeProcessorB
                     PsiElement resolvedElement = reference.resolve();
                     if (resolvedElement == null) {
                         return true;
-                    }
-                    PsiElement definition = resolvedElement.getParent();
-                    if (definition instanceof BallerinaEndpointParameter) {
-                        BallerinaServiceDefinition ballerinaServiceDefinition =
-                                PsiTreeUtil.getParentOfType(resolvedElement, BallerinaServiceDefinition.class);
-                        if (ballerinaServiceDefinition == null) {
-                            return true;
-                        }
-                        PsiElement parent = null;
-
-                        BallerinaServiceEndpointAttachments serviceEndpointAttachments =
-                                ballerinaServiceDefinition.getServiceEndpointAttachments();
-                        if (serviceEndpointAttachments != null) {
-                            List<BallerinaNameReference> nameReferenceList =
-                                    serviceEndpointAttachments.getNameReferenceList();
-                            if (!nameReferenceList.isEmpty()) {
-                                BallerinaNameReference ballerinaNameReference = nameReferenceList.get(0);
-                                PsiElement type = BallerinaPsiImplUtil.getCachedType(ballerinaNameReference);
-                                if (type == null) {
-                                    return true;
-                                }
-                                parent = type.getParent();
-                            }
-                        }
-                        if (parent == null) {
-                            BallerinaNameReference nameReference = ballerinaServiceDefinition.getNameReference();
-                            if (nameReference == null) {
-                                return true;
-                            }
-                            PsiElement typeDefinition = BallerinaPsiImplUtil.getCachedType(nameReference);
-                            if (typeDefinition instanceof BallerinaTypeDefinition) {
-                                BallerinaTypeDefinition typeName = (BallerinaTypeDefinition) typeDefinition;
-                                parent = BallerinaPsiImplUtil.getReturnTypeFromObjectFunction(typeName, "getEndpoint");
-                            }
-                        }
-                        if (parent == null) {
-                            return true;
-                        }
-                        if (parent instanceof BallerinaTypeDefinition) {
-                            // Todo - Remove duplicate below
-                            BallerinaTypeDefinition clientConnector =
-                                    BallerinaPsiImplUtil.getReturnTypeFromObjectFunction((BallerinaTypeDefinition)
-                                            parent, "getCallerActions");
-                            if (clientConnector != null) {
-                                BallerinaObjectFunctionProcessor ballerinaObjectFunctionProcessor
-                                        = new BallerinaObjectFunctionProcessor(myResult, myElement, isCompletion());
-                                ballerinaObjectFunctionProcessor.execute(clientConnector, ResolveState.initial());
-                                PsiElement result = ballerinaObjectFunctionProcessor.getResult();
-                                if (!isCompletion() && result != null) {
-                                    add(result);
-                                }
-                                return false;
-                            }
-                        }
-                    } else if (definition instanceof BallerinaEndpointDefinition) {
-                        BallerinaEndpointType endpointType = ((BallerinaEndpointDefinition) definition)
-                                .getEndpointType();
-                        if (endpointType == null) {
-                            return true;
-                        }
-                        PsiElement identifier = endpointType.getNameReference().getIdentifier();
-                        PsiReference identifierReference = identifier.getReference();
-                        if (identifierReference == null) {
-                            return true;
-                        }
-                        PsiElement resolvedType = identifierReference.resolve();
-                        if (resolvedType == null || !(resolvedType.getParent() instanceof BallerinaTypeDefinition)) {
-                            return true;
-                        }
-
-                        // Todo - Remove duplicate above
-                        BallerinaTypeDefinition clientConnector =
-                                BallerinaPsiImplUtil.getReturnTypeFromObjectFunction((BallerinaTypeDefinition)
-                                        resolvedType.getParent(), "getCallerActions");
-                        if (clientConnector != null) {
-                            BallerinaObjectFunctionProcessor ballerinaObjectFunctionProcessor
-                                    = new BallerinaObjectFunctionProcessor(myResult, myElement, isCompletion());
-                            ballerinaObjectFunctionProcessor.execute(clientConnector, ResolveState.initial());
-                            PsiElement result = ballerinaObjectFunctionProcessor.getResult();
-                            if (!isCompletion() && result != null) {
-                                add(result);
-                            }
-                            return false;
-                        }
-                        return false;
                     }
                 }
             }

@@ -38,7 +38,7 @@ public class BLangFieldBasedAccess extends BLangAccessExpression implements Fiel
     public boolean except = true;
 
     @Override
-    public BLangVariableReference getExpression() {
+    public BLangExpression getExpression() {
         return expr;
     }
 

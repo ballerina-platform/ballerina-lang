@@ -1,7 +1,7 @@
 {
     "position": {
         "line": 14,
-        "character": 14
+        "character": 15
     },
     "newName": "newConnectionJson",
     "expected": [

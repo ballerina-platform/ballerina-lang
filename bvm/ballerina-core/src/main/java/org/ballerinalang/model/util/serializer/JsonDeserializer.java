@@ -25,9 +25,9 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.Serializable;
@@ -104,7 +104,7 @@ class JsonDeserializer implements BValueDeserializer {
                 addObjReference(jBMap, obj);
                 return obj;
             case TypeTags.ARRAY_TAG:
-                return deserializeBRefValueArray((BRefValueArray) jValue, targetType);
+                return deserializeBRefValueArray((BValueArray) jValue, targetType);
             case TypeTags.STRING_TAG:
                 return jValue.stringValue();
             case TypeTags.INT_TAG:
@@ -149,7 +149,7 @@ class JsonDeserializer implements BValueDeserializer {
      * @param targetType destination array type.
      * @return new array of targetType type, filled with data from valueArray.
      */
-    private Object deserializeBRefValueArray(BRefValueArray valueArray, Class<?> targetType) {
+    private Object deserializeBRefValueArray(BValueArray valueArray, Class<?> targetType) {
         int size = (int) valueArray.size();
         Class<?> componentType = targetType.getComponentType();
         Object target = Array.newInstance(componentType, size);
@@ -163,10 +163,10 @@ class JsonDeserializer implements BValueDeserializer {
      * @param destinationArray target array to be filled with valueArray's data.
      * @return {@code destinationArray} filled with data from valueArray.
      */
-    private Object deserializeBRefValueArray(BRefValueArray valueArray, Object destinationArray) {
+    private Object deserializeBRefValueArray(BValueArray valueArray, Object destinationArray) {
         Class<?> componentType = destinationArray.getClass().getComponentType();
         for (int i = 0; i < valueArray.size(); i++) {
-            Object obj = deserialize(valueArray.get(i), componentType);
+            Object obj = deserialize(valueArray.getRefValue(i), componentType);
             Array.set(destinationArray, i, obj);
         }
         return destinationArray;
@@ -229,11 +229,11 @@ class JsonDeserializer implements BValueDeserializer {
                 case MAP_TAG:
                     return deserializeMap((BMap<String, BValue>) valueNode, (Map) instance);
                 case LIST_TAG:
-                    return deserializeList((BRefValueArray) valueNode, targetType, (List) instance);
+                    return deserializeList((BValueArray) valueNode, targetType, (List) instance);
                 case ENUM_TAG:
                     return instance;
                 case ARRAY_TAG:
-                    return deserializeBRefValueArray((BRefValueArray) valueNode, instance);
+                    return deserializeBRefValueArray((BValueArray) valueNode, instance);
                 default:
                     // no op
             }
@@ -289,7 +289,7 @@ class JsonDeserializer implements BValueDeserializer {
      * @return instance of given type.
      */
     private Object createInstance(BMap<String, BValue> jsonNode, Class<?> target) {
-        if (Enum.class.isAssignableFrom(target)) {
+        if (target != null && Enum.class.isAssignableFrom(target)) {
             return createEnumInstance(jsonNode);
         }
         if (jsonNode.hasKey(TYPE_TAG)) {
@@ -366,7 +366,7 @@ class JsonDeserializer implements BValueDeserializer {
     }
 
     @SuppressWarnings("unchecked")
-    private Object deserializeList(BRefValueArray jArray, Class<?> targetType, List targetList) {
+    private Object deserializeList(BValueArray jArray, Class<?> targetType, List targetList) {
         Class<?> componentType = targetType.getComponentType();
         for (BRefType<?> value : jArray.getValues()) {
             Object item = deserialize(value, componentType);

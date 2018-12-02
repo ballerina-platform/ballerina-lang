@@ -42,7 +42,7 @@ The following code snippet depicts the usage of all the functions in the log API
 log:printError("error log");
 
 // Logs the message at ERROR level, along with an error record
-error e = {message: "error occurred"};
+error e = error("error occurred");
 log:printError("error log with cause", err = e);
 
 // Logs the message at WARN level

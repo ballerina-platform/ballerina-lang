@@ -32,7 +32,6 @@ import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,7 +51,7 @@ public class StructImpl extends AnnotatableNode implements Struct {
     StructImpl(BMap<String, BValue> value) {
         this.value = value;
         type = (BStructureType) value.getType();
-        Arrays.stream(type.getFields()).forEach(sf -> {
+        type.getFields().values().forEach(sf -> {
             final StructFieldImpl structField = new StructFieldImpl(sf.fieldName, sf.fieldType.getTag());
             setIndex(structField, indexes);
             structFields.put(sf.fieldName, structField);
@@ -101,6 +100,11 @@ public class StructImpl extends AnnotatableNode implements Struct {
             return null;
         }
         return new StructImpl(refField);
+    }
+
+    @Override
+    public BMap getServiceField(String fieldName) {
+        return (BMap) value.get(fieldName);
     }
 
     @Override

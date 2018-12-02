@@ -1,4 +1,4 @@
-json globalVar;
+json globalVar = {};
 
 public function main (string... args) {
     jsonData.address_components

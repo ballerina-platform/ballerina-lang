@@ -1,23 +1,31 @@
 {
   "position": {
-    "line": 13,
-    "character": 25
+    "line": 8,
+    "character": 23
   },
   "source": "service/source/serviceEndpointBind2.bal",
   "items": [
     {
-      "label":"cbrEP",
-      "kind":"Unit",
+      "label":"ep2",
+      "kind":"Variable",
       "detail":"ballerina/http:Listener",
       "sortText":"110",
-      "insertText":"cbrEP"
+      "insertText":"ep2"
     },
     {
-      "label":"locationEp",
-      "kind":"Unit",
-      "detail":"ballerina/http:Client",
+      "label":"ep1",
+      "kind":"Variable",
+      "detail":"ballerina/http:Listener",
       "sortText":"110",
-      "insertText":"locationEp"
+      "insertText":"ep1"
+    },
+    {
+      "label":"new",
+      "kind":"Keyword",
+      "detail":"Keyword",
+      "sortText":"210",
+      "insertText":"new ",
+      "insertTextFormat":"Snippet"
     }
   ]
 }

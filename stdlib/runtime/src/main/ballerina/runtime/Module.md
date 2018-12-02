@@ -86,7 +86,7 @@ function throwError1 () {
 
 function throwError2 () {
     // creates an error with a message
-    error e = { message: "error 2 occured" };
+    error e = error("error 2 occured");
     throw e;
 }
 

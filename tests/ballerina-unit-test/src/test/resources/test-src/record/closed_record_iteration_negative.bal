@@ -1,20 +1,20 @@
 type ClosedPerson record {
-    string name;
-    int age;
-    ClosedAddress address;
+    string name = "";
+    int age = 0;
+    ClosedAddress address = {};
     !...
 };
 
 type ClosedAddress record {
-    string street;
-    string city;
+    string street = "";
+    string city = "";
     !...
 };
 
 type ClosedGrades record {
-    int maths;
-    int physics;
-    int chemistry;
+    int maths = 0;
+    int physics = 0;
+    int chemistry = 0;
     !...
 };
 
@@ -55,7 +55,7 @@ function testInvalidForeachOpWithClosedRecords() {
 }
 
 function testInvalidMapOpWithClosedRecords() {
-    map newp = p.map(function (any entry) returns (string, any) {
+    map<any> newp = p.map(function (any entry) returns (string, any) {
         return ("", "");
     });
 
@@ -77,7 +77,7 @@ function testInvalidMapOpWithClosedRecords() {
 }
 
 function testInvalidFilterOpWithClosedRecords() {
-    map newp = p.filter(function ((string,any) entry) returns boolean {
+    map<any> newp = p.filter(function ((string,any) entry) returns boolean {
         return true;
     });
 

@@ -33,8 +33,8 @@ type Teacher record {
 Employee[] globalEmployeeArray = [];
 int employeeIndex = 0;
 
-stream<Employee> employeeStream;
-stream<Teacher> teacherStream;
+stream<Employee> employeeStream = new;
+stream<Teacher> teacherStream = new;
 
 function testOrderBy() {
     forever {
@@ -52,7 +52,7 @@ function testOrderBy() {
 function startOrderBy() returns (Employee[]) {
 
     int index = 0;
-    Teacher[] teachers;
+    Teacher[] teachers = [];
     testOrderBy();
 
     teachers[0] = {name:"Raja", age:71, status:"single", batch:"LK2014", school:"Hindu College"};
@@ -72,7 +72,7 @@ function startOrderBy() returns (Employee[]) {
         teacherStream.publish(teacher);
     }
 
-    while (lengthof globalEmployeeArray != 10 || index < 20) {
+    while (globalEmployeeArray.length() != 10 || index < 20) {
         index += 1;
         runtime:sleep(500);
     }
@@ -81,7 +81,7 @@ function startOrderBy() returns (Employee[]) {
 }
 
 function printEmployeeNumber(Employee e) {
-   addToGlobalEmployeeArray(e);
+    addToGlobalEmployeeArray(e);
 }
 
 function addToGlobalEmployeeArray(Employee e) {
@@ -93,8 +93,8 @@ function addToGlobalEmployeeArray(Employee e) {
 Employee[] globalEmployeeArray2 = [];
 int employeeIndex2 = 0;
 
-stream<Employee> employeeStream2;
-stream<Teacher> teacherStream2;
+stream<Employee> employeeStream2 = new;
+stream<Teacher> teacherStream2 = new;
 
 function testOrderBy2() {
     forever {
@@ -112,7 +112,7 @@ function testOrderBy2() {
 function startOrderBy2() returns (Employee[]) {
 
     int index = 0;
-    Teacher[] teachers;
+    Teacher[] teachers = [];
     testOrderBy2();
 
     teachers[0] = {name:"Raja", age:71, status:"single", batch:"LK2014", school:"Hindu College"};
@@ -132,7 +132,7 @@ function startOrderBy2() returns (Employee[]) {
         teacherStream2.publish(teacher);
     }
 
-    while (lengthof globalEmployeeArray2 != 10 || index < 20) {
+    while (globalEmployeeArray2.length() != 10 || index < 20) {
         index += 1;
         runtime:sleep(500);
     }
@@ -152,8 +152,8 @@ function addToGlobalEmployeeArray2(Employee e) {
 Employee[] globalEmployeeArray3 = [];
 int employeeIndex3 = 0;
 
-stream<Employee> employeeStream3;
-stream<Teacher> teacherStream3;
+stream<Employee> employeeStream3 = new;
+stream<Teacher> teacherStream3 = new;
 
 function testOrderBy3() {
     forever {
@@ -171,7 +171,7 @@ function testOrderBy3() {
 function startOrderBy3() returns (Employee[]) {
 
     int index = 0;
-    Teacher[] teachers;
+    Teacher[] teachers = [];
     testOrderBy3();
 
     teachers[0] = {name:"Raja", age:71, status:"single", batch:"LK2014", school:"Hindu College"};
@@ -191,7 +191,7 @@ function startOrderBy3() returns (Employee[]) {
         teacherStream3.publish(teacher);
     }
 
-    while (lengthof globalEmployeeArray3 != 10 || index < 20) {
+    while (globalEmployeeArray3.length() != 10 || index < 20) {
         index += 1;
         runtime:sleep(500);
     }
@@ -211,8 +211,8 @@ function addToGlobalEmployeeArray3(Employee e) {
 Employee[] globalEmployeeArray4 = [];
 int employeeIndex4 = 0;
 
-stream<Employee> employeeStream4;
-stream<Teacher> teacherStream4;
+stream<Employee> employeeStream4 = new;
+stream<Teacher> teacherStream4 = new;
 
 function testOrderBy4() {
     forever {
@@ -230,7 +230,7 @@ function testOrderBy4() {
 function startOrderBy4() returns (Employee[]) {
 
     int index = 0;
-    Teacher[] teachers;
+    Teacher[] teachers = [];
     testOrderBy4();
 
     teachers[0] = {name:"Raja", age:71, status:"single", batch:"LK2014", school:"Hindu College"};
@@ -250,7 +250,7 @@ function startOrderBy4() returns (Employee[]) {
         teacherStream4.publish(teacher);
     }
 
-    while (lengthof globalEmployeeArray4 != 10 || index < 20) {
+    while (globalEmployeeArray4.length() != 10 || index < 20) {
         index += 1;
         runtime:sleep(500);
     }
@@ -270,8 +270,8 @@ function addToGlobalEmployeeArray4(Employee e) {
 Employee[] globalEmployeeArray5 = [];
 int employeeIndex5 = 0;
 
-stream<Employee> employeeStream5;
-stream<Teacher> teacherStream5;
+stream<Employee> employeeStream5 = new;
+stream<Teacher> teacherStream5 = new;
 
 function testOrderBy5() {
     forever {
@@ -289,7 +289,7 @@ function testOrderBy5() {
 function startOrderBy5() returns (Employee[]) {
 
     int index = 0;
-    Teacher[] teachers;
+    Teacher[] teachers = [];
     testOrderBy5();
 
     teachers[0] = {name:"Raja", age:71, status:"single", batch:"LK2014", school:"Hindu College"};
@@ -309,7 +309,7 @@ function startOrderBy5() returns (Employee[]) {
         teacherStream5.publish(teacher);
     }
 
-    while (lengthof globalEmployeeArray5 != 10 || index < 20) {
+    while (globalEmployeeArray5.length() != 10 || index < 20) {
         index += 1;
         runtime:sleep(500);
     }

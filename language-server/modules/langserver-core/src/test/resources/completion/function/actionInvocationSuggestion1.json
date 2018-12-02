@@ -1,7 +1,7 @@
 {
   "position": {
-    "line": 7,
-    "character": 12
+    "line": 13,
+    "character": 16
   },
   "source": "function/source/actionInvocationSuggestion1.bal",
   "items": [
@@ -9,6 +9,7 @@
       "label":"post(string path, ballerina/http:Request|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[]? message)(ballerina/http:Response|error)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"The `post()` function can be used to send HTTP POST requests to HTTP endpoints.\n",
       "sortText":"120",
       "insertText":"post(${1:path}, ${2:message})",
       "insertTextFormat":"Snippet"
@@ -17,6 +18,7 @@
       "label":"head(string path, ballerina/http:Request|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[]? message \u003d ())(ballerina/http:Response|error)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"The `head()` function can be used to send HTTP HEAD requests to HTTP endpoints.\n",
       "sortText":"120",
       "insertText":"head(${1:path}, message \u003d ${2:()})",
       "insertTextFormat":"Snippet"
@@ -25,6 +27,7 @@
       "label":"put(string path, ballerina/http:Request|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[]? message)(ballerina/http:Response|error)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"The `put()` function can be used to send HTTP PUT requests to HTTP endpoints.\n",
       "sortText":"120",
       "insertText":"put(${1:path}, ${2:message})",
       "insertTextFormat":"Snippet"
@@ -33,6 +36,7 @@
       "label":"execute(string httpVerb, string path, ballerina/http:Request|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[]? message)(ballerina/http:Response|error)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Invokes an HTTP call with the specified HTTP verb.\n",
       "sortText":"120",
       "insertText":"execute(${1:httpVerb}, ${2:path}, ${3:message})",
       "insertTextFormat":"Snippet"
@@ -41,6 +45,7 @@
       "label":"patch(string path, ballerina/http:Request|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[]? message)(ballerina/http:Response|error)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"The `patch()` function can be used to send HTTP PATCH requests to HTTP endpoints.\n",
       "sortText":"120",
       "insertText":"patch(${1:path}, ${2:message})",
       "insertTextFormat":"Snippet"
@@ -49,6 +54,7 @@
       "label":"delete(string path, ballerina/http:Request|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[]? message)(ballerina/http:Response|error)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"The `delete()` function can be used to send HTTP DELETE requests to HTTP endpoints.\n",
       "sortText":"120",
       "insertText":"delete(${1:path}, ${2:message})",
       "insertTextFormat":"Snippet"
@@ -57,6 +63,7 @@
       "label":"get(string path, ballerina/http:Request|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[]? message \u003d ())(ballerina/http:Response|error)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"The `get()` function can be used to send HTTP GET requests to HTTP endpoints.\n",
       "sortText":"120",
       "insertText":"get(${1:path}, message \u003d ${2:()})",
       "insertTextFormat":"Snippet"
@@ -65,6 +72,7 @@
       "label":"options(string path, ballerina/http:Request|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[]? message \u003d ())(ballerina/http:Response|error)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"The `options()` function can be used to send HTTP OPTIONS requests to HTTP endpoints.\n",
       "sortText":"120",
       "insertText":"options(${1:path}, message \u003d ${2:()})",
       "insertTextFormat":"Snippet"
@@ -73,6 +81,7 @@
       "label":"forward(string path, http:Request request)(ballerina/http:Response|error)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"The `forward()` function can be used to invoke an HTTP call with inbound request\u0027s HTTP verb\n",
       "sortText":"120",
       "insertText":"forward(${1:path}, ${2:request})",
       "insertTextFormat":"Snippet"
@@ -81,6 +90,7 @@
       "label":"submit(string httpVerb, string path, ballerina/http:Request|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[]? message)(ballerina/http:HttpFuture|error)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Submits an HTTP request to a service with the specified HTTP verb.\nThe `submit()` function does not give out a `Response` as the result,\nrather it returns an `HttpFuture` which can be used to do further interactions with the endpoint.\n",
       "sortText":"120",
       "insertText":"submit(${1:httpVerb}, ${2:path}, ${3:message})",
       "insertTextFormat":"Snippet"
@@ -89,6 +99,7 @@
       "label":"getResponse(http:HttpFuture httpFuture)(ballerina/http:Response|error)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"This just pass the request to actual network call.\n",
       "sortText":"120",
       "insertText":"getResponse(${1:httpFuture})",
       "insertTextFormat":"Snippet"
@@ -97,6 +108,7 @@
       "label":"hasPromise(http:HttpFuture httpFuture)(boolean)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"This just pass the request to actual network call.\n",
       "sortText":"120",
       "insertText":"hasPromise(${1:httpFuture})",
       "insertTextFormat":"Snippet"
@@ -105,6 +117,7 @@
       "label":"getNextPromise(http:HttpFuture httpFuture)(ballerina/http:PushPromise|error)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"This just pass the request to actual network call.\n",
       "sortText":"120",
       "insertText":"getNextPromise(${1:httpFuture})",
       "insertTextFormat":"Snippet"
@@ -113,6 +126,7 @@
       "label":"getPromisedResponse(http:PushPromise promise)(ballerina/http:Response|error)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"This just pass the request to actual network call.\n",
       "sortText":"120",
       "insertText":"getPromisedResponse(${1:promise})",
       "insertTextFormat":"Snippet"
@@ -121,6 +135,7 @@
       "label":"rejectPromise(http:PushPromise promise)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"This just pass the request to actual network call.\n",
       "sortText":"120",
       "insertText":"rejectPromise(${1:promise})",
       "insertTextFormat":"Snippet"

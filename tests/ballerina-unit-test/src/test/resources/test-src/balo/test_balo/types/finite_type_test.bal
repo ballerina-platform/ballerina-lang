@@ -88,10 +88,11 @@ function finiteAssignmentRefValueTypeCaseTwo() returns foo:POrInt {
 }
 
 function testFiniteTypeWithMatch() returns foo:PreparedResult {
-    match foo() {
-        foo:PreparedResult x => return x;
-        () => return "qqq";
-        error => return "qqq";
+    var x = foo();
+    if (x is foo:PreparedResult) {
+        return x;
+    } else {
+        return "qqq";
     }
 }
 
@@ -170,12 +171,12 @@ function testVarArgs(foo:ParamTest... p1) returns foo:ParamTest {
 
 function testTypeDefinitionWithArray() returns (int, int) {
     foo:ArrayCustom val = [34, 23];
-    return (lengthof val , val[1]);
+    return (val.length() , val[1]);
 }
 
 function testTypeDefinitionWithByteArray() returns (int, byte) {
     foo:ByteArrayType val = [34, 23];
-    return (lengthof val , val[1]);
+    return (val.length() , val[1]);
 }
 
 function testFiniteAssignmentByteType() returns foo:ByteType {

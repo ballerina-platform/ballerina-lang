@@ -21,10 +21,11 @@ package org.ballerinalang.test.net.websub;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -56,10 +57,10 @@ public class WebSubDiscoveryResponseParserTest {
         Assert.assertEquals(returns.length, 2);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), TOPIC_ONE, "incorrect topic extraction from discovery response");
-        Assert.assertTrue(returns[1] instanceof BStringArray);
-        BStringArray hubs = (BStringArray) returns[1];
+        Assert.assertTrue(returns[1] instanceof BValueArray);
+        BValueArray hubs = (BValueArray) returns[1];
         Assert.assertEquals(hubs.size(), 1, "incorrect no. of hubs extracted from discovery response");
-        Assert.assertEquals(hubs.get(0), HUB_ONE, "incorrect hub extraction from discovery response");
+        Assert.assertEquals(hubs.getString(0), HUB_ONE, "incorrect hub extraction from discovery response");
     }
 
     @Test(description = "Test discovery parsing for topic and multiple hubs",
@@ -69,20 +70,20 @@ public class WebSubDiscoveryResponseParserTest {
         Assert.assertEquals(returns.length, 2);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), TOPIC_ONE, "incorrect topic extraction from discovery response");
-        Assert.assertTrue(returns[1] instanceof BStringArray);
-        BStringArray hubs = (BStringArray) returns[1];
+        Assert.assertTrue(returns[1] instanceof BValueArray);
+        BValueArray hubs = (BValueArray) returns[1];
         Assert.assertEquals(hubs.size(), 3, "incorrect no. of hubs extracted from discovery response");
-        Assert.assertEquals(hubs.get(0), HUB_ONE, "incorrect first hub extraction from discovery response");
-        Assert.assertEquals(hubs.get(1), HUB_TWO, "incorrect second hub extraction from discovery response");
-        Assert.assertEquals(hubs.get(2), HUB_THREE, "incorrect third hub extraction from discovery response");
+        Assert.assertEquals(hubs.getString(0), HUB_ONE, "incorrect first hub extraction from discovery response");
+        Assert.assertEquals(hubs.getString(1), HUB_TWO, "incorrect second hub extraction from discovery response");
+        Assert.assertEquals(hubs.getString(2), HUB_THREE, "incorrect third hub extraction from discovery response");
     }
 
     @Test(description = "Test discovery parsing with unavailable topic", dataProvider = "topicUnavailableTests")
     public void testUnavailableTopic(String testFunction) {
         BValue[] returns = BRunUtil.invoke(result, testFunction, new BValue[0]);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BMap);
-        Assert.assertEquals(((BMap) returns[0]).get("message").stringValue(),
+        Assert.assertTrue(returns[0] instanceof BError);
+        Assert.assertEquals(((BMap) ((BError) returns[0]).getDetails()).get("message").stringValue(),
                             "Hub and/or Topic URL(s) not identified in link header of discovery response",
                             "invalid error message on unavailable topic");
     }
@@ -91,8 +92,8 @@ public class WebSubDiscoveryResponseParserTest {
     public void testUnavailableHub(String testFunction) {
         BValue[] returns = BRunUtil.invoke(result, testFunction, new BValue[0]);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BMap);
-        Assert.assertEquals(((BMap) returns[0]).get("message").stringValue(),
+        Assert.assertTrue(returns[0] instanceof BError);
+        Assert.assertEquals(((BMap) ((BError) returns[0]).getDetails()).get("message").stringValue(),
                             "Hub and/or Topic URL(s) not identified in link header of discovery response",
                             "invalid error message on unavailable hub");
     }
@@ -101,8 +102,8 @@ public class WebSubDiscoveryResponseParserTest {
     public void testMissingLinkHeader() {
         BValue[] returns = BRunUtil.invoke(result, "testMissingLinkHeader", new BValue[0]);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BMap);
-        Assert.assertEquals(((BMap) returns[0]).get("message").stringValue(),
+        Assert.assertTrue(returns[0] instanceof BError);
+        Assert.assertEquals(((BMap) ((BError) returns[0]).getDetails()).get("message").stringValue(),
                             "Link header unavailable in discovery response",
                             "invalid error message on unavailable link headers(s)");
     }
@@ -111,8 +112,8 @@ public class WebSubDiscoveryResponseParserTest {
     public void testMultipleTopics(String testFunction) {
         BValue[] returns = BRunUtil.invoke(result, testFunction, new BValue[0]);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BMap);
-        Assert.assertEquals(((BMap) returns[0]).get("message").stringValue(),
+        Assert.assertTrue(returns[0] instanceof BError);
+        Assert.assertEquals(((BMap) ((BError) returns[0]).getDetails()).get("message").stringValue(),
                             "Link Header contains > 1 self URLs",
                             "invalid error message on > 1 topics");
     }

@@ -20,6 +20,8 @@ package org.ballerinalang.model.values;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 
+import java.util.Map;
+
 /**
  * {@code {@link BIterator}} represents a Iterator of a Ballerina {@code {@link BCollection}}.
  *
@@ -55,7 +57,12 @@ public interface BIterator extends BRefType {
     }
 
     @Override
-    default BValue copy() {
+    default void stamp(BType type) {
+
+    }
+
+    @Override
+    default BValue copy(Map<BValue, BValue> refs) {
         return null;
     }
 

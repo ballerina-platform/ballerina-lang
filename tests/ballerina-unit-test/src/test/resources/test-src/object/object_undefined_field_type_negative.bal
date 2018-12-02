@@ -1,6 +1,6 @@
 type Person object {
-    int age;
-    Employee emp;
+    private int age;
+    private Employee emp;
 };
 
 function test() {

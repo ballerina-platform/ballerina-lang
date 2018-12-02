@@ -2,7 +2,7 @@ type TestObject object {
     function testFunction (string input) returns string;
 };
 
-function TestObject::testFunction (string input) returns @untainted string {
+function TestObject.testFunction (string input) returns @untainted string {
     TestObject testObj = new;
     return testObj.testFunction(input);
 }

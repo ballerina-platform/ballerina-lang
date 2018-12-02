@@ -27,14 +27,14 @@ type RequestCount record {
     boolean test;
 };
 
-stream<ClientRequest> requestStream;
+stream<ClientRequest> requestStream = new;
 RequestCount[] globalRequestsArray = [];
 int requestCount = 0;
 
 function initRealtimeRequestCounter() {
 
-    stream<RequestCount> requestCountStream;
-    stream<RequestCount> requestCountStream2;
+    stream<RequestCount> requestCountStream = new;
+    stream<RequestCount> requestCountStream2 = new;
 
     // Whenever the `requestCountStream` stream receives an event from the streaming rules defined in the `forever` block,
     // the `printRequestCount` function is invoked.
@@ -85,7 +85,7 @@ function startStreamingQuery() returns (RequestCount[]) {
     while(true) {
         runtime:sleep(500);
         count += 1;
-        if((lengthof globalRequestsArray) > 0 || count == 10) {
+        if((globalRequestsArray.length()) > 0 || count == 10) {
             break;
         }
     }

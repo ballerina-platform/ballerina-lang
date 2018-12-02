@@ -48,20 +48,20 @@ import java.util.stream.Collectors;
 public class ParserRuleConditionalClauseContextResolver extends AbstractItemResolver {
     
     @Override
-    public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
+    public List<CompletionItem> resolveItems(LSServiceOperationContext context) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         Either<List<CompletionItem>, List<SymbolInfo>> itemList;
-        if (isInvocationOrInteractionOrFieldAccess(completionContext)) {
-            itemList = SymbolFilters.get(DelimiterBasedContentFilter.class).filterItems(completionContext);
+        if (isInvocationOrInteractionOrFieldAccess(context)) {
+            itemList = SymbolFilters.get(DelimiterBasedContentFilter.class).filterItems(context);
         } else {
-            List<SymbolInfo> symbolInfoList = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
+            List<SymbolInfo> symbolInfoList = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
             symbolInfoList.removeIf(CommonUtil.invalidSymbolsPredicate());
             itemList = Either.forRight(this.filterConditionalSymbols(symbolInfoList));
             this.populateTrueFalseKeywords(completionItems);
         }
 
-        completionItems.addAll(this.getCompletionsFromEither(itemList));
-        ItemSorters.get(ConditionalStatementItemSorter.class).sortItems(completionContext, completionItems);
+        completionItems.addAll(this.getCompletionsFromEither(itemList, context));
+        ItemSorters.get(ConditionalStatementItemSorter.class).sortItems(context, completionItems);
 
         return completionItems;
     }

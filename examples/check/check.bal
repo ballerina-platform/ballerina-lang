@@ -15,7 +15,7 @@ function getAddress(Person p) returns (Address|error) {
     match (p.address) {
         Address add => { return add;}
         () => {
-            error addNotFoundErr = { message: "address not found" };
+            error addNotFoundErr = error("address not found");
             return addNotFoundErr;
         }
     }

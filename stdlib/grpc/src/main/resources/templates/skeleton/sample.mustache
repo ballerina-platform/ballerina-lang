@@ -1,30 +1,24 @@
-import ballerina/io;
 import ballerina/grpc;
+import ballerina/io;
 
 public function main (string... args) {
-     endpoint {{serviceName}}Client ep {
-        url:"http://localhost:9090"
-     };
+     {{serviceName}}Client ep = new("http://localhost:9090");
 {{#if blockingEP}}
-    endpoint {{serviceName}}BlockingClient blockingEp {
-        url:"http://localhost:9090"
-    };
+    {{serviceName}}BlockingClient blockingEp = new("http://localhost:9090");
 {{/if}}
 }
 
-service<grpc:Service> {{serviceName}}MessageListener {
+service {{serviceName}}MessageListener = service {
 
-    onMessage (string message) {
+    resource function onMessage(string message) {
         io:println("Response received from server: " + message);
     }
 
-    onError (error err) {
-        if (err != ()) {
-            io:println("Error reported from server: " + err.message);
-        }
+    resource function onError(error err) {
+        io:println("Error from Connector: " + err.reason() + " - " + <string>err.detail().message);
     }
 
-    onComplete () {
+    resource function onComplete() {
         io:println("Server Complete Sending Responses.");
     }
-}
+};

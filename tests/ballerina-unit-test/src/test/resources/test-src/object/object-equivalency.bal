@@ -4,14 +4,14 @@ import req;
 import req2;
 
 public type person1 object {
-    public int age;
-    public string name;
-    public string address;
+    public int age = 0;
+    public string name = "";
+    public string address = "";
     public string zipcode = "95134";
-    public string ssn;
-    public int id;
+    public string ssn = "";
+    public int id = 0;
 
-    public new () {}
+    public function __init () {}
 
     public function getName () returns (string);
 
@@ -22,32 +22,35 @@ public type person1 object {
     public function setSSN (string s);
 };
 
-function person1::getName () returns (string) {
+function person1.getName () returns (string) {
     return self.name;
 }
 
-function person1::getAge () returns (int) {
+function person1.getAge () returns (int) {
     return self.age;
 }
 
-function person1::getSSN () returns (string) {
+function person1.getSSN () returns (string) {
     return self.ssn;
 }
 
-function person1::setSSN (string s) {
+function person1.setSSN (string s) {
     self.ssn = s;
 }
 
 public type employee1 object {
-    public int age;
-    public string name;
-    public string address;
+    public int age = 0;
+    public string name = "";
+    public string address = "";
     public string zipcode = "95134";
-    public string ssn;
-    public int id;
+    public string ssn = "";
+    public int id = 0;
     public int employeeId = 123456;
 
-    public new (age, name){}
+    public function __init (int age, string name) {
+        self.age = age;
+        self.name = name;
+    }
 
     public function getName () returns (string);
 
@@ -60,23 +63,23 @@ public type employee1 object {
     public function getEmployeeId () returns (int);
 };
 
-function employee1::getName () returns (string) {
+function employee1.getName () returns (string) {
     return self.name;
 }
 
-function employee1::getAge () returns (int) {
+function employee1.getAge () returns (int) {
     return self.age;
 }
 
-function employee1::getSSN () returns (string) {
+function employee1.getSSN () returns (string) {
     return self.ssn + ":employee";
 }
 
-function employee1::setSSN (string s) {
+function employee1.setSSN (string s) {
     self.ssn = s;
 }
 
-function employee1::getEmployeeId () returns (int) {
+function employee1.getEmployeeId () returns (int) {
     return self.employeeId;
 }
 
@@ -85,18 +88,18 @@ function testEquivalenceOfPrivateStructsInSamePackage () returns (string) {
     employee1 e = new (14, "rat");
     e.setSSN("234-56-7890");
 
-    person1 p = <person1>e;
+    person1 p = e;
 
     return p.getSSN();
 }
 
 public type person2 object {
-    public int age;
-    public string name;
-    public string address;
+    public int age = 0;
+    public string name = "";
+    public string address = "";
     public string zipcode = "95134";
-    public string ssn;
-    public int id;
+    public string ssn = "";
+    public int id = 0;
 
     public function getName () returns (string);
 
@@ -107,29 +110,29 @@ public type person2 object {
     public function setSSN (string s);
 };
 
-function person2::getName () returns (string) {
+function person2.getName () returns (string) {
     return self.name;
 }
 
-function person2::getAge () returns (int) {
+function person2.getAge () returns (int) {
     return self.age;
 }
 
-function person2::getSSN () returns (string) {
+function person2.getSSN () returns (string) {
     return self.ssn;
 }
 
-function person2::setSSN (string s) {
+function person2.setSSN (string s) {
     self.ssn = s;
 }
 
 public type employee2 object {
-    public int age;
-    public string name;
-    public string address;
+    public int age = 0;
+    public string name = "";
+    public string address = "";
     public string zipcode = "95134";
-    public string ssn;
-    public int id;
+    public string ssn = "";
+    public int id = 0;
     public int employeeId = 123456;
 
     public function getName () returns (string);
@@ -143,23 +146,23 @@ public type employee2 object {
     public function getEmployeeId () returns (int);
 };
 
-function employee2::getName () returns (string) {
+function employee2.getName () returns (string) {
     return self.name;
 }
 
-function employee2::getAge () returns (int) {
+function employee2.getAge () returns (int) {
     return self.age;
 }
 
-function employee2::getSSN () returns (string) {
+function employee2.getSSN () returns (string) {
     return self.ssn + ":employee";
 }
 
-function employee2::setSSN (string s) {
+function employee2.setSSN (string s) {
     self.ssn = s;
 }
 
-function employee2::getEmployeeId () returns (int) {
+function employee2.getEmployeeId () returns (int) {
     return self.employeeId;
 }
 
@@ -169,7 +172,7 @@ function testEquivalenceOfPublicStructsInSamePackage () returns (string) {
     e.name = "rat";
     e.setSSN("234-56-7890");
 
-    person2 p = <person2>e;
+    person2 p = e;
 
     return p.getSSN();
 }
@@ -179,19 +182,19 @@ function testEqOfPublicStructs () returns (string) {
     eq:employee e = new (14, "rat");
     e.setSSN("234-56-7890");
 
-    eq:person p = <eq:person>e;
+    eq:person p = e;
 
     return p.getSSN();
 }
 
 
 public type employee3 object {
-    public int age;
-    public string name;
-    public string address;
+    public int age = 0;
+    public string name = "";
+    public string address = "";
     public string zipcode = "95134";
-    public string ssn;
-    public int id;
+    public string ssn = "";
+    public int id = 0;
     public int employeeId = 123456;
 
     public function getName () returns (string);
@@ -205,23 +208,23 @@ public type employee3 object {
     public function getEmployeeId () returns (int);
 };
 
-function employee3::getName () returns (string) {
+function employee3.getName () returns (string) {
     return self.name;
 }
 
-function employee3::getAge () returns (int) {
+function employee3.getAge () returns (int) {
     return self.age;
 }
 
-function employee3::getSSN () returns (string) {
+function employee3.getSSN () returns (string) {
     return self.ssn + ":employee";
 }
 
-function employee3::setSSN (string s) {
+function employee3.setSSN (string s) {
     self.ssn = s;
 }
 
-function employee3::getEmployeeId () returns (int) {
+function employee3.getEmployeeId () returns (int) {
     return self.employeeId;
 }
 
@@ -231,7 +234,7 @@ function testEqOfPublicStructs1 () returns (string) {
     e.name = "rat";
     e.setSSN("234-56-1234");
 
-    eq:person p = <eq:person>e;
+    eq:person p = e;
 
     return p.getSSN();
 }
@@ -242,7 +245,7 @@ function testEqOfPublicStructs2 () returns (string) {
     e.name = "rat";
     e.setSSN("234-56-3345");
 
-    eq:person p = <eq:person>e;
+    eq:person p = e;
 
     return p.getSSN();
 }
@@ -251,44 +254,45 @@ function testEqOfPublicStructs2 () returns (string) {
 
 
 type userA object {
-    public int age;
-    public string name;
+    public int age = 0;
+    public string name = "";
+    public string address = "";
 
     function getName () returns (string);
 
     function getAge () returns (int);
 };
 
-function userA::getName () returns (string) {
+function userA.getName () returns (string) {
     return self.name;
 }
 
-function userA::getAge () returns (int) {
+function userA.getAge () returns (int) {
     return self.age;
 }
 
 type userB object {
-    public int age;
-    public string name;
-    public string address;
+    public int age = 0;
+    public string name = "";
+    public string address = "";
 
     function getName () returns (string);
 
     function getAge () returns (int);
 };
 
-function userB::getName () returns (string) {
+function userB.getName () returns (string) {
     return self.name;
 }
 
-function userB::getAge () returns (int) {
+function userB.getAge () returns (int) {
     return self.age;
 }
 
 type userFoo object {
-    public int age;
-    public string name;
-    public string address;
+    public int age = 0;
+    public string name = "";
+    public string address = "";
     public string zipcode = "23468";
 
     function getName () returns (string);
@@ -296,69 +300,71 @@ type userFoo object {
     function getAge () returns (int);
 };
 
-function userFoo::getName () returns (string) {
+function userFoo.getName () returns (string) {
     return self.name;
 }
 
-function userFoo::getAge () returns (int) {
+function userFoo.getAge () returns (int) {
     return self.age;
 }
 
 
-function testRuntimeEqPrivateStructsInSamePackage () returns (string) {
+function testRuntimeEqPrivateStructsInSamePackage () returns (string|error) {
     userFoo uFoo = new;
     uFoo.age = 10;
     uFoo.name = "ttt";
     uFoo.address = "102 Skyhigh street #129, San Jose";
 
-    // This is a safe cast
-    var uA = <userA>uFoo;
+    // This is a safe assignment
+    userA uA = uFoo;
 
-    // This is a unsafe cast
-    var uB =check <userB>uA;
+    userB uB = uA;
     return uB.name;
 }
 
 
 public type userPA object {
-    public int age;
-    public string name;
+    public int age = 0;
+    public string name = "";
+    public string address = "";
+    public string zipcode = "";
 
     public function getName () returns (string);
 
     public function getAge () returns (int);
 };
 
-function userPA::getName () returns (string) {
+function userPA.getName () returns (string) {
     return self.name;
 }
 
-function userPA::getAge () returns (int) {
+function userPA.getAge () returns (int) {
     return self.age;
 }
 
 public type userPB object {
-    public int age;
-    public string name;
-    public string address;
+    public int age = 0;
+    public string name = "";
+    public string address = "";
+    public string zipcode = "";
 
     public function getName () returns (string);
 
     public function getAge () returns (int);
 };
 
-function userPB::getName () returns (string) {
+function userPB.getName () returns (string) {
     return self.name;
 }
 
-function userPB::getAge () returns (int) {
+function userPB.getAge () returns (int) {
     return self.age;
 }
 
 public type userPFoo object {
-    public int age;
-    public string name;
-    public string address;
+    public int age = 0;
+    public string name = "";
+    public string address = "";
     public string zipcode = "23468";
 
     public function getName () returns (string);
@@ -366,11 +372,11 @@ public type userPFoo object {
     public function getAge () returns (int);
 };
 
-function userPFoo::getName () returns (string) {
+function userPFoo.getName () returns (string) {
     return self.name;
 }
 
-function userPFoo::getAge () returns (int) {
+function userPFoo.getAge () returns (int) {
     return self.age;
 }
 
@@ -381,82 +387,69 @@ function testRuntimeEqPublicStructsInSamePackage () returns (string) {
     uFoo.name = "Skyhigh";
     uFoo.address = "102 Skyhigh street #129, San Jose";
 
-    // This is a safe cast
-    var uA = <userPA>uFoo;
+    // This is a safe assignment
+    userPA uA = uFoo;
 
-    // This is a unsafe cast
-    var uB = <userPB>uA;
-    match uB {
-        error err => return err.message;
-        userPB user=> return user.name;
-    }
+    userPB uB = uA;
+    return uB.name;
 }
 
 function testRuntimeEqPublicStructs () returns (string) {
     req:userPFoo uFoo = new (10, "Skytop", "102 Skyhigh street #129, San Jose");
 
-    // This is a safe cast
-    var uA = <userPA>uFoo;
+    // This is a safe assignment
+    userPA uA = uFoo;
 
-    // This is a unsafe cast
-    var uB  = <userPB>uA;
-    match uB {
-        error err => return err.message;
-        userPB user=> return user.name;
-    }
+    userPB uB  = uA;
+    return uB.name;
 }
 
 function testRuntimeEqPublicStructs1 () returns (string) {
     req:userPFoo uFoo = new (10, "Brandon", "102 Skyhigh street #129, San Jose");
 
-    // This is a safe cast
-    var uA = <userPA>uFoo;
+    // This is a safe assignment
+    userPA uA = uFoo;
 
-    // This is a unsafe cast
-    var uB  = <req2:userPB>uA;
-    match uB {
-        error err => return err.message;
-        req2:userPB user=> return user.getName();
-    }
+    return uA.getName();
 }
 
 type personC object {
-    public string name;
-    public addressStruct address;
+    public string name = "";
+    public addressStruct address = new;
 
     function setContact(addressStruct ad);
 
     function getAddress() returns (string);
 };
 
-function personC::setContact(addressStruct ad){
+function personC.setContact(addressStruct ad){
     self.address = ad;
 }
 
-function personC::getAddress() returns (string){
+function personC.getAddress() returns (string){
     return self.address.toString();
 }
 
 type addressStruct object {
-    public int no;
-    public string city;
+    public int no = 0;
+    public string city = "";
 
     function toString() returns (string);
 };
 
-function addressStruct::toString() returns (string){
+function addressStruct.toString() returns (string){
     return self.no + self.city;
 }
 
 type officeAddressStruct object {
-    public int no;
-    public string city;
-    public string department;
+    public int no = 0;
+    public string city = "";
+    public string department = "";
 
     function toString() returns (string);
 };
 
-function officeAddressStruct::toString() returns (string){
+function officeAddressStruct.toString() returns (string){
     return self.department + self.no + self.city;
 }
 
@@ -483,59 +476,61 @@ function testStructEquivalencyWithArguments() returns (string, string, string){
     return (result1, result2, result3);
 }
 
-function testStructEquivalencyWithFunctionType () returns (string, string) {
+function testStructEquivalencyWithFunctionType () returns (string, string)|error {
     string s1;
     string s2;
     SomeOtherStruct x = new;
     x.s = "sss";
     AnyStruct aa = new;
-    s1 = aa.shout(x);
+    s1 = check aa.shout(x);
     _ = aa.call();
 
     SomeStruct ss = new;
     ss.s = "s";
     AnyStruct aaa = ss;
-    s2 = aaa.shout(x);
+    s2 = check aaa.shout(x);
     _ = aaa.call();
     return (s1,s2);
 }
 
 type AnyStruct object {
-    function shout (AnotherAnyStruct aa) returns (string);
+    function shout (AnotherAnyStruct aa) returns (string|error);
 
     function call () returns (AnotherAnyStruct);
 };
 
-function AnyStruct::shout (AnotherAnyStruct aa) returns (string) {
-    var j =check <json>aa;
+function AnyStruct.shout (AnotherAnyStruct aa) returns (string|error) {
+    any a = aa;
+    var j = check json.stamp(a);
     return "anyStruct" + j.toString();
 }
 
-function AnyStruct::call () returns (AnotherAnyStruct) {
+function AnyStruct.call () returns (AnotherAnyStruct) {
     return new AnotherAnyStruct() ;
 }
 
 type SomeStruct object {
-    public string s;
+    public string s = "";
 
-    function shout (SomeOtherStruct aa) returns (string);
+    function shout (SomeOtherStruct aa) returns (string|error);
 
     function call () returns (SomeOtherStruct);
 };
 
-function SomeStruct::shout (SomeOtherStruct aa) returns (string) {
-    var j = check <json>aa;
+function SomeStruct.shout (SomeOtherStruct aa) returns (string|error) {
+    any a = aa;
+    var j = check trap <json>a;
     return "someStruct" + (j.toString());
 }
 
-function SomeStruct::call () returns (SomeOtherStruct) {
+function SomeStruct.call () returns (SomeOtherStruct) {
     SomeOtherStruct s = new;
     s.s= "return";
     return s;
 }
 
 type SomeOtherStruct object {
-    public string s;
+    public string s = "";
 };
 
 type AnotherAnyStruct object {
@@ -544,21 +539,26 @@ type AnotherAnyStruct object {
 type Foo "a" | "b" | "c";
 
 type Person object {
-    private string name;
+    private string name = "";
 
-    new(name){}
+    function __init (string name) {
+        self.name = name;
+    }
 
     function getPerson() returns Person {
-        error err = {message: "Unsupported operation"};
-        throw err;
+        error err = error("Unsupported operation");
+        panic err;
     }
 };
 
 type Employee object {
-    private string name;
-    private string id;
+    private string name = "";
+    private string id = "";
 
-    new(name,id){}
+    function __init (string name, string id) {
+        self.id = id;
+        self.name = name;
+    }
 
     function getPerson() returns Person {
         return self;
@@ -567,19 +567,15 @@ type Employee object {
 
 function testTupleMatchWithObjectEquivalency() returns string {
   future<(Foo, Person) | () | error> f = start getPerson();
-    ((Foo, Person) | () | error) res = await f;
+    ((Foo, Person) | () | error) res = wait f;
 
     int[] i = [1, 2, 3];
 
     foreach y in i {
-        match res {
-            (Foo, Person) x => {
-                return "SUCCESS";
-            }
-            () => { return "ERROR"; }
-            error err => {
-                return "ERROR";
-            }
+        if res is (Foo, Person) {
+            return "SUCCESS";
+        } else {
+            return "ERROR";
         }
     }
 }
@@ -590,15 +586,20 @@ function getPerson() returns (Foo, Person) | () | error {
     return (f,p);
 }
 
-function testObjectEqViewFromThirdPackage() returns (string) {
-    eq:BarObj barObj = new();
-    eq2:FooObj fooObj = check <eq2:FooObj> barObj;
-    return fooObj.name;
+function testObjectEqViewFromThirdPackage() returns (string|error) {
+    any barObj = new eq:BarObj();
+    var fooObj = trap <eq2:FooObj> barObj;
+    if fooObj is error {
+        panic fooObj;
+    } else if fooObj is eq2:FooObj {
+        return fooObj.name;
+    }
+    return "";
 }
 
 public type ObjectWithoutNew object {
-    public string name;
-    public string id;
+    public string name = "";
+    public string id = "";
 
     public function getPerson() returns ObjectWithoutNew {
         return self;
@@ -606,10 +607,10 @@ public type ObjectWithoutNew object {
 };
 
 public type ObjectWithNew object {
-    public string name;
-    public string id;
+    public string name = "";
+    public string id = "";
 
-    public new () {
+    public function __init () {
     }
 
     public function getPerson() returns ObjectWithNew {
@@ -629,10 +630,10 @@ function testObjectEqualityWithDefaultConstructor() returns (ObjectWithNew, Obje
 
 type A object {
 
-    public string field;
+    public string field = "";
     
-    new () {
-        field = "value A"; 
+    function __init () {
+        self.field = "value A"; 
     }
 
     function foo(C c) returns A {
@@ -642,10 +643,10 @@ type A object {
 
 type B object {
 
-    public string field;
+    public string field = "";
     
-    new () {
-        field = "value B"; 
+    function __init () {
+        self.field = "value B"; 
     }
 
     function foo(D d) returns B {
@@ -676,46 +677,52 @@ function testObjectEqualityWithRecursiveTypes() returns (A, B) {
 }
 
 public type PersonInOrder object {
-    public int age;
-    public string name;
-    public string address;
+    public int age = 0;
+    public string name = "";
+    public string address = "";
 
-    public new (name, age) {}
+    public function __init (string name, int age) {
+        self.age = age;
+        self.name = name;
+    }
 
     public function getName() returns (string) {
-        return name;
+        return self.name;
     }
 
     public function getAge() returns (int) {
-        return age;
+        return self.age;
     }
 
     public function getAddress() returns (string) {
-        return address;
+        return self.address;
     }
 };
 
 public type PersonNotInOrder object {
 
     public function getName() returns (string) {
-        return name;
+        return self.name;
     }
 
-    public int age;
+    public int age = 0;
 
     public function getAge() returns (int) {
-        return age;
+        return self.age;
     }
 
-    public new (name, age) {}
+    public function __init (string name, int age) {
+        self.age = age;
+        self.name = name;
+    }
 
-    public string name;
+    public string name = "";
 
     public function getAddress() returns (string) {
-        return address;
+        return self.address;
     }
 
-    public string address;
+    public string address = "";
 };
 
 function testObjectMemberOrder() returns (PersonInOrder, PersonNotInOrder) {

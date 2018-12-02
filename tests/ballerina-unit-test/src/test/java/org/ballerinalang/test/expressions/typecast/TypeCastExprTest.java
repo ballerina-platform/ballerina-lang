@@ -23,13 +23,14 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -41,7 +42,6 @@ import org.testng.annotations.Test;
 public class TypeCastExprTest {
     private static final double DELTA = 0.01;
     private CompileResult result;
-    private static final String ERROR_MESSAGE_FIELD = "message";
 
     @BeforeClass
     public void setup() {
@@ -178,8 +178,7 @@ public class TypeCastExprTest {
     @Test
     public void testJSONObjectToStringCast() {
         BValue[] returns = BRunUtil.invoke(result, "testJSONObjectToStringCast");
-        Assert.assertEquals(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue(),
-                            "'json' cannot be cast to 'string'");
+        Assert.assertEquals(((BError) returns[0]).getReason(), "'json' cannot be cast to 'string'");
     }
 
     @Test
@@ -293,22 +292,24 @@ public class TypeCastExprTest {
         Assert.assertEquals(addressMap.get("city").stringValue(), "Kandy");
         Assert.assertEquals(addressMap.get("country").stringValue(), "SriLanka");
 
-        BIntArray marksArray = (BIntArray) student.get("marks");
-        Assert.assertTrue(marksArray instanceof BIntArray);
+        BValueArray marksArray = (BValueArray) student.get("marks");
+        Assert.assertTrue(marksArray instanceof BValueArray);
         Assert.assertEquals(marksArray.size(), 2);
-        Assert.assertEquals(marksArray.get(0), 24);
-        Assert.assertEquals(marksArray.get(1), 81);
+        Assert.assertEquals(marksArray.getInt(0), 24);
+        Assert.assertEquals(marksArray.getInt(1), 81);
     }
 
     @Test
     public void testIncompatibleCast() {
         CompileResult res = BCompileUtil.compile("test-src/expressions/typecast/incompatible-cast-negative.bal");
-        Assert.assertEquals(res.getErrorCount(), 5);
+        Assert.assertEquals(res.getErrorCount(), 6);
         BAssertUtil.validateError(res, 0, "incompatible types: expected 'Person', found 'Student'", 24, 16);
         BAssertUtil.validateError(res, 1, "incompatible types: expected 'float', found 'int'", 33, 16);
         BAssertUtil.validateError(res, 2, "incompatible types: expected 'float', found 'int'", 33, 19);
         BAssertUtil.validateError(res, 3, "incompatible types: expected 'float', found 'int'", 33, 22);
         BAssertUtil.validateError(res, 4, "incompatible types: expected 'float', found 'int'", 37, 18);
+        BAssertUtil.validateError(res, 5, "incompatible types: 'any[]' cannot be explicitly typed as 'json'", 43,
+                                  24);
     }
 
     @Test(description = "Test casting a JSON integer to a string")
@@ -318,62 +319,66 @@ public class TypeCastExprTest {
         Assert.assertEquals(returns[0].stringValue(), "5");
     }
 
-    @Test(description = "Test casting an incomatible JSON to integer",
-            expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: " +
-                    "'string' cannot be cast to 'int'.*")
+    @Test
     public void testIncompatibleJsonToInt() {
-        BRunUtil.invoke(result, "testIncompatibleJsonToInt");
+        BValue[] returns = BRunUtil.invoke(result, "testIncompatibleJsonToInt");
+        Assert.assertTrue(returns[0] instanceof BError);
+        BError error = (BError) returns[0];
+        String errorMsg = error.getReason();
+        Assert.assertEquals(errorMsg, "'string' cannot be cast to 'int'");
     }
 
-    @Test(description = "Test casting an incomatible JSON to float",
-            expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: " +
-                    "'string' cannot be cast to 'float'.*")
+    @Test
     public void testIncompatibleJsonToFloat() {
-        BRunUtil.invoke(result, "testIncompatibleJsonToFloat");
+        BValue[] returns = BRunUtil.invoke(result, "testIncompatibleJsonToFloat");
+        Assert.assertTrue(returns[0] instanceof BError);
+        BError error = (BError) returns[0];
+        String errorMsg = error.getReason();
+        Assert.assertEquals(errorMsg, "'string' cannot be cast to 'float'");
     }
 
-    @Test(description = "Test casting an incomatible JSON to boolean",
-            expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: " +
-                    "'string' cannot be cast to 'boolean'.*")
+    @Test
     public void testIncompatibleJsonToBoolean() {
-        BRunUtil.invoke(result, "testIncompatibleJsonToBoolean");
+        BValue[] returns = BRunUtil.invoke(result, "testIncompatibleJsonToBoolean");
+
+        Assert.assertTrue(returns[0] instanceof BError);
+        BError error = (BError) returns[0];
+        String errorMsg = error.getReason();
+        Assert.assertEquals(errorMsg, "'string' cannot be cast to 'boolean'");
     }
 
-    @Test(description = "Test casting a boolean in JSON to int",
-            expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: 'boolean' " +
-                    "cannot be cast to 'int'.*")
     public void testBooleanInJsonToInt() {
-        BRunUtil.invoke(result, "testBooleanInJsonToInt");
+        BValue[] returns = BRunUtil.invoke(result, "testBooleanInJsonToInt");
+        Assert.assertTrue(returns[0] instanceof BError);
+        BError error = (BError) returns[0];
+        String errorMsg = error.getReason();
+        Assert.assertEquals(errorMsg, "'boolean' cannot be cast to 'int'");
     }
 
     @Test(description = "Test casting a null JSON to string",
             expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = ".*'null' cannot be cast to 'string'.*")
+            expectedExceptionsMessageRegExp = ".*error: assertion error: expected 'string', found 'json'.*")
     public void testNullJsonToString() {
         BRunUtil.invoke(result, "testNullJsonToString");
     }
 
     @Test(description = "Test casting a null JSON to int",
             expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = ".*'null' cannot be cast to 'int'.*")
+            expectedExceptionsMessageRegExp = ".*error: assertion error: expected 'int', found 'json'.*")
     public void testNullJsonToInt() {
         BRunUtil.invoke(result, "testNullJsonToInt");
     }
 
     @Test(description = "Test casting a null JSON to float",
             expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = ".*'null' cannot be cast to 'float'.*")
+            expectedExceptionsMessageRegExp = ".*error: assertion error: expected 'float', found 'json'.*")
     public void testNullJsonToFloat() {
         BRunUtil.invoke(result, "testNullJsonToFloat");
     }
 
     @Test(description = "Test casting a null JSON to boolean",
             expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = ".*'null' cannot be cast to 'boolean'.*")
+            expectedExceptionsMessageRegExp = ".*error: assertion error: expected 'boolean', found 'json'.*")
     public void testNullJsonToBoolean() {
         BRunUtil.invoke(result, "testNullJsonToBoolean");
     }
@@ -385,43 +390,43 @@ public class TypeCastExprTest {
 //    }
 
     @Test(description = "Test casting an int as any type to json",
-            expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: 'int' cannot be cast to 'json'.*")
+          expectedExceptions = {BLangRuntimeException.class},
+          expectedExceptionsMessageRegExp = "error: assertion error: expected 'json', found 'int'.*")
     public void testAnyIntToJson() {
         BRunUtil.invoke(result, "testAnyIntToJson");
     }
 
     @Test(description = "Test casting a string as any type to json",
-            expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: 'string' cannot be cast to 'json'.*")
+          expectedExceptions = {BLangRuntimeException.class},
+          expectedExceptionsMessageRegExp = "error: assertion error: expected 'json', found 'string'.*")
     public void testAnyStringToJson() {
         BRunUtil.invoke(result, "testAnyStringToJson");
     }
 
     @Test(description = "Test casting a boolean as any type to json",
-            expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: 'boolean' cannot be cast to 'json'.*")
+          expectedExceptions = {BLangRuntimeException.class},
+          expectedExceptionsMessageRegExp = "error: assertion error: expected 'json', found 'boolean'.*")
     public void testAnyBooleanToJson() {
         BRunUtil.invoke(result, "testAnyBooleanToJson");
     }
 
     @Test(description = "Test casting a float as any type to json",
-            expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: 'float' cannot be cast to 'json'.*")
+          expectedExceptions = {BLangRuntimeException.class},
+          expectedExceptionsMessageRegExp = "error: assertion error: expected 'json', found 'float'.*")
     public void testAnyFloatToJson() {
         BRunUtil.invoke(result, "testAnyFloatToJson");
     }
 
     @Test(description = "Test casting a map as any type to json",
-            expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: 'map' cannot be cast to 'json'.*")
+          expectedExceptions = {BLangRuntimeException.class},
+          expectedExceptionsMessageRegExp = "error: assertion error: expected 'json', found 'map'.*")
     public void testAnyMapToJson() {
         BRunUtil.invoke(result, "testAnyMapToJson");
     }
 
     @Test(description = "Test casting a struct as any type to json",
-            expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: 'Address' cannot be cast to 'json'.*")
+          expectedExceptions = {BLangRuntimeException.class},
+          expectedExceptionsMessageRegExp = "error: assertion error: expected 'json', found 'Address'.*")
     public void testAnyStructToJson() {
         BRunUtil.invoke(result, "testAnyStructToJson");
     }
@@ -447,17 +452,9 @@ public class TypeCastExprTest {
         Assert.assertNull(returns[0]);
     }
 
-    @Test(description = "Test casting an array as any type to json",
-            expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = ".*cannot convert 'any\\[\\]' to type 'json'.*")
-    public void testAnyArrayToJson() {
-        BRunUtil.invoke(result, "testAnyArrayToJson");
-    }
-
     @Test(description = "Test casting struct stored as any to struct")
     public void testStructAsAnyToStruct() {
         BValue[] returns = BRunUtil.invoke(result, "testStructAsAnyToStruct");
-        Assert.assertTrue(returns[0] instanceof BMap);
         Assert.assertTrue(returns[0] instanceof BMap);
         BMap<String, BValue> student = (BMap<String, BValue>) returns[0];
 
@@ -471,11 +468,11 @@ public class TypeCastExprTest {
         Assert.assertEquals(addressMap.get("city").stringValue(), "Kandy");
         Assert.assertEquals(addressMap.get("country").stringValue(), "SriLanka");
 
-        BIntArray marksArray = (BIntArray) student.get("marks");
-        Assert.assertTrue(marksArray instanceof BIntArray);
+        BValueArray marksArray = (BValueArray) student.get("marks");
+        Assert.assertTrue(marksArray instanceof BValueArray);
         Assert.assertEquals(marksArray.size(), 2);
-        Assert.assertEquals(marksArray.get(0), 24);
-        Assert.assertEquals(marksArray.get(1), 81);
+        Assert.assertEquals(marksArray.getInt(0), 24);
+        Assert.assertEquals(marksArray.getInt(1), 81);
 
         double score = ((BFloat) student.get("score")).floatValue();
         Assert.assertEquals(score, 0.0);
@@ -483,38 +480,38 @@ public class TypeCastExprTest {
 
     @Test(description = "Test casting any to struct",
             expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = ".*'map' cannot be cast to 'Person'.*")
+            expectedExceptionsMessageRegExp = ".*error: assertion error: expected 'Person', found 'map'.*")
     public void testAnyToStruct() {
         BRunUtil.invoke(result, "testAnyToStruct");
     }
 
     @Test(description = "Test casting a null stored as any to struct",
-            expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: error, message: 'null' cannot be cast to 'Person'.*")
+          expectedExceptions = { BLangRuntimeException.class },
+          expectedExceptionsMessageRegExp = "error: assertion error: expected 'Person', found '\\(\\)'.*")
     public void testAnyNullToStruct() {
         BValue[] returns = BRunUtil.invoke(result, "testAnyNullToStruct");
         Assert.assertNull(returns[0]);
     }
 
     @Test(description = "Test casting a null stored as any to map",
-            expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: ballerina/runtime:NullReferenceException.*")
+          expectedExceptions = { BLangRuntimeException.class },
+          expectedExceptionsMessageRegExp = "error: assertion error: expected 'map', found '\\(\\)'.*")
     public void testAnyNullToMap() {
         BValue[] returns = BRunUtil.invoke(result, "testAnyNullToMap");
         Assert.assertNull(returns[0]);
     }
 
     @Test(description = "Test casting a null stored as any to xml",
-            expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: ballerina/runtime:NullReferenceException.*")
+          expectedExceptions = { BLangRuntimeException.class },
+          expectedExceptionsMessageRegExp = "error: assertion error: expected 'xml', found '\\(\\)'.*")
     public void testAnyNullToXml() {
         BValue[] returns = BRunUtil.invoke(result, "testAnyNullToXml");
         Assert.assertNull(returns[0]);
     }
 
-    @Test(description = "Test explicit casting struct to any")
-    public void testStructToAnyExplicit() {
-        BValue[] returns = BRunUtil.invoke(result, "testStructToAnyExplicit");
+    @Test(description = "Test record as any")
+    public void testRecordToAny() {
+        BValue[] returns = BRunUtil.invoke(result, "testRecordToAny");
         Assert.assertTrue(returns[0] instanceof BMap);
         BMap<String, BValue> student = (BMap<String, BValue>) returns[0];
 
@@ -528,18 +525,18 @@ public class TypeCastExprTest {
         Assert.assertEquals(addressMap.get("city").stringValue(), "Kandy");
         Assert.assertEquals(addressMap.get("country").stringValue(), "SriLanka");
 
-        BIntArray marksArray = (BIntArray) student.get("marks");
-        Assert.assertTrue(marksArray instanceof BIntArray);
+        BValueArray marksArray = (BValueArray) student.get("marks");
+        Assert.assertTrue(marksArray instanceof BValueArray);
         Assert.assertEquals(marksArray.size(), 2);
-        Assert.assertEquals(marksArray.get(0), 24);
-        Assert.assertEquals(marksArray.get(1), 81);
+        Assert.assertEquals(marksArray.getInt(0), 24);
+        Assert.assertEquals(marksArray.getInt(1), 81);
 
         Assert.assertEquals(((BFloat) student.get("score")).floatValue(), 0.0);
     }
 
-    @Test(description = "Test explicit casting struct to any")
-    public void testMapToAnyExplicit() {
-        BValue[] returns = BRunUtil.invoke(result, "testMapToAnyExplicit");
+    @Test(description = "Test map as any")
+    public void testMapToAny() {
+        BValue[] returns = BRunUtil.invoke(result, "testMapToAny");
         Assert.assertTrue(returns[0] instanceof BMap<?, ?>);
         BMap<String, BValue> map = (BMap<String, BValue>) returns[0];
         Assert.assertEquals(map.get("name").stringValue(), "supun");
@@ -567,10 +564,10 @@ public class TypeCastExprTest {
         BValue[] returns = BRunUtil.invoke(result, "testInCompatibleStructForceCasting");
 
         // check the error
-        Assert.assertTrue(returns[0] instanceof BMap);
-        BMap<String, BValue> error = (BMap<String, BValue>) returns[0];
-        String errorMsg = error.get(ERROR_MESSAGE_FIELD).stringValue();
-        Assert.assertEquals(errorMsg, "'B' cannot be cast to 'A'");
+        Assert.assertTrue(returns[0] instanceof BError);
+        BError error = (BError) returns[0];
+        String errorMsg = error.getReason();
+        Assert.assertEquals(errorMsg, "incompatible stamp operation: 'B' value cannot be stamped as 'A'");
     }
 
     @Test (description = "Test any to int casting happens without errors, error struct should be null")
@@ -613,10 +610,10 @@ public class TypeCastExprTest {
         BValue[] returns = BRunUtil.invoke(result, "testAnyToBooleanWithErrors");
 
         // check the error
-        Assert.assertTrue(returns[0] instanceof BMap);
-        BMap<String, BValue> error = (BMap<String, BValue>) returns[0];
-        String errorMsg = error.get(ERROR_MESSAGE_FIELD).stringValue();
-        Assert.assertEquals(errorMsg, "'int' cannot be cast to 'boolean'");
+        Assert.assertTrue(returns[0] instanceof BError);
+        BError error = (BError) returns[0];
+        String errorMsg = error.getReason();
+        Assert.assertEquals(errorMsg, "assertion error: expected 'boolean', found 'map'");
     }
 
     @Test
@@ -624,10 +621,10 @@ public class TypeCastExprTest {
         BValue[] returns = BRunUtil.invoke(result, "testAnyNullToBooleanWithErrors");
 
         // check the error
-        Assert.assertTrue(returns[0] instanceof BMap);
-        BMap<String, BValue> error = (BMap<String, BValue>) returns[0];
-        String errorMsg = error.get(ERROR_MESSAGE_FIELD).stringValue();
-        Assert.assertEquals(errorMsg, "'null' cannot be cast to 'boolean'");
+        Assert.assertTrue(returns[0] instanceof BError);
+        BError error = (BError) returns[0];
+        String errorMsg = error.getReason();
+        Assert.assertEquals(errorMsg, "assertion error: expected 'boolean', found '()'");
     }
 
     @Test
@@ -635,10 +632,10 @@ public class TypeCastExprTest {
         BValue[] returns = BRunUtil.invoke(result, "testAnyToIntWithErrors");
 
         // check the error
-        Assert.assertTrue(returns[0] instanceof BMap);
-        BMap<String, BValue> error = (BMap<String, BValue>) returns[0];
-        String errorMsg = error.get(ERROR_MESSAGE_FIELD).stringValue();
-        Assert.assertEquals(errorMsg, "'string' cannot be cast to 'int'");
+        Assert.assertTrue(returns[0] instanceof BError);
+        BError error = (BError) returns[0];
+        String errorMsg = error.getReason();
+        Assert.assertEquals(errorMsg, "assertion error: expected 'int', found 'string'");
     }
 
     @Test
@@ -646,10 +643,10 @@ public class TypeCastExprTest {
         BValue[] returns = BRunUtil.invoke(result, "testAnyNullToIntWithErrors");
 
         // check the error
-        Assert.assertTrue(returns[0] instanceof BMap);
-        BMap<String, BValue> error = (BMap<String, BValue>) returns[0];
-        String errorMsg = error.get(ERROR_MESSAGE_FIELD).stringValue();
-        Assert.assertEquals(errorMsg, "'null' cannot be cast to 'int'");
+        Assert.assertTrue(returns[0] instanceof BError);
+        BError error = (BError) returns[0];
+        String errorMsg = error.getReason();
+        Assert.assertEquals(errorMsg, "assertion error: expected 'int', found '()'");
     }
 
     @Test
@@ -657,10 +654,10 @@ public class TypeCastExprTest {
         BValue[] returns = BRunUtil.invoke(result, "testAnyToFloatWithErrors");
 
         // check the error
-        Assert.assertTrue(returns[0] instanceof BMap);
-        BMap<String, BValue> error = (BMap<String, BValue>) returns[0];
-        String errorMsg = error.get(ERROR_MESSAGE_FIELD).stringValue();
-        Assert.assertEquals(errorMsg, "'string' cannot be cast to 'float'");
+        Assert.assertTrue(returns[0] instanceof BError);
+        BError error = (BError) returns[0];
+        String errorMsg = error.getReason();
+        Assert.assertEquals(errorMsg, "assertion error: expected 'float', found 'string'");
     }
 
     @Test
@@ -668,10 +665,10 @@ public class TypeCastExprTest {
         BValue[] returns = BRunUtil.invoke(result, "testAnyNullToFloatWithErrors");
 
         // check the error
-        Assert.assertTrue(returns[0] instanceof BMap);
-        BMap<String, BValue> error = (BMap<String, BValue>) returns[0];
-        String errorMsg = error.get(ERROR_MESSAGE_FIELD).stringValue();
-        Assert.assertEquals(errorMsg, "'null' cannot be cast to 'float'");
+        Assert.assertTrue(returns[0] instanceof BError);
+        BError error = (BError) returns[0];
+        String errorMsg = error.getReason();
+        Assert.assertEquals(errorMsg, "assertion error: expected 'float', found '()'");
     }
 
     @Test
@@ -679,20 +676,10 @@ public class TypeCastExprTest {
         BValue[] returns = BRunUtil.invoke(result, "testAnyToMapWithErrors");
 
         // check the error
-        Assert.assertTrue(returns[0] instanceof BMap);
-        BMap<String, BValue> error = (BMap<String, BValue>) returns[0];
-        String errorMsg = error.get(ERROR_MESSAGE_FIELD).stringValue();
-        Assert.assertEquals(errorMsg, "'string' cannot be cast to 'map'");
-    }
-
-    @Test(description = "Test error scenario in casting any to table")
-    public void testAnyToTableWithErrors() {
-        BValue[] returns = BRunUtil.invoke(result, "testAnyToTableWithErrors", new BValue[] {});
-
-        Assert.assertTrue(returns[0] instanceof BMap);
-        BMap<String, BValue> error = (BMap<String, BValue>) returns[0];
-        String errorMsg = error.get(ERROR_MESSAGE_FIELD).stringValue();
-        Assert.assertEquals(errorMsg, "'string' cannot be cast to 'table'");
+        Assert.assertTrue(returns[0] instanceof BError);
+        BError error = (BError) returns[0];
+        String errorMsg = error.getReason();
+        Assert.assertEquals(errorMsg, "assertion error: expected 'map', found 'string'");
     }
 
     // TODO:

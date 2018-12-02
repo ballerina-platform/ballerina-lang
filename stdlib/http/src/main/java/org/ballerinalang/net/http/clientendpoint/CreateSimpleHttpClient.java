@@ -43,7 +43,7 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Map;
 
-import static org.ballerinalang.net.http.HttpConstants.CALLER_ACTIONS;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_CLIENT;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
 
 /**
@@ -56,7 +56,7 @@ import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
         orgName = "ballerina", packageName = "http",
         functionName = "createSimpleHttpClient",
         args = {@Argument(name = "uri", type = TypeKind.STRING),
-                @Argument(name = "config", type = TypeKind.RECORD, structType = "ClientEndpointConfig")},
+                @Argument(name = "client", type = TypeKind.OBJECT, structType = "Client")},
         isPublic = true
 )
 public class CreateSimpleHttpClient extends BlockingNativeCallableUnit {
@@ -117,10 +117,13 @@ public class CreateSimpleHttpClient extends BlockingNativeCallableUnit {
         HttpClientConnector httpClientConnector = httpConnectorFactory
                 .createHttpClientConnector(properties, senderConfiguration);
         BMap<String, BValue> httpClient = BLangConnectorSPIUtil.createBStruct(context.getProgramFile(),
-                HTTP_PACKAGE_PATH, CALLER_ACTIONS, urlString, clientEndpointConfig);
-        httpClient.addNativeData(HttpConstants.CALLER_ACTIONS, httpClientConnector);
+                                                                                      HTTP_PACKAGE_PATH,
+                                                                                      HTTP_CLIENT, urlString,
+                                                                                      clientEndpointConfig);
+        httpClient.addNativeData(HttpConstants.HTTP_CLIENT, httpClientConnector);
         httpClient.addNativeData(HttpConstants.CLIENT_ENDPOINT_CONFIG, clientEndpointConfig);
-        context.setReturnValues(httpClient);
+        configBStruct.addNativeData(HttpConstants.HTTP_CLIENT, httpClientConnector);
+        context.setReturnValues((httpClient));
     }
 
     private void populateSenderConfigurationOptions(SenderConfiguration senderConfiguration, Struct

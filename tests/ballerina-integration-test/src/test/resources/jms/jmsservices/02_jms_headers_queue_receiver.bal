@@ -16,48 +16,59 @@ jms:Session jmsSession1 = new (conn1, {
     });
 
 // Initialize a Queue consumer using the created session.
-endpoint jms:QueueReceiver consumer1 {
+listener jms:QueueReceiver consumer1 = new({
     session: jmsSession1,
     queueName: "MyQueue"
-};
+});
 
 // Bind the created consumer to the listener service.
-service<jms:Consumer> jmsListener1 bind consumer1 {
+service jmsListener1 on consumer1 {
 
     // OnMessage resource get invoked when a message is received.
-    onMessage(endpoint consumer, jms:Message message) {
-        string messageText = check message.getTextMessageContent();
+    resource function onMessage(jms:QueueReceiverCaller consumer, jms:Message message) {
+        var messageText = message.getTextMessageContent();
 //        string correlationId = check message.getCorrelationID();
 //        io:print("correlationId:" + correlationId);
-        int intVal = check message.getIntProperty("intProp");
-        io:print("|intVal:" + intVal);
-        float floatVal = check message.getFloatProperty("floatProp");
-        io:print("|floatVal:" + floatVal);
-
-        match (check message.getStringProperty("stringProp")) {
-            string s => io:print("|stringVal:" + s);
-            () => io:print("error");
+        var intVal = message.getIntProperty("intProp");
+        if (intVal is int) {
+             io:print("|intVal:" + intVal);
+        } else {
+             panic intVal;
         }
-        io:println("|message:" + messageText);
+        var floatVal = message.getFloatProperty("floatProp");
+        if (floatVal is float) {
+             io:print("|floatVal:" + floatVal);
+        } else {
+             panic floatVal;
+        }
+        var stringProp = message.getStringProperty("stringProp");
+        if (stringProp is string){
+             io:print("|stringVal:" + stringProp);
+        } else if (stringProp is error) {
+             panic stringProp;
+        }
+        if (messageText is string) {
+             io:println("|message:" + messageText);
+        } else {
+             panic messageText;
+        }
     }
 }
 
 // This is to make sure that the test case can detect the PID using port. Removing following will result in
 // intergration testframe work failing to kill the ballerina service.
-endpoint http:Listener helloWorldEp1 {
-    port:9091
-};
+listener http:Listener helloWorldEp1 = new(9091);
 
 @http:ServiceConfig {
     basePath:"/jmsDummyService"
 }
-service<http:Service> helloWorld1 bind helloWorldEp1 {
+service helloWorld1 on helloWorldEp1 {
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/"
     }
-    sayHello (endpoint client, http:Request req) {
+    resource function sayHello (http:Caller caller, http:Request req) {
         // Do nothing
     }
 }

@@ -23,6 +23,7 @@ import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -36,17 +37,11 @@ import java.util.Map;
  */
 public class MatchStatementScopeResolver extends CursorPositionResolver {
     /**
-     * Check whether the cursor is positioned before the given node start.
-     *
-     * @param nodePosition          Position of the node
-     * @param node                  Node
-     * @param treeVisitor           {@link TreeVisitor} current tree visitor instance
-     * @param completionContext     Completion operation context
-     * @return {@link Boolean}      Whether the cursor is before the node start or not
+     * {@inheritDoc}
      */
     @Override
-    public boolean isCursorBeforeNode(DiagnosticPos nodePosition, BLangNode node, TreeVisitor treeVisitor,
-                                      LSContext completionContext) {
+    public boolean isCursorBeforeNode(DiagnosticPos nodePosition, TreeVisitor treeVisitor, LSContext completionContext,
+                                      BLangNode node, BSymbol bSymbol) {
         if (!(treeVisitor.getBlockOwnerStack().peek() instanceof BLangMatch)) {
             // In the ideal case, this will not get triggered
             return false;
@@ -54,7 +49,7 @@ public class MatchStatementScopeResolver extends CursorPositionResolver {
         BLangMatch matchNode = (BLangMatch) treeVisitor.getBlockOwnerStack().peek();
         DiagnosticPos matchNodePos = CommonUtil.toZeroBasedPosition(matchNode.getPosition());
         DiagnosticPos nodePos = CommonUtil.toZeroBasedPosition(node.getPosition());
-        List<BLangMatch.BLangMatchStmtPatternClause> patternClauseList = matchNode.getPatternClauses();
+        List<BLangMatch.BLangMatchBindingPatternClause> patternClauseList = matchNode.patternClauses;
         int line = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
         int col = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter();
         int nodeStartLine = nodePos.getStartLine();
@@ -73,7 +68,7 @@ public class MatchStatementScopeResolver extends CursorPositionResolver {
             SymbolEnv matchEnv = createMatchEnv(matchNode, treeVisitor.getSymbolEnv());
             treeVisitor.populateSymbols(visibleSymbolEntries, matchEnv);
             treeVisitor.forceTerminateVisitor();
-            treeVisitor.setNextNode(node);
+            treeVisitor.setNextNode(bSymbol);
             isBeforeNode = true;
         }
         

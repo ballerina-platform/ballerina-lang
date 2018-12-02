@@ -22,11 +22,12 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.util.JsonParser;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -50,7 +51,7 @@ public class SafeNavigationTest {
 
     @Test
     public void testNegativeCases() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 11);
+        Assert.assertEquals(negativeResult.getErrorCount(), 12);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string?', found 'string|error'",
                 25, 19);
@@ -64,6 +65,7 @@ public class SafeNavigationTest {
                 "error lifting operator cannot be used in the target expression of an assignment", 40, 5);
         BAssertUtil.validateError(negativeResult, i++,
                 "error lifting operator cannot be used in the target expression of an assignment", 40, 5);
+        BAssertUtil.validateError(negativeResult, i++, "cannot infer type of the error from 'Person[]|error'", 44, 24);
         BAssertUtil.validateError(negativeResult, i++,
                 "invalid operation: type 'Person[]|error' does not support indexing", 45, 12);
         BAssertUtil.validateError(negativeResult, i++, "safe navigation operator not required for type 'error?'", 50,
@@ -91,15 +93,15 @@ public class SafeNavigationTest {
     @Test
     public void testErrorInMiddle() {
         BValue[] returns = BRunUtil.invoke(result, "testErrorInMiddle");
-        Assert.assertTrue(returns[0] instanceof BMap);
-        Assert.assertEquals(returns[0].stringValue(), "{message:\"custom error\"}");
+        Assert.assertTrue(returns[0] instanceof BError);
+        Assert.assertEquals(((BError) returns[0]).getReason(), "custom error");
     }
 
     @Test
     public void testErrorInFirstVar() {
         BValue[] returns = BRunUtil.invoke(result, "testErrorInFirstVar");
-        Assert.assertTrue(returns[0] instanceof BMap);
-        Assert.assertEquals(returns[0].stringValue(), "{message:\"custom error\"}");
+        Assert.assertTrue(returns[0] instanceof BError);
+        Assert.assertEquals(((BError) returns[0]).getReason(), "custom error");
     }
 
     @Test
@@ -179,25 +181,19 @@ public class SafeNavigationTest {
     @Test
     public void testSafeNavigateArray_1() {
         BValue[] returns = BRunUtil.invoke(result, "testSafeNavigateArray_1");
-        Assert.assertEquals(returns[0], null);
+        Assert.assertNull(returns[0]);
     }
 
     @Test
     public void testSafeNavigateArray_2() {
         BValue[] returns = BRunUtil.invoke(result, "testSafeNavigateArray_2");
-        Assert.assertEquals(returns[0], null);
-    }
-
-    @Test
-    public void testNullLiftingOnError() {
-        BValue[] returns = BRunUtil.invoke(result, "testNullLiftingOnError");
-        Assert.assertEquals(returns[0].stringValue(), "");
+        Assert.assertNull(returns[0]);
     }
 
     @Test
     public void testSafeNavigateOnErrorOrNull() {
         BValue[] returns = BRunUtil.invoke(result, "testSafeNavigateOnErrorOrNull");
-        Assert.assertEquals(returns[0], null);
+        Assert.assertNull(returns[0]);
     }
 
     @Test
@@ -223,7 +219,7 @@ public class SafeNavigationTest {
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: error, message: failed to get element from json: array index " +
+            expectedExceptionsMessageRegExp = "error: failed to get element from json: array index " +
                     "out of range: index: 2, size: 0.*")
     public void testJSONNilLiftingOnLHS_2() {
         BRunUtil.invoke(result, "testJSONNilLiftingOnLHS_2");
@@ -236,7 +232,7 @@ public class SafeNavigationTest {
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: error, message: cannot find key 'a'.*")
+            expectedExceptionsMessageRegExp = "error: cannot find key 'a'.*")
     public void testNonExistingMapKeyWithFieldAccess() {
         BValue[] returns = BRunUtil.invoke(result, "testNonExistingMapKeyWithFieldAccess");
         Assert.assertEquals(returns[0].stringValue(), "Bob");
@@ -271,7 +267,7 @@ public class SafeNavigationTest {
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: ballerina/runtime:NullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testMapNilLiftingOnLHS_5() {
         BRunUtil.invoke(result, "testMapNilLiftingOnLHS_5");
     }
@@ -284,7 +280,7 @@ public class SafeNavigationTest {
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: ballerina/runtime:NullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testMapInRecordNilLiftingOnLHS_2() {
         BRunUtil.invoke(result, "testMapInRecordNilLiftingOnLHS_2");
     }
@@ -299,7 +295,7 @@ public class SafeNavigationTest {
         Assert.assertTrue(returns[1] instanceof BString);
         Assert.assertEquals(returns[1].stringValue(), "null");
 
-        Assert.assertTrue(returns[2] instanceof BStringArray);
+        Assert.assertTrue(returns[2] instanceof BValueArray);
         Assert.assertEquals(returns[2].stringValue(), "[]");
     }
 
@@ -312,8 +308,7 @@ public class SafeNavigationTest {
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: ballerina/runtime:CallFailedException, message: call failed.*" +
-                    "caused by ballerina/runtime:NullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testCountOnNullJSON() {
         BValue[] vals = { JsonParser.parse("\"hello\"") };
         BRunUtil.invoke(result, "testCountOnNullJSON", vals);
@@ -351,7 +346,7 @@ public class SafeNavigationTest {
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: ballerina/runtime:NullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testUpdatingNullableObjectField_2() {
         BRunUtil.invoke(result, "testUpdatingNullableObjectField_2");
     }

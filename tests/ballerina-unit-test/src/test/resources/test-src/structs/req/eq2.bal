@@ -1,8 +1,8 @@
 
 public type userPFoo record {
-    int age;
-    string name;
-    string address;
+    int age = 0;
+    string name = "";
+    string address = "";
     string zipcode = "23468";
 };
 

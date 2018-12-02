@@ -18,7 +18,7 @@ type Person object {
     private string month = "february";
 
     function getName() returns string {
-        return name;
+        return self.name;
     }
 
     function getNameWrapperInside1() returns string {
@@ -40,5 +40,3 @@ type Person object {
 function passSelfAsValue(Person p) returns string {
     return p.getName();
 }
-
-

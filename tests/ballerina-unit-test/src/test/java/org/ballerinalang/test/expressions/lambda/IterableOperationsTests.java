@@ -23,8 +23,8 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -66,13 +66,14 @@ public class IterableOperationsTests {
                                   "incompatible types: expected 'string[]', found '(string,string) " +
                 "collection'", 31, 24);
         BAssertUtil.validateError(negative, index++,
-                                  "incompatible lambda function types: expected 'string', found 'any'", 35, 22);
+                                  "incompatible lambda function types: expected 'string', found 'any'", 35, 27);
         BAssertUtil.validateError(negative, index++,
                                   "incompatible lambda function types: expected 'string', found 'any'", 38, 22);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'int', found '()'", 46, 19);
 
-        BAssertUtil.validateError(negative, index++, "incompatible types: expected tuple, found '(int,string) " +
-                "collection'", 48, 5);
+        BAssertUtil.validateError(negative, index++,
+                "invalid tuple variable; expecting a tuple type but found" +
+                        " '(int,string) collection' in type definition", 48, 18);
         BAssertUtil.validateError(negative, index++, "no argument required for operation 'count'", 55, 17);
         BAssertUtil.validateError(negative, index++, "single lambda function required here", 56, 5);
         BAssertUtil.validateError(negative, index++, "single lambda function required here", 58, 15);
@@ -97,7 +98,7 @@ public class IterableOperationsTests {
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected 'int[]', found 'string[]'", 93, 30);
         BAssertUtil.validateError(negative, index++,
-                "incompatible types: expected 'map', found '(any) collection'", 99, 22);
+                "incompatible types: expected 'map', found '(any) collection'", 99, 27);
         BAssertUtil.validateError(negative, index++,
                 "cannot assign return value of 'filter' operation here, use a reduce operation", 103, 22);
     }
@@ -175,7 +176,7 @@ public class IterableOperationsTests {
 
     @Test
     public void testBasicArray1() {
-        BStringArray sarray = new BStringArray(values);
+        BValueArray sarray = new BValueArray(values);
         BValue[] returns = BRunUtil.invoke(basic, "testBasicArray1", new BValue[] {sarray});
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
@@ -188,7 +189,7 @@ public class IterableOperationsTests {
 
     @Test
     public void testBasicArray2() {
-        BStringArray sarray = new BStringArray(values);
+        BValueArray sarray = new BValueArray(values);
         BValue[] returns = BRunUtil.invoke(basic, "testBasicArray2", new BValue[] {sarray});
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);

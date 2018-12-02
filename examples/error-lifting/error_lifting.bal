@@ -10,7 +10,7 @@ type Status record {
 };
 
 public function main() {
-    error e = { message: "response error" };
+    error e = error("response error");
     Response|error firstResponse = e;
 
     // Navigate the fields, by lifting the error. 

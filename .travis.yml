@@ -31,7 +31,7 @@ install:
   - nvm install 8.9.0
   - nvm use 8.9.0
   - npm install -g npm@'5.6.0'
-  - mvn install -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B -V
+  - mvn install -B -V -Dvscode.test.skip=true
 
 script: echo "Done"
 
@@ -41,6 +41,5 @@ after_success:
 cache:
   directories:
   - $HOME/.m2
-  - composer/node_modules
-  - composer/*/node_modules
+  - composer/modules/web/node_modules
   - tool-plugins/vscode/node_modules

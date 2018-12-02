@@ -1,9 +1,15 @@
 import ballerina/http;
 
-endpoint http:Client nyseEP {
-    url:"http://localhost:9090"
+http:ClientEndpointConfig conf = {
+   url: "https://postman-echo.com/basic-auth",
+   auth: {
+       scheme: http:BASIC_AUTH,
+       username: "postman",
+       password: "password"
+   }
 };
 
 function testFunction () {
-    nyseEP->
+    http:Client httpClient = new ("http://localhost:8080", config = conf );
+    httpClient->
 }

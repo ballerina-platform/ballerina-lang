@@ -23,17 +23,14 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructureType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BFloatArray;
-import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.TestUtils;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
@@ -66,7 +63,7 @@ public class UnaryBlockingArrayValueTestCase extends GrpcBaseTest {
         StructureTypeInfo requestInfo = packageInfo.getStructInfo("TestInt");
         BStructureType requestType = requestInfo.getType();
         BMap<String, BValue> requestStruct = new BMap<String, BValue>(requestType);
-        BIntArray intArray = new BIntArray();
+        BValueArray intArray = new BValueArray(BTypes.typeInt);
         intArray.add(0, 1);
         intArray.add(1, 2);
         intArray.add(2, 3);
@@ -88,7 +85,7 @@ public class UnaryBlockingArrayValueTestCase extends GrpcBaseTest {
         StructureTypeInfo requestInfo = packageInfo.getStructInfo("TestString");
         BStructureType requestType = requestInfo.getType();
         BMap<String, BValue> requestStruct = new BMap<String, BValue>(requestType);
-        BStringArray stringArray = new BStringArray();
+        BValueArray stringArray = new BValueArray(BTypes.typeString);
         stringArray.add(0, "A");
         stringArray.add(1, "B");
         stringArray.add(2, "C");
@@ -108,7 +105,7 @@ public class UnaryBlockingArrayValueTestCase extends GrpcBaseTest {
         StructureTypeInfo requestInfo = packageInfo.getStructInfo("TestFloat");
         BStructureType requestType = requestInfo.getType();
         BMap<String, BValue> requestStruct = new BMap<String, BValue>(requestType);
-        BFloatArray floatArray = new BFloatArray();
+        BValueArray floatArray = new BValueArray(BTypes.typeFloat);
         floatArray.add(0, 1.1);
         floatArray.add(1, 1.2);
         floatArray.add(2, 1.3);
@@ -130,7 +127,7 @@ public class UnaryBlockingArrayValueTestCase extends GrpcBaseTest {
         StructureTypeInfo requestInfo = packageInfo.getStructInfo("TestBoolean");
         BStructureType requestType = requestInfo.getType();
         BMap<String, BValue> requestStruct = new BMap<String, BValue>(requestType);
-        BBooleanArray booleanArray = new BBooleanArray();
+        BValueArray booleanArray = new BValueArray(BTypes.typeBoolean);
         booleanArray.add(0, 1);
         booleanArray.add(1, 0);
         booleanArray.add(2, 1);
@@ -154,7 +151,7 @@ public class UnaryBlockingArrayValueTestCase extends GrpcBaseTest {
         BMap<String, BValue> requestStruct = new BMap<String, BValue>(requestType);
         StructureTypeInfo aInfo = packageInfo.getStructInfo("A");
         BStructureType aType = aInfo.getType();
-        BRefValueArray refArray = new BRefValueArray(new BArrayType(aType));
+        BValueArray refArray = new BValueArray(new BArrayType(aType));
         BMap<String, BValue> a1 = new BMap<String, BValue>(aType);
         a1.put("name", new BString("Sam"));
         BMap<String, BValue> a2 = new BMap<String, BValue>(aType);
@@ -176,14 +173,14 @@ public class UnaryBlockingArrayValueTestCase extends GrpcBaseTest {
         Assert.assertTrue(responses[0] instanceof BMap);
         final BMap<String, BValue> response = (BMap<String, BValue>) responses[0];
 //        {values:[1, 2, 3, 4, 5]}
-        Assert.assertTrue(response.get("values") instanceof BIntArray);
-        final BIntArray structArray = (BIntArray) response.get("values");
+        Assert.assertTrue(response.get("values") instanceof BValueArray);
+        final BValueArray structArray = (BValueArray) response.get("values");
         Assert.assertEquals(structArray.size(), 5);
-        Assert.assertEquals(structArray.get(0), 1);
-        Assert.assertEquals(structArray.get(1), 2);
-        Assert.assertEquals(structArray.get(2), 3);
-        Assert.assertEquals(structArray.get(3), 4);
-        Assert.assertEquals(structArray.get(4), 5);
+        Assert.assertEquals(structArray.getInt(0), 1);
+        Assert.assertEquals(structArray.getInt(1), 2);
+        Assert.assertEquals(structArray.getInt(2), 3);
+        Assert.assertEquals(structArray.getInt(3), 4);
+        Assert.assertEquals(structArray.getInt(4), 5);
     }
 
     @Test
@@ -193,12 +190,12 @@ public class UnaryBlockingArrayValueTestCase extends GrpcBaseTest {
         Assert.assertTrue(responses[0] instanceof BMap);
         final BMap<String, BValue> response = (BMap<String, BValue>) responses[0];
 //      {values:["A", "B", "C"]}
-        Assert.assertTrue(response.get("values") instanceof BStringArray);
-        final BStringArray structArray = (BStringArray) response.get("values");
+        Assert.assertTrue(response.get("values") instanceof BValueArray);
+        final BValueArray structArray = (BValueArray) response.get("values");
         Assert.assertEquals(structArray.size(), 3);
-        Assert.assertEquals(structArray.get(0), "A");
-        Assert.assertEquals(structArray.get(1), "B");
-        Assert.assertEquals(structArray.get(2), "C");
+        Assert.assertEquals(structArray.getString(0), "A");
+        Assert.assertEquals(structArray.getString(1), "B");
+        Assert.assertEquals(structArray.getString(2), "C");
     }
 
     @Test
@@ -208,12 +205,12 @@ public class UnaryBlockingArrayValueTestCase extends GrpcBaseTest {
         Assert.assertTrue(responses[0] instanceof BMap);
         final BMap<String, BValue> response = (BMap<String, BValue>) responses[0];
 //      {values:[1.1, 1.2, 1.3, 1.4, 1.5]}
-        Assert.assertTrue(response.get("values") instanceof BFloatArray);
-        final BFloatArray structArray = (BFloatArray) response.get("values");
+        Assert.assertTrue(response.get("values") instanceof BValueArray);
+        final BValueArray structArray = (BValueArray) response.get("values");
         Assert.assertEquals(structArray.size(), 5);
-        Assert.assertEquals(structArray.get(0), 1.1);
-        Assert.assertEquals(structArray.get(1), 1.2);
-        Assert.assertEquals(structArray.get(2), 1.3);
+        Assert.assertEquals(structArray.getFloat(0), 1.1);
+        Assert.assertEquals(structArray.getFloat(1), 1.2);
+        Assert.assertEquals(structArray.getFloat(2), 1.3);
     }
 
     @Test
@@ -223,12 +220,12 @@ public class UnaryBlockingArrayValueTestCase extends GrpcBaseTest {
         Assert.assertTrue(responses[0] instanceof BMap);
         final BMap<String, BValue> response = (BMap<String, BValue>) responses[0];
 //      {values:[true, false, true]}
-        Assert.assertTrue(response.get("values") instanceof BBooleanArray);
-        final BBooleanArray structArray = (BBooleanArray) response.get("values");
+        Assert.assertTrue(response.get("values") instanceof BValueArray);
+        final BValueArray structArray = (BValueArray) response.get("values");
         Assert.assertEquals(structArray.size(), 3);
-        Assert.assertEquals(structArray.get(0), 1);
-        Assert.assertEquals(structArray.get(1), 0);
-        Assert.assertEquals(structArray.get(2), 1);
+        Assert.assertEquals(structArray.getBoolean(0), 1);
+        Assert.assertEquals(structArray.getBoolean(1), 0);
+        Assert.assertEquals(structArray.getBoolean(2), 1);
     }
 
     @Test
@@ -238,9 +235,9 @@ public class UnaryBlockingArrayValueTestCase extends GrpcBaseTest {
         Assert.assertTrue(responses[0] instanceof BMap);
         final BMap<String, BValue> response = (BMap<String, BValue>) responses[0];
 //      {values:[{name:"Sam"}, {name:"John"}]}
-        Assert.assertTrue(response.get("values") instanceof BRefValueArray);
-        final BRefValueArray structArray = (BRefValueArray) response.get("values");
+        Assert.assertTrue(response.get("values") instanceof BValueArray);
+        final BValueArray structArray = (BValueArray) response.get("values");
         Assert.assertEquals(structArray.size(), 2);
-        Assert.assertEquals(((BMap<String, BValue>) structArray.get(0)).get("name").stringValue(), "Sam");
+        Assert.assertEquals(((BMap<String, BValue>) structArray.getRefValue(0)).get("name").stringValue(), "Sam");
     }
 }

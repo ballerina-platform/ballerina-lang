@@ -24,6 +24,7 @@ public class TypeDescriptor {
     public static final String SIG_INT = "I";
     public static final String SIG_BYTE = "W";
     public static final String SIG_FLOAT = "F";
+    public static final String SIG_DECIMAL = "L";
     public static final String SIG_STRING = "S";
     public static final String SIG_BOOLEAN = "B";
     public static final String SIG_REFTYPE = "R";
@@ -31,7 +32,7 @@ public class TypeDescriptor {
     public static final String SIG_TABLE = "D";
     public static final String SIG_STREAM = "H";
     public static final String SIG_MAP = "M";
-    public static final String SIG_CONNECTOR = "C";
+    public static final String SIG_ERROR = "E";
     public static final String SIG_SERVICE = "X";
     public static final String SIG_STRUCT = "T";
     public static final String SIG_FINITE = "G";
@@ -45,4 +46,5 @@ public class TypeDescriptor {
     public static final String SIG_NULL = "N";
     public static final String SIG_TUPLE = "P";
     public static final String SIG_CHANNEL = "Q";
+    public static final String SIG_ANYDATA = "K";
 }

@@ -101,7 +101,7 @@ public class IterableAnalyzer {
             handleSimpleTerminalOperations(iOperation);
         }
         validateIterableContext(context);
-        if (iOperation.resultType != symTable.errType && context.foreachTypes.isEmpty()) {
+        if (iOperation.resultType != symTable.semanticError && context.foreachTypes.isEmpty()) {
             calculateForeachTypes(context);
         }
     }
@@ -124,7 +124,7 @@ public class IterableAnalyzer {
         // Require at least one param.
         if (operation.iExpr.argExprs.size() != 1) {
             dlog.error(operation.pos, DiagnosticCode.ITERABLE_LAMBDA_REQUIRED);
-            operation.outputType = operation.resultType = symTable.errType;
+            operation.outputType = operation.resultType = symTable.semanticError;
             return;
         }
 
@@ -134,7 +134,7 @@ public class IterableAnalyzer {
             if (operation.kind == IterableKind.FOREACH) {
                 dlog.error(operation.pos, DiagnosticCode.ARROW_EXPRESSION_NOT_SUPPORTED_ITERABLE_OPERATION,
                         IterableKind.FOREACH.getKind());
-                operation.outputType = operation.resultType = symTable.errType;
+                operation.outputType = operation.resultType = symTable.semanticError;
                 return;
             }
 
@@ -148,13 +148,13 @@ public class IterableAnalyzer {
         final BType operationParams = typeChecker.checkExpr(bLangExpression, context.env, expType);
         if (operationParams == null || operationParams.tag != TypeTags.INVOKABLE) {
             dlog.error(operation.pos, DiagnosticCode.ITERABLE_LAMBDA_REQUIRED);
-            operation.outputType = operation.resultType = symTable.errType;
+            operation.outputType = operation.resultType = symTable.semanticError;
             return;
         }
 
         if (operation.kind == IterableKind.SELECT && operation.collectionType.tag != TypeTags.TABLE) {
             dlog.error(operation.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_OPERATION, IterableKind.SELECT.getKind());
-            operation.outputType = operation.resultType = symTable.errType;
+            operation.outputType = operation.resultType = symTable.semanticError;
             return;
         }
 
@@ -167,7 +167,7 @@ public class IterableAnalyzer {
                 operation.lambdaType.getParameterTypes().size() > 1) {
             // Lambda should have a single arg.
             dlog.error(operation.pos, DiagnosticCode.ITERABLE_LAMBDA_TUPLE_REQUIRED);
-            operation.outputType = operation.resultType = symTable.errType;
+            operation.outputType = operation.resultType = symTable.semanticError;
             return;
         }
 
@@ -184,8 +184,8 @@ public class IterableAnalyzer {
         // Cross Validate given and expected types and calculate output type;
         validateLambdaInputArgs(operation, elementTypes, paramTypes);
         validateLambdaReturnArgs(operation, actualRetTypes, givenRetTypes);
-        if (operation.outputType == symTable.errType) {
-            operation.resultType = symTable.errType;
+        if (operation.outputType == symTable.semanticError) {
+            operation.resultType = symTable.semanticError;
             return;
         }
         // Assign actual output value.
@@ -258,18 +258,18 @@ public class IterableAnalyzer {
     }
 
     private void validateLambdaInputArgs(Operation operation, List<BType> elementTypes, List<BType> paramTypes) {
-        if (elementTypes.get(0).tag == TypeTags.ERROR) {
-            operation.outputType = operation.resultType = symTable.errType;
+        if (elementTypes.get(0).tag == TypeTags.SEMANTIC_ERROR) {
+            operation.outputType = operation.resultType = symTable.semanticError;
             return;
         }
         for (int i = 0; i < paramTypes.size(); i++) {
-            if (paramTypes.get(i).tag == TypeTags.ERROR) {
+            if (paramTypes.get(i).tag == TypeTags.SEMANTIC_ERROR) {
                 return;
             }
             BType result = types.checkType(operation.pos, elementTypes.get(i), paramTypes.get(i),
                                            DiagnosticCode.ITERABLE_LAMBDA_INCOMPATIBLE_TYPES);
-            if (result.tag == TypeTags.ERROR) {
-                operation.outputType = operation.resultType = symTable.errType;
+            if (result.tag == TypeTags.SEMANTIC_ERROR) {
+                operation.outputType = operation.resultType = symTable.semanticError;
             }
         }
     }
@@ -281,21 +281,21 @@ public class IterableAnalyzer {
         }
         if (givenTypes.size() > supportedTypes.size()) {
             dlog.error(operation.pos, DiagnosticCode.ITERABLE_TOO_MANY_RETURN_VARIABLES, operation.kind);
-            operation.outputType = operation.resultType = symTable.errType;
+            operation.outputType = operation.resultType = symTable.semanticError;
             return;
         } else if (givenTypes.size() < supportedTypes.size()) {
             dlog.error(operation.pos, DiagnosticCode.ITERABLE_NOT_ENOUGH_RETURN_VARIABLES, operation.kind);
-            operation.outputType = operation.resultType = symTable.errType;
+            operation.outputType = operation.resultType = symTable.semanticError;
             return;
         }
         for (int i = 0; i < givenTypes.size(); i++) {
-            if (givenTypes.get(i).tag == TypeTags.ERROR) {
+            if (givenTypes.get(i).tag == TypeTags.SEMANTIC_ERROR) {
                 return;
             }
             BType result = types.checkType(operation.pos, givenTypes.get(i), supportedTypes.get(i),
                     DiagnosticCode.ITERABLE_LAMBDA_INCOMPATIBLE_TYPES);
-            if (result.tag == TypeTags.ERROR) {
-                operation.outputType = operation.resultType = symTable.errType;
+            if (result.tag == TypeTags.SEMANTIC_ERROR) {
+                operation.outputType = operation.resultType = symTable.semanticError;
             }
         }
     }
@@ -339,80 +339,80 @@ public class IterableAnalyzer {
         public List<BType> visit(BMapType type, Operation op) {
             if (op.arity == 0) {
                 logNotEnoughVariablesError(op, 1);
-                return Lists.of(symTable.errType);
+                return Lists.of(symTable.semanticError);
             } else if (op.arity == 1) {
                 return Lists.of(type.constraint);
             } else if (op.arity == 2) {
                 return Lists.of(symTable.stringType, type.constraint);
             }
             logTooManyVariablesError(op);
-            return Lists.of(symTable.errType);
+            return Lists.of(symTable.semanticError);
         }
 
         @Override
         public List<BType> visit(BXMLType type, Operation op) {
             if (op.arity == 0) {
                 logNotEnoughVariablesError(op, 1);
-                return Lists.of(symTable.errType);
+                return Lists.of(symTable.semanticError);
             } else if (op.arity == 1) {
                 return Lists.of(symTable.xmlType);
             } else if (op.arity == 2) {
                 return Lists.of(symTable.intType, symTable.xmlType);
             }
             logTooManyVariablesError(op);
-            return Lists.of(symTable.errType);
+            return Lists.of(symTable.semanticError);
         }
 
         @Override
         public List<BType> visit(BJSONType type, Operation op) {
             if (op.arity == 0) {
                 logNotEnoughVariablesError(op, 1);
-                return Lists.of(symTable.errType);
+                return Lists.of(symTable.semanticError);
             } else if (op.arity == 1) {
                 return Lists.of(symTable.jsonType);
             }
             logTooManyVariablesError(op);
-            return Lists.of(symTable.errType);
+            return Lists.of(symTable.semanticError);
         }
 
         @Override
         public List<BType> visit(BArrayType type, Operation op) {
             if (op.arity == 0) {
                 logNotEnoughVariablesError(op, 1);
-                return Lists.of(symTable.errType);
+                return Lists.of(symTable.semanticError);
             } else if (op.arity == 1) {
                 return Lists.of(type.eType);
             } else if (op.arity == 2) {
                 return Lists.of(symTable.intType, type.eType);
             }
             logTooManyVariablesError(op);
-            return Lists.of(symTable.errType);
+            return Lists.of(symTable.semanticError);
         }
 
         @Override
         public List<BType> visit(BTableType type, Operation op) {
             if (op.arity == 0) {
                 logNotEnoughVariablesError(op, 1);
-                return Lists.of(symTable.errType);
+                return Lists.of(symTable.semanticError);
             } else if (op.arity == 1) {
                 return Lists.of(type.getConstraint());
             }
             logTooManyVariablesError(op);
-            return Lists.of(symTable.errType);
+            return Lists.of(symTable.semanticError);
         }
 
         @Override
         public List<BType> visit(BRecordType type, Operation op) {
             if (op.arity == 0) {
                 logNotEnoughVariablesError(op, 1);
-                return Lists.of(symTable.errType);
+                return Lists.of(symTable.semanticError);
             } else if (op.arity == 1) {
                 return Lists.of(types.inferRecordFieldType(type));
             } else if (op.arity == 2) {
                 return Lists.of(symTable.stringType, types.inferRecordFieldType(type));
             }
             logTooManyVariablesError(op);
-            return Lists.of(symTable.errType);
+            return Lists.of(symTable.semanticError);
         }
 
         @Override
@@ -422,10 +422,10 @@ public class IterableAnalyzer {
                 return type.tupleTypes;
             } else if (type.tupleTypes.size() < op.arity) {
                 logTooManyVariablesError(op);
-                return Lists.of(symTable.errType);
+                return Lists.of(symTable.semanticError);
             }
             logNotEnoughVariablesError(op, type.tupleTypes.size());
-            return Lists.of(symTable.errType);
+            return Lists.of(symTable.semanticError);
         }
     }
 
@@ -474,7 +474,7 @@ public class IterableAnalyzer {
                     break;
             }
             dlog.error(operation.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_OPERATION, operation.kind);
-            return symTable.errType;
+            return symTable.semanticError;
         }
     }
 
@@ -526,7 +526,7 @@ public class IterableAnalyzer {
                 default:
                     break;
             }
-            return symTable.errType;
+            return symTable.semanticError;
         }
     }
 
@@ -542,13 +542,13 @@ public class IterableAnalyzer {
             // This error already logged.
             return;
         }
-        if (expectedType == symTable.errType) {
-            context.resultType = symTable.errType;
+        if (expectedType == symTable.semanticError) {
+            context.resultType = symTable.semanticError;
             return;
         }
         if (outputType.tag == TypeTags.VOID) {
             dlog.error(lastOperation.pos, DiagnosticCode.DOES_NOT_RETURN_VALUE, lastOperation.kind);
-            context.resultType = symTable.errType;
+            context.resultType = symTable.semanticError;
             return;
         }
         // Calculate expected type, if this is an chained iterable operation.
@@ -585,10 +585,10 @@ public class IterableAnalyzer {
                 }
                 return;
             } else if (expectedType.tag == TypeTags.TUPLE) {
-                context.resultType = symTable.errType;
+                context.resultType = symTable.semanticError;
                 return;
             } else if (expectedType.tag == TypeTags.ANY) {
-                context.resultType = symTable.errType;
+                context.resultType = symTable.semanticError;
                 dlog.error(lastOperation.pos, DiagnosticCode.ITERABLE_RETURN_TYPE_MISMATCH, lastOperation.kind);
                 return;
             } else if (expectedType.tag == TypeTags.NONE) {

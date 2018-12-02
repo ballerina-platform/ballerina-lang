@@ -30,14 +30,13 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
-import org.ballerinalang.model.tree.EndpointNode;
-import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -58,7 +57,7 @@ public class SwaggerConverterUtils {
      * ballerina definition selectively to prevent data loss
      *
      * @param ballerinaSource ballerina definition to be process as ballerina definition
-     * @param serviceName service name
+     * @param serviceName     service name
      * @return String representation of converted ballerina source
      * @throws IOException when error occur while processing input swagger and ballerina definitions.
      */
@@ -76,10 +75,10 @@ public class SwaggerConverterUtils {
             String httpAlias = getAlias(topCompilationUnit, Constants.BALLERINA_HTTP_PACKAGE_NAME);
             String swaggerAlias = getAlias(topCompilationUnit, Constants.SWAGGER_PACKAGE_NAME);
             SwaggerServiceMapper swaggerServiceMapper = new SwaggerServiceMapper(httpAlias, swaggerAlias);
-            List<EndpointNode> endpoints = new ArrayList<>();
+            List<BLangSimpleVariable> endpoints = new ArrayList<>();
 
             Swagger swagger = getSwagger(new Swagger(), swaggerServiceMapper, serviceName, topCompilationUnit,
-                                         endpoints);
+                    endpoints);
             return swaggerServiceMapper.generateSwaggerString(swagger);
         } catch (LSCompilerException e) {
             return "Error";
@@ -92,27 +91,27 @@ public class SwaggerConverterUtils {
      * to OAS on demand.
      *
      * @param ballerinaSource ballerina source to be converted to swagger/OAS definition
-     * @param serviceName specific service name within ballerina source that need to map OAS
+     * @param serviceName     specific service name within ballerina source that need to map OAS
      * @return Generated OAS3 string output.
      * @throws SwaggerConverterException when error occurs while converting, parsing generated swagger source.
      */
     public static String generateOAS3Definitions(String ballerinaSource, String serviceName)
             throws SwaggerConverterException {
         try {
-        BallerinaFile ballerinaFile = LSCompiler.compileContent(ballerinaSource, CompilerPhase.DEFINE);
-        BLangCompilationUnit topCompilationUnit = ballerinaFile.getBLangPackage()
-                .map(bLangPackage -> bLangPackage.getCompilationUnits().get(0))
-                .orElse(null);
+            BallerinaFile ballerinaFile = LSCompiler.compileContent(ballerinaSource, CompilerPhase.DEFINE);
+            BLangCompilationUnit topCompilationUnit = ballerinaFile.getBLangPackage()
+                    .map(bLangPackage -> bLangPackage.getCompilationUnits().get(0))
+                    .orElse(null);
 
-        if (topCompilationUnit == null) {
-            return "Error";
-        }
-        String httpAlias = getAlias(topCompilationUnit, Constants.BALLERINA_HTTP_PACKAGE_NAME);
-        String swaggerAlias = getAlias(topCompilationUnit, Constants.SWAGGER_PACKAGE_NAME);
-        SwaggerServiceMapper swaggerServiceMapper = new SwaggerServiceMapper(httpAlias, swaggerAlias);
-        List<EndpointNode> endpoints = new ArrayList<>();
+            if (topCompilationUnit == null) {
+                return "Error";
+            }
+            String httpAlias = getAlias(topCompilationUnit, Constants.BALLERINA_HTTP_PACKAGE_NAME);
+            String swaggerAlias = getAlias(topCompilationUnit, Constants.SWAGGER_PACKAGE_NAME);
+            SwaggerServiceMapper swaggerServiceMapper = new SwaggerServiceMapper(httpAlias, swaggerAlias);
+            List<BLangSimpleVariable> endpoints = new ArrayList<>();
             Swagger swagger = getSwagger(new Swagger(), swaggerServiceMapper, serviceName, topCompilationUnit,
-                                         endpoints);
+                    endpoints);
             String swaggerSource = swaggerServiceMapper.generateSwaggerString(swagger);
             SwaggerConverter converter = new SwaggerConverter();
             SwaggerDeserializationResult result = new SwaggerParser().readWithInfo(swaggerSource);
@@ -128,14 +127,15 @@ public class SwaggerConverterUtils {
     }
 
     private static Swagger getSwagger(Swagger swagger, SwaggerServiceMapper swaggerServiceMapper, String serviceName,
-                                      BLangCompilationUnit topCompilationUnit, List<EndpointNode> endpoints) {
+                                      BLangCompilationUnit topCompilationUnit, List<BLangSimpleVariable> endpoints) {
         for (TopLevelNode topLevelNode : topCompilationUnit.getTopLevelNodes()) {
-            if (topLevelNode instanceof BLangEndpoint) {
-                endpoints.add((EndpointNode) topLevelNode);
+            if (topLevelNode instanceof BLangSimpleVariable
+                    && ((BLangSimpleVariable) topLevelNode).getFlags().contains(Flag.LISTENER)) {
+                endpoints.add((BLangSimpleVariable) topLevelNode);
             }
 
             if (topLevelNode instanceof BLangService) {
-                ServiceNode serviceDefinition = (ServiceNode) topLevelNode;
+                BLangService serviceDefinition = (BLangService) topLevelNode;
                 swagger = new SwaggerEndpointMapper()
                         .convertBoundEndpointsToSwagger(endpoints, serviceDefinition, swagger);
 
@@ -158,13 +158,13 @@ public class SwaggerConverterUtils {
     /**
      * This method will read the contents of ballerina service in {@code servicePath} and write output to
      * {@code outPath} in OAS3 format.
-     * @see #generateOAS3Definitions(String, String)
      *
      * @param servicePath path to ballerina service
-     * @param outPath output path to write generated swagger file
+     * @param outPath     output path to write generated swagger file
      * @param serviceName if bal file contain multiple services, name of a specific service to build
-     * @throws IOException when file operations fail
+     * @throws IOException               when file operations fail
      * @throws SwaggerConverterException when converting swagger definition fails
+     * @see #generateOAS3Definitions(String, String)
      */
     public static void generateOAS3Definitions(Path servicePath, Path outPath, String serviceName)
             throws IOException, SwaggerConverterException {
@@ -178,12 +178,12 @@ public class SwaggerConverterUtils {
     /**
      * This method will read the contents of ballerina service in {@code servicePath} and write output to
      * {@code outPath} in Swagger (OAS2) format.
-     * @see #generateSwaggerDefinitions(String, String)
      *
      * @param servicePath path to ballerina service
-     * @param outPath output path to write generated swagger file
+     * @param outPath     output path to write generated swagger file
      * @param serviceName if bal file contain multiple services, name of a specific service to build
      * @throws IOException when file operations fail
+     * @see #generateSwaggerDefinitions(String, String)
      */
     public static void generateSwaggerDefinitions(Path servicePath, Path outPath, String serviceName)
             throws IOException {
@@ -198,10 +198,11 @@ public class SwaggerConverterUtils {
         String source = FileUtils.readFileToString(servicePath.toFile(), "UTF-8");
         return source;
     }
-    
+
     /**
      * Write content to a file.
-     * @param path Path of the file.
+     *
+     * @param path    Path of the file.
      * @param content The content.
      * @throws IOException Error when creating or writing the file.
      */
@@ -234,8 +235,9 @@ public class SwaggerConverterUtils {
 
     /**
      * Gets the alias for a given module from a bLang file root node.
+     *
      * @param topCompilationUnit The root node.
-     * @param packageName The module name.
+     * @param packageName        The module name.
      * @return The alias.
      */
     private static String getAlias(BLangCompilationUnit topCompilationUnit, String packageName) {

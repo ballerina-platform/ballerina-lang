@@ -86,7 +86,7 @@ HexNumeral = 0 [xX] {HexDigits}
 
 DottedHexNumber = {HexDigits} "." {HexDigits} | "." {HexDigits}
 
-DottedDecimalNumber = {DecimalNumeral} "." {Digits} | "." {Digit}+
+DottedDecimalNumber = {DecimalNumeral} "." {Digits} | "." {Digits}
 
 HexDigits = {HexDigit}+
 HexDigit = [0-9a-fA-F]
@@ -96,25 +96,16 @@ BinaryDigits = {BinaryDigit}+
 BinaryDigit = [01]
 
 HexadecimalFloatingPointLiteral =  {HexIndicator} {HexFloatingPointNumber}
+HexIndicator = 0 [xX]
 
 DecimalFloatingPointNumber = {DecimalNumeral} {ExponentPart} | {DottedDecimalNumber} {ExponentPart}?
-
-// §3.10.2 Floating-Point Literals
-
-DecimalFloatingPointLiteral = {Digits} "." ({Digits} {ExponentPart}? | {Digits}? {ExponentPart})
-    | "." {Digits} {ExponentPart}?
-    | {Digits} {ExponentPart}
-    | {Digits}
 ExponentPart = {ExponentIndicator} {SignedInteger}
 ExponentIndicator = [eE]
 SignedInteger = {Sign}? {Digits}
 Sign = [+-]
 
-HexIndicator = 0 [xX]
-HexFloatingPointNumber = {HexDigits} {BinaryExponent} | {DottedHexNumber} {BinaryExponent}?
 
-HexadecimalFloatingPointLiteral = {HexSignificand} {BinaryExponent}
-HexSignificand = {HexNumeral} "."? | '0' [xX] {HexDigits}? "." {HexDigits}
+HexFloatingPointNumber = {HexDigits} {BinaryExponent} | {DottedHexNumber} {BinaryExponent}?
 BinaryExponent = {BinaryExponentIndicator} {SignedInteger}
 BinaryExponentIndicator = [pP]
 
@@ -264,13 +255,12 @@ DOCUMENTATION_SPACE = [ ]
 
 // MARKDOWN_DOCUMENTATION_MODE
 DEFINITION_REFERERNCE = {REFERENCE_TYPE} {DOCUMENTATION_SPACE}+
-REFERENCE_TYPE = {TYPE}|{ENDPOINT}|{SERVICE}|{VARIABLE}|{VAR}|{ANNOTATION}|{MODULE}|{FUNCTION}|{PARAMETER}
+REFERENCE_TYPE = {TYPE}|{SERVICE}|{VARIABLE}|{VAR}|{ANNOTATION}|{MODULE}|{FUNCTION}|{PARAMETER}
 MARKDOWN_DOCUMENTATION_TEXT = {DOCUMENTATION_TEXT_CHARACTER}+
 DOCUMENTATION_TEXT_CHARACTER =  [^`\n] | '\\' {BACKTICK}
 DOCUMENTATION_ESCAPED_CHARACTERS = {DOCUMENTATION_SPACE}
 MARKDOWN_DOCUMENTATION_LINE_END = [\n]
 TYPE = "type"
-ENDPOINT = "endpoint"
 SERVICE = "service"
 VARIABLE = "variable"
 VAR = "var"
@@ -362,38 +352,41 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
 
 %%
 <YYINITIAL> {
+    "__init"                                    { return OBJECT_INIT; }
+
     "abort"                                     { return ABORT; }
     "abstract"                                  { return ABSTRACT; }
     "all"                                       { return ALL; }
     "annotation"                                { return ANNOTATION; }
     "any"                                       { return ANY; }
+    "anydata"                                   { return ANYDATA; }
     "as"                                        { return AS; }
     "ascending"                                 { return ASCENDING; }
-    "await"                                     { return AWAIT; }
 
-    "bind"                                      { return BIND; }
     "boolean"                                   { return BOOLEAN; }
     "break"                                     { return BREAK; }
-    "but"                                       { return BUT; }
     "byte"                                      { return BYTE; }
 
     "catch"                                     { return CATCH; }
     "channel"                                   { return CHANNEL; }
     "check"                                     { return CHECK; }
-    "compensation"                              { return COMPENSATION; }
-    "compensate"                                { return COMPENSATE; }
+    "client"                                    { return CLIENT; }
+    "const"                                     { return CONST; }
     "continue"                                  { return CONTINUE; }
 
     "done"                                      { return DONE; }
+    "decimal"                                   { return DECIMAL; }
     "deprecated"                                { return DEPRECATED; }
     "descending"                                { return DESCENDING; }
 
     "else"                                      { return ELSE; }
-    "endpoint"                                  { return ENDPOINT; }
+    "error"                                     { return ERROR; }
     "extern"                                    { return EXTERN; }
 
+    "final"                                     { return FINAL; }
     "finally"                                   { return FINALLY; }
     "float"                                     { return FLOAT; }
+    "flush"                                     { return FLUSH; }
     "foreach"                                   { return FOREACH; }
     "fork"                                      { return FORK; }
     "function"                                  { return FUNCTION; }
@@ -403,12 +396,14 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "import"                                    { return IMPORT; }
     "in"                                        { return IN; }
     "int"                                       { return INT; }
+    "is"                                        { return IS; }
 
     "join"                                      { return JOIN; }
     "json"                                      { return JSON; }
 
     "lengthof"                                  { return LENGTHOF; }
     "limit"                                     { return LIMIT; }
+    "listener"                                  { return LISTENER; }
     "lock"                                      { return LOCK; }
 
     "map"                                       { return MAP; }
@@ -421,11 +416,13 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "oncommit"                                  { return ONCOMMIT; }
     "onretry"                                   { return ONRETRY; }
 
+    "panic"                                     { return PANIC; }
     "parameter"                                 { return TYPE_PARAMETER; }
     "private"                                   { return PRIVATE; }
     "public"                                    { return PUBLIC; }
 
     "record"                                    { return RECORD; }
+    "remote"                                    { return REMOTE; }
     "resource"                                  { return RESOURCE; }
     "retry"                                     { return RETRY; }
     "retries"                                   { return RETRIES; }
@@ -433,15 +430,13 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "returns"                                   { return RETURNS; }
 
     "service"                                   { return SERVICE; }
-    "scope"                                     { return SCOPE; }
-    "some"                                      { return SOME; }
     "start"                                     { return START; }
     "stream"                                    { return STREAM; }
     "string"                                    { return STRING; }
 
     "table"                                     { return TABLE; }
-    "timeout"                                   { return TIMEOUT; }
     "transaction"                               { return TRANSACTION; }
+    "trap"                                      { return TRAP; }
     "try"                                       { return TRY; }
     "type"                                      { return TYPE; }
     "typedesc"                                  { return TYPEDESC; }
@@ -449,6 +444,7 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
 
     "untaint"                                   { return UNTAINT; }
 
+    "wait"                                      { return WAIT; }
     "while"                                     { return WHILE; }
     "with"                                      { return WITH; }
     "worker"                                    { return WORKER; }
@@ -482,6 +478,8 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "!"                                         { return NOT; }
     "=="                                        { return EQUAL; }
     "!="                                        { return NOT_EQUAL; }
+    "==="                                       { return REF_EQUAL; }
+    "!=="                                       { return REF_NOT_EQUAL; }
     ">"                                         { return GT; }
     "<"                                         { return LT; }
     ">="                                        { return GT_EQUAL; }
@@ -503,6 +501,7 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "|"                                         { return PIPE; }
     "=>"                                        { return EQUAL_GT; }
     "?:"                                        { return ELVIS; }
+    "->>"                                       { return SYNCRARROW; }
 
     "+="                                        { return COMPOUND_ADD; }
     "-="                                        { return COMPOUND_SUB; }

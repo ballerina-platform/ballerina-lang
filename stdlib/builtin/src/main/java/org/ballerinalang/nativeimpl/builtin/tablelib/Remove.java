@@ -25,6 +25,8 @@ import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.util.exceptions.BLangFreezeException;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
  * {@code Remove} is the function to remove data from a table.
@@ -43,6 +45,10 @@ public class Remove extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BTable table = (BTable) context.getRefArgument(0);
         BFunctionPointer lambdaFunction = (BFunctionPointer) context.getRefArgument(1);
-        table.performRemoveOperation(context, lambdaFunction);
+        try {
+            table.performRemoveOperation(context, lambdaFunction);
+        } catch (BLangFreezeException e) {
+            throw new BallerinaException("Failed to remove data from the table: " + e.getMessage());
+        }
     }
 }

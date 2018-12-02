@@ -1,6 +1,6 @@
 import ballerina/io;
 
-error unknownOpError = { message: "unknown operation" };
+error unknownOpError = error("unknown operation");
 
 // A function named `main` acts as a default entry point to a Ballerina program.
 // This entry function can have zero or more parameters, and can either return
@@ -21,7 +21,7 @@ public function main(int i, int j, string s) returns int {
 // value `add`.
 public function performMathOp(string op = "add", int... values) returns int {
     if (isKnownOp(op) && lengthof values == 0) {
-        error invalidArgsError = { message: "insufficient arguments specified" };
+        error invalidArgsError = error("insufficient arguments specified");
         throw invalidArgsError;
     }
 

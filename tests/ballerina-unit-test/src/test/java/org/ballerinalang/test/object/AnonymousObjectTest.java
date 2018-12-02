@@ -151,18 +151,16 @@ public class AnonymousObjectTest {
     @Test(description = "Negative test to test un-defaultable anon object")
     public void testUndefaultableAnonObject() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_un_defaultable_anon.bal");
-        Assert.assertEquals(result.getErrorCount(), 8);
+        Assert.assertEquals(result.getErrorCount(), 6);
         BAssertUtil.validateError(result, 0, "variable 'p1' is not initialized", 2, 1);
         BAssertUtil.validateError(result, 1,
                 "no implementation found for the function 'test' of non-abstract object '$anonType$1'", 3, 45);
         BAssertUtil.validateError(result, 2, "variable 'p2' is not initialized", 3, 1);
         BAssertUtil.validateError(result, 3,
                 "no implementation found for the function 'test' of non-abstract object '$anonType$2'", 4, 45);
-        BAssertUtil.validateError(result, 4, "variable 'p4' is not initialized", 7, 5);
-        BAssertUtil.validateError(result, 5,
+        BAssertUtil.validateError(result, 4,
                 "no implementation found for the function 'test' of non-abstract object '$anonType$4'", 8, 49);
-        BAssertUtil.validateError(result, 6, "variable 'p5' is not initialized", 8, 5);
-        BAssertUtil.validateError(result, 7,
+        BAssertUtil.validateError(result, 5,
                 "no implementation found for the function 'test' of non-abstract object '$anonType$5'", 9, 49);
     }
 }

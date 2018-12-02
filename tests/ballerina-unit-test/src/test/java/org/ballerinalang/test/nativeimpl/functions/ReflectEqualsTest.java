@@ -71,7 +71,7 @@ public class ReflectEqualsTest {
         }
     }
     
-    @Test(dataProvider = "ReflectEqualsValidFunctionInfos")
+    @Test(dataProvider = "ReflectEqualsValidFunctionInfos", groups = "broken")
     public void testPrimitivesReflectEqual(FunctionInfo testFunction) {
         // TODO: This is not scalable. If new internal only functions are added to the model, this test will fail. 
         // Hence add a separate test per each function.

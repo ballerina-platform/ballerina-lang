@@ -17,19 +17,15 @@
  */
 package org.ballerinalang.net.grpc.stubs;
 
-import com.google.protobuf.Descriptors;
 import io.netty.handler.codec.http.HttpHeaders;
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BTupleType;
-import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.net.grpc.ClientCall;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageUtils;
@@ -42,17 +38,6 @@ import java.util.Arrays;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_BOOL_MESSAGE;
-import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_BYTES_MESSAGE;
-import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_DOUBLE_MESSAGE;
-import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_FLOAT_MESSAGE;
-import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_INT32_MESSAGE;
-import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_INT64_MESSAGE;
-import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_STRING_MESSAGE;
-import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_UINT32_MESSAGE;
-import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_UINT64_MESSAGE;
-import static org.ballerinalang.net.http.HttpConstants.PACKAGE_BALLERINA_BUILTIN;
-import static org.ballerinalang.net.http.HttpConstants.STRUCT_GENERIC_ERROR;
 
 /**
  * This class handles Blocking client connection.
@@ -63,8 +48,8 @@ public class BlockingStub extends AbstractStub {
 
     private static final BTupleType RESP_TUPLE_TYPE = new BTupleType(Arrays.asList(BTypes.typeAny, BTypes.typeAny));
 
-    public BlockingStub(HttpClientConnector clientConnector, Struct endpointConfig) {
-        super(clientConnector, endpointConfig);
+    public BlockingStub(HttpClientConnector clientConnector, String url) {
+        super(clientConnector, url);
     }
 
     /**
@@ -78,8 +63,7 @@ public class BlockingStub extends AbstractStub {
                                            DataContext dataContext) {
         ClientCall call = new ClientCall(getConnector(), createOutboundRequest(request
                 .getHeaders()), methodDescriptor);
-        call.start(new CallBlockingListener(dataContext, methodDescriptor.getSchemaDescriptor()
-                .getOutputType()));
+        call.start(new CallBlockingListener(dataContext));
         try {
             call.sendMessage(request);
             call.halfClose();
@@ -94,13 +78,11 @@ public class BlockingStub extends AbstractStub {
     private static final class CallBlockingListener implements Listener {
 
         private final DataContext dataContext;
-        private final Descriptors.Descriptor outputDescriptor;
         private Message value;
 
         // Non private to avoid synthetic class
-        private CallBlockingListener(DataContext dataContext, Descriptors.Descriptor outputDescriptor) {
+        private CallBlockingListener(DataContext dataContext) {
             this.dataContext = dataContext;
-            this.outputDescriptor = outputDescriptor;
         }
 
         @Override
@@ -119,67 +101,33 @@ public class BlockingStub extends AbstractStub {
 
         @Override
         public void onClose(Status status, HttpHeaders trailers) {
-            BMap<String, BValue> httpConnectorError = null;
-            BRefValueArray inboundResponse = null;
+            BError httpConnectorError = null;
+            BValueArray inboundResponse = null;
             if (status.isOk()) {
                 if (value == null) {
                     // No value received so mark the future as an error
-                    httpConnectorError = MessageUtils.getConnectorError(dataContext.context,
-                            Status.Code.INTERNAL.toStatus()
+                    httpConnectorError = MessageUtils.getConnectorError(Status.Code.INTERNAL.toStatus()
                                     .withDescription("No value received for unary call").asRuntimeException());
                 } else {
-                    BValue responseBValue = MessageUtils.generateRequestStruct(value, dataContext.context
-                            .getProgramFile(), outputDescriptor.getName(), getBalType(outputDescriptor.getName(),
-                            dataContext.context));
+                    BValue responseBValue = value.getbMessage();
                     // Set response headers, when response headers exists in the message context.
                     BMap<String, BValue> headerStruct = BLangConnectorSPIUtil.createBStruct(dataContext.context
                             .getProgramFile(), PROTOCOL_STRUCT_PACKAGE_GRPC, "Headers");
                     headerStruct.addNativeData(MESSAGE_HEADERS, value.getHeaders());
-                    BRefValueArray contentTuple = new BRefValueArray(RESP_TUPLE_TYPE);
+                    BValueArray contentTuple = new BValueArray(RESP_TUPLE_TYPE);
                     contentTuple.add(0, (BRefType) responseBValue);
                     contentTuple.add(1, headerStruct);
                     inboundResponse = contentTuple;
                 }
             } else {
-                httpConnectorError = MessageUtils.getConnectorError(dataContext.context, status.asRuntimeException());
+                httpConnectorError = MessageUtils.getConnectorError(status.asRuntimeException());
             }
             if (inboundResponse != null) {
                 dataContext.context.setReturnValues(inboundResponse);
-            } else if (httpConnectorError != null) {
-                dataContext.context.setReturnValues(httpConnectorError);
             } else {
-                BMap<String, BValue> err = BLangConnectorSPIUtil.createBStruct(dataContext.context,
-                        PACKAGE_BALLERINA_BUILTIN, STRUCT_GENERIC_ERROR, "HttpClient failed");
-                dataContext.context.setReturnValues(err);
+                dataContext.context.setReturnValues(httpConnectorError);
             }
             dataContext.callback.notifySuccess();
-        }
-
-        /**
-         * Returns corresponding Ballerina type for the proto buffer type.
-         *
-         * @param protoType Protocol buffer type
-         * @param context   Ballerina Context
-         * @return .
-         */
-        private static BType getBalType(String protoType, Context context) {
-            if (protoType.equalsIgnoreCase(WRAPPER_DOUBLE_MESSAGE) || protoType
-                    .equalsIgnoreCase(WRAPPER_FLOAT_MESSAGE)) {
-                return BTypes.typeFloat;
-            } else if (protoType.equalsIgnoreCase(WRAPPER_INT32_MESSAGE) || protoType
-                    .equalsIgnoreCase(WRAPPER_INT64_MESSAGE) || protoType
-                    .equalsIgnoreCase(WRAPPER_UINT32_MESSAGE) || protoType
-                    .equalsIgnoreCase(WRAPPER_UINT64_MESSAGE)) {
-                return BTypes.typeInt;
-            } else if (protoType.equalsIgnoreCase(WRAPPER_BOOL_MESSAGE)) {
-                return BTypes.typeBoolean;
-            } else if (protoType.equalsIgnoreCase(WRAPPER_STRING_MESSAGE)) {
-                return BTypes.typeString;
-            } else if (protoType.equalsIgnoreCase(WRAPPER_BYTES_MESSAGE)) {
-                return new BArrayType(BTypes.typeByte);
-            } else {
-                return context.getProgramFile().getEntryPackage().getStructInfo(protoType).getType();
-            }
         }
     }
 }

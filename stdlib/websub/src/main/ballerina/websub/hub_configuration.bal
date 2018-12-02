@@ -18,51 +18,49 @@ import ballerina/config;
 import ballerina/http;
 import ballerina/log;
 
-@final string BASE_PATH = "/websub";
-@final string HUB_PATH = "/hub";
+const string BASE_PATH = "/websub";
+const string HUB_PATH = "/hub";
 
-@final string DEFAULT_HOST = "0.0.0.0";
-@final int DEFAULT_LEASE_SECONDS_VALUE = 86400; //one day
-@final string DEFAULT_SIGNATURE_METHOD = "SHA256";
+const string DEFAULT_HOST = "0.0.0.0";
+const int DEFAULT_LEASE_SECONDS_VALUE = 86400; //one day
+const string DEFAULT_SIGNATURE_METHOD = "SHA256";
 
 //TODO: Fix persistence configs, H2?
-@final string DEFAULT_DB_DIRECTORY = "/tmp/websubdb";
-@final string DEFAULT_DB_NAME = "HUB_DB";
-@final string DEFAULT_DB_USERNAME = "sa";
-@final string DEFAULT_DB_PASSWORD = "";
+const string DEFAULT_DB_DIRECTORY = "/tmp/websubdb";
+const string DEFAULT_DB_NAME = "HUB_DB";
+const string DEFAULT_DB_USERNAME = "sa";
+const string DEFAULT_DB_PASSWORD = "";
 
-@readonly string hubHost;
-@readonly int hubPort;
-@readonly int hubLeaseSeconds;
-@readonly string hubSignatureMethod;
-@readonly boolean hubRemotePublishingEnabled;
-@readonly RemotePublishMode hubRemotePublishMode = PUBLISH_MODE_DIRECT;
-@readonly boolean hubTopicRegistrationRequired;
-@readonly string hubPublicUrl;
+string hubHost = DEFAULT_HOST;
+int hubPort = 0;
+int hubLeaseSeconds = DEFAULT_LEASE_SECONDS_VALUE;
+string hubSignatureMethod = DEFAULT_SIGNATURE_METHOD;
+boolean hubRemotePublishingEnabled = false;
+RemotePublishMode hubRemotePublishMode = PUBLISH_MODE_DIRECT;
+boolean hubTopicRegistrationRequired = false;
+string hubPublicUrl = "";
 
-@final boolean hubPersistenceEnabled = config:getAsBoolean("b7a.websub.hub.enablepersistence");
-@final string hubDatabaseDirectory = config:getAsString("b7a.websub.hub.db.directory", default = DEFAULT_DB_DIRECTORY);
-@final string hubDatabaseName = config:getAsString("b7a.websub.hub.db.name", default = DEFAULT_DB_NAME);
-@final string hubDatabaseUsername = config:getAsString("b7a.websub.hub.db.username", default = DEFAULT_DB_USERNAME);
-@final string hubDatabasePassword = config:getAsString("b7a.websub.hub.db.password", default = DEFAULT_DB_PASSWORD);
+final boolean hubPersistenceEnabled = config:getAsBoolean("b7a.websub.hub.enablepersistence");
+final string hubDatabaseDirectory = config:getAsString("b7a.websub.hub.db.directory", default = DEFAULT_DB_DIRECTORY);
+final string hubDatabaseName = config:getAsString("b7a.websub.hub.db.name", default = DEFAULT_DB_NAME);
+final string hubDatabaseUsername = config:getAsString("b7a.websub.hub.db.username", default = DEFAULT_DB_USERNAME);
+final string hubDatabasePassword = config:getAsString("b7a.websub.hub.db.password", default = DEFAULT_DB_PASSWORD);
 //TODO:add pool options
 
-@readonly boolean hubSslEnabled;
-@readonly http:ServiceSecureSocket? hubServiceSecureSocket = ();
-@readonly http:SecureSocket? hubClientSecureSocket = ();
+boolean hubSslEnabled = false;
+http:ServiceSecureSocket? hubServiceSecureSocket = ();
+http:SecureSocket? hubClientSecureSocket = ();
 
 # Function to bind and start the Ballerina WebSub Hub service.
 #
 # + return - The `http:Listener` to which the service is bound
 function startHubService() returns http:Listener {
-    http:Listener hubServiceEP = new;
-    hubServiceEP.init({
-            host: hubHost,
-            port: hubPort,
-            secureSocket: hubServiceSecureSocket
-    });
-    hubServiceEP.register(hubService);
-    hubServiceEP.start();
+    http:ServiceEndpointConfiguration httpEpConfig = {host: hubHost, port: hubPort,
+                                                      secureSocket: hubServiceSecureSocket};
+    http:Listener hubServiceEP = new http:Listener(hubPort, config = httpEpConfig);
+    // TODO : handle errors
+    _ = hubServiceEP.__attach(hubService, {});
+    _ = hubServiceEP.__start();
     return hubServiceEP;
 }
 
@@ -71,10 +69,8 @@ function startHubService() returns http:Listener {
 #
 # + return - The WebSub Hub's URL
 function getHubUrl() returns string {
-    match (hubServiceSecureSocket) {
-        http:ServiceSecureSocket => { return "https://localhost:" + hubPort + BASE_PATH + HUB_PATH; }
-        () => { return "http://localhost:" + hubPort + BASE_PATH + HUB_PATH; }
-    }
+    return hubServiceSecureSocket is http:ServiceSecureSocket ? ("https://localhost:" + hubPort + BASE_PATH + HUB_PATH)
+                : ("http://localhost:" + hubPort + BASE_PATH + HUB_PATH);
 }
 
 # Function to retrieve if persistence is enabled for the Hub.
@@ -101,12 +97,11 @@ function getServiceSecureSocketConfig(http:ServiceSecureSocket? currentServiceSe
     string keyStorePassword = config:getAsString("b7a.websub.hub.ssl.key_store.password");
 
     if (keyStoreFilePath == "") {
-        match (currentServiceSecureSocket) {
-            http:ServiceSecureSocket serviceSecureSocketAsParam => return serviceSecureSocketAsParam;
-            () => {
-                keyStoreFilePath = "${ballerina.home}/bre/security/ballerinaKeystore.p12";
-                keyStorePassword = "ballerina";
-            }
+        if (currentServiceSecureSocket is http:ServiceSecureSocket) {
+            return currentServiceSecureSocket;
+        } else {
+            keyStoreFilePath = "${ballerina.home}/bre/security/ballerinaKeystore.p12";
+            keyStorePassword = "ballerina";
         }
     }
 
@@ -142,12 +137,11 @@ function getSecureSocketConfig(http:SecureSocket? currentSecureSocket) returns h
     trustStorePassword = config:getAsString("b7a.websub.hub.ssl.trust_store.password");
 
     if (trustStoreFilePath == "") {
-        match (currentSecureSocket) {
-            http:SecureSocket secureSocketAsParam => return secureSocketAsParam;
-            () => {
-                trustStoreFilePath = "${ballerina.home}/bre/security/ballerinaTruststore.p12";
-                trustStorePassword = "ballerina";
-            }
+        if (currentSecureSocket is http:SecureSocket) {
+            return currentSecureSocket;
+        } else {
+            trustStoreFilePath = "${ballerina.home}/bre/security/ballerinaTruststore.p12";
+            trustStorePassword = "ballerina";
         }
     }
 

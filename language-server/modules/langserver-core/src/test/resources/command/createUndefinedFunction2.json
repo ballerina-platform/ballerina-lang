@@ -1,8 +1,8 @@
 {
-  "arguments": "int a, int b",
-  "functionName": "addTwoIntegers2",
-  "returns": "int",
-  "returnsDefault": "return 0;",
+  "arguments": {
+    "node.line" : 4,
+    "node.column" : 12
+  },
   "expected": {
     "result":{
       "edit":{
@@ -23,7 +23,7 @@
                     "character":0
                   }
                 },
-                "newText":"\n\nfunction addTwoIntegers2(int a, int b) returns \"int\" {\n\"return 0;\"\n}\n"
+                "newText":"\n\nfunction addTwoIntegers2(int a, int b) returns int {\n    return 0;\n}\n"
               }
             ]
           }

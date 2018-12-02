@@ -17,10 +17,13 @@ function testUsername () returns (boolean) {
 }
 
 function testUserClaims () returns (boolean) {
-    map claims = {email:"tom@ballerina.com", org:"wso2"};
+    map<any> claims = {email:"tom@ballerina.com", org:"wso2"};
     runtime:getInvocationContext().userPrincipal.claims = claims;
     if (runtime:getInvocationContext().userPrincipal.claims.hasKey("email")) {
-        string emailInContext = runtime:getInvocationContext().userPrincipal.claims["email"] but { () => "", any a => <string> a};
+        string emailInContext = "";
+        var result = runtime:getInvocationContext().userPrincipal.claims["email"];
+        emailInContext = <string> result;
+
         return "tom@ballerina.com" == emailInContext;
     }
     return false;
@@ -51,6 +54,6 @@ function testAttributes () returns boolean {
     json jsonAttribute = { name: "value" };
     runtime:getInvocationContext().attributes[attributeName] = attributeValue;
     runtime:getInvocationContext().attributes[jsonAttributeName] = jsonAttribute;
-    return (attributeValue == runtime:getInvocationContext().attributes[attributeName]) &&
-        (jsonAttribute == runtime:getInvocationContext().attributes[jsonAttributeName]);
+    return (attributeValue === runtime:getInvocationContext().attributes[attributeName]) &&
+        (jsonAttribute === runtime:getInvocationContext().attributes[jsonAttributeName]);
 }

@@ -16,8 +16,8 @@
 
 import ballerina/http;
 
-service<http:WebSocketService> wsService bind { port: 9090 } {
+service wsService on new http:WebSocketListener(9090) {
 
-    onText(endpoint caller, json text, boolean final) {
+    resource function onText(http:WebSocketCaller caller, json text, boolean isFinal) {
     }
 }

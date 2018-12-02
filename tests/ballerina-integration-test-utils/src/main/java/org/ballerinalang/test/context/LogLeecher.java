@@ -100,6 +100,10 @@ public class LogLeecher {
                     throw new BallerinaTestException("Error waiting for text", e);
                 }
             }
+
+            if (!textFound) {
+                throw new BallerinaTestException("Matching log not found prior to server shutdown for: " + text);
+            }
         }
     }
 

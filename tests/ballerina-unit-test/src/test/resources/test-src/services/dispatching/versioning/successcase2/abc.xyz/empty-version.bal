@@ -1,10 +1,7 @@
-
 import ballerina/http;
 import ballerina/io;
 
-endpoint http:NonListener passthruEP {
-    port:9090
-};
+listener http:MockListener passthruEP  = new(9090);
 
 @http:ServiceConfig {
     basePath:"/echo/{version}",
@@ -14,14 +11,14 @@ endpoint http:NonListener passthruEP {
        matchMajorVersion:true
     }
 }
-service<http:Service> echo bind passthruEP {
+service echo on passthruEP {
 
     @http:ResourceConfig {
         path:"/go"
     }
-    sample (endpoint conn, http:Request req) {
+    resource function sample(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setJsonPayload({hello:"common service"});
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 }

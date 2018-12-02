@@ -6,16 +6,12 @@ function println(string|int value) {
 }
 
 // This is a custom error record.
-type KeyNotFoundError record {
-    string message;
-    error? cause;
-    string key;
-};
+type KeyNotFoundError error<string, record { string key; }>;
 
 // This function returns either a `string` or a `KeyNotFoundError`.
 function getValue(string key) returns string|KeyNotFoundError {
     if (key == "") {
-        KeyNotFoundError err = {message: "key '" + key + "' not found", key: key};
+        KeyNotFounderror err = error("key '" + key + "' not found", { key: key });
         return err;
     } else {
         return "this is a value";

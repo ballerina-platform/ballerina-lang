@@ -48,11 +48,6 @@ class BFloatType extends BType {
     }
 
     @Override
-    public TypeSignature getSig() {
-        return new TypeSignature(TypeSignature.SIG_FLOAT);
-    }
-
-    @Override
     public int getTag() {
         return TypeTags.FLOAT_TAG;
     }

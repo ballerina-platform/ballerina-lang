@@ -17,6 +17,7 @@ AS          : 'as' ;
 PUBLIC      : 'public' ;
 PRIVATE     : 'private' ;
 EXTERN      : 'extern' ;
+FINAL       : 'final' ;
 SERVICE     : 'service' ;
 RESOURCE    : 'resource' ;
 FUNCTION    : 'function' ;
@@ -26,14 +27,16 @@ ANNOTATION  : 'annotation' ;
 PARAMETER   : 'parameter' ;
 TRANSFORMER : 'transformer' ;
 WORKER      : 'worker' ;
-ENDPOINT    : 'endpoint' ;
-BIND        : 'bind' ;
+LISTENER    : 'listener' ;
+REMOTE      : 'remote' ;
 XMLNS       : 'xmlns' ;
 RETURNS     : 'returns';
 VERSION     : 'version';
 DEPRECATED  : 'deprecated';
 CHANNEL     : 'channel';
 ABSTRACT    : 'abstract';
+CLIENT      : 'client';
+CONST       : 'const';
 
 FROM        : 'from' { inTableSqlQuery = true; inSiddhiInsertQuery = true; inSiddhiOutputRateLimit = true; } ;
 ON          : 'on' ;
@@ -85,8 +88,10 @@ DESCENDING  : 'descending' ;
 TYPE_INT        : 'int' ;
 TYPE_BYTE       : 'byte' ;
 TYPE_FLOAT      : 'float' ;
+TYPE_DECIMAL    : 'decimal' ;
 TYPE_BOOL       : 'boolean' ;
 TYPE_STRING     : 'string' ;
+TYPE_ERROR      : 'error' ;
 TYPE_MAP        : 'map' ;
 TYPE_JSON       : 'json' ;
 TYPE_XML        : 'xml' ;
@@ -96,9 +101,11 @@ TYPE_ANY        : 'any' ;
 TYPE_DESC       : 'typedesc' ;
 TYPE            : 'type' ;
 TYPE_FUTURE     : 'future' ;
+TYPE_ANYDATA    : 'anydata' ;
 
 VAR         : 'var' ;
 NEW         : 'new' ;
+OBJECT_INIT : '__init' ;
 IF          : 'if' ;
 MATCH       : 'match' ;
 ELSE        : 'else' ;
@@ -115,33 +122,33 @@ TRY         : 'try' ;
 CATCH       : 'catch' ;
 FINALLY     : 'finally' ;
 THROW       : 'throw' ;
+PANIC       : 'panic' ;
+TRAP        : 'trap' ;
 RETURN      : 'return' ;
 TRANSACTION : 'transaction' ;
 ABORT       : 'abort' ;
 RETRY       : 'retry' ;
 ONRETRY     : 'onretry' ;
 RETRIES     : 'retries' ;
-ONABORT     : 'onabort' ;
-ONCOMMIT    : 'oncommit' ;
+COMMITTED   : 'committed' ;
+ABORTED     : 'aborted' ;
 LENGTHOF    : 'lengthof' ;
 WITH        : 'with' ;
 IN          : 'in' ;
 LOCK        : 'lock' ;
 UNTAINT     : 'untaint' ;
 START       : 'start' ;
-AWAIT       : 'await' ;
 BUT         : 'but' ;
 CHECK       : 'check' ;
-DONE        : 'done' ;
-SCOPE       : 'scope';
-COMPENSATION: 'compensation';
-COMPENSATE  : 'compensate' ;
+PRIMARYKEY  : 'primarykey' ;
+IS          : 'is' ;
+FLUSH       : 'flush' ;
+WAIT        : 'wait' ;
 
 // Separators
 
 SEMICOLON           : ';' ;
 COLON               : ':' ;
-DOUBLE_COLON        : '::' ;
 DOT                 : '.' ;
 COMMA               : ',' ;
 LEFT_BRACE          : '{' ;
@@ -168,15 +175,17 @@ MOD     : '%';
 
 // Relational operators
 
-NOT         : '!' ;
-EQUAL       : '==' ;
-NOT_EQUAL   : '!=' ;
-GT          : '>' ;
-LT          : '<' ;
-GT_EQUAL    : '>=' ;
-LT_EQUAL    : '<=' ;
-AND         : '&&' ;
-OR          : '||' ;
+NOT             : '!' ;
+EQUAL           : '==' ;
+NOT_EQUAL       : '!=' ;
+GT              : '>' ;
+LT              : '<' ;
+GT_EQUAL        : '>=' ;
+LT_EQUAL        : '<=' ;
+AND             : '&&' ;
+OR              : '||' ;
+REF_EQUAL       : '===' ;
+REF_NOT_EQUAL   : '!==' ;
 
 // Bitwise Operators
 
@@ -195,7 +204,8 @@ ELLIPSIS    : '...' ;
 PIPE        : '|' ;
 EQUAL_GT    : '=>' ;
 ELVIS       : '?:' ;
-
+SYNCRARROW  : '->>' ;
+UNDERSCORE  : '_' ;
 
 // Compound Assignment operators.
 
@@ -264,7 +274,7 @@ DottedHexNumber
 fragment
 DottedDecimalNumber
     :   DecimalNumeral DOT Digits
-    |   DOT Digit+
+    |   DOT Digits
     ;
 
 fragment
@@ -527,7 +537,7 @@ VARIABLE    : 'variable';
 MODULE      : 'module';
 
 ReferenceType
-    :   TYPE|ENDPOINT|SERVICE|VARIABLE|VAR|ANNOTATION|MODULE|FUNCTION|PARAMETER
+    :   TYPE|SERVICE|VARIABLE|VAR|ANNOTATION|MODULE|FUNCTION|PARAMETER
     ;
 
 DocumentationText

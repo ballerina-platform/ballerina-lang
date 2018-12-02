@@ -30,46 +30,14 @@ function invalidByteLiteral() {
     byte x6 = <byte> x5;
 }
 
-function testUnreachableByteMatchStmt1() {
-    match foo(2) {
-        int b => {
-            // do nothing
-        }
-        byte c => {
-            // do nothing
-        }
-        string[] s => {
-            // do nothing
-        }
-    }
-}
-
-function testUnreachableByteMatchStmt2() {
-    match foo(2) {
-        int b => {
-            // do nothing
-        }
-        string[] s => {
-            // do nothing
-        }
-        byte c => {
-            // do nothing
-        }
-    }
-}
-
 function testUnreachableByteMatchStmt3() {
-    int a = foo(2) but {    int => 333,
-                            byte => 777,
-                            string[] => 666
-                        };
+    var result = foo(2);
+    int a = result is int ? 333 : (result is byte ? 777 : (result is string[] ? 666 : result));
 }
 
 function testUnreachableByteMatchStmt4() {
-    int a = foo(2) but {    int => 333,
-                            string[] => 666,
-                            byte => 777
-                        };
+    var result = foo(2);
+    int a = result is int ? 333 : (result is byte ? 777 : (result is string[] ? 666 : result));
 }
 
 function foo (int a) returns (byte|int|string[]) {

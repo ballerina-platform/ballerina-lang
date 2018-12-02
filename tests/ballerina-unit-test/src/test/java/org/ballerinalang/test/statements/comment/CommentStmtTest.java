@@ -31,8 +31,8 @@ import java.util.List;
  */
 public class CommentStmtTest {
 
-    CompileResult result;
-    BLangPackage compiledPackage;
+    private CompileResult result;
+    private BLangPackage compiledPackage;
 
     @BeforeClass
     public void setup() {

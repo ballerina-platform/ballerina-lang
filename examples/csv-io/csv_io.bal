@@ -17,7 +17,7 @@ function readNext(io:ReadableCSVChannel csvChannel) returns string[] {
             throw err;
         }
         () => {
-            error e = { message: "Record channel not initialized properly" };
+            error e = error("Record channel not initialized properly");
             throw e;
         }
     }

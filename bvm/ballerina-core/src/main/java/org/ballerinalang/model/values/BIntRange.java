@@ -21,6 +21,8 @@ import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 
+import java.util.Map;
+
 /**
  * {@code {@link BIntRange}} represents integer range in Ballerina.
  *
@@ -74,6 +76,11 @@ public class BIntRange implements BRefType, BCollection {
         public boolean hasNext() {
             return collection.startValue <= currentValue && currentValue <= collection.endValue;
         }
+
+        @Override
+        public void stamp(BType type) {
+
+        }
     }
 
     /* Default implementation */
@@ -84,7 +91,7 @@ public class BIntRange implements BRefType, BCollection {
     }
 
     @Override
-    public BValue copy() {
+    public BValue copy(Map<BValue, BValue> refs) {
         return null;
     }
 

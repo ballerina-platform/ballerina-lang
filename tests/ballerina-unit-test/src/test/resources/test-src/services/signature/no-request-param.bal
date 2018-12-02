@@ -1,15 +1,13 @@
 import ballerina/http;
 
-endpoint http:NonListener echoEP {
-    port:9090
-};
+listener http:MockListener echoEP = new(9090);
 
 @http:ServiceConfig {
     basePath:"/signature"
 }
-service<http:Service> echo bind echoEP {
-    echo1 (endpoint conn) {
+service echo on echoEP {
+    resource function echo1(http:Caller caller) {
         http:Response res = new;
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 }

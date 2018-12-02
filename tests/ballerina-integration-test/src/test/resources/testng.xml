@@ -67,6 +67,11 @@
     </test>
 
     <test name="ballerina-channel-tests" parallel="false">
+        <groups>
+            <run>
+                <exclude name="broken"/>
+            </run>
+        </groups>
         <classes>
             <class name="org.ballerinalang.test.channel.ChannelsResourcesTest"/>
         </classes>
@@ -107,7 +112,7 @@
 
     <test name="ballerina-filter-tests" parallel="false">
         <classes>
-            <class name="org.ballerinalang.test.filter.FilterBaseTest"/>
+            <class name="org.ballerinalang.test.filter.FilterTestCommons"/>
             <class name="org.ballerinalang.test.filter.MultpleFiltersTestCase"/>
             <class name="org.ballerinalang.test.filter.InvocationContextTestCase"/>
             <class name="org.ballerinalang.test.filter.SingleFilterTestCase"/>
@@ -117,10 +122,16 @@
     <test name="ballerina-transaction-tests" parallel="false">
         <classes>
             <class name="org.ballerinalang.test.transaction.MicroTransactionTestCase"/>
+            <class name="org.ballerinalang.test.transaction.RemoteParticipantTransactionTest"/>
         </classes>
     </test>
 
     <test name="ballerina-websocket-tests" parallel="false">
+        <groups>
+            <run>
+                <exclude name="broken"/>
+            </run>
+        </groups>
         <classes>
             <class name="org.ballerinalang.test.service.websocket.WebSocketTestCommons"/>
             <class name="org.ballerinalang.test.service.websocket.CancelWebSocketUpgradeTest"/>
@@ -173,13 +184,18 @@
     </test>
 
     <test name="ballerina-observability-tests" parallel="false">
+        <groups>
+            <run>
+                <exclude name="broken"/>
+            </run>
+        </groups>
         <classes>
             <class name="org.ballerinalang.test.observability.tracing.TracingTestCase"/>
             <class name="org.ballerinalang.test.observability.metrics.MetricsTestCase"/>
         </classes>
     </test>
 
-    <test name="ballerina-streaming-tests" parallel="false">
+    <test name="ballerina-streaming-tests" parallel="false" enabled="false">
         <classes>
             <class name="org.ballerinalang.test.streaming.StreamsWithinServicesTestCase"/>
         </classes>
@@ -216,10 +232,10 @@
             <class name="org.ballerinalang.test.data.streaming.TableToXMLStreamingTestCase"/>
         </classes>
     </test>
-
-    <test name="ballerina-checkpointing-tests" parallel="false">
+    <test name="ballerina-socket-tests" parallel="false">
         <classes>
-            <class name="org.ballerinalang.test.checkpointing.InterruptibleServiceTestCase"/>
+            <class name="org.ballerinalang.test.socket.SocketBaseTest"/>
+            <class name="org.ballerinalang.test.socket.SocketClientCallbackServiceTestCase"/>
         </classes>
     </test>
 </suite>

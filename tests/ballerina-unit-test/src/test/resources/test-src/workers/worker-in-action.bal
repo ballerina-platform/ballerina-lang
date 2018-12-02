@@ -9,25 +9,25 @@ public type ABCClient object {
 
 };
 
-function ABCClient::testAction1() returns string {
+function ABCClient.testAction1() returns string {
         worker default {
             "xxx" -> sampleWorker;
-            string result;
-            result <- sampleWorker;
+            string result = "";
+            result = <- sampleWorker;
             return result;
         }
         worker sampleWorker {
-            string m;
-            m <- default;
+            string m = "";
+            m = <- default;
             string v = "result from sampleWorker";
             v -> default;
         } 
 }
 
-function ABCClient::testAction2() returns string {
+function ABCClient.testAction2() returns string {
         worker default {
-            string result;
-            result <- sampleWorker;
+            string result = "";
+            result = <- sampleWorker;
             return result;
         }
         worker sampleWorker {
@@ -36,7 +36,7 @@ function ABCClient::testAction2() returns string {
 }
 
 public type Client object {
-    public ABCClient abcClient;
+    public ABCClient abcClient = new;
 
     public function init(ClientEndpointConfiguration config);
 
@@ -54,7 +54,7 @@ public type Client object {
     }
 };
 
-function Client::init(ClientEndpointConfiguration config) {
+function Client.init(ClientEndpointConfiguration config) {
     self.abcClient = new;
 }
 

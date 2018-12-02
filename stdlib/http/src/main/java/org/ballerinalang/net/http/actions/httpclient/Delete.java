@@ -18,10 +18,7 @@ package org.ballerinalang.net.http.actions.httpclient;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -31,18 +28,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
-        functionName = "nativeDelete",
-        args = {
-                @Argument(name = "callerActions", type = TypeKind.OBJECT),
-                @Argument(name = "path", type = TypeKind.STRING),
-                @Argument(name = "req", type = TypeKind.OBJECT, structType = "Request",
-                        structPackage = "ballerina/http")
-        },
-        returnType = {
-                @ReturnType(type = TypeKind.OBJECT, structType = "Response", structPackage = "ballerina/http"),
-                @ReturnType(type = TypeKind.RECORD, structType = "HttpConnectorError",
-                        structPackage = "ballerina/http"),
-        }
+        functionName = "nativeDelete"
 )
 public class Delete extends AbstractHTTPAction {
 

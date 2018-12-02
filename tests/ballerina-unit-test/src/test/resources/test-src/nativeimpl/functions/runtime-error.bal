@@ -13,12 +13,12 @@ function level2Function () returns (runtime:CallStackElement[]) {
 }
 
 function testErrorStackFrame () returns (runtime:CallStackElement|()) {
-    try {
-        int i = level1Error(-10);
-    } catch (error e) {
+    var e = trap level1Error(-10);
+    if (e is error) {
         return runtime:getErrorCallStackFrame(e);
+    } else {
+        return ();
     }
-    return ();
 }
 
 function level1Error (int value) returns (int) {
@@ -27,8 +27,8 @@ function level1Error (int value) returns (int) {
 
 function level2Error (int value) returns (int) {
     if (value < 0) {
-        error e = {message:"less than zero"};
-        throw e;
+        error e = error("less than zero");
+        panic e;
     }
     return value;
 }

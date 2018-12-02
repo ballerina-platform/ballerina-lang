@@ -20,25 +20,29 @@ import ballerina/log;
 @http:ServiceConfig {
     basePath: "/say"
 }
-service<http:Service> hello bind { port: 9090 } {
+service hello on new http:Listener(9090) {
     @http:ResourceConfig {
         methods: ["GET"],
         path: "sayHelloBBB"
     }
-    sayHello(endpoint caller, http:Request req) {
+    resource function sayHello(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setPayload("Hello, World!");
-        caller->respond(res) but { error e => log:printError(
-                                                  "Error sending response", err = e) };
+        var result = caller->respond(res);
+        if (result is error) {
+            log:printError("Error sending response", err = result);
+        }
     }
     @http:ResourceConfig {
         methods: ["GET"],
         path: "sayHelloAA"
     }
-    sayHelloAA(endpoint caller, http:Request req) {
+    resource function sayHelloAA(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setPayload("Hello, World!");
-        caller->respond(res) but { error e => log:printError(
-                                                  "Error sending response", err = e) };
+        var result = caller->respond(res);
+        if (result is error) {
+            log:printError("Error sending response", err = result);
+        }
     }
 }

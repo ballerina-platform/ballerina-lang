@@ -30,9 +30,9 @@ type TeacherOutput record{
 };
 
 int index = 0;
-stream<Teacher> inputStream;
-stream<Teacher> outputStream;
-stream<TeacherOutput> finalOutputStream;
+stream<Teacher> inputStream = new;
+stream<Teacher> outputStream = new;
+stream<TeacherOutput> finalOutputStream = new;
 TeacherOutput[] globalEmployeeArray = [];
 
 function startPipelineQuery() returns (TeacherOutput[]) {
@@ -47,7 +47,7 @@ function startPipelineQuery() returns (TeacherOutput[]) {
 
     testPipelineQuery();
 
-    finalOutputStream.subscribe(printTeachers);
+    finalOutputStream.subscribe(function(TeacherOutput e) {printTeachers(e);});
     foreach t in teachers {
         inputStream.publish(t);
     }
@@ -56,7 +56,7 @@ function startPipelineQuery() returns (TeacherOutput[]) {
     while(true) {
         runtime:sleep(500);
         count += 1;
-        if((lengthof globalEmployeeArray) == 2 || count == 10) {
+        if((globalEmployeeArray.length()) == 2 || count == 10) {
             break;
         }
     }

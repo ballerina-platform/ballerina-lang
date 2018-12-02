@@ -22,8 +22,8 @@ type Employee record {
 };
 
 int index = 0;
-stream<Employee> inputStream;
-stream<Employee> outputStream;
+stream<Employee> inputStream = new;
+stream<Employee> outputStream = new;
 Employee[] globalEmployeeArray = [];
 
 function startFilterQuery() returns (Employee[]) {
@@ -40,7 +40,7 @@ function startFilterQuery() returns (Employee[]) {
 
     testFilterQuery();
 
-    outputStream.subscribe(printTeachers);
+    outputStream.subscribe(function(Employee e) {printTeachers(e);});
     foreach e in employeeArr {
         inputStream.publish(e);
     }
@@ -49,7 +49,7 @@ function startFilterQuery() returns (Employee[]) {
     while(true) {
         runtime:sleep(500);
         count += 1;
-        if((lengthof globalEmployeeArray) == 3 || count == 10) {
+        if((globalEmployeeArray.length()) == 3 || count == 10) {
             break;
         }
     }

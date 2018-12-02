@@ -16,64 +16,72 @@
 
 import ballerina/log;
 
-# JMS topic subscriber
+# JMS TopicSubscriber endpoint
 #
-# + consumerActions - Topic subscriber endpoint actions
-# + config - Topic subscriber endpoint configuration
+# + consumerActions - Handles all the caller actions related to the TopicSubscriber endpoint
+# + config - Used to store configurations related to JMS TopicSubscriber
 public type TopicSubscriber object {
 
-    public TopicSubscriberActions consumerActions;
-    public TopicSubscriberEndpointConfiguration config;
+    *AbstractListener;
 
-    # Initialize topic subscriber endpoint
+    public TopicSubscriberCaller consumerActions = new;
+    public TopicSubscriberEndpointConfiguration config = {};
+
+    # Initialize the TopicSubscriber endpoint
     #
-    # + c - Topic subscriber configuration
-    public function init(TopicSubscriberEndpointConfiguration c) {
+    # + c - Configurations related to the TopicSubscriber endpoint
+    public function __init(TopicSubscriberEndpointConfiguration c) {
         self.config = c;
         self.consumerActions.topicSubscriber = self;
-        match (c.session) {
-            Session s => {
-                match (c.topicPattern) {
-                    string topicPattern => {
-                        self.createSubscriber(s, c.messageSelector);
-                        log:printInfo("Subscriber created for topic " + topicPattern);
-                    }
-                    () => {}
-                }
-            }
-            () => {log:printInfo("Topic subscriber is not properly initialised for topic");}
+        var session = c.session;
+        if (session is Session) {
+             var topicPattern = c.topicPattern;
+             if (topicPattern is string) {
+                 self.createSubscriber(session, c.messageSelector);
+                 log:printInfo("Subscriber created for topic " + topicPattern);
+             } else {
+                 log:printInfo("Topic subscriber is not properly initialized for topic");
+             }
+        } else {
+            log:printInfo("Topic subscriber is not properly initialized for topic");
         }
     }
 
-    # Register topic subscriber endpoint
+    # Register TopicSubscriber endpoint
     #
     # + serviceType - Type descriptor of the service
-    public function register(typedesc serviceType) {
-        self.registerListener(serviceType, consumerActions);
+    # + data - Service annotations
+    # + return - Nil or error upon failure to register listener
+    public function __attach(service serviceType, map<any> data) returns error? {
+        return self.registerListener(serviceType, self.consumerActions, data);
     }
 
-    extern function registerListener(typedesc serviceType, TopicSubscriberActions actions);
+    extern function registerListener(service serviceType, TopicSubscriberCaller actions, map<any> data) returns error?;
 
     extern function createSubscriber(Session session, string messageSelector, Destination? destination = ());
 
-    # Start topic subscriber endpoint
-    public function start() {
-
-    }
-
-    # Get topic subscriber actions
+    # Start TopicSubscriber endpoint
     #
-    # + return - Topic subscriber actions
-    public function getCallerActions() returns TopicSubscriberActions {
-        return consumerActions;
+    # + return - Nil or error upon failure to start
+    public function __start() returns error? {
+        return ();
     }
 
-    # Stop topic subscriber endpoint
-    public function stop() {
-        self.closeSubscriber(consumerActions);
+    # Get TopicSubscriber actions handler
+    #
+    # + return - TopicSubscriber actions handler
+    public function getCallerActions() returns TopicSubscriberCaller {
+        return self.consumerActions;
     }
 
-    extern function closeSubscriber(TopicSubscriberActions actions);
+    # Stop TopicSubscriber endpoint
+    #
+    # + return - Nil or error upon failure to close subscriber
+    public function __stop() returns error? {
+        return self.closeSubscriber(self.consumerActions);
+    }
+
+    extern function closeSubscriber(TopicSubscriberCaller actions) returns error?;
 };
 
 # Configuration related to topic subscriber endpoint
@@ -83,69 +91,70 @@ public type TopicSubscriber object {
 # + messageSelector - Message selector condition to filter messages
 # + identifier - Identifier of topic subscriber endpoint
 public type TopicSubscriberEndpointConfiguration record {
-    Session? session;
-    string? topicPattern;
-    string messageSelector;
-    string identifier;
+    Session? session = ();
+    string? topicPattern = ();
+    string messageSelector = "";
+    string identifier = "";
     !...
 };
 
 # Actions that topic subscriber endpoint could perform
 #
-# + topicSubscriber - JMS topic subscriber
-public type TopicSubscriberActions object {
+# + topicSubscriber - JMS TopicSubscriber
+public type TopicSubscriberCaller client object {
 
-    public TopicSubscriber? topicSubscriber;
+    public TopicSubscriber? topicSubscriber = ();
 
     # Acknowledges a received message
     #
     # + message - JMS message to be acknowledged
     # + return - error on failure to acknowledge a received message
-    public extern function acknowledge(Message message) returns error?;
+    public remote extern function acknowledge(Message message) returns error?;
 
     # Synchronously receive a message from the JMS provider
     #
     # + timeoutInMilliSeconds - Time to wait until a message is received
-    # + return - Returns a message or nill if the timeout exceededs. Returns an error on jms provider internal error.
-    public extern function receive(int timeoutInMilliSeconds = 0) returns (Message|error)?;
+    # + return - Returns a message or nil if the timeout exceeds, returns an error on JMS provider internal error.
+    public remote extern function receive(int timeoutInMilliSeconds = 0) returns (Message|error)?;
 
     # Synchronously receive a message from the JMS provider
     #
-    # + destination - destination to subscribe to
+    # + destination - Destination to subscribe to
     # + timeoutInMilliSeconds - Time to wait until a message is received
-    # + return - Returns a message or nill if the timeout exceededs. Returns an error on jms provider internal error.
-    public function receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|error)?;
+    # + return - Returns a message or nil if the timeout exceeds, returns an error on JMS provider internal error
+    public remote function receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|error)?;
 };
 
-function TopicSubscriberActions::receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|
+remote function TopicSubscriberCaller.receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|
         error)? {
-    match (self.topicSubscriber) {
-        TopicSubscriber topicSubscriber => {
-            match (topicSubscriber.config.session) {
-                Session s => {
-                    validateTopic(destination);
-                    topicSubscriber.createSubscriber(s, topicSubscriber.config.messageSelector, destination =
-                        destination);
-                    log:printInfo("Subscriber created for topic " + destination.destinationName);
-                }
-                () => {}
-            }
-        }
-        () => {log:printInfo("Topic subscriber is not properly initialized.");}
+    var subscriber = self.topicSubscriber;
+    if (subscriber is TopicSubscriber) {
+          var session = subscriber.config.session;
+          if (session is Session) {
+            validateTopic(destination);
+            subscriber.createSubscriber(session, subscriber.config.messageSelector, destination = destination);
+            log:printInfo("Subscriber created for topic " + destination.destinationName);
+          } else {
+            log:printInfo("Session is (), Topic subscriber is not properly initialized");
+          }
+    } else {
+        log:printInfo("Topic subscriber is not properly initialized");
     }
-    var result = self.receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
-    self.topicSubscriber.closeSubscriber(self);
+    var result = self->receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
+    var returnVal = self.topicSubscriber.closeSubscriber(self);
     return result;
 }
 
 function validateTopic(Destination destination) {
     if (destination.destinationName == "") {
         string errorMessage = "Destination name cannot be empty";
-        error topicSubscriberConfigError = { message: errorMessage };
-        throw topicSubscriberConfigError;
+        map<any> errorDetail = { message: errorMessage };
+        error topicSubscriberConfigError = error(JMS_ERROR_CODE, errorDetail);
+        panic topicSubscriberConfigError;
     } else if (destination.destinationType != "topic") {
         string errorMessage = "Destination should should be a topic";
-        error topicSubscriberConfigError = { message: errorMessage };
-        throw topicSubscriberConfigError;
+        map<any> errorDetail = { message: errorMessage };
+        error topicSubscriberConfigError = error(JMS_ERROR_CODE, errorDetail);
+        panic topicSubscriberConfigError;
     }
 }

@@ -27,8 +27,8 @@ type TempDiffInfo record {
     float peakTemp;
 };
 
-stream<DeviceTempInfo> tempStream;
-stream<TempDiffInfo> tempDiffInfoStream;
+stream<DeviceTempInfo> tempStream = new;
+stream<TempDiffInfo> tempDiffInfoStream = new;
 
 TempDiffInfo[] tempDiffInfoArray = [];
 int index = 0;
@@ -78,7 +78,7 @@ function runSequenceQuery1() returns(TempDiffInfo[]) {
     while(true) {
         runtime:sleep(500);
         count += 1;
-        if((lengthof tempDiffInfoArray) > 1 || count == 10) {
+        if((tempDiffInfoArray.length()) > 1 || count == 10) {
             break;
         }
     }
@@ -93,4 +93,3 @@ function addToGlobalTempDiffArray(TempDiffInfo s) {
     tempDiffInfoArray[index] = s;
     index = index + 1;
 }
-

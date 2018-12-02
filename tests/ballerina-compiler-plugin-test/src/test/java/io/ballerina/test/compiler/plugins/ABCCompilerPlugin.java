@@ -20,15 +20,13 @@ package io.ballerina.test.compiler.plugins;
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.tree.ActionNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.PackageNode;
-import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.TypeDefinition;
-import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 
 import java.nio.file.Path;
@@ -63,18 +61,6 @@ public class ABCCompilerPlugin extends AbstractCompilerPlugin {
     }
 
     @Override
-    public void process(ResourceNode resourceNode, List<AnnotationAttachmentNode> annotations) {
-        addEvent(TestEvent.Kind.RESOURCE_ANN, resourceNode.getName().getValue(), annotations.size());
-
-    }
-
-    @Override
-    public void process(ActionNode actionNode, List<AnnotationAttachmentNode> annotations) {
-        addEvent(TestEvent.Kind.ACTION_ANN, actionNode.getName().getValue(), annotations.size());
-
-    }
-
-    @Override
     public void process(TypeDefinition typeDefinition, List<AnnotationAttachmentNode> annotations) {
         addEvent(TestEvent.Kind.TYPEDEF_ANN, typeDefinition.getName().getValue(), annotations.size());
     }
@@ -85,7 +71,7 @@ public class ABCCompilerPlugin extends AbstractCompilerPlugin {
     }
 
     @Override
-    public void process(VariableNode variableNode, List<AnnotationAttachmentNode> annotations) {
+    public void process(SimpleVariableNode variableNode, List<AnnotationAttachmentNode> annotations) {
         addEvent(TestEvent.Kind.VARIAVLE_ANN, variableNode.getName().getValue(), annotations.size());
     }
 

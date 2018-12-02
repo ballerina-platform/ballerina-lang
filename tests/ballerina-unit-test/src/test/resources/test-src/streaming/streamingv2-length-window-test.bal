@@ -21,12 +21,12 @@ type Teacher record {
     int age;
     string status;
     string school;
-    int count;
+    int count = 0;
 };
 
 int index = 0;
-stream<Teacher> inputStreamLengthWindowTest;
-stream<Teacher > outputStreamLengthWindowTest;
+stream<Teacher> inputStreamLengthWindowTest = new;
+stream<Teacher > outputStreamLengthWindowTest = new;
 Teacher[] globalEmployeeArray = [];
 
 function startLengthWindowTest() returns (Teacher[]) {
@@ -48,7 +48,7 @@ function startLengthWindowTest() returns (Teacher[]) {
 
     testLengthWindow();
 
-    outputStreamLengthWindowTest.subscribe(printTeachers);
+    outputStreamLengthWindowTest.subscribe(function(Teacher e) {printTeachers(e);});
     foreach t in teachers {
         inputStreamLengthWindowTest.publish(t);
     }
@@ -57,7 +57,7 @@ function startLengthWindowTest() returns (Teacher[]) {
     while(true) {
         runtime:sleep(500);
         count += 1;
-        if((lengthof globalEmployeeArray) == 6 || count == 10) {
+        if((globalEmployeeArray.length()) == 6 || count == 10) {
             break;
         }
     }

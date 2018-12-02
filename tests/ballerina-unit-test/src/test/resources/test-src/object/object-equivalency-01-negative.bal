@@ -1,19 +1,21 @@
-
 public type person01 object {
 
-    public int age;
-    public string name;
-    public string address;
+    public int age = 0;
+    public string name = "";
+    public string address = "";
 
 };
 
 public type employee01 object {
 
-    public int age;
-    public string name;
+    public int age = 0;
+    public string name = "";
     public string zipcode = "95134";
 
-    new (age, name) {}
+    function __init (int age, string name) {
+        self.age = age;
+        self.name = name;
+    }
 };
 
 // Field name mismatch
@@ -25,19 +27,22 @@ function testEqOfObjectsInSamePackage01() returns (string) {
 
 public type person02 object {
 
-    public int age;
-    public string name;
-    public string address;
+    public int age = 0;
+    public string name = "";
+    public string address = "";
 
 };
 
 public type employee02 object {
 
-    public int age;
-    public string name;
-    public int address;
+    public int age = 0;
+    public string name = "";
+    public int address = 0;
 
-    new (age, name) {}
+    function __init (int age, string name) {
+        self.age = age;
+        self.name = name;
+    }
 };
 
 // Type name mismatch
@@ -49,18 +54,21 @@ function testEqOfObjectsInSamePackage02() returns (string) {
 
 public type person03 object {
 
-    public int age;
-    public string name;
-    public string address;
+    public int age = 0;
+    public string name = "";
+    public string address = "";
 
 };
 
 public type employee03 object {
 
-    public int age;
-    public string name;
+    public int age = 0;
+    public string name = "";
 
-    new (age, name) {}
+    function __init (int age, string name) {
+        self.age = age;
+        self.name = name;
+    }
 };
 
 // Field count mismatch
@@ -72,23 +80,26 @@ function testEqOfObjectsInSamePackage03() returns (string) {
 
 public type person04 object {
 
-    public int age;
-    public string name;
-    public string address;
+    public int age = 0;
+    public string name = "";
+    public string address = "";
 
 };
 
 public type employee04 object {
 
-    public int age;
-    public string name;
-    public string address;
+    public int age = 0;
+    public string name = "";
+    public string address = "";
 
 
-    private int id;
-    private string ss;
+    private int id = 0;
+    private string ss = "";
 
-    new (age, name) {}
+    function __init (int age, string name) {
+        self.age = age;
+        self.name = name;
+    }
 };
 
 // Private fields in RHS object name mismatch
@@ -101,25 +112,31 @@ function testEqOfObjectsInSamePackage04() returns (string) {
 
 public type person05 object {
 
-    public int age;
-    public string name;
+    public int age = 0;
+    public string name = "";
 
 
-    private string address;
-    private string id;
+    private string address = "";
+    private string id = "";
 
-    new (age, name) {}
+    function __init (int age, string name) {
+        self.age = age;
+        self.name = name;
+    }
 };
 
 public type employee05 object {
 
-    public int age;
-    public string name;
-    public string address;
-    public string id;
-    public string ssn;
+    public int age = 0;
+    public string name = "";
+    public string address = "";
+    public string id = "";
+    public string ssn = "";
 
-    new (age, name) {}
+    function __init (int age, string name) {
+        self.age = age;
+        self.name = name;
+    }
 };
 
 // Private fields in LHS object name mismatch
@@ -131,22 +148,25 @@ function testEqOfObjectsInSamePackage05() returns (string) {
 
 type person06 object {
 
-    public int age;
-    public string name;
-    public int address;
-    public string id;
+    public int age = 0;
+    public string name = "";
+    public int address = 0;
+    public string id = "";
 
 };
 
 type employee06 object {
 
-    public int age;
-    public string name;
-    public string address;
-    public string id;
-    public string ssn;
+    public int age = 0;
+    public string name = "";
+    public string address = "";
+    public string id = "";
+    public string ssn = "";
 
-    new (age, name) {}
+    function __init (int age, string name) {
+        self.age = age;
+        self.name = name;
+    }
 };
 
 // Private Objects type mismatch
@@ -159,11 +179,11 @@ function testEqOfObjectsInSamePackage06() returns (string) {
 
 public type person07 object {
 
-    public int age;
-    public string name;
-    public string address;
+    public int age = 0;
+    public string name = "";
+    public string address = "";
     public string zipcode = "95134";
-    public string ssn;
+    public string ssn = "";
 
     public function getAge() returns (int);
 
@@ -172,39 +192,42 @@ public type person07 object {
     public function setSSN(string s);
 };
 
-function person07::getAge() returns (int) {
+function person07.getAge() returns (int) {
     return self.age;
 }
 
-function person07::getName() returns (string) {
+function person07.getName() returns (string) {
     return self.name;
 }
 
-function person07::setSSN(string s) {
+function person07.setSSN(string s) {
     self.ssn = s;
 }
 
 public type employee07 object {
 
-    public int age;
-    public string name;
-    public string address;
+    public int age = 0;
+    public string name = "";
+    public string address = "";
     public string zipcode = "95134";
-    public string ssn;
+    public string ssn = "";
 
 
-    new (age, name) {}
+    function __init (int age, string name) {
+        self.age = age;
+        self.name = name;
+    }
 
     public function getName() returns (string);
 
     public function getAge() returns (int);
 };
 
-function employee07::getName() returns (string) {
+function employee07.getName() returns (string) {
     return self.name;
 }
 
-function employee07::getAge() returns (int) {
+function employee07.getAge() returns (int) {
     return self.age;
 }
 
@@ -218,11 +241,11 @@ function testEqOfObjectsInSamePackage07() returns (string) {
 
 public type person08 object {
 
-    public int age;
-    public string name;
-    public string address;
+    public int age = 0;
+    public string name = "";
+    public string address = "";
     public string zipcode = "95134";
-    public string ssn;
+    public string ssn = "";
 
 
     public function getAge() returns (int);
@@ -232,28 +255,31 @@ public type person08 object {
     public function setSSN(string s);
 };
 
-function person08::getAge() returns (int) {
+function person08.getAge() returns (int) {
     return self.age;
 }
 
-function person08::getName() returns (string) {
+function person08.getName() returns (string) {
     return self.name;
 }
 
-function person08::setSSN(string s) {
+function person08.setSSN(string s) {
     self.ssn = s;
 }
 
 public type employee08 object {
 
-    public int age;
-    public string name;
-    public string address;
+    public int age = 0;
+    public string name = "";
+    public string address = "";
     public string zipcode = "95134";
-    public string ssn;
+    public string ssn = "";
 
 
-    new (age, name) {}
+    function __init (int age, string name) {
+        self.age = age;
+        self.name = name;
+    }
 
     public function getName() returns (string);
 
@@ -262,15 +288,15 @@ public type employee08 object {
     public function getSSN() returns (string);
 };
 
-function employee08::getName() returns (string) {
+function employee08.getName() returns (string) {
     return self.name;
 }
 
-function employee08::getAge() returns (int) {
+function employee08.getAge() returns (int) {
     return self.age;
 }
 
-function employee08::getSSN() returns (string) {
+function employee08.getSSN() returns (string) {
     return self.ssn;
 }
 
@@ -284,11 +310,11 @@ function testEqOfObjectsInSamePackage08() returns (string) {
 
 public type person09 object {
 
-    public int age;
-    public string name;
-    public string address;
+    public int age = 0;
+    public string name = "";
+    public string address = "";
     public string zipcode = "95134";
-    public string ssn;
+    public string ssn = "";
 
 
     public function getAge() returns (int);
@@ -298,28 +324,31 @@ public type person09 object {
     public function setSSN(string s);
 };
 
-function person09::getAge() returns (int) {
+function person09.getAge() returns (int) {
     return self.age;
 }
 
-function person09::getName() returns (string) {
+function person09.getName() returns (string) {
     return self.name;
 }
 
-function person09::setSSN(string s) {
+function person09.setSSN(string s) {
     self.ssn = s;
 }
 
 public type employee09 object {
 
-    public int age;
-    public string name;
-    public string address;
+    public int age = 0;
+    public string name = "";
+    public string address = "";
     public string zipcode = "95134";
-    public string ssn;
+    public string ssn = "";
 
 
-    new (age, name) {}
+    function __init (int age, string name) {
+        self.age = age;
+        self.name = name;
+    }
 
     public function getName() returns (string);
 
@@ -328,15 +357,15 @@ public type employee09 object {
     public function getSSN() returns (string);
 };
 
-function employee09::getName() returns (string) {
+function employee09.getName() returns (string) {
     return self.name;
 }
 
-function employee09::getAge(int i) returns (int) {
+function employee09.getAge(int i) returns (int) {
     return self.age;
 }
 
-function employee09::getSSN() returns (string) {
+function employee09.getSSN() returns (string) {
     return self.ssn;
 }
 
@@ -349,47 +378,53 @@ function testEqOfObjectsInSamePackage09() returns (string) {
 
 
 public type PersonInOrder object {
-    public int age;
-    public string name;
-    public string address;
+    public int age = 0;
+    public string name = "";
+    public string address = "";
 
-    public new (name, age) {}
+    function __init (string name, int age) {
+        self.age = age;
+        self.name = name;
+    }
 
     public function getName() returns (string) {
-        return name;
+        return self.name;
     }
 
     public function getAge() returns (int) {
-        return age;
+        return self.age;
     }
 
     public function getAddress() returns (string) {
-        return address;
+        return self.address;
     }
 };
 
 public type PersonNotInOrder object {
 
     public function getName() returns (string) {
-        return name;
+        return self.name;
     }
 
     // This is not in order
-    public string name;
+    public string name = "";
 
     public function getAge() returns (int) {
-        return age;
+        return self.age;
     }
 
-    public new (name, age) {}
+    function __init (string name, int age) {
+        self.age = age;
+        self.name = name;
+    }
 
-    public int age;
+    public int age = 0;
 
     public function getAddress() returns (string) {
-        return address;
+        return self.address;
     }
 
-    public string address;
+    public string address = "";
 };
 
 function testObjectMemberOrder() returns (PersonInOrder, PersonNotInOrder) {

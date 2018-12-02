@@ -1,24 +1,24 @@
-byte globalByte;
+byte globalByte = 0;
 
 function testByteValue() returns byte {
-    byte a;
+    byte a = 0;
     a = 34;
     return a;
 }
 
 function testByteValueSpace() returns byte {
-    byte a;
+    byte a = 0;
     a = 234;
     return a;
 }
 
 function testByteDefaultValue() returns byte {
-    byte a;
+    byte a = 0;
     return a;
 }
 
 function testByteParam(byte b) returns byte {
-    byte a;
+    byte a = 0;
     a = b;
     return a;
 }
@@ -28,7 +28,7 @@ function testGlobalByte(byte b) returns byte {
     return globalByte;
 }
 
-function testIntToByteCast(int b) returns byte {
+function testIntToByteCast(int b) returns byte|error {
     byte a = check <byte> b;
     return a;
 }
@@ -38,12 +38,12 @@ function testByteToIntCast(byte a) returns int {
     return b;
 }
 
-function testIntToByteExplicitCast(int b) returns byte {
+function testIntToByteExplicitCast(int b) returns byte|error {
     byte a = check <byte> b;
     return a;
 }
 
-function testIntToByteConversion(int b) returns byte {
+function testIntToByteConversion(int b) returns byte|error {
     var c = check <byte> b;
     return c;
 }
@@ -53,9 +53,9 @@ function testByteToIntConversion(byte b) returns int {
     return c;
 }
 
-function testSafeCasting() returns int {
+function testSafeCasting() returns int|error {
   any abc = byteReturn();
-  int val = check <int> abc;
+  int val = check int.create(abc);
   return val;
 }
 
@@ -64,9 +64,9 @@ function byteReturn() returns any {
   return val;
 }
 
-function testAnyToByteCasting() returns byte {
+function testAnyToByteCasting() returns byte|error {
   any val = 45;
-  byte i = check <byte> val;
+  byte i = check byte.create(val);
   return i;
 }
 
@@ -83,24 +83,24 @@ function testByteArrayAssignment(byte[] cArrayIn) returns byte[] {
 
 function testByteArrayZeroLength() returns int {
     byte[] a = [];
-    return (lengthof a);
+    return (a.length());
 }
 
 function testByteArrayLength() returns int {
     byte[] a = [4, 6, 27, 75];
-    return (lengthof a);
+    return (a.length());
 }
 
 function testByteArrayIncreaseSize() returns int {
     byte[] a = [4, 6, 27, 75];
     a[9] = 56;
-    return (lengthof a);
+    return (a.length());
 }
 
 function testByteArrayOfArray() returns (int, int) {
     byte[][] aa = [[4, 6, 27, 75], [3, 7, 1], [5, 32, 98]];
-    int a = (lengthof aa);
-    int b = (lengthof aa[0]);
+    int a = (aa.length());
+    int b = (aa[0].length());
     return (a, b);
 }
 
@@ -116,63 +116,49 @@ function testByteBinaryNotEqualOperation(byte a, byte b, byte c) returns (boolea
     return (b1, b2);
 }
 
-function testByteOrIntMatch1() returns byte|int|string[]|Foo {
-    match byteOrInt(1) {
-        byte c => {
-            return c;
-        }
-
-        int b => {
-            return b;
-        }
-
-        string[] s => {
-            return s;
-        }
-
-        Foo foo => {
-            return foo;
-        }
+function testByteOrIntMatch1() returns byte|int|string[]|Foo|error {
+    byte|int|string[]|Foo|error result = byteOrInt(1);
+    if (result is byte) {
+        return result;
+    } else if (result is int) {
+        return result;
+    } else if (result is string[]) {
+        return result;
+    } else if (result is Foo) {
+        return result;
+    } else {
+        return result;
     }
 }
 
-function testByteOrIntMatch2() returns byte|int|string[]|Foo  {
-    match byteOrInt(2) {
-        byte c => {
-            return c;
-        }
-        int b => {
-            return b;
-        }
-        string[] s => {
-            return s;
-        }
-
-        Foo foo => {
-            return foo;
-        }
+function testByteOrIntMatch2() returns byte|int|string[]|Foo|error {
+    byte|int|string[]|Foo|error result = byteOrInt(2);
+    if (result is byte) {
+        return result;
+    } else if (result is int) {
+        return result;
+    } else if (result is string[]) {
+        return result;
+    } else if (result is Foo) {
+        return result;
+    } else {
+        return result;
     }
 }
 
 function testByteOrIntMatch3() returns int {
-    int x = byteOrInt(1) but {  byte => 456,
-                                int => -123,
-                                string[] => 789,
-                                Foo => 8765
-                             };
+    var result = byteOrInt(1);
+    int x = result is byte ? 456 : (result is int ? -123 : (result is string[] ? 789 : (result is Foo ? 8765 : 1135)));
     return x;
 }
 
 function testByteOrIntMatch4() returns int {
-    int x = byteOrInt(2) but {  byte => 456,
-                                int => -123,
-                                string[] => 789,
-                                Foo => 8765
-                             };
+    var result = byteOrInt(2);
+    int x = result is byte ? 456 : (result is int ? -123 : (result is string[] ? 789 : (result is Foo ? 8765 : 1135)));
     return x;
 }
 
-function byteOrInt(int a) returns byte|int|string[]|Foo {
+function byteOrInt(int a) returns byte|int|string[]|Foo|error {
     if (a == 1) {
         return check <byte>12;
     } else if (a == 2) {
@@ -180,7 +166,7 @@ function byteOrInt(int a) returns byte|int|string[]|Foo {
     } else if (a == 3) {
         return ["DD", "GG"];
     }
-    Foo foo = {};
+    Foo foo = { name: "bar" };
     return foo;
 }
 
@@ -193,12 +179,12 @@ function testWorkerWithByteVariable() {
     byte a = 10;
     byte b = 12;
     a -> w2;
-    b <- w2;
+    b = <- w2;
   }
   worker w2 {
     byte a = 0;
     byte b = 15;
-    a <- w1;
+    a = <- w1;
     b -> w1;
   }
 }

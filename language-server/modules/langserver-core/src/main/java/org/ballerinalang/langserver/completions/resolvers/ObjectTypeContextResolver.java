@@ -53,7 +53,7 @@ public class ObjectTypeContextResolver extends AbstractItemResolver {
                 .stream()
                 .map(Token::getText)
                 .collect(Collectors.toList());
-        
+
         if (poppedTokens.contains(UtilSymbolKeys.EQUAL_SYMBOL_KEY)) {
             // If the popped tokens contains the equal symbol, then the variable definition is being writing
             context.put(CompletionKeys.PARSER_RULE_CONTEXT_KEY,
@@ -74,7 +74,7 @@ public class ObjectTypeContextResolver extends AbstractItemResolver {
         List<SymbolInfo> filteredTypes = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY).stream()
                 .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol)
                 .collect(Collectors.toList());
-        completionItems.addAll(this.getCompletionItemList(filteredTypes));
+        completionItems.addAll(this.getCompletionItemList(filteredTypes, context));
     }
     
     private void fillFunctionSignature(List<CompletionItem> completionItems, boolean snippetCapability) {
@@ -89,7 +89,7 @@ public class ObjectTypeContextResolver extends AbstractItemResolver {
     
     private void fillInitializerSignature(List<CompletionItem> completionItems, boolean snippetCapability) {
         CompletionItem constructorItem = new CompletionItem();
-        Snippet.DEF_NEW_OBJECT_CONSTRUCTOR.get().build(constructorItem, snippetCapability);
+        Snippet.DEF_NEW_OBJECT_INITIALIZER.get().build(constructorItem, snippetCapability);
         completionItems.add(constructorItem);
     }
 }

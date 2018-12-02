@@ -17,19 +17,17 @@
 import ballerina/io;
 import ballerina/http;
 
-endpoint http:NonListener mockEP {
-    port:9090
-};
+listener http:MockListener mockEP  = new(9090);
 
 @http:ServiceConfig {
     basePath:"/page",
     host:"abc.com"
 }
-service<http:Service> Host1 bind mockEP {
+service Host1 on mockEP {
     @http:ResourceConfig {
         path: "/index"
     }
-    productsInfo1(endpoint caller, http:Request req) {
+    resource function productsInfo1(http:Caller caller, http:Request req) {
         http:Response res = new;
         json responseJson = { "echo": "abc.com" };
         res.setJsonPayload(responseJson);
@@ -41,11 +39,11 @@ service<http:Service> Host1 bind mockEP {
     basePath:"/page",
     host:"xyz.org"
 }
-service<http:Service> Host2 bind mockEP {
+service Host2 on mockEP {
     @http:ResourceConfig {
         path: "/index"
     }
-    productsInfo1(endpoint caller, http:Request req) {
+    resource function productsInfo1(http:Caller caller, http:Request req) {
         http:Response res = new;
         json responseJson = { "echo": "xyz.org" };
         res.setJsonPayload(responseJson);
@@ -56,11 +54,11 @@ service<http:Service> Host2 bind mockEP {
 @http:ServiceConfig {
     basePath:"/page"
 }
-service<http:Service> Host3 bind mockEP {
+service Host3 on mockEP {
     @http:ResourceConfig {
         path: "/index"
     }
-    productsInfo1(endpoint caller, http:Request req) {
+    resource function productsInfo1(http:Caller caller, http:Request req) {
         http:Response res = new;
         json responseJson = { "echo": "no host" };
         res.setJsonPayload(responseJson);

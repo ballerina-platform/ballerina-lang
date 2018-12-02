@@ -1,6 +1,6 @@
 
 public type Address record {
-    string street;
-    string city;
-    string country;
+    string street = "";
+    string city = "";
+    string country = "";
 };

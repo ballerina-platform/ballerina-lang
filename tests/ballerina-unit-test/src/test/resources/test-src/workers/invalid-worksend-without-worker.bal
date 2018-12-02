@@ -1,4 +1,4 @@
 
 function invalidWorkReceiveWithoutWorker() {
-  m1<-worker1;
+  var m1 = <- worker1;
 }

@@ -41,13 +41,14 @@ public class OpenRecordNegativeTest {
     public void testInvalidRestField() {
         CompileResult result = BCompileUtil.compile("test-src/record/open_record_negative.bal");
 
-        Assert.assertEquals(result.getErrorCount(), 4);
+        Assert.assertEquals(result.getErrorCount(), 5);
 
         String expectedErrMsg = "incompatible types: expected 'string', ";
         BAssertUtil.validateError(result, 0, expectedErrMsg + "found 'int'", 8, 45);
         BAssertUtil.validateError(result, 1, expectedErrMsg + "found 'boolean'", 8, 57);
-        BAssertUtil.validateError(result, 2, "invalid usage of record literal with type 'any'", 17, 36);
+        BAssertUtil.validateError(result, 2, "invalid usage of record literal with type 'anydata'", 17, 36);
         BAssertUtil.validateError(result, 3, "unknown type 'Animal'", 21, 5);
+        BAssertUtil.validateError(result, 4, "incompatible types: expected 'anydata', found 'Bar'", 30, 18);
     }
 
     @Test(description = "Test white space between the type name and ellipsis in rest descriptor")
@@ -69,11 +70,7 @@ public class OpenRecordNegativeTest {
     @Test(description = "Test function invocation on a nil-able function pointer")
     public void testNilableFuncPtrInvocation() {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/negative/open_record_nil-able_fn_ptr.bal");
-        BAssertUtil.validateError(compileResult, 0,
-                                  "invalid function pointer invocation on non-invokable field 'getName' in record " +
-                                          "'Person'", 28, 16);
-        BAssertUtil.validateError(compileResult, 1,
-                                  "invalid function pointer invocation on non-invokable field 'getName' in record " +
-                                          "'Person'", 33, 16);
+        BAssertUtil.validateError(compileResult, 0, "incompatible types: expected 'string', found 'string?'", 28, 16);
+        BAssertUtil.validateError(compileResult, 1, "incompatible types: expected 'string', found 'string?'", 33, 16);
     }
 }
