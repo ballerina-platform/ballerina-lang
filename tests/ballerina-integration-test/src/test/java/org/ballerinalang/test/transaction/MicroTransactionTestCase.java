@@ -280,7 +280,6 @@ public class MicroTransactionTestCase extends BaseTest {
         assertFalse(initiatorState.committedFunctionCalled);
         assertFalse(initiatorState.localParticipantCommittedFunctionCalled);
         assertTrue(initiatorState.abortedFunctionCalled);
-//        assertTrue(initiatorState.localParticipantAbortedFunctionCalled);
 
         HttpResponse participant1StateRes = HttpClientRequest.doGet(
                 serverInstance.getServiceURLHttp(participant1ServicePort, "getState"));
@@ -288,16 +287,12 @@ public class MicroTransactionTestCase extends BaseTest {
         assertFalse(participant1State.abortedByParticipant);
         assertFalse(participant1State.committedFunctionCalled);
         assertFalse(participant1State.localParticipantCommittedFunctionCalled);
-//        assertTrue(participant1State.abortedFunctionCalled);
-//        assertTrue(participant1State.localParticipantAbortedFunctionCalled);
 
         HttpResponse participant2StateRes = HttpClientRequest.doGet(
                 serverInstance.getServiceURLHttp(participant2ServicePort, "getState"));
         State participant2State = new State(participant2StateRes.getData());
         assertFalse(participant2State.committedFunctionCalled);
         assertFalse(participant2State.localParticipantCommittedFunctionCalled);
-//        assertTrue(participant2State.abortedFunctionCalled);
-//        assertTrue(participant2State.localParticipantAbortedFunctionCalled);
     }
 
     private static void copyFile(File source, File dest) throws IOException {
