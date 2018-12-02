@@ -214,11 +214,6 @@
     </test>
 
     <test name="ballerina-websub-tests" parallel="false">
-        <groups>
-            <run>
-                <exclude name="broken"/>
-            </run>
-        </groups>
         <classes>
             <class name="org.ballerinalang.test.service.websub.WebSubBaseTest"/>
             <!-- WebSubServiceExtensionTestCase or any other test which does not have @BeforeClass and belongs to the
