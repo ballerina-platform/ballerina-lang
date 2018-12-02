@@ -33,8 +33,8 @@ type TeacherOutput record {
 };
 
 int index = 0;
-stream<Teacher> inputStream;
-stream<TeacherOutput> outputStream;
+stream<Teacher> inputStream = new;
+stream<TeacherOutput> outputStream = new;
 
 TeacherOutput[] globalEmployeeArray = [];
 
@@ -102,8 +102,8 @@ function createStreamingConstruct() {
 
     streams:Select select = streams:createSelect(function (streams:StreamEvent[] e) {outputProcess.process(e);},
         aggregators,
-        [function (streams:StreamEvent e) returns string {
-            return <string>e.data["inputStream.school"];
+        [function (streams:StreamEvent e) returns anydata {
+            return e.data["inputStream.school"];
         }],
         function (streams:StreamEvent e, streams:Aggregator[] aggregatorArray) returns map<anydata> {
             streams:Sum iSumAggregator1 = <streams:Sum>aggregatorArray[0];

@@ -31,7 +31,7 @@ public class BIntegerValueNegativeTest {
     @Test
     public void testIntegerValue() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/integer/integer-value-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 11);
+        Assert.assertEquals(compileResult.getErrorCount(), 10);
 
         int index = 0;
         String expectedError = "Hexadecimal '0xFFFFFFFFFFFFFFFF' too large";
@@ -51,9 +51,6 @@ public class BIntegerValueNegativeTest {
 
         expectedError = "Binary '-0b1111111111111111111111111111111111111111111111111111111111111111' too small";
         BAssertUtil.validateError(compileResult, index++, expectedError, 8, 13);
-
-        expectedError = "invalid token 'int'";
-        BAssertUtil.validateError(compileResult, index++, expectedError, 15, 5);
 
         expectedError = "mismatched input 'int'. expecting {'is', ';', '?', '+', '-', '*', '/', '%', '==', '!=', " +
                 "'>', '<', '>=', '<=', '&&', '||', '===', '!==', '&', '^', '...', '|', '?:', '->>', '..<'}";

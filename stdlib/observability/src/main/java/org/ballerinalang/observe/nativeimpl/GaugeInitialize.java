@@ -20,11 +20,10 @@ package org.ballerinalang.observe.nativeimpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.util.metrics.Gauge;
@@ -48,7 +47,7 @@ public class GaugeInitialize extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BMap<String, BValue> bStruct = (BMap<String, BValue>) context.getRefArgument(0);
-        BRefValueArray summaryConfigs = (BRefValueArray) bStruct.
+        BValueArray summaryConfigs = (BValueArray) bStruct.
                 get(ObserveNativeImplConstants.STATISTICS_CONFIG_FIELD);
         Gauge.Builder gaugeBuilder = Gauge.builder(bStruct.get(ObserveNativeImplConstants.NAME_FIELD).stringValue())
                 .description(bStruct.get(ObserveNativeImplConstants.DESCRIPTION_FIELD).stringValue())
@@ -61,11 +60,11 @@ public class GaugeInitialize extends BlockingNativeCallableUnit {
                                 .get(ObserveNativeImplConstants.EXPIRY_FIELD)).intValue()))
                         .buckets(((BInteger) summaryConfigStruct
                                 .get(ObserveNativeImplConstants.BUCKETS_FIELD)).intValue());
-                BFloatArray bFloatArray = (BFloatArray) summaryConfigStruct.
+                BValueArray bFloatArray = (BValueArray) summaryConfigStruct.
                         get(ObserveNativeImplConstants.PERCENTILES_FIELD);
                 double[] percentiles = new double[(int) bFloatArray.size()];
                 for (int j = 0; j < bFloatArray.size(); j++) {
-                    percentiles[j] = bFloatArray.get(j);
+                    percentiles[j] = bFloatArray.getFloat(j);
                 }
                 statisticBuilder.percentiles(percentiles);
                 StatisticConfig config = statisticBuilder.build();

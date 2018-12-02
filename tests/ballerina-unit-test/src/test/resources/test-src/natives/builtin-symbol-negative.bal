@@ -2,14 +2,14 @@ function test0 (){
     break;
 }
 
-function error (string x, error e){
+function AbstractListener (string x, AbstractListener e){
     e.message = x;
 }
 
 function test1(){
-    int error = 10;
+    int AbstractListener = 10;
 }
 
-function error.getMessage() returns (string){
+function AbstractListener.getMessage() returns (string){
     return e.message;
 }

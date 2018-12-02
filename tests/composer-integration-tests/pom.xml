@@ -52,7 +52,7 @@
                         </goals>
                         <phase>test</phase>
                         <configuration>
-                            <skip>${maven.test.skip}</skip>
+                            <skip>${skipNodeTests}</skip>
                             <executable>${npm.executable}</executable>
                             <arguments>
                                 <argument>run</argument>
@@ -77,6 +77,12 @@
                                 <!-- set executable names based on OS family -->
                                 <condition property="npm.executable" value="npm.cmd" else="npm">
                                     <os family="windows" />
+                                </condition>
+                                <condition property="skipNodeTests" value="true" else="false">
+                                    <or>
+                                        <isset property="maven.test.skip" />
+                                        <isset property="skipTests" />
+                                    </or>
                                 </condition>
                             </target>
                             <exportAntProperties>true</exportAntProperties>

@@ -22,10 +22,10 @@ import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BFloatArray;
-import org.ballerinalang.model.values.BIntArray;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -210,7 +210,7 @@ public class SealedArrayTest {
 
     @Test
     public void testUnionAndMatchSealedArrayStatement() {
-        BFloatArray bFloatArray = new BFloatArray(4);
+        BValueArray bFloatArray = new BValueArray(BTypes.typeFloat, 4);
         bFloatArray.add(0, 01.0);
         bFloatArray.add(0, 12.2);
         bFloatArray.add(0, 23.3);
@@ -222,7 +222,7 @@ public class SealedArrayTest {
         Assert.assertEquals(returnValues[0].stringValue(),
                 "matched sealed float array size 4", "Couldn't match sealed array type");
 
-        bFloatArray = new BFloatArray(5);
+        bFloatArray = new BValueArray(BTypes.typeFloat, 5);
         bFloatArray.add(0, 01.0);
         bFloatArray.add(0, 12.2);
         bFloatArray.add(0, 23.3);
@@ -235,7 +235,7 @@ public class SealedArrayTest {
         Assert.assertEquals(returnValues[0].stringValue(),
                 "matched float array", "Couldn't match sealed array type");
 
-        bFloatArray = new BFloatArray();
+        bFloatArray = new BValueArray(BTypes.typeFloat);
         bFloatArray.add(0, 01.0);
         bFloatArray.add(0, 12.2);
         bFloatArray.add(0, 23.3);
@@ -250,7 +250,7 @@ public class SealedArrayTest {
 
     @Test
     public void testUnionAndMatchNoSealedArrayStatement() {
-        BFloatArray bFloatArray = new BFloatArray(4);
+        BValueArray bFloatArray = new BValueArray(BTypes.typeFloat, 4);
         bFloatArray.add(0, 01.0);
         bFloatArray.add(0, 12.2);
         bFloatArray.add(0, 23.3);
@@ -262,7 +262,7 @@ public class SealedArrayTest {
         Assert.assertEquals(returnValues[0].stringValue(),
                 "matched float array", "Couldn't match sealed array type");
 
-        bFloatArray = new BFloatArray();
+        bFloatArray = new BValueArray(BTypes.typeFloat);
         bFloatArray.add(0, 01.0);
         bFloatArray.add(0, 12.2);
         bFloatArray.add(0, 23.3);
@@ -330,7 +330,7 @@ public class SealedArrayTest {
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*error: array index out of range: index: 5, size: 3.*")
     public void accessInvalidIndexOfMatchedSealedArray() {
-        BIntArray bIntArray = new BIntArray(3);
+        BValueArray bIntArray = new BValueArray(BTypes.typeInt, 3);
         bIntArray.add(0, 1);
         bIntArray.add(0, 3);
         bIntArray.add(0, 5);
@@ -361,7 +361,7 @@ public class SealedArrayTest {
 
     @Test
     public void accessValidIndexOfMatchedUnsealedArray() {
-        BIntArray bIntArray = new BIntArray();
+        BValueArray bIntArray = new BValueArray(BTypes.typeInt);
         bIntArray.add(0, 1);
         bIntArray.add(0, 3);
         bIntArray.add(0, 5);
@@ -372,11 +372,11 @@ public class SealedArrayTest {
 
     @Test
     public void testSealedArrayConstrainedMap() {
-        BIntArray bIntArray = new BIntArray(3);
+        BValueArray bIntArray = new BValueArray(BTypes.typeInt, 3);
         bIntArray.add(0, 1);
         bIntArray.add(1, 3);
         bIntArray.add(2, 5);
-        BIntArray bIntArray2 = new BIntArray();
+        BValueArray bIntArray2 = new BValueArray(BTypes.typeInt);
         bIntArray2.add(0, 1);
         bIntArray2.add(1, 3);
         bIntArray2.add(2, 5);
@@ -386,10 +386,10 @@ public class SealedArrayTest {
     }
 
     @Test(description = "Test accessing invalid index of sealed array of constrained map",
-            expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = ".*error: array index out of range: index: 3, size: 3.*")
+          expectedExceptions = { BLangRuntimeException.class },
+          expectedExceptionsMessageRegExp = ".*error: array index out of range: index: 3, size: 3.*")
     public void testSealedArrayConstrainedMapInvalidIndex() {
-        BIntArray bIntArray = new BIntArray(3);
+        BValueArray bIntArray = new BValueArray(BTypes.typeInt, 3);
         bIntArray.add(0, 1);
         bIntArray.add(1, 3);
         bIntArray.add(2, 5);

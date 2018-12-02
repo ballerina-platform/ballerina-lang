@@ -28,16 +28,16 @@ listener grpc:Listener server7 = new (9095);
     serverStreaming:true}
 service Chat on server7 {
 
-    resource function onOpen(grpc:Caller client) {
+    resource function onOpen(grpc:Caller caller) {
     }
 
-    resource function onMessage(grpc:Caller client, ChatMessage chatMsg) {
+    resource function onMessage(grpc:Caller caller, ChatMessage chatMsg) {
     }
 
-    resource function onError(grpc:Caller client, error err) {
+    resource function onError(grpc:Caller caller, error err) {
     }
 
-    resource function onComplete(grpc:Caller client) {
+    resource function onComplete(grpc:Caller caller) {
     }
 }
 

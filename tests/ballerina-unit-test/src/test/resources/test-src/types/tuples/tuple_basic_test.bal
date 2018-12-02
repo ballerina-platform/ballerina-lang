@@ -84,13 +84,16 @@ function testFunctionReturnValue2() returns (string, float) {
 
 function testIgnoredValue1 () returns string {
     (string, int) x = ("foo", 1);
-    var (a, _) = x;
+    string a;
+    (a, _) = x;
     return a;
 }
 
 function testIgnoredValue2 () returns string {
     (string, int, int) x = ("foo", 1, 2);
-    var (a, _, c) = x;
+    string a;
+    int c;
+    (a, _, c) = x;
     return a;
 }
 
@@ -99,6 +102,14 @@ function testIgnoredValue3 () returns string {
     string a;
     (a, _, _) = x;
     return a;
+}
+
+function testIgnoredValue4 () returns (string, boolean) {
+    (string, (int, (int, boolean))) x = ("foo", (1, (2, true)));
+    string a;
+    boolean b;
+    (a, (_, (_, b))) = x;
+    return (a, b);
 }
 
 function testIndexBasedAccess () returns (string, int, boolean) {

@@ -28,6 +28,7 @@ import org.testng.annotations.Test;
 /**
  * Test cases for usages of worker in actions.
  */
+@Test(groups = "broken")
 public class WorkerInActionTest {
     private CompileResult result;
 

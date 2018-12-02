@@ -24,8 +24,8 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.net.grpc.ClientCall;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageUtils;
@@ -102,7 +102,7 @@ public class BlockingStub extends AbstractStub {
         @Override
         public void onClose(Status status, HttpHeaders trailers) {
             BError httpConnectorError = null;
-            BRefValueArray inboundResponse = null;
+            BValueArray inboundResponse = null;
             if (status.isOk()) {
                 if (value == null) {
                     // No value received so mark the future as an error
@@ -114,7 +114,7 @@ public class BlockingStub extends AbstractStub {
                     BMap<String, BValue> headerStruct = BLangConnectorSPIUtil.createBStruct(dataContext.context
                             .getProgramFile(), PROTOCOL_STRUCT_PACKAGE_GRPC, "Headers");
                     headerStruct.addNativeData(MESSAGE_HEADERS, value.getHeaders());
-                    BRefValueArray contentTuple = new BRefValueArray(RESP_TUPLE_TYPE);
+                    BValueArray contentTuple = new BValueArray(RESP_TUPLE_TYPE);
                     contentTuple.add(0, (BRefType) responseBValue);
                     contentTuple.add(1, headerStruct);
                     inboundResponse = contentTuple;

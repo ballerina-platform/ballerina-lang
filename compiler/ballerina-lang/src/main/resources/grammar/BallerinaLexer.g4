@@ -130,8 +130,8 @@ ABORT       : 'abort' ;
 RETRY       : 'retry' ;
 ONRETRY     : 'onretry' ;
 RETRIES     : 'retries' ;
-ONABORT     : 'onabort' ;
-ONCOMMIT    : 'oncommit' ;
+COMMITTED   : 'committed' ;
+ABORTED     : 'aborted' ;
 LENGTHOF    : 'lengthof' ;
 WITH        : 'with' ;
 IN          : 'in' ;
@@ -204,7 +204,8 @@ ELLIPSIS    : '...' ;
 PIPE        : '|' ;
 EQUAL_GT    : '=>' ;
 ELVIS       : '?:' ;
-SYNCRARROW      : '->>' ;
+SYNCRARROW  : '->>' ;
+UNDERSCORE  : '_' ;
 
 // Compound Assignment operators.
 

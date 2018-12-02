@@ -33,8 +33,8 @@ type Teacher record {
 Employee[] globalEmployeeArray = [];
 int employeeIndex = 0;
 
-stream<Employee> employeeStream;
-stream<Teacher> teacherStream;
+stream<Employee> employeeStream = new;
+stream<Teacher> teacherStream = new;
 
 function testOrderBy() {
     forever {
@@ -93,8 +93,8 @@ function addToGlobalEmployeeArray(Employee e) {
 Employee[] globalEmployeeArray2 = [];
 int employeeIndex2 = 0;
 
-stream<Employee> employeeStream2;
-stream<Teacher> teacherStream2;
+stream<Employee> employeeStream2 = new;
+stream<Teacher> teacherStream2 = new;
 
 function testOrderBy2() {
     forever {
@@ -152,8 +152,8 @@ function addToGlobalEmployeeArray2(Employee e) {
 Employee[] globalEmployeeArray3 = [];
 int employeeIndex3 = 0;
 
-stream<Employee> employeeStream3;
-stream<Teacher> teacherStream3;
+stream<Employee> employeeStream3 = new;
+stream<Teacher> teacherStream3 = new;
 
 function testOrderBy3() {
     forever {
@@ -211,8 +211,8 @@ function addToGlobalEmployeeArray3(Employee e) {
 Employee[] globalEmployeeArray4 = [];
 int employeeIndex4 = 0;
 
-stream<Employee> employeeStream4;
-stream<Teacher> teacherStream4;
+stream<Employee> employeeStream4 = new;
+stream<Teacher> teacherStream4 = new;
 
 function testOrderBy4() {
     forever {
@@ -270,8 +270,8 @@ function addToGlobalEmployeeArray4(Employee e) {
 Employee[] globalEmployeeArray5 = [];
 int employeeIndex5 = 0;
 
-stream<Employee> employeeStream5;
-stream<Teacher> teacherStream5;
+stream<Employee> employeeStream5 = new;
+stream<Teacher> teacherStream5 = new;
 
 function testOrderBy5() {
     forever {

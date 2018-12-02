@@ -78,7 +78,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"acceptWebSocketUpgrade(map headers)(ballerina/http:WebSocketListener)",
+      "label":"acceptWebSocketUpgrade(map headers)(ballerina/http:WebSocketCaller)",
       "kind":"Function",
       "detail":"Function",
       "documentation":"Sends an upgrade request with custom headers.\n",

@@ -20,11 +20,11 @@ function testNonBallerinaAnnotations() returns reflect:annotationData[] {
 @http:ServiceConfig {
     basePath: "/myService"
 }
-service<http:Service> MyService {
-    foo(endpoint client, http:Request req) {
+service MyService = service {
+    resource function foo(http:Caller caller, http:Request req) {
 
     }
-}
+};
 
 function testBallerinaAnnotations() returns reflect:annotationData[] {
     return reflect:getServiceAnnotations(MyService);

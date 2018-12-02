@@ -563,7 +563,7 @@ public class CompiledPackageSymbolEnter {
             case TypeDescriptor.SIG_FLOAT:
                 valueCPIndex = dataInStream.readInt();
                 FloatCPEntry floatCPEntry = (FloatCPEntry) this.env.constantPool[valueCPIndex];
-                litExpr.value = floatCPEntry.getValue();
+                litExpr.value = Double.toString(floatCPEntry.getValue());
                 litExpr.typeTag = TypeTags.FLOAT;
                 break;
             case TypeDescriptor.SIG_DECIMAL:

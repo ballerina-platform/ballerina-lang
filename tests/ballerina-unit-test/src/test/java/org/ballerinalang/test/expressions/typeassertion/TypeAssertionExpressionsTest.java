@@ -195,17 +195,15 @@ public class TypeAssertionExpressionsTest {
 
     @Test
     public void testAssertionNegatives() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 5);
+        Assert.assertEquals(resultNegative.getErrorCount(), 4);
         int errIndex = 0;
         validateError(resultNegative, errIndex++, "incompatible types: 'Def' cannot be explicitly typed as 'Abc'",
                       19, 15);
         validateError(resultNegative, errIndex++, "incompatible types: 'map<int>' cannot be explicitly typed as 'map'",
                       22, 19);
-        validateError(resultNegative, errIndex++, "type assertion not yet supported for type 'table<Employee>'",
-                      28, 17);
         validateError(resultNegative, errIndex++, "type assertion not yet supported for type 'stream<int|json>'",
-                      32, 27);
-        validateError(resultNegative, errIndex, "type assertion not yet supported for type 'future<int>'", 36, 22);
+                      28, 27);
+        validateError(resultNegative, errIndex, "type assertion not yet supported for type 'future<int>'", 32, 22);
     }
 
     @DataProvider

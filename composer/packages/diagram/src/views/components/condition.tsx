@@ -13,7 +13,7 @@ export const Condition: React.StatelessComponent<{
     }> = ({
         x, y, label, expression
     }) => {
-        const hHeight = (config.flowCtrl.header.height / 2);
+        const hHeight = (config.flowCtrl.condition.height / 2);
 
         const labelProps = { x , y};
         const conditionProps = {x, y};

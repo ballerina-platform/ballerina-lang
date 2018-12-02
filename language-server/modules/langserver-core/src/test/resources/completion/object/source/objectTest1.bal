@@ -1,9 +1,9 @@
 type testObject object {
-    int testField;
+    int testField = 12;
     int a = 12;
     
     
-    public new () {
+    public function __init() {
         
     }
 

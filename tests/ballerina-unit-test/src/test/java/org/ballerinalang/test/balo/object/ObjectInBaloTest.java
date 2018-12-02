@@ -21,11 +21,11 @@ import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.balo.BaloCreator;
 import org.ballerinalang.test.utils.ByteArrayUtils;
 import org.testng.Assert;
@@ -198,16 +198,16 @@ public class ObjectInBaloTest {
         BValue[] returns = BRunUtil.invoke(result, "testObjectWithByteTypeFields");
 
         Assert.assertEquals(returns.length, 3);
-        Assert.assertSame(returns[0].getClass(), BByteArray.class);
-        Assert.assertSame(returns[1].getClass(), BByteArray.class);
-        Assert.assertSame(returns[2].getClass(), BByteArray.class);
+        Assert.assertSame(returns[0].getClass(), BValueArray.class);
+        Assert.assertSame(returns[1].getClass(), BValueArray.class);
+        Assert.assertSame(returns[2].getClass(), BValueArray.class);
 
         byte[] bytes1 = new byte[]{3, 4, 5, 8};
         byte[] bytes2 = ByteArrayUtils.decodeBase64("aGVsbG8gYmFsbGVyaW5hICEhIQ==");
         byte[] bytes3 = ByteArrayUtils.hexStringToByteArray("aaabcfccadafcd341a4bdfabcd8912df");
-        BByteArray blobArray1 = (BByteArray) returns[0];
-        BByteArray blobArray2 = (BByteArray) returns[1];
-        BByteArray blobArray3 = (BByteArray) returns[2];
+        BValueArray blobArray1 = (BValueArray) returns[0];
+        BValueArray blobArray2 = (BValueArray) returns[1];
+        BValueArray blobArray3 = (BValueArray) returns[2];
         ByteArrayUtils.assertJBytesWithBBytes(bytes1, blobArray1);
         ByteArrayUtils.assertJBytesWithBBytes(bytes2, blobArray2);
         ByteArrayUtils.assertJBytesWithBBytes(bytes3, blobArray3);

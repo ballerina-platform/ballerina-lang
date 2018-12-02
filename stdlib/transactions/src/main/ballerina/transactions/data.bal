@@ -17,7 +17,7 @@
 public type TransactionContext record {
     string contextVersion = "1.0";
     string transactionId = "";
-    int transactionBlockId = 0;
+    string transactionBlockId = "";
     string coordinationType = "";
     string registerAtURL = "";
 };
@@ -33,10 +33,10 @@ type RegistrationResponse record {
     RemoteProtocol[] coordinatorProtocols = [];
 };
 
-function toProtocolArray(RemoteProtocol[] remoteProtocols) returns Protocol[] {
-    Protocol[] protocols = [];
+function toProtocolArray(RemoteProtocol[] remoteProtocols) returns UProtocol[] {
+    UProtocol[] protocols = [];
     foreach remoteProtocol in remoteProtocols {
-        Protocol proto = {name:remoteProtocol.name};
+        LocalProtocol proto = {name:remoteProtocol.name};
         protocols[protocols.length()] = proto;
     }
     return protocols;

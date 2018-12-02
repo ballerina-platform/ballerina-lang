@@ -5,8 +5,9 @@
 @diagram-base-light-color: #f1f1f1;
 @diagram-base-dark-color: #1e1e1e;
 
-@diagram-font-size: 14px;
 @diagram-icon-font: "font-ballerina";
+@diagram-font: Monaco, Consolas, "Courier New", monospace, "@{diagram-icon-font}";
+@diagram-font-size: @fontSize;
 
 @light-diagram-background-color: @diagram-base-light-color;
 @dark-diagram-background-color: @diagram-base-dark-color;
@@ -43,7 +44,7 @@
        Statement
 --------------------*/
 
-@diagram-statement-font-size: 12px;
+@diagram-statement-font-size: @diagram-font-size;
 
 
 /*-------------------
@@ -63,7 +64,7 @@
 @dark-diagram-life-line-head-text-color: @dark-diagram-base-text-color;
 
 @diagram-life-line-stroke-width: @diagram-stroke-width;
-@diagram-life-line-head-font-size: 18px;
+@diagram-life-line-head-font-size: calc(@diagram-font-size + 2px);
 
 
 /*-------------------
@@ -83,3 +84,17 @@
 
 @diagram-condition-stroke-width: @diagram-stroke-width;
 @diagram-condition-line-stroke-width: @diagram-stroke-width;
+
+
+/*-------------------
+       Buttons 
+--------------------*/
+
+@diagram-button-background-color: #00B5AD;
+@diagram-button-text-color: #fff;
+
+@dark-diagram-button-background-color: @diagram-button-background-color;
+@dark-diagram-button-text-color: @diagram-button-text-color;
+
+@light-diagram-button-background-color: @diagram-button-background-color;
+@light-diagram-button-text-color: @diagram-button-text-color;

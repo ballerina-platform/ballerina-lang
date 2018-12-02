@@ -9,8 +9,8 @@
       Base Sizes
 --------------------*/
 
-@emSize   : 12px;
-@fontSize : 12px;
+@emSize   : 14px;
+@fontSize : 14px;
 
 
 /*-------------------
@@ -21,3 +21,10 @@
 @absoluteBorderRadius: 0;
 
 @defaultBorderRadius: @absoluteBorderRadius;
+
+
+/*-------------------
+    Brand Colors
+--------------------*/
+
+@primaryColor        : @teal;

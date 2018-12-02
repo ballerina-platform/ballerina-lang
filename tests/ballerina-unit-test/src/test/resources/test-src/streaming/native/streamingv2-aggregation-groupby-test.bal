@@ -16,6 +16,7 @@
 
 import ballerina/runtime;
 import ballerina/streams;
+import ballerina/io;
 
 type Teacher record {
     string name;
@@ -33,8 +34,8 @@ type TeacherOutput record {
 };
 
 int index = 0;
-stream<Teacher> inputStream;
-stream<TeacherOutput> outputStream;
+stream<Teacher> inputStream = new;
+stream<TeacherOutput> outputStream = new;
 
 TeacherOutput[] globalEmployeeArray = [];
 
@@ -85,6 +86,14 @@ function startAggregationGroupByQuery() returns (TeacherOutput[]) {
 //      }
 //
 
+function getGroupByField(int a) returns boolean {
+    if (a % 2 == 0) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 function createStreamingConstruct() {
 
     function (map<anydata>[]) outputFunc = function (map<anydata>[] events) {
@@ -105,8 +114,8 @@ function createStreamingConstruct() {
 
     streams:Select select = streams:createSelect(function (streams:StreamEvent[] e) {outputProcess.process(e);},
         aggregatorArr,
-        [function (streams:StreamEvent e) returns string {
-            return <string>e.data["inputStream.name"];
+        [function (streams:StreamEvent e) returns anydata {
+            return getGroupByField(<int>e.data["inputStream.age"]);
         }],
         function (streams:StreamEvent e, streams:Aggregator[] aggregatorArr1) returns map<anydata> {
             streams:Sum sumAggregator1 = <streams:Sum>aggregatorArr1[0];

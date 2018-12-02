@@ -31,7 +31,6 @@ export const ControllerPanel: StatelessComponent<{
                         <ModeToggleButton />
                         <ZoomControllers />
                         <AddDefinitionsMenu />
-                        {children}
                     </Menu.Menu>
                 </Menu>
             </Sticky>

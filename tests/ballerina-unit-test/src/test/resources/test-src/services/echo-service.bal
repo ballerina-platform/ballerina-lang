@@ -26,11 +26,10 @@ service echo on echoEP {
         _ = caller->respond(res);
     }
 
-    //TODO:Workers and resource annotations don't work together. To be fixed.
-    //@http:ResourceConfig {
-    //    methods:["GET"],
-    //    path:"/message_worker"
-    //}
+    @http:ResourceConfig {
+        methods:["GET"],
+        path:"/message_worker"
+    }
     resource function message_worker(http:Caller caller, http:Request req) {
         worker w1 {
             http:Response res = new;
@@ -128,7 +127,7 @@ service echo on echoEP {
             res.setJsonPayload(untaint responseJson);
         } else if (params is error) {
             string errMsg = <string> params.detail().message;
-            res.setTextPayload(errMsg);
+            res.setPayload(untaint errMsg);
         }
         _ = caller->respond(res);
     }

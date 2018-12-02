@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
+import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -76,6 +77,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -130,6 +132,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
@@ -168,7 +172,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
@@ -413,6 +416,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTransaction transactionNode) {
+        analyzeNode(transactionNode.transactionBody, env);
+        analyzeNode(transactionNode.onRetryBody, env);
+        analyzeNode(transactionNode.committedBody, env);
+        analyzeNode(transactionNode.abortedBody, env);
     }
 
     @Override
@@ -936,12 +943,22 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangErrorDestructure recordDestructure) {
+        analyzeNode(recordDestructure.expr, env);
+        checkAssignment(recordDestructure.varRef);
+    }
+
+    @Override
     public void visit(BLangTupleVarRef tupleVarRefExpr) {
         tupleVarRefExpr.expressions.forEach(expr -> analyzeNode(expr, env));
     }
 
     @Override
     public void visit(BLangRecordVarRef varRefExpr) {
+    }
+
+    @Override
+    public void visit(BLangErrorVarRef varRefExpr) {
     }
 
     @Override
@@ -971,6 +988,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangErrorVariable bLangErrorVariable) {
+    }
+
+    @Override
+    public void visit(BLangErrorVariableDef bLangErrorVariableDef) {
+    }
+
+    @Override
     public void visit(BLangMatchStaticBindingPatternClause bLangMatchStaticBindingPatternClause) {
     }
 
@@ -979,8 +1004,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private void addUninitializedVar(BLangVariable variable) {
-        if (variable.symbol.type.tag != TypeTags.CHANNEL &&
-            variable.symbol.type.tag != TypeTags.STREAM && !this.uninitializedVars.containsKey(variable.symbol)) {
+        if (!this.uninitializedVars.containsKey(variable.symbol)) {
             this.uninitializedVars.put(variable.symbol, InitStatus.UN_INIT);
         }
     }
