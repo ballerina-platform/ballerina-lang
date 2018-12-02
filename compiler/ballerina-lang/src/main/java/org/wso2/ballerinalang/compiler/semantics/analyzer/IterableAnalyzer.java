@@ -42,6 +42,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -113,10 +114,16 @@ public class IterableAnalyzer {
         if (op.iExpr.argExprs.size() > 0) {
             dlog.error(op.pos, DiagnosticCode.ITERABLE_NO_ARGS_REQUIRED, op.kind);
         }
-        op.arity = 1;
+
         op.iExpr.requiredArgs = op.iExpr.argExprs;
         op.inputType = op.collectionType.accept(terminalInputTypeChecker, op).get(0);
         op.resultType = op.outputType = op.collectionType.accept(terminalOutputTypeChecker, op).get(0);
+
+        if (op.inputType.tag == TypeTags.TUPLE) {
+            op.arity = 2;
+        } else {
+            op.arity = 1;
+        }
     }
 
     private void handleLambdaBasedIterableOperation(IterableContext context, Operation operation) {
@@ -336,11 +343,9 @@ public class IterableAnalyzer {
 
         @Override
         public List<BType> visit(BMapType type, Operation op) {
-            if (op.arity == 0) {
-                logNotEnoughVariablesError(op, 1);
+            if (op.arity < 2) {
+                logNotEnoughVariablesError(op, 2);
                 return Lists.of(symTable.semanticError);
-            } else if (op.arity == 1) {
-                return Lists.of(type.constraint);
             } else if (op.arity == 2) {
                 return Lists.of(symTable.stringType, type.constraint);
             }
@@ -355,8 +360,6 @@ public class IterableAnalyzer {
                 return Lists.of(symTable.semanticError);
             } else if (op.arity == 1) {
                 return Lists.of(symTable.xmlType);
-            } else if (op.arity == 2) {
-                return Lists.of(symTable.intType, symTable.xmlType);
             }
             logTooManyVariablesError(op);
             return Lists.of(symTable.semanticError);
@@ -389,10 +392,8 @@ public class IterableAnalyzer {
         @Override
         public List<BType> visit(BRecordType type, Operation op) {
             if (op.arity == 0) {
-                logNotEnoughVariablesError(op, 1);
+                logNotEnoughVariablesError(op, 2);
                 return Lists.of(symTable.semanticError);
-            } else if (op.arity == 1) {
-                return Lists.of(types.inferRecordFieldType(type));
             } else if (op.arity == 2) {
                 return Lists.of(symTable.stringType, types.inferRecordFieldType(type));
             }
@@ -507,11 +508,29 @@ public class IterableAnalyzer {
                         BIntermediateCollectionType collectionType = (BIntermediateCollectionType) elementType;
                         elementType = collectionType.tupleType.tupleTypes.get(0);
                     }
-                    return elementType;
+                    // Todo - Validate for intermediate collections.
+                    int arity = getExpectedArity(operation.collectionType);
+                    if (arity == 1) {
+                        return elementType;
+                    }
+                    List<BType> types = new LinkedList<>();
+                    types.add(symTable.stringType);
+                    types.add(elementType);
+                    return new BTupleType(types);
                 default:
                     break;
             }
             return symTable.semanticError;
+        }
+
+        private int getExpectedArity(BType collectionType) {
+            switch (collectionType.tag) {
+                case TypeTags.MAP:
+                case TypeTags.RECORD:
+                    return 2;
+                default:
+                    return 1;
+            }
         }
     }
 
