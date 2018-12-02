@@ -1665,7 +1665,7 @@
                 <module>stdlib/system</module>
                 <module>stdlib/task</module>
                 <module>stdlib/time</module>
-                <module>stdlib/websub</module>
+                <!--<module>stdlib/websub</module>-->
                 <module>stdlib/jms</module>
                 <module>stdlib/observability</module>
                 <module>stdlib/database/h2</module>
@@ -1749,7 +1749,7 @@
                 <module>stdlib/system</module>
                 <module>stdlib/task</module>
                 <module>stdlib/time</module>
-                <module>stdlib/websub</module>
+                <!--<module>stdlib/websub</module>-->
                 <module>stdlib/jms</module>
                 <module>stdlib/observability</module>
                 <module>stdlib/database/h2</module>
@@ -1829,7 +1829,7 @@
                 <module>stdlib/system</module>
                 <module>stdlib/task</module>
                 <module>stdlib/time</module>
-                <module>stdlib/websub</module>
+                <!--<module>stdlib/websub</module>-->
                 <module>stdlib/jms</module>
                 <module>stdlib/observability</module>
                 <module>stdlib/database/h2</module>

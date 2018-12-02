@@ -377,6 +377,10 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     }
 
     public void visit(BLangService serviceNode) {
+        if (serviceNode.attachedExprs != null) {
+            serviceNode.attachedExprs.forEach(this::acceptNode);
+        }
+
         if (HoverUtil.isMatchingPosition(HoverUtil.getIdentifierPosition(serviceNode), this.position)) {
             addPosition(serviceNode, this.previousNode, serviceNode.name.getValue(), serviceNode.symbol.pkgID,
                         serviceNode.symbol.kind.name(), serviceNode.symbol.kind.name(), serviceNode.name.getValue(),
