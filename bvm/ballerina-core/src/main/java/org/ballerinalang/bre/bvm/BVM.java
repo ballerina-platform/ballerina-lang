@@ -1770,7 +1770,7 @@ public class BVM {
                 try {
                     JSONUtils.setElement(sf.refRegs[i], sf.stringRegs[j], sf.refRegs[k]);
                 } catch (BLangFreezeException e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, "Failed to set element to JSON: " + e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, "failed to set element to json: " + e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -4924,6 +4924,8 @@ public class BVM {
             case TypeTags.ARRAY_TAG:
                 // Element type of the array should be 'is type' JSON
                 return checkIsType(((BArrayType) sourceType).getElementType(), targetType, unresolvedTypes);
+            case TypeTags.MAP_TAG:
+                return checkCastByType(((BMapType) sourceType).getConstrainedType(), targetType, unresolvedTypes);
             default:
                 return false;
         }

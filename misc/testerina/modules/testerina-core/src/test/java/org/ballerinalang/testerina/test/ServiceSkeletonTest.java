@@ -36,6 +36,7 @@ import java.util.HashMap;
 /**
  * Test cases for ballerina.test package.
  */
+@Test(groups = "broken")
 public class ServiceSkeletonTest {
 
     String sourceRoot = "src/test/resources/";

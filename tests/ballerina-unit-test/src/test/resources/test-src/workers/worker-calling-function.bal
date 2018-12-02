@@ -6,7 +6,7 @@ function testWorkerInVM () returns int {
 
 function testWorker () returns int {
 
-    worker w1 {
+    worker w1 returns int {
         int result = 0;
         int i = 10;
         i -> sampleWorker;
@@ -21,7 +21,7 @@ function testWorker () returns int {
         r = changeMessage(i);
         r -> w1;
     }
-
+    return wait w1;
 }
 
 function changeMessage (int i) returns int {

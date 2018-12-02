@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Test whether resource failure during client initialization causes a close frame to be sent.
  */
-@Test(groups = "websocket-test")
+@Test(groups = { "websocket-test", "broken" })
 public class ClientInitializationFailureTest extends WebSocketTestCommons {
 
     private WebSocketTestClient client;
