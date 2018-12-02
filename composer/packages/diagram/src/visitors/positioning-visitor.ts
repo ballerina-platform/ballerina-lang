@@ -71,11 +71,11 @@ export const visitor: Visitor = {
         viewState.body.x = viewState.bBox.x;
         viewState.body.y = viewState.header.y + viewState.header.h;
         // Position client line
-        viewState.client.x = viewState.body.x + config.panel.padding.left;
-        viewState.client.y = viewState.body.y + config.panel.padding.top;
+        viewState.client.bBox.x = viewState.body.x + config.panel.padding.left;
+        viewState.client.bBox.y = viewState.body.y + config.panel.padding.top;
         // Position default worker
-        defaultWorker.bBox.x = viewState.client.x + viewState.client.w + config.lifeLine.gutter.h;
-        defaultWorker.bBox.y = viewState.client.y;
+        defaultWorker.bBox.x = viewState.client.bBox.x + viewState.client.bBox.w + config.lifeLine.gutter.h;
+        defaultWorker.bBox.y = viewState.client.bBox.y;
         // Position default worker lifeline.
         positionWorkerLine(defaultWorker);
 
