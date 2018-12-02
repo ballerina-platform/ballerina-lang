@@ -1,7 +1,7 @@
 
 import * as React from "react";
 
-const ARROW_SIZE = 4;
+const ARROW_SIZE = 3;
 
 export const ArrowHead: React.StatelessComponent<{
         x: number, y: number, direction: "left" | "right"

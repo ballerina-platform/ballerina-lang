@@ -34,7 +34,6 @@ import io.ballerina.plugins.idea.psi.BallerinaExpression;
 import io.ballerina.plugins.idea.psi.BallerinaFieldDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaFile;
 import io.ballerina.plugins.idea.psi.BallerinaIdentifier;
-import io.ballerina.plugins.idea.psi.BallerinaMatchExpressionPatternClause;
 import io.ballerina.plugins.idea.psi.BallerinaNameReference;
 import io.ballerina.plugins.idea.psi.BallerinaPackageReference;
 import io.ballerina.plugins.idea.psi.BallerinaRecordKey;
@@ -49,7 +48,6 @@ import io.ballerina.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import io.ballerina.plugins.idea.psi.scopeprocessors.BallerinaActionInvocationProcessor;
 import io.ballerina.plugins.idea.psi.scopeprocessors.BallerinaAnnotationFieldProcessor;
 import io.ballerina.plugins.idea.psi.scopeprocessors.BallerinaBlockProcessor;
-import io.ballerina.plugins.idea.psi.scopeprocessors.BallerinaExpressionProcessor;
 import io.ballerina.plugins.idea.psi.scopeprocessors.BallerinaObjectFieldProcessor;
 import io.ballerina.plugins.idea.psi.scopeprocessors.BallerinaPackageNameProcessor;
 import io.ballerina.plugins.idea.psi.scopeprocessors.BallerinaScopeProcessorBase;
@@ -94,12 +92,6 @@ public class BallerinaNameReferenceReference extends BallerinaCachedReference<Ba
 
         BallerinaRecordKey recordKey = PsiTreeUtil.getParentOfType(myElement, BallerinaRecordKey.class);
         if (recordKey == null) {
-            processor = new BallerinaExpressionProcessor(null, myElement, false);
-            processResolveVariants(processor);
-            result = processor.getResult();
-            if (result != null) {
-                return result;
-            }
 
             processor = new BallerinaStatementProcessor(null, myElement, false);
             processResolveVariants(processor);
@@ -246,13 +238,6 @@ public class BallerinaNameReferenceReference extends BallerinaCachedReference<Ba
         }
 
         if (inLocalPackage) {
-            BallerinaMatchExpressionPatternClause matchExpressionPatternClause = PsiTreeUtil.getParentOfType(myElement,
-                    BallerinaMatchExpressionPatternClause.class);
-            if (matchExpressionPatternClause != null && processor instanceof BallerinaExpressionProcessor) {
-                if (!processor.execute(matchExpressionPatternClause, resolveState)) {
-                    return false;
-                }
-            }
 
             // Note - Execute BallerinaStatementProcessor first.
             BallerinaStatement ballerinaStatement = PsiTreeUtil.getParentOfType(myElement, BallerinaStatement.class);

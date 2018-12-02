@@ -28,8 +28,6 @@ public enum Snippet {
     // Definition Snippets
     DEF_ANNOTATION(SnippetGenerator.getAnnotationDefSnippet()),
 
-    DEF_ENDPOINT(SnippetGenerator.getEndpointSnippet()),
-
     DEF_FUNCTION(SnippetGenerator.getFunctionDefSnippet()),
 
     DEF_FUNCTION_SIGNATURE(SnippetGenerator.getFunctionSignatureSnippet()),
@@ -65,6 +63,8 @@ public enum Snippet {
     KW_NEW(SnippetGenerator.getNewKeywordSnippet()),
 
     KW_CHECK(SnippetGenerator.getCheckKeywordSnippet()),
+
+    KW_WAIT(SnippetGenerator.getWaitKeywordSnippet()),
 
     KW_EXTERN(SnippetGenerator.getExternKeywordSnippet()),
 

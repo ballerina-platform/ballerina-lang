@@ -43,7 +43,7 @@ under the License.
         </groups>
         <packages>
             <package name="org.ballerinalang.test.vm.*"/>
-            <!--package name="org.ballerinalang.test.annotations.*"/>-->
+            <package name="org.ballerinalang.test.annotations.*"/>
             <package name="org.ballerinalang.test.expressions.*"/>
             <package name="org.ballerinalang.test.documentation.*"/>
             <package name="org.ballerinalang.test.statements.*">
@@ -61,9 +61,9 @@ under the License.
             </package>
             <package name="org.ballerinalang.test.h2"/>
             <package name="org.ballerinalang.test.net.*"/>
-            <!--package name="org.ballerinalang.test.debugger.*"/>-->
+            <package name="org.ballerinalang.test.debugger.*"/>
             <package name="org.ballerinalang.test.structs.*"/>
-            <!--package name="org.ballerinalang.test.endpoint.*"/>-->
+            <package name="org.ballerinalang.test.endpoint.*"/>
             <package name="org.ballerinalang.test.closures.*"/>
             <package name="org.ballerinalang.test.services.nativeimpl.*"/>
             <package name="org.ballerinalang.test.services.basics"/>
@@ -75,14 +75,12 @@ under the License.
             <package name="org.ballerinalang.test.launch.*"/>
             <package name="org.ballerinalang.test.lock.*"/>
             <package name="org.ballerinalang.test.task.*"/>
-            <!--<package name="org.ballerinalang.test.cache.*"/>-->
+            <package name="org.ballerinalang.test.cache.*"/>
             <package name="org.ballerinalang.test.mime.*"/>
             <package name="org.ballerinalang.test.jwt.*"/>
             <package name="org.ballerinalang.test.taintchecking.*"/>
             <package name="org.ballerinalang.test.config.*"/>
-            <!--<package name="org.ballerinalang.test.streaming.*"/>-->
-            <package name="org.ballerinalang.test.streaming.legacy.*"/>
-            <package name="org.ballerinalang.test.streaming.native.*"/>
+            <package name="org.ballerinalang.test.streaming.*"/>
             <package name="org.ballerinalang.test.object.*"/>
             <package name="org.ballerinalang.test.record.*"/>
             <package name="org.ballerinalang.test.net.grpc"/>

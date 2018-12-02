@@ -21,9 +21,10 @@ import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BIntArray;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -72,19 +73,19 @@ public class ArrayAccessExprTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "arrayReturnTest", args);
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BIntArray.class);
+        Assert.assertSame(returns[0].getClass(), BValueArray.class);
 
-        BIntArray arrayValue = (BIntArray) returns[0];
+        BValueArray arrayValue = (BValueArray) returns[0];
         Assert.assertEquals(arrayValue.size(), 106);
 
-        Assert.assertEquals(arrayValue.get(0), 100);
-        Assert.assertEquals(arrayValue.get(1), 5);
-        Assert.assertEquals(arrayValue.get(105), 105);
+        Assert.assertEquals(arrayValue.getInt(0), 100);
+        Assert.assertEquals(arrayValue.getInt(1), 5);
+        Assert.assertEquals(arrayValue.getInt(105), 105);
     }
 
     @Test(description = "Test arrays arg value")
     public void testArrayArgValue() {
-        BIntArray arrayValue = new BIntArray();
+        BValueArray arrayValue = new BValueArray(BTypes.typeInt);
         arrayValue.add(0, 10);
         arrayValue.add(1, 1);
 

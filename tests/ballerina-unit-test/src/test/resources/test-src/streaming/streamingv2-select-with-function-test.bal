@@ -30,8 +30,8 @@ type TeacherOutput record{
 };
 
 int index = 0;
-stream<Teacher> inputStream;
-stream<TeacherOutput> outputStream;
+stream<Teacher> inputStream = new;
+stream<TeacherOutput> outputStream = new;
 TeacherOutput[] globalEmployeeArray = [];
 
 function startSelectQuery() returns (TeacherOutput[]) {
@@ -46,7 +46,7 @@ function startSelectQuery() returns (TeacherOutput[]) {
 
     testSelectQuery();
 
-    outputStream.subscribe(printTeachers);
+    outputStream.subscribe(function (TeacherOutput e) {printTeachers(e);});
     foreach t in teachers {
         inputStream.publish(t);
     }

@@ -139,6 +139,7 @@ function processConcurrent(map<int> intMap, int n) {
          i += 1;
       }
     }
+    _ = wait {w1, w2};
 }
 
 function testConcurrentMapGetKeys() returns error? {
@@ -186,5 +187,6 @@ function processConcurrentKeys(map<int> intMap, int n) returns error? {
         }
         return ();
     }
+    _ = wait {w1, w2, w3};
     return ();
 }

@@ -44,14 +44,12 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.ARRAY_TYPE_NAME;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.AS;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ASSIGN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ATTACHMENT_POINT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.AWAIT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BINDING_PATTERN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BINDING_REF_PATTERN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BIT_COMPLEMENT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BLOCK;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BRACED_OR_TUPLE_EXPRESSION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BREAK;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.BUT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.CALLABLE_UNIT_BODY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.CALLABLE_UNIT_SIGNATURE;
@@ -80,7 +78,6 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.ELSE_IF_CLAUSE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ELVIS;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ENTRY_BINDING_PATTERN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ENTRY_REF_BINDING_PATTERN;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.ENUM;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.EQUAL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.EQUAL_GT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ERROR;
@@ -101,6 +98,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.FINALLY_CLAUSE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FINITE_TYPE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FIRST;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FLOATING_POINT_LITERAL;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.FLUSH;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FOLLOWED;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FOR;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FOREACH;
@@ -134,7 +132,6 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.INVOCATION_ARG;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.INVOCATION_ARG_LIST;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.IS;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.JOIN;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.JOIN_CLAUSE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.JSON;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.LARROW;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.LAST;
@@ -149,14 +146,11 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.LT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.LT_EQUAL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.MAP;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.MATCH;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.MATCH_EXPRESSION;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.MATCH_EXPRESSION_PATTERN_CLAUSE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.MATCH_STATEMENT_BODY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.MINUTE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.MOD;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.MONTH;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.MUL;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.NAMED_PATTERN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.NAME_REFERENCE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.NEW;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.NOT;
@@ -183,6 +177,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.PRIVATE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.PUBLIC;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RANGE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RARROW;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECORD_FIELD_DEFINITION_LIST;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECORD_KEY_VALUE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECORD_LITERAL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECORD_LITERAL_BODY;
@@ -214,19 +209,16 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.SIMPLE_LITERAL_EXPRES
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.SIMPLE_TYPE_NAME;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.SIMPLE_VARIABLE_REFERENCE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.SNAPSHOT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.SOME;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.START;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.STATEMENT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.STREAM;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.SUB;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.SYNCRARROW;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TABLE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.THROW;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.TIMEOUT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.TIMEOUT_CLAUSE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRANSACTION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRANSACTION_PROPERTY_INIT_STATEMENT_LIST;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRAP;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRIGGER_WORKER;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TUPLE_BINDING_PATTERN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TUPLE_REF_BINDING_PATTERN;
@@ -241,6 +233,8 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.VAR;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.VARIABLE_REFERENCE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.VARIABLE_REFERENCE_EXPRESSION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.VERSION;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.WAIT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.WAIT_KEY_VALUE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.WHERE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.WHERE_CLAUSE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.WHILE;
@@ -251,6 +245,9 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.WITH;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.WITHIN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.WORKER;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.WORKER_BODY;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.WORKER_RECEIVE_EXPRESSION;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.WORKER_SEND_ASYNC_EXPRESSION;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.WORKER_SEND_ASYNC_STATEMENT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.XMLNS;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.YEAR;
 
@@ -286,7 +283,6 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(EXTERN).spaceIf(true)
                 .around(RESOURCE).spaceIf(true)
                 .around(OBJECT).spaceIf(true)
-                .around(ENUM).spaceIf(true)
                 .around(WORKER).spaceIf(true)
                 .around(XMLNS).spaceIf(true)
                 .around(RETURNS).spaceIf(true)
@@ -295,6 +291,8 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(IS).spaceIf(true)
                 .around(TRAP).spaceIf(true)
                 .around(PANIC).spaceIf(true)
+                .around(FLUSH).spaceIf(true)
+                .around(WAIT).spaceIf(true)
 
                 .around(LISTENER).spaceIf(true)
                 .around(VAR).spaceIf(true)
@@ -309,9 +307,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .after(CONTINUE).spaceIf(false)
                 .around(BREAK).spaceIf(false)
                 .around(JOIN).spaceIf(true)
-                .around(SOME).spaceIf(true) // Todo
                 .around(ALL).spaceIf(true) // Todo
-                .around(TIMEOUT).spaceIf(true)
                 .around(TRY).spaceIf(true)
                 .around(CATCH).spaceIf(true)
                 .around(FINALLY).spaceIf(true)
@@ -329,9 +325,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(LOCK).spaceIf(true)
                 .around(UNTAINT).spaceIf(true) // Todo
                 .around(START).spaceIf(true)
-                .around(AWAIT).spaceIf(true)
                 .around(CHECK).spaceIf(true)
-                .around(BUT).spaceIf(true)
 
                 // Streaming keywords
                 .around(FROM).spaceIf(true)
@@ -462,6 +456,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .between(RECORD_KEY_VALUE, RIGHT_BRACE).spaceIf(false)
                 .between(LEFT_BRACE, RIGHT_BRACE).spaceIf(false)
                 .around(RECORD_LITERAL_BODY).spaceIf(true)
+                .around(RECORD_FIELD_DEFINITION_LIST).spaceIf(true)
 
                 // Statements
                 .between(LEFT_BRACE, RIGHT_BRACE).spaceIf(false)
@@ -509,8 +504,6 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .before(CATCH_CLAUSE).spaceIf(true)
                 .before(CATCH_CLAUSES).spaceIf(true)
                 .before(FINALLY_CLAUSE).spaceIf(true)
-                .before(JOIN_CLAUSE).spaceIf(true)
-                .before(TIMEOUT_CLAUSE).spaceIf(true)
 
                 .before(ELSE_IF_CLAUSE).spaceIf(true)
                 .before(ELSE_CLAUSE).spaceIf(true)
@@ -531,7 +524,6 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
 
                 .before(INDEX).spaceIf(false)
 
-                .before(MATCH_EXPRESSION).spaceIf(true)
                 .between(VARIABLE_REFERENCE_EXPRESSION, MATCH_STATEMENT_BODY).spaceIf(true)
 
                 .between(RETURN, SEMICOLON).spaceIf(false)
@@ -592,10 +584,15 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(AND).spaceIf(true)
                 .around(OR).spaceIf(true)
 
+                //Workers
                 .aroundInside(RARROW, ACTION_INVOCATION).spaceIf(false)
-                .aroundInside(RARROW, TRIGGER_WORKER).spaceIf(true)
                 .between(IDENTIFIER, WORKER_BODY).spaceIf(true)
                 .between(EXPRESSION_LIST, RARROW).spaceIf(true)
+                .aroundInside(RARROW, WORKER_SEND_ASYNC_STATEMENT).spaceIf(true)
+                .aroundInside(SYNCRARROW, WORKER_SEND_ASYNC_EXPRESSION).spaceIf(false)
+                .afterInside(LARROW, WORKER_RECEIVE_EXPRESSION).spaceIf(false)
+                .between(LEFT_BRACE,WAIT_KEY_VALUE).spaceIf(true)
+                .between(WAIT_KEY_VALUE, RIGHT_BRACE).spaceIf(true)
                 .around(RARROW).spaceIf(false)
 
                 .around(LARROW).spaceIf(true)
@@ -606,10 +603,6 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(SAFE_ASSIGNMENT).spaceIf(true)
 
                 .around(STATEMENT).lineBreakOrForceSpace(true, true)
-                .between(MATCH_EXPRESSION_PATTERN_CLAUSE, COMMA).lineBreakOrForceSpace(false, false)
-                 //TODO verify whether this should be removed
-                 // .around(MATCH_EXPRESSION_PATTERN_CLAUSE).lineBreakOrForceSpace(true, true)
-                .aroundInside(BLOCK, NAMED_PATTERN).lineBreakOrForceSpace(true, true)
 
                 .betweenInside(RIGHT_PARENTHESIS, LEFT_BRACE, IF_CLAUSE).spaceIf(true)
                 .betweenInside(RIGHT_PARENTHESIS, LEFT_BRACE, ELSE_IF_CLAUSE).spaceIf(true)

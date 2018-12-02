@@ -25,14 +25,12 @@ export const ControllerPanel: StatelessComponent<{
                         + (width > RESPOSIVE_MENU_TRIGGER.HIDDEN_MODE ? "" : "hidden")
                         + (width > RESPOSIVE_MENU_TRIGGER.ICON_MODE ? "" : " mobile-top-bar")
                     }
-                    style={{ width }}
                 >
                     <Menu.Menu position="left">
                         <EditToggleButton />
                         <ModeToggleButton />
                         <ZoomControllers />
                         <AddDefinitionsMenu />
-                        {children}
                     </Menu.Menu>
                 </Menu>
             </Sticky>

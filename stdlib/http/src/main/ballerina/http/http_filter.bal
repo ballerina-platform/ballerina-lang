@@ -20,11 +20,11 @@ public type Filter abstract object {
     # Request filter function. If a false is returned the response should have been sent from this function as it will
     # not be dispatched to the next filter or the resource.
     #
-    # + listenerObj - The http endpoint
+    # + caller - The http caller
     # + request - An inboud HTTP request message
     # + context - A filter context
     # + return - True if the filter succeeds
-    public function filterRequest(Listener listenerObj, Request request, FilterContext context) returns boolean;
+    public function filterRequest(Caller caller, Request request, FilterContext context) returns boolean;
 
     # Response filter function. If a false is returned a 500 Internal Server Error would be sent to the client.
     #
@@ -37,19 +37,19 @@ public type Filter abstract object {
 // TODO: validate
 # Representation of request filter Context.
 #
-# + serviceType - The service
+# + serviceRef - The service
 # + serviceName - Name of the service
 # + resourceName - Name of the resource
 # + attributes - Attributes to share between filters
 public type FilterContext object {
 
-    public service serviceType;
+    public service serviceRef;
     public string serviceName = "";
     public string resourceName = "";
     public map<any> attributes = {};
 
-    public function __init(service serviceType, string serviceName, string resourceName) {
-        self.serviceType = serviceType;
+    public function __init(service serviceRef, string serviceName, string resourceName) {
+        self.serviceRef = serviceRef;
         self.serviceName = serviceName;
         self.resourceName = resourceName;
     }

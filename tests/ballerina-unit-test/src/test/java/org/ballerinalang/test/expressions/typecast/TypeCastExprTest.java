@@ -25,12 +25,12 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -292,11 +292,11 @@ public class TypeCastExprTest {
         Assert.assertEquals(addressMap.get("city").stringValue(), "Kandy");
         Assert.assertEquals(addressMap.get("country").stringValue(), "SriLanka");
 
-        BIntArray marksArray = (BIntArray) student.get("marks");
-        Assert.assertTrue(marksArray instanceof BIntArray);
+        BValueArray marksArray = (BValueArray) student.get("marks");
+        Assert.assertTrue(marksArray instanceof BValueArray);
         Assert.assertEquals(marksArray.size(), 2);
-        Assert.assertEquals(marksArray.get(0), 24);
-        Assert.assertEquals(marksArray.get(1), 81);
+        Assert.assertEquals(marksArray.getInt(0), 24);
+        Assert.assertEquals(marksArray.getInt(1), 81);
     }
 
     @Test
@@ -468,11 +468,11 @@ public class TypeCastExprTest {
         Assert.assertEquals(addressMap.get("city").stringValue(), "Kandy");
         Assert.assertEquals(addressMap.get("country").stringValue(), "SriLanka");
 
-        BIntArray marksArray = (BIntArray) student.get("marks");
-        Assert.assertTrue(marksArray instanceof BIntArray);
+        BValueArray marksArray = (BValueArray) student.get("marks");
+        Assert.assertTrue(marksArray instanceof BValueArray);
         Assert.assertEquals(marksArray.size(), 2);
-        Assert.assertEquals(marksArray.get(0), 24);
-        Assert.assertEquals(marksArray.get(1), 81);
+        Assert.assertEquals(marksArray.getInt(0), 24);
+        Assert.assertEquals(marksArray.getInt(1), 81);
 
         double score = ((BFloat) student.get("score")).floatValue();
         Assert.assertEquals(score, 0.0);
@@ -525,11 +525,11 @@ public class TypeCastExprTest {
         Assert.assertEquals(addressMap.get("city").stringValue(), "Kandy");
         Assert.assertEquals(addressMap.get("country").stringValue(), "SriLanka");
 
-        BIntArray marksArray = (BIntArray) student.get("marks");
-        Assert.assertTrue(marksArray instanceof BIntArray);
+        BValueArray marksArray = (BValueArray) student.get("marks");
+        Assert.assertTrue(marksArray instanceof BValueArray);
         Assert.assertEquals(marksArray.size(), 2);
-        Assert.assertEquals(marksArray.get(0), 24);
-        Assert.assertEquals(marksArray.get(1), 81);
+        Assert.assertEquals(marksArray.getInt(0), 24);
+        Assert.assertEquals(marksArray.getInt(1), 81);
 
         Assert.assertEquals(((BFloat) student.get("score")).floatValue(), 0.0);
     }

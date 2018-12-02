@@ -20,7 +20,6 @@ package org.ballerinalang.test.expressions.stamp;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.types.BAnydataType;
 import org.ballerinalang.model.types.BXMLType;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
@@ -62,7 +61,7 @@ public class XMLStampInbuiltFunctionTest {
 
         Assert.assertEquals(results.length, 1);
         Assert.assertEquals(anydataValue.stringValue(), "<book>The Lost World</book>");
-        Assert.assertEquals(anydataValue.getType().getClass(), BAnydataType.class);
+        Assert.assertEquals(anydataValue.getType().getClass(), BXMLType.class);
     }
 }
 

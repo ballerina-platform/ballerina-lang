@@ -66,11 +66,14 @@ function unionMatchStatments() {
 }
 
 function unionTestInvalidOrderedMatch(boolean | int[] | float[4] | float[] x) returns string {
-    match x {
-        boolean k => return "matched boolean";
-        int[] k => return "matched int array";
-        float[] k => return "matched float array";
-        float[4] k => return "matched sealed float array size 4";
+    if (x is boolean) {
+        return "matched boolean";
+    } else if (x is int[]) {
+        return "matched int array";
+    } else if (x is float[]) {
+        return "matched float array";
+    } else {
+        return "matched sealed float array size 4";
     }
 }
 

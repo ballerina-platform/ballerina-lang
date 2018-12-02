@@ -71,10 +71,10 @@ public class InitStub extends BlockingNativeCallableUnit {
         HttpClientConnector clientConnector = (HttpClientConnector) clientEndpoint.getNativeData(CLIENT_CONNECTOR);
         String urlString = (String) clientEndpoint.getNativeData(ENDPOINT_URL);
         String stubType = context.getStringArgument(STUB_TYPE_STRING_INDEX);
-        String descriptorKey = context.getStringArgument(DESCRIPTOR_KEY_STRING_INDEX);
+        String rootDescriptor = context.getStringArgument(DESCRIPTOR_KEY_STRING_INDEX);
         BMap<String, BValue> descriptorMap = (BMap<String, BValue>) context.getRefArgument(DESCRIPTOR_MAP_REF_INDEX);
         
-        if (stubType == null || descriptorKey == null || descriptorMap == null) {
+        if (stubType == null || rootDescriptor == null || descriptorMap == null) {
             context.setReturnValues(MessageUtils.getConnectorError(new StatusRuntimeException(Status
                     .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Error while initializing " +
                             "connector. message descriptor keys not exist. Please check the generated sub file"))));
@@ -82,14 +82,7 @@ public class InitStub extends BlockingNativeCallableUnit {
         }
         
         try {
-            if (!descriptorMap.hasKey(descriptorKey)) {
-                context.setReturnValues(MessageUtils.getConnectorError(new StatusRuntimeException(Status
-                        .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Error while " +
-                                "establishing the connection. service descriptor is null."))));
-                return;
-            }
-            ServiceDefinition serviceDefinition = new ServiceDefinition(descriptorMap.get(descriptorKey).stringValue(),
-                    descriptorMap);
+            ServiceDefinition serviceDefinition = new ServiceDefinition(rootDescriptor, descriptorMap);
             Map<String, MethodDescriptor> methodDescriptorMap = serviceDefinition.getMethodDescriptors(context);
 
             clientEndpoint.addNativeData(METHOD_DESCRIPTORS, methodDescriptorMap);

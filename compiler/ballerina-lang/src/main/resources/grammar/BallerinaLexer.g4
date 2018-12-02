@@ -129,8 +129,8 @@ ABORT       : 'abort' ;
 RETRY       : 'retry' ;
 ONRETRY     : 'onretry' ;
 RETRIES     : 'retries' ;
-ONABORT     : 'onabort' ;
-ONCOMMIT    : 'oncommit' ;
+COMMITTED   : 'committed' ;
+ABORTED     : 'aborted' ;
 LENGTHOF    : 'lengthof' ;
 WITH        : 'with' ;
 IN          : 'in' ;
@@ -139,7 +139,6 @@ UNTAINT     : 'untaint' ;
 START       : 'start' ;
 BUT         : 'but' ;
 CHECK       : 'check' ;
-DONE        : 'done' ;
 PRIMARYKEY  : 'primarykey' ;
 IS          : 'is' ;
 FLUSH       : 'flush' ;
@@ -204,7 +203,8 @@ ELLIPSIS    : '...' ;
 PIPE        : '|' ;
 EQUAL_GT    : '=>' ;
 ELVIS       : '?:' ;
-SYNCRARROW      : '->>' ;
+SYNCRARROW  : '->>' ;
+UNDERSCORE  : '_' ;
 
 // Compound Assignment operators.
 

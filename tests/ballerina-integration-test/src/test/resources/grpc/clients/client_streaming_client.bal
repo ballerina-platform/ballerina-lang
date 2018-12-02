@@ -34,7 +34,6 @@ function testClientStreaming(string[] args) returns (string) {
     io:println("Initialized connection sucessfully.");
 
     foreach greet in args {
-        io:print("send greeting: " + greet);
         error? err = ep->send(greet);
         if (err is error) {
             io:println("Error from Connector: " + err.reason() + " - " + <string>err.detail().message);
@@ -42,14 +41,14 @@ function testClientStreaming(string[] args) returns (string) {
     }
     _ = ep->complete();
 
-    int wait = 0;
+    int waitCount = 0;
     while(total < 1) {
         runtime:sleep(1000);
-        io:println("msg count: " + total);
-        if (wait > 10) {
+        io:println("msg count: ", total);
+        if (waitCount > 10) {
             break;
         }
-        wait += 1;
+        waitCount += 1;
     }
     io:println("completed successfully");
     return response;
@@ -90,7 +89,7 @@ public type HelloWorldClient client object {
         // initialize client endpoint.
         grpc:Client c = new;
         c.init(self.url, self.config);
-        error? result = c.initStub("non-blocking", DESCRIPTOR_KEY, getDescriptorMap());
+        error? result = c.initStub("non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
         if (result is error) {
             panic result;
         } else {
@@ -103,8 +102,8 @@ public type HelloWorldClient client object {
     }
 };
 
-const string DESCRIPTOR_KEY = "HelloWorld7.proto";
-function getDescriptorMap() returns map<any> {
+const string ROOT_DESCRIPTOR = "0A1148656C6C6F576F726C64372E70726F746F120C6772706373657276696365731A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F325E0A0B48656C6C6F576F726C6437124F0A0F6C6F74734F664772656574696E6773121C2E676F6F676C652E70726F746F6275662E537472696E6756616C75651A1C2E676F6F676C652E70726F746F6275662E537472696E6756616C75652801620670726F746F33";
+function getDescriptorMap() returns map<string> {
     return {
         "HelloWorld7.proto":
         "0A1148656C6C6F576F726C64372E70726F746F120C6772706373657276696365731A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F325E0A0B48656C6C6F576F726C6437124F0A0F6C6F74734F664772656574696E6773121C2E676F6F676C652E70726F746F6275662E537472696E6756616C75651A1C2E676F6F676C652E70726F746F6275662E537472696E6756616C75652801620670726F746F33"

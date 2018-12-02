@@ -31,6 +31,12 @@ export class EditableSVGText extends React.Component<EditableSVGTextProps, Edita
         }
     }
 
+    public componentWillReceiveProps(newProps: EditableSVGTextProps) {
+        this.setState({
+            currentValue: newProps.value
+        });
+    }
+
     public render(): React.ReactNode {
         const { bBox, className, onChange } = this.props;
         const { x, y, w, h } = bBox;
@@ -40,7 +46,7 @@ export class EditableSVGText extends React.Component<EditableSVGTextProps, Edita
             height: h,
             width: w,
             x,
-            y
+            y: y + (h / 4)
         };
         return <g className="editable-text">
             {!textEditingEnabled &&

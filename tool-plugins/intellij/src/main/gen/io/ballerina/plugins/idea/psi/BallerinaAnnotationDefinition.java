@@ -30,7 +30,7 @@ public interface BallerinaAnnotationDefinition extends BallerinaNamedElement, Ba
   List<BallerinaAttachmentPoint> getAttachmentPointList();
 
   @Nullable
-  BallerinaUserDefineTypeName getUserDefineTypeName();
+  BallerinaTypeName getTypeName();
 
   @Nullable
   PsiElement getGt();

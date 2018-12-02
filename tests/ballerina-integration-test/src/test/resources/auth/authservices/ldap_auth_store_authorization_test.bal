@@ -47,8 +47,7 @@ http:AuthProvider authProvider = {
     authStoreProviderConfig: ldapConfig
 };
 
-endpoint http:Listener authEP {
-    port: 9097,
+listener http:Listener authEP = new(9097, config = {
     authProviders: [authProvider],
     secureSocket: {
         keyStore: {
@@ -56,7 +55,7 @@ endpoint http:Listener authEP {
             password: "ballerina"
         }
     }
-};
+});
 
 @http:ServiceConfig {
     basePath: "/auth",
@@ -64,7 +63,8 @@ endpoint http:Listener authEP {
         authentication: { enabled: true }
     }
 }
-service<http:Service> authService bind authEP {
+service authService on authEP {
+
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/failAuthz",
@@ -72,7 +72,7 @@ service<http:Service> authService bind authEP {
             scopes: ["admin", "support"]
         }
     }
-    failAuthz(endpoint caller, http:Request req) {
+    resource function failAuthz(http:Caller caller, http:Request req) {
         _ = caller->respond("Hello, World!!!");
     }
 }

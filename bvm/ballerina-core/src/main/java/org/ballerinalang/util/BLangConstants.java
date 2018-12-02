@@ -88,4 +88,6 @@ public class BLangConstants {
                                                                                          MathContext.DECIMAL128);
 
     public static final String COLON = ":";
+
+    public static final String DEFAULT_WORKER_NAME = "default";
 }

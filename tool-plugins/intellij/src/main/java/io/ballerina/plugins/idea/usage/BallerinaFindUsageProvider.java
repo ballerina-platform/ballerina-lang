@@ -24,7 +24,6 @@ import io.ballerina.plugins.idea.psi.BallerinaAnyIdentifierName;
 import io.ballerina.plugins.idea.psi.BallerinaCallableUnitSignature;
 import io.ballerina.plugins.idea.psi.BallerinaGlobalVariableDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaIdentifier;
-import io.ballerina.plugins.idea.psi.BallerinaNamedPattern;
 import io.ballerina.plugins.idea.psi.BallerinaObjectFieldDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaOrgName;
 import io.ballerina.plugins.idea.psi.BallerinaPackageReference;
@@ -84,8 +83,6 @@ public class BallerinaFindUsageProvider implements FindUsagesProvider {
         } else if (parent instanceof BallerinaObjectFieldDefinition) {
             return "Object Field";
         } else if (parent instanceof BallerinaVariableDefinitionStatement) {
-            return "Variable";
-        } else if (parent instanceof BallerinaNamedPattern) {
             return "Variable";
         } else if (parent instanceof BallerinaRestParameter) {
             return "Parameter";

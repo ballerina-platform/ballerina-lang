@@ -31,10 +31,10 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -89,7 +89,7 @@ public class TableJSONDataSource implements JSONDataSource {
 
     @Override
     public BRefType<?> build() {
-        BRefValueArray values = new BRefValueArray(new BArrayType(BTypes.typeJSON));
+        BValueArray values = new BValueArray(new BArrayType(BTypes.typeJSON));
         while (this.hasNext()) {
             values.append(this.next());
         }
@@ -167,7 +167,7 @@ public class TableJSONDataSource implements JSONDataSource {
     private static BRefType<?> getStructData(Object[] data, BField[] structFields, int index) {
         try {
             if (structFields == null) {
-                BRefValueArray jsonArray = new BRefValueArray(new BArrayType(BTypes.typeJSON));
+                BValueArray jsonArray = new BValueArray(new BArrayType(BTypes.typeJSON));
                 if (data != null) {
                     for (Object value : data) {
                         if (value instanceof String) {
@@ -241,7 +241,7 @@ public class TableJSONDataSource implements JSONDataSource {
     private static BRefType<?> getDataArray(BTable df, int columnIndex) {
         Object[] dataArray = df.getArray(columnIndex);
         int length = dataArray.length;
-        BRefValueArray jsonArray = new BRefValueArray(new BArrayType(BTypes.typeJSON));
+        BValueArray jsonArray = new BValueArray(new BArrayType(BTypes.typeJSON));
         if (length > 0) {
             Object obj = dataArray[0];
             if (obj instanceof String) {

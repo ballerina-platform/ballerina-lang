@@ -25,8 +25,8 @@ type Teacher record {
 };
 
 int index = 0;
-stream<Teacher> inputStream;
-stream<Teacher> outputStream;
+stream<Teacher> inputStream = new;
+stream<Teacher> outputStream = new;
 Teacher[] globalEmployeeArray = [];
 
 function startFilterQuery() returns (Teacher[]) {
@@ -41,7 +41,7 @@ function startFilterQuery() returns (Teacher[]) {
 
     testFilterQuery();
 
-    outputStream.subscribe(printTeachers);
+    outputStream.subscribe(function(Teacher e) {printTeachers(e);});
     foreach t in teachers {
         inputStream.publish(t);
     }

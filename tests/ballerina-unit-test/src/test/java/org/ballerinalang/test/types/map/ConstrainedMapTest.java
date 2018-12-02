@@ -23,13 +23,12 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.utils.ByteArrayUtils;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
@@ -233,10 +232,10 @@ public class ConstrainedMapTest {
                 "testConstrainedMapBlobTypePositive");
         Assert.assertNotNull(returns[0]);
         Assert.assertNotNull(returns[1]);
-        Assert.assertTrue(returns[0] instanceof BByteArray);
-        Assert.assertTrue(returns[1] instanceof BByteArray);
-        ByteArrayUtils.assertJBytesWithBBytes(((BByteArray) returns[0]).getBytes(), "hi".getBytes());
-        ByteArrayUtils.assertJBytesWithBBytes(((BByteArray) returns[1]).getBytes(), "ballerina".getBytes());
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        Assert.assertTrue(returns[1] instanceof BValueArray);
+        ByteArrayUtils.assertJBytesWithBBytes(((BValueArray) returns[0]).getBytes(), "hi".getBytes());
+        ByteArrayUtils.assertJBytesWithBBytes(((BValueArray) returns[1]).getBytes(), "ballerina".getBytes());
     }
 
     @Test(description = "Test Map constrained with value type blob negative.")
@@ -245,10 +244,10 @@ public class ConstrainedMapTest {
                 "testConstrainedMapBlobTypeNegative");
         Assert.assertNotNull(returns[0]);
         Assert.assertNotNull(returns[1]);
-        Assert.assertTrue(returns[0] instanceof BByteArray);
-        Assert.assertTrue(returns[1] instanceof BByteArray);
-        ByteArrayUtils.assertJBytesWithBBytes(((BByteArray) returns[0]).getBytes(), "hi".getBytes());
-        ByteArrayUtils.assertJBytesWithBBytes(((BByteArray) returns[1]).getBytes(), "ballerina".getBytes());
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        Assert.assertTrue(returns[1] instanceof BValueArray);
+        ByteArrayUtils.assertJBytesWithBBytes(((BValueArray) returns[0]).getBytes(), "hi".getBytes());
+        ByteArrayUtils.assertJBytesWithBBytes(((BValueArray) returns[1]).getBytes(), "ballerina".getBytes());
     }
 
     @Test(description = "Test cast map constrained with value type from map any positive.")
@@ -394,8 +393,8 @@ public class ConstrainedMapTest {
     @Test(description = "Test struct to map conversion for constrained map negative.")
     public void testMapFunctionsOnConstrainedMaps() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testMapFunctionsOnConstrainedMaps");
-        Assert.assertTrue(returns[0] instanceof BStringArray);
-        Assert.assertEquals(((BStringArray) returns[0]).size(), 2);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        Assert.assertEquals(((BValueArray) returns[0]).size(), 2);
     }
 
     @Test(description = "Test struct to map conversion for constrained map negative.")
@@ -447,8 +446,8 @@ public class ConstrainedMapTest {
                 "testJsonToStructConversionStructWithConstrainedMapNegative");
         Assert.assertTrue(returns[0] instanceof BError);
         String errorMsg = ((BError) returns[0]).getReason();
-        Assert.assertEquals(errorMsg, "cannot convert 'json' to type 'PersonComplexTwo': error while mapping " +
-                "'address': incompatible types: expected 'int', found 'string' in json");
+        Assert.assertEquals(errorMsg,
+                            "incompatible stamp operation: 'json' value cannot be stamped as 'PersonComplexTwo'");
     }
 
     @Test(description = "Test constrained map with union retrieving string value.")

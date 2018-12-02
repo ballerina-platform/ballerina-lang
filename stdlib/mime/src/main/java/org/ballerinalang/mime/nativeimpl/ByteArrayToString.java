@@ -20,8 +20,8 @@ package org.ballerinalang.mime.nativeimpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -47,7 +47,7 @@ public class ByteArrayToString extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         try {
             String encoding = context.getStringArgument(0);
-            byte[] arr = ((BByteArray) context.getRefArgument(0)).getBytes();
+            byte[] arr = ((BValueArray) context.getRefArgument(0)).getBytes();
             String convertedString = new String(arr, encoding);
             context.setReturnValues(new BString(convertedString));
         } catch (UnsupportedEncodingException e) {

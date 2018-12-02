@@ -24,8 +24,8 @@ import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -35,6 +35,7 @@ import org.testng.annotations.Test;
  *
  * @since 0.985.0
  */
+@Test(groups = "broken")
 public class NativeConversionWithStampTypesTest {
 
     private CompileResult compileResult;
@@ -105,14 +106,14 @@ public class NativeConversionWithStampTypesTest {
     public void testConvertStampTupleToMap() {
 
         BValue[] results = BRunUtil.invoke(compileResult, "testConvertStampTupleToMap");
-        BRefValueArray original = (BRefValueArray) results[0];
-        BRefValueArray converted = (BRefValueArray) results[1];
+        BValueArray original = (BValueArray) results[0];
+        BValueArray converted = (BValueArray) results[1];
 
         Assert.assertEquals(results.length, 2);
         Assert.assertEquals(original.getValues().length, 2);
         Assert.assertEquals(converted.getValues().length, 2);
 
-        ((BMap) ((BRefValueArray) results[0]).getValues()[1]).getMap();
+        ((BMap) ((BValueArray) results[0]).getValues()[1]).getMap();
         Assert.assertEquals(converted.getType().getClass(), BTupleType.class);
 
         Assert.assertEquals(original.getValues()[0].stringValue(), "Vinod");

@@ -149,9 +149,8 @@ public class VarDeclaredAssignmentStmtTest {
     public void testVarTypeInVariableDefStatement() {
         //var type is not not allowed in variable def statements
         CompileResult res = BCompileUtil.compile("test-src/types/var/var-type-variable-def-negative.bal");
-        Assert.assertEquals(res.getErrorCount(), 4);
-        BAssertUtil.validateError(res, 0, "invalid token ';'", 2, 12);
-        BAssertUtil.validateError(res, 1, "extraneous input ';'", 2, 12);
+        Assert.assertEquals(res.getErrorCount(), 1);
+        BAssertUtil.validateError(res, 0, "mismatched input ';'. expecting '='", 2, 12);
     }
 
     @Test(description = "Test var in global variable def.")
@@ -174,9 +173,8 @@ public class VarDeclaredAssignmentStmtTest {
     @Test
     public void testVarDeclarationWithStructFieldAssignmentLHSExpr() {
         CompileResult res = BCompileUtil.compile("test-src/types/var/var-invalid-usage-struct-field-negative.bal");
-        Assert.assertEquals(res.getErrorCount(), 6);
-        BAssertUtil.validateError(res, 0, "invalid token '.'", 9, 13);
-        BAssertUtil.validateError(res, 1, "extraneous input 'var'", 9, 4);
+        Assert.assertEquals(res.getErrorCount(), 1);
+        BAssertUtil.validateError(res, 0, "mismatched input '.'. expecting '='", 9, 13);
     }
 
     @Test
@@ -204,9 +202,9 @@ public class VarDeclaredAssignmentStmtTest {
 
     @Test
     public void testVarDeclarationWithAllIgnoredSymbols() {
-        CompileResult res = BCompileUtil.compile("test-src/types/var/var-all-ignored-symbols-negative.bal");
-        Assert.assertEquals(res.getErrorCount(), 1);
-        BAssertUtil.validateError(res, 0, "no new variables on left side", 3, 9);
+        CompileResult res = BCompileUtil.compile("test-src/types/var/var-all-ignored-symbols.bal");
+        BValue[] returns = BRunUtil.invoke(res, "testVarDeclarationWithAllIgnoredSymbols");
+        Assert.assertEquals(returns[0].stringValue(), "success");
     }
 
     @Test(description = "Test incompatible json to struct with errors.")
