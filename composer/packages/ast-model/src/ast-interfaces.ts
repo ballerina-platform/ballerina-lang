@@ -188,6 +188,7 @@ export interface BinaryExpr extends ASTNode {
     | TypeConversionExpr
     | TypeTestExpr
     | UnaryExpr
+    | WaitExpr
     | XmlElementLiteral;
   symbolType?: string[];
   ws?: any[];
