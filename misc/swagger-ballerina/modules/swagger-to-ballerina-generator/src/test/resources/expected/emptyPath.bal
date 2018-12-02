@@ -14,7 +14,10 @@ listener http:Listener ep0 = new(9090);
 }
 service serviceName on ep0 {
     resource function user (http:Caller outboundEp, http:Request _userReq) {
-
+        http:Response _userRes = new;
+        string _userPayload = "Sample user Response";
+        _userRes.setTextPayload(_userPayload);
+        _ = outboundEp->respond(_userRes);
     }
 
 }

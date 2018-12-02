@@ -23,7 +23,10 @@ listener http:Listener ep0 = new(80, config = {host: "petstore.openapi.io"});
 }
 service SwaggerPetstore on ep0 {
     resource function action (http:Caller outboundEp, http:Request _actionReq) {
-
+        http:Response _actionRes = new;
+        string _actionPayload = "Sample action Response";
+        _actionRes.setTextPayload(_actionPayload);
+        _ = outboundEp->respond(_actionRes);
     }
 
     @swagger:ResourceInfo {
@@ -45,7 +48,8 @@ service SwaggerPetstore on ep0 {
         path:"/pets"
     }
     resource function listPets (http:Caller outboundEp, http:Request _listPetsReq) {
-
+        http:Response _listPetsRes = listPets(_listPetsReq);
+        _ = outboundEp->respond(_listPetsRes);
     }
 
     @swagger:ResourceInfo {
@@ -57,7 +61,8 @@ service SwaggerPetstore on ep0 {
         path:"/pets"
     }
     resource function resource1 (http:Caller outboundEp, http:Request _resource1Req) {
-
+        http:Response _resource1Res = resource1(_resource1Req);
+        _ = outboundEp->respond(_resource1Res);
     }
 
     @swagger:ResourceInfo {
@@ -79,7 +84,8 @@ service SwaggerPetstore on ep0 {
         path:"/pets/{petId}"
     }
     resource function showPetById (http:Caller outboundEp, http:Request _showPetByIdReq, string petId) {
-
+        http:Response _showPetByIdRes = showPetById(_showPetByIdReq, petId);
+        _ = outboundEp->respond(_showPetByIdRes);
     }
 
 }

@@ -54,9 +54,9 @@ public class BallerinaTupleBindingPatternImpl extends BallerinaCompositeElementI
   }
 
   @Override
-  @Nullable
+  @NotNull
   public PsiElement getRightParenthesis() {
-    return findChildByType(RIGHT_PARENTHESIS);
+    return notNullChild(findChildByType(RIGHT_PARENTHESIS));
   }
 
 }

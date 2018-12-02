@@ -29,7 +29,7 @@
 # + registerAtUrl - The URL of the initiator
 # + coordinationType - Coordination type of this transaction
 # + return - Newly created/existing TransactionContext for this transaction.
-function beginTransaction(string? transactionId, int transactionBlockId, string registerAtUrl,
+function beginTransaction(string? transactionId, string transactionBlockId, string registerAtUrl,
                           string coordinationType) returns TransactionContext|error {
     if (transactionId is string) {
         if (initiatedTransactions.hasKey(transactionId)) { // if participant & initiator are in the same process
@@ -53,7 +53,7 @@ function beginTransaction(string? transactionId, int transactionBlockId, string 
 # + transactionId - Globally unique transaction ID.
 # + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
 # + return - nil or error when transaction abortion is successful or not respectively.
-function abortTransaction(string transactionId, int transactionBlockId) returns error? {
+function abortTransaction(string transactionId, string transactionBlockId) returns error? {
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
     var txn = participatedTransactions[participatedTxnId];
     if (txn is TwoPhaseCommitTransaction) {
@@ -82,7 +82,7 @@ function abortTransaction(string transactionId, int transactionBlockId) returns 
 # + transactionId - Globally unique transaction ID.
 # + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
 # + return - A string or an error representing the transaction end succcess status or failure respectively.
-function endTransaction(string transactionId, int transactionBlockId) returns string|error {
+function endTransaction(string transactionId, string transactionBlockId) returns string|error {
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
     if (!initiatedTransactions.hasKey(transactionId) && !participatedTransactions.hasKey(participatedTxnId)) {
         error err = error("Transaction: " + participatedTxnId + " not found");
@@ -119,7 +119,7 @@ function endTransaction(string transactionId, int transactionBlockId) returns st
 # + transactionId - Globally unique transaction ID.
 # + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
 # + return - true or false representing whether this instance is an intiator or not.
-function isInitiator(string transactionId, int transactionBlockId) returns boolean {
+function isInitiator(string transactionId, string transactionBlockId) returns boolean {
     if (initiatedTransactions.hasKey(transactionId)) {
         string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
         if (!participatedTransactions.hasKey(participatedTxnId)) {
@@ -134,21 +134,21 @@ function isInitiator(string transactionId, int transactionBlockId) returns boole
 # + transactionId - Globally unique transaction ID.
 # + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
 # + return - true or false representing whether the resource manager preparation is successful or not.
-extern function prepareResourceManagers(string transactionId, int transactionBlockId) returns boolean;
+extern function prepareResourceManagers(string transactionId, string transactionBlockId) returns boolean;
 
 # Commit local resource managers.
 #
 # + transactionId - Globally unique transaction ID.
 # + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
 # + return - true or false representing whether the commit is successful or not.
-extern function commitResourceManagers(string transactionId, int transactionBlockId) returns boolean;
+extern function commitResourceManagers(string transactionId, string transactionBlockId) returns boolean;
 
 # Abort local resource managers.
 #
 # + transactionId - Globally unique transaction ID.
 # + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
 # + return - true or false representing whether the resource manager abortion is successful or not.
-extern function abortResourceManagers(string transactionId, int transactionBlockId) returns boolean;
+extern function abortResourceManagers(string transactionId, string transactionBlockId) returns boolean;
 
 # Get the current transaction id. This function is useful for user code to save state against a transaction ID,
 # so that when the `oncommit` or `onabort` functions registered for a transaction can retrieve that state using the
