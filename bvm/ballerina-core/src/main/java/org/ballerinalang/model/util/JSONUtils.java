@@ -54,6 +54,7 @@ import org.ballerinalang.model.values.BXMLSequence;
 import org.ballerinalang.util.codegen.StructFieldInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
+import org.ballerinalang.util.exceptions.BLangFreezeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 
@@ -350,6 +351,8 @@ public class JSONUtils {
 
         try {
             ((BMap<String, BValue>) json).put(elementName, element);
+        } catch (BLangFreezeException e) {
+            throw e;
         } catch (Throwable t) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_SET_ERROR, t.getMessage());
         }

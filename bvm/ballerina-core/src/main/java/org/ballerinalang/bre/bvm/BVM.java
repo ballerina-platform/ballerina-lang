@@ -1770,7 +1770,7 @@ public class BVM {
                 try {
                     JSONUtils.setElement(sf.refRegs[i], sf.stringRegs[j], sf.refRegs[k]);
                 } catch (BLangFreezeException e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, "Failed to set element to JSON: " + e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, "failed to set element to json: " + e.getMessage()));
                     handleError(ctx);
                 }
                 break;
