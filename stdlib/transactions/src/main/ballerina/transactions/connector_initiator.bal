@@ -39,7 +39,7 @@ type InitiatorClientEP client object {
         self.httpClient = httpEP;
     }
 
-    remote function register(string transactionId, int transactionBlockId, RemoteProtocol[] participantProtocols)
+    remote function register(string transactionId, string transactionBlockId, RemoteProtocol[] participantProtocols)
                  returns RegistrationResponse|error {
         http:Client httpClient = self.httpClient;
         string participantId = getParticipantId(transactionBlockId);

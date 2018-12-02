@@ -42,8 +42,6 @@ public class ResourceDefinition extends CompletionTest {
                 {"completionBeforeUnderscore1.json", "resource"},
                 {"completionBeforeUnderscore2.json", "resource"},
                 {"completionBeforeUnderscore3.json", "resource"},
-                {"matchExpressionSuggestion1.json", "resource"},
-                {"matchExpressionSuggestion2.json", "resource"}
         };
     }
 }

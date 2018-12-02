@@ -51,12 +51,17 @@ service {{cut info.title " "}} on {{#servers}}ep{{@index}}{{#unless @last}}, {{/
     }{{#deprecated}}
     deprecated {}
     {{/deprecated}}
-    resource function {{resourceName}} (http:Caller outboundEp, http:Request _{{resourceName}}Req{{#parameters}}{{>pathParams}}{{/parameters}}{{#requestBody}}{{>reqBody}}{{/requestBody}}) {
-
+    resource function {{resourceName}} (http:Caller outboundEp, http:Request _{{resourceName}}Req{{#parameters}}{{>pathParams}}{{/parameters}}{{#requestBody}}{{>reqBody}}{{/requestBody}}) {{=<% %>=}}{<%={{ }}=%>{{#equals requestBody.selectedMedia.mediaType "multipart/form-data"}}
+        mime:Entity[] _{{resourceName}}Body = check _{{resourceName}}Req.getBodyParts();{{/equals}}
+        http:Response _{{resourceName}}Res = {{resourceName}}(_{{resourceName}}Req{{#parameters}}{{#equals in "path"}}, {{name}}{{/equals}}{{/parameters}}{{#requestBody}}, _{{resourceName}}Body{{/requestBody}});
+        _ = outboundEp->respond(_{{resourceName}}Res);
     }{{/value}}{{/sameResourceOperations}}{{/if}}{{#if noOperationsForPath}}{{#deprecated}} {{!-- If there is not operations available for a path generate a empty resource --}}
     deprecated {}{{/deprecated}}
     resource function {{resourceName}} (http:Caller outboundEp, http:Request _{{resourceName}}Req) {
-
+        http:Response _{{resourceName}}Res = new;
+        string _{{resourceName}}Payload = "Sample {{resourceName}} Response";
+        _{{resourceName}}Res.setTextPayload(_{{resourceName}}Payload);
+        _ = outboundEp->respond(_{{resourceName}}Res);
     }{{/if}}{{/value}}{{/paths}}{{#paths}}{{#value}}{{#operations}}{{#value}}{{!-- Generate Ballerina resource for single method resources --}}
 
     @swagger:ResourceInfo {
@@ -82,8 +87,10 @@ service {{cut info.title " "}} on {{#servers}}ep{{@index}}{{#unless @last}}, {{/
         body:"_{{operationId}}Body"{{/equals}}{{/requestBody}}
     }{{#deprecated}}
     deprecated {}{{/deprecated}}
-    resource function {{operationId}} (http:Caller outboundEp, http:Request _{{operationId}}Req{{#parameters}}{{>pathParams}}{{/parameters}}{{#requestBody}}{{>reqBody}}{{/requestBody}}) {
-
+    resource function {{operationId}} (http:Caller outboundEp, http:Request _{{operationId}}Req{{#parameters}}{{>pathParams}}{{/parameters}}{{#requestBody}}{{>reqBody}}{{/requestBody}}) {{=<% %>=}}{<%={{ }}=%>{{#equals requestBody.selectedMedia.mediaType "multipart/form-data"}}
+        mime:Entity[] _{{operationId}}Body = check _{{operationId}}Req.getBodyParts();{{/equals}}
+        http:Response _{{operationId}}Res = {{operationId}}(_{{operationId}}Req{{#parameters}}{{#equals in "path"}}, {{name}}{{/equals}}{{/parameters}}{{#requestBody}}, _{{operationId}}Body{{/requestBody}});
+        _ = outboundEp->respond(_{{operationId}}Res);
     }{{/value}}{{/operations}}{{/value}}{{/paths}}
 
 }

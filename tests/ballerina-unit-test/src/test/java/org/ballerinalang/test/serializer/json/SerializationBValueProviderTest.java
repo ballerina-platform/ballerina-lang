@@ -163,7 +163,7 @@ public class SerializationBValueProviderTest {
         Assert.assertEquals(deserialize, hashSet);
     }
 
-    @Test(description = "test HashSet serialization")
+    @Test(description = "test serialization of BValueArray with type int")
     public void testBIntArray() {
         BValueArray bIntArray = new BValueArray(BTypes.typeInt, 5);
         bIntArray.add(0, 1);
@@ -175,6 +175,21 @@ public class SerializationBValueProviderTest {
 
         Assert.assertEquals(deserializedArray.getInt(0), 1);
         Assert.assertEquals(deserializedArray.getInt(1), 1);
+        Assert.assertEquals(deserializedArray.size(), 5);
+    }
+
+    @Test(description = "test serialization of BValueArray with type int")
+    public void testBValueArrayWithStringElements() {
+        BValueArray bArray = new BValueArray(BTypes.typeString, 5);
+        bArray.add(0, "str-1");
+        bArray.add(1, "str-2");
+
+        JsonSerializer serializer = new JsonSerializer();
+        String json = serializer.serialize(bArray);
+        BValueArray deserializedArray = serializer.deserialize(json, BValueArray.class);
+
+        Assert.assertEquals(deserializedArray.getString(0), "str-1");
+        Assert.assertEquals(deserializedArray.getString(1), "str-2");
         Assert.assertEquals(deserializedArray.size(), 5);
     }
 }

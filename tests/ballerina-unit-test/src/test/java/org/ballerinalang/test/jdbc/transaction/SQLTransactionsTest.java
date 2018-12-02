@@ -66,7 +66,7 @@ public class SQLTransactionsTest {
         BValue[] returns = BRunUtil.invoke(result, "testTransactionRollback");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), -1, "Transaction should have been retried");
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0, "Insertion count inside transaction is incorrect");
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), 42,
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), true,
                 "Statements after Tx failing statements did not invoked");
 
     }
@@ -113,8 +113,6 @@ public class SQLTransactionsTest {
         BValue[] returns = BRunUtil.invoke(result, "testLocalTransactionRollbackBatchUpdate");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), -1, "Transaction should have been retried");
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0, "Insertion count inside transaction is incorrect");
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), true,
-                "Exception generate with 'check' expr did not catch");
     }
 
     @Test(groups = TRANSACTION_TEST_GROUP)
@@ -175,7 +173,7 @@ public class SQLTransactionsTest {
     public void testLocalTransactionSuccessWithFailed() {
         BValue[] returns = BRunUtil.invoke(result, "testLocalTransactionSuccessWithFailed");
         Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals(returns[0].stringValue(), "beforetx inTrx retry inTrx retry inTrx committed afterTrx");
+        Assert.assertEquals(returns[0].stringValue(), "beforetx inTrx onRetry inTrx onRetry inTrx committed afterTrx");
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 2, "Insertion count inside transaction is incorrect");
     }
 
@@ -200,19 +198,11 @@ public class SQLTransactionsTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 3, "Insertion count inside transaction is incorrect");
     }
 
-    @Test(groups = TRANSACTION_TEST_GROUP, enabled = false) //Issue #7706
+    @Test(groups = TRANSACTION_TEST_GROUP)
     public void testNestedThreeLevelTransactionFailed() {
         BValue[] returns = BRunUtil.invoke(result, "testNestedThreeLevelTransactionFailed");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), -1, "Transaction should have been retried");
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0, "Insertion count inside transaction is incorrect");
-    }
-
-    @Test(groups = TRANSACTION_TEST_GROUP)
-    public void testNestedThreeLevelTransactionFailedWithRetrySuccess() {
-        BValue[] returns = BRunUtil.invoke(result, "testNestedThreeLevelTransactionFailedWithRetrySuccess");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0, "Transaction shouldn't have been retried");
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 0, "Insertion count inside transaction is incorrect");
-        Assert.assertEquals(returns[2].stringValue(), "start txL1 txL2 txL3 txL3_Else txL3_Failed");
     }
 
     @Test(groups = TRANSACTION_TEST_GROUP)

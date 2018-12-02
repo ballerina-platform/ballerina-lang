@@ -1,9 +1,9 @@
 {
   "position": {
-    "line": 3,
-    "character": 13
+    "line": 8,
+    "character": 31
   },
-  "source": "toplevel/source/globalVarDefPackageContent.bal",
+  "source": "service/source/serviceEndpointBind4.bal",
   "items": [
     {
       "label":"extractBasicAuthHeaderValue(http:Request req)(string?)",

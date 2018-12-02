@@ -37,7 +37,7 @@ service Participant2pcService on coordinatorListener {
         body:"prepareReq",
         consumes:["application/json"]
     }
-    resource function prepare(http:Caller conn, http:Request req, int transactionBlockId, PrepareRequest prepareReq) {
+    resource function prepare(http:Caller conn, http:Request req, string transactionBlockId, PrepareRequest prepareReq) {
         http:Response res = new;
         string transactionId = prepareReq.transactionId;
         string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
@@ -96,7 +96,7 @@ service Participant2pcService on coordinatorListener {
         body:"notifyReq",
         consumes:["application/json"]
     }
-    resource function notify(http:Caller conn, http:Request req, int transactionBlockId, NotifyRequest notifyReq) {
+    resource function notify(http:Caller conn, http:Request req, string transactionBlockId, NotifyRequest notifyReq) {
         http:Response res = new;
         string transactionId = notifyReq.transactionId;
         string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
