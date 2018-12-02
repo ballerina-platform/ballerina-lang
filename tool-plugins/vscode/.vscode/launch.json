@@ -13,8 +13,8 @@
             "--extensionDevelopmentPath=${workspaceFolder}"
         ],
         "env": {
-            "LS_CUSTOM_CLASSPATH": "/Users/rasika/Documents/WSO2/Ballerina/git/ballerina/compiler/ballerina-lang/target/*:/Users/rasika/Documents/WSO2/Ballerina/git/ballerina/language-server/modules/langserver-compiler/target/*:/Users/rasika/Documents/WSO2/Ballerina/git/ballerina/language-server/modules/langserver-core/target/*:/Users/rasika/Documents/WSO2/Ballerina/git/ballerina/composer/target/*",
-            "LSDEBUG": "true",
+            "LS_CUSTOM_CLASSPATH": "", 
+            "LSDEBUG": "false",
             "COMPOSER_DEBUG": "false",
             "COMPOSER_DEV_HOST": "http://localhost:9000"
         },
