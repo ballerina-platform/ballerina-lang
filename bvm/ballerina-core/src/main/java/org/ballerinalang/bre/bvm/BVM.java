@@ -2651,7 +2651,7 @@ public class BVM {
                 }
 
                 try {
-                    sf.refRegs[j] = JSONUtils.toJSON((BTable) bRefType, ctx.isInTransaction());
+                    sf.refRegs[j] = JSONUtils.toJSON((BTable) bRefType);
                 } catch (Exception e) {
                     handleTypeConversionError(ctx, sf, j, TypeConstants.TABLE_TNAME, TypeConstants.XML_TNAME);
                 }
@@ -3072,13 +3072,13 @@ public class BVM {
         sf.refRegs[i] = new BMap<>(structInfo.getType());
     }
 
-    private static void beginTransaction(Strand strand, int transactionType, int transactionBlockId,
+    private static void beginTransaction(Strand strand, int transactionType, int transactionBlockIdIndex,
                                          int retryCountRegIndex, int committedFuncIndex, int abortedFuncIndex) {
         if (transactionType == Transactions.TransactionType.PARTICIPANT.value) {
-            beginTransactionLocalParticipant(strand, transactionBlockId, committedFuncIndex, abortedFuncIndex);
+            beginTransactionLocalParticipant(strand, transactionBlockIdIndex, committedFuncIndex, abortedFuncIndex);
             return;
         } else if (transactionType == Transactions.TransactionType.REMOTE_PARTICIPANT.value) {
-            beginRemoteParticipant(strand, transactionBlockId, committedFuncIndex, abortedFuncIndex);
+            beginRemoteParticipant(strand, transactionBlockIdIndex, committedFuncIndex, abortedFuncIndex);
             return;
         }
 
@@ -3102,13 +3102,14 @@ public class BVM {
             handleError(strand);
             return;
         }
+        String transactionBlockId = getTrxBlockIdFromCP(strand, transactionBlockIdIndex);
 
         TransactionLocalContext transactionLocalContext = createAndNotifyGlobalTx(strand, transactionBlockId);
         strand.setLocalTransactionContext(transactionLocalContext);
         transactionLocalContext.beginTransactionBlock(transactionBlockId, retryCount);
     }
 
-    private static void beginRemoteParticipant(Strand strand, int transactionBlockId, int committedFuncIndex,
+    private static void beginRemoteParticipant(Strand strand, int transactionBlockIdIndex, int committedFuncIndex,
                                                int abortedFuncIndex) {
         TransactionLocalContext localTransactionContext = strand.getLocalTransactionContext();
         if (localTransactionContext == null) {
@@ -3130,7 +3131,7 @@ public class BVM {
             FunctionRefCPEntry funcRefCPEntry = (FunctionRefCPEntry) strand.currentFrame.constPool[abortedFuncIndex];
             fpAborted = new BFunctionPointer(funcRefCPEntry.getFunctionInfo());
         }
-
+        String transactionBlockId = getTrxBlockIdFromCP(strand, transactionBlockIdIndex);
         localTransactionContext.setResourceParticipant(true);
         String globalTransactionId = localTransactionContext.getGlobalTransactionId();
         localTransactionContext.beginTransactionBlock(transactionBlockId, -1);
@@ -3146,7 +3147,7 @@ public class BVM {
         strand.setError(error);
     }
 
-    private static void beginTransactionLocalParticipant(Strand strand, int transactionBlockId,
+    private static void beginTransactionLocalParticipant(Strand strand, int transactionBlockIdCpIndex,
                                                          int committedFuncIndex, int abortedFuncIndex) {
         TransactionLocalContext transactionLocalContext = strand.getLocalTransactionContext();
         if (transactionLocalContext == null) {
@@ -3154,6 +3155,8 @@ public class BVM {
             // We have no business here. This is a no-op.
             return;
         }
+
+        String transactionBlockId = getTrxBlockIdFromCP(strand, transactionBlockIdCpIndex);
 
         // Register committed function handler if exists.
         TransactionResourceManager transactionResourceManager = TransactionResourceManager.getInstance();
@@ -3179,7 +3182,12 @@ public class BVM {
         strand.currentFrame.trxParticipant = StackFrame.TransactionParticipantType.LOCAL_PARTICIPANT;
     }
 
-    private static TransactionLocalContext createAndNotifyGlobalTx(Strand ctx, int transactionBlockId) {
+    private static String getTrxBlockIdFromCP(Strand strand, int index) {
+        StringCPEntry stringCPEntry = (StringCPEntry) strand.currentFrame.constPool[index];
+        return stringCPEntry.getValue();
+    }
+
+    private static TransactionLocalContext createAndNotifyGlobalTx(Strand ctx, String transactionBlockId) {
         BValue[] txResult = TransactionUtils.notifyTransactionBegin(ctx, null, null,
                 transactionBlockId, TransactionConstants.DEFAULT_COORDINATION_TYPE);
 
@@ -3196,10 +3204,13 @@ public class BVM {
         return TransactionLocalContext.create(globalTransactionId, null, null);
     }
 
-    private static void retryTransaction(Strand strand, int transactionBlockId, int trAbortEndIp, int trEndStatusReg) {
+    private static void retryTransaction(Strand strand, int transactionBlockIdCpIndex,
+                                         int trAbortEndIp, int trEndStatusReg) {
         strand.currentFrame.intRegs[trEndStatusReg] = 0; // set trend status to normal.
         TransactionLocalContext transactionLocalContext = strand.getLocalTransactionContext();
         transactionLocalContext.getAndClearFailure();
+
+        String transactionBlockId = getTrxBlockIdFromCP(strand, transactionBlockIdCpIndex);
         if (transactionLocalContext.isRetryPossible(strand, transactionBlockId)) {
             if (transactionLocalContext.isRetryAttempt(transactionBlockId)) {
                 TransactionLocalContext newLocalTransaction = createAndNotifyGlobalTx(strand, transactionBlockId);
@@ -3219,9 +3230,11 @@ public class BVM {
         strand.currentFrame.ip = trAbortEndIp;
     }
 
-    private static void endTransaction(Strand strand, int txBlockId, int endType, int statusRegIndex,
+    private static void endTransaction(Strand strand, int transactionBlockIdCpIndex, int endType, int statusRegIndex,
                                        int errorRegIndex) {
         TransactionLocalContext localTxInfo = strand.getLocalTransactionContext();
+        String txBlockId = getTrxBlockIdFromCP(strand, transactionBlockIdCpIndex);
+
         try {
             //In success case no need to do anything as with the transaction end phase it will be committed.
             switch (Transactions.TransactionStatus.getConst(endType)) {
@@ -3247,7 +3260,7 @@ public class BVM {
         }
     }
 
-    private static void transactionAbortedEnd(Strand strand, int txBlockId, TransactionLocalContext localTxInfo,
+    private static void transactionAbortedEnd(Strand strand, String txBlockId, TransactionLocalContext localTxInfo,
                                               int statusRegIndex, int errorRegIndex) {
         // Notify only if, aborted by 'abort' statement.
         if (strand.currentFrame.intRegs[statusRegIndex] == 0) {
@@ -3271,15 +3284,13 @@ public class BVM {
         strand.currentFrame.intRegs[statusRegIndex] = 0;
     }
 
-    private static void transactionEndEnd(Strand strand, int transactionBlockId,
+    private static void transactionEndEnd(Strand strand, String transactionBlockId,
                                           TransactionLocalContext transactionLocalContext) {
         boolean isOuterTx = transactionLocalContext.onTransactionEnd(transactionBlockId);
-        if (isOuterTx) {
-            BLangVMUtils.removeTransactionInfo(strand);
-        }
+        strand.removeLocalTransactionContext();
     }
 
-    private static void transactionBlockEnd(Strand strand, int transactionBlockId, int statusRegIndex,
+    private static void transactionBlockEnd(Strand strand, String transactionBlockId, int statusRegIndex,
                                             TransactionLocalContext transactionLocalContext, int errorRegIndex) {
         // Tx reached end of block, it may or may not successfully finished.
         TransactionLocalContext.TransactionFailure failure = transactionLocalContext.getFailure();
@@ -3324,12 +3335,12 @@ public class BVM {
     }
 
     private static TransactionUtils.CoordinatorCommit notifyGlobalPrepareAndCommit(
-            Strand ctx, int transactionBlockId, TransactionLocalContext transactionLocalContext) {
+            Strand ctx, String transactionBlockId, TransactionLocalContext transactionLocalContext) {
         return TransactionUtils.notifyTransactionEnd(ctx,
                 transactionLocalContext.getGlobalTransactionId(), transactionBlockId);
     }
 
-    private static void notifyTransactionAbort(Strand strand, int transactionBlockId,
+    private static void notifyTransactionAbort(Strand strand, String transactionBlockId,
                                                TransactionLocalContext transactionLocalContext) {
         TransactionUtils.notifyTransactionAbort(strand, transactionLocalContext.getGlobalTransactionId(),
                 transactionBlockId);
@@ -3337,7 +3348,7 @@ public class BVM {
                 .notifyAbort(transactionLocalContext.getGlobalTransactionId(), transactionBlockId, false);
     }
 
-    private static void transactionFailedEnd(Strand strand, int transactionBlockId,
+    private static void transactionFailedEnd(Strand strand, String transactionBlockId,
                                              TransactionLocalContext transactionLocalContext,
                                              int runOnRetryBlockRegIndex) {
         // Invoking tr_end with transaction status of FAILED means tx has failed for some reason.

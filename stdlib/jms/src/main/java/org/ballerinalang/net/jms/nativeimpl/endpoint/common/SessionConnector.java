@@ -110,7 +110,7 @@ public class SessionConnector implements BallerinaTransactionContext {
             if (Objects.isNull(txContext)) {
                 transactionLocalContext.registerTransactionContext(getConnectorId(), this);
                 String globalTxId = transactionLocalContext.getGlobalTransactionId();
-                int currentTxBlockId = transactionLocalContext.getCurrentTransactionBlockId();
+                String currentTxBlockId = transactionLocalContext.getCurrentTransactionBlockId();
                 TransactionResourceManager.getInstance().register(globalTxId, currentTxBlockId, this);
             }
         }

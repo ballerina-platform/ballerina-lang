@@ -12,7 +12,7 @@ export const Function = (props: {model: FunctionNode}) => {
 
     return (
         <Panel model={viewState} title={model.name.value} icon="function">
-            <LifeLine title="Client" icon="client" model={viewState.client}/>
+            <LifeLine title="Client" icon="client" model={viewState.client.bBox}/>
             <LifeLine title="Default" icon="worker" model={viewState.defaultWorker.lifeline}/>
             { model.body && <Block model={model.body} />}
             { model.VisibleEndpoints && model.VisibleEndpoints

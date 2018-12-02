@@ -20,7 +20,6 @@ package org.ballerinalang.bre.bvm;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.DebugContext;
-import org.ballerinalang.util.program.BLangVMUtils;
 import org.ballerinalang.util.transactions.TransactionLocalContext;
 
 import java.util.List;
@@ -65,6 +64,8 @@ public class Strand {
 
     public WDChannels wdChannels;
 
+    private TransactionLocalContext transactionStrandContext;
+
     public Strand(ProgramFile programFile, String name, Map<String, Object> properties, StrandCallback respCallback,
                   WDChannels parentChannels) {
         this.programFile = programFile;
@@ -76,6 +77,7 @@ public class Strand {
         this.parentChannels = parentChannels;
         this.wdChannels = new WDChannels();
         this.aborted = false;
+        this.transactionStrandContext = null;
         initDebugger();
     }
 
@@ -138,15 +140,19 @@ public class Strand {
     }
 
     public boolean isInTransaction() {
-        return BLangVMUtils.getTransactionInfo(this) != null;
+        return this.transactionStrandContext != null;
     }
 
     public void setLocalTransactionContext(TransactionLocalContext transactionLocalContext) {
-        BLangVMUtils.setTransactionInfo(this, transactionLocalContext);
+        this.transactionStrandContext = transactionLocalContext;
     }
 
     public TransactionLocalContext getLocalTransactionContext() {
-        return BLangVMUtils.getTransactionInfo(this);
+        return this.transactionStrandContext;
+    }
+
+    public void removeLocalTransactionContext() {
+        this.transactionStrandContext = null;
     }
 
     public void createWaitHandler(int callBacksRemaining, List<Integer> callBacksToWaitFor) {
