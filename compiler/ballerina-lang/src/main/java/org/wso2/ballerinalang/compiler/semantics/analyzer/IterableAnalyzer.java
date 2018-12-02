@@ -240,8 +240,8 @@ public class IterableAnalyzer {
         if (operation.collectionType.getKind() == TypeKind.INTERMEDIATE_COLLECTION) {
             return ((BIntermediateCollectionType) operation.collectionType).tupleType.tupleTypes.size();
         }
-        // If not an intermediate collection, infer input parameter as a tuple
-        return 2;
+        // If not an intermediate collection, infer input parameter as a tuple.
+        return getArity(operation.collectionType);
     }
 
     private List<BType> calculateExpectedOutputArgs(Operation operation, List<BType> givenRetTypes) {
@@ -508,8 +508,8 @@ public class IterableAnalyzer {
                         BIntermediateCollectionType collectionType = (BIntermediateCollectionType) elementType;
                         elementType = collectionType.tupleType.tupleTypes.get(0);
                     }
-                    // Todo - Validate for intermediate collections.
-                    int arity = getExpectedArity(operation.collectionType);
+                    // Todo - Validate for intermediate collections?
+                    int arity = getArity(operation.collectionType);
                     if (arity == 1) {
                         return elementType;
                     }
@@ -521,16 +521,6 @@ public class IterableAnalyzer {
                     break;
             }
             return symTable.semanticError;
-        }
-
-        private int getExpectedArity(BType collectionType) {
-            switch (collectionType.tag) {
-                case TypeTags.MAP:
-                case TypeTags.RECORD:
-                    return 2;
-                default:
-                    return 1;
-            }
         }
     }
 
@@ -604,5 +594,21 @@ public class IterableAnalyzer {
         // Validate compatibility with calculated and expected type.
         context.resultType = types.checkType(lastOperation.pos, outputType, expectedType,
                 DiagnosticCode.INCOMPATIBLE_TYPES);
+    }
+
+    /**
+     * Returns the expected arity of the given collection type.
+     *
+     * @param collectionType type of the collection
+     * @return expected arity
+     */
+    private static int getArity(BType collectionType) {
+        switch (collectionType.tag) {
+            case TypeTags.MAP:
+            case TypeTags.RECORD:
+                return 2;
+            default:
+                return 1;
+        }
     }
 }
