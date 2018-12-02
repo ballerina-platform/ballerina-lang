@@ -16,6 +16,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import org.antlr.v4.runtime.misc.OrderedHashSet;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
@@ -362,9 +363,9 @@ public class IterableAnalyzer {
                 logNotEnoughVariablesError(op, 1);
                 return Lists.of(symTable.semanticError);
             } else if (op.arity == 1) {
-                Set<BType> types = new LinkedHashSet<>();
-                types.add(symTable.stringType);
+                Set<BType> types = new OrderedHashSet<>();
                 types.add(symTable.xmlType);
+                types.add(symTable.stringType);
                 return Lists.of(new BUnionType(null, types, false));
             }
             logTooManyVariablesError(op);
