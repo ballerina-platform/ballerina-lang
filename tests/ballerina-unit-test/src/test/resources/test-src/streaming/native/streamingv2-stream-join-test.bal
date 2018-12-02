@@ -82,7 +82,7 @@ public function startStreamJoinQuery() returns any {
 function joinFunc() {
 
     function (map<anydata>[]) outputFunc = function (map<anydata>[] events) {
-        foreach m in events {
+        foreach map<anydata> m in events {
             // just cast input map into the output type
             StockWithPrice o = <StockWithPrice>StockWithPrice.stamp(m.clone());
             stockWithPriceStream.publish(o);
