@@ -35,10 +35,10 @@ public class TransactionLocalContext {
     private String protocol;
 
     private int transactionLevel;
-    private Map<Integer, Integer> allowedTransactionRetryCounts;
-    private Map<Integer, Integer> currentTransactionRetryCounts;
+    private Map<String, Integer> allowedTransactionRetryCounts;
+    private Map<String, Integer> currentTransactionRetryCounts;
     private Map<String, BallerinaTransactionContext> transactionContextStore;
-    private Stack<Integer> transactionBlockIdStack;
+    private Stack<String> transactionBlockIdStack;
     private Stack<TransactionFailure> transactionFailure;
     private static final TransactionResourceManager transactionResourceManager =
             TransactionResourceManager.getInstance();
@@ -71,7 +71,7 @@ public class TransactionLocalContext {
         return this.globalTransactionId;
     }
 
-    public int getCurrentTransactionBlockId() {
+    public String getCurrentTransactionBlockId() {
         return transactionBlockIdStack.peek();
     }
 
@@ -87,14 +87,14 @@ public class TransactionLocalContext {
         return this.protocol;
     }
 
-    public void beginTransactionBlock(int localTransactionID, int retryCount) {
+    public void beginTransactionBlock(String localTransactionID, int retryCount) {
         transactionBlockIdStack.push(localTransactionID);
         allowedTransactionRetryCounts.put(localTransactionID, retryCount);
         currentTransactionRetryCounts.put(localTransactionID, 0);
         ++transactionLevel;
     }
 
-    public void incrementCurrentRetryCount(int localTransactionID) {
+    public void incrementCurrentRetryCount(String localTransactionID) {
         currentTransactionRetryCounts.putIfAbsent(localTransactionID, 0);
         currentTransactionRetryCounts.computeIfPresent(localTransactionID, (k, v) -> v + 1);
     }
@@ -115,11 +115,11 @@ public class TransactionLocalContext {
      * @param transactionId transaction block id
      * @return this is a retry runs
      */
-    public boolean isRetryAttempt(int transactionId) {
+    public boolean isRetryAttempt(String transactionId) {
         return  getCurrentRetryCount(transactionId) > 0;
     }
 
-    public boolean isRetryPossible(Strand context, int transactionId) {
+    public boolean isRetryPossible(Strand context, String transactionId) {
         int allowedRetryCount = getAllowedRetryCount(transactionId);
         int currentRetryCount = getCurrentRetryCount(transactionId);
         if (currentRetryCount >= allowedRetryCount) {
@@ -130,7 +130,7 @@ public class TransactionLocalContext {
         return true;
     }
 
-    public boolean onTransactionFailed(Strand context, int transactionBlockId) {
+    public boolean onTransactionFailed(Strand context, String transactionBlockId) {
         if (isRetryPossible(context, transactionBlockId)) {
             transactionContextStore.clear();
             transactionResourceManager.rollbackTransaction(globalTransactionId, transactionBlockId);
@@ -141,7 +141,7 @@ public class TransactionLocalContext {
     }
 
     public void notifyLocalParticipantFailure() {
-        Integer bockId = transactionBlockIdStack.peek();
+        String bockId = transactionBlockIdStack.peek();
         transactionResourceManager.notifyLocalParticipantFailure(globalTransactionId, bockId);
     }
 
@@ -149,7 +149,7 @@ public class TransactionLocalContext {
         TransactionResourceManager.getInstance().notifyResourceFailure(globalTransactionId);
     }
 
-    public boolean onTransactionEnd(int transactionBlockId) {
+    public boolean onTransactionEnd(String transactionBlockId) {
         boolean isOuterTx = false;
         transactionBlockIdStack.pop();
         --transactionLevel;
@@ -162,11 +162,11 @@ public class TransactionLocalContext {
 
     }
 
-    public int getAllowedRetryCount(int localTransactionID) {
+    public int getAllowedRetryCount(String localTransactionID) {
         return allowedTransactionRetryCounts.get(localTransactionID);
     }
 
-    private int getCurrentRetryCount(int localTransactionID) {
+    private int getCurrentRetryCount(String localTransactionID) {
         return currentTransactionRetryCounts.get(localTransactionID);
     }
 
