@@ -2586,11 +2586,12 @@ public class BLangPackageBuilder {
 
         // Crate Global variable for service.
         if (!isAnonServiceValue) {
-            BLangSimpleVariable var = (BLangSimpleVariable) generateBasicVarNodeWithoutType(pos, Collections.emptySet(),
-                    serviceName, true);
+            BLangSimpleVariable var = (BLangSimpleVariable) generateBasicVarNodeWithoutType(identifierPos,
+                    Collections.emptySet(), serviceName, true);
             var.flagSet.add(Flag.FINAL);
             var.flagSet.add(Flag.SERVICE);
-            var.isDeclaredWithVar = true;
+            var.typeNode = createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(),
+                    typeDef.name);
             serviceNode.variableNode = var;
             this.compUnit.addTopLevelNode(var);
         }

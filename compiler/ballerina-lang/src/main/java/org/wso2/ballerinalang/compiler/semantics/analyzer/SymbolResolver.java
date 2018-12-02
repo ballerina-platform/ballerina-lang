@@ -160,6 +160,11 @@ public class SymbolResolver extends BLangNodeVisitor {
             }
         }
 
+        if ((foundSym.tag & SymTag.SERVICE) == SymTag.SERVICE) {
+            // In order to remove duplicate errors.
+            return false;
+        }
+
         //if a symbol is found, then check whether it is unique
         return isUniqueSymbol(pos, symbol, foundSym);
     }
