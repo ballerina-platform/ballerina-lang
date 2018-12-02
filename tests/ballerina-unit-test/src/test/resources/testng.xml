@@ -56,9 +56,7 @@ under the License.
             <package name="org.ballerinalang.test.nativeimpl.functions.*">
                 <exclude name="org.ballerinalang.test.nativeimpl.functions.socket"/>
             </package>
-            <package name="org.ballerinalang.test.jdbc.*">
-                <exclude name="org.ballerinalang.test.jdbc.transaction"/>
-            </package>
+            <package name="org.ballerinalang.test.jdbc.*"/>
             <package name="org.ballerinalang.test.h2"/>
             <package name="org.ballerinalang.test.net.*">
                 <exclude name="org.ballerinalang.test.net.websub.WebSubHubStartUpTest"/>
