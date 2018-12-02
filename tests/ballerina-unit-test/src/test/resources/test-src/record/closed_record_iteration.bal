@@ -60,7 +60,7 @@ function testForeachWithOpenRecords2() returns any[] {
 
     int i = 0;
     foreach var v in p {
-        values[i] = v;
+        values[i] = v[1];
         i += 1;
     }
 
@@ -139,7 +139,7 @@ function testMapWithAllStringClosedRecord() returns (map<string>, string[]) {
         return (k, v.toLower());
     });
 
-    string[] modFooAr = f.map(function (string val) returns string { return val.toLower(); });
+    string[] modFooAr = f.map(function ((string, string) val) returns string { return val[1].toLower(); });
 
     return (modFooMap, modFooAr);
 }
@@ -152,7 +152,7 @@ function testMapWithAllIntClosedRecord(int m, int p, int c) returns (map<int>, i
         return (subj, grade + 10);
     });
 
-    int[] adjGradesAr = grades.map(function (int grade) returns int { return grade + 10; });
+    int[] adjGradesAr = grades.map(function ((string, int) value) returns int { return value[1] + 10; });
 
     return (adjGrades, adjGradesAr);
 }
@@ -165,7 +165,7 @@ function testMapWithAllFloatClosedRecord(float a, float b, float c) returns (map
         return (k, val + 10);
     });
 
-    float[] modBarAr = bar.map(function (float val) returns float { return val + 10; });
+    float[] modBarAr = bar.map(function ((string, float) val) returns float { return val[1] + 10; });
 
     return (modBar, modBarAr);
 }
@@ -181,12 +181,12 @@ function testFilterWithAllStringClosedRecord() returns (map<string>, string[]) {
         return false;
     });
 
-    string[] modFooAr = f.filter(function (string val) returns boolean {
-         if (val == "AA" || val == "EE") {
+    string[] modFooAr = f.filter(function ((string, string) val) returns boolean {
+         if (val[1] == "AA" || val[1] == "EE") {
              return true;
          }
          return false;
-    });
+    }).map(v => v[1]);
 
     return (modFooMap, modFooAr);
 }
@@ -202,12 +202,12 @@ function testFilterWithAllIntClosedRecord() returns (map<int>, int[]) {
         return false;
     });
 
-    int[] adjGradesAr = grades.filter(function (int grade) returns boolean {
-        if (grade > 70) {
+    int[] adjGradesAr = grades.filter(function ((string, int) value) returns boolean {
+        if (value[1] > 70) {
             return true;
         }
         return false;
-    });
+    }).map(v => v[1]);
 
     return (adjGrades, adjGradesAr);
 }
@@ -223,12 +223,12 @@ function testFilterWithAllFloatClosedRecord(float a, float b, float c) returns (
         return false;
     });
 
-    float[] modBarAr = bar.filter(function (float val) returns boolean {
-        if (val > 6) {
+    float[] modBarAr = bar.filter(function ((string, float) val) returns boolean {
+        if (val[1] > 6) {
             return true;
         }
         return false;
-    });
+    }).map(v => v[1]);
 
     return (modBar, modBarAr);
 }

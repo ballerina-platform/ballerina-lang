@@ -47,7 +47,7 @@ function testInvalidArgForForeachWithClosedRecords() {
 }
 
 function testInvalidForeachOpWithClosedRecords() {
-    p.foreach(function (any entry) {
+    p.foreach(function ((string,any) entry) {
     });
 
     p.foreach(function ((string, string, any) entry) {
@@ -55,7 +55,7 @@ function testInvalidForeachOpWithClosedRecords() {
 }
 
 function testInvalidMapOpWithClosedRecords() {
-    map<any> newp = p.map(function (any entry) returns (string, any) {
+    map<any> newp = p.map(function ((string, any) entry) returns (string, any) {
         return ("", "");
     });
 
@@ -131,8 +131,8 @@ function testInvalidChainedItrOpReturns() {
 function testInvalidChainedItrOpReturns2() {
     ClosedGrades f = {maths: 80, physics: 75, chemistry: 65};
 
-    int[] ar = f.map(function (int grade) returns int {
-        return grade + 10;
+    int[] ar = f.map(function ((string, int) value) returns int {
+        return value[1] + 10;
     })
     .map(function (int grade) returns string {
         if (grade > 75) {
