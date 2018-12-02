@@ -42,6 +42,7 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -741,10 +742,12 @@ public class TreeVisitor extends LSNodeVisitor {
     }
 
     public void setNextNode(BSymbol symbol) {
+        int flags;
         if (symbol == null) {
             return;
         }
-        lsContext.put(CompletionKeys.NEXT_NODE_KEY, symbol.flags);
+        flags = (symbol instanceof BServiceSymbol) ? symbol.type.tsymbol.flags : symbol.flags;
+        lsContext.put(CompletionKeys.NEXT_NODE_KEY, flags);
     }
 
     /**
