@@ -36,11 +36,11 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
 
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotEquals;
 import static org.testng.Assert.assertTrue;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 /**
  * Testing micro transaction header behaviour.
