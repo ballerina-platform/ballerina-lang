@@ -17,7 +17,7 @@
 import ballerina/http;
 import ballerina/io;
 
-service UpgradeWithoutHandshake on new http:WebSocketListener(9079) {
+service UpgradeWithoutHandshake on new http:Listener(9079) {
 
     @http:ResourceConfig {
         webSocketUpgrade: {

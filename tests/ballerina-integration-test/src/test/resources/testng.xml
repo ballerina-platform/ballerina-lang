@@ -67,6 +67,11 @@
     </test>
 
     <test name="ballerina-channel-tests" parallel="false">
+        <groups>
+            <run>
+                <exclude name="broken"/>
+            </run>
+        </groups>
         <classes>
             <class name="org.ballerinalang.test.channel.ChannelsResourcesTest"/>
         </classes>
@@ -121,6 +126,11 @@
     </test>
 
     <test name="ballerina-websocket-tests" parallel="false">
+        <groups>
+            <run>
+                <exclude name="broken"/>
+            </run>
+        </groups>
         <classes>
             <class name="org.ballerinalang.test.service.websocket.WebSocketTestCommons"/>
             <class name="org.ballerinalang.test.service.websocket.CancelWebSocketUpgradeTest"/>
@@ -142,7 +152,7 @@
             <class name="org.ballerinalang.test.service.websocket.MissingResourcesTest"/>
             <class name="org.ballerinalang.test.service.websocket.ClientInitializationFailureTest"/>
             <class name="org.ballerinalang.test.service.websocket.ClientCloseTest"/>
-            <!--<class name="org.ballerinalang.test.service.websocket.PushTextFailureTest"/>-->
+            <class name="org.ballerinalang.test.service.websocket.PushTextFailureTest"/>
             <class name="org.ballerinalang.test.service.websocket.IsOpenTest"/>
         </classes>
     </test>
@@ -173,6 +183,11 @@
     </test>
 
     <test name="ballerina-observability-tests" parallel="false">
+        <groups>
+            <run>
+                <exclude name="broken"/>
+            </run>
+        </groups>
         <classes>
             <class name="org.ballerinalang.test.observability.tracing.TracingTestCase"/>
             <class name="org.ballerinalang.test.observability.metrics.MetricsTestCase"/>
@@ -198,6 +213,11 @@
     </test>
 
     <test name="ballerina-websub-tests" parallel="false">
+        <groups>
+            <run>
+                <exclude name="broken"/>
+            </run>
+        </groups>
         <classes>
             <class name="org.ballerinalang.test.service.websub.WebSubBaseTest"/>
             <!-- WebSubServiceExtensionTestCase or any other test which does not have @BeforeClass and belongs to the
