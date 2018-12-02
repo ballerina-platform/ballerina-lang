@@ -36,7 +36,8 @@ public class ParserRuleExpressionContextResolver extends AbstractItemResolver {
     @Override
     public List<CompletionItem> resolveItems(LSServiceOperationContext context) {
         ParserRuleContext contextParent = context.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY).getParent();
-        if (contextParent instanceof BallerinaParser.BinaryEqualExpressionContext) {
+        if (contextParent instanceof BallerinaParser.BinaryEqualExpressionContext
+                || contextParent instanceof BallerinaParser.ExpressionListContext) {
             contextParent = contextParent.getParent();
         }
         if (contextParent != null) {

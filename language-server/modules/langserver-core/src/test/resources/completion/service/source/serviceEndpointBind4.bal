@@ -6,7 +6,7 @@ listener http:Listener ep2 = new(9090);
 @http:ServiceConfig {
     basePath: "/cbrBase"
 }
-service myService1 on e {
+service myService1 on new http: {
    resource function foo(http:Caller caller, http:Request req) {
        _ = caller->respond("Hello");
    }
