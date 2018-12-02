@@ -47,7 +47,7 @@ public class ConstrainedJSONTest {
 
     @Test(description = "Test basic json struct constraint")
     public void testConstrainedJSONNegative() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 11);
+        Assert.assertEquals(negativeResult.getErrorCount(), 12);
         
         // testStructConstraintInInitializationInvalid
         BAssertUtil.validateError(negativeResult, 0, "undefined field 'firstName' in record 'Person'", 17, 23);
@@ -75,11 +75,14 @@ public class ConstrainedJSONTest {
         BAssertUtil.validateError(negativeResult, 7,
                 "incompatible types: 'json<Person>[]' cannot be converted to 'json<Student>[]'", 77, 14);
 
-        BAssertUtil.validateError(negativeResult, 8, "incompatible types: expected 'json', found 'byte[]'", 83, 14);
+        BAssertUtil.validateError(negativeResult, 8,
+                "function invocation on type 'typedesc' is not supported", 77, 14);
 
-        BAssertUtil.validateError(negativeResult, 9, "incompatible types: expected 'string', found 'int'", 89, 29);
+        BAssertUtil.validateError(negativeResult, 9, "incompatible types: expected 'json', found 'byte[]'", 83, 14);
 
-        BAssertUtil.validateError(negativeResult, 10, "incompatible types: expected 'string', found 'float'", 94, 21);
+        BAssertUtil.validateError(negativeResult, 10, "incompatible types: expected 'string', found 'int'", 89, 29);
+
+        BAssertUtil.validateError(negativeResult, 11, "incompatible types: expected 'string', found 'float'", 94, 21);
     }
 
     // disabled due to json to string conversion fails

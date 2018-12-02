@@ -37,7 +37,9 @@ public class Strand {
 
     private String id;
 
-    public volatile State state;
+    public State state;
+
+    public volatile boolean aborted;
 
     private StackFrame[] callStack;
 
@@ -73,6 +75,7 @@ public class Strand {
         this.id = name + "-" + UUID.randomUUID().toString();
         this.parentChannels = parentChannels;
         this.wdChannels = new WDChannels();
+        this.aborted = false;
         initDebugger();
     }
 

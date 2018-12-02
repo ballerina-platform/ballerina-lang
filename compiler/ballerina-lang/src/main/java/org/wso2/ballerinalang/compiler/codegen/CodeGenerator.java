@@ -2402,7 +2402,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     private void addWorkerInfoEntries(CallableUnitInfo callableUnitInfo, BLangFunction funcNode) {
-        UTF8CPEntry workerNameCPEntry = new UTF8CPEntry("default");
+        UTF8CPEntry workerNameCPEntry = new UTF8CPEntry(funcNode.defaultWorkerName.value);
         int workerNameCPIndex = this.currentPkgInfo.addCPEntry(workerNameCPEntry);
         callableUnitInfo.defaultWorkerInfo = new WorkerInfo(workerNameCPIndex, funcNode.defaultWorkerName.value);
         for (BLangWorker worker : funcNode.getWorkers()) {
