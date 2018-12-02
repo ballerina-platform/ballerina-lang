@@ -1709,7 +1709,6 @@
                 <module>tests/observability-test-utils</module>
                 <module>tests/ballerina-integration-test-utils</module>
                 <module>tests/ballerina-integration-test</module>
-                <module>tests/composer-integration-tests</module>
                 <module>tests/ballerina-tools-integration-test</module>
                 <module>tests/ballerina-compiler-plugin-test</module>
                 <module>tool-plugins/intellij</module>
@@ -1791,7 +1790,6 @@
                 <module>tests/observability-test-utils</module>
                 <module>tests/ballerina-integration-test-utils</module>
                 <module>tests/ballerina-integration-test</module>
-                <module>tests/composer-integration-tests</module>
             </modules>
         </profile>
         <profile>
@@ -1877,7 +1875,6 @@
                 <module>tests/observability-test-utils</module>
                 <module>tests/ballerina-integration-test-utils</module>
                 <module>tests/ballerina-integration-test</module>
-                <module>tests/composer-integration-tests</module>
                 <module>tests/ballerina-tools-integration-test</module>
 
                 <!-- Intellij build disabled in default build -->

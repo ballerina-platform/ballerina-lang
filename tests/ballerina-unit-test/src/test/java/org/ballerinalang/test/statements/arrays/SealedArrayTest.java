@@ -387,8 +387,7 @@ public class SealedArrayTest {
 
     @Test(description = "Test accessing invalid index of sealed array of constrained map",
           expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*error: array index out of range: index: 3, size: 3.*",
-          groups = { "broken" })
+          expectedExceptionsMessageRegExp = ".*error: array index out of range: index: 3, size: 3.*")
     public void testSealedArrayConstrainedMapInvalidIndex() {
         BValueArray bIntArray = new BValueArray(BTypes.typeInt, 3);
         bIntArray.add(0, 1);

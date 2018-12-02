@@ -20,6 +20,7 @@
 # generic HTTP actions implementation.
 #
 # + url - The URL of the remote HTTP endpoint
+# + config - The configurations associated with the HttpCaller
 public type HttpCaller client object {
 
     public ClientEndpointConfig config = {};

@@ -42,6 +42,7 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -95,7 +96,6 @@ import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 import javax.annotation.Nonnull;
 
 /**
@@ -161,11 +161,13 @@ public class TreeVisitor extends LSNodeVisitor {
             acceptNode(bLangImportPackage, pkgEnv);
         });
 
-        topLevelNodes.forEach(topLevelNode -> {
-            cursorPositionResolver = TopLevelNodeScopeResolver.class;
-            this.blockOwnerStack.push(evalPkg);
-            acceptNode((BLangNode) topLevelNode, pkgEnv);
-        });
+        topLevelNodes.stream()
+                .filter(CommonUtil.checkInvalidTypesDefs())
+                .forEach(topLevelNode -> {
+                    cursorPositionResolver = TopLevelNodeScopeResolver.class;
+                    this.blockOwnerStack.push(evalPkg);
+                    acceptNode((BLangNode) topLevelNode, pkgEnv);
+                });
 
         // If the cursor is at an empty document's first line or is bellow the last construct, symbol env node is null
         if (this.lsContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY) == null) {
@@ -741,10 +743,12 @@ public class TreeVisitor extends LSNodeVisitor {
     }
 
     public void setNextNode(BSymbol symbol) {
+        int flags;
         if (symbol == null) {
             return;
         }
-        lsContext.put(CompletionKeys.NEXT_NODE_KEY, symbol.flags);
+        flags = (symbol instanceof BServiceSymbol) ? symbol.type.tsymbol.flags : symbol.flags;
+        lsContext.put(CompletionKeys.NEXT_NODE_KEY, flags);
     }
 
     /**

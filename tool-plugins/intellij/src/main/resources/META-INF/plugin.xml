@@ -55,7 +55,7 @@
                               id="LSPGotoClassContributor"/>
         <typedHandler implementation="com.github.gtache.lsp.editor.listeners.LSPTypedHandler" id="LSPTypedHandler"/>
         <completion.contributor implementationClass="com.github.gtache.lsp.contributors.LSPCompletionContributor"
-                                id="LSPCompletionContributor" language="any"/>
+                                id="LSPCompletionContributor" language="Ballerina"/>
         <inspectionToolProvider implementation="com.github.gtache.lsp.contributors.inspection.LSPInspectionProvider"
                                 id="LSPInspectionProvider"/>
         <fileDocumentSynchronizationVetoer
@@ -67,7 +67,7 @@
         <renamePsiElementProcessor implementation="com.github.gtache.lsp.contributors.rename.LSPRenameProcessor"
                                    id="LSPRenameProcessor" order="first"/>
         <lang.documentationProvider implementationClass="com.github.gtache.lsp.contributors.LSPDocumentationProvider"
-                                    id="LSPDocumentationProvider" language="TEXT" order="first"/>
+                                    id="LSPDocumentationProvider" language="Ballerina" order="first"/>
 
 
         <!--Ballerina plugin extensions-->

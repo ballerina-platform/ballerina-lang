@@ -1002,3 +1002,9 @@ function testJsonIntToFloat() returns A|error {
     json j = {f : 3.0};
     return check A.create(j);
 }
+
+function testRecordToJsonWithIsJson() returns boolean {
+    Person2 person = {name:"Waruna", age:10};
+    var personData = json.create(person);
+    return personData is json;
+}

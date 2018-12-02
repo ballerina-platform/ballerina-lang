@@ -1,11 +1,12 @@
 import {
     Assignment, ASTNode, ASTUtil, Block,
-    ExpressionStatement, Foreach, Function, If, Invocation, VariableDef, VisibleEndpoint, Visitor, While
+    ExpressionStatement, Foreach, Function, If, Invocation, Return, VariableDef, VisibleEndpoint, Visitor, While
 } from "@ballerina/ast-model";
 import * as _ from "lodash";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
 import { EndpointViewState, FunctionViewState, SimpleBBox, StmntViewState, ViewState } from "../view-model";
+import { ReturnViewState } from "../view-model/return";
 
 // Following element is created to calculate the width of a text rendered in an svg.
 // Please see getTextWidth on how we do the calculation.
@@ -88,6 +89,7 @@ function sizeStatement(node: ASTNode) {
 }
 
 let endpointHolder: VisibleEndpoint[] = [];
+let returnStatements: Return[] = [];
 
 export const visitor: Visitor = {
 
@@ -95,6 +97,8 @@ export const visitor: Visitor = {
     beginVisitFunction(node: Function) {
         if (node.VisibleEndpoints && !node.lambda) {
             endpointHolder = node.VisibleEndpoints;
+            // clear return statements.
+            returnStatements = [];
         }
     },
 
@@ -107,8 +111,8 @@ export const visitor: Visitor = {
         const defaultWorker = viewState.defaultWorker;
 
         // Initialize the client width and height to default.
-        client.h = config.lifeLine.line.height + (config.lifeLine.header.height * 2);
-        client.w = config.lifeLine.width;
+        client.bBox.h = config.lifeLine.line.height + (config.lifeLine.header.height * 2);
+        client.bBox.w = config.lifeLine.width;
 
         // Size default worker
         defaultWorker.bBox.h = node.body!.viewState.bBox.h + (config.lifeLine.header.height * 2)
@@ -123,9 +127,9 @@ export const visitor: Visitor = {
             defaultWorker.bBox.leftMargin = config.lifeLine.leftMargin;
         }
 
-        const lineHeight = (client.h > defaultWorker.bBox.h) ? client.h : defaultWorker.bBox.h;
+        const lineHeight = (client.bBox.h > defaultWorker.bBox.h) ? client.bBox.h : defaultWorker.bBox.h;
         // Sync up the heights of lifelines
-        client.h = defaultWorker.bBox.h = lineHeight;
+        client.bBox.h = defaultWorker.bBox.h = lineHeight;
         defaultWorker.lifeline.h = defaultWorker.bBox.h; // Set the height of lifeline.
 
         // Size endpoints
@@ -134,7 +138,7 @@ export const visitor: Visitor = {
             node.VisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
                 if (!endpoint.caller && endpoint.viewState.visible) {
                     endpoint.viewState.bBox.w = config.lifeLine.width;
-                    endpoint.viewState.bBox.h = client.h;
+                    endpoint.viewState.bBox.h = client.bBox.h;
                     endpointWidth += endpoint.viewState.bBox.w + config.lifeLine.gutter.h;
                 }
             });
@@ -148,6 +152,12 @@ export const visitor: Visitor = {
 
         viewState.bBox.w = (body.w > header.w) ? body.w : header.w;
         viewState.bBox.h = body.h + header.h;
+
+        // Update return statement with client.
+        returnStatements.forEach((element) => {
+            const returnViewState: ReturnViewState = element.viewState;
+            returnViewState.client = client;
+        });
     },
 
     endVisitBlock(node: Block) {
@@ -228,5 +238,10 @@ export const visitor: Visitor = {
 
     endVisitAssignment(node: Assignment) {
         sizeStatement(node);
+    },
+
+    endVisitReturn(node: Return) {
+        sizeStatement(node);
+        returnStatements.push(node);
     }
 };

@@ -56,7 +56,7 @@ public class CommandConstants {
     // Command Titles
     public static final String IMPORT_MODULE_TITLE = "Import Module ";
 
-    public static final String CREATE_VARIABLE_TITLE = "Create Variable";
+    public static final String CREATE_VARIABLE_TITLE = "Create Local Variable";
 
     public static final String CREATE_FUNCTION_TITLE = "Create Function ";
 
