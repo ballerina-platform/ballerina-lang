@@ -30,7 +30,7 @@ listener grpc:Listener ep3 = new (9095);
 service Chat on ep3 {
     map<grpc:Caller> consMap = {};
     resource function onOpen(grpc:Caller caller) {
-        self.consMap[<string>caller.getInstanceId()] = caller;
+        self.consMap[<string>caller.getId()] = caller;
     }
 
     resource function onMessage(grpc:Caller caller, ChatMessage chatMsg) {
@@ -59,9 +59,9 @@ service Chat on ep3 {
 
     resource function onComplete(grpc:Caller caller) {
         grpc:Caller con = new;
-        string msg = string `{{caller.getInstanceId()}} left the chat`;
+        string msg = string `{{caller.getId()}} left the chat`;
         io:println(msg);
-        var v = self.consMap.remove(<string>caller.getInstanceId());
+        var v = self.consMap.remove(<string>caller.getId());
         string[] conKeys = self.consMap.keys();
         int len = conKeys.length();
         int i = 0;

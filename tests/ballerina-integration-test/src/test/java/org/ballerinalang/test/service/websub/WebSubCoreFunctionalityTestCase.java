@@ -149,7 +149,7 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
         remoteHubNotificationLogLeecherTwo.waitForText(45000);
     }
 
-    @Test(dependsOnMethods = "testSubscriberDetailsRetrievalFromHub")
+    @Test(dependsOnMethods = "testSubscriberDetailsRetrievalFromHub", groups = "broken")
     public void testUnsubscriptionIntentVerification() throws BallerinaTestException {
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                                           "websub" + File.separator + "test_unsubscription_client.bal")
@@ -229,7 +229,7 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
         Assert.assertTrue(response.getData().contains("{\"callback\":\"http://localhost:8181/websub"));
     }
 
-    @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification")
+    @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification", groups = "broken")
     public void testAvailableTopicsRetrievalFromHub() throws IOException {
         HttpResponse response = HttpClientRequest.doGet("http://localhost:8080/publisher/topicInfo");
 
