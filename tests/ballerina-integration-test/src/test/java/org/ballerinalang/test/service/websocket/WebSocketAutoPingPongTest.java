@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * This Class tests auto ping pong support of WebSocket client server if there's no onPing resource.
  */
-@Test(groups = "websocket-test")
+@Test(groups = { "websocket-test", "broken" })
 public class WebSocketAutoPingPongTest extends WebSocketTestCommons {
 
     private WebSocketTestClient client;
