@@ -95,7 +95,6 @@ import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 import javax.annotation.Nonnull;
 
 /**
@@ -161,11 +160,13 @@ public class TreeVisitor extends LSNodeVisitor {
             acceptNode(bLangImportPackage, pkgEnv);
         });
 
-        topLevelNodes.forEach(topLevelNode -> {
-            cursorPositionResolver = TopLevelNodeScopeResolver.class;
-            this.blockOwnerStack.push(evalPkg);
-            acceptNode((BLangNode) topLevelNode, pkgEnv);
-        });
+        topLevelNodes.stream()
+                .filter(CommonUtil.checkInvalidTypesDefs())
+                .forEach(topLevelNode -> {
+                    cursorPositionResolver = TopLevelNodeScopeResolver.class;
+                    this.blockOwnerStack.push(evalPkg);
+                    acceptNode((BLangNode) topLevelNode, pkgEnv);
+                });
 
         // If the cursor is at an empty document's first line or is bellow the last construct, symbol env node is null
         if (this.lsContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY) == null) {
