@@ -391,7 +391,7 @@ public class IterableAnalyzer {
 
         @Override
         public List<BType> visit(BRecordType type, Operation op) {
-            if (op.arity == 0) {
+            if (op.arity < 2) {
                 logNotEnoughVariablesError(op, 2);
                 return Lists.of(symTable.semanticError);
             } else if (op.arity == 2) {
@@ -489,7 +489,8 @@ public class IterableAnalyzer {
                         }
                     }
                     if (elementType.tag == TypeTags.INT || elementType.tag == TypeTags.FLOAT) {
-                        return elementType;
+                        // Todo - Validate for intermediate collections?
+                        return getType(operation, elementType);
                     }
                     break;
                 case AVERAGE:
@@ -500,7 +501,8 @@ public class IterableAnalyzer {
                         }
                     }
                     if (elementType.tag == TypeTags.INT || elementType.tag == TypeTags.FLOAT) {
-                        return elementType;
+                        // Todo - Validate for intermediate collections?
+                        return getType(operation, elementType);
                     }
                     break;
                 case COUNT:
@@ -509,18 +511,22 @@ public class IterableAnalyzer {
                         elementType = collectionType.tupleType.tupleTypes.get(0);
                     }
                     // Todo - Validate for intermediate collections?
-                    int arity = getArity(operation.collectionType);
-                    if (arity == 1) {
-                        return elementType;
-                    }
-                    List<BType> types = new LinkedList<>();
-                    types.add(symTable.stringType);
-                    types.add(elementType);
-                    return new BTupleType(types);
+                    return getType(operation, elementType);
                 default:
                     break;
             }
             return symTable.semanticError;
+        }
+
+        private BType getType(Operation operation, BType elementType) {
+            int arity = getArity(operation.collectionType);
+            if (arity == 1) {
+                return elementType;
+            }
+            List<BType> types = new LinkedList<>();
+            types.add(symTable.stringType);
+            types.add(elementType);
+            return new BTupleType(types);
         }
     }
 
