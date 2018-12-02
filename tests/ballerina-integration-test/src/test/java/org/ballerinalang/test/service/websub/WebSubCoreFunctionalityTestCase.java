@@ -168,8 +168,8 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
     @Test(dependsOnMethods = "testUnsubscriptionIntentVerification",
             description = "Tests that no notifications are received after unsubscription",
             expectedExceptions = BallerinaTestException.class,
-            expectedExceptionsMessageRegExp = ".*Timeout expired waiting for matching log.*"
-    )
+            expectedExceptionsMessageRegExp = ".*Timeout expired waiting for matching log.*",
+            groups = "broken")
     public void testUnsubscription() throws BallerinaTestException {
         requestUpdate(PUBLISHER_NOTIFY_URL, HUB_MODE_INTERNAL, CONTENT_TYPE_JSON);
         logAbsenceTestLogLeecher.waitForText(5000);
@@ -218,7 +218,7 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
         Assert.assertEquals(response.getData(), "validation failed for notification");
     }
 
-    @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification")
+    @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification", groups = "broken")
     public void testSubscriberDetailsRetrievalFromHub() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put("x-topic", "http://one.websub.topic.com");
