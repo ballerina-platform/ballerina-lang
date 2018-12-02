@@ -21,7 +21,6 @@ import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.bre.bvm.Strand;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.FunctionInfo;
