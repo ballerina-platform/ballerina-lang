@@ -22,9 +22,7 @@ function testUserClaims () returns (boolean) {
     if (runtime:getInvocationContext().userPrincipal.claims.hasKey("email")) {
         string emailInContext = "";
         var result = runtime:getInvocationContext().userPrincipal.claims["email"];
-        if (result is any) {
-            emailInContext = <string> result;
-        }
+        emailInContext = <string> result;
 
         return "tom@ballerina.com" == emailInContext;
     }

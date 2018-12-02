@@ -32,8 +32,8 @@ type Teacher record {
 StatusCount[] globalStatusCountArray = [];
 int index = 0;
 
-stream<StatusCount> filteredStatusCountStream;
-stream<Teacher> teacherStream;
+stream<StatusCount> filteredStatusCountStream = new;
+stream<Teacher> teacherStream = new;
 
 function testAggregationQuery() {
 

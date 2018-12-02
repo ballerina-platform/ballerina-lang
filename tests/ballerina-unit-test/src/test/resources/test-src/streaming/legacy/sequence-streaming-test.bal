@@ -27,8 +27,8 @@ type TempDiffInfo record {
     float peakTemp;
 };
 
-stream<DeviceTempInfo> tempStream;
-stream<TempDiffInfo> tempDiffInfoStream;
+stream<DeviceTempInfo> tempStream = new;
+stream<TempDiffInfo> tempDiffInfoStream = new;
 
 TempDiffInfo[] tempDiffInfoArray = [];
 int index = 0;

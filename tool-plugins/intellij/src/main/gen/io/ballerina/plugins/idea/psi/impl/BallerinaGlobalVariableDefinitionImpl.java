@@ -24,15 +24,9 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
-import io.ballerina.plugins.idea.stubs.BallerinaGlobalVariableDefinitionStub;
 import io.ballerina.plugins.idea.psi.*;
-import com.intellij.psi.stubs.IStubElementType;
 
-public class BallerinaGlobalVariableDefinitionImpl extends BallerinaNamedElementImpl<BallerinaGlobalVariableDefinitionStub> implements BallerinaGlobalVariableDefinition {
-
-  public BallerinaGlobalVariableDefinitionImpl(@NotNull BallerinaGlobalVariableDefinitionStub stub, @NotNull IStubElementType type) {
-    super(stub, type);
-  }
+public class BallerinaGlobalVariableDefinitionImpl extends BallerinaCompositeElementImpl implements BallerinaGlobalVariableDefinition {
 
   public BallerinaGlobalVariableDefinitionImpl(@NotNull ASTNode node) {
     super(node);
@@ -72,9 +66,9 @@ public class BallerinaGlobalVariableDefinitionImpl extends BallerinaNamedElement
   }
 
   @Override
-  @NotNull
+  @Nullable
   public PsiElement getSemicolon() {
-    return notNullChild(findChildByType(SEMICOLON));
+    return findChildByType(SEMICOLON);
   }
 
   @Override
@@ -84,9 +78,9 @@ public class BallerinaGlobalVariableDefinitionImpl extends BallerinaNamedElement
   }
 
   @Override
-  @NotNull
+  @Nullable
   public PsiElement getIdentifier() {
-    return notNullChild(findChildByType(IDENTIFIER));
+    return findChildByType(IDENTIFIER);
   }
 
   @Override

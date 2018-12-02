@@ -1043,11 +1043,12 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             }
         }
 
-        // If this is an object init using the default constructor,
-        // then skip the taint checking.
-        if (typeInit.type.tag != TypeTags.OBJECT ||
-                ((BObjectTypeSymbol) typeInit.type.tsymbol).initializerFunc != null) {
-            typeInit.objectInitInvocation.accept(this);
+        // If this is an object init using the default constructor, or a stream or channel initialization then skip the
+        // taint checking.
+        if (typeInit.type.tag != TypeTags.STREAM && typeInit.type.tag != TypeTags.CHANNEL &&
+                (typeInit.type.tag != TypeTags.OBJECT ||
+                         ((BObjectTypeSymbol) typeInit.type.tsymbol).initializerFunc != null)) {
+            typeInit.initInvocation.accept(this);
         }
 
         this.taintedStatus = typeTaintedStatus;

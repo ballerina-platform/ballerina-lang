@@ -19,6 +19,7 @@ package org.ballerinalang.model.values;
 
 import org.ballerinalang.bre.bvm.BVMScheduler;
 import org.ballerinalang.bre.bvm.SafeStrandCallback;
+import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.bre.bvm.Strand;
 import org.ballerinalang.bre.bvm.Strand.State;
 import org.ballerinalang.model.types.BType;
@@ -67,7 +68,17 @@ public class BCallableFuture implements BFuture {
 
     @Override
     public boolean cancel() {
+        if (this.isDone()) {
+            return false;
+        }
+        //TODO double check below logic, current frame may be already dropped.
+        /* only non-native workers can be cancelled */
+        StackFrame currentFrame = strand.currentFrame;
+        if (currentFrame != null &&  currentFrame.callableUnitInfo.isNative()) {
+            return false;
+        }
         BVMScheduler.stateChange(strand, State.RUNNABLE, State.TERMINATED);
+        strand.aborted = true;
         return true;
     }
 
@@ -78,7 +89,7 @@ public class BCallableFuture implements BFuture {
 
     @Override
     public boolean isCancelled() {
-        return strand.state == State.TERMINATED;
+        return strand.aborted;
     }
 
 }

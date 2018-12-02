@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.types.bytetype;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.testng.Assert;
@@ -30,6 +31,19 @@ public class BByteArrayValueNegativeTest {
     @Test(description = "Test blob value negative")
     public void testBlobValueNegative() {
         CompileResult result = BCompileUtil.compile("test-src/types/byte/byte-array-value-negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 52);
+        Assert.assertEquals(result.getErrorCount(), 22);
+
+        int index = 0;
+        String msg1 = "expecting {'is', ';', '.', '[', '?', '+', '-', '*', '/', '%', '!', " +
+                "'==', '!=', '>', '<', '>=', '<=', '&&', '||', '===', '!==', '&', '^', '@', '...', '|', '?:'," +
+                " '->>', '..<'}";
+        
+        BAssertUtil.validateError(result, index++, "mismatched input '6'. " + msg1, 2, 22);
+        BAssertUtil.validateError(result, index++, "mismatched input '16'. " + msg1, 3, 21);
+        BAssertUtil.validateError(result, index++, "mismatched input '`'. " + msg1, 4, 23);
+        BAssertUtil.validateError(result, index++, "extraneous input '`'", 5, 23);
+        BAssertUtil.validateError(result, index++, "extraneous input '`'", 5, 39);
+        BAssertUtil.validateError(result, index++, "mismatched input '`'. " + msg1, 6, 23);
+        BAssertUtil.validateError(result, ++index, "mismatched input '`'. " + msg1, 7, 23);
     }
 }

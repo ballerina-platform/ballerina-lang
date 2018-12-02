@@ -33,8 +33,8 @@ type Teacher record {
 
 Employee[] globalEmployeeArray = [];
 int employeeIndex = 0;
-stream<Employee> employeeStream4;
-stream<Teacher> teacherStream7;
+stream<Employee> employeeStream4 = new;
+stream<Teacher> teacherStream7 = new;
 
 function testFilterQuery() {
 

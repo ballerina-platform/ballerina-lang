@@ -39,9 +39,9 @@ int index = 0;
 
 function startJoinQuery() returns (StockWithPrice[]) {
 
-    stream<Stock> stockStream;
-    stream<Twitter> twitterStream;
-    stream<StockWithPrice> stockWithPriceStream;
+    stream<Stock> stockStream = new;
+    stream<Twitter> twitterStream = new;
+    stream<StockWithPrice> stockWithPriceStream = new;
 
     forever {
         from stockStream window time(1000) as s

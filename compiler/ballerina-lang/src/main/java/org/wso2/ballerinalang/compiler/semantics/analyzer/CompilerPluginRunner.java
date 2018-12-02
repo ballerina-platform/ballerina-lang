@@ -306,11 +306,13 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         if (!resParamTypes.expectedListenerType().name().isEmpty() && !resParamTypes.expectedListenerType()
                 .packageName().isEmpty()) {
             Name listenerName = names.fromString(resParamTypes.expectedListenerType().name());
-            BPackageSymbol symbol = this.packageCache.getSymbol(resParamTypes.expectedListenerType().packageName());
+            String packageQName =
+                    resParamTypes.expectedListenerType().orgName() + "/" + resParamTypes.expectedListenerType()
+                            .packageName();
+            BPackageSymbol symbol = this.packageCache.getSymbol(packageQName);
             if (symbol != null) {
                 SymbolEnv pkgEnv = symTable.pkgEnvMap.get(symbol);
-                final BSymbol listenerSymbol = symResolver
-                        .lookupSymbolInPackage(defaultPos, pkgEnv, symbol.pkgID.name, listenerName, SymTag.OBJECT);
+                final BSymbol listenerSymbol = symResolver.lookupSymbol(pkgEnv, listenerName, SymTag.OBJECT);
                 if (listenerSymbol != symTable.notFoundSymbol) {
                     listenerType = listenerSymbol.type;
                 }

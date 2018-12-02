@@ -1,9 +1,9 @@
 import ballerina/http;
 
 xmlns "http://ballerina.com/a" as ns0; 
-xmlns "http://ballerina.com/b" as ns1; 
+xmlns "http://ballerina.com/b" as ns1;
 
-listener http:Listener testEP = new(9090);
+listener http:MockListener testEP = new(9090);
 
 @http:ServiceConfig {basePath:"/test"}
 service TestServiceLevelNamespaces on testEP {

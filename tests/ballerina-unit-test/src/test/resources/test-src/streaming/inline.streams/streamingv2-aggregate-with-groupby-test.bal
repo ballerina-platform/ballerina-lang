@@ -34,7 +34,7 @@ type TeacherOutput record {
 };
 
 int index = 0;
-stream<TeacherOutput> outputStream;
+stream<TeacherOutput> outputStream = new;
 
 TeacherOutput[] globalTeacherOutputArray = [];
 
@@ -48,10 +48,10 @@ function startAggregationWithGroupByQuery() returns TeacherOutput[] {
     teachers[2] = t2;
     teachers[3] = t1;
 
-    stream<Teacher> inputStream;
+    stream<Teacher> inputStream = new;
     createAggregationQueryWithGroupby(inputStream);
 
-    outputStream.subscribe(printTeachers);
+    outputStream.subscribe(function (TeacherOutput e) {printTeachers(e);});
     foreach var t in teachers {
         inputStream.publish(t);
     }

@@ -25,8 +25,8 @@ type Teacher record {
 };
 
 int index = 0;
-stream<Teacher> inputStream;
-stream<Teacher> outputStream;
+stream<Teacher> inputStream = new;
+stream<Teacher> outputStream = new;
 Teacher[] globalEmployeeArray = [];
 
 function startFilterQuery() returns (Teacher[]) {

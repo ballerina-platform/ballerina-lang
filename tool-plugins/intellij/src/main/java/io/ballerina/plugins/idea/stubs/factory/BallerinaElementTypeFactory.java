@@ -20,7 +20,7 @@ import com.intellij.psi.stubs.IStubElementType;
 import io.ballerina.plugins.idea.stubs.types.BallerinaAliasStubElementType;
 import io.ballerina.plugins.idea.stubs.types.BallerinaAnnotationDefinitionStubElementType;
 import io.ballerina.plugins.idea.stubs.types.BallerinaFunctionDefinitionStubElementType;
-import io.ballerina.plugins.idea.stubs.types.BallerinaGlobalVariableDefinitionStubElementType;
+//import io.ballerina.plugins.idea.stubs.types.BallerinaGlobalVariableDefinitionStubElementType;
 import io.ballerina.plugins.idea.stubs.types.BallerinaNameReferenceStubElementType;
 import io.ballerina.plugins.idea.stubs.types.BallerinaNamespaceDeclarationStubElementType;
 import io.ballerina.plugins.idea.stubs.types.BallerinaOrgNameStubElementType;
@@ -46,8 +46,6 @@ public class BallerinaElementTypeFactory {
             return new BallerinaFunctionDefinitionStubElementType(name);
         case "TYPE_DEFINITION":
             return new BallerinaTypeDefinitionStubElementType(name);
-        case "GLOBAL_VARIABLE_DEFINITION":
-            return new BallerinaGlobalVariableDefinitionStubElementType(name);
         case "ANNOTATION_DEFINITION":
             return new BallerinaAnnotationDefinitionStubElementType(name);
         case "WORKER_DEFINITION":

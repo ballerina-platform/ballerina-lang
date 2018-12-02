@@ -16,7 +16,9 @@ export const Function = (props: {model: FunctionNode}) => {
             <LifeLine title="Default" icon="worker" model={viewState.defaultWorker.lifeline}/>
             { model.body && <Block model={model.body} />}
             { model.VisibleEndpoints && model.VisibleEndpoints.map((element: VisibleEndpoint) => {
-                return <LifeLine title={element.name} icon="endpoint" model={element.viewState.bBox} />;
+                if (element.viewState.visible) {
+                    return <LifeLine title={element.name} icon="endpoint" model={element.viewState.bBox} />;
+                }
             })}
             <AddWorkerOrEndpointMenu
                 triggerPosition={viewState.menuTrigger}

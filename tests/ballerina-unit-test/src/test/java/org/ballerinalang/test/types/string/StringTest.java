@@ -273,12 +273,6 @@ public class StringTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 9);
     }
 
-    @Test(expectedExceptions = {BLangRuntimeException.class}, expectedExceptionsMessageRegExp = "error: \\{\\}.*")
-    public void testLengthofNull() {
-        BValue[] args = {new BString(null)};
-        BRunUtil.invoke(result, "lengthOfStr", args);
-    }
-
     @Test
     public void testReplace() {
         BValue[] args = {new BString("Best Company is Google"), new BString("Google"), new BString("WSO2")};

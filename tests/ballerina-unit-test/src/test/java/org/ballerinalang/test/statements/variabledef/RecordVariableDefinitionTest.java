@@ -260,7 +260,7 @@ public class RecordVariableDefinitionTest {
         Assert.assertNull(returns[5]);
     }
 
-    @Test
+    @Test(groups = {"broken"})
     public void testNegativeRecordVariables() {
         Assert.assertEquals(resultNegative.getErrorCount(), 16);
         String redeclaredSymbol = "redeclared symbol ";

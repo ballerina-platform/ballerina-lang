@@ -1,5 +1,5 @@
 import React, { StatelessComponent } from "react";
-import { Button } from "semantic-ui-react";
+import { Button, Icon } from "semantic-ui-react";
 import { DiagramContext } from "../diagram-context";
 
 export const ZoomFitButton: StatelessComponent<{}> = (
@@ -10,8 +10,7 @@ export const ZoomFitButton: StatelessComponent<{}> = (
             {(diagContext) => {
                 return (
                     <Button icon onClick={diagContext.zoomFit}>
-                        <i className="fw fw-fit" title="Zoom Fit" />
-                        {children}
+                        <Icon className="fw fw-fit" title="Zoom Fit" />
                     </Button>
                 );
             }}

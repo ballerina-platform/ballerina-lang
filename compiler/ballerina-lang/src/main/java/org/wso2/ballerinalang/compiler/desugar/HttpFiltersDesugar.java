@@ -185,10 +185,10 @@ public class HttpFiltersDesugar {
         filterInvocation.argExprs.add(resourceName);
         filterInvocation.type = symTable.nilType;
 
-        BLangTypeInit filterInitNode = (BLangTypeInit) TreeBuilder.createObjectInitNode();
+        BLangTypeInit filterInitNode = (BLangTypeInit) TreeBuilder.createInitNode();
         filterInitNode.pos = resourceNode.pos;
         filterInitNode.type = filterContextType;
-        filterInitNode.objectInitInvocation = filterInvocation;
+        filterInitNode.initInvocation = filterInvocation;
         filterInitNode.argsExpr.add(serviceRef);
         filterInitNode.argsExpr.add(serviceName);
         filterInitNode.argsExpr.add(resourceName);

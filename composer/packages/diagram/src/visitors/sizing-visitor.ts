@@ -1,11 +1,11 @@
 import {
     Assignment, ASTNode, ASTUtil, Block,
-    ExpressionStatement, Foreach, Function, If, VariableDef, VisibleEndpoint, Visitor, While
+    ExpressionStatement, Foreach, Function, If, Invocation, VariableDef, VisibleEndpoint, Visitor, While
 } from "@ballerina/ast-model";
 import * as _ from "lodash";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
-import { FunctionViewState, SimpleBBox, ViewState } from "../view-model";
+import { EndpointViewState, FunctionViewState, SimpleBBox, StmntViewState, ViewState } from "../view-model";
 
 // Following element is created to calculate the width of a text rendered in an svg.
 // Please see getTextWidth on how we do the calculation.
@@ -62,14 +62,41 @@ function getTextWidth(text: string, minWidth = config.statement.width, maxWidth 
 }
 
 function sizeStatement(node: ASTNode) {
-    const viewState: ViewState = node.viewState;
+    const viewState: StmntViewState = node.viewState;
     const label = getTextWidth(ASTUtil.genSource(node));
     viewState.bBox.h = config.statement.height;
     viewState.bBox.w = (config.statement.width > label.w) ? config.statement.width : label.w;
     viewState.bBox.label = label.text;
+    // Check if statement is action invocation
+    const action = ASTUtil.isActionInvocation(node);
+    if (action) {
+        // find the endpoint view state
+        const epName = ASTUtil.getEndpointName(action as Invocation);
+        endpointHolder.forEach((element: VisibleEndpoint) => {
+            if (element.name === epName) {
+                viewState.endpoint = element.viewState;
+                viewState.isAction = true;
+                viewState.bBox.h = config.statement.actionHeight;
+                let actionName = ASTUtil.genSource(action as Invocation).split("->").pop();
+                actionName = (actionName) ? actionName : "";
+                viewState.bBox.label = getTextWidth(actionName).text;
+                // Set visible to true so we can only draw used endpoints.
+                (element.viewState as EndpointViewState).visible = true;
+            }
+        });
+    }
 }
 
+let endpointHolder: VisibleEndpoint[] = [];
+
 export const visitor: Visitor = {
+
+    // tslint:disable-next-line:ban-types
+    beginVisitFunction(node: Function) {
+        if (node.VisibleEndpoints && !node.lambda) {
+            endpointHolder = node.VisibleEndpoints;
+        }
+    },
 
     // tslint:disable-next-line:ban-types
     endVisitFunction(node: Function) {
@@ -86,20 +113,26 @@ export const visitor: Visitor = {
         // Size default worker
         defaultWorker.bBox.h = node.body!.viewState.bBox.h + (config.lifeLine.header.height * 2)
             + config.statement.height; // for bottom plus
-        defaultWorker.bBox.w = node.body!.viewState.bBox.w;
-        defaultWorker.lifeline.h = defaultWorker.bBox.h;
+        defaultWorker.bBox.w = (node.body!.viewState.bBox.w) ? node.body!.viewState.bBox.w :
+            config.lifeLine.width;
         defaultWorker.lifeline.w = config.lifeLine.width;
-        defaultWorker.bBox.leftMargin = node.body!.viewState.bBox.leftMargin;
+        // tslint:disable-next-line:prefer-conditional-expression
+        if (node.body!.viewState.bBox.leftMargin) {
+            defaultWorker.bBox.leftMargin = node.body!.viewState.bBox.leftMargin;
+        } else {
+            defaultWorker.bBox.leftMargin = config.lifeLine.leftMargin;
+        }
 
         const lineHeight = (client.h > defaultWorker.bBox.h) ? client.h : defaultWorker.bBox.h;
         // Sync up the heights of lifelines
         client.h = defaultWorker.bBox.h = lineHeight;
+        defaultWorker.lifeline.h = defaultWorker.bBox.h; // Set the height of lifeline.
 
         // Size endpoints
         let endpointWidth = 0;
         if (node.VisibleEndpoints) {
             node.VisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
-                if (!endpoint.caller) {
+                if (!endpoint.caller && endpoint.viewState.visible) {
                     endpoint.viewState.bBox.w = config.lifeLine.width;
                     endpoint.viewState.bBox.h = client.h;
                     endpointWidth += endpoint.viewState.bBox.w + config.lifeLine.gutter.h;
@@ -120,6 +153,7 @@ export const visitor: Visitor = {
     endVisitBlock(node: Block) {
         const viewState: ViewState = node.viewState;
         let height = 0;
+        viewState.bBox.w = config.statement.width;
         node.statements.forEach((element) => {
             viewState.bBox.w = (viewState.bBox.w < element.viewState.bBox.w)
                 ? element.viewState.bBox.w : viewState.bBox.w;
@@ -127,14 +161,14 @@ export const visitor: Visitor = {
                 ? element.viewState.bBox.leftMargin : viewState.bBox.leftMargin;
             height += element.viewState.bBox.h;
         });
-        viewState.bBox.h = height;
+        viewState.bBox.h = (height === 0) ? config.statement.height : height;
     },
 
     endVisitWhile(node: While) {
         const viewState: ViewState = node.viewState;
         const bodyBBox: SimpleBBox = node.body.viewState.bBox;
 
-        viewState.bBox.w = node.body.viewState.bBox.w;
+        viewState.bBox.w = node.body.viewState.bBox.w + config.flowCtrl.rightMargin;
         viewState.bBox.h = node.body.viewState.bBox.h + config.flowCtrl.condition.height
             + config.flowCtrl.whileGap + config.flowCtrl.bottomMargin;
         // If body has a left margin assign to while
@@ -150,7 +184,7 @@ export const visitor: Visitor = {
         const viewState: ViewState = node.viewState;
         const bodyBBox: SimpleBBox = node.body.viewState.bBox;
 
-        viewState.bBox.w = node.body.viewState.bBox.w;
+        viewState.bBox.w = node.body.viewState.bBox.w + config.flowCtrl.rightMargin;
         viewState.bBox.h = node.body.viewState.bBox.h + config.flowCtrl.foreach.height
             + config.flowCtrl.whileGap + config.flowCtrl.bottomMargin;
         // If body has a left margin assign to while

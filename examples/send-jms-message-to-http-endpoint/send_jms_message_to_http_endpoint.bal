@@ -66,9 +66,10 @@ service backend on new http:Listener(9090) {
 
             // A util method that can be used to set string payload.
             res.setPayload("Message Received.");
-            // Sends the response back to the client.
 
+            // Sends the response back to the client.
             var result = caller->respond(res);
+
             if (result is error) {
                 log:printError("Error occurred while acknowledging message", err = result);
             }

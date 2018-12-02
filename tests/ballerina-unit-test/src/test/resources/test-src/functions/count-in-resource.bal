@@ -1,10 +1,12 @@
 import ballerina/http;
 import ballerina/io;
 
+listener http:MockListener testEP = new(9090);
+
 @http:ServiceConfig {
     basePath:"/test"
 }
-service TestService on new http:Listener(80) {
+service TestService on testEP {
 
     @http:ResourceConfig {
         methods:["GET"],

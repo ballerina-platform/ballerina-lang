@@ -191,10 +191,12 @@ public class BPackageSymbolDAO extends AbstractDAO<BPackageSymbolDTO> {
      * @param objectId              Object ID which the function attached to, -1 if not
      * @param pvt                   Whether private or public items
      * @param attached              Whether attached function or not
+     * @param action                Whether action or not
      * @return {@link List}         List of retrieved functions
      * @throws LSIndexException     Exception while processing Index operation.
      */
-    public List<BFunctionSymbolDTO> getFunctions(BPackageSymbolDTO dto, int objectId, boolean pvt, boolean attached)
+    public List<BFunctionSymbolDTO> getFunctions(BPackageSymbolDTO dto, int objectId, boolean pvt, boolean attached,
+                                                 boolean action)
             throws LSIndexException {
         int indexCounter = 0;
         ResultSet rs = null;
@@ -207,7 +209,7 @@ public class BPackageSymbolDAO extends AbstractDAO<BPackageSymbolDTO> {
             query.append(" AND orgName = ?) ");
         }
         query.append("AS p INNER JOIN bLangFunction AS f WHERE p.id=f.packageId AND f.objectId = ? AND f.private = ? " +
-                " AND f.attached = ? AND f.action = TRUE AND f.name NOT LIKE '%<init>%' AND " + "f.name NOT " +
+                " AND f.attached = ? AND f.action = ? AND f.name NOT LIKE '%<init>%' AND " + "f.name NOT " +
                 "LIKE '%<start>%' AND f.name NOT LIKE '%<stop>%'");
 
         try {
@@ -219,6 +221,7 @@ public class BPackageSymbolDAO extends AbstractDAO<BPackageSymbolDTO> {
             statement.setInt(++indexCounter, objectId);
             statement.setBoolean(++indexCounter, pvt);
             statement.setBoolean(++indexCounter, attached);
+            statement.setBoolean(++indexCounter, action);
 
             rs = statement.executeQuery();
             List<BFunctionSymbolDTO> functionSymbolDTOList = new ArrayList<>();
