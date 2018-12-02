@@ -432,9 +432,10 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.typeDefinitions = rewrite(pkgNode.typeDefinitions, env);
         pkgNode.xmlnsList = rewrite(pkgNode.xmlnsList, env);
         pkgNode.globalVars = rewrite(pkgNode.globalVars, env);
-        pkgNode.functions = rewrite(pkgNode.functions, env);
 
         pkgNode.services.forEach(service -> serviceDesugar.engageCustomServiceDesugar(service, env));
+
+        pkgNode.functions = rewrite(pkgNode.functions, env);
 
         serviceDesugar.rewriteListeners(pkgNode.globalVars, env);
         serviceDesugar.rewriteServiceAttachments(serviceAttachments, env);

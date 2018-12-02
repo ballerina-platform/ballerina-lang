@@ -325,6 +325,7 @@ public class HttpFiltersDesugar {
                 new BLangInvocation.BLangAttachedFunctionInvocation(
                         resourceNode.pos, requiredArgs, new ArrayList<>(), new ArrayList<>(),
                         getFilterRequestFuncSymbol(filterType), symTable.booleanType, filterRef, false);
+        filterRequestInvocation.desugared = true;
 
         BInvokableType type = new BInvokableType(createSingletonArrayList(symTable.booleanType), symTable.booleanType,
                 null);
