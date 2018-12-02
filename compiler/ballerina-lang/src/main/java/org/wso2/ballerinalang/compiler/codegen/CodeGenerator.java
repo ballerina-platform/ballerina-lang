@@ -1791,7 +1791,11 @@ public class CodeGenerator extends BLangNodeVisitor {
             }
         }
         // Participate in transaction.
-        Operand transactionIndexOperand = getOperand(transactionIndex);
+        String transactionIndexStr = String.valueOf(transactionIndex);
+        StringCPEntry stringCPEntry = new StringCPEntry(
+                addUTF8CPEntry(currentPkgInfo, transactionIndexStr), transactionIndexStr);
+        int strCPIndex = currentPkgInfo.addCPEntry(stringCPEntry);
+        Operand transactionIndexOperand = getOperand(strCPIndex);
         int participantType = getParticipantTypeTag(function);
         Operand transactionType = getOperand(participantType);
         RegIndex retryCountRegIndex = getRegIndex(TypeTags.INT);
@@ -2871,7 +2875,13 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     public void visit(BLangTransaction transactionNode) {
         ++transactionIndex;
-        Operand transactionIndexOperand = getOperand(transactionIndex);
+
+        String transactionIndexStr = String.valueOf(transactionIndex);
+        StringCPEntry stringCPEntry = new StringCPEntry(
+                addUTF8CPEntry(currentPkgInfo, transactionIndexStr), transactionIndexStr);
+        int strCPIndex = currentPkgInfo.addCPEntry(stringCPEntry);
+        Operand transactionIndexOperand = getOperand(strCPIndex);
+
         Operand retryCountRegIndex = new RegIndex(-1, TypeTags.INT);
         if (transactionNode.retryCount != null) {
             this.genNode(transactionNode.retryCount, this.env);
