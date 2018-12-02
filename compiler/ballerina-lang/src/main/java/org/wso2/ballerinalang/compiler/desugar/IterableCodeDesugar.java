@@ -553,7 +553,7 @@ public class IterableCodeDesugar {
         add.type = ctx.resultVar.symbol.type;
         add.opKind = OperatorKind.ADD;
         add.lhsExpr = ASTBuilderUtil.createVariableRef(pos, ctx.resultVar.symbol);
-        add.rhsExpr = ASTBuilderUtil.createVariableRef(pos, ctx.iteratorResultVariables.get(0).symbol);
+        add.rhsExpr = getValueVariable(ctx, pos);
         add.opSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.ADD, add.type, add.type);
         final BLangAssignment countAdd = ASTBuilderUtil.createAssignmentStmt(pos, blockStmt);
         countAdd.varRef = ASTBuilderUtil.createVariableRef(pos, ctx.resultVar.symbol);
@@ -572,8 +572,9 @@ public class IterableCodeDesugar {
     private void generateCompareAggregator(BLangBlockStmt blockStmt, IterableContext ctx, OperatorKind operator) {
         final DiagnosticPos pos = blockStmt.pos;
         final BLangSimpleVarRef resultVar = ASTBuilderUtil.createVariableRef(pos, ctx.resultVar.symbol);
-        final BLangSimpleVarRef valueVar = ASTBuilderUtil.createVariableRef(pos, ctx.iteratorResultVariables.get(0)
-                .symbol);
+        final BLangSimpleVarRef valueVar;
+
+        valueVar = getValueVariable(ctx, pos);
 
         final BLangBinaryExpr compare = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
         compare.pos = pos;
@@ -594,6 +595,16 @@ public class IterableCodeDesugar {
         final BLangAssignment countAdd = ASTBuilderUtil.createAssignmentStmt(pos, blockStmt);
         countAdd.varRef = resultVar;
         countAdd.expr = ternaryExpr;
+    }
+
+    private BLangSimpleVarRef getValueVariable(IterableContext ctx, DiagnosticPos pos) {
+        BLangSimpleVarRef valueVar;
+        if (ctx.iteratorResultVariables.size() == 1) {
+            valueVar = ASTBuilderUtil.createVariableRef(pos, ctx.iteratorResultVariables.get(0).symbol);
+        } else {
+            valueVar = ASTBuilderUtil.createVariableRef(pos, ctx.iteratorResultVariables.get(1).symbol);
+        }
+        return valueVar;
     }
 
     /**
