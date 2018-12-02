@@ -125,3 +125,58 @@ function nonParticipantNestedTrxStmt(string s) returns string {
     return q;
 }
 
+function nonParticipantFunctionNesting(string failureCondition) returns string {
+    string s = "";
+    S = "";
+    transaction {
+        s = " in-trx";
+        s = nonParticipant(failureCondition, s);
+        s += " in-trx-last-line";
+    } onretry {
+        s += " onretry";
+    } committed {
+        s += " committed";
+    } aborted {
+        s += " aborted";
+    }
+    return s + " |" + S;
+}
+
+function nonParticipant(string failureCondition, string s) returns string {
+    string p = s + " in-non-participant";
+    var q = trap localParticipant(failureCondition, p);
+    if (q is string) {
+        p = q;
+    } else {
+        p += " traped: local-participant";
+    }
+    p += " after-local-participant";
+    var p2 = trap failable(failureCondition, p);
+    if (p2 is error) {
+        p += " non-participants-callee-fail-and-trapped";
+    } else {
+        p = p2;
+    }
+    return p;
+}
+
+
+@transactions:Participant {
+    oncommit:commitFunc,
+    onabort:abortFunc
+}
+public function localParticipant(string failureCondition, string s) returns string {
+    if (failureCondition == "participantFail") {
+        error er = error("failed");
+        panic er;
+    }
+    return s + " localParticipant";
+}
+
+function failable(string failureCondition, string s) returns string {
+    if (failureCondition == "failInNonParticipant") {
+        error er = error("failed");
+        panic er;
+    }
+    return s;
+}
