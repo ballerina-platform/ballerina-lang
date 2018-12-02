@@ -125,3 +125,55 @@ function nonParticipantNestedTrxStmt(string s) returns string {
     return q;
 }
 
+
+function participantInNonStrand() returns string {
+    string s = "";
+    S = "";
+    transaction {
+        s += " in-trx";
+        var t = trap startANewStrand(s);
+        if (t is string) {
+            s += t;
+        } else {
+            s += " trapped:[" + t.reason() + "]";
+        }
+        s += " last-line";
+    } onretry {
+        s += " onretry";
+    } committed {
+        s += " committed";
+    } aborted {
+        s += " aborted";
+    }
+
+    if (S != "") {
+        s += " | " + S;
+    }
+    return s;
+}
+
+function startANewStrand(string s) returns string {
+    io:println("starting onSomeOtherStrand on a new strand");
+    var f = start onSomeOtherStrand(s);
+    wait f;
+    return " from-startANewStrand";
+}
+
+function onSomeOtherStrand(string s) {
+    io:println("in some other strand");
+    var r = trap otherStrand(s);
+    if (r is error) {
+        S += "error in otherStrand: " + r.reason();
+        io:println("trapped error from otherStrand()");
+    }
+}
+
+@transactions:Participant {
+    oncommit:commitFunc,
+    onabort:abortFunc
+}
+public function otherStrand(string s) {
+    io:println("Hello, World!");
+    error err = error("error!!!");
+    panic err;
+}

@@ -79,4 +79,12 @@ public class TransactionLocalParticipantFunctionTest {
         Assert.assertEquals(s, " in-trx trapped:[dynamically nested transactions are not allowed] " +
                 "last-line committed");
     }
+
+    @Test
+    public void testTransactionTransactionOnlyInfectCallsInSameStrand() {
+        BValue[] params = {};
+        BValue[] ret = BRunUtil.invoke(result, "participantInNonStrand", params);
+        String s = ret[0].stringValue();
+        Assert.assertEquals(s, " in-trx from-startANewStrand last-line committed | error in otherStrand: error!!!");
+    }
 }

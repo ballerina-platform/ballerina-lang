@@ -2651,7 +2651,7 @@ public class BVM {
                 }
 
                 try {
-                    sf.refRegs[j] = JSONUtils.toJSON((BTable) bRefType, ctx.isInTransaction());
+                    sf.refRegs[j] = JSONUtils.toJSON((BTable) bRefType);
                 } catch (Exception e) {
                     handleTypeConversionError(ctx, sf, j, TypeConstants.TABLE_TNAME, TypeConstants.XML_TNAME);
                 }
@@ -3274,9 +3274,7 @@ public class BVM {
     private static void transactionEndEnd(Strand strand, int transactionBlockId,
                                           TransactionLocalContext transactionLocalContext) {
         boolean isOuterTx = transactionLocalContext.onTransactionEnd(transactionBlockId);
-        if (isOuterTx) {
-            BLangVMUtils.removeTransactionInfo(strand);
-        }
+        strand.removeLocalTransactionContext();
     }
 
     private static void transactionBlockEnd(Strand strand, int transactionBlockId, int statusRegIndex,
