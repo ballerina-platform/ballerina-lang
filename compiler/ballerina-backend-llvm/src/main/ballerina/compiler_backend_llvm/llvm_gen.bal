@@ -25,10 +25,10 @@ function genFunctions(llvm:LLVMModuleRef mod, bir:Function[] funcs) {
     genPrintfDeclration(mod);
 
     map<FuncGenrator> funcGenrators = mapFuncsToNameAndGenrator(mod, builder, funcs);
-    foreach var (_, g) in funcGenrators  {
+    foreach var (k, g) in funcGenrators  {
         g.genFunctionDecl();
     }
-    foreach var (_, g) in funcGenrators  {
+    foreach var (k, g) in funcGenrators  {
         g.genFunctionBody(funcGenrators);
     }
     llvm:LLVMDisposeBuilder(builder);

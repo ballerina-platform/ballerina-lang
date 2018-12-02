@@ -44,7 +44,7 @@ function scheduleTimer(int delay, int interval) returns boolean {
 
 function cleanupTransactions() returns error? {
     worker w1 {
-        foreach var (_, twopcTxn) in participatedTransactions {
+        foreach var (key, twopcTxn) in participatedTransactions {
             string participatedTxnId = getParticipatedTransactionId(twopcTxn.transactionId,
                 twopcTxn.transactionBlockId);
             if (time:currentTime().time - twopcTxn.createdTime >= 120000) {
@@ -80,7 +80,7 @@ function cleanupTransactions() returns error? {
         }
     }
     worker w2 returns () {
-        foreach var (_, twopcTxn) in initiatedTransactions {
+        foreach var (key, twopcTxn) in initiatedTransactions {
             if (time:currentTime().time - twopcTxn.createdTime >= 120000) {
                 if (twopcTxn.state != TXN_STATE_ABORTED) {
                     // Commit the transaction since prepare hasn't been received

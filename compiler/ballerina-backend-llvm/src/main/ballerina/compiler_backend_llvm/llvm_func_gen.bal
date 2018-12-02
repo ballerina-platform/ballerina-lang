@@ -94,7 +94,7 @@ type FuncGenrator object {
     }
 
     function genBbTerminators(map<FuncGenrator> funcGenrators, map<BbTermGenrator> bbTermGenrators) {
-        foreach var (_, g) in bbTermGenrators {
+        foreach var (k, g) in bbTermGenrators {
             g.genBasicBlockTerminator(funcGenrators, bbTermGenrators);
         }
     }
