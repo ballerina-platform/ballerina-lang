@@ -41,7 +41,7 @@ public function main() {
     string index = stringMap.index;
     io:println(index);
 
-    // Note that Index-based access returns a union of constraint+nil.
+    // Note that the return type of index-based access will be `T?` (where T is the constraint type of the map`).
     // If the key does not exist, `nil` is returned.
     // Elvis operator `?:` is a conditional operator that handles `nil`. 
     // If the given expression evaluates to nil, the second expression is evaluated and its value is returned.
