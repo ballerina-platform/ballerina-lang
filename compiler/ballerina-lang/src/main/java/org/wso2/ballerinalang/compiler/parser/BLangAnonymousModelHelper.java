@@ -39,7 +39,8 @@ public class BLangAnonymousModelHelper {
 
     private static final String ANON_TYPE = "$anonType$";
     private static final String LAMBDA = "$lambda$";
-    private static final String SERVICE = "$service$";
+    private static final String SERVICE = "$$service$";
+    private static final String ANON_SERVICE = "$anonService$";
     private static final String BUILTIN_ANON_TYPE = "$anonType$builtin$";
     private static final String BUILTIN_LAMBDA = "$lambda$builtin$";
 
@@ -73,13 +74,13 @@ public class BLangAnonymousModelHelper {
     String getNextAnonymousServiceTypeKey(PackageID packageID, String serviceName) {
         Integer nextValue = Optional.ofNullable(anonServiceCount.get(packageID)).orElse(0);
         anonServiceCount.put(packageID, nextValue + 1);
-        return (serviceName != null ? serviceName : "") + SERVICE + nextValue;
+        return serviceName + SERVICE + nextValue;
     }
 
     String getNextAnonymousServiceVarKey(PackageID packageID) {
         Integer nextValue = Optional.ofNullable(anonServiceCount.get(packageID)).orElse(0);
         anonServiceCount.put(packageID, nextValue + 1);
-        return SERVICE + nextValue;
+        return ANON_SERVICE + nextValue;
     }
 
     public String getNextAnonymousFunctionKey(PackageID packageID) {

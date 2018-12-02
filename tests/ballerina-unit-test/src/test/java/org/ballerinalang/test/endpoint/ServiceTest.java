@@ -70,7 +70,7 @@ public class ServiceTest {
                 "incompatible types: expected 'AbstractListener', found 'string'", 17, 17);
         BAssertUtil.validateError(compileResult, errIdx++, "invalid listener attachment", 17, 17);
         BAssertUtil.validateError(compileResult, errIdx++, "uninitialized field 'id'", 18, 5);
-        BAssertUtil.validateError(compileResult, errIdx++, "redeclared symbol '$service$2.foo'", 29, 14);
+        BAssertUtil.validateError(compileResult, errIdx++, "redeclared symbol 'MyService$$service$2.foo'", 29, 14);
         BAssertUtil.validateError(compileResult, errIdx++, "undefined symbol 'invalidVar'", 50, 12);
         Assert.assertEquals(compileResult.getErrorCount(), errIdx);
     }

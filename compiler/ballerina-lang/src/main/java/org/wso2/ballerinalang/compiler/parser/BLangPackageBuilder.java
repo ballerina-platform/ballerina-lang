@@ -2551,11 +2551,11 @@ public class BLangPackageBuilder {
         serviceNode.pos = pos;
         serviceNode.addWS(ws);
         serviceNode.isAnonymousServiceValue = isAnonServiceValue;
-        String serviceTypeName = this.anonymousModelHelper.getNextAnonymousServiceTypeKey(pos.src.pkgID, serviceName);
         if (serviceName == null) {
             serviceName = this.anonymousModelHelper.getNextAnonymousServiceVarKey(pos.src.pkgID);
             identifierPos = pos;
         }
+        String serviceTypeName = this.anonymousModelHelper.getNextAnonymousServiceTypeKey(pos.src.pkgID, serviceName);
         BLangIdentifier serviceVar = (BLangIdentifier) createIdentifier(serviceName);
         serviceVar.pos = identifierPos;
         serviceNode.setName(serviceVar);
