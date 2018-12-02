@@ -144,9 +144,12 @@ function xmlTest() returns (int, int, map<any>) {
 
     index = -1;
     map<xml> m = xdata.*.elements()[1].*.elements()
-                 .map(function (xml x) returns (string, xml) {
-                          index += 1;
-                          return (string.create(index), x);
+                 .map(function (xml|string x) returns (string, xml) {
+                            index += 1;
+                            if x is xml {
+                                return (string.create(index), x);
+                            }
+                            return ("", xml ` `);
                       });
     return (nodeCount, elementCount, m);
 }
