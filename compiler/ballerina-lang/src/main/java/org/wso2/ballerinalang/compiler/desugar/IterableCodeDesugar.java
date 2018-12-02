@@ -20,6 +20,7 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
+import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
@@ -40,6 +41,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -255,12 +257,12 @@ public class IterableCodeDesugar {
         final BLangForeach foreachStmt = ASTBuilderUtil.createForeach(pos, funcNode.body,
                 ASTBuilderUtil.createVariableRef(pos, ctx.collectionVar.symbol));
 
-        BLangSimpleVariable variable = foreachVariables.get(0);
-        BLangSimpleVariableDef variableDef =  ASTBuilderUtil.createVariableDef(pos, variable);
+        // Create a variable definition node for the foreach statement.
+        VariableDefinitionNode variableDef = getForeachVariableDefinitionNode(ctx, pos, foreachVariables);
 
         foreachStmt.isDeclaredWithVar = true;
         foreachStmt.variableDefinitionNode = variableDef;
-        BType paramType = ctx.foreachTypes.get(0);
+        BType paramType = ctx.getFirstOperation().inputType;
         foreachStmt.varType = paramType;
         BMapType mapType = new BMapType(TypeTags.RECORD, paramType, symTable.mapType.tsymbol);
         foreachStmt.resultType = mapType;
@@ -310,12 +312,12 @@ public class IterableCodeDesugar {
         final BLangForeach foreachStmt = ASTBuilderUtil.createForeach(pos, funcNode.body,
                 ASTBuilderUtil.createVariableRef(pos, ctx.collectionVar.symbol));
 
-        BLangSimpleVariable variable = foreachVariables.get(0);
-        BLangSimpleVariableDef variableDef =  ASTBuilderUtil.createVariableDef(pos, variable);
+        // Create a variable definition node for the foreach statement.
+        VariableDefinitionNode variableDef = getForeachVariableDefinitionNode(ctx, pos, foreachVariables);
 
         foreachStmt.isDeclaredWithVar = true;
         foreachStmt.variableDefinitionNode = variableDef;
-        BType paramType = ctx.foreachTypes.get(0);
+        BType paramType = ctx.getFirstOperation().inputType;
         foreachStmt.varType = paramType;
         BMapType mapType = new BMapType(TypeTags.RECORD, paramType, symTable.mapType.tsymbol);
         foreachStmt.resultType = mapType;
@@ -817,8 +819,8 @@ public class IterableCodeDesugar {
         final DiagnosticPos pos = operation.pos;
         final BLangAssignment assignment = ASTBuilderUtil.createAssignmentStmt(pos, blockStmt);
         assignment.varRef = ASTBuilderUtil.createVariableRef(operation.pos, operation.retVar.symbol);
-        assignment.expr = ASTBuilderUtil.createInvocationExpr(pos, operation.lambdaSymbol, Lists.of(operation.argVar)
-                , symResolver);
+        assignment.expr = ASTBuilderUtil.createInvocationExpr(pos, operation.lambdaSymbol, Lists.of(operation.argVar),
+                symResolver);
     }
 
 
@@ -862,6 +864,22 @@ public class IterableCodeDesugar {
             defineVariable(variable, ctx.env.enclPkg.symbol.pkgID, funcNode);
         }
         return resultVariables;
+    }
+
+    private VariableDefinitionNode getForeachVariableDefinitionNode(IterableContext ctx, DiagnosticPos pos,
+                                                                    List<BLangSimpleVariable> foreachVariables) {
+        if (foreachVariables.size() == 1) {
+            // If there is only one variable, directly create a variable definition from it.
+            return ASTBuilderUtil.createVariableDef(pos, foreachVariables.get(0));
+        } else {
+            // If there are multiple variables, create a tuple variable definition.
+            BLangTupleVariable tupleVariable = (BLangTupleVariable) TreeBuilder.createTupleVariableNode();
+            for (BLangSimpleVariable foreachVariable : foreachVariables) {
+                tupleVariable.addVariable(foreachVariable);
+            }
+            tupleVariable.type = ctx.getFirstOperation().inputType;
+            return ASTBuilderUtil.createTupleVariableDef(pos, tupleVariable);
+        }
     }
 
     private List<BType> getTupleTypeList(BType firstOperationInputType) {
