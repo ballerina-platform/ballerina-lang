@@ -116,10 +116,11 @@ export const visitor: Visitor = {
 
         // Size default worker
         defaultWorker.bBox.h = node.body!.viewState.bBox.h + (config.lifeLine.header.height * 2)
+            + config.statement.height  // leave room for start call.
             + config.statement.height; // for bottom plus
         defaultWorker.bBox.w = (node.body!.viewState.bBox.w) ? node.body!.viewState.bBox.w :
             config.lifeLine.width;
-        defaultWorker.lifeline.w = config.lifeLine.width;
+        defaultWorker.lifeline.bBox.w = config.lifeLine.width;
         // tslint:disable-next-line:prefer-conditional-expression
         if (node.body!.viewState.bBox.leftMargin) {
             defaultWorker.bBox.leftMargin = node.body!.viewState.bBox.leftMargin;
@@ -130,7 +131,7 @@ export const visitor: Visitor = {
         const lineHeight = (client.bBox.h > defaultWorker.bBox.h) ? client.bBox.h : defaultWorker.bBox.h;
         // Sync up the heights of lifelines
         client.bBox.h = defaultWorker.bBox.h = lineHeight;
-        defaultWorker.lifeline.h = defaultWorker.bBox.h; // Set the height of lifeline.
+        defaultWorker.lifeline.bBox.h = defaultWorker.bBox.h; // Set the height of lifeline.
 
         // Size endpoints
         let endpointWidth = 0;
