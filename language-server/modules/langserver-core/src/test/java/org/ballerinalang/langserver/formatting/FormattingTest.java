@@ -113,6 +113,7 @@ public class FormattingTest {
                 {"expectedAnnotation.bal", "annotation.bal"},
                 {"expectedArrowExpr.bal", "arrowExpr.bal"},
                 {"expectedAsyncExpr.bal", "asyncExpr.bal"},
+                {"expectedImportOrder.bal", "importOrder.bal"},
         };
     }
 

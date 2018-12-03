@@ -505,16 +505,6 @@ public class FormattingNodeTree {
     }
 
     /**
-     * format Bind node.
-     *
-     * @param node {JsonObject} node as json object
-     */
-    public void formatBindNode(JsonObject node) {
-        // TODO: fix formatting for bind.
-        this.skipFormatting(node, true);
-    }
-
-    /**
      * format Block node.
      *
      * @param node {JsonObject} node as json object
@@ -662,72 +652,6 @@ public class FormattingNodeTree {
     }
 
     /**
-     * format Catch node.
-     *
-     * @param node {JsonObject} node as json object
-     */
-    public void formatCatchNode(JsonObject node) {
-        if (node.has(FormattingConstants.WS) && node.has(FormattingConstants.FORMATTING_CONFIG)) {
-            JsonArray ws = node.getAsJsonArray(FormattingConstants.WS);
-            JsonObject formatConfig = node.getAsJsonObject(FormattingConstants.FORMATTING_CONFIG);
-
-            // Get the indentation for the node.
-            String indentWithParentIndentation = formatConfig.get(FormattingConstants.DO_INDENT).getAsBoolean()
-                    ? this.getWhiteSpaces(formatConfig.get(FormattingConstants.INDENTED_START_COLUMN).getAsInt()) +
-                    FormattingConstants.SPACE_TAB
-                    : this.getWhiteSpaces(formatConfig.get(FormattingConstants.INDENTED_START_COLUMN).getAsInt());
-
-            node.getAsJsonObject(FormattingConstants.POSITION).addProperty(FormattingConstants.START_COLUMN,
-                    this.getWhiteSpaceCount(indentWithParentIndentation));
-
-            this.preserveHeight(ws, indentWithParentIndentation);
-
-            for (JsonElement wsItem : ws) {
-                JsonObject catchWS = wsItem.getAsJsonObject();
-                if (this.noHeightAvailable(catchWS.get(FormattingConstants.WS).getAsString())) {
-                    String text = catchWS.get(FormattingConstants.TEXT).getAsString();
-
-                    // Update whitespace for catch keyword.
-                    if (text.equals("catch")) {
-                        catchWS.addProperty(FormattingConstants.WS,
-                                this.getWhiteSpaces(formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt()));
-                    }
-
-                    // Update the whitespace for opening parentheses.
-                    if (text.equals("(")) {
-                        catchWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
-                    }
-
-                    // Update the whitespace for closing parentheses.
-                    if (text.equals(")")) {
-                        catchWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
-                    }
-
-                    // Update the whitespace for opening brace.
-                    if (text.equals("{")) {
-                        catchWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
-                    }
-
-                    // Update the whitespace for closing brace.
-                    if (text.equals("}")) {
-                        if (node.has(FormattingConstants.BODY) &&
-                                node.getAsJsonObject(FormattingConstants.BODY).has(FormattingConstants.STATEMENTS) &&
-                                node.getAsJsonObject(FormattingConstants.BODY)
-                                        .getAsJsonArray(FormattingConstants.STATEMENTS).size() <= 0) {
-                            catchWS.addProperty(FormattingConstants.WS, FormattingConstants.NEW_LINE +
-                                    indentWithParentIndentation + FormattingConstants.NEW_LINE +
-                                    indentWithParentIndentation);
-                        } else {
-                            catchWS.addProperty(FormattingConstants.WS, FormattingConstants.NEW_LINE +
-                                    indentWithParentIndentation);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    /**
      * format Check Expr node.
      *
      * @param node {JsonObject} node as json object
@@ -756,57 +680,69 @@ public class FormattingNodeTree {
         // Update whitespaces for top level nodes.
         JsonArray topLevelNodes = node.get("topLevelNodes").getAsJsonArray();
 
-        // TODO: fix import sorting with WS reconcile implementation.
         // Handle import sorting according to the alphabetical order.
-//        int i, j;
-//        boolean swapped;
-//        for (i = 0; i < topLevelNodes.size() - 1; i++) {
-//            swapped = false;
-//            for (j = 0; j < topLevelNodes.size() - i - 1; j++) {
-//                if (topLevelNodes.get(j).getAsJsonObject()
-//                        .get("kind").getAsString().equals("Import")
-//                        && topLevelNodes.get(j + 1).getAsJsonObject()
-//                        .get("kind").getAsString().equals("Import")) {
-//                    String refImportName = topLevelNodes.get(j).getAsJsonObject()
-//                            .get("orgName").getAsJsonObject().get("value").getAsString() + "/"
-//                            + topLevelNodes.get(j).getAsJsonObject().get("packageName")
-//                            .getAsJsonArray().get(0).getAsJsonObject().get("value").getAsString();
-//
-//                    String compImportName = topLevelNodes.get(j + 1).getAsJsonObject()
-//                            .get("orgName").getAsJsonObject().get("value").getAsString() + "/"
-//                            + topLevelNodes.get(j + 1).getAsJsonObject().get("packageName")
-//                            .getAsJsonArray().get(0).getAsJsonObject().get("value").getAsString();
-//
-//                    int comparisonResult = refImportName.compareTo(compImportName);
-//                    // Swap if the comparison value is positive.
-//                    if (comparisonResult > 0) {
-//                        // Swap ws to keep the formatting in level.
-//                        String refWS = topLevelNodes.get(j).getAsJsonObject().get(FormattingConstants.WS)
-//                                .getAsJsonArray().get(0).getAsJsonObject().get(FormattingConstants.WS).getAsString();
-//
-//                        String compWS = topLevelNodes.get(j + 1).getAsJsonObject().get(FormattingConstants.WS)
-//                                .getAsJsonArray().get(0).getAsJsonObject().get(FormattingConstants.WS).getAsString();
-//
-//                        JsonElement tempNode = topLevelNodes.get(j);
-//
-//                        topLevelNodes.set(j, topLevelNodes.get(j + 1));
-//
-//                        tempNode.getAsJsonObject().get(FormattingConstants.WS).getAsJsonArray().get(0)
-//                                .getAsJsonObject().addProperty(FormattingConstants.WS, compWS);
-//
-//                        topLevelNodes.get(j).getAsJsonObject().get(FormattingConstants.WS).getAsJsonArray()
-//                                .get(0).getAsJsonObject().addProperty(FormattingConstants.WS, refWS);
-//                        topLevelNodes.set(j + 1, tempNode);
-//
-//                        swapped = true;
-//                    }
-//                }
-//            }
-//            // If not swapped, break.
-//            if (!swapped) {
-//                break;
-//            }
-//        }
+        int i, j;
+        boolean swapped;
+        for (i = 0; i < topLevelNodes.size() - 1; i++) {
+            swapped = false;
+            for (j = 0; j < topLevelNodes.size() - i - 1; j++) {
+                if (topLevelNodes.get(j).getAsJsonObject()
+                        .get("kind").getAsString().equals("Import")
+                        && topLevelNodes.get(j + 1).getAsJsonObject()
+                        .get("kind").getAsString().equals("Import")) {
+                    String refImportName = topLevelNodes.get(j).getAsJsonObject()
+                            .get("orgName").getAsJsonObject().get("value").getAsString() + "/"
+                            + topLevelNodes.get(j).getAsJsonObject().get("packageName")
+                            .getAsJsonArray().get(0).getAsJsonObject().get("value").getAsString();
+
+                    String compImportName = topLevelNodes.get(j + 1).getAsJsonObject()
+                            .get("orgName").getAsJsonObject().get("value").getAsString() + "/"
+                            + topLevelNodes.get(j + 1).getAsJsonObject().get("packageName")
+                            .getAsJsonArray().get(0).getAsJsonObject().get("value").getAsString();
+
+                    int comparisonResult = refImportName.compareTo(compImportName);
+                    // Swap if the comparison value is positive.
+                    if (comparisonResult > 0) {
+                        // Swap ws to keep the formatting in level.
+                        String refWS = topLevelNodes.get(j).getAsJsonObject().get(FormattingConstants.WS)
+                                .getAsJsonArray().get(0).getAsJsonObject().get(FormattingConstants.WS).getAsString();
+
+                        String compWS = topLevelNodes.get(j + 1).getAsJsonObject().get(FormattingConstants.WS)
+                                .getAsJsonArray().get(0).getAsJsonObject().get(FormattingConstants.WS).getAsString();
+
+                        JsonElement tempLowNode = topLevelNodes.get(j);
+                        JsonElement tempTopNode = topLevelNodes.get(j + 1);
+
+                        int topNodeStartPosition = tempLowNode.getAsJsonObject().getAsJsonArray("ws")
+                                .get(0).getAsJsonObject().get("i").getAsInt();
+
+                        FormattingSourceGen.reconcileWS(tempTopNode.getAsJsonObject(), topLevelNodes, node,
+                                topNodeStartPosition);
+                        topLevelNodes.set(j, tempTopNode);
+
+                        tempLowNode.getAsJsonObject().get(FormattingConstants.WS).getAsJsonArray().get(0)
+                                .getAsJsonObject().addProperty(FormattingConstants.WS, compWS);
+
+                        topLevelNodes.get(j).getAsJsonObject().get(FormattingConstants.WS).getAsJsonArray()
+                                .get(0).getAsJsonObject().addProperty(FormattingConstants.WS, refWS);
+
+                        int lowNodeStartPosition = topLevelNodes.size() >= (j + 2 + 1) ? topLevelNodes.get(j + 2)
+                                .getAsJsonObject().get(FormattingConstants.WS).getAsJsonArray()
+                                .get(0).getAsJsonObject().get("i").getAsInt() : -1;
+
+                        FormattingSourceGen.reconcileWS(tempLowNode.getAsJsonObject(), topLevelNodes, node,
+                                lowNodeStartPosition);
+                        topLevelNodes.set(j + 1, tempLowNode);
+
+                        swapped = true;
+                    }
+                }
+            }
+            // If not swapped, break.
+            if (!swapped) {
+                break;
+            }
+        }
 
         int movedFirstIndex = 0;
         for (int index = 0; index < topLevelNodes.size(); index++) {
@@ -974,15 +910,6 @@ public class FormattingNodeTree {
     public void formatMarkdownDocumentationNode(JsonObject node) {
         // TODO: fix formatting for documentation node.
         this.skipFormatting(node, true);
-    }
-
-    /**
-     * format Done node.
-     *
-     * @param node {JsonObject} node as json object
-     */
-    public void formatDoneNode(JsonObject node) {
-        modifyBranchingStatement(node);
     }
 
     /**
@@ -3250,98 +3177,6 @@ public class FormattingNodeTree {
             // Update whitespaces for onCommit function.
             if (node.has("onCommitFunction")) {
                 this.skipFormatting(node.getAsJsonObject("onCommitFunction"), true);
-            }
-        }
-    }
-
-    /**
-     * format Try node.
-     *
-     * @param node {JsonObject} node as json object
-     */
-    public void formatTryNode(JsonObject node) {
-        if (node.has(FormattingConstants.WS) && node.has(FormattingConstants.FORMATTING_CONFIG)) {
-            JsonArray ws = node.getAsJsonArray(FormattingConstants.WS);
-            JsonObject formatConfig = node.getAsJsonObject(FormattingConstants.FORMATTING_CONFIG);
-
-            String indentWithParentIndentation = formatConfig.get(FormattingConstants.DO_INDENT).getAsBoolean()
-                    ? this.getWhiteSpaces(formatConfig.get(FormattingConstants.INDENTED_START_COLUMN).getAsInt()) +
-                    FormattingConstants.SPACE_TAB
-                    : this.getWhiteSpaces(formatConfig.get(FormattingConstants.INDENTED_START_COLUMN).getAsInt());
-
-            node.getAsJsonObject(FormattingConstants.POSITION).addProperty(FormattingConstants.START_COLUMN,
-                    this.getWhiteSpaceCount(indentWithParentIndentation));
-
-            this.preserveHeight(ws, indentWithParentIndentation);
-
-            // Update whitespaces for try keyword.
-            JsonObject tryKeywordWS = ws.get(0).getAsJsonObject();
-            if (this.noHeightAvailable(tryKeywordWS.get(FormattingConstants.WS).getAsString())) {
-                tryKeywordWS.addProperty(FormattingConstants.WS,
-                        this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt()) +
-                                indentWithParentIndentation);
-            }
-
-            // Update try block opening brace whitespace.
-            JsonObject tryBlockOpeningBraceWS = ws.get(1).getAsJsonObject();
-            if (this.noHeightAvailable(tryBlockOpeningBraceWS.get(FormattingConstants.WS).getAsString())) {
-                tryBlockOpeningBraceWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
-            }
-
-            // Update try block closing brace whitespace.
-            JsonObject tryBlockClosingBraceWS = ws.get(2).getAsJsonObject();
-            if (this.noHeightAvailable(tryBlockClosingBraceWS.get(FormattingConstants.WS).getAsString())) {
-                if (node.has(FormattingConstants.BODY) &&
-                        node.getAsJsonObject(FormattingConstants.BODY).has(FormattingConstants.STATEMENTS) &&
-                        node.getAsJsonObject(FormattingConstants.BODY).getAsJsonArray(FormattingConstants.STATEMENTS)
-                                .size() <= 0) {
-                    tryBlockClosingBraceWS.addProperty(FormattingConstants.WS, FormattingConstants.NEW_LINE +
-                            indentWithParentIndentation + FormattingConstants.NEW_LINE + indentWithParentIndentation);
-                } else {
-                    tryBlockClosingBraceWS.addProperty(FormattingConstants.WS, FormattingConstants.NEW_LINE +
-                            indentWithParentIndentation);
-                }
-            }
-
-            // Update whitespace for finally body.
-            if (node.has("finallyBody")) {
-                // Update finally keyword whitespace.
-                JsonObject finallyKeywordWS = ws.get(ws.size() - 3).getAsJsonObject();
-                if (this.noHeightAvailable(finallyKeywordWS.get(FormattingConstants.WS).getAsString())) {
-                    finallyKeywordWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
-                }
-
-                // Update whitespaces for opening brace of finally block.
-                JsonObject finallyBlockOpeningBraceWS = ws.get(ws.size() - 2).getAsJsonObject();
-                if (this.noHeightAvailable(finallyBlockOpeningBraceWS.get(FormattingConstants.WS).getAsString())) {
-                    finallyBlockOpeningBraceWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
-                }
-
-                // Update whitespaces for closing brace of finally block.
-                JsonObject finallyBlockClosingBraceWS = ws.get(ws.size() - 1).getAsJsonObject();
-                if (this.noHeightAvailable(finallyBlockClosingBraceWS.get(FormattingConstants.WS).getAsString())) {
-                    JsonObject finallyBody = node.getAsJsonObject("finallyBody");
-                    if (finallyBody.has(FormattingConstants.BODY) &&
-                            finallyBody.getAsJsonObject(FormattingConstants.BODY).has(FormattingConstants.STATEMENTS) &&
-                            finallyBody.getAsJsonObject(FormattingConstants.BODY)
-                                    .getAsJsonArray(FormattingConstants.STATEMENTS).size() <= 0) {
-                        finallyBlockClosingBraceWS.addProperty(FormattingConstants.WS, FormattingConstants.NEW_LINE +
-                                indentWithParentIndentation + FormattingConstants.NEW_LINE +
-                                indentWithParentIndentation);
-                    } else {
-                        finallyBlockClosingBraceWS.addProperty(FormattingConstants.WS, FormattingConstants.NEW_LINE +
-                                indentWithParentIndentation);
-                    }
-                }
-            }
-
-            // Handle whitespace of catch blocks.
-            if (node.has("catchBlocks")) {
-                for (JsonElement catchBlock : node.getAsJsonArray("catchBlocks")) {
-                    catchBlock.getAsJsonObject().add(FormattingConstants.FORMATTING_CONFIG,
-                            this.getFormattingConfig(0, 1, 0, false,
-                                    this.getWhiteSpaceCount(indentWithParentIndentation)));
-                }
             }
         }
     }
