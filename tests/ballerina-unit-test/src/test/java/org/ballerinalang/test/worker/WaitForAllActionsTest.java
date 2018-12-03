@@ -290,6 +290,108 @@ public class WaitForAllActionsTest {
         Assert.assertTrue(mapsAreEqual(expectedMap, resultMap));
     }
 
+    @Test
+    public void waitTest21() {
+        BValue[] returns = BRunUtil.invoke(result, "waitTest21");
+
+        Map<String, String> expectedMap = new HashMap<>();
+        expectedMap.put("id", "7");
+        expectedMap.put("name", "hello foo");
+
+        Assert.assertEquals(returns.length, 1);
+        Map<String, String> resultMap = new HashMap<>();
+        ((BMap) returns[0]).getMap().forEach((o, o2) -> resultMap.put(o.toString(), o2.toString()));
+        Assert.assertTrue(mapsAreEqual(expectedMap, resultMap));
+    }
+
+    @Test
+    public void waitTest22() {
+        BValue[] returns = BRunUtil.invoke(result, "waitTest22");
+
+        Map<String, String> expectedMap = new HashMap<>();
+        expectedMap.put("id", "7");
+        expectedMap.put("name", "hello foo");
+        expectedMap.put("status", "hello bar");
+
+        Assert.assertEquals(returns.length, 1);
+        Map<String, String> resultMap = new HashMap<>();
+        ((BMap) returns[0]).getMap().forEach((o, o2) -> resultMap.put(o.toString(), o2.toString()));
+        Assert.assertTrue(mapsAreEqual(expectedMap, resultMap));
+    }
+
+    @Test
+    public void waitTest23() {
+        BValue[] returns = BRunUtil.invoke(result, "waitTest23");
+
+        Map<String, String> expectedMap = new HashMap<>();
+        expectedMap.put("id", "7");
+        expectedMap.put("name", "hello foo");
+        expectedMap.put("status", "20");
+
+        Assert.assertEquals(returns.length, 1);
+        Map<String, String> resultMap = new HashMap<>();
+        ((BMap) returns[0]).getMap().forEach((o, o2) -> resultMap.put(o.toString(), o2.toString()));
+        Assert.assertTrue(mapsAreEqual(expectedMap, resultMap));
+    }
+
+    @Test
+    public void waitTest24() {
+        BValue[] returns = BRunUtil.invoke(result, "waitTest24");
+
+        Map<String, String> expectedMap = new HashMap<>();
+        expectedMap.put("id", "12");
+        expectedMap.put("name", "hello foo");
+        expectedMap.put("status", "hello bar");
+
+        Assert.assertEquals(returns.length, 1);
+        Map<String, String> resultMap = new HashMap<>();
+        ((BMap) returns[0]).getMap().forEach((o, o2) -> resultMap.put(o.toString(), o2.toString()));
+        Assert.assertTrue(mapsAreEqual(expectedMap, resultMap));
+    }
+
+    @Test
+    public void waitTest25() {
+        BValue[] returns = BRunUtil.invoke(result, "waitTest25");
+
+        Map<String, String> expectedMap = new HashMap<>();
+        expectedMap.put("id", "7");
+        expectedMap.put("name", "hello foo");
+
+        Assert.assertEquals(returns.length, 1);
+        Map<String, String> resultMap = new HashMap<>();
+        ((BMap) returns[0]).getMap().forEach((o, o2) -> resultMap.put(o.toString(), o2.toString()));
+        Assert.assertTrue(mapsAreEqual(expectedMap, resultMap));
+    }
+
+    @Test
+    public void waitTest26() {
+        BValue[] returns = BRunUtil.invoke(result, "waitTest26");
+
+        Map<String, String> expectedMap = new HashMap<>();
+        expectedMap.put("id", "30");
+        expectedMap.put("name", "hello world");
+        expectedMap.put("status", "hello moo");
+
+        Assert.assertEquals(returns.length, 1);
+        Map<String, String> resultMap = new HashMap<>();
+        ((BMap) returns[0]).getMap().forEach((o, o2) -> resultMap.put(o.toString(), o2.toString()));
+        Assert.assertTrue(mapsAreEqual(expectedMap, resultMap));
+    }
+
+    @Test
+    public void waitTest27() {
+        BValue[] returns = BRunUtil.invoke(result, "waitTest27");
+
+        Map<String, String> expectedMap = new HashMap<>();
+        expectedMap.put("id", "200");
+        expectedMap.put("name", "hello mello");
+        expectedMap.put("greet", "hello sunshine");
+
+        Assert.assertEquals(returns.length, 1);
+        Map<String, String> resultMap = new HashMap<>();
+        ((BMap) returns[0]).getMap().forEach((o, o2) -> resultMap.put(o.toString(), o2.toString()));
+        Assert.assertTrue(mapsAreEqual(expectedMap, resultMap));
+    }
     /**
      * Util method to compare 2 maps.
      *

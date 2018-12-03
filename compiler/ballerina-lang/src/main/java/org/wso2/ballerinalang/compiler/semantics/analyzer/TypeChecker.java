@@ -1108,8 +1108,9 @@ public class TypeChecker extends BLangNodeVisitor {
         Map<String, BType> lhsFields = new HashMap<>();
         ((BRecordType) expType).getFields().forEach(field -> lhsFields.put(field.name.value, field.type));
 
-        // fields in wait collection is more than the fields expected by the lhs record
-        if (rhsFields.size() > lhsFields.size()) {
+        // check if the record is sealed, if so check if the fields in wait collection is more than the fields expected
+        // by the lhs record
+        if (((BRecordType) expType).sealed && rhsFields.size() > lhsFields.size()) {
             dlog.error(waitExpr.pos, DiagnosticCode.INVALID_LITERAL_FOR_TYPE, expType);
             resultType = symTable.semanticError;
             return;
@@ -1118,8 +1119,15 @@ public class TypeChecker extends BLangNodeVisitor {
         for (BLangWaitForAllExpr.BLangWaitKeyValue keyVal : rhsFields) {
             String key = keyVal.key.value;
             if (!lhsFields.containsKey(key)) {
-                dlog.error(waitExpr.pos, DiagnosticCode.INVALID_FIELD_NAME_RECORD_LITERAL, key, expType);
-                resultType = symTable.semanticError;
+                // Check if the field is sealed if so you cannot have dynamic fields
+                if (((BRecordType) expType).sealed) {
+                    dlog.error(waitExpr.pos, DiagnosticCode.INVALID_FIELD_NAME_RECORD_LITERAL, key, expType);
+                    resultType = symTable.semanticError;
+                } else {
+                    // Else if the record is an open record, then check if the rest field type matches the expression
+                    BType restFieldType = ((BRecordType) expType).restFieldType;
+                    checkWaitKeyValExpr(keyVal, restFieldType);
+                }
             } else {
                 checkWaitKeyValExpr(keyVal, lhsFields.get(key));
             }
@@ -1147,18 +1155,18 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private void checkWaitKeyValExpr(BLangWaitForAllExpr.BLangWaitKeyValue keyVal, BType type) {
-        BLangExpression exp;
+        BLangExpression expr;
         if (keyVal.keyExpr != null) {
             BSymbol symbol = symResolver.lookupSymbol(env, names.fromIdNode(keyVal.keyExpr.variableName),
                                                       SymTag.VARIABLE);
             keyVal.keyExpr.symbol = symbol;
             keyVal.keyExpr.type = symbol.type;
-            exp = keyVal.keyExpr;
+            expr = keyVal.keyExpr;
         } else {
-            exp = keyVal.valueExpr;
+            expr = keyVal.valueExpr;
         }
         BFutureType futureType = new BFutureType(TypeTags.FUTURE, type, null);
-        checkExpr(exp, env, futureType);
+        checkExpr(expr, env, futureType);
     }
 
     public void visit(BLangTernaryExpr ternaryExpr) {
