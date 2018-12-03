@@ -977,11 +977,6 @@ public class SymbolResolver extends BLangNodeVisitor {
                 resultType = symTable.semanticError;
                 return;
             }
-            if (constraintType.tag == TypeTags.RECORD && !((BRecordType) constraintType).sealed) {
-                dlog.error(constrainedTypeNode.pos, DiagnosticCode.OPEN_RECORD_CONSTRAINT_NOT_ALLOWED, type);
-                resultType = symTable.semanticError;
-                return;
-            }
             resultType = new BJSONType(TypeTags.JSON, constraintType, type.tsymbol);
         }
     }

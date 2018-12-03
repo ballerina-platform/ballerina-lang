@@ -32,9 +32,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Test cases for constraining json types with sealed records.
+ * Test cases for constraining json types with closed records.
  */
-public class ConstrainedJSONTest {
+public class ClosedRecordConstrainedJSONTest {
 
     private CompileResult compileResult;
     private CompileResult negativeResult;
