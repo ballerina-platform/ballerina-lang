@@ -197,6 +197,11 @@
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-cache</artifactId>
                 <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-cache</artifactId>
+                <version>${ballerina.version}</version>
                 <type>zip</type>
                 <classifier>ballerina-sources</classifier>
             </dependency>
@@ -787,6 +792,11 @@
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-privacy</artifactId>
                 <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-privacy</artifactId>
+                <version>${ballerina.version}</version>
                 <type>zip</type>
                 <classifier>ballerina-sources</classifier>
             </dependency>
@@ -804,6 +814,7 @@
                 <artifactId>ballerina-config</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-core</artifactId>
@@ -1711,6 +1722,7 @@
                 <module>tests/ballerina-integration-test</module>
                 <module>tests/ballerina-tools-integration-test</module>
                 <module>tests/ballerina-compiler-plugin-test</module>
+                <!--<module>tests/ballerina-examples-test</module>-->
                 <module>tool-plugins/intellij</module>
                 <module>tool-plugins/vscode</module>
                 <module>tool-plugins/theia</module>
@@ -1876,7 +1888,7 @@
                 <module>tests/ballerina-integration-test-utils</module>
                 <module>tests/ballerina-integration-test</module>
                 <module>tests/ballerina-tools-integration-test</module>
-
+                <!--<module>tests/ballerina-examples-test</module>-->
                 <!-- Intellij build disabled in default build -->
                 <!--<module>tool-plugins/intellij</module>-->
                 <module>tool-plugins/vscode</module>
