@@ -102,7 +102,8 @@ public class ConfigTestCase extends BaseTest {
     @Test(description = "Execute tests in a ballerina module with a non-existing config file")
     public void testModuleWithInvalidConfig() throws Exception {
         String[] clientArgs = {"--config", "invalid.conf"};
-        LogLeecher clientLeecher = new LogLeecher("configuration file not found: invalid.conf");
+        LogLeecher clientLeecher = new LogLeecher("configuration file not found: invalid.conf",
+                                                  LogLeecher.LeecherType.ERROR);
         balClient.runMain("test", clientArgs, envVariables, new String[0], new LogLeecher[]{clientLeecher},
                           tempProjectDirectory.toString());
         clientLeecher.waitForText(2000);
