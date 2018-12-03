@@ -62,7 +62,7 @@ public type LengthWindow object {
 
     public function process(StreamEvent[] streamEvents) {
         StreamEvent[] outputEvents = [];
-        foreach event in streamEvents {
+        foreach var event in streamEvents {
             if (self.linkedList.getSize() == self.size) {
 
                 any? anyValue = self.linkedList.removeFirst();
@@ -90,7 +90,7 @@ public type LengthWindow object {
                         returns (StreamEvent?, StreamEvent?)[] {
         (StreamEvent?, StreamEvent?)[] events = [];
         int i = 0;
-        foreach e in self.linkedList.asArray() {
+        foreach var e in self.linkedList.asArray() {
             if (e is StreamEvent) {
                 StreamEvent lshEvent = (isLHSTrigger) ? originEvent : e;
                 StreamEvent rhsEvent = (isLHSTrigger) ? e : originEvent;
@@ -153,7 +153,7 @@ public type TimeWindow object {
     public function process(StreamEvent[] streamEvents) {
         LinkedList streamEventChunk = new;
         lock {
-            foreach event in streamEvents {
+            foreach var event in streamEvents {
                 streamEventChunk.addLast(event);
             }
 
@@ -234,7 +234,7 @@ public type TimeWindow object {
                         returns (StreamEvent?, StreamEvent?)[] {
         (StreamEvent?, StreamEvent?)[] events = [];
         int i = 0;
-        foreach e in self.expiredEventQueue.asArray() {
+        foreach var e in self.expiredEventQueue.asArray() {
             if (e is StreamEvent) {
                 StreamEvent lshEvent = (isLHSTrigger) ? originEvent : e;
                 StreamEvent rhsEvent = (isLHSTrigger) ? e : originEvent;
@@ -301,7 +301,7 @@ public type LengthBatchWindow object {
         LinkedList outputStreamEventChunk = new();
         int currentTime = time:currentTime().time;
 
-        foreach event in streamEvents {
+        foreach var event in streamEvents {
             StreamEvent clonedStreamEvent = event.copy();
             self.currentEventQueue.addLast(clonedStreamEvent);
             self.count += 1;
@@ -325,7 +325,7 @@ public type LengthBatchWindow object {
                     //}
                     StreamEvent firstInCurrentEventQueue = getStreamEvent(self.currentEventQueue.getFirst());
                     self.resetEvent = createResetStreamEvent(firstInCurrentEventQueue);
-                    foreach currentEvent in self.currentEventQueue.asArray() {
+                    foreach var currentEvent in self.currentEventQueue.asArray() {
                         outputStreamEventChunk.addLast(currentEvent);
                     }
                 }
@@ -366,7 +366,7 @@ public type LengthBatchWindow object {
                         returns (StreamEvent?, StreamEvent?)[] {
         (StreamEvent?, StreamEvent?)[] events = [];
         int i = 0;
-        foreach e in self.currentEventQueue.asArray() {
+        foreach var e in self.currentEventQueue.asArray() {
             if (e is StreamEvent) {
                 StreamEvent lshEvent = (isLHSTrigger) ? originEvent : e;
                 StreamEvent rhsEvent = (isLHSTrigger) ? e : originEvent;
@@ -465,7 +465,7 @@ public type TimeBatchWindow object {
             sendEvents = false;
         }
 
-        foreach event in streamEvents {
+        foreach var event in streamEvents {
             if (event.eventType != "CURRENT") {
                 continue;
             }
@@ -509,7 +509,7 @@ public type TimeBatchWindow object {
                         returns (StreamEvent?, StreamEvent?)[] {
         (StreamEvent?, StreamEvent?)[] events = [];
         int i = 0;
-        foreach e in self.currentEventQueue.asArray() {
+        foreach var e in self.currentEventQueue.asArray() {
             if (e is StreamEvent) {
                 StreamEvent lshEvent = (isLHSTrigger) ? originEvent : e;
                 StreamEvent rhsEvent = (isLHSTrigger) ? e : originEvent;
@@ -583,7 +583,7 @@ public type ExternalTimeWindow object {
     public function process(StreamEvent[] streamEvents) {
         LinkedList streamEventChunk = new;
         lock {
-            foreach event in streamEvents {
+            foreach var event in streamEvents {
                 streamEventChunk.addLast(event);
             }
 
@@ -638,7 +638,7 @@ public type ExternalTimeWindow object {
                         returns (StreamEvent?, StreamEvent?)[] {
         (StreamEvent?, StreamEvent?)[] events = [];
         int i = 0;
-        foreach e in self.expiredEventQueue.asArray() {
+        foreach var e in self.expiredEventQueue.asArray() {
             if (e is StreamEvent) {
                 StreamEvent lshEvent = (isLHSTrigger) ? originEvent : e;
                 StreamEvent rhsEvent = (isLHSTrigger) ? e : originEvent;
@@ -791,7 +791,7 @@ public type ExternalTimeBatchWindow object {
 
     public function process(StreamEvent[] streamEvents) {
         LinkedList streamEventChunk = new;
-        foreach event in streamEvents {
+        foreach var event in streamEvents {
             streamEventChunk.addLast(event);
         }
 
@@ -874,7 +874,7 @@ public type ExternalTimeBatchWindow object {
                     } else {
                         return;
                     }
-                    foreach event in streamEvent{
+                    foreach var event in streamEvent{
                     }
                     nextProcessFuncPointer.call(streamEvent);
                 }
@@ -889,7 +889,7 @@ public type ExternalTimeBatchWindow object {
                         returns (StreamEvent?, StreamEvent?)[] {
         (StreamEvent?, StreamEvent?)[] events = [];
         int i = 0;
-        foreach e in self.currentEventChunk.asArray() {
+        foreach var e in self.currentEventChunk.asArray() {
             if (e is StreamEvent) {
                 StreamEvent lshEvent = (isLHSTrigger) ? originEvent : e;
                 StreamEvent rhsEvent = (isLHSTrigger) ? e : originEvent;
@@ -1129,7 +1129,7 @@ public type TimeLengthWindow object {
 
     public function process(StreamEvent[] streamEvents) {
         LinkedList streamEventChunk = new;
-        foreach event in streamEvents {
+        foreach var event in streamEvents {
             streamEventChunk.addLast(event);
         }
 
@@ -1212,7 +1212,7 @@ public type TimeLengthWindow object {
                         returns (StreamEvent?, StreamEvent?)[] {
         (StreamEvent?, StreamEvent?)[] events = [];
         int i = 0;
-        foreach e in self.expiredEventChunk.asArray() {
+        foreach var e in self.expiredEventChunk.asArray() {
             if(e is StreamEvent) {
                 StreamEvent lshEvent = (isLHSTrigger) ? originEvent : e;
                 StreamEvent rhsEvent = (isLHSTrigger) ? e : originEvent;
@@ -1292,7 +1292,7 @@ public type UniqueLengthWindow object {
 
     public function process(StreamEvent[] streamEvents) {
         LinkedList streamEventChunk = new;
-        foreach event in streamEvents {
+        foreach var event in streamEvents {
             streamEventChunk.addLast(event);
         }
 
@@ -1372,7 +1372,7 @@ public type UniqueLengthWindow object {
                         returns (StreamEvent?, StreamEvent?)[] {
         (StreamEvent?, StreamEvent?)[] events = [];
         int i = 0;
-        foreach e in self.expiredEventChunk.asArray() {
+        foreach var e in self.expiredEventChunk.asArray() {
             if(e is StreamEvent) {
                 StreamEvent lshEvent = (isLHSTrigger) ? originEvent : e;
                 StreamEvent rhsEvent = (isLHSTrigger) ? e : originEvent;
@@ -1435,7 +1435,7 @@ public type DelayWindow object {
 
     public function process(StreamEvent[] streamEvents) {
         LinkedList streamEventChunk = new;
-        foreach event in streamEvents {
+        foreach var event in streamEvents {
             streamEventChunk.addLast(event);
         }
 
@@ -1516,7 +1516,7 @@ public type DelayWindow object {
                         returns (StreamEvent?, StreamEvent?)[] {
         (StreamEvent?, StreamEvent?)[] events = [];
         int i = 0;
-        foreach e in self.delayedEventQueue.asArray() {
+        foreach var e in self.delayedEventQueue.asArray() {
             if(e is StreamEvent) {
                 StreamEvent lshEvent = (isLHSTrigger) ? originEvent : e;
                 StreamEvent rhsEvent = (isLHSTrigger) ? e : originEvent;

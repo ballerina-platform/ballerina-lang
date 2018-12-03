@@ -44,7 +44,7 @@ function scheduleTimer(int delay, int interval) returns boolean {
 
 function cleanupTransactions() returns error? {
     worker w1 {
-        foreach _, twopcTxn in participatedTransactions {
+        foreach var (key, twopcTxn) in participatedTransactions {
             string participatedTxnId = getParticipatedTransactionId(twopcTxn.transactionId,
                 twopcTxn.transactionBlockId);
             if (time:currentTime().time - twopcTxn.createdTime >= 120000) {
@@ -80,7 +80,7 @@ function cleanupTransactions() returns error? {
         }
     }
     worker w2 returns () {
-        foreach _, twopcTxn in initiatedTransactions {
+        foreach var (key, twopcTxn) in initiatedTransactions {
             if (time:currentTime().time - twopcTxn.createdTime >= 120000) {
                 if (twopcTxn.state != TXN_STATE_ABORTED) {
                     // Commit the transaction since prepare hasn't been received
@@ -112,7 +112,7 @@ function isRegisteredParticipant(string participantId, map<Participant> particip
 }
 
 function isValidCoordinationType(string coordinationType) returns boolean {
-    foreach coordType in coordinationTypes {
+    foreach var coordType in coordinationTypes {
         if (coordinationType == coordType) {
             return true;
         }
@@ -131,8 +131,8 @@ function protoName(UProtocol p) returns string {
 function protocolCompatible(string coordinationType, UProtocol[] participantProtocols) returns boolean {
     boolean participantProtocolIsValid = false;
     string[] validProtocols = coordinationTypeToProtocolsMap[coordinationType] ?: [];
-    foreach participantProtocol in participantProtocols {
-        foreach validProtocol in validProtocols {
+    foreach var participantProtocol in participantProtocols {
+        foreach var validProtocol in validProtocols {
             if (protoName(participantProtocol) == validProtocol) {
                 participantProtocolIsValid = true;
                 break;

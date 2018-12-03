@@ -652,8 +652,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         // Propagate the tainted status of collection to foreach variables.
         foreach.collection.accept(this);
         if (taintedStatus == TaintedStatus.TAINTED) {
-            foreach.varRefs
-                    .forEach(varRef -> setTaintedStatus((BLangVariableReference) varRef, this.taintedStatus));
+            setTaintedStatus((BLangVariable) foreach.variableDefinitionNode.getVariable(), this.taintedStatus);
         }
         analyzeNode(foreach.body, blockEnv);
     }

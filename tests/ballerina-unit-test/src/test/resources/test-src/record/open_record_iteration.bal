@@ -54,7 +54,7 @@ function testForeachWithOpenRecords() returns (string[], any[]) {
     any[] values = [];
 
     int i = 0;
-    foreach f, v in p {
+    foreach var (f, v) in p {
         fields[i] = f;
         values[i] = v;
         i += 1;
@@ -69,7 +69,7 @@ function testForeachWithOpenRecords2() returns (string[], any[]) {
     any[] values = [];
 
     int i = 0;
-    foreach f, v in p {
+    foreach var (f, v) in p {
         fields[i] = f;
         values[i] = v;
         i += 1;
@@ -83,8 +83,8 @@ function testForeachWithOpenRecords3() returns any[] {
     any[] values = [];
 
     int i = 0;
-    foreach v in p {
-        values[i] = v;
+    foreach var v in p {
+        values[i] = v[1];
         i += 1;
     }
 
@@ -167,7 +167,7 @@ function testMapWithAllStringOpenRecord() returns (map<string>, string[]) {
         return (k, v.toLower());
     });
 
-    string[] modFooAr = f.map(function (string val) returns string { return val.toLower(); });
+    string[] modFooAr = f.map(function ((string, string) value) returns string { return value[1].toLower(); });
 
     return (modFooMap, modFooAr);
 }
@@ -180,7 +180,7 @@ function testMapWithAllIntOpenRecord(int m, int p, int c, int e) returns (map<in
         return (subj, grade + 10);
     });
 
-    int[] adjGradesAr = grades.map(function (int grade) returns int { return grade + 10; });
+    int[] adjGradesAr = grades.map(function ((string, int) value) returns int { return value[1] + 10; });
 
     return (adjGrades, adjGradesAr);
 }
@@ -193,7 +193,7 @@ function testMapWithAllFloatOpenRecord(float a, float b, float c) returns (map<f
         return (k, val + 10);
     });
 
-    float[] modBarAr = bar.map(function (float val) returns float { return val + 10; });
+    float[] modBarAr = bar.map(function ((string, float) val) returns float { return val[1] + 10; });
 
     return (modBar, modBarAr);
 }
@@ -209,12 +209,12 @@ function testFilterWithAllStringOpenRecord() returns (map<string>, string[]) {
         return false;
     });
 
-    string[] modFooAr = f.filter(function (string val) returns boolean {
-         if (val == "AA" || val == "EE" || val == "FF") {
+    string[] modFooAr = f.filter(function ((string, string) val) returns boolean {
+         if (val[1] == "AA" || val[1] == "EE" || val[1] == "FF") {
              return true;
          }
          return false;
-    });
+    }).map(v => v[1]);
 
     return (modFooMap, modFooAr);
 }
@@ -230,12 +230,12 @@ function testFilterWithAllIntOpenRecord() returns (map<int>, int[]) {
         return false;
     });
 
-    int[] adjGradesAr = grades.filter(function (int grade) returns boolean {
-        if (grade > 70) {
+    int[] adjGradesAr = grades.filter(function ((string, int) grade) returns boolean {
+        if (grade[1] > 70) {
             return true;
         }
         return false;
-    });
+    }).map(v => v[1]);
 
     return (adjGrades, adjGradesAr);
 }
@@ -251,12 +251,12 @@ function testFilterWithAllFloatOpenRecord(float a, float b, float c) returns (ma
         return false;
     });
 
-    float[] modBarAr = bar.filter(function (float val) returns boolean {
-        if (val > 6) {
+    float[] modBarAr = bar.filter(function ((string, float) val) returns boolean {
+        if (val[1] > 6) {
             return true;
         }
         return false;
-    });
+    }).map(v => v[1]);
 
     return (modBar, modBarAr);
 }

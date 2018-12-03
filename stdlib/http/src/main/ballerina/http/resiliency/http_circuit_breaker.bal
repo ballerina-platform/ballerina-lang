@@ -590,7 +590,7 @@ function getCurrentFailureRatio(CircuitHealth circuitHealth) returns float {
     int totalCount = 0;
     int totalFailures = 0;
 
-    foreach bucket in circuitHealth.totalBuckets {
+    foreach var bucket in circuitHealth.totalBuckets {
         totalCount =  totalCount + bucket.failureCount + (bucket.totalCount - (bucket.failureCount + bucket.rejectedCount));
         totalFailures = totalFailures + bucket.failureCount;
     }
@@ -608,7 +608,7 @@ function getCurrentFailureRatio(CircuitHealth circuitHealth) returns float {
 function getTotalRequestsCount(CircuitHealth circuitHealth) returns int {
     int totalCount = 0;
 
-    foreach bucket in circuitHealth.totalBuckets {
+    foreach var bucket in circuitHealth.totalBuckets {
         totalCount  =  totalCount + bucket.totalCount;
     }
     return totalCount;

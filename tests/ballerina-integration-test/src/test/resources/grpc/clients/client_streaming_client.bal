@@ -33,7 +33,7 @@ function testClientStreaming(string[] args) returns (string) {
     }
     io:println("Initialized connection sucessfully.");
 
-    foreach greet in args {
+    foreach var greet in args {
         error? err = ep->send(greet);
         if (err is error) {
             io:println("Error from Connector: " + err.reason() + " - " + <string>err.detail().message);

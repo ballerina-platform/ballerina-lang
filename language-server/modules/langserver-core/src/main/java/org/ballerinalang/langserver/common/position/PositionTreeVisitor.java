@@ -598,9 +598,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             acceptNode(foreach.collection);
         }
 
-        if (foreach.varRefs != null) {
-            foreach.varRefs.forEach(this::acceptNode);
-        }
+        acceptNode((BLangNode) foreach.variableDefinitionNode);
 
         if (foreach.body != null) {
             acceptNode(foreach.body);

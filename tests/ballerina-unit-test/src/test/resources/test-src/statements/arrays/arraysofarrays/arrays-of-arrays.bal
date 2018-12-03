@@ -101,9 +101,9 @@ function testStringArrayIterator() returns string {
 
     string str = "";
 
-    foreach s1 in sss {
-        foreach s2 in ss {
-            foreach s3 in s2 {
+    foreach var s1 in sss {
+        foreach var s2 in ss {
+            foreach var s3 in s2 {
                 str = str + s3;
             }
         }
@@ -122,9 +122,9 @@ function testIntArrayIterator() returns int {
 
     int a = 3;
 
-    foreach s1 in sss {
-        foreach s2 in ss {
-            foreach s3 in s2 {
+    foreach var s1 in sss {
+        foreach var s2 in ss {
+            foreach var s3 in s2 {
                 a = a + s3;
             }
         }
@@ -143,9 +143,9 @@ function testFloatArrayIterator() returns float {
 
     float f = 3.1;
 
-    foreach s1 in sss {
-        foreach s2 in ss {
-            foreach s3 in s2 {
+    foreach var s1 in sss {
+        foreach var s2 in ss {
+            foreach var s3 in s2 {
                 f = f + s3;
             }
         }
@@ -165,9 +165,9 @@ function testByteArrayIterator() returns byte[] {
     sss[5] = ss;
 
     byte[] a;
-    foreach s1 in sss {
-        foreach s2 in ss {
-            foreach s3 in s2 {
+    foreach var s1 in sss {
+        foreach var s2 in ss {
+            foreach var s3 in s2 {
                 a = s3;
             }
         }
@@ -185,9 +185,9 @@ function testRefArrayIterator() returns A {
     sss[5] = ss;
 
     A a;
-    foreach s1 in sss {
-        foreach s2 in ss {
-            foreach s3 in s2 {
+    foreach var s1 in sss {
+        foreach var s2 in ss {
+            foreach var s3 in s2 {
                 a = s3;
             }
         }
