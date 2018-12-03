@@ -387,7 +387,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         BType orderingFuncArrayType;
         List<BField> fields = orderByType.fields;
         //get the ordering functions array type
-        //e.g. (function (map)returns any)[] ...
+        //e.g. (function (map<anydata>)returns any)[] ...
         orderingFuncArrayType = fields.stream().filter(field -> field.name.value.equals(ORDER_BY_FIELD_ATTR))
                 .findFirst().map(field -> field.type).orElse(null);
         return orderingFuncArrayType;
@@ -449,7 +449,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     // eg: Below query,
     //
     //        => (TeacherOutput[] outputEvents) {
-    //            foreach e in outputEvents {
+    //            foreach var e in outputEvents {
     //                outputStream.publish(e);
     //            }
     //        }
@@ -457,8 +457,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     // convert into below constructs.
     //
     //       function (map[]) outputFunc = function (map[] events) {
-    //          foreach m in events {
-    //              TeacherOutput t = check <TeacherOutput>m;
+    //          foreach var m in events {
+    //              TeacherOutput t = <TeacherOutput>TeacherOutput.create(m);
     //              outputStream.publish(t);
     //          }
     //      };
@@ -783,7 +783,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 this.createAggregatorTypeVariable(getVariableName(SELECT_WITH_GROUP_BY_LAMBDA_PARAM_REFERENCE),
                         selectClause.pos, env);
 
-        /* (streams:StreamEvent e, streams:Aggregator[] aggregatorArr)  => any {
+        /* (streams:StreamEvent e, streams:Aggregator[] aggregatorArr)  => map<any> {
 
             });
         */
@@ -805,8 +805,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         /* TeacherOutput teacherOutput = {
                         name: e.data["inputStream.name"],
                         age: e.data["inputStream.age"],
-                        sumAge: check <int> aggregatorArr1[0].process(e.data["inputStream.age"], e.eventType),
-                        count: check <int> aggregatorArr1[1].process((), e.eventType),
+                        sumAge: aggregatorArr1[0].process(e.data["inputStream.age"], e.eventType),
+                        count: aggregatorArr1[1].process((), e.eventType),
                         ...
                         ...
                     };
@@ -1065,8 +1065,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
        function (streams:StreamEvent s) returns map<anydata>[] {
            map<anydata>[] result = [];
            table<Stock> stocks = queryStocksTable(<string> s.data["twitterStream.company"], 1);
-           foreach i, r in stocks {
-               result[i] = map<anydata>map<anydata>.create(r);
+           foreach var r in stocks {
+               result[result.length()] = map<anydata>map<anydata>.create(r);
            }
            return result;
        }
@@ -1537,8 +1537,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     //
     // converts into below constructs.
     //
-    //          streams:Filter filter = streams:createFilter(select.process, (any o) => boolean {
-    //              Teacher teacher = check <Teacher> o;
+    //          streams:Filter filter = streams:createFilter(select.process, (map<anydata> o) => boolean {
+    //              Teacher teacher = <Teacher> Teacher.create(o);
     //              return teacher.age > 25;
     //          });
     //
@@ -1556,8 +1556,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     //
     // converts into below constructs.
     //
-    //          streams:Filter filter = streams:createFilter(outputProcess.process, (any o) => boolean {
-    //              Teacher teacher = check <Teacher> o;
+    //          streams:Filter filter = streams:createFilter(outputProcess.process, (map<anydata> o) => boolean {
+    //              Teacher teacher = <Teacher>Teacher.create(o);
     //              return teacher.age > 25;
     //          });
     //
