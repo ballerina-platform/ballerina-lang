@@ -33,7 +33,7 @@ public class DataflowAnalysisTest {
     @Test(description = "Test uninitialized variables")
     public void testUninitializedVariables() {
         CompileResult result = BCompileUtil.compile("test-src/dataflow/analysis/dataflow-analysis-negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 47);
+        Assert.assertEquals(result.getErrorCount(), 48);
         int i = 0;
         BAssertUtil.validateError(result, i++, "variable 'msg' may not have been initialized", 53, 12);
         BAssertUtil.validateError(result, i++, "variable 'msg' may not have been initialized", 70, 12);
@@ -46,6 +46,7 @@ public class DataflowAnalysisTest {
         BAssertUtil.validateError(result, i++, "variable 'a' is not initialized", 222, 9);
         BAssertUtil.validateError(result, i++, "variable 's' is not initialized", 226, 24);
         BAssertUtil.validateError(result, i++, "variable 'm' is not initialized", 238, 20);
+        BAssertUtil.validateError(result, i++, "variable 'm' is not initialized", 239, 9);
         BAssertUtil.validateError(result, i++, "variable 'm' is not initialized", 261, 9);
         BAssertUtil.validateError(result, i++, "variable 'm' is not initialized", 262, 9);
         BAssertUtil.validateError(result, i++, "variable 's' is not initialized", 262, 11);
