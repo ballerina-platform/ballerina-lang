@@ -34,7 +34,6 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
-import java.util.Arrays;
 import java.util.Map.Entry;
 
 /**

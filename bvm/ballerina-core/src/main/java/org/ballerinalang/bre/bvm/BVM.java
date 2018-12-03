@@ -4813,9 +4813,8 @@ public class BVM {
         for (Map.Entry targetTypeEntry : targetTypeField.entrySet()) {
             String fieldName = targetTypeEntry.getKey().toString();
 
-            int flags = targetType.getFields().get(fieldName).flags;
             if (!(((BMap) sourceValue).getMap().containsKey(fieldName)) &&
-                    (!Flags.isFlagOn(flags, Flags.OPTIONAL) && Flags.isFlagOn(flags, Flags.REQUIRED))) {
+                    !Flags.isFlagOn(targetType.getFields().get(fieldName).flags, Flags.OPTIONAL)) {
                 return false;
             }
         }

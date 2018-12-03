@@ -19,7 +19,9 @@ package org.ballerinalang.test.expressions.conversion;
 
 import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -29,7 +31,6 @@ import org.testng.annotations.Test;
  *
  * @since 0.985.0
  */
-@Test(groups = "broken")
 public class NativeConversionNegativeTest {
 
     private CompileResult negativeResult;

@@ -560,7 +560,7 @@ function testJsonIntArrayToStringArray () returns json|error {
     json j = {a:[4, 3, 9]};
     int[] a =  check int[].convert(j["a"]);
     string[] s =  [];
-    foreach i in a {
+    foreach var i in a {
         s[s.length()] = string.convert(i);
     }
     json j2 = {a:s};
