@@ -412,7 +412,6 @@ class OpenApiVisualizer extends React.Component<OasProps, OpenApiState> {
         this.setState({
             openApiJson
         }, () => {
-            debugger;
             if (onDidChange) {
                 onDidChange(EVENTS.ON_INLINE_CHANGE, this.state.openApiJson);
             }
