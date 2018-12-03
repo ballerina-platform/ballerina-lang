@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Class to hold operation categories when we have multiple methods per one ballerina resource
+ * Class to hold operation categories when we have multiple methods per one ballerina resource.
  *
  * @since 0.984.0
  */
