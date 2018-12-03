@@ -16,6 +16,7 @@
  */
 package org.wso2.ballerinalang.compiler.desugar;
 
+import org.antlr.v4.runtime.misc.OrderedHashSet;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.NodeKind;
@@ -266,7 +267,7 @@ public class IterableCodeDesugar {
         foreachStmt.varType = paramType;
         BMapType mapType = new BMapType(TypeTags.RECORD, paramType, symTable.mapType.tsymbol);
         foreachStmt.resultType = mapType;
-        LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
+        LinkedHashSet<BType> memberTypes = new OrderedHashSet<>();
         memberTypes.add(mapType);
         foreachStmt.nillableResultType = new BUnionType(null, memberTypes, true);
 
@@ -321,7 +322,7 @@ public class IterableCodeDesugar {
         foreachStmt.varType = paramType;
         BMapType mapType = new BMapType(TypeTags.RECORD, paramType, symTable.mapType.tsymbol);
         foreachStmt.resultType = mapType;
-        LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
+        LinkedHashSet<BType> memberTypes = new OrderedHashSet<>();
         memberTypes.add(mapType);
         foreachStmt.nillableResultType = new BUnionType(null, memberTypes, true);
 

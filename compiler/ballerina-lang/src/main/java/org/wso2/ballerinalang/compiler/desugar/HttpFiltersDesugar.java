@@ -17,6 +17,7 @@
 
 package org.wso2.ballerinalang.compiler.desugar;
 
+import org.antlr.v4.runtime.misc.OrderedHashSet;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
@@ -352,7 +353,7 @@ public class HttpFiltersDesugar {
         foreach.varType = filterType;
         BMapType mapType = new BMapType(TypeTags.RECORD, filterType, symTable.mapType.tsymbol);
         foreach.resultType = mapType;
-        LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
+        LinkedHashSet<BType> memberTypes = new OrderedHashSet<>();
         memberTypes.add(mapType);
         foreach.nillableResultType = new BUnionType(null, memberTypes, true);
 
