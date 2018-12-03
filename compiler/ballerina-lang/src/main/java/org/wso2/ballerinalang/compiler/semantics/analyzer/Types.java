@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import org.antlr.v4.runtime.misc.OrderedHashSet;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.types.TypeKind;
@@ -434,8 +435,8 @@ public class Types {
     }
 
     private boolean checkUnionEquivalencyForStamping(BType source, BType target) {
-        Set<BType> sourceTypes = new HashSet<>();
-        Set<BType> targetTypes = new HashSet<>();
+        Set<BType> sourceTypes = new OrderedHashSet<>();
+        Set<BType> targetTypes = new OrderedHashSet<>();
 
         if (source.tag == TypeTags.UNION) {
             BUnionType sourceUnionType = (BUnionType) source;
@@ -772,7 +773,7 @@ public class Types {
     void setForeachTypedBindingPatternType(BLangForeach foreachNode) {
         BType collectionType = foreachNode.collection.type;
         BMapType mapType = new BMapType(TypeTags.MAP, null, symTable.mapType.tsymbol);
-        LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
+        LinkedHashSet<BType> memberTypes = new OrderedHashSet<>();
         memberTypes.add(mapType);
         BUnionType unionType = new BUnionType(null, memberTypes, true);
         switch (collectionType.tag) {
@@ -795,7 +796,7 @@ public class Types {
                 }});
                 break;
             case TypeTags.XML:
-                Set<BType> bTypes = new HashSet<>();
+                Set<BType> bTypes = new OrderedHashSet<>();
                 bTypes.add(symTable.xmlType);
                 bTypes.add(symTable.stringType);
                 mapType.constraint = new BUnionType(null, bTypes, false);
@@ -1499,8 +1500,8 @@ public class Types {
                 return false;
             }
 
-            Set<BType> sourceTypes = new HashSet<>();
-            Set<BType> targetTypes = new HashSet<>();
+            Set<BType> sourceTypes = new OrderedHashSet<>();
+            Set<BType> targetTypes = new OrderedHashSet<>();
             sourceTypes.addAll(sUnionType.memberTypes);
             targetTypes.addAll(tUnionType.memberTypes);
 
@@ -1656,8 +1657,8 @@ public class Types {
     }
 
     private boolean isAssignableToUnionType(BType source, BType target, List<TypePair> unresolvedTypes) {
-        Set<BType> sourceTypes = new HashSet<>();
-        Set<BType> targetTypes = new HashSet<>();
+        Set<BType> sourceTypes = new OrderedHashSet<>();
+        Set<BType> targetTypes = new OrderedHashSet<>();
 
         if (source.tag == TypeTags.UNION) {
             BUnionType sourceUnionType = (BUnionType) source;
@@ -1711,8 +1712,8 @@ public class Types {
             return true;
         }
 
-        Set<BType> lhsTypes = new HashSet<>();
-        Set<BType> rhsTypes = new HashSet<>();
+        Set<BType> lhsTypes = new OrderedHashSet<>();
+        Set<BType> rhsTypes = new OrderedHashSet<>();
 
         lhsTypes.addAll(expandAndGetMemberTypesRecursive(lhsType));
         rhsTypes.addAll(expandAndGetMemberTypesRecursive(rhsType));
@@ -1747,7 +1748,7 @@ public class Types {
      * @return  a set containing all the retrieved member types
      */
     public Set<BType> expandAndGetMemberTypesRecursive(BType bType) {
-        Set<BType> memberTypes = new HashSet<>();
+        Set<BType> memberTypes = new OrderedHashSet<>();
         switch (bType.tag) {
             case TypeTags.BYTE:
             case TypeTags.INT:
