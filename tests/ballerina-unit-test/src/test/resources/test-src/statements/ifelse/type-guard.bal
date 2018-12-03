@@ -240,3 +240,13 @@ function testComplexTernary_2() returns string {
         return "xml";
     }
 }
+
+function testArray() returns int {
+    int [] intArr = [10, 20];
+    any[] arr = intArr;
+    if (arr is int[]) {
+        return arr[1];
+    } else {
+        return -1;
+    }
+}

@@ -286,32 +286,32 @@ function testRecordAssertionNegative() {
     Lead e2 = <Lead> p;
 }
 
-//function testTableAssertionPositive() returns boolean {
-//    table<TableEmployee> t1 = table {
-//        { key id, name },
-//        [
-//            { 1, "Mary" },
-//            { 2, "John" },
-//            { 3, "Jim" }
-//        ]
-//    };
-//    anydata a = t1;
-//    table<TableEmployee> t2 = <table<TableEmployee>> a;
-//    return t1 === t2;
-//}
-//
-//function testTableAssertionNegative() {
-//    table<TableEmployee> t1 = table {
-//        { key id, name },
-//        [
-//            { 1, "Mary" },
-//            { 2, "John" },
-//            { 3, "Jim" }
-//        ]
-//    };
-//    anydata a = t1;
-//    table<TableEmployeeTwo> t2 = <table<TableEmployeeTwo>> a;
-//}
+function testTableAssertionPositive() returns boolean {
+    table<TableEmployee> t1 = table {
+        { key id, name },
+        [
+            { 1, "Mary" },
+            { 2, "John" },
+            { 3, "Jim" }
+        ]
+    };
+    anydata a = t1;
+    table<TableEmployee> t2 = <table<TableEmployee>> a;
+    return t1 === t2;
+}
+
+function testTableAssertionNegative() {
+    table<TableEmployee> t1 = table {
+        { key id, name },
+        [
+            { 1, "Mary" },
+            { 2, "John" },
+            { 3, "Jim" }
+        ]
+    };
+    anydata a = t1;
+    table<TableEmployeeTwo> t2 = <table<TableEmployeeTwo>> a;
+}
 
 function testXmlAssertionPositive() returns boolean {
     xml x1 = xml `<book>The Lost World</book>`;
