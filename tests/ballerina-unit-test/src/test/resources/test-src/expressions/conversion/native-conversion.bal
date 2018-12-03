@@ -51,6 +51,7 @@ type Person4 record {
 type Student record {
     string name = "";
     int age = 0;
+    string school = "";
     !...
 };
 
@@ -285,14 +286,15 @@ type Employee record {
 function testMapWithIncompatibleStructToStruct () returns Employee {
     int[] marks = [87, 94, 72];
     Student s = {name:"Supun",
-                    age:25
+                    age:25,
+                    school: "ABC College"
                 };
 
     map<string> addr = {"city":"Colombo", "country":"SriLanka"};
     map<string> info = {status:"single"};
     map<any> m = {name:"Child",
                 age:25,
-                partner:s,
+                student:s,
                 address:addr,
                 info:info,
                 marks:marks
@@ -554,12 +556,15 @@ function testJsonToStringArray () returns StringArray|error {
     return a;
 }
 
-function testJsonIntArrayToStringArray () returns StringArray|error {
+function testJsonIntArrayToStringArray () returns json|error {
     json j = {a:[4, 3, 9]};
-    string[] s =  check string[].convert(j["a"]);
+    int[] a =  check int[].convert(j["a"]);
+    string[] s =  [];
+    foreach i in a {
+        s[s.length()] = string.convert(i);
+    }
     json j2 = {a:s};
-    StringArray a = check StringArray.convert(j2);
-    return a;
+    return j2;
 }
 
 type XmlArray record {
@@ -964,18 +969,14 @@ function testTupleConversion2() returns (int, string)|error {
     return x;
 }
 
-function testTupleConversionFail() {
+function testTupleConversionFail() returns (T1, T2) | error {
     T1 a = {};
     T1 b = {};
     (T1, T1) x = (a, b);
     (T1, T2) x2;
     anydata y = x;
     var result = (T1, T2).convert(y);
-    if (result is (T1, T2)) {
-        x2 = result;
-    } else if (result is error) {
-        panic result;
-    }
+    return result;
 }
 
 function testArrayToJson1() returns json|error {
@@ -1070,7 +1071,7 @@ function testJsonIntToFloat() returns A|error {
 }
 
 function testRecordToJsonWithIsJson() returns boolean {
-    Person2 person = {name:"Waruna", age:10};
-    var personData = json.create(person);
+    Person2 p = {name:"Waruna", age:10};
+    var personData = json.convert(p);
     return personData is json;
 }
