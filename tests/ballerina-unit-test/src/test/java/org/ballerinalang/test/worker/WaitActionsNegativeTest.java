@@ -99,9 +99,11 @@ public class WaitActionsNegativeTest {
         index++;
         BAssertUtil.validateError(result, index, "invalid field name 'status' in type 'sealedRec'", 89, 26);
         index++;
-        BAssertUtil.validateError(result, index, "incompatible types: expected 'future<int>', found 'future<string>'", 90, 55);
+        BAssertUtil.validateError(result, index, "incompatible types: expected 'future<int>', found 'future<string>'",
+                                  90, 55);
         index++;
-        BAssertUtil.validateError(result, index, "incompatible types: expected 'future<string>', found 'future<int>'", 91, 54);
+        BAssertUtil.validateError(result, index, "incompatible types: expected 'future<string>', found 'future<int>'",
+                                  91, 54);
 
     }
 }
