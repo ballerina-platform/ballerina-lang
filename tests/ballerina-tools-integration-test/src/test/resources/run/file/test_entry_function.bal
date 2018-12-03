@@ -22,7 +22,7 @@ public function noParamEntry() returns int {
 public function combinedTypeEntry(int i, float f, string s, byte b, boolean bool, json j, xml x, Employee e,
                                   string... args) returns string {
     string restArgs = "";
-    foreach str in args {
+    foreach var str in args {
         restArgs += str + " ";
     }
 

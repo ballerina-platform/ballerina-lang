@@ -42,7 +42,7 @@ function testWindowQuery() {
         select status, count(status) as totalCount
         group by status
         => (StatusCount[] emp) {
-            foreach e in emp {
+            foreach var e in emp {
                 statusCountStream1.publish(e);
             }
         }

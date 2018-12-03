@@ -46,7 +46,7 @@ function testJoinQuery(stream<Stock> stStream, stream<Twitter> twitStream) {
         join twitStream window lengthWindow(1)
         select stStream.symbol as symbol, twitStream.tweet as tweet, stStream.price as price
         => (StockWithPrice[] emp) {
-            foreach e in emp {
+            foreach var e in emp {
                 stockWithPriceStream.publish(e);
             }
         }

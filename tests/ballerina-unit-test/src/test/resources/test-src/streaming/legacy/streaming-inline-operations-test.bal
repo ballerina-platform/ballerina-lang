@@ -46,7 +46,7 @@ function testFilterQuery() {
         select name, age, status
         => (Employee[] emp) {
             io:println("Filterted event received #: "+ i);
-            foreach e in emp {
+            foreach var e in emp {
                 employeeStream4.publish(e);
             }
         }

@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import org.antlr.v4.runtime.misc.OrderedHashSet;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
@@ -654,7 +655,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             unionType.memberTypes.add(symTable.nilType);
             unionType.setNullable(true);
         } else if (typeNode.nullable && resultType.tag != TypeTags.JSON && resultType.tag != TypeTags.ANY) {
-            Set<BType> memberTypes = new LinkedHashSet<BType>(2) {{
+            Set<BType> memberTypes = new OrderedHashSet<BType>() {{
                 add(resultType);
                 add(symTable.nilType);
             }};

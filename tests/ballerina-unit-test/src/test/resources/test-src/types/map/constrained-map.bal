@@ -390,8 +390,8 @@ function testForEachOnConstrainedMaps () returns ((string, string)) {
     testMap["sname"] = "Coleman";
     string[] arr = [];
     int index = 0;
-    foreach v in testMap {
-        arr[index] = v;
+    foreach var v in testMap {
+        arr[index] = v[1];
         index = index + 1;
     }
     return (arr[0], arr[1]);

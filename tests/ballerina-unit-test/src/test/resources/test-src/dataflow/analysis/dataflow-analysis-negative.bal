@@ -235,7 +235,7 @@ function testUninitializedVarReferrencing() {
     }
 
     // uninitialized var foreach
-    foreach val in m {
+    foreach var val in m {
         m["msg"] = "hello";
     }
 
