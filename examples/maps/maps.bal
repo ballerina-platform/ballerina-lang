@@ -37,12 +37,14 @@ public function main() {
     // There is no difference in how a value is added or updated in a constrained map
     stringMap["index"] = "100892N";
 
-    // Notice you do not need explicit conversion to string here when retrieving value from map.
+    // Notice you do not need explicit conversion to `string` when retrieving the value from map.
     string index = stringMap.index;
     io:println(index);
 
-    // Note that Index-based access will return a union of constraint+nil.
-    // If the key does not exist a nil value is returned.
+    // Note that the return type of index-based access will be `T?` (where T is the constraint type of the map`).
+    // If the key does not exist, `nil` is returned.
+    // Elvis operator `?:` is a conditional operator that handles `nil`. 
+    // If the given expression evaluates to nil, the second expression is evaluated and its value is returned.
     string index2 = stringMap["index"] ?: "";
     io:println(index2);
 }
