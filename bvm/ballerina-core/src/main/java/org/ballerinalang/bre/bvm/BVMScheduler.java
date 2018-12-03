@@ -73,7 +73,8 @@ public class BVMScheduler {
         } catch (Throwable e) {
             //These errors are unhandled errors in BVM, hence logging them to bre log.
             breLog.error(e.getMessage(), e);
-            throw e;
+            // Wrap the errors in a runtime exception to make sure these are logged in internal log.
+            throw new RuntimeException(e);
         } finally {
             strandCountDown();
         }
