@@ -393,7 +393,7 @@ Statement ::=
 // Todo - Add more tokens (for record destructuring and panic)
 // Note - Literals are added for worker interactions - 10 -> w2;
 // NULL_LITERAL is added for match pattern -  null => return "error";
-private StatementRecover ::= !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|SYMBOLIC_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|int|string|float|decimal|boolean|byte|any|anydata|json|xml|xmlns|map|table|function|stream|'('|'}'|';'|typedesc|future|var|while|match|foreach|continue|break|fork|try|throw|return|abort|aborted|committed|retry|fail|lock|transaction|if|forever|object|check|error|panic|from|worker|record|identifier)
+private StatementRecover ::= !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|SYMBOLIC_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|int|string|float|decimal|boolean|byte|any|anydata|json|xml|xmlns|map|table|function|stream|'('|'}'|';'|typedesc|future|var|while|match|foreach|continue|break|fork|try|throw|return|abort|aborted|committed|retry|fail|lock|transaction|if|forever|object|check|error|panic|from|worker|record|identifier|UNDERSCORE)
 
 // Note - VariableDefinitionStatementInService
 //TODO - change pin
@@ -505,7 +505,7 @@ TupleRefBindingPattern ::= LEFT_PARENTHESIS BindingRefPattern (COMMA BindingRefP
 
 RecordRefBindingPattern ::= LEFT_BRACE EntryRefBindingPattern RIGHT_BRACE {pin=1}
 
-ErrorRefBindingPattern ::= TYPE_ERROR LEFT_PARENTHESIS VariableReference (COMMA (VariableReference | RecordRefBindingPattern))? RIGHT_PARENTHESIS
+ErrorRefBindingPattern ::= error LEFT_PARENTHESIS VariableReference (COMMA (VariableReference | RecordRefBindingPattern))? RIGHT_PARENTHESIS {pin=1}
 
 EntryRefBindingPattern ::= FieldRefBindingPattern (COMMA FieldRefBindingPattern)* (COMMA RestRefBindingPattern)? | RestRefBindingPattern
 
@@ -560,14 +560,15 @@ WaitKeyValue ::= identifier COLON Expression | identifier
 
 // Note - Order of 'simpleVariableReference' and 'functionInvocationReference' because otherwise all function
 // invocations will match simpleVariableReference first.
-VariableReference ::= MapArrayVariableReference
+VariableReference ::= UnderscoreVariableReference
+                      | MapArrayVariableReference
                       | InvocationReference
                       | FieldVariableReference
                       | XmlAttribVariableReference
                       | FunctionInvocationReference
                       | SimpleVariableReference
                       | TypeAccessExprInvocationReference
-                      | UnderscoreVariableReference
+
                       {methods=[getType]}
 
 InvocationReference ::= VariableReference Invocation
@@ -577,7 +578,7 @@ XmlAttribVariableReference ::= VariableReference XmlAttrib
 FunctionInvocationReference ::= FunctionInvocation
 SimpleVariableReference ::=  NameReference
 TypeAccessExprInvocationReference ::=  TypeAccessExpression Invocation
-UnderscoreVariableReference ::= UNDERSCORE
+UnderscoreVariableReference ::= UNDERSCORE {pin=1}
 
 // Todo - Adding pin will mess function invocation.
 Invocation ::= (DOT | NOT) AnyIdentifierName LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS
@@ -599,7 +600,7 @@ ExpressionList ::= Expression (COMMA Expression)* {
 }
 //private ExpressionListRecover ::= !(RIGHT_PARENTHESIS | SEMICOLON)
 
-ExpressionStmt ::= Expression SEMICOLON {pin=1}
+ExpressionStmt ::= Expression SEMICOLON
 
 TransactionStatement ::= TransactionClause OnRetryClause? CommittedAbortedClauses? {pin=1}
 

@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaOnAbortStatementImpl extends BallerinaCompositeElementImpl implements BallerinaOnAbortStatement {
+public class BallerinaCommittedClauseImpl extends BallerinaCompositeElementImpl implements BallerinaCommittedClause {
 
-  public BallerinaOnAbortStatementImpl(@NotNull ASTNode node) {
+  public BallerinaCommittedClauseImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitOnAbortStatement(this);
+    visitor.visitCommittedClause(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -43,20 +43,26 @@ public class BallerinaOnAbortStatementImpl extends BallerinaCompositeElementImpl
 
   @Override
   @Nullable
-  public BallerinaExpression getExpression() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaExpression.class);
+  public BallerinaBlock getBlock() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaBlock.class);
   }
 
   @Override
   @Nullable
-  public PsiElement getAssign() {
-    return findChildByType(ASSIGN);
+  public PsiElement getLeftBrace() {
+    return findChildByType(LEFT_BRACE);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getRightBrace() {
+    return findChildByType(RIGHT_BRACE);
   }
 
   @Override
   @NotNull
-  public PsiElement getOnabort() {
-    return notNullChild(findChildByType(ONABORT));
+  public PsiElement getCommitted() {
+    return notNullChild(findChildByType(COMMITTED));
   }
 
 }

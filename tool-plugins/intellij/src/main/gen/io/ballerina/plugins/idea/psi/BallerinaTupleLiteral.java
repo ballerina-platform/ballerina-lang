@@ -21,15 +21,15 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaTransactionStatement extends BallerinaCompositeElement {
-
-  @Nullable
-  BallerinaCommittedAbortedClauses getCommittedAbortedClauses();
-
-  @Nullable
-  BallerinaOnRetryClause getOnRetryClause();
+public interface BallerinaTupleLiteral extends BallerinaCompositeElement {
 
   @NotNull
-  BallerinaTransactionClause getTransactionClause();
+  List<BallerinaExpression> getExpressionList();
+
+  @NotNull
+  PsiElement getLeftParenthesis();
+
+  @NotNull
+  PsiElement getRightParenthesis();
 
 }

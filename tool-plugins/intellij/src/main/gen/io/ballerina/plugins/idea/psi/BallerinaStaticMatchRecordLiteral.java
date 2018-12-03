@@ -21,24 +21,9 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaExpressionPattern extends BallerinaCompositeElement {
-
-  @Nullable
-  BallerinaBlock getBlock();
+public interface BallerinaStaticMatchRecordLiteral extends BallerinaStaticMatchLiterals {
 
   @NotNull
-  BallerinaExpression getExpression();
-
-  @Nullable
-  BallerinaStatement getStatement();
-
-  @NotNull
-  PsiElement getEqualGt();
-
-  @Nullable
-  PsiElement getLeftBrace();
-
-  @Nullable
-  PsiElement getRightBrace();
+  BallerinaRecordLiteral getRecordLiteral();
 
 }
