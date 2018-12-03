@@ -106,8 +106,6 @@ function tableJoinFunc() {
                                                         "JOIN",
         function (streams:StreamEvent s) returns map<anydata>[] {
             map<anydata>[] result = [];
-            foreach i, r in queryStocksTable(<string>s.data["twitterStream.company"], 1) {
-                result[i] = <map<anydata>>map<anydata>.convert(r);
             int i = 0;
             foreach var r in queryStocksTable(<string>s.data["twitterStream.company"], 1) {
                 result[i] = <map<anydata>>map<anydata>.convert(r);

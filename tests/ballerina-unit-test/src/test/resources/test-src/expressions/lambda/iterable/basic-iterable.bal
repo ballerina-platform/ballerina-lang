@@ -130,32 +130,6 @@ function concatString((string, string) v) returns string {
     return v1 + v2;
 }
 
-json j1 = {name:"bob", age:10, pass:true, subjects:[{subject:"maths", marks:75}, {subject:"English", marks:85}]};
-
-function jsonTest () returns (string, string[], int, int, string[])|error {
-    output = "";
-    j1.foreach(function (json j) {
-                   output = output + j.toString();
-               });
-
-    string[] sa = j1.map(function(json j) returns (string) {
-                             return j.toString();
-                         })
-                  .filter(function(string s) returns (boolean) {
-                              return s == "bob";
-                          });
-
-    int i1 = j1.count();
-
-    var ja = check json[].convert(j1.subjects);
-    string[] result = ja.map(function ((int, json) tuple) returns (string) {
-                                 var (i, j) = tuple;
-                                 return  i + "->" + j.toString();
-                             });
-
-    return (output, sa, i1, j1.count(), result);
-}
-
 function xmlTest() returns (int, int, map<any>) {
     xml xdata = xml `<p:person xmlns:p="foo" xmlns:q="bar">
         <p:name>bob</p:name>
