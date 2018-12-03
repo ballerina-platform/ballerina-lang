@@ -16,6 +16,7 @@
 
 import ballerina/runtime;
 import ballerina/streams;
+import ballerina/io;
 
 type Stock record {
     string symbol;
@@ -106,8 +107,8 @@ function joinFunc() {
 
     // On condition
     function (map<anydata>, map<anydata>) returns boolean conditionFunc =
-    function (map<anydata> lsh, map<anydata> rhs) returns boolean {
-        return <string>lsh["stockStream.symbol"] == <string>rhs["twitterStream.company"];
+    function (map<anydata> lhs, map<anydata> rhs) returns boolean {
+        return <string>lhs["stockStream.symbol"] == <string>rhs["twitterStream.company"];
     };
 
     // Join processor
