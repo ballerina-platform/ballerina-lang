@@ -42,6 +42,6 @@ public class BasicForkNegativeTest {
         Assert.assertEquals(result.getErrorCount(), 1, "Incorrect error count");
         BAssertUtil.validateError(result, 0,
                 "worker send/receive interactions are invalid; worker(s) cannot move onwards from the state: " +
-                        "'[a -> default, b -> default, FINISHED]'", 22, 5);
+                        "'[a -> default, b -> default, FINISHED]'", 22, 9);
     }
 }
