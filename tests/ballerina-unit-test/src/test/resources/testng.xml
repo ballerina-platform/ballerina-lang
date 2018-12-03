@@ -91,6 +91,7 @@ under the License.
             <package name="org.ballerinalang.test.channels.*" />
             <package name="org.ballerinalang.test.privacy.*" />
             <package name="org.ballerinalang.test.serializer.json.*" />
+            <package name="org.ballerinalang.test.dataflow.*" />
         </packages>
 
 		<!-- TODO: remove once constraint tests are fixed -->
