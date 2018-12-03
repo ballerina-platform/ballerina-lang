@@ -45,14 +45,4 @@ public class WDChannels {
         }
         return channel;
     }
-
-    /**
-     * Get the channel form given strand for given name.
-     * @param ctx - Strand to take the channel for
-     * @param name - name of the channel
-     * @return worker data channel for the given name
-     */
-    public static WorkerDataChannel getChannelFromStrand(Strand ctx, String name) {
-        return ((SafeStrandCallback) ctx.respCallback).parentChannels.getWorkerDataChannel(name);
-    }
 }

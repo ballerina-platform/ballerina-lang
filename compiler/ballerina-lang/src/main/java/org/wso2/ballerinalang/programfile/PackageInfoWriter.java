@@ -573,8 +573,8 @@ public class PackageInfoWriter {
                 WorkerSendInsAttributeInfo wrkAttrInfo = (WorkerSendInsAttributeInfo) attributeInfo;
                 int[] sendIns = wrkAttrInfo.getWorkerSendIns();
                 attrDataOutStream.writeShort(sendIns.length);
-                for (int CPIndex : sendIns) {
-                    attrDataOutStream.writeInt(CPIndex);
+                for (int index : sendIns) {
+                    attrDataOutStream.writeInt(index);
                 }
                 break;
         }

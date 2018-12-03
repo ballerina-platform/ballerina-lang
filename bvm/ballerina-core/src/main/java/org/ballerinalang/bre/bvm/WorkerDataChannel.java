@@ -17,7 +17,9 @@
 */
 package org.ballerinalang.bre.bvm;
 
+import org.ballerinalang.bre.bvm.Strand.FlushState;
 import org.ballerinalang.bre.bvm.Strand.State;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BRefType;
 
 import java.util.LinkedList;
@@ -31,6 +33,7 @@ public class WorkerDataChannel {
 
     private Strand pendingCtx;
     private WaitingSender waitingSender;
+    private BError error;
 
     @SuppressWarnings("rawtypes")
     private Queue<WorkerResult> channel = new LinkedList<>();
@@ -51,7 +54,11 @@ public class WorkerDataChannel {
      * @param waitingCtx - sending context, that will be paused
      * @param retReg - Reg index to assign result of the send
      */
-    public synchronized void putData(BRefType data, Strand waitingCtx, int retReg) {
+    public synchronized boolean putData(BRefType data, Strand waitingCtx, int retReg) {
+        if (this.error != null) {
+            waitingCtx.currentFrame.refRegs[retReg] = this.error;
+            return true;
+        }
         this.channel.add(new WorkerResult(data, true));
         this.waitingSender = new WaitingSender(waitingCtx, retReg);
         BVMScheduler.stateChange(waitingCtx, State.RUNNABLE, State.PAUSED);
@@ -60,6 +67,7 @@ public class WorkerDataChannel {
             BVMScheduler.schedule(this.pendingCtx);
             this.pendingCtx = null;
         }
+        return false;
     }
     
     @SuppressWarnings("rawtypes")
@@ -73,6 +81,7 @@ public class WorkerDataChannel {
                 }
                 //will continue if this is a sync wait, will try to flush again if blocked on flush
                 BVMScheduler.stateChange(this.pendingCtx, State.PAUSED, State.RUNNABLE);
+                BVMScheduler.stateChange(this.waitingSender.waitingCtx, State.PAUSED, State.RUNNABLE);
                 BVMScheduler.schedule(waitingSender.waitingCtx);
             }
             return result;
@@ -84,15 +93,32 @@ public class WorkerDataChannel {
         }
     }
 
-    public synchronized boolean tryFlush(Strand ctx, int retReg) {
+    public synchronized Strand.FlushState tryFlush(Strand ctx, int retReg) {
+        if (this.error != null) {
+            ctx.currentFrame.refRegs[retReg] = error;
+            return FlushState.ERROR;
+        }
         if (!channel.isEmpty()) {
             waitingSender = new WaitingSender(ctx, retReg);
             //flush should wait and need to rerun upon fetching data
             ctx.currentFrame.ip--;
             BVMScheduler.stateChange(ctx, State.RUNNABLE, State.PAUSED);
-            return false;
+            return FlushState.PENDING;
         }
-        return true;
+        return FlushState.FLUSH_ABLE;
+    }
+
+    /**
+     * Set the state as error if the receiving worker is in error state.
+     * @param error the BError of the receiving worker
+     */
+    public synchronized void setError(BError error) {
+        this.error = error;
+        if (waitingSender != null) {
+            waitingSender.waitingCtx.currentFrame.refRegs[waitingSender.returnReg] = error;
+            BVMScheduler.stateChange(this.waitingSender.waitingCtx, State.PAUSED, State.RUNNABLE);
+            BVMScheduler.schedule(waitingSender.waitingCtx);
+        }
     }
 
     @SuppressWarnings("rawtypes")

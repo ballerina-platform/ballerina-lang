@@ -60,7 +60,9 @@ public class SafeStrandCallback extends StrandCallback {
             this.callbackWaitHandler.dataLock.lock();
             this.done = true;
             if (this.getErrorVal() != null) {
-                //mark all channels as errored
+                for (int i = 0; i < sendIns.length; i++) {
+                    wdChannels.getWorkerDataChannel(sendIns[i]).setError(this.getErrorVal());
+                }
             }
             if (this.callbackWaitHandler.waitingStrand == null) {
                 return;
@@ -93,8 +95,12 @@ public class SafeStrandCallback extends StrandCallback {
 
     @Override
     public WDChannels getWorkerDataChannels() {
-
         return this.wdChannels;
+    }
+
+    @Override
+    public WDChannels getParentWorkerDataChannels() {
+        return this.parentChannels;
     }
 
     public void setError(BError error) {

@@ -205,7 +205,16 @@ public abstract class StrandCallback {
      * @return worker data channels or null
      */
     WDChannels getWorkerDataChannels() {
-        //override if required
+        //Used in SafeStrandCallback, override if required
+        return null;
+    }
+
+    /**
+     * Method to get the parent worker data channels of the strand this callback is associated with.
+     * @return worker data channels or null
+     */
+    WDChannels getParentWorkerDataChannels() {
+        //used in SafeStrandCallback, override if required
         return null;
     }
 

@@ -19,6 +19,7 @@ package org.ballerinalang.bre.bvm;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.bre.BLangCallableUnitCallback;
+import org.ballerinalang.bre.bvm.Strand.FlushState;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.NativeCallContext;
 import org.ballerinalang.bre.old.WorkerExecutionContext;
@@ -479,10 +480,18 @@ public class BVM {
                             chnSendIns.keyType, chnSendIns.keyReg);
                     break;
                 case InstructionCodes.FLUSH:
-                    // TODO fix - rajith
+                    Instruction.InstructionFlush flushIns = (Instruction.InstructionFlush) instruction;
+                    if (!handleFlush(strand, flushIns.retReg, flushIns.channels)) {
+                        return;
+                    }
                     break;
                 case InstructionCodes.WORKERSYNCSEND:
-                    // TODO fix - rajith
+                    Instruction.InstructionWRKSyncSend syncSendIns = (Instruction.InstructionWRKSyncSend) instruction;
+                    if(!handleWorkerSyncSend(strand, syncSendIns.dataChannelInfo, syncSendIns.type,
+                            syncSendIns.reg, syncSendIns.retReg)){
+                        return;
+                    }
+                    //worker data channel will resume this upon data retrieval or error
                     break;
                 case InstructionCodes.PANIC:
                     i = operands[0];
@@ -810,8 +819,14 @@ public class BVM {
     private static boolean handleFlush(Strand strand, int retReg, String[] channels) {
 
         for (int i = 0; i < channels.length; i++) {
-            WorkerDataChannel dataChannel = WDChannels.getChannelFromStrand(strand, channels[i]);
-            if (!dataChannel.tryFlush(strand, retReg)) {
+            WorkerDataChannel dataChannel =
+                    strand.respCallback.getWorkerDataChannels().getWorkerDataChannel(channels[i]);
+            FlushState state = dataChannel.tryFlush(strand, retReg);
+            if (state == FlushState.ERROR) {
+                return true;
+            }
+
+            if (state == FlushState.PENDING) {
                 return false;
             }
         }
@@ -819,11 +834,12 @@ public class BVM {
         return true;
     }
 
-    private static void handleWorkerSyncSend(Strand strand, WorkerDataChannelInfo dataChannelInfo, BType type,
+    private static boolean handleWorkerSyncSend(Strand strand, WorkerDataChannelInfo dataChannelInfo, BType type,
                                                 int reg, int retReg) {
         BRefType val = extractValue(strand.currentFrame, type, reg);
-        WorkerDataChannel dataChannel = WDChannels.getChannelFromStrand(strand, dataChannelInfo.getChannelName());
-        dataChannel.putData(val, strand, retReg);
+        WorkerDataChannel dataChannel =
+                strand.respCallback.getWorkerDataChannels().getWorkerDataChannel(dataChannelInfo.getChannelName());
+        return dataChannel.putData(val, strand, retReg);
     }
 
     private static void createClone(Strand ctx, int[] operands, StackFrame sf) {
@@ -3404,9 +3420,9 @@ public class BVM {
 
     private static WorkerDataChannel getWorkerChannel(Strand ctx, String name, boolean channelInSameStrand) {
         if (channelInSameStrand) {
-            return ctx.wdChannels.getWorkerDataChannel(name);
+            return ctx.respCallback.getWorkerDataChannels().getWorkerDataChannel(name);
         }
-        return ctx.parentChannels.getWorkerDataChannel(name);
+        return ctx.respCallback.getParentWorkerDataChannels().getWorkerDataChannel(name);
     }
 
     private static BRefType extractValue(StackFrame data, BType type, int reg) {

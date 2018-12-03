@@ -24,7 +24,6 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
-import org.wso2.ballerinalang.compiler.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -1905,7 +1904,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
                         systemRunning = true;
                     }
-                    otherSM.node.sendsToThis.add(WorkerDataChannelInfo.generateChannelName(worker.workerId, otherSM.workerId));
+                    otherSM.node.sendsToThis.add(WorkerDataChannelInfo.generateChannelName(worker.workerId,
+                            otherSM.workerId));
                 }
             }
         } while (systemRunning);

@@ -177,6 +177,12 @@ public class Strand {
         TERMINATED
     }
 
+    public enum FlushState {
+        FLUSH_ABLE,
+        ERROR,
+        PENDING
+    }
+
     /**
      * This class holds relevant data for callback wait handling related to strand side.
      */
