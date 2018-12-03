@@ -20,6 +20,7 @@ package org.ballerinalang.test.worker;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -60,5 +61,28 @@ public class WorkerFlushTest {
 
         BValue[] returns = BRunUtil.invoke(result, "flushAll");
         Assert.assertTrue(returns[0].stringValue().endsWith("w1w1w1w1w1"));
+    }
+
+    @Test
+    public void errorBeforeFlush() {
+
+        BValue[] returns = BRunUtil.invoke(result, "errorTest");
+        Assert.assertTrue(returns[0] instanceof BError);
+        Assert.assertEquals(((BError) returns[0]).reason, "error3");
+    }
+
+    @Test
+    public void panicBeforeFlush() {
+
+        Exception expectedException = null;
+        try {
+            BRunUtil.invoke(result, "panicTest");
+        } catch (Exception e) {
+            expectedException = e;
+        }
+        Assert.assertNotNull(expectedException);
+        String result =
+                "error: error3 {\"message\":\"msg3\"}\n" + "\tat $lambda$12(flush-workers.bal:169)";
+        Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
     }
 }
