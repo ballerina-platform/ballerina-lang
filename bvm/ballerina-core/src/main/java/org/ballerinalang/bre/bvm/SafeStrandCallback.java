@@ -19,6 +19,7 @@ package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.bre.bvm.Strand.State;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BError;
 
 import java.io.PrintStream;
@@ -39,18 +40,13 @@ public class SafeStrandCallback extends StrandCallback {
 
     private CallbackWaitHandler callbackWaitHandler;
 
-    //TODO try to generalize below to normal data channels
-    WDChannels parentChannels;
-
-    WDChannels wdChannels;
-
     String[] sendIns;
 
-    SafeStrandCallback(BType retType) {
+    SafeStrandCallback(BType retType, WDChannels parentChannels) {
         super(retType);
         this.callbackWaitHandler = new CallbackWaitHandler();
         this.done = false;
-        this.wdChannels = new WDChannels();
+        this.parentChannels = parentChannels;
     }
 
     @Override
@@ -61,7 +57,12 @@ public class SafeStrandCallback extends StrandCallback {
             this.done = true;
             if (this.getErrorVal() != null) {
                 for (int i = 0; i < sendIns.length; i++) {
-                    wdChannels.getWorkerDataChannel(sendIns[i]).setError(this.getErrorVal());
+                    this.parentChannels.getWorkerDataChannel(sendIns[i]).setPanic(this.getErrorVal());
+                }
+            }
+            if (getRefRetVal() != null && getRefRetVal().getType().getTag() == TypeTags.ERROR_TAG) {
+                for (int i = 0; i < sendIns.length; i++) {
+                    this.parentChannels.getWorkerDataChannel(sendIns[i]).setError(getRefRetVal());
                 }
             }
             if (this.callbackWaitHandler.waitingStrand == null) {
@@ -91,16 +92,6 @@ public class SafeStrandCallback extends StrandCallback {
         } finally {
             this.callbackWaitHandler.dataLock.unlock();
         }
-    }
-
-    @Override
-    public WDChannels getWorkerDataChannels() {
-        return this.wdChannels;
-    }
-
-    @Override
-    public WDChannels getParentWorkerDataChannels() {
-        return this.parentChannels;
     }
 
     public void setError(BError error) {

@@ -33,7 +33,8 @@ public class WorkerDataChannel {
 
     private Strand pendingCtx;
     private WaitingSender waitingSender;
-    private BError error;
+    private BRefType error;
+    private BError panic;
 
     @SuppressWarnings("rawtypes")
     private Queue<WorkerResult> channel = new LinkedList<>();
@@ -53,10 +54,15 @@ public class WorkerDataChannel {
      * @param data - data to be sent over the channel
      * @param waitingCtx - sending context, that will be paused
      * @param retReg - Reg index to assign result of the send
+     * @return true if execution can continue
      */
     public synchronized boolean putData(BRefType data, Strand waitingCtx, int retReg) {
         if (this.error != null) {
             waitingCtx.currentFrame.refRegs[retReg] = this.error;
+            return true;
+        }
+        if (this.panic != null) {
+            waitingCtx.setError(this.panic);
             return true;
         }
         this.channel.add(new WorkerResult(data, true));
@@ -80,7 +86,6 @@ public class WorkerDataChannel {
                     waitingSender.waitingCtx.currentFrame.refRegs[waitingSender.returnReg] = null;
                 }
                 //will continue if this is a sync wait, will try to flush again if blocked on flush
-                BVMScheduler.stateChange(this.pendingCtx, State.PAUSED, State.RUNNABLE);
                 BVMScheduler.stateChange(this.waitingSender.waitingCtx, State.PAUSED, State.RUNNABLE);
                 BVMScheduler.schedule(waitingSender.waitingCtx);
             }
@@ -98,6 +103,11 @@ public class WorkerDataChannel {
             ctx.currentFrame.refRegs[retReg] = error;
             return FlushState.ERROR;
         }
+
+        if (this.panic != null) {
+            ctx.setError(this.panic);
+            return FlushState.ERROR;
+        }
         if (!channel.isEmpty()) {
             waitingSender = new WaitingSender(ctx, retReg);
             //flush should wait and need to rerun upon fetching data
@@ -112,12 +122,21 @@ public class WorkerDataChannel {
      * Set the state as error if the receiving worker is in error state.
      * @param error the BError of the receiving worker
      */
-    public synchronized void setError(BError error) {
+    public synchronized void setError(BRefType error) {
         this.error = error;
-        if (waitingSender != null) {
-            waitingSender.waitingCtx.currentFrame.refRegs[waitingSender.returnReg] = error;
+        if (this.waitingSender != null) {
+            this.waitingSender.waitingCtx.currentFrame.refRegs[waitingSender.returnReg] = error;
             BVMScheduler.stateChange(this.waitingSender.waitingCtx, State.PAUSED, State.RUNNABLE);
             BVMScheduler.schedule(waitingSender.waitingCtx);
+        }
+    }
+
+    public synchronized void setPanic(BError error) {
+        this.panic  = error;
+        if (this.waitingSender != null) {
+            this.waitingSender.waitingCtx.setError(error);
+            BVMScheduler.stateChange(this.waitingSender.waitingCtx, State.PAUSED, State.RUNNABLE);
+            BVM.handleError(this.waitingSender.waitingCtx);
         }
     }
 

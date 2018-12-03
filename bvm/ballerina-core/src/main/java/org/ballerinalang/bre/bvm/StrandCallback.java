@@ -38,11 +38,16 @@ public abstract class StrandCallback {
     private BRefType<?> refVal;
     private BError error;
     private ObserverContext observerContext;
+    //TODO try to generalize below to normal data channels
+    //channels are only used in SafeStrandCallback
+    WDChannels parentChannels;
+    WDChannels wdChannels;
 
     protected BType retType; //TODO may be this is wrong, we should take the type in wait expression -check this
 
     StrandCallback(BType retType) {
         this.retType = retType;
+        this.wdChannels = new WDChannels();
     }
 
     /**
@@ -206,7 +211,7 @@ public abstract class StrandCallback {
      */
     WDChannels getWorkerDataChannels() {
         //Used in SafeStrandCallback, override if required
-        return null;
+        return this.wdChannels;
     }
 
     /**
@@ -215,7 +220,7 @@ public abstract class StrandCallback {
      */
     WDChannels getParentWorkerDataChannels() {
         //used in SafeStrandCallback, override if required
-        return null;
+        return this.parentChannels;
     }
 
 }

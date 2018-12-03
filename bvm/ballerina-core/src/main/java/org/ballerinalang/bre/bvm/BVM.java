@@ -19,7 +19,6 @@ package org.ballerinalang.bre.bvm;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.bre.BLangCallableUnitCallback;
-import org.ballerinalang.bre.bvm.Strand.FlushState;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.NativeCallContext;
 import org.ballerinalang.bre.old.WorkerExecutionContext;
@@ -487,8 +486,8 @@ public class BVM {
                     break;
                 case InstructionCodes.WORKERSYNCSEND:
                     Instruction.InstructionWRKSyncSend syncSendIns = (Instruction.InstructionWRKSyncSend) instruction;
-                    if(!handleWorkerSyncSend(strand, syncSendIns.dataChannelInfo, syncSendIns.type,
-                            syncSendIns.reg, syncSendIns.retReg)){
+                    if (!handleWorkerSyncSend(strand, syncSendIns.dataChannelInfo, syncSendIns.type, syncSendIns.reg,
+                            syncSendIns.retReg)) {
                         return;
                     }
                     //worker data channel will resume this upon data retrieval or error
@@ -819,14 +818,13 @@ public class BVM {
     private static boolean handleFlush(Strand strand, int retReg, String[] channels) {
 
         for (int i = 0; i < channels.length; i++) {
-            WorkerDataChannel dataChannel =
-                    strand.respCallback.getWorkerDataChannels().getWorkerDataChannel(channels[i]);
-            FlushState state = dataChannel.tryFlush(strand, retReg);
-            if (state == FlushState.ERROR) {
+            WorkerDataChannel dataChannel = getWorkerChannel(strand, channels[i], false);
+            Strand.FlushState state = dataChannel.tryFlush(strand, retReg);
+            if (state == Strand.FlushState.ERROR) {
                 return true;
             }
 
-            if (state == FlushState.PENDING) {
+            if (state == Strand.FlushState.PENDING) {
                 return false;
             }
         }
@@ -836,9 +834,9 @@ public class BVM {
 
     private static boolean handleWorkerSyncSend(Strand strand, WorkerDataChannelInfo dataChannelInfo, BType type,
                                                 int reg, int retReg) {
+
         BRefType val = extractValue(strand.currentFrame, type, reg);
-        WorkerDataChannel dataChannel =
-                strand.respCallback.getWorkerDataChannels().getWorkerDataChannel(dataChannelInfo.getChannelName());
+        WorkerDataChannel dataChannel = getWorkerChannel(strand, dataChannelInfo.getChannelName(), false);
         return dataChannel.putData(val, strand, retReg);
     }
 
@@ -877,8 +875,8 @@ public class BVM {
             return strand;
         }
 
-        SafeStrandCallback strandCallback = new SafeStrandCallback(callableUnitInfo.getRetParamTypes()[0]);
-        strandCallback.parentChannels = strand.respCallback.getWorkerDataChannels();
+        SafeStrandCallback strandCallback = new SafeStrandCallback(callableUnitInfo.getRetParamTypes()[0],
+                strand.respCallback.getWorkerDataChannels());
         WorkerSendInsAttributeInfo sendInAttr =
                 (WorkerSendInsAttributeInfo) callableUnitInfo.getAttributeInfo(AttributeInfo.Kind.WORKER_SEND_INS);
         strandCallback.sendIns = sendInAttr.sendsIns;

@@ -20,6 +20,7 @@ package org.ballerinalang.test.worker;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -69,5 +70,13 @@ public class WorkerSyncSendTest {
         BValue[] returns = BRunUtil.invoke(result, "multiWorkerSend");
         Assert.assertTrue(returns[0].stringValue().startsWith("w2w2w2w2w2w3w3w3w3w3"));
         Assert.assertTrue(returns[0].stringValue().endsWith("w11w11w11w11w11"));
+    }
+
+    @Test
+    public void errorAfterSendTest() {
+
+        BValue[] returns = BRunUtil.invoke(result, "errorResult");
+        Assert.assertTrue(returns[0] instanceof BError);
+        Assert.assertEquals(((BError) returns[0]).reason, "error3");
     }
 }

@@ -177,6 +177,9 @@ public class Strand {
         TERMINATED
     }
 
+    /**
+     * Flush state of the execution.
+     */
     public enum FlushState {
         FLUSH_ABLE,
         ERROR,
