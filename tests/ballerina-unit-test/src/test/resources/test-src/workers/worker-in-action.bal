@@ -58,12 +58,12 @@ function Client.init(ClientEndpointConfiguration config) {
 
 function testAction1() returns string {
     ABCClient ep1 = new;
-   string x = ep1->testAction1();
-   return x;
+    string x = ep1->testAction1();
+    return x;
 }
 
 function testAction2() returns string {
     ABCClient ep1 = new;
-   string x = ep1->testAction2();
-   return x;
+    string x = ep1->testAction2();
+    return x;
 }
