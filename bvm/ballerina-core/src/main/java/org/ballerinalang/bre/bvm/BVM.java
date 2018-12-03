@@ -4998,8 +4998,8 @@ public class BVM {
         if (sourceType.getTag() != TypeTags.TABLE_TAG) {
             return false;
         }
-        return checkContraints(((BTableType) sourceType).getConstrainedType(), targetType.getConstrainedType(),
-                unresolvedTypes);
+        return checkTableConstraints(((BTableType) sourceType).getConstrainedType(),
+                                     targetType.getConstrainedType(), unresolvedTypes);
     }
 
     private static boolean checkIsArrayType(BType sourceType, BArrayType targetType, List<TypePair> unresolvedTypes) {
@@ -5062,6 +5062,20 @@ public class BVM {
 
         if (targetConstraint == null) {
             targetConstraint = BTypes.typeAny;
+        }
+
+        return checkIsType(sourceConstraint, targetConstraint, unresolvedTypes);
+    }
+
+    private static boolean checkTableConstraints(BType sourceConstraint, BType targetConstraint,
+                                                 List<TypePair> unresolvedTypes) {
+        // handle unconstrained tables returned by actions
+        if (sourceConstraint == null) {
+            if (targetConstraint.getTag() == TypeTags.RECORD_TYPE_TAG) {
+                BRecordType targetConstrRecord = (BRecordType) targetConstraint;
+                return !targetConstrRecord.sealed && targetConstrRecord.restFieldType == BTypes.typeAnydata;
+            }
+            return false;
         }
 
         return checkIsType(sourceConstraint, targetConstraint, unresolvedTypes);
