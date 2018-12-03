@@ -1,4 +1,4 @@
-$ ballerina run lengthof.bal
+$ ballerina run length.bal
 Integer array size: 3
 JSON array size: 2
 Map size: 3
