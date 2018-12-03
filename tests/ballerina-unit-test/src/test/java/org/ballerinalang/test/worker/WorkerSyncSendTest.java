@@ -45,16 +45,19 @@ public class WorkerSyncSendTest {
     @Test
     public void simpleSyncSendTest() {
 
-        BValue[] returns = BRunUtil.invoke(result, "simpleSyncSend");
-        Assert.assertTrue(returns[0].stringValue().startsWith("w2w2w2w2w2w1w1"));
+        BValue[] returns = BRunUtil.invoke(result, "simpleSyncSend" );
+        Assert.assertTrue(returns[0].stringValue().startsWith("w2w2w2w2w2"),
+                "Returned wrong value:" + returns[0].stringValue());
     }
 
     @Test
     public void multipleSyncSendTest() {
 
         BValue[] returns = BRunUtil.invoke(result, "multipleSyncSend");
-        Assert.assertTrue(returns[0].stringValue().startsWith("w2w2w2w2w2"));
-        Assert.assertTrue(returns[0].stringValue().endsWith("w11w11w11w11w11"));
+        Assert.assertTrue(returns[0].stringValue().startsWith("w2w2w2w2w2"),
+                "Returned wrong value:" + returns[0].stringValue());
+        Assert.assertTrue(returns[0].stringValue().endsWith("w11w11w11w11w11"),
+                "Returned wrong value:" + returns[0].stringValue());
     }
 
     @Test
@@ -68,8 +71,10 @@ public class WorkerSyncSendTest {
     public void multiWorkerTest() {
 
         BValue[] returns = BRunUtil.invoke(result, "multiWorkerSend");
-        Assert.assertTrue(returns[0].stringValue().startsWith("w2w2w2w2w2w3w3w3w3w3"));
-        Assert.assertTrue(returns[0].stringValue().endsWith("w11w11w11w11w11"));
+        Assert.assertFalse(returns[0].stringValue().startsWith("w1"),
+                "Returned wrong value:" + returns[0].stringValue());
+        Assert.assertTrue(returns[0].stringValue().endsWith("w11w11w11w11w11"),
+                "Returned wrong value:" + returns[0].stringValue());
     }
 
     @Test
@@ -91,7 +96,7 @@ public class WorkerSyncSendTest {
         }
         Assert.assertNotNull(expectedException);
         String result =
-                "error: error3 {\"message\":\"msg3\"}\n" + "\tat $lambda$14(sync-send.bal:234)";
+                "error: error3 {\"message\":\"msg3\"}\n" + "\tat $lambda$14(sync-send.bal:235)";
         Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
     }
 }

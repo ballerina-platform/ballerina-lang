@@ -1,7 +1,8 @@
 import ballerina/runtime;
 import ballerina/io;
+
 string append = "";
- function simpleSyncSend() returns string {
+function simpleSyncSend() returns string {
     string done = process();
     return append;
 }
@@ -12,7 +13,7 @@ function process() returns string {
      a -> w2;
      error? result;
      result = a ->> w2;
-     foreach i in 1 ... 5 {
+     foreach var i in 1 ... 5 {
                            append = append + "w1";
                    }
     }
@@ -20,7 +21,7 @@ function process() returns string {
    worker w2 {
      int b = 15;
      runtime:sleep(10);
-      foreach i in 1 ... 5 {
+      foreach var i in 1 ... 5 {
             append = append + "w2";
              }
      b = <- w1;
@@ -36,11 +37,11 @@ function multipleSyncSend() returns string{
     worker w1 {
          int a = 10;
          var result = a ->> w2;
-         foreach i in 1 ... 5 {
+         foreach var i in 1 ... 5 {
                                append2 = append2 + "w1";
                        }
          result = a ->> w2;
-         foreach i in 1 ... 5 {
+         foreach var i in 1 ... 5 {
                  append2 = append2 + "w11";
         }
         }
@@ -48,11 +49,11 @@ function multipleSyncSend() returns string{
        worker w2 {
          int b = 15;
          runtime:sleep(10);
-          foreach i in 1 ... 5 {
+          foreach var i in 1 ... 5 {
                 append2 = append2 + "w2";
                  }
          b = <- w1;
-         foreach i in 1 ... 5 {
+         foreach var i in 1 ... 5 {
                          append2 = append2 + "w22";
                           }
          b = <- w1;
@@ -70,7 +71,7 @@ function returnNil() returns any {
      int a = 10;
      a -> w2;
      var result = a ->> w2;
-     foreach i in 1 ... 5 {
+     foreach var i in 1 ... 5 {
                            append = append + "w1";
                    }
       return result;
@@ -79,7 +80,7 @@ function returnNil() returns any {
    worker w2 {
      int b = 15;
      runtime:sleep(10);
-      foreach i in 1 ... 5 {
+      foreach var i in 1 ... 5 {
             append = append + "w2";
              }
      b = <- w1;
@@ -96,12 +97,12 @@ function multiWorkerSend() returns string{
          int a = 10;
          var result = a ->> w2;
          result = a ->> w3;
-         foreach i in 1 ... 5 {
+         foreach var i in 1 ... 5 {
                                append3 = append3 + "w1";
                        }
          result = a ->> w2;
           result = a ->> w3;
-         foreach i in 1 ... 5 {
+         foreach var i in 1 ... 5 {
                  append3 = append3 + "w11";
         }
         }
@@ -109,13 +110,13 @@ function multiWorkerSend() returns string{
        worker w2 {
          int b = 15;
          runtime:sleep(10);
-          foreach i in 1 ... 5 {
+          foreach var i in 1 ... 5 {
                 append3 = append3 + "w2";
                  }
          b -> w3;
          b = <- w1;
          var result = b ->> w3;
-         foreach i in 1 ... 5 {
+         foreach var i in 1 ... 5 {
                          append3 = append3 + "w22";
                           }
          b = <- w1;
@@ -124,12 +125,12 @@ function multiWorkerSend() returns string{
        worker w3 {
                 int b;
                 b = <- w2;
-                 foreach i in 1 ... 5 {
+                 foreach var i in 1 ... 5 {
                        append3 = append3 + "w3";
                         }
                 b = <- w1;
                 b = <- w2;
-                foreach i in 1 ... 5 {
+                foreach var i in 1 ... 5 {
                                 append3 = append3 + "w33";
                                  }
                 b = <- w1;
@@ -145,12 +146,12 @@ function errorResult() returns error? {
          int a = 10;
          var result = a ->> w2;
          result = a ->> w3;
-         foreach i in 1 ... 5 {
+         foreach var i in 1 ... 5 {
                                append4 = append4 + "w1";
                        }
          result = a ->> w2;
           result = a ->> w3;
-         foreach i in 1 ... 5 {
+         foreach var i in 1 ... 5 {
                  append3 = append4 + "w11";
         }
 
@@ -160,13 +161,13 @@ function errorResult() returns error? {
        worker w2 {
          int b = 15;
          runtime:sleep(10);
-          foreach i in 1 ... 5 {
+          foreach var i in 1 ... 5 {
                 append4 = append4 + "w2";
                  }
          b -> w3;
          b = <- w1;
          var result = b ->> w3;
-         foreach i in 1 ... 5 {
+         foreach var i in 1 ... 5 {
                          append4 = append4 + "w22";
                           }
          b = <- w1;
@@ -175,7 +176,7 @@ function errorResult() returns error? {
        worker w3 returns error|string {
                 int b;
                 b = <- w2;
-                 foreach i in 1 ... 5 {
+                 foreach var i in 1 ... 5 {
                        append4 = append4 + "w3";
                         }
                 b = <- w1;
@@ -186,7 +187,7 @@ function errorResult() returns error? {
                     error er3 = error(reason.k1, details);
                     return er3;
                 }
-                foreach i in 1 ... 5 {
+                foreach var i in 1 ... 5 {
                                 append4 = append4 + "w33";
                                  }
                 b = <- w1;

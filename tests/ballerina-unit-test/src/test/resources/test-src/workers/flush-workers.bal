@@ -6,13 +6,13 @@ function singleFlush () returns string {
         int a = 10;
         a -> w2;
         error? result = flush w2;
-        foreach i in 1 ... 5 {
+        foreach var i in 1 ... 5 {
             append = append + "w1";
         }
     }
 
     worker w2 {
-        foreach i in 1 ... 5 {
+        foreach var i in 1 ... 5 {
             append = append + "w2";
         }
         int b;
@@ -29,14 +29,14 @@ function flushReturn() returns error? {
             a -> w2;
             a -> w2;
             error? result = flush w2;
-            foreach i in 1 ... 5 {
+            foreach var i in 1 ... 5 {
                 append = append + "w1";
             }
             return result;
         }
 
         worker w2 {
-            foreach i in 1 ... 5 {
+            foreach var i in 1 ... 5 {
                 append = append + "w2";
             }
             int b;
@@ -57,14 +57,14 @@ function flushAll() returns string {
             a -> w3;
             a -> w2;
             error? result = flush;
-            foreach i in 1 ... 5 {
+            foreach var i in 1 ... 5 {
                 append2 = append2 + "w1";
             }
         }
 
         worker w2 {
             runtime:sleep(5);
-            foreach i in 1 ... 5 {
+            foreach var i in 1 ... 5 {
                 append2 = append2 + "w2";
             }
             int b;
@@ -74,7 +74,7 @@ function flushAll() returns string {
 
         worker w3 {
             runtime:sleep(5);
-            foreach i in 1 ... 5 {
+            foreach var i in 1 ... 5 {
                             append2 = append2 + "w3";
                         }
                         int b;
@@ -93,7 +93,7 @@ function errorTest() returns error? {
             a -> w3;
             a -> w2;
             error? result = flush;
-            foreach i in 1 ... 5 {
+            foreach var i in 1 ... 5 {
                 append2 = append2 + "w1";
             }
             return result;
@@ -101,7 +101,7 @@ function errorTest() returns error? {
 
         worker w2 {
             runtime:sleep(5);
-            foreach i in 1 ... 5 {
+            foreach var i in 1 ... 5 {
                 append2 = append2 + "w2";
             }
             int b;
@@ -112,7 +112,7 @@ function errorTest() returns error? {
         worker w3 returns error|string{
             runtime:sleep(5);
             int k;
-            foreach i in 1 ... 5 {
+            foreach var i in 1 ... 5 {
                 append2 = append2 + "w3";
                 k = i;
             }
@@ -140,7 +140,7 @@ function panicTest() returns error? {
             a -> w3;
             a -> w2;
             error? result = flush;
-            foreach i in 1 ... 5 {
+            foreach var i in 1 ... 5 {
                 append2 = append2 + "w1";
             }
             return result;
@@ -148,7 +148,7 @@ function panicTest() returns error? {
 
         worker w2 {
             runtime:sleep(5);
-            foreach i in 1 ... 5 {
+            foreach var i in 1 ... 5 {
                 append2 = append2 + "w2";
             }
             int b;
@@ -159,7 +159,7 @@ function panicTest() returns error? {
         worker w3 returns error|string{
             runtime:sleep(5);
             int k;
-            foreach i in 1 ... 5 {
+            foreach var i in 1 ... 5 {
                 append2 = append2 + "w3";
                 k = i;
             }

@@ -60,7 +60,8 @@ public class WorkerFlushTest {
     public void flushAll() {
 
         BValue[] returns = BRunUtil.invoke(result, "flushAll");
-        Assert.assertTrue(returns[0].stringValue().endsWith("w1w1w1w1w1"));
+        Assert.assertTrue(returns[0].stringValue().endsWith("w1w1w1w1w1"),
+                "Returned wrong value:" + returns[0].stringValue());
     }
 
     @Test

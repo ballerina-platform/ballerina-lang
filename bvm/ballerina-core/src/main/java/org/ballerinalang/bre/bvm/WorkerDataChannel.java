@@ -63,8 +63,9 @@ public class WorkerDataChannel {
         }
         if (this.panic != null) {
             waitingCtx.setError(this.panic);
+            BVM.handleError(waitingCtx);
             this.panic = null;
-            return true;
+            return false;
         }
         this.channel.add(new WorkerResult(data, true));
         this.waitingSender = new WaitingSender(waitingCtx, retReg);
@@ -160,10 +161,10 @@ public class WorkerDataChannel {
         }
     }
 
-    public synchronized void setPanic(BError error) {
-        this.panic  = error;
+    public synchronized void setPanic(BError panic) {
+        this.panic  = panic;
         if (this.waitingSender != null) {
-            this.waitingSender.waitingCtx.setError(error);
+            this.waitingSender.waitingCtx.setError(panic);
             BVMScheduler.stateChange(this.waitingSender.waitingCtx, State.PAUSED, State.RUNNABLE);
             BVM.handleError(this.waitingSender.waitingCtx);
         }
