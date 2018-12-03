@@ -66,8 +66,8 @@ public class Register extends AbstractHttpNativeFunction {
         HTTPServicesRegistry httpServicesRegistry = getHttpServicesRegistry(serviceEndpoint);
         WebSocketServicesRegistry webSocketServicesRegistry = getWebSocketServicesRegistry(serviceEndpoint);
 
-        ParamDetail param = service.getResources()[0].getParamDetails().get(0);
-        if (param != null) {
+        ParamDetail param;
+        if (service.getResources().length > 0 && (param = service.getResources()[0].getParamDetails().get(0)) != null) {
             String callerType = param.getVarType().toString();
             if (HttpConstants.HTTP_CALLER_NAME.equals(callerType)) {
                 httpServicesRegistry.registerService(service);
@@ -75,6 +75,8 @@ public class Register extends AbstractHttpNativeFunction {
                 WebSocketService webSocketService = new WebSocketService(service);
                 webSocketServicesRegistry.registerService(webSocketService);
             }
+        } else {
+            httpServicesRegistry.registerService(service);
         }
         // TODO: 11/24/18 failure need to be validated in the compile time
 

@@ -21,7 +21,6 @@ import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.bre.bvm.Strand;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.FunctionInfo;
@@ -36,10 +35,10 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 public class TransactionUtils {
 
     public static BValue[] notifyTransactionBegin(Strand ctx, String globalTransactionId, String url,
-                                                  int transactionBlockId, String protocol) {
+                                                  String transactionBlockId, String protocol) {
         BValue[] args = {
                 (globalTransactionId == null ? null : new BString(globalTransactionId)),
-                new BInteger(transactionBlockId), new BString(url),
+                new BString(transactionBlockId), new BString(url),
                 new BString(protocol)
         };
         BValue[] returns = invokeCoordinatorFunction(ctx, TransactionConstants.COORDINATOR_BEGIN_TRANSACTION, args);
@@ -48,8 +47,8 @@ public class TransactionUtils {
     }
 
     public static CoordinatorCommit notifyTransactionEnd(Strand ctx, String globalTransactionId,
-            int transactionBlockId) {
-        BValue[] args = {new BString(globalTransactionId), new BInteger(transactionBlockId)};
+            String transactionBlockId) {
+        BValue[] args = {new BString(globalTransactionId), new BString(transactionBlockId)};
         BValue[] returns = invokeCoordinatorFunction(ctx, TransactionConstants.COORDINATOR_END_TRANSACTION, args);
         checkTransactionCoordinatorError(returns[0], "error in transaction end: ");
 
@@ -66,9 +65,8 @@ public class TransactionUtils {
         }
     }
 
-    public static void notifyTransactionAbort(Strand ctx, String globalTransactionId,
-            int transactionBlockId) {
-        BValue[] args = {new BString(globalTransactionId), new BInteger(transactionBlockId)};
+    public static void notifyTransactionAbort(Strand ctx, String globalTransactionId, String transactionBlockId) {
+        BValue[] args = {new BString(globalTransactionId), new BString(transactionBlockId)};
         invokeCoordinatorFunction(ctx, TransactionConstants.COORDINATOR_ABORT_TRANSACTION, args);
     }
 

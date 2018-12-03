@@ -33,7 +33,7 @@ import java.net.URISyntaxException;
  * @since 0.982.0
  */
 // Todo: Fix this test -- some issue with error not being returned always
-@Test(groups = "websocket-test", enabled = false)
+@Test(groups = {"websocket-test"})
 public class PushTextFailureTest extends WebSocketTestCommons {
 
     private static final String URL = "ws://localhost:9089/pushTextFailure";

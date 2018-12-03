@@ -571,7 +571,7 @@ function testTupleMatchWithObjectEquivalency() returns string {
 
     int[] i = [1, 2, 3];
 
-    foreach y in i {
+    foreach var y in i {
         if res is (Foo, Person) {
             return "SUCCESS";
         } else {

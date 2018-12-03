@@ -75,7 +75,7 @@ public class MatchStructuredRecordPatternsTest {
         Assert.assertEquals(bString.stringValue(), "Matched Values : 12, {s:\"S\", i:23, f:5.6}");
     }
 
-    @Test(description = "Test basics of structured pattern match statement 4", groups = "broken")
+    @Test(description = "Test basics of structured pattern match statement 4")
     public void testMatchStatementBasics4() {
         BValue[] returns = BRunUtil.invoke(result, "testStructuredMatchPatternsBasic4", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
@@ -86,7 +86,7 @@ public class MatchStructuredRecordPatternsTest {
         Assert.assertEquals(bString.stringValue(), "Matched Values : {b:12, f:{s:\"S\", i:23, f:5.6}}");
     }
 
-    @Test(description = "Test basics of structured pattern match statement 5", groups = "broken")
+    @Test(description = "Test basics of structured pattern match statement 5")
     public void testMatchStatementBasics5() {
         BValue[] returns = BRunUtil.invoke(result, "testStructuredMatchPatternsBasics5", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
@@ -117,7 +117,7 @@ public class MatchStructuredRecordPatternsTest {
         Assert.assertEquals(results.getString(++i), msg + "single var : bar2");
     }
 
-    @Test(description = "Test structured pattern runtime matching", groups = "broken")
+    @Test(description = "Test structured pattern runtime matching")
     public void testRuntimeCheck() {
         BValue[] returns = BRunUtil.invoke(result, "testRuntimeCheck", new BValue[]{});
         Assert.assertEquals(returns.length, 1);

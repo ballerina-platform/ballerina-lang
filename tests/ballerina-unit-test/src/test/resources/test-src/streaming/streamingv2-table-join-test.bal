@@ -50,7 +50,7 @@ table<Stock> stocksTable = table {
 
 function testJoinQuery() {
     //forever {
-    //    from twitterStream window lengthWindow([1]) as tw
+    //    from twitterStream window lengthWindow(1) as tw
     //    join queryStocksTable(tw.company, 1) as tb
     //    select tb.symbol, tw.tweet, tb.price
     //    => (StockWithPrice[] stocks) {
@@ -63,7 +63,7 @@ function testJoinQuery() {
 
 function testOuterJoinQuery() {
     //forever {
-    //    from twitterStream window lengthWindow([1]) as tw
+    //    from twitterStream window lengthWindow(1) as tw
     //    full outer join queryStocksTable(tw.company, 1) as tb
     //    select tb.symbol, tw.tweet, tb.price
     //    => (StockWithPrice[] stocks) {
@@ -130,7 +130,7 @@ public function queryStocksTable(string symbol, int volume) returns table<Stock>
     table<Stock> result = table {
         { symbol, price, volume }, []
     };
-    foreach stock in stocksTable {
+    foreach var stock in stocksTable {
         if (stock.symbol == symbol && stock.volume > volume) {
             var ret = result.add(stock);
         }

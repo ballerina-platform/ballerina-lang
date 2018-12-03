@@ -121,28 +121,129 @@ function waitTest13() returns int {
     }
 }
 
-function waitTest14() returns int|error {
+function waitTest14() returns int {
+    worker w1 returns int {
+        future<int> f1 = start add_1(5, 2);
+        future<int> f2 = start add_3(50, 100);
+        int r = wait f1 | f2;
+        return r;
+    }
+    int result = wait w1;
+    return result;
+}
+
+function waitTest15() returns int {
+    worker w1 returns int {
+        future<int> f1 = start add_1(5, 2);
+        future<int> f2 = start add_3(50, 100);
+        int l = 0;
+        while (l < 9999) {
+            l = l + 1;
+        }
+        int r = wait f1 | f2;
+        return r;
+    }
+    worker w2 returns int {
+        future<int> f1 = start add_1(50, 10);
+        future<int> f2 = start add_3(200, 99);
+        int r = wait f1 | f2;
+        return r;
+    }
+    int result = wait w1 | w2;
+    return result;
+}
+
+function waitTest16() returns int|string|boolean {
+    worker w1 returns int {
+        future<int> f1 = start add_1(5, 2);
+        future<int> f2 = start add_3(50, 100);
+        runtime:sleep(3000);
+        int r = wait f1 | f2;
+        return r;
+    }
+    worker w2 returns int|string {
+        future<int> f1 = start add_1(50, 10);
+        future<string> f2 = start concat("foo");
+        int|string r = wait f1 | f2;
+        return r;
+    }
+    worker w3 returns int|string|boolean {
+        future<int> f1 = start add_1(6, 6);
+        future<string> f2 = start concat("bar");
+        future<boolean> f3 = start status();
+        int|string|boolean r = wait f1 | f2 | f3;
+        runtime:sleep(2000);
+        return r;
+    }
+    int|string|boolean result = wait w1 | w2 | w3;
+    return result;
+}
+
+function waitTest17() returns int|error {
+    map<any> m = {};
+    m["x"] = 25;
+    fork {
+        worker w1 {
+            int a = 10;
+            m["x"] = a;
+            runtime:sleep(1000);
+        }
+        worker w2 {
+            int a = 5;
+            int b = 15;
+            runtime:sleep(2000);
+            m["x"] = a + b;
+        }
+        worker w3 {
+            int b = 30;
+            m["x"] = b;
+        }
+    }
+    () results = wait w1 | w2 | w3;
+    return int.create(m["x"]);
+}
+
+function waitTest18() returns int {
+    worker w1 returns int{
+        int a = 10;
+        a -> w2;
+        a = <- w2;
+        return a;
+    }
+    worker w2 returns int{
+        int a = 0;
+        int b = 15;
+        a = <- w1;
+        b -> w1;
+        runtime:sleep(2000);
+        return a;
+    }
+    int result = wait w1 | w2;
+    result = result + 50;
+    return result;
+}
+function waitTest19() returns int|error {
     future<int|error> f1 = start addOrError(5, 2);
     future<int|error> f2 = start addOrError(10, 12);
     int|error result = wait f1 | f2;
     return result;
 }
 
-function waitTest15() returns int|string|error {
+function waitTest20() returns int|string|error {
     future<int|error> f1 = start addOrError(10, 12);
     future<string> f2 = start concat("moo");
     int|string|error result = wait f1 | f2;
     return result;
 }
 
-function waitTest16() returns int|error {
+function waitTest21() returns int|error {
     future<int|error> f1 = start addOrError(10, 12);
     future<int> f2 = start add_panic1(55, 88);
     int|error result = wait f1 | f2;
     return result;
 }
 
-function waitTest17() returns int|string|error {
+function waitTest22() returns int|string|error {
     future<string> f3 = start concat("foo");
     future<int|error> f1 = start addOrError(10, 12);
     future<int> f2 = start add_panic1(55, 88);
@@ -150,7 +251,7 @@ function waitTest17() returns int|string|error {
     return result;
 }
 
-function waitTest18() returns int|string|() {
+function waitTest23() returns int|string|() {
     future<()> f1 = runtime:timeout(2000);
     future<int> f2 = start add_1(5, 2);
     future<string> f3 = start greet();
@@ -192,17 +293,6 @@ function add_panic3(int i, int j) returns int {
     }
     return k;
 }
-//function waitTest11() returns any { // Needs to be tested out
-//    any result = 0;
-//    worker w1 {
-//        future<int> f1 = start add_1(5, 2);
-//        future<int> f3 = start add_3(50, 100);
-//        future<string> f4 = start concat("foo");
-//        result = wait f1 | f3 | f4;
-//    }
-//    result = wait w1;
-//    return result;
-//}
 
 function add_1(int i, int j) returns int {
     int k = i + j;

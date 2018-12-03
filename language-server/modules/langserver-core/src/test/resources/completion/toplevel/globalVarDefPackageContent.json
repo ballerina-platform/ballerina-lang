@@ -15,7 +15,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"createHttpCachingClient(string url, http:ClientEndpointConfig config, http:CacheConfig cacheConfig)(ballerina/http:CallerActions)",
+      "label":"createHttpCachingClient(string url, http:ClientEndpointConfig config, http:CacheConfig cacheConfig)(ballerina/http:Client|error)",
       "kind":"Function",
       "detail":"Function",
       "documentation":"Creates an HTTP client capable of caching HTTP responses.\n",
@@ -33,7 +33,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"invokeEndpoint(string path, http:Request outRequest, FORWARD|GET|POST|DELETE|OPTIONS|PUT|PATCH|HEAD|NONE requestAction, http:CallerActions httpClient)(ballerina/http:Response|error)",
+      "label":"invokeEndpoint(string path, http:Request outRequest, FORWARD|GET|POST|DELETE|OPTIONS|PUT|PATCH|HEAD|NONE requestAction, http:Client httpClient)(ballerina/http:Response|error)",
       "kind":"Function",
       "detail":"Function",
       "documentation":"The HEAD action implementation of the Circuit Breaker. This wraps the `head()` function of the underlying\nHTTP actions provider.",
@@ -42,7 +42,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"createHttpSecureClient(string url, http:ClientEndpointConfig config)(ballerina/http:CallerActions)",
+      "label":"createHttpSecureClient(string url, http:ClientEndpointConfig config)(ballerina/http:Client|error)",
       "kind":"Function",
       "detail":"Function",
       "documentation":"Creates an HTTP client capable of securing HTTP requests with authentication.\n",
@@ -261,14 +261,6 @@
       "insertText":"CompressionConfig"
     },
     {
-      "label":"FailoverClientEndpointConfiguration",
-      "kind":"Class",
-      "detail":"BType",
-      "documentation":"Provides a set of HTTP related configurations and failover related configurations.\n",
-      "sortText":"170",
-      "insertText":"FailoverClientEndpointConfiguration"
-    },
-    {
       "label":"FailoverConfig",
       "kind":"Class",
       "detail":"BType",
@@ -283,6 +275,14 @@
       "documentation":"Inferred failover configurations passed into the failover client.\n",
       "sortText":"170",
       "insertText":"FailoverInferredConfig"
+    },
+    {
+      "label":"FailoverClientEndpointConfiguration",
+      "kind":"Class",
+      "detail":"BType",
+      "documentation":"Provides a set of HTTP related configurations and failover related configurations.\n",
+      "sortText":"170",
+      "insertText":"FailoverClientEndpointConfiguration"
     },
     {
       "label":"CircuitHealth",
@@ -325,20 +325,20 @@
       "insertText":"CircuitBreakerInferredConfig"
     },
     {
-      "label":"LoadBalanceActionErrorData",
-      "kind":"Class",
-      "detail":"BType",
-      "documentation":"Represents an error occurred in an action of the Load Balance connector.\n",
-      "sortText":"170",
-      "insertText":"LoadBalanceActionErrorData"
-    },
-    {
       "label":"RetryInferredConfig",
       "kind":"Class",
       "detail":"BType",
       "documentation":"Derived set of configurations from the `RetryConfig`.\n",
       "sortText":"170",
       "insertText":"RetryInferredConfig"
+    },
+    {
+      "label":"LoadBalanceActionErrorData",
+      "kind":"Class",
+      "detail":"BType",
+      "documentation":"Represents an error occurred in an action of the Load Balance connector.\n",
+      "sortText":"170",
+      "insertText":"LoadBalanceActionErrorData"
     },
     {
       "label":"LoadBalanceClientEndpointConfiguration",
@@ -500,14 +500,6 @@
       "insertText":"HttpCache"
     },
     {
-      "label":"HttpCachingClient",
-      "kind":"Class",
-      "detail":"BType",
-      "documentation":"An HTTP caching client implementation which takes an `HttpActions` instance and wraps it with an HTTP caching layer.\n",
-      "sortText":"170",
-      "insertText":"HttpCachingClient"
-    },
-    {
       "label":"HttpFuture",
       "kind":"Class",
       "detail":"BType",
@@ -556,28 +548,12 @@
       "insertText":"Response"
     },
     {
-      "label":"HttpSecureClient",
+      "label":"MockListener",
       "kind":"Class",
       "detail":"BType",
-      "documentation":"Provides secure HTTP actions for interacting with HTTP endpoints. This will make use of the authentication schemes\nconfigured in the HTTP client endpoint to secure the HTTP requests.\n",
+      "documentation":"Mock server endpoint which does not open a listening port.",
       "sortText":"170",
-      "insertText":"HttpSecureClient"
-    },
-    {
-      "label":"Service",
-      "kind":"Class",
-      "detail":"BType",
-      "documentation":"A representation of an HTTP service instance.",
-      "sortText":"170",
-      "insertText":"Service"
-    },
-    {
-      "label":"RedirectClient",
-      "kind":"Class",
-      "detail":"BType",
-      "documentation":"Provides redirect functionality for HTTP client actions.\n",
-      "sortText":"170",
-      "insertText":"RedirectClient"
+      "insertText":"MockListener"
     },
     {
       "label":"CircuitBreakerClient",
@@ -596,14 +572,6 @@
       "insertText":"LoadBalancerRule"
     },
     {
-      "label":"RetryClient",
-      "kind":"Class",
-      "detail":"BType",
-      "documentation":"Provides the HTTP actions for interacting with an HTTP endpoint. This is created by wrapping the HTTP client\nto provide retrying over HTTP requests.\n",
-      "sortText":"170",
-      "insertText":"RetryClient"
-    },
-    {
       "label":"LoadBalancerRounRobinRule",
       "kind":"Class",
       "detail":"BType",
@@ -612,20 +580,116 @@
       "insertText":"LoadBalancerRounRobinRule"
     },
     {
-      "label":"WebSocketClientService",
+      "label":"Listener",
       "kind":"Class",
       "detail":"BType",
-      "documentation":"Represents the WebSocket client service.",
+      "documentation":"This is used for creating HTTP server endpoints. An HTTP server endpoint is capable of responding to\nremote callers. The `Listener` is responsible for initializing the endpoint using the provided configurations.",
       "sortText":"170",
-      "insertText":"WebSocketClientService"
+      "insertText":"Listener"
     },
     {
-      "label":"WebSocketService",
+      "label":"WebSocketListener",
       "kind":"Class",
       "detail":"BType",
-      "documentation":"Represents the WebSocket client service.",
+      "documentation":"Represents a WebSocket service endpoint.",
       "sortText":"170",
-      "insertText":"WebSocketService"
+      "insertText":"WebSocketListener"
+    },
+    {
+      "label":"HttpCachingClient",
+      "kind":"Class",
+      "detail":"BType",
+      "documentation":"An HTTP caching client implementation which takes an `HttpActions` instance and wraps it with an HTTP caching layer.\n",
+      "sortText":"170",
+      "insertText":"HttpCachingClient"
+    },
+    {
+      "label":"Client",
+      "kind":"Class",
+      "detail":"BType",
+      "documentation":"The HTTP client provides the capability for initiating contact with a remote HTTP service. The API it\nprovides includes functions for the standard HTTP methods, forwarding a received request and sending requests\nusing custom HTTP verbs.",
+      "sortText":"170",
+      "insertText":"Client"
+    },
+    {
+      "label":"HttpCaller",
+      "kind":"Class",
+      "detail":"BType",
+      "documentation":"Provides the HTTP actions for interacting with an HTTP server. Apart from the standard HTTP methods, `forward()`\nand `execute()` functions are provided. More complex and specific endpoint types can be created by wrapping this\ngeneric HTTP actions implementation.\n",
+      "sortText":"170",
+      "insertText":"HttpCaller"
+    },
+    {
+      "label":"Caller",
+      "kind":"Class",
+      "detail":"BType",
+      "documentation":"The caller actions for responding to client requests.\n",
+      "sortText":"170",
+      "insertText":"Caller"
+    },
+    {
+      "label":"HttpSecureClient",
+      "kind":"Class",
+      "detail":"BType",
+      "documentation":"Provides secure HTTP actions for interacting with HTTP endpoints. This will make use of the authentication schemes\nconfigured in the HTTP client endpoint to secure the HTTP requests.\n",
+      "sortText":"170",
+      "insertText":"HttpSecureClient"
+    },
+    {
+      "label":"HttpClient",
+      "kind":"Class",
+      "detail":"BType",
+      "documentation":"Provides the HTTP actions for interacting with an HTTP server. Apart from the standard HTTP methods, `forward()`\nand `execute()` functions are provided. More complex and specific endpoint types can be created by wrapping this\ngeneric HTTP actions implementation.\n",
+      "sortText":"170",
+      "insertText":"HttpClient"
+    },
+    {
+      "label":"RedirectClient",
+      "kind":"Class",
+      "detail":"BType",
+      "documentation":"Provides redirect functionality for HTTP client actions.\n",
+      "sortText":"170",
+      "insertText":"RedirectClient"
+    },
+    {
+      "label":"FailoverClient",
+      "kind":"Class",
+      "detail":"BType",
+      "documentation":"An HTTP client endpoint which provides failover support over multiple HTTP clients.\n",
+      "sortText":"170",
+      "insertText":"FailoverClient"
+    },
+    {
+      "label":"RetryClient",
+      "kind":"Class",
+      "detail":"BType",
+      "documentation":"Provides the HTTP actions for interacting with an HTTP endpoint. This is created by wrapping the HTTP client\nto provide retrying over HTTP requests.\n",
+      "sortText":"170",
+      "insertText":"RetryClient"
+    },
+    {
+      "label":"LoadBalanceClient",
+      "kind":"Class",
+      "detail":"BType",
+      "documentation":"LoadBalanceClient endpoint provides load balancing functionality over multiple HTTP clients.\n",
+      "sortText":"170",
+      "insertText":"LoadBalanceClient"
+    },
+    {
+      "label":"WebSocketCaller",
+      "kind":"Class",
+      "detail":"BType",
+      "documentation":"Represents a WebSocket caller.\n",
+      "sortText":"170",
+      "insertText":"WebSocketCaller"
+    },
+    {
+      "label":"WebSocketClient",
+      "kind":"Class",
+      "detail":"BType",
+      "documentation":"Represents a WebSocket client endpoint.\n",
+      "sortText":"170",
+      "insertText":"WebSocketClient"
     },
     {
       "label":"CachingPolicy",

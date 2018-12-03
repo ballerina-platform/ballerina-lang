@@ -83,7 +83,9 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
             terminateVisitor = true;
             acceptNode(null);
         } else {
-            topLevelNodes.forEach(topLevelNode -> acceptNode((BLangNode) topLevelNode));
+            topLevelNodes.stream()
+                    .filter(CommonUtil.checkInvalidTypesDefs())
+                    .forEach(topLevelNode -> acceptNode((BLangNode) topLevelNode));
         }
     }
 
@@ -224,9 +226,7 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangForeach foreach) {
-        if (foreach.varRefs != null) {
-            foreach.varRefs.forEach(this::acceptNode);
-        }
+        acceptNode((BLangNode) foreach.variableDefinitionNode);
 
         if (foreach.body != null) {
             this.acceptNode(foreach.body);

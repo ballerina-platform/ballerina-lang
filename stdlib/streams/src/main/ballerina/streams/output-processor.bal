@@ -26,10 +26,10 @@ public type OutputProcess object {
         int index = 0;
         map<anydata>[] events = [];
         int i = 0;
-        foreach event in streamEvents {
+        foreach var event in streamEvents {
             if (event.eventType == "CURRENT") {
                 map<anydata> outputData = {};
-                foreach k, v in event.data {
+                foreach var (k, v) in event.data {
                     string[] s = k.split("\\.");
                     if (OUTPUT.equalsIgnoreCase(s[0])) {
                         outputData[s[1]] = v;

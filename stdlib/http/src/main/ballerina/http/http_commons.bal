@@ -300,7 +300,7 @@ function extractHttpOperation (string httpVerb) returns HttpOperation {
 // at runtime.
 function populateErrorCodeIndex (int[] errorCode) returns boolean[] {
     boolean[] result = [];
-    foreach i in errorCode {
+    foreach var i in errorCode {
         result[i] = true;
     }
     return result;
@@ -323,10 +323,10 @@ function populateRequestFields (Request originalRequest, Request newRequest)  {
 function populateMultipartRequest(Request inRequest) returns Request|error {
     if (isMultipartRequest(inRequest)) {
         mime:Entity[] bodyParts = check inRequest.getBodyParts();
-        foreach bodyPart in bodyParts {
+        foreach var bodyPart in bodyParts {
             if (isNestedEntity(bodyPart)) {
                 mime:Entity[] childParts = check bodyPart.getBodyParts();
-                foreach childPart in childParts {
+                foreach var childPart in childParts {
                     // When performing passthrough scenarios, message needs to be built before
                     // invoking the endpoint to create a message datasource.
                     var childBlobContent = childPart.getByteArray();

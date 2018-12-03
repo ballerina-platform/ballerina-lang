@@ -47,7 +47,7 @@ function startTimeLengthwindowTest1() returns (TeacherOutput[]) {
     testTimeLengthwindow();
 
     outputStreamTimeLengthWindowTest1.subscribe(function(TeacherOutput e) {printTeachers(e);});
-    foreach t in teachers {
+    foreach var t in teachers {
         inputStreamTimeLengthWindowTest1.publish(t);
         runtime:sleep(500);
     }
@@ -67,11 +67,11 @@ function startTimeLengthwindowTest1() returns (TeacherOutput[]) {
 function testTimeLengthwindow() {
 
     forever {
-        from inputStreamTimeLengthWindowTest1 window timeLengthWindow([2000, 10])
+        from inputStreamTimeLengthWindowTest1 window timeLengthWindow(2000, 10)
         select inputStreamTimeLengthWindowTest1.timestamp, inputStreamTimeLengthWindowTest1.name, count() as count
         group by inputStreamTimeLengthWindowTest1.school
         => (TeacherOutput [] teachers) {
-            foreach t in teachers {
+            foreach var t in teachers {
                 outputStreamTimeLengthWindowTest1.publish(t);
             }
         }

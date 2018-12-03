@@ -32,58 +32,84 @@ xml bookstore = xml `<bookstore>
 
 function foreachTest() returns (int, string)[] {
     (int, string)[] titles = [];
-    int count = 0;
 
-    foreach i, x in bookstore["book"] {
-        titles[count] = (i, x["title"].getTextValue());
-        count += 1;
+    count = 0;
+
+    int i = 0;
+    foreach var x in bookstore["book"] {
+        if x is xml {
+            titles[count] = (i, x["title"].getTextValue());
+            count +=1;
+            i +=1;
+        }
     }
 
     return titles;
 }
 
+int count = 0;
+
 function foreachOpTest() returns (int, string)[] {
     (int, string)[] titles = [];
-    int count = 0;
 
-    bookstore["book"].foreach(function ((int, xml) entry) {
-        var (index, value) = entry;
-        titles[count] = (index, value["title"].getTextValue());
-        count += 1;
+    count = 0;
+
+    bookstore["book"].foreach(function (xml|string entry) {
+        if entry is xml {
+            titles[count] = (count, entry["title"].getTextValue());
+            count += 1;
+        }
     });
 
     return titles;
 }
 
 function mapOpTest() returns xml[] {
-    xml[] titles = bookstore["book"].map(function (xml book) returns xml {
-        return book["author"];
+    xml[] titles = bookstore["book"].map(function (xml|string book) returns xml {
+        if book is xml {
+            return book["author"];
+        }
+        return xml ` `;
     });
     return titles;
 }
 
 function filterOpTest() returns xml[] {
-    xml[] books = bookstore["book"].filter(function (xml book) returns boolean {
-                                               var result = int.create(book["year"].getTextValue());
-                                               if (result is int) {
-                                                  return result > 2004;
-                                               } else {
-                                                  return false;
-                                               }
+    xml[] books = bookstore["book"].filter(function (xml|string book) returns boolean {
+                                                if book is xml {
+                                                    var result = int.create(book["year"].getTextValue());
+                                                    if (result is int) {
+                                                       return result > 2004;
+                                                    } else {
+                                                       return false;
+                                                    }
+                                                }
+                                                return false;
+                                            }).map(function(xml|string value) returns xml {
+                                                if value is xml {
+                                                    return value;
+                                                }
+                                                return xml ` `;
                                             });
     return books;
 }
 
 function chainedIterableOps() returns xml[] {
-    xml[] authors = bookstore["book"].filter(function (xml book) returns boolean {
-                                               var result = int.create(book["year"].getTextValue());
-                                               if (result is int) {
-                                                  return result > 2004;
-                                               } else {
-                                                  return false;
-                                               }
-                                            }).map(function (xml book) returns xml {
-                                                  return book["author"];
-                                            });
+    xml[] authors = bookstore["book"].filter(function (xml|string book) returns boolean {
+                                                if book is xml {
+                                                    var result = int.create(book["year"].getTextValue());
+                                                    if (result is int) {
+                                                       return result > 2004;
+                                                    } else {
+                                                       return false;
+                                                    }
+                                                }
+                                                return false;
+                                            }).map(function (xml|string book) returns xml {
+                                                    if book is xml {
+                                                        return book["author"];
+                                                    }
+                                                    return xml ` `;
+                                                });
     return authors;
 }
