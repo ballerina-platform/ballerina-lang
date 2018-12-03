@@ -64,7 +64,7 @@ function startLengthBatchwindowTest1() returns (TeacherOutput[]) {
 function testLengthBatchwindow() {
 
     forever {
-        from inputStreamLengthBatchTest1 window lengthBatchWindow([2])
+        from inputStreamLengthBatchTest1 window lengthBatchWindow(2)
         select inputStreamLengthBatchTest1.name, count() as count
         group by inputStreamLengthBatchTest1.school
         => (TeacherOutput [] emp) {
