@@ -34,6 +34,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.Map.Entry;
 
 /**
@@ -289,7 +290,7 @@ public class JsonGenerator {
                 this.writeStartArray();
                 BValueArray jsonArray = (BValueArray) json;
                 for (int i = 0; i < jsonArray.size(); i++) {
-                    this.serialize(jsonArray.getRefValue(i));
+                    this.serialize(jsonArray.getBValue(i));
                 }
                 this.writeEndArray();
                 break;
