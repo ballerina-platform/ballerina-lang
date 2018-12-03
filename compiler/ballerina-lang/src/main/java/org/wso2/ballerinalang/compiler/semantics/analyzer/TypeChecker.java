@@ -580,10 +580,14 @@ public class TypeChecker extends BLangNodeVisitor {
             this.dlog.error(syncSendExpr.pos, DiagnosticCode.UNDEFINED_WORKER, workerName);
         }
 
-        // Return a subtype of error?
-        BType actualType = new BUnionType(null, new LinkedHashSet<BType>() {
-            { add(symTable.errorType); add(symTable.nilType); }}, false);
-        resultType = types.checkType(syncSendExpr, actualType, expType);
+        if (expType == symTable.noType) {
+            LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
+            memberTypes.add(symTable.errorType);
+            memberTypes.add(symTable.nilType);
+            resultType = new BUnionType(null, memberTypes, true);
+        } else {
+            resultType = expType;
+        }
     }
 
     @Override
