@@ -98,6 +98,8 @@
         INCREMENT           = '++' ;
         DECREMENT           = '--' ;
 
+        UNDERSCORE          = '_'  ;
+
         LINE_COMMENT        = 'regexp://[^\r\n]*'
 
         WHITE_SPACE = 'regexp:\s+'
@@ -105,7 +107,7 @@
         DECIMAL_INTEGER_LITERAL = "regexp:\d+"
   ]
 
-    extends("(FunctionInvocation|SimpleVariable|MapArrayVariable|FieldVariable|XmlAttribVariable|Invocation|TypeAccessExprInvocation)Reference") = VariableReference
+    extends("(FunctionInvocation|SimpleVariable|MapArrayVariable|FieldVariable|XmlAttribVariable|Invocation|TypeAccessExprInvocation|UnderscoreVariable)Reference") = VariableReference
 
     extends("((Simple|Array|Record|Xml|StringTemplate)Literal|(ValueType|BuiltInReferenceType)Type|VariableReference|LambdaFunction|ArrowFunction|Type(Init|Conversion|Access|Test)|BracedOrTuple|Wait|WorkerSendAsync|WorkerReceive|FlushWorker|TableQuery|Checked|TableLiteral|Elvis|ActionInvocation|IntegerRange|ArrowFunction|ErrorConstructor|ServiceConstructor|BinaryRefEqual|Trap)Expression") = Expression
     extends("(Unary|Binary|Ternary|Bitwise|BitwiseShift)Expression") = Expression
@@ -113,6 +115,8 @@
     extends("Binary(DivMulMod|AddSub|Compare|Equal|And|Or)Expression") = BinaryExpression
 
     extends("(Simple|Array|Nullable|Union|Group|Tuple|Object|Record)TypeName|BinaryAndExpression") = TypeName
+
+    extends("StaticMatch(OrExpression|(Simple|Record|Tuple|Underscore)Literal)") = StaticMatchLiterals
 
     // Each named definition which can be renamed should implement this interface.
     implements("(Function|Annotation|Action|Worker|Type)Definition") = "io.ballerina.plugins.idea.psi.BallerinaNamedElement"
@@ -192,12 +196,12 @@ Definition ::= ( TypeDefinition
 
 private TopLevelDefinitionRecover ::= !(MARKDOWN_DOCUMENTATION_LINE_START|PARAMETER_DOCUMENTATION_START|RETURN_PARAMETER_DOCUMENTATION_START|DEPRECATED_TEMPLATE_START|'@'|extern|remote|client|abstract|public|type|typedesc|service|listener|function|enum|annotation|int|float|decimal|boolean|string|byte|map|xml|xmlns|json|table|any|stream|object|record|channel|const|final|future|identifier|'{')
 
-ServiceDefinition ::= service identifier? on Expression  ServiceBody {pin=1}
+ServiceDefinition ::= service identifier? on ExpressionList ServiceBody {pin=3}
 ServiceBody ::= LEFT_BRACE ServiceBodyMember* RIGHT_BRACE
 ServiceBodyMember ::= ObjectFieldDefinition | ObjectFunctionDefinition
 
 // Pin to make sure callable unit is identified correctly
-CallableUnitBody ::= LEFT_BRACE (RIGHT_BRACE | Block WorkerDefinition* Block RIGHT_BRACE) {pin=1}
+CallableUnitBody ::= LEFT_BRACE (RIGHT_BRACE | Block WorkerDefinition+ Block RIGHT_BRACE | Block RIGHT_BRACE) {pin=1}
 
 Block ::= Statement* {methods=[processDeclarations]} /*{recoverWhile=StatementRecover}*/
 
@@ -257,7 +261,7 @@ GlobalVariableDefinition ::= finalVariableDefinition
 
 private finalVariableDefinition ::= public? final (TypeName | var) identifier ASSIGN Expression SEMICOLON {pin=2}
 private nonFinalVariableDefinition ::=  public? listener? TypeName identifier (ASSIGN Expression)? SEMICOLON
-private channelDefinition ::= channelType identifier SEMICOLON
+private channelDefinition ::= channelType identifier ASSIGN Expression SEMICOLON
 channelType ::= channel (LT TypeName GT) {pin=1}
 
 // Todo - Need to update the service?
@@ -383,13 +387,13 @@ Statement ::=
     |   CompoundAssignmentStatement
     |   ExpressionStmt
     |   StreamingQueryStatement
-    |   DoneStatement
+    |   ErrorDestructuringStatement
 {recoverWhile = StatementRecover}
 
 // Todo - Add more tokens (for record destructuring and panic)
 // Note - Literals are added for worker interactions - 10 -> w2;
 // NULL_LITERAL is added for match pattern -  null => return "error";
-private StatementRecover ::= !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|SYMBOLIC_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|int|string|float|decimal|boolean|byte|any|anydata|json|xml|xmlns|map|table|function|stream|'('|'}'|';'|typedesc|future|var|while|match|foreach|continue|break|fork|try|throw|return|abort|retry|fail|lock|transaction|if|forever|object|check|error|panic|from|worker|record|done|identifier)
+private StatementRecover ::= !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|SYMBOLIC_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|int|string|float|decimal|boolean|byte|any|anydata|json|xml|xmlns|map|table|function|stream|'('|'}'|';'|typedesc|future|var|while|match|foreach|continue|break|fork|try|throw|return|abort|aborted|committed|retry|fail|lock|transaction|if|forever|object|check|error|panic|from|worker|record|identifier)
 
 // Note - VariableDefinitionStatementInService
 //TODO - change pin
@@ -423,7 +427,9 @@ AssignmentStatement ::= VariableReference ASSIGN Expression SEMICOLON {pin=2}
 
 tupleDestructuringStatement ::= TupleRefBindingPattern ASSIGN Expression SEMICOLON {pin=2}
 
-RecordDestructuringStatement ::= var? RecordRefBindingPattern ASSIGN Expression SEMICOLON {pin=3}
+RecordDestructuringStatement ::= RecordRefBindingPattern ASSIGN Expression SEMICOLON {pin=3}
+
+ErrorDestructuringStatement ::= ErrorRefBindingPattern ASSIGN Expression SEMICOLON
 
 CompoundAssignmentStatement ::= VariableReference CompoundOperator Expression SEMICOLON
 
@@ -453,14 +459,30 @@ matchStatement ::= match Expression matchStatementBody {pin=1}
 matchStatementBody ::= LEFT_BRACE matchPatternClause+ RIGHT_BRACE {pin=1}
 
 // Todo - Add fake rule
-matchPatternClause ::= bindingPatternPattern | expressionPattern
+matchPatternClause ::= varMatchPattern | staticMatchPattern
 
-bindingPatternPattern ::= var BindingPattern (if Expression)? EQUAL_GT (LEFT_BRACE Block RIGHT_BRACE | Statement) {pin=1}
-expressionPattern ::=  Expression EQUAL_GT (LEFT_BRACE Block RIGHT_BRACE | Statement) {pin=2}
+varMatchPattern ::= var BindingPattern (if Expression)? EQUAL_GT (LEFT_BRACE Block RIGHT_BRACE | Statement) {pin=1}
+staticMatchPattern ::=  StaticMatchLiterals EQUAL_GT (LEFT_BRACE Block RIGHT_BRACE | Statement) {pin=2}
+
+StaticMatchLiterals ::= StaticMatchSimpleLiteral
+                    |   StaticMatchRecordLiteral
+                    |   StaticMatchTupleLiteral
+                    |   StaticMatchUnderscoreLiteral
+                    |   StaticMatchOrExpression
+
+StaticMatchSimpleLiteral ::= SimpleLiteral
+StaticMatchRecordLiteral ::= RecordLiteral
+StaticMatchTupleLiteral ::= TupleLiteral
+StaticMatchUnderscoreLiteral ::=  UNDERSCORE
+StaticMatchOrExpression ::= StaticMatchLiterals PIPE StaticMatchLiterals
+
+TupleLiteral::=   LEFT_PARENTHESIS Expression (COMMA Expression)* RIGHT_PARENTHESIS
 
 BindingPattern ::= identifier | StructuredBindingPattern
 
-StructuredBindingPattern ::= TupleBindingPattern | RecordBindingPattern
+StructuredBindingPattern ::= TupleBindingPattern | RecordBindingPattern | ErrorBindingPattern
+
+ErrorBindingPattern ::= error LEFT_PARENTHESIS identifier (COMMA (identifier | RecordBindingPattern))? RIGHT_PARENTHESIS {pin=1}
 
 TupleBindingPattern ::= LEFT_PARENTHESIS BindingPattern (COMMA BindingPattern)+ RIGHT_PARENTHESIS
 
@@ -472,13 +494,18 @@ FieldBindingPattern ::= identifier (COLON BindingPattern)? {pin=1}
 
 RestBindingPattern ::= ELLIPSIS identifier | SealedLiteral
 
-BindingRefPattern ::= VariableReference | StructuredRefBindingPattern
+BindingRefPattern ::= VariableReference
+                    | StructuredRefBindingPattern
+                    | ErrorRefBindingPattern
+                    | UNDERSCORE
 
 StructuredRefBindingPattern ::= TupleRefBindingPattern | RecordRefBindingPattern
 
 TupleRefBindingPattern ::= LEFT_PARENTHESIS BindingRefPattern (COMMA BindingRefPattern)+ RIGHT_PARENTHESIS {pin=1}
 
 RecordRefBindingPattern ::= LEFT_BRACE EntryRefBindingPattern RIGHT_BRACE {pin=1}
+
+ErrorRefBindingPattern ::= TYPE_ERROR LEFT_PARENTHESIS VariableReference (COMMA (VariableReference | RecordRefBindingPattern))? RIGHT_PARENTHESIS
 
 EntryRefBindingPattern ::= FieldRefBindingPattern (COMMA FieldRefBindingPattern)* (COMMA RestRefBindingPattern)? | RestRefBindingPattern
 
@@ -540,6 +567,7 @@ VariableReference ::= MapArrayVariableReference
                       | FunctionInvocationReference
                       | SimpleVariableReference
                       | TypeAccessExprInvocationReference
+                      | UnderscoreVariableReference
                       {methods=[getType]}
 
 InvocationReference ::= VariableReference Invocation
@@ -549,6 +577,7 @@ XmlAttribVariableReference ::= VariableReference XmlAttrib
 FunctionInvocationReference ::= FunctionInvocation
 SimpleVariableReference ::=  NameReference
 TypeAccessExprInvocationReference ::=  TypeAccessExpression Invocation
+UnderscoreVariableReference ::= UNDERSCORE
 
 // Todo - Adding pin will mess function invocation.
 Invocation ::= (DOT | NOT) AnyIdentifierName LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS
@@ -572,11 +601,13 @@ ExpressionList ::= Expression (COMMA Expression)* {
 
 ExpressionStmt ::= Expression SEMICOLON {pin=1}
 
-TransactionStatement ::= TransactionClause OnRetryClause? {pin=1}
+TransactionStatement ::= TransactionClause OnRetryClause? CommittedAbortedClauses? {pin=1}
+
+CommittedAbortedClauses ::= CommittedClause AbortedClause | AbortedClause CommittedClause | AbortedClause | CommittedClause
 
 TransactionClause ::= transaction (with TransactionPropertyInitStatementList)? (LEFT_BRACE (Block RIGHT_BRACE)) {pin(".*")=1}
 
-TransactionPropertyInitStatement ::= RetriesStatement | OnCommitStatement | OnAbortStatement
+TransactionPropertyInitStatement ::= RetriesStatement
 
 TransactionPropertyInitStatementList ::= TransactionPropertyInitStatement (COMMA TransactionPropertyInitStatement)* {pin(".*")=1}
 
@@ -590,9 +621,9 @@ RetryStatement ::= retry SEMICOLON {pin=1}
 
 RetriesStatement ::= retries ASSIGN Expression {pin=1}
 
-OnCommitStatement ::= oncommit ASSIGN Expression {pin=1}
+CommittedClause ::= committed LEFT_BRACE Block RIGHT_BRACE {pin=1}
 
-OnAbortStatement ::= onabort ASSIGN Expression {pin=1}
+AbortedClause ::= aborted LEFT_BRACE Block RIGHT_BRACE {pin=1}
 
 NamespaceDeclarationStatement ::= NamespaceDeclaration /*{pin=1}*/
 
@@ -656,7 +687,7 @@ TableQueryExpression ::= TableQuery
 
 TableLiteralExpression ::= TableLiteral
 
-private ExpressionRecover ::= !(NULL_LITERAL|int|string|float|boolean|byte|any|map|table|function|stream|'}'|';'|var|while|match|foreach|continue|break|fork|try|throw|return|abort|fail|lock|xmlns|transaction|if|forever|object|trap|wait|flush|error|check)
+private ExpressionRecover ::= !(NULL_LITERAL|int|string|float|boolean|byte|any|map|table|function|stream|'}'|';'|var|while|match|foreach|continue|break|fork|try|throw|return|abort|aborted|committed|fail|lock|xmlns|transaction|if|forever|object|trap|wait|flush|error|check)
 
 fake BinaryExpression ::= Expression {
   methods=[left="Expression[0]" right="Expression[1]" getOperator]
@@ -672,7 +703,7 @@ VariableReferenceExpression ::= start? VariableReference
 LambdaFunctionExpression ::= LambdaFunction
 TypeConversionExpression ::= LT TypeName (COMMA FunctionInvocation)? GT Expression {pin=1}
 UnaryExpression ::= (ADD | SUB | BIT_COMPLEMENT | NOT | lengthof | untaint) Expression {pin=1}
-BracedOrTupleExpression ::= LEFT_PARENTHESIS Expression (COMMA Expression)* RIGHT_PARENTHESIS
+BracedOrTupleExpression ::= TupleLiteral
 BinaryDivMulModExpression ::= Expression (DIV | MUL | MOD) Expression
 BinaryAddSubExpression ::= Expression (ADD | SUB) Expression
 BinaryCompareExpression ::= Expression (LT_EQUAL | GT_EQUAL | GT | LT) Expression
@@ -820,8 +851,6 @@ ReservedWord ::= foreach | map | start | continue | OBJECT_INIT
 
 //Siddhi Streams and Tables related
 TableQuery ::= from StreamingInput JoinStreamingInput? SelectClause? OrderByClause? LimitClause? {pin=1}
-
-DoneStatement ::= done SEMICOLON {pin=1}
 
 // Note - Pinning 1 does not seem to work.
 ForeverStatement ::= forever (LEFT_BRACE ForeverStatementBody RIGHT_BRACE) {pin(".*")=1}
