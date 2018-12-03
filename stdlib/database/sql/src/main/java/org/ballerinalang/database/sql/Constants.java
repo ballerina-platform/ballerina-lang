@@ -191,14 +191,17 @@ public final class Constants {
 
     public static final String SQL_PACKAGE_PATH = "ballerina" + ORG_NAME_SEPARATOR + "sql";
     public static final String SQL_PARAMETER = "Parameter";
-    public static final String CALLER_ACTIONS = "CallerActions";
+    public static final String SQL_CLIENT = "Client";
+    public static final String SERVER_MODE = "ServerModeConfig";
+    public static final String EMBEDDED_MODE = "EmbeddedModeConfig";
 
     public static final String SQL_SERVER_DB_POSTFIX = "_SERVER";
     public static final String SQL_FILE_DB_POSTFIX = "_FILE";
     public static final String SQL_MEMORY_DB_POSTFIX = "_MEMORY";
 
-    public static final String SQL_CONNECTOR_ERROR = "error";
-    public static final String SQL_EXCEPTION_OCCURED = "SQL Exception Occurred";
+    public static final String DATABASE_ERROR_DATA_RECORD_NAME = "DatabaseErrorData";
+    public static final String DATABASE_ERROR_MESSAGE = "SQL Error Occurred";
+    public static final String DATABASE_ERROR_CODE = "{ballerina/sql}DatabaseError";
     
     public static final String PARAMETER_SQL_TYPE_FIELD = "sqlType";
     public static final String PARAMETER_VALUE_FIELD = "value";

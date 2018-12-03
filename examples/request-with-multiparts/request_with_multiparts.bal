@@ -2,50 +2,43 @@ import ballerina/http;
 import ballerina/log;
 import ballerina/mime;
 
-endpoint http:Client clientEP {
-    url: "http://localhost:9090"
-};
+http:Client clientEP = new("http://localhost:9090");
 
 @http:ServiceConfig {basePath: "/multiparts"}
-// Binding the listener to the service.
-service<http:Service> multipartDemoService bind {port: 9090} {
+//Binds the listener to the service.
+service multipartDemoService on new http:Listener(9090) {
 
     @http:ResourceConfig {
         methods: ["POST"],
         path: "/decode"
     }
-    multipartReceiver(endpoint caller, http:Request request) {
+    resource function multipartReceiver(http:Caller caller, http:Request request) {
         http:Response response = new;
-        // Extract the bodyparts from the request.
-        match request.getBodyParts() {
-
-            // Setting the error response in case of an error
-            error err => {
-                log:printError(err.message);
-                response.setPayload("Error in decoding multiparts!");
-                response.statusCode = 500;
+        // Extracts bodyparts from the request.
+        var bodyParts = request.getBodyParts();
+        if (bodyParts is mime:Entity[]) {
+            foreach part in bodyParts {
+                handleContent(part);
             }
-
-            // Iterate through the body parts.
-            mime:Entity[] bodyParts => {
-                int i = 0;
-                while (i < lengthof bodyParts) {
-                    mime:Entity part = bodyParts[i];
-                    handleContent(part);
-                    i = i + 1;
-                }
-                response.setBodyParts(untaint bodyParts);
-            }
+            response.setPayload(untaint bodyParts);
+        } else if (bodyParts is error) {
+            log:printError(string.create(bodyParts.detail().message));
+            response.setPayload("Error in decoding multiparts!");
+            response.statusCode = 500;
         }
-        caller->respond(response) but {
-            error e => log:printError("Error sending response", err = e) };
+
+        var result = caller->respond(response);
+
+        if (result is error) {
+            log:printError("Error sending response", err = result);
+        }
     }
 
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/encode"
     }
-    multipartSender(endpoint caller, http:Request req) {
+    resource function multipartSender(http:Caller caller, http:Request req) {
 
         //Create a json body part.
         mime:Entity jsonBodyPart = new;
@@ -75,54 +68,58 @@ service<http:Service> multipartDemoService bind {port: 9090} {
         request.setBodyParts(bodyParts, contentType = mime:MULTIPART_FORM_DATA);
 
         var returnResponse = clientEP->post("/multiparts/decode", request);
-        match returnResponse {
-            error err => {
-                http:Response response = new;
-                response.setPayload(
-                            "Error occurred while sending multipart request!");
-                response.statusCode = 500;
-                caller->respond(response) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+        if (returnResponse is http:Response) {
+            var result = caller->respond(returnResponse);
+            if (result is error) {
+                log:printError("Error sending response", err = result);
             }
-            http:Response returnResult => {caller->respond(returnResult) but {
-                error e => log:printError("Error sending response", err = e) };
+        } else if (returnResponse is error) {
+            http:Response response = new;
+            response.setPayload("Error occurred while sending multipart request!");
+            response.statusCode = 500;
+            var result = caller->respond(response);
+
+            if (result is error) {
+                log:printError("Error sending response", err = result);
             }
         }
     }
-
 }
 
 // The content logic that handles the body parts vary based on your requirement.
 function handleContent(mime:Entity bodyPart) {
 
-    mime:MediaType mediaType = check mime:getMediaType(bodyPart.getContentType());
-    string baseType = mediaType.getBaseType();
-    if (mime:APPLICATION_XML == baseType || mime:TEXT_XML == baseType) {
-        //Extract the xml data from the body part and print it.
-        var payload = bodyPart.getXml();
-        match payload {
-            error err => log:printError(err.message);
-            xml xmlContent => log:printInfo(<string>xmlContent);
+    var mediaType = mime:getMediaType(bodyPart.getContentType());
+    if (mediaType is mime:MediaType) {
+        string baseType = mediaType.getBaseType();
+        if (mime:APPLICATION_XML == baseType || mime:TEXT_XML == baseType) {
+            //Extracts xml data from the body part.
+            var payload = bodyPart.getXml();
+            if (payload is xml) {
+                log:printInfo(string.create(payload));
+            } else if (payload is error) {
+                log:printError(string.create(payload.detail().message));
+            }
+
+        } else if (mime:APPLICATION_JSON == baseType) {
+            //Extracts json data from the body part.
+            var payload = bodyPart.getJson();
+            if (payload is json) {
+                log:printInfo(payload.toString());
+            } else if (payload is error) {
+                log:printError(string.create(payload.detail().message));
+            }
+
+        } else if (mime:TEXT_PLAIN == baseType) {
+            //Extracts text data from the body part.
+            var payload = bodyPart.getText();
+            if (payload is string) {
+                log:printInfo(payload);
+            } else if (payload is error) {
+                log:printError(string.create(payload.detail().message));
+            }
+
         }
-
-    } else if (mime:APPLICATION_JSON == baseType) {
-        //Extract the json data from the body part and print it.
-        var payload = bodyPart.getJson();
-        match payload {
-            error err => log:printError(err.message);
-            json jsonContent => log:printInfo(jsonContent.toString());
-        }
-
-    } else if (mime:TEXT_PLAIN == baseType) {
-        //Extract the text data from the body part and print it.
-        var payload = bodyPart.getText();
-
-        match payload {
-            error err => log:printError(err.message);
-            string textContent => log:printInfo(textContent);
-        }
-
     }
 }
 

@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.langserver.completions.util.filters;
 
-import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.langserver.LSGlobalContextKeys;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -36,15 +35,11 @@ import org.ballerinalang.langserver.index.dto.BPackageSymbolDTO;
 import org.ballerinalang.langserver.index.dto.BRecordTypeSymbolDTO;
 import org.ballerinalang.langserver.index.dto.OtherTypeSymbolDTO;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.util.Flags;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
@@ -89,33 +84,20 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
         }
         List<SymbolInfo> visibleSymbols = ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
         SymbolInfo symbol = FilterUtils.getVariableByName(symbolToken, visibleSymbols);
-        ParserRuleContext parserRuleContext = ctx.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
-
-        boolean isWorkerInteraction = UtilSymbolKeys.RIGHT_ARROW_SYMBOL_KEY.equals(delimiter)
-                || parserRuleContext instanceof BallerinaParser.WorkerInteractionStatementContext;
-
-        boolean isWorkerReply = UtilSymbolKeys.LEFT_ARROW_SYMBOL_KEY.equals(delimiter)
-                || parserRuleContext instanceof BallerinaParser.WorkerInteractionStatementContext;
-
+        boolean isWorkerReceive = UtilSymbolKeys.LEFT_ARROW_SYMBOL_KEY.equals(delimiter);
         boolean isActionInvocation = UtilSymbolKeys.RIGHT_ARROW_SYMBOL_KEY.equals(delimiter)
-                && symbol.getScopeEntry().symbol instanceof BEndpointVarSymbol;
+                && CommonUtil.isClientObject(symbol.getScopeEntry().symbol);
+        boolean isWorkerSend = !isActionInvocation && UtilSymbolKeys.RIGHT_ARROW_SYMBOL_KEY.equals(delimiter);
 
         if (UtilSymbolKeys.DOT_SYMBOL_KEY.equals(delimiter) || UtilSymbolKeys.BANG_SYMBOL_KEY.equals(delimiter)
                 || isActionInvocation) {
             returnSymbolsInfoList.addAll(FilterUtils.getInvocationAndFieldSymbolsOnVar(ctx, symbolToken, delimiter,
                     visibleSymbols));
-        } else if (isWorkerInteraction || isWorkerReply) {
-            // Handle worker interactions
-            List<SymbolInfo> filteredList = FilterUtils.getInvocationAndFieldSymbolsOnVar(ctx, symbolToken, delimiter,
-                    visibleSymbols);
-            filteredList.removeIf(symbolInfo -> {
-                BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-                return bSymbol instanceof BInvokableSymbol && ((bSymbol.flags & Flags.ATTACHED) == Flags.ATTACHED);
-            });
-            if (isWorkerInteraction && !poppedTokens.contains(UtilSymbolKeys.COMMA_SYMBOL_KEY)) {
-                SymbolInfo fork = new SymbolInfo("fork", symbol.getScopeEntry());
-                filteredList.add(fork);
-            }
+        } else if (isWorkerSend || isWorkerReceive) {
+            List<SymbolInfo> filteredList = visibleSymbols.stream()
+                    .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol.type instanceof BFutureType
+                    && ((BFutureType) symbolInfo.getScopeEntry().symbol.type).workerDerivative)
+                    .collect(Collectors.toList());
             returnSymbolsInfoList.addAll(filteredList);
         } else if (UtilSymbolKeys.PKG_DELIMITER_KEYWORD.equals(delimiter)) {
             // We are filtering the package functions, actions and the types
@@ -178,11 +160,12 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
                 BPackageSymbolDAO pkgSymbolDAO = ((BPackageSymbolDAO) lsIndex.getDaoFactory()
                         .get(DAOType.PACKAGE_SYMBOL));
                 ArrayList<BFunctionSymbolDTO> funcDTOs = new ArrayList<>(pkgSymbolDAO.getFunctions(dto, -1, false,
-                        false));
+                        false, false));
                 ArrayList<BRecordTypeSymbolDTO> recordDTOs = new ArrayList<>(pkgSymbolDAO.getRecords(dto, false));
                 ArrayList<OtherTypeSymbolDTO> otherTypeDTOs = new ArrayList<>(pkgSymbolDAO.getOtherTypes(dto));
                 ArrayList<BObjectTypeSymbolDTO> objDTOs = new ArrayList<>(pkgSymbolDAO.getObjects(dto, false));
-                
+                ArrayList<BObjectTypeSymbolDTO> clientEpDTOs = new ArrayList<>(pkgSymbolDAO.getClientEndpoints(dto));
+
                 if (bLangImport.isPresent()) {
                     List<CompletionItem> completionItems = funcDTOs.stream()
                             .map(BFunctionSymbolDTO::getCompletionItem)
@@ -191,6 +174,9 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
                             .map(BRecordTypeSymbolDTO::getCompletionItem)
                             .collect(Collectors.toList()));
                     completionItems.addAll(objDTOs.stream()
+                            .map(BObjectTypeSymbolDTO::getCompletionItem)
+                            .collect(Collectors.toList()));
+                    completionItems.addAll(clientEpDTOs.stream()
                             .map(BObjectTypeSymbolDTO::getCompletionItem)
                             .collect(Collectors.toList()));
                     completionItems.addAll(otherTypeDTOs.stream()

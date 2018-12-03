@@ -67,4 +67,14 @@ public class PkgRunFunctionPositiveTestCase extends BaseTest {
         outLogLeecher.waitForText(2000);
     }
 
+    @Test(description = "test running a function where the function name has colons. " +
+            "e.g., ballerina run <SOURCE>:functionWithColons:inName")
+    public void testFunctionNameWithColons() throws BallerinaTestException {
+        String arg = "test arg";
+        String sourceArg = "pkg_with_colons:colonsInName:Function";
+        LogLeecher outLogLeecher = new LogLeecher(arg);
+        balClient.runMain(sourceRoot, sourceArg, new String[]{PRINT_RETURN}, new String[]{arg},
+                          new LogLeecher[]{outLogLeecher});
+        outLogLeecher.waitForText(2000);
+    }
 }

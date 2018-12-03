@@ -88,6 +88,10 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-socket</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-jms</artifactId>
         </dependency>
         <dependency>
@@ -373,6 +377,12 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-socket</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-jms</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
@@ -386,12 +396,6 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-math</artifactId>
-            <type>zip</type>
-            <classifier>ballerina-binary-repo</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-mb</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
         </dependency>
@@ -544,6 +548,12 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-socket</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-sources</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-jms</artifactId>
             <type>zip</type>
             <classifier>ballerina-sources</classifier>
@@ -557,12 +567,6 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-math</artifactId>
-            <type>zip</type>
-            <classifier>ballerina-sources</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-mb</artifactId>
             <type>zip</type>
             <classifier>ballerina-sources</classifier>
         </dependency>
@@ -704,11 +708,11 @@
                                 ballerina-h2,
                                 ballerina-http,
                                 ballerina-io,
+                                ballerina-socket,
                                 ballerina-internal,
                                 ballerina-jms,
                                 ballerina-log-api,
                                 ballerina-math,
-                                ballerina-mb,
                                 ballerina-mime,
                                 ballerina-mysql,
                                 ballerina-observability,
@@ -810,6 +814,11 @@
                                 </resource>
                                 <resource>
                                     <directory>
+                                        ${project.build.directory}/extracted-distributions/ballerina-socket-ballerina-sources-zip/ballerina
+                                    </directory>
+                                </resource>
+                                <resource>
+                                    <directory>
                                         ${project.build.directory}/extracted-distributions/ballerina-jms-ballerina-sources-zip/ballerina
                                     </directory>
                                 </resource>
@@ -821,11 +830,6 @@
                                 <resource>
                                     <directory>
                                         ${project.build.directory}/extracted-distributions/ballerina-math-ballerina-sources-zip/ballerina
-                                    </directory>
-                                </resource>
-                                <resource>
-                                    <directory>
-                                        ${project.build.directory}/extracted-distributions/ballerina-mb-ballerina-sources-zip/ballerina
                                     </directory>
                                 </resource>
                                 <resource>

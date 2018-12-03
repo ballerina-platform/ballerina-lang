@@ -19,6 +19,7 @@
 package org.ballerinalang.net.websub.hub;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.broker.BallerinaBroker;
 import org.ballerinalang.broker.BallerinaBrokerByteBuf;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
@@ -27,10 +28,10 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.websub.BallerinaWebSubException;
+import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.program.BLangFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,8 +90,9 @@ public class Hub {
             topics.add(topic);
             if (hubPersistenceEnabled && !loadingOnStartUp) {
                 BValue[] args = { new BString("register"), new BString(topic) };
-                BLangFunctions.invokeCallable(hubProgramFile.getPackageInfo(WEBSUB_PACKAGE)
-                                              .getFunctionInfo("changeTopicRegistrationInDatabase"), args);
+                FunctionInfo functionInfo = hubProgramFile.getPackageInfo(WEBSUB_PACKAGE)
+                        .getFunctionInfo("changeTopicRegistrationInDatabase");
+                BVMExecutor.executeFunction(hubProgramFile, functionInfo, args);
             }
         }
     }
@@ -102,8 +104,9 @@ public class Hub {
             topics.remove(topic);
             if (hubPersistenceEnabled) {
                 BValue[] args = { new BString("unregister"), new BString(topic) };
-                BLangFunctions.invokeCallable(hubProgramFile.getPackageInfo(WEBSUB_PACKAGE)
-                                              .getFunctionInfo("changeTopicRegistrationInDatabase"), args);
+                FunctionInfo functionInfo = hubProgramFile.getPackageInfo(WEBSUB_PACKAGE)
+                        .getFunctionInfo("changeTopicRegistrationInDatabase");
+                BVMExecutor.executeFunction(hubProgramFile, functionInfo, args);
             }
         }
     }
@@ -207,21 +210,22 @@ public class Hub {
                 ProgramFile hubProgramFile = context.getProgramFile();
                 PackageInfo hubPackageInfo = hubProgramFile.getPackageInfo(WEBSUB_PACKAGE);
                 if (hubPackageInfo != null) {
-                    BValue[] returns = BLangFunctions.invokeCallable(hubPackageInfo.getFunctionInfo("startHubService"),
-                                                                     new BValue[]{});
+                    BValue[] returns = BVMExecutor.executeFunction(hubProgramFile,
+                            hubPackageInfo.getFunctionInfo("startHubService"));
                     hubTopicRegistrationRequired = topicRegistrationRequired.booleanValue();
 
                     String hubUrl = publicUrl.stringValue();
                     BValue[] args = new BValue[0];
                     //TODO: change once made public and available as a param
-                    hubPersistenceEnabled = Boolean.parseBoolean((BLangFunctions.invokeCallable(
+                    hubPersistenceEnabled = Boolean.parseBoolean((BVMExecutor.executeFunction(hubProgramFile,
                         hubPackageInfo.getFunctionInfo("isHubPersistenceEnabled"), args)[0]).stringValue());
 
                     PrintStream console = System.err;
                     console.println("[ballerina/websub] Default Ballerina WebSub Hub started up at " + hubUrl);
                     setHubProgramFile(hubProgramFile);
                     started = true;
-                    BLangFunctions.invokeCallable(hubPackageInfo.getFunctionInfo("setupOnStartup"), args);
+                    BVMExecutor.executeFunction(hubProgramFile, hubPackageInfo
+                            .getFunctionInfo("setupOnStartup"), args);
                     setHubEndpoint(returns[0]);
                     setHubUrl(hubUrl);
                     setHubObject(BLangConnectorSPIUtil.createObject(context, WEBSUB_PACKAGE,
@@ -246,9 +250,9 @@ public class Hub {
                 setHubProgramFile(null);
                 hubTopicRegistrationRequired = false;
                 if (hubPersistenceEnabled) {
-                    BLangFunctions.invokeCallable(context.getProgramFile().getPackageInfo(WEBSUB_PACKAGE)
-                                                    .getFunctionInfo("clearSubscriptionDataInDb"),
-                                                  new BValue[]{});
+                    BVMExecutor.executeFunction(context.getProgramFile(),
+                            context.getProgramFile().getPackageInfo(WEBSUB_PACKAGE)
+                                    .getFunctionInfo("clearSubscriptionDataInDb"));
                 }
                 hubPersistenceEnabled = false;
                 topics = new ArrayList<>();

@@ -14,24 +14,23 @@ jms:Session jmsSession = new(jmsConnection, {
 });
 
 // This initializes a queue sender on top of the the created session.
-endpoint jms:TopicPublisher topicPublisher {
+jms:TopicPublisher topicPublisher = new({
     session:jmsSession,
     topicPattern:"BallerinaTopic"
-};
+});
 
 public function main() {
     // This creates a Text message.
-    match (jmsSession.createTextMessage("Hello from Ballerina")) {
-        error e => {
-            log:printError("Error occurred while creating message", err=e);
+    var msg = jmsSession.createTextMessage("Hello from Ballerina");
+    if (msg is jms:Message) {
+        // This sends the Ballerina message to the JMS provider.
+        var returnVal = topicPublisher->send(msg);
+        if (returnVal is error) {
+            log:printError("Error occurred while sending message",
+                         err = returnVal);
         }
-
-        jms:Message msg => {
-            // This sends the Ballerina message to the JMS provider.
-            topicPublisher->send(msg) but {
-                error e => log:printError("Error occurred while sending "
-                                          + "message", err=e)
-            };
-        }
+    } else {
+        log:printError("Error occurred while creating message",
+                         err = msg);
     }
 }

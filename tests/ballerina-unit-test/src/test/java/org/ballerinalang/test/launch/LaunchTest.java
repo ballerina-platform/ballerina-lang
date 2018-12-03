@@ -66,7 +66,7 @@ public class LaunchTest {
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = ".*error: error, message: 'string' cannot be converted to 'int'.*")
+            expectedExceptionsMessageRegExp = "error: Main throwing an error.*")
     public void testMainFailureWithService() {
         LauncherUtils.runProgram(Paths.get("src/test/resources/test-src/launch/main-and-service"),
                                  Paths.get("main_and_service.bal"),

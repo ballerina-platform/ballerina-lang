@@ -31,8 +31,8 @@ type TeacherOutput record{
 };
 
 int index = 0;
-stream<Teacher> inputStreamExternalTimeTest;
-stream<TeacherOutput > outputStreamExternalTimeTest;
+stream<Teacher> inputStreamExternalTimeTest = new;
+stream<TeacherOutput > outputStreamExternalTimeTest = new;
 TeacherOutput[] globalEmployeeArray = [];
 
 function startExternalTimeWindowTest() returns (TeacherOutput[]) {
@@ -54,7 +54,7 @@ function startExternalTimeWindowTest() returns (TeacherOutput[]) {
 
     testExternalTimeWindow();
 
-    outputStreamExternalTimeTest.subscribe(printTeachers);
+    outputStreamExternalTimeTest.subscribe(function(TeacherOutput e) {printTeachers(e);});
     foreach t in teachers {
         inputStreamExternalTimeTest.publish(t);
         runtime:sleep(450);
@@ -64,7 +64,7 @@ function startExternalTimeWindowTest() returns (TeacherOutput[]) {
     while(true) {
         runtime:sleep(500);
         count += 1;
-        if((lengthof globalEmployeeArray) == 6 || count == 10) {
+        if((globalEmployeeArray.length()) == 6 || count == 10) {
             break;
         }
     }

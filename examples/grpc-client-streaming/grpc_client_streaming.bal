@@ -2,40 +2,37 @@
 import ballerina/grpc;
 import ballerina/io;
 
-// The server endpoint configuration.
-endpoint grpc:Listener listener {
-    host: "localhost",
-    port: 9090
-};
-
 @grpc:ServiceConfig {
     name: "lotsOfGreetings",
     clientStreaming: true
 }
-service HelloWorld bind listener {
+service HelloWorld on new grpc:Listener(9090) {
 
     //This resource is triggered when a new caller connection is initialized.
-    onOpen(endpoint caller) {
+    resource function onOpen(grpc:Caller caller) {
         io:println("connected sucessfully.");
     }
 
     //This resource is triggered when the caller sends a request message to the service.
-    onMessage(endpoint caller, string name) {
+    resource function onMessage(grpc:Caller caller, string name) {
         io:println("greet received: " + name);
     }
 
     //This resource is triggered when the server receives an error message from the caller.
-    onError(endpoint caller, error err) {
-        if (err != ()) {
-            io:println("Something unexpected happens at server : "
-                                                                + err.message);
-        }
+    resource function onError(grpc:Caller caller, error err) {
+        io:println("Error from Connector: " + err.reason() + " - "
+                                            + <string>err.detail().message);
     }
 
     //This resource is triggered when the caller sends a notification to the server to indicate that it has finished sending messages.
-    onComplete(endpoint caller) {
+    resource function onComplete(grpc:Caller caller) {
         io:println("Server Response");
         error? err = caller->send("Ack");
-        io:println(err.message but { () => "Server send response : Ack" });
+        if (err is error) {
+            io:println("Error from Connector: " + err.reason() + " - "
+                                                + <string>err.detail().message);
+        } else {
+            io:println("Server send response : Ack");
+        }
     }
 }

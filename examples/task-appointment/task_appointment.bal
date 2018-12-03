@@ -126,7 +126,7 @@ function appointment7Cleanup() returns (error?) {
 function cleanup() returns (error?) {
     log:printInfo("Cleaning up");
     if (math:randomInRange(0, 10) == 5) {
-        error e = { message: "Cleanup error" };
+        error e = error("Cleanup error");
         return e;
     }
     return ();

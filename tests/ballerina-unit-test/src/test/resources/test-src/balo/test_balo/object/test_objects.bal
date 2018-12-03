@@ -72,20 +72,22 @@ public type DustBin object {
     public int year = 50;
     public string month = "february";
 
-    public new (year, int count, name = "sample value1", string val1 = "default value") {
-        age = age + count + 50;
-        month = val1 + " uuuu";
+    public function __init (int year, int count, string name = "sample value1", string val1 = "default value") {
+        self.year = year;
+        self.name = name;
+        self.age = self.age + count + 50;
+        self.month = val1 + " uuuu";
     }
 
     public function attachFunc1(int add, string value1) returns (int, string) {
-        int count = age + add;
-        string val2 = value1 + month;
+        int count = self.age + add;
+        string val2 = value1 + self.month;
         return (count, val2);
     }
 
     public function attachInterface(int add, string value1) returns (int, string){
-        int count = age + add;
-        string val2 = value1 + month;
+        int count = self.age + add;
+        string val2 = value1 + self.month;
         return (count, val2);
     }
 };
@@ -114,27 +116,27 @@ function returnDifferentObectInit() returns foo:Girl {
 public type Women object {
     public int age;
 
-    public new (age, int addVal) {
-        age = age + addVal;
+    public function __init (int age, int addVal) {
+        self.age = age + addVal;
     }
 };
 
 type Vehicle object {
-    public int age;
-    public string name;
-    public foo:Bus emp;
-    public foo:Tyre foo;
-    public foo:Wheel bar;
+    public int age = 0;
+    public string name = "";
+    public foo:Bus emp = new;
+    public foo:Tyre foo = new;
+    public foo:Wheel bar = new;
 };
 
-Vehicle v;
+Vehicle v = new;
 
 function testGetDefaultValuesInObjectGlobalVar() returns (int, string, int, string) {
     return (v.age, v.emp.name, v.foo.key, v.bar.address);
 }
 
 function testGetDefaultValuesInObject() returns (int, string, int, string) {
-    Vehicle p;
+    Vehicle p = new;
     return (p.age, p.emp.name, p.foo.key, p.bar.address);
 }
 
@@ -147,7 +149,7 @@ function testCyclicReferenceWithDefaultable () returns int {
 }
 
 function testRecursiveObjectWithNill() returns int {
-    foo:Bird p;
+    foo:Bird p = new;
     return (p.age);
 }
 
@@ -157,12 +159,12 @@ public type Office object {
 };
 
 function testFieldWithExpr() returns (int, string) {
-    Office p;
+    Office p = new;
     return (p.ep.pp, p.ep.name);
 }
 
 function testObjectWithByteTypeFields() returns (byte[], byte[], byte[]) {
-    foo:Desk desk;
+    foo:Desk desk = new;
     return (desk.dimensions, desk.code1, desk.code2);
 }
 
@@ -179,8 +181,10 @@ type Manager2 object {
 
     *foo:Employee2;
 
-    new(name, age=25) {
-        salary = 3000.0;
+    function __init(string name, int age=25) {
+        self.name = name;
+        self.age = age;
+        self.salary = 3000.0;
     }
 
     public function getBonus(float ratio, int months=6) returns float {
@@ -188,7 +192,7 @@ type Manager2 object {
     }
 };
 
-function Manager2::getName(string greeting = "Hello") returns string {
+function Manager2.getName(string greeting = "Hello") returns string {
     return greeting + " " + self.name;
 }
 
@@ -212,8 +216,10 @@ type Manager3 object {
 
     *Employee3;
 
-    new(name, age=25) {
-        salary = 3000.0;
+    function __init(string name, int age=25) {
+        self.name = name;
+        self.age = age;
+        self.salary = 3000.0;
     }
 
     public function getBonus(float ratio, int months=6) returns float {
@@ -221,7 +227,7 @@ type Manager3 object {
     }
 };
 
-function Manager3::getName(string greeting = "Good morning") returns string {
+function Manager3.getName(string greeting = "Good morning") returns string {
     return greeting + " " + self.name;
 }
 

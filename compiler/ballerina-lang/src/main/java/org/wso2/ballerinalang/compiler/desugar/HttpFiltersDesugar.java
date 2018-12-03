@@ -32,12 +32,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
-import org.wso2.ballerinalang.compiler.tree.BLangResource;
-import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -45,9 +44,10 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -66,7 +66,7 @@ import static org.wso2.ballerinalang.compiler.util.Names.GEN_VAR_PREFIX;
  *          http:FilterContext _$$_filterContext = new (serviceTypeDef, "serviceName", "resourceName");
  *          caller.conn.filterContext = _$$_filterContext;
  *          foreach _$$_filter in caller.config.filters {
- *              if(!_$$_filter.filterRequest()){
+ *              if(!_$$_filter.filterRequest(caller, req, _$$_filterContext)){
  *                  Done;
  *              }
  *          }
@@ -82,7 +82,6 @@ public class HttpFiltersDesugar {
     private final SymbolResolver symResolver;
     private final Names names;
 
-    private static final String HTTP_CONNECTION_VAR = "conn";
     private static final String HTTP_ENDPOINT_CONFIG = "config";
     private static final String HTTP_FILTERS_VAR = "filters";
     private static final String HTTP_FILTER_VAR = "filter";
@@ -91,15 +90,14 @@ public class HttpFiltersDesugar {
 
     private static final String ORG_NAME = "ballerina";
     private static final String PACKAGE_NAME = "http";
-    private static final String ENDPOINT_TYPE_NAME = "Listener";
+    private static final String CALLER_TYPE_NAME = "Caller";
     private static final String ORG_SEPARATOR = "/";
 
     private static final int ENDPOINT_PARAM_NUM = 0;
     private static final int REQUEST_PARAM_NUM = 1;
-    private static final int CONNECTOR_FIELD_INDEX = 3;
     private static final int FILTER_CONTEXT_FIELD_INDEX = 1;
-    private static final int ENDPOINT_CONFIG_INDEX = 4;
-    private static final int FILTERS_CONFIG_INDEX = 6;
+    private static final int ENDPOINT_CONFIG_INDEX = 0;
+    private static final int FILTERS_CONFIG_INDEX = 5;
     
     private static final CompilerContext.Key<HttpFiltersDesugar> HTTP_FILTERS_DESUGAR_KEY =
             new CompilerContext.Key<>();
@@ -126,20 +124,20 @@ public class HttpFiltersDesugar {
      * @param resourceNode The resource to apply filter on if it is http
      * @param env          the symbol environment
      */
-    void invokeFilters(BLangResource resourceNode, SymbolEnv env) {
-        BLangVariable endpoint;
+    void addHttpFilterStatementsToResource(BLangFunction resourceNode, SymbolEnv env) {
+        BLangSimpleVariable endpoint;
         if (resourceNode.requiredParams.size() >= 2) {
             endpoint = resourceNode.requiredParams.get(0);
             if (ORG_NAME.equals(endpoint.type.tsymbol.pkgID.orgName.value) && PACKAGE_NAME.equals(
-                    endpoint.type.tsymbol.pkgID.name.value) && ENDPOINT_TYPE_NAME.equals(
+                    endpoint.type.tsymbol.pkgID.name.value) && CALLER_TYPE_NAME.equals(
                     endpoint.type.tsymbol.name.value)) {
                 addFilterStatements(resourceNode, env);
             }
         }
     }
 
-    private void addFilterStatements(BLangResource resourceNode, SymbolEnv env) {
-        BLangVariable filterContextVar = addFilterContextCreation(resourceNode, env);
+    private void addFilterStatements(BLangFunction resourceNode, SymbolEnv env) {
+        BLangSimpleVariable filterContextVar = addFilterContextCreation(resourceNode, env);
         addAssignmentAndForEach(resourceNode, filterContextVar);
     }
 
@@ -149,21 +147,19 @@ public class HttpFiltersDesugar {
      * @param resourceNode The resource to add the FilterContext creation.
      * @param env          the symbol environment.
      */
-    private BLangVariable addFilterContextCreation(BLangResource resourceNode, SymbolEnv env) {
+    private BLangSimpleVariable addFilterContextCreation(BLangFunction resourceNode, SymbolEnv env) {
         BLangIdentifier pkgAlias = ASTBuilderUtil.createIdentifier(resourceNode.pos, getPackageAlias(env));
         BLangUserDefinedType filterContextUserDefinedType = new BLangUserDefinedType(
                 pkgAlias, ASTBuilderUtil.createIdentifier(resourceNode.pos, "FilterContext"));
         BType filterContextType = symResolver.resolveTypeNode(filterContextUserDefinedType, env);
         String filterContextVarName = GEN_VAR_PREFIX.value + HTTP_FILTERCONTEXT_VAR;
 
-        BLangSimpleVarRef serviceRef = new BLangSimpleVarRef();
-        serviceRef.variableName = ((BLangService) resourceNode.parent).name;
-        serviceRef.type = symTable.typeDesc;
+        BLangSimpleVariable serviceSelf = (BLangSimpleVariable) resourceNode.getReceiver();
+        BLangSimpleVarRef.BLangLocalVarRef serviceRef = new BLangSimpleVarRef.BLangLocalVarRef(serviceSelf.symbol);
         serviceRef.pos = resourceNode.pos;
-        serviceRef.symbol = ((BLangService) resourceNode.parent).symbol;
 
         BLangLiteral serviceName = new BLangLiteral();
-        serviceName.value = ((BLangService) resourceNode.parent).name.value;
+        serviceName.value = serviceSelf.type.tsymbol.name.value;
         serviceName.type = symTable.stringType;
         serviceName.pos = resourceNode.pos;
 
@@ -173,6 +169,7 @@ public class HttpFiltersDesugar {
         resourceName.pos = resourceNode.pos;
 
         BLangInvocation filterInvocation = (BLangInvocation) TreeBuilder.createInvocationNode();
+        filterInvocation.name = ASTBuilderUtil.createIdentifier(resourceNode.pos, "new");
         filterInvocation.symbol = ((BObjectTypeSymbol) filterContextType.tsymbol).initializerFunc.symbol;
         filterInvocation.pos = resourceNode.pos;
         filterInvocation.requiredArgs.add(serviceRef);
@@ -183,17 +180,16 @@ public class HttpFiltersDesugar {
         filterInvocation.argExprs.add(resourceName);
         filterInvocation.type = symTable.nilType;
 
-        BLangTypeInit filterInitNode = (BLangTypeInit) TreeBuilder.createObjectInitNode();
+        BLangTypeInit filterInitNode = (BLangTypeInit) TreeBuilder.createInitNode();
         filterInitNode.pos = resourceNode.pos;
         filterInitNode.type = filterContextType;
-        filterInitNode.objectInitInvocation = filterInvocation;
-        filterInitNode.userDefinedType = filterContextUserDefinedType;
+        filterInitNode.initInvocation = filterInvocation;
         filterInitNode.argsExpr.add(serviceRef);
         filterInitNode.argsExpr.add(serviceName);
         filterInitNode.argsExpr.add(resourceName);
 
 
-        BLangVariable filterContextVar = ASTBuilderUtil.createVariable(
+        BLangSimpleVariable filterContextVar = ASTBuilderUtil.createVariable(
                 resourceNode.pos, filterContextVarName, filterContextType, filterInitNode,
                 new BVarSymbol(0, names.fromString(filterContextVarName), resourceNode.symbol.pkgID, filterContextType,
                                resourceNode.symbol));
@@ -219,96 +215,106 @@ public class HttpFiltersDesugar {
      * <blockquote><pre>
      *  caller.conn.filterContext = _$$_filterContext;
      *  foreach _$$_filter in caller.config.filters {
-     *      if(!_$$_filter.filterRequest()){
+     *      if(!_$$_filter.filterRequest(caller, req, _$$_filterContext)){
      *          Done;
      *      }
      *  }
      * </pre></blockquote>
      */
-    private void addAssignmentAndForEach(BLangResource resourceNode, BLangVariable filterContextVar) {
+    private void addAssignmentAndForEach(BLangFunction resourceNode, BLangSimpleVariable filterContextVar) {
         //Assignment statement START
-        BLangSimpleVarRef callerRef = new BLangSimpleVarRef();
-        BLangVariable endpointVar = resourceNode.requiredParams.get(ENDPOINT_PARAM_NUM);
-        callerRef.variableName = endpointVar.name;
+        BLangSimpleVariable endpointVar = resourceNode.requiredParams.get(ENDPOINT_PARAM_NUM);
+        BLangSimpleVarRef.BLangLocalVarRef callerRef = new BLangSimpleVarRef.BLangLocalVarRef(endpointVar.symbol);
         callerRef.type = endpointVar.type;
         callerRef.pos = resourceNode.pos;
-        callerRef.symbol = endpointVar.symbol;
 
-        BField connVal = ((BLangService) resourceNode.parent).endpointType.fields.get(CONNECTOR_FIELD_INDEX);
-        BLangFieldBasedAccess connField = ASTBuilderUtil.createFieldAccessExpr(callerRef, ASTBuilderUtil
-                .createIdentifier(resourceNode.pos, HTTP_CONNECTION_VAR));
-        connField.type = connVal.type;
-        connField.symbol = connVal.symbol;
-        connField.pos = resourceNode.pos;
+        BLangLiteral filterContextName = new BLangLiteral();
+        filterContextName.value = HTTP_FILTERCONTEXT_VAR;
+        filterContextName.type = symTable.stringType;
+        filterContextName.pos = resourceNode.pos;
 
-        BField filterContextVal = ((BObjectType) connVal.type).fields.get(FILTER_CONTEXT_FIELD_INDEX);
-        BLangFieldBasedAccess filterContextField = ASTBuilderUtil.createFieldAccessExpr(connField, ASTBuilderUtil
-                .createIdentifier(resourceNode.pos, HTTP_FILTERCONTEXT_VAR));
+        BField filterContextVal = ((BObjectType) endpointVar.type).fields.get(FILTER_CONTEXT_FIELD_INDEX);
+        BLangIndexBasedAccess.BLangStructFieldAccessExpr filterContextField =
+                new BLangIndexBasedAccess.BLangStructFieldAccessExpr(
+                        resourceNode.pos, callerRef, filterContextName, filterContextVal.symbol, false);
         filterContextField.type = filterContextVal.type;
-        filterContextField.symbol = filterContextVal.symbol;
-        filterContextField.pos = resourceNode.pos;
 
-        BLangSimpleVarRef filterContextRef = new BLangSimpleVarRef();
+        BLangSimpleVarRef.BLangLocalVarRef filterContextRef = new BLangSimpleVarRef.BLangLocalVarRef(
+                filterContextVar.symbol);
         filterContextRef.variableName = filterContextVar.name;
         filterContextRef.type = filterContextVar.type;
         filterContextRef.pos = resourceNode.pos;
-        filterContextRef.symbol = filterContextVar.symbol;
 
-        BLangAssignment filterContextAssignment = ASTBuilderUtil.createAssignmentStmt(resourceNode.pos,
-                                                                                      filterContextField,
-                                                                                      filterContextRef, false);
+        BLangAssignment filterContextAssignment = ASTBuilderUtil.createAssignmentStmt(
+                resourceNode.pos, filterContextField, filterContextRef, false);
 
         resourceNode.body.stmts.add(1, filterContextAssignment);
         //Assignment statement END
 
         //forEach statement START
-        BField configVal = ((BLangService) resourceNode.parent).endpointType.fields.get(ENDPOINT_CONFIG_INDEX);
+        BField configVal = ((BObjectType) endpointVar.type).fields.get(ENDPOINT_CONFIG_INDEX);
         BField filtersVal = ((BRecordType) configVal.type).fields.get(FILTERS_CONFIG_INDEX);
         BType filtersType = filtersVal.type;
         BType filterType = ((BArrayType) filtersType).eType;
 
-        BLangFieldBasedAccess configField = ASTBuilderUtil.createFieldAccessExpr(callerRef, ASTBuilderUtil
-                .createIdentifier(resourceNode.pos, HTTP_ENDPOINT_CONFIG));
+        BLangLiteral configName = new BLangLiteral();
+        configName.value = HTTP_ENDPOINT_CONFIG;
+        configName.type = symTable.stringType;
+        configName.pos = resourceNode.pos;
+
+        BLangIndexBasedAccess.BLangStructFieldAccessExpr configField =
+                new BLangIndexBasedAccess.BLangStructFieldAccessExpr(
+                        resourceNode.pos, callerRef, configName, configVal.symbol, false);
         configField.type = configVal.type;
-        configField.symbol = configVal.symbol;
-        configField.pos = resourceNode.pos;
 
-        BLangFieldBasedAccess filtersField = ASTBuilderUtil.createFieldAccessExpr(configField, ASTBuilderUtil
-                .createIdentifier(resourceNode.pos, HTTP_FILTERS_VAR));
+        BLangLiteral filtersName = new BLangLiteral();
+        filtersName.value = HTTP_FILTERS_VAR;
+        filtersName.type = symTable.stringType;
+        filtersName.pos = resourceNode.pos;
+
+        BLangIndexBasedAccess.BLangStructFieldAccessExpr filtersField =
+                new BLangIndexBasedAccess.BLangStructFieldAccessExpr(
+                        resourceNode.pos, configField, filtersName, filtersVal.symbol, true);
         filtersField.type = filtersType;
-        filtersField.symbol = filtersVal.symbol;
-        filtersField.pos = resourceNode.pos;
 
 
-        BLangSimpleVarRef filterRef = new BLangSimpleVarRef();
         String filterVarName = GEN_VAR_PREFIX + HTTP_FILTER_VAR;
+        BLangSimpleVarRef.BLangLocalVarRef filterRef = new BLangSimpleVarRef.BLangLocalVarRef(
+                new BVarSymbol(0, new Name(filterVarName), resourceNode.symbol.pkgID, filterType, resourceNode.symbol));
         filterRef.variableName = ASTBuilderUtil.createIdentifier(resourceNode.pos, filterVarName);
         filterRef.type = filterType;
         filterRef.pos = resourceNode.pos;
-        filterRef.symbol = new BVarSymbol(0, new Name(filterVarName), resourceNode.symbol.pkgID, filterType,
-                                          resourceNode.symbol);
 
-        BLangDone doneNode = (BLangDone) TreeBuilder.createDoneNode();
-        doneNode.pos = resourceNode.pos;
+        BLangLiteral returnName = new BLangLiteral();
+        returnName.value = Names.NIL_VALUE;
+        returnName.type = symTable.nilType;
+        returnName.pos = resourceNode.pos;
+
+        BLangReturn returnNode = (BLangReturn) TreeBuilder.createReturnNode();
+        returnNode.expr = returnName;
+        returnNode.statementLink = new BLangStatement.BLangStatementLink();
+        returnNode.statementLink.statement = returnNode;
+        returnNode.pos = resourceNode.pos;
 
         BLangBlockStmt doneStatement = ASTBuilderUtil.createBlockStmt(resourceNode.pos,
-                                                                      createSingletonArrayList(doneNode));
+                                                                      createSingletonArrayList(returnNode));
 
-        BLangSimpleVarRef requestRef = new BLangSimpleVarRef();
-        BLangVariable requestVar = resourceNode.requiredParams.get(REQUEST_PARAM_NUM);
+        BLangSimpleVariable requestVar = resourceNode.requiredParams.get(REQUEST_PARAM_NUM);
+        BLangSimpleVarRef.BLangLocalVarRef requestRef = new BLangSimpleVarRef.BLangLocalVarRef(requestVar.symbol);
         requestRef.variableName = requestVar.name;
         requestRef.type = requestVar.type;
         requestRef.pos = requestVar.pos;
-        requestRef.symbol = requestVar.symbol;
 
-        BLangInvocation filterRequestInvocation = (BLangInvocation) TreeBuilder.createInvocationNode();
-        filterRequestInvocation.symbol = getFilterRequestFuncSymbol(filterType);
-        filterRequestInvocation.pos = resourceNode.pos;
-        filterRequestInvocation.requiredArgs.add(callerRef);
-        filterRequestInvocation.requiredArgs.add(requestRef);
-        filterRequestInvocation.requiredArgs.add(filterContextRef);
-        filterRequestInvocation.type = symTable.booleanType;
-        filterRequestInvocation.expr = filterRef;
+        List<BLangExpression> requiredArgs = new ArrayList<>();
+        requiredArgs.add(filterRef);
+        requiredArgs.add(callerRef);
+        requiredArgs.add(requestRef);
+        requiredArgs.add(filterContextRef);
+
+        BLangInvocation.BLangAttachedFunctionInvocation filterRequestInvocation =
+                new BLangInvocation.BLangAttachedFunctionInvocation(
+                        resourceNode.pos, requiredArgs, new ArrayList<>(), new ArrayList<>(),
+                        getFilterRequestFuncSymbol(filterType), symTable.booleanType, filterRef, false);
 
         BLangUnaryExpr unaryExpr = ASTBuilderUtil.createUnaryExpr(
                 resourceNode.pos, filterRequestInvocation, symTable.booleanType, OperatorKind.NOT,
@@ -317,16 +323,12 @@ public class HttpFiltersDesugar {
                                                        symTable.booleanType, null), symTable.rootPkgSymbol,
                                     InstructionCodes.BNOT));
 
-        BLangBracedOrTupleExpr ifBraceExpr = (BLangBracedOrTupleExpr) TreeBuilder.createBracedOrTupleExpression();
-        ifBraceExpr.expressions.add(unaryExpr);
-        ifBraceExpr.isBracedExpr = true;
-        ifBraceExpr.pos = resourceNode.pos;
-        ifBraceExpr.type = symTable.booleanType;
-
         BLangIf ifNode = (BLangIf) TreeBuilder.createIfElseStatementNode();
         ifNode.pos = resourceNode.pos;
         ifNode.body = doneStatement;
-        ifNode.expr = ifBraceExpr;
+        ifNode.expr = unaryExpr;
+        ifNode.statementLink = new BLangStatement.BLangStatementLink();
+        ifNode.statementLink.statement = ifNode;
 
         BLangBlockStmt ifStatement = ASTBuilderUtil.createBlockStmt(resourceNode.pos,
                                                                     createSingletonArrayList(ifNode));

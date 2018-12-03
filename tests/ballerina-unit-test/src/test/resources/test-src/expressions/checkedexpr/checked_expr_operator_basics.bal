@@ -4,7 +4,7 @@ function openFileSuccess(string path) returns (boolean | error) {
 }
 
 function openFileFailure(string path) returns (boolean | error) {
-    error  e = {message: "file not found error: " + path};
+    error  e = error("file not found error: " + path);
     return e;
 }
 
@@ -19,16 +19,17 @@ function testSafeAssignmentBasics2 () returns (boolean | error) {
 }
 
 
-function testSafeAssignmentBasics3 () {
+function testSafeAssignmentBasics3 () returns (error?) {
     boolean statusFailure = check openFileFailure("/home/sameera/bar.txt");
+    return ();
 }
 
-function testSafeAssignmentBasics4 () returns (boolean){
+function testSafeAssignmentBasics4 () returns (boolean | error) {
     boolean statusFailure = check openFileFailure("/home/sameera/bar.txt");
     return statusFailure;
 }
 
-function testSafeAssignOpInAssignmentStatement1 () returns (boolean) {
+function testSafeAssignOpInAssignmentStatement1 () returns (boolean | error) {
     boolean b = false;
     int a = 0;
     b = check openFileSuccess("/home/sameera/foo.txt");
@@ -59,61 +60,60 @@ function testSafeAssignOpInAssignmentStatement4 () returns (boolean|error) {
     return ba[0];
 }
 
-function testSafeAssignOpInAssignmentStatement5 () {
+function testSafeAssignOpInAssignmentStatement5 () returns error? {
     boolean statusFailure;
     int a = 10;
     statusFailure = check openFileFailure("/home/sameera/bar.txt");
+    return ();
 }
 
-function testSafeAssignOpInAssignmentStatement6 () returns boolean {
+function testSafeAssignOpInAssignmentStatement6 () returns (boolean | error) {
     int a = 10;
     var statusFailure = check openFileSuccess("/home/sameera/bar.txt");
     return statusFailure;
 }
 
-type person record {
+type Person record {
     string name;
 };
 
-public type myerror record {
-    string message;
-    error? cause;
-    int code;
+public type MyErrorData record {
     !...
 };
 
-public type customError record {
-    string message;
-    error? cause;
-    int code;
+type MyError error<string, MyErrorData>;
+
+public type CustomErrorData record {
     string data;
     !...
 };
 
-function getPerson() returns person | myerror {
-   //myerror e = {message:"ddd"};
+type CustomError error<string, CustomErrorData>;
+
+function getPerson() returns Person | MyError {
+   //myerror e = error("ddd");
     //return e;
-    person p = {name:"Diayasena"};
+    Person p = {name:"Diayasena"};
     return  p;
 }
 
-function testSafeAssignOpInAssignmentStatement7 () returns string {
+function testSafeAssignOpInAssignmentStatement7 () returns (string | error) {
     var p = check getPerson();
     return p.name;
 }
 
 
-function readLineError() returns string | myerror {
-    myerror e = { message: "io error" };
+function readLineError() returns string | MyError {
+    MyError e = error("io error");
     return e;
 }
 
-function readLineCustomError() returns string | customError {
-    customError e = { message: "custom io error", data: "foo.txt"};
+function readLineCustomError() returns string | CustomError {
+    CustomError e = error("custom io error", { data: "foo.txt"});
     return e;
 }
 
-function readLineSuccess() returns string | myerror {
+function readLineSuccess() returns string | MyError {
     return "Ballerina";
 }
 
@@ -122,49 +122,51 @@ function testCheckExprInBinaryExpr1() returns error? {
     return ();
 }
 
-function testCheckExprInBinaryExpr2() returns myerror? {
+function testCheckExprInBinaryExpr2() returns MyError? {
     string str = "hello, " + check readLineError();
     return ();
 }
 
-function testCheckExprInBinaryExpr3() returns string | customError {
+function testCheckExprInBinaryExpr3() returns string | CustomError {
     string str = "hello, " + check readLineSuccess();
     return str;
 }
 
-function testCheckExprInBinaryExpr4() {
+function testCheckExprInBinaryExpr4() returns error {
     string str = "hello, " + check readLineError();
+    return error("error");
 }
 
-function testCheckExprInBinaryExpr5() {
+function testCheckExprInBinaryExpr5() returns error? {
     string str = "hello, " + check readLineError();
+    return ();
 }
 
-function testCheckExprInBinaryExpr6() returns string | customError {
+function testCheckExprInBinaryExpr6() returns string | CustomError {
     string str = "hello, " + check readLineCustomError();
     return str;
 }
 
-// This test case should throw an error since customError is not assignable to the myerror
-function testCheckExprInBinaryExpr7() returns string | customError {
+// This test case should panic an error since customError is not assignable to the MyError
+function testCheckExprInBinaryExpr7() returns string | CustomError {
     string str = "hello, " + check readLineError();
     return str;
 }
 
-function readLineProper() returns string | myerror | customError {
+function readLineProper() returns string | MyError | CustomError {
     return "Hello, World!!!";
 }
 
-function testCheckExprInBinaryExpr8() returns string {
+function testCheckExprInBinaryExpr8() returns (string | error) {
     string str = "hello, " + check readLineProper();
     return str;
 }
 
-function foo(string s) returns string | customError {
+function foo(string s) returns string | CustomError {
     return "(" + s + "|" + s + ")";
 }
 
-function bar(string s1, string s2) returns string | customError  {
+function bar(string s1, string s2) returns string | CustomError  {
     return s1 + " " + s2;
 }
 
@@ -174,7 +176,7 @@ function testCheckedExprAsFuncParam1() returns string | error  {
                     check bar(check foo(check foo(check foo("M"))), "done"));
 }
 
-function testCheckInBinaryAndExpression() returns boolean {
+function testCheckInBinaryAndExpression() returns boolean|error {
     string s = "Ballerina";
     if (check s.matches("B.*") && check s.matches(".*a")) {
         return true;
@@ -182,19 +184,19 @@ function testCheckInBinaryAndExpression() returns boolean {
     return false;
 }
 
-function testCheckInBinaryAddExpression() returns int {
+function testCheckInBinaryAddExpression() returns int|error {
     int|error a = 10;
     int|error b = 20;
     return check a + check b;
 }
 
-function testCheckInBinaryDivExpression() returns int {
+function testCheckInBinaryDivExpression() returns int|error {
     int|error a = 10;
     int|error b = 20;
     return check b / check a;
 }
 
-function testCheckInBinaryLTExpression() returns boolean {
+function testCheckInBinaryLTExpression() returns boolean|error {
     int|error a = 10;
     int|error b = 20;
     return check b < check a;

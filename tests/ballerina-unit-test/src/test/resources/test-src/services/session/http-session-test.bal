@@ -3,21 +3,18 @@ import ballerina/mime;
 import ballerina/io;
 
 type Data record {
-    string name,
+    string name;
 };
 
-endpoint http:NonListener sessionEP {
-    port:9090
-};
+listener http:MockListener sessionEP = new(9090);
 
 @http:ServiceConfig {basePath:"/sample"}
-service<http:Service> sample bind sessionEP {
+service sample on sessionEP {
     @http:ResourceConfig {
         methods:["GET"],
         path:"/test1"
     }
-    echo (endpoint conn, http:Request req) {
-
+    resource function echo(http:Caller caller, http:Request req) {
         string result = "";
         http:Session session = req.createSessionIfAbsent();
         if (session != null) {
@@ -25,15 +22,14 @@ service<http:Service> sample bind sessionEP {
         }
         http:Response res = new;
         res.setTextPayload(result);
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/test2"
     }
-    echo2 (endpoint conn, http:Request req) {
-
+    resource function echo2(http:Caller caller, http:Request req) {
         string result = "";
         http:Session session = req.getSession();
         if (session != null) {
@@ -43,15 +39,14 @@ service<http:Service> sample bind sessionEP {
         }
         http:Response res = new;
         res.setTextPayload(result);
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/test3"
     }
-    echo3 (endpoint conn, http:Request req) {
-
+    resource function echo3(http:Caller caller, http:Request req) {
         string result = "";
         http:Session session = req.getSession();
         if (session != null) {
@@ -61,15 +56,14 @@ service<http:Service> sample bind sessionEP {
         }
         http:Response res = new;
         res.setTextPayload(result);
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/test4"
     }
-    testGetAt (endpoint conn, http:Request req) {
-
+    resource function testGetAt(http:Caller caller, http:Request req) {
         string result = "";
         http:Session session = req.createSessionIfAbsent();
         any attribute = session.getAttribute("name");
@@ -80,15 +74,14 @@ service<http:Service> sample bind sessionEP {
         }
         http:Response res = new;
         res.setTextPayload(result);
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/test5"
     }
-    echo5 (endpoint conn, http:Request req) {
-
+    resource function echo5(http:Caller caller, http:Request req) {
         http:Response res = new;
         string result = "testValue";
         http:Session session = req.getSession();
@@ -98,15 +91,14 @@ service<http:Service> sample bind sessionEP {
         } else {
             res.setTextPayload(result);
         }
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/test6"
     }
-    echo6 (endpoint conn, http:Request req) {
-
+    resource function echo6(http:Caller caller, http:Request req) {
         string myName = "chamil";
         http:Session session1 = req.createSessionIfAbsent();
         http:Session session2 = req.createSessionIfAbsent();
@@ -117,76 +109,76 @@ service<http:Service> sample bind sessionEP {
         }
         http:Response res = new;
         res.setTextPayload(myName);
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         methods:["POST"],
         path:"/hello"
     }
-    hello (endpoint conn, http:Request req) {
+    resource function hello(http:Caller caller, http:Request req) {
         http:Response res = new;
         string result;
-        match req.getTextPayload() {
-            error err => res.setTextPayload("Error");
-            string textPayload => {
-                result = textPayload;
-                http:Session session = req.createSessionIfAbsent();
-                any attribute = session.getAttribute("name");
-                if (attribute != null) {
-                    result = <string>attribute;
-                } else {
-                    session.setAttribute("name", result);
-                }
-                res.setTextPayload(result);
+        var payload = req.getTextPayload();
+        if (payload is string) {
+            result = textPayload;
+            http:Session session = req.createSessionIfAbsent();
+            any attribute = session.getAttribute("name");
+            if (attribute != null) {
+                result = string.create(attribute);
+            } else {
+                session.setAttribute("name", result);
             }
+            res.setTextPayload(result);
+        } else if (payload is error) {
+            res.setTextPayload("Error");
         }
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 }
 
 @http:ServiceConfig {basePath:"/counter"}
-service<http:Service> counter bind sessionEP {
+service counter on sessionEP {
     @http:ResourceConfig {
         methods:["GET"],
         path:"/echo"
     }
-    echoCount (endpoint conn, http:Request req) {
-
+    resource function echoCount(http:Caller caller, http:Request req) {
         int sessionCounter;
         http:Session session = req.createSessionIfAbsent();
         if (session.getAttribute("Counter") == null) {
             sessionCounter = 0;
         } else {
-            var result = <int>session.getAttribute("Counter");
-            match result {
-                int value => sessionCounter = value;
-                error err => io:println("Error occurred during int to string conversion");
+            var result = int.create(session.getAttribute("Counter"));
+            if (result is int) {
+                sessionCounter = value;
+            } else if (result is error) {
+                io:println("Error occurred during int to string conversion");
             }
         }
         sessionCounter = sessionCounter + 1;
         session.setAttribute("Counter", sessionCounter);
 
         http:Response res = new;
-        res.setTextPayload(<string> sessionCounter);
-        _ = conn -> respond(res);
+        res.setTextPayload(string.create(sessionCounter));
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/echo2"
     }
-    echoCount2 (endpoint conn, http:Request req) {
-
+    resource function echoCount2(http:Caller caller, http:Request req) {
         int sessionCounter;
         http:Session session = req.getSession();
         if (session.getAttribute("Counter") == null) {
             sessionCounter = 0;
         } else {
-            var result = <int>session.getAttribute("Counter");
-            match result {
-                int value => sessionCounter = value;
-                error err => io:println("Error occurred during int to string conversion");
+            var result = int.create(session.getAttribute("Counter"));
+            if (result is int) {
+                sessionCounter = value;
+            } else if (result is error) {
+                io:println("Error occurred during int to string conversion");
             }
         }
         sessionCounter = sessionCounter + 1;
@@ -194,16 +186,16 @@ service<http:Service> counter bind sessionEP {
 
         http:Response res = new;
         res.setTextPayload(<string>(sessionCounter));
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 }
 
 @http:ServiceConfig {basePath:"/sample2"}
-service<http:Service> sample2 bind sessionEP {
+service sample2 on sessionEP {
     @http:ResourceConfig {
         methods:["GET"]
     }
-    echoName (endpoint conn, http:Request req) {
+    resource function echoName(http:Caller caller, http:Request req) {
         string myName = "wso2";
         http:Session Session = req.createSessionIfAbsent();
         any attribute = Session.getAttribute("name");
@@ -214,58 +206,57 @@ service<http:Service> sample2 bind sessionEP {
 
         http:Response res = new;
         res.setTextPayload(myName);
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         methods:["POST"]
     }
-    myStruct (endpoint conn, http:Request req) {
+    resource function myStruct (http:Caller caller, http:Request req) {
         http:Response res = new;
-        match req.getTextPayload() {
-            error err => res.setTextPayload("Error");
-            string payload => {
-                Data d = {name:payload};
-                http:Session Session = req.createSessionIfAbsent();
-                any attribute = Session.getAttribute("nameStruct");
-                if (attribute != null) {
-                    var result = <Data>attribute;
-                    match result {
-                        Data returnData => d = returnData;
-                        error err => io:println("Error occurred!");
-                    }
-                } else {
-                    Session.setAttribute("nameStruct", d);
+        var payload = req.getTextPayload();
+        if (payload is string) {
+            Data d = {name:payload};
+            http:Session Session = req.createSessionIfAbsent();
+            any attribute = Session.getAttribute("nameStruct");
+            if (attribute != null) {
+                var result = Data.create(attribute);
+                if (result is Data) {
+                    d = returnData;
+                } else if (result is error) {
+                    io:println("Error occurred!");
                 }
-                res.setTextPayload(d.name);
+            } else {
+                Session.setAttribute("nameStruct", d);
             }
+            res.setTextPayload(d.name);
+        } else if (payload is error) {
+            res.setTextPayload("Error");
         }
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/names"
     }
-    keyNames (endpoint conn, http:Request req) {
-
+    resource function keyNames(http:Caller caller, http:Request req) {
         http:Session session = req.createSessionIfAbsent();
         session.setAttribute("Counter", "1");
         session.setAttribute("Name", "chamil");
         string[] arr = session.getAttributeNames();
-        int arrsize = lengthof arr;
+        int arrsize = arr.length();
 
         http:Response res = new;
         res.setTextPayload("arraysize:" + arrsize);
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/names2"
     }
-    keyNames2 (endpoint conn, http:Request req) {
-
+    resource function keyNames2(http:Caller caller, http:Request req) {
         http:Session session = req.createSessionIfAbsent();
         session.setAttribute("Counter", "1");
         session.setAttribute("location", "colombo");
@@ -273,15 +264,14 @@ service<http:Service> sample2 bind sessionEP {
 
         http:Response res = new;
         res.setTextPayload(arr[0]);
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/names3"
     }
-    keyNames3 (endpoint conn, http:Request req) {
-
+    resource function keyNames3(http:Caller caller, http:Request req) {
         http:Session session = req.createSessionIfAbsent();
         session.setAttribute("location", "colombo");
         session.setAttribute("channel", "yue");
@@ -289,128 +279,121 @@ service<http:Service> sample2 bind sessionEP {
         session.setAttribute("Name", "chamil");
         session.removeAttribute("Name");
         string[] arr = session.getAttributeNames();
-        int arrsize = lengthof arr;
+        int arrsize = arr.length();
 
         http:Response res = new;
         res.setTextPayload(<string>(arrsize));
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/names4"
     }
-    keyNames4 (endpoint conn, http:Request req) {
-
+    resource function keyNames4(http:Caller caller, http:Request req) {
         http:Session session = req.createSessionIfAbsent();
         session.setAttribute("Counter", "1");
         session.setAttribute("Name", "chamil");
         session.removeAttribute("Name");
         session.invalidate();
         string[] arr = session.getAttributeNames();
-        int arrsize = lengthof arr;
+        int arrsize = arr.length();
 
         http:Response res = new;
         res.setTextPayload(<string>(arrsize));
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/names5"
     }
-    keyNames5 (endpoint conn, http:Request req) {
-
+    resource function keyNames5(http:Caller caller, http:Request req) {
         http:Session session = req.createSessionIfAbsent();
         string[] arr = session.getAttributeNames();
-        int arrsize = lengthof arr;
+        int arrsize = arr.length();
 
         http:Response res = new;
         res.setTextPayload(<string>(arrsize));
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/names6"
     }
-    keyNames6 (endpoint conn, http:Request req) {
-
+    resource function keyNames6(http:Caller caller, http:Request req) {
         http:Session session = req.createSessionIfAbsent();
         session.setAttribute("location", "colombo");
         session.removeAttribute("Name");
         string[] arr = session.getAttributeNames();
-        int arrsize = lengthof arr;
+        int arrsize = arr.length();
 
         http:Response res = new;
         res.setTextPayload(<string>(arrsize));
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/map"
     }
-    getmap (endpoint conn, http:Request req) {
-
+    resource function getmap(http:Caller caller, http:Request req) {
         http:Response res = new;
         http:Session session = req.createSessionIfAbsent();
         if (!req.hasHeader("counter")) {
             session.setAttribute("Name", "chamil");
             session.setAttribute("Lang", "ballerina");
-            map attributes = session.getAttributes();
+            map<any> attributes = session.getAttributes();
             string[] arr = attributes.keys();
             string v0;
             v0 = <string>attributes[arr[0]];
             res.setTextPayload(arr[0] + ":" + v0);
         } else {
-            map attributes = session.getAttributes();
+            map<any> attributes = session.getAttributes();
             string[] arr = attributes.keys();
             string v1;
             v1 = <string>attributes[arr[1]];
             res.setTextPayload(arr[1] + ":" + v1);
         }
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/map2"
     }
-    getmap2 (endpoint conn, http:Request req) {
-
+    resource function getmap2(http:Caller caller, http:Request req) {
         http:Session session = req.createSessionIfAbsent();
-        map attributes = session.getAttributes();
+        map<any> attributes = session.getAttributes();
         string v0 = "map not present";
-        if ((lengthof attributes) != 0) {
+        if ((attributes.length()) != 0) {
             string[] arr = attributes.keys();
             v0 = <string>attributes[arr[0]];
         }
         http:Response res = new;
         res.setTextPayload("value" + ":" + v0);
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/id1"
     }
-    id1 (endpoint conn, http:Request req) {
-
+    resource function id1(http:Caller caller, http:Request req) {
         http:Session session = req.createSessionIfAbsent();
         string id = session.getId();
 
         http:Response res = new;
         res.setTextPayload(id);
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/id2"
     }
-    id2 (endpoint conn, http:Request req) {
-
+    resource function id2(http:Caller caller, http:Request req) {
         http:Session session = req.getSession();
         string id;
         if (session != null) {
@@ -418,131 +401,123 @@ service<http:Service> sample2 bind sessionEP {
         }
         http:Response res = new;
         res.setTextPayload(id);
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/new1"
     }
-    new1 (endpoint conn, http:Request req) {
-
+    resource function new1(http:Caller caller, http:Request req) {
         http:Session session = req.createSessionIfAbsent();
         boolean stat = session.isNew();
 
         http:Response res = new;
         res.setTextPayload(<string>(stat));
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/new2"
     }
-    new2 (endpoint conn, http:Request req) {
-
+    resource function new2(http:Caller caller, http:Request req) {
         http:Session session = req.createSessionIfAbsent();
         int time = session.getCreationTime();
 
         http:Response res = new;
         res.setTextPayload(<string>(time));
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/new3"
     }
-    new3 (endpoint conn, http:Request req) {
-
+    resource function new3(http:Caller caller, http:Request req) {
         http:Session session = req.createSessionIfAbsent();
         session.invalidate();
         int time = session.getCreationTime();
 
         http:Response res = new;
         res.setTextPayload(<string>(time));
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/new4"
     }
-    new4 (endpoint conn, http:Request req) {
-
+    resource function new4(http:Caller caller, http:Request req) {
         http:Session session = req.createSessionIfAbsent();
         int time = session.getLastAccessedTime();
 
         http:Response res = new;
         res.setTextPayload(<string>(time));
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/new5"
     }
-    new5 (endpoint conn, http:Request req) {
-
+    resource function new5(http:Caller caller, http:Request req) {
         http:Session session = req.createSessionIfAbsent();
         session.invalidate();
         int time = session.getLastAccessedTime();
 
         http:Response res = new;
         res.setTextPayload(<string>(time));
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/new6"
     }
-    new6 (endpoint conn, http:Request req) {
-
+    resource function new6(http:Caller caller, http:Request req) {
         http:Session session = req.createSessionIfAbsent();
         int time = session.getMaxInactiveInterval();
         session.setMaxInactiveInterval(60);
 
         http:Response res = new;
         res.setTextPayload(<string>(time));
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/new7"
     }
-    new7 (endpoint conn, http:Request req) {
-
+    resource function new7(http:Caller caller, http:Request req) {
         http:Session session = req.createSessionIfAbsent();
         session.invalidate();
         session.setMaxInactiveInterval(89);
 
         http:Response res = new;
         res.setTextPayload("done");
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/new8"
     }
-    new8 (endpoint conn, http:Request req) {
-
+    resource function new8(http:Caller caller, http:Request req) {
         http:Session session = req.createSessionIfAbsent();
         int time = session.getMaxInactiveInterval();
         session.setMaxInactiveInterval(-1);
 
         http:Response res = new;
         res.setTextPayload(<string>(time));
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/new9"
     }
-    new9 (endpoint conn, http:Request req) {
+    resource function new9(http:Caller caller, http:Request req) {
         string myName = "FirstName";
         http:Session Session = req.createSessionIfAbsent();
         any attribute = Session.getAttribute("name");
@@ -553,6 +528,6 @@ service<http:Service> sample2 bind sessionEP {
 
         http:Response res = new;
         res.setTextPayload(myName);
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 }

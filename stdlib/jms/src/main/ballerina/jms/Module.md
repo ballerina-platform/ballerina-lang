@@ -31,21 +31,23 @@ import ballerina/jms;
 import ballerina/log;
 
 // Create a simple queue receiver.
-endpoint jms:SimpleQueueReceiver consumerEP {
+listener jms:SimpleQueueReceiver consumerEP = new({
     initialContextFactory: "bmbInitialContextFactory",
     providerUrl: "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'",
     acknowledgementMode: "AUTO_ACKNOWLEDGE",
     queueName: "MyQueue"
-};
+});
 
 // Bind the created consumer to the listener service.
-service<jms:Consumer> jmsListener bind consumerEP {
+service jmsListener on consumerEP {
 
     // The `OnMessage` resource gets invoked when a message is received.
-    onMessage(endpoint consumer, jms:Message message) {
-        match (message.getTextMessageContent()) {
-            string messageText => log:printInfo("Message : " + messageText);
-            error e => log:printError("Error occurred while reading message", err = e);
+    var msg = message.getTextMessageContent();
+    resource function onMessage(jms:QueueReceiverCaller consumer, jms:Message message) {
+        if (msg is string) {
+            log:printInfo("Message : " + msg);
+        } else {
+            log:printError("Error occurred while reading message", err = msg);
         }
     }
 }
@@ -59,26 +61,23 @@ import ballerina/jms;
 import ballerina/log;
 
 // Create a topic publisher.
-endpoint jms:SimpleTopicPublisher topicPublisher {
+jms:SimpleTopicPublisher topicPublisher = new({
     initialContextFactory: "bmbInitialContextFactory",
     providerUrl: "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'",
     acknowledgementMode: "AUTO_ACKNOWLEDGE",
     topicPattern: "BallerinaTopic"
-};
+});
 
 public function main(string... args) {
     // Create a text message.
-    match (topicPublisher.createTextMessage("Hello from Ballerina")) {
-        error e => {
-            log:printError("Error occurred while creating message", err = e);
-        }
-
-        jms:Message msg => {
-            // Send the Ballerina message to the JMS provider.
-            topicPublisher->send(msg) but {
-                error e => log:printError("Error occurred while sending message", err = e)
-            };
-        }
+    var msg = topicPublisher.createTextMessage("Hello from Ballerina");
+    if (msg is error) {
+        log:printError("Error occurred while creating message", err = msg);
+    } else {
+        var result = topicPublisher->send(msg);
+        if (result is error) {
+            log:printError("Error occurred while sending message", err = result)
+        };
     }
 }
 ```
@@ -104,20 +103,22 @@ jms:Session jmsSession = new(conn, {
     });
 
 // Initialize a queue receiver using the created session.
-endpoint jms:QueueReceiver consumerEP {
+listener jms:QueueReceiver consumerEP = new({
     session: jmsSession,
     queueName: "MyQueue"
-};
+});
 
 // Bind the created consumer to the listener service.
-service<jms:Consumer> jmsListener bind consumerEP {
+service jmsListener on consumerEP {
 
     // The `OnMessage` resource gets invoked when a message is received.
-    onMessage(endpoint consumer, jms:Message message) {
+    resource function onMessage(jms:QueueReceiverCaller consumer, jms:Message message) {
         // Retrieve the text message.
-        match (message.getTextMessageContent()) {
-            string messageText => log:printInfo("Message : " + messageText);
-            error e => log:printError("Error occurred while reading message", err = e);
+        var msg = message.getTextMessageContent();
+        if (msg is string) {
+            log:printInfo("Message : " + message.getTextMessageContent());
+        } else {
+            log:printError("Error occurred while reading message", err = msg);
         }
     }
 }
@@ -143,21 +144,20 @@ jms:Session jmsSession = new(jmsConnection, {
         acknowledgementMode: "AUTO_ACKNOWLEDGE"
     });
 
-endpoint jms:QueueSender queueSender {
+jms:QueueSender queueSender = new({
     session: jmsSession,
     queueName: "MyQueue"
-};
+});
 
 public function main(string... args) {
     // Create a text message.
-    match (jmsSession.createTextMessage("Hello from Ballerina")) {
-        error e => {
-            log:printError("Error occurred while creating message", err = e);
-        }
-
-        jms:Message msg => {
-            // Send the Ballerina message to the JMS provider.
-            queueSender->send(msg) but { error e => log:printError("Error occurred while sending message", err = e) };
+    var msg = jmsSession.createTextMessage("Hello from Ballerina");
+    if (msg is error) {
+        log:printError("Error occurred while creating message", err = msg);
+    } else {
+        var result = queueSender->send(msg);
+        if (result is error) {
+            log:printError("Error occurred while sending message", err = result)
         }
     }
 }
@@ -180,16 +180,18 @@ jms:Session jmsSession = new(conn, {
     acknowledgementMode:"AUTO_ACKNOWLEDGE"
 });
 
-endpoint jms:TopicSubscriber subscriberEndpoint {
+listener jms:TopicSubscriber subscriberEndpoint = new({
     session:jmsSession,
     topicPattern:"BallerinaTopic"
-};
+});
 
-service<jms:Consumer> jmsListener bind subscriberEndpoint {
-    onMessage(endpoint subscriber, jms:Message message) {
-        match (message.getTextMessageContent()) {
-            string messageText => log:printInfo("Message : " + messageText);
-            error e => log:printError("Error occurred while reading message", err = e);
+service jmsListener on subscriberEndpoint {
+    onMessage(jms:TopicSubscriberCaller subscriber, jms:Message message) {
+        var msg = message.getTextMessageContent();
+        if (msg is string) {
+            log:printInfo("Message : " + msg);
+        } else {
+            log:printError("Error occurred while reading message", err = msg);
         }
     }
 }
@@ -212,20 +214,19 @@ jms:Session jmsSession = new(jmsConnection, {
     acknowledgementMode:"AUTO_ACKNOWLEDGE"
 });
 
-endpoint jms:TopicPublisher topicPublisher {
+jms:TopicPublisher topicPublisher = new({
     session:jmsSession,
     topicPattern:"BallerinaTopic"
-};
+});
 
 public function main(string... args) {
-    match (jmsSession.createTextMessage("Hello from Ballerina")) {
-        error e => {
-            log:printError("Error occurred while creating message", err = e);
-        }
-        jms:Message msg => {
-            topicPublisher->send(msg) but {
-                error e => log:printError("Error occurred while sending message", err = e)
-            };
+    var msg = jmsSession.createTextMessage("Hello from Ballerina");
+    if (msg is error) {
+        log:printError("Error occurred while creating message", err = msg);
+    } else {
+        var result = topicPublisher->send(msg);
+        if (result is error) {
+            log:printError("Error occurred while sending message", err = result)
         }
     }
 }

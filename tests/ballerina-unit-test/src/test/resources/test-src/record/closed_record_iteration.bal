@@ -1,41 +1,41 @@
 type ClosedPerson record {
-    string name;
-    int age;
-    Address address;
+    string name = "";
+    int age = 0;
+    Address address = {};
     !...
 };
 
 type ClosedAddress record {
-    string street;
-    string city;
+    string street = "";
+    string city = "";
     !...
 };
 
 type Address record {
-    string street;
-    string city;
+    string street = "";
+    string city = "";
 };
 
 type ClosedFoo record {
-    string a;
-    string b;
-    string c;
-    string d;
-    string e;
+    string a = "";
+    string b = "";
+    string c = "";
+    string d = "";
+    string e = "";
     !...
 };
 
 type ClosedGrades record {
-    int maths;
-    int physics;
-    int chemistry;
+    int maths = 0;
+    int physics = 0;
+    int chemistry = 0;
     !...
 };
 
 type ClosedBar record {
-    float x;
-    float y;
-    float z;
+    float x = 0.0;
+    float y = 0.0;
+    float z = 0.0;
     !...
 };
 
@@ -67,9 +67,9 @@ function testForeachWithOpenRecords2() returns any[] {
     return values;
 }
 
-function testForeachOpWithClosedRecords() returns map {
+function testForeachOpWithClosedRecords() returns map<any> {
     ClosedPerson p = { name: "John Doe", age: 25, address: { street: "Palm Grove", city: "Colombo 3" }};
-    map rec;
+    map<any> rec = {};
 
     p.foreach(function ((string, any) entry) {
             var (field, value) = entry;
@@ -79,16 +79,16 @@ function testForeachOpWithClosedRecords() returns map {
     return rec;
 }
 
-function testMapOpWithClosedRecords() returns map {
+function testMapOpWithClosedRecords() returns map<any> {
     ClosedPerson p = { name: "John Doe", age: 25, address: { street: "Palm Grove", city: "Colombo 3" }};
 
-    map newp =  p.map(function ((string, any) entry) returns (string, any) {
+    map<any> newp =  p.map(function ((string, any) entry) returns (string, any) {
            var (field, value) = entry;
-            match value {
-                string str => value = str.toLower();
-                any => {}
-            }
-            return (field, value);
+           if value is string {
+               value = value.toLower();
+               return (field, value);
+           }
+           return (field, value);
         });
         
     return newp;

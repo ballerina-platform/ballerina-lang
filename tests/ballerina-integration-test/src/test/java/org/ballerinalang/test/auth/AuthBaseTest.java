@@ -30,6 +30,7 @@ import java.io.File;
  * and after tests are run.
  */
 public class AuthBaseTest extends BaseTest {
+
     protected static BServerInstance serverInstance;
     protected static EmbeddedDirectoryServer embeddedDirectoryServer;
 

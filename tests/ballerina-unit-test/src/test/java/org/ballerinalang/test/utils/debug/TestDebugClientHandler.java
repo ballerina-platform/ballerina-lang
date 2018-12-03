@@ -18,8 +18,7 @@
 package org.ballerinalang.test.utils.debug;
 
 import io.netty.channel.Channel;
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.util.codegen.WorkerInfo;
+import org.ballerinalang.bre.bvm.Strand;
 import org.ballerinalang.util.debugger.DebugClientHandler;
 import org.ballerinalang.util.debugger.DebugException;
 import org.ballerinalang.util.debugger.dto.MessageDTO;
@@ -44,7 +43,7 @@ public class TestDebugClientHandler implements DebugClientHandler {
     private Queue<MessageDTO> debugHits;
 
     //key - workerId
-    private Map<String, WorkerExecutionContext> contextMap;
+    private Map<String, Strand> contextMap;
 
     TestDebugClientHandler() {
         this.debugHits = new LinkedBlockingQueue<>();
@@ -68,25 +67,23 @@ public class TestDebugClientHandler implements DebugClientHandler {
     }
 
     @Override
-    public void addWorkerContext(WorkerExecutionContext ctx) {
-        String workerId = generateAndGetWorkerId(ctx.workerInfo);
-        ctx.getDebugContext().setWorkerId(workerId);
+    public void addStrand(Strand ctx) {
         //TODO check if that thread id already exist in the map
-        this.contextMap.put(workerId, ctx);
+        this.contextMap.put(ctx.getId(), ctx);
     }
 
-    private String generateAndGetWorkerId (WorkerInfo workerInfo) {
+    private String generateAndGetWorkerId() {
         UUID uuid = UUID.randomUUID();
-        return workerInfo.getWorkerName() + "-" + uuid.toString();
+        return uuid.toString();
     }
 
     @Override
-    public WorkerExecutionContext getWorkerContext(String workerId) {
-        return this.contextMap.get(workerId);
+    public Strand getStrand(String strandId) {
+        return this.contextMap.get(strandId);
     }
 
     @Override
-    public Map<String, WorkerExecutionContext> getAllWorkerContexts() {
+    public Map<String, Strand> getAllStrands() {
         return contextMap;
     }
 

@@ -27,6 +27,7 @@ import java.util.List;
 
 /**
  * Text Document Service context keys for the completion operation context.
+ *
  * @since 0.95.5
  */
 public class DocumentServiceKeys {

@@ -48,8 +48,10 @@ public class IncompatibleArgsInWindowTest {
                 BCompileUtil.compile("test-src/streaming/negative/incompatible-return-type-window-negative-test.bal");
     }
 
-    @Test(description = "Checks if the args of window functions have correct types", expectedExceptions =
-            BLangRuntimeException.class, expectedExceptionsMessageRegExp = ".*time window expects an int parameter.*")
+    @Test(description = "Checks if the args of window functions have correct types",
+          expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*time window expects an int parameter.*",
+          groups = "broken")
     public void testArgTypes() {
         BRunUtil.invoke(incompatibleArgsResult, "startTimeWindowTest");
         System.setProperty("enable.siddhiRuntime", "true");

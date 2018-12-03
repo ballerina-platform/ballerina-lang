@@ -24,8 +24,8 @@ import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BFunctionPointer;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStream;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -34,6 +34,7 @@ import org.ballerinalang.siddhi.core.stream.input.InputHandler;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -63,16 +64,16 @@ public class StartForever extends BlockingNativeCallableUnit {
 
         StringBuilder streamDefinitionQuery = new StringBuilder();
         String siddhiQuery = context.getStringArgument(0);
-        BRefValueArray inputStreamReferenceArray = (BRefValueArray) context.getRefArgument(0);
+        BValueArray inputStreamReferenceArray = (BValueArray) context.getRefArgument(0);
 
         for (int i = 0; i < inputStreamReferenceArray.size(); i++) {
-            BStream stream = (BStream) inputStreamReferenceArray.get(i);
+            BStream stream = (BStream) inputStreamReferenceArray.getRefValue(i);
             siddhiQuery = siddhiQuery.replaceFirst("\\[\\[streamName\\]\\]", stream.getStreamId());
 
-            BField[] structFieldArray = ((BStructureType) stream.getConstraintType()).getFields();
+            Map<String, BField> structFields = ((BStructureType) stream.getConstraintType()).getFields();
             StringBuilder streamDefinition = new StringBuilder("define stream ");
             streamDefinition.append(stream.getStreamId()).append("( ");
-            generateStreamDefinition(structFieldArray, streamDefinition);
+            generateStreamDefinition(structFields, streamDefinition);
             streamDefinitionQuery.append(streamDefinition).append("\n ");
         }
 
@@ -86,7 +87,7 @@ public class StartForever extends BlockingNativeCallableUnit {
 
         Set<String> alreadySubscribedStreams = new HashSet<>();
         for (int i = 0; i < inputStreamReferenceArray.size(); i++) {
-            BStream stream = (BStream) inputStreamReferenceArray.get(i);
+            BStream stream = (BStream) inputStreamReferenceArray.getRefValue(i);
             if (!alreadySubscribedStreams.contains(stream.getStreamId())) {
                 InputHandler inputHandler = streamSpecificInputHandlerMap.get(stream.getStreamId());
                 stream.subscribe(inputHandler);
@@ -94,31 +95,31 @@ public class StartForever extends BlockingNativeCallableUnit {
             }
         }
 
-        BRefValueArray functionPointerArray = (BRefValueArray) context.getRefArgument(4);
+        BValueArray functionPointerArray = (BValueArray) context.getRefArgument(4);
         for (int i = 0; i < functionPointerArray.size(); i++) {
-            BFunctionPointer functionPointer = (BFunctionPointer) functionPointerArray.get(i);
+            BFunctionPointer functionPointer = (BFunctionPointer) functionPointerArray.getRefValue(i);
             String functionName = functionPointer.value().getName();
             String streamId = "stream" + functionName.replaceAll("\\$", "_");
             StreamingRuntimeManager.getInstance().addCallback(streamId, functionPointer, siddhiAppRuntime);
         }
     }
 
-    private void generateStreamDefinition(BField[] structFieldArray,
+    private void generateStreamDefinition(Map<String, BField> structFields,
                                           StringBuilder streamDefinition) {
-        BField structField = structFieldArray[0];
-        if (structField != null) {
-            addTypesToStreamDefinitionQuery(streamDefinition, structField);
+        Iterator<BField> fieldIterator = structFields.values().iterator();
+
+        if (!fieldIterator.hasNext()) {
+            return;
         }
 
-        for (int i = 1; i < structFieldArray.length; i++) {
-            structField = structFieldArray[i];
+        addTypesToStreamDefinitionQuery(streamDefinition, fieldIterator.next());
+
+        fieldIterator.forEachRemaining(field -> {
             streamDefinition.append(" , ");
-            addTypesToStreamDefinitionQuery(streamDefinition, structField);
-        }
+            addTypesToStreamDefinitionQuery(streamDefinition, field);
+        });
 
-        if (structField != null) {
-            streamDefinition.append(" ); ");
-        }
+        streamDefinition.append(" ); ");
     }
 
     private void addTypesToStreamDefinitionQuery(StringBuilder streamDefinition, BField structField) {

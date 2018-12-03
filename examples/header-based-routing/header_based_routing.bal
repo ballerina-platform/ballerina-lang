@@ -1,12 +1,7 @@
 import ballerina/http;
 import ballerina/log;
 
-endpoint http:Client locationEP {
-    url: "http://www.mocky.io"
-};
-
-endpoint http:Client weatherEP {
-    url: "http://samples.openweathermap.org",
+http:ClientEndpointConfig weatherEPConfig = {
     followRedirects: { enabled: true, maxCount: 5 }
 };
 
@@ -15,14 +10,17 @@ endpoint http:Client weatherEP {
     basePath: "/hbr"
 }
 
-service<http:Service> headerBasedRouting bind { port: 9090 } {
+service headerBasedRouting on new http:Listener(9090) {
     //`http:resourceConfig{}` annotation with GET method declares the HTTP method.
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/route"
     }
 
-    hbrResource(endpoint caller, http:Request req) {
+    resource function hbrResource(http:Caller caller, http:Request req) {
+        http:Client weatherEP = new("http://samples.openweathermap.org",
+                                    config = weatherEPConfig);
+        http:Client locationEP = new("http://www.mocky.io");
         //Create new outbound request to handle client call.
         http:Request newRequest = new;
         // Checks whether 'x-type' header exists in the request.
@@ -31,9 +29,13 @@ service<http:Service> headerBasedRouting bind { port: 9090 } {
             errorResponse.statusCode = 500;
             json errMsg = { "error": "'x-type' header is not found" };
             errorResponse.setPayload(errMsg);
-            caller->respond(errorResponse) but {
-                error e => log:printError("Error sending response", err = e) };
-            done;
+
+            var result = caller->respond(errorResponse);
+
+            if (result is error){
+                log:printError("Error sending response", err = result);
+            }
+            return;
         }
         //`getHeader()` returns header value of a specified header name.
         string nameString = req.getHeader("x-type");
@@ -52,21 +54,23 @@ service<http:Service> headerBasedRouting bind { port: 9090 } {
 
         }
 
-        match response {
-            http:Response clientResponse => {
-                //`respond()` sends back the inbound clientResponse to the caller if no any error is found.
-                caller->respond(clientResponse)
-                    but { error e => log:printError(
-                                 "Error sending response", err = e) };
+        if (response is http:Response) {
+            // `respond()` sends back the inbound clientResponse to the caller if no any error is found.
 
+            var result = caller->respond(response);
+
+            if (result is error){
+                log:printError("Error sending response", err = result);
             }
-            error err => {
-                http:Response errorResponse = new;
-                errorResponse.statusCode = 500;
-                errorResponse.setPayload(err.message);
-                caller->respond(errorResponse)
-                    but { error e => log:printError(
-                                 "Error sending response", err = e) };
+
+        } else if (response is error) {
+            http:Response errorResponse = new;
+            errorResponse.statusCode = 500;
+            errorResponse.setPayload(<string> response.detail().message);
+            var result = caller->respond(errorResponse);
+
+            if (result is error){
+                log:printError("Error sending response", err = result);
             }
         }
     }

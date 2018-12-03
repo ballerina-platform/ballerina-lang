@@ -1,5 +1,5 @@
 function testIntRanges(int a) returns (int) {
-    int retunType;
+    int retunType = 0;
     if (a <= 0) {
         retunType = 1;
     } else if ((a > 0) && (a < 100)) {
@@ -11,7 +11,7 @@ function testIntRanges(int a) returns (int) {
 }
 
 function testFloatRanges(float a) returns (int) {
-    int retunType;
+    int retunType = 0;
     if (a <= 0.0) {
         retunType = 1;
     } else if ((a > 0.0) && (a < 100.0)) {

@@ -25,8 +25,8 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -122,16 +122,16 @@ public class CacheTest {
         BValue[] args = new BValue[0];
         BValue[] returns = BRunUtil.invoke(compileResult, "testCacheEviction1", args);
         Assert.assertEquals(returns.length, 2);
-        Assert.assertTrue(returns[0] instanceof BStringArray);
-        Assert.assertEquals(((BStringArray) returns[0]).get(0), "C");
-        Assert.assertEquals(((BStringArray) returns[0]).get(1), "D");
-        Assert.assertEquals(((BStringArray) returns[0]).get(2), "E");
-        Assert.assertEquals(((BStringArray) returns[0]).get(3), "F");
-        Assert.assertEquals(((BStringArray) returns[0]).get(4), "G");
-        Assert.assertEquals(((BStringArray) returns[0]).get(5), "H");
-        Assert.assertEquals(((BStringArray) returns[0]).get(6), "I");
-        Assert.assertEquals(((BStringArray) returns[0]).get(7), "J");
-        Assert.assertEquals(((BStringArray) returns[0]).get(8), "K");
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        Assert.assertEquals(((BValueArray) returns[0]).getString(0), "C");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(1), "D");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(2), "E");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(3), "F");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(4), "G");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(5), "H");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(6), "I");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(7), "J");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(8), "K");
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 9);
     }
 
@@ -140,16 +140,16 @@ public class CacheTest {
         BValue[] args = new BValue[0];
         BValue[] returns = BRunUtil.invoke(compileResult, "testCacheEviction2", args);
         Assert.assertEquals(returns.length, 2);
-        Assert.assertTrue(returns[0] instanceof BStringArray);
-        Assert.assertEquals(((BStringArray) returns[0]).get(0), "B");
-        Assert.assertEquals(((BStringArray) returns[0]).get(1), "D");
-        Assert.assertEquals(((BStringArray) returns[0]).get(2), "E");
-        Assert.assertEquals(((BStringArray) returns[0]).get(3), "F");
-        Assert.assertEquals(((BStringArray) returns[0]).get(4), "G");
-        Assert.assertEquals(((BStringArray) returns[0]).get(5), "H");
-        Assert.assertEquals(((BStringArray) returns[0]).get(6), "I");
-        Assert.assertEquals(((BStringArray) returns[0]).get(7), "J");
-        Assert.assertEquals(((BStringArray) returns[0]).get(8), "K");
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        Assert.assertEquals(((BValueArray) returns[0]).getString(0), "B");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(1), "D");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(2), "E");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(3), "F");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(4), "G");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(5), "H");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(6), "I");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(7), "J");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(8), "K");
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 9);
     }
 
@@ -158,16 +158,16 @@ public class CacheTest {
         BValue[] args = new BValue[0];
         BValue[] returns = BRunUtil.invoke(compileResult, "testCacheEviction3", args);
         Assert.assertEquals(returns.length, 2);
-        Assert.assertTrue(returns[0] instanceof BStringArray);
-        Assert.assertEquals(((BStringArray) returns[0]).get(0), "A");
-        Assert.assertEquals(((BStringArray) returns[0]).get(1), "B");
-        Assert.assertEquals(((BStringArray) returns[0]).get(2), "E");
-        Assert.assertEquals(((BStringArray) returns[0]).get(3), "F");
-        Assert.assertEquals(((BStringArray) returns[0]).get(4), "G");
-        Assert.assertEquals(((BStringArray) returns[0]).get(5), "H");
-        Assert.assertEquals(((BStringArray) returns[0]).get(6), "I");
-        Assert.assertEquals(((BStringArray) returns[0]).get(7), "J");
-        Assert.assertEquals(((BStringArray) returns[0]).get(8), "K");
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        Assert.assertEquals(((BValueArray) returns[0]).getString(0), "A");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(1), "B");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(2), "E");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(3), "F");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(4), "G");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(5), "H");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(6), "I");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(7), "J");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(8), "K");
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 9);
     }
 
@@ -176,12 +176,12 @@ public class CacheTest {
         BValue[] args = new BValue[0];
         BValue[] returns = BRunUtil.invoke(compileResult, "testCacheEviction4", args);
         Assert.assertEquals(returns.length, 2);
-        Assert.assertTrue(returns[0] instanceof BStringArray);
-        Assert.assertEquals(((BStringArray) returns[0]).get(0), "A");
-        Assert.assertEquals(((BStringArray) returns[0]).get(1), "B");
-        Assert.assertEquals(((BStringArray) returns[0]).get(2), "C");
-        Assert.assertEquals(((BStringArray) returns[0]).get(3), "D");
-        Assert.assertEquals(((BStringArray) returns[0]).get(4), "F");
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        Assert.assertEquals(((BValueArray) returns[0]).getString(0), "A");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(1), "B");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(2), "C");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(3), "D");
+        Assert.assertEquals(((BValueArray) returns[0]).getString(4), "F");
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 5);
     }
 

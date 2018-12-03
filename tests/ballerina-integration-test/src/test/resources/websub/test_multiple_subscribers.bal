@@ -19,9 +19,7 @@ import ballerina/mime;
 import ballerina/http;
 import ballerina/websub;
 
-endpoint websub:Listener websubEP {
-    port:8383
-};
+listener websub:Listener websubEP = new websub:Listener(8383);
 
 @websub:SubscriberServiceConfig {
     path:"/websub",
@@ -32,10 +30,14 @@ endpoint websub:Listener websubEP {
     leaseSeconds: 3600,
     secret: "Kslk30SNF2AChs2"
 }
-service<websub:Service> websubSubscriber bind websubEP {
-    onNotification (websub:Notification notification) {
-        json payload = check notification.getJsonPayload();
-        io:println("WebSub Notification Received by One: " + payload.toString());
+service websubSubscriber on websubEP {
+    resource function onNotification (websub:Notification notification) {
+        var payload = notification.getJsonPayload();
+        if (payload is json) {
+            io:println("WebSub Notification Received by One: " + payload.toString());
+        } else {
+            panic payload;
+        }
     }
 }
 
@@ -46,9 +48,13 @@ service<websub:Service> websubSubscriber bind websubEP {
     leaseSeconds: 1200,
     secret: "SwklSSf42DLA"
 }
-service<websub:Service> websubSubscriberTwo bind websubEP {
-    onNotification (websub:Notification notification) {
-        json payload = check notification.getJsonPayload();
-        io:println("WebSub Notification Received by Two: " + payload.toString());
+service websubSubscriberTwo on websubEP {
+    resource function onNotification (websub:Notification notification) {
+        var payload = notification.getJsonPayload();
+        if (payload is json) {
+            io:println("WebSub Notification Received by Two: " + payload.toString());
+        } else {
+            panic payload;
+        }
     }
 }

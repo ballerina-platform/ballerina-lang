@@ -19,13 +19,13 @@ import ballerina/http;
 @http:ServiceConfig {
     basePath: "/code"
 }
-service<http:Service> differentStatusCodes bind { port: 9223 } {
+service differentStatusCodes on new http:Listener(9223) {
 
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/okWithBody"
     }
-    sendOKWithBody(endpoint caller, http:Request req) {
+    resource function sendOKWithBody(http:Caller caller, http:Request req) {
         _ = caller->ok("OK Response");
     }
 
@@ -33,7 +33,7 @@ service<http:Service> differentStatusCodes bind { port: 9223 } {
         methods: ["GET"],
         path: "/okWithoutBody"
     }
-    sendOKWithoutBody(endpoint caller, http:Request req) {
+    resource function sendOKWithoutBody(http:Caller caller, http:Request req) {
         _ = caller->ok(());
     }
 
@@ -41,7 +41,7 @@ service<http:Service> differentStatusCodes bind { port: 9223 } {
         methods: ["GET"],
         path: "/createdWithBody"
     }
-    sendCreatedWithBody(endpoint caller, http:Request req) {
+    resource function sendCreatedWithBody(http:Caller caller, http:Request req) {
         _ = caller->created("/newResourceURI", message = "Created Response");
     }
 
@@ -49,7 +49,7 @@ service<http:Service> differentStatusCodes bind { port: 9223 } {
         methods: ["GET"],
         path: "/createdWithoutBody"
     }
-    sendCreatedWithoutBody(endpoint caller, http:Request req) {
+    resource function sendCreatedWithoutBody(http:Caller caller, http:Request req) {
         _ = caller->created("/newResourceURI");
     }
 
@@ -57,7 +57,7 @@ service<http:Service> differentStatusCodes bind { port: 9223 } {
         methods: ["GET"],
         path: "/createdWithEmptyURI"
     }
-    sendCreatedWithEmptyURI(endpoint caller, http:Request req) {
+    resource function sendCreatedWithEmptyURI(http:Caller caller, http:Request req) {
         _ = caller->created("");
     }
 
@@ -65,7 +65,7 @@ service<http:Service> differentStatusCodes bind { port: 9223 } {
         methods: ["GET"],
         path: "/acceptedWithBody"
     }
-    sendAcceptedWithBody(endpoint caller, http:Request req) {
+    resource function sendAcceptedWithBody(http:Caller caller, http:Request req) {
         _ = caller->accepted(message = { msg: "accepted response" });
     }
 
@@ -73,7 +73,7 @@ service<http:Service> differentStatusCodes bind { port: 9223 } {
         methods: ["GET"],
         path: "/acceptedWithoutBody"
     }
-    sendAcceptedWithoutBody(endpoint caller, http:Request req) {
+    resource function sendAcceptedWithoutBody(http:Caller caller, http:Request req) {
         _ = caller->accepted();
     }
 }

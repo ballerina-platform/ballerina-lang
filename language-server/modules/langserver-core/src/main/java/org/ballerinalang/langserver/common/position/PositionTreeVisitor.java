@@ -21,7 +21,7 @@ import org.ballerinalang.langserver.common.constants.ContextConstants;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -36,7 +36,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -44,8 +43,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -62,6 +61,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
@@ -72,13 +72,11 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangEndpointTypeNode;
@@ -100,11 +98,11 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     private Position position;
     private boolean terminateVisitor = false;
     private SymbolTable symTable;
-    private LSServiceOperationContext context;
+    private LSContext context;
     private Object previousNode;
     private Stack<BLangNode> nodeStack;
 
-    public PositionTreeVisitor(LSServiceOperationContext context) {
+    public PositionTreeVisitor(LSContext context) {
         this.context = context;
         this.position = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
         this.symTable = SymbolTable.getInstance(context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY));
@@ -117,7 +115,9 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         boolean isTestSrc = CommonUtil.isTestSource(this.context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY));
         BLangPackage evalPkg = isTestSrc ? pkgNode.getTestablePkg() : pkgNode;
         List<TopLevelNode> topLevelNodes = CommonUtil.getCurrentFileTopLevelNodes(evalPkg, this.context);
-        topLevelNodes.forEach(topLevelNode -> acceptNode((BLangNode) topLevelNode));
+        topLevelNodes.stream()
+                .filter(CommonUtil.checkInvalidTypesDefs())
+                .forEach(topLevelNode -> acceptNode((BLangNode) topLevelNode));
     }
 
     public void visit(BLangImportPackage importPkgNode) {
@@ -132,7 +132,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     public void visit(BLangFunction funcNode) {
         // Check for native functions
         BSymbol funcSymbol = funcNode.symbol;
-        if (Symbols.isNative(funcSymbol)) {
+        if (Symbols.isNative(funcSymbol) || !CommonUtil.isValidInvokableSymbol(funcSymbol)) {
             return;
         }
 
@@ -216,7 +216,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangVariable varNode) {
+    public void visit(BLangSimpleVariable varNode) {
         setPreviousNode(varNode);
         if (varNode.symbol != null) {
             CommonUtil.calculateEndColumnOfGivenName(varNode.getPosition(), varNode.symbol.name.getValue(), "");
@@ -316,7 +316,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangVariableDef varDefNode) {
+    public void visit(BLangSimpleVariableDef varDefNode) {
         setPreviousNode(varDefNode);
         if (varDefNode.getVariable() != null) {
             this.acceptNode(varDefNode.getVariable());
@@ -376,27 +376,11 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         }
     }
 
-    public void visit(BLangAction actionNode) {
-        addTopLevelNodeToContext(actionNode, actionNode.name.getValue(), actionNode.symbol.pkgID,
-                                 actionNode.symbol.kind.name(), actionNode.symbol.kind.name(), actionNode.symbol.owner);
-
-        setPreviousNode(actionNode);
-        this.addToNodeStack(actionNode);
-
-        if (actionNode.requiredParams != null) {
-            actionNode.requiredParams.forEach(this::acceptNode);
-        }
-
-        if (actionNode.body != null) {
-            acceptNode(actionNode.body);
-        }
-
-        if (actionNode.workers != null) {
-            actionNode.workers.forEach(this::acceptNode);
-        }
-    }
-
     public void visit(BLangService serviceNode) {
+        if (serviceNode.attachedExprs != null) {
+            serviceNode.attachedExprs.forEach(this::acceptNode);
+        }
+
         if (HoverUtil.isMatchingPosition(HoverUtil.getIdentifierPosition(serviceNode), this.position)) {
             addPosition(serviceNode, this.previousNode, serviceNode.name.getValue(), serviceNode.symbol.pkgID,
                         serviceNode.symbol.kind.name(), serviceNode.symbol.kind.name(), serviceNode.name.getValue(),
@@ -412,9 +396,10 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         setPreviousNode(serviceNode);
         this.addToNodeStack(serviceNode);
 
-        if (serviceNode.serviceTypeStruct != null) {
-            this.acceptNode(serviceNode.serviceTypeStruct);
-        }
+// TODO: 11/28/18 Fix with the latest Service Changes 
+//        if (serviceNode.serviceTypeStruct != null) {
+//            this.acceptNode(serviceNode.serviceTypeStruct);
+//        }
 
         if (serviceNode.vars != null) {
             serviceNode.vars.forEach(this::acceptNode);
@@ -427,14 +412,14 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         if (serviceNode.endpoints != null) {
             serviceNode.endpoints.forEach(this::acceptNode);
         }
-
-        if (serviceNode.boundEndpoints != null) {
-            serviceNode.boundEndpoints.forEach(this::acceptNode);
-        }
-
-        if (serviceNode.initFunction != null) {
-            this.acceptNode(serviceNode.initFunction);
-        }
+// TODO: 11/28/18 Fix with the latest Service Changes 
+//        if (serviceNode.boundEndpoints != null) {
+//            serviceNode.boundEndpoints.forEach(this::acceptNode);
+//        }
+//
+//        if (serviceNode.initFunction != null) {
+//            this.acceptNode(serviceNode.initFunction);
+//        }
     }
 
     public void visit(BLangResource resourceNode) {
@@ -521,25 +506,26 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             forkJoin.workers.forEach(this::acceptNode);
         }
 
-        if (forkJoin.joinedBody != null) {
-            acceptNode(forkJoin.joinedBody);
-        }
-
-        if (forkJoin.joinResultVar != null) {
-            acceptNode(forkJoin.joinResultVar);
-        }
-
-        if (forkJoin.timeoutBody != null) {
-            acceptNode(forkJoin.timeoutBody);
-        }
-
-        if (forkJoin.timeoutExpression != null) {
-            acceptNode(forkJoin.timeoutExpression);
-        }
-
-        if (forkJoin.timeoutVariable != null) {
-            acceptNode(forkJoin.timeoutVariable);
-        }
+        // todo need to remove this block
+//        if (forkJoin.joinedBody != null) {
+//            acceptNode(forkJoin.joinedBody);
+//        }
+//
+//        if (forkJoin.joinResultVar != null) {
+//            acceptNode(forkJoin.joinResultVar);
+//        }
+//
+//        if (forkJoin.timeoutBody != null) {
+//            acceptNode(forkJoin.timeoutBody);
+//        }
+//
+//        if (forkJoin.timeoutExpression != null) {
+//            acceptNode(forkJoin.timeoutExpression);
+//        }
+//
+//        if (forkJoin.timeoutVariable != null) {
+//            acceptNode(forkJoin.timeoutVariable);
+//        }
     }
 
     @Override
@@ -568,10 +554,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
-        setPreviousNode(workerReceiveNode);
-        if (workerReceiveNode.expr != null) {
-            this.acceptNode(workerReceiveNode.expr);
-        }
+        //TODO Worker receive node is now an expression not a statement
     }
 
     @Override
@@ -597,7 +580,8 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             BSymbol symbol = invocationExpr.symbol;
             if (symbol != null) {
                 addPosition(invocationExpr, this.previousNode, invocationExpr.name.getValue(), symbol.pkgID,
-                            symbol.kind.name(), symbol.kind.name(), invocationExpr.name.getValue(), symbol.owner);
+                            ContextConstants.FUNCTION, ContextConstants.FUNCTION, invocationExpr.name.getValue(),
+                            symbol.owner);
             } else {
                 BTypeSymbol tSymbol = invocationExpr.type.tsymbol;
                 addPosition(invocationExpr, this.previousNode, invocationExpr.name.getValue(), tSymbol.pkgID,
@@ -741,8 +725,8 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangTupleDestructure stmt) {
         setPreviousNode(stmt);
-        if (stmt.varRefs != null) {
-            stmt.varRefs.forEach(this::acceptNode);
+        if (stmt.varRef.expressions != null) {
+            stmt.varRef.expressions.forEach(this::acceptNode);
         }
 
         if (stmt.expr != null) {
@@ -800,15 +784,8 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatch.BLangMatchStmtPatternClause patternClauseNode) {
-        setPreviousNode(patternClauseNode);
-        if (patternClauseNode.variable != null) {
-            this.acceptNode(patternClauseNode.variable);
-        }
-
-        if (patternClauseNode.body != null) {
-            this.acceptNode(patternClauseNode.body);
-        }
+    public void visit(BLangMatch.BLangMatchStaticBindingPatternClause patternClauseNode) {
+        /*ignore*/
     }
 
     @Override
@@ -877,17 +854,6 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         if (checkedExpr.expr != null) {
             this.acceptNode(checkedExpr.expr);
         }
-    }
-
-    @Override
-    public void visit(BLangScope scopeNode) {
-        setPreviousNode(scopeNode);
-
-        if (scopeNode.scopeBody != null) {
-            acceptNode(scopeNode.scopeBody);
-        }
-
-        acceptNode(scopeNode.compensationFunction);
     }
 
     @Override

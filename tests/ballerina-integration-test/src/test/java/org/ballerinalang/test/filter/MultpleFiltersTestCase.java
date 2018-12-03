@@ -31,7 +31,7 @@ import java.util.Map;
  * Test cases for verifying multiple http filters for a service.
  */
 @Test(groups = "filter-test")
-public class MultpleFiltersTestCase extends FilterBaseTest {
+public class MultpleFiltersTestCase extends FilterTestCommons {
 
     @Test(description = "Single filter execution success case")
     public void testMultipleFiltersSuccess() throws Exception {

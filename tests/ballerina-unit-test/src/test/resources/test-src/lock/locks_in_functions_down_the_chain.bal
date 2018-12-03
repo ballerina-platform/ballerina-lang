@@ -9,12 +9,11 @@ function lockWithinLock() returns string {
             lockLevel2("w1v");
         }
     }
-    worker w2 {
-        lock {
-            lockString = lockString + "w2w2";
-            lockLevel2("w2v");
-            return lockString;
-        }
+
+    lock {
+        lockString = lockString + "w2w2";
+        lockLevel2("w2v");
+        return lockString;
     }
 }
 

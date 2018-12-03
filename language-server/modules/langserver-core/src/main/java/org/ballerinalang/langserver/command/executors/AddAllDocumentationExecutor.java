@@ -17,10 +17,10 @@ package org.ballerinalang.langserver.command.executors;
 
 import com.google.gson.internal.LinkedTreeMap;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.command.CommandUtil;
 import org.ballerinalang.langserver.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.command.LSCommandExecutor;
 import org.ballerinalang.langserver.command.LSCommandExecutorException;
+import org.ballerinalang.langserver.command.docs.DocAttachmentInfo;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
@@ -39,7 +39,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.ballerinalang.langserver.command.CommandUtil.applyWorkspaceEdit;
-import static org.ballerinalang.langserver.command.CommandUtil.getDocumentationEditForNode;
+import static org.ballerinalang.langserver.command.docs.DocumentationGenerator.getDocumentationEditForNode;
 
 /**
  * Command executor for adding all documentation for top level items.
@@ -50,7 +50,7 @@ import static org.ballerinalang.langserver.command.CommandUtil.getDocumentationE
 public class AddAllDocumentationExecutor implements LSCommandExecutor {
 
     private static final String COMMAND = "ADD_ALL_DOC";
-    
+
     /**
      * {@inheritDoc}
      */
@@ -68,7 +68,8 @@ public class AddAllDocumentationExecutor implements LSCommandExecutor {
         }
         LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
         BLangPackage bLangPackage = lsCompiler.getBLangPackage(context,
-                context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY), false, LSCustomErrorStrategy.class, false)
+                                                               context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY),
+                                                               false, LSCustomErrorStrategy.class, false)
                 .getRight();
 
         context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, bLangPackage.symbol.getName().getValue());
@@ -80,13 +81,13 @@ public class AddAllDocumentationExecutor implements LSCommandExecutor {
         CommonUtil.getCurrentFileTopLevelNodes(srcOwnerPkg, context).stream()
                 .filter(node -> node.getPosition().getSource().getCompilationUnitName().equals(fileName))
                 .forEach(topLevelNode -> {
-                    CommandUtil.DocAttachmentInfo docAttachmentInfo = getDocumentationEditForNode(topLevelNode);
+                    DocAttachmentInfo docAttachmentInfo = getDocumentationEditForNode(topLevelNode);
                     if (docAttachmentInfo != null) {
                         textEdits.add(getTextEdit(docAttachmentInfo));
                     }
                     if (topLevelNode instanceof BLangService) {
                         ((BLangService) topLevelNode).getResources().forEach(bLangResource -> {
-                            CommandUtil.DocAttachmentInfo resourceInfo = getDocumentationEditForNode(bLangResource);
+                            DocAttachmentInfo resourceInfo = getDocumentationEditForNode(bLangResource);
                             if (resourceInfo != null) {
                                 textEdits.add(getTextEdit(resourceInfo));
                             }
@@ -95,7 +96,7 @@ public class AddAllDocumentationExecutor implements LSCommandExecutor {
                 });
         TextDocumentEdit textDocumentEdit = new TextDocumentEdit(textDocumentIdentifier, textEdits);
         return applyWorkspaceEdit(Collections.singletonList(textDocumentEdit),
-                context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());
+                                              context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());
     }
 
     /**
@@ -109,10 +110,10 @@ public class AddAllDocumentationExecutor implements LSCommandExecutor {
     /**
      * Get TextEdit from doc attachment info.
      *
-     * @param attachmentInfo    Doc attachment info
+     * @param attachmentInfo Doc attachment info
      * @return {@link TextEdit}     Text edit for attachment info
      */
-    private static TextEdit getTextEdit(CommandUtil.DocAttachmentInfo attachmentInfo) {
+    private static TextEdit getTextEdit(DocAttachmentInfo attachmentInfo) {
         Range range = new Range(attachmentInfo.getDocStartPos(), attachmentInfo.getDocStartPos());
         return new TextEdit(range, attachmentInfo.getDocAttachment());
     }

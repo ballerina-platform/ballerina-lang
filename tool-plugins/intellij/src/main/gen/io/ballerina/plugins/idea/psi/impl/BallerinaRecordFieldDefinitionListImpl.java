@@ -53,4 +53,10 @@ public class BallerinaRecordFieldDefinitionListImpl extends BallerinaCompositeEl
     return PsiTreeUtil.getChildOfType(this, BallerinaRecordRestFieldDefinition.class);
   }
 
+  @Override
+  @NotNull
+  public List<BallerinaTypeReference> getTypeReferenceList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaTypeReference.class);
+  }
+
 }

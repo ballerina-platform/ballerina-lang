@@ -14,12 +14,12 @@
     "command": "CREATE_VAR",
     "arguments": [
       {
-        "argumentK": "function.location",
-        "argumentV": "4,4"
+        "argumentK":"node.line",
+        "argumentV":"3"
       },
       {
-        "argumentK": "function.returns",
-        "argumentV": "int"
+        "argumentK":"node.column",
+        "argumentV":"4"
       }
     ]
   }

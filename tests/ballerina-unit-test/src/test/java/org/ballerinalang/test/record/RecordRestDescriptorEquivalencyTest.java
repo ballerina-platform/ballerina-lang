@@ -40,7 +40,7 @@ public class RecordRestDescriptorEquivalencyTest {
         int index = 0;
         String errMsgFmt = "incompatible types: expected '%1$2s', found '%2$2s'";
 
-        Assert.assertEquals(compileResult.getErrorCount(), 11);
+        Assert.assertEquals(compileResult.getErrorCount(), 12);
         validateError(compileResult, index++, format(errMsgFmt, "IntRest", "StringRest"), 27, 17);
         validateError(compileResult, index++, format(errMsgFmt, "StringRest", "IntRest"), 30, 21);
         validateError(compileResult, index++, format(errMsgFmt, "IntRest", "FloatRest"), 35, 17);
@@ -51,6 +51,7 @@ public class RecordRestDescriptorEquivalencyTest {
         validateError(compileResult, index++, format(errMsgFmt, "FloatRest", "StringRest"), 54, 20);
         validateError(compileResult, index++, format(errMsgFmt, "StringRest", "BooleanRest"), 59, 20);
         validateError(compileResult, index++, format(errMsgFmt, "BooleanRest", "StringRest"), 62, 22);
+        validateError(compileResult, index++, format(errMsgFmt, "RecordRest1", "RecordRest2"), 92, 22);
         validateError(compileResult, index, format(errMsgFmt, "RecordRest2", "RecordRest1"), 95, 23);
     }
 }

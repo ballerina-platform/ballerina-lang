@@ -1,84 +1,87 @@
 import ballerina/http;
 import ballerina/mime;
+import ballerina/log;
 
-@final string ACCEPT_ENCODING = "accept-encoding";
+final string ACCEPT_ENCODING = "accept-encoding";
 
-endpoint http:Listener passthroughEP2 {
-    port:9091
-};
+listener http:Listener passthroughEP2 = new(9091);
 
-endpoint http:Client acceptEncodingAutoEP {
-    url: "http://localhost:9091/hello",
+http:Client acceptEncodingAutoEP = new("http://localhost:9091/hello", config = {
     compression:http:COMPRESSION_AUTO
-};
+});
 
-endpoint http:Client acceptEncodingEnableEP {
-    url: "http://localhost:9091/hello",
+http:Client acceptEncodingEnableEP = new("http://localhost:9091/hello", config = {
     compression:http:COMPRESSION_ALWAYS
-};
+});
 
-endpoint http:Client acceptEncodingDisableEP {
-    url: "http://localhost:9091/hello",
+http:Client acceptEncodingDisableEP = new("http://localhost:9091/hello", config = {
     compression:http:COMPRESSION_NEVER
-};
+});
 
-service<http:Service> passthrough bind passthroughEP2 {
+service passthrough on passthroughEP2 {
     @http:ResourceConfig {
         path:"/"
     }
-    passthrough (endpoint caller, http:Request req) {
+    resource function passthrough(http:Caller caller, http:Request req) {
         if (req.getHeader("AcceptValue") == "auto") {
             var clientResponse = acceptEncodingAutoEP -> post("/",untaint req);
-            match clientResponse {
-                http:Response res => {
-                    _ = caller -> respond(res);
+            if (clientResponse is http:Response) {
+                var responseError = caller->respond(clientResponse);
+                if (responseError is error) {
+                    log:printError("Error sending response", err = responseError);
                 }
-                error err => {
-                    http:Response res = new;
-                    res.statusCode = 500;
-                    res.setTextPayload(err.message);
-                    _ = caller -> respond(res);
+            } else if (clientResponse is error) {
+                http:Response res = new;
+                res.statusCode = 500;
+                res.setPayload(clientResponse.reason());
+                var responseError = caller->respond(res);
+                if (responseError is error) {
+                    log:printError("Error sending response", err = responseError);
                 }
             }
         } else if (req.getHeader("AcceptValue") == "enable") {
             var clientResponse = acceptEncodingEnableEP -> post("/",untaint req);
-            match clientResponse {
-                http:Response res => {
-                    _ = caller -> respond(res);
-                }
-                error err => {
-                    http:Response res = new;
-                    res.statusCode = 500;
-                    res.setTextPayload(err.message);
-                    _ = caller -> respond(res);
+            if (clientResponse is http:Response) {
+                _ = caller -> respond(clientResponse);
+            } else if (clientResponse is error) {
+                http:Response res = new;
+                res.statusCode = 500;
+                res.setPayload(clientResponse.reason());
+                var responseError = caller->respond(res);
+                if (responseError is error) {
+                    log:printError("Error sending response", err = responseError);
                 }
             }
         } else if (req.getHeader("AcceptValue") == "disable") {
             var clientResponse = acceptEncodingDisableEP -> post("/",untaint req);
-            match clientResponse {
-                http:Response res => {
-                    _ = caller -> respond(res);
-                }
-                error err => {
-                    http:Response res = new;
-                    res.statusCode = 500;
-                    res.setTextPayload(err.message);
-                    _ = caller -> respond(res);
+            if (clientResponse is http:Response) {
+                _ = caller->respond(clientResponse);
+            } else if (clientResponse is error) {
+                http:Response res = new;
+                res.statusCode =500;
+                res.setPayload(clientResponse.reason());
+                var responseError = caller->respond(res);
+                if (responseError is error) {
+                    log:printError("Error sending response", err = responseError);
                 }
             }
         }
     }
 }
 
-@Description {value:"Sample hello world service."}
-service<http:Service> hello bind passthroughEP2 {
+#
+# Sample hello world service.
+#
+service hello on passthroughEP2 {
 
-    @Description {value:"The helloResource only accepts requests made using the specified HTTP methods"}
+    #
+    # The helloResource only accepts requests made using the specified HTTP methods
+    #
     @http:ResourceConfig {
         methods:["POST", "PUT", "GET"],
         path:"/"
     }
-    helloResource (endpoint caller, http:Request req) {
+    resource function helloResource(http:Caller caller, http:Request req) {
         http:Response res = new;
         json payload = {};
         boolean hasHeader = req.hasHeader(ACCEPT_ENCODING);

@@ -102,6 +102,11 @@ if $os400; then
   export QIBM_MULTI_THREADED
 fi
 
+# If the jre is found inside BALLERINA_HOME, override JAVA_HOME
+if [ -x "$BALLERINA_HOME/bre/lib/jre1.8.0_172" ] ; then
+  JAVA_HOME="$BALLERINA_HOME/bre/lib/jre1.8.0_172"
+fi
+
 if [ -z "$JAVACMD" ] ; then
   if [ -n "$JAVA_HOME"  ] ; then
     if [ -x "$JAVA_HOME/jre/sh/java" ] ; then
@@ -113,11 +118,6 @@ if [ -z "$JAVACMD" ] ; then
   else
     JAVACMD=java
   fi
-fi
-
-# If the jre is found in BALLERINA_HOME, override java executable
-if [ -x "$BALLERINA_HOME/bre/lib/jre1.8.0_172/bin/java" ] ; then
-  JAVACMD="$BALLERINA_HOME/bre/lib/jre1.8.0_172/bin/java"
 fi
 
 if [ ! -x "$JAVACMD" ] ; then

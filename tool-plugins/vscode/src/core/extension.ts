@@ -58,59 +58,70 @@ export class BallerinaExtension {
         this.context = context;
     }
 
-    init(): void {
+    init(onBeforeInit: Function): Promise<any> {
         try {
             // Register pre init handlers.
             this.registerPreInitHandlers();
 
             // Check if ballerina home is set.
             if (this.hasBallerinaHomeSetting()) {
+                log("Ballerina home is configured in settings.");
                 this.ballerinaHome = this.getBallerinaHome();
                 // Lets check if ballerina home is valid.
                 if (!this.isValidBallerinaHome(this.ballerinaHome)) {
+                    log("Configured Ballerina home is not valid.");
                     // Ballerina home in setting is invalid show message and quit.
                     // Prompt to correct the home. // TODO add auto ditection.
                     this.showMessageInvalidBallerinaHome();
-                    return;
+                    return Promise.resolve();
                 }
             } else {
+                log("Auto detecting Ballerina home.");
                 // If ballerina home is not set try to auto ditect ballerina home.
                 // TODO If possible try to update the setting page.
                 this.ballerinaHome = this.autoDitectBallerinaHome();
                 if (!this.ballerinaHome) {
                     this.showMessageInstallBallerina();
-                    log("Unable to auto ditect ballerina home.");
-                    return;
+                    log("Unable to auto detect Ballerina home.");
+                    return Promise.resolve();
                 }
             }
-
+            log("Using " + this.ballerinaHome + " as the Ballerina home.");
             // Validate the ballerina version.
             const pluginVersion = this.extention.packageJSON.version.split('-')[0];
-            this.getBallerinaVersion(this.ballerinaHome).then(ballerinaVersion => {
+            return this.getBallerinaVersion(this.ballerinaHome).then(ballerinaVersion => {
                 ballerinaVersion = ballerinaVersion.split('-')[0];
                 this.checkCompatibleVersion(pluginVersion, ballerinaVersion);
-            });
+                // if Home is found load Language Server.
+                this.langClient = new ExtendedLangClient('ballerina-vscode', 'Ballerina LS Client',
+                    getServerOptions(this.getBallerinaHome()), this.clientOptions, false);
 
-            // if Home is found load Language Server.
-            this.langClient = new ExtendedLangClient('ballerina-vscode', 'Ballerina LS Client',
-                getServerOptions(this.getBallerinaHome()), this.clientOptions, false);
-
-            // Following was put in to handle server startup failiers.
-            const disposeDidChange = this.langClient.onDidChangeState(stateChangeEvent => {
-                if (stateChangeEvent.newState === LS_STATE.Stopped) {
-                    this.showPluginActivationError();
+                // 0.983.0 and 0.982.0 versions are incable of handling client capabilies 
+                if (ballerinaVersion !== "0.983.0" && ballerinaVersion !== "0.982.0") {
+                    onBeforeInit(this.langClient);
                 }
+                
+                // Following was put in to handle server startup failiers.
+                const disposeDidChange = this.langClient.onDidChangeState(stateChangeEvent => {
+                    if (stateChangeEvent.newState === LS_STATE.Stopped) {
+                        log("Coudn't establish language server connection.");
+                        this.showPluginActivationError();
+                    }
+                });
+
+                let disposable = this.langClient.start();
+
+                this.langClient.onReady().then(fullfilled => {
+                    disposeDidChange.dispose();
+                    this.context!.subscriptions.push(disposable);
+                });
             });
 
-            let disposable = this.langClient.start();
-
-            this.langClient.onReady().then(fullfilled => {
-                disposeDidChange.dispose();
-                this.context!.subscriptions.push(disposable);
-            });
-        } catch {
+        } catch (ex) {
+            log("Error while activating plugin: " + (ex.message ? ex.message : ex));
             // If any failure occurs while intializing show an error messege
             this.showPluginActivationError();
+            return Promise.resolve();
         }
     }
 

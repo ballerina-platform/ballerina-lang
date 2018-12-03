@@ -28,7 +28,7 @@ public function main() {
 
     //This returns the cube root of a float value.
     float cubeRoot = math:cbrt(-27.0);
-    io:println("Cube root of 0.027415567780803774   : " + cubeRoot);
+    io:println("Cube root of -27.0                  : " + cubeRoot);
 
     //There are over 40 methods in the ballerina math API that can be used to perform numeric operations.
     //You can find them in the 'ballerina.math' module.

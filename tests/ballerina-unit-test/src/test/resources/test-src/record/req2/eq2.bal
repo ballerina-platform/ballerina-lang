@@ -1,12 +1,13 @@
 public type userPB record {
-    int age;
-    string name;
-    string address;
+    int age = 0;
+    string name = "";
+    string address = "";
 };
 
 public type closedUserPB record {
-    int age;
-    string name;
-    string address;
+    int age = 0;
+    string name = "";
+    string address = "";
+    string zipcode = "";
     !...
 };

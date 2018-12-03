@@ -25,8 +25,9 @@
 
     <test name="ballerina-packaging-sample-tests" preserve-order="true" parallel="false">
         <classes>
-            <class name="org.ballerinalang.test.packaging.BalRunWithConfigTestCase"/>
+            <class name="org.ballerinalang.test.packaging.ConfigTestCase"/>
             <class name="org.ballerinalang.test.packaging.DocGenTestCase"/>
+            <class name="org.ballerinalang.test.packaging.ImportModuleTestCase"/>
             <class name="org.ballerinalang.test.packaging.ListDependencyTestCase"/>
             <class name="org.ballerinalang.test.packaging.RepoHierarchyTestCase"/>
             <class name="org.ballerinalang.test.packaging.ModuleBuildTestCase"/>

@@ -31,8 +31,8 @@ type Teacher record {
 Employee[] globalEmployeeArray = [];
 int employeeIndex = 0;
 
-stream<Employee> employeeStream3;
-stream<Teacher> teacherStream6;
+stream<Employee> employeeStream3 = new;
+stream<Teacher> teacherStream6 = new;
 
 function testPassthroughQuery() {
 

@@ -107,13 +107,17 @@ public class BallerinaOpenApi implements BallerinaSwaggerObject<BallerinaOpenApi
         Paths pathList = openAPI.getPaths();
         for (Map.Entry<String, PathItem> path : pathList.entrySet()) {
             BallerinaPath balPath = new BallerinaPath().buildContext(path.getValue(), openAPI);
-            balPath.getOperations().forEach(operation -> {
-                if (operation.getValue().getOperationId() == null) {
-                    String pathName = path.getKey().substring(1); // need to drop '/' prefix from the key, ex:'/path'
-                    String operationId = operation.getKey() + StringUtils.capitalize(pathName);
-                    operation.getValue().setOperationId(CodegenUtils.normalizeForBIdentifier(operationId));
-                }
-            });
+            if (balPath.isNoOperationsForPath()) {
+                balPath.setResourceName(path.getKey());
+            } else {
+                balPath.getOperations().forEach(operation -> {
+                    if (operation.getValue().getOperationId() == null) {
+                        String pathName = path.getKey().substring(1); //need to drop '/' prefix from the key, ex:'/path'
+                        String operationId = operation.getKey() + StringUtils.capitalize(pathName);
+                        operation.getValue().setOperationId(CodegenUtils.normalizeForBIdentifier(operationId));
+                    }
+                });
+            }
             paths.add(new AbstractMap.SimpleEntry<>(path.getKey(), balPath));
         }
     }
@@ -163,18 +167,30 @@ public class BallerinaOpenApi implements BallerinaSwaggerObject<BallerinaOpenApi
             return;
         }
 
-        serverList.forEach(server -> {
-            try {
-                // Note that only one base path is allowed. Though we extract base path per each server
-                // defined in the Open Api definition, only the base path of first server will be used
-                // in ballerina code generation. Ballerina all endpoints to be in a single base path
-                BallerinaServer balServer = new BallerinaServer().buildContext(server);
-                servers.add(balServer);
-            } catch (BallerinaOpenApiException e) {
-                // Ignore the exception, set default value for this server and move forward
-                servers.add(new BallerinaServer().getDefaultValue());
-            }
-        });
+        // TODO: Temporally only send one server to be defined as a listener and attach to the service.
+//        serverList.forEach(server -> {
+//            try {
+//                // Note that only one base path is allowed. Though we extract base path per each server
+//                // defined in the Open Api definition, only the base path of first server will be used
+//                // in ballerina code generation. Ballerina all endpoints to be in a single base path
+//                BallerinaServer balServer = new BallerinaServer().buildContext(server);
+//                servers.add(balServer);
+//            } catch (BallerinaOpenApiException e) {
+//                // Ignore the exception, set default value for this server and move forward
+//                servers.add(new BallerinaServer().getDefaultValue());
+//            }
+//        });
+
+        try {
+            // Note that only one base path is allowed. Though we extract base path per each server
+            // defined in the Open Api definition, only the base path of first server will be used
+            // in ballerina code generation. Ballerina all endpoints to be in a single base path
+            BallerinaServer balServer = new BallerinaServer().buildContext(serverList.get(0));
+            servers.add(balServer);
+        } catch (BallerinaOpenApiException e) {
+            // Ignore the exception, set default value for this server and move forward
+            servers.add(new BallerinaServer().getDefaultValue());
+        }
     }
 
     /**

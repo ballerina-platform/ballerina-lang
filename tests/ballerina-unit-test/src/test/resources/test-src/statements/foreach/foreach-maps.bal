@@ -1,11 +1,11 @@
-string output;
+string output = "";
 
 function stringConcat(string key, string value){
     output = output + key + ":" + value + " ";
 }
 
 function testMapWithArityOne () returns (string) | error {
-    map m = {a:"1A", b:"2B", c:"3C", d:"4D"};
+    map<any> m = {a:"1A", b:"2B", c:"3C", d:"4D"};
     output = "";
     string val;
     foreach v in m {
@@ -16,7 +16,7 @@ function testMapWithArityOne () returns (string) | error {
 }
 
 function testMapWithArityTwo () returns (string) | error {
-    map m = {a:"1A", b:"2B", c:"3C", d:"4D"};
+    map<any> m = {a:"1A", b:"2B", c:"3C", d:"4D"};
     output = "";
     string val;
     foreach k,v in m {
@@ -27,10 +27,10 @@ function testMapWithArityTwo () returns (string) | error {
 }
 
 function testDeleteWhileIteration () returns (string) | error {
-    map m = {a:"1A", b:"2B", c:"3C"};
+    map<any> m = {a:"1A", b:"2B", c:"3C"};
     output = "";
     string val;
-    string mval;
+    string mval = "";
     foreach k, v in m {
         val = <string> v;
         if (k == "a") {
@@ -38,7 +38,7 @@ function testDeleteWhileIteration () returns (string) | error {
         }
         stringConcat(k, val);
         if (m.hasKey(k)){
-            mval = m[k] but { () => "", any a => <string> a};
+            mval = m[k] is () ? "" : <string> m[k];
         } else {
             mval = "null";
         }
@@ -48,7 +48,7 @@ function testDeleteWhileIteration () returns (string) | error {
 }
 
 function testAddWhileIteration () returns (string) | error {
-    map m = {a:"1A", b:"2B", c:"3C"};
+    map<any> m = {a:"1A", b:"2B", c:"3C"};
     output = "";
     string val1;
     string val2;

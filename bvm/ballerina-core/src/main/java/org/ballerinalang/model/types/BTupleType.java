@@ -57,12 +57,6 @@ public class BTupleType extends BType {
     }
 
     @Override
-    public TypeSignature getSig() {
-        return new TypeSignature(TypeSignature.SIG_TUPLE,
-                tupleTypes.stream().map(BType::getSig).collect(Collectors.toList()));
-    }
-
-    @Override
     public int getTag() {
         return TypeTags.TUPLE_TAG;
     }

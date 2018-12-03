@@ -30,8 +30,8 @@
 # + maxLifetime - Maximum lifetime of a connection in the pool. Default is 30 minutes
 # + validationTimeout - Maximum amount of time that a connection will be tested for aliveness. Default 5 seconds
 public type PoolOptions record {
-    string connectionInitSql;
-    string dataSourceClassName;
+    string connectionInitSql = "";
+    string dataSourceClassName = "";
     boolean autoCommit = true;
     boolean isXA = false;
     int maximumPoolSize = 10;
@@ -80,67 +80,72 @@ public type PoolOptions record {
 # ARRAY - Composite data value that consists of zero or more elements of a specified data type
 # STRUCT - User defined structured type, consists of one or more attributes
 # REFCURSOR - Cursor value
-public type SQLType "VARCHAR"|"CHAR"|"LONGVARCHAR"|"NCHAR"|"LONGNVARCHAR"|"NVARCHAR"|"BIT"|"BOOLEAN"|
-"TINYINT"|"SMALLINT"|"INTEGER"|"BIGINT"|"NUMERIC"|"DECIMAL"|"REAL"|"FLOAT"|"DOUBLE"|
-"BINARY"|"BLOB"|"LONGVARBINARY"|"VARBINARY"|"CLOB"|"NCLOB"|"DATE"|"TIME"|"DATETIME"|
-"TIMESTAMP"|"ARRAY"|"STRUCT"|"REFCURSOR";
+public type SQLType TYPE_VARCHAR|TYPE_CHAR|TYPE_LONGVARCHAR|TYPE_NCHAR|TYPE_LONGNVARCHAR|TYPE_NVARCHAR|TYPE_BIT|
+TYPE_BOOLEAN|TYPE_TINYINT|TYPE_SMALLINT|TYPE_INTEGER|TYPE_BIGINT|TYPE_NUMERIC|TYPE_DECIMAL|TYPE_REAL|TYPE_FLOAT|
+TYPE_DOUBLE|TYPE_BINARY|TYPE_BLOB|TYPE_LONGVARBINARY|TYPE_VARBINARY|TYPE_CLOB|TYPE_NCLOB|TYPE_DATE|TYPE_TIME|
+TYPE_DATETIME|TYPE_TIMESTAMP|TYPE_ARRAY|TYPE_STRUCT|TYPE_REFCURSOR;
 
-@final public SQLType TYPE_VARCHAR = "VARCHAR";
-@final public SQLType TYPE_CHAR = "CHAR";
-@final public SQLType TYPE_LONGVARCHAR = "LONGVARCHAR";
-@final public SQLType TYPE_NCHAR = "NCHAR";
-@final public SQLType TYPE_LONGNVARCHAR = "LONGNVARCHAR";
-@final public SQLType TYPE_NVARCHARR = "NVARCHAR";
-@final public SQLType TYPE_BIT = "BIT";
-@final public SQLType TYPE_BOOLEAN = "BOOLEAN";
-@final public SQLType TYPE_TINYINT = "TINYINT";
-@final public SQLType TYPE_SMALLINT = "SMALLINT";
-@final public SQLType TYPE_INTEGER = "INTEGER";
-@final public SQLType TYPE_BIGINT = "BIGINT";
-@final public SQLType TYPE_NUMERIC = "NUMERIC";
-@final public SQLType TYPE_DECIMAL = "DECIMAL";
-@final public SQLType TYPE_REAL = "REAL";
-@final public SQLType TYPE_FLOAT = "FLOAT";
-@final public SQLType TYPE_DOUBLE = "DOUBLE";
-@final public SQLType TYPE_BINARY = "BINARY";
-@final public SQLType TYPE_BLOB = "BLOB";
-@final public SQLType TYPE_LONGVARBINARY = "LONGVARBINARY";
-@final public SQLType TYPE_VARBINARY = "VARBINARY";
-@final public SQLType TYPE_CLOB = "CLOB";
-@final public SQLType TYPE_NCLOB = "NCLOB";
-@final public SQLType TYPE_DATE = "DATE";
-@final public SQLType TYPE_TIME = "TIME";
-@final public SQLType TYPE_DATETIME = "DATETIME";
-@final public SQLType TYPE_TIMESTAMP = "TIMESTAMP";
-@final public SQLType TYPE_ARRAY = "ARRAY";
-@final public SQLType TYPE_STRUCT = "STRUCT";
-@final public SQLType TYPE_REFCURSOR = "REFCURSOR";
+public const TYPE_VARCHAR = "VARCHAR";
+public const TYPE_CHAR = "CHAR";
+public const TYPE_LONGVARCHAR = "LONGVARCHAR";
+public const TYPE_NCHAR = "NCHAR";
+public const TYPE_LONGNVARCHAR = "LONGNVARCHAR";
+public const TYPE_NVARCHAR = "NVARCHAR";
+public const TYPE_BIT = "BIT";
+public const TYPE_BOOLEAN = "BOOLEAN";
+public const TYPE_TINYINT = "TINYINT";
+public const TYPE_SMALLINT = "SMALLINT";
+public const TYPE_INTEGER = "INTEGER";
+public const TYPE_BIGINT = "BIGINT";
+public const TYPE_NUMERIC = "NUMERIC";
+public const TYPE_DECIMAL = "DECIMAL";
+public const TYPE_REAL = "REAL";
+public const TYPE_FLOAT = "FLOAT";
+public const TYPE_DOUBLE = "DOUBLE";
+public const TYPE_BINARY = "BINARY";
+public const TYPE_BLOB = "BLOB";
+public const TYPE_LONGVARBINARY = "LONGVARBINARY";
+public const TYPE_VARBINARY = "VARBINARY";
+public const TYPE_CLOB = "CLOB";
+public const TYPE_NCLOB = "NCLOB";
+public const TYPE_DATE = "DATE";
+public const TYPE_TIME = "TIME";
+public const TYPE_DATETIME = "DATETIME";
+public const TYPE_TIMESTAMP = "TIMESTAMP";
+public const TYPE_ARRAY = "ARRAY";
+public const TYPE_STRUCT = "STRUCT";
+public const TYPE_REFCURSOR = "REFCURSOR";
 
 # The direction of the parameter.
 #
 # IN - IN parameters are used to send values to stored procedures
 # OUT - OUT parameters are used to get values from stored procedures
 # INOUT - INOUT parameters are used to send values and get values from stored procedures
-public type Direction "IN"|"OUT"|"INOUT";
+public type Direction DIRECTION_IN|DIRECTION_OUT|DIRECTION_INOUT;
 
-@final public Direction DIRECTION_IN = "IN";
-@final public Direction DIRECTION_OUT = "OUT";
-@final public Direction DIRECTION_INOUT = "INOUT";
+public const DIRECTION_IN = "IN";
+public const DIRECTION_OUT = "OUT";
+public const DIRECTION_INOUT = "INOUT";
 
 # Parameter represents a parameter for the SQL actions when a variable parameter needs to be passed to the action.
 #
 # + sqlType - The data type of the corresponding SQL parameter
-# + value - Value of paramter pass into the SQL statement
+# + value - Value of paramter passed into the SQL statement
 # + direction - Direction of the SQL Parameter IN, OUT, or INOUT - Default value is IN
 # + recordType - In case of OUT direction, if the sqlType is REFCURSOR, this represents the record type to map a
 #                result row
 public type Parameter record {
     SQLType sqlType;
-    any value;
-    Direction direction?;
+    any value = ();
+    Direction direction = DIRECTION_IN;
     typedesc recordType?;
     !...
 };
 
 # The parameter passed into the operations.
 type Param string|int|boolean|float|byte[]|Parameter;
+
+public type DatabaseErrorData record {
+    string message;
+    !...
+};

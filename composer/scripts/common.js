@@ -1,27 +1,16 @@
 const fs = require('fs');
-const join = require('path').join;
+const path = require('path');
 const resolve = require('path').resolve;
 const cp = require('child_process');
 const os = require('os');
+const parser = require('fast-xml-parser');
 
 // npm cmd based on OS
 const npmCmd = os.platform().startsWith('win') ? 'npm.cmd' : 'npm';
 
-// submodule root
-const modulesRoot = resolve(__dirname, './../');
+// submodule roots
+const modulesRoots = [resolve(__dirname, './../packages'), resolve(__dirname, './../tools')];
 
-const submodules = [
-    "theme",
-    "ast-model",
-    "api-designer",
-    "documentation",
-    "bbe",
-    "diagram",
-    "extended-language-client",
-    "tracing",
-//    "integration-tests",
-    "distribution"	
-]
 
 function runNpmCommandSync(args, cwd) {
   // execute command sync
@@ -45,31 +34,29 @@ function runGitCommand(args, cwd) {
   }
 }
 
-function forEachSubModule(callback) {
-    submodules.forEach(function (mod) {
-        const modPath = join(modulesRoot, mod);
-        // ensure path has package.json
-        if (!fs.existsSync(join(modPath, 'package.json'))) {
-            return;
-        }
-        callback(modPath);
-    });
+function forEachSubModule(callback) {   
+    modulesRoots.forEach(function (modulesRoot) {
+            fs.readdirSync(modulesRoot).forEach(function (mod) {
+                const modPath = path.join(modulesRoot, mod);
+                // ensure path has package.json
+                if (!fs.existsSync(path.join(modPath, 'package.json'))) {
+                    return;
+                }
+                callback(modPath);
+            });
+        });
 }
 
 function getProjectVersion() {
-    for(arg of process.argv.slice(2)) {
-        if(arg.startsWith('--projectVersion=')) {
-            return arg.split('=')[1] || "";
-        }
-    }
+    const fileContent = fs.readFileSync(path.join(__dirname, "..", "pom.xml"));
+    const pom = parser.parse(fileContent.toString());
+    return pom.project.parent.version;
 }
 
 module.exports = {
-    submodules,
     forEachSubModule,
     runNpmCommandSync,
     runNpmCommand,
     runGitCommand,
-    modulesRoot,
     getProjectVersion
 }

@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/runtime;
-import ballerina/streams;
 
 type Stock record {
     string symbol;
@@ -38,9 +37,9 @@ type StockWithPrice record {
 StockWithPrice[] globalEventsArray = [];
 int index = 0;
 
-stream<Stock> stockStream;
-stream<Twitter> twitterStream;
-stream<StockWithPrice> stockWithPriceStream;
+stream<Stock> stockStream = new;
+stream<Twitter> twitterStream = new;
+stream<StockWithPrice> stockWithPriceStream = new;
 
 function testJoinQuery() {
 
@@ -60,7 +59,7 @@ function testJoinQuery() {
 function startJoinQuery() returns (StockWithPrice[]) {
 
     testJoinQuery();
-    map d;
+    map<any> d;
     Stock s1 = {symbol:"WSO2", price:55.6, volume:100};
     Stock s2 = {symbol:"MBI", price:74.6, volume:100};
     Stock s3 = {symbol:"WSO2", price:58.6, volume:100};

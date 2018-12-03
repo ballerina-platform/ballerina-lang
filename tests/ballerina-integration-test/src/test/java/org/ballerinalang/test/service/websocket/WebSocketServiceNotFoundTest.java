@@ -27,7 +27,7 @@ import java.net.URISyntaxException;
 /**
  * This Class tests the not finding a service/resource to handle a webSocket request.
  */
-@Test(groups = "websocket-test")
+@Test(groups = {"websocket-test"})
 public class WebSocketServiceNotFoundTest extends WebSocketTestCommons {
 
     private WebSocketTestClient client;

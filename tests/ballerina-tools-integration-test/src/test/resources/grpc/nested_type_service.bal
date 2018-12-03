@@ -16,39 +16,40 @@
 import ballerina/io;
 import ballerina/grpc;
 
-endpoint grpc:Listener ep {
-    host:"localhost",
-    port:9090
-};
+service HelloWorld on new grpc:Listener(9090) {
 
-service HelloWorld bind ep {
-
-    testInputNestedStruct(endpoint caller, Person req) {
+    resource function testInputNestedStruct(grpc:Caller caller, Person req) {
         io:println("name: " + req.name);
         io:println(req.address);
         string message = "Submitted name: " + req.name;
         error? err = caller->send(message);
-        io:println(err.message but { () => ("Server send response : " + message) });
+        if (err is error) {
+            io:println("Error from Connector: " + err.reason());
+        } else {
+            io:println("Server send response : " + message);
+        }
         _ = caller->complete();
     }
 
-    testOutputNestedStruct(endpoint caller, string name) {
+    resource function testOutputNestedStruct(grpc:Caller caller, string name) {
         io:println("requested name: " + name);
         Person person = {name:"Sam", address:{postalCode:10300, state:"CA", country:"USA"}};
         io:println(person);
         error? err = caller->send(person);
-        io:println(err.message but { () => "" });
+        if (err is error) {
+            io:println("Error from Connector: " + err.reason());
+        }
         _ = caller->complete();
     }
 }
 
 type Person record {
-    string name;
-    Address address;
+    string name = "";
+    Address address = {};
 };
 
 type Address record {
-    int postalCode;
-    string state;
-    string country;
+    int postalCode = 0;
+    string state = "";
+    string country = "";
 };

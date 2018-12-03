@@ -16,6 +16,7 @@
 
 import ballerina/runtime;
 import ballerina/streams;
+import ballerina/io;
 
 type Teacher record {
     string name;
@@ -33,8 +34,8 @@ type TeacherOutput record {
 };
 
 int index = 0;
-stream<Teacher> inputStream;
-stream<TeacherOutput> outputStream;
+stream<Teacher> inputStream = new;
+stream<TeacherOutput> outputStream = new;
 
 TeacherOutput[] globalEmployeeArray = [];
 
@@ -64,10 +65,10 @@ function startAggregationGroupByQuery() returns (TeacherOutput[]) {
     }
 
     int count = 0;
-    while(true) {
+    while (true) {
         runtime:sleep(500);
         count += 1;
-        if((lengthof globalEmployeeArray) == 10 || count == 10) {
+        if ((globalEmployeeArray.length()) == 10 || count == 10) {
             break;
         }
     }
@@ -85,12 +86,20 @@ function startAggregationGroupByQuery() returns (TeacherOutput[]) {
 //      }
 //
 
+function getGroupByField(int a) returns boolean {
+    if (a % 2 == 0) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 function createStreamingConstruct() {
 
-    function (map[]) outputFunc = function (map[] events) {
+    function (map<anydata>[]) outputFunc = function (map<anydata>[] events) {
         foreach m in events {
             // just cast input map into the output type
-            TeacherOutput t = check <TeacherOutput>m;
+            var t = <TeacherOutput>TeacherOutput.stamp(m.clone());
             outputStream.publish(t);
         }
     };
@@ -103,13 +112,14 @@ function createStreamingConstruct() {
     aggregatorArr[0] = sumAggregator;
     aggregatorArr[1] = countAggregator;
 
-    streams:Select select = streams:createSelect(outputProcess.process, aggregatorArr,
-        [function (streams:StreamEvent e) returns string {
-            return <string>e.data["inputStream.name"];
+    streams:Select select = streams:createSelect(function (streams:StreamEvent[] e) {outputProcess.process(e);},
+        aggregatorArr,
+        [function (streams:StreamEvent e) returns anydata {
+            return getGroupByField(<int>e.data["inputStream.age"]);
         }],
-        function (streams:StreamEvent e, streams:Aggregator[] aggregatorArr1) returns map {
-            streams:Sum sumAggregator1 = check <streams:Sum>aggregatorArr1[0];
-            streams:Count countAggregator1 = check <streams:Count>aggregatorArr1[1];
+        function (streams:StreamEvent e, streams:Aggregator[] aggregatorArr1) returns map<anydata> {
+            streams:Sum sumAggregator1 = <streams:Sum>aggregatorArr1[0];
+            streams:Count countAggregator1 = <streams:Count>aggregatorArr1[1];
             // got rid of type casting
             return {
                 "name": e.data["inputStream.name"],
@@ -120,17 +130,18 @@ function createStreamingConstruct() {
         }
     );
 
-    streams:Window tmpWindow = streams:timeWindow([1000], nextProcessPointer = select.process);
-    streams:Filter filter = streams:createFilter(tmpWindow.process, function (map m) returns boolean {
+    streams:Window tmpWindow = streams:timeWindow([1000],
+        nextProcessPointer = function (streams:StreamEvent[] e) {select.process(e);});
+    streams:Filter filter = streams:createFilter(function (streams:StreamEvent[] e) {tmpWindow.process(e);},
+        function (map<anydata> m) returns boolean {
             // simplify filter
-            return check <int>m["inputStream.age"] > getValue();
+            return <int>m["inputStream.age"] > getValue();
         }
     );
 
     inputStream.subscribe(function (Teacher t) {
             // make it type unaware and proceed
-            map keyVal = <map>t;
-            streams:StreamEvent[] eventArr = streams:buildStreamEvent(keyVal, "inputStream");
+            streams:StreamEvent[] eventArr = streams:buildStreamEvent(t, "inputStream");
             filter.process(eventArr);
         }
     );

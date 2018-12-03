@@ -25,8 +25,8 @@ import org.eclipse.lsp4j.ParameterInformation;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.SignatureHelp;
 import org.eclipse.lsp4j.SignatureInformation;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 
 import java.util.ArrayDeque;
@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -114,7 +115,7 @@ public class SignatureHelpUtil {
         
         if (!idAgainst.isEmpty() && (delimiter.equals(UtilSymbolKeys.DOT_SYMBOL_KEY)
                 || delimiter.equals(UtilSymbolKeys.PKG_DELIMITER_KEYWORD))) {
-            functions = FilterUtils.getInvocationAndFieldSymbolsOnVar(ctx, idAgainst, delimiter, visibleSymbols);
+            functions = FilterUtils.getInvocationAndFieldSymbolsOnVar(ctx, idAgainst, delimiter, visibleSymbols, false);
         } else if (!idAgainst.isEmpty() && (delimiter.equals(UtilSymbolKeys.RIGHT_ARROW_SYMBOL_KEY))) {
             functions = getEndpointActionsByName(idAgainst, visibleSymbols);
         } else {
@@ -249,22 +250,21 @@ public class SignatureHelpUtil {
         }
         signatureContext.put(SignatureKeys.IDENTIFIER_AGAINST, identifier.trim());
     }
-    
+
     private static List<SymbolInfo> getEndpointActionsByName(String epName, List<SymbolInfo> symbolInfoList) {
-        List<SymbolInfo> filteredList = new ArrayList<>();
-        SymbolInfo filteredSymbol = symbolInfoList.stream()
+        Optional<SymbolInfo> filteredSymbol = symbolInfoList.stream()
                 .filter(symbolInfo -> {
                     BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-                    return bSymbol.getName().getValue().equals(epName) && bSymbol instanceof BEndpointVarSymbol;
+                    return bSymbol.getName().getValue().equals(epName) && CommonUtil.isClientObject(bSymbol);
                 })
-                .findFirst().orElse(null);
-        if (filteredSymbol != null) {
-            filteredList.addAll(FilterUtils
-                    .getEndpointActions((BEndpointVarSymbol) filteredSymbol.getScopeEntry().symbol));
+                .findFirst();
+
+        if (filteredSymbol.isPresent()) {
+            return FilterUtils
+                    .getClientActions((BObjectTypeSymbol) filteredSymbol.get().getScopeEntry().symbol.type.tsymbol);
         }
-        
-        return filteredList;
-    } 
+        return new ArrayList<>();
+    }
 
     /**
      * Parameter information model to hold the parameter information meta data.

@@ -21,7 +21,8 @@ package org.ballerinalang.model.values;
 import io.ballerina.messaging.broker.core.BrokerException;
 import io.ballerina.messaging.broker.core.Consumer;
 import io.ballerina.messaging.broker.core.Message;
-import org.ballerinalang.bre.bvm.CPU;
+import org.ballerinalang.bre.bvm.BVM;
+import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.broker.BallerinaBroker;
 import org.ballerinalang.broker.BallerinaBrokerByteBuf;
 import org.ballerinalang.model.types.BField;
@@ -33,10 +34,10 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.siddhi.core.stream.input.InputHandler;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.program.BLangFunctions;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -95,7 +96,12 @@ public class BStream implements BRefType<Object> {
     }
 
     @Override
-    public BValue copy() {
+    public void stamp(BType type) {
+
+    }
+
+    @Override
+    public BValue copy(Map<BValue, BValue> refs) {
         return null;
     }
 
@@ -115,7 +121,7 @@ public class BStream implements BRefType<Object> {
      */
     public void publish(BValue data) {
         BType dataType = data.getType();
-        if (!CPU.checkCast(data, constraintType)) {
+        if (!BVM.checkCast(data, constraintType)) {
             throw new BallerinaException("incompatible types: value of type:" + dataType
                     + " cannot be added to a stream of type:" + this.constraintType);
         }
@@ -131,7 +137,7 @@ public class BStream implements BRefType<Object> {
     public void subscribe(BFunctionPointer functionPointer) {
         BType[] parameters = functionPointer.value().getParamTypes();
         int lastArrayIndex = parameters.length - 1;
-        if (!CPU.isAssignable(constraintType, parameters[lastArrayIndex], new ArrayList<>())) {
+        if (!BVM.isAssignable(constraintType, parameters[lastArrayIndex], new ArrayList<>())) {
             throw new BallerinaException("incompatible function: subscription function needs to be a function"
                                                  + " accepting:" + this.constraintType);
         }
@@ -166,11 +172,10 @@ public class BStream implements BRefType<Object> {
             try {
                 BValue data =
                         ((BallerinaBrokerByteBuf) (message.getContentChunks().get(0).getByteBuf()).unwrap()).getValue();
-                List<BValue> argsList = new ArrayList<>();
-                argsList.addAll(closureArgs);
+                List<BValue> argsList = new ArrayList<>(closureArgs);
                 argsList.add(data);
-                BLangFunctions.invokeCallable(functionPointer.value(),
-                                              argsList.toArray(new BValue[argsList.size()]));
+                BVMExecutor.executeFunction(functionPointer.value().getPackageInfo().getProgramFile(),
+                        functionPointer.value(), argsList.toArray(new BValue[0]));
             } catch (Exception e) {
                 throw new BallerinaException("Error delivering event to subscriber: ", e);
             }
@@ -224,25 +229,26 @@ public class BStream implements BRefType<Object> {
 
         private Object[] createEvent(BMap<String, BValue> data) {
             BStructureType streamType = (BStructureType) data.getType();
-            Object[] event = new Object[streamType.getFields().length];
-            for (int index = 0; index < streamType.getFields().length; index++) {
-                BField field = streamType.getFields()[index];
+            Object[] event = new Object[streamType.getFields().size()];
+            int index = 0;
+            for (Map.Entry<String, BField> fieldEntry : streamType.getFields().entrySet()) {
+                BField field = fieldEntry.getValue();
                 switch (field.getFieldType().getTag()) {
                     case TypeTags.INT_TAG:
-                        event[index] = ((BInteger) data.get(field.fieldName)).intValue();
+                        event[index++] = ((BInteger) data.get(field.fieldName)).intValue();
                         break;
                     case TypeTags.FLOAT_TAG:
-                        event[index] = ((BFloat) data.get(field.fieldName)).floatValue();
+                        event[index++] = ((BFloat) data.get(field.fieldName)).floatValue();
                         break;
                     case TypeTags.BOOLEAN_TAG:
-                        event[index] = ((BBoolean) data.get(field.fieldName)).booleanValue();
+                        event[index++] = ((BBoolean) data.get(field.fieldName)).booleanValue();
                         break;
                     case TypeTags.STRING_TAG:
-                        event[index] = data.get(field.fieldName).stringValue();
+                        event[index++] = data.get(field.fieldName).stringValue();
                         break;
                     default:
                         throw new BallerinaException("Fields in streams do not support data types other than int, " +
-                                "float, boolean and string");
+                                                             "float, boolean and string");
                 }
             }
             return event;

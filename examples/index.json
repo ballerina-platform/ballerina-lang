@@ -196,6 +196,10 @@
             {
                 "name": "Integer Ranges",
                 "url": "integer-ranges"
+            },
+            {
+                "name": "Equality",
+                "url": "equality"
             }
         ]
     },
@@ -444,6 +448,25 @@
             {
                 "name": "XML/JSON Conversion",
                 "url": "xml-to-json-conversion"
+            }
+        ]
+    },
+ 	{
+        "title": "Database",
+        "column": 3,
+        "category": "Language concepts",
+        "samples": [
+            {
+                "name": "H2 Client",
+                "url": "h2-client"
+            },
+            {
+                "name": "MySQL Client",
+                "url": "mysql-client"
+            },
+            {
+                "name": "Streaming a Big Dataset",
+                "url": "streaming-big-dataset"
             }
         ]
     },

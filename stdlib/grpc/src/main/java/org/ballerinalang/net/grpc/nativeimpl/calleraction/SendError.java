@@ -22,10 +22,8 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.Status;
@@ -34,14 +32,12 @@ import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
-import static org.ballerinalang.net.grpc.GrpcConstants.CALLER_ACTION;
+import static org.ballerinalang.net.grpc.GrpcConstants.CALLER;
 import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_RESPONDER_REF_INDEX;
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
-import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
  * Extern function to send server error the caller.
@@ -52,17 +48,8 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
         orgName = ORG_NAME,
         packageName = PROTOCOL_PACKAGE_GRPC,
         functionName = "sendError",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = CALLER_ACTION,
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = CALLER,
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
-        args = {
-                @Argument(name = "statusCode", type = TypeKind.INT),
-                @Argument(name = "message", type = TypeKind.STRING),
-                @Argument(name = "headers", type = TypeKind.OBJECT, structType = "Headers",
-                        structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC)
-        },
-        returnType = {
-                @ReturnType(type = TypeKind.RECORD, structType = STRUCT_GENERIC_ERROR,
-                        structPackage = BALLERINA_BUILTIN_PKG)        },
         isPublic = true
 )
 public class SendError extends BlockingNativeCallableUnit {
@@ -78,7 +65,7 @@ public class SendError extends BlockingNativeCallableUnit {
 
         StreamObserver responseObserver = MessageUtils.getResponseObserver(endpointClient);
         if (responseObserver == null) {
-            context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
+            context.setError(MessageUtils.getConnectorError(new StatusRuntimeException(Status
                     .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Error while sending the " +
                             "error. Response observer not found."))));
         } else {
@@ -96,7 +83,7 @@ public class SendError extends BlockingNativeCallableUnit {
                 responseObserver.onError(errorMessage);
             } catch (Exception e) {
                 LOG.error("Error while sending error to caller.", e);
-                context.setError(MessageUtils.getConnectorError(context, e));
+                context.setError(MessageUtils.getConnectorError(e));
             }
         }
     }

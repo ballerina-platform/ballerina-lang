@@ -30,6 +30,7 @@ import org.testng.annotations.Test;
 /**
  * Test cases for user defined annotations in ballerina.
  */
+@Test(groups = "broken")
 public class AnnotationTest {
 
     private CompileResult compileResult;

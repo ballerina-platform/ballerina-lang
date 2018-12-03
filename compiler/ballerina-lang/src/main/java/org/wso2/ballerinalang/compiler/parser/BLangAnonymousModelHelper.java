@@ -17,6 +17,7 @@
 package org.wso2.ballerinalang.compiler.parser;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 
@@ -75,4 +76,7 @@ public class BLangAnonymousModelHelper {
         return LAMBDA + nextValue;
     }
 
+    public boolean isAnonymousType(BSymbol symbol) {
+        return symbol.name.value.startsWith(ANON_TYPE);
+    }
 }

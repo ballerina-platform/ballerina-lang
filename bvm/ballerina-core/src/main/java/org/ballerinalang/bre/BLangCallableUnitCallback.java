@@ -17,12 +17,13 @@
  */
 package org.ballerinalang.bre;
 
-import org.ballerinalang.bre.bvm.BLangScheduler;
+import org.ballerinalang.bre.bvm.BVMScheduler;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.bre.bvm.StackFrame;
+import org.ballerinalang.bre.bvm.Strand;
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BError;
+import org.ballerinalang.util.observability.ObserveUtils;
 import org.ballerinalang.util.program.BLangVMUtils;
 
 /**
@@ -32,34 +33,50 @@ import org.ballerinalang.util.program.BLangVMUtils;
  */
 public class BLangCallableUnitCallback implements CallableUnitCallback {
 
-    private WorkerExecutionContext parentCtx;
+    private Strand strand;
 
     private Context nativeCallCtx;
 
-    private int[] retRegs;
+    private int retReg;
 
-    private BType[] retTypes;
+    private BType retType;
 
-    public BLangCallableUnitCallback(Context nativeCallCtx, WorkerExecutionContext parentCtx,
-                                     int[] retRegs, BType[] retTypes) {
-        this.parentCtx = parentCtx;
+    public BLangCallableUnitCallback(Context nativeCallCtx, Strand strand,
+                                     int retReg, BType retType) {
+        this.strand = strand;
         this.nativeCallCtx = nativeCallCtx;
-        this.retRegs = retRegs;
-        this.retTypes = retTypes;
+        this.retReg = retReg;
+        this.retType = retType;
     }
 
     @Override
     public void notifySuccess() {
-        BLangVMUtils.populateWorkerDataWithValues(this.parentCtx.workerLocal, this.retRegs,
-                this.nativeCallCtx.getReturnValues(), this.retTypes);
-        BLangScheduler.handleInterruptibleAfterCallback(this.parentCtx);
-        BLangScheduler.resume(this.parentCtx);
+        if (strand.fp > 0) {
+            // Stop the observation context before popping the stack frame
+            ObserveUtils.stopCallableObservation(strand);
+            strand.popFrame();
+            StackFrame sf = strand.currentFrame;
+            BLangVMUtils.populateWorkerDataWithValues(sf, this.retReg,
+                    this.nativeCallCtx.getReturnValue(), this.retType);
+            BVMScheduler.schedule(strand);
+            return;
+        }
+        strand.respCallback.signal();
     }
 
     @Override
-    public void notifyFailure(BMap<String, BValue> error) {
-        BLangScheduler.handleInterruptibleAfterCallback(this.parentCtx);
-        BLangScheduler.resume(BLangScheduler.errorThrown(this.parentCtx, error));
+    public void notifyFailure(BError error) {
+        if (strand.fp > 0) {
+            // Stop the observation context before popping the stack frame
+            ObserveUtils.stopCallableObservation(strand);
+            strand.popFrame();
+            StackFrame sf = strand.currentFrame;
+            strand.setError(error);
+            BVMScheduler.schedule(strand);
+            return;
+        }
+        strand.respCallback.setError(error);
+        strand.respCallback.signal();
     }
 
 }

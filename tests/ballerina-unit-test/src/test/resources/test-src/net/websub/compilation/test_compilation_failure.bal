@@ -19,6 +19,7 @@ import ballerina/io;
 import ballerina/http;
 import ballerina/websub;
 
+service websubSubscriber =
 @websub:SubscriberServiceConfig {
     path: "/websub",
     subscribeOnStartUp: true,
@@ -31,88 +32,94 @@ import ballerina/websub;
     topic: "http://websubpubtopictwo.com",
     hub: "http://websubpubhubtwo.com"
 }
-service<websub:Service> websubSubscriber {
-    onIntentVerification (endpoint caller, websub:IntentVerificationRequest verRequest) {
+service {
+    resource function onIntentVerification (websub:Caller caller, websub:IntentVerificationRequest verRequest) {
     }
 
-    onNotification (websub:Notification notification) {
+    resource function onNotification (websub:Notification notification) {
     }
-}
+};
 
+service websubSubscriberTwo =
 @websub:SubscriberServiceConfig {
     path: "/websub",
     subscribeOnStartUp: true,
     topic: "http://websubpubtopictwo.com",
     hub: "http://websubpubhubtwo.com"
 }
-service<websub:Service> websubSubscriberTwo {
-    onIntentVerification (http:Listener caller, websub:Notification notification) {
+service {
+    resource function onIntentVerification (http:Listener caller, websub:Notification notification) {
     }
 
-    onNotification (websub:IntentVerificationRequest verRequest) {
+    resource function onNotification (websub:IntentVerificationRequest verRequest) {
     }
-}
+};
 
+service websubSubscriberThree =
 @websub:SubscriberServiceConfig {
     path: "/websub",
     subscribeOnStartUp: true,
     topic: "http://websubpubtopictwo.com",
     hub: "http://websubpubhubtwo.com"
 }
-service<websub:Service> websubSubscriberThree {
-    onNotificationTwo (websub:IntentVerificationRequest verRequest) {
+service {
+    resource function onNotificationTwo (websub:IntentVerificationRequest verRequest) {
     }
-}
+};
 
+service websubSubscriberFour =
 @websub:SubscriberServiceConfig {
     path: "/websub",
     subscribeOnStartUp: true,
     topic: "http://websubpubtopictwo.com",
     hub: "http://websubpubhubtwo.com"
 }
-service<websub:Service> websubSubscriberFour {
-    onIntentVerification (endpoint caller, websub:IntentVerificationRequest verRequest) {
+service {
+    resource function onIntentVerification (websub:Caller caller, websub:IntentVerificationRequest verRequest) {
     }
-}
+};
 
+service websubSubscriberFive =
 @websub:SubscriberServiceConfig {
     path: "/websub",
     subscribeOnStartUp: true,
     topic: "http://websubpubtopictwo.com",
     hub: "http://websubpubhubtwo.com"
 }
-service<websub:Service> websubSubscriberFive {
-    onIntentVerification (endpoint caller) {
+service {
+    resource function onIntentVerification (websub:Caller caller) {
     }
 
-    onNotification () {
+    resource function onNotification () {
     }
-}
+};
 
+service websubSubscriberSix =
 @websub:SubscriberServiceConfig {
     path: "/websub",
     subscribeOnStartUp: true,
     topic: "http://websubpubtopictwo.com",
     hub: "http://websubpubhubtwo.com"
 }
-service<websub:Service> websubSubscriberSix {
-    onIntentVerification (websub:IntentVerificationRequest verRequest) {
+service {
+    resource function onIntentVerification (websub:IntentVerificationRequest verRequest) {
     }
 
-    onNotification (websub:Notification notification) {
+    resource function onNotification (websub:Notification notification) {
     }
-}
+};
 
+service websubSubscriberSeven =
 @websub:SubscriberServiceConfig {
     path: "/websub",
     subscribeOnStartUp: true,
     topic: "http://websubpubtopictwo.com",
     hub: "http://websubpubhubtwo.com"
 }
-service<websub:Service> websubSubscriberSeven {
-    onIntentVerification (endpoint caller, websub:IntentVerificationRequest verRequest, string s) {
+service {
+    resource function onIntentVerification (websub:Caller caller, websub:IntentVerificationRequest verRequest, string s) {
     }
 
-    onNotification (endpoint caller, websub:Notification notification) {
+    resource function onNotification (websub:Caller caller, websub:Notification notification) {
     }
-}
+};

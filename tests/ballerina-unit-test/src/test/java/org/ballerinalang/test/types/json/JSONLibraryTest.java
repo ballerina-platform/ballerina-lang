@@ -23,9 +23,9 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -44,7 +44,7 @@ public class JSONLibraryTest {
         String json = "{\"a\":\"abc\",\"b\":1,\"c\":3.14,\"d\":true,\"e\":false,\"f\":null,\"g\":"
                 + "{\"1\":\"a\",\"2\":\"b\"},\"h\":[\"A\",\"B\",\"C\",\"D\"]}";
         BValue node = JsonParser.parse(json);
-        Assert.assertEquals(node instanceof BRefValueArray, false);
+        Assert.assertEquals(node instanceof BValueArray, false);
         Assert.assertEquals(node instanceof BMap, true);
         Assert.assertEquals(node instanceof  BBoolean, false);
         Assert.assertEquals(node instanceof BFloat, false);
@@ -62,7 +62,7 @@ public class JSONLibraryTest {
         Assert.assertNull(jsonObj.get("f"));
         Assert.assertEquals(jsonObj.get("g") instanceof BMap, true);
         Assert.assertEquals(jsonObj.get("h") instanceof BMap, false);
-        Assert.assertEquals(jsonObj.get("h") instanceof BRefValueArray, true);
+        Assert.assertEquals(jsonObj.get("h") instanceof BValueArray, true);
     }
 
     @Test
@@ -82,13 +82,13 @@ public class JSONLibraryTest {
         Assert.assertEquals(objNode.get("1").stringValue(), "a");
         Assert.assertEquals(objNode.get("2").stringValue(), "b");
         
-        Assert.assertTrue(node.get("h") instanceof BRefValueArray);
-        BRefValueArray arrayNode = (BRefValueArray) node.get("h");
+        Assert.assertTrue(node.get("h") instanceof BValueArray);
+        BValueArray arrayNode = (BValueArray) node.get("h");
         Assert.assertEquals(arrayNode.size(), 4);
-        Assert.assertEquals(arrayNode.get(0).stringValue(), "A");
-        Assert.assertEquals(((BInteger) arrayNode.get(1)).intValue(), 20);
-        Assert.assertEquals(((BInteger) arrayNode.get(2)).intValue(), 30);
-        Assert.assertEquals(arrayNode.get(3).stringValue(), "D");
+        Assert.assertEquals(arrayNode.getRefValue(0).stringValue(), "A");
+        Assert.assertEquals(((BInteger) arrayNode.getRefValue(1)).intValue(), 20);
+        Assert.assertEquals(((BInteger) arrayNode.getRefValue(2)).intValue(), 30);
+        Assert.assertEquals(arrayNode.getRefValue(3).stringValue(), "D");
     }
 
     @Test

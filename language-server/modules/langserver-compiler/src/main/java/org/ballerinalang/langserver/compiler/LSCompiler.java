@@ -107,7 +107,7 @@ public class LSCompiler {
     public BallerinaFile compileFile(Path filePath, CompilerPhase phase) {
         String sourceRoot = LSCompilerUtil.getSourceRoot(filePath);
         String packageName = LSCompilerUtil.getPackageNameForGivenFile(sourceRoot, filePath.toString());
-        LSDocument sourceDocument = new LSDocument(filePath.toUri().toString(), sourceRoot);
+        LSDocument sourceDocument = new LSDocument(filePath, sourceRoot);
 
         PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, documentManager);
         PackageID packageID;
@@ -143,6 +143,10 @@ public class LSCompiler {
         BallerinaFile bfile = new BallerinaFile();
         bfile.setBallerinaProject(isProjectDir);
         bfile.setBLangPackage(bLangPackage);
+        // When needed for secondary tree traversal after compiling a text source,
+        // compiler context can be used when needed. As an example, ast generation to a secondary BLangPackage content
+        // visit to find the visible symbols where we need the compiler context to find the symbols
+        bfile.setCompilerContext(context);
         if (context.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
             List<Diagnostic> diagnostics = ((CollectDiagnosticListener) context.get(DiagnosticListener.class))
                     .getDiagnostics();
@@ -258,7 +262,7 @@ public class LSCompiler {
     private boolean isBallerinaFile(File file) {
         return !file.isDirectory() && file.getName().endsWith(BAL_EXTENSION);
     }
-    
+
     private PackageID generatePackageFromManifest(String pkgName, String sourceRoot) {
         Manifest manifest = LSCompilerUtil.getManifest(Paths.get(sourceRoot));
         Name orgName = manifest.getName() == null || manifest.getName().isEmpty() ?

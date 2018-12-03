@@ -33,8 +33,8 @@ type TeacherOutput record {
 };
 
 int index = 0;
-stream<Teacher> inputStream;
-stream<TeacherOutput> outputStream;
+stream<Teacher> inputStream = new;
+stream<TeacherOutput> outputStream = new;
 
 TeacherOutput[] globalEmployeeArray = [];
 
@@ -57,16 +57,16 @@ function startExternalTimeWindowQuery() returns (TeacherOutput[]) {
 
     createStreamingConstruct();
 
-    outputStream.subscribe(printTeachers);
+    outputStream.subscribe(function (TeacherOutput e) {printTeachers(e);});
     foreach t in teachers {
         inputStream.publish(t);
     }
 
     int count = 0;
-    while(true) {
+    while (true) {
         runtime:sleep(500);
         count += 1;
-        if((lengthof globalEmployeeArray) == 4 || count == 10) {
+        if ((globalEmployeeArray.length()) == 4 || count == 10) {
             break;
         }
     }
@@ -85,10 +85,10 @@ function startExternalTimeWindowQuery() returns (TeacherOutput[]) {
 
 function createStreamingConstruct() {
 
-    function (map[]) outputFunc = function (map[] events) {
+    function (map<anydata>[]) outputFunc = function (map<anydata>[] events) {
         foreach m in events {
             // just cast input map into the output type
-            TeacherOutput t = check <TeacherOutput>m;
+            var t = <TeacherOutput>TeacherOutput.stamp(m.clone());
             outputStream.publish(t);
         }
     };
@@ -100,27 +100,28 @@ function createStreamingConstruct() {
     streams:Aggregator[] aggregators = [];
     aggregators[0] = iSumAggregator;
 
-    streams:Select select = streams:createSelect(outputProcess.process, aggregators,
-        [function (streams:StreamEvent e) returns string {
-            return <string>e.data["inputStream.school"];
+    streams:Select select = streams:createSelect(function (streams:StreamEvent[] e) {outputProcess.process(e);},
+        aggregators,
+        [function (streams:StreamEvent e) returns anydata {
+            return e.data["inputStream.school"];
         }],
-        function (streams:StreamEvent e, streams:Aggregator[] aggregatorArray) returns map {
-            streams:Sum iSumAggregator1 = check <streams:Sum>aggregatorArray[0];
+        function (streams:StreamEvent e, streams:Aggregator[] aggregatorArray) returns map<anydata> {
+            streams:Sum iSumAggregator1 = <streams:Sum>aggregatorArray[0];
             // got rid of type casting
             return {
                 "name": e.data["inputStream.name"],
                 "age": e.data["inputStream.age"],
-                "sumAge": iSumAggregator.process(e.data["inputStream.age"], e.eventType)
+                "sumAge": iSumAggregator1.process(e.data["inputStream.age"], e.eventType)
             };
         });
 
     streams:Window tmpWindow = streams:externalTimeWindow(["inputStream.timeStamp", 1000],
-        nextProcessPointer = select.process);
+        nextProcessPointer = function (streams:StreamEvent[] e) {select.process(e);});
 
     inputStream.subscribe(function (Teacher t) {
-            map keyVal = <map>t;
-            streams:StreamEvent[] eventArr = streams:buildStreamEvent(keyVal, "inputStream");
+            streams:StreamEvent[] eventArr = streams:buildStreamEvent(t, "inputStream");
             tmpWindow.process(eventArr);
+
         });
 }
 

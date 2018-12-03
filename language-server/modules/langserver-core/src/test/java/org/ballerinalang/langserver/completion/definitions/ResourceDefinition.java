@@ -35,8 +35,6 @@ public class ResourceDefinition extends CompletionTest {
                 {"userDefinedRecordNonEmptyLine.json", "resource"},
                 {"userDefinedFunctionsEmptyLine.json", "resource"},
                 {"userDefinedFunctionsNonEmptyLine.json", "resource"},
-                {"importPackagesEmptyLine.json", "resource"},
-                {"importPackagesNonEmptyLine.json", "resource"},
                 {"allVisibleSymbolsNonEmptyLine.json", "resource"},
                 {"allVisibleSymbolsEmptyLine.json", "resource"},
                 {"actionInvocationSuggestion1.json", "resource"},
@@ -44,8 +42,6 @@ public class ResourceDefinition extends CompletionTest {
                 {"completionBeforeUnderscore1.json", "resource"},
                 {"completionBeforeUnderscore2.json", "resource"},
                 {"completionBeforeUnderscore3.json", "resource"},
-                {"matchExpressionSuggestion1.json", "resource"},
-                {"matchExpressionSuggestion2.json", "resource"}
         };
     }
 }

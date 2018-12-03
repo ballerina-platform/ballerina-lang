@@ -1,7 +1,7 @@
 class WebViewRPCHandler {
 
     constructor(methods) {
-        this._sequence = 0;
+        this._sequence = 1;
         this._callbacks = {};
         this.methods = methods || [];
         this._onRemoteMessage = this._onRemoteMessage.bind(this);
@@ -33,6 +33,10 @@ class WebViewRPCHandler {
         }
     }
 
+    addMethod(methodName, handler = () => {}) {
+        this.methods.push({ methodName, handler });
+    }
+
     invokeRemoteMethod(methodName, args, onReply = () => {}) {
         const msg = {
             id: this._sequence,
@@ -52,3 +56,77 @@ class WebViewRPCHandler {
 var webViewRPCHandler = new WebViewRPCHandler([]);
 
 var vscode = acquireVsCodeApi();
+
+
+function getLangClient() {
+    return {
+        isInitialized: true,
+        getAST: (params) => {
+            return new Promise((resolve, reject) => {
+                webViewRPCHandler.invokeRemoteMethod('getAST', [params.documentIdentifier.uri], (resp) => {
+                    resolve(resp);
+                });
+            });
+        },
+        astDidChange: (params) => {
+            const ast = JSON.stringify(params.ast, (key, value) => {
+                currentKey = key;
+                if (key === 'parent' || key === 'viewState' || key === '_events'|| key === 'id') {
+                    return undefined;
+                }
+                return value;
+            });
+            return new Promise((resolve, reject) => {
+                webViewRPCHandler.invokeRemoteMethod('astDidChange', [ast, params.textDocumentIdentifier.uri], (resp) => {
+                    resolve(resp);
+                });
+            })
+        },
+        getEndpoints: () => {
+            return new Promise((resolve, reject) => {
+                webViewRPCHandler.invokeRemoteMethod('getEndpoints', [], (resp) => {
+                    resolve(resp);
+                });
+            })
+        },
+        parseFragment: (fragment) => {
+            return new Promise((resolve, reject) => {
+                webViewRPCHandler.invokeRemoteMethod('parseFragment', [fragment], (resp) => {
+                    resolve(resp);
+                });
+            })
+        },
+        revealRange: (model) => {
+            const pos = model.position;
+            if (pos) {
+                return new Promise((resolve, reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'revealRange', 
+                        [pos.startLine, pos.startColumn, pos.endLine, pos.endColumn], 
+                        (resp) => {
+                            resolve(resp);
+                        }
+                    );
+                })
+            }
+        },
+        goToSource: (line, column) => {
+            return new Promise((resolve, reject) => {
+                webViewRPCHandler.invokeRemoteMethod(
+                    'goToSource', 
+                    [line, column], 
+                    (resp) => {
+                        resolve(resp);
+                    }
+                );
+            })
+        },
+        getExamples: () => {
+            return new Promise((resolve, reject) => {
+                webViewRPCHandler.invokeRemoteMethod('getExamples', [], (resp) => {
+                    resolve(resp.samples);
+                });
+            })
+        }
+    }
+}

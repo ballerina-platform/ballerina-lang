@@ -1,0 +1,27 @@
+{
+  "name": "@ballerina/ballerina-by-examples",
+  "version": "0.983.1-SNAPSHOT",
+  "description": "Provides components for displaying Ballerina By Examples",
+  "main": "lib/src/index.js",
+  "scripts": {
+    "prepublishOnly": "npm run build",
+    "prebuild": "npm run clean && npm run lint",
+    "clean": "composer pkg:clean",
+    "lint": "composer pkg:lint",
+    "build": "composer pkg:build",
+    "test": "composer pkg:test",
+    "coverage": "composer pkg:test:coverage",
+    "watch": "composer pkg:watch",
+    "watch:test": "composer pkg:test:watch",
+    "storybook": "composer pkg:storybook"
+  },
+  "dependencies": {
+    "lodash": "^4.17.11"
+  },
+  "devDependencies": {
+    "@ballerina/composer-cli": "^0.983.1-SNAPSHOT",
+    "@types/lodash": "^4.14.118"
+  },
+  "author": "ballerina.io",
+  "license": "Apache-2.0"
+}

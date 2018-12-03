@@ -29,15 +29,35 @@ import java.util.List;
  * @since 0.965.0
  */
 public class TaintRecord {
-    public Boolean returnTaintedStatus;
-    public List<Boolean> parameterTaintedStatusList;
+    /**
+     * Represents taint status or a return or a parameter. When used in maintaining parameter tainted status, "ignored"
+     * state is used to denote that the tainted status of the argument should be left unchanged, where as tainted and
+     * untainted statues are used to change the argument tainted status accordingly.
+     */
+    public enum TaintedStatus {
+        UNTAINTED((byte) 0), TAINTED((byte) 1), IGNORED((byte) 2);
+
+        // Value used to represent the taint status in the compiled code.
+        private final byte byteValue;
+
+        TaintedStatus(byte byteValue) {
+            this.byteValue = byteValue;
+        }
+
+        public byte getByteValue() {
+            return byteValue;
+        }
+    }
+
+    public TaintedStatus returnTaintedStatus;
+    public List<TaintedStatus> parameterTaintedStatusList;
     public List<TaintError> taintError;
 
     public TaintRecord(List<TaintError> taintError) {
         this.taintError = taintError;
     }
 
-    public TaintRecord(Boolean returnTaintedStatus, List<Boolean> parameterTaintedStatusList) {
+    public TaintRecord(TaintedStatus returnTaintedStatus, List<TaintedStatus> parameterTaintedStatusList) {
         this.returnTaintedStatus = returnTaintedStatus;
         this.parameterTaintedStatusList = parameterTaintedStatusList;
     }

@@ -19,18 +19,17 @@
 package org.ballerinalang.mime.util;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.util.XMLUtils;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.stdlib.io.channels.TempFileIOChannel;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
@@ -124,14 +123,14 @@ public class EntityBodyHandler {
      * @return Data source for binary data which is kept in memory
      * @throws IOException In case an error occurred while creating blob data source
      */
-    public static BByteArray constructBlobDataSource(BMap<String, BValue> entityStruct) throws IOException {
+    public static BValueArray constructBlobDataSource(BMap<String, BValue> entityStruct) throws IOException {
         Channel byteChannel = getByteChannel(entityStruct);
         if (byteChannel == null) {
-            return new BByteArray(new byte[0]);
+            return new BValueArray(new byte[0]);
         }
         byte[] byteData = MimeUtil.getByteArray(byteChannel.getInputStream());
         byteChannel.close();
-        return new BByteArray(byteData);
+        return new BValueArray(byteData);
     }
 
     /**
@@ -249,7 +248,7 @@ public class EntityBodyHandler {
         if (!bodyParts.isEmpty()) {
             BStructureType typeOfBodyPart = (BStructureType) bodyParts.get(FIRST_BODY_PART_INDEX).getType();
             BMap<String, BValue>[] result = bodyParts.toArray(new BMap[bodyParts.size()]);
-            BRefValueArray partsArray = new BRefValueArray(result, typeOfBodyPart);
+            BValueArray partsArray = new BValueArray(result, new BArrayType(typeOfBodyPart));
             entity.addNativeData(BODY_PARTS, partsArray);
         }
     }
@@ -307,9 +306,9 @@ public class EntityBodyHandler {
      * @param entityStruct Represent a ballerina entity
      * @return An array of body parts
      */
-    public static BRefValueArray getBodyPartArray(BMap<String, BValue> entityStruct) {
+    public static BValueArray getBodyPartArray(BMap<String, BValue> entityStruct) {
         return entityStruct.getNativeData(BODY_PARTS) != null ?
-                (BRefValueArray) entityStruct.getNativeData(BODY_PARTS) : new BRefValueArray();
+                (BValueArray) entityStruct.getNativeData(BODY_PARTS) : new BValueArray();
     }
 
     public static Channel getByteChannel(BMap<String, BValue> entityStruct) {

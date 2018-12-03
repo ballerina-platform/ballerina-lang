@@ -79,10 +79,8 @@ public class InitQueueSender implements NativeCallableUnit {
         try {
             Destination queue = destinationObject != null ? destinationObject : session.createQueue(queueName);
             MessageProducer producer = session.createProducer(queue);
-            Struct queueSenderConnectorBObject
-                    = queueSenderBObject.getStructField(Constants.QUEUE_SENDER_FIELD_PRODUCER_ACTIONS);
-            queueSenderConnectorBObject.addNativeData(Constants.JMS_PRODUCER_OBJECT, producer);
-            queueSenderConnectorBObject.addNativeData(Constants.SESSION_CONNECTOR_OBJECT,
+            queueSenderBObject.addNativeData(Constants.JMS_PRODUCER_OBJECT, producer);
+            queueSenderBObject.addNativeData(Constants.SESSION_CONNECTOR_OBJECT,
                     new SessionConnector(session));
         } catch (JMSException e) {
             BallerinaAdapter.throwBallerinaException("Error creating queue sender.", context, e);

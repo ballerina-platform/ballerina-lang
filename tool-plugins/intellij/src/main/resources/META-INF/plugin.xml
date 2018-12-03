@@ -55,7 +55,7 @@
                               id="LSPGotoClassContributor"/>
         <typedHandler implementation="com.github.gtache.lsp.editor.listeners.LSPTypedHandler" id="LSPTypedHandler"/>
         <completion.contributor implementationClass="com.github.gtache.lsp.contributors.LSPCompletionContributor"
-                                id="LSPCompletionContributor" language="any"/>
+                                id="LSPCompletionContributor" language="Ballerina"/>
         <inspectionToolProvider implementation="com.github.gtache.lsp.contributors.inspection.LSPInspectionProvider"
                                 id="LSPInspectionProvider"/>
         <fileDocumentSynchronizationVetoer
@@ -67,7 +67,7 @@
         <renamePsiElementProcessor implementation="com.github.gtache.lsp.contributors.rename.LSPRenameProcessor"
                                    id="LSPRenameProcessor" order="first"/>
         <lang.documentationProvider implementationClass="com.github.gtache.lsp.contributors.LSPDocumentationProvider"
-                                    id="LSPDocumentationProvider" language="TEXT" order="first"/>
+                                    id="LSPDocumentationProvider" language="Ballerina" order="first"/>
 
 
         <!--Ballerina plugin extensions-->
@@ -82,10 +82,7 @@
         <lang.syntaxHighlighterFactory language="Ballerina"
                                        implementationClass="io.ballerina.plugins.idea.highlighting.BallerinaSyntaxHighlighterFactory"/>
         <stubIndex implementation="io.ballerina.plugins.idea.stubs.index.BallerinaFunctionIndex"/>
-        <stubIndex implementation="io.ballerina.plugins.idea.stubs.index.BallerinaGlobalVariableIndex"/>
         <stubIndex implementation="io.ballerina.plugins.idea.stubs.index.BallerinaAnnotationIndex"/>
-        <stubIndex implementation="io.ballerina.plugins.idea.stubs.index.BallerinaGlobalEndpointIndex"/>
-        <stubIndex implementation="io.ballerina.plugins.idea.stubs.index.BallerinaEndpointIndex"/>
         <stubIndex implementation="io.ballerina.plugins.idea.stubs.index.BallerinaWorkerIndex"/>
         <stubIndex implementation="io.ballerina.plugins.idea.stubs.index.BallerinaNamespaceIndex"/>
         <!--Add organization index-->
@@ -153,6 +150,8 @@
 
         <enterHandlerDelegate
                 implementation="io.ballerina.plugins.idea.formatter.BallerinaEnterBetweenBracesHandler"/>
+        <enterHandlerDelegate
+                implementation="io.ballerina.plugins.idea.formatter.BallerinaEnterInDocumentationHandler"/>
 
         <!-- sdk -->
         <sdkType implementation="io.ballerina.plugins.idea.sdk.BallerinaSdkType"/>
@@ -232,6 +231,7 @@
         <applicationService
                 serviceImplementation="io.ballerina.plugins.idea.codeinsight.recursivesearch.BallerinaRecursiveReferenceSearchSettings"/>
 
+        <!--Todo - Use language server diagnostics after fixing-->
         <!--inspections-->
         <localInspection language="Ballerina" displayName="Unresolved reference inspection" groupPath="Ballerina"
                          groupName="General" enabledByDefault="true" level="WARNING"

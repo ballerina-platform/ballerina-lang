@@ -17,12 +17,15 @@
 import ballerina/http;
 import ballerina/io;
 
-service<http:WebSocketService> onBinaryContinuation bind { port: 9088 } {
-    byte[] content;
-    onBinary(endpoint caller, byte[] data, boolean final) {
-        if (final) {
+byte[] content = [];
+service onBinaryContinuation on new http:WebSocketListener(9088) {
+    resource function onBinary(http:WebSocketCaller caller, byte[] data, boolean finalFrame) {
+        if (finalFrame) {
             appendToArray(untaint data, content);
-            _ = caller->pushBinary(content);
+            var returnVal = caller->pushBinary(content);
+            if (returnVal is error) {
+                 panic returnVal;
+            }
         } else {
             appendToArray(untaint data, content);
         }
@@ -31,9 +34,9 @@ service<http:WebSocketService> onBinaryContinuation bind { port: 9088 } {
 
 function appendToArray(byte[] src, byte[] dest) {
     int i = 0;
-    int l = lengthof src;
+    int l = src.length();
     while (i < l) {
-        dest[lengthof dest] = src[i];
+        dest[dest.length()] = src[i];
         i = i + 1;
     }
 }
