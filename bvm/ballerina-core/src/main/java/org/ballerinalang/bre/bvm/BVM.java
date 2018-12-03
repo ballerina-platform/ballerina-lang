@@ -4594,7 +4594,49 @@ public class BVM {
         return true;
     }
 
+    private static boolean isDeepStampingRequiredForArray(BType sourceType) {
+        BType elementType = ((BArrayType) sourceType).getElementType();
+
+        if (elementType != null) {
+            if (elementType == BTypes.typeString || elementType == BTypes.typeInt ||
+                    elementType == BTypes.typeFloat || elementType == BTypes.typeBoolean ||
+                    elementType == BTypes.typeByte) {
+                return false;
+            } else if (elementType instanceof BArrayType) {
+                return isDeepStampingRequiredForArray(elementType);
+            }
+            return true;
+        }
+        return true;
+    }
+
+    private static boolean isDeepStampingRequiredForMap(BType sourceType) {
+        BType constrainedType = ((BMapType) sourceType).getConstrainedType();
+
+        if (constrainedType != null) {
+            if (constrainedType == BTypes.typeString || constrainedType == BTypes.typeInt ||
+                    constrainedType == BTypes.typeFloat || constrainedType == BTypes.typeBoolean ||
+                    constrainedType == BTypes.typeByte) {
+                return false;
+            } else if (constrainedType instanceof BMapType) {
+                return isDeepStampingRequiredForMap(constrainedType);
+            }
+            return true;
+        }
+        return true;
+    }
+
     public static BType resolveMatchingTypeForUnion(BValue value, BType type) {
+        if (value instanceof BValueArray && value.getType().getTag() == TypeTags.ARRAY_TAG &&
+                !isDeepStampingRequiredForArray(((BValueArray) value).getArrayType())) {
+            return ((BValueArray) value).getArrayType();
+        }
+
+        if (value instanceof BMap && value.getType().getTag() == TypeTags.MAP_TAG &&
+                !isDeepStampingRequiredForMap(value.getType())) {
+            return value.getType();
+        }
+
         if (checkIsLikeType(value, BTypes.typeInt)) {
             return BTypes.typeInt;
         }

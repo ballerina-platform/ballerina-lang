@@ -344,6 +344,37 @@ function stampRecordWithNilValuesV2() returns Employee {
     return e;
 }
 
+type ComplexPerson record {
+    string name = "";
+    int age = 0;
+    ComplexPerson? parent = ();
+    json info?;
+    map<anydata>? address?;
+    int[][]? marks?;
+    anydata a = ();
+    float score = 0.0;
+    boolean alive = false;
+    ComplexPerson[]? children?;
+    !...
+};
+
+function stampComplexRecordToJSON() returns map<anydata>|error {
+    int[] value = [67, 38, 91];
+    int[] value2 = [55, 33, 44];
+
+
+    ComplexPerson p = {name:"Child",
+        age:25,
+        parent:{name:"Parent", age:50},
+        address:{"city":"Colombo", "country":"SriLanka"},
+        info:{status:"single"},
+        marks:[value, value2]
+    };
+
+    map<anydata>|error m = map<anydata>.stamp(p);
+    return m;
+}
+
 //------------------------------- Optional field related scenarios ----------------------------------------------
 
 type TeacherWithOptionalField record {

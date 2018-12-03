@@ -237,6 +237,8 @@ function stampConstraintMapToUnion() returns map<Teacher>|xml {
     return anydataValue;
 }
 
+
+
 //---------------------------------- Negative Test cases -----------------------------------------------------------
 
 type EmployeeClosedRecord record {
