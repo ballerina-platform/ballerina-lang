@@ -72,7 +72,6 @@ public abstract class StrandCallback {
      *
      * @param value to be returned
      */
-
     public void setFloatReturn(double value) {
         this.doubleVal = value;
     }
@@ -82,7 +81,6 @@ public abstract class StrandCallback {
      *
      * @param value to be returned
      */
-
     public void setStringReturn(String value) {
         this.stringVal = value;
     }
@@ -92,7 +90,6 @@ public abstract class StrandCallback {
      *
      * @param value to be returned
      */
-
     public void setBooleanReturn(int value) {
         this.intVal = value;
     }
@@ -222,5 +219,4 @@ public abstract class StrandCallback {
         //used in SafeStrandCallback, override if required
         return this.parentChannels;
     }
-
 }
