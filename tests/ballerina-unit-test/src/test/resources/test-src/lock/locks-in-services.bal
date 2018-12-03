@@ -232,7 +232,7 @@ function workerFunc(Person param) {
 
 function increment(Person param) {
    lock {
-       foreach i in 1 ... 1000 {
+       foreach var i in 1 ... 1000 {
            param.age = param.age + i;
        }
     }

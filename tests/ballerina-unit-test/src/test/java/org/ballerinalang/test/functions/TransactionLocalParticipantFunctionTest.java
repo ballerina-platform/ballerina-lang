@@ -28,6 +28,12 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * Test local transaction participant behavior.
+ * This is the functions annotated with (at)transactions:Participant annotation.
+ *
+ * @since 0.990.0
+ */
 public class TransactionLocalParticipantFunctionTest {
     CompileResult result;
 

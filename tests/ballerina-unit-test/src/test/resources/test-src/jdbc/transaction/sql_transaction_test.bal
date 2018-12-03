@@ -752,14 +752,14 @@ function testLocalTransactionWithSelectAndForeachIteration() returns (int, int) 
         var dt1 = testDB->select("Select COUNT(*) as countval from Customers where
             registrationID = 900", ResultCount);
         if (dt1 is table<ResultCount>) {
-            foreach row in dt1 {
+            foreach var row in dt1 {
                 count = row.COUNTVAL;
             }
         }
         var dt2 = testDB->select("Select COUNT(*) as countval from Customers where
             registrationID = 900", ResultCount);
         if (dt2 is table<ResultCount>) {
-            foreach row in dt2 {
+            foreach var row in dt2 {
                 count = row.COUNTVAL;
             }
         }

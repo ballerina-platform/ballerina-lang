@@ -412,19 +412,17 @@ public class BTable implements BRefType<Object>, BCollection {
     private static class BTableIterator<K, V extends BValue> implements BIterator {
 
         private BTable table;
-        private int cursor = 0;
 
         BTableIterator(BTable value) {
             table = value;
         }
 
         @Override
-        public BValue[] getNext(int arity) {
-            if (arity == 1) {
-                return new BValue[]{table.getNext()};
+        public BValue getNext() {
+            if (hasNext()) {
+                return table.getNext();
             }
-            int cursor = this.cursor++;
-            return new BValue[]{new BInteger(cursor), table.getNext()};
+            return null;
         }
 
         @Override

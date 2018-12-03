@@ -39,7 +39,7 @@ function testPassthroughQuery() {
     forever {
         from teacherStream6
         => (Employee[] emp) {
-            foreach e in emp {
+            foreach var e in emp {
                 employeeStream3.publish(e);
             }
         }

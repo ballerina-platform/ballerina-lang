@@ -301,21 +301,6 @@ public class SafeNavigationTest {
     }
 
     @Test
-    public void testCountOnJSON() {
-        BValue[] vals = { JsonParser.parse("\"hello\"") };
-        BValue[] returns = BRunUtil.invoke(result, "testCountOnJSON", vals);
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
-    }
-
-    @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
-    public void testCountOnNullJSON() {
-        BValue[] vals = { JsonParser.parse("\"hello\"") };
-        BRunUtil.invoke(result, "testCountOnNullJSON", vals);
-    }
-
-    @Test
     public void testFunctionInvocOnNullabeType() {
         BValue[] returns = BRunUtil.invoke(result, "testFunctionInvocOnNullabeType");
         Assert.assertTrue(returns[0] instanceof BInteger);

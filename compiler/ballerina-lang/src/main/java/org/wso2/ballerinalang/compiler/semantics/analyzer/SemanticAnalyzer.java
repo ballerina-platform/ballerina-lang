@@ -172,7 +172,6 @@ import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -594,8 +593,74 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    private void handleDeclaredWithVar(BLangVariable variable, BType rhsType, SymbolEnv blockEnv) {
+        if (NodeKind.VARIABLE == variable.getKind()) {
+            BLangSimpleVariable simpleVariable = (BLangSimpleVariable) variable;
+            Name varName = names.fromIdNode(simpleVariable.name);
+            if (varName == Names.IGNORE) {
+                dlog.error(simpleVariable.pos, DiagnosticCode.UNDERSCORE_NOT_ALLOWED);
+                return;
+            }
+
+            simpleVariable.type = rhsType;
+
+            int ownerSymTag = blockEnv.scope.owner.tag;
+            if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
+                // This is a variable declared in a function, an action or a resource
+                // If the variable is parameter then the variable symbol is already defined
+                if (simpleVariable.symbol == null) {
+                    symbolEnter.defineNode(simpleVariable, blockEnv);
+                }
+            }
+        } else if (NodeKind.TUPLE_VARIABLE == variable.getKind()) {
+            BLangTupleVariable tupleVariable = (BLangTupleVariable) variable;
+            if (TypeTags.TUPLE != rhsType.tag) {
+                dlog.error(variable.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR, rhsType);
+                recursivelyDefineVariables(tupleVariable, blockEnv);
+                return;
+            }
+
+            tupleVariable.type = rhsType;
+            if (!(checkTypeAndVarCountConsistency(tupleVariable, (BTupleType) tupleVariable.type, blockEnv))) {
+                return;
+            }
+            symbolEnter.defineNode(tupleVariable, blockEnv);
+        } else if (NodeKind.RECORD_VARIABLE == variable.getKind()) {
+            BLangRecordVariable recordVariable = (BLangRecordVariable) variable;
+            recordVariable.type = rhsType;
+            validateRecordVariable(recordVariable, blockEnv);
+        }
+    }
+
+    private void recursivelyDefineVariables(BLangVariable variable, SymbolEnv blockEnv) {
+        switch (variable.getKind()) {
+            case VARIABLE:
+                Name name = names.fromIdNode(((BLangSimpleVariable) variable).name);
+                if (name == Names.IGNORE) {
+                    return;
+                }
+                variable.type = symTable.semanticError;
+                symbolEnter.defineVarSymbol(variable.pos, variable.flagSet, variable.type, name, blockEnv);
+                break;
+            case TUPLE_VARIABLE:
+                ((BLangTupleVariable) variable).memberVariables.parallelStream()
+                        .forEach(memberVariable -> recursivelyDefineVariables(memberVariable, blockEnv));
+                break;
+            case RECORD_VARIABLE:
+                ((BLangRecordVariable) variable).variableList.parallelStream()
+                        .forEach(value ->recursivelyDefineVariables(value.valueBindingPattern, blockEnv));
+                break;
+        }
+    }
+
     private boolean checkTypeAndVarCountConsistency(BLangTupleVariable varNode) {
-        BTupleType tupleTypeNode;
+        return checkTypeAndVarCountConsistency(varNode, null, env);
+    }
+
+    private boolean checkTypeAndVarCountConsistency(BLangTupleVariable varNode, BTupleType tupleTypeNode,
+                                                    SymbolEnv env) {
+
+        if (tupleTypeNode == null) {
         /*
           This switch block will resolve the tuple type of the tuple variable.
           For example consider the following - (int, string)|(boolean, float) (a, b) = foo();
@@ -604,66 +669,67 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
           Consider anydata (a, b) = foo();
           Here, the type of 'a'and type of 'b' will be both anydata.
          */
-        switch (varNode.type.tag) {
-            case TypeTags.UNION:
-                Set<BType> unionType = types.expandAndGetMemberTypesRecursive(varNode.type);
-                List<BType> possibleTypes = unionType.stream()
-                        .filter(type -> {
-                            if (TypeTags.TUPLE == type.tag &&
-                                    (varNode.memberVariables.size() == ((BTupleType) type).tupleTypes.size())) {
-                                return true;
+            switch (varNode.type.tag) {
+                case TypeTags.UNION:
+                    Set<BType> unionType = types.expandAndGetMemberTypesRecursive(varNode.type);
+                    List<BType> possibleTypes = unionType.stream()
+                            .filter(type -> {
+                                if (TypeTags.TUPLE == type.tag &&
+                                        (varNode.memberVariables.size() == ((BTupleType) type).tupleTypes.size())) {
+                                    return true;
+                                }
+                                return TypeTags.ANY == type.tag || TypeTags.ANYDATA == type.tag;
+                            })
+                            .collect(Collectors.toList());
+
+                    if (possibleTypes.isEmpty()) {
+                        dlog.error(varNode.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR, varNode.type);
+                        return false;
+                    }
+
+                    if (possibleTypes.size() > 1) {
+                        List<BType> memberTupleTypes = new ArrayList<>();
+                        for (int i = 0; i < varNode.memberVariables.size(); i++) {
+                            Set<BType> memberTypes = new OrderedHashSet<>();
+                            for (BType possibleType : possibleTypes) {
+                                if (possibleType.tag == TypeTags.TUPLE) {
+                                    memberTypes.add(((BTupleType) possibleType).tupleTypes.get(i));
+                                } else {
+                                    memberTupleTypes.add(varNode.type);
+                                }
                             }
-                            return TypeTags.ANY == type.tag || TypeTags.ANYDATA == type.tag;
-                        })
-                        .collect(Collectors.toList());
+                            memberTupleTypes.add(new BUnionType(null, memberTypes, false));
+                        }
+                        tupleTypeNode = new BTupleType(memberTupleTypes);
+                        break;
+                    }
 
-                if (possibleTypes.isEmpty()) {
-                    dlog.error(varNode.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR, varNode.type);
-                    return false;
-                }
+                    if (possibleTypes.get(0).tag == TypeTags.TUPLE) {
+                        tupleTypeNode = (BTupleType) possibleTypes.get(0);
+                        break;
+                    }
 
-                if (possibleTypes.size() > 1) {
+                    List<BType> memberTypes = new ArrayList<>();
+                    for (int i = 0; i < varNode.memberVariables.size(); i++) {
+                        memberTypes.add(possibleTypes.get(0));
+                    }
+                    tupleTypeNode = new BTupleType(memberTypes);
+                    break;
+                case TypeTags.ANY:
+                case TypeTags.ANYDATA:
                     List<BType> memberTupleTypes = new ArrayList<>();
                     for (int i = 0; i < varNode.memberVariables.size(); i++) {
-                        Set<BType> memberTypes = new OrderedHashSet<>();
-                        for (BType possibleType : possibleTypes) {
-                            if (possibleType.tag == TypeTags.TUPLE) {
-                                memberTypes.add(((BTupleType) possibleType).tupleTypes.get(i));
-                            } else {
-                                memberTupleTypes.add(varNode.type);
-                            }
-                        }
-                        memberTupleTypes.add(new BUnionType(null, memberTypes, false));
+                        memberTupleTypes.add(varNode.type);
                     }
                     tupleTypeNode = new BTupleType(memberTupleTypes);
                     break;
-                }
-
-                if (possibleTypes.get(0).tag == TypeTags.TUPLE) {
-                    tupleTypeNode = (BTupleType) possibleTypes.get(0);
+                case TypeTags.TUPLE:
+                    tupleTypeNode = (BTupleType) varNode.type;
                     break;
-                }
-
-                List<BType> memberTypes = new ArrayList<>();
-                for (int i = 0; i < varNode.memberVariables.size(); i++) {
-                    memberTypes.add(possibleTypes.get(0));
-                }
-                tupleTypeNode = new BTupleType(memberTypes);
-                break;
-            case TypeTags.ANY:
-            case TypeTags.ANYDATA:
-                List<BType> memberTupleTypes = new ArrayList<>();
-                for (int i = 0; i < varNode.memberVariables.size(); i++) {
-                    memberTupleTypes.add(varNode.type);
-                }
-                tupleTypeNode = new BTupleType(memberTupleTypes);
-                break;
-            case TypeTags.TUPLE:
-                tupleTypeNode = (BTupleType) varNode.type;
-                break;
-            default:
-                dlog.error(varNode.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR, varNode.type);
-                return false;
+                default:
+                    dlog.error(varNode.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR, varNode.type);
+                    return false;
+            }
         }
 
         if (tupleTypeNode.tupleTypes.size() != varNode.memberVariables.size()) {
@@ -674,13 +740,17 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         for (int i = 0; i < varNode.memberVariables.size(); i++) {
             BLangVariable var = varNode.memberVariables.get(i);
             var.type = tupleTypeNode.tupleTypes.get(i);
-            var.accept(this);
+            analyzeNode(var, env);
         }
 
         return true;
     }
 
     private boolean validateRecordVariable(BLangRecordVariable recordVar) {
+        return validateRecordVariable(recordVar, env);
+    }
+
+    private boolean validateRecordVariable(BLangRecordVariable recordVar, SymbolEnv env) {
         BRecordType recordVarType;
         /*
           This switch block will resolve the record type of the record variable.
@@ -1372,10 +1442,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangForeach foreach) {
+        // Check the collection's type.
         typeChecker.checkExpr(foreach.collection, env);
-        foreach.varTypes = types.checkForeachTypes(foreach.collection, foreach.varRefs.size());
+        // Set the type of the foreach node's type node.
+        types.setForeachTypedBindingPatternType(foreach);
+        // Create a new block environment for the foreach node's body.
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(foreach.body, env);
-        handleForeachVariables(foreach, foreach.varTypes, blockEnv);
+        // Check foreach node's variables and set types.
+        handleForeachVariables(foreach, blockEnv);
+        // Analyze foreach node's statements.
         analyzeStmt(foreach.body, blockEnv);
     }
 
@@ -2019,31 +2094,25 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void handleForeachVariables(BLangForeach foreachStmt, List<BType> varTypes, SymbolEnv env) {
-        for (int i = 0; i < foreachStmt.varRefs.size(); i++) {
-            BLangExpression varRef = foreachStmt.varRefs.get(i);
-            // foreach variables supports only simpleVarRef expressions only.
-            if (varRef.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
-                dlog.error(varRef.pos, DiagnosticCode.INVALID_VARIABLE_ASSIGNMENT, varRef);
-                continue;
-            }
-            BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) varRef;
-            simpleVarRef.lhsVar = true;
-            Name varName = names.fromIdNode(simpleVarRef.variableName);
-            if (varName == Names.IGNORE) {
-                simpleVarRef.type = this.symTable.noType;
-                typeChecker.checkExpr(simpleVarRef, env);
-                continue;
-            }
-            // Check variable symbol for existence.
-            BSymbol symbol = symResolver.lookupSymbol(env, varName, SymTag.VARIABLE);
-            if (symbol == symTable.notFoundSymbol) {
-                symbolEnter.defineVarSymbol(simpleVarRef.pos, Collections.emptySet(), varTypes.get(i), varName, env);
-                typeChecker.checkExpr(simpleVarRef, env);
-            } else {
-                dlog.error(simpleVarRef.pos, DiagnosticCode.REDECLARED_SYMBOL, varName);
-            }
+    private void handleForeachVariables(BLangForeach foreachStmt, SymbolEnv blockEnv) {
+        BLangVariable variableNode = (BLangVariable) foreachStmt.variableDefinitionNode.getVariable();
+        // Check whether the foreach node's variables are declared with var.
+        if (foreachStmt.isDeclaredWithVar) {
+            // If the foreach node's variables are declared with var, type is `varType`.
+            handleDeclaredWithVar(variableNode, foreachStmt.varType, blockEnv);
+            return;
         }
+        // If the type node is available, we get the type from it.
+        BType typeNodeType = symResolver.resolveTypeNode(variableNode.typeNode, blockEnv);
+        // Then we need to check whether the RHS type is assignable to LHS type.
+        if (types.isAssignable(foreachStmt.varType, typeNodeType)) {
+            // If assignable, we set types to the variables.
+            handleDeclaredWithVar(variableNode, foreachStmt.varType, blockEnv);
+            return;
+        }
+        // Log an error and define a symbol with the node's type to avoid undeclared symbol errors.
+        dlog.error(variableNode.typeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPES, foreachStmt.varType, typeNodeType);
+        handleDeclaredWithVar(variableNode, typeNodeType, blockEnv);
     }
 
     private void checkRetryStmtValidity(BLangExpression retryCountExpr) {

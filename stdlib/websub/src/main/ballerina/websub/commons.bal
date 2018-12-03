@@ -381,7 +381,7 @@ public function extractTopicAndHubUrls(http:Response response) returns (string, 
         linkHeaderConstituents = linkHeaders;
     }
 
-    foreach link in linkHeaderConstituents {
+    foreach var link in linkHeaderConstituents {
         string[] linkConstituents = link.split(";");
         if (linkConstituents[1] != "") {
             string url = linkConstituents[0].trim();
@@ -617,7 +617,7 @@ function WebSubHub.unregisterTopic(string topic) returns error? {
 # + topic - The topic to which subscribers need to subscribe to, to receive updates for the resource
 public function addWebSubLinkHeader(http:Response response, string[] hubs, string topic) {
     string hubLinkHeader = "";
-    foreach hub in hubs {
+    foreach var hub in hubs {
         hubLinkHeader = hubLinkHeader + "<" + hub + ">; rel=\"hub\", ";
     }
     response.setHeader("Link", hubLinkHeader + "<" + topic + ">; rel=\"self\"");
@@ -641,7 +641,7 @@ type SubscriptionDetails record {
 
 function retrieveSubscriberServiceAnnotations(service serviceType) returns SubscriberServiceConfiguration? {
     reflect:annotationData[] annotationDataArray = reflect:getServiceAnnotations(serviceType);
-    foreach annData in annotationDataArray {
+    foreach var annData in annotationDataArray {
         if (annData.name == ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG && annData.moduleName == WEBSUB_MODULE_NAME) {
             var subscriberServiceAnnotation = trap <SubscriberServiceConfiguration> (annData.value);
             if (subscriberServiceAnnotation is SubscriberServiceConfiguration) {

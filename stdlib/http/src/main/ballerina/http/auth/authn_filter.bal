@@ -143,7 +143,7 @@ function getAuthAnnotation(string annotationModule, string annotationName, refle
         return ();
     }
     reflect:annotationData|() authAnn = ();
-    foreach ann in annData {
+    foreach var ann in annData {
         if (ann.name == annotationName && ann.moduleName == annotationModule) {
             authAnn = ann;
             break;

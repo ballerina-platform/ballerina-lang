@@ -16,6 +16,7 @@
  */
 package org.wso2.ballerinalang.compiler.desugar;
 
+import org.antlr.v4.runtime.misc.OrderedHashSet;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.NodeKind;
@@ -47,7 +48,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -98,6 +101,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -461,20 +465,35 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         BLangSimpleVariableDef outputArrayVarDef = ASTBuilderUtil.createVariableDef(outputLambdaFunc.pos,
                 outputArrayVariable);
         outputLambdaFunc.function.body.addStatement(outputArrayVarDef);
-        // define k, v of `foreach k, v in mArr` expr
-        final List<BLangSimpleVariable> foreachVariables = createForeachVariables(outputLambdaFunc.function);
-        BLangSimpleVarRef indexVarRef = ASTBuilderUtil.createVariableRef(outputLambdaFunc.function.pos,
-                foreachVariables.get(0).symbol);
-        BLangSimpleVarRef mapVarRef = ASTBuilderUtil.createVariableRef(outputLambdaFunc.function.pos,
-                foreachVariables.get(1).symbol);
+
+        // Define `v` of `foreach var v in mArr` expr.
+        final BLangSimpleVariable foreachVariable = createForeachVariables(outputLambdaFunc.function);
+
         // define `map[] events`
         BLangSimpleVariable mapArrayVar =
                 ((BLangSimpleVariable) outputLambdaFunc.getFunctionNode().getParameters().get(0));
 
-        // foreach k, v in events {
-        //     outputEvents[k] = check <T> v;
+        // Note -
+        //
+        // foreach var v in events {
+        //     int length = outputEvents.length()
+        //     outputEvents[length] = check <T> v;
         // }
         BLangBlockStmt foreachBody = ASTBuilderUtil.createBlockStmt(outputLambdaFunc.function.pos);
+
+        // Create a new symbol for the $length$.
+        BVarSymbol lengthSymbol = new BVarSymbol(0, names.fromString("$length$"), this.env.scope.owner.pkgID,
+                symTable.intType, this.env.scope.owner);
+
+        // Note - int $length$ = outputEvents.length();
+        BLangSimpleVariableDef lengthVariableDefinition = createLengthInvocation(outputLambdaFunc.pos,
+                outputArrayVariable.symbol, lengthSymbol);
+
+        // Create new variable references.
+        BLangSimpleVarRef indexVarRef = ASTBuilderUtil.createVariableRef(outputLambdaFunc.function.pos, lengthSymbol);
+        BLangSimpleVarRef mapVarRef = ASTBuilderUtil.createVariableRef(outputLambdaFunc.function.pos,
+                foreachVariable.symbol);
+
         // create `type[i] = checked <type> v;` assignment stmt
         BLangIndexBasedAccess indexAccessExpr = ASTBuilderUtil.createIndexAccessExpr(outputArrayRef, indexVarRef);
         indexAccessExpr.type = outputEventType;
@@ -495,8 +514,18 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         foreach.pos = outputLambdaFunc.function.pos;
         foreach.body = foreachBody;
         foreach.collection = ASTBuilderUtil.createVariableRef(outputLambdaFunc.function.pos, mapArrayVar.symbol);
-        foreach.varRefs.addAll(ASTBuilderUtil.createVariableRefList(outputLambdaFunc.function.pos, foreachVariables));
-        foreach.varTypes = Lists.of(foreachVariables.get(0).type, foreachVariables.get(1).type);
+        foreach.variableDefinitionNode = ASTBuilderUtil.createVariableDef(foreachVariable.pos, foreachVariable);
+        foreach.isDeclaredWithVar = true;
+        foreach.varType = foreachVariable.type;
+        BMapType mapType = new BMapType(TypeTags.RECORD, foreachVariable.type, symTable.mapType.tsymbol);
+        foreach.resultType = mapType;
+        LinkedHashSet<BType> memberTypes = new OrderedHashSet<>();
+        memberTypes.add(mapType);
+        foreach.nillableResultType = new BUnionType(null, memberTypes, true);
+
+        // Add the variable definition to the top of the foreach's body.
+        foreach.body.stmts.add(0, lengthVariableDefinition);
+
         outputLambdaFunc.function.body.stmts.add(foreach);
 
         // pass `T[] outputEvents` created above, to the streaming action
@@ -1863,17 +1892,36 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         }
     }
 
-    private List<BLangSimpleVariable> createForeachVariables(BLangFunction funcNode) {
-        List<BLangSimpleVariable> foreachVariables = new ArrayList<>();
-        final List<BType> varTypes = Lists.of(symTable.intType, createAnydataConstraintMapType());
-        for (int i = 0; i < varTypes.size(); i++) {
-            BType type = varTypes.get(i);
-            String varName = VAR_FOREACH_VAL + i;
-            final BLangSimpleVariable variable = ASTBuilderUtil.createVariable(funcNode.pos, varName, type);
-            foreachVariables.add(variable);
-            defineVariable(variable, funcNode.symbol.pkgID, funcNode.symbol);
-        }
-        return foreachVariables;
+    private BLangSimpleVariable createForeachVariables(BLangFunction funcNode) {
+        BMapType type = createAnydataConstraintMapType();
+        final BLangSimpleVariable variable = ASTBuilderUtil.createVariable(funcNode.pos, VAR_FOREACH_VAL, type);
+        variable.symbol = new BVarSymbol(0, names.fromIdNode(variable.name), funcNode.symbol.pkgID, variable.type,
+                funcNode.symbol);
+        return variable;
+    }
+
+    // Foreach desugar helper method.
+    private BLangSimpleVariableDef createLengthInvocation(DiagnosticPos pos, BVarSymbol collectionSymbol,
+                                                                 BVarSymbol lengthSymbol) {
+        BLangIdentifier lengthIdentifier = ASTBuilderUtil.createIdentifier(pos, "length");
+        BLangSimpleVarRef dataReference = ASTBuilderUtil.createVariableRef(pos, collectionSymbol);
+
+        BLangInvocation lengthInvocation = (BLangInvocation) TreeBuilder.createInvocationNode();
+
+        lengthInvocation.name = lengthIdentifier;
+        lengthInvocation.builtinMethodInvocation = true;
+        lengthInvocation.builtInMethod = BLangBuiltInMethod.LENGTH;
+        lengthInvocation.expr = dataReference;
+        LinkedList<BType> paramTypes = new LinkedList<>();
+        paramTypes.add(collectionSymbol.type);
+        Name lengthMethodName = names.fromBuiltInMethod(BLangBuiltInMethod.LENGTH);
+        lengthInvocation.symbol = symResolver.resolveBuiltinOperator(lengthMethodName, symTable.arrayType);
+        lengthInvocation.type = symTable.intType;
+
+        // Note - int $length$ = $data$.length();
+        BLangSimpleVariable lengthVariable = ASTBuilderUtil.createVariable(pos, "$length$",
+                symTable.intType, lengthInvocation, lengthSymbol);
+        return ASTBuilderUtil.createVariableDef(pos, lengthVariable);
     }
 
     private void defineVariable(BLangSimpleVariable variable, PackageID pkgID, BSymbol owner) {
