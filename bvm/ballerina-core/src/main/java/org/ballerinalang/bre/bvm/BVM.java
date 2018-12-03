@@ -2169,8 +2169,13 @@ public class BVM {
 
                 xmlVal = Optional.of((BXML) sf.refRegs[i]).get();
                 xmlQName = Optional.of((BXMLQName) sf.refRegs[j]).get();
-                xmlVal.setAttribute(xmlQName.getLocalName(), xmlQName.getUri(), xmlQName.getPrefix(),
-                        sf.stringRegs[k]);
+                try {
+                    xmlVal.setAttribute(xmlQName.getLocalName(), xmlQName.getUri(), xmlQName.getPrefix(),
+                            sf.stringRegs[k]);
+                } catch (BallerinaException e) {
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+                    handleError(ctx);
+                }
                 break;
             case InstructionCodes.XMLATTRLOAD:
                 i = operands[0];
@@ -2226,7 +2231,12 @@ public class BVM {
 
                 xmlVal = Optional.of((BXML) sf.refRegs[i]).get();
                 long index = sf.longRegs[j];
-                sf.refRegs[k] = xmlVal.getItem(index);
+                try {
+                    sf.refRegs[k] = xmlVal.getItem(index);
+                } catch (BallerinaException e) {
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+                    handleError(ctx);
+                }
                 break;
             case InstructionCodes.XMLLOAD:
                 i = operands[0];
