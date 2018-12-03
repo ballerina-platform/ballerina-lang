@@ -49,29 +49,29 @@ table<Stock> stocksTable = table {
 };
 
 function testJoinQuery() {
-    //forever {
-    //    from twitterStream window lengthWindow([1]) as tw
-    //    join queryStocksTable(tw.company, 1) as tb
-    //    select tb.symbol, tw.tweet, tb.price
-    //    => (StockWithPrice[] stocks) {
-    //        foreach s in stocks {
-    //            stockWithPriceStream.publish(s);
-    //        }
-    //    }
-    //}
+    forever {
+        from twitterStream window lengthWindow([1]) as tw
+        join queryStocksTable(tw.company, 1) as tb
+        select tb.symbol, tw.tweet, tb.price
+        => (StockWithPrice[] stocks) {
+            foreach s in stocks {
+                stockWithPriceStream.publish(s);
+            }
+        }
+    }
 }
 
 function testOuterJoinQuery() {
-    //forever {
-    //    from twitterStream window lengthWindow([1]) as tw
-    //    full outer join queryStocksTable(tw.company, 1) as tb
-    //    select tb.symbol, tw.tweet, tb.price
-    //    => (StockWithPrice[] stocks) {
-    //        foreach s in stocks {
-    //            stockWithPriceStream.publish(s);
-    //        }
-    //    }
-    //}
+    forever {
+        from twitterStream window lengthWindow([1]) as tw
+        full outer join queryStocksTable(tw.company, 1) as tb
+        select tb.symbol, tw.tweet, tb.price
+        => (StockWithPrice[] stocks) {
+            foreach s in stocks {
+                stockWithPriceStream.publish(s);
+            }
+        }
+    }
 }
 
 function startTableJoinQuery() returns (StockWithPrice[]) {
