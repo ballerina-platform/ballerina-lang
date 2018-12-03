@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
@@ -251,7 +252,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangFunction funcNode) {
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
         analyzeBranch(funcNode.body, funcEnv);
-        funcNode.workers.forEach(worker -> analyzeBranch(worker, funcEnv));
     }
 
     @Override
@@ -603,6 +603,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
+        if (bLangLambdaFunction.function.flagSet.contains(Flag.LAMBDA)) {
+            return;
+        }
+
         analyzeNode(bLangLambdaFunction.function, env);
     }
 
