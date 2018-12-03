@@ -382,18 +382,18 @@ function testObjectAssertionNegative() {
     LeadObject e2 = <LeadObject> p;
 }
 
-//function testStreamAssertionPositive() returns boolean {
-//    stream<int> s1;
-//    any a = s1;
-//    stream s2 = <stream<int>> a;
-//    return s1 === s2;
-//}
-//
-//function testStreamAssertionNegative() {
-//    stream<int> s1;
-//    any a = s1;
-//    stream s2 = <stream<json>> a;
-//}
+function testStreamAssertionPositive() returns boolean {
+    stream<int> s1 = new;
+    any a = s1;
+    stream<any> s2 = <stream<int>> a;
+    return s1 === s2;
+}
+
+function testStreamAssertionNegative() {
+    stream<int> s1 = new;
+    any a = s1;
+    stream<json> s2 = <stream<json>> a;
+}
 
 function testTypedescAssertionPositive() returns boolean {
     typedesc t1 = int;
