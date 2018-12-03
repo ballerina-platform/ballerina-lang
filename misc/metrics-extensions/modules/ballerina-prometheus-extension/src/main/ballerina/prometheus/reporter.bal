@@ -59,7 +59,9 @@ service PrometheusReporter on prometheusListener {
             if (metric.metricType.equalsIgnoreCase(METRIC_TYPE_GAUGE) && metric.summary !== ()){
                 map<string> tags = metric.tags;
                 observe:Snapshot[]? summaries = metric.summary;
-                if (summaries is observe:Snapshot[]) {
+                if (summaries is ()) {
+                    payload += "\n";
+                } else {
                     foreach var aSnapshot in summaries {
                         tags[EXPIRY_TAG] = <string>aSnapshot.timeWindow;
                         payload += generateMetricHelp(qualifiedMetricName, "A Summary of " +  qualifiedMetricName + " for window of "
@@ -77,8 +79,6 @@ service PrometheusReporter on prometheusListener {
                         _ = tags.remove(EXPIRY_TAG);
                         _ = tags.remove(PERCENTILE_TAG);
                     }
-                } else if (summaries is ()) {
-                        payload += "\n";
                 }
             }
         }

@@ -1,6 +1,6 @@
 import ballerina/io;
 
-// Defines an object called 'Person'. It has a constructor that can be used to initialize the object. You can directly refer to object fields as constructor params.
+// Defines an object called 'Person'. It has a constructor that can be used to initialize the object.
 type Person object {
     public int age;
     public string name;
@@ -9,10 +9,12 @@ type Person object {
     private string email = "default@abc.com";
     private int[] marks;
 
-    new(age, name = "John", string firstname,
+    function __init(int age, string name = "John", string firstname,
         string lastname = "Doe", int... scores) {
-        fullName = firstname + " " + lastname;
-        marks = scores;
+        self.age = age;
+        self.name = name;
+        self.fullName = firstname + " " + lastname;
+        self.marks = scores;
     }
 };
 
