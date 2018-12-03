@@ -62,7 +62,7 @@ public class BallerinaStreamsV2UniqueLengthWindowTest {
         Assert.assertEquals(((BInteger) employee1.get("count")).intValue(), 3);
     }
 
-    @Test(description = "Test uniqueLength window query", enabled = false)
+    @Test(description = "Test uniqueLength window query")
     public void testUniqueLengthQuery2() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result2, "startUniqueLengthwindowTest2");
         System.setProperty("enable.siddhiRuntime", "true");
