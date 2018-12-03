@@ -437,7 +437,7 @@ function testJsonToStructConversionStructWithConstrainedMap () returns (string, 
                  parent:{
                             name:"Parent",
                             age:50,
-                            parent:{},
+                            parent:(),
                             address:{},
                             info:{},
                             marks:[],
@@ -481,7 +481,7 @@ function testJsonToStructConversionStructWithConstrainedMapNegative () returns (
                  parent:{
                             name:"Parent",
                             age:50,
-                            parent:{},
+                            parent:(),
                             address:{},
                             info:{},
                             marks:[],

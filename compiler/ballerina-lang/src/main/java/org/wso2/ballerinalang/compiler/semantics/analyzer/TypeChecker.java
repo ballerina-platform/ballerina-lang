@@ -2050,6 +2050,8 @@ public class TypeChecker extends BLangNodeVisitor {
             requiredParamsCount = ((BInvokableSymbol) iExpr.symbol).params.size();
         }
 
+        iExpr.requiredArgs = new ArrayList<>();
+
         // Split the different argument types: required args, named args and rest args
         int i = 0;
         BLangExpression vararg = null;
@@ -2595,6 +2597,7 @@ public class TypeChecker extends BLangNodeVisitor {
                         break;
                     }
                 }
+                // TODO: 11/30/18 FIX ME!!! https://github.com/ballerina-platform/ballerina-lang/issues/9386
                 actualType = symTable.jsonType;
                 break;
             case TypeTags.XML:

@@ -40,7 +40,7 @@ type Info record {
 
 function testStructWithIncompatibleTypeToJson () returns json {
     Info info = {};
-    var j = <json>info;
+    var j = json.create(info);
     if (j is json) {
         return j;
     } else {

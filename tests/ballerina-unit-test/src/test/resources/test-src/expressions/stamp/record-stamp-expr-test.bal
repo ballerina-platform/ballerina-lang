@@ -182,6 +182,15 @@ function getTeacherRecord() returns Teacher {
     return t1;
 }
 
+function stampFunctionReferenceWithArgs() returns Employee {
+    Employee e = Employee.stamp(getTeacherRecordWithArgs(23));
+    return e;
+}
+
+function getTeacherRecordWithArgs(int i) returns Teacher {
+    Teacher t1 = { name: "Raja", age: i, status: "single", batch: "LK2014", school: "Hindu College" };
+    return t1;
+}
 
 function stampOpenRecordToTypeClosedRecord() returns NonAcademicStaff|error  {
     Teacher teacher = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
@@ -333,6 +342,37 @@ function stampRecordWithNilValuesV2() returns Employee {
 
     EmployeeWithNil e = EmployeeWithNil.stamp(t1);
     return e;
+}
+
+type ComplexPerson record {
+    string name = "";
+    int age = 0;
+    ComplexPerson? parent = ();
+    json info?;
+    map<anydata>? address?;
+    int[][]? marks?;
+    anydata a = ();
+    float score = 0.0;
+    boolean alive = false;
+    ComplexPerson[]? children?;
+    !...
+};
+
+function stampComplexRecordToJSON() returns map<anydata>|error {
+    int[] value = [67, 38, 91];
+    int[] value2 = [55, 33, 44];
+
+
+    ComplexPerson p = {name:"Child",
+        age:25,
+        parent:{name:"Parent", age:50},
+        address:{"city":"Colombo", "country":"SriLanka"},
+        info:{status:"single"},
+        marks:[value, value2]
+    };
+
+    map<anydata>|error m = map<anydata>.stamp(p);
+    return m;
 }
 
 //------------------------------- Optional field related scenarios ----------------------------------------------

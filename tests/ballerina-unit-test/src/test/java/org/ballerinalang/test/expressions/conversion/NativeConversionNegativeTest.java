@@ -31,7 +31,6 @@ import org.testng.annotations.Test;
  *
  * @since 0.985.0
  */
-@Test(groups = "broken")
 public class NativeConversionNegativeTest {
 
     private CompileResult negativeResult;
@@ -51,7 +50,7 @@ public class NativeConversionNegativeTest {
 
     @Test(description = "Test converting a struct with map of blob to a JSON",
           expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*cannot convert 'Info' to type 'json'.*")
+          expectedExceptionsMessageRegExp = ".*'Info' value cannot be stamped as 'json'.*")
     public void testStructWithIncompatibleTypeToJson() {
         BRunUtil.invoke(negativeResult, "testStructWithIncompatibleTypeToJson");
     }
@@ -64,19 +63,13 @@ public class NativeConversionNegativeTest {
 
     @Test(description = "Test create function with multiple arguments")
     public void testFloatToIntWithMultipleArguments() {
-        Assert.assertEquals(negativeCompileResult.getErrorCount(), 6);
+        Assert.assertEquals(negativeCompileResult.getErrorCount(), 4);
         BAssertUtil.validateError(negativeCompileResult, 0, "too many arguments in call to 'create()'", 19, 12);
     }
 
     @Test(description = "Test create function with no arguments")
     public void testToIntWithNoArguments() {
         BAssertUtil.validateError(negativeCompileResult, 2, "not enough arguments in call to 'create()'", 24, 12);
-    }
-
-    @Test(description = "Test conversions not supported")
-    public void testAnyToInt() {
-        BAssertUtil.validateError(negativeCompileResult, 4, "incompatible types: 'any' cannot be converted to 'int'",
-                                  29, 12);
     }
 }
 
