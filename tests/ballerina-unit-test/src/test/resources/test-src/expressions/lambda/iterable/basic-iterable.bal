@@ -82,7 +82,7 @@ function testBasicArray2(string[] values) returns string {
 
     index = 0;
     values.map(function (string s) returns string {
-                    var value = string.create(index) + s;
+                    var value = string.convert(index) + s;
                     index += 1;
                     return value;
                })
@@ -173,7 +173,7 @@ function xmlTest() returns (int, int, map<any>) {
                  .map(function (xml|string x) returns (string, xml) {
                             index += 1;
                             if x is xml {
-                                return (string.create(index), x);
+                                return (string.convert(index), x);
                             }
                             return ("", xml ` `);
                       });

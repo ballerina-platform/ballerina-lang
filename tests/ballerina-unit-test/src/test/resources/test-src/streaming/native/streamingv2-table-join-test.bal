@@ -110,7 +110,7 @@ function tableJoinFunc() {
                 result[i] = <map<anydata>>map<anydata>.convert(r);
             int i = 0;
             foreach var r in queryStocksTable(<string>s.data["twitterStream.company"], 1) {
-                result[i] = <map<anydata>>map<anydata>.create(r);
+                result[i] = <map<anydata>>map<anydata>.convert(r);
                 i += 1;
             }
             return result;

@@ -1472,7 +1472,7 @@ function testToJsonAndIterate() returns (json, int)|error {
     json result = getJsonConversionResult(selectRet);
     json j = [];
     int i = 0;
-    foreach var row in check json[].create(result) {
+    foreach var row in check json[].convert(result) {
         j[i] = row;
         i += 1;
     }
