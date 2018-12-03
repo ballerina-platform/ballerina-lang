@@ -73,7 +73,6 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -267,7 +266,7 @@ public class IterableCodeDesugar {
         foreachStmt.varType = paramType;
         BMapType mapType = new BMapType(TypeTags.RECORD, paramType, symTable.mapType.tsymbol);
         foreachStmt.resultType = mapType;
-        LinkedHashSet<BType> memberTypes = new OrderedHashSet<>();
+        OrderedHashSet<BType> memberTypes = new OrderedHashSet<>();
         memberTypes.add(mapType);
         foreachStmt.nillableResultType = new BUnionType(null, memberTypes, true);
 
@@ -322,7 +321,7 @@ public class IterableCodeDesugar {
         foreachStmt.varType = paramType;
         BMapType mapType = new BMapType(TypeTags.RECORD, paramType, symTable.mapType.tsymbol);
         foreachStmt.resultType = mapType;
-        LinkedHashSet<BType> memberTypes = new OrderedHashSet<>();
+        OrderedHashSet<BType> memberTypes = new OrderedHashSet<>();
         memberTypes.add(mapType);
         foreachStmt.nillableResultType = new BUnionType(null, memberTypes, true);
 

@@ -205,7 +205,6 @@ PIPE        : '|' ;
 EQUAL_GT    : '=>' ;
 ELVIS       : '?:' ;
 SYNCRARROW  : '->>' ;
-UNDERSCORE  : '_' ;
 
 // Compound Assignment operators.
 

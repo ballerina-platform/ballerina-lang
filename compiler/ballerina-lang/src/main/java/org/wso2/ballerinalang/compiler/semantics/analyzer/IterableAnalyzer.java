@@ -46,7 +46,6 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 /**
  * {@code {@link IterableAnalyzer}} validates iterable collection related semantics.
@@ -362,7 +361,7 @@ public class IterableAnalyzer {
                 logNotEnoughVariablesError(op, 1);
                 return Lists.of(symTable.semanticError);
             } else if (op.arity == 1) {
-                Set<BType> types = new OrderedHashSet<>();
+                OrderedHashSet<BType> types = new OrderedHashSet<>();
                 types.add(symTable.xmlType);
                 types.add(symTable.stringType);
                 return Lists.of(new BUnionType(null, types, false));
