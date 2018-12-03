@@ -30,7 +30,6 @@ import org.testng.annotations.Test;
 /**
  * Test class for runtime package.
  */
-@Test(groups = {"broken"})
 public class RuntimeTest {
 
     private CompileResult compileResult;
@@ -77,7 +76,7 @@ public class RuntimeTest {
         Assert.assertEquals(returns[0].stringValue(), expectedValue);
     }
 
-    @Test
+    @Test (groups = "broken")
     public void testGetCallStack() {
         BValue[] returns = BRunUtil.invoke(errorResult, "testGetCallStack");
         Assert.assertEquals(returns.length, 4);
@@ -91,7 +90,7 @@ public class RuntimeTest {
                 "fileName:\"runtime-error.bal\", lineNumber:4}");
     }
 
-    @Test
+    @Test (groups = "broken")
     public void testErrorStackFrame() {
         BValue[] returns = BRunUtil.invoke(errorResult, "testErrorStackFrame");
         Assert.assertEquals(returns.length, 1);
