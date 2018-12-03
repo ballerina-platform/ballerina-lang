@@ -28,5 +28,6 @@ function testFunc() {
     test:assertEquals(outputs[5], "Invalid map insertion: modification not allowed on frozen value");
     test:assertEquals(outputs[6], "'freeze()' successful for m3");
     test:assertEquals(outputs[7], "'freeze()' failed for m4: ");
-    //test:assertEquals(outputs[8], "'freeze()' not allowed on 'Employee'");
+    string output8 = <string> outputs[8];
+    test:assertTrue(output8.hasPrefix("'freeze()' not allowed on '") && output8.hasSuffix("Employee'"));
 }
