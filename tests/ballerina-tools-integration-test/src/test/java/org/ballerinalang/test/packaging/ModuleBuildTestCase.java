@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Map;
 
 /**
@@ -200,6 +201,42 @@ public class ModuleBuildTestCase extends BaseTest {
         balClient.runMain("build", new String[0], envVariables, new String[0], new LogLeecher[]{clientLeecher},
                           projectPath.toString());
         clientLeecher.waitForText(3000);
+    }
+
+    @Test(description = "Test building a module which has xml content in the test package")
+    public void testBuildWithXML() throws BallerinaTestException, IOException {
+        Path projectPath = tempProjectDirectory.resolve("sixthTestProject");
+        initProject(projectPath, SINGLE_PKG_PROJECT_OPTS);
+
+        // Replace the content of the test file
+        String testContent = "import ballerina/test;\n" +
+                "import ballerina/io;\n" +
+                "\n" +
+                "xmlns \"http://ballerina.com/aa\" as ns0;\n" +
+                "\n" +
+                "# Test function\n" +
+                "\n" +
+                "@test:Config\n" +
+                "function testFunction () {\n" +
+                "    io:println(\"I'm in test function!\");\n" +
+                "    test:assertTrue(true , msg = \"Failed!\");\n" +
+                "\n" +
+                "    xmlns \"http://ballerina.com/bb\" as ns1;\n" +
+                "    xmlns \"http://ballerina.com/default\";\n" +
+                "\n" +
+                "    io:println(ns0:foo);\t\n" +
+                "}\n";
+
+        Files.write(projectPath.resolve("foo").resolve("tests").resolve("main_test.bal"), testContent.getBytes(),
+                    StandardOpenOption.TRUNCATE_EXISTING);
+
+        balClient.runMain("build", new String[0], envVariables, new String[0], new LogLeecher[]{},
+                          projectPath.toString());
+
+        Path genPkgPath = Paths.get(ProjectDirConstants.DOT_BALLERINA_DIR_NAME,
+                                    ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, ORG_NAME, "foo", VERSION);
+        Assert.assertTrue(Files.exists(projectPath.resolve(genPkgPath).resolve("foo.zip")));
+        Assert.assertTrue(Files.exists(projectPath.resolve("target").resolve("foo.balx")));
     }
 
     /**

@@ -1214,6 +1214,18 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
         BLangInvocation invocation = (BLangInvocation) window.getFunctionInvocation();
 
+        //converting the window parameters into an array of parameters
+        BLangArrayLiteral windowParamArrExpr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
+        windowParamArrExpr.exprs = new ArrayList<>();
+        windowParamArrExpr.type = symTable.anyType;
+
+        for (BLangExpression expression : invocation.argExprs) {
+            windowParamArrExpr.exprs.add(expression);
+        }
+
+        invocation.argExprs.clear();
+        invocation.argExprs.add(windowParamArrExpr);
+
         convertFieldAccessArgsToStringLiteral(invocation);
 
         //checks for the symbol, if not exists, then set the pkgAlias to STREAMS_STDLIB_PACKAGE_NAME
