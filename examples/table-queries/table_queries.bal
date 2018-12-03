@@ -153,12 +153,13 @@ public function main() {
     printTable(queryStmt, "orderDetailsWithFilter: ", orderDetailsWithFilter);
 }
 
-function printTable(string stmt, string tableName, table returnedTable) {
-    var retData = <json>returnedTable;
+function printTable(string stmt, string tableName, table<anydata> returnedTable) returns () {
+    var retData = json.create(returnedTable);
     io:println(stmt);
     io:print(tableName);
-    match retData {
-        json jsonRes => io:println(io:sprintf("%s", jsonRes));
-        error e => io:println("Error in table to json conversion");
+    if (retData is json) {
+        io:println(io:sprintf("%s", retData));
+    } else if (retData is error) {
+        io:println("Error in table to json conversion");
     }
 }

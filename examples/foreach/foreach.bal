@@ -24,19 +24,17 @@ public function main() {
         if (j is string) {
             io:println("string value: ", j);
         } else {
-            // Json is a union type for () or null | int | float | decimal | string | json[] | map<json>,
-            // thus json array and int will be matched.
+            // JSON is a union type for () or null | int | float | decimal | string | json[] | map<json>,
+            // thus json array and int will be matched. `j` in else block is type `anydata`.
             io:println("non-string value: ", j);
         }
     }
 
     io:println("\nIterating over a json array:-");
     // To Iterate over a JSON array, you need to first cast it into an array of json (`json[]`).
-    json[]|error colors = trap <json[]>apple.colors;
-    if (colors is json[]) {
-        foreach i, j in colors {
-            io:println("color ", i, ": ", j);
-        }
+    json[] colors = <json[]>apple.colors;
+    foreach i, j in colors {
+        io:println("color ", i, ": ", j);
     }
 
     io:println("\nIterating over an xml:-");
