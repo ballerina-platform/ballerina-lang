@@ -19,7 +19,9 @@ package org.ballerinalang.test.streaming.negative;
 
 import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -46,13 +48,11 @@ public class IncompatibleArgsInWindowTest {
                 BCompileUtil.compile("test-src/streaming/negative/incompatible-return-type-window-negative-test.bal");
     }
 
-    @Test(description = "Checks if the args of window functions have correct types")
+    @Test(description = "Checks if the args of window functions have correct types", expectedExceptions =
+            BLangRuntimeException.class, expectedExceptionsMessageRegExp = ".*time window expects an int parameter.*")
     public void testArgTypes() {
+        BRunUtil.invoke(incompatibleArgsResult, "startTimeWindowTest");
         System.setProperty("enable.siddhiRuntime", "true");
-        Assert.assertEquals(incompatibleArgsResult.getErrorCount(), 1);
-        BAssertUtil.validateError(incompatibleArgsResult, 0,
-                                  "incompatible types: expected 'any[]', found 'string'",
-                                  62, 58);
     }
 
     @Test(description = "Checks whether the window function exists or not")
