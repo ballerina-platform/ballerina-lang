@@ -79,4 +79,19 @@ public class WorkerSyncSendTest {
         Assert.assertTrue(returns[0] instanceof BError);
         Assert.assertEquals(((BError) returns[0]).reason, "error3");
     }
+
+    @Test
+    public void panicAfterSendTest() {
+
+        Exception expectedException = null;
+        try {
+            BRunUtil.invoke(result, "panicTest");
+        } catch (Exception e) {
+            expectedException = e;
+        }
+        Assert.assertNotNull(expectedException);
+        String result =
+                "error: error3 {\"message\":\"msg3\"}\n" + "\tat $lambda$14(sync-send.bal:233)";
+        Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
+    }
 }

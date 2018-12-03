@@ -183,7 +183,7 @@ function errorResult() returns error? {
                     map<string> reason = { k1: "error3" };
                     map<string> details = { message: "msg3" };
                     error er3 = error(reason.k1, details);
-                    return error;
+                    return er3;
                 }
                 foreach i in 1 ... 5 {
                                 append4 = append4 + "w33";
@@ -197,3 +197,47 @@ function errorResult() returns error? {
 }
 
 
+function panicTest() returns error? {
+    worker w1 returns error? {
+         int a = 10;
+         var result = a ->> w2;
+         result = a ->> w3;
+
+         result = a ->> w2;
+          result = a ->> w3;
+
+
+        return result;
+        }
+
+       worker w2 {
+         int b = 15;
+         runtime:sleep(10);
+
+         b -> w3;
+         b = <- w1;
+         var result = b ->> w3;
+
+         b = <- w1;
+       }
+
+       worker w3 returns string {
+                int b;
+                b = <- w2;
+
+                b = <- w1;
+                b = <- w2;
+                if (b > 0) {
+                    map<string> reason = { k1: "error3" };
+                    map<string> details = { message: "msg3" };
+                    error er3 = error(reason.k1, details);
+                    panic er3;
+                }
+
+                b = <- w1;
+                return "success";
+              }
+
+       error? w1Result = wait w1;
+       return w1Result;
+}
