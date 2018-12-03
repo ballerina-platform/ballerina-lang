@@ -24,7 +24,7 @@ public class WorkerSendInsAttributeInfo implements AttributeInfo {
 
     // Index to a UTF8CPEntry
     private int attributeNameIndex;
-    public String[] sendsIns;
+    public String[] sendIns;
 
     public WorkerSendInsAttributeInfo(int attributeNameIndex) {
 
@@ -33,7 +33,7 @@ public class WorkerSendInsAttributeInfo implements AttributeInfo {
 
     public String[] getWorkerSendIns() {
 
-        return sendsIns;
+        return sendIns;
     }
 
     @Override

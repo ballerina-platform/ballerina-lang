@@ -877,9 +877,11 @@ public class BVM {
 
         SafeStrandCallback strandCallback = new SafeStrandCallback(callableUnitInfo.getRetParamTypes()[0],
                 strand.respCallback.getWorkerDataChannels());
-        WorkerSendInsAttributeInfo sendInAttr =
-                (WorkerSendInsAttributeInfo) callableUnitInfo.getAttributeInfo(AttributeInfo.Kind.WORKER_SEND_INS);
-        strandCallback.sendIns = sendInAttr.sendsIns;
+        if (callableUnitInfo.workerSendInChannels == null) {
+            callableUnitInfo.workerSendInChannels =
+                    ((WorkerSendInsAttributeInfo) callableUnitInfo.getAttributeInfo(AttributeInfo.Kind.WORKER_SEND_INS)).sendIns;
+        }
+        strandCallback.sendIns = callableUnitInfo.workerSendInChannels;
         Strand calleeStrand = new Strand(strand.programFile, callableUnitInfo.getName(),
                 strand.globalProps, strandCallback);
         calleeStrand.pushFrame(df);

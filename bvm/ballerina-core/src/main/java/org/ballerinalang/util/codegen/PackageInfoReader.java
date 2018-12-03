@@ -967,10 +967,10 @@ public class PackageInfoReader {
             case WORKER_SEND_INS:
                 WorkerSendInsAttributeInfo workerSendInsAttrInfo = new WorkerSendInsAttributeInfo(attribNameCPIndex);
                 int sendInsCount = dataInStream.readShort();
-                workerSendInsAttrInfo.sendsIns = new String[sendInsCount];
+                workerSendInsAttrInfo.sendIns = new String[sendInsCount];
                 for (int i = 0; i < sendInsCount; i++) {
                     UTF8CPEntry stringCPEntry = (UTF8CPEntry) constantPool.getCPEntry(dataInStream.readInt());
-                    workerSendInsAttrInfo.sendsIns[i] = stringCPEntry.getValue();
+                    workerSendInsAttrInfo.sendIns[i] = stringCPEntry.getValue();
                 }
                 return workerSendInsAttrInfo;
             case LINE_NUMBER_TABLE_ATTRIBUTE:
