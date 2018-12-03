@@ -51,12 +51,12 @@ public class StartSpan extends BlockingNativeCallableUnit {
         int parentSpanId = (int) context.getIntArgument(0);
         if (parentSpanId < -1) {
             context.setReturnValues(Utils
-                    .createErrorStruct(context, "The given parent span ID " + parentSpanId + " is invalid."));
+                    .createError(context, "The given parent span ID " + parentSpanId + " is invalid."));
         } else {
             int spanId = OpenTracerBallerinaWrapper.getInstance()
                     .startSpan(spanName, Utils.toStringMap(tags), parentSpanId, context);
             if (spanId == -1) {
-                context.setReturnValues(Utils.createErrorStruct(context,
+                context.setReturnValues(Utils.createError(context,
                         "No parent span for ID " + parentSpanId + " found. Please recheck the parent span Id"));
             }
             context.setReturnValues(new BInteger(spanId));
