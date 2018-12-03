@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.test.types.json;
 
-import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -34,7 +34,6 @@ import org.testng.annotations.Test;
 /**
  * Test cases for constraining json types with open records.
  */
-@Test(groups = {"broken"})
 public class OpenRecordConstrainedJSONTest {
 
     private CompileResult compileResult;
@@ -46,47 +45,39 @@ public class OpenRecordConstrainedJSONTest {
         negativeResult = BCompileUtil.compile("test-src/types/jsontype/open_record_constrained_json_negative.bal");
     }
 
-    // TODO: Fix this test if constraining using open records is supported
     @Test(description = "Test basic json struct constraint")
     public void testConstrainedJSONNegative() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 9);
+        Assert.assertEquals(negativeResult.getErrorCount(), 7);
 
+        int index = 0;
         // testConstrainingUsingRecordWithIncompatibleRestField
-        BAssertUtil.validateError(negativeResult, 0,
-                                  "incompatible types: 'json' cannot be constrained with 'InvalidPerson'", 22, 5);
-        BAssertUtil.validateError(negativeResult, 1, "invalid literal for type 'other'", 22, 29);
+        BAssertUtil.validateError(negativeResult, index++,
+                                  "incompatible types: 'json' cannot be constrained with 'InvalidPerson'", 23, 5);
+        BAssertUtil.validateError(negativeResult, index++, "invalid literal for type 'other'", 23, 29);
 
         // testJsonInitializationWithIncompatibleRestField
-        BAssertUtil.validateError(negativeResult, 2, "incompatible types: expected 'string', found 'float'", 26, 78);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'string', found 'float'", 27,
+                                  78);
 
         // testAssigningIncompatibleRestField
-        BAssertUtil.validateError(negativeResult, 3, "incompatible types: expected 'string', found 'float'", 33, 16);
+//        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'string', found 'float'",
+// 34, 16);
 
-        // tesInvalidStructFieldConstraintRhs
-        BAssertUtil.validateError(negativeResult, 2, "undefined field 'firstName' in struct 'Person'", 28, 17);
+        // tesInitializationWithInvalidNestedRecord
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'string', found 'int'", 71,
+                                  111);
 
-        // TODO: testInvalidStructConstraintInPkg
+        // testConstrainedJSONArrayToConstraintJsonArrayStamp
+        BAssertUtil.validateError(negativeResult, index++,
+                                  "incompatible stamp type: type 'json<Person>[]' cannot be stamped as type " +
+                                          "'json<Student>[]'",
+                                  76, 14);
+        BAssertUtil.validateError(negativeResult, index++, "function invocation on type 'typedesc' is not supported",
+                                  76, 14);
 
-        // testConstraintJSONIndexing
-        BAssertUtil.validateError(negativeResult, 3, "undefined field 'bus' in struct 'Student'", 34, 12);
-
-        // tesInvalidNestedStructFieldAccess
-        BAssertUtil.validateError(negativeResult, 4, "undefined field 'foo' in struct 'PhoneNumber'", 58, 14);
-
-        // tesInvalidNestedStructFieldIndexAccess
-        BAssertUtil.validateError(negativeResult, 5, "undefined field 'bar' in struct 'PhoneNumber'", 63, 14);
-
-        // tesInitializationWithInvalidNestedStruct
-        BAssertUtil.validateError(negativeResult, 6, "undefined field 'foo' in struct 'PhoneNumber'", 67, 107);
-
-        BAssertUtil.validateError(negativeResult, 7,
-                                  "incompatible types: 'json<Person>[]' cannot be converted to 'json<Student>[]'", 72,
-                                  14);
-
-        BAssertUtil.validateError(negativeResult, 8, "incompatible types: expected 'json', found 'blob[]'", 78, 14);
+        BAssertUtil.validateError(negativeResult, index, "incompatible types: expected 'json', found 'byte[]'", 82, 14);
     }
 
-    // disabled due to json to string conversion fails
     @Test(description = "Test basic json struct constraint")
     public void testStructConstraint() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJsonStructConstraint");
@@ -146,30 +137,31 @@ public class OpenRecordConstrainedJSONTest {
         Assert.assertEquals(compileResult.getWarnCount(), 0);
         Assert.assertEquals(compileResult.getErrorCount(), 2);
         Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(),
-                            "undefined field 'firstname' in struct 'structdef:Person'");
+                            "undefined field 'firstname' in record 'structdef:Person'");
         Assert.assertEquals(compileResult.getDiagnostics()[1].getMessage(),
-                            "undefined field 'firstname' in struct 'structdef:Person'");
+                            "undefined field 'firstname' in record 'structdef:Person'");
     }
 
     @Test(description = "Test trivial JSON return.")
     public void testGetPlainJson() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetPlainJson");
         Assert.assertTrue(returns[0] instanceof BMap);
-        Assert.assertEquals(returns[0].stringValue(), "{\"firstName\":\"John Doe\",\"age\":30,\"address\":\"London\"}");
+        Assert.assertEquals(returns[0].stringValue(),
+                            "{\"firstName\":\"John Doe\", \"age\":30, \"address\":\"London\"}");
     }
 
     @Test(description = "Test trivial Constraint JSON return.")
     public void testGetConstraintJson() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetConstraintJson");
         Assert.assertTrue(returns[0] instanceof BMap);
-        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"John Doe\",\"age\":30,\"address\":\"London\"}");
+        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"John Doe\", \"age\":30, \"address\":\"London\"}");
     }
 
     @Test(description = "Test casting constraint JSON to an unconstrained JSON.")
     public void testConstraintJSONToJSONCast() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testConstraintJSONToJSONCast");
         Assert.assertTrue(returns[0] instanceof BMap);
-        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"John Doe\",\"age\":30,\"address\":\"London\"}");
+        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"John Doe\", \"age\":30, \"address\":\"London\"}");
     }
 
     @Test
@@ -177,8 +169,8 @@ public class OpenRecordConstrainedJSONTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testContrainingWithNestedStructs");
 
         Assert.assertTrue(returns[0] instanceof BMap);
-        Assert.assertEquals(returns[0].stringValue(), "{\"first_name\":\"John\",\"last_name\":\"Doe\",\"age\":30," +
-                "\"address\":{\"phoneNumber\":{\"number\":\"1234\"},\"street\":\"York St\"}}");
+        Assert.assertEquals(returns[0].stringValue(), "{\"first_name\":\"John\", \"last_name\":\"Doe\", \"age\":30, " +
+                "\"address\":{\"phoneNumber\":{\"number\":\"1234\"}, \"street\":\"York St\"}}");
 
         Assert.assertTrue(returns[1] instanceof BString);
         Assert.assertEquals(returns[1].stringValue(), "1234");
@@ -191,8 +183,8 @@ public class OpenRecordConstrainedJSONTest {
     public void testJSONToConstraintJsonUnsafeCast() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJSONToConstraintJsonUnsafeCast");
         Assert.assertNotNull(returns[0]);
-        String errorMsg = ((BMap<String, BValue>) returns[0]).get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
-        Assert.assertEquals(errorMsg, "'json' cannot be cast to 'json<Person>'");
+        String errorMsg = ((BError) returns[0]).reason;
+        Assert.assertEquals(errorMsg, "incompatible stamp operation: 'json' value cannot be stamped as 'json<Person>'");
     }
 
     @Test(description = "Test JSON to Constaint unsafe cast positive.")
@@ -210,11 +202,8 @@ public class OpenRecordConstrainedJSONTest {
     public void testConstraintJSONToConstraintJsonCast() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testConstraintJSONToConstraintJsonCast");
         Assert.assertNotNull(returns[0]);
-
-        // TODO: in the resulting json, "class" field should not be visible.
-        // This test case should be updated once the https://github.com/ballerinalang/ballerina/issues/4252
         Assert.assertEquals(returns[0].stringValue(),
-                            "{\"name\":\"John Doe\",\"age\":30,\"address\":\"Colombo\",\"class\":\"5\"}");
+                            "{\"name\":\"John Doe\", \"age\":30, \"address\":\"Colombo\", \"class\":\"5\"}");
     }
 
     @Test(description = "Test Constaint JSON to Constaint JSON unsafe cast postive scenario.")
@@ -222,69 +211,72 @@ public class OpenRecordConstrainedJSONTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testConstraintJSONToConstraintJsonUnsafePositiveCast");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(),
-                            "{\"name\":\"John Doe\",\"age\":30,\"address\":\"Colombo\",\"class\":\"5\"}");
+                            "{\"name\":\"John Doe\", \"age\":30, \"address\":\"Colombo\", \"class\":\"5\"}");
     }
 
     @Test(description = "Test Constaint JSON to Constaint JSON unsafe cast negative scenario.")
     public void testConstraintJSONToConstraintJsonUnsafeNegativeCast() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testConstraintJSONToConstraintJsonUnsafeNegativeCast");
         Assert.assertNotNull(returns[0]);
-        String errorMsg = ((BMap<String, BValue>) returns[0]).get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
+        String errorMsg = ((BError) returns[0]).reason;
         Assert.assertEquals(errorMsg, "'json<Employee>' cannot be cast to 'json<Student>'");
     }
 
     @Test
     public void testJSONArrayToConstraintJsonArrayCastPositive() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testJSONArrayToConstraintJsonArrayCastPositive");
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testJSONArrayToConstraintJsonArrayCastPositive");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(),
-                            "[{\"name\":\"John Doe\",\"age\":30,\"address\":\"Colombo\",\"class\":\"5\"}]");
+                            "[{\"name\":\"John Doe\", \"age\":30, \"address\":\"Colombo\", \"class\":\"5\"}]");
     }
 
     @Test
     public void testJSONArrayToConstraintJsonArrayCastNegative() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJSONArrayToConstraintJsonArrayCastNegative");
         Assert.assertNotNull(returns[0]);
-        String errorMsg = ((BMap<String, BValue>) returns[0]).get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
-        Assert.assertEquals(errorMsg, "'json[]' cannot be cast to 'json<Student>[]'");
+        String errorMsg = ((BError) returns[0]).reason;
+        Assert.assertEquals(errorMsg,
+                            "incompatible stamp operation: 'json[]' value cannot be stamped as 'json<Student>[]'");
     }
 
     @Test
     public void testJSONArrayToCJsonArrayCast() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testJSONArrayToCJsonArrayCast");
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testJSONArrayToCJsonArrayCast");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(),
-                            "[{\"name\":\"John Doe\",\"age\":30,\"address\":\"London\",\"class\":\"B\"}]");
+                            "[{\"name\":\"John Doe\", \"age\":30, \"address\":\"London\", \"class\":\"B\"}]");
     }
 
     @Test
     public void testJSONArrayToCJsonArrayCastNegative() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJSONArrayToCJsonArrayCastNegative");
         Assert.assertNotNull(returns[0]);
-        String errorMsg = ((BMap<String, BValue>) returns[0]).get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
-        Assert.assertEquals(errorMsg, "'json[]' cannot be cast to 'json<Student>[]'");
+        String errorMsg = ((BError) returns[0]).reason;
+        Assert.assertEquals(errorMsg,
+                            "incompatible stamp operation: 'json[]' value cannot be stamped as 'json<Student>[]'");
     }
 
     @Test
     public void testCJSONArrayToJsonAssignment() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCJSONArrayToJsonAssignment");
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testCJSONArrayToJsonAssignment");
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "[{\"name\":\"John Doe\",\"age\":30,\"address\":\"London\"}," +
-                "{\"name\":\"John Doe\",\"age\":40,\"address\":\"London\"}]");
+        Assert.assertEquals(returns[0].stringValue(), "[{\"name\":\"John Doe\", \"age\":30, \"address\":\"London\"}, " +
+                "{\"name\":\"John Doe\", \"age\":40, \"address\":\"London\"}]");
     }
 
     @Test
     public void testMixedTypeJSONArrayToCJsonArrayCastNegative() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testMixedTypeJSONArrayToCJsonArrayCastNegative");
         Assert.assertNotNull(returns[0]);
-        String errorMsg = ((BMap<String, BValue>) returns[0]).get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
-        Assert.assertEquals(errorMsg, "'json[]' cannot be cast to 'json<Student>[]'");
+        String errorMsg = ((BError) returns[0]).reason;
+        Assert.assertEquals(errorMsg,
+                            "incompatible stamp operation: 'json[]' value cannot be stamped as 'json<Student>[]'");
     }
 
     @Test
     public void testConstrainedJsonWithFunctionToString() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testConstrainedJsonWithFunctions");
-        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"John Doe\",\"age\":30,\"address\":\"London\"}");
+        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"John Doe\", \"age\":30, \"address\":\"London\"}");
     }
 
     @Test

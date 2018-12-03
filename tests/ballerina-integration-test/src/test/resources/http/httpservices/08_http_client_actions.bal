@@ -268,7 +268,7 @@ service testService on new http:Listener(9098) {
         if (res is http:Response) {
             var returnParts = res.getBodyParts();
             if (returnParts is mime:Entity[]) {
-                foreach bodyPart in returnParts {
+                foreach var bodyPart in returnParts {
                     var mediaType = mime:getMediaType(bodyPart.getContentType());
                     if (mediaType is mime:MediaType) {
                         string baseType = mediaType.getBaseType();

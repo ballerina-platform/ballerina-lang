@@ -53,7 +53,7 @@ function startUniqueLengthwindowTest2() returns TeacherOutput[] {
     testUniqueLengthwindow();
 
     outputStreamUniqueLengthTest2.subscribe(function(TeacherOutput e) {printTeachers(e);});
-    foreach t in teachers {
+    foreach var t in teachers {
         inputStreamUniqueLengthTest2.publish(t);
         runtime:sleep(500);
     }
@@ -77,7 +77,7 @@ function testUniqueLengthwindow() {
         select inputStreamUniqueLengthTest2.timestamp, inputStreamUniqueLengthTest2.name, count() as count
         group by inputStreamUniqueLengthTest2.school
         => (TeacherOutput [] emp) {
-            foreach e in emp {
+            foreach var e in emp {
                 outputStreamUniqueLengthTest2.publish(e);
             }
         }

@@ -21,6 +21,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BAnydataType;
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BErrorType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
@@ -312,6 +313,19 @@ public class JSONStampInbuiltFunctionTest {
         Assert.assertEquals((((BMap) results[4]).getMap()).size(), 2);
         Assert.assertEquals(results[4].getType().getClass(), BMapType.class);
         Assert.assertEquals(((BMapType) results[4].getType()).getConstrainedType().getClass(), BAnydataType.class);
+    }
+
+    @Test
+    public void testStampJSONToRecordWithArray() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampJSONToRecordWithArray");
+        Assert.assertEquals(results.length, 1);
+        BMap<String, BValue> mapValue0 = (BMap<String, BValue>) results[0];
+
+        Assert.assertEquals(mapValue0.getType().getClass(), BRecordType.class);
+        Assert.assertEquals(mapValue0.getType().getName(), "Foo");
+
+        Assert.assertEquals(((BArrayType) mapValue0.get("a").getType()).getElementType().getClass(), BStringType.class);
     }
 
     //----------------------------------- Negative Test cases ----------------------------------------------------

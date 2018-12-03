@@ -42,7 +42,7 @@ function startFilterQuery() returns (Teacher[]) {
     testFilterQuery();
 
     outputStream.subscribe(function(Teacher e) {printTeachers(e);});
-    foreach t in teachers {
+    foreach var t in teachers {
         inputStream.publish(t);
     }
 
@@ -63,7 +63,7 @@ function testFilterQuery() {
         from inputStream where getAge(inputStream.age) > getMaxAgeLimit()
         select inputStream.name, inputStream.age, inputStream.status, inputStream.batch, inputStream.school
         => (Teacher[] teachers) {
-            foreach t in teachers {
+            foreach var t in teachers {
                 outputStream.publish(t);
             }
         }

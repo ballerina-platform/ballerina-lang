@@ -51,7 +51,7 @@ public class ClosedRecordIterationTest {
     @Test
     public void testNegativesWithClosedRecords() {
         int index = 0;
-        Assert.assertEquals(closedRecNegatives.getErrorCount(), 16);
+        Assert.assertEquals(closedRecNegatives.getErrorCount(), 17);
         BAssertUtil.validateError(closedRecNegatives, index++, "operation 'sum' does not support given collection type",
                                   24, 15);
         BAssertUtil.validateError(closedRecNegatives, index++,
@@ -64,8 +64,10 @@ public class ClosedRecordIterationTest {
 
         // Test invalid no. of args with foreach loop
         BAssertUtil.validateError(closedRecNegatives, index++,
-                                  "too many variables are defined for iterable type 'ClosedPerson'",
-                                  43, 26);
+                "invalid tuple binding pattern; member variable count mismatch with member type count",
+                43, 17);
+
+        BAssertUtil.validateError(closedRecNegatives, index++, "undefined symbol 'val'", 44, 19);
 
         // Test invalid foreach iterable operation
         BAssertUtil.validateError(closedRecNegatives, index++,
