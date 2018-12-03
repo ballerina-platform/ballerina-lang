@@ -44,7 +44,8 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACK
         orgName = "ballerina", packageName = "websub",
         functionName = "startUpHubService",
         args = {@Argument(name = "topicRegistrationRequired", type = TypeKind.BOOLEAN),
-                @Argument(name = "publicUrl", type = TypeKind.STRING)},
+                @Argument(name = "publicUrl", type = TypeKind.STRING),
+                @Argument(name = "hubListener", type = TypeKind.OBJECT)},
         returnType = {@ReturnType(type = TypeKind.OBJECT)},
         isPublic = true
 )
@@ -56,10 +57,9 @@ public class StartUpHubService extends BlockingNativeCallableUnit {
         if (hubInstance.isStarted()) {
             context.setReturnValues(getHubStartedUpError(context, hubInstance));
         } else {
-            BBoolean topicRegistrationRequired = new BBoolean(context.getBooleanArgument(0));
-            BString publicUrl = new BString(context.getStringArgument(0));
+
             try {
-                hubInstance.startUpHubService(context, topicRegistrationRequired, publicUrl);
+                hubInstance.startUpHubService(context);
             } catch (BallerinaWebSubException e) {
                 context.setReturnValues(getHubStartedUpError(context, hubInstance));
                 return;

@@ -53,7 +53,6 @@ public class Hub {
     private static Hub instance = new Hub();
     private BallerinaBroker brokerInstance = null;
     private BMap<String, BValue> hubObject = null;
-    private BValue hubEndpoint = null;
     private String hubUrl;
     private boolean hubTopicRegistrationRequired;
     private boolean hubPersistenceEnabled;
@@ -196,10 +195,8 @@ public class Hub {
      * Method to start up the default Ballerina WebSub Hub.
      *
      * @param context context
-     * @param topicRegistrationRequired required topic for registration
-     * @param publicUrl hub service public URL
      */
-    public void startUpHubService(Context context, BBoolean topicRegistrationRequired, BString publicUrl) {
+    public void startUpHubService(Context context) {
         synchronized (this) {
             if (!isStarted()) {
                 try {
@@ -209,9 +206,14 @@ public class Hub {
                 }
                 ProgramFile hubProgramFile = context.getProgramFile();
                 PackageInfo hubPackageInfo = hubProgramFile.getPackageInfo(WEBSUB_PACKAGE);
+                BBoolean topicRegistrationRequired = new BBoolean(context.getBooleanArgument(0));
+                BString publicUrl = new BString(context.getStringArgument(0));
+                BValue[] hubListener = new BValue[] {context.getRefArgument(0)};
+
+
                 if (hubPackageInfo != null) {
-                    BValue[] returns = BVMExecutor.executeFunction(hubProgramFile,
-                            hubPackageInfo.getFunctionInfo("startHubService"));
+//                    BValue[] returns = BVMExecutor.executeFunction(hubProgramFile,
+//                            hubPackageInfo.getFunctionInfo("startHubService"));
                     hubTopicRegistrationRequired = topicRegistrationRequired.booleanValue();
 
                     String hubUrl = publicUrl.stringValue();
@@ -226,10 +228,9 @@ public class Hub {
                     started = true;
                     BVMExecutor.executeFunction(hubProgramFile, hubPackageInfo
                             .getFunctionInfo("setupOnStartup"), args);
-                    setHubEndpoint(returns[0]);
                     setHubUrl(hubUrl);
                     setHubObject(BLangConnectorSPIUtil.createObject(context, WEBSUB_PACKAGE,
-                                                     STRUCT_WEBSUB_BALLERINA_HUB, new BString(hubUrl), returns[0]));
+                                                     STRUCT_WEBSUB_BALLERINA_HUB, new BString(hubUrl), hubListener[0]));
                 }
             } else {
                 throw new BallerinaWebSubException("Hub Service already started up");
@@ -283,10 +284,6 @@ public class Hub {
      */
     private void setHubProgramFile(ProgramFile programFile) {
         hubProgramFile = programFile;
-    }
-
-    private void setHubEndpoint(BValue hubEndpoint) {
-        this.hubEndpoint = hubEndpoint;
     }
 
     private void setHubUrl(String hubUrl) {
