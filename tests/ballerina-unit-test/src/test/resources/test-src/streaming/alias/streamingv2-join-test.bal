@@ -44,8 +44,8 @@ stream<StockWithPrice> stockWithPriceStream = new;
 function testJoinQuery() {
 
     forever {
-        from stockStream window lengthWindow([1]) as stock
-        join twitterStream window lengthWindow([1]) as twitter
+        from stockStream window lengthWindow(1) as stock
+        join twitterStream window lengthWindow(1) as twitter
         on stock.symbol == twitter.company
         select stock.symbol as symbol, twitter.tweet as tweet, stock.price as price
         => (StockWithPrice[] prices) {
