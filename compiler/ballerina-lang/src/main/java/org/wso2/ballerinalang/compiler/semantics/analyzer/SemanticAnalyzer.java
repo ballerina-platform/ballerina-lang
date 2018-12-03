@@ -1743,16 +1743,17 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         } else {
             if (isTableReference(streamingInput.getStreamReference())) {
                 if (streamingInput.getAlias() == null) {
-                    dlog.error(streamingInput.pos, DiagnosticCode.UNDEFINED_INVOCATION_ALIAS, ((BLangInvocation) streamRef)
-                            .name.getValue());
+                    dlog.error(streamingInput.pos, DiagnosticCode.UNDEFINED_INVOCATION_ALIAS,
+                               ((BLangInvocation) streamRef).name.getValue());
                 }
                 if (streamingInput.getStreamReference().getKind() == NodeKind.INVOCATION) {
                     BInvokableSymbol functionSymbol = (BInvokableSymbol) ((BLangInvocation) streamRef).symbol;
-                    symbolEnter.defineVarSymbol(streamingInput.pos, EnumSet.noneOf(Flag.class), ((BTableType) functionSymbol
-                            .retType).constraint, names.fromString(streamingInput.getAlias()), env);
+                    symbolEnter.defineVarSymbol(streamingInput.pos, EnumSet.noneOf(Flag.class),
+                    ((BTableType) functionSymbol.retType).constraint, names.fromString(streamingInput.getAlias()), env);
                 } else {
-                    BType constraint = ((BTableType) ((BLangVariableReference) streamingInput.getStreamReference()).type)
-                            .constraint;
+                    BType constraint =
+                            ((BTableType) ((BLangVariableReference) streamingInput.getStreamReference()).type)
+                                    .constraint;
                     symbolEnter.defineVarSymbol(streamingInput.pos, EnumSet.noneOf(Flag.class), constraint,
                                                 names.fromString(streamingInput.getAlias()), env);
                 }

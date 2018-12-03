@@ -16,7 +16,6 @@
 
 import ballerina/runtime;
 import ballerina/streams;
-import ballerina/io;
 
 type Stock record {
     string symbol;

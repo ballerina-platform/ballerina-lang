@@ -585,7 +585,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     }
 
     private BLangExpression builtCreateInvocation(BLangSimpleVarRef mapVarRef, BType outputEventType) {
-        BVarSymbol typeSymbol = new BVarSymbol(0, outputEventType.tsymbol.name,mapVarRef.symbol.pkgID,
+        BVarSymbol typeSymbol = new BVarSymbol(0, outputEventType.tsymbol.name, mapVarRef.symbol.pkgID,
                                                outputEventType, mapVarRef.symbol.owner);
         BLangSimpleVarRef outputTypeRef = ASTBuilderUtil.createVariableRef(mapVarRef.pos, typeSymbol);
         //special case for varRefs of Types;
@@ -1056,8 +1056,9 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         joinProcessorStack.push(tableJoinProcessorVarSymbol);
         BSymbol joinTypesSymbol = symResolver.resolvePkgSymbol(joinStreamingInput.pos, env, Names.STREAMS_MODULE).
                 scope.lookup(new Name(JOIN_TYPE)).symbol;
-        BLangLiteral joinType = ASTBuilderUtil.createLiteral(joinStreamingInput.pos, symTable.stringType, joinStreamingInput
-                .getJoinType().toUpperCase());
+        BLangLiteral joinType =
+                ASTBuilderUtil.createLiteral(joinStreamingInput.pos, symTable.stringType,
+                                             joinStreamingInput.getJoinType().toUpperCase());
 
         List<BLangExpression> args = new ArrayList<>();
         args.add(nextProcessMethodAccess);
