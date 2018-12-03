@@ -99,6 +99,6 @@ public class ResourceImpl extends AnnotatableNode implements Resource {
 
     @Override
     public String getAnnotationEntryKey() {
-        return getServiceName() + "." + name;
+        return service.getServiceInfo().serviceType.getType().getName() + "." + name;
     }
 }

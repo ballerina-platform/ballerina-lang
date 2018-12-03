@@ -14,11 +14,14 @@ public function main() {
     // A `string` to `int` conversion is considered unsafe.
     // The compiler requires the user to assign the result of conversion expression to an `int|error` union typed variable.
     // The `error` typed variable represents an error that occurs during the type conversion.
+    // `create` function will create a new value without modifying the input `strVal` and assign it to `intResult`.
+    // Like `create` function, you can use `stamp` function to get the input value modified and assign it to ressulting variable.
     strVal = "Sri Lanka";
-    var intResult = <int>strVal;
-    match intResult {
-        int value => io:println(value);
-        error err => io:println("error: " + err.message);
+    var intResult = int.create(strVal);
+    if (intResult is int) {
+        io:println(intResult);
+    } else {
+        io:println("error: " + intResult.reason());
     }
 
     // A `boolean` to `int` conversion is always considered safe. In such conversions, `0` represents a `false` value, and `1` represents a `true` value.
@@ -34,14 +37,14 @@ public function main() {
     // This is a `string` to `boolean` conversion.
     // This conversion is safe because `string true` always evaluates to `boolean true` and `string false` always evaluates to `boolean false`.
     strVal = "true";
-    boolVal = <boolean>strVal;
-    io:println(boolVal);
+    boolean|error strBoolVal = boolean.create(strVal);
+    io:println(strBoolVal);
 
     // This assigns a value of the `float` type to a variable of the `any` type.
     any a = 3.14;
 
     // This shows how to convert a variable of the `any` type to the `float` type.
     // This conversion is unsafe because the value of the `a` variable is unknown.
-    float? af = check <float>a;
+    float|error af = trap <float>a;
     io:println(af);
 }

@@ -10,8 +10,8 @@ public function main() {
         // Send messages to worker `w2`. This message contains a tuple value with member types of `int` and `float`.
         (i, k) -> w2;
         // Receive a message from worker `w2`. This message contains a `json` type value.
-        json j;
-        j <- w2;
+        json j = {};
+        j = <- w2;
         string jStr = j.toString();
         io:println("[w1 <- w2] j: ", jStr);
     }
@@ -20,8 +20,8 @@ public function main() {
         // Receive a message from the worker `w1`.
         int iw;
         float kw;
-        (int, float) vW1;
-        vW1 <- w1;
+        (int, float) vW1 = (0, 1.0);
+        vW1 = <- w1;
         (iw, kw) = vW1;
         io:println("[w2 <- w1] iw: " + iw + " kw: " + kw);
         // Send a message to worker `w1`.

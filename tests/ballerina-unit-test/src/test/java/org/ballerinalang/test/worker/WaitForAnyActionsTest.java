@@ -132,4 +132,39 @@ public class WaitForAnyActionsTest {
         Assert.assertEquals(vals.length, 1);
         Assert.assertEquals("0", vals[0].stringValue());
     }
+
+    @Test
+    public void waitTest14() {
+        BValue[] vals = BRunUtil.invoke(result, "waitTest14", new BValue[0]);
+        Assert.assertEquals(vals.length, 1);
+        Assert.assertTrue(Arrays.asList("150", "7").contains(vals[0].stringValue()));
+    }
+
+    @Test
+    public void waitTest15() {
+        BValue[] vals = BRunUtil.invoke(result, "waitTest15", new BValue[0]);
+        Assert.assertEquals(vals.length, 1);
+        Assert.assertTrue(Arrays.asList("150", "7", "60", "299").contains(vals[0].stringValue()));
+    }
+
+    @Test
+    public void waitTest16() {
+        BValue[] vals = BRunUtil.invoke(result, "waitTest16", new BValue[0]);
+        Assert.assertEquals(vals.length, 1);
+        Assert.assertTrue(Arrays.asList("150", "hello foo").contains(vals[0].stringValue()));
+    }
+
+    @Test
+    public void waitTest17() {
+        BValue[] vals = BRunUtil.invoke(result, "waitTest17", new BValue[0]);
+        Assert.assertEquals(vals.length, 1);
+        Assert.assertTrue(Arrays.asList("10", "20", "30").contains(vals[0].stringValue()));
+    }
+
+    @Test
+    public void waitTest18() {
+        BValue[] vals = BRunUtil.invoke(result, "waitTest18", new BValue[0]);
+        Assert.assertEquals(vals.length, 1);
+        Assert.assertEquals("65", vals[0].stringValue());
+    }
 }

@@ -1047,14 +1047,14 @@ public class Types {
             }
         }
 
-        // In this case, target type should be of type 'any' and the source type cannot be a value type
-        if (t == symTable.anyType && !isValueType(s)) {
+        if (isAssignable(s, t)) {
             return createConversionOperatorSymbol(origS, origT, true, InstructionCodes.NOP);
         }
 
-        if (!isValueType(t) && s == symTable.anyType) {
+        if (isAssignable(t, s)) {
             return createConversionOperatorSymbol(origS, origT, false, InstructionCodes.CHECKCAST);
         }
+
         return symTable.notFoundSymbol;
     }
 

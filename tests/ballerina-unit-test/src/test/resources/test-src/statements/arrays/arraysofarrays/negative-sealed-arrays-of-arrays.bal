@@ -54,7 +54,7 @@ function arrayAssignments() {
 
 function jsonArrays() {
     json[] x1 = [1, 2];
-    json[3][2] x;
+    json[3][2] x = [[1, 2], [3, 4], [5, 6]];
 
     int l = 1;
     x[l] = x1;

@@ -12,7 +12,7 @@ function level2Function () returns (runtime:CallStackElement[]) {
     return runtime:getCallStack();
 }
 
-function testErrorStackFrame () returns (runtime:CallStackElement|()) {
+function testErrorStackFrame () returns (runtime:CallStackElement[]|()) {
     var e = trap level1Error(-10);
     if (e is error) {
         return runtime:getErrorCallStackFrame(e);

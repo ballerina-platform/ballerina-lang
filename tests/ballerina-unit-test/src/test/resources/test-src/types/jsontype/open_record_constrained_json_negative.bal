@@ -35,35 +35,26 @@ function testJsonInitializationWithIncompatibleRestField() returns (json, json, 
 //    return j;
 //}
 
-function tesInvalidStructFieldConstraintRhs() returns (json){
-    json<Person> j = {};
-    j.name = "Ann";
-    json name = j.firstName;
-    return name;
-}
-
-function testConstraintJSONIndexing() returns (json){
-    json<Student> j = {name:"John Doe", age:30, address:"Colombo", class:"5"};
-    return j["bus"];
-}
-
 type Employee record {
     string first_name;
     string last_name;
     int age;
-    Address address;
+    Address address = {};
+    string...
 };
 
 type Address record {
-    string number;
-    string street;
-    string city;
-    PhoneNumber phoneNumber;
+    string number = "";
+    string street = "";
+    string city = "";
+    PhoneNumber phoneNumber = {};
+    string...
 };
 
 type PhoneNumber record {
-    string areaCode;
-    string number;
+    string areaCode = "";
+    string number = "";
+    string...
 };
 
 function tesInvalidNestedStructFieldAccess() {
@@ -76,18 +67,18 @@ function tesInvalidNestedStructFieldIndexAccess() {
     json j = e["address"]["phoneNumber"]["bar"];
 }
 
-function tesInitializationWithInvalidNestedStruct() {
+function tesInitializationWithInvalidNestedRecord() {
     json<Employee> e = {first_name: "John",last_name: "Doe",age: 30,address: {phoneNumber: {number:"456", foo:5}, street:"York St"}};
 }
 
-function testConstrainedJSONArrayToConstraintJsonArrayCast() returns (json<Student>[]) {
+function testConstrainedJSONArrayToConstraintJsonArrayStamp() returns json<Student>[] {
     json<Person>[] j1 = [{name:"John Doe", age:30, address:"London"}];
-    var j2 = <json<Student>[]> j1;
+    var j2 = json<Student>[].stamp(j1);
     return j2;
 }
 
-function testBooleanArrayToJsonAssignment() returns (json) {
-    blob[] b = [];
+function testByteArrayToJsonAssignment() returns (json) {
+    byte[] b = [];
     json j = b;
     return j;
 }

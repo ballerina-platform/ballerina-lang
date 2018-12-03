@@ -595,7 +595,9 @@ type Dept record {
 type PersonObj object {
     string name;
 
-    function __init(string name){}
+    function __init(string name){
+        self.name = name;
+    }
 
     function getName() returns string {
         return self.name;

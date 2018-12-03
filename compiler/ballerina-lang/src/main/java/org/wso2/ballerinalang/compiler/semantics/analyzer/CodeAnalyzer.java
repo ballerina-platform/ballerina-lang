@@ -964,13 +964,20 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangSimpleVariable varNode) {
         analyzeExpr(varNode.expr);
 
-        if (Objects.isNull(varNode.symbol) || !Symbols.isPublic(varNode.symbol)) {
+        if (Objects.isNull(varNode.symbol)) {
+            return;
+        }
+
+        if (!Symbols.isPublic(varNode.symbol)) {
+            if (varNode.expr == null && Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER)) {
+                dlog.error(varNode.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, varNode.name);
+            }
             return;
         }
 
         int ownerSymTag = this.env.scope.owner.tag;
-        if (((ownerSymTag & SymTag.INVOKABLE) != SymTag.INVOKABLE) || (varNode.type != null &&
-                varNode.parent != null && NodeKind.FUNCTION.equals(varNode.parent.getKind()))) {
+        if (((ownerSymTag & SymTag.INVOKABLE) != SymTag.INVOKABLE) || (varNode.type != null && varNode.parent != null &&
+                NodeKind.FUNCTION.equals(varNode.parent.getKind()))) {
             analyseType(varNode.type, varNode.pos);
         }
 

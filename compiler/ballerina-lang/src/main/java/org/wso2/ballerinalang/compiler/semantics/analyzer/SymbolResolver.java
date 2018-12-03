@@ -161,6 +161,11 @@ public class SymbolResolver extends BLangNodeVisitor {
             }
         }
 
+        if ((foundSym.tag & SymTag.SERVICE) == SymTag.SERVICE) {
+            // In order to remove duplicate errors.
+            return false;
+        }
+
         //if a symbol is found, then check whether it is unique
         return isUniqueSymbol(pos, symbol, foundSym);
     }
@@ -969,11 +974,6 @@ public class SymbolResolver extends BLangNodeVisitor {
         } else {
             if (!types.checkStructToJSONCompatibility(constraintType) && constraintType != symTable.semanticError) {
                 dlog.error(constrainedTypeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPE_CONSTRAINT, type, constraintType);
-                resultType = symTable.semanticError;
-                return;
-            }
-            if (constraintType.tag == TypeTags.RECORD && !((BRecordType) constraintType).sealed) {
-                dlog.error(constrainedTypeNode.pos, DiagnosticCode.OPEN_RECORD_CONSTRAINT_NOT_ALLOWED, type);
                 resultType = symTable.semanticError;
                 return;
             }
