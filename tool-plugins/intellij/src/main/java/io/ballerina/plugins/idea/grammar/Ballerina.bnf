@@ -273,7 +273,7 @@ WorkerDefinition ::= worker identifier ReturnParameter? WorkerBody {
     recoverWhile=WorkerDefinitionRecover
 }
 
-private WorkerDefinitionRecover ::= !(worker|'}'|return)
+private WorkerDefinitionRecover ::= StatementRecover
 
 WorkerBody ::= LEFT_BRACE Block RIGHT_BRACE {pin=1}
 
@@ -462,7 +462,7 @@ BindingPattern ::= identifier | StructuredBindingPattern
 
 StructuredBindingPattern ::= TupleBindingPattern | RecordBindingPattern
 
-TupleBindingPattern ::= LEFT_PARENTHESIS BindingPattern (COMMA BindingPattern)+ RIGHT_PARENTHESIS {pin=1}
+TupleBindingPattern ::= LEFT_PARENTHESIS BindingPattern (COMMA BindingPattern)+ RIGHT_PARENTHESIS
 
 RecordBindingPattern ::= LEFT_BRACE EntryBindingPattern RIGHT_BRACE {pin=1}
 

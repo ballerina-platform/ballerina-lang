@@ -18,6 +18,7 @@
  */
 
 import * as React from "react";
+import ReactMarkdown from "react-markdown";
 import { Form, Icon, Input } from "semantic-ui-react";
 
 export interface InlineEditProps {
@@ -28,6 +29,7 @@ export interface InlineEditProps {
     isParagraph?: boolean;
     changeModel: any;
     changeAttribute: AttributeObject;
+    isMarkdown?: boolean;
     onInlineValueChange: (openApiJson: any) => void;
 }
 
@@ -38,7 +40,8 @@ export interface URL {
 
 export interface AttributeObject {
     key: string;
-    value: string;
+    path?: string;
+    changeValue: string;
 }
 
 export interface InlineEditState {
@@ -93,7 +96,7 @@ class InlineEdit extends React.Component<InlineEditProps, InlineEditState> {
 
     public render() {
         const { stateText, isEditing, urlString } = this.state;
-        const { isParagraph, isURL, classDefinition, placeholderString } = this.props;
+        const { isParagraph, isURL, classDefinition, placeholderString, isMarkdown } = this.props;
 
         if (isEditing) {
             if (isURL) {
@@ -178,9 +181,11 @@ class InlineEdit extends React.Component<InlineEditProps, InlineEditState> {
             } else if (stateText && stateText !== "") {
                 return (
                     <div className={"inline-editor with-text " + classDefinition} onClick={this.enableEditing}>
-                        <span>
-                            {stateText}
-                        </span>
+                        {isMarkdown ? <ReactMarkdown source={stateText} /> :
+                            <span>
+                                {stateText}
+                            </span>
+                        }
                     </div>
                 );
             } else {
@@ -252,9 +257,20 @@ class InlineEdit extends React.Component<InlineEditProps, InlineEditState> {
                 break;
             case "resource.name":
                 if (stateText !== "" && model.paths) {
-                    model.paths[stateText] = model.paths[attribute.value];
-                    delete model.paths[attribute.value];
+                    model.paths[stateText] = model.paths[attribute.changeValue];
+                    delete model.paths[attribute.changeValue];
                 }
+                break;
+            case "operation.description":
+                if (stateText !== "" && model.paths && attribute.path) {
+                    model.paths[attribute.path][attribute.changeValue].description = stateText;
+                }
+                break;
+            case "operation.summary":
+                if (stateText !== "" && model.paths && attribute.path) {
+                    model.paths[attribute.path][attribute.changeValue].summary = stateText;
+                }
+                break;
             default:
                 break;
         }

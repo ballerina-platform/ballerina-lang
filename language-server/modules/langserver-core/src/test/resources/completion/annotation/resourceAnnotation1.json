@@ -7,6 +7,7 @@
   "items": [
     {
       "label":"swagger:ResourceInfo",
+      "kind":"Property",
       "detail":"Annotation",
       "insertText":"swagger:ResourceInfo {\n\t${1}\n}",
       "insertTextFormat":"Snippet",
@@ -15,11 +16,33 @@
           "range":{
             "start":{
               "line":0,
-              "character":22
+              "character":23
             },
             "end":{
               "line":0,
-              "character":22
+              "character":23
+            }
+          },
+          "newText":"\nimport ballerina/swagger;\n"
+        }
+      ]
+    },
+    {
+      "label":"swagger:MultiResourceInfo",
+      "kind":"Property",
+      "detail":"Annotation",
+      "insertText":"swagger:MultiResourceInfo {\n\t${1}\n}",
+      "insertTextFormat":"Snippet",
+      "additionalTextEdits":[
+        {
+          "range":{
+            "start":{
+              "line":0,
+              "character":23
+            },
+            "end":{
+              "line":0,
+              "character":23
             }
           },
           "newText":"\nimport ballerina/swagger;\n"
@@ -28,6 +51,7 @@
     },
     {
       "label":"grpc:ResourceConfig",
+      "kind":"Property",
       "detail":"Annotation",
       "insertText":"grpc:ResourceConfig {\n\t${1}\n}",
       "insertTextFormat":"Snippet",
@@ -36,11 +60,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":22
+              "character":23
             },
             "end":{
               "line":0,
-              "character":22
+              "character":23
             }
           },
           "newText":"\nimport ballerina/grpc;\n"
@@ -48,19 +72,30 @@
       ]
     },
     {
-      "label":"Param",
+      "label":"transactions:Participant",
+      "kind":"Property",
       "detail":"Annotation",
-      "insertText":"Param {\n\t${1}\n}",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"interruptible",
-      "detail":"Annotation",
-      "insertText":"interruptible",
-      "insertTextFormat":"Snippet"
+      "insertText":"transactions:Participant {\n\t${1}\n}",
+      "insertTextFormat":"Snippet",
+      "additionalTextEdits":[
+        {
+          "range":{
+            "start":{
+              "line":0,
+              "character":23
+            },
+            "end":{
+              "line":0,
+              "character":23
+            }
+          },
+          "newText":"\nimport ballerina/transactions;\n"
+        }
+      ]
     },
     {
       "label":"http:ResourceConfig",
+      "kind":"Property",
       "detail":"Annotation",
       "insertText":"http:ResourceConfig {\n\t${1}\n}",
       "insertTextFormat":"Snippet"

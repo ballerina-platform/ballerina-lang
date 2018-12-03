@@ -1,7 +1,8 @@
 import ballerina/http;
 
 @
-service<http:Service> helloService {
-    helloResource (endpoint caller, http:Request request) {
+service serviceName on new http:Listener(8080) {
+    resource function newResource(http:Caller caller, http:Request request) {
+        
     }
 }

@@ -22,7 +22,8 @@ service serviceName on ep0 {
         path:"/user"
     }
     resource function resource1 (http:Caller outboundEp, http:Request _resource1Req) {
-
+        http:Response _resource1Res = resource1(_resource1Req);
+        _ = outboundEp->respond(_resource1Res);
     }
 
     @swagger:ResourceInfo {
@@ -33,7 +34,8 @@ service serviceName on ep0 {
         path:"/user"
     }
     resource function resource2 (http:Caller outboundEp, http:Request _resource2Req) {
-
+        http:Response _resource2Res = resource2(_resource2Req);
+        _ = outboundEp->respond(_resource2Res);
     }
 
 }

@@ -9,7 +9,7 @@
     "clean": "composer pkg:clean",
     "lint": "composer pkg:lint",
     "build": "composer pkg:build",
-    "test": "composer pkg:test",
+    "test": "",
     "coverage": "composer pkg:test:coverage",
     "watch": "composer pkg:watch",
     "watch:test": "composer pkg:test:watch",

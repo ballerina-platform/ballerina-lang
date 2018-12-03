@@ -37,6 +37,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
@@ -133,10 +134,9 @@ public class TestGenerator {
             throws TestGeneratorException {
 
         BLangNode bLangNode = nodes.getLeft();
-        Object fallBackNode = nodes.getRight();
-        boolean fallback = false;
+        Object otherNode = nodes.getRight();
 
-        if (bLangNode == null && fallBackNode == null) {
+        if (bLangNode == null && otherNode == null) {
             throw new TestGeneratorException("Target test construct not found!");
         }
 
@@ -144,31 +144,27 @@ public class TestGenerator {
             // A function
             return RootTemplate.fromFunction((BLangFunction) bLangNode, builtTestFile, focusLineAcceptor);
 
-        } else if (bLangNode instanceof BLangService || (fallback = fallBackNode instanceof BLangService)) {
+        } else if (bLangNode instanceof BLangService && otherNode instanceof BLangTypeInit) {
             // A Service
-            BLangService service = (!fallback) ? ((BLangService) bLangNode) : (BLangService) fallBackNode;
-//            String owner = (service.serviceTypeStruct.type != null && service.serviceTypeStruct.type.tsymbol != null) 
-//                    ? service.serviceTypeStruct.type.tsymbol.owner.name.value : null;
-            // TODO: Fix with the latest changes
-            String owner = "";
-            String serviceTypeName = ""/*service.serviceTypeStruct.typeName.value*/;
+            BLangService service = (BLangService) bLangNode;
+            BLangTypeInit init = (BLangTypeInit) otherNode;
+            String owner = service.listenerType.tsymbol.owner.name.value;
+            String serviceTypeName = service.listenerType.tsymbol.name.value;
             if ("http".equals(owner)) {
                 switch (serviceTypeName) {
-                    case "Service": {
-                        return RootTemplate.fromHttpService(service, builtTestFile, focusLineAcceptor);
-                    }
-                    case "WebSocketService": {
-                        return RootTemplate.fromHttpWSService(service, builtTestFile, focusLineAcceptor);
-                    }
+                    case "Listener":
+                        return RootTemplate.fromHttpService(service, init, builtTestFile, focusLineAcceptor);
+                    case "WebSocketListener":
+                        return RootTemplate.fromHttpWSService(service, init, builtTestFile, focusLineAcceptor);
                     case "WebSocketClientService":
-                        return RootTemplate.fromHttpClientWSService(service, builtTestFile, focusLineAcceptor);
+                        return RootTemplate.fromHttpClientWSService(service, init, builtTestFile, focusLineAcceptor);
                     default:
-                        break;
+                        // do nothing
                 }
             } else if ("websub".equals(owner)) {
                 throw new TestGeneratorException("WebSub services are not supported!");
             }
-            throw new TestGeneratorException(/*service.serviceTypeStruct.toString()*/" is not supported!");
+            throw new TestGeneratorException(owner + ":" + serviceTypeName + " services are not supported!");
         }
         // Whole file
         return new RootTemplate(fileName, builtTestFile, focusLineAcceptor);

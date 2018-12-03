@@ -75,7 +75,9 @@ class SymbolFindVisitor extends LSNodeVisitor {
         List<TopLevelNode> topLevelNodes = pkgNode.topLevelNodes;
         pkgNode.getImports().forEach(importPackage -> this.packageMap.put(importPackage.symbol.pkgID, importPackage));
 
-        topLevelNodes.forEach(topLevelNode -> acceptNode((BLangNode) topLevelNode, pkgEnv));
+        topLevelNodes.stream()
+                .filter(CommonUtil.checkInvalidTypesDefs())
+                .forEach(topLevelNode -> acceptNode((BLangNode) topLevelNode, pkgEnv));
     }
 
     @Override
