@@ -2,21 +2,7 @@
 import ballerina/grpc;
 import ballerina/io;
 
-<<<<<<< HEAD
-// The server endpoint configuration.
-listener grpc:Listener ep = new ({
-    host:"localhost",
-    port:9090
-});
-
-@grpc:ServiceDescriptor {
-    descriptor: string.convert(descriptorMap[DESCRIPTOR_KEY]),
-    descMap: descriptorMap
-}
-service HelloWorld on ep {
-=======
 service HelloWorld on new grpc:Listener(9090) {
->>>>>>> a27307a7097819dafae8767e97e36870f755ea10
 
     resource function hello (grpc:Caller caller, string name, grpc:Headers headers) {
         io:println("name: " + name);

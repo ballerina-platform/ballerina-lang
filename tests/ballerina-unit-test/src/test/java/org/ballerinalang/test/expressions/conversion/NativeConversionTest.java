@@ -744,18 +744,17 @@ public class NativeConversionTest {
         Assert.assertEquals(returns[0].stringValue(), "{f:3.0}");
     }
 
-<<<<<<< HEAD
     @Test
     public void testAnyToFloat() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAnyToFloat");
         Assert.assertTrue(returns[0] instanceof BFloat);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 5.0);
-=======
+    }
+    
     @Test(description = "Test result is json after converting record to json")
     public void testRecordToJsonWithIsJson() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testRecordToJsonWithIsJson");
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
->>>>>>> a27307a7097819dafae8767e97e36870f755ea10
     }
 }
