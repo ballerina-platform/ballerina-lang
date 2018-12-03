@@ -23,12 +23,14 @@ import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.testng.annotations.AfterGroups;
 import org.testng.annotations.BeforeGroups;
+import org.testng.annotations.Test;
 
 import java.io.File;
 
 /**
  * Facilitate the common functionality of WebSocket integration tests.
  */
+@Test(groups = { "websocket-test", "broken" })
 public class WebSocketTestCommons extends BaseTest {
     protected static final int TIMEOUT_IN_SECS = 10;
     protected static final int REMOTE_SERVER_PORT = 15500;

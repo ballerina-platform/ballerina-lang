@@ -40,7 +40,10 @@ import java.util.function.Supplier;
 import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
 import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
 import static org.ballerinalang.util.observability.ObservabilityConstants.UNKNOWN_CONNECTOR;
+import static org.ballerinalang.util.observability.ObservabilityConstants.UNKNOWN_SERVICE;
 import static org.ballerinalang.util.tracer.TraceConstants.KEY_SPAN;
+import static org.ballerinalang.util.tracer.TraceConstants.TAG_KEY_SPAN_KIND;
+import static org.ballerinalang.util.tracer.TraceConstants.TAG_SPAN_KIND_SERVER;
 
 /**
  * Util class used for observability.
@@ -110,7 +113,7 @@ public class ObserveUtils {
      * @param observerContext observer context to be stopped
      */
     public static void stopObservation(ObserverContext observerContext) {
-        if (!enabled) {
+        if (!enabled || observerContext == null) {
             return;
         }
         if (observerContext.isServer()) {
@@ -138,6 +141,22 @@ public class ObserveUtils {
             strand.currentFrame.observerContext = parentCtx;
             return;
         }
+
+        // If parent context is null, create a new context and start it as a server.
+        if (parentCtx == null) {
+            parentCtx = new ObserverContext();
+            parentCtx.addTag(TAG_KEY_SPAN_KIND, TAG_SPAN_KIND_SERVER);
+            parentCtx.setConnectorName(UNKNOWN_CONNECTOR); // We have to set this explicitly as it'll give errors when
+            // monitoring metrics
+            parentCtx.setServiceName(UNKNOWN_SERVICE); // We have to set this explicitly as it'll give errors when
+            // monitoring metrics
+            parentCtx.setResourceName(strand.getId());
+            parentCtx.setServer();
+            parentCtx.setStarted();
+            strand.respCallback.setObserverContext(parentCtx);
+            observers.forEach(observer -> observer.startServerObservation(strand.respCallback.getObserverContext()));
+        }
+
         ObserverContext newObContext = new ObserverContext();
         newObContext.setParent(parentCtx);
         newObContext.setStarted();
@@ -197,6 +216,10 @@ public class ObserveUtils {
             strand.peekFrame(1).observerContext = strand.currentFrame.observerContext;
             return;
         }
+
+        // Peek the immediate frame at the top and set the parent observer context of the current frame as the observer
+        // context
+        strand.peekFrame(1).observerContext = strand.currentFrame.observerContext.getParent();
         stopObservation(strand.currentFrame.observerContext);
     }
 
@@ -272,7 +295,10 @@ public class ObserveUtils {
      * @return observer context of the current frame
      */
     public static Optional<ObserverContext> getObserverContextOfCurrentFrame(Context context) {
-        return enabled ? Optional.of(context.getStrand().currentFrame.observerContext) : Optional.empty();
+        if (!enabled || context.getStrand().currentFrame.observerContext == null) {
+            return Optional.empty();
+        }
+        return Optional.of(context.getStrand().currentFrame.observerContext);
     }
 
     /**

@@ -75,7 +75,26 @@
                     }
                 }
             }
+            .svg-button {
+                cursor: pointer;
+                &.circle {
+                    circle {
+                        fill: ~"@{@{color}-diagram-button-background-color}";
+                    }
+                    text {
+                        fill: ~"@{@{color}-diagram-button-text-color}";
+                    }
+                }
+                &:hover {
+                    &.circle {
+                        circle {
+                            fill-opacity: 0.8;
+                        }
+                    }
+                }
+            }
         }
+        
         .diagram-controllers {
             .ui.menu.top-menu {
                 padding: 10px;

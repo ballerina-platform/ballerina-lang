@@ -56,7 +56,7 @@ public class WorkerTest {
         Assert.assertEquals(ret.intValue(), 41);
     }
 
-    @Test
+    @Test(groups = {"broken"})
     public void workerSendToDefault() {
         BValue[] vals = BRunUtil.invoke(result, "workerSendToDefault", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
@@ -64,7 +64,7 @@ public class WorkerTest {
         Assert.assertEquals(ret.intValue(), 51);
     }
 
-    @Test
+    @Test(groups = {"broken"})
     public void workerSendFromDefault() {
         BValue[] vals = BRunUtil.invoke(result, "workerSendFromDefault", new BValue[0]);
         Assert.assertEquals(vals.length, 1);

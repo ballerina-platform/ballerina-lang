@@ -1796,7 +1796,8 @@ public class CodeGenerator extends BLangNodeVisitor {
             }
         }
         // Participate in transaction.
-        Operand transactionIndexOperand = getOperand(transactionIndex);
+        int txIdCPIndex = getTransactionIdCpIndex(transactionIndex);
+        Operand transactionIndexOperand = getOperand(txIdCPIndex);
         int participantType = getParticipantTypeTag(function);
         Operand transactionType = getOperand(participantType);
         RegIndex retryCountRegIndex = getRegIndex(TypeTags.INT);
@@ -2410,7 +2411,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     private void addWorkerInfoEntries(CallableUnitInfo callableUnitInfo, BLangFunction funcNode) {
-        UTF8CPEntry workerNameCPEntry = new UTF8CPEntry("default");
+        UTF8CPEntry workerNameCPEntry = new UTF8CPEntry(funcNode.defaultWorkerName.value);
         int workerNameCPIndex = this.currentPkgInfo.addCPEntry(workerNameCPEntry);
         callableUnitInfo.defaultWorkerInfo = new WorkerInfo(workerNameCPIndex, funcNode.defaultWorkerName.value);
         for (BLangWorker worker : funcNode.getWorkers()) {
@@ -2879,7 +2880,10 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     public void visit(BLangTransaction transactionNode) {
         ++transactionIndex;
-        Operand transactionIndexOperand = getOperand(transactionIndex);
+
+        int txIdCpIndex = getTransactionIdCpIndex(transactionIndex);
+        Operand transactionIndexOperand = getOperand(txIdCpIndex);
+
         Operand retryCountRegIndex = new RegIndex(-1, TypeTags.INT);
         if (transactionNode.retryCount != null) {
             this.genNode(transactionNode.retryCount, this.env);
@@ -2981,6 +2985,20 @@ public class CodeGenerator extends BLangNodeVisitor {
         emit(InstructionCodes.BR_FALSE, trEndStatusReg, oneAfterRethrowInstructionAddress);
         emit(InstructionCodes.PANIC, errorRegIndex);
         oneAfterRethrowInstructionAddress.value = nextIP();
+    }
+
+    private int getTransactionIdCpIndex(int transactionIndex) {
+        StringBuilder txNameBuilder = new StringBuilder();
+        String transactionIndexStr = txNameBuilder
+                .append(currentPkgID.orgName)
+                .append("$")
+                .append(currentPkgID.name)
+                .append("$")
+                .append(transactionIndex)
+                .toString();
+        StringCPEntry stringCPEntry = new StringCPEntry(
+                addUTF8CPEntry(currentPkgInfo, transactionIndexStr), transactionIndexStr);
+        return currentPkgInfo.addCPEntry(stringCPEntry);
     }
 
     public void visit(BLangAbort abortNode) {

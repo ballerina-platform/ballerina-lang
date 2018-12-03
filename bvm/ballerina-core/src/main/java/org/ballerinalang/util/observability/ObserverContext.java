@@ -53,6 +53,8 @@ public class ObserverContext {
 
     private ObserverContext parent;
 
+    private boolean isSystemSpan;
+
     public ObserverContext() {
         this.properties = new HashMap<>();
         this.tags = new HashMap<>();
@@ -138,4 +140,11 @@ public class ObserverContext {
         this.parent = parent;
     }
 
+    public boolean isSystemSpan() {
+        return isSystemSpan;
+    }
+
+    public void setSystemSpan(boolean userSpan) {
+        isSystemSpan = userSpan;
+    }
 }

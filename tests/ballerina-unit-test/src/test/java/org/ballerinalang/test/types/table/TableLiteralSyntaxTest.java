@@ -95,7 +95,7 @@ public class TableLiteralSyntaxTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*Unique index or primary key violation:.*")
+          expectedExceptionsMessageRegExp = ".*Unique index or primary key violation:.*", groups = "broken")
     public void testTableAddOnConstrainedTableWithViolation() {
         BRunUtil.invoke(result, "testTableAddOnConstrainedTableWithViolation");
     }

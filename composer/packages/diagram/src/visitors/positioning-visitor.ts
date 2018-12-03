@@ -71,18 +71,18 @@ export const visitor: Visitor = {
         viewState.body.x = viewState.bBox.x;
         viewState.body.y = viewState.header.y + viewState.header.h;
         // Position client line
-        viewState.client.x = viewState.body.x + config.panel.padding.left;
-        viewState.client.y = viewState.body.y + config.panel.padding.top;
+        viewState.client.bBox.x = viewState.body.x + config.panel.padding.left;
+        viewState.client.bBox.y = viewState.body.y + config.panel.padding.top;
         // Position default worker
-        defaultWorker.bBox.x = viewState.client.x + viewState.client.w + config.lifeLine.gutter.h;
-        defaultWorker.bBox.y = viewState.client.y;
+        defaultWorker.bBox.x = viewState.client.bBox.x + viewState.client.bBox.w + config.lifeLine.gutter.h;
+        defaultWorker.bBox.y = viewState.client.bBox.y;
         // Position default worker lifeline.
         positionWorkerLine(defaultWorker);
 
         // Position drop down menu for adding workers and endpoints
         viewState.menuTrigger.x = defaultWorker.bBox.x + defaultWorker.bBox.w
             + config.lifeLine.gutter.h;
-        viewState.menuTrigger.y = defaultWorker.bBox.y;
+        viewState.menuTrigger.y = defaultWorker.bBox.y + config.lifeLine.header.height / 2;
 
         // Position the body block node
         if (node.body) {
@@ -96,7 +96,7 @@ export const visitor: Visitor = {
             let epX = defaultWorker.bBox.x + defaultWorker.bBox.w
                 + config.lifeLine.gutter.h;
             node.VisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
-                if (!endpoint.caller) {
+                if (!endpoint.caller && endpoint.viewState.visible) {
                     endpoint.viewState.bBox.x = epX;
                     endpoint.viewState.bBox.y = defaultWorker.bBox.y;
                     epX = epX + endpoint.viewState.bBox.w + config.lifeLine.gutter.h;

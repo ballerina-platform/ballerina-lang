@@ -20,7 +20,6 @@ package org.ballerinalang.bre.bvm;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.DebugContext;
-import org.ballerinalang.util.program.BLangVMUtils;
 import org.ballerinalang.util.transactions.TransactionLocalContext;
 
 import java.util.List;
@@ -37,7 +36,9 @@ public class Strand {
 
     private String id;
 
-    public volatile State state;
+    public State state;
+
+    public volatile boolean aborted;
 
     private StackFrame[] callStack;
 
@@ -58,6 +59,8 @@ public class Strand {
 
     public StrandWaitHandler strandWaitHandler;
 
+    private TransactionLocalContext transactionStrandContext;
+
     public Strand(ProgramFile programFile, String name, Map<String, Object> properties, StrandCallback respCallback) {
         this.programFile = programFile;
         this.respCallback = respCallback;
@@ -65,6 +68,8 @@ public class Strand {
         this.state = State.NEW;
         this.globalProps = properties;
         this.id = name + "-" + UUID.randomUUID().toString();
+        this.aborted = false;
+        this.transactionStrandContext = null;
         initDebugger();
     }
 
@@ -127,15 +132,19 @@ public class Strand {
     }
 
     public boolean isInTransaction() {
-        return BLangVMUtils.getTransactionInfo(this) != null;
+        return this.transactionStrandContext != null;
     }
 
     public void setLocalTransactionContext(TransactionLocalContext transactionLocalContext) {
-        BLangVMUtils.setTransactionInfo(this, transactionLocalContext);
+        this.transactionStrandContext = transactionLocalContext;
     }
 
     public TransactionLocalContext getLocalTransactionContext() {
-        return BLangVMUtils.getTransactionInfo(this);
+        return this.transactionStrandContext;
+    }
+
+    public void removeLocalTransactionContext() {
+        this.transactionStrandContext = null;
     }
 
     public void createWaitHandler(int callBacksRemaining, List<Integer> callBacksToWaitFor) {

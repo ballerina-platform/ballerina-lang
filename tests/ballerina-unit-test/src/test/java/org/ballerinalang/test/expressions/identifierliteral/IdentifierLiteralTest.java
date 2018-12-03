@@ -213,13 +213,13 @@ public class IdentifierLiteralTest {
     public void testIdentifierLiteralWithWrongCharacter() {
         CompileResult resultNeg = BCompileUtil.compile("test-src/expressions/identifierliteral" +
                 "/identifier-literal-wrong-character-negative.bal");
-        Assert.assertEquals(resultNeg.getErrorCount(), 6);
+        Assert.assertEquals(resultNeg.getErrorCount(), 4);
         BAssertUtil.validateError(resultNeg, 0, "invalid token 'var'", 3, 23);
-        BAssertUtil.validateError(resultNeg, 1, "mismatched input 'var'. expecting ';'", 3, 23);
-        BAssertUtil.validateError(resultNeg, 2, "extraneous input '\";\\n    return ^\"'", 3, 34);
-        BAssertUtil.validateError(resultNeg, 3, "missing token ';' before 'v'", 4, 21);
-        BAssertUtil.validateError(resultNeg, 4, "token recognition error at: '\";\\n}\\n\\n\\n'", 4, 25);
-        BAssertUtil.validateError(resultNeg, 5, "missing token ';' before '<EOF>'", 4, 23);
+        BAssertUtil.validateError(resultNeg, 1, "invalid token '\" = \"'", 3, 26);
+        BAssertUtil.validateError(resultNeg, 2, "mismatched input 'dfs'. expecting {'is', ';', '?', '+', '-', '*', " +
+                "'/', '%', '==', '!=', '>', '<', '>=', '<=', '&&', '||', '===', '!==', '&', '^', '...', '|', '?:', " +
+                "'->>', '..<'}", 3, 31);
+        BAssertUtil.validateError(resultNeg, 3, "token recognition error at: '\";\\n}\\n\\n\\n'", 4, 25);
     }
 
     @Test

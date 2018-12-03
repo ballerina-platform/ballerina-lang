@@ -21,7 +21,7 @@ import ballerina/time;
 type TwoPhaseCommitTransaction object {
 
     string transactionId;
-    int transactionBlockId;
+    string transactionBlockId;
     string coordinationType;
     boolean isInitiated = false; // Indicates whether this is a transaction that was initiated or is participated in
     map<Participant> participants = {};
@@ -30,7 +30,7 @@ type TwoPhaseCommitTransaction object {
     TransactionState state = TXN_STATE_ACTIVE;
     private boolean possibleMixedOutcome = false;
 
-    function __init(string transactionId, int transactionBlockId, string coordinationType = "2pc") {
+    function __init(string transactionId, string transactionBlockId, string coordinationType = "2pc") {
         self.transactionId = transactionId;
         self.transactionBlockId = transactionBlockId;
         self.coordinationType = coordinationType;
@@ -38,7 +38,7 @@ type TwoPhaseCommitTransaction object {
 
     // This function will be called by the initiator
     function twoPhaseCommit() returns string|error {
-        log:printInfo(io:sprintf("Running 2-phase commit for transaction: %s:%d", self.transactionId,
+        log:printInfo(io:sprintf("Running 2-phase commit for transaction: %s:%s", self.transactionId,
                 self.transactionBlockId));
         string|error ret = "";
 
@@ -224,7 +224,7 @@ type TwoPhaseCommitTransaction object {
 
     // This function will be called by the initiator
     function abortInitiatorTransaction() returns string|error {
-        log:printInfo(io:sprintf("Aborting initiated transaction: %s:%d", self.transactionId, self.transactionBlockId));
+        log:printInfo(io:sprintf("Aborting initiated transaction: %s:%s", self.transactionId, self.transactionBlockId));
         string|error ret = "";
         // return response to the initiator. ( Aborted | Mixed )
         var result = self.notifyParticipants(COMMAND_ABORT, ());

@@ -32,7 +32,7 @@ public type AuthzFilter object {
 
     # Filter function implementation which tries to authorize the request
     #
-    # + listenerObj - `Listener` instance that is the http endpoint
+    # + caller - Caller for outbound HTTP responses
     # + request - `Request` instance
     # + context - `FilterContext` instance
     # + return - A flag to indicate if the request flow should be continued(true) or aborted(false), a code and a message
@@ -70,7 +70,7 @@ public type AuthzFilter object {
 
 # Verifies if the authorization is successful. If not responds to the user.
 #
-# + callerObj - The http caller
+# + caller - Caller for outbound HTTP responses
 # + authorized - flag to indicate if authorization is successful or not
 # + return - A boolean flag to indicate if the request flow should be continued(true) or
 #            aborted(false)
