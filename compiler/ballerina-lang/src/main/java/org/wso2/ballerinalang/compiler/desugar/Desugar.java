@@ -1054,8 +1054,26 @@ public class Desugar extends BLangNodeVisitor {
 
         assignNode.varRef = rewriteExpr(assignNode.varRef);
         assignNode.expr = rewriteExpr(assignNode.expr);
-        result = assignNode;
 
+        // If this is an update of a type guarded variable, then generate code
+        // to update the original variable as well.
+        if (assignNode.varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            BLangSimpleVarRef varRef = (BLangSimpleVarRef) assignNode.varRef;
+            BVarSymbol varSymbol = (BVarSymbol) varRef.symbol;
+            if (varSymbol.originalSymbol != null) {
+                BLangExpression guardedVarRef = ASTBuilderUtil.createVariableRef(assignNode.pos, varSymbol);
+                guardedVarRef = addConversionExprIfRequired(guardedVarRef, varSymbol.originalSymbol.type);
+                BLangSimpleVarRef originalVarRef =
+                        ASTBuilderUtil.createVariableRef(assignNode.pos, varSymbol.originalSymbol);
+                BLangAssignment updateOriginalVar =
+                        ASTBuilderUtil.createAssignmentStmt(assignNode.pos, originalVarRef, guardedVarRef);
+                updateOriginalVar = rewrite(updateOriginalVar, env);
+                result = ASTBuilderUtil.createBlockStmt(assignNode.pos, Lists.of(assignNode, updateOriginalVar));
+                return;
+            }
+        }
+
+        result = assignNode;
     }
 
     @Override
@@ -2504,7 +2522,7 @@ public class Desugar extends BLangNodeVisitor {
             // Create an assignment node. Add a conversion from rhs to lhs of the pattern, if required.
             pattern.expr = addConversionExprIfRequired(pattern.expr, tempResultVarRef.type);
             BLangAssignment assignmentStmt =
-                    ASTBuilderUtil.createAssignmentStmt(pattern.pos, tempResultVarRef, pattern.expr, false);
+                    ASTBuilderUtil.createAssignmentStmt(pattern.pos, tempResultVarRef, pattern.expr);
             BLangBlockStmt patternBody = ASTBuilderUtil.createBlockStmt(pattern.pos, Lists.of(assignmentStmt));
 
             // Create the pattern

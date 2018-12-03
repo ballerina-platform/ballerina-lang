@@ -166,4 +166,20 @@ public class TypeGuardTest {
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), "string");
     }
+
+    @Test
+    public void testUpdatingGuardedVar_1() {
+        BValue[] returns = BRunUtil.invoke(result, "testUpdatingGuardedVar_1");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "BALLERINA - updated");
+    }
+
+    @Test
+    public void testUpdatingGuardedVar_2() {
+        BValue[] returns = BRunUtil.invoke(result, "testUpdatingGuardedVar_2");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "BALLERINA - updated once - updated via function");
+    }
 }
