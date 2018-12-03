@@ -35,7 +35,6 @@ import org.testng.annotations.Test;
  *
  * @since 0.985.0
  */
-@Test(groups = "broken")
 public class NativeConversionWithStampTypesTest {
 
     private CompileResult compileResult;
@@ -73,7 +72,7 @@ public class NativeConversionWithStampTypesTest {
         BMap<String, BValue> json = (BMap<String, BValue>) results[1];
 
         Assert.assertEquals(results.length, 2);
-        Assert.assertEquals(json.getType().getClass(), BJSONType.class);
+        Assert.assertEquals(json.getType().getClass(), BMapType.class);
 
         Assert.assertEquals((employee.getMap()).size(), 4);
         Assert.assertEquals((json.getMap()).size(), 4);
