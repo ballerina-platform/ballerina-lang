@@ -21,12 +21,19 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * Test local transaction participant behavior.
+ * This is the functions annotated with (at)transactions:Participant annotation.
+ *
+ * @since 0.990.0
+ */
 public class TransactionLocalParticipantFunctionTest {
     CompileResult result;
 
@@ -78,5 +85,40 @@ public class TransactionLocalParticipantFunctionTest {
         String s = ret[0].stringValue();
         Assert.assertEquals(s, " in-trx trapped:[dynamically nested transactions are not allowed] " +
                 "last-line committed");
+    }
+
+    @Test
+    public void testTransactionLocalNonParticipantCallsParticipant() {
+        BValue[] params = {new BString("")};
+        BValue[] ret = BRunUtil.invoke(result, "nonParticipantFunctionNesting", params);
+        String s = ret[0].stringValue();
+        Assert.assertEquals(s, " in-trx in-non-participant localParticipant after-local-participant " +
+                "in-trx-last-line committed | commitFun");
+    }
+
+    @Test
+    public void testTransactionLocalNonParticipantCallsParticipantNonParticipantObserveError() {
+        BValue[] params = {new BString("failInNonParticipant")};
+        BValue[] ret = BRunUtil.invoke(result, "nonParticipantFunctionNesting", params);
+        String s = ret[0].stringValue();
+        Assert.assertEquals(s, " in-trx in-non-participant localParticipant after-local-participant " +
+                "non-participants-callee-fail-and-trapped in-trx-last-line committed | commitFun");
+    }
+
+    @Test
+    public void testTransactionLocalNonParticipantCallsParticipantParticipantError() {
+        BValue[] params = {new BString("participantFail")};
+        BValue[] ret = BRunUtil.invoke(result, "nonParticipantFunctionNesting", params);
+        String s = ret[0].stringValue();
+        Assert.assertEquals(s, " in-trx in-non-participant traped: local-participant after-local-participant " +
+                "in-trx-last-line aborted |");
+    }
+
+    @Test
+    public void testTransactionTransactionOnlyInfectCallsInSameStrand() {
+        BValue[] params = {};
+        BValue[] ret = BRunUtil.invoke(result, "participantInNonStrand", params);
+        String s = ret[0].stringValue();
+        Assert.assertEquals(s, " in-trx from-startANewStrand last-line committed | error in otherStrand: error!!!");
     }
 }

@@ -58,7 +58,7 @@ function startExternalTimeWindowQuery() returns (TeacherOutput[]) {
     createStreamingConstruct();
 
     outputStream.subscribe(function (TeacherOutput e) {printTeachers(e);});
-    foreach t in teachers {
+    foreach var t in teachers {
         inputStream.publish(t);
     }
 
@@ -86,7 +86,7 @@ function startExternalTimeWindowQuery() returns (TeacherOutput[]) {
 function createStreamingConstruct() {
 
     function (map<anydata>[]) outputFunc = function (map<anydata>[] events) {
-        foreach m in events {
+        foreach var m in events {
             // just cast input map into the output type
             var t = <TeacherOutput>TeacherOutput.stamp(m.clone());
             outputStream.publish(t);

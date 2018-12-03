@@ -688,89 +688,85 @@ public class BVM {
                     BStream stream = new BStream(typeRefCPEntry.getType(), name.getValue());
                     sf.refRegs[i] = stream;
                     break;
-                case InstructionCodes.NEW_INT_RANGE:
-                    createNewIntRange(operands, sf);
-                    break;
                 case InstructionCodes.IRET:
-                    j = operands[0];
-                    if (strand.fp > 0) {
-                        StackFrame pf = strand.peekFrame(1);
-                        callersRetRegIndex = sf.retReg;
-                        pf.longRegs[callersRetRegIndex] = sf.longRegs[j];
-                    } else {
-                        strand.respCallback.setIntReturn(sf.longRegs[j]);
-                    }
-                    break;
-                case InstructionCodes.FRET:
-                    j = operands[0];
-                    if (strand.fp > 0) {
-                        StackFrame pf = strand.peekFrame(1);
-                        callersRetRegIndex = sf.retReg;
-                        pf.doubleRegs[callersRetRegIndex] = sf.doubleRegs[j];
-                    } else {
-                        strand.respCallback.setFloatReturn(sf.doubleRegs[j]);
-                    }
-                    break;
-                case InstructionCodes.SRET:
-                    j = operands[0];
-                    if (strand.fp > 0) {
-                        StackFrame pf = strand.peekFrame(1);
-                        callersRetRegIndex = sf.retReg;
-                        pf.stringRegs[callersRetRegIndex] = sf.stringRegs[j];
-                    } else {
-                        strand.respCallback.setStringReturn(sf.stringRegs[j]);
-                    }
-                    break;
-                case InstructionCodes.BRET:
-                    j = operands[0];
-                    if (strand.fp > 0) {
-                        StackFrame pf = strand.peekFrame(1);
-                        callersRetRegIndex = sf.retReg;
-                        pf.intRegs[callersRetRegIndex] = sf.intRegs[j];
-                    } else {
-                        strand.respCallback.setBooleanReturn(sf.intRegs[j]);
-                    }
-                    break;
-                case InstructionCodes.DRET:
-                case InstructionCodes.RRET:
-                    j = operands[0];
-                    if (strand.fp > 0) {
-                        StackFrame pf = strand.peekFrame(1);
-                        callersRetRegIndex = sf.retReg;
-                        pf.refRegs[callersRetRegIndex] = sf.refRegs[j];
-                    } else {
-                        strand.respCallback.setRefReturn(sf.refRegs[j]);
-                    }
-                    break;
-                case InstructionCodes.RET:
-                    if (strand.fp > 0) {
-                        // Stop the observation context before popping the stack frame
-                        ObserveUtils.stopCallableObservation(strand);
-                        strand.popFrame();
+                        j = operands[0];
+                        if (strand.fp > 0) {
+                            StackFrame pf = strand.peekFrame(1);
+                            callersRetRegIndex = sf.retReg;
+                            pf.longRegs[callersRetRegIndex] = sf.longRegs[j];
+                        } else {
+                            strand.respCallback.setIntReturn(sf.longRegs[j]);
+                        }
                         break;
-                    }
-                    sf.ip = -1;
-                    strand.respCallback.signal();
-                    return;
-                case InstructionCodes.XMLATTRSTORE:
-                case InstructionCodes.XMLATTRLOAD:
-                case InstructionCodes.XML2XMLATTRS:
-                case InstructionCodes.S2QNAME:
-                case InstructionCodes.NEWQNAME:
-                case InstructionCodes.NEWXMLELEMENT:
-                case InstructionCodes.NEWXMLCOMMENT:
-                case InstructionCodes.NEWXMLTEXT:
-                case InstructionCodes.NEWXMLPI:
-                case InstructionCodes.XMLSEQSTORE:
-                case InstructionCodes.XMLSEQLOAD:
-                case InstructionCodes.XMLLOAD:
-                case InstructionCodes.XMLLOADALL:
-                case InstructionCodes.NEWXMLSEQ:
-                    execXMLOpcodes(strand, sf, opcode, operands);
-                    break;
-                case InstructionCodes.ITR_NEW:
-                case InstructionCodes.ITR_NEXT:
-                case InstructionCodes.ITR_HAS_NEXT:
+                    case InstructionCodes.FRET:
+                        j = operands[0];
+                        if (strand.fp > 0) {
+                            StackFrame pf = strand.peekFrame(1);
+                            callersRetRegIndex = sf.retReg;
+                            pf.doubleRegs[callersRetRegIndex] = sf.doubleRegs[j];
+                        } else {
+                            strand.respCallback.setFloatReturn(sf.doubleRegs[j]);
+                        }
+                        break;
+                    case InstructionCodes.SRET:
+                        j = operands[0];
+                        if (strand.fp > 0) {
+                            StackFrame pf = strand.peekFrame(1);
+                            callersRetRegIndex = sf.retReg;
+                            pf.stringRegs[callersRetRegIndex] = sf.stringRegs[j];
+                        } else {
+                            strand.respCallback.setStringReturn(sf.stringRegs[j]);
+                        }
+                        break;
+                    case InstructionCodes.BRET:
+                        j = operands[0];
+                        if (strand.fp > 0) {
+                            StackFrame pf = strand.peekFrame(1);
+                            callersRetRegIndex = sf.retReg;
+                            pf.intRegs[callersRetRegIndex] = sf.intRegs[j];
+                        } else {
+                            strand.respCallback.setBooleanReturn(sf.intRegs[j]);
+                        }
+                        break;
+                    case InstructionCodes.DRET:
+                    case InstructionCodes.RRET:
+                        j = operands[0];
+                        if (strand.fp > 0) {
+                            StackFrame pf = strand.peekFrame(1);
+                            callersRetRegIndex = sf.retReg;
+                            pf.refRegs[callersRetRegIndex] = sf.refRegs[j];
+                        } else {
+                            strand.respCallback.setRefReturn(sf.refRegs[j]);
+                        }
+                        break;
+                    case InstructionCodes.RET:
+                        if (strand.fp > 0) {
+                            // Stop the observation context before popping the stack frame
+                            ObserveUtils.stopCallableObservation(strand);
+                            strand.popFrame();
+                            break;
+                        }
+                        sf.ip = -1;
+                        strand.respCallback.signal();
+                        return;
+                    case InstructionCodes.XMLATTRSTORE:
+                    case InstructionCodes.XMLATTRLOAD:
+                    case InstructionCodes.XML2XMLATTRS:
+                    case InstructionCodes.S2QNAME:
+                    case InstructionCodes.NEWQNAME:
+                    case InstructionCodes.NEWXMLELEMENT:
+                    case InstructionCodes.NEWXMLCOMMENT:
+                    case InstructionCodes.NEWXMLTEXT:
+                    case InstructionCodes.NEWXMLPI:
+                    case InstructionCodes.XMLSEQSTORE:
+                    case InstructionCodes.XMLSEQLOAD:
+                    case InstructionCodes.XMLLOAD:
+                    case InstructionCodes.XMLLOADALL:
+                    case InstructionCodes.NEWXMLSEQ:
+                        execXMLOpcodes(strand, sf, opcode, operands);
+                        break;
+                    case InstructionCodes.ITR_NEW:
+                    case InstructionCodes.ITR_NEXT:
                     execIteratorOperation(strand, sf, instruction);
                     break;
                 case InstructionCodes.LOCK:
@@ -1770,7 +1766,7 @@ public class BVM {
                 try {
                     JSONUtils.setElement(sf.refRegs[i], sf.stringRegs[j], sf.refRegs[k]);
                 } catch (BLangFreezeException e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, "Failed to set element to JSON: " + e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, "failed to set element to json: " + e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -2651,7 +2647,7 @@ public class BVM {
                 }
 
                 try {
-                    sf.refRegs[j] = JSONUtils.toJSON((BTable) bRefType, ctx.isInTransaction());
+                    sf.refRegs[j] = JSONUtils.toJSON((BTable) bRefType);
                 } catch (Exception e) {
                     handleTypeConversionError(ctx, sf, j, TypeConstants.TABLE_TNAME, TypeConstants.XML_TNAME);
                 }
@@ -2737,7 +2733,7 @@ public class BVM {
                         }
 
                         @Override
-                        public BValue[] getNext(int arity) {
+                        public BValue getNext() {
                             return null;
                         }
                     };
@@ -2746,49 +2742,24 @@ public class BVM {
 
                 sf.refRegs[j] = ((BCollection) collection).newIterator();
                 break;
-            case InstructionCodes.ITR_HAS_NEXT:
-                i = instruction.getOperands()[0];   // iterator
-                j = instruction.getOperands()[1];   // boolean variable index to store has next result
-                iterator = (BIterator) sf.refRegs[i];
-                try {
-                    sf.intRegs[j] = Optional.of(iterator).get().hasNext() ? 1 : 0;
-                } catch (Throwable e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
-                    handleError(ctx);
-                }
-                break;
             case InstructionCodes.ITR_NEXT:
                 nextInstruction = (InstructionIteratorNext) instruction;
                 iterator = (BIterator) sf.refRegs[nextInstruction.iteratorIndex];
-                BValue[] values = Optional.of(iterator).get().getNext(nextInstruction.arity);
-                copyValuesToRegistries(nextInstruction.typeTags, nextInstruction.retRegs, values, sf);
-                break;
-        }
-    }
 
-    private static void copyValuesToRegistries(int[] typeTags, int[] targetReg, BValue[] values, StackFrame sf) {
-        for (int i = 0; i < typeTags.length; i++) {
-            BValue source = values[i];
-            int target = targetReg[i];
-            switch (typeTags[i]) {
-                case TypeTags.INT_TAG:
-                    sf.longRegs[target] = ((BInteger) source).intValue();
-                    break;
-                case TypeTags.BYTE_TAG:
-                    sf.intRegs[target] = ((BByte) source).byteValue();
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    sf.doubleRegs[target] = ((BFloat) source).floatValue();
-                    break;
-                case TypeTags.STRING_TAG:
-                    sf.stringRegs[target] = source.stringValue();
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    sf.intRegs[target] = ((BBoolean) source).booleanValue() ? 1 : 0;
-                    break;
-                default:
-                    sf.refRegs[target] = (BRefType) source;
-            }
+                // Get the next value.
+                BValue value = Optional.of(iterator).get().getNext();
+                if (value != null) {
+                    // If the value is not null, we create a new map and add the value to the map with the key
+                    // `value`. Then we set this map to the corresponding registry location.
+                    BMap<String, BValue> newMap = new BMap<>(nextInstruction.constraintType);
+                    newMap.put("value", value);
+                    sf.refRegs[nextInstruction.retRegs[0]] = (BRefType) newMap;
+                } else {
+                    // If the value is null, that means we have reached the end of the iterable list. So we set null
+                    // to the corresponding registry location.
+                    sf.refRegs[nextInstruction.retRegs[0]] = null;
+                }
+                break;
         }
     }
 
@@ -3072,13 +3043,13 @@ public class BVM {
         sf.refRegs[i] = new BMap<>(structInfo.getType());
     }
 
-    private static void beginTransaction(Strand strand, int transactionType, int transactionBlockId,
+    private static void beginTransaction(Strand strand, int transactionType, int transactionBlockIdIndex,
                                          int retryCountRegIndex, int committedFuncIndex, int abortedFuncIndex) {
         if (transactionType == Transactions.TransactionType.PARTICIPANT.value) {
-            beginTransactionLocalParticipant(strand, transactionBlockId, committedFuncIndex, abortedFuncIndex);
+            beginTransactionLocalParticipant(strand, transactionBlockIdIndex, committedFuncIndex, abortedFuncIndex);
             return;
         } else if (transactionType == Transactions.TransactionType.REMOTE_PARTICIPANT.value) {
-            beginRemoteParticipant(strand, transactionBlockId, committedFuncIndex, abortedFuncIndex);
+            beginRemoteParticipant(strand, transactionBlockIdIndex, committedFuncIndex, abortedFuncIndex);
             return;
         }
 
@@ -3102,13 +3073,14 @@ public class BVM {
             handleError(strand);
             return;
         }
+        String transactionBlockId = getTrxBlockIdFromCP(strand, transactionBlockIdIndex);
 
         TransactionLocalContext transactionLocalContext = createAndNotifyGlobalTx(strand, transactionBlockId);
         strand.setLocalTransactionContext(transactionLocalContext);
         transactionLocalContext.beginTransactionBlock(transactionBlockId, retryCount);
     }
 
-    private static void beginRemoteParticipant(Strand strand, int transactionBlockId, int committedFuncIndex,
+    private static void beginRemoteParticipant(Strand strand, int transactionBlockIdIndex, int committedFuncIndex,
                                                int abortedFuncIndex) {
         TransactionLocalContext localTransactionContext = strand.getLocalTransactionContext();
         if (localTransactionContext == null) {
@@ -3130,7 +3102,7 @@ public class BVM {
             FunctionRefCPEntry funcRefCPEntry = (FunctionRefCPEntry) strand.currentFrame.constPool[abortedFuncIndex];
             fpAborted = new BFunctionPointer(funcRefCPEntry.getFunctionInfo());
         }
-
+        String transactionBlockId = getTrxBlockIdFromCP(strand, transactionBlockIdIndex);
         localTransactionContext.setResourceParticipant(true);
         String globalTransactionId = localTransactionContext.getGlobalTransactionId();
         localTransactionContext.beginTransactionBlock(transactionBlockId, -1);
@@ -3146,7 +3118,7 @@ public class BVM {
         strand.setError(error);
     }
 
-    private static void beginTransactionLocalParticipant(Strand strand, int transactionBlockId,
+    private static void beginTransactionLocalParticipant(Strand strand, int transactionBlockIdCpIndex,
                                                          int committedFuncIndex, int abortedFuncIndex) {
         TransactionLocalContext transactionLocalContext = strand.getLocalTransactionContext();
         if (transactionLocalContext == null) {
@@ -3154,6 +3126,8 @@ public class BVM {
             // We have no business here. This is a no-op.
             return;
         }
+
+        String transactionBlockId = getTrxBlockIdFromCP(strand, transactionBlockIdCpIndex);
 
         // Register committed function handler if exists.
         TransactionResourceManager transactionResourceManager = TransactionResourceManager.getInstance();
@@ -3179,7 +3153,12 @@ public class BVM {
         strand.currentFrame.trxParticipant = StackFrame.TransactionParticipantType.LOCAL_PARTICIPANT;
     }
 
-    private static TransactionLocalContext createAndNotifyGlobalTx(Strand ctx, int transactionBlockId) {
+    private static String getTrxBlockIdFromCP(Strand strand, int index) {
+        StringCPEntry stringCPEntry = (StringCPEntry) strand.currentFrame.constPool[index];
+        return stringCPEntry.getValue();
+    }
+
+    private static TransactionLocalContext createAndNotifyGlobalTx(Strand ctx, String transactionBlockId) {
         BValue[] txResult = TransactionUtils.notifyTransactionBegin(ctx, null, null,
                 transactionBlockId, TransactionConstants.DEFAULT_COORDINATION_TYPE);
 
@@ -3196,10 +3175,13 @@ public class BVM {
         return TransactionLocalContext.create(globalTransactionId, null, null);
     }
 
-    private static void retryTransaction(Strand strand, int transactionBlockId, int trAbortEndIp, int trEndStatusReg) {
+    private static void retryTransaction(Strand strand, int transactionBlockIdCpIndex,
+                                         int trAbortEndIp, int trEndStatusReg) {
         strand.currentFrame.intRegs[trEndStatusReg] = 0; // set trend status to normal.
         TransactionLocalContext transactionLocalContext = strand.getLocalTransactionContext();
         transactionLocalContext.getAndClearFailure();
+
+        String transactionBlockId = getTrxBlockIdFromCP(strand, transactionBlockIdCpIndex);
         if (transactionLocalContext.isRetryPossible(strand, transactionBlockId)) {
             if (transactionLocalContext.isRetryAttempt(transactionBlockId)) {
                 TransactionLocalContext newLocalTransaction = createAndNotifyGlobalTx(strand, transactionBlockId);
@@ -3219,9 +3201,11 @@ public class BVM {
         strand.currentFrame.ip = trAbortEndIp;
     }
 
-    private static void endTransaction(Strand strand, int txBlockId, int endType, int statusRegIndex,
+    private static void endTransaction(Strand strand, int transactionBlockIdCpIndex, int endType, int statusRegIndex,
                                        int errorRegIndex) {
         TransactionLocalContext localTxInfo = strand.getLocalTransactionContext();
+        String txBlockId = getTrxBlockIdFromCP(strand, transactionBlockIdCpIndex);
+
         try {
             //In success case no need to do anything as with the transaction end phase it will be committed.
             switch (Transactions.TransactionStatus.getConst(endType)) {
@@ -3247,7 +3231,7 @@ public class BVM {
         }
     }
 
-    private static void transactionAbortedEnd(Strand strand, int txBlockId, TransactionLocalContext localTxInfo,
+    private static void transactionAbortedEnd(Strand strand, String txBlockId, TransactionLocalContext localTxInfo,
                                               int statusRegIndex, int errorRegIndex) {
         // Notify only if, aborted by 'abort' statement.
         if (strand.currentFrame.intRegs[statusRegIndex] == 0) {
@@ -3271,15 +3255,13 @@ public class BVM {
         strand.currentFrame.intRegs[statusRegIndex] = 0;
     }
 
-    private static void transactionEndEnd(Strand strand, int transactionBlockId,
+    private static void transactionEndEnd(Strand strand, String transactionBlockId,
                                           TransactionLocalContext transactionLocalContext) {
         boolean isOuterTx = transactionLocalContext.onTransactionEnd(transactionBlockId);
-        if (isOuterTx) {
-            BLangVMUtils.removeTransactionInfo(strand);
-        }
+        strand.removeLocalTransactionContext();
     }
 
-    private static void transactionBlockEnd(Strand strand, int transactionBlockId, int statusRegIndex,
+    private static void transactionBlockEnd(Strand strand, String transactionBlockId, int statusRegIndex,
                                             TransactionLocalContext transactionLocalContext, int errorRegIndex) {
         // Tx reached end of block, it may or may not successfully finished.
         TransactionLocalContext.TransactionFailure failure = transactionLocalContext.getFailure();
@@ -3324,12 +3306,12 @@ public class BVM {
     }
 
     private static TransactionUtils.CoordinatorCommit notifyGlobalPrepareAndCommit(
-            Strand ctx, int transactionBlockId, TransactionLocalContext transactionLocalContext) {
+            Strand ctx, String transactionBlockId, TransactionLocalContext transactionLocalContext) {
         return TransactionUtils.notifyTransactionEnd(ctx,
                 transactionLocalContext.getGlobalTransactionId(), transactionBlockId);
     }
 
-    private static void notifyTransactionAbort(Strand strand, int transactionBlockId,
+    private static void notifyTransactionAbort(Strand strand, String transactionBlockId,
                                                TransactionLocalContext transactionLocalContext) {
         TransactionUtils.notifyTransactionAbort(strand, transactionLocalContext.getGlobalTransactionId(),
                 transactionBlockId);
@@ -3337,7 +3319,7 @@ public class BVM {
                 .notifyAbort(transactionLocalContext.getGlobalTransactionId(), transactionBlockId, false);
     }
 
-    private static void transactionFailedEnd(Strand strand, int transactionBlockId,
+    private static void transactionFailedEnd(Strand strand, String transactionBlockId,
                                              TransactionLocalContext transactionLocalContext,
                                              int runOnRetryBlockRegIndex) {
         // Invoking tr_end with transaction status of FAILED means tx has failed for some reason.
@@ -4727,7 +4709,7 @@ public class BVM {
                 source.elementType == BTypes.typeByte) {
             return checkIsType(source.elementType, targetType.getElementType(), new ArrayList<>());
         }
-        
+
         BType arrayElementType = targetType.getElementType();
         BRefType<?>[] arrayValues = source.getValues();
         for (int i = 0; i < ((BValueArray) sourceValue).size(); i++) {
@@ -4761,7 +4743,7 @@ public class BVM {
                     source.elementType == BTypes.typeByte) {
                 return checkIsType(source.elementType, targetType, new ArrayList<>());
             }
-            
+
             BRefType<?>[] arrayValues = source.getValues();
             for (int i = 0; i < ((BValueArray) sourceValue).size(); i++) {
                 if (!checkIsLikeType(arrayValues[i], targetType)) {
@@ -4924,6 +4906,8 @@ public class BVM {
             case TypeTags.ARRAY_TAG:
                 // Element type of the array should be 'is type' JSON
                 return checkIsType(((BArrayType) sourceType).getElementType(), targetType, unresolvedTypes);
+            case TypeTags.MAP_TAG:
+                return checkCastByType(((BMapType) sourceType).getConstrainedType(), targetType, unresolvedTypes);
             default:
                 return false;
         }

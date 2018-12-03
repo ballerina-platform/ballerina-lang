@@ -53,7 +53,7 @@ function startLengthBatchwindowTest2() returns (TeacherOutput[]) {
     testLengthBatchwindow();
 
     outputStreamLengthBatchTest2.subscribe(function(TeacherOutput e) {printTeachers(e);});
-    foreach t in teachers {
+    foreach var t in teachers {
         inputStreamLengthbatchTest2.publish(t);
     }
 
@@ -72,11 +72,11 @@ function startLengthBatchwindowTest2() returns (TeacherOutput[]) {
 function testLengthBatchwindow() {
 
     forever {
-        from inputStreamLengthbatchTest2 window lengthBatchWindow([2])
+        from inputStreamLengthbatchTest2 window lengthBatchWindow(2)
         select inputStreamLengthbatchTest2.name, count() as count
         group by inputStreamLengthbatchTest2.school
         => (TeacherOutput [] emp) {
-            foreach e in emp {
+            foreach var e in emp {
                 outputStreamLengthBatchTest2.publish(e);
             }
         }

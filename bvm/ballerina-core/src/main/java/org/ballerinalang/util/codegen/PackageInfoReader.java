@@ -1148,7 +1148,6 @@ public class PackageInfoReader {
                 case InstructionCodes.BR_FALSE:
                 case InstructionCodes.NEWSTRUCT:
                 case InstructionCodes.ITR_NEW:
-                case InstructionCodes.ITR_HAS_NEXT:
                 case InstructionCodes.XML2XMLATTRS:
                 case InstructionCodes.NEWXMLCOMMENT:
                 case InstructionCodes.NEWXMLTEXT:
@@ -1297,7 +1296,6 @@ public class PackageInfoReader {
                 case InstructionCodes.TEQ:
                 case InstructionCodes.TNE:
                 case InstructionCodes.XMLLOAD:
-                case InstructionCodes.NEW_INT_RANGE:
                 case InstructionCodes.LENGTHOF:
                 case InstructionCodes.STAMP:
                 case InstructionCodes.NEWSTREAM:
@@ -1489,8 +1487,13 @@ public class PackageInfoReader {
                     int iteratorIndex = codeStream.readInt();
                     int[] typeTags = getArgRegs(codeStream);
                     retRegs = getArgRegs(codeStream);
+
+                    int constraintTypeSigCPIndex = codeStream.readInt();
+                    TypeRefCPEntry constraintTypeRefCPEntry =
+                            (TypeRefCPEntry) packageInfo.getCPEntry(constraintTypeSigCPIndex);
+                    BType constraintType = constraintTypeRefCPEntry.getType();
                     packageInfo.addInstruction(new InstructionIteratorNext(opcode, iteratorIndex, retRegs.length,
-                            typeTags, retRegs));
+                            typeTags, retRegs, constraintType));
                     break;
                 case InstructionCodes.LOCK:
                     int varCount = codeStream.readInt();

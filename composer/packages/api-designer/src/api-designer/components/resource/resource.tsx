@@ -77,7 +77,7 @@ class OpenApiResource extends React.Component<OpenApiResourceProps, OpenApiResou
                             return (
                                 <InlineEdit
                                     changeModel={appContext.openApiJson}
-                                    changeAttribute={{key: "resource.name", value: openApiResource}}
+                                    changeAttribute={{key: "resource.name", changeValue: openApiResource}}
                                     inlineEditString={openApiResource}
                                     placeholderString="Add a description"
                                     onInlineValueChange={appContext.onInlineEditChange}

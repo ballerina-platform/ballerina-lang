@@ -48,7 +48,7 @@ public function startFilterQuery() returns any {
     foo();
 
     outputStream.subscribe(function (TeacherOutput e) {printTeachers(e);});
-    foreach t in teachers {
+    foreach var t in teachers {
         inputStream.publish(t);
     }
 
@@ -76,7 +76,7 @@ public function startFilterQuery() returns any {
 function foo() {
 
     function (map<anydata>[]) outputFunc = function (map<anydata>[] events) {
-        foreach m in events {
+        foreach var m in events {
             // just cast input map into the output type
             TeacherOutput t = <TeacherOutput>TeacherOutput.create(m);
             outputStream.publish(t);

@@ -31,7 +31,7 @@ public type AuthnFilter object {
 
     # Request filter method which attempts to authenticated the request.
     #
-    # + listenerObj - The http endpoint
+    # + caller - Caller for outbound HTTP responses
     # + request - An inboud HTTP request message
     # + context - A filter context
     # + return - True if the filter succeeds
@@ -61,7 +61,7 @@ public type AuthnFilter object {
 
 # Verifies if the authentication is successful. If not responds to the user.
 #
-# + callerObj - The http caller
+# + caller - Caller for outbound HTTP responses
 # + authenticated - Authorization status for the request
 # + return - Authorization result to indicate if the filter can proceed(true) or not(false)
 function isAuthnSuccesfull(Caller caller, boolean authenticated) returns boolean {
@@ -143,7 +143,7 @@ function getAuthAnnotation(string annotationModule, string annotationName, refle
         return ();
     }
     reflect:annotationData|() authAnn = ();
-    foreach ann in annData {
+    foreach var ann in annData {
         if (ann.name == annotationName && ann.moduleName == annotationModule) {
             authAnn = ann;
             break;

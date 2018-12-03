@@ -51,12 +51,12 @@ public class TransactionResourceManager {
     private Map<String, List<BallerinaTransactionContext>> resourceRegistry;
     private Map<String, Xid> xidRegistry;
 
-    private Map<Integer, BFunctionPointer> committedFuncRegistry;
-    private Map<Integer, BFunctionPointer> abortedFuncRegistry;
+    private Map<String, BFunctionPointer> committedFuncRegistry;
+    private Map<String, BFunctionPointer> abortedFuncRegistry;
 
     private ConcurrentSkipListSet<String> failedResourceParticipantSet = new ConcurrentSkipListSet<>();
     private ConcurrentSkipListSet<String> failedLocalParticipantSet = new ConcurrentSkipListSet<>();
-    private ConcurrentHashMap<String, ConcurrentSkipListSet<Integer>> localParticipants = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, ConcurrentSkipListSet<String>> localParticipants = new ConcurrentHashMap<>();
 
     private TransactionResourceManager() {
         resourceRegistry = new HashMap<>();
@@ -83,7 +83,7 @@ public class TransactionResourceManager {
      * @param transactionBlockId the block id of the transaction
      * @param txContext          ballerina transaction context which includes the underlying connection info
      */
-    public void register(String transactionId, int transactionBlockId, BallerinaTransactionContext txContext) {
+    public void register(String transactionId, String transactionBlockId, BallerinaTransactionContext txContext) {
         String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
         resourceRegistry.computeIfAbsent(combinedId, resourceList -> new ArrayList<>()).add(txContext);
     }
@@ -94,7 +94,7 @@ public class TransactionResourceManager {
      * @param transactionBlockId the block id of the transaction
      * @param bFunctionPointer   the function pointer for the committed function
      */
-    public void registerCommittedFunction(int transactionBlockId, BFunctionPointer bFunctionPointer) {
+    public void registerCommittedFunction(String transactionBlockId, BFunctionPointer bFunctionPointer) {
         committedFuncRegistry.put(transactionBlockId, bFunctionPointer);
     }
 
@@ -104,7 +104,7 @@ public class TransactionResourceManager {
      * @param transactionBlockId the block id of the transaction
      * @param bFunctionPointer   the function pointer for the aborted function
      */
-    public void registerAbortedFunction(int transactionBlockId, BFunctionPointer bFunctionPointer) {
+    public void registerAbortedFunction(String transactionBlockId, BFunctionPointer bFunctionPointer) {
         abortedFuncRegistry.put(transactionBlockId, bFunctionPointer);
     }
 
@@ -118,7 +118,7 @@ public class TransactionResourceManager {
      * @param strand             ballerina strand of the participant
      * @since 0.990.0
      */
-    public void registerParticipation(String gTransactionId, int transactionBlockId, BFunctionPointer committed,
+    public void registerParticipation(String gTransactionId, String transactionBlockId, BFunctionPointer committed,
                                       BFunctionPointer aborted, Strand strand) {
         localParticipants.computeIfAbsent(gTransactionId, gid -> new ConcurrentSkipListSet<>()).add(transactionBlockId);
 
@@ -141,7 +141,7 @@ public class TransactionResourceManager {
      * @param transactionBlockId the block id of the transaction
      * @return the status of the prepare operation
      */
-    public boolean prepare(String transactionId, int transactionBlockId) {
+    public boolean prepare(String transactionId, String transactionBlockId) {
         String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
         List<BallerinaTransactionContext> txContextList = resourceRegistry.get(combinedId);
         if (txContextList != null) {
@@ -175,7 +175,7 @@ public class TransactionResourceManager {
      * @param transactionBlockId the block id of the transaction
      * @return the status of the commit operation
      */
-    public boolean notifyCommit(String transactionId, int transactionBlockId) {
+    public boolean notifyCommit(String transactionId, String transactionBlockId) {
         String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
         boolean commitSuccess = true;
         List<BallerinaTransactionContext> txContextList = resourceRegistry.get(combinedId);
@@ -213,7 +213,7 @@ public class TransactionResourceManager {
      * @param isRetryAttempt     whether this is a retry attempt
      * @return the status of the abort operation
      */
-    public boolean notifyAbort(String transactionId, int transactionBlockId, boolean isRetryAttempt) {
+    public boolean notifyAbort(String transactionId, String transactionBlockId, boolean isRetryAttempt) {
         String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
         boolean abortSuccess = true;
         List<BallerinaTransactionContext> txContextList = resourceRegistry.get(combinedId);
@@ -257,7 +257,7 @@ public class TransactionResourceManager {
      * @param transactionBlockId the block id of the transaction
      * @param xaResource         the XA resource which participates in the transaction
      */
-    public void beginXATransaction(String transactionId, int transactionBlockId, XAResource xaResource) {
+    public void beginXATransaction(String transactionId, String transactionBlockId, XAResource xaResource) {
         String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
         Xid xid = xidRegistry.get(combinedId);
         if (xid == null) {
@@ -278,7 +278,7 @@ public class TransactionResourceManager {
      * @param transactionId      the global transaction id
      * @param transactionBlockId the block id of the transaction
      */
-    void endXATransaction(String transactionId, int transactionBlockId) {
+    void endXATransaction(String transactionId, String transactionBlockId) {
         String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
         Xid xid = xidRegistry.get(combinedId);
         if (xid != null) {
@@ -299,7 +299,7 @@ public class TransactionResourceManager {
         }
     }
 
-    void rollbackTransaction(String transactionId, int transactionBlockId) {
+    void rollbackTransaction(String transactionId, String transactionBlockId) {
         endXATransaction(transactionId, transactionBlockId);
         notifyAbort(transactionId, transactionBlockId, true);
     }
@@ -309,11 +309,11 @@ public class TransactionResourceManager {
         xidRegistry.remove(transactionCombinedId);
     }
 
-    private String generateCombinedTransactionId(String transactionId, int transactionBlockId) {
+    private String generateCombinedTransactionId(String transactionId, String transactionBlockId) {
         return transactionId + ":" + transactionBlockId;
     }
 
-    private void invokeCommittedFunction(String transactionId, int transactionBlockId) {
+    private void invokeCommittedFunction(String transactionId, String transactionBlockId) {
         BFunctionPointer fp = committedFuncRegistry.get(transactionBlockId);
         BValue[] args = {new BString(transactionId + ":" + transactionBlockId)};
         if (fp != null) {
@@ -327,8 +327,8 @@ public class TransactionResourceManager {
         log.info("Trx infected callable unit excepted id : " + gTransactionId);
     }
 
-    public void notifyLocalParticipantFailure(String gTransactionId, int blockId) {
-        ConcurrentSkipListSet<Integer> participantBlockIds = localParticipants.get(gTransactionId);
+    public void notifyLocalParticipantFailure(String gTransactionId, String blockId) {
+        ConcurrentSkipListSet<String> participantBlockIds = localParticipants.get(gTransactionId);
         if (participantBlockIds != null && participantBlockIds.contains(blockId)) {
             failedLocalParticipantSet.add(gTransactionId);
         }

@@ -149,7 +149,7 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
         remoteHubNotificationLogLeecherTwo.waitForText(45000);
     }
 
-    @Test(dependsOnMethods = "testSubscriberDetailsRetrievalFromHub", groups = "broken")
+    @Test(dependsOnMethods = "testSubscriberDetailsRetrievalFromHub")
     public void testUnsubscriptionIntentVerification() throws BallerinaTestException {
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                                           "websub" + File.separator + "test_unsubscription_client.bal")
@@ -168,8 +168,7 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
     @Test(dependsOnMethods = "testUnsubscriptionIntentVerification",
             description = "Tests that no notifications are received after unsubscription",
             expectedExceptions = BallerinaTestException.class,
-            expectedExceptionsMessageRegExp = ".*Timeout expired waiting for matching log.*"
-    )
+            expectedExceptionsMessageRegExp = ".*Timeout expired waiting for matching log.*")
     public void testUnsubscription() throws BallerinaTestException {
         requestUpdate(PUBLISHER_NOTIFY_URL, HUB_MODE_INTERNAL, CONTENT_TYPE_JSON);
         logAbsenceTestLogLeecher.waitForText(5000);
@@ -229,7 +228,7 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
         Assert.assertTrue(response.getData().contains("{\"callback\":\"http://localhost:8181/websub"));
     }
 
-    @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification", groups = "broken")
+    @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification")
     public void testAvailableTopicsRetrievalFromHub() throws IOException {
         HttpResponse response = HttpClientRequest.doGet("http://localhost:8080/publisher/topicInfo");
 

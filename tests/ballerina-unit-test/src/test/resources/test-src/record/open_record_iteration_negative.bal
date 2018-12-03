@@ -31,14 +31,14 @@ function testInvalidArgForForeachWithOpenRecords() {
     any[] vals = [];
     int i = 0;
 
-    foreach k, val, e in p {
+    foreach var (k, val, e) in p {
         vals[i] = val;
         i += 1;
     }
 }
 
 function testInvalidForeachOpWithOpenRecords() {
-    p.foreach(function (any entry) {
+    p.foreach(function ((string, any) entry) {
     });
 
     p.foreach(function ((string, string, any) entry) {
@@ -46,7 +46,7 @@ function testInvalidForeachOpWithOpenRecords() {
 }
 
 function testInvalidMapOpWithOpenRecords() {
-    map<any> newp = p.map(function (any entry) returns (string, any) {
+    map<any> newp = p.map(function ((string, any) entry) returns (string, any) {
         return ("", "");
     });
 
@@ -131,8 +131,8 @@ function testInvalidChainedItrOpReturns() {
 function testInvalidChainedItrOpReturns2() {
     RestrictedGrades f = {maths: 80, physics: 75, chemistry: 65, english: 78};
 
-    int[] ar = f.map(function (int grade) returns int {
-        return grade + 10;
+    int[] ar = f.map(function ((string, int) grade) returns int {
+        return grade[1] + 10;
     })
     .map(function (int grade) returns string {
         if (grade > 75) {

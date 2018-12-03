@@ -53,7 +53,7 @@ function startExternalTimeBatchwindowTest5() returns (TeacherOutput[]) {
     testExternalTimeBatchwindow5();
 
     outputStreamExternalTimeBatchTest5.subscribe(function(TeacherOutput e) {printTeachers(e);});
-    foreach t in teachers {
+    foreach var t in teachers {
         inputStreamExternalTimeBatchTest5.publish(t);
         runtime:sleep(450);
     }
@@ -73,11 +73,11 @@ function testExternalTimeBatchwindow5() {
 
     forever {
         from inputStreamExternalTimeBatchTest5 window externalTimeBatchWindow(
-                                                          [inputStreamExternalTimeBatchTest5.timestamp, 1000, 1000, 1200])
+                                                          inputStreamExternalTimeBatchTest5.timestamp, 1000, 1000, 1200)
         select inputStreamExternalTimeBatchTest5.timestamp, inputStreamExternalTimeBatchTest5.name, count() as count
         group by inputStreamExternalTimeBatchTest5.school
         => (TeacherOutput [] teachers) {
-            foreach t in teachers {
+            foreach var t in teachers {
                 outputStreamExternalTimeBatchTest5.publish(t);
             }
         }

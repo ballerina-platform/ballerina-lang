@@ -148,7 +148,7 @@ function testStreamPublishingAndSubscriptionForIntegerStream() returns (int[], i
     stream<int> intStream = new;
     intStream.subscribe(addToGlobalIntegerArray);
     int[] publishedIntegerEvents = [11, 24857, 0, -1, 999];
-    foreach intEvent in publishedIntegerEvents {
+    foreach var intEvent in publishedIntegerEvents {
         intStream.publish(intEvent);
     }
     int startTime = time:currentTime().time;
@@ -165,7 +165,7 @@ function testStreamPublishingAndSubscriptionForBooleanStream() returns (boolean[
     stream<boolean> booleanStream = new;
     booleanStream.subscribe(addToGlobalBooleanArray);
     boolean[] publishedBooleanEvents = [true, false, false, true, false];
-    foreach booleanEvent in publishedBooleanEvents {
+    foreach var booleanEvent in publishedBooleanEvents {
         booleanStream.publish(booleanEvent);
     }
     int startTime = time:currentTime().time;
@@ -184,7 +184,7 @@ function testStreamPublishingAndSubscriptionForUnionTypeStream() returns (any[],
     unionStream.subscribe(addToGlobalAnyArrayForUnionType);
     int[] intarray = [1, 2, 3];
     any[] publishedEvents = [intarray, "Maryam", false];
-    foreach event in publishedEvents {
+    foreach var event in publishedEvents {
         unionStream.publish(event);
     }
     int startTime = time:currentTime().time;
@@ -201,7 +201,7 @@ function testStreamPublishingAndSubscriptionForAssignableUnionTypeStream(int int
     unionStream.subscribe(addToGlobalAnyArrayForAssignableUnionType);
     int[] intarray = [1, 2, 3];
     any[] publishedEvents = [intarray, "Maryam", false, intVal];
-    foreach event in publishedEvents {
+    foreach var event in publishedEvents {
         unionStream.publish(event);
     }
     int startTime = time:currentTime().time;
@@ -219,7 +219,7 @@ function testStreamPublishingAndSubscriptionForTupleTypeStream() returns (any[],
     (string, int) tuple = ("tuple1", 1234);
     (string, int) tuple2 = ("tuple2", 9876);
     any[] publishedEvents = [tuple, tuple2];
-    foreach event in publishedEvents {
+    foreach var event in publishedEvents {
         tupleStream.publish(event);
     }
     int startTime = time:currentTime().time;
@@ -236,7 +236,7 @@ any[] {
     stream<(string, int)> tupleStream = new;
     tupleStream.subscribe(addToGlobalAnyArrayForAssignableTupleType);
     (string, int)[] publishedEvents = [(s1, i1), (s2, i2)];
-    foreach event in publishedEvents {
+    foreach var event in publishedEvents {
         tupleStream.publish(event);
     }
     int startTime = time:currentTime().time;
@@ -253,7 +253,7 @@ function testStreamPublishingAndSubscriptionForAnyTypeStream() returns (any[], a
     anyStream.subscribe(addToGlobalAnyArrayForAnyType);
     (string, int) tuple = ("anyStream", 1234);
     any[] publishedEvents = [tuple, "any", false, 0.5];
-    foreach event in publishedEvents {
+    foreach var event in publishedEvents {
         anyStream.publish(event);
     }
     int startTime = time:currentTime().time;
@@ -271,7 +271,7 @@ function testStreamsPublishingForStructurallyEquivalentRecords() returns (any[],
     Person p1 = { id:3000, name:"Maryam" };
     Person p2 = { id:3003, name:"Ziyad" };
     Person[] publishedEvents = [p1, p2];
-    foreach event in publishedEvents {
+    foreach var event in publishedEvents {
         employeeStream.publish(event);
     }
     int startTime = time:currentTime().time;
@@ -291,7 +291,7 @@ function testStreamsPublishingForStructurallyEquivalentObjects() returns (any[],
     Captain c1 = new("Maryam", 123456);
     Captain c2 = new("Ziyad", 654321);
     Captain[] publishedCaptains = [c1, c2];
-    foreach event in publishedCaptains {
+    foreach var event in publishedCaptains {
         memberStream.publish(event);
     }
     int startTime = time:currentTime().time;

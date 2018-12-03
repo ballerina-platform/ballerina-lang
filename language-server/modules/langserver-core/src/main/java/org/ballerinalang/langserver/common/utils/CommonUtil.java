@@ -83,6 +83,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
@@ -1045,6 +1046,22 @@ public class CommonUtil {
         return symbolInfo -> !symbolInfo.isCustomOperation()
                 && symbolInfo.getScopeEntry() != null
                 && isInvalidSymbol(symbolInfo.getScopeEntry().symbol);
+    }
+
+    /**
+     * Predicate to check for the invalid type definitions.
+     *
+     * @return {@link Predicate}    Predicate for the check
+     */
+    public static Predicate<TopLevelNode> checkInvalidTypesDefs() {
+        return topLevelNode -> {
+            if (topLevelNode instanceof BLangTypeDefinition) {
+                BLangTypeDefinition typeDefinition = (BLangTypeDefinition) topLevelNode;
+                return !(typeDefinition.flagSet.contains(Flag.SERVICE) ||
+                        typeDefinition.flagSet.contains(Flag.RESOURCE));
+            }
+            return true;
+        };
     }
 
     /**

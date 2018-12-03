@@ -115,7 +115,9 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         boolean isTestSrc = CommonUtil.isTestSource(this.context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY));
         BLangPackage evalPkg = isTestSrc ? pkgNode.getTestablePkg() : pkgNode;
         List<TopLevelNode> topLevelNodes = CommonUtil.getCurrentFileTopLevelNodes(evalPkg, this.context);
-        topLevelNodes.forEach(topLevelNode -> acceptNode((BLangNode) topLevelNode));
+        topLevelNodes.stream()
+                .filter(CommonUtil.checkInvalidTypesDefs())
+                .forEach(topLevelNode -> acceptNode((BLangNode) topLevelNode));
     }
 
     public void visit(BLangImportPackage importPkgNode) {
@@ -375,6 +377,10 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     }
 
     public void visit(BLangService serviceNode) {
+        if (serviceNode.attachedExprs != null) {
+            serviceNode.attachedExprs.forEach(this::acceptNode);
+        }
+
         if (HoverUtil.isMatchingPosition(HoverUtil.getIdentifierPosition(serviceNode), this.position)) {
             addPosition(serviceNode, this.previousNode, serviceNode.name.getValue(), serviceNode.symbol.pkgID,
                         serviceNode.symbol.kind.name(), serviceNode.symbol.kind.name(), serviceNode.name.getValue(),
@@ -592,9 +598,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             acceptNode(foreach.collection);
         }
 
-        if (foreach.varRefs != null) {
-            foreach.varRefs.forEach(this::acceptNode);
-        }
+        acceptNode((BLangNode) foreach.variableDefinitionNode);
 
         if (foreach.body != null) {
             acceptNode(foreach.body);

@@ -24,42 +24,52 @@ package org.wso2.ballerinalang.compiler.semantics.model;
  */
 public enum BLangBuiltInMethod {
 
-    IS_NAN("isNaN"),
+    IS_NAN("isNaN", true),
 
-    IS_INFINITE("isInfinite"),
+    IS_INFINITE("isInfinite", true),
 
-    IS_FINITE("isFinite"),
+    IS_FINITE("isFinite", true),
 
-    LENGTH("length"),
+    LENGTH("length", true),
 
-    REASON("reason"),
+    REASON("reason", true),
 
-    DETAIL("detail"),
+    DETAIL("detail", true),
 
-    STACKTRACE("stackTrace"),
+    STACKTRACE("stackTrace", true),
 
-    FREEZE("freeze"),
+    FREEZE("freeze", true),
 
-    IS_FROZEN("isFrozen"),
+    IS_FROZEN("isFrozen", true),
 
-    CLONE("clone"),
+    CLONE("clone", true),
 
-    STAMP("stamp"),
+    STAMP("stamp", true),
 
-    CREATE("create"),
-    
-    CALL("call"),
+    CREATE("create", true),
 
-    UNDEFINED("$undefined");
+    CALL("call", true),
+
+    ITERATE("iterate", false),
+
+    NEXT("next", false),
+
+    UNDEFINED("$undefined", true);
 
     private String name;
+    private boolean isExternal;
 
-    BLangBuiltInMethod(String name) {
+    BLangBuiltInMethod(String name, boolean isExternal) {
         this.name = name;
+        this.isExternal = isExternal;
     }
 
     public String getName() {
         return name;
+    }
+
+    public boolean isExternal() {
+        return isExternal;
     }
 
     @Override

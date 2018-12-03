@@ -67,6 +67,11 @@
     </test>
 
     <test name="ballerina-channel-tests" parallel="false">
+        <groups>
+            <run>
+                <exclude name="broken"/>
+            </run>
+        </groups>
         <classes>
             <class name="org.ballerinalang.test.channel.ChannelsResourcesTest"/>
         </classes>
@@ -117,10 +122,16 @@
     <test name="ballerina-transaction-tests" parallel="false">
         <classes>
             <class name="org.ballerinalang.test.transaction.MicroTransactionTestCase"/>
+            <class name="org.ballerinalang.test.transaction.RemoteParticipantTransactionTest"/>
         </classes>
     </test>
 
     <test name="ballerina-websocket-tests" parallel="false">
+        <groups>
+            <run>
+                <exclude name="broken"/>
+            </run>
+        </groups>
         <classes>
             <class name="org.ballerinalang.test.service.websocket.WebSocketTestCommons"/>
             <class name="org.ballerinalang.test.service.websocket.CancelWebSocketUpgradeTest"/>
@@ -173,6 +184,11 @@
     </test>
 
     <test name="ballerina-observability-tests" parallel="false">
+        <groups>
+            <run>
+                <exclude name="broken"/>
+            </run>
+        </groups>
         <classes>
             <class name="org.ballerinalang.test.observability.tracing.TracingTestCase"/>
             <class name="org.ballerinalang.test.observability.metrics.MetricsTestCase"/>

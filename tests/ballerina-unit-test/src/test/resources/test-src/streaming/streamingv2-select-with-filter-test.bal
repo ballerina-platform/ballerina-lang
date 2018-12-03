@@ -47,7 +47,7 @@ function startSelectQuery() returns (TeacherOutput[]) {
     testSelectQuery();
 
     outputStream.subscribe(printTeachers);
-    foreach t in teachers {
+    foreach var t in teachers {
         inputStream.publish(t);
     }
 
@@ -69,7 +69,7 @@ function testSelectQuery() {
         from inputStream where inputStream.age > 25
         select inputStream.name as TeacherName, inputStream.age
         => (TeacherOutput[] emp) {
-            foreach e in emp {
+            foreach var e in emp {
                 outputStream.publish(e);
             }
         }

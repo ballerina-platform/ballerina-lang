@@ -40,7 +40,7 @@ function startTimeWindowTest() returns (Teacher[]) {
     testTimeWindow();
 
     outputStreamTimeWindowTest.subscribe(function(Teacher e) {printTeachers(e);});
-    foreach t in teachers {
+    foreach var t in teachers {
         inputStreamTimeWindowTest.publish(t);
     }
 
@@ -59,11 +59,11 @@ function startTimeWindowTest() returns (Teacher[]) {
 function testTimeWindow() {
 
     forever {
-        from inputStreamTimeWindowTest window timeWindow([1000])
+        from inputStreamTimeWindowTest window timeWindow(1000)
         select inputStreamTimeWindowTest.name, inputStreamTimeWindowTest.age, inputStreamTimeWindowTest.status, inputStreamTimeWindowTest
         .school
         => (Teacher [] emp) {
-            foreach e in emp {
+            foreach var e in emp {
                 outputStreamTimeWindowTest.publish(e);
             }
         }
