@@ -48,7 +48,7 @@ function testConvertStampRecordToJSON() returns (Employee, json)|error {
     return (e, j);
 }
 
-function testConvertStampRecordToMap() returns (Employee, map)|error {
+function testConvertStampRecordToMap() returns (Employee, map<any>)|error {
     Employee e = { name: "John", status: "single", batch: "Batch9", school: "ABC College" };
     map<anydata> m = check map<anydata>.create(e);
     m["name"] = "Waruna";
