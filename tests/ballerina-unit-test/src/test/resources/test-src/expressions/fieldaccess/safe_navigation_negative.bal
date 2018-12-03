@@ -2,7 +2,7 @@ type Person record {
     int a = 0;
     string fname = "John";
     string lname = "";
-    Info|error info1;
+    Info|error info1?;
     Info|() info2 = ();
 };
 
@@ -13,7 +13,7 @@ type Info record {
 
 type Address record {
     string street = "";
-    string city;
+    string city = "";
     string country = "Sri Lanka";
 };
 
@@ -36,7 +36,7 @@ function testFieldAcessWithoutErrorLifting () returns any {
 }
 
 function testErrorLiftingOnRHS() {
-    Person|error p;
+    Person|error p = {};
     p!info1!address1!city = "Colombo";
 }
 
