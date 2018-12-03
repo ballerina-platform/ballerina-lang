@@ -24,11 +24,11 @@ import org.ballerinalang.util.observability.ObserveUtils;
 import org.ballerinalang.util.observability.ObserverContext;
 
 /**
- * Default VM callback implementation.
+ * Default VM callback implementation to report back VM related callback events.
  *
  * @since 0.985.0
  */
-public class StrandCallback implements BVMCallback {
+public abstract class StrandCallback {
 
     //Return value holders
     private long longVal;
@@ -38,97 +38,189 @@ public class StrandCallback implements BVMCallback {
     private BRefType<?> refVal;
     private BError error;
     private ObserverContext observerContext;
+    //TODO try to generalize below to normal data channels
+    //channels are only used in SafeStrandCallback
+    WDChannels parentChannels;
+    WDChannels wdChannels;
 
     protected BType retType; //TODO may be this is wrong, we should take the type in wait expression -check this
 
     StrandCallback(BType retType) {
         this.retType = retType;
+        this.wdChannels = new WDChannels();
     }
 
-    @Override
+    /**
+     * Method to signal the callback once done.
+     */
     public void signal() {
         // Stop observation
         ObserveUtils.stopObservation(observerContext);
     }
 
-    @Override
+    /**
+     * Method to set int return value.
+     *
+     * @param value to be returned
+     */
     public void setIntReturn(long value) {
         this.longVal = value;
     }
 
-    @Override
+    /**
+     * Method to set float return value.
+     *
+     * @param value to be returned
+     */
+
     public void setFloatReturn(double value) {
         this.doubleVal = value;
     }
 
-    @Override
+    /**
+     * Method to set string return value.
+     *
+     * @param value to be returned
+     */
+
     public void setStringReturn(String value) {
         this.stringVal = value;
     }
 
-    @Override
+    /**
+     * Method to set boolean return value.
+     *
+     * @param value to be returned
+     */
+
     public void setBooleanReturn(int value) {
         this.intVal = value;
     }
 
-    @Override
+    /**
+     * Method to set byte return value.
+     *
+     * @param value to be returned
+     */
     public void setByteReturn(int value) {
         this.intVal = value;
     }
 
-    @Override
+    /**
+     * Method to set reference type return value.
+     *
+     * @param value to be returned
+     */
     public void setRefReturn(BRefType<?> value) {
         this.refVal = value;
     }
 
-    @Override
+    /**
+     * Method to set error return value.
+     *
+     * @param error to be returned
+     */
     public void setError(BError error) {
         this.error = error;
     }
 
-    @Override
+    /**
+     * Method to get int return value.
+     *
+     * @return value
+     */
     public long getIntRetVal() {
         return longVal;
     }
 
-    @Override
+    /**
+     * Method to get float return value.
+     *
+     * @return value
+     */
     public double getFloatRetVal() {
         return doubleVal;
     }
 
-    @Override
+    /**
+     * Method to get string return value.
+     *
+     * @return value
+     */
     public String getStringRetVal() {
         return stringVal;
     }
 
-    @Override
+    /**
+     * Method to get boolean return value.
+     *
+     * @return value
+     */
     public int getBooleanRetVal() {
         return intVal;
     }
 
-    @Override
+    /**
+     * Method to get byte return value.
+     *
+     * @return value
+     */
     public int getByteRetVal() {
         return intVal;
     }
 
-    @Override
+    /**
+     * Method to get reference type return value.
+     *
+     * @return value
+     */
     public BRefType<?> getRefRetVal() {
         return refVal;
     }
 
-    @Override
+    /**
+     * Method to get error return value.
+     *
+     * @return value
+     */
     public BError getErrorVal() {
         return error;
     }
 
-    @Override
+    /**
+     * Method to set the observation context of the callback.
+     *
+     * @param context observer context
+     */
     public void setObserverContext(ObserverContext context) {
         this.observerContext = context;
     }
 
-    @Override
+    /**
+     * Method to get the observation context of the callback.
+     *
+     * @return observer context of the callback
+     */
     public ObserverContext getObserverContext() {
         return this.observerContext;
+    }
+
+    /**
+     * Method to get the worker data channels of the strand this callback is associated with.
+     * @return worker data channels or null
+     */
+    WDChannels getWorkerDataChannels() {
+        //Used in SafeStrandCallback, override if required
+        return this.wdChannels;
+    }
+
+    /**
+     * Method to get the parent worker data channels of the strand this callback is associated with.
+     * @return worker data channels or null
+     */
+    WDChannels getParentWorkerDataChannels() {
+        //used in SafeStrandCallback, override if required
+        return this.parentChannels;
     }
 
 }

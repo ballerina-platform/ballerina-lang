@@ -45,7 +45,8 @@ public interface AttributeInfo {
         DEFAULT_VALUE_ATTRIBUTE("DefaultValue"),
         DOCUMENT_ATTACHMENT_ATTRIBUTE("DocumentAttachmentValue"),
         PARAMETERS_ATTRIBUTE("Parameters"),
-        TAINT_TABLE("TaintTable");
+        TAINT_TABLE("TaintTable"),
+        WORKER_SEND_INS("WorkerSendIns");
         private String name;
 
         Kind(String name) {

@@ -102,6 +102,7 @@ import org.ballerinalang.util.codegen.WorkerDataChannelInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 import org.ballerinalang.util.codegen.attributes.DefaultValueAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.WorkerSendInsAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.BlobCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ByteCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
@@ -478,10 +479,18 @@ public class BVM {
                             chnSendIns.keyType, chnSendIns.keyReg);
                     break;
                 case InstructionCodes.FLUSH:
-                    // TODO fix - rajith
+                    Instruction.InstructionFlush flushIns = (Instruction.InstructionFlush) instruction;
+                    if (CallbackReturnHandler.handleFlush(strand, flushIns.retReg, flushIns.channels) == null) {
+                        return;
+                    }
                     break;
                 case InstructionCodes.WORKERSYNCSEND:
-                    // TODO fix - rajith
+                    Instruction.InstructionWRKSyncSend syncSendIns = (Instruction.InstructionWRKSyncSend) instruction;
+                    if (!handleWorkerSyncSend(strand, syncSendIns.dataChannelInfo, syncSendIns.type, syncSendIns.reg,
+                            syncSendIns.retReg)) {
+                        return;
+                    }
+                    //worker data channel will resume this upon data retrieval or error
                     break;
                 case InstructionCodes.PANIC:
                     i = operands[0];
@@ -802,6 +811,13 @@ public class BVM {
         }
     }
 
+    private static boolean handleWorkerSyncSend(Strand strand, WorkerDataChannelInfo dataChannelInfo, BType type,
+                                                int reg, int retReg) {
+        BRefType val = extractValue(strand.currentFrame, type, reg);
+        WorkerDataChannel dataChannel = getWorkerChannel(strand, dataChannelInfo.getChannelName(), false);
+        return dataChannel.putData(val, strand, retReg);
+    }
+
     private static void createClone(Strand ctx, int[] operands, StackFrame sf) {
         int i = operands[0];
         int j = operands[1];
@@ -837,9 +853,16 @@ public class BVM {
             return strand;
         }
 
-        SafeStrandCallback strndCallback = new SafeStrandCallback(callableUnitInfo.getRetParamTypes()[0]);
+        SafeStrandCallback strandCallback = new SafeStrandCallback(callableUnitInfo.getRetParamTypes()[0],
+                strand.respCallback.getWorkerDataChannels());
+        if (callableUnitInfo.workerSendInChannels == null) {
+            WorkerSendInsAttributeInfo attributeInfo =
+                    (WorkerSendInsAttributeInfo) callableUnitInfo.getAttributeInfo(AttributeInfo.Kind.WORKER_SEND_INS);
+            callableUnitInfo.workerSendInChannels = attributeInfo.sendIns;
+        }
+        strandCallback.sendIns = callableUnitInfo.workerSendInChannels;
         Strand calleeStrand = new Strand(strand.programFile, callableUnitInfo.getName(),
-                strand.globalProps, strndCallback, strand.wdChannels);
+                strand.globalProps, strandCallback);
         calleeStrand.pushFrame(df);
         // Start observation after pushing the stack frame
         ObserveUtils.startCallableObservation(calleeStrand, strand.respCallback.getObserverContext());
@@ -3351,9 +3374,9 @@ public class BVM {
 
     private static WorkerDataChannel getWorkerChannel(Strand ctx, String name, boolean channelInSameStrand) {
         if (channelInSameStrand) {
-            return ctx.wdChannels.getWorkerDataChannel(name);
+            return ctx.respCallback.getWorkerDataChannels().getWorkerDataChannel(name);
         }
-        return ctx.parentChannels.getWorkerDataChannel(name);
+        return ctx.respCallback.getParentWorkerDataChannels().getWorkerDataChannel(name);
     }
 
     private static BRefType extractValue(StackFrame data, BType type, int reg) {
