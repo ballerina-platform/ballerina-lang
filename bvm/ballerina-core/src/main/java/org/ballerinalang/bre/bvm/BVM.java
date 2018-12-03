@@ -1466,7 +1466,7 @@ public class BVM {
                 bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
                     sf.longRegs[k] = bValueArray.getInt(sf.longRegs[j]);
-                } catch (Exception e) {
+                } catch (BallerinaException e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
@@ -1478,7 +1478,7 @@ public class BVM {
                 bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
                     sf.intRegs[k] = bValueArray.getByte(sf.longRegs[j]);
-                } catch (Exception e) {
+                } catch (BallerinaException e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
@@ -1490,7 +1490,7 @@ public class BVM {
                 bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
                     sf.doubleRegs[k] = bValueArray.getFloat(sf.longRegs[j]);
-                } catch (Exception e) {
+                } catch (BallerinaException e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
@@ -1502,7 +1502,7 @@ public class BVM {
                 bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
                     sf.stringRegs[k] = bValueArray.getString(sf.longRegs[j]);
-                } catch (Exception e) {
+                } catch (BallerinaException e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
@@ -1514,7 +1514,7 @@ public class BVM {
                 bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
                     sf.intRegs[k] = bValueArray.getBoolean(sf.longRegs[j]);
-                } catch (Exception e) {
+                } catch (BallerinaException e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
@@ -1526,7 +1526,7 @@ public class BVM {
                 BNewArray bNewArray = Optional.of((BNewArray) sf.refRegs[i]).get();
                 try {
                     sf.refRegs[k] = ListUtils.execListGetOperation(bNewArray, sf.longRegs[j]);
-                } catch (Exception e) {
+                } catch (BallerinaException e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
@@ -1538,7 +1538,7 @@ public class BVM {
 
                 try {
                     sf.refRegs[k] = JSONUtils.getArrayElement(sf.refRegs[i], sf.longRegs[j]);
-                } catch (Exception e) {
+                } catch (BallerinaException e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
@@ -1591,7 +1591,7 @@ public class BVM {
                 boolean except = exceptCPEntry.getValue() == 1;
                 try {
                     sf.refRegs[k] = bMap.get(sf.stringRegs[j], except);
-                } catch (Exception e) {
+                } catch (BallerinaException e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
@@ -1625,7 +1625,7 @@ public class BVM {
                 bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
                     bValueArray.add(sf.longRegs[j], sf.longRegs[k]);
-                } catch (Exception e) {
+                } catch (BLangFreezeException | BallerinaException e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
@@ -1637,7 +1637,7 @@ public class BVM {
                 bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
                     bValueArray.add(sf.longRegs[j], (byte) sf.intRegs[k]);
-                } catch (Exception e) {
+                } catch (BLangFreezeException | BallerinaException e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
@@ -1649,7 +1649,7 @@ public class BVM {
                 bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
                     bValueArray.add(sf.longRegs[j], sf.doubleRegs[k]);
-                } catch (Exception e) {
+                } catch (BLangFreezeException | BallerinaException e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
@@ -1661,7 +1661,7 @@ public class BVM {
                 bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
                     bValueArray.add(sf.longRegs[j], sf.stringRegs[k]);
-                } catch (Exception e) {
+                } catch (BLangFreezeException | BallerinaException e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
@@ -1673,7 +1673,7 @@ public class BVM {
                 bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
                     bValueArray.add(sf.longRegs[j], sf.intRegs[k]);
-                } catch (Exception e) {
+                } catch (BLangFreezeException | BallerinaException e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
@@ -1698,7 +1698,7 @@ public class BVM {
 
                 try {
                     ListUtils.execListAddOperation(list, index, refReg);
-                } catch (BLangFreezeException e) {
+                } catch (BLangFreezeException | BallerinaException e) {
                     ctx.setError(BLangVMErrors.createError(ctx, "Failed to add element: " + e.getMessage()));
                     handleError(ctx);
                 }
@@ -1710,7 +1710,7 @@ public class BVM {
 
                 try {
                     JSONUtils.setArrayElement(sf.refRegs[i], sf.longRegs[j], sf.refRegs[k]);
-                } catch (Exception e) {
+                } catch (BLangFreezeException | BallerinaException e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
@@ -1769,7 +1769,7 @@ public class BVM {
                 k = operands[2];
                 try {
                     JSONUtils.setElement(sf.refRegs[i], sf.stringRegs[j], sf.refRegs[k]);
-                } catch (BLangFreezeException e) {
+                } catch (BLangFreezeException | BallerinaException e) {
                     ctx.setError(BLangVMErrors.createError(ctx, "failed to set element to json: " + e.getMessage()));
                     handleError(ctx);
                 }
