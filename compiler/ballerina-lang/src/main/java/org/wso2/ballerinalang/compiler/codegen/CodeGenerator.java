@@ -360,11 +360,9 @@ public class CodeGenerator extends BLangNodeVisitor {
         generatePkgNode(pkgNode);
 
         // Generate program file for the Testable package
-        pkgNode.getTestablePkgs().forEach(testablePkgNode -> {
-            // Generate code for the given package.
-            generatePkgNode(testablePkgNode);
-            this.currentPkgInfo = null;
-        });
+        pkgNode.getTestablePkgs().forEach(this::generatePkgNode);
+        this.currentPackageRefCPIndex = -1;
+        this.currentPkgID = null;
         this.currentPkgInfo = null;
         return pkgNode;
     }
@@ -425,8 +423,6 @@ public class CodeGenerator extends BLangNodeVisitor {
             funcNode.symbol = funcNode.originalFuncSymbol;
         });
         currentPkgInfo.addAttributeInfo(AttributeInfo.Kind.LINE_NUMBER_TABLE_ATTRIBUTE, lineNoAttrInfo);
-        currentPackageRefCPIndex = -1;
-        currentPkgID = null;
         pkgNode.completedPhases.add(CompilerPhase.CODE_GEN);
     }
 

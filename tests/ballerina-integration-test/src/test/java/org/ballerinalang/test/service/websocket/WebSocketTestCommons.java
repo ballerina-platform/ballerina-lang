@@ -30,7 +30,7 @@ import java.io.File;
 /**
  * Facilitate the common functionality of WebSocket integration tests.
  */
-@Test(groups = { "websocket-test", "broken" })
+@Test(groups = {"websocket-test"})
 public class WebSocketTestCommons extends BaseTest {
     protected static final int TIMEOUT_IN_SECS = 10;
     protected static final int REMOTE_SERVER_PORT = 15500;
