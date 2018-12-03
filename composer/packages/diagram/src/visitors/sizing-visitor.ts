@@ -11,7 +11,7 @@ import { ReturnViewState } from "../view-model/return";
 // Following element is created to calculate the width of a text rendered in an svg.
 // Please see getTextWidth on how we do the calculation.
 const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-svg.setAttribute("style", "border: 0px");
+svg.setAttribute("style", "border: 0px; visibility: hidden;");
 svg.setAttribute("width", "600");
 svg.setAttribute("height", "50");
 svg.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xlink", "http://www.w3.org/1999/xlink");
