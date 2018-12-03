@@ -20,7 +20,6 @@ package org.ballerinalang.test.expressions.conversion;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.values.BMap;
