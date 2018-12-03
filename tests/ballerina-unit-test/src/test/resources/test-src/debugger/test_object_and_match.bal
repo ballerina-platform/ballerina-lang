@@ -19,40 +19,40 @@ public function testObjectWithInterface () returns (int, string) {
 
 type Person object {
 
-    public int age;
+    public int age = 10;
     public string name;
 
 
     string month = "february";
 
 
-    function __init () {
-        self.name = "llll";
-        self.age  = 6;
+    new (age = 6, string n = "llll") {
+        self.name = n;
+        int value  = 8 + 7;
     }
 
     function init(int | string | boolean | Foo inVal) {
-        if inVal is int {
-
-            self.age = self.age + inVal;
+        match inVal {
+            int a => {
+                age = age + a;
+            }
+            string b => {
+                name = name + b;
+            }
+            boolean c => {
+                age = age + 10;
+                name = name + " hello";
+            }
+            Foo d => {
+                age = age + d.count;
+                name = name + d.last;
+            }
         }
-        else if inVal is string {
-            self.name = self.name + inVal;
-        }
-        else if inVal is boolean {
-            self.age = self.age + 10;
-            self.name = self.name + " hello";
-        }
-        else if inVal is Foo {
-            self.age = self.age + inVal.count;
-            self.name = self.name + inVal.last;
-        }
-
     }
 
     function incrementCount(int increment) returns int {
-        int retVal = self.age;
-        if (self.age > increment) {
+        int retVal = age;
+        if (age > increment) {
             retVal = retVal + increment;
         }
         return retVal;
@@ -62,7 +62,7 @@ type Person object {
 };
 
 
-function Person.attachInterface(int add) returns int {
+function Person::attachInterface(int add) returns int {
     int count = self.age + add;
     count  = count + self.incrementCount(100);
     return count;
