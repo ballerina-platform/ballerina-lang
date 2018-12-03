@@ -64,6 +64,9 @@ public class HttpResourceTemplate extends AbstractTestTemplate {
             // Or else, add default resource method
             resourceMethods.add(new String[]{resourceName, "get"});
         }
+
+        // Remove path variables
+        tempResourcePath = tempResourcePath.replaceAll("[{}]", "");
         this.resourcePath = tempResourcePath;
     }
 

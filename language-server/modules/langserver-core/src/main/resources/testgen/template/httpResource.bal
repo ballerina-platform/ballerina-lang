@@ -2,11 +2,10 @@
     log:printInfo("Test ${resourceMethodAllCaps} Request");
     var ${responseFieldName} = httpEndpoint->${resourceMethod}("${resourcePath}${additionalParams}");
 
-    match ${responseFieldName} {
-        http:Response resp => {
-            var jsonRes = resp.getJsonPayload();
-            json expected = {"Hello":"World"};
-            test:assertEquals(jsonRes, expected);
-        }
-        error err => test:assertFail(msg = "Failed to call the endpoint: " + ${serviceUriStrName});
+    if (${responseFieldName} is http:Response) {
+        var jsonRes = ${responseFieldName}.getJsonPayload();
+        json expected = {"Hello":"World"};
+        test:assertEquals(jsonRes, expected);
+    } else {
+        test:assertFail(msg = "Failed to call the endpoint: " + ${serviceUriStrName});
     }

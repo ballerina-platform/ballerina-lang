@@ -20,6 +20,7 @@ package org.ballerinalang.langserver.symbols;
 
 import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.eclipse.lsp4j.Location;
@@ -60,7 +61,9 @@ public class SymbolFindingVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangCompilationUnit compUnit) {
-        compUnit.getTopLevelNodes().forEach(node -> ((BLangNode) node).accept(this));
+        compUnit.getTopLevelNodes().stream()
+                .filter(CommonUtil.checkInvalidTypesDefs())
+                .forEach(node -> ((BLangNode) node).accept(this));
     }
 
     @Override
