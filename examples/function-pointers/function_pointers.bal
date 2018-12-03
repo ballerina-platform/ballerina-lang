@@ -8,7 +8,7 @@ function test(int x, string s) returns (float) {
     if (y is int) {
         f = x * 1.0 * y;
     } else {
-        // Runtime value is casted to correct type since Ballerina runtime can infer the correct type to error.
+        // Runtime value is cast to correct type since Ballerina runtime can infer the correct type to error.
         panic y;
     }
     return f;

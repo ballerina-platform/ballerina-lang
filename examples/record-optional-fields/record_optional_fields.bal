@@ -6,7 +6,8 @@ type Person record {
     // This is a required field with an explicit default value specified.
     string fname = "default";
     // This is a required field without an explicit default value.
-    // The compiler will not complain if we omit this field when creating the record.
+    // The compiler will not assign default values. Thus always before using these fields,
+    // all the fields should be initialized.
     string lname;
     // This is a non-defaultable required field.
     Gender gender;
@@ -17,6 +18,7 @@ type Person record {
 public function main() {
     // The `gender` must be provided when creating the record since `Gender` is not a type with an implicit initial value
     // and an explicit default value is not specified for it in the record descriptor.
+    // The `lname` does not have default value in record descriptor and it is required field. Thus, `lname` must be initialized.
     Person p = {gender: "male", lname: ""};
 
     // Note that the `age` field is not present in the record since it is an optional field.

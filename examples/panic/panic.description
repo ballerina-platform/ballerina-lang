@@ -1,5 +1,5 @@
-// In Ballerina, panicking an error means something unexpected has occured
-// (something which should not have occurred during the normal operation). A panicked error causes
+// In Ballerina, panic means something unexpected has occured
+// (something that should not have occurred during the normal operation). A panic causes
 // the call stack to be unwound until a matching catcher is found.
 
 // Ballerina encourages developers NOT to use `panic` for handling program related

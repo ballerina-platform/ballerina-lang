@@ -5,7 +5,7 @@ type Record record {
     string name;
 };
 
-// This example demonstrates panic an error. The next example demonstrates how to handle errors with panic.
+// This example demonstrates how panic works.
 function readRecord(Record|() value) {
     if (value is Record) {
          io:println("Record ID: ", value.id, ", value: ", value.name);
@@ -14,7 +14,7 @@ function readRecord(Record|() value) {
         panic err;
     }
 }
-// Panic error.
+
 public function main() {
     Record r1 = { id: 1, name: "record1" };
     readRecord(r1);
