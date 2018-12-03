@@ -1384,17 +1384,17 @@ function testSelectLoadToMemory() returns (CustomerFullName[],
 
     if (dt is table<CustomerFullName>) {
         int i = 0;
-        foreach x in dt {
+        foreach var x in dt {
             fullNameArray1[i] = x;
             i += 1;
         }
         i = 0;
-        foreach x in dt {
+        foreach var x in dt {
             fullNameArray2[i] = x;
             i += 1;
         }
         i = 0;
-        foreach x in dt {
+        foreach var x in dt {
             fullNameArray3[i] = x;
             i += 1;
         }
@@ -1440,7 +1440,7 @@ function testLoadToMemorySelectAfterTableClose() returns (
 function iterateTableAndReturnResultArray(table<CustomerFullName> dt) returns CustomerFullName[] {
     CustomerFullName[] fullNameArray = [];
     int i = 0;
-    foreach x in dt {
+    foreach var x in dt {
         fullNameArray[i] = x;
         i += 1;
     }

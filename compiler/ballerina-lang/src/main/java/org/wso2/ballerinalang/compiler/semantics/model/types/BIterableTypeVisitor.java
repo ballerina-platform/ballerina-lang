@@ -125,6 +125,11 @@ public abstract class BIterableTypeVisitor implements BTypeVisitor<Operation, Li
         return visit((BType) type, op);
     }
 
+    @Override
+    public List<BType> visit(BJSONType type, Operation op) {
+        return visit((BType) type, op);
+    }
+
     /* Util functions */
 
     protected void logTooManyVariablesError(Operation op) {
@@ -160,11 +165,6 @@ public abstract class BIterableTypeVisitor implements BTypeVisitor<Operation, Li
 
         @Override
         public List<BType> visit(BXMLType t, Operation operation) {
-            return Lists.of(calculateType(operation, t));
-        }
-
-        @Override
-        public List<BType> visit(BJSONType t, Operation operation) {
             return Lists.of(calculateType(operation, t));
         }
 

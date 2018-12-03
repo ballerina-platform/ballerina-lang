@@ -46,7 +46,7 @@ public function startHavingQuery() returns any {
     streamFunc();
 
     outputStream.subscribe(function (OutputRecord e) {printInputRecords(e);});
-    foreach r in records {
+    foreach var r in records {
         inputStream.publish(r);
     }
 
@@ -65,7 +65,7 @@ public function startHavingQuery() returns any {
 function streamFunc() {
 
     function (map<anydata>[]) outputFunc = function (map<anydata>[] events) {
-        foreach m in events {
+        foreach var m in events {
             // just cast input map into the output type
             OutputRecord o = <OutputRecord>OutputRecord.stamp(m.clone());
             outputStream.publish(o);

@@ -1,7 +1,7 @@
 function testClosedIntRange(int startValue, int endValue) returns int[] {
     int[] returnArray = [];
     int returnArrayIndex = 0;
-    foreach val in startValue ... endValue {
+    foreach var val in startValue ... endValue {
         returnArray[returnArrayIndex] = val;
         returnArrayIndex += 1;
     }
@@ -12,7 +12,7 @@ function testClosedIntRangeAsArray(int startValue, int endValue) returns int[] {
     int[] returnArray = [];
     int returnArrayIndex = 0;
     int[] rangeAsArray = startValue ... endValue;
-    foreach val in rangeAsArray {
+    foreach var val in rangeAsArray {
         returnArray[returnArrayIndex] = val;
         returnArrayIndex += 1;
     }
@@ -22,7 +22,7 @@ function testClosedIntRangeAsArray(int startValue, int endValue) returns int[] {
 function testHalfOpenIntRange(int startValue, int endValue) returns int[] {
     int[] returnArray = [];
     int returnArrayIndex = 0;
-    foreach val in startValue ..< endValue {
+    foreach var val in startValue ..< endValue {
         returnArray[returnArrayIndex] = val;
         returnArrayIndex += 1;
     }
@@ -33,7 +33,7 @@ function testHalfOpenIntRangeAsArray(int startValue, int endValue) returns int[]
     int[] returnArray = [];
     int returnArrayIndex = 0;
     int[] rangeAsArray = startValue ..< endValue;
-    foreach val in rangeAsArray {
+    foreach var val in rangeAsArray {
         returnArray[returnArrayIndex] = val;
         returnArrayIndex += 1;
     }

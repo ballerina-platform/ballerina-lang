@@ -30,7 +30,7 @@ service HelloWorld45 on ep6 {
     resource function lotsOfReplies(grpc:Caller caller, string name) {
         io:println("Server received hello from " + name);
         string[] greets = ["Hi", "Hey", "GM"];
-        foreach greet in greets {
+        foreach var greet in greets {
             error? err = caller->send(greet + " " + name);
             if (err is error) {
                 io:println("Error from Connector: " + err.reason());

@@ -260,17 +260,6 @@ function testFunctionInvocOnJsonNonExistingField (json inputJson) returns (json,
     return (j, s, keys);
 }
 
-function testCountOnJSON (json inputJson) returns int {
-    json j = {names: ["John", "Doe"]};
-    int count = j.names.count();
-    return count;
-}
-
-function testCountOnNullJSON (json inputJson) {
-    json j = {name:"John"};
-    int count = j.foo.bar.count();
-}
-
 type Student object {
     public string name = "";
     public int marks = 60;

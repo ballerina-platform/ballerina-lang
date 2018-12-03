@@ -284,13 +284,16 @@ public class Instruction {
 
         public int iteratorIndex, arity;
         public int[] typeTags, retRegs;
+        public BType constraintType;
 
-        InstructionIteratorNext(int opcode, int iteratorIndex, int arity, int[] typeTags, int[] retRegs) {
+        InstructionIteratorNext(int opcode, int iteratorIndex, int arity, int[] typeTags, int[] retRegs,
+                                BType constraintType) {
             super(opcode);
             this.iteratorIndex = iteratorIndex;
             this.arity = arity;
             this.typeTags = typeTags;
             this.retRegs = retRegs;
+            this.constraintType = constraintType;
         }
     }
 

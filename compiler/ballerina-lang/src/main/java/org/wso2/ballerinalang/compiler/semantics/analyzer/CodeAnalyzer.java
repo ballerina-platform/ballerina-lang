@@ -869,7 +869,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.resetLastStatement();
         this.loopWithintransactionCheckStack.pop();
         analyzeExpr(foreach.collection);
-        analyzeExprs(foreach.varRefs);
     }
 
     @Override

@@ -292,7 +292,7 @@ function createAuthFiltersForSecureListener(ServiceEndpointConfiguration config,
         return authFilters;
     }
 
-    foreach provider in authProviderList {
+    foreach var provider in authProviderList {
         if (provider.id.length() > 0) {
             registry.add(provider.id, createAuthHandler(provider, instanceId));
         } else {
@@ -311,7 +311,7 @@ function createAuthFiltersForSecureListener(ServiceEndpointConfiguration config,
     evictionFactor = config.negativeAuthzCache.evictionFactor);
     auth:AuthStoreProvider authStoreProvider = new;
 
-    foreach provider in authProviderList {
+    foreach var provider in authProviderList {
         if (provider.scheme == AUTHN_SCHEME_BASIC) {
             if (provider.authStoreProvider == AUTH_PROVIDER_LDAP) {
                 var authStoreProviderConfig = provider.authStoreProviderConfig;

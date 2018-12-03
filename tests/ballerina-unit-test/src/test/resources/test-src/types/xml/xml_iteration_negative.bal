@@ -8,7 +8,7 @@ xml xdata = xml `<p:person xmlns:p="foo" xmlns:q="bar">
                   </p:person>`;
 
 function testExcessVars() {
-    foreach i, x, y in xdata {
+    foreach var (i, x, y) in xdata {
     }
 }
 
