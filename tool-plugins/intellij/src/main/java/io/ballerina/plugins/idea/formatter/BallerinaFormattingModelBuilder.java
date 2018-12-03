@@ -33,6 +33,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ABORT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.ABORTED;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.ABORTED_CLAUSE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ACTION_INVOCATION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ADD;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ALL;
@@ -62,6 +64,9 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.CHECK;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.CLIENT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.COLON;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.COMMA;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.COMMITTED;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.COMMITTED_ABORTED_CLAUSES;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.COMMITTED_CLAUSE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.COMPLETE_PACKAGE_NAME;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.COMPOUND_OPERATOR;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.CONST;
@@ -209,12 +214,14 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.SIMPLE_VARIABLE_REFER
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.SNAPSHOT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.START;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.STATEMENT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.STATIC_MATCH_LITERALS;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.STREAM;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.SUB;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.SYNCRARROW;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TABLE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.THROW;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRANSACTION;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRANSACTION_CLAUSE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRANSACTION_PROPERTY_INIT_STATEMENT_LIST;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRAP;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRY;
@@ -292,6 +299,8 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(FLUSH).spaceIf(true)
                 .around(WAIT).spaceIf(true)
 
+                .around(ABORTED).spaceIf(true)
+                .around(COMMITTED).spaceIf(true)
                 .around(LISTENER).spaceIf(true)
                 .around(VAR).spaceIf(true)
                 .around(CONST).spaceIf(true)
@@ -467,6 +476,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .between(INVOCATION_ARG, COMMA).spaceIf(false)
                 .between(ANY_IDENTIFIER_NAME, LEFT_PARENTHESIS).spaceIf(false)
                 .between(EXPRESSION_LIST, LARROW).spaceIf(true)
+                .between(EXPRESSION_LIST, SERVICE_BODY).spaceIf(true)
                 .around(EXPRESSION_LIST).spaceIf(false)
                 .between(ARRAY_TYPE_NAME, IDENTIFIER).spaceIf(true)
                 .aroundInside(GT, TYPE_CONVERSION_EXPRESSION).spaceIf(false)
@@ -545,6 +555,9 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(ARRAY_TYPE_NAME).spaceIf(false)
 
                 .around(TRANSACTION_PROPERTY_INIT_STATEMENT_LIST).spaceIf(true)
+                .between(TRANSACTION_CLAUSE, COMMITTED_ABORTED_CLAUSES).spaceIf(true)
+                .between(ABORTED_CLAUSE, COMMITTED_CLAUSE).spaceIf(true)
+                .between(COMMITTED_CLAUSE, ABORTED_CLAUSE).spaceIf(true)
 
                 // Streaming
                 .before(WHERE_CLAUSE).spaceIf(true)
