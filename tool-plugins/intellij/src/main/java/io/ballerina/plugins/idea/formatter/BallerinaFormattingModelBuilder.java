@@ -159,8 +159,6 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.NULLABLE_TYPE_NAME;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.OBJECT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.OBJECT_BODY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ON;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.ONABORT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.ONCOMMIT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ONRETRY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ON_RETRY_CLAUSE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.OR;
@@ -317,8 +315,6 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(FAIL).spaceIf(true)
                 .around(ONRETRY).spaceIf(true)
                 .around(RETRIES).spaceIf(true)
-                .around(ONABORT).spaceIf(true)
-                .around(ONCOMMIT).spaceIf(true)
                 .around(LENGTHOF).spaceIf(true)
                 .around(WITH).spaceIf(true)
                 .around(IN).spaceIf(true)

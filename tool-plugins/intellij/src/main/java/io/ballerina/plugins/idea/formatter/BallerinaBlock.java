@@ -202,8 +202,8 @@ public class BallerinaBlock extends AbstractBlock {
                         || parentElementType == BallerinaTypes.FORK_JOIN_STATEMENT
                         || parentElementType == BallerinaTypes.WHILE_STATEMENT_BODY
                         || parentElementType == BallerinaTypes.MATCH_STATEMENT_BODY
-                        || parentElementType == BallerinaTypes.EXPRESSION_PATTERN
-                        || parentElementType == BallerinaTypes.BINDING_PATTERN_PATTERN
+                        || parentElementType == BallerinaTypes.VAR_MATCH_PATTERN
+                        || parentElementType == BallerinaTypes.STATIC_MATCH_PATTERN
                         || parentElementType == BallerinaTypes.RECORD_LITERAL
                         || parentElementType == BallerinaTypes.RECORD_FIELD_DEFINITION_LIST
                         || parentElementType == BallerinaTypes.FOREACH_STATEMENT
@@ -315,9 +315,9 @@ public class BallerinaBlock extends AbstractBlock {
             childIndent = Indent.getNormalIndent();
         } else if (myNode.getElementType() == BallerinaTypes.MATCH_STATEMENT_BODY) {
             childIndent = Indent.getNormalIndent();
-        } else if (myNode.getElementType() == BallerinaTypes.EXPRESSION_PATTERN) {
+        } else if (myNode.getElementType() == BallerinaTypes.VAR_MATCH_PATTERN) {
             childIndent = Indent.getNormalIndent();
-        } else if (myNode.getElementType() == BallerinaTypes.BINDING_PATTERN_PATTERN) {
+        } else if (myNode.getElementType() == BallerinaTypes.STATIC_MATCH_PATTERN) {
             childIndent = Indent.getNormalIndent();
         } else if (myNode.getElementType() == BallerinaTypes.FOREACH_STATEMENT) {
             childIndent = Indent.getNormalIndent();
