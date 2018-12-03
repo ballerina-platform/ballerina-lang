@@ -120,6 +120,10 @@ public class CallbackReturnHandler {
             if (dataChannel.isFailed(strand, retReg)) {
                 return strand;
             }
+            if (dataChannel.isPanicked(strand, retReg)) {
+                BVM.handleError(strand);
+                return null;
+            }
             if (!dataChannel.isDataSent(strand, retReg)) {
                 flushStrand = null;
                 break;

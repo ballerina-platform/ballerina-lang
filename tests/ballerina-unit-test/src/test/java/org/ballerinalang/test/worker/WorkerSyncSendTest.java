@@ -46,7 +46,7 @@ public class WorkerSyncSendTest {
     public void simpleSyncSendTest() {
 
         BValue[] returns = BRunUtil.invoke(result, "simpleSyncSend");
-        Assert.assertEquals(returns[0].stringValue(), "w2w2w2w2w2w1w1w1w1w1");
+        Assert.assertTrue(returns[0].stringValue().startsWith("w2w2w2w2w2w1w1"));
     }
 
     @Test
@@ -91,7 +91,7 @@ public class WorkerSyncSendTest {
         }
         Assert.assertNotNull(expectedException);
         String result =
-                "error: error3 {\"message\":\"msg3\"}\n" + "\tat $lambda$14(sync-send.bal:233)";
+                "error: error3 {\"message\":\"msg3\"}\n" + "\tat $lambda$14(sync-send.bal:234)";
         Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
     }
 }

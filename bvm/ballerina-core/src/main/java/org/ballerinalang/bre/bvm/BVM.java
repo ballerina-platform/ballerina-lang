@@ -817,7 +817,6 @@ public class BVM {
 
     private static boolean handleWorkerSyncSend(Strand strand, WorkerDataChannelInfo dataChannelInfo, BType type,
                                                 int reg, int retReg) {
-
         BRefType val = extractValue(strand.currentFrame, type, reg);
         WorkerDataChannel dataChannel = getWorkerChannel(strand, dataChannelInfo.getChannelName(), false);
         return dataChannel.putData(val, strand, retReg);

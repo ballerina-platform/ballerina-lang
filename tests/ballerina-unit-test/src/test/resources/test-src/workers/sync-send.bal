@@ -2,11 +2,11 @@ import ballerina/runtime;
 import ballerina/io;
 string append = "";
  function simpleSyncSend() returns string {
-    process();
+    string done = process();
     return append;
 }
 
-function process() {
+function process() returns string {
    worker w1 {
      int a = 10;
      a -> w2;
@@ -28,6 +28,7 @@ function process() {
    }
 
    wait w1;
+   return "done";
 }
 
 string append2 = "";

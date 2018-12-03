@@ -112,6 +112,16 @@ public class WorkerDataChannel {
             return true;
         }
 
+        return false;
+    }
+
+    /**
+     * Check whether target strand already in a panic state.
+     * @param ctx source strand
+     * @param retReg return registry index of the flush
+     * @return true if target failed
+     */
+    public synchronized boolean isPanicked(Strand ctx, int retReg) {
         if (this.panic != null) {
             ctx.setError(this.panic);
             this.panic = null;
