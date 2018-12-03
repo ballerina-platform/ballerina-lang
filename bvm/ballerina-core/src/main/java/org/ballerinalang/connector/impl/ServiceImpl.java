@@ -35,7 +35,6 @@ import java.util.Map;
 public class ServiceImpl extends AnnotatableNode implements Service {
     private String name;
     private String packagePath;
-    private String endPointName;
     private ServiceInfo serviceInfo;
     private String packageVersion;
     private BMap serviceValue;
@@ -48,7 +47,6 @@ public class ServiceImpl extends AnnotatableNode implements Service {
         this.name = serviceInfo.getName();
         this.packagePath = serviceInfo.getPackagePath();
         this.packageVersion = serviceInfo.getPackageInfo().getPackageVersion();
-        this.endPointName = serviceInfo.getListenerName();
         this.serviceValue = serviceValue;
     }
 
@@ -68,11 +66,6 @@ public class ServiceImpl extends AnnotatableNode implements Service {
     @Override
     public String getPackage() {
         return packagePath;
-    }
-
-    @Override
-    public String getEndpointName() {
-        return endPointName;
     }
 
     @Override

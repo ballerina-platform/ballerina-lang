@@ -20,12 +20,20 @@ function testNonBallerinaAnnotations() returns reflect:annotationData[] {
 @http:ServiceConfig {
     basePath: "/myService"
 }
-service MyService = service {
+service MyService on new http:MockListener(9090) {
+
+    @http:ResourceConfig {
+        path: "/bar"
+    }
     resource function foo(http:Caller caller, http:Request req) {
 
     }
-};
+}
 
-function testBallerinaAnnotations() returns reflect:annotationData[] {
+function testBallerinaServiceAnnotations() returns reflect:annotationData[] {
     return reflect:getServiceAnnotations(MyService);
+}
+
+function testBallerinaResourceAnnotations() returns reflect:annotationData[] {
+    return reflect:getResourceAnnotations(MyService, "foo");
 }

@@ -21,7 +21,7 @@ import ballerina/time;
 type TwoPhaseCommitTransaction object {
 
     string transactionId;
-    int transactionBlockId;
+    string transactionBlockId;
     string coordinationType;
     boolean isInitiated = false; // Indicates whether this is a transaction that was initiated or is participated in
     map<Participant> participants = {};
@@ -30,7 +30,7 @@ type TwoPhaseCommitTransaction object {
     TransactionState state = TXN_STATE_ACTIVE;
     private boolean possibleMixedOutcome = false;
 
-    function __init(string transactionId, int transactionBlockId, string coordinationType = "2pc") {
+    function __init(string transactionId, string transactionBlockId, string coordinationType = "2pc") {
         self.transactionId = transactionId;
         self.transactionBlockId = transactionBlockId;
         self.coordinationType = coordinationType;
@@ -38,7 +38,7 @@ type TwoPhaseCommitTransaction object {
 
     // This function will be called by the initiator
     function twoPhaseCommit() returns string|error {
-        log:printInfo(io:sprintf("Running 2-phase commit for transaction: %s:%d", self.transactionId,
+        log:printInfo(io:sprintf("Running 2-phase commit for transaction: %s:%s", self.transactionId,
                 self.transactionBlockId));
         string|error ret = "";
 
@@ -159,12 +159,12 @@ type TwoPhaseCommitTransaction object {
     function prepareParticipants(string protocol) returns PrepareDecision {
         PrepareDecision prepareDecision = PREPARE_DECISION_COMMIT;
         future<((PrepareResult|error)?, Participant)>[] results = [];
-        foreach _, participant in self.participants {
+        foreach var (key, participant) in self.participants {
             string participantId = participant.participantId;
             future<((PrepareResult|error)?, Participant)> f = start participant.prepare(protocol);
             results[results.length()] = f;
         }
-        foreach f in results {
+        foreach var f in results {
             ((PrepareResult|error)?, Participant) r = wait f;
             var (result, participant) = r;
             string participantId = participant.participantId;
@@ -208,12 +208,12 @@ type TwoPhaseCommitTransaction object {
     function notifyParticipants(string action, string? protocolName) returns NotifyResult|error {
         NotifyResult|error notifyResult = (action == COMMAND_COMMIT) ? NOTIFY_RESULT_COMMITTED : NOTIFY_RESULT_ABORTED;
         future<(NotifyResult|error)?>[] results = [];
-        foreach _, participant in self.participants {
+        foreach var (key, participant) in self.participants {
             future<(NotifyResult|error)?> f = start participant.notify(action, protocolName);
             results[results.length()] = f;
 
         }
-        foreach f in results {
+        foreach var f in results {
             (NotifyResult|error)? result = wait f;
             if (result is error) {
                 notifyResult = result;
@@ -224,7 +224,7 @@ type TwoPhaseCommitTransaction object {
 
     // This function will be called by the initiator
     function abortInitiatorTransaction() returns string|error {
-        log:printInfo(io:sprintf("Aborting initiated transaction: %s:%d", self.transactionId, self.transactionBlockId));
+        log:printInfo(io:sprintf("Aborting initiated transaction: %s:%s", self.transactionId, self.transactionBlockId));
         string|error ret = "";
         // return response to the initiator. ( Aborted | Mixed )
         var result = self.notifyParticipants(COMMAND_ABORT, ());

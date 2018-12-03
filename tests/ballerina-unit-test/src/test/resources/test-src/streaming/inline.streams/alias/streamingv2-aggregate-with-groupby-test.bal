@@ -51,7 +51,7 @@ function startAggregationWithGroupByQuery() returns TeacherOutput[] {
     createAggregationQueryWithGroupby(inputStream);
 
     outputStream.subscribe(function (TeacherOutput e) {printTeachers(e);});
-    foreach t in teachers {
+    foreach var t in teachers {
         inputStream.publish(t);
     }
 
@@ -82,7 +82,7 @@ function createAggregationQueryWithGroupby(stream<Teacher> inStream) {
         select input.name, input.age, sum (input.age) as sumAge, count() as count
         group by input.name
         => (TeacherOutput[] teachers) {
-            foreach t in teachers {
+            foreach var t in teachers {
                 outputStream.publish(t);
             }
         }

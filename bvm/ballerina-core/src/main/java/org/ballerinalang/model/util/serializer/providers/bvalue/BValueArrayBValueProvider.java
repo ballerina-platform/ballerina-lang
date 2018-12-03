@@ -104,45 +104,50 @@ public class BValueArrayBValueProvider implements SerializationBValueProvider<BV
     public BValueArray toObject(BPacket packet, BValueDeserializer bValueDeserializer) {
         BValueArray array = (BValueArray) packet.getValue();
         BType type = (BType) bValueDeserializer.deserialize(packet.get(TYPE), BType.class);
-        //BType type = BTypes.getTypeFromName(elemTypeName.stringValue());
         int size = (int) array.size();
         BValueArray target = null;
-        if (type.getTag() == TypeTags.INT_TAG) {
-            long[] arr = new long[size];
-            for (int i = 0; i < size; i++) {
-                arr[i] = array.getInt(i);
+        if (type.getTag() == TypeTags.ARRAY_TAG) {
+            type = ((BArrayType) type).getElementType();
+            if (type.getTag() == TypeTags.INT_TAG) {
+                long[] arr = new long[size];
+                for (int i = 0; i < size; i++) {
+                    arr[i] = (long) bValueDeserializer.deserialize(array.getBValue(i), Long.class);
+                }
+                target = new BValueArray(arr);
+            } else if (type.getTag() == TypeTags.BOOLEAN_TAG) {
+                int[] arr = new int[size];
+                for (int i = 0; i < size; i++) {
+                    arr[i] = (int) bValueDeserializer.deserialize(array.getBValue(i), Integer.class);
+                }
+                target = new BValueArray(arr);
+            } else if (type.getTag() == TypeTags.BYTE_TAG) {
+                byte[] arr = new byte[size];
+                for (int i = 0; i < size; i++) {
+                    arr[i] = (byte) bValueDeserializer.deserialize(array.getBValue(i), BType.class);
+                }
+                target = new BValueArray(arr);
+            } else if (type.getTag() == TypeTags.FLOAT_TAG) {
+                double[] arr = new double[size];
+                for (int i = 0; i < size; i++) {
+                    arr[i] = (double) bValueDeserializer.deserialize(array.getBValue(i), Double.class);
+                }
+                target = new BValueArray(arr);
+            } else if (type.getTag() == TypeTags.STRING_TAG) {
+                String[] arr = new String[size];
+                for (int i = 0; i < size; i++) {
+                    arr[i] = (String) bValueDeserializer.deserialize(array.getBValue(i), String.class);
+
+                }
+                target = new BValueArray(arr);
             }
-            target = new BValueArray(arr);
-        } else if (type.getTag() == TypeTags.BOOLEAN_TAG) {
-            int[] arr = new int[size];
-            for (int i = 0; i < size; i++) {
-                arr[i] = array.getBoolean(i);
-            }
-            target = new BValueArray(arr);
-        } else if (type.getTag() == TypeTags.BYTE_TAG) {
-            byte[] arr = new byte[size];
-            for (int i = 0; i < size; i++) {
-                arr[i] = array.getByte(i);
-            }
-            target = new BValueArray(arr);
-        } else if (type.getTag() == TypeTags.FLOAT_TAG) {
-            double[] arr = new double[size];
-            for (int i = 0; i < size; i++) {
-                arr[i] = array.getFloat(i);
-            }
-            target = new BValueArray(arr);
-        } else if (type.getTag() == TypeTags.STRING_TAG) {
-            String[] arr = new String[size];
-            for (int i = 0; i < size; i++) {
-                arr[i] = array.getString(i);
-            }
-            target = new BValueArray(arr);
-        } else {
+        }
+        if (target == null) {
             target = new BValueArray(type);
             for (int i = 0; i < array.size(); i++) {
                 target.add(i, (BRefType<?>) bValueDeserializer.deserialize(array.getRefValue(i), null));
             }
         }
+
         return target;
     }
 }

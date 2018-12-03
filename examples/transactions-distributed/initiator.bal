@@ -78,7 +78,7 @@ function callBusinessService() returns boolean {
     log:printInfo("Got response from bizservice");
     match result {
         http:Response res => {
-            successful = (res.statusCode == http:OK_200) ? true : false;
+            successful = (res.statusCode == http:OK_200);
         }
         error => successful = false;
     }

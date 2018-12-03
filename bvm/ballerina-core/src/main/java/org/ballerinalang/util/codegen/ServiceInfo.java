@@ -22,7 +22,6 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 import org.ballerinalang.util.codegen.cpentries.TypeRefCPEntry;
-import org.ballerinalang.util.codegen.cpentries.UTF8CPEntry;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,8 +45,6 @@ public class ServiceInfo implements AttributeInfoPool {
     public int flags;
 
     public TypeRefCPEntry serviceType;
-    public TypeRefCPEntry listenerType;
-    public UTF8CPEntry listenerName;
 
     private Map<String, FunctionInfo> resourceInfoMap;
     private List<String> resourceNameList = new ArrayList<>();
@@ -60,7 +57,7 @@ public class ServiceInfo implements AttributeInfoPool {
     public BMap serviceValue;
 
     public ServiceInfo(int pkgPathCPIndex, String packageName, int nameCPIndex, String serviceName, int flags,
-            TypeRefCPEntry serviceType, TypeRefCPEntry listenerType, UTF8CPEntry listenerName) {
+            TypeRefCPEntry serviceType) {
         this.pkgPathCPIndex = pkgPathCPIndex;
         this.packagePath = packageName;
         this.nameCPIndex = nameCPIndex;
@@ -68,12 +65,6 @@ public class ServiceInfo implements AttributeInfoPool {
         this.flags = flags;
 
         this.serviceType = serviceType;
-        this.listenerType = listenerType;
-        this.listenerName = listenerName;
-    }
-
-    public String getListenerName() {
-        return listenerName.getValue();
     }
 
     public FunctionInfo[] getResourceInfoEntries() {

@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Test case to test simple WebSocket pass through scenarios.
  */
-@Test(groups = { "websocket-test", "broken" })
+@Test(groups = {"websocket-test"})
 public class WebSocketSimpleProxyTestCase extends WebSocketTestCommons {
 
     private WebSocketRemoteServer remoteServer;

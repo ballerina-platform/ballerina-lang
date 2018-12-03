@@ -79,7 +79,7 @@ public function startTableJoinQuery() returns any {
 function tableJoinFunc() {
 
     function (map<anydata>[]) outputFunc = function (map<anydata>[] events) {
-        foreach m in events {
+        foreach var m in events {
             // just cast input map into the output type
             var o = <StockWithPrice>StockWithPrice.convert(m);
             stockWithPriceStream.publish(o);
@@ -108,6 +108,10 @@ function tableJoinFunc() {
             map<anydata>[] result = [];
             foreach i, r in queryStocksTable(<string>s.data["twitterStream.company"], 1) {
                 result[i] = <map<anydata>>map<anydata>.convert(r);
+            int i = 0;
+            foreach var r in queryStocksTable(<string>s.data["twitterStream.company"], 1) {
+                result[i] = <map<anydata>>map<anydata>.create(r);
+                i += 1;
             }
             return result;
         });
@@ -131,7 +135,7 @@ public function queryStocksTable(string symbol, int volume) returns table<Stock>
     table<Stock> result = table {
         { symbol, price, volume }, []
     };
-    foreach stock in stocksTable {
+    foreach var stock in stocksTable {
         if (stock.symbol == symbol && stock.volume > volume) {
             var ret = result.add(stock);
         }

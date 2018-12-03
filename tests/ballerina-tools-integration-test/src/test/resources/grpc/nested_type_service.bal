@@ -16,14 +16,9 @@
 import ballerina/io;
 import ballerina/grpc;
 
-endpoint grpc:Listener ep {
-    host:"localhost",
-    port:9090
-};
+service HelloWorld on new grpc:Listener(9090) {
 
-service HelloWorld bind ep {
-
-    testInputNestedStruct(endpoint caller, Person req) {
+    resource function testInputNestedStruct(grpc:Caller caller, Person req) {
         io:println("name: " + req.name);
         io:println(req.address);
         string message = "Submitted name: " + req.name;
@@ -36,7 +31,7 @@ service HelloWorld bind ep {
         _ = caller->complete();
     }
 
-    testOutputNestedStruct(endpoint caller, string name) {
+    resource function testOutputNestedStruct(grpc:Caller caller, string name) {
         io:println("requested name: " + name);
         Person person = {name:"Sam", address:{postalCode:10300, state:"CA", country:"USA"}};
         io:println(person);

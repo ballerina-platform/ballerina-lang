@@ -44,7 +44,7 @@ function scheduleTimer(int delay, int interval) returns boolean {
 
 function cleanupTransactions() returns error? {
     worker w1 {
-        foreach _, twopcTxn in participatedTransactions {
+        foreach var (key, twopcTxn) in participatedTransactions {
             string participatedTxnId = getParticipatedTransactionId(twopcTxn.transactionId,
                 twopcTxn.transactionBlockId);
             if (time:currentTime().time - twopcTxn.createdTime >= 120000) {
@@ -80,7 +80,7 @@ function cleanupTransactions() returns error? {
         }
     }
     worker w2 returns () {
-        foreach _, twopcTxn in initiatedTransactions {
+        foreach var (key, twopcTxn) in initiatedTransactions {
             if (time:currentTime().time - twopcTxn.createdTime >= 120000) {
                 if (twopcTxn.state != TXN_STATE_ABORTED) {
                     // Commit the transaction since prepare hasn't been received
@@ -112,7 +112,7 @@ function isRegisteredParticipant(string participantId, map<Participant> particip
 }
 
 function isValidCoordinationType(string coordinationType) returns boolean {
-    foreach coordType in coordinationTypes {
+    foreach var coordType in coordinationTypes {
         if (coordinationType == coordType) {
             return true;
         }
@@ -131,8 +131,8 @@ function protoName(UProtocol p) returns string {
 function protocolCompatible(string coordinationType, UProtocol[] participantProtocols) returns boolean {
     boolean participantProtocolIsValid = false;
     string[] validProtocols = coordinationTypeToProtocolsMap[coordinationType] ?: [];
-    foreach participantProtocol in participantProtocols {
-        foreach validProtocol in validProtocols {
+    foreach var participantProtocol in participantProtocols {
+        foreach var validProtocol in validProtocols {
             if (protoName(participantProtocol) == validProtocol) {
                 participantProtocolIsValid = true;
                 break;
@@ -171,7 +171,7 @@ function getCoordinatorProtocolAt(string protocolName, int transactionBlockId) r
         transactionBlockId;
 }
 
-function getParticipantProtocolAt(string protocolName, int transactionBlockId) returns string {
+function getParticipantProtocolAt(string protocolName, string transactionBlockId) returns string {
     //TODO: protocolName is unused for the moment
     return "http://" + coordinatorHost + ":" + coordinatorPort + participant2pcCoordinatorBasePath + "/" +
         transactionBlockId;
@@ -184,7 +184,7 @@ function getParticipantProtocolAt(string protocolName, int transactionBlockId) r
 #                      is being created for.
 # + transactionBlockId - The ID of the transaction block.
 # + return - TransactionContext if the coordination type is valid or an error in case of an invalid coordination type.
-function createTransactionContext(string coordinationType, int transactionBlockId) returns TransactionContext|error {
+function createTransactionContext(string coordinationType, string transactionBlockId) returns TransactionContext|error {
     if (!isValidCoordinationType(coordinationType)) {
         string msg = "Invalid-Coordination-Type:" + coordinationType;
         log:printError(msg);
@@ -215,7 +215,7 @@ function createTransactionContext(string coordinationType, int transactionBlockI
 # + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
 # + registerAtURL - The URL of the initiator
 # + return - TransactionContext if the registration is successul or an error in case of a failure.
-function registerLocalParticipantWithInitiator(string transactionId, int transactionBlockId, string registerAtURL)
+function registerLocalParticipantWithInitiator(string transactionId, string transactionBlockId, string registerAtURL)
     returns TransactionContext|error {
 
     string participantId = getParticipantId(transactionBlockId);
@@ -316,7 +316,7 @@ function getParticipant2pcClient(string participantURL) returns Participant2pcCl
 # + registerAtURL - The URL of the coordinator.
 # + participantProtocols - The coordination protocals supported by the participant.
 # + return - TransactionContext if the registration is successful or an error in case of a failure.
-public function registerParticipantWithRemoteInitiator(string transactionId, int transactionBlockId,
+public function registerParticipantWithRemoteInitiator(string transactionId, string transactionBlockId,
                                                        string registerAtURL, RemoteProtocol[] participantProtocols)
     returns TransactionContext|error {
 
@@ -359,12 +359,12 @@ public function registerParticipantWithRemoteInitiator(string transactionId, int
     }
 }
 
-function getParticipatedTransactionId(string transactionId, int transactionBlockId) returns string {
+function getParticipatedTransactionId(string transactionId, string transactionBlockId) returns string {
     string id = transactionId + ":" + transactionBlockId;
     return id;
 }
 
-function getParticipantId(int transactionBlockId) returns string {
+function getParticipantId(string transactionBlockId) returns string {
     string participantId = localParticipantId + ":" + transactionBlockId;
     return participantId;
 }

@@ -69,11 +69,11 @@ function startTimeBatchwindowTest2() returns (TeacherOutput[]) {
 function testTimeBatchwindow() {
 
     forever {
-        from inputStreamTimeBatchTest2 window timeBatchWindow([1000])
+        from inputStreamTimeBatchTest2 window timeBatchWindow(1000)
         select inputStreamTimeBatchTest2.name, count() as count
         group by inputStreamTimeBatchTest2.school
         => (TeacherOutput [] emp) {
-            foreach e in emp {
+            foreach var e in emp {
                 outputStreamTimeBatchTest2.publish(e);
             }
         }

@@ -1,8 +1,9 @@
 import {
     Assignment, ASTNode, ExpressionStatement,
-    Function, VariableDef, VisibleEndpoint, Visitor
+    Function, Return, VariableDef, VisibleEndpoint, Visitor
 } from "@ballerina/ast-model";
 import { EndpointViewState, FunctionViewState, StmntViewState, ViewState } from "../view-model";
+import { ReturnViewState } from "../view-model/return";
 
 function initStatement(node: ASTNode) {
     if (!node.viewState) {
@@ -46,5 +47,11 @@ export const visitor: Visitor = {
             node.viewState = new EndpointViewState();
         }
         (node.viewState as EndpointViewState).visible = false;
+    },
+
+    beginVisitReturn(node: Return) {
+        if (!node.viewState) {
+            node.viewState = new ReturnViewState();
+        }
     }
 };

@@ -119,7 +119,7 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
                             printInCLI(summary, descColWidth - authorsColWidth);
                             string authors = "";
                             json authorsArr = jsonElement.authors;
-                            foreach authorIndex in 0 ..< authorsArr.length() {
+                            foreach var authorIndex in 0 ..< authorsArr.length() {
                                 if (authorIndex == authorsArr.length() - 1) {
                                     authors = authors + authorsArr[authorIndex].toString();
                                 } else {
@@ -254,7 +254,7 @@ function getDateCreated(json jsonObj) returns string {
 # This function invokes the method to search for modules.
 # + args - Arguments passed
 public function main (string... args) {
-    http:Client httpEndpoint = new("");
+    http:Client httpEndpoint;
     string host = args[2];
     string strPort = args[3];
     if (host != "" && strPort != "") {
@@ -263,6 +263,7 @@ public function main (string... args) {
             http:Client|error result = trap defineEndpointWithProxy(args[0], host, port, args[4], args[5]);
             if (result is http:Client) {
                 httpEndpoint = result;
+                search(httpEndpoint, args[0], args[1], args[6]);
             } else if (result is error) {
                 io:println("failed to resolve host : " + host + " with port " + port);
                 return;
@@ -275,8 +276,8 @@ public function main (string... args) {
         return;   
     } else {
         httpEndpoint = defineEndpointWithoutProxy(args[0]);
-    }        
-    search(httpEndpoint, args[0], args[1], args[6]);
+        search(httpEndpoint, args[0], args[1], args[6]);
+    }
 }
 
 # This function sets the proxy configurations for the endpoint.

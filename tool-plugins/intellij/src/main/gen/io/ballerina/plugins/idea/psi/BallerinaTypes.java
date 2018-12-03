@@ -357,7 +357,7 @@ public interface BallerinaTypes {
   IElementType COMPOUND_MUL = new BallerinaTokenType("*=");
   IElementType COMPOUND_RIGHT_SHIFT = new BallerinaTokenType("COMPOUND_RIGHT_SHIFT");
   IElementType COMPOUND_SUB = new BallerinaTokenType("-=");
-  IElementType CONST = new BallerinaTokenType("CONST");
+  IElementType CONST = new BallerinaTokenType("const");
   IElementType CONTINUE = new BallerinaTokenType("continue");
   IElementType DAY = new BallerinaTokenType("day");
   IElementType DAYS = new BallerinaTokenType("days");
@@ -388,6 +388,7 @@ public interface BallerinaTypes {
   IElementType ELLIPSIS = new BallerinaTokenType("...");
   IElementType ELSE = new BallerinaTokenType("else");
   IElementType ELVIS = new BallerinaTokenType("ELVIS");
+  IElementType ENUM = new BallerinaTokenType("enum");
   IElementType EQUAL = new BallerinaTokenType("==");
   IElementType EQUALS = new BallerinaTokenType("EQUALS");
   IElementType EQUAL_GT = new BallerinaTokenType("=>");

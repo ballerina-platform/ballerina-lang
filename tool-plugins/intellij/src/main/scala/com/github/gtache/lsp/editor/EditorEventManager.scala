@@ -138,7 +138,7 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
 
   private val completionTriggers =
     if (serverOptions.completionOptions != null && serverOptions.completionOptions.getTriggerCharacters != null)
-      serverOptions.completionOptions.getTriggerCharacters.asScala.toSet.filter(s => s != ".")
+      serverOptions.completionOptions.getTriggerCharacters.asScala.toSet
     else Set[String]()
 
   private val signatureTriggers =
@@ -176,7 +176,7 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
     */
   def characterTyped(c: Char): Unit = {
     if (completionTriggers.contains(c.toString)) {
-      //completion(DocumentUtils.offsetToLSPPos(editor,editor.getCaretModel.getCurrentCaret.getOffset))
+      completion(DocumentUtils.offsetToLSPPos(editor,editor.getCaretModel.getCurrentCaret.getOffset))
     } else if (signatureTriggers.contains(c.toString)) {
       signatureHelp()
     } else if (onTypeFormattingTriggers.contains(c.toString)) {

@@ -55,7 +55,7 @@ function startOrderByQuery() returns TeacherOutput[] {
     foo();
 
     outputStream.subscribe(function(TeacherOutput e) {printTeachers(e);});
-    foreach t in teachers {
+    foreach var t in teachers {
         inputStream.publish(t);
     }
     int count = 0;
@@ -71,10 +71,10 @@ function startOrderByQuery() returns TeacherOutput[] {
 
 function foo() {
     forever {
-        from inputStream where inputStream.age > 2 window lengthBatchWindow([5])
+        from inputStream where inputStream.age > 2 window lengthBatchWindow(5)
         select inputStream.name, inputStream.age, inputStream.status, sum (inputStream.age) as sumAge, count() as count
         group by inputStream.name order by status ascending, age descending => (TeacherOutput [] o) {
-            foreach x in o {
+            foreach var x in o {
                 outputStream.publish(x);
             }
         }

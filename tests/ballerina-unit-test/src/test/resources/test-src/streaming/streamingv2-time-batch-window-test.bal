@@ -45,7 +45,7 @@ function startTimeBatchwindowTest1() returns (TeacherOutput[]) {
     testTimeBatchwindow();
 
     outputStreamTimeBatchTest1.subscribe(function(TeacherOutput e) {printTeachers(e);});
-    foreach t in teachers {
+    foreach var t in teachers {
         inputStreamTimeBatchTest1.publish(t);
     }
 
@@ -64,11 +64,11 @@ function startTimeBatchwindowTest1() returns (TeacherOutput[]) {
 function testTimeBatchwindow() {
 
     forever {
-        from inputStreamTimeBatchTest1 window timeBatchWindow([1000])
+        from inputStreamTimeBatchTest1 window timeBatchWindow(1000)
         select inputStreamTimeBatchTest1.name, count() as count
         group by inputStreamTimeBatchTest1.school
         => (TeacherOutput [] emp) {
-            foreach e in emp {
+            foreach var e in emp {
                 outputStreamTimeBatchTest1.publish(e);
             }
         }

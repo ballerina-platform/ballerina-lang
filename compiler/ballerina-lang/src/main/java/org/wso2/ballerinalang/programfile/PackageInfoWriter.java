@@ -400,8 +400,6 @@ public class PackageInfoWriter {
         dataOutStream.writeInt(serviceInfo.nameCPIndex);
         dataOutStream.writeInt(serviceInfo.flags);
         dataOutStream.writeInt(serviceInfo.serviceTypeCPIndex);
-        dataOutStream.writeInt(serviceInfo.listenerTypeCPIndex);
-        dataOutStream.writeInt(serviceInfo.listenerNameCPIndex);
     }
 
     private static void writeResourceInfo(DataOutputStream dataOutStream,

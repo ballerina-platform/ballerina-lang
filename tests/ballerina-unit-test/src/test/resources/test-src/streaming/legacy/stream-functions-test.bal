@@ -42,7 +42,7 @@ function deployStreamingRules() {
         where age > 30
         select name, age, status
         => (Employee[] emp) {
-            foreach e in emp {
+            foreach var e in emp {
                 employeeStream.publish(e);
             }
         }

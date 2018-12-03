@@ -20,6 +20,7 @@ package org.ballerinalang.net.http.mock.nonlistening;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
@@ -59,14 +60,17 @@ public class NonListeningRegister extends org.ballerinalang.net.http.serviceendp
         HTTPServicesRegistry httpServicesRegistry = getHttpServicesRegistry(serviceEndpoint);
         WebSocketServicesRegistry webSocketServicesRegistry = getWebSocketServicesRegistry(serviceEndpoint);
 
-        //TODO:This needs to be fixed properly once there's a way to identify the listener type
-        String listenerType = service.getServiceInfo().listenerType.getTypeSig();
-        if (HttpConstants.HTTP_MOCK_SERVER_ENDPOINT_NAME.equals(listenerType)) {
+        ParamDetail param;
+        if (service.getResources().length > 0 && (param = service.getResources()[0].getParamDetails().get(0)) != null) {
+            String callerType = param.getVarType().toString();
+            if (HttpConstants.HTTP_CALLER_NAME.equals(callerType)) {
+                httpServicesRegistry.registerService(service);
+            } else if (WebSocketConstants.WEBSOCKET_CALLER_NAME.equals(callerType)) {
+                WebSocketService webSocketService = new WebSocketService(service);
+                webSocketServicesRegistry.registerService(webSocketService);
+            }
+        } else {
             httpServicesRegistry.registerService(service);
-        }
-        if (WebSocketConstants.WEBSOCKET_CALLER_NAME.equals(listenerType)) {
-            WebSocketService webSocketService = new WebSocketService(service);
-            webSocketServicesRegistry.registerService(webSocketService);
         }
         context.setReturnValues();
     }

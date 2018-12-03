@@ -551,18 +551,8 @@ public class PackageInfoReader {
 
             // Read service and listener type cp index;
             TypeRefCPEntry serviceType = (TypeRefCPEntry) packageInfo.getCPEntry(dataInStream.readInt());
-            int cpIndex;
-            TypeRefCPEntry listenerTypeCP = null;
-            UTF8CPEntry listenerNameCP = null;
-            if ((cpIndex = dataInStream.readInt()) != -1) {
-                listenerTypeCP = (TypeRefCPEntry) packageInfo.getCPEntry(cpIndex);
-            }
-            if ((cpIndex = dataInStream.readInt()) != -1) {
-                listenerNameCP = (UTF8CPEntry) packageInfo.getCPEntry(cpIndex);
-            }
             ServiceInfo serviceInfo = new ServiceInfo(packageInfo.getPkgNameCPIndex(), packageInfo.getPkgPath(),
-                    serviceNameCPIndex, serviceNameUTF8Entry.getValue(), flags, serviceType, listenerTypeCP,
-                    listenerNameCP);
+                    serviceNameCPIndex, serviceNameUTF8Entry.getValue(), flags, serviceType);
             serviceInfo.setPackageInfo(packageInfo);
             packageInfo.addServiceInfo(serviceInfo.getName(), serviceInfo);
         }
@@ -1148,7 +1138,6 @@ public class PackageInfoReader {
                 case InstructionCodes.BR_FALSE:
                 case InstructionCodes.NEWSTRUCT:
                 case InstructionCodes.ITR_NEW:
-                case InstructionCodes.ITR_HAS_NEXT:
                 case InstructionCodes.XML2XMLATTRS:
                 case InstructionCodes.NEWXMLCOMMENT:
                 case InstructionCodes.NEWXMLTEXT:
@@ -1297,7 +1286,6 @@ public class PackageInfoReader {
                 case InstructionCodes.TEQ:
                 case InstructionCodes.TNE:
                 case InstructionCodes.XMLLOAD:
-                case InstructionCodes.NEW_INT_RANGE:
                 case InstructionCodes.LENGTHOF:
                 case InstructionCodes.STAMP:
                 case InstructionCodes.NEWSTREAM:
@@ -1489,8 +1477,13 @@ public class PackageInfoReader {
                     int iteratorIndex = codeStream.readInt();
                     int[] typeTags = getArgRegs(codeStream);
                     retRegs = getArgRegs(codeStream);
+
+                    int constraintTypeSigCPIndex = codeStream.readInt();
+                    TypeRefCPEntry constraintTypeRefCPEntry =
+                            (TypeRefCPEntry) packageInfo.getCPEntry(constraintTypeSigCPIndex);
+                    BType constraintType = constraintTypeRefCPEntry.getType();
                     packageInfo.addInstruction(new InstructionIteratorNext(opcode, iteratorIndex, retRegs.length,
-                            typeTags, retRegs));
+                            typeTags, retRegs, constraintType));
                     break;
                 case InstructionCodes.LOCK:
                     int varCount = codeStream.readInt();

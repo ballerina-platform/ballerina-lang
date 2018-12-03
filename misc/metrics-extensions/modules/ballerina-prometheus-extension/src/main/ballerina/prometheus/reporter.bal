@@ -50,7 +50,7 @@ service PrometheusReporter on prometheusListener {
     resource function getMetrics(http:Caller caller, http:Request req) {
         observe:Metric[] metrics = observe:getAllMetrics();
         string payload = EMPTY_STRING;
-        foreach metric in metrics {
+        foreach var metric in metrics {
             string  qualifiedMetricName = metric.name.replaceAll("/", "_");
             string metricReportName = getMetricName(qualifiedMetricName, "value");
             payload += generateMetricHelp(metricReportName, metric.desc);
@@ -60,7 +60,7 @@ service PrometheusReporter on prometheusListener {
                 map<string> tags = metric.tags;
                 observe:Snapshot[]? summaries = metric.summary;
                 if (summaries is observe:Snapshot[]) {
-                    foreach aSnapshot in summaries {
+                    foreach var aSnapshot in summaries {
                         tags[EXPIRY_TAG] = <string>aSnapshot.timeWindow;
                         payload += generateMetricHelp(qualifiedMetricName, "A Summary of " +  qualifiedMetricName + " for window of "
                                                     + aSnapshot.timeWindow);
@@ -70,7 +70,7 @@ service PrometheusReporter on prometheusListener {
                         payload += generateMetric(getMetricName(qualifiedMetricName, "min"), tags, aSnapshot.min);
                         payload += generateMetric(getMetricName(qualifiedMetricName, "stdDev"), tags,
                         aSnapshot.stdDev);
-                        foreach percentileValue in aSnapshot.percentileValues  {
+                        foreach var percentileValue in aSnapshot.percentileValues  {
                             tags[PERCENTILE_TAG] = <string>percentileValue.percentile;
                             payload += generateMetric(qualifiedMetricName, tags, percentileValue.value);
                         }
@@ -127,7 +127,7 @@ function generateMetric(string name, map<string>? labels, int|float value) retur
 
 function getLabelsString(map<string> labels) returns string {
     string stringLabel = "{";
-    foreach key, value in labels {
+    foreach var (key, value) in labels {
         string labelKey = key.replaceAll("\\.", "_");
         string entry = labelKey + "=\"" + value + "\"";
         stringLabel += (entry + ",");

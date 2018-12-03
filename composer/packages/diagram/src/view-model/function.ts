@@ -6,7 +6,7 @@ import { WorkerViewState } from "./worker";
 export class FunctionViewState extends ViewState {
     public header: SimpleBBox = new SimpleBBox();
     public body: SimpleBBox = new SimpleBBox();
-    public client: SimpleBBox = new SimpleBBox();
+    public client: ViewState = new ViewState();
     public defaultWorker: WorkerViewState = new WorkerViewState();
     public menuTrigger: SimplePoint = new SimplePoint();
 

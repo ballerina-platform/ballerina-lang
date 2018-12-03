@@ -503,7 +503,7 @@ function createFailoverHttpClientArray(FailoverClientEndpointConfiguration failo
     Client[] httpClients = [];
     int i = 0;
 
-    foreach target in failoverClientConfig.targets {
+    foreach var target in failoverClientConfig.targets {
         ClientEndpointConfig epConfig = createClientEPConfigFromFailoverEPConfig(failoverClientConfig, target);
         httpClients[i] = new(target.url, config = epConfig);
         i += 1;
