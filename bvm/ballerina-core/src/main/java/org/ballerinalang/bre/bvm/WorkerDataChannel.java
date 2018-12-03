@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.bre.bvm;
 
-import org.ballerinalang.bre.bvm.Strand.FlushState;
 import org.ballerinalang.bre.bvm.Strand.State;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BRefType;
@@ -59,10 +58,12 @@ public class WorkerDataChannel {
     public synchronized boolean putData(BRefType data, Strand waitingCtx, int retReg) {
         if (this.error != null) {
             waitingCtx.currentFrame.refRegs[retReg] = this.error;
+            this.error = null;
             return true;
         }
         if (this.panic != null) {
             waitingCtx.setError(this.panic);
+            this.panic = null;
             return true;
         }
         this.channel.add(new WorkerResult(data, true));
@@ -98,24 +99,42 @@ public class WorkerDataChannel {
         }
     }
 
-    public synchronized Strand.FlushState tryFlush(Strand ctx, int retReg) {
+    /**
+     * Check whether target strand already in a failed state.
+     * @param ctx source strand
+     * @param retReg return registry index of the flush
+     * @return true if target failed
+     */
+    public synchronized boolean isFailed(Strand ctx, int retReg) {
         if (this.error != null) {
-            ctx.currentFrame.refRegs[retReg] = error;
-            return FlushState.ERROR;
+            ctx.currentFrame.refRegs[retReg] = this.error;
+            this.error = null;
+            return true;
         }
 
         if (this.panic != null) {
             ctx.setError(this.panic);
-            return FlushState.ERROR;
+            this.panic = null;
+            return true;
         }
-        if (!channel.isEmpty()) {
-            waitingSender = new WaitingSender(ctx, retReg);
-            //flush should wait and need to rerun upon fetching data
-            ctx.currentFrame.ip--;
-            BVMScheduler.stateChange(ctx, State.RUNNABLE, State.PAUSED);
-            return FlushState.PENDING;
+
+        return false;
+    }
+
+    /**
+     * Check if all the messages sent.
+     * @param ctx source strand
+     * @param retReg return registry index of the flush
+     * @return true if messages are sent
+     */
+    public synchronized boolean isDataSent(Strand ctx, int retReg) {
+        if (channel.isEmpty()) {
+            return true;
         }
-        return FlushState.FLUSH_ABLE;
+        waitingSender = new WaitingSender(ctx, retReg);
+        ctx.currentFrame.ip--;
+        BVMScheduler.stateChange(ctx, State.RUNNABLE, State.PAUSED);
+        return false;
     }
 
     /**

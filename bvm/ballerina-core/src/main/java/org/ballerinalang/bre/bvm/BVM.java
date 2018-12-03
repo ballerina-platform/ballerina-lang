@@ -480,7 +480,7 @@ public class BVM {
                     break;
                 case InstructionCodes.FLUSH:
                     Instruction.InstructionFlush flushIns = (Instruction.InstructionFlush) instruction;
-                    if (!handleFlush(strand, flushIns.retReg, flushIns.channels)) {
+                    if (CallbackReturnHandler.handleFlush(strand, flushIns.retReg, flushIns.channels) == null) {
                         return;
                     }
                     break;
@@ -815,23 +815,6 @@ public class BVM {
         }
     }
 
-    private static boolean handleFlush(Strand strand, int retReg, String[] channels) {
-
-        for (int i = 0; i < channels.length; i++) {
-            WorkerDataChannel dataChannel = getWorkerChannel(strand, channels[i], false);
-            Strand.FlushState state = dataChannel.tryFlush(strand, retReg);
-            if (state == Strand.FlushState.ERROR) {
-                return true;
-            }
-
-            if (state == Strand.FlushState.PENDING) {
-                return false;
-            }
-        }
-        strand.currentFrame.refRegs[retReg] = null;
-        return true;
-    }
-
     private static boolean handleWorkerSyncSend(Strand strand, WorkerDataChannelInfo dataChannelInfo, BType type,
                                                 int reg, int retReg) {
 
@@ -878,8 +861,9 @@ public class BVM {
         SafeStrandCallback strandCallback = new SafeStrandCallback(callableUnitInfo.getRetParamTypes()[0],
                 strand.respCallback.getWorkerDataChannels());
         if (callableUnitInfo.workerSendInChannels == null) {
-            callableUnitInfo.workerSendInChannels =
-                    ((WorkerSendInsAttributeInfo) callableUnitInfo.getAttributeInfo(AttributeInfo.Kind.WORKER_SEND_INS)).sendIns;
+            WorkerSendInsAttributeInfo attributeInfo =
+                    (WorkerSendInsAttributeInfo) callableUnitInfo.getAttributeInfo(AttributeInfo.Kind.WORKER_SEND_INS);
+            callableUnitInfo.workerSendInChannels = attributeInfo.sendIns;
         }
         strandCallback.sendIns = callableUnitInfo.workerSendInChannels;
         Strand calleeStrand = new Strand(strand.programFile, callableUnitInfo.getName(),
