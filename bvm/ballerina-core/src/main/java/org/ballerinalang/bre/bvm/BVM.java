@@ -4598,9 +4598,7 @@ public class BVM {
         BType elementType = ((BArrayType) sourceType).getElementType();
 
         if (elementType != null) {
-            if (elementType == BTypes.typeString || elementType == BTypes.typeInt ||
-                    elementType == BTypes.typeFloat || elementType == BTypes.typeBoolean ||
-                    elementType == BTypes.typeByte) {
+            if (BTypes.isValueType(elementType)) {
                 return false;
             } else if (elementType instanceof BArrayType) {
                 return isDeepStampingRequiredForArray(elementType);
@@ -4614,9 +4612,7 @@ public class BVM {
         BType constrainedType = ((BMapType) sourceType).getConstrainedType();
 
         if (constrainedType != null) {
-            if (constrainedType == BTypes.typeString || constrainedType == BTypes.typeInt ||
-                    constrainedType == BTypes.typeFloat || constrainedType == BTypes.typeBoolean ||
-                    constrainedType == BTypes.typeByte) {
+            if (BTypes.isValueType(constrainedType)) {
                 return false;
             } else if (constrainedType instanceof BMapType) {
                 return isDeepStampingRequiredForMap(constrainedType);
@@ -4748,9 +4744,7 @@ public class BVM {
             return false;
         }
 
-        if (source.elementType == BTypes.typeInt || source.elementType == BTypes.typeString ||
-                source.elementType == BTypes.typeFloat || source.elementType == BTypes.typeBoolean ||
-                source.elementType == BTypes.typeByte) {
+        if (BTypes.isValueType(source.elementType)) {
             int bound = (int) source.size();
             for (int i = 0; i < bound; i++) {
                 if (!checkIsType(source.elementType, targetType.getTupleTypes().get(i), new ArrayList<>())) {
@@ -4775,9 +4769,7 @@ public class BVM {
         }
 
         BValueArray source = (BValueArray) sourceValue;
-        if (source.elementType == BTypes.typeInt || source.elementType == BTypes.typeString ||
-                source.elementType == BTypes.typeFloat || source.elementType == BTypes.typeBoolean ||
-                source.elementType == BTypes.typeByte) {
+        if (BTypes.isValueType(source.elementType)) {
             return checkIsType(source.elementType, targetType.getElementType(), new ArrayList<>());
         }
         
@@ -4809,9 +4801,7 @@ public class BVM {
             return checkIsLikeType(sourceValue, targetType.getConstrainedType());
         } else if (sourceValue.getType().getTag() == TypeTags.ARRAY_TAG) {
             BValueArray source = (BValueArray) sourceValue;
-            if (source.elementType == BTypes.typeInt || source.elementType == BTypes.typeString ||
-                    source.elementType == BTypes.typeFloat || source.elementType == BTypes.typeBoolean ||
-                    source.elementType == BTypes.typeByte) {
+            if (BTypes.isValueType(source.elementType)) {
                 return checkIsType(source.elementType, targetType, new ArrayList<>());
             }
             
