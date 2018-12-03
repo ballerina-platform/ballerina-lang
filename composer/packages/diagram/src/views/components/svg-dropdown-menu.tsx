@@ -4,6 +4,7 @@ import { SVGDropDownMenuTrigger } from "./svg-dropdown-menu-trigger";
 
 export interface SVGDropDownMenuProps {
     triggerPosition: SimplePoint;
+    menuWidth?: number;
     className?: string;
     items: SVGDropDownItem[];
     triggerIcon: string;
@@ -26,21 +27,25 @@ export class SVGDropDownMenu extends React.Component<SVGDropDownMenuProps, SVGDr
     };
 
     public render() {
-        const { triggerPosition } = this.props;
-        return <SVGDropDownMenuTrigger position={triggerPosition} onClick={() => {
-            this.setState({
-                active: !this.state.active
-            });
-        }}>
+        const { triggerPosition, triggerPosition: { x, y }, menuWidth = 100 } = this.props;
+        const btnRadius = 10;
+        const menuPosition = {
+            x: x + btnRadius / 2,
+            y: y + btnRadius / 2
+        };
+        return <SVGDropDownMenuTrigger
+                position={triggerPosition}
+                radius={btnRadius}
+                onClick={() => {
+                    this.setState({
+                        active: !this.state.active
+                    });
+                }}
+            >
                 {this.state.active &&
-                    // TODO
-                    // draw menu from svg elements here
-                    <rect
-                        x={triggerPosition.x + 5}
-                        y={triggerPosition.y + 5}
-                        width={100}
-                        height={100}
-                    />
+                    <g className="">
+
+                    </g>
                 }
         </SVGDropDownMenuTrigger>;
     }
