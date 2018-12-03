@@ -93,7 +93,7 @@ public class Respond extends ConnectionAction {
         }
 
         Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(context);
-        observerContext.ifPresent(ctx -> ctx.addTag(TAG_KEY_HTTP_STATUS_CODE, String.valueOf
+        observerContext.ifPresent(ctx -> ctx.getParent().addTag(TAG_KEY_HTTP_STATUS_CODE, String.valueOf
                 (outboundResponseStruct.get(RESPONSE_STATUS_CODE_FIELD))));
         try {
             if (pipeliningRequired(inboundRequestMsg)) {
