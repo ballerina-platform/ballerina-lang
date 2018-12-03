@@ -20,7 +20,7 @@ export const LifeLine: React.StatelessComponent<{
 }) => {
 
         const topLabel = { x: 0, y: 0 };
-        const topIcon = { x: 0, y: 0, className:"lifeline-icon" };
+        const topIcon = { x: 0, y: 0, className: "lifeline-icon" };
         const bottomLabel = { x: 0, y: 0 };
         const topBox = { x: 0, y: 0 , width: 0, height: 0};
         const bottomBox = { x: 0, y: 0 , width: 0, height: 0};
