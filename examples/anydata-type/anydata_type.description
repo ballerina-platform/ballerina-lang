@@ -1,5 +1,5 @@
-// The `anydata` type is a sub set of type `any` of the Ballerina data types. `anydata` is an union type which consists
-// boolean | int | float | decimal | string | xml | table | anydata[] | map<anydata> | record types.
+// The `anydata` type is a sub set of type `any` of the Ballerina data types. `The anydata type is defined by the
+// following union: boolean | int | float | decimal | string | xml | table | anydata[] | map<anydata> | ().
 // When you do not have prior knowledge of the data type of your variable, you can assign `anydata` as the type.
 // Values of these variables can come from dynamic content such as the request and response message fields and the user input.
 // The `anydata` type allows you to skip compile-time data type checks.

@@ -18,7 +18,7 @@ public function main() {
     int a = 25;
     io:println(a);
 
-    any p = new Person(age=a);
+    any p = new Person(age = a);
     Person|error personVal = trap <Person>p;
     if (personVal is Person) {
         io:println("Person p's age: " + personVal.getAge());

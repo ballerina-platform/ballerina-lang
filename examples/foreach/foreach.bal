@@ -23,9 +23,13 @@ public function main() {
     foreach j in apple {
         if (j is string) {
             io:println("string value: ", j);
+        } else if (j is int) {
+            io:println("int value: ", j);
+        } else if (j is string[]) {
+            io:println("string array value: ", j);
         } else {
             // JSON is a union type for () or null | int | float | decimal | string | json[] | map<json>,
-            // thus json array and int will be matched. `j` in else block is type `anydata`.
+            // `j` in else block if type cannot be inferred then it is type `anydata`.
             io:println("non-string value: ", j);
         }
     }
