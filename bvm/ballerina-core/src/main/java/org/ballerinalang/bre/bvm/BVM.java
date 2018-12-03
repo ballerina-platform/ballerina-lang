@@ -5059,7 +5059,7 @@ public class BVM {
                 BRecordType targetConstrRecord = (BRecordType) targetConstraint;
                 return !targetConstrRecord.sealed && targetConstrRecord.restFieldType == BTypes.typeAnydata;
             }
-            return targetConstraint.getTag() == TypeTags.TYPEDESC_TAG;
+            return false;
         }
 
         return checkIsType(sourceConstraint, targetConstraint, unresolvedTypes);
