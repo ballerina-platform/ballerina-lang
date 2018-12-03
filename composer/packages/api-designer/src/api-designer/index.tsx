@@ -412,6 +412,7 @@ class OpenApiVisualizer extends React.Component<OasProps, OpenApiState> {
         this.setState({
             openApiJson
         }, () => {
+            debugger;
             if (onDidChange) {
                 onDidChange(EVENTS.ON_INLINE_CHANGE, this.state.openApiJson);
             }
@@ -508,8 +509,9 @@ class OpenApiVisualizer extends React.Component<OasProps, OpenApiState> {
                         <div className="oas-details">
                             <div className="description">
                                 <InlineEdit
+                                    isMarkdown
                                     changeModel={openApiJson}
-                                    changeAttribute={{key: "info.description", value: ""}}
+                                    changeAttribute={{key: "info.description", changeValue: ""}}
                                     inlineEditString={info.description}
                                     placeholderString="Add a description"
                                     isParagraph
@@ -519,7 +521,7 @@ class OpenApiVisualizer extends React.Component<OasProps, OpenApiState> {
                             <div>
                                 <InlineEdit
                                     changeModel={openApiJson}
-                                    changeAttribute={{key: "info.termsOfService", value: ""}}
+                                    changeAttribute={{key: "info.termsOfService", changeValue: ""}}
                                     inlineEditString={info.termsOfService}
                                     placeholderString="Add terms of service link."
                                     isURL={{ urlLink: info.termsOfService, urlString: info.termsOfService }}
@@ -530,7 +532,7 @@ class OpenApiVisualizer extends React.Component<OasProps, OpenApiState> {
                                 {info.license ?
                                     <InlineEdit
                                         changeModel={openApiJson}
-                                        changeAttribute={{key: "info.license", value: ""}}
+                                        changeAttribute={{key: "info.license", changeValue: ""}}
                                         inlineEditString={info.license.url}
                                         placeholderString="Add license link."
                                         isURL={{ urlLink: info.license.url, urlString: info.license.name }}
@@ -539,7 +541,7 @@ class OpenApiVisualizer extends React.Component<OasProps, OpenApiState> {
                                 :
                                     <InlineEdit
                                         changeModel={openApiJson}
-                                        changeAttribute={{key: "info.license", value: ""}}
+                                        changeAttribute={{key: "info.license", changeValue: ""}}
                                         inlineEditString={""}
                                         placeholderString="Add license link."
                                         isURL={{ urlLink: "", urlString: "" }}
@@ -551,7 +553,7 @@ class OpenApiVisualizer extends React.Component<OasProps, OpenApiState> {
                                 {info.contact ?
                                     <InlineEdit
                                         changeModel={openApiJson}
-                                        changeAttribute={{key: "info.contact", value: ""}}
+                                        changeAttribute={{key: "info.contact", changeValue: ""}}
                                         inlineEditString={info.contact.url}
                                         placeholderString="Add contact information."
                                         isURL={{ urlLink: info.contact.url, urlString: info.contact.name }}
@@ -560,7 +562,7 @@ class OpenApiVisualizer extends React.Component<OasProps, OpenApiState> {
                                 :
                                     <InlineEdit
                                         changeModel={openApiJson}
-                                        changeAttribute={{key: "info.contact", value: ""}}
+                                        changeAttribute={{key: "info.contact", changeValue: ""}}
                                         inlineEditString={""}
                                         placeholderString="Add contact information"
                                         isURL={{ urlLink: "", urlString: "" }}

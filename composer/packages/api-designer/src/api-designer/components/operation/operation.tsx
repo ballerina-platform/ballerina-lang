@@ -96,7 +96,11 @@ class OpenApiResource extends React.Component<OpenApiResourceProps, OpenApiResou
                             return (
                                 <InlineEdit
                                     changeModel={appContext.openApiJson}
-                                    changeAttribute={{key: "operation.summary", value: operationType}}
+                                    changeAttribute={{
+                                        changeValue: operationType,
+                                        key: "operation.summary",
+                                        path: resourcePath
+                                    }}
                                     classDefinition="op-summary"
                                     inlineEditString={operationObject.summary}
                                     placeholderString="Add a summary"
@@ -115,8 +119,14 @@ class OpenApiResource extends React.Component<OpenApiResourceProps, OpenApiResou
                         {(appContext: OpenApiContext) => {
                             return (
                                 <InlineEdit
+                                    isMarkdown
+                                    isParagraph
                                     changeModel={appContext.openApiJson}
-                                    changeAttribute={{key: "operation.description", value: operationType}}
+                                    changeAttribute={{
+                                        changeValue: operationType,
+                                        key: "operation.description",
+                                        path: resourcePath
+                                    }}
                                     inlineEditString={operationObject.description}
                                     placeholderString="Add a description"
                                     onInlineValueChange={appContext.onInlineEditChange}
