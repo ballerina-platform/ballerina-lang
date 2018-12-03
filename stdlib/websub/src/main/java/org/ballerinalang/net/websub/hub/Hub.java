@@ -65,6 +65,9 @@ public class Hub {
     private List<String> topics = new ArrayList<>();
     private List<HubSubscriber> subscribers = new ArrayList<>();
 
+    private static final String BASE_PATH = "/websub";
+    private static final String HUB_PATH = "/hub";
+
     public static Hub getInstance() {
         return instance;
     }
@@ -196,6 +199,7 @@ public class Hub {
      *
      * @param context context
      */
+    @SuppressWarnings("unchecked")
     public void startUpHubService(Context context) {
         synchronized (this) {
             if (!isStarted()) {
@@ -208,15 +212,12 @@ public class Hub {
                 PackageInfo hubPackageInfo = hubProgramFile.getPackageInfo(WEBSUB_PACKAGE);
                 BBoolean topicRegistrationRequired = new BBoolean(context.getBooleanArgument(0));
                 BString publicUrl = new BString(context.getStringArgument(0));
-                BValue[] hubListener = new BValue[] {context.getRefArgument(0)};
+                BMap<String, BValue> hubListener = ((BMap<String, BValue>) context.getRefArgument(0));
 
 
                 if (hubPackageInfo != null) {
-//                    BValue[] returns = BVMExecutor.executeFunction(hubProgramFile,
-//                            hubPackageInfo.getFunctionInfo("startHubService"));
                     hubTopicRegistrationRequired = topicRegistrationRequired.booleanValue();
-
-                    String hubUrl = publicUrl.stringValue();
+                    String hubUrl = populateHubUrl(publicUrl, hubListener);
                     BValue[] args = new BValue[0];
                     //TODO: change once made public and available as a param
                     hubPersistenceEnabled = Boolean.parseBoolean((BVMExecutor.executeFunction(hubProgramFile,
@@ -230,12 +231,24 @@ public class Hub {
                             .getFunctionInfo("setupOnStartup"), args);
                     setHubUrl(hubUrl);
                     setHubObject(BLangConnectorSPIUtil.createObject(context, WEBSUB_PACKAGE,
-                                                     STRUCT_WEBSUB_BALLERINA_HUB, new BString(hubUrl), hubListener[0]));
+                                                     STRUCT_WEBSUB_BALLERINA_HUB, new BString(hubUrl), hubListener));
                 }
             } else {
                 throw new BallerinaWebSubException("Hub Service already started up");
             }
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private String populateHubUrl(BString publicUrl, BMap<String, BValue> hubListener) {
+        String hubUrl = publicUrl.stringValue();
+        if (publicUrl.stringValue().isEmpty()) {
+            String hubPort = String.valueOf(hubListener.get("port"));
+            BValue secureSocket = ((BMap) hubListener.get("config")).get("secureSocket");
+            hubUrl =  secureSocket != null ? ("https://localhost:" + hubPort + BASE_PATH + HUB_PATH)
+                        : ("http://localhost:" + hubPort + BASE_PATH + HUB_PATH);
+        }
+        return hubUrl;
     }
 
     /**

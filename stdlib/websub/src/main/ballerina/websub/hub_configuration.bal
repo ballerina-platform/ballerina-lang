@@ -31,12 +31,8 @@ const string DEFAULT_DB_NAME = "HUB_DB";
 const string DEFAULT_DB_USERNAME = "sa";
 const string DEFAULT_DB_PASSWORD = "";
 
-//string hubHost = DEFAULT_HOST;
-//int hubPort = 0;
 int hubLeaseSeconds = DEFAULT_LEASE_SECONDS_VALUE;
 string hubSignatureMethod = DEFAULT_SIGNATURE_METHOD;
-//boolean hubRemotePublishingEnabled = false;
-//RemotePublishMode hubRemotePublishMode = PUBLISH_MODE_DIRECT;
 RemotePublishConfig remotePublishConfig = {};
 boolean hubTopicRegistrationRequired = false;
 string hubPublicUrl = "";
@@ -83,72 +79,6 @@ function isHubTopicRegistrationRequired() returns boolean {
     return hubTopicRegistrationRequired;
 }
 
-//function getServiceSecureSocketConfig(http:ServiceSecureSocket? currentServiceSecureSocket) returns
-//                                                                                          http:ServiceSecureSocket? {
-//    if (!hubSslEnabled) {
-//        return;
-//    }
-//
-//    string keyStoreFilePath = config:getAsString("b7a.websub.hub.ssl.key_store.file_path");
-//    string keyStorePassword = config:getAsString("b7a.websub.hub.ssl.key_store.password");
-//
-//    if (keyStoreFilePath == "") {
-//        if (currentServiceSecureSocket is http:ServiceSecureSocket) {
-//            return currentServiceSecureSocket;
-//        } else {
-//            keyStoreFilePath = "${ballerina.home}/bre/security/ballerinaKeystore.p12";
-//            keyStorePassword = "ballerina";
-//        }
-//    }
-//
-//    http:ServiceSecureSocket newServiceSecureSocket = {
-//        keyStore:{
-//            path:keyStoreFilePath, password:keyStorePassword
-//        }
-//    };
-//    return newServiceSecureSocket;
-//}
-
-//function getSecureSocketConfig(http:SecureSocket? currentSecureSocket) returns http:SecureSocket? {
-//    string trustStoreFilePath;
-//    string trustStorePassword;
-//
-//    if (!hubSslEnabled) {
-//        trustStoreFilePath = config:getAsString("b7a.websub.hub.ssl.trust_store.file_path");
-//        trustStorePassword = config:getAsString("b7a.websub.hub.ssl.trust_store.password");
-//
-//        if (trustStoreFilePath == "") {
-//            return currentSecureSocket;
-//        }
-//        http:SecureSocket newSecureSocket = {
-//            trustStore:{
-//                path:trustStoreFilePath, password:trustStorePassword
-//            },
-//            verifyHostname:false
-//        };
-//        return newSecureSocket;
-//    }
-//
-//    trustStoreFilePath = config:getAsString("b7a.websub.hub.ssl.trust_store.file_path");
-//    trustStorePassword = config:getAsString("b7a.websub.hub.ssl.trust_store.password");
-//
-//    if (trustStoreFilePath == "") {
-//        if (currentSecureSocket is http:SecureSocket) {
-//            return currentSecureSocket;
-//        } else {
-//            trustStoreFilePath = "${ballerina.home}/bre/security/ballerinaTruststore.p12";
-//            trustStorePassword = "ballerina";
-//        }
-//    }
-//
-//    http:SecureSocket newSecureSocket = {
-//        trustStore:{
-//            path:trustStoreFilePath, password:trustStorePassword
-//        },
-//        verifyHostname:false
-//    };
-//    return newSecureSocket;
-//}
 
 function getSignatureMethod(SignatureMethod? signatureMethod) returns string {
     string signaturemethodAsConfig = config:getAsString("b7a.websub.hub.signaturemethod");

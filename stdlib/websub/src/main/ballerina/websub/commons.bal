@@ -484,39 +484,20 @@ public type RemotePublishConfig record {
 # + return - `WebSubHub` The WebSubHub object representing the newly started up hub, or `HubStartedUpError` indicating
 #            that the hub is already started, and including the WebSubHub object representing the
 #            already started up hub
-//public function startHub(string? host = (), int port, int? leaseSeconds = (), string? signatureMethod = (),
-//                         boolean? remotePublishingEnabled = (), RemotePublishMode? remotePublishMode = (),
-//                         boolean? topicRegistrationRequired = (), string? publicUrl = (),
-//                         boolean? sslEnabled = (), http:ServiceSecureSocket? serviceSecureSocket = (),
-//                         http:SecureSocket? clientSecureSocket = ()) returns WebSubHub|HubStartedUpError {
-
-
 public function startHub(http:Listener hubServiceListener, HubConfiguration? hubConfiguration = ())
                                                                     returns WebSubHub|HubStartedUpError {
-    //hubHost = config:getAsString("b7a.websub.hub.host", default = host ?: DEFAULT_HOST);
-    //hubPort = config:getAsInt("b7a.websub.hub.port", default = port);
     hubLeaseSeconds = config:getAsInt("b7a.websub.hub.leasetime",
                                       default = hubConfiguration["leaseSeconds"] ?: DEFAULT_LEASE_SECONDS_VALUE);
     hubSignatureMethod = getSignatureMethod(hubConfiguration["signatureMethod"]);
-
     remotePublishConfig = getRemotePublishConfig(hubConfiguration["remotePublish"]);
-    //hubRemotePublishingEnabled = config:getAsBoolean("b7a.websub.hub.remotepublish",
-    //                                 default = remotePublishingEnabled ?: false);
-    //
-    //string remotePublishModeAsConfig =  config:getAsString("b7a.websub.hub.remotepublish.mode");
-
-
     hubTopicRegistrationRequired = config:getAsBoolean("b7a.websub.hub.topicregistration",
                                     default = hubConfiguration["topicRegistrationRequired"] ?: true);
-    //hubSslEnabled = config:getAsBoolean("b7a.websub.hub.enablessl", default = sslEnabled ?: true);
-    ////set serviceSecureSocket after hubSslEnabled is set
-    //if (hubSslEnabled) {
-    //    hubServiceSecureSocket = getServiceSecureSocketConfig(serviceSecureSocket);
-    //}
-    //hubClientSecureSocket = getSecureSocketConfig(clientSecureSocket);
-    //reset the hubUrl once the other parameters are set
-    hubPublicUrl = config:getAsString("b7a.websub.hub.url", default = hubConfiguration["publicUrl"] ?: getHubUrl());
+
+    // reset the hubUrl once the other parameters are set. if url is an empty strung, create hub url with listener
+    // configs in the native code
+    hubPublicUrl = config:getAsString("b7a.websub.hub.url", default = hubConfiguration["publicUrl"] ?: "");
     hubClientConfig = hubConfiguration["clientConfig"];
+
     startHubService(hubServiceListener);
     return startUpHubService(hubTopicRegistrationRequired, hubPublicUrl, hubServiceListener);
 }
