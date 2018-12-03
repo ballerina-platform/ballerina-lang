@@ -83,3 +83,24 @@ function stampTupleValueToArray() returns Employee[]|error {
     Employee[]|error returnValue = Employee[].stamp(tupleValue);
     return returnValue;
 }
+
+function stampTupleToBasicArray() returns int[]|error {
+    (int,int) intArray = (1, 2);
+    int[]|error returnValue = int[].stamp(intArray);
+
+    return returnValue;
+}
+
+function stampTupleToAnydataTuple() returns (anydata, anydata)|error {
+    (int,int) intArray = (1, 2);
+    (anydata, anydata)|error returnValue = (anydata, anydata).stamp(intArray);
+
+    return returnValue;
+}
+
+function stampAnydataTupleToBasicTypeTuple() returns (int, int)|error {
+    (anydata,anydata) intArray = (1, 2);
+    (int, int)|error returnValue = (int, int).stamp(intArray);
+
+    return returnValue;
+}

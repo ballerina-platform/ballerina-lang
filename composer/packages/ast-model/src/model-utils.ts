@@ -1,5 +1,6 @@
-import { ASTNode } from "./ast-interfaces";
+import { ASTNode, Invocation, SimpleVariableRef } from "./ast-interfaces";
 import { Visitor } from "./base-visitor";
+import { ASTKindChecker } from "./check-kind-util";
 
 const metaNodes = ["viewState", "ws", "position"];
 
@@ -46,4 +47,28 @@ export function traversNode(node: ASTNode, visitor: Visitor) {
     if (endVisitFn) {
         endVisitFn.bind(visitor)(node);
     }
+}
+
+export function isActionInvocation(node: ASTNode): Invocation | boolean {
+    let invocation;
+    traversNode(node, {
+        beginVisitInvocation(element: Invocation) {
+            if (element.actionInvocation) {
+                invocation = element;
+            }
+        }
+    });
+    if (invocation) {
+        // Return identifire of the endpoint.
+        return invocation;
+    }
+    return false;
+}
+
+export function getEndpointName(node: Invocation): string | undefined {
+    if (node.expression && ASTKindChecker.isSimpleVariableRef(node.expression)) {
+        const simpleVariableRef = node.expression as SimpleVariableRef;
+        return simpleVariableRef.variableName.value;
+    }
+    return;
 }

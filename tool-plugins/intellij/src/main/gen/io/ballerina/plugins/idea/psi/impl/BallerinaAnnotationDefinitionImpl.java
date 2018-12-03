@@ -55,8 +55,8 @@ public class BallerinaAnnotationDefinitionImpl extends BallerinaNamedElementImpl
 
   @Override
   @Nullable
-  public BallerinaUserDefineTypeName getUserDefineTypeName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaUserDefineTypeName.class);
+  public BallerinaTypeName getTypeName() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaTypeName.class);
   }
 
   @Override

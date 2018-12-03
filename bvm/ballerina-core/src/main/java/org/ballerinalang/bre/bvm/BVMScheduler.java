@@ -27,7 +27,10 @@ import org.ballerinalang.model.values.BError;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.exceptions.BLangNullReferenceException;
+import org.ballerinalang.util.observability.ObserveUtils;
 import org.ballerinalang.util.program.BLangVMUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.concurrent.Semaphore;
@@ -41,6 +44,8 @@ import java.util.concurrent.atomic.LongAdder;
  */
 public class BVMScheduler {
 
+    private static final Logger breLog = LoggerFactory.getLogger(BVMScheduler.class);
+
     private static AtomicInteger strandCount = new AtomicInteger(0);
 
     //TODO these are static vars, we may need to find a way to make this instance vars
@@ -52,6 +57,7 @@ public class BVMScheduler {
      * @param strand to be executed
      */
     public static void schedule(Strand strand) {
+        strandCountUp();
         ThreadPoolFactory.getInstance().getWorkerExecutor().submit(new CallableExecutor(strand));
     }
 
@@ -64,8 +70,11 @@ public class BVMScheduler {
         try {
             strandCountUp();
             BVM.execute(strand);
+        } catch (Throwable e) {
+            //These errors are unhandled errors in BVM, hence logging them to bre log.
+            breLog.error(e.getMessage(), e);
+            throw e;
         } finally {
-            //TODO Ideally we shouldn't need to handle errors or finally here. Remove if possible
             strandCountDown();
         }
     }
@@ -79,6 +88,7 @@ public class BVMScheduler {
      */
     public static void scheduleNative(NativeCallableUnit nativeCallable,
                                       Context nativeCtx, CallableUnitCallback callback) {
+        strandCountUp();
         ThreadPoolFactory.getInstance().getWorkerExecutor()
                 .submit(new NativeCallableExecutor(nativeCallable, nativeCtx, callback));
     }
@@ -179,10 +189,11 @@ public class BVMScheduler {
         @Override
         public void run() {
             try {
-                strandCountUp();
                 BVM.execute(this.strand);
+            } catch (Throwable e) {
+                //These errors are unhandled errors in BVM, hence logging them to bre log.
+                breLog.error(e.getMessage(), e);
             } finally {
-                //TODO Ideally we shouldn't need to handle errors or finally here. Remove if possible
                 strandCountDown();
             }
         }
@@ -209,7 +220,6 @@ public class BVMScheduler {
 
         @Override
         public void run() {
-            strandCountUp();
             BError error;
             Strand strand = this.nativeCtx.getStrand();
             CallableUnitInfo cui = this.nativeCtx.getCallableUnitInfo();
@@ -217,6 +227,8 @@ public class BVMScheduler {
             try {
                 this.nativeCallable.execute(this.nativeCtx, callback);
                 if (strand.fp > 0) {
+                    // Stop the observation context before popping the stack frame
+                    ObserveUtils.stopCallableObservation(strand);
                     strand.popFrame();
                     StackFrame retFrame = strand.currentFrame;
                     BLangVMUtils.populateWorkerDataWithValues(retFrame, this.nativeCtx.getDataFrame().retReg,
@@ -234,6 +246,8 @@ public class BVMScheduler {
                 strandCountDown();
             }
             strand.setError(error);
+            // Stop the observation context before popping the stack frame
+            ObserveUtils.stopCallableObservation(strand);
             strand.popFrame();
             BVM.handleError(strand);
             execute(strand);

@@ -18,7 +18,7 @@
 package org.ballerinalang.persistence.serializable.serializer.providers.instance;
 
 import org.ballerinalang.model.util.serializer.TypeInstanceProvider;
-import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.persistence.serializable.SerializableState;
 import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBRefArray;
 
@@ -35,7 +35,7 @@ public class SerializableBRefArrayInstanceProvider implements TypeInstanceProvid
 
     @Override
     public Object newInstance() {
-        return new SerializableBRefArray(new BRefValueArray(), new SerializableState(null, 0));
+        return new SerializableBRefArray(new BValueArray(), new SerializableState(null, 0));
     }
 
     @Override

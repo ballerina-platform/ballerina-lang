@@ -13,6 +13,7 @@ export class DiagramConfig {
     };
 
     public statement = {
+        actionHeight: STATEMENT_HEIGHT + 15,
         height: STATEMENT_HEIGHT,
         margin: {
             bottom: 0,
@@ -69,6 +70,7 @@ export class DiagramConfig {
         header: {
             height: 30,
         },
+        leftMargin: 120 / 2,
         line: {
             height: 135,
         },
@@ -77,11 +79,16 @@ export class DiagramConfig {
 
     public flowCtrl = {
         bottomMargin: STATEMENT_HEIGHT / 2,
-        header: {
+        condition: {
             height: STATEMENT_HEIGHT * 3
+        },
+        foreach: {
+            height: STATEMENT_HEIGHT * 2,
+            width: STATEMENT_HEIGHT * 3
         },
         leftMargin: STATEMENT_HEIGHT,
         leftMarginDefault: 60,
+        rightMargin: STATEMENT_HEIGHT,
         whileGap: STATEMENT_HEIGHT,
     };
 }

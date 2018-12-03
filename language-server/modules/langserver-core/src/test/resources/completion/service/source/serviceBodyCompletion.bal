@@ -1,8 +1,13 @@
 import ballerina/http;
 
-service<http:Service> sampleService bind { port: 9090 } {
-    
+listener http:Listener ep1 = new(9090);
 
-    sampleResource (endpoint caller, http:Request request) {
+@http:ServiceConfig {
+    basePath: "/cbrBase"
+}
+service myService1 on ep1 {
+    
+    resource function foo(http:Caller caller, http:Request req) {
+        _ = caller->respond("Hello");
     }
 }

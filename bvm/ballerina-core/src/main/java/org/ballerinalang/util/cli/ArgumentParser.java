@@ -30,22 +30,17 @@ import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BByte;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BDecimalArray;
 import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BFloatArray;
-import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.codegen.DefaultValue;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.LocalVariableInfo;
@@ -367,19 +362,19 @@ public class ArgumentParser {
             switch (elementType.getTag()) {
                 case TypeTags.ANY_TAG:
                 case TypeTags.STRING_TAG:
-                    BStringArray stringArrayArgs = new BStringArray();
+                    BValueArray stringArrayArgs = new BValueArray(BTypes.typeString);
                     for (int i = index; i < args.length; i++) {
                         stringArrayArgs.add(i - index, args[i]);
                     }
                     return stringArrayArgs;
                 case TypeTags.INT_TAG:
-                    BIntArray intArrayArgs = new BIntArray();
+                    BValueArray intArrayArgs = new BValueArray(BTypes.typeInt);
                     for (int i = index; i < args.length; i++) {
                         intArrayArgs.add(i - index, getIntegerValue(args[i]));
                     }
                     return intArrayArgs;
                 case TypeTags.FLOAT_TAG:
-                    BFloatArray floatArrayArgs = new BFloatArray();
+                    BValueArray floatArrayArgs = new BValueArray(BTypes.typeFloat);
                     for (int i = index; i < args.length; i++) {
                         floatArrayArgs.add(i - index, getFloatValue(args[i]));
                     }
@@ -391,19 +386,19 @@ public class ArgumentParser {
                     }
                     return decimalArrayArgs;
                 case TypeTags.BOOLEAN_TAG:
-                    BBooleanArray booleanArrayArgs = new BBooleanArray();
+                    BValueArray booleanArrayArgs = new BValueArray(BTypes.typeBoolean);
                     for (int i = index; i < args.length; i++) {
                         booleanArrayArgs.add(i - index, getBooleanValue(args[i]) ? 1 : 0);
                     }
                     return booleanArrayArgs;
                 case TypeTags.BYTE_TAG:
-                    BByteArray byteArrayArgs = new BByteArray();
+                    BValueArray byteArrayArgs = new BValueArray(BTypes.typeByte);
                     for (int i = index; i < args.length; i++) {
                         byteArrayArgs.add(i - index, getByteValue(args[i]));
                     }
                     return byteArrayArgs;
                 default:
-                    BRefValueArray refValueArray = new BRefValueArray();
+                    BValueArray refValueArray = new BValueArray();
                     for (int i = index; i < args.length; i++) {
                         refValueArray.add(i - index, (BRefType<?>) getBValue(elementType, args[i]));
                     }
@@ -417,7 +412,7 @@ public class ArgumentParser {
         }
     }
 
-    private static BRefValueArray parseTupleArg(BTupleType type, String tupleArg) {
+    private static BValueArray parseTupleArg(BTupleType type, String tupleArg) {
         String stringSpecificationErrorSuffix = "', expected argument in the format \\\"str\\\" for tuple element of "
                 + "type 'string'";
         String[] tupleElements = tupleArg.split(COMMA);
@@ -427,7 +422,7 @@ public class ArgumentParser {
                                                   + "type: '" + type + "'");
         }
 
-        BRefValueArray tupleValues = new BRefValueArray(type);
+        BValueArray tupleValues = new BValueArray(type);
         int index = 0;
         for (BType elementType : type.getTupleTypes()) {
             String tupleElement = tupleElements[index].trim();

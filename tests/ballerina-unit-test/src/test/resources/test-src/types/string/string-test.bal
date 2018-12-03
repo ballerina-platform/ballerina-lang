@@ -94,7 +94,8 @@ function toByteArray(string l, string m) returns (byte[]) {
 }
 
 function testEncodeDecode(string content) returns (string|error) {
-    return content.base64Encode();
+    var result = content.base64Encode();
+    return result is string ? result.base64Decode() : result;
 }
 
 function testBase64EncodeString(string contentToBeEncoded) returns (string|error) {

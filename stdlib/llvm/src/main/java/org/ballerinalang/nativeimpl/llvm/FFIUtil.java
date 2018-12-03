@@ -5,8 +5,8 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 
@@ -36,7 +36,7 @@ public class FFIUtil {
     }
 
     public static <T> T[] getRecodeArrayArgumentNative(Context context, int index, IntFunction<T[]> generator) {
-        BRefValueArray refArray = (BRefValueArray) context.getRefArgument(index);
+        BValueArray refArray = (BValueArray) context.getRefArgument(index);
         T[] nativeArray = generator.apply((int) refArray.size());
         BRefType<?>[] values = refArray.getValues();
         for (int i = 0; i < refArray.size(); i++) {

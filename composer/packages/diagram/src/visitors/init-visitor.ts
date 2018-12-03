@@ -1,5 +1,15 @@
-import { ASTNode, Function, Visitor } from "@ballerina/ast-model";
-import { FunctionViewState, ViewState } from "../view-model";
+import {
+    Assignment, ASTNode, ExpressionStatement,
+    Function, Return, VariableDef, VisibleEndpoint, Visitor
+} from "@ballerina/ast-model";
+import { EndpointViewState, FunctionViewState, StmntViewState, ViewState } from "../view-model";
+import { ReturnViewState } from "../view-model/return";
+
+function initStatement(node: ASTNode) {
+    if (!node.viewState) {
+        node.viewState = new StmntViewState();
+    }
+}
 
 export const visitor: Visitor = {
 
@@ -18,6 +28,30 @@ export const visitor: Visitor = {
 
     beginVisitCompilationUnit(node: ASTNode) {
         // view state will be set by the diagram component.
-    }
+    },
 
+    endVisitExpressionStatement(node: ExpressionStatement) {
+        initStatement(node);
+    },
+
+    endVisitVariableDef(node: VariableDef) {
+        initStatement(node);
+    },
+
+    endVisitAssignment(node: Assignment) {
+        initStatement(node);
+    },
+
+    beginVisitVisibleEndpoint(node: VisibleEndpoint) {
+        if (!node.viewState) {
+            node.viewState = new EndpointViewState();
+        }
+        (node.viewState as EndpointViewState).visible = false;
+    },
+
+    beginVisitReturn(node: Return) {
+        if (!node.viewState) {
+            node.viewState = new ReturnViewState();
+        }
+    }
 };

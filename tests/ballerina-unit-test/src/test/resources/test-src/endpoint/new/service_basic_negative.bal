@@ -1,7 +1,7 @@
 listener ABC ex = new;
 
 service name on ex {
-    string name;
+
 
     resource function foo(string b) {
         self.bar(b);
@@ -22,7 +22,7 @@ service name on xx {
 }
 
 service on ex {
-    string name;
+
 
     resource function foo(string b) {
     }
@@ -46,3 +46,8 @@ public type ABC object {
         return ();
     }
 };
+
+service on invalidVar {
+    resource function foo(string b) {
+    }
+}

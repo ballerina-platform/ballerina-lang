@@ -42,7 +42,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 /**
  * Test cases for observability tracing.
  */
-@Test(groups = "tracing-test")
+@Test(groups = { "tracing-test", "broken" })
 public class TracingTestCase extends BaseTest {
     private static BServerInstance serverInstance;
 

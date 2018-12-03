@@ -61,10 +61,10 @@ class OpenApiOperationsList extends React.Component<OasOperationsListProps, OasO
             <React.Fragment>
                 {showAddOperation &&
                     <OpenApiContextConsumer>
-                        {(appContext: OpenApiContext | null) => {
+                        {(appContext: OpenApiContext) => {
                             return (
                                 <OpenApiAddOperation
-                                    onAddOperation={appContext!.onDidAddOperation}
+                                    onAddOperation={appContext.onDidAddOperation}
                                     openApiJson={appContext!.openApiJson}
                                     resourcePath={resourcePath}
                                 />
@@ -77,7 +77,7 @@ class OpenApiOperationsList extends React.Component<OasOperationsListProps, OasO
                         {Object.keys(openApiOperations).map((operation, index) => {
                             return (
                                 <OpenApiContextConsumer>
-                                    {(appContext: OpenApiContext | null) => {
+                                    {(appContext: OpenApiContext) => {
                                         return (
                                             <OpenApiOperation
                                                 resourcePath={resourcePath}

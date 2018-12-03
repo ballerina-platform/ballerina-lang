@@ -20,10 +20,10 @@ package org.ballerinalang.test.h2;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.utils.SQLDBUtils;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
@@ -58,10 +58,10 @@ public class H2ClientActionsTest {
     public void testSelect() {
         BValue[] returns = BRunUtil.invoke(result, "testSelect");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BIntArray);
-        Assert.assertEquals(((BIntArray) returns[0]).size(), 2);
-        Assert.assertEquals(((BIntArray) returns[0]).get(0), 1);
-        Assert.assertEquals(((BIntArray) returns[0]).get(1), 2);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        Assert.assertEquals(((BValueArray) returns[0]).size(), 2);
+        Assert.assertEquals(((BValueArray) returns[0]).getInt(0), 1);
+        Assert.assertEquals(((BValueArray) returns[0]).getInt(1), 2);
     }
 
     @Test
@@ -97,10 +97,10 @@ public class H2ClientActionsTest {
     public void testBatchUpdate() {
         BValue[] returns = BRunUtil.invoke(result, "testBatchUpdate");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BIntArray);
-        BIntArray retValue = (BIntArray) returns[0];
-        Assert.assertEquals(retValue.get(0), 1);
-        Assert.assertEquals(retValue.get(1), 1);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        BValueArray retValue = (BValueArray) returns[0];
+        Assert.assertEquals(retValue.getInt(0), 1);
+        Assert.assertEquals(retValue.getInt(1), 1);
     }
 
     @Test
@@ -135,10 +135,10 @@ public class H2ClientActionsTest {
 
     private void assertInitTestReturnValues(BValue[] returns) {
         Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BIntArray);
-        Assert.assertEquals(((BIntArray) returns[0]).size(), 2);
-        Assert.assertEquals(((BIntArray) returns[0]).get(0), 1);
-        Assert.assertEquals(((BIntArray) returns[0]).get(1), 2);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        Assert.assertEquals(((BValueArray) returns[0]).size(), 2);
+        Assert.assertEquals(((BValueArray) returns[0]).getInt(0), 1);
+        Assert.assertEquals(((BValueArray) returns[0]).getInt(1), 2);
     }
 
     @Test

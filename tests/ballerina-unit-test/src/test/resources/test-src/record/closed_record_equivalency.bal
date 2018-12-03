@@ -66,7 +66,7 @@ function testEqOfPublicStructs () returns (string) {
     eq:closedEmployee e = {age:14, name:"rat"};
     e.ssn = "234-56-7890:employee";
 
-    eq:closedPerson p = <eq:closedPerson>e;
+    eq:closedPerson p = eq:closedPerson.create(e);
 
     return p.ssn;
 }
@@ -106,6 +106,8 @@ function testEqOfPublicStructs2 () returns (string) {
 type userA record {
     int age = 0;
     string name = "";
+    string address = "";
+    string zipcode = "";
     !...
 };
 
@@ -113,6 +115,7 @@ type userB record {
     int age = 0;
     string name = "";
     string address = "";
+    string zipcode = "";
     !...
 };
 
@@ -128,11 +131,9 @@ type userFoo record {
 function testRuntimeEqPrivateStructsInSamePackage () returns (string|error) {
     userFoo uFoo = {age:10, name:"ttt", address:"102 Skyhigh street #129, San Jose"};
 
-    // This is a safe cast
-    var uA = <userA>uFoo;
+    userA uA = uFoo;
 
-    // This is a unsafe cast
-    var uB = check <userB>uA;
+    userB uB = uA;
     return uB.name;
 }
 
@@ -140,6 +141,8 @@ function testRuntimeEqPrivateStructsInSamePackage () returns (string|error) {
 public type userPA record {
     int age = 0;
     string name = "";
+    string address = "";
+    string zipcode = "";
     !...
 };
 
@@ -147,6 +150,7 @@ public type userPB record {
     int age = 0;
     string name = "";
     string address = "";
+    string zipcode = "";
     !...
 };
 
@@ -162,49 +166,39 @@ public type userPFoo record {
 function testRuntimeEqPublicStructsInSamePackage () returns (string|error) {
     userPFoo uFoo = {age:10, name:"Skyhigh", address:"102 Skyhigh street #129, San Jose"};
 
-    // This is a safe cast
-    var uA = <userPA>uFoo;
+    userPA uA = uFoo;
 
-    // This is a unsafe cast
-    var uB = <userPB>uA;
-    match uB {
-        error err => return err.reason();
-        userPB user=> return user.name;
-    }
+    var uB = userPB.create(uA);
+    return uB.name;
 }
 
-function testRuntimeEqPublicStructs () returns (string) {
+function testRuntimeEqPublicStructs () returns (string|error) {
     req:closedUserPFoo uFoo = {age:10, name:"Skytop", address:"102 Skyhigh street #129, San Jose"};
 
-    // This is a safe cast
-    var uA = <userPA>uFoo;
+    userPA uA = uFoo;
 
-    // This is a unsafe cast
-    var uB  = <userPB>uA;
-    match uB {
-        error err => return err.reason();
-        userPB user=> return user.name;
-    }
+    userPB uB  = uA;
+    return uB.name;
 }
 
-function testRuntimeEqPublicStructs1 () returns (string) {
+function testRuntimeEqPublicStructs1 () returns (string|error) {
     req:closedUserPFoo uFoo = {age:10, name:"Brandon", address:"102 Skyhigh street #129, San Jose"};
 
     // This is a safe cast
-    var uA = <userPA>uFoo;
+    userPA uA = uFoo;
 
     // This is a unsafe cast
-    var uB  = <req2:closedUserPB>uA;
-    match uB {
-        error err => return err.reason();
-        userPB user=> return user.name;
-    }
+    var uB  = req2:closedUserPB.create(uA);
+    return uB.name;
 }
 
 type Foo record {
     string a = "";
     string b = "";
     string c = "";
+    int d = 0;
+    float e = 0.0;
+    person1? p = ();
     !...
 };
 
@@ -227,8 +221,8 @@ function testRecordEquivalence() returns Foo {
 function testUnorderedFieldRecordsInAMatch() returns Foo? {
     AnotherFoo|string aFoo = {a: "A", b: "B", c: "C", d: 10};
 
-    match aFoo {
-        Foo f => return f;
-        any => return ();
+    if aFoo is AnotherFoo {
+        return aFoo;
     }
+    return ();
 }

@@ -92,11 +92,9 @@ public class TopLevelResolver extends AbstractItemResolver {
         completionItems.add(getStaticItem(Snippet.STMT_NAMESPACE_DECLARATION, snippetCapability));
         completionItems.add(getStaticItem(Snippet.DEF_OBJECT_SNIPPET, snippetCapability));
         completionItems.add(getStaticItem(Snippet.DEF_RECORD, snippetCapability));
-        completionItems.add(getStaticItem(Snippet.DEF_ENDPOINT, snippetCapability));
         completionItems.add(getStaticItem(Snippet.KW_TYPE, snippetCapability));
         completionItems.add(getStaticItem(Snippet.KW_PUBLIC, snippetCapability));
-        // TODO: 11/19/18 Enable when the Final Keyword support enabled from the core 
-//        completionItems.add(getStaticItem(Snippet.KW_FINAL, snippetCapability));
+        completionItems.add(getStaticItem(Snippet.KW_FINAL, snippetCapability));
         completionItems.add(getStaticItem(Snippet.KW_CONST, snippetCapability));
         completionItems.add(getStaticItem(Snippet.KW_EXTERN, snippetCapability));
         completionItems.add(getStaticItem(Snippet.DEF_ERROR, snippetCapability));
@@ -105,9 +103,8 @@ public class TopLevelResolver extends AbstractItemResolver {
 
     private boolean isAccessModifierToken(String token) {
         return token.equals(ItemResolverConstants.PUBLIC_KEYWORD)
-                || token.equals(ItemResolverConstants.CONST_KEYWORD);
-        // TODO: 11/19/18 Enable when the Final Keyword support enabled from the core 
-//                || token.equals(ItemResolverConstants.FINAL_KEYWORD);
+                || token.equals(ItemResolverConstants.CONST_KEYWORD)
+                || token.equals(ItemResolverConstants.FINAL_KEYWORD);
     }
 
     private ArrayList<CompletionItem> getGlobalVarDefCompletions(LSServiceOperationContext context,

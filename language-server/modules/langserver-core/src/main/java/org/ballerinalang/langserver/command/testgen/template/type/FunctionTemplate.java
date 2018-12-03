@@ -50,7 +50,7 @@ public class FunctionTemplate extends AbstractTestTemplate {
                             BiConsumer<Integer, Integer> focusLineAcceptor, TestFunctionGenerator generator) {
         super(builtTestFile, focusLineAcceptor);
         String functionName = function.name.value;
-        this.testFunctionName = getSafeFunctionName("test" + upperCaseFirstLetter(functionName));
+        this.testFunctionName = getSafeName("test" + upperCaseFirstLetter(functionName));
         this.hasReturnType = (function.returnTypeNode != null && !(function.returnTypeNode.type instanceof BNilType));
         this.hasParams = (generator.getNamesSpace().length > 1);
         this.functionInvocations = generator.getTargetFuncInvocations();

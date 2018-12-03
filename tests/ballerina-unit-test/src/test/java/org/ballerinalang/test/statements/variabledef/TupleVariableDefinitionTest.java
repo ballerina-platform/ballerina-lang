@@ -23,16 +23,12 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BFloatArray;
-import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -183,16 +179,16 @@ public class TupleVariableDefinitionTest {
         int i = -1;
         Assert.assertEquals(returns[++i].stringValue(), "Ballerina");
         BValue val1 = returns[++i];
-        Assert.assertEquals(val1.getClass(), BIntArray.class);
-        BIntArray intArray = ((BIntArray) val1);
-        Assert.assertEquals(intArray.get(0), 123);
-        Assert.assertEquals(intArray.get(1), 345);
+        Assert.assertEquals(val1.getClass(), BValueArray.class);
+        BValueArray intArray = ((BValueArray) val1);
+        Assert.assertEquals(intArray.getInt(0), 123);
+        Assert.assertEquals(intArray.getInt(1), 345);
         Assert.assertTrue(((BBoolean) returns[++i]).booleanValue());
         BValue val2 = returns[++i];
-        Assert.assertEquals(val2.getClass(), BFloatArray.class);
-        BFloatArray floatArray = ((BFloatArray) val2);
-        Assert.assertEquals(floatArray.get(0), 2.3);
-        Assert.assertEquals(floatArray.get(1), 4.5);
+        Assert.assertEquals(val2.getClass(), BValueArray.class);
+        BValueArray floatArray = ((BValueArray) val2);
+        Assert.assertEquals(floatArray.getFloat(0), 2.3);
+        Assert.assertEquals(floatArray.getFloat(1), 4.5);
     }
 
     @Test(description = "Test tuple var definition with array 2")
@@ -201,28 +197,28 @@ public class TupleVariableDefinitionTest {
         Assert.assertEquals(returns.length, 4);
         int i = -1;
         BValue val1 = returns[++i];
-        Assert.assertEquals(val1.getClass(), BStringArray.class);
-        BStringArray stringArray = (BStringArray) val1;
-        Assert.assertEquals(stringArray.get(0), "A");
-        Assert.assertEquals(stringArray.get(1), "B");
+        Assert.assertEquals(val1.getClass(), BValueArray.class);
+        BValueArray stringArray = (BValueArray) val1;
+        Assert.assertEquals(stringArray.getString(0), "A");
+        Assert.assertEquals(stringArray.getString(1), "B");
 
         BValue val2 = returns[++i];
-        Assert.assertEquals(val2.getClass(), BIntArray.class);
-        BIntArray intArray = ((BIntArray) val2);
-        Assert.assertEquals(intArray.get(0), 123);
-        Assert.assertEquals(intArray.get(1), 345);
+        Assert.assertEquals(val2.getClass(), BValueArray.class);
+        BValueArray intArray = ((BValueArray) val2);
+        Assert.assertEquals(intArray.getInt(0), 123);
+        Assert.assertEquals(intArray.getInt(1), 345);
 
         BValue val3 = returns[++i];
-        Assert.assertEquals(val3.getClass(), BBooleanArray.class);
-        BBooleanArray bBooleanArray = (BBooleanArray) val3;
-        Assert.assertEquals(bBooleanArray.get(0), 1);
-        Assert.assertEquals(bBooleanArray.get(1), 0);
+        Assert.assertEquals(val3.getClass(), BValueArray.class);
+        BValueArray bBooleanArray = (BValueArray) val3;
+        Assert.assertEquals(bBooleanArray.getBoolean(0), 1);
+        Assert.assertEquals(bBooleanArray.getBoolean(1), 0);
 
         BValue val4 = returns[++i];
-        Assert.assertEquals(val4.getClass(), BFloatArray.class);
-        BFloatArray floatArray = ((BFloatArray) val4);
-        Assert.assertEquals(floatArray.get(0), 2.3);
-        Assert.assertEquals(floatArray.get(1), 4.5);
+        Assert.assertEquals(val4.getClass(), BValueArray.class);
+        BValueArray floatArray = ((BValueArray) val4);
+        Assert.assertEquals(floatArray.getFloat(0), 2.3);
+        Assert.assertEquals(floatArray.getFloat(1), 4.5);
     }
 
     @Test(description = "Test tuple var definition with array 3")
@@ -241,31 +237,31 @@ public class TupleVariableDefinitionTest {
         Assert.assertEquals(returns.length, 3);
         int i = -1;
         BValue val1 = returns[++i];
-        BRefValueArray refValueArray1 = (BRefValueArray) val1;
-        BStringArray stringArray1 = (BStringArray) refValueArray1.get(0);
-        Assert.assertEquals(stringArray1.get(0), "A");
-        Assert.assertEquals(stringArray1.get(1), "B");
+        BValueArray refValueArray1 = (BValueArray) val1;
+        BValueArray stringArray1 = (BValueArray) refValueArray1.getRefValue(0);
+        Assert.assertEquals(stringArray1.getString(0), "A");
+        Assert.assertEquals(stringArray1.getString(1), "B");
 
-        BStringArray stringArray2 = (BStringArray) refValueArray1.get(1);
-        Assert.assertEquals(stringArray2.get(0), "C");
-        Assert.assertEquals(stringArray2.get(1), "D");
+        BValueArray stringArray2 = (BValueArray) refValueArray1.getRefValue(1);
+        Assert.assertEquals(stringArray2.getString(0), "C");
+        Assert.assertEquals(stringArray2.getString(1), "D");
 
         BValue val2 = returns[++i];
-        BRefValueArray refValueArray2 = (BRefValueArray) val2;
-        BIntArray intArray1 = ((BIntArray) refValueArray2.get(0));
-        Assert.assertEquals(intArray1.get(0), 123);
-        Assert.assertEquals(intArray1.get(1), 345);
+        BValueArray refValueArray2 = (BValueArray) val2;
+        BValueArray intArray1 = ((BValueArray) refValueArray2.getRefValue(0));
+        Assert.assertEquals(intArray1.getInt(0), 123);
+        Assert.assertEquals(intArray1.getInt(1), 345);
 
-        BIntArray intArray2 = ((BIntArray) refValueArray2.get(1));
-        Assert.assertEquals(intArray2.get(0), 12);
-        Assert.assertEquals(intArray2.get(1), 34);
-        Assert.assertEquals(intArray2.get(2), 56);
+        BValueArray intArray2 = ((BValueArray) refValueArray2.getRefValue(1));
+        Assert.assertEquals(intArray2.getInt(0), 12);
+        Assert.assertEquals(intArray2.getInt(1), 34);
+        Assert.assertEquals(intArray2.getInt(2), 56);
 
         BValue val3 = returns[++i];
-        Assert.assertEquals(val3.getClass(), BFloatArray.class);
-        BFloatArray floatArray = ((BFloatArray) val3);
-        Assert.assertEquals(floatArray.get(0), 2.3);
-        Assert.assertEquals(floatArray.get(1), 4.5);
+        Assert.assertEquals(val3.getClass(), BValueArray.class);
+        BValueArray floatArray = ((BValueArray) val3);
+        Assert.assertEquals(floatArray.getFloat(0), 2.3);
+        Assert.assertEquals(floatArray.getFloat(1), 4.5);
     }
 
     @Test(description = "Test tuple recursive definition with var on lhs 1")
@@ -354,16 +350,16 @@ public class TupleVariableDefinitionTest {
         Assert.assertEquals(returns.length, 3);
 
         BValue val1 = returns[0];
-        BRefValueArray refValueArray1 = (BRefValueArray) val1;
-        Assert.assertEquals(refValueArray1.get(0).stringValue(), "Test");
-        Assert.assertEquals(((BInteger) refValueArray1.get(1)).intValue(), 23);
+        BValueArray refValueArray1 = (BValueArray) val1;
+        Assert.assertEquals(refValueArray1.getRefValue(0).stringValue(), "Test");
+        Assert.assertEquals(((BInteger) refValueArray1.getRefValue(1)).intValue(), 23);
 
         Assert.assertEquals(((BFloat) returns[1]).floatValue(), 4.5);
 
         BValue val2 = returns[2];
-        BRefValueArray refValueArray2 = (BRefValueArray) val2;
-        Assert.assertEquals(((BFloat) refValueArray2.get(0)).floatValue(), 5.7);
-        Assert.assertEquals(refValueArray2.get(1).stringValue(), "Foo");
+        BValueArray refValueArray2 = (BValueArray) val2;
+        Assert.assertEquals(((BFloat) refValueArray2.getRefValue(0)).floatValue(), 5.7);
+        Assert.assertEquals(refValueArray2.getRefValue(1).stringValue(), "Foo");
     }
 
     @Test

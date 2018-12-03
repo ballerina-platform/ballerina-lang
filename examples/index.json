@@ -473,18 +473,6 @@
                 "url": "mysql-client"
             },
             {
-                "name": "JDBC Client CRUD Operations",
-                "url": "jdbc-client-crud-operations"
-            },
-            {
-                "name": "JDBC Client Batch Update",
-                "url": "jdbc-client-batch-update"
-            },
-            {
-                "name": "JDBC Client Call Procedures",
-                "url": "jdbc-client-call-procedures"
-            },
-            {
                 "name": "Streaming a Big Dataset",
                 "url": "streaming-big-dataset"
             }

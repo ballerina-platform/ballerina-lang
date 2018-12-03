@@ -38,9 +38,9 @@ type StockWithPrice record {
 StockWithPrice[] globalEventsArray = [];
 int index = 0;
 
-stream<Stock> stockStream;
-stream<Twitter> twitterStream;
-stream<StockWithPrice> stockWithPriceStream;
+stream<Stock> stockStream = new;
+stream<Twitter> twitterStream = new;
+stream<StockWithPrice> stockWithPriceStream = new;
 
 public function startStreamJoinQuery() returns any {
     joinFunc();
@@ -107,7 +107,7 @@ function joinFunc() {
     // On condition
     function (map<anydata>, map<anydata>) returns boolean conditionFunc =
     function (map<anydata> lsh, map<anydata> rhs) returns boolean {
-        return lsh["stockStream.symbol"] == rhs["twitterStream.company"];
+        return <string>lsh["stockStream.symbol"] == <string>rhs["twitterStream.company"];
     };
 
     // Join processor

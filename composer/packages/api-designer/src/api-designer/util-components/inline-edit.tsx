@@ -18,49 +18,72 @@
  */
 
 import * as React from "react";
+import ReactMarkdown from "react-markdown";
 import { Form, Icon, Input } from "semantic-ui-react";
 
 export interface InlineEditProps {
-    text: string;
-    customClass?: string;
-    activeStateClass?: string;
-    isEditable: boolean;
-    placeholderText?: string;
-    isTextArea?: boolean;
-    isUrl?: boolean;
-    urlLink?: string;
-    model: any;
-    attribute: string;
+    inlineEditString: string;
+    classDefinition?: string;
+    placeholderString?: string;
+    isURL?: URL;
+    isParagraph?: boolean;
+    changeModel: any;
+    changeAttribute: AttributeObject;
+    isMarkdown?: boolean;
+    onInlineValueChange: (openApiJson: any) => void;
+}
+
+export interface URL {
+    urlLink: string;
+    urlString: string;
+}
+
+export interface AttributeObject {
+    key: string;
+    path?: string;
+    changeValue: string;
 }
 
 export interface InlineEditState {
     stateText: string;
+    initialTextValue: string;
+    initialURLStringValue: string;
     isEditing: boolean;
-    elementType: string;
-    urlLinkState?: string;
     changed?: boolean;
+    urlString?: string;
 }
 
 class InlineEdit extends React.Component<InlineEditProps, InlineEditState> {
     constructor(props: InlineEditProps) {
         super(props);
 
+        let urlLink = "";
+        let urlText = "";
+
+        if (this.props.isURL) {
+            urlLink = this.props.isURL.urlLink &&
+                this.props.isURL.urlLink !== "" ? this.props.isURL.urlLink : "";
+            urlText = this.props.isURL.urlString &&
+                this.props.isURL.urlString !== "" ? this.props.isURL.urlString : "";
+        }
+
         this.state = {
-            elementType: "input",
+            initialTextValue: this.props.inlineEditString,
+            initialURLStringValue: this.props.isURL ? urlText : "",
             isEditing: false,
-            stateText: this.props.text,
-            urlLinkState: this.props.urlLink,
+            stateText: this.props.isURL ? urlLink : this.props.inlineEditString,
+            urlString: this.props.isURL ? urlText : ""
         };
 
+        this.handleDoneEditing = this.handleDoneEditing.bind(this);
         this.enableEditing = this.enableEditing.bind(this);
-        this.handleFocusOut = this.handleFocusOut.bind(this);
-        this.handleTextChange = this.handleTextChange.bind(this);
+        this.handleOnTextChange = this.handleOnTextChange.bind(this);
+        this.handleCancelEdit = this.handleCancelEdit.bind(this);
     }
 
     public componentWillReceiveProps(nextProps: InlineEditProps) {
         this.setState({
-            stateText: nextProps.text,
-            urlLinkState: nextProps.urlLink,
+            stateText: nextProps.inlineEditString
         });
     }
 
@@ -71,164 +94,202 @@ class InlineEdit extends React.Component<InlineEditProps, InlineEditState> {
         });
     }
 
-    public handleFocusOut() {
-        this.setState({
-            isEditing: false,
-            stateText: this.state.stateText
-        });
-    }
-
-    public handleTextChange(e: React.ChangeEvent<HTMLInputElement>) {
-        this.setState({
-            stateText: e.target.value
-        }, () => {
-            const { model, attribute } = this.props;
-            this.handleChangeEvent(model, attribute);
-        });
-    }
-
-    public handleChangeEvent(model: any, attribute: string) {
-        this.setState({
-            changed: false
-        });
-    }
-
-    public validateURL(url: string): boolean {
-        return /^(ftp|http|https):\/\/[^ "]+$/.test(url);
-    }
-
     public render() {
-        const { isEditable, placeholderText, customClass, isTextArea, isUrl, urlLink } = this.props;
-        const { isEditing, stateText, urlLinkState } = this.state;
+        const { stateText, isEditing, urlString } = this.state;
+        const { isParagraph, isURL, classDefinition, placeholderString, isMarkdown } = this.props;
 
-        if (!isEditable) {
-            if (isUrl && urlLink && this.validateURL(urlLink)) {
-                return <a href={urlLink} target="_blank">{stateText}</a>;
-            } else {
-                return <span className="inline-editor disabled">{stateText}</span>;
-            }
-        } else if (!isEditing && stateText !== undefined && stateText !== "") {
-            if (isUrl && urlLink && this.validateURL(urlLink)) {
-                if (stateText !== "") {
-                    return (
-                        <div className={"inline-editor url " + customClass}>
-                            <span onClick={this.enableEditing}>{stateText}</span>
-                            <a className="activate-edit" href={urlLink} target="_blank">
-                                <Icon name="linkify" />
-                            </a>
-                        </div>
-                    );
-                } else {
-                    return (
-                        <div className={"inline-editor url " + customClass}>
-                            <span onClick={this.enableEditing}>{urlLink}</span>
-                            <a className="activate-edit" href={urlLink} target="_blank">
-                                <Icon name="linkify" />
-                            </a>
-                        </div>
-                    );
-                }
-            } else {
+        if (isEditing) {
+            if (isURL) {
                 return (
-                    <div className={"inline-editor non-editing " + customClass} onClick={this.enableEditing}>
-                        <span>
-                            {stateText}
-                        </span>
-                    </div>
-                );
-            }
-        } else if (!isEditing && (stateText === undefined || stateText === "")) {
-            if (isUrl && urlLink && this.validateURL(urlLink)) {
-                if (stateText !== "") {
-                    return (
-                        <div className={"inline-editor url " + customClass}>
-                            <span onClick={this.enableEditing}>{stateText}</span>
-                            <a className="activate-edit" href={urlLink} target="_blank">
-                                <Icon name="linkify" />
-                            </a>
-                        </div>
-                    );
-                } else {
-                    return (
-                        <div className={"inline-editor url " + customClass}>
-                            <span onClick={this.enableEditing}>{urlLink}</span>
-                            <a className="activate-edit" href={urlLink} target="_blank">
-                                <Icon name="linkify" />
-                            </a>
-                        </div>
-                    );
-                }
-            } else {
-                return (
-                    <div className={"inline-editor no-text " + customClass} onClick={this.enableEditing}>
-                        <span>
-                            {placeholderText}
-                        </span>
-                    </div>
-                );
-            }
-        } else {
-            if (isTextArea) {
-                return (
-                    <div className={"inline-editor editing " + customClass}>
-                        <Form >
-                            <Form.TextArea
-                                autoFocus
-                                onBlur={this.handleFocusOut}
-                                placeholder={placeholderText}
-                            >{stateText}</Form.TextArea>
-                        </Form>
-                    </div>
-                );
-            } else if (isUrl) {
-                return (
-                    <div className={"inline-editor editing " + customClass}>
+                    <div className={`inline-editor editing  ${classDefinition}}`}>
                         <Form>
                             <Form.Group widths="5" inline>
                                 <Form.Input
                                     transparent
                                     fluid
-                                    placeholder={placeholderText}
-                                    onBlur={this.handleFocusOut}
-                                    value={urlLinkState}
+                                    id="url-link"
+                                    placeholder={placeholderString}
+                                    value={stateText}
+                                    onChange={this.handleOnTextChange}
                                 />
                                 <Form.Input
                                     transparent
                                     fluid
-                                    placeholder="Write a link name"
-                                    onBlur={this.handleFocusOut}
-                                    value={stateText}
+                                    id="url-text"
+                                    placeholder="Add a meaningful link text"
+                                    value={urlString}
+                                    onChange={this.handleOnTextChange}
                                 />
-                                <Form.Button width={1} inverted color="black" icon="check" />
+                                <Form.Button
+                                    width={1}
+                                    inverted
+                                    color="black"
+                                    icon="check"
+                                    onClick={this.handleDoneEditing}
+                                />
                                 <Form.Button
                                     width={1}
                                     inverted
                                     color="black"
                                     icon="close"
-                                    onClick={this.handleFocusOut}/>
+                                    onClick={this.handleCancelEdit}
+                                />
                             </Form.Group>
                         </Form>
                     </div>
                 );
+            } else if (isParagraph) {
+                return (
+                    <div className={"inline-editor editing " + classDefinition}>
+                        <textarea
+                            autoFocus
+                            placeholder={placeholderString}
+                            onBlur={this.handleDoneEditing}
+                            onChange={this.handleOnTextChange}
+                        >
+                            {stateText}
+                        </textarea>
+                    </div>
+                );
             } else {
                 return (
-                    <div className={"inline-editor editing " + customClass}>
+                    <div className={"inline-editor editing " + classDefinition}>
                         <Form>
                             <Input
                                 transparent
                                 autoFocus
-                                placeholder={placeholderText}
+                                placeholder={placeholderString}
                                 value={stateText}
-                                onBlur={this.handleFocusOut}
-                                onChange={this.handleTextChange}
+                                onBlur={this.handleDoneEditing}
+                                onChange={this.handleOnTextChange}
                                 onClick={(e: any) => {e.stopPropagation(); }}
                             />
                         </Form>
                     </div>
                 );
             }
+        } else {
+            if (isURL && urlString && stateText) {
+                return (
+                    <div className={"inline-editor url " + classDefinition}>
+                        <span onClick={this.enableEditing}>{urlString === "" ? stateText : urlString}</span>
+                        <a className="activate-edit" href={stateText === "" ? "#" : stateText} target="_blank">
+                            <Icon name="linkify" />
+                        </a>
+                    </div>
+                );
+            } else if (stateText && stateText !== "") {
+                return (
+                    <div className={"inline-editor with-text " + classDefinition} onClick={this.enableEditing}>
+                        {isMarkdown ? <ReactMarkdown source={stateText} /> :
+                            <span>
+                                {stateText}
+                            </span>
+                        }
+                    </div>
+                );
+            } else {
+                return (
+                    <div className={"inline-editor no-text " + classDefinition} onClick={this.enableEditing}>
+                        <span>
+                            {placeholderString}
+                        </span>
+                    </div>
+                );
+            }
         }
     }
+
+    private handleOnTextChange(e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) {
+        const { isURL } = this.props;
+
+        if (isURL) {
+            switch (e.target.id) {
+                case "url-link":
+                    this.setState({
+                        stateText: e.target.value
+                    });
+                    break;
+                case "url-text":
+                    this.setState({
+                        urlString: e.target.value
+                    });
+                    break;
+            }
+        } else {
+            this.setState({
+                stateText: e.target.value
+            });
+        }
+
+    }
+
+    private handleDoneEditing() {
+        this.setState({
+            isEditing: false
+        }, () => {
+            const { changeModel, changeAttribute } = this.props;
+            this.handleChangeEvent(changeModel, changeAttribute);
+        });
+    }
+
+    private handleChangeEvent(model: any, attribute: AttributeObject) {
+        const { stateText, urlString } = this.state;
+
+        switch (attribute.key) {
+            case "info.description":
+                model.info.descrption = stateText;
+                break;
+            case "info.termsOfService":
+                model.info.termsOfService = stateText;
+                break;
+            case "info.license":
+                model.info.license = {
+                    name: urlString,
+                    url: stateText
+                };
+                break;
+            case "info.contact":
+                model.info.contact = {
+                    name: urlString,
+                    url: stateText
+                };
+                break;
+            case "resource.name":
+                if (stateText !== "" && model.paths) {
+                    model.paths[stateText] = model.paths[attribute.changeValue];
+                    delete model.paths[attribute.changeValue];
+                }
+                break;
+            case "operation.description":
+                if (stateText !== "" && model.paths && attribute.path) {
+                    model.paths[attribute.path][attribute.changeValue].description = stateText;
+                }
+                break;
+            case "operation.summary":
+                if (stateText !== "" && model.paths && attribute.path) {
+                    model.paths[attribute.path][attribute.changeValue].summary = stateText;
+                }
+                break;
+            default:
+                break;
+        }
+
+        this.props.onInlineValueChange(model);
+    }
+
+    private handleCancelEdit() {
+        const { isURL } = this.props;
+
+        if (isURL) {
+            this.setState({
+                isEditing: false,
+                stateText: this.state.initialTextValue,
+                urlString: this.state.initialURLStringValue
+            });
+        }
+    }
+
 }
 
 export default InlineEdit;

@@ -33,8 +33,8 @@ type TeacherOutput record {
 };
 
 int index = 0;
-stream<Teacher> inputStream;
-stream<TeacherOutput> outputStream;
+stream<Teacher> inputStream = new;
+stream<TeacherOutput> outputStream = new;
 
 TeacherOutput[] globalTeacherOutputArray = [];
 
@@ -54,7 +54,7 @@ function startOrderByQuery() returns TeacherOutput[] {
 
     foo();
 
-    outputStream.subscribe(printTeachers);
+    outputStream.subscribe(function(TeacherOutput e) {printTeachers(e);});
     foreach t in teachers {
         inputStream.publish(t);
     }
@@ -71,7 +71,7 @@ function startOrderByQuery() returns TeacherOutput[] {
 
 function foo() {
     forever {
-        from inputStream where inputStream.age > 2 window lengthBatchWindow([5]) as input
+        from inputStream where inputStream.age > 2 window lengthBatchWindow(5) as input
         select input.name, input.age, input.status, sum (input.age) as sumAge, count() as count
         group by input.name order by status ascending, age descending => (TeacherOutput [] o) {
             foreach x in o {

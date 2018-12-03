@@ -21,8 +21,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.database.sql.SQLDatasource;
 import org.ballerinalang.database.sql.SQLDatasourceUtils;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BRefValueArray;
-import org.ballerinalang.model.values.BStringArray;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -55,8 +54,8 @@ public class UpdateWithGeneratedKeys extends AbstractSQLAction {
     public void execute(Context context) {
         try {
             String query = context.getStringArgument(0);
-            BStringArray keyColumns = (BStringArray) context.getNullableRefArgument(1);
-            BRefValueArray parameters = (BRefValueArray) context.getNullableRefArgument(2);
+            BValueArray keyColumns = (BValueArray) context.getNullableRefArgument(1);
+            BValueArray parameters = (BValueArray) context.getNullableRefArgument(2);
 
             SQLDatasource datasource = retrieveDatasource(context);
 

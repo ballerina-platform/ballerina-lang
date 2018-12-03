@@ -91,7 +91,9 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
                 .findFirst().orElse(new BLangCompilationUnit());
         List<TopLevelNode> topLevelNodes = compilationUnit.getTopLevelNodes();
 
-        topLevelNodes.forEach(topLevelNode -> acceptNode((BLangNode) topLevelNode, pkgEnv));
+        topLevelNodes.stream()
+                .filter(CommonUtil.checkInvalidTypesDefs())
+                .forEach(topLevelNode -> acceptNode((BLangNode) topLevelNode, pkgEnv));
     }
 
     @Override

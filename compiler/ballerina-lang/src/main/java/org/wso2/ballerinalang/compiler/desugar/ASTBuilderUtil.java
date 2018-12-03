@@ -418,7 +418,7 @@ public class ASTBuilderUtil {
         return argsExpr;
     }
 
-    static BLangInvocation createInvocationExpr(DiagnosticPos pos, BInvokableSymbol invokableSymbol,
+    public static BLangInvocation createInvocationExpr(DiagnosticPos pos, BInvokableSymbol invokableSymbol,
                                                 List<BLangSimpleVariable> requiredArgs, SymbolResolver symResolver) {
         return createInvocationExpr(pos, invokableSymbol, requiredArgs, new ArrayList<>(), new ArrayList<>(),
                 symResolver);
@@ -598,7 +598,7 @@ public class ASTBuilderUtil {
     }
 
     static BLangTypeInit createEmptyTypeInit(DiagnosticPos pos, BType type) {
-        BLangTypeInit objectInitNode = (BLangTypeInit) TreeBuilder.createObjectInitNode();
+        BLangTypeInit objectInitNode = (BLangTypeInit) TreeBuilder.createInitNode();
         objectInitNode.pos = pos;
         objectInitNode.type = type;
 
@@ -614,7 +614,7 @@ public class ASTBuilderUtil {
         invocationNode.name = nameNode;
         invocationNode.pkgAlias = pkgNameNode;
 
-        objectInitNode.objectInitInvocation = invocationNode;
+        objectInitNode.initInvocation = invocationNode;
         return objectInitNode;
     }
 

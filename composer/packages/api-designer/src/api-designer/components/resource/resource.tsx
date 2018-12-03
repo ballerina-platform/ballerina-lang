@@ -20,6 +20,7 @@
 import * as React from "react";
 import { Accordion, AccordionTitleProps, Button, Icon } from "semantic-ui-react";
 
+import { OpenApiContext, OpenApiContextConsumer } from "../../context/open-api-context";
 import InlineEdit from "../../util-components/inline-edit";
 import OpenApiOperationsList from "../operation/operations";
 
@@ -71,13 +72,19 @@ class OpenApiResource extends React.Component<OpenApiResourceProps, OpenApiResou
                     active={isExpandAll || active}
                     onClick={onExpandEvent} >
                     <Icon name={isExpandAll || active ? "chevron down" : "chevron right"}></Icon>
-                    <InlineEdit
-                        model={openApiOperations}
-                        attribute={openApiResource}
-                        isEditable
-                        text={openApiResource}
-                        placeholderText="Add a description"
-                    />
+                    <OpenApiContextConsumer>
+                        {(appContext: OpenApiContext) => {
+                            return (
+                                <InlineEdit
+                                    changeModel={appContext.openApiJson}
+                                    changeAttribute={{key: "resource.name", changeValue: openApiResource}}
+                                    inlineEditString={openApiResource}
+                                    placeholderString="Add a description"
+                                    onInlineValueChange={appContext.onInlineEditChange}
+                                />
+                            );
+                        }}
+                    </OpenApiContextConsumer>
                     {isExpandAll || active ?
                         <Button
                         title="Add operation to resource."

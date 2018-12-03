@@ -20,22 +20,16 @@ import org.ballerinalang.langserver.command.testgen.renderer.RendererOutput;
 import org.ballerinalang.langserver.command.testgen.renderer.TemplateBasedRendererOutput;
 import org.ballerinalang.langserver.command.testgen.template.AbstractTestTemplate;
 import org.ballerinalang.langserver.command.testgen.template.PlaceHolder;
-import org.ballerinalang.model.tree.EndpointNode;
-import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
-import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 
 import static io.netty.util.internal.StringUtil.LINE_FEED;
-import static org.ballerinalang.langserver.command.testgen.AnnotationConfigsProcessor.isRecordValueExists;
 import static org.ballerinalang.langserver.command.testgen.AnnotationConfigsProcessor.searchStringField;
 import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATOR;
 
@@ -52,36 +46,14 @@ public class WSServiceTemplate extends AbstractTestTemplate {
     private final String callbackServiceName;
 
     public WSServiceTemplate(BLangPackage builtTestFile, BLangService service,
-                             List<? extends EndpointNode> globalEndpoints,
+                             BLangTypeInit init,
                              BiConsumer<Integer, Integer> focusLineAcceptor) {
         super(builtTestFile, focusLineAcceptor);
         String tempServiceUri = WS + DEFAULT_IP + ":" + DEFAULT_PORT;
-        boolean isSecureTemp = false;
-
-        // If Anonymous Endpoint bounded, get `port` from it
-        BLangRecordLiteral anonEndpointBind = service.anonymousEndpointBind;
-        if (anonEndpointBind != null) {
-            Optional<String> optionalPort = searchStringField(HttpConstants.ANN_CONFIG_ATTR_PORT, anonEndpointBind);
-            isSecureTemp = isRecordValueExists(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET, anonEndpointBind);
-            String protocol = ((isSecureTemp) ? WSS : WS);
-            tempServiceUri = optionalPort.map(port -> protocol + DEFAULT_IP + ":" + port).orElse(tempServiceUri);
-        }
-
-        // Check for the bounded endpoint to get `port` from it
-        // TODO: 11/28/18 Fix with the latest service changes 
-//        List<? extends SimpleVariableReferenceNode> boundEndpoints = service.getBoundEndpoints();
-        List<? extends SimpleVariableReferenceNode> boundEndpoints = new ArrayList<>();
-        EndpointNode endpoint = (boundEndpoints.size() > 0) ? globalEndpoints.stream()
-                .filter(ep -> boundEndpoints.get(0).getVariableName().getValue()
-                        .equals(ep.getName().getValue()))
-                .findFirst().orElse(null) : null;
-        if (endpoint != null && endpoint.getConfigurationExpression() instanceof BLangRecordLiteral) {
-            BLangRecordLiteral configs = (BLangRecordLiteral) endpoint.getConfigurationExpression();
-            Optional<String> optionalPort = searchStringField(HttpConstants.ANN_CONFIG_ATTR_PORT, configs);
-            isSecureTemp = isRecordValueExists(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET, configs);
-            String protocol = ((isSecureTemp) ? WSS : WS);
-            tempServiceUri = optionalPort.map(port -> protocol + ":" + DEFAULT_IP + ":" + port).orElse(tempServiceUri);
-        }
+        boolean isSecureTemp = isSecureService(init);
+        String protocol = ((isSecureTemp) ? WSS : WS);
+        Optional<String> optionalPort = findServicePort(init);
+        tempServiceUri = optionalPort.map(port -> protocol + DEFAULT_IP + ":" + port).orElse(tempServiceUri);
 
         // Service base path
         String serviceBasePath = "/" + service.name.value;
@@ -92,9 +64,9 @@ public class WSServiceTemplate extends AbstractTestTemplate {
             serviceBasePath = optionalPath.orElse("");
         }
         String serviceName = upperCaseFirstLetter(service.name.value);
-        this.serviceUriStrName = getSafeGlobalVariableName(lowerCaseFirstLetter(service.name.value) + "Uri");
-        this.testServiceFunctionName = getSafeFunctionName("test" + serviceName);
-        this.callbackServiceName = getSafeServiceName("callback" + serviceName + "Service");
+        this.serviceUriStrName = getSafeName(lowerCaseFirstLetter(service.name.value) + "Uri");
+        this.testServiceFunctionName = getSafeName("test" + serviceName);
+        this.callbackServiceName = getSafeName("callback" + serviceName + "Service");
         this.serviceUri = tempServiceUri + serviceBasePath;
         this.isSecure = isSecureTemp;
     }

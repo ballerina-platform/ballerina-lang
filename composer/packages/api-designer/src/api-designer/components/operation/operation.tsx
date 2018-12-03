@@ -91,26 +91,49 @@ class OpenApiResource extends React.Component<OpenApiResourceProps, OpenApiResou
             <div className={"operation "  + operationType}>
                 <Accordion.Title className="op-title " index={currIndex} onClick={handleExpand}>
                     <span className="op-method">{operationType}</span>
-                    <InlineEdit
-                        model={operationObject}
-                        attribute={operationType}
-                        customClass="op-summary"
-                        isEditable
-                        text={operationObject.summary}
-                        placeholderText="Add a summary" />
+                    <OpenApiContextConsumer>
+                        {(appContext: OpenApiContext) => {
+                            return (
+                                <InlineEdit
+                                    changeModel={appContext.openApiJson}
+                                    changeAttribute={{
+                                        changeValue: operationType,
+                                        key: "operation.summary",
+                                        path: resourcePath
+                                    }}
+                                    classDefinition="op-summary"
+                                    inlineEditString={operationObject.summary}
+                                    placeholderString="Add a summary"
+                                    onInlineValueChange={appContext.onInlineEditChange}
+                                />
+                            );
+                        }}
+                    </OpenApiContextConsumer>
                     <Icon
                         className="delete-op"
                         name="trash alternate"
                     />
                 </Accordion.Title>
                 <Accordion.Content active={activeIndex === currIndex}>
-                    <InlineEdit
-                        model={operationObject}
-                        attribute={operationType}
-                        isEditable
-                        text={operationObject.description}
-                        placeholderText="Add a description" />
-
+                    <OpenApiContextConsumer>
+                        {(appContext: OpenApiContext) => {
+                            return (
+                                <InlineEdit
+                                    isMarkdown
+                                    isParagraph
+                                    changeModel={appContext.openApiJson}
+                                    changeAttribute={{
+                                        changeValue: operationType,
+                                        key: "operation.description",
+                                        path: resourcePath
+                                    }}
+                                    inlineEditString={operationObject.description}
+                                    placeholderString="Add a description"
+                                    onInlineValueChange={appContext.onInlineEditChange}
+                                />
+                            );
+                        }}
+                    </OpenApiContextConsumer>
                     <div className="op-section">
                         <div className="title">
                             <p>Parameters</p>
@@ -120,10 +143,10 @@ class OpenApiResource extends React.Component<OpenApiResourceProps, OpenApiResou
                         </div>
                         {showAddParameter &&
                             <OpenApiContextConsumer>
-                                {(appContext: OpenApiContext | null) => {
+                                {(appContext: OpenApiContext) => {
                                     return (
                                         <OpenApiAddParameter
-                                            openApiJson={appContext!.openApiJson}
+                                            openApiJson={appContext.openApiJson}
                                             onAddParameter={appContext!.onDidAddParameter}
                                             operation={operationType}
                                             resourcePath={resourcePath}
@@ -150,11 +173,11 @@ class OpenApiResource extends React.Component<OpenApiResourceProps, OpenApiResou
                         </div>
                         {showAddResponse && OpenApiContextConsumer &&
                             <OpenApiContextConsumer>
-                                {(appContext: OpenApiContext | null) => {
+                                {(appContext: OpenApiContext) => {
                                     return (
                                         <OpenApiAddResponse
-                                            openApiJson={appContext!.openApiJson}
-                                            onAddResponse={appContext!.onDidAddResponse}
+                                            openApiJson={appContext.openApiJson}
+                                            onAddResponse={appContext.onDidAddResponse}
                                             operation={operationType}
                                             resourcePath={resourcePath}
                                             handleClose={this.handleShowAddResponse}

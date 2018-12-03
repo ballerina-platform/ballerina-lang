@@ -39,7 +39,7 @@ export interface OasProps {
     onDidAddResource?: (resourse: OpenApiResponse | string, swagger: Swagger.Spec) => void;
     onDidAddOperation?: (operation: OpenApiOperation, swagger: Swagger.Spec) => void;
     onDidAddParameter?: (parameter: OpenApiParameter, swagger: Swagger.Spec) => void;
-    onDidChange?: (event: string, element: any, swaggerJson: Swagger.Spec) => void;
+    onDidChange?: (event: string, swaggerJson: Swagger.Spec) => void;
 }
 
 export interface OpenApiState {
@@ -67,7 +67,8 @@ enum EVENTS {
     DELETE_OPERATION  = "del_operation",
     DELETE_RESOURCE  = "del_resource",
     DELETE_PARAMETER  = "del_parameter",
-    DELETE_RESPONSE  = "del_response"
+    DELETE_RESPONSE  = "del_response",
+    ON_INLINE_CHANGE = "inline_edit"
 }
 
 /**
@@ -95,6 +96,7 @@ class OpenApiVisualizer extends React.Component<OasProps, OpenApiState> {
         this.onDidAddParameter = this.onDidAddParameter.bind(this);
         this.onDidAddResponse = this.onDidAddResponse.bind(this);
         this.handleMessageHide = this.handleMessageHide.bind(this);
+        this.onInlineEditChange = this.onInlineEditChange.bind(this);
     }
 
     public componentDidMount() {
@@ -164,7 +166,7 @@ class OpenApiVisualizer extends React.Component<OasProps, OpenApiState> {
                 }
 
                 if (onDidChange) {
-                    onDidChange(EVENTS.ADD_RESOURCE, resourceName, this.state.openApiJson);
+                    onDidChange(EVENTS.ADD_RESOURCE, this.state.openApiJson);
                 }
 
                 this.setState({
@@ -237,7 +239,7 @@ class OpenApiVisualizer extends React.Component<OasProps, OpenApiState> {
             }
 
             if (onDidChange) {
-                onDidChange(EVENTS.ADD_OPERATION, operationsObj, this.state.openApiJson);
+                onDidChange(EVENTS.ADD_OPERATION, this.state.openApiJson);
             }
 
             const { openApiJson } = this.state;
@@ -294,7 +296,7 @@ class OpenApiVisualizer extends React.Component<OasProps, OpenApiState> {
                 }
 
                 if (onDidChange) {
-                    onDidChange(EVENTS.ADD_PARAMETER, parameterObj, this.state.openApiJson);
+                    onDidChange(EVENTS.ADD_PARAMETER, this.state.openApiJson);
                 }
 
                 this.setState({
@@ -339,7 +341,7 @@ class OpenApiVisualizer extends React.Component<OasProps, OpenApiState> {
                 }
 
                 if (onDidChange) {
-                    onDidChange(EVENTS.ADD_PARAMETER, parameterObj, this.state.openApiJson);
+                    onDidChange(EVENTS.ADD_PARAMETER, this.state.openApiJson);
                 }
 
                 this.setState({
@@ -391,7 +393,7 @@ class OpenApiVisualizer extends React.Component<OasProps, OpenApiState> {
             }
 
             if (onDidChange) {
-                onDidChange(EVENTS.ADD_RESPONSE, responseObj, this.state.openApiJson);
+                onDidChange(EVENTS.ADD_RESPONSE, this.state.openApiJson);
             }
 
             this.setState({
@@ -401,6 +403,18 @@ class OpenApiVisualizer extends React.Component<OasProps, OpenApiState> {
                 }
             });
 
+        });
+    }
+
+    public onInlineEditChange(openApiJson: any) {
+        const { onDidChange } = this.props;
+
+        this.setState({
+            openApiJson
+        }, () => {
+            if (onDidChange) {
+                onDidChange(EVENTS.ON_INLINE_CHANGE, this.state.openApiJson);
+            }
         });
     }
 
@@ -465,6 +479,7 @@ class OpenApiVisualizer extends React.Component<OasProps, OpenApiState> {
             onDidAddParameter: this.onDidAddParameter,
             onDidAddResource: this.onDidAddResource,
             onDidAddResponse: this.onDidAddResponse,
+            onInlineEditChange: this.onInlineEditChange,
             openApiJson,
         };
 
@@ -493,68 +508,64 @@ class OpenApiVisualizer extends React.Component<OasProps, OpenApiState> {
                         <div className="oas-details">
                             <div className="description">
                                 <InlineEdit
-                                    model={openApiJson}
-                                    attribute="description"
-                                    isEditable
-                                    isTextArea
-                                    text={info.description}
-                                    placeholderText="Add a description"
+                                    isMarkdown
+                                    changeModel={openApiJson}
+                                    changeAttribute={{key: "info.description", changeValue: ""}}
+                                    inlineEditString={info.description}
+                                    placeholderString="Add a description"
+                                    isParagraph
+                                    onInlineValueChange={this.onInlineEditChange}
                                 />
                             </div>
                             <div>
                                 <InlineEdit
-                                    model={openApiJson}
-                                    attribute="description"
-                                    isEditable
-                                    isUrl
-                                    urlLink={info.termsOfService}
-                                    text=""
-                                    placeholderText="Add terms of service link."
+                                    changeModel={openApiJson}
+                                    changeAttribute={{key: "info.termsOfService", changeValue: ""}}
+                                    inlineEditString={info.termsOfService}
+                                    placeholderString="Add terms of service link."
+                                    isURL={{ urlLink: info.termsOfService, urlString: info.termsOfService }}
+                                    onInlineValueChange={this.onInlineEditChange}
                                 />
                             </div>
                             <div>
                                 {info.license ?
                                     <InlineEdit
-                                        model={openApiJson}
-                                        attribute="description"
-                                        isEditable
-                                        isUrl
-                                        text={info.license.name}
-                                        urlLink={info.license.url}
-                                        placeholderText="Add license link."
+                                        changeModel={openApiJson}
+                                        changeAttribute={{key: "info.license", changeValue: ""}}
+                                        inlineEditString={info.license.url}
+                                        placeholderString="Add license link."
+                                        isURL={{ urlLink: info.license.url, urlString: info.license.name }}
+                                        onInlineValueChange={this.onInlineEditChange}
                                     />
                                 :
                                     <InlineEdit
-                                        model={openApiJson}
-                                        attribute="description"
-                                        isEditable
-                                        isUrl
-                                        text=""
-                                        urlLink=""
-                                        placeholderText="Add license link."
+                                        changeModel={openApiJson}
+                                        changeAttribute={{key: "info.license", changeValue: ""}}
+                                        inlineEditString={""}
+                                        placeholderString="Add license link."
+                                        isURL={{ urlLink: "", urlString: "" }}
+                                        onInlineValueChange={this.onInlineEditChange}
                                     />
                                 }
                             </div>
                             <div>
                                 {info.contact ?
                                     <InlineEdit
-                                        model={openApiJson}
-                                        attribute="description"
-                                        isEditable
-                                        isUrl
-                                        text={info.contact.name}
-                                        urlLink={info.contact.url}
-                                        placeholderText="Add contact information"
+                                        changeModel={openApiJson}
+                                        changeAttribute={{key: "info.contact", changeValue: ""}}
+                                        inlineEditString={info.contact.url}
+                                        placeholderString="Add contact information."
+                                        isURL={{ urlLink: info.contact.url, urlString: info.contact.name }}
+                                        onInlineValueChange={this.onInlineEditChange}
                                     />
                                 :
                                     <InlineEdit
-                                        model={openApiJson}
-                                        attribute="description"
-                                        isEditable
-                                        isUrl
-                                        text=""
-                                        urlLink=""
-                                        placeholderText="Add contact information"
+                                        changeModel={openApiJson}
+                                        changeAttribute={{key: "info.contact", changeValue: ""}}
+                                        inlineEditString={""}
+                                        placeholderString="Add contact information"
+                                        isURL={{ urlLink: "", urlString: "" }}
+                                        onInlineValueChange={this.onInlineEditChange}
                                     />
                                 }
 

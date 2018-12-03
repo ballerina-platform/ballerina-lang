@@ -20,10 +20,10 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.utils.SQLDBUtils;
 import org.ballerinalang.test.utils.SQLDBUtils.DBType;
 import org.ballerinalang.test.utils.SQLDBUtils.FileBasedTestDatabase;
@@ -198,25 +198,25 @@ public class SQLActionsTest {
     @Test(groups = CONNECTOR_TEST)
     public void testBatchUpdate() {
         BValue[] returns = BRunUtil.invoke(result, "testBatchUpdate");
-        BIntArray retValue = (BIntArray) returns[0];
-        Assert.assertEquals(retValue.get(0), 1);
-        Assert.assertEquals(retValue.get(1), 1);
+        BValueArray retValue = (BValueArray) returns[0];
+        Assert.assertEquals(retValue.getInt(0), 1);
+        Assert.assertEquals(retValue.getInt(1), 1);
     }
 
     @Test(groups = CONNECTOR_TEST)
     public void testBatchUpdateWithValues() {
         BValue[] returns = BRunUtil.invoke(result, "testBatchUpdateWithValues");
-        BIntArray retValue = (BIntArray) returns[0];
-        Assert.assertEquals(retValue.get(0), 1);
-        Assert.assertEquals(retValue.get(1), 1);
+        BValueArray retValue = (BValueArray) returns[0];
+        Assert.assertEquals(retValue.getInt(0), 1);
+        Assert.assertEquals(retValue.getInt(1), 1);
     }
 
     @Test(groups = CONNECTOR_TEST, description = "Test batch update operation with variable parameters")
     public void testBatchUpdateWithVariables() {
         BValue[] returns = BRunUtil.invoke(result, "testBatchUpdateWithVariables");
-        BIntArray retValue = (BIntArray) returns[0];
-        Assert.assertEquals(retValue.get(0), 1);
-        Assert.assertEquals(retValue.get(1), 1);
+        BValueArray retValue = (BValueArray) returns[0];
+        Assert.assertEquals(retValue.getInt(0), 1);
+        Assert.assertEquals(retValue.getInt(1), 1);
     }
 
     @Test(groups = CONNECTOR_TEST)
@@ -225,28 +225,28 @@ public class SQLActionsTest {
         // This is the one after the failing batch. Depending on the driver this may or may not be executed hence the
         // result could be either 1 or -3
         int[] expectedResult = {1, 1, -3, 1};
-        BIntArray retValue = (BIntArray) returns[0];
-        Assert.assertEquals(retValue.get(0), expectedResult[0]);
-        Assert.assertEquals(retValue.get(1), expectedResult[1]);
-        Assert.assertEquals(retValue.get(2), expectedResult[2]);
-        Assert.assertEquals(retValue.get(3), expectedResult[3]);
+        BValueArray retValue = (BValueArray) returns[0];
+        Assert.assertEquals(retValue.getInt(0), expectedResult[0]);
+        Assert.assertEquals(retValue.getInt(1), expectedResult[1]);
+        Assert.assertEquals(retValue.getInt(2), expectedResult[2]);
+        Assert.assertEquals(retValue.getInt(3), expectedResult[3]);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
     }
 
     @Test(groups = CONNECTOR_TEST)
     public void testBatchUpdateWithNullParam() {
         BValue[] returns = BRunUtil.invoke(result, "testBatchUpdateWithNullParam");
-        BIntArray retValue = (BIntArray) returns[0];
-        Assert.assertEquals(retValue.get(0), 1);
+        BValueArray retValue = (BValueArray) returns[0];
+        Assert.assertEquals(retValue.getInt(0), 1);
     }
 
     @Test(groups = CONNECTOR_TEST)
     public void testInsertTimeData() {
         BValue[] returns = BRunUtil.invoke(result, "testDateTimeInParameters");
-        BIntArray retValue = (BIntArray) returns[0];
-        Assert.assertEquals((int) retValue.get(0), 1);
-        Assert.assertEquals((int) retValue.get(1), 1);
-        Assert.assertEquals((int) retValue.get(2), 1);
+        BValueArray retValue = (BValueArray) returns[0];
+        Assert.assertEquals((int) retValue.getInt(0), 1);
+        Assert.assertEquals((int) retValue.getInt(1), 1);
+        Assert.assertEquals((int) retValue.getInt(2), 1);
     }
 
     @Test(groups = CONNECTOR_TEST, description = "Check date time null in values")

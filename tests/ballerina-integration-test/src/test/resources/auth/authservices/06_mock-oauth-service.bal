@@ -32,8 +32,7 @@ service foo on tokenlistener {
         methods: ["GET"]
     }
     resource function bar(http:Caller caller, http:Request req) {
-        http:Response res = new;
-        _ = caller->respond(res);
+        _ = caller->respond(());
     }
 
     @http:ResourceConfig {
@@ -58,9 +57,7 @@ service foo on tokenlistener {
             json status = { clientIdInBody: clientIdInBody, hasAuthHeader: authHeader != "", tokenScope: tokenScope };
             io:println(status);
             json resp = { access_token: "acces-token" };
-            http:Response res = new;
-            res.setJsonPayload(resp);
-            _ = caller->respond(res);
+            _ = caller->respond(resp);
         } else {
             panic payload;
         }

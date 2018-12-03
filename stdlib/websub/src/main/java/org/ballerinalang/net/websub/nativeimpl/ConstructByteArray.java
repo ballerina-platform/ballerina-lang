@@ -22,9 +22,9 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -53,14 +53,14 @@ public class ConstructByteArray extends BlockingNativeCallableUnit {
         BMap<String, BValue> byteChannel = (BMap<String, BValue>) context.getRefArgument(0);
         Channel channel = (Channel) byteChannel.getNativeData(BYTE_CHANNEL_NAME);
         if (channel == null) {
-            context.setReturnValues(new BByteArray(new byte[0]));
+            context.setReturnValues(new BValueArray(new byte[0]));
         } else {
             try {
                 byte[] byteData = MimeUtil.getByteArray(channel.getInputStream());
                 channel.close();
-                context.setReturnValues(new BByteArray(byteData));
+                context.setReturnValues(new BValueArray(byteData));
             } catch (IOException e) {
-                context.setReturnValues(new BByteArray(new byte[0]));
+                context.setReturnValues(new BValueArray(new byte[0]));
             }
         }
     }
