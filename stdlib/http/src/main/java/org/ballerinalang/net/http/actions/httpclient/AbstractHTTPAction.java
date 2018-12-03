@@ -501,11 +501,6 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
             if (throwable instanceof ClientConnectorException) {
                 ClientConnectorException clientConnectorException = (ClientConnectorException) throwable;
                 addHttpStatusCode(clientConnectorException.getHttpStatusCode());
-                Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(context);
-                observerContext.ifPresent(ctx -> {
-                    ctx.addProperty(ObservabilityConstants.PROPERTY_ERROR, Boolean.TRUE);
-                    ctx.addProperty(ObservabilityConstants.PROPERTY_ERROR_MESSAGE, throwable.getMessage());
-                });
             }
         }
 
