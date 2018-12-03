@@ -21,6 +21,8 @@ import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BError;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -48,6 +50,62 @@ public class NativeConversionNegativeTest {
                 BCompileUtil.compile("test-src/expressions/conversion/native-conversion-taint-negative.bal");
     }
 
+    @Test
+    public void testIncompatibleJsonToStructWithErrors() {
+        BValue[] returns = BRunUtil.invoke(negativeResult, "testIncompatibleJsonToStructWithErrors",
+                                           new BValue[] {});
+
+        // check the error
+        Assert.assertTrue(returns[0] instanceof BError);
+        String errorMsg = ((BError) returns[0]).getReason();
+        Assert.assertEquals(errorMsg, "incompatible stamp operation: 'json' value cannot be stamped as 'Person'");
+    }
+
+    @Test
+    public void testEmptyJSONtoStructWithoutDefaults() {
+        BValue[] returns = BRunUtil.invoke(negativeResult, "testEmptyJSONtoStructWithoutDefaults");
+        Assert.assertTrue(returns[0] instanceof BError);
+        String errorMsg = ((BError) returns[0]).getReason();
+        Assert.assertEquals(errorMsg, "incompatible stamp operation: 'json' value cannot be stamped as "
+                + "'StructWithoutDefaults'");
+    }
+
+    @Test
+    public void testEmptyMaptoStructWithDefaults() {
+        BValue[] returns = BRunUtil.invoke(negativeResult, "testEmptyMaptoStructWithDefaults");
+        Assert.assertTrue(returns[0] instanceof BError);
+        String errorMsg = ((BError) returns[0]).getReason();
+        Assert.assertEquals(errorMsg, "incompatible stamp operation: 'map' value cannot be stamped as "
+                + "'StructWithDefaults'");
+    }
+
+    @Test
+    public void testEmptyMaptoStructWithoutDefaults() {
+        BValue[] returns = BRunUtil.invoke(negativeResult, "testEmptyMaptoStructWithoutDefaults");
+        Assert.assertTrue(returns[0] instanceof BError);
+        String errorMsg = ((BError) returns[0]).getReason();
+        Assert.assertEquals(errorMsg, "incompatible stamp operation: 'map' value cannot be stamped as "
+                + "'StructWithoutDefaults'");
+    }
+
+    @Test(description = "Test performing an invalid tuple conversion")
+    public void testTupleConversionFail() {
+        BValue[] returns = BRunUtil.invoke(negativeResult, "testTupleConversionFail");
+        String errorMsg = ((BError) returns[0]).getReason();
+        Assert.assertEquals(errorMsg, "incompatible stamp operation: '(T1,T1)' value cannot be stamped as '(T1,T2)'");
+    }
+
+    @Test(description = "Test converting an unsupported array to json",
+          expectedExceptions = { BLangRuntimeException.class },
+          expectedExceptionsMessageRegExp = ".*incompatible stamp operation: 'TX\\[\\]' value cannot be stamped as "
+                  + "'json'.*")
+    public void testArrayToJsonFail() {
+        BValue[] returns = BRunUtil.invoke(negativeResult, "testArrayToJsonFail");
+        Assert.assertTrue(returns[0] instanceof BError);
+        String errorMsg = ((BError) returns[0]).getReason();
+        Assert.assertEquals(errorMsg, "incompatible stamp operation: 'json[]' value cannot be stamped as 'string[]'");
+    }
+
     @Test(description = "Test passing tainted value with convert")
     public void testTaintedValue() {
         Assert.assertEquals(taintCheckResult.getErrorCount(), 1);
@@ -56,25 +114,37 @@ public class NativeConversionNegativeTest {
 
     @Test(description = "Test convert function with multiple arguments")
     public void testFloatToIntWithMultipleArguments() {
-        Assert.assertEquals(negativeCompileResult.getErrorCount(), 8);
-        BAssertUtil.validateError(negativeCompileResult, 0, "too many arguments in call to 'convert()'", 44, 12);
+        Assert.assertEquals(negativeCompileResult.getErrorCount(), 12);
+        BAssertUtil.validateError(negativeCompileResult, 0, "too many arguments in call to 'convert()'", 51, 12);
     }
 
     @Test(description = "Test convert function with no arguments")
     public void testFloatToIntWithNoArguments() {
-        BAssertUtil.validateError(negativeCompileResult, 2, "not enough arguments in call to 'convert()'", 49, 12);
+        BAssertUtil.validateError(negativeCompileResult, 2, "not enough arguments in call to 'convert()'", 56, 12);
     }
 
     @Test(description = "Test object conversions not supported")
     public void testObjectToJson() {
         BAssertUtil.validateError(negativeCompileResult, 4, "incompatible types: 'PersonObj' cannot be converted to "
-                + "'json'", 54, 12);
+                + "'json'", 61, 12);
     }
 
     @Test
     public void testStructToJsonConstrained1() {
         BAssertUtil.validateError(negativeCompileResult, 6, "incompatible types: 'Person' cannot be converted to "
-                + "'json<Person2>'", 65, 23);
+                + "'json<Person2>'", 72, 23);
+    }
+
+    @Test
+    public void testStructToJsonConstrained2() {
+        BAssertUtil.validateError(negativeCompileResult, 8, "incompatible types: 'Person2' cannot be converted to " 
+                + "'json<Person2>'", 80, 23);
+    }
+
+    @Test
+    public void testStructToJsonConstrainedNegative() {
+        BAssertUtil.validateError(negativeCompileResult, 10, "incompatible types: 'Person2' cannot be converted to " 
+                + "'json<Person3>'", 89, 18);
     }
 }
 

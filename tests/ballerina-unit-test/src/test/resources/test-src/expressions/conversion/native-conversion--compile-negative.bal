@@ -39,6 +39,13 @@ type Person2 record {
     !...
 };
 
+type Person3 record {
+    string name = "";
+    int age = 0;
+    string gender = "";
+    !...
+};
+
 function testFloatToIntWithMultipleArguments() returns int {
     float a = 5.0;
     return int.convert(a, a);
@@ -63,5 +70,27 @@ function testStructToJsonConstrained1() returns json|error {
         marks: [87, 94, 72]
     };
     json<Person2> j = json<Person2>.convert(p);
+    return j;
+}
+
+function testStructToJsonConstrained2() returns json|error {
+    Person2 p = {   name:"Child",
+                    age:25
+                };
+    json<Person2> j = json<Person2>.convert(p);
+    return j;
+}
+
+function testStructToJsonConstrainedNegative() returns json {
+    Person2 p = {   name:"Child",
+                    age:25
+                };
+    json<Person3> j = ();
+    var result = json<Person3>.convert(p);
+    if (result is json<Person3>) {
+        j = result;
+    } else if (result is error) {
+        panic result;
+    }
     return j;
 }

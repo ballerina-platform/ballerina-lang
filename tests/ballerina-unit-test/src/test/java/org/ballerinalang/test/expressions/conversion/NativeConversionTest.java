@@ -21,7 +21,6 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -212,19 +211,6 @@ public class NativeConversionTest {
         Assert.assertEquals(((BInteger) marks.getRefValue(2)).intValue(), 72);
     }
     
-//    @Test
-//    public void testStructToJsonConstrained2() {
-//        BValue[] returns = BRunUtil.invoke(compileResult, "testStructToJsonConstrained2");
-//        Assert.assertTrue(returns[0] instanceof BMap);
-//    }
-//
-//    @Test(expectedExceptions = {BLangRuntimeException.class},
-//            expectedExceptionsMessageRegExp = ".*cannot convert 'Person2' to type 'json<Person3>'.*")
-//    public void testStructToJsonConstrainedNegative() {
-//        BValue[] returns = BRunUtil.invoke(compileResult, "testStructToJsonConstrainedNegative");
-//        Assert.assertTrue(returns[0] instanceof BMap);
-//    }
-
     @Test(description = "Test any type to anydata type at runtime")
     public void testAnyRecordToAnydataMap() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAnyRecordToAnydataMap");
@@ -451,19 +437,6 @@ public class NativeConversionTest {
         Assert.assertNull(returns[0]);
     }
 
-    // transform with errors
-
-    @Test
-    public void testIncompatibleJsonToStructWithErrors() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testIncompatibleJsonToStructWithErrors",
-                                             new BValue[]{});
-
-        // check the error
-        Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BError) returns[0]).getReason();
-        Assert.assertEquals(errorMsg, "incompatible stamp operation: 'json' value cannot be stamped as 'Person'");
-    }
-
     @Test
     public void testStructToMapWithRefTypeArray() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testStructToMapWithRefTypeArray");
@@ -511,33 +484,6 @@ public class NativeConversionTest {
         Assert.assertTrue(((BBoolean) bValue.get("b")).booleanValue());
         Assert.assertNull(bValue.get("j"));
         Assert.assertNull(bValue.get("blb"));
-    }
-
-    @Test
-    public void testEmptyJSONtoStructWithoutDefaults() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testEmptyJSONtoStructWithoutDefaults");
-        Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BError) returns[0]).getReason();
-        Assert.assertEquals(errorMsg, "incompatible stamp operation: 'json' value cannot be stamped as " 
-                + "'StructWithoutDefaults'");
-    }
-
-    @Test 
-    public void testEmptyMaptoStructWithDefaults() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testEmptyMaptoStructWithDefaults");
-        Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BError) returns[0]).getReason();
-        Assert.assertEquals(errorMsg, "incompatible stamp operation: 'map' value cannot be stamped as " 
-                + "'StructWithDefaults'");
-    }
-
-    @Test
-    public void testEmptyMaptoStructWithoutDefaults() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testEmptyMaptoStructWithoutDefaults");
-        Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BError) returns[0]).getReason();
-        Assert.assertEquals(errorMsg, "incompatible stamp operation: 'map' value cannot be stamped as " 
-                + "'StructWithoutDefaults'");
     }
 
     @Test
@@ -678,13 +624,6 @@ public class NativeConversionTest {
         Assert.assertEquals(returns[1].getType().getTag(), TypeTags.STRING);
     }
     
-    @Test(description = "Test performing an invalid tuple conversion")
-    public void testTupleConversionFail() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testTupleConversionFail");
-        String errorMsg = ((BError) returns[0]).getReason();
-        Assert.assertEquals(errorMsg, "incompatible stamp operation: '(T1,T1)' value cannot be stamped as '(T1,T2)'");
-    }
-    
     @Test
     public void testArrayToJson1() {
         BValue[] returns = BRunUtil.invokeFunction(compileResult, "testArrayToJson1");
@@ -699,17 +638,6 @@ public class NativeConversionTest {
         Assert.assertEquals(returns[0].stringValue(), "[{\"x\":10, \"y\":0}, {\"x\":15, \"y\":0}]");
     }
 
-    @Test(description = "Test converting an unsupported array to json",
-          expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*incompatible stamp operation: 'TX\\[\\]' value cannot be stamped as " 
-                  + "'json'.*")
-    public void testArrayToJsonFail() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testArrayToJsonFail");
-        Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BError) returns[0]).getReason();
-        Assert.assertEquals(errorMsg, "incompatible stamp operation: 'json[]' value cannot be stamped as 'string[]'");
-    }
-    
     @Test
     public void testJsonToArray1() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJsonToArray1");

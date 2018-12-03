@@ -34,13 +34,6 @@ type Person2 record {
     !...
 };
 
-type Person3 record {
-    string name = "";
-    int age = 0;
-    string gender = "";
-    !...
-};
-
 type Person4 record {
     string name = "";
     Person4? parent = ();
@@ -145,29 +138,6 @@ function testStructToJson () returns json|error {
     json j = check json.convert(p);
     return j;
 }
-
-
-//function testStructToJsonConstrained2() returns json|error {
-//    Person2 p = {   name:"Child",
-//                    age:25
-//                };
-//    json<Person2> j = json<Person2>.convert(p);
-//    return j;
-//}
-//
-//function testStructToJsonConstrainedNegative() returns json {
-//    Person2 p = {   name:"Child",
-//                    age:25
-//                };
-//    json<Person3> j = ();
-//    var result = json<Person3>.convert(p);
-//    if (result is json<Person3>) {
-//        j = result;
-//    } else if (result is error) {
-//        panic result;
-//    }
-//    return j;
-//}
 
 function testAnyRecordToAnydataMap() returns (map<anydata> | error) {
     Person4 p = {   name:"Waruna",
@@ -629,26 +599,6 @@ function testNullStructToJson () returns (json | error) {
     return j;
 }
 
-function testIncompatibleJsonToStructWithErrors () returns (Person | error) {
-    json j = {name:"Child",
-                 age:25,
-                 parent:{
-                            name:"Parent",
-                            age:50,
-                            parent:"Parent",
-                            address:{"city":"Colombo", "country":"SriLanka"},
-                            info:null,
-                            marks:null
-                        },
-                 address:{"city":"Colombo", "country":"SriLanka"},
-                 info:{status:"single"},
-                 marks:[87, 94, 72]
-             };
-             
-    Person p  = check Person.convert(j);
-    return p;
-}
-
 type PersonA record {
     string name = "";
     int age = 0;
@@ -724,39 +674,6 @@ type StructWithDefaults record {
 function testEmptyJSONtoStructWithDefaults () returns (StructWithDefaults | error) {
     json j = {};
     var testStruct = check StructWithDefaults.convert(j);
-
-    return testStruct;
-}
-
-type StructWithoutDefaults record {
-    string s = "";
-    int a = 0;
-    float f = 0.0;
-    boolean b = false;
-    json j = {};
-    byte[] blb = [];
-    !...
-};
-
-function testEmptyJSONtoStructWithoutDefaults () returns (StructWithoutDefaults | error) {
-    json j = {};
-    var testStruct = check StructWithoutDefaults.convert(j);
-
-    return testStruct;
-}
-
-
-function testEmptyMaptoStructWithDefaults () returns StructWithDefaults|error {
-    map<any> m = {};
-    var testStruct = check StructWithDefaults.convert(m);
-
-    return testStruct;
-}
-
-
-function testEmptyMaptoStructWithoutDefaults () returns StructWithoutDefaults|error {
-    map<any> m = {};
-    var testStruct = check StructWithoutDefaults.convert(m);
 
     return testStruct;
 }
@@ -969,15 +886,7 @@ function testTupleConversion2() returns (int, string)|error {
     return x;
 }
 
-function testTupleConversionFail() returns (T1, T2) | error {
-    T1 a = {};
-    T1 b = {};
-    (T1, T1) x = (a, b);
-    (T1, T2) x2;
-    anydata y = x;
-    var result = (T1, T2).convert(y);
-    return result;
-}
+
 
 function testArrayToJson1() returns json|error {
     int[] x = [];
@@ -1004,22 +913,6 @@ public type TX record {
   int y = 0;
   byte[] b = [];
 };
-
-function testArrayToJsonFail() returns json {
-    TX[] x = [];
-    TX a = {};
-    TX b = {};
-    a.x = 10;
-    b.x = 15;
-    x[0] = a;
-    x[1] = b;
-    var result = json.convert(x);
-    if (result is json) {
-        return result;
-    } else {
-        panic result;
-    }
-}
 
 function testJsonToArray1() returns T1[]|error {
     T1[] x = [];
