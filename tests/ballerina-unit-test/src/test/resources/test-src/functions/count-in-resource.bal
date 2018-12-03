@@ -15,7 +15,7 @@ service TestService on testEP {
     resource function testResource (http:Caller caller, http:Request req) {
         json[] jsonArray = [];
         string[] strArray = ["foo", "bar"];
-        foreach s in strArray {
+        foreach var s in strArray {
             jsonArray[jsonArray.count()] = s;
         }
 

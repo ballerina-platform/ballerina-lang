@@ -203,7 +203,7 @@ service mock00 on backendEP00 {
                 response.setPayload("Error in decoding multiparts!");
                 response.statusCode = 500;
             } else if (mimeEntity is mime:Entity[]) {
-                foreach bodyPart in mimeEntity {
+                foreach var bodyPart in mimeEntity {
                     if (bodyPart.hasHeader(mime:CONTENT_TYPE)
                         && bodyPart.getHeader(mime:CONTENT_TYPE).hasPrefix(http:MULTIPART_AS_PRIMARY_TYPE)) {
                         var nestedMimeEntity = bodyPart.getBodyParts();
@@ -213,7 +213,7 @@ service mock00 on backendEP00 {
                             response.statusCode = 500;
                         } else {
                             mime:Entity[] childParts = nestedMimeEntity;
-                            foreach childPart in childParts {
+                            foreach var childPart in childParts {
                                 // When performing passthrough scenarios, message needs to be built before
                                 // invoking the endpoint to create a message datasource.
                                 var childBlobContent = childPart.getByteArray();

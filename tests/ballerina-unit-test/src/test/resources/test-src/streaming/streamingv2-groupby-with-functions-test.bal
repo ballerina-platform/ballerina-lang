@@ -53,7 +53,7 @@ function startGroupByQueryWithFunc() returns TeacherOutput[] {
     foo();
 
     outputStream.subscribe(function(TeacherOutput e) {printTeachers(e);});
-    foreach t in teachers {
+    foreach var t in teachers {
         inputStream.publish(t);
     }
 
@@ -82,7 +82,7 @@ function foo() {
         select inputStream.name, inputStream.age, count() as count
         group by getGroupByField(inputStream.age)
         => (TeacherOutput [] teachers) {
-            foreach t in teachers {
+            foreach var t in teachers {
                 outputStream.publish(t);
             }
         }

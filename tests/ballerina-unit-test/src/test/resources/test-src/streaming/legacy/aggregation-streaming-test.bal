@@ -43,7 +43,7 @@ function testAggregationQuery() {
         group by status
         having totalCount > 1
         => (StatusCount[] status) {
-            foreach s in status {
+            foreach var s in status {
                 filteredStatusCountStream.publish(s);
             }
         }
