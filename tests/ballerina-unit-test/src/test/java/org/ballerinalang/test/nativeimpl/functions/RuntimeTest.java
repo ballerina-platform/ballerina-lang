@@ -76,7 +76,7 @@ public class RuntimeTest {
         Assert.assertEquals(returns[0].stringValue(), expectedValue);
     }
 
-    @Test (groups = "broken")
+    @Test
     public void testGetCallStack() {
         BValue[] returns = BRunUtil.invoke(errorResult, "testGetCallStack");
         Assert.assertEquals(returns.length, 4);
@@ -90,11 +90,16 @@ public class RuntimeTest {
                 "fileName:\"runtime-error.bal\", lineNumber:4}");
     }
 
-    @Test (groups = "broken")
+    @Test
     public void testErrorStackFrame() {
         BValue[] returns = BRunUtil.invoke(errorResult, "testErrorStackFrame");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "{callableName:\"testErrorStackFrame\", moduleName:\".\","
-                + " fileName:\"runtime-error.bal\", lineNumber:17}");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertEquals(returns[0].stringValue(),
+                "{callableName:\"level2Error\", moduleName:\".\", fileName:\"runtime-error.bal\", lineNumber:30}");
+        Assert.assertEquals(returns[1].stringValue(),
+                "{callableName:\"level1Error\", moduleName:\".\", fileName:\"runtime-error.bal\", lineNumber:25}");
+        Assert.assertEquals(returns[2].stringValue(),
+                "{callableName:\"testErrorStackFrame\", moduleName:\".\", fileName:\"runtime-error.bal\", " +
+                        "lineNumber:16}");
     }
 }
