@@ -69,6 +69,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangTableQuery;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWithinClause;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -1108,10 +1109,13 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         } else if (varRef.getKind() == NodeKind.TUPLE_VARIABLE_REF) {
             ((BLangTupleVarRef) varRef).expressions.forEach(expr -> checkAssignment(expr));
             return;
-        } else if (varRef.getKind() != NodeKind.SIMPLE_VARIABLE_REF
-                && varRef.getKind() != NodeKind.INDEX_BASED_ACCESS_EXPR
-                && varRef.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR
-                && varRef.getKind() != NodeKind.XML_ATTRIBUTE_ACCESS_EXPR) {
+        } else if (varRef.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR ||
+                varRef.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
+            analyzeNode(((BLangAccessExpression) varRef).expr, env);
+            this.uninitializedVars.remove(((BLangVariableReference) varRef).symbol);
+            return;
+        } else if (varRef.getKind() != NodeKind.SIMPLE_VARIABLE_REF &&
+                varRef.getKind() != NodeKind.XML_ATTRIBUTE_ACCESS_EXPR) {
             return;
         }
 
