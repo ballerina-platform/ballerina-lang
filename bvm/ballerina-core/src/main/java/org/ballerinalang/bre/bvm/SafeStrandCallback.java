@@ -200,6 +200,9 @@ public class SafeStrandCallback extends StrandCallback {
         }
     }
 
+    /**
+     * Callback statuses.
+     */
     public static enum CallbackStatus {
         NOT_RETURNED(false), VALUE_RETURNED(true), ERROR_RETURN(true), PANIC(false);
 
