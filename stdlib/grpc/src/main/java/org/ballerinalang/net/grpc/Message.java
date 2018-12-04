@@ -43,6 +43,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.toCamelCase;
+
 /**
  * Generic Proto3 Message.
  *
@@ -255,6 +257,16 @@ public class Message {
                                 }
                                 stringArray.add(stringArray.size(), input.readStringRequireUtf8());
                                 bMapValue.put(name, stringArray);
+                            } else if (fieldDescriptor.getContainingOneof() != null) {
+                                Descriptors.OneofDescriptor oneofDescriptor = fieldDescriptor.getContainingOneof();
+                                BValue bValue = new BString(input.readStringRequireUtf8());
+                                String msgType = oneofDescriptor.getContainingType().getName() + "_" + toCamelCase
+                                        (fieldDescriptor.getName());
+                                BMap<String, BValue> bMsg = BLangConnectorSPIUtil.createBStruct(programFile, bType
+                                        .getPackagePath(), msgType);
+                                bMsg.put(fieldDescriptor.getName(), bValue);
+                                bMapValue.put(oneofDescriptor.getName(), bMsg);
+
                             } else {
                                 bMapValue.put(name, new BString(input.readStringRequireUtf8()));
                             }
@@ -512,6 +524,14 @@ public class Message {
                         } else {
                             output.writeString(fieldDescriptor.getNumber(), bValue.stringValue());
                         }
+                    } else if (bMapValue != null && fieldDescriptor.getContainingOneof() != null) {
+                        Descriptors.OneofDescriptor oneofDescriptor = fieldDescriptor.getContainingOneof();
+                        BValue bValue = bMapValue.getIfExist(oneofDescriptor.getName());
+                        if (bValue != null && (bValue instanceof BMap) &&
+                                ((BMap) bValue).hasKey(fieldDescriptor.getName())) {
+                            output.writeString(fieldDescriptor.getNumber(), ((BMap) bValue)
+                                    .get(fieldDescriptor.getName()).stringValue());
+                        }
                     } else if (bMessage.getType().getTag() == TypeTags.STRING_TAG) {
                         output.writeString(fieldDescriptor.getNumber(), bMessage.stringValue());
                     }
@@ -754,6 +774,14 @@ public class Message {
                         } else {
                             size += CodedOutputStream.computeStringSize(fieldDescriptor.getNumber(), bValue
                                     .stringValue());
+                        }
+                    } else if (bMapValue != null && fieldDescriptor.getContainingOneof() != null) {
+                        Descriptors.OneofDescriptor oneofDescriptor = fieldDescriptor.getContainingOneof();
+                        BValue bValue = bMapValue.getIfExist(oneofDescriptor.getName());
+                        if (bValue != null && (bValue instanceof BMap) &&
+                                ((BMap) bValue).hasKey(fieldDescriptor.getName())) {
+                            size += CodedOutputStream.computeStringSize(fieldDescriptor.getNumber(), ((BMap) bValue)
+                                    .get(fieldDescriptor.getName()).stringValue());
                         }
                     } else if (bMessage.getType().getTag() == TypeTags.STRING_TAG) {
                         size += CodedOutputStream.computeStringSize(fieldDescriptor.getNumber(), bMessage.stringValue
