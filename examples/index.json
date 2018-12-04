@@ -83,6 +83,10 @@
                 "url": "tuple-match-statement"
             },
             {
+                "name": "Record Match",
+                "url": "record-match-statement"
+            },
+            {
                 "name": "Type Guard",
                 "url": "type-guard"
             },
