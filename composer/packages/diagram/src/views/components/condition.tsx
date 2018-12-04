@@ -10,11 +10,12 @@ export const Condition: React.StatelessComponent<{
         y: number,
         label: string,
         expression: string,
+        width?: number
     }> = ({
-        x, y, label, expression
+        x, y, label, expression, width
     }) => {
+        const controlWidth = (width) ? width : config.statement.width;
         const hHeight = (config.flowCtrl.condition.height / 2);
-
         const conditionLables = { true: "true", false: "false" };
         const labelProps = { x , y };
         const conditionProps = { x, y };
@@ -74,7 +75,9 @@ export const Condition: React.StatelessComponent<{
 
         return (
             <g className="condition">
-                <text {...conditionProps} className="expression">{expression}</text>
+                <text {...conditionProps} className="expression">
+                    {DiagramUtils.getTextWidth(expression, 0, controlWidth).text}
+                </text>
                 <polyline
                     points={`${p1.x},${p1.y} ${p2.x},${p2.y} ${p3.x},${p3.y} ${p4.x},${p4.y} ${p1.x},${p1.y}`}
                 />
