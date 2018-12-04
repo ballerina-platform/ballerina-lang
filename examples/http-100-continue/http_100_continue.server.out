@@ -3,4 +3,4 @@
 $ ballerina run http_expect_header.bal
 Initiating service(s) in 'http_100_continue.bal'
 [ballerina/http] started HTTP/WS endpoint 0.0.0.0:9090
-2018-10-30 11:11:51,511 INFO  [] - TEST 100 CONTINUE
+2018-12-04 21:37:36,272 INFO  [ballerina/log] - TEST 100 CONTINUE
