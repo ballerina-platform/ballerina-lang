@@ -65,9 +65,12 @@ public class ReceivingHeaders implements SenderState {
 
     private final Http2TargetHandler http2TargetHandler;
     private final Http2ClientChannel http2ClientChannel;
+    private final Http2TargetHandler.Http2RequestWriter http2RequestWriter;
 
-    public ReceivingHeaders(Http2TargetHandler http2TargetHandler) {
+    public ReceivingHeaders(Http2TargetHandler http2TargetHandler,
+                            Http2TargetHandler.Http2RequestWriter http2RequestWriter) {
         this.http2TargetHandler = http2TargetHandler;
+        this.http2RequestWriter = http2RequestWriter;
         this.http2ClientChannel = http2TargetHandler.getHttp2ClientChannel();
     }
 
@@ -77,9 +80,20 @@ public class ReceivingHeaders implements SenderState {
     }
 
     @Override
-    public void writeOutboundRequestBody(ChannelHandlerContext ctx, HttpContent httpContent) {
-        // Response is already receiving, hence the outgoing data frames need to be released.
-        releaseContent(httpContent);
+    public void writeOutboundRequestBody(ChannelHandlerContext ctx, HttpContent httpContent,
+                                         Http2MessageStateContext http2MessageStateContext) throws Http2Exception {
+        // In bidirectional streaming case, while sending the request data frames, server response data frames can
+        // receive. In order to handle it. we need to change the states depending on the action.
+        // This is temporary check. Remove the conditional check after reviewing message flow.
+        if (http2RequestWriter != null) {
+            http2MessageStateContext.setSenderState(new SendingEntityBody(http2TargetHandler, http2RequestWriter));
+            http2MessageStateContext.getSenderState().writeOutboundRequestBody(ctx, httpContent,
+                    http2MessageStateContext);
+        } else {
+            // Response is already receiving, if request writer does not exist the outgoing data frames need to be
+            // released.
+            releaseContent(httpContent);
+        }
     }
 
     @Override
@@ -132,13 +146,13 @@ public class ReceivingHeaders implements SenderState {
                 outboundMsgHolder.addPushResponse(streamId, responseMessage);
             }
             http2ClientChannel.removePromisedMessage(streamId);
-            http2MessageStateContext.setSenderState(new EntityBodyReceived(http2TargetHandler));
+            http2MessageStateContext.setSenderState(new EntityBodyReceived(http2TargetHandler, http2RequestWriter));
         } else {
             // Create response carbon message.
             HttpCarbonResponse responseMessage = setupResponseCarbonMessage(ctx, streamId,
                     http2Headers, outboundMsgHolder);
             outboundMsgHolder.addPushResponse(streamId, responseMessage);
-            http2MessageStateContext.setSenderState(new ReceivingEntityBody(http2TargetHandler));
+            http2MessageStateContext.setSenderState(new ReceivingEntityBody(http2TargetHandler, http2RequestWriter));
         }
     }
 
@@ -157,13 +171,13 @@ public class ReceivingHeaders implements SenderState {
                 outboundMsgHolder.setResponse(responseMessage);
             }
             http2ClientChannel.removeInFlightMessage(streamId);
-            http2MessageStateContext.setSenderState(new EntityBodyReceived(http2TargetHandler));
+            http2MessageStateContext.setSenderState(new EntityBodyReceived(http2TargetHandler, http2RequestWriter));
         } else {
             // Create response carbon message.
             HttpCarbonResponse responseMessage = setupResponseCarbonMessage(ctx, streamId,
                     http2Headers, outboundMsgHolder);
             outboundMsgHolder.setResponse(responseMessage);
-            http2MessageStateContext.setSenderState(new ReceivingEntityBody(http2TargetHandler));
+            http2MessageStateContext.setSenderState(new ReceivingEntityBody(http2TargetHandler, http2RequestWriter));
         }
     }
 

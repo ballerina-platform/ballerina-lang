@@ -19,7 +19,9 @@
 package org.wso2.transport.http.netty.contractimpl.sender.states.http2;
 
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http2.Http2Exception;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
@@ -29,6 +31,9 @@ import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 
+import java.io.IOException;
+
+import static org.wso2.transport.http.netty.contract.Constants.INBOUND_RESPONSE_ALREADY_RECEIVED;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.releaseContent;
 
 /**
@@ -41,9 +46,16 @@ public class EntityBodyReceived implements SenderState {
     private static final Logger LOG = LoggerFactory.getLogger(EntityBodyReceived.class);
 
     private final Http2TargetHandler http2TargetHandler;
+    private Http2TargetHandler.Http2RequestWriter http2RequestWriter;
+    private OutboundMsgHolder outboundMsgHolder;
 
-    EntityBodyReceived(Http2TargetHandler http2TargetHandler) {
+    EntityBodyReceived(Http2TargetHandler http2TargetHandler,
+                       Http2TargetHandler.Http2RequestWriter http2RequestWriter) {
         this.http2TargetHandler = http2TargetHandler;
+        if (http2RequestWriter != null) {
+            this.http2RequestWriter = http2RequestWriter;
+            this.outboundMsgHolder = http2RequestWriter.getOutboundMsgHolder();
+        }
     }
 
     @Override
@@ -52,8 +64,20 @@ public class EntityBodyReceived implements SenderState {
     }
 
     @Override
-    public void writeOutboundRequestBody(ChannelHandlerContext ctx, HttpContent httpContent) {
-        // Response is already received, hence the outgoing data frames need to be released.
+    public void writeOutboundRequestBody(ChannelHandlerContext ctx, HttpContent httpContent,
+                                         Http2MessageStateContext http2MessageStateContext) throws Http2Exception {
+        // Response is already received, hence the outgoing data frames need to be released and send last http
+        // content frame to the server.
+        // http2RequestWriter can be null in http upgrade path. If http2RequestWriter is null, we don't need to send
+        // the content to server.
+        if (http2RequestWriter != null && outboundMsgHolder != null) {
+            outboundMsgHolder.getRequest().setIoException(new IOException(INBOUND_RESPONSE_ALREADY_RECEIVED));
+            http2MessageStateContext.setSenderState(new SendingEntityBody(http2TargetHandler, http2RequestWriter));
+            http2MessageStateContext.getSenderState().writeOutboundRequestBody(ctx, new DefaultLastHttpContent(),
+                    http2MessageStateContext);
+            // Move back to EntityBodyReceived state to ensure proper state transition.
+            http2MessageStateContext.setSenderState(new EntityBodyReceived(http2TargetHandler, http2RequestWriter));
+        }
         releaseContent(httpContent);
     }
 
@@ -61,9 +85,9 @@ public class EntityBodyReceived implements SenderState {
     public void readInboundResponseHeaders(ChannelHandlerContext ctx, Http2HeadersFrame http2HeadersFrame,
                                            OutboundMsgHolder outboundMsgHolder, boolean serverPush,
                                            Http2MessageStateContext http2MessageStateContext) {
-        // When promised response message is going to be sent after the original response or previous promised responses
-        // has been sent.
-        http2MessageStateContext.setSenderState(new ReceivingHeaders(http2TargetHandler));
+        // When promised response message is going to be received after the original response or previous promised
+        // responses has been received.
+        http2MessageStateContext.setSenderState(new ReceivingHeaders(http2TargetHandler, http2RequestWriter));
         http2MessageStateContext.getSenderState().readInboundResponseHeaders(ctx, http2HeadersFrame, outboundMsgHolder,
                 serverPush, http2MessageStateContext);
     }

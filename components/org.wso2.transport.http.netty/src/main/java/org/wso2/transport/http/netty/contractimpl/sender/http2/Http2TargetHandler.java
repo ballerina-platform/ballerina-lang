@@ -155,12 +155,13 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
 
         private void writeOutboundRequest(ChannelHandlerContext ctx, HttpContent msg) throws Http2Exception {
             try {
-                http2MessageStateContext.getSenderState().writeOutboundRequestBody(ctx, msg);
+                http2MessageStateContext.getSenderState().writeOutboundRequestBody(ctx, msg, http2MessageStateContext);
             } catch (RuntimeException ex) {
                 httpOutboundRequest.getHttp2MessageStateContext()
                         .setSenderState(new SendingEntityBody(Http2TargetHandler.this, this));
                 httpOutboundRequest.getHttp2MessageStateContext()
-                        .getSenderState().writeOutboundRequestBody(ctx, new DefaultLastHttpContent());
+                        .getSenderState().writeOutboundRequestBody(ctx, new DefaultLastHttpContent(),
+                        http2MessageStateContext);
             }
         }
 
@@ -256,7 +257,7 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
         Http2MessageStateContext http2MessageStateContext = getHttp2MessageContext(outboundMsgHolder);
         if (http2MessageStateContext == null) {
             http2MessageStateContext = new Http2MessageStateContext();
-            http2MessageStateContext.setSenderState(new RequestCompleted(this));
+            http2MessageStateContext.setSenderState(new RequestCompleted(this, null));
             outboundMsgHolder.getRequest().setHttp2MessageStateContext(http2MessageStateContext);
         }
         return http2MessageStateContext;

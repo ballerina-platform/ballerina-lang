@@ -42,9 +42,6 @@ import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 
-import java.io.IOException;
-
-import static org.wso2.transport.http.netty.contract.Constants.INBOUND_RESPONSE_ALREADY_RECEIVED;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.onPushPromiseRead;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.writeHttp2Headers;
 
@@ -63,6 +60,7 @@ public class SendingEntityBody implements SenderState {
     private final Http2ConnectionEncoder encoder;
     private final Http2ClientChannel http2ClientChannel;
     private final int streamId;
+    private final Http2RequestWriter http2RequestWriter;
 
     public SendingEntityBody(Http2TargetHandler http2TargetHandler, Http2RequestWriter http2RequestWriter) {
         this.http2TargetHandler = http2TargetHandler;
@@ -71,6 +69,7 @@ public class SendingEntityBody implements SenderState {
         this.encoder = http2TargetHandler.getEncoder();
         this.http2ClientChannel = http2TargetHandler.getHttp2ClientChannel();
         this.streamId = http2RequestWriter.getStreamId();
+        this.http2RequestWriter = http2RequestWriter;
     }
 
     @Override
@@ -79,7 +78,8 @@ public class SendingEntityBody implements SenderState {
     }
 
     @Override
-    public void writeOutboundRequestBody(ChannelHandlerContext ctx, HttpContent httpContent) throws Http2Exception {
+    public void writeOutboundRequestBody(ChannelHandlerContext ctx, HttpContent httpContent,
+                                         Http2MessageStateContext http2MessageStateContext) throws Http2Exception {
         writeContent(ctx, httpContent);
     }
 
@@ -87,10 +87,9 @@ public class SendingEntityBody implements SenderState {
     public void readInboundResponseHeaders(ChannelHandlerContext ctx, Http2HeadersFrame http2HeadersFrame,
                                            OutboundMsgHolder outboundMsgHolder, boolean serverPush,
                                            Http2MessageStateContext http2MessageStateContext) {
-        // This is an action due to an application error. When the initial frames of the response is being received
-        // before sending the complete request.
-        outboundMsgHolder.getRequest().setIoException(new IOException(INBOUND_RESPONSE_ALREADY_RECEIVED));
-        http2MessageStateContext.setSenderState(new ReceivingHeaders(http2TargetHandler));
+        // In bidirectional streaming case, while sending the request data frames, server response data frames can
+        // receive. In order to handle it. we need to change the states depending on the action.
+        http2MessageStateContext.setSenderState(new ReceivingHeaders(http2TargetHandler, http2RequestWriter));
         http2MessageStateContext.getSenderState().readInboundResponseHeaders(ctx, http2HeadersFrame, outboundMsgHolder,
                 serverPush, http2MessageStateContext);
     }
@@ -99,7 +98,11 @@ public class SendingEntityBody implements SenderState {
     public void readInboundResponseBody(ChannelHandlerContext ctx, Http2DataFrame http2DataFrame,
                                         OutboundMsgHolder outboundMsgHolder, boolean serverPush,
                                         Http2MessageStateContext http2MessageStateContext) {
-        LOG.warn("readInboundResponseEntityBody is not a dependant action of this state");
+        // In bidirectional streaming case, while sending the request data frames, server response data frames can
+        // receive. In order to handle it. we need to change the states depending on the action.
+        http2MessageStateContext.setSenderState(new ReceivingEntityBody(http2TargetHandler, http2RequestWriter));
+        http2MessageStateContext.getSenderState().readInboundResponseBody(ctx, http2DataFrame, outboundMsgHolder,
+                serverPush, http2MessageStateContext);
     }
 
     @Override
@@ -141,7 +144,7 @@ public class SendingEntityBody implements SenderState {
             }
             if (endStream) {
                 outboundMsgHolder.setRequestWritten(true);
-                http2MessageStateContext.setSenderState(new RequestCompleted(http2TargetHandler));
+                http2MessageStateContext.setSenderState(new RequestCompleted(http2TargetHandler, http2RequestWriter));
             }
         } finally {
             if (release) {

@@ -84,7 +84,8 @@ public class SendingHeaders implements SenderState {
     }
 
     @Override
-    public void writeOutboundRequestBody(ChannelHandlerContext ctx, HttpContent httpContent) throws Http2Exception {
+    public void writeOutboundRequestBody(ChannelHandlerContext ctx, HttpContent httpContent,
+                                         Http2MessageStateContext http2MessageStateContext) throws Http2Exception {
         writeOutboundRequestHeaders(ctx, httpContent);
     }
 
@@ -95,7 +96,7 @@ public class SendingHeaders implements SenderState {
         // This is an action due to an application error. When the initial frames of the response is being received
         // before sending the complete request.
         outboundMsgHolder.getRequest().setIoException(new IOException(INBOUND_RESPONSE_ALREADY_RECEIVED));
-        http2MessageStateContext.setSenderState(new ReceivingHeaders(http2TargetHandler));
+        http2MessageStateContext.setSenderState(new ReceivingHeaders(http2TargetHandler, http2RequestWriter));
         http2MessageStateContext.getSenderState().readInboundResponseHeaders(ctx, http2HeadersFrame, outboundMsgHolder,
                 serverPush, http2MessageStateContext);
     }
@@ -125,10 +126,10 @@ public class SendingHeaders implements SenderState {
         // Write Headers
         writeOutboundRequestHeaders(ctx, httpRequest, endStream);
         if (endStream) {
-            http2MessageStateContext.setSenderState(new RequestCompleted(http2TargetHandler));
+            http2MessageStateContext.setSenderState(new RequestCompleted(http2TargetHandler, http2RequestWriter));
         } else {
             http2MessageStateContext.setSenderState(new SendingEntityBody(http2TargetHandler, http2RequestWriter));
-            http2MessageStateContext.getSenderState().writeOutboundRequestBody(ctx, msg);
+            http2MessageStateContext.getSenderState().writeOutboundRequestBody(ctx, msg, http2MessageStateContext);
         }
     }
 
