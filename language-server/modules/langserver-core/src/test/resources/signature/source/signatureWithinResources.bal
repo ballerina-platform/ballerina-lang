@@ -1,7 +1,9 @@
 import ballerina/http;
 
-service<http:Service> greetService bind { port: 9090 } {
-    sayHello (endpoint caller, http:Request request) {
+listener http:MockListener mockEP = new(9090);
+
+service myService1 on mockEP {
+    resource function foo(http:Caller caller, http:Request req) {
         caller->respond(
     }
 }

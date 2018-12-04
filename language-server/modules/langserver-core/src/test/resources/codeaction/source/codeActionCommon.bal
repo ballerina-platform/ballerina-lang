@@ -2,12 +2,8 @@ function testCodeActionFunction() {
     io:println("Hello World!!");
 }
 
-endpoint http:Listener listener {
-    
-};
-
-service<http:Service> testCodeActionService bind { port: 9090 } {
-    testCodeActionResource (endpoint caller, http:Request request) {
+service testCodeActionService on new http:Listener(8080) {
+    resource function testCodeActionResource(http:Caller caller, http:Request request) {
         http:Response res = new;
         _ = caller->respond(res);
     }

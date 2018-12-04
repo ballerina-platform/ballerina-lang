@@ -2,19 +2,6 @@
   "id": "324",
   "result": [
     {
-      "uri": "references1.bal",
-      "range": {
-        "start": {
-          "line": 16,
-          "character": 22
-        },
-        "end": {
-          "line": 16,
-          "character": 35
-        }
-      }
-    },
-    {
       "uri": "references2.bal",
       "range": {
         "start": {
@@ -23,7 +10,20 @@
         },
         "end": {
           "line": 4,
-          "character": 0
+          "character": 1
+        }
+      }
+    },
+    {
+      "uri": "references1.bal",
+      "range": {
+        "start": {
+          "line": 16,
+          "character": 22
+        },
+        "end": {
+          "line": 16,
+          "character": 36
         }
       }
     }

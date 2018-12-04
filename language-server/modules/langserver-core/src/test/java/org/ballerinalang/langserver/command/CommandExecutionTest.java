@@ -77,7 +77,7 @@ public class CommandExecutionTest {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
 
-    @Test(dataProvider = "package-import-data-provider")
+    @Test(dataProvider = "package-import-data-provider", enabled = false)
     public void testImportPackageCommand(String config, String source) {
         String configJsonPath = "command" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);
@@ -92,7 +92,7 @@ public class CommandExecutionTest {
         Assert.assertEquals(responseJson, expected);
     }
 
-    @Test(dataProvider = "add-doc-data-provider")
+    @Test(dataProvider = "add-doc-data-provider", enabled = false)
     public void testAddSingleDocumentation(String config, String source) {
         String configJsonPath = "command" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);
@@ -108,7 +108,7 @@ public class CommandExecutionTest {
         Assert.assertEquals(responseJson, expected);
     }
 
-    @Test(dataProvider = "add-all-doc-data-provider")
+    @Test(dataProvider = "add-all-doc-data-provider", enabled = false)
     public void testAddAllDocumentation(String config, String source) {
         String configJsonPath = "command" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);
@@ -122,7 +122,7 @@ public class CommandExecutionTest {
         Assert.assertEquals(responseJson, expected);
     }
 
-    @Test(description = "Test Create Initializer for object")
+    @Test(description = "Test Create Initializer for object", enabled = false)
     public void testCreateInitializer() {
         String configJsonPath = "command" + File.separator + "createInitializer.json";
         Path sourcePath = sourcesPath.resolve("source").resolve("commonDocumentation.bal");
@@ -138,7 +138,7 @@ public class CommandExecutionTest {
         Assert.assertEquals(responseJson, expected);
     }
 
-    @Test(dataProvider = "create-function-data-provider")
+    @Test(dataProvider = "create-function-data-provider", enabled = false)
     public void testCreateFunction(String config, String source) {
         String configJsonPath = "command" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);
@@ -155,7 +155,7 @@ public class CommandExecutionTest {
         Assert.assertEquals(responseJson, expected);
     }
 
-    @Test(dataProvider = "create-variable-data-provider")
+    @Test(dataProvider = "create-variable-data-provider", enabled = false)
     public void testCreateVariable(String config, String source) {
         String configJsonPath = "command" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);
@@ -172,7 +172,7 @@ public class CommandExecutionTest {
         Assert.assertEquals(responseJson, expected);
     }
 
-    @Test(dataProvider = "testgen-fail-data-provider")
+    @Test(dataProvider = "testgen-fail-data-provider", enabled = false)
     public void testTestGenerationFailCases(String config, Path source) throws IOException {
         String configJsonPath = "command" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);
@@ -201,7 +201,7 @@ public class CommandExecutionTest {
         }
     }
 
-    @Test(dataProvider = "testgen-data-provider")
+    @Test(dataProvider = "testgen-data-provider", enabled = false)
     public void testTestGeneration(String config, Path source) throws IOException {
         String configJsonPath = "command" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);

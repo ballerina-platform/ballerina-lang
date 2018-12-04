@@ -46,7 +46,7 @@
       "kind":"Function",
       "detail":"Function",
       "sortText":"121",
-      "insertText":"foreach((json v) \u003d\u003e {\n\t${1}\n});",
+      "insertText":"foreach(function(json v) {\n\t${1}\n});",
       "insertTextFormat":"Snippet"
     },
     {
@@ -54,7 +54,7 @@
       "kind":"Function",
       "detail":"Function",
       "sortText":"121",
-      "insertText":"map((json v) \u003d\u003e (any) {\n\t${1}\n});",
+      "insertText":"map(function(json v) returns (any) {\n\t${1}\n});",
       "insertTextFormat":"Snippet"
     },
     {
@@ -62,7 +62,7 @@
       "kind":"Function",
       "detail":"Function",
       "sortText":"121",
-      "insertText":"filter((json v) \u003d\u003e (boolean) {\n\t${1}\n});",
+      "insertText":"filter(function(json v) returns (boolean) {\n\t${1}\n});",
       "insertTextFormat":"Snippet"
     },
     {

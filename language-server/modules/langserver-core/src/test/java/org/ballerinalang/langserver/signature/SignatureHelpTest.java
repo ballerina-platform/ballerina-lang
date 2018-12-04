@@ -79,10 +79,6 @@ public class SignatureHelpTest {
                 {"signatureWithinIfElse1.json", "signatureWithinWhile.bal"},
                 {"signatureWithinForeach.json", "signatureWithinForeach.bal"},
                 {"signatureWithinTransaction1.json", "signatureWithinTransaction1.bal"},
-                {"signatureWithinTransaction1.json", "signatureWithinTransaction2.bal"},
-                {"signatureWithinTryCatch1.json", "signatureWithinTryCatch1.bal"},
-                {"signatureWithinTryCatch2.json", "signatureWithinTryCatch2.bal"},
-                {"signatureWithinTryCatch3.json", "signatureWithinTryCatch3.bal"},
         };
     }
     
