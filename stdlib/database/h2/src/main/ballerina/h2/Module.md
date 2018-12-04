@@ -2,7 +2,7 @@
 
 This module provides the functionality required to access and manipulate data stored in an H2 database. 
 
-### Endpoint 
+### Client
 
 To access a database, you must first create a `client` object. Create a client of the H2 Client type (i.e., `h2:Client`) and provide the necessary connection parameters. This will create a pool of connections to the given H2 database. A sample for creating a H2 client can be found below.
 
@@ -12,14 +12,40 @@ Once the client is created, database operations can be executed through that cli
 
 ## Samples
 
-### Creating an endpoint
+### Creating a client in H2 Embedded Mode
+
 ```ballerina
 h2:Client testDB = new({
-    path: "/home/ballerina/test/",
-    name: "testdb",
-    username: "SA",
-    password: "",
-    poolOptions: { maximumPoolSize: 5 }
-});
+        path: "/home/ballerina/test/",
+        name: "testdb",
+        username: "SA",
+        password: "",
+        poolOptions: { maximumPoolSize: 5 }
+    });
 ```
+
+### Creating a client in H2 Server Mode
+
+```ballerina
+h2:Client testDB = new({
+        host: "localhost",
+        port: 9092,
+        name: "testdb",
+        username: "SA",
+        password: "",
+        poolOptions: { maximumPoolSize: 5 }
+    });
+```
+
+### Creating a client in H2 In-Memory Mode
+
+```ballerina
+h2:Client testDB = new({
+        name: "testdb",
+        username: "SA",
+        password: "",
+        poolOptions: { maximumPoolSize: 5 }
+    });
+```
+
 The full list of client properties can be found in the `sql:PoolOptions` type.

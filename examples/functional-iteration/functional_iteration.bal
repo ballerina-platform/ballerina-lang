@@ -1,7 +1,7 @@
 import ballerina/io;
 
 public function main() {
-    map words = { a: "ant", b: "bear", c: "cat", d: "dear",
+    map<string> words = { a: "ant", b: "bear", c: "cat", d: "dear",
                   e: "elephant" };
     // The count operation returns the number of elements in any collection type.
     io:println("Total words count: " + words.count());
@@ -24,19 +24,19 @@ public function main() {
     io:println("\nExecution Order:-");
     // This is an example for multiple iterable operations.
     // The foreach operation applies the given function to each item of the iterable collection.
-    json j = { name: "apple", colors: ["red", "green"], price: 5 };
-    j.map(function (json j) returns string {
-            string s = j
-            .toString();
-            io:println("- map operation's value: ", s);
-            return s;
+    map<json> j = { name: "apple", colors: ["red", "green"], price: 5 };
+    j.map(function ((string, json) pair) returns string {
+            var (key, value) = pair;
+            string result = value.toString();
+            io:println("- map operation's value: ", result);
+            return result;
         }).foreach(function (string s) {
             io:println("-- foreach operation's value: ", s);
         });
 
 }
 
-function toUpper(any value) returns string {
-    var word = <string> value;
-    return word.toUpper();
+function toUpper((string, string) pair) returns string {
+    var (key, value) = pair;
+    return value.toUpper();
 }

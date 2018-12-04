@@ -1,6 +1,6 @@
 #At the command line, navigate to the directory that contains the 
 #`.bal` file and run the `ballerina run` command. 
-$ ballerina run streams.bal
+$ ballerina run --experimental streams.bal
 Employee event received for Employee Name: Jane
 Employee event received for Employee Name: Anne
 Employee event received for Employee Name: John

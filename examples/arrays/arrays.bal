@@ -10,8 +10,8 @@ public function main() {
     io:println(b[0]);
     io:println(b.length());
 
-    // Arrays are unbounded in length. They can grow up to any length based on the given index.
-    // In this example, the length of the array is 1000.
+    // Arrays are unbounded in length. They can grow up to any length based on 
+    // the given index. In this example, the length of the array is 1000.
     b[999] = 23;
     io:println(b[999]);
     io:println(b.length());
