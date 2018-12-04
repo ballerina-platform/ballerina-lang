@@ -1,7 +1,8 @@
 import { ViewState } from "./view-state";
 
 export class EndpointViewState extends ViewState {
-    public visible: boolean;
+    public visible: boolean = false;
+    public usedAsClient: boolean = false;
 
     constructor() {
         super();

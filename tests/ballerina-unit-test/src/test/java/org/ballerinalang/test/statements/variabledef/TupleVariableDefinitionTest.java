@@ -346,6 +346,14 @@ public class TupleVariableDefinitionTest {
         Assert.assertEquals(val2.intValue(), 23);
     }
 
+    @Test(description = "Test tuple variable with ignore variable")
+    public void testIgnoreVariable() {
+        BValue[] returns = BRunUtil.invoke(result, "testIgnoreVariable");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 23);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 24);
+    }
+
     private void validateTupleVarDefWithUnitionComplexResults(BValue[] returns) {
         Assert.assertEquals(returns.length, 3);
 
@@ -364,7 +372,7 @@ public class TupleVariableDefinitionTest {
 
     @Test
     public void testNegativeTupleVariables() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 23);
+        Assert.assertEquals(resultNegative.getErrorCount(), 24);
         int i = -1;
         String errorMsg1 = "invalid tuple binding pattern; member variable count mismatch with member type count";
         String errorMsg2 = "invalid tuple variable; expecting a tuple type but found ";
@@ -395,5 +403,7 @@ public class TupleVariableDefinitionTest {
         BAssertUtil.validateError(resultNegative, ++i, errorMsg2 + "'any' in type definition", 91, 40);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected '((string,(int,(boolean,int))),(float,int))', found 'any'", 101, 84);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "no new variables on left side", 106, 26);
     }
 }

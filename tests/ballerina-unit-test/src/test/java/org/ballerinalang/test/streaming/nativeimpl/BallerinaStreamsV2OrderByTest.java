@@ -39,7 +39,7 @@ public class BallerinaStreamsV2OrderByTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/streaming/native/streamingv2-orderby-test.bal");
+        result = BCompileUtil.compile("test-src/streaming/native/streamingv2-native-orderby-test.bal");
     }
 
     @Test(description = "Test streaming query with OrderBy.")

@@ -21,7 +21,7 @@ function inttofloat(int value) returns (float) {
 function stringtoint(string value) returns (int|error) {
     int result;
     //string to int should be a unsafe conversion
-    result = check int.create(value);
+    result = check int.convert(value);
     return result;
 }
 
@@ -35,7 +35,7 @@ function testJsonIntToString() returns (string|error) {
 function stringtofloat(string value) returns (float|error) {
     float result;
     //string to float should be a conversion
-    result = check float.create(value);
+    result = check float.convert(value);
     return result;
 }
 
@@ -78,7 +78,7 @@ function anyjsontostring() returns (string) {
     json j = {"a":"b"};
     any value = j;
     string result;
-    result = string.create(value);
+    result = string.convert(value);
     return result;
 }
 
@@ -91,7 +91,7 @@ function testJsonToStringCast() returns (string|error) {
 
 function testJSONObjectToStringCast() returns (string | error) {
     json j = {"foo":"bar"};
-    var value = string.create(j);
+    var value = string.convert(j);
     //TODO : Handle error
 
     return value;
@@ -213,35 +213,35 @@ function testMapToAny() returns (any) {
 function testBooleanInJsonToInt() returns int|error {
     json j = true;
     int value;
-    value = check int.create(j);
+    value = check int.convert(j);
     return value;
 }
 
 function testIncompatibleJsonToInt() returns (int|error) {
     json j = "hello";
     int value;
-    value = check int.create(j);
+    value = check int.convert(j);
     return value;
 }
 
 function testIntInJsonToFloat() returns (float|error) {
     json j = 7;
     float value;
-    value = check float.create(j);
+    value = check float.convert(j);
     return value;
 }
 
 function testIncompatibleJsonToFloat() returns (float|error) {
     json j = "hello";
     float value;
-    value = check float.create(j);
+    value = check float.convert(j);
     return value;
 }
 
 function testIncompatibleJsonToBoolean() returns (boolean|error) {
     json j = "hello";
     boolean value;
-    value = check boolean.create(j);
+    value = check boolean.convert(j);
     return value;
 }
 
@@ -328,7 +328,7 @@ function testAnyStructToJson() returns json {
 function testAnyNullToJson() returns (json|error) {
     any a = null;
     json value;
-    value = check json.create(a);
+    value = check json.convert(a);
     return value;
 }
 
@@ -378,7 +378,7 @@ function testCompatibleStructForceCasting() returns (A | error) {
 
 function testInCompatibleStructForceCasting() returns (A | error) {
     B b = {x: "x-valueof-b"};
-    A a = check A.create(b);
+    A a = check A.convert(b);
 
     //TODO Handle error
 
@@ -479,7 +479,7 @@ function testAnyToMapWithErrors() returns (map<any> | error) {
 function testAnyNullToString() returns (string) {
     any a = null;
     string s;
-    s = string.create(a);
+    s = string.convert(a);
     return s;
 }
 

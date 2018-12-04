@@ -24,7 +24,7 @@ service contentBasedRouting on new http:Listener(9090) {
             (http:Response|error|()) clientResponse;
 
             if (nameString == "sanFrancisco") {
-                //Here, `post` represents the POST action of the HTTP client connector.
+                //Here, `post` represents the POST remote function of the HTTP client connector.
                 //This routes the payload to the relevant service when the server accepts the enclosed entity.
                 clientResponse =
                         locationEP->post("/v2/594e018c1100002811d6d39a", ());

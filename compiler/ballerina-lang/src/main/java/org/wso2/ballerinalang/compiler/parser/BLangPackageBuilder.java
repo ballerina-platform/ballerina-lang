@@ -361,6 +361,8 @@ public class BLangPackageBuilder {
 
     private Stack<Set<Whitespace>> finiteTypeWsStack = new Stack<>();
 
+    private Stack<Set<Whitespace>> workerDefinitionWSStack = new Stack<>();
+
     private BLangAnonymousModelHelper anonymousModelHelper;
     private CompilerOptions compilerOptions;
 
@@ -834,6 +836,7 @@ public class BLangPackageBuilder {
         BLangRecordVarRefKeyValue keyValue = new BLangRecordVarRefKeyValue();
         keyValue.variableName = (BLangIdentifier) createIdentifier(identifier);
         keyValue.variableReference = expression;
+        keyValue.variableReference.addWS(ws);
         this.recordVarRefListStack.peek().add(keyValue);
     }
 
@@ -1440,11 +1443,6 @@ public class BLangPackageBuilder {
         addExpressionNode(binaryExpressionNode);
     }
 
-    void createUnderscoreIdentifierExpr(DiagnosticPos pos, Set<Whitespace> ws) {
-        addNameReference(pos, ws, null, "_");
-        createSimpleVariableReference(pos, ws);
-    }
-
     void createElvisExpr(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangElvisExpr elvisExpr = (BLangElvisExpr) TreeBuilder.createElvisExpressionNode();
         elvisExpr.pos = pos;
@@ -1570,6 +1568,11 @@ public class BLangPackageBuilder {
     }
 
     void addWorker(DiagnosticPos pos, Set<Whitespace> ws, String workerName, boolean retParamsAvail) {
+        // Merge worker definition whitespaces and worker declaration whitespaces.
+        if (this.workerDefinitionWSStack.size() > 0 && ws != null) {
+            ws.addAll(this.workerDefinitionWSStack.pop());
+        }
+
         endCallableUnitBody(ws);
         // change default worker name
         ((BLangFunction) this.invokableNodeStack.peek()).defaultWorkerName.value = workerName;
@@ -1593,7 +1596,7 @@ public class BLangPackageBuilder {
     }
 
     void attachWorkerWS(Set<Whitespace> ws) {
-        //TODO: attach ws to
+        this.workerDefinitionWSStack.push(ws);
     }
 
     void startForkJoinStmt() {
@@ -2585,7 +2588,7 @@ public class BLangPackageBuilder {
     }
 
     void endServiceDef(DiagnosticPos pos, Set<Whitespace> ws, String serviceName, DiagnosticPos identifierPos,
-            boolean isAnonServiceValue) {
+                       boolean isAnonServiceValue) {
         // Any Service can be represented in two major components.
         //  1) A anonymous type node (Object)
         //  2) Variable assignment with "serviceName".

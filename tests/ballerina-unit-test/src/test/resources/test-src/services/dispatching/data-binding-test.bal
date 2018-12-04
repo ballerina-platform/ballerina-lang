@@ -87,11 +87,11 @@ service echo on testEP {
         body: "persons"
     }
     resource function body8(http:Caller caller, http:Request req, Person[] persons) {
-        var jsonPayload = json.create(persons);
+        var jsonPayload = json.convert(persons);
         if (jsonPayload is json) {
             _ = caller->respond(untaint jsonPayload);
         } else if (jsonPayload is error) {
-            _ = caller->respond(untaint string.create(jsonPayload.detail().message));
+            _ = caller->respond(untaint string.convert(jsonPayload.detail().message));
         }
     }
 }

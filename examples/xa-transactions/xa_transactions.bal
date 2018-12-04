@@ -32,7 +32,7 @@ public function main() {
 
     // Begins the transaction.
     transaction {
-        // This is the first action to participate in the transaction. It inserts
+        // This is the first remote function to participate in the transaction. It inserts
         // customer name to the first DB and gets the generated key.
         var result = testDB1->updateWithGeneratedKeys("INSERT INTO
                                 CUSTOMER(NAME) VALUES ('Anne')", ());
@@ -55,7 +55,7 @@ public function main() {
             io:println("Converting key to string failed: " + ret.reason());
         }
         io:println("Generated key for the inserted row: " + key);
-        // This is the second action to participate in the transaction. It inserts the
+        // This is the second remote function to participate in the transaction. It inserts the
         // salary info to the second DB along with the key generated in the first DB.
         ret = testDB2->update("INSERT INTO SALARY (ID, VALUE) VALUES (?, ?)",
                                     key, 2500);

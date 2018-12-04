@@ -94,4 +94,11 @@ public class WaitForOneActionsTest {
     public void waitTest8() {
         BRunUtil.invoke(result, "waitTest8");
     }
+
+    @Test
+    public void waitTest9() {
+        BValue[] vals = BRunUtil.invoke(result, "waitTest9", new BValue[0]);
+        Assert.assertEquals(vals.length, 1);
+        Assert.assertEquals(vals[0], null);
+    }
 }

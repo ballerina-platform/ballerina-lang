@@ -50,7 +50,7 @@ function testGeneratedKeyOnInsert() returns (string) {
         (_, generatedID) = x;
         ret = generatedID[0];
     } else if (x is error) {
-        ret = string.create(x.detail().message);
+        ret = string.convert(x.detail().message);
     }
     testDB.stop();
     return ret;
@@ -68,7 +68,7 @@ function testCallProcedure() returns (string) {
     var x = trap testDB->call("{call InsertPersonDataInfo(100,'James')}", ());
 
     if (x is table<record {}>[]) {
-        var j = json.create(x[0]);
+        var j = json.convert(x[0]);
         if (j is json) {
             returnData = io:sprintf("%s", j);
         } else if (j is error) {
@@ -120,7 +120,7 @@ function testBatchUpdate() returns (string) {
             returnVal = "success";
         }
     } else if (x is error) {
-        returnVal = string.create(x.detail().message);
+        returnVal = string.convert(x.detail().message);
     }
     testDB.stop();
     return returnVal;
@@ -143,14 +143,14 @@ function testInvalidArrayofQueryParameters() returns (string) {
     var x = trap testDB->select("SELECT FirstName from Customers where registrationID in (?)", (), para0);
 
     if (x is table<record {}>) {
-        var j = json.create(x);
+        var j = json.convert(x);
         if (j is json) {
             returnData = io:sprintf("%s", j);
         } else {
             returnData = j.reason();
         }
     } else if (x is error) {
-        returnData = string.create(x.detail().message);
+        returnData = string.convert(x.detail().message);
     }
     testDB.stop();
     return returnData;
@@ -271,14 +271,14 @@ function testCallProcedureWithMultipleResultSetsAndNilConstraintCount()
 function getJsonConversionResult(table<record {}>|error tableOrError) returns json {
     json retVal = {};
     if (tableOrError is table<record {}>) {
-        var jsonConversionResult = json.create(tableOrError);
+        var jsonConversionResult = json.convert(tableOrError);
         if (jsonConversionResult is json) {
             retVal = jsonConversionResult;
         } else if (jsonConversionResult is error) {
-            retVal = {"Error" : string.create(jsonConversionResult.detail().message)};
+            retVal = {"Error" : string.convert(jsonConversionResult.detail().message)};
         }
     } else if (tableOrError is error) {
-        retVal = {"Error" : string.create(tableOrError.detail().message)};
+        retVal = {"Error" : string.convert(tableOrError.detail().message)};
     }
     return retVal;
 }

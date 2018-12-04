@@ -28,7 +28,7 @@ public function main() {
     // is retried before aborting it. By default, a transaction is tried three times before
     // aborting. Only integer literals or constants are allowed for `retry count`.
     transaction with retries = 4 {
-    // This is the first action participant in the transaction.
+    // This is the first remote function participant in the transaction.
         var count = testDB->update("INSERT INTO CUSTOMER(ID,NAME)
                                      VALUES (1, 'Anne')");
         // This is the second action participant in the transaction.

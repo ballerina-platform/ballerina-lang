@@ -269,6 +269,14 @@ function foo() returns string {
 function singleMatchStmt() returns string {
     any k = 1;
     match k {
-        _ => return "A"; //pattern will always be matched
+        _ => return "A"; // pattern will always be matched
+    }
+}
+
+function invalidSimpleVariable() returns string {
+    any k = 1;
+    match k {
+        10 => return "A"; // pattern will always be matched
+        a => return "A"; // invalid literal for match pattern
     }
 }

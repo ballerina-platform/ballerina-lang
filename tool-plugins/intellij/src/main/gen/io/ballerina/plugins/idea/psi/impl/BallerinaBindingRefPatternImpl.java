@@ -43,6 +43,12 @@ public class BallerinaBindingRefPatternImpl extends BallerinaCompositeElementImp
 
   @Override
   @Nullable
+  public BallerinaErrorRefBindingPattern getErrorRefBindingPattern() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaErrorRefBindingPattern.class);
+  }
+
+  @Override
+  @Nullable
   public BallerinaStructuredRefBindingPattern getStructuredRefBindingPattern() {
     return PsiTreeUtil.getChildOfType(this, BallerinaStructuredRefBindingPattern.class);
   }
@@ -51,6 +57,12 @@ public class BallerinaBindingRefPatternImpl extends BallerinaCompositeElementImp
   @Nullable
   public BallerinaVariableReference getVariableReference() {
     return PsiTreeUtil.getChildOfType(this, BallerinaVariableReference.class);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getUnderscore() {
+    return findChildByType(UNDERSCORE);
   }
 
 }

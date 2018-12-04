@@ -46,7 +46,7 @@ public function main() {
     // If the fields and the rest descriptor are of same type (or if it is a closed record, the rest descriptor does not matter),
     // the variable will also be of that same type. If not, the variable will be an `any` variable.
     int total = 0;
-    foreach subj, grade in s1.grades {
+    foreach var (subj, grade) in s1.grades {
         total += grade;
         io:println(subj + " : " + grade);
     }

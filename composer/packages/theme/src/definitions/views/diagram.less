@@ -34,13 +34,41 @@
                         rect {
                             fill: ~"@{@{color}-diagram-life-line-head-background-color}";
                             stroke: ~"@{@{color}-diagram-life-line-head-stroke-color}";
+                            stroke-width: 0; 
                         }
                         text {
                             fill: ~"@{@{color}-diagram-life-line-text-color}";
                             stroke-width: 0;
                             text-anchor: middle;
                         }
+
+                        &.life-line-worker{
+                            stroke: #257AA8;
+                            color: #257AA8;
+
+                            rect {
+                                fill: #257AA8;
+                            }
+                            text{
+                                fill: #257AA8;
+                            }
+                        }
+                        &.life-line-endpoint{
+                            stroke: @teal;
+                            color:@teal;
+
+                            rect {
+                                fill: @teal;
+                            }
+                            text{
+                                fill: @teal;
+                            }
+                        }
                     }
+                    .endpoint-activity {
+                        fill: @teal;
+                    }
+
                     .condition {
                         .label {
                             text-anchor: middle;
@@ -73,24 +101,49 @@
                         }
                         fill: ~"@{@{color}-diagram-arrow-head-color}";
                     }
+                    .start-invocation {
+                        line {
+                            stroke: ~"@{@{color}-diagram-arrow-head-color}";
+                            stroke-width: 1px;
+                        }
+                    }
+                }
+            }
+
+            .svg-dropdown-menu {
+                .trigger {
+                    fill: ~"@{@{color}-diagram-menu-trigger-background-color}";
+                    text {
+                        fill: ~"@{@{color}-diagram-menu-trigger-text-color}";
+                    }
+                    &:hover {
+                        fill-opacity: 0;
+                    }
+                }
+                .content {
+                    .item {
+                        cursor: pointer;
+                        fill: ~"@{@{color}-diagram-menu-item-background-color}";
+                        text {
+                            fill: ~"@{@{color}-diagram-menu-item-text-color}";
+                        }
+                        &:hover {
+                            .item-body {
+                                fill: ~"@{@{color}-diagram-menu-item-hover-background-color}";
+                            }
+                        }
+                    }
                 }
             }
             .svg-button {
                 cursor: pointer;
-                &.circle {
-                    circle {
-                        fill: ~"@{@{color}-diagram-button-background-color}";
-                    }
-                    text {
-                        fill: ~"@{@{color}-diagram-button-text-color}";
-                    }
+                fill: ~"@{@{color}-diagram-svg-button-background-color}";
+                text {
+                    fill: ~"@{@{color}-diagram-svg-button-text-color}";
+                    text-anchor: middle;
                 }
                 &:hover {
-                    &.circle {
-                        circle {
-                            fill-opacity: 0.8;
-                        }
-                    }
+                    fill-opacity: 0.8;
                 }
             }
         }
@@ -98,7 +151,7 @@
         .diagram-controllers {
             .ui.menu.top-menu {
                 padding: 10px;
-
+                width: 100%;
                 .item {
                     padding: 0;
                     margin-right: 5px;

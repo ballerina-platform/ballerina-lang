@@ -2,7 +2,7 @@ import ballerina/io;
 
 // The 'test' function acts as a variable function pointer in the 'main' function
 function test(int x, string s) returns (float) {
-    int|error y = int.create(s);
+    int|error y = int.convert(s);
     float f = 0.0;
 
     if (y is int) {

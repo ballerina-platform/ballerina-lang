@@ -1,6 +1,6 @@
 @test:Config
 function ${testServiceFunctionName} () {
-    http:WebSocketClient wsEndpoint = new(
+    http:WebSocketClient ${endpointName} = new(
         ${serviceUriStrName},
         config = {
             callbackService: ${callbackServiceName},
@@ -13,7 +13,7 @@ function ${testServiceFunctionName} () {
             readyOnConnect: false
     });
     //Send a message
-    _ = wsEndpoint->pushText("hey");
+    _ = ${endpointName}->pushText("hey");
 }
 
 service ${callbackServiceName} = @http:WebSocketServiceConfig {} service {
