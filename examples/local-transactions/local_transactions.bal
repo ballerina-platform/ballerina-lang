@@ -2,13 +2,13 @@ import ballerina/io;
 import ballerina/h2;
 
 // Create an endpoint for H2 database. Change the DB details before running the sample.
-endpoint h2:Client testDB {
+h2:Client testDB = new ({
     path: "./local-transactions/",
     name: "Testdb",
     username: "test",
     password: "test",
     poolOptions: { maximumPoolSize: 5 }
-};
+});
 
 public function main() {
     // Create the tables required for the transaction.
@@ -27,31 +27,25 @@ public function main() {
     // The retry count that is given with `retries` is the number of times the transaction
     // is retried before aborting it. By default, a transaction is tried three times before
     // aborting. Only integer literals or constants are allowed for `retry count`.
-    // Two functions can be registered with `oncommit` and `onabort`. Those functions will be
-    // executed at the end when the transaction is either aborted or committed.
-    transaction with retries = 4, oncommit = onCommitFunction,
-                                  onabort = onAbortFunction {
+    transaction with retries = 4 {
     // This is the first action participant in the transaction.
-        var result = testDB->update("INSERT INTO CUSTOMER(ID,NAME)
+        var count = testDB->update("INSERT INTO CUSTOMER(ID,NAME)
                                      VALUES (1, 'Anne')");
         // This is the second action participant in the transaction.
-        result = testDB->update("INSERT INTO SALARY (ID, MON_SALARY)
+        count = testDB->update("INSERT INTO SALARY (ID, MON_SALARY)
                                  VALUES (1, 2500)");
-        match result {
-            int c => {
-                io:println("Inserted count: " + c);
-                // If the transaction is forced to abort, it will roll back the transaction
-                // and exit the transaction block without retrying.
-                if (c == 0) {
-                    abort;
-                }
+        if (count is int) {
+            io:println("Inserted count: " + count);
+            // If the transaction is forced to abort, it will roll back the transaction
+            // and exit the transaction block without retrying.
+            if (count == 0) {
+                abort;
             }
-            error err => {
-                // If the transaction is forced to retry, it will roll back the transaction,
-                // go to the `onretry` block, and retry from the beginning until the defined
-                // retry count is reached.
-                retry;
-            }
+        } else {
+            // If the transaction is forced to retry, it will roll back the transaction,
+            // go to the `onretry` block, and retry from the beginning until the defined
+            // retry count is reached.
+            retry;
         }
     // The end curly bracket marks the end of the transaction, and the transaction will
     // be committed or rolled back at this point.
@@ -60,6 +54,12 @@ public function main() {
         // reaches the retry count. A transaction could be retried if it fails due to an
         // exception or throw statement, or from an explicit retry statement.
         io:println("Retrying transaction");
+    } committed {
+        // Any action that needs to perform once the transaction is committed should go here.
+        io:println("Transaction committed");
+    } aborted {
+        // Any action that needs to perform if the transaction is aborted should go here.
+        io:println("Transaction aborted");
     }
 
     //Drop the tables.
@@ -73,22 +73,11 @@ public function main() {
     testDB.stop();
 }
 
-// This is the function used as the commit handler of the transaction block. Any action
-// that needs to perform once the transaction is committed should go here.
-function onCommitFunction(string transactionId) {
-    io:println("Transaction: " + transactionId + " committed");
-}
-
-// This is the function used as the abort handler of the transaction block. Any action
-// that needs to perform if the transaction is aborted should go here.
-function onAbortFunction(string transactionId) {
-    io:println("Transaction: " + transactionId + " aborted");
-}
-
 // Function to handle return of the update operation.
 function handleUpdate(int|error returned, string message) {
-    match returned {
-        int retInt => io:println(message + " status: " + retInt);
-        error err => io:println(message + " failed: " + err.message);
+    if (returned is int) {
+        io:println(message + " status: " + returned);
+    } else {
+        io:println(message + " failed: " + returned.reason());
     }
 }

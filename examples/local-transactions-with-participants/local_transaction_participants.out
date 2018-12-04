@@ -1,0 +1,15 @@
+# At the command line, navigate to the directory that contains the
+# `.bal` file and run the `ballerina run` command.
+$ ballerina run local_transaction_participants.bal
+[ballerina/http] started HTTP/WS endpoint 172.17.0.1:65197
+Create CUSTOMER table status: 0
+2018-12-04 12:04:34,024 INFO  [ballerina/log] - Created transaction: 9957e2fb-8e68-4662-9dc5-c88e15a13019
+2018-12-04 12:04:34,036 INFO  [ballerina/log] - Registered local participant: 4e72f356-8c60-45f1-97de-d13aff760141:$anon$.$2 for transaction:9957e2fb-8e68-4662-9dc5-c88e15a13019
+Invoke local participant function.
+Inserted count: 1
+2018-12-04 12:04:34,040 INFO  [ballerina/log] - Running 2-phase commit for transaction: 9957e2fb-8e68-4662-9dc5-c88e15a13019:$anon$.$1
+2018-12-04 12:04:34,047 INFO  [ballerina/log] - Preparing local participant: 4e72f356-8c60-45f1-97de-d13aff760141:$anon$.$2
+2018-12-04 12:04:34,048 INFO  [ballerina/log] - Local participant: 4e72f356-8c60-45f1-97de-d13aff760141:$anon$.$2 prepared
+Local participant committed function handler...
+Transaction committed
+Drop table CUSTOMER status: 0

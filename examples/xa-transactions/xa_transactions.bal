@@ -3,23 +3,23 @@ import ballerina/h2;
 
 // Create an endpoint for the first database named testdb1. Since this endpoint
 // participates in a distributed transaction, the `isXA` property should be true.
-endpoint h2:Client testDB1 {
+h2:Client testDB1 = new({
     path: "./xa-transactions/",
     name: "Testdb1",
     username: "test",
     password: "test",
     poolOptions: { maximumPoolSize: 5, isXA: true }
-};
+});
 
 // Create an endpoint for the second database named testdb2. Since this endpoint
 // participates in a distributed transaction, the `isXA` property should be true.
-endpoint h2:Client testDB2 {
+h2:Client testDB2 = new({
     path: "./xa-transactions/",
     name: "Testdb2",
     username: "test",
     password: "test",
     poolOptions: { maximumPoolSize: 5, isXA: true }
-};
+});
 
 public function main() {
     // Create the table named CUSTOMER in the first database.
@@ -31,31 +31,28 @@ public function main() {
     handleUpdate(ret, "Create SALARY table");
 
     // Begins the transaction.
-    transaction with oncommit = onCommitFunction,
-                     onabort = onAbortFunction {
+    transaction {
         // This is the first action to participate in the transaction. It inserts
         // customer name to the first DB and gets the generated key.
-        var retWithKey = testDB1->updateWithGeneratedKeys("INSERT INTO
+        var result = testDB1->updateWithGeneratedKeys("INSERT INTO
                                 CUSTOMER(NAME) VALUES ('Anne')", ());
-        string generatedKey;
-        match retWithKey {
-            (int, string[]) y => {
-                var (count, ids) = y;
-                generatedKey = ids[0];
-                io:println("Inserted row count: " + count);
-                io:println("Generated key: " + generatedKey);
-            }
-            error err => io:println("Insert to student table failed: "
-                                    + err.message);
+        string generatedKey = "";
+        if (result is (int, string[])) {
+            var (count, ids) = result;
+            generatedKey = ids[0];
+            io:println("Inserted row count: " + count);
+            io:println("Generated key: " + generatedKey);
+        } else {
+            io:println("Insert to student table failed: " + result.reason());
         }
 
         //Converte the returned key into integer.
-        ret = <int>generatedKey;
+        ret = int.create(generatedKey);
         int key = -1;
-        match ret {
-            int retInt => key = retInt;
-            error err => io:println("Converting key to string failed: "
-                                    + err.message);
+        if (ret is int) {
+            key = ret;
+        } else {
+            io:println("Converting key to string failed: " + ret.reason());
         }
         io:println("Generated key for the inserted row: " + key);
         // This is the second action to participate in the transaction. It inserts the
@@ -65,6 +62,10 @@ public function main() {
         handleUpdate(ret, "Insert to SALARY table");
     } onretry {
         io:println("Retrying transaction");
+    } committed {
+        io:println("Transaction committed");
+    } aborted {
+        io:println("Transaction aborted");
     }
 
     // Drop the tables created for this sample.
@@ -89,8 +90,9 @@ function onAbortFunction(string transactionId) {
 
 // Function to handle return of the update operation.
 function handleUpdate(int|error returned, string message) {
-    match returned {
-        int retInt => io:println(message + " status: " + retInt);
-        error err => io:println(message + " failed: " + err.message);
+    if (returned is int) {
+        io:println(message + " status: " + returned);
+    } else {
+        io:println(message + " failed: " + returned.reason());
     }
 }

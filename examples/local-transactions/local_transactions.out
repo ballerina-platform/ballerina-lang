@@ -1,13 +1,25 @@
 # At the command line, navigate to the directory that contains the
 # `.bal` file and run the `ballerina run` command.
 $ ballerina run local_transactions.bal
-[ballerina/http] started HTTP/WS endpoint 172.17.0.1:23521
-Create CUSTOMER table status: 0
-Create SALARY table status: 0
-2018-10-30 10:14:54,028 INFO  [ballerina/transactions] - Created transaction: 4ed06263-f940-4d58-b44e-1baab3f67d39
-Inserted count: 1
-2018-10-30 10:14:54,033 INFO  [ballerina/transactions] - Running 2-phase commit for transaction: 4ed06263-f940-4d58-b44e-1baab3f67d39:1
-Transaction: 4ed06263-f940-4d58-b44e-1baab3f67d39:1 committed
-Drop table CUSTOMER status: 0
-Drop table SALARY status: 0
-[ballerina/http] stopped HTTP/WS endpoint 172.17.0.1:23521
+[ballerina/http] started HTTP/WS endpoint 172.17.0.1:49479
+2018-12-04 13:14:32,937 INFO  [ballerina/log] - Created transaction: 9bb20db2-f7ab-4ba2-8231-e3db11fa9935
+2018-12-04 13:14:32,952 INFO  [ballerina/log] - Registered local participant: aa817f3d-fbfa-4e2b-bede-a85c295bc29a:$anon$.$2 for transaction:9bb20db2-f7ab-4ba2-8231-e3db11fa9935
+Invoke local participant function.
+Local participant panicked.
+2018-12-04 13:14:32,958 INFO  [ballerina/log] - Running 2-phase commit for transaction: 9bb20db2-f7ab-4ba2-8231-e3db11fa9935:$anon$.$1
+2018-12-04 13:14:32,959 INFO  [ballerina/log] - Local prepare failed, aborting..
+Retrying transaction
+2018-12-04 13:14:32,966 INFO  [ballerina/log] - Created transaction: 2feaa246-fdeb-49a1-a4f7-9d0320ef4bc4
+2018-12-04 13:14:32,967 INFO  [ballerina/log] - Registered local participant: aa817f3d-fbfa-4e2b-bede-a85c295bc29a:$anon$.$2 for transaction:2feaa246-fdeb-49a1-a4f7-9d0320ef4bc4
+Invoke local participant function.
+Local participant panicked.
+2018-12-04 13:14:32,969 INFO  [ballerina/log] - Running 2-phase commit for transaction: 2feaa246-fdeb-49a1-a4f7-9d0320ef4bc4:$anon$.$1
+2018-12-04 13:14:32,969 INFO  [ballerina/log] - Local prepare failed, aborting..
+Retrying transaction
+2018-12-04 13:14:32,971 INFO  [ballerina/log] - Created transaction: 81e7c32a-3282-4774-a3ce-6eacca86e143
+2018-12-04 13:14:32,972 INFO  [ballerina/log] - Registered local participant: aa817f3d-fbfa-4e2b-bede-a85c295bc29a:$anon$.$2 for transaction:81e7c32a-3282-4774-a3ce-6eacca86e143
+Invoke local participant function.
+Local participant panicked.
+2018-12-04 13:14:32,973 INFO  [ballerina/log] - Running 2-phase commit for transaction: 81e7c32a-3282-4774-a3ce-6eacca86e143:$anon$.$1
+2018-12-04 13:14:33,001 INFO  [ballerina/log] - Local prepare failed, aborting..
+Transaction aborted
