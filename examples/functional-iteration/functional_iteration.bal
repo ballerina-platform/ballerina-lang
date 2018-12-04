@@ -27,7 +27,7 @@ public function main() {
     map<json> j = { name: "apple", colors: ["red", "green"], price: 5 };
     j.map(function ((string, json) pair) returns string {
             var (key, value) = pair;
-            string s = value.toString();
+            string result = value.toString();
             io:println("- map operation's value: ", s);
             return s;
         }).foreach(function (string s) {
