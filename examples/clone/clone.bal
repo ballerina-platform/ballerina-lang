@@ -15,6 +15,7 @@ public type Address record {
     string street;
 };
 
+// returned value is only used for ballerina tests.
 public function main() returns (Person, Person, string) {
     Address address = {
         country : "USA",
