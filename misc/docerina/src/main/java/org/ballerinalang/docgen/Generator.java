@@ -43,11 +43,7 @@ import org.ballerinalang.model.tree.DocumentableNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.types.TypeNode;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -374,41 +370,6 @@ public class Generator {
         }
 
         return new ConstantDoc(constantName, value, desc, typeNodeType, href);
-    }
-
-    private static Field getVariableForType(String name, BType param) {
-        BTypeSymbol type = param.tsymbol;
-        if (type != null && type.type != null) {
-            return new Field(name, type.type.toString(), EMPTY_STRING, EMPTY_STRING, extractLink(type.type));
-        } else {
-            return new Field(name, param.toString(), EMPTY_STRING, EMPTY_STRING, extractLink(param));
-        }
-    }
-
-    private static FunctionDoc createDocForType(BInvokableSymbol invokable) {
-        String name = invokable.name.value;
-        name = name.substring(name.indexOf('.') + 1);
-        List<Field> parameters = new ArrayList<>();
-        List<Variable> returnParams = new ArrayList<>();
-        // Iterate through the parameters
-        for (BVarSymbol param : invokable.getParameters()) {
-            Field variable = getVariableForType(param.name.toString(), param.type);
-            parameters.add(variable);
-        }
-
-        for (BVarSymbol param : invokable.getDefaultableParameters()) {
-            Field variable = getVariableForType(param.name.toString(), param.type);
-            parameters.add(variable);
-        }
-        if (null != invokable.retType) {
-            returnParams.add(getVariableForType(EMPTY_STRING, invokable.retType));
-        } else if (invokable.type instanceof BInvokableType) {
-            BInvokableType invokableType = (BInvokableType) invokable.type;
-            returnParams.add(getVariableForType(EMPTY_STRING, invokableType.retType));
-        }
-    
-        return new FunctionDoc(name, invokable.markdownDocumentation.description, new ArrayList<>(), parameters,
-                returnParams);
     }
 
     /**
