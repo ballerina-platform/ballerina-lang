@@ -154,7 +154,7 @@ public class ModuleBuildTestCase extends BaseTest {
         // Create empty directory
         createEmptyDir(projectPath.resolve("emptypkg"));
 
-        LogLeecher clientLeecher = new LogLeecher("error: no ballerina source files found in module emptypkg",
+        LogLeecher clientLeecher = new LogLeecher("error: no ballerina source files found in module 'emptypkg'",
                                                   LeecherType.ERROR);
         balClient.runMain("build", new String[]{"emptypkg"}, envVariables, new String[0],
                           new LogLeecher[]{clientLeecher}, projectPath.toString());
@@ -174,7 +174,7 @@ public class ModuleBuildTestCase extends BaseTest {
         // Create empty directory
         createDirWithTextFile(projectPath);
 
-        LogLeecher clientLeecher = new LogLeecher("error: no ballerina source files found in module otherpkg",
+        LogLeecher clientLeecher = new LogLeecher("error: no ballerina source files found in module 'otherpkg'",
                                                   LeecherType.ERROR);
         balClient.runMain("build", new String[]{"otherpkg"}, envVariables, new String[0],
                           new LogLeecher[]{clientLeecher}, projectPath.toString());

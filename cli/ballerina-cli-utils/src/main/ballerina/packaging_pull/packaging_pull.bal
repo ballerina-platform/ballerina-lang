@@ -131,11 +131,11 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
     } else if (statusCode != "200") {
         var resp = httpResponse.getJsonPayload();
         if (resp is json) {
-            if (!(statusCode == "404" && isBuild)) {
-                return createError(resp.message.toString());
-            } else {
+            if (statusCode == "404" && isBuild && resp.message.toString().contains("could not find module")) {
                 // To ignore printing the error
                 return createError("");
+            } else {
+                return createError(resp.message.toString());
             }
         } else {
             return createError("error occurred when pulling the module");

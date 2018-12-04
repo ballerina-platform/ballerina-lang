@@ -331,10 +331,6 @@ export class ASTKindChecker {
     return node.kind === "TernaryExpr";
   }
 
-  public static isThrow(node: ASTNode) {
-    return node.kind === "Throw";
-  }
-
   public static isTransaction(node: ASTNode) {
     return node.kind === "Transaction";
   }

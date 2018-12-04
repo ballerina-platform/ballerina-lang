@@ -24,9 +24,9 @@ import ballerina/sql;
 # + poolOptions - Properties for the connection pool configuration. Refer `sql:PoolOptions` for more details
 # + dbOptions - A map of DB specific properties
 public type InMemoryConfig record {
-    string name = "";
-    string username = "";
-    string password = "";
+    string name;
+    string username;
+    string password;
     sql:PoolOptions poolOptions = {};
     map<any> dbOptions = {};
     !...
@@ -42,7 +42,7 @@ public type InMemoryConfig record {
 # + poolOptions - Properties for the connection pool configuration. Refer `sql:PoolOptions` for more details
 # + dbOptions - A map of DB specific properties
 public type ServerModeConfig record {
-    string host = "";
+    string host;
     int port = 9092;
     *InMemoryConfig;
     !...
@@ -57,7 +57,7 @@ public type ServerModeConfig record {
 # + poolOptions - Properties for the connection pool configuration. Refer `sql:PoolOptions` for more details
 # + dbOptions - A map of DB specific properties
 public type EmbeddedModeConfig record {
-    string path = "";
+    string path;
     *InMemoryConfig;
     !...
 };
