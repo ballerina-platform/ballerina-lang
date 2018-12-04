@@ -4349,7 +4349,7 @@ public class BVM {
             callbacks[i] = (SafeStrandCallback) future.value().respCallback;
         }
         strand.createWaitHandler(c, null);
-        return CallbackReturnHandler.handleReturn(strand, expType, retValReg, callbacks);
+        return WaitCallbackHandler.handleReturnInWait(strand, expType, retValReg, callbacks);
     }
 
     private static Strand execWaitForAll(Strand strand, int[] operands) {
@@ -4359,7 +4359,7 @@ public class BVM {
         BType expType = typeEntry.getType();
         int retValReg = operands[2];
 
-        HashMap<Integer, SafeStrandCallback> callbackHashMap = new HashMap<>();
+        List<SafeStrandCallback.WaitMultipleCallback> callbackList = new ArrayList<>();
         for (int i = 0; i < c; i = i + 2) {
             int index = i + 3;
             // Get the key
@@ -4367,10 +4367,15 @@ public class BVM {
             // Get the expression followed
             int futureReg = operands[index + 1];
             BFuture future = (BFuture) strand.currentFrame.refRegs[futureReg];
-            callbackHashMap.put(keyRegIndex, (SafeStrandCallback) future.value().respCallback);
+            callbackList.add(new SafeStrandCallback.WaitMultipleCallback(keyRegIndex,
+                                                                         (SafeStrandCallback) future.value().
+                                                                                 respCallback));
         }
-        strand.createWaitHandler(c,  new ArrayList(callbackHashMap.keySet()));
-        return CallbackReturnHandler.handleReturn(strand, retValReg, callbackHashMap);
+        strand.createWaitHandler(c, new ArrayList(callbackList.stream()
+                                                              .map(SafeStrandCallback.WaitMultipleCallback::
+                                                                            getKeyRegIndex)
+                                                              .collect(Collectors.toList())));
+        return WaitCallbackHandler.handleReturnInWaitMultiple(strand, retValReg, callbackList);
     }
     /**
      * This is used to propagate the results of {@link BVM#handleError(Strand)} to the
@@ -4840,7 +4845,7 @@ public class BVM {
         return true;
     }
 
-    private static boolean checkIsType(BValue sourceVal, BType targetType) {
+    public static boolean checkIsType(BValue sourceVal, BType targetType) {
         if (isMutable(sourceVal)) {
             BType sourceType = sourceVal == null ? BTypes.typeNull : sourceVal.getType();
             return checkIsType(sourceType, targetType, new ArrayList<>());
