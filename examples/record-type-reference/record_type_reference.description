@@ -1,4 +1,4 @@
-// Record type referencing provides a way convenient way to copy the fields defined in a record type descriptor
+// Record type referencing provides a convenient way to copy the fields defined in a record type descriptor
 // to another record type descriptor. It is equivalent to explicitly defining those fields in the new type descriptor.
 // If the record being type referenced has fields with explicitly assigned default values, those values would also be
 // copied. A record type descriptor can have multiple type references as well as chained type references.
