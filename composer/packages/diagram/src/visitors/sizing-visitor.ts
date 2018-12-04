@@ -3,69 +3,16 @@ import {
     ExpressionStatement, Foreach, Function, If, Invocation, Return,
     Service, VariableDef, VisibleEndpoint, Visitor, While
 } from "@ballerina/ast-model";
-import * as _ from "lodash";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
 import { EndpointViewState, FunctionViewState, SimpleBBox, StmntViewState, ViewState } from "../view-model";
 import { ReturnViewState } from "../view-model/return";
 
-// Following element is created to calculate the width of a text rendered in an svg.
-// Please see getTextWidth on how we do the calculation.
-const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-svg.setAttribute("style", "border: 0px; visibility: hidden;");
-svg.setAttribute("width", "600");
-svg.setAttribute("height", "50");
-svg.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xlink", "http://www.w3.org/1999/xlink");
-const textElement = document.createElementNS("http://www.w3.org/2000/svg", "text");
-svg.appendChild(textElement);
-document.body.appendChild(svg);
-
 const config: DiagramConfig = DiagramUtils.getConfig();
-
-/**
- * Get width of a given text and processed text
- * considering provided min and max width.
- * @param {string} text
- * @param {number} minWidth
- * @param {number} maxWidth
- * @return {object} {width,text}
- */
-
-function getTextWidth(text: string, minWidth = config.statement.width, maxWidth = config.statement.maxWidth) {
-    textElement.innerHTML = _.escape(text);
-    let width = config.statement.padding.left +
-        textElement.getComputedTextLength() + config.statement.padding.right;
-    // if the width is more then max width crop the text
-    if (width <= minWidth) {
-        // set the width to minimam width
-        width = minWidth;
-    } else if (width > minWidth && width <= maxWidth) {
-        // do nothing
-    } else {
-        // We need to truncate displayText and show an ellipses at the end.
-        const ellipses = "...";
-        let possibleCharactersCount = 0;
-        for (let i = (text.length - 1); i > 1; i--) {
-            if ((config.statement.padding.left + textElement.getSubStringLength(0, i) +
-                config.statement.padding.right) < maxWidth) {
-                possibleCharactersCount = i;
-                break;
-            }
-        }
-        // We need room for the ellipses as well, hence removing 'ellipses.length' no. of characters.
-        text = text.substring(0, (possibleCharactersCount - ellipses.length)) + ellipses; // Appending ellipses.
-
-        width = maxWidth;
-    }
-    return {
-        text,
-        w: width,
-    };
-}
 
 function sizeStatement(node: ASTNode) {
     const viewState: StmntViewState = node.viewState;
-    const label = getTextWidth(ASTUtil.genSource(node));
+    const label = DiagramUtils.getTextWidth(ASTUtil.genSource(node));
     viewState.bBox.h = config.statement.height;
     viewState.bBox.w = (config.statement.width > label.w) ? config.statement.width : label.w;
     viewState.bBox.label = label.text;
@@ -81,7 +28,7 @@ function sizeStatement(node: ASTNode) {
                 viewState.bBox.h = config.statement.actionHeight;
                 let actionName = ASTUtil.genSource(action as Invocation).split("->").pop();
                 actionName = (actionName) ? actionName : "";
-                viewState.bBox.label = getTextWidth(actionName).text;
+                viewState.bBox.label = DiagramUtils.getTextWidth(actionName).text;
                 // Set visible to true so we can only draw used endpoints.
                 (element.viewState as EndpointViewState).visible = true;
                 viewState.isReturn = (element.viewState as EndpointViewState).usedAsClient;

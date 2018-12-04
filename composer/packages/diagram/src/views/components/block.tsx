@@ -22,10 +22,9 @@ export class Block extends React.Component<{ model: BlockNode }, { isHovered: bo
             height: h, width : w + leftMargin, x: x - leftMargin,  y
         };
         statements.push(DiagramUtils.getComponents(model.statements));
+
         return (
-            <g
-                className="panel block"
-            >
+            <g className="worker-block-container">
                 <rect
                     className="hover-rect"
                     {...hoverRectBBox}

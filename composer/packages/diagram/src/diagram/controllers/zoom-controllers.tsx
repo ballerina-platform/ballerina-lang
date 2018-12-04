@@ -11,7 +11,7 @@ export const ZoomControllers: StatelessComponent<{}> = (
     return  (
         <DiagramContext.Consumer>
             {(diagContext) => {
-                return (!diagContext.editingEnabled &&
+                return (
                     <Menu.Item>
                         <Button.Group className="zoom-controllers">
                             <ZoomInButton />

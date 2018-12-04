@@ -2,8 +2,8 @@
        Diagram Globals 
 ----------------------------*/
 
-@diagram-base-light-color: #f1f1f1;
-@diagram-base-dark-color: #1e1e1e;
+@diagram-base-light-color: @offWhite;
+@diagram-base-dark-color: @black;
 
 @diagram-icon-font: "font-ballerina";
 @diagram-font: @fontName, "@{diagram-icon-font}";
@@ -63,24 +63,34 @@
 @light-diagram-life-line-head-text-color: @light-diagram-base-text-color;
 @dark-diagram-life-line-head-text-color: @dark-diagram-base-text-color;
 
+@light-diagram-life-line-worker-stroke-color: @blue;
+@dark-diagram-life-line-worker-stroke-color: @blue;
+@light-diagram-life-line-endpoint-stroke-color: @teal;
+@dark-diagram-life-line-endpoint-stroke-color: @teal;
+@light-diagram-life-line-endpoint-stroke-activity-color: @light-diagram-life-line-endpoint-stroke-color;
+@dark-diagram-life-line-endpoint-stroke-activity-color: @dark-diagram-life-line-endpoint-stroke-color;
+
 @diagram-life-line-stroke-width: @diagram-stroke-width;
 @diagram-life-line-head-font-size: calc(@diagram-font-size + 2px);
 
 
-/*-------------------
-       Condition 
---------------------*/
+/*--- Condition ---*/
 
 @light-diagram-condition-stroke-color: @light-diagram-stroke-color;
 @dark-diagram-condition-stroke-color: @dark-diagram-stroke-color;
+@light-diagram-condition-case-background-color: @light-diagram-background-color;
+@dark-diagram-condition-case-background-color: @dark-diagram-background-color;
 
 @light-diagram-condition-background-color: @white;
 @dark-diagram-condition-background-color: @diagram-base-dark-color;
 @light-diagram-condition-text-color: @light-diagram-stroke-color;
 @dark-diagram-condition-text-color: @dark-diagram-stroke-color;
 
-@light-diagram-condition-line-stroke-color: @light-diagram-stroke-color;
-@dark-diagram-condition-line-stroke-color: @dark-diagram-stroke-color;
+@light-diagram-condition-line-stroke-color: @light-diagram-life-line-worker-stroke-color;
+@dark-diagram-condition-line-stroke-color: @dark-diagram-life-line-worker-stroke-color;
+
+@light-diagram-condition-line-worker-arrow-head-color: @light-diagram-condition-line-stroke-color;
+@dark-diagram-condition-line-worker-arrow-head-color: @dark-diagram-condition-line-stroke-color;
 
 @diagram-condition-stroke-width: @diagram-stroke-width;
 @diagram-condition-line-stroke-width: @diagram-stroke-width;
@@ -90,8 +100,8 @@
        Button 
 --------------------*/
 
-@diagram-svg-button-background-color: #00B5AD;
-@diagram-svg-button-text-color: #fff;
+@diagram-svg-button-background-color: @primaryColor;
+@diagram-svg-button-text-color: @white;
 
 @dark-diagram-svg-button-background-color: @diagram-svg-button-background-color;
 @dark-diagram-svg-button-text-color: @diagram-svg-button-text-color;
@@ -103,8 +113,8 @@
        Menu 
 --------------------*/
 
-@diagram-menu-trigger-background-color: #00B5AD;
-@diagram-menu-trigger-text-color: #fff;
+@diagram-menu-trigger-background-color: @primaryColor;
+@diagram-menu-trigger-text-color: @white;
 
 @dark-diagram-menu-trigger-background-color: @diagram-menu-trigger-background-color;
 @dark-diagram-menu-trigger-text-color: @diagram-menu-trigger-text-color;
