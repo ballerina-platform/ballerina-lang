@@ -1,9 +1,10 @@
 import ballerina/io;
 
 // In Ballerina, each function consists of one or more workers, which are 
-// independent parallel execution code blocks. If explicit workers are not 
-// mentioned with worker blocks, the function code will belong to a single 
-// implicit default worker.
+// independent parallel execution paths called strands. If explicit workers are not 
+// mentioned with worker blocks, the function code will belong to a single implicit
+// default worker. The default worker in each function wil be excuteced in the same 
+// strand as the caller function.
 public function main() {
     io:println("Worker execution started");
     worker w1 {
