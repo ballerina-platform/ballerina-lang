@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
-import org.antlr.v4.runtime.misc.OrderedHashSet;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
@@ -95,6 +94,7 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -487,7 +487,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             List<BType> unionReturnTypes = new ArrayList<>();
             unionReturnTypes.add(targetType);
             unionReturnTypes.add(symTable.errorType);
-            BType returnType = new BUnionType(null, new OrderedHashSet<BType>() {
+            BType returnType = new BUnionType(null, new LinkedHashSet<BType>() {
                 {
                     addAll(unionReturnTypes);
                 }
@@ -657,7 +657,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             unionType.memberTypes.add(symTable.nilType);
             unionType.setNullable(true);
         } else if (typeNode.nullable && resultType.tag != TypeTags.JSON && resultType.tag != TypeTags.ANY) {
-            OrderedHashSet<BType> memberTypes = new OrderedHashSet<BType>() {{
+            LinkedHashSet<BType> memberTypes = new LinkedHashSet<BType>() {{
                 add(resultType);
                 add(symTable.nilType);
             }};
@@ -848,13 +848,13 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public void visit(BLangUnionTypeNode unionTypeNode) {
-        OrderedHashSet<BType> memberTypes = unionTypeNode.memberTypeNodes.stream()
+        LinkedHashSet<BType> memberTypes = unionTypeNode.memberTypeNodes.stream()
                 .map(memTypeNode -> resolveTypeNode(memTypeNode, env))
                 .flatMap(memBType ->
                         memBType.tag == TypeTags.UNION ?
                                 ((BUnionType) memBType).memberTypes.stream() :
                                 Stream.of(memBType))
-                .collect(Collectors.toCollection(OrderedHashSet::new));
+                .collect(Collectors.toCollection(LinkedHashSet::new));
 
         BTypeSymbol unionTypeSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
                 Names.EMPTY, env.enclPkg.symbol.pkgID, null, env.scope.owner);
