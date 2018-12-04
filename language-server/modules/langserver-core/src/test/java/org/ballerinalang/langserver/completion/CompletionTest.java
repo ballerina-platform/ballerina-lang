@@ -22,6 +22,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.completion.util.CompletionTestUtil;
 import org.ballerinalang.langserver.completion.util.FileUtils;
@@ -74,10 +75,12 @@ public abstract class CompletionTest {
 
         boolean result = CompletionTestUtil.isSubList(expectedList, responseItemList);
         if (!result) {
-            Assert.fail("Failed Test for: " + configJsonPath);
+            String diff = CommonUtil.LINE_SEPARATOR + "Expected: " + expectedList.toString()
+                    + CommonUtil.LINE_SEPARATOR + "Actual: " + responseItemList.toString();
+            Assert.fail("Failed Test for: " + configJsonPath + diff);
         }
     }
-    
+
     String getResponse(JsonObject configJsonObject) throws IOException {
         Path sourcePath = sourcesPath.resolve(configJsonObject.get("source").getAsString());
         String responseString;

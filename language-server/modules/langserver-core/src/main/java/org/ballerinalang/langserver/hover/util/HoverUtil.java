@@ -15,9 +15,11 @@
  */
 package org.ballerinalang.langserver.hover.util;
 
+import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.constants.ContextConstants;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.position.PositionTreeVisitor;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
@@ -375,13 +377,23 @@ public class HoverUtil {
             Whitespace[] wsArray = new Whitespace[wsSet.size()];
             wsSet.toArray(wsArray);
             Arrays.sort(wsArray);
-            int functionKeywordLength = wsArray[0].getPrevious().length();
-            int beforeIdentifierWSLength = wsArray[1].getWs().length();
-            if (wsArray[2].getPrevious().equals("::")) {
-                beforeIdentifierWSLength += wsArray[1].getPrevious().length() + "::".length();
+            int lengthToNameStart = 0;
+            if (wsArray[0].getPrevious().equals(UtilSymbolKeys.RESOURCE_KEYWORD_KEY)) {
+                lengthToNameStart += wsArray[0].getPrevious().length()
+                        + wsArray[1].getPrevious().length() + wsArray[1].getWs().length() + wsArray[2].getWs().length();
+            } else {
+                lengthToNameStart += wsArray[0].getPrevious().length() + wsArray[1].getWs().length();
+                if (wsArray[2].getPrevious().equals("::")) {
+                    lengthToNameStart += wsArray[1].getPrevious().length() + "::".length();
+                }
             }
-            position.sCol += (beforeIdentifierWSLength + functionKeywordLength);
+            position.sCol += lengthToNameStart;
             position.eCol = position.sCol + bLangFunction.name.value.length();
+            if (!bLangFunction.annAttachments.isEmpty()) {
+                int lastAnnotationEndline = CommonUtil.getLastItem(bLangFunction.annAttachments).pos.eLine;
+                position.sLine = lastAnnotationEndline +
+                        wsArray[0].getWs().split(CommonUtil.LINE_SEPARATOR_SPLIT).length - 1;
+            }
         }
         return position;
     }

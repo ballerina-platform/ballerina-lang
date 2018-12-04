@@ -1,4 +1,4 @@
-@readonly string NAME;
+const string NAME = "Bob";
 
 public function getName () returns string | ()  {
       return NAME;
