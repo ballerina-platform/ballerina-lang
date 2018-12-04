@@ -44,8 +44,8 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
         const children: React.ReactNode[] = [];
 
         // use default width/height if not provided
-        const diagramWidth = width ? width : DefaultConfig.canvas.width;
-        const diagramHeight = height ? height : DefaultConfig.canvas.height;
+        let diagramWidth = width ? width : DefaultConfig.canvas.width;
+        let diagramHeight = height ? height : DefaultConfig.canvas.height;
 
         const cuViewState: CompilationUnitViewState = new CompilationUnitViewState();
         cuViewState.container.w = diagramWidth;
@@ -64,7 +64,17 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
             children.push(DiagramUtils.getComponents(ast.topLevelNodes));
         }
 
-        return <DiagramContext.Provider value={this.createContext()}>
+        if (cuViewState.bBox.w > diagramWidth) {
+            diagramWidth = cuViewState.bBox.w;
+        }
+        if (cuViewState.bBox.h > diagramHeight) {
+            diagramHeight = cuViewState.bBox.h;
+        }
+
+        return <DiagramContext.Provider value={this.createContext({
+            h: diagramHeight,
+            w: diagramWidth
+        })}>
                 <div className="diagram-container" ref={this.containerRef}>
                     <ControllerPanel stickTo={this.containerRef} />
                     <SvgCanvas model={cuViewState} zoom={this.state.currentZoom}>
@@ -74,8 +84,8 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
         </DiagramContext.Provider>;
     }
 
-    private createContext(): IDiagramContext {
-        const { ast, width, height } = this.props;
+    private createContext(diagramSize: { w: number, h: number }): IDiagramContext {
+        const { ast } = this.props;
         const { currentMode } = this.state;
         // create context contributions
         const contextContributions: Partial<IDiagramContext> = {
@@ -86,8 +96,8 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
                 });
             },
             containerRef: this.containerRef,
-            diagramHeight: height,
-            diagramWidth: width,
+            diagramHeight: diagramSize.h,
+            diagramWidth: diagramSize.w,
             mode: currentMode,
             zoomFit: () => {
                 this.setState({

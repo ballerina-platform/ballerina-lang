@@ -62,12 +62,14 @@ function renderDiagram(context: ExtensionContext, docUri: Uri): string {
                 try {
                     let width = window.innerWidth - 6;
                     let height = window.innerHeight;
+                    let zoom = 1;
                     const options = {
                         target: document.getElementById("diagram"),
                         editorProps: {
                             docUri,
                             width,
                             height,
+                            zoom,
                             langClient: getLangClient()
                         }
                     };
