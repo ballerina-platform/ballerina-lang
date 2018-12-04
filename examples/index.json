@@ -198,6 +198,14 @@
                 "url": "type-conversion"
             },
             {
+                "name": "Type Assertion",
+                "url": "type-assertion"
+            },
+            {
+                "name": "Is Like",
+                "url": "is-like"
+            },
+            {
                 "name": "Length",
                 "url": "length"
             },

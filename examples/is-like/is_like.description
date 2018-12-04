@@ -1,0 +1,2 @@
+// is-like concept is checking some value's runtime inherent storage type and covert it to the target type.
+// is-like uses `create()` and `stamp()` functions as its implementation.
