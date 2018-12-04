@@ -126,8 +126,8 @@ public class WorkerFailTest {
     public void invalidActionsInFork() {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-actions-in-fork.bal");
         Assert.assertEquals(result.getErrorCount(), 2);
-        BAssertUtil.validateError(result, 0,"undefined worker 'w3'", 5, 13);
-        BAssertUtil.validateError(result, 1,"undefined worker 'w1'", 8, 29);
+        BAssertUtil.validateError(result, 0, "undefined worker 'w3'", 5, 13);
+        BAssertUtil.validateError(result, 1, "undefined worker 'w1'", 8, 29);
     }
 
 }
