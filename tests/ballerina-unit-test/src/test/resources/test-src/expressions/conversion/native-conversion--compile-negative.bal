@@ -23,8 +23,3 @@ function testToIntWithNoArguments() {
     float a = 5.0;
     return int.create();
 }
-
-function anyToInt() returns int {
-    any a = 5;
-    return int.create(a);
-}

@@ -159,12 +159,12 @@ type TwoPhaseCommitTransaction object {
     function prepareParticipants(string protocol) returns PrepareDecision {
         PrepareDecision prepareDecision = PREPARE_DECISION_COMMIT;
         future<((PrepareResult|error)?, Participant)>[] results = [];
-        foreach _, participant in self.participants {
+        foreach var (key, participant) in self.participants {
             string participantId = participant.participantId;
             future<((PrepareResult|error)?, Participant)> f = start participant.prepare(protocol);
             results[results.length()] = f;
         }
-        foreach f in results {
+        foreach var f in results {
             ((PrepareResult|error)?, Participant) r = wait f;
             var (result, participant) = r;
             string participantId = participant.participantId;
@@ -208,12 +208,12 @@ type TwoPhaseCommitTransaction object {
     function notifyParticipants(string action, string? protocolName) returns NotifyResult|error {
         NotifyResult|error notifyResult = (action == COMMAND_COMMIT) ? NOTIFY_RESULT_COMMITTED : NOTIFY_RESULT_ABORTED;
         future<(NotifyResult|error)?>[] results = [];
-        foreach _, participant in self.participants {
+        foreach var (key, participant) in self.participants {
             future<(NotifyResult|error)?> f = start participant.notify(action, protocolName);
             results[results.length()] = f;
 
         }
-        foreach f in results {
+        foreach var f in results {
             (NotifyResult|error)? result = wait f;
             if (result is error) {
                 notifyResult = result;

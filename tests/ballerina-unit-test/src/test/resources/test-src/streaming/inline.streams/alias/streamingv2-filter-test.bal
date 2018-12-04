@@ -35,7 +35,7 @@ function testFilterQuery(stream<Teacher> inStream) {
         from inStream where inStream.age > 25  as input
         select input.name, input.age, input.status, input.batch, input.school
         => (Teacher[] teachers) {
-            foreach t in teachers {
+            foreach var t in teachers {
                 outputStream.publish(t);
             }
         }
@@ -56,7 +56,7 @@ function startFilterQuery() returns (Teacher[]) {
     testFilterQuery(inputStream);
 
     outputStream.subscribe(function (Teacher e) {printTeachers(e);});
-    foreach t in teachers {
+    foreach var t in teachers {
         inputStream.publish(t);
     }
 

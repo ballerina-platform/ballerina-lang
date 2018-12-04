@@ -232,16 +232,12 @@ public class ASTBuilderUtil {
 
     static BLangForeach createForeach(DiagnosticPos pos,
                                       BLangBlockStmt target,
-                                      BLangSimpleVarRef collectionVarRef,
-                                      List<BLangSimpleVarRef> varRefs,
-                                      List<BType> inputTypes) {
+                                      BLangSimpleVarRef collectionVarRef) {
         final BLangForeach foreach = (BLangForeach) TreeBuilder.createForeachNode();
         foreach.pos = pos;
         target.addStatement(foreach);
         foreach.body = ASTBuilderUtil.createBlockStmt(pos);
         foreach.collection = collectionVarRef;
-        foreach.varRefs.addAll(varRefs);
-        foreach.varTypes = inputTypes;
         return foreach;
     }
 
@@ -263,6 +259,10 @@ public class ASTBuilderUtil {
         assignment.pos = pos;
         target.addStatement(assignment);
         return assignment;
+    }
+
+    static BLangAssignment createAssignmentStmt(DiagnosticPos pos, BLangExpression varRef, BLangExpression rhsExpr) {
+        return createAssignmentStmt(pos, varRef, rhsExpr, false);
     }
 
     static BLangAssignment createAssignmentStmt(DiagnosticPos pos, BLangExpression varRef,

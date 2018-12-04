@@ -41,7 +41,7 @@ function startFilterQuery() returns (Employee[]) {
     testFilterQuery();
 
     outputStream.subscribe(function(Employee e) {printTeachers(e);});
-    foreach e in employeeArr {
+    foreach var e in employeeArr {
         inputStream.publish(e);
     }
 
@@ -63,7 +63,7 @@ function testFilterQuery() {
         select inputStream.name, inputStream.age
         having getAge(age) > getMaxAge() && getAge(age) > 25
         => (Employee[] emp) {
-            foreach e in emp {
+            foreach var e in emp {
                 outputStream.publish(e);
             }
         }

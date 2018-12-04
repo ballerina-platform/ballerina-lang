@@ -7,7 +7,7 @@ type person object {
 
     public function update(string s) {
             lock {
-                foreach i in 1 ... 1000 {
+                foreach var i in 1 ... 1000 {
                       self.stars = self.stars + s;
                       self.std = new;
                       self.std.score = i+1;
@@ -57,7 +57,7 @@ function workerFunc() {
 
 function increment() {
    lock {
-       foreach i in 1 ... 1000 {
+       foreach var i in 1 ... 1000 {
            student.score = student.score + i;
        }
     }
@@ -87,7 +87,7 @@ function incrementParam(Student param, person p) {
    lock {
         Student inLockObj = new;
         inLockObj.score = 10;
-       foreach i in 1 ... 1000 {
+       foreach var i in 1 ... 1000 {
            p.std = new;
            param.score = param.score + i;
        }

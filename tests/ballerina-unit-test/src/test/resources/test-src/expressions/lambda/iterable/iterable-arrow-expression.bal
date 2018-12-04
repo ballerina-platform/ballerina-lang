@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+int index = 0;
+
 function testMapIterable() returns string[] {
     map<string> words = { a: "ant", b: "bear"};
     string[] animals = words.map(word => word[1].toUpper());
@@ -22,7 +24,14 @@ function testMapIterable() returns string[] {
 
 function testFilterIterable() returns float {
     int[6] numberArray = [5, 6, 7, 8, 9, 10];
-    float avg = numberArray.filter(num => num[0] >= 3).map(num => num[1]).average();
+
+    index = 0;
+
+    float avg = numberArray.map(function (int num) returns (int, int) {
+        (int, int) value = (index, num);
+        index += 1;
+        return value;
+    }).filter(num => num[0] >= 3).map(num => num[1]).average();
     return avg;
 }
 
@@ -59,7 +68,7 @@ function testFilterWithArityOne () returns string[] {
 
 function testIterableReturnLambda () returns (function (int) returns boolean)[] {
     map<string> words = { a: "ant", b: "bear", c: "tiger"};
-    (function (int) returns boolean)[] lambdas = words.map(function (string input) returns (function (int) returns boolean) {
+    (function (int) returns boolean)[] lambdas = words.map(function ((string, string) input) returns (function (int) returns boolean) {
             return param => true;
     });
     return lambdas;

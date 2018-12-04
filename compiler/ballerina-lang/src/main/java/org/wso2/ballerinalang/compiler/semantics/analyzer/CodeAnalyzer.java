@@ -158,6 +158,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.programfile.WorkerDataChannelInfo;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
@@ -869,7 +870,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.resetLastStatement();
         this.loopWithintransactionCheckStack.pop();
         analyzeExpr(foreach.collection);
-        analyzeExprs(foreach.varRefs);
     }
 
     @Override
@@ -965,13 +965,20 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangSimpleVariable varNode) {
         analyzeExpr(varNode.expr);
 
-        if (Objects.isNull(varNode.symbol) || !Symbols.isPublic(varNode.symbol)) {
+        if (Objects.isNull(varNode.symbol)) {
+            return;
+        }
+
+        if (!Symbols.isPublic(varNode.symbol)) {
+            if (varNode.expr == null && Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER)) {
+                dlog.error(varNode.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, varNode.name);
+            }
             return;
         }
 
         int ownerSymTag = this.env.scope.owner.tag;
-        if (((ownerSymTag & SymTag.INVOKABLE) != SymTag.INVOKABLE) || (varNode.type != null &&
-                varNode.parent != null && NodeKind.FUNCTION.equals(varNode.parent.getKind()))) {
+        if (((ownerSymTag & SymTag.INVOKABLE) != SymTag.INVOKABLE) || (varNode.type != null && varNode.parent != null &&
+                NodeKind.FUNCTION.equals(varNode.parent.getKind()))) {
             analyseType(varNode.type, varNode.pos);
         }
 
@@ -1903,7 +1910,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
                         systemRunning = true;
                     }
-                    otherSM.node.sendsToThis.add(worker.workerId);
+                    otherSM.node.sendsToThis.add(WorkerDataChannelInfo.generateChannelName(worker.workerId,
+                            otherSM.workerId));
                 }
             }
         } while (systemRunning);

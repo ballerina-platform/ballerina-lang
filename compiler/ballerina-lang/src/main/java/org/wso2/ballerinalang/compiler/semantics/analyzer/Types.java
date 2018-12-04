@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import org.antlr.v4.runtime.misc.OrderedHashSet;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.types.TypeKind;
@@ -52,10 +53,10 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -68,9 +69,9 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -434,8 +435,8 @@ public class Types {
     }
 
     private boolean checkUnionEquivalencyForStamping(BType source, BType target) {
-        Set<BType> sourceTypes = new HashSet<>();
-        Set<BType> targetTypes = new HashSet<>();
+        Set<BType> sourceTypes = new OrderedHashSet<>();
+        Set<BType> targetTypes = new OrderedHashSet<>();
 
         if (source.tag == TypeTags.UNION) {
             BUnionType sourceUnionType = (BUnionType) source;
@@ -769,86 +770,73 @@ public class Types {
         return checkFieldEquivalency(lhsType, rhsType, unresolvedTypes);
     }
 
-    List<BType> checkForeachTypes(BLangNode collection, int variableSize) {
-        BType collectionType = collection.type;
-        List<BType> errorTypes;
-        int maxSupportedTypes;
+    void setForeachTypedBindingPatternType(BLangForeach foreachNode) {
+        BType collectionType = foreachNode.collection.type;
+        BMapType mapType = new BMapType(TypeTags.MAP, null, symTable.mapType.tsymbol);
+        LinkedHashSet<BType> memberTypes = new OrderedHashSet<>();
+        memberTypes.add(mapType);
+        BUnionType unionType = new BUnionType(null, memberTypes, true);
         switch (collectionType.tag) {
             case TypeTags.ARRAY:
-                BArrayType bArrayType = (BArrayType) collectionType;
-                if (variableSize == 1) {
-                    return Lists.of(bArrayType.eType);
-                } else if (variableSize == 2) {
-                    return Lists.of(symTable.intType, bArrayType.eType);
-                } else {
-                    maxSupportedTypes = 2;
-                    errorTypes = Lists.of(symTable.intType, bArrayType.eType);
-                }
+                BArrayType arrayType = (BArrayType) collectionType;
+                mapType.constraint = arrayType.eType;
                 break;
             case TypeTags.MAP:
                 BMapType bMapType = (BMapType) collectionType;
-                if (variableSize == 1) {
-                    return Lists.of(bMapType.constraint);
-                } else if (variableSize == 2) {
-                    return Lists.of(symTable.stringType, bMapType.constraint);
-                } else {
-                    maxSupportedTypes = 2;
-                    errorTypes = Lists.of(symTable.stringType, bMapType.constraint);
-                }
-                break;
-            case TypeTags.JSON:
-                if (variableSize == 1) {
-                    return Lists.of(symTable.jsonType);
-                } else {
-                    maxSupportedTypes = 1;
-                    errorTypes = Lists.of(symTable.jsonType);
-                }
-                break;
-            case TypeTags.XML:
-                if (variableSize == 1) {
-                    return Lists.of(symTable.xmlType);
-                } else if (variableSize == 2) {
-                    return Lists.of(symTable.intType, symTable.xmlType);
-                } else {
-                    maxSupportedTypes = 2;
-                    errorTypes = Lists.of(symTable.intType, symTable.xmlType);
-                }
-                break;
-            case TypeTags.TABLE:
-                BTableType tableType = (BTableType) collectionType;
-                if (variableSize == 1) {
-                    return Lists.of(tableType.constraint);
-                } else if (variableSize == 2) {
-                    return Lists.of(symTable.intType, tableType.constraint);
-                } else {
-                    maxSupportedTypes = 1;
-                    errorTypes = Lists.of(tableType.constraint);
-                }
+                mapType.constraint = new BTupleType(new LinkedList<BType>() {{
+                    add(symTable.stringType);
+                    add(bMapType.constraint);
+                }});
                 break;
             case TypeTags.RECORD:
                 BRecordType recordType = (BRecordType) collectionType;
-                if (variableSize == 1) {
-                    return Lists.of(inferRecordFieldType(recordType));
-                } else if (variableSize == 2) {
-                    return Lists.of(symTable.stringType, inferRecordFieldType(recordType));
-                } else {
-                    maxSupportedTypes = 2;
-                    errorTypes = Lists.of(symTable.stringType, symTable.anyType);
+                mapType.constraint = new BTupleType(new LinkedList<BType>() {{
+                    add(symTable.stringType);
+                    add(inferRecordFieldType(recordType));
+                }});
+                break;
+            case TypeTags.XML:
+                Set<BType> bTypes = new OrderedHashSet<>();
+                bTypes.add(symTable.xmlType);
+                bTypes.add(symTable.stringType);
+                mapType.constraint = new BUnionType(null, bTypes, false);
+                break;
+            case TypeTags.TABLE:
+                BTableType tableType = (BTableType) collectionType;
+                if (tableType.constraint.tag == TypeTags.NONE) {
+                    mapType.constraint = symTable.anydataType;
+                    foreachNode.varType = mapType.constraint;
+                    foreachNode.nillableResultType = unionType;
+                    return;
                 }
+                mapType.constraint = tableType.constraint;
                 break;
             case TypeTags.SEMANTIC_ERROR:
-                return Collections.nCopies(variableSize, symTable.semanticError);
+                foreachNode.varType = symTable.semanticError;
+                foreachNode.resultType = symTable.semanticError;
+                foreachNode.nillableResultType = symTable.semanticError;
+                return;
             default:
-                dlog.error(collection.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_COLLECTION, collectionType);
-                return Collections.nCopies(variableSize, symTable.semanticError);
+                foreachNode.varType = symTable.semanticError;
+                foreachNode.resultType = symTable.semanticError;
+                foreachNode.nillableResultType = symTable.semanticError;
+                dlog.error(foreachNode.collection.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_COLLECTION,
+                        collectionType);
+                return;
         }
-        dlog.error(collection.pos, DiagnosticCode.ITERABLE_TOO_MANY_VARIABLES, collectionType);
-        errorTypes.addAll(Collections.nCopies(variableSize - maxSupportedTypes, symTable.semanticError));
-        return errorTypes;
+        foreachNode.varType = mapType.constraint;
+        foreachNode.resultType = mapType;
+        foreachNode.nillableResultType = unionType;
     }
 
     public BType inferRecordFieldType(BRecordType recordType) {
         List<BField> fields = recordType.fields;
+
+        // If there are no fields in the record, return the rest field type as the inferred type.
+        if (fields.isEmpty()) {
+            return recordType.restFieldType;
+        }
+
         BType inferredType = fields.get(0).type; // If all the fields are the same, doesn't matter which one we pick
 
         // If it's an open record, the rest field type should also be of the same type as the mandatory fields.
@@ -1059,14 +1047,14 @@ public class Types {
             }
         }
 
-        // In this case, target type should be of type 'any' and the source type cannot be a value type
-        if (t == symTable.anyType && !isValueType(s)) {
+        if (isAssignable(s, t)) {
             return createConversionOperatorSymbol(origS, origT, true, InstructionCodes.NOP);
         }
 
-        if (!isValueType(t) && s == symTable.anyType) {
+        if (isAssignable(t, s)) {
             return createConversionOperatorSymbol(origS, origT, false, InstructionCodes.CHECKCAST);
         }
+
         return symTable.notFoundSymbol;
     }
 
@@ -1222,7 +1210,7 @@ public class Types {
                 return createConversionOperatorSymbol(s, t, false, InstructionCodes.JSON2MAP);
             } else if (s.tag == TypeTags.ANYDATA) {
                 return createConversionOperatorSymbol(s, t, false, InstructionCodes.ANY2MAP);
-            } 
+            }
 
             return symResolver.resolveOperator(Names.CONVERSION_OP, Lists.of(s, t));
         }
@@ -1512,8 +1500,8 @@ public class Types {
                 return false;
             }
 
-            Set<BType> sourceTypes = new HashSet<>();
-            Set<BType> targetTypes = new HashSet<>();
+            Set<BType> sourceTypes = new OrderedHashSet<>();
+            Set<BType> targetTypes = new OrderedHashSet<>();
             sourceTypes.addAll(sUnionType.memberTypes);
             targetTypes.addAll(tUnionType.memberTypes);
 
@@ -1669,8 +1657,8 @@ public class Types {
     }
 
     private boolean isAssignableToUnionType(BType source, BType target, List<TypePair> unresolvedTypes) {
-        Set<BType> sourceTypes = new HashSet<>();
-        Set<BType> targetTypes = new HashSet<>();
+        Set<BType> sourceTypes = new OrderedHashSet<>();
+        Set<BType> targetTypes = new OrderedHashSet<>();
 
         if (source.tag == TypeTags.UNION) {
             BUnionType sourceUnionType = (BUnionType) source;
@@ -1724,8 +1712,8 @@ public class Types {
             return true;
         }
 
-        Set<BType> lhsTypes = new HashSet<>();
-        Set<BType> rhsTypes = new HashSet<>();
+        Set<BType> lhsTypes = new OrderedHashSet<>();
+        Set<BType> rhsTypes = new OrderedHashSet<>();
 
         lhsTypes.addAll(expandAndGetMemberTypesRecursive(lhsType));
         rhsTypes.addAll(expandAndGetMemberTypesRecursive(rhsType));
@@ -1760,7 +1748,7 @@ public class Types {
      * @return  a set containing all the retrieved member types
      */
     public Set<BType> expandAndGetMemberTypesRecursive(BType bType) {
-        Set<BType> memberTypes = new HashSet<>();
+        Set<BType> memberTypes = new OrderedHashSet<>();
         switch (bType.tag) {
             case TypeTags.BYTE:
             case TypeTags.INT:

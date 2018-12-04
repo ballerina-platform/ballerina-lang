@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.programfile.attributes.ParamDefaultValueAttributeI
 import org.wso2.ballerinalang.programfile.attributes.ParameterAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.TaintTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.VarTypeCountAttributeInfo;
+import org.wso2.ballerinalang.programfile.attributes.WorkerSendInsAttributeInfo;
 import org.wso2.ballerinalang.programfile.cpentries.ActionRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.BlobCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ByteCPEntry;
@@ -400,8 +401,6 @@ public class PackageInfoWriter {
         dataOutStream.writeInt(serviceInfo.nameCPIndex);
         dataOutStream.writeInt(serviceInfo.flags);
         dataOutStream.writeInt(serviceInfo.serviceTypeCPIndex);
-        dataOutStream.writeInt(serviceInfo.listenerTypeCPIndex);
-        dataOutStream.writeInt(serviceInfo.listenerNameCPIndex);
     }
 
     private static void writeResourceInfo(DataOutputStream dataOutStream,
@@ -566,6 +565,14 @@ public class PackageInfoWriter {
                     attrDataOutStream.writeInt(docAttrInfo.returnParameterDescriptionCPIndex);
                 } else {
                     attrDataOutStream.writeBoolean(false);
+                }
+                break;
+            case WORKER_SEND_INS:
+                WorkerSendInsAttributeInfo wrkAttrInfo = (WorkerSendInsAttributeInfo) attributeInfo;
+                int[] sendIns = wrkAttrInfo.getWorkerSendIns();
+                attrDataOutStream.writeShort(sendIns.length);
+                for (int index : sendIns) {
+                    attrDataOutStream.writeInt(index);
                 }
                 break;
         }

@@ -622,8 +622,6 @@ public class CompiledPackageSymbolEnter {
         dataInStream.readInt();
         dataInStream.readInt();
         dataInStream.readInt();
-        dataInStream.readInt();
-        dataInStream.readInt();
     }
 
     private void defineResource(DataInputStream dataInStream) throws IOException {

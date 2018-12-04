@@ -29,7 +29,7 @@ public type SimpleSelect object {
     public function process(StreamEvent[] streamEvents) {
         StreamEvent[] newStreamEventArr = [];
         int index = 0;
-        foreach event in streamEvents {
+        foreach var event in streamEvents {
             StreamEvent streamEvent = new((OUTPUT, self.selectFunc.call(event)), event.eventType, event.timestamp);
             newStreamEventArr[index] = streamEvent;
             index += 1;

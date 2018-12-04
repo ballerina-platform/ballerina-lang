@@ -57,7 +57,7 @@ type RemoteParticipant object {
     }
 
     function prepare(string protocol) returns ((PrepareResult|error)?, Participant) {
-        foreach remoteProto in self.participantProtocols {
+        foreach var remoteProto in self.participantProtocols {
             if (remoteProto.name == protocol) {
                 // We are assuming a participant will have only one instance of a protocol
                 return (self.prepareMe(remoteProto.url), self);
@@ -68,7 +68,7 @@ type RemoteParticipant object {
 
     function notify(string action, string? protocolName) returns (NotifyResult|error)? {
         if (protocolName is string) {
-            foreach remoteProtocol in self.participantProtocols {
+            foreach var remoteProtocol in self.participantProtocols {
                 if (protocolName == remoteProtocol.name) {
                     // We are assuming a participant will have only one instance of a protocol
                     return self.notifyMe(remoteProtocol.url, action);
@@ -77,7 +77,7 @@ type RemoteParticipant object {
         } else {
             NotifyResult|error notifyResult = (action == COMMAND_COMMIT) ? NOTIFY_RESULT_COMMITTED
                                                                          : NOTIFY_RESULT_ABORTED;
-            foreach remoteProtocol in self.participantProtocols {
+            foreach var remoteProtocol in self.participantProtocols {
                 var result = self.notifyMe(remoteProtocol.url, action);
                 if (result is error) {
                     notifyResult = result;
@@ -160,7 +160,7 @@ type LocalParticipant object {
     }
 
     function prepare(string protocol) returns ((PrepareResult|error)?, Participant) {
-        foreach localProto in self.participantProtocols {
+        foreach var localProto in self.participantProtocols {
             if (localProto.name == protocol) {
                 log:printInfo("Preparing local participant: " + self.participantId);
                 return (self.prepareMe(self.participatedTxn.transactionId, self.participatedTxn.transactionBlockId), self);
@@ -197,7 +197,7 @@ type LocalParticipant object {
 
     function notify(string action, string? protocolName) returns (NotifyResult|error)? {
         if (protocolName is string) {
-            foreach localProto in self.participantProtocols {
+            foreach var localProto in self.participantProtocols {
                 if (protocolName == localProto.name) {
                     log:printInfo("Notify(" + action + ") local participant: " + self.participantId);
                     return self.notifyMe(action, self.participatedTxn.transactionBlockId);
@@ -206,7 +206,7 @@ type LocalParticipant object {
         } else if (protocolName is ()) {
             NotifyResult|error notifyResult = (action == COMMAND_COMMIT) ? NOTIFY_RESULT_COMMITTED
                                                                          : NOTIFY_RESULT_ABORTED;
-            foreach localProto in self.participantProtocols {
+            foreach var localProto in self.participantProtocols {
                 var result = self.notifyMe(action, self.participatedTxn.transactionBlockId);
                 if (result is error) {
                     notifyResult = result;
