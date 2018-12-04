@@ -102,8 +102,7 @@ export const visitor: Visitor = {
 
         // Position drop down menu for adding workers and endpoints
         viewState.menuTrigger.x = epX;
-        viewState.menuTrigger.y = defaultWorker.bBox.y + config.lifeLine.header.height / 2;
-
+        viewState.menuTrigger.y = defaultWorker.bBox.y;
 
         // Update the width of children
         viewState.body.w = viewState.bBox.w;
