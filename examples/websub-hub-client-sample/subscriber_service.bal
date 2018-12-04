@@ -1,7 +1,6 @@
 // Ballerina WebSub Subscriber service, which represents the callback registered at the Hub.
 import ballerina/log;
 import ballerina/websub;
-import ballerina/io;
 
 // The endpoint to which the subscriber service is bound.
 listener websub:Listener websubEP = new(8181);
@@ -21,12 +20,10 @@ service websubSubscriber on websubEP {
     // Resource accepting content delivery requests.
     resource function onNotification(websub:Notification notification) {
         var payload = notification.getPayloadAsString();
-
         if (payload is string) {
-            io:println("WebSub Notification Received: " + payload);
+            log:printInfo("WebSub Notification Received: " + payload);
         } else {
             log:printError("Error retrieving payload as string", err = payload);
         }
     }
-
 }

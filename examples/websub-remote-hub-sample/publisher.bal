@@ -2,19 +2,19 @@
 import ballerina/io;
 import ballerina/runtime;
 import ballerina/websub;
-import ballerina/log;
 
 // This is the remote WebSub Hub Endpoint to which registration and publish requests are sent.
-websub:Client websubHubClientEP = new websub:Client("https://localhost:9191/websub/hub");
+websub:Client websubHubClientEP =
+                    new websub:Client("http://localhost:9191/websub/hub");
 
-
-public function main(string... args) {
+public function main() {
 
     // Register a topic at the hub.
     var registrationResponse =
                 websubHubClientEP->registerTopic("http://websubpubtopic.com");
     if (registrationResponse is error) {
-        log:printError("Error occurred registering topic:", err = registrationResponse);
+        io:println("Error occurred registering topic: " +
+                                <string>registrationResponse.detail().message);
     } else {
         io:println("Topic registration successful!");
     }
@@ -28,7 +28,8 @@ public function main(string... args) {
         websubHubClientEP->publishUpdate("http://websubpubtopic.com",
                                 { "action": "publish", "mode": "remote-hub" });
     if (publishResponse is error) {
-        log:printError("Error notifying hub:", err = publishResponse);
+        io:println("Error notifying hub: " +
+                                    <string>publishResponse.detail().message);
     } else {
         io:println("Update notification successful!");
     }

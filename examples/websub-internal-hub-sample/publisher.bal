@@ -1,23 +1,24 @@
 // The Ballerina WebSub Publisher brings up the internal Ballerina hub, registers a topic at the hub, and publishes updates to the topic.
 import ballerina/io;
+import ballerina/http;
 import ballerina/runtime;
 import ballerina/websub;
-import ballerina/log;
 
 public function main() {
 
     // Specify the port that the internal Ballerina hub needs to start on and start the hub.
     io:println("Starting up the Ballerina Hub Service");
 
-    var result = websub:startHub(9191);
-    websub:WebSubHub webSubHub = result is websub:HubStartedUpError ? result.startedUpHub : result;
+    var result = websub:startHub(new http:Listener(9191));
+    websub:WebSubHub webSubHub = result is websub:HubStartedUpError ?
+                                                result.startedUpHub : result;
 
     // Register a topic at the hub.
     var registrationResponse = webSubHub.registerTopic(
                                             "http://websubpubtopic.com");
-
     if (registrationResponse is error) {
-        log:printError("Error occurred registering topic:", err = registrationResponse);
+        io:println("Error occurred registering topic: " +
+                                <string>registrationResponse.detail().message);
     } else {
         io:println("Topic registration successful!");
     }
@@ -31,7 +32,8 @@ public function main() {
         { "action": "publish", "mode": "internal-hub" });
 
     if (publishResponse is error) {
-        log:printError("Error notifying hub:", err = publishResponse);
+        io:println("Error notifying hub: " +
+                                <string>publishResponse.detail().message);
     } else {
         io:println("Update notification successful!");
     }
