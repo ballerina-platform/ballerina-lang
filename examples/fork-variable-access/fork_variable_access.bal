@@ -9,8 +9,10 @@ public function main() {
 
     string name = <string> m["name"];
     string city = <string> m["city"];
+    string postcode = <string> m["postcode"];
     io:println("[default worker] before fork: value of name is [",
-        name , "] value of city is [", city, "]");
+        name , "] value of city is [", city, "] value of postcode is [",
+        postcode, "]");
 
     // Declare the fork statement.
     fork {
@@ -54,8 +56,6 @@ public function main() {
     city = <string> m["city"];
     // Get value of the new field added to map variable `m` inside worker W3
     string street = <string> m["street"];
-    // Get value of the `postcode` field of map variable `m` which was not changed
-    string postcode = <string> m["postcode"];
 
     io:println("[default worker] after fork: " +
                "value of name is [", name,
