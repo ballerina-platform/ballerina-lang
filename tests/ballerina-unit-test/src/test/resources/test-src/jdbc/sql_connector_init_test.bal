@@ -38,6 +38,7 @@ function testConnectionPoolProperties2() returns (json) {
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_INIT",
         username: "SA",
+        password: "",
         poolOptions: properties
     });
 
@@ -52,7 +53,8 @@ function testConnectionPoolProperties3() returns (json) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_INIT",
-        username: "SA"
+        username: "SA",
+        password: "",
     });
 
     var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
@@ -68,6 +70,7 @@ function testConnectorWithDefaultPropertiesForListedDB() returns (json) {
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_INIT",
         username: "SA",
+        password: "",
         poolOptions: { }
     });
 
@@ -83,6 +86,7 @@ function testConnectorWithWorkers() returns (json) {
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_INIT",
         username: "SA",
+        password: "",
         poolOptions: { }
     });
 
@@ -107,6 +111,7 @@ function testConnectorWithDataSourceClass() returns (json) {
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_INIT",
         username: "SA",
+        password: "",
         poolOptions: properties3,
         dbOptions: propertiesMap
     });
