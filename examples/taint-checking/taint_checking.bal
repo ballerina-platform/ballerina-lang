@@ -30,7 +30,7 @@ public function main(string... args) {
     // This line results in a compiler error because the query is appended with a user-provided argument.
     var result = customerDBEP->
     select("SELECT firstname FROM student WHERE registration_id = " +
-            args[0], null);
+            args[0], ());
 
     table<record {}> dataTable;
     if (result is error) {
