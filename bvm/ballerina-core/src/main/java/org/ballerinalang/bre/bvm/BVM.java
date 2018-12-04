@@ -2757,19 +2757,20 @@ public class BVM {
                 iterator = (BIterator) sf.refRegs[nextInstruction.iteratorIndex];
 
                 try {
+                    // Check whether we have a next value.
+                    if (!Optional.of(iterator).get().hasNext()) {
+                        // If we don't have a next value, that means we have reached the end of the iterable list. So
+                        // we set null to the corresponding registry location.
+                        sf.refRegs[nextInstruction.retRegs[0]] = null;
+                        return;
+                    }
                     // Get the next value.
                     BValue value = Optional.of(iterator).get().getNext();
-                    if (value != null) {
-                        // If the value is not null, we create a new map and add the value to the map with the key
-                        // `value`. Then we set this map to the corresponding registry location.
-                        BMap<String, BValue> newMap = new BMap<>(nextInstruction.constraintType);
-                        newMap.put("value", value);
-                        sf.refRegs[nextInstruction.retRegs[0]] = (BRefType) newMap;
-                    } else {
-                        // If the value is null, that means we have reached the end of the iterable list. So we set null
-                        // to the corresponding registry location.
-                        sf.refRegs[nextInstruction.retRegs[0]] = null;
-                    }
+                    // We create a new map and add the value to the map with the key `value`. Then we set this
+                    // map to the corresponding registry location.
+                    BMap<String, BValue> newMap = new BMap<>(nextInstruction.constraintType);
+                    newMap.put("value", value);
+                    sf.refRegs[nextInstruction.retRegs[0]] = (BRefType) newMap;
                 } catch (BallerinaException e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
