@@ -1,11 +1,10 @@
 // Ballerina WebSub Subscriber service, which represents the callback registered at the Hub.
 import ballerina/log;
 import ballerina/websub;
+import ballerina/io;
 
 // The endpoint to which the subscriber service is bound.
-endpoint websub:Listener websubEP {
-    port: 8181
-};
+listener websub:Listener websubEP = new(8181);
 
 // Annotations specifying the subscription parameters.
 // Note the omission of subscribeOnStartUp as an annotation due to which a subscription request would not be sent
@@ -17,14 +16,16 @@ endpoint websub:Listener websubEP {
     hub: "https://localhost:9191/websub/hub",
     secret: "Kslk30SNF2AChs2"
 }
-service websubSubscriber bind websubEP {
+service websubSubscriber on websubEP {
 
     // Resource accepting content delivery requests.
-    onNotification(websub:Notification notification) {
-        match (notification.getPayloadAsString()) {
-            string payloadAsString => log:printInfo("WebSub Notification Received: "
-                                                        + payloadAsString);
-            error e => log:printError("Error retrieving payload as string", err = e);
+    resource function onNotification(websub:Notification notification) {
+        var payload = notification.getPayloadAsString();
+
+        if (payload is string) {
+            io:println("WebSub Notification Received: " + payload);
+        } else {
+            log:printError("Error retrieving payload as string", err = payload);
         }
     }
 
