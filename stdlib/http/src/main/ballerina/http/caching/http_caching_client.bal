@@ -182,7 +182,7 @@ public type HttpCachingClient client object {
     public remote function options(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                             message = ()) returns Response|error;
 
-    # Forward action can be used to invoke an HTTP call with inbound request's HTTP method. Only inbound requests of
+    # Forward remote function can be used to invoke an HTTP call with inbound request's HTTP method. Only inbound requests of
     # GET and HEAD HTTP method types are cacheable.
     #
     # + path - Request path

@@ -66,13 +66,13 @@ You can reformat the Ballerina codes by pressing `Ctrl`+`Alt`+`L`.
 
 ## Parameter Information
 
-You can view the required parameters of a functions, actions, etc. by pressing `Ctrl`+`P`.
+You can view the required parameters of a functions, remote functions, etc. by pressing `Ctrl`+`P`.
 
 ![alt text](images/ParameterInfo.gif)
 
 ## Quick Documentation
 
-You can view the documentation of a functions, actions, etc by pressing `Ctrl`+`Q` or hovering over the element while pressing `Ctrl`. 
+You can view the documentation of a functions, remote functions, etc by pressing `Ctrl`+`Q` or hovering over the element while pressing `Ctrl`. 
 
 ![alt text](images/QuickDocumentation.gif)
 
