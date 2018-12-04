@@ -31,13 +31,11 @@ import io.ballerina.plugins.idea.completion.inserthandlers.ParenthesisInsertHand
 import io.ballerina.plugins.idea.completion.inserthandlers.SmartParenthesisInsertHandler;
 import io.ballerina.plugins.idea.psi.BallerinaAnnotationAttachment;
 import io.ballerina.plugins.idea.psi.BallerinaAnnotationDefinition;
-import io.ballerina.plugins.idea.psi.BallerinaCompositeElement;
 import io.ballerina.plugins.idea.psi.BallerinaDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaFile;
 import io.ballerina.plugins.idea.psi.BallerinaFunctionDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaNameReference;
 import io.ballerina.plugins.idea.psi.BallerinaNamespaceDeclaration;
-import io.ballerina.plugins.idea.psi.BallerinaOnRetryClause;
 import io.ballerina.plugins.idea.psi.BallerinaPackageReference;
 import io.ballerina.plugins.idea.psi.BallerinaServiceDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaTypeDefinition;

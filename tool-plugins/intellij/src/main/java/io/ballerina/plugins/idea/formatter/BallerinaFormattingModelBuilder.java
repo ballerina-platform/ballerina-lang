@@ -49,7 +49,6 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.ATTACHMENT_POINT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BINDING_PATTERN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BINDING_REF_PATTERN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BIT_COMPLEMENT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.BLOCK;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BRACED_OR_TUPLE_EXPRESSION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BREAK;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BY;
@@ -215,7 +214,6 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.SIMPLE_VARIABLE_REFER
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.SNAPSHOT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.START;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.STATEMENT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.STATIC_MATCH_LITERALS;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.STREAM;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.SUB;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.SYNCRARROW;
@@ -465,7 +463,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(RECORD_FIELD_DEFINITION_LIST).spaceIf(true)
 
                 // Statements
-                .beforeInside(LEFT_BRACE,FOREACH_STATEMENT).spaceIf(true)
+                .beforeInside(LEFT_BRACE, FOREACH_STATEMENT).spaceIf(true)
                 .between(LEFT_BRACE, RIGHT_BRACE).spaceIf(false)
                 .between(LEFT_BRACKET, RIGHT_BRACKET).spaceIf(false)
                 .between(SIMPLE_VARIABLE_REFERENCE, ASSIGN).spaceIf(true)
@@ -602,7 +600,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .aroundInside(RARROW, WORKER_SEND_ASYNC_STATEMENT).spaceIf(true)
                 .aroundInside(SYNCRARROW, WORKER_SEND_ASYNC_EXPRESSION).spaceIf(false)
                 .afterInside(LARROW, WORKER_RECEIVE_EXPRESSION).spaceIf(false)
-                .between(LEFT_BRACE,WAIT_KEY_VALUE).spaceIf(true)
+                .between(LEFT_BRACE, WAIT_KEY_VALUE).spaceIf(true)
                 .between(WAIT_KEY_VALUE, RIGHT_BRACE).spaceIf(true)
                 .around(RARROW).spaceIf(false)
 
