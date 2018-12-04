@@ -13,8 +13,8 @@ public function main() {
     foo(a3);
     foo(a4);
 
-    // In this example, there are fine different variables created and they will be used with invoking the function
-    // 'foo', which does the match along with type guard conditions.
+    // In this example, there are five different variables created and they will be used with invoking the function
+    // 'bar', which does the match along with type guard conditions.
     (string, int)|(float, boolean)|(boolean, int)|(int, boolean)|int|float b1 = ("Hello", 45);
     (string, int)|(float, boolean)|(boolean, int)|(int, boolean)|int|float b2 = (4.5, true);
     (string, int)|(float, boolean)|(boolean, int)|(int, boolean)|int|float b3 = (false, 4);
@@ -42,8 +42,8 @@ function foo(any a) {
 }
 
 // Following method uses structured tuple match patterns with different sizes along with a type guards. The given
-// match expression will be checked for "isLike" relationship and also it will check the type guard present for a
-// successful match.
+// match expression will be checked for "isLike" relationship and also it will check the type guard for the pattern
+// to match at runtime.
 function bar(any b) {
     match b {
         // This pattern check for tuple type of two variables and types has to 'string' and 'int'.
