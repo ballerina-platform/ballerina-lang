@@ -16,7 +16,6 @@
  */
 package org.wso2.ballerinalang.compiler.desugar;
 
-import org.antlr.v4.runtime.misc.OrderedHashSet;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.NodeKind;
@@ -589,7 +588,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         foreach.isDeclaredWithVar = true;
         foreach.varType = foreachVariable.type;
         foreach.resultType = indexAccessExpr.type;
-        LinkedHashSet<BType> memberTypes = new OrderedHashSet<>();
+        LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
         memberTypes.add(indexAccessExpr.type);
         foreach.nillableResultType = new BUnionType(null, memberTypes, true);
         return foreach;
@@ -602,13 +601,13 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         //special case for varRefs of Types;
         outputTypeRef.type = symTable.typeDesc;
         BSymbol createMethodSymbol =
-                symResolver.createSymbolForCreateOperator(mapVarRef.pos,
-                        names.fromBuiltInMethod(BLangBuiltInMethod.CREATE), Lists.of(mapVarRef), outputTypeRef);
+                symResolver.createSymbolForConvertOperator(mapVarRef.pos,
+                        names.fromBuiltInMethod(BLangBuiltInMethod.CONVERT), Lists.of(mapVarRef), outputTypeRef);
         BLangInvocation createMethodInvocation = ASTBuilderUtil.createInvocationExprForMethod(mapVarRef.pos,
                 (BInvokableSymbol) createMethodSymbol, Lists.of(mapVarRef), symResolver);
         createMethodInvocation.expr = outputTypeRef;
         createMethodInvocation.argExprs = Lists.of(mapVarRef);
-        createMethodInvocation.builtInMethod = BLangBuiltInMethod.CREATE;
+        createMethodInvocation.builtInMethod = BLangBuiltInMethod.CONVERT;
         createMethodInvocation.builtinMethodInvocation = true;
         return createMethodInvocation;
     }

@@ -461,10 +461,6 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
             types.add(BTypes.typeAny);
             BTupleType tupleType = new BTupleType(types);
 
-            if (!hasNext()) {
-                return null;
-            }
-
             Map.Entry<K, V> next = iterator.next();
             BValueArray tuple = new BValueArray(tupleType);
             BString key = new BString((String) next.getKey());
@@ -477,7 +473,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
 
         @Override
         public boolean hasNext() {
-            return iterator.hasNext();
+            return cursor < collection.size() && iterator.hasNext();
         }
     }
 

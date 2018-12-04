@@ -241,7 +241,7 @@ public class BLangVMErrors {
                 sb.append(":").append(lineNo);
             }
             sb.append(")");
-            if (i != 0) {
+            if (i != stackFrames.size() - 1) {
                 sb.append("\n\t   ");
             }
         }

@@ -4,6 +4,7 @@ int i = 0;
 
 function testVoidFunction() returns int {
     testVoid();
+    runtime:sleep(1500);
     return i;
 }
 
@@ -14,7 +15,7 @@ function testVoid() {
     }
     worker w2 {
          int x = i + 10;
-         i = 5;
+         i = 10;
     }
 }
 
@@ -23,7 +24,7 @@ function testNew(){
         runtime:sleep(2000);
     }
     worker w2 {
-        i = 10;
+        i = 5;
     }
 }
 

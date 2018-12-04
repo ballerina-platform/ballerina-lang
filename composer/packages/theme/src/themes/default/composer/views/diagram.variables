@@ -56,7 +56,7 @@
 @light-diagram-life-line-text-color: @light-diagram-base-text-color;
 @dark-diagram-life-line-text-color: @dark-diagram-base-text-color;
 
-@light-diagram-life-line-head-background-color: @white;
+@light-diagram-life-line-head-background-color: @diagram-base-dark-color;
 @dark-diagram-life-line-head-background-color: @diagram-base-dark-color;
 @light-diagram-life-line-head-stroke-color: @light-diagram-life-line-stroke-color;
 @dark-diagram-life-line-head-stroke-color: @dark-diagram-life-line-stroke-color;
@@ -87,14 +87,39 @@
 
 
 /*-------------------
-       Buttons 
+       Button 
 --------------------*/
 
-@diagram-button-background-color: #00B5AD;
-@diagram-button-text-color: #fff;
+@diagram-svg-button-background-color: #00B5AD;
+@diagram-svg-button-text-color: #fff;
 
-@dark-diagram-button-background-color: @diagram-button-background-color;
-@dark-diagram-button-text-color: @diagram-button-text-color;
+@dark-diagram-svg-button-background-color: @diagram-svg-button-background-color;
+@dark-diagram-svg-button-text-color: @diagram-svg-button-text-color;
 
-@light-diagram-button-background-color: @diagram-button-background-color;
-@light-diagram-button-text-color: @diagram-button-text-color;
+@light-diagram-svg-button-background-color: @diagram-svg-button-background-color;
+@light-diagram-svg-button-text-color: @diagram-svg-button-text-color;
+
+/*-------------------
+       Menu 
+--------------------*/
+
+@diagram-menu-trigger-background-color: #00B5AD;
+@diagram-menu-trigger-text-color: #fff;
+
+@dark-diagram-menu-trigger-background-color: @diagram-menu-trigger-background-color;
+@dark-diagram-menu-trigger-text-color: @diagram-menu-trigger-text-color;
+
+@light-diagram-menu-trigger-background-color: @diagram-menu-trigger-background-color;
+@light-diagram-menu-trigger-text-color: @diagram-menu-trigger-text-color;
+
+@dark-diagram-menu-item-background-color: @dark-diagram-background-color;
+@dark-diagram-menu-item-text-color: @dark-diagram-base-text-color;
+
+@light-diagram-menu-item-background-color: #eaeaea;
+@light-diagram-menu-item-text-color: @light-diagram-base-text-color;
+
+@dark-diagram-menu-item-hover-background-color: @dark-diagram-background-color;
+@dark-diagram-menu-item-hover-text-color: @dark-diagram-base-text-color;
+
+@light-diagram-menu-item-hover-background-color: #d7d7d7;
+@light-diagram-menu-item-hover-text-color: @dark-diagram-base-text-color;

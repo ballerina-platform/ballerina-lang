@@ -1,4 +1,4 @@
-function forkJoinWithWorkers() returns int {
+function forkWithWorkers() returns int {
     fork {
         worker forkWorker1 returns int {
             int a = 1;
@@ -21,7 +21,7 @@ function forkJoinWithWorkers() returns int {
         return a;
     }
 
-    var result = wait {forkWorker1, forkWorker2, newWorker1, newWorker2};
+    map<int> result = wait {forkWorker1, forkWorker2, newWorker1, newWorker2};
 
     return result.forkWorker1 + result.forkWorker2 + result.newWorker1 + result.newWorker2;
 }

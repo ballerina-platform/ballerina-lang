@@ -39,7 +39,7 @@ public interface BallerinaStatement extends BallerinaCompositeElement {
   BallerinaContinueStatement getContinueStatement();
 
   @Nullable
-  BallerinaDoneStatement getDoneStatement();
+  BallerinaErrorDestructuringStatement getErrorDestructuringStatement();
 
   @Nullable
   BallerinaExpressionStmt getExpressionStmt();

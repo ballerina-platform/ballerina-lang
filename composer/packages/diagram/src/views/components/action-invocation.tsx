@@ -14,7 +14,7 @@ export const ActionInvocation: React.StatelessComponent<{
 }) => {
         const sendLine = { x1: 0, y1: 0, x2: 0, y2: 0 };
         const receiveLine = { x1: 0, y1: 0, x2: 0, y2: 0 };
-        const actionProps = {x: 0, y: 0};
+        const actionProps = { x: 0, y: 0 };
 
         sendLine.x1 = model.bBox.x;
         sendLine.y1 = sendLine.y2 = model.bBox.y + config.statement.height;
@@ -31,8 +31,9 @@ export const ActionInvocation: React.StatelessComponent<{
                 <line {...sendLine} />
                 <ArrowHead direction="right" x={sendLine.x2} y={sendLine.y2} />
                 <line {...receiveLine} strokeDasharray={5} />
-                <ArrowHead direction="left"  x={receiveLine.x1} y={receiveLine.y1} />
-                <rect x={sendLine.x2} y={sendLine.y2} width="6" height={(config.statement.height / 2)} />
+                <ArrowHead direction="left" x={receiveLine.x1} y={receiveLine.y1} />
+                <rect x={sendLine.x2} y={sendLine.y2} width="6" height={(config.statement.height / 2)}
+                    className="endpoint-activity" />
                 <text {...actionProps}>{action}</text>
             </g>
         );

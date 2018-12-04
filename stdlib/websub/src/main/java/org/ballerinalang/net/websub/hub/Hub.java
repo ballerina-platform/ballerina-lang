@@ -53,7 +53,6 @@ public class Hub {
     private static Hub instance = new Hub();
     private BallerinaBroker brokerInstance = null;
     private BMap<String, BValue> hubObject = null;
-    private BValue hubEndpoint = null;
     private String hubUrl;
     private boolean hubTopicRegistrationRequired;
     private boolean hubPersistenceEnabled;
@@ -65,6 +64,9 @@ public class Hub {
     // TODO: 9/23/18 make CopyOnWriteArrayList?
     private List<String> topics = new ArrayList<>();
     private List<HubSubscriber> subscribers = new ArrayList<>();
+
+    private static final String BASE_PATH = "/websub";
+    private static final String HUB_PATH = "/hub";
 
     public static Hub getInstance() {
         return instance;
@@ -196,10 +198,9 @@ public class Hub {
      * Method to start up the default Ballerina WebSub Hub.
      *
      * @param context context
-     * @param topicRegistrationRequired required topic for registration
-     * @param publicUrl hub service public URL
      */
-    public void startUpHubService(Context context, BBoolean topicRegistrationRequired, BString publicUrl) {
+    @SuppressWarnings("unchecked")
+    public void startUpHubService(Context context) {
         synchronized (this) {
             if (!isStarted()) {
                 try {
@@ -209,12 +210,13 @@ public class Hub {
                 }
                 ProgramFile hubProgramFile = context.getProgramFile();
                 PackageInfo hubPackageInfo = hubProgramFile.getPackageInfo(WEBSUB_PACKAGE);
-                if (hubPackageInfo != null) {
-                    BValue[] returns = BVMExecutor.executeFunction(hubProgramFile,
-                            hubPackageInfo.getFunctionInfo("startHubService"));
-                    hubTopicRegistrationRequired = topicRegistrationRequired.booleanValue();
+                BBoolean topicRegistrationRequired = new BBoolean(context.getBooleanArgument(0));
+                BString publicUrl = new BString(context.getStringArgument(0));
+                BMap<String, BValue> hubListener = ((BMap<String, BValue>) context.getRefArgument(0));
 
-                    String hubUrl = publicUrl.stringValue();
+                if (hubPackageInfo != null) {
+                    hubTopicRegistrationRequired = topicRegistrationRequired.booleanValue();
+                    String hubUrl = populateHubUrl(publicUrl, hubListener);
                     BValue[] args = new BValue[0];
                     //TODO: change once made public and available as a param
                     hubPersistenceEnabled = Boolean.parseBoolean((BVMExecutor.executeFunction(hubProgramFile,
@@ -226,15 +228,26 @@ public class Hub {
                     started = true;
                     BVMExecutor.executeFunction(hubProgramFile, hubPackageInfo
                             .getFunctionInfo("setupOnStartup"), args);
-                    setHubEndpoint(returns[0]);
                     setHubUrl(hubUrl);
                     setHubObject(BLangConnectorSPIUtil.createObject(context, WEBSUB_PACKAGE,
-                                                     STRUCT_WEBSUB_BALLERINA_HUB, new BString(hubUrl), returns[0]));
+                                                     STRUCT_WEBSUB_BALLERINA_HUB, new BString(hubUrl), hubListener));
                 }
             } else {
                 throw new BallerinaWebSubException("Hub Service already started up");
             }
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private String populateHubUrl(BString publicUrl, BMap<String, BValue> hubListener) {
+        String hubUrl = publicUrl.stringValue();
+        if (publicUrl.stringValue().isEmpty()) {
+            String hubPort = String.valueOf(hubListener.get("port"));
+            BValue secureSocket = ((BMap) hubListener.get("config")).get("secureSocket");
+            hubUrl =  secureSocket != null ? ("https://localhost:" + hubPort + BASE_PATH + HUB_PATH)
+                        : ("http://localhost:" + hubPort + BASE_PATH + HUB_PATH);
+        }
+        return hubUrl;
     }
 
     /**
@@ -283,10 +296,6 @@ public class Hub {
      */
     private void setHubProgramFile(ProgramFile programFile) {
         hubProgramFile = programFile;
-    }
-
-    private void setHubEndpoint(BValue hubEndpoint) {
-        this.hubEndpoint = hubEndpoint;
     }
 
     private void setHubUrl(String hubUrl) {

@@ -2,4 +2,4 @@
 // running executions.
 // Workers can be declared within functions or resources.
 // Worker execution starts immediately after invoking the relevant function,
-// action, or resource that encloses the worker(s).
+// remote function, or resource that encloses the worker(s).

@@ -53,7 +53,6 @@ import static org.ballerinalang.test.utils.debug.Util.createBreakNodeLocations;
 /**
  * Test Cases for {@link Debugger}.
  */
-@Test(groups = "broken")
 public class VMDebuggerTest {
 
     private static final String FILE = "test-debug.bal";
@@ -129,7 +128,6 @@ public class VMDebuggerTest {
         debugPoints.add(Util.createDebugPoint(".", FILE, 14, RESUME, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 8, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 41, STEP_IN, 1));
-        debugPoints.add(Util.createDebugPoint(".", FILE, 25, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 26, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 27, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 28, STEP_IN, 1));
@@ -137,6 +135,7 @@ public class VMDebuggerTest {
         debugPoints.add(Util.createDebugPoint(".", FILE, 31, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 37, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 38, STEP_IN, 1));
+        debugPoints.add(Util.createDebugPoint(".", FILE, 41, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 42, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 43, STEP_IN, 1));
 
@@ -251,7 +250,7 @@ public class VMDebuggerTest {
         VMDebuggerUtil.startDebug("test-src/debugger/while-statement.bal", breakPoints, expRes);
     }
 
-    @Test(description = "Testing try catch finally scenario for path")
+    @Test(enabled = false, description = "Testing try catch finally scenario for path")
     public void testTryCatchScenarioForPath() {
         BreakPointDTO[] breakPoints = createBreakNodeLocations(".", "try-catch-finally.bal", 19);
 
@@ -285,7 +284,7 @@ public class VMDebuggerTest {
         VMDebuggerUtil.startDebug("test-src/debugger/try-catch-finally.bal", breakPoints, expRes);
     }
 
-    @Test(description = "Testing debug paths in workers")
+    @Test(enabled = false, description = "Testing debug paths in workers")
     public void testDebuggingWorkers() {
         BreakPointDTO[] breakPoints = createBreakNodeLocations(".", "test-worker.bal", 3, 9, 10, 18, 19, 23, 48);
 
@@ -370,28 +369,25 @@ public class VMDebuggerTest {
         List<DebugPoint> debugPoints = new ArrayList<>();
         debugPoints.add(Util.createDebugPoint(".", file, 3, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 7, STEP_IN, 1));
-        debugPoints.add(Util.createDebugPoint(".", file, 29, STEP_OVER, 1));
-        debugPoints.add(Util.createDebugPoint(".", file, 23, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 26, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 30, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 31, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 32, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 8, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 35, STEP_OVER, 1));
-        debugPoints.add(Util.createDebugPoint(".", file, 36, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 37, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 51, STEP_OUT, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 9, STEP_IN, 1));
-        debugPoints.add(Util.createDebugPoint(".", file, 29, STEP_OUT, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 26, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 30, STEP_OUT, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 10, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 35, STEP_IN, 1));
-        debugPoints.add(Util.createDebugPoint(".", file, 36, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 39, STEP_OVER, 1));
-        debugPoints.add(Util.createDebugPoint(".", file, 40, STEP_OUT, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 40, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 51, STEP_OUT, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 11, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 12, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 35, STEP_OVER, 1));
-        debugPoints.add(Util.createDebugPoint(".", file, 36, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 39, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 42, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 43, STEP_OVER, 1));
@@ -404,9 +400,10 @@ public class VMDebuggerTest {
         debugPoints.add(Util.createDebugPoint(".", file, 66, RESUME, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 54, STEP_OUT, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 67, STEP_OUT, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 16, STEP_OUT, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 4, RESUME, 1));
 
-        ExpectedResults expRes = new ExpectedResults(debugPoints, 37, 0, new ArrayList<>(), false);
+        ExpectedResults expRes = new ExpectedResults(debugPoints, 35, 0, new ArrayList<>(), false);
 
         VMDebuggerUtil.startDebug("test-src/debugger/test_object_and_match.bal", breakPoints, expRes);
     }
@@ -468,7 +465,7 @@ public class VMDebuggerTest {
         VMDebuggerUtil.startDebug("test-src/debugger/test_variables.bal", breakPoints, expRes);
     }
 
-    @Test(description = "Test debugging when multi-packages available")
+    @Test(enabled = false, description = "Test debugging when multi-packages available")
     public void testMultiPackage() {
         String file = "apple.bal";
         String packagePath = "abc/fruits:0.0.1";
@@ -486,7 +483,7 @@ public class VMDebuggerTest {
         VMDebuggerUtil.startDebug("test-src/debugger/multi-package/main.bal", breakPoints, expRes);
     }
 
-    @Test(description = "Test evaluating global variables from other packages")
+    @Test(enabled = false, description = "Test evaluating global variables from other packages")
     public void testEvaluatingOtherPackageGlobalVars() {
         String file = "apple.bal";
         String packagePath = "abc/fruits:0.0.1";
@@ -510,7 +507,7 @@ public class VMDebuggerTest {
         VMDebuggerUtil.startDebug("test-src/debugger/multi-package/main.bal", breakPoints, expRes);
     }
 
-    @Test(description = "Test ignoring non-nullable global variables with null values")
+    @Test(enabled = false, description = "Test ignoring non-nullable global variables with null values")
     public void testGlobalVariableNullability() {
         String file = "test_variables.bal";
         BreakPointDTO[] breakPoints = createBreakNodeLocations(".", file, 31);

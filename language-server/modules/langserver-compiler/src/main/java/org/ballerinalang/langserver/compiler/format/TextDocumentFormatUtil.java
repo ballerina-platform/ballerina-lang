@@ -27,6 +27,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
+import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.common.modal.SymbolMetaInfo;
@@ -47,6 +48,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -82,14 +84,15 @@ public class TextDocumentFormatUtil {
      * @param context         Document formatting context
      * @return {@link JsonObject}   AST as a Json Object
      * @throws JSONGenerationException when AST build fails
+     * @throws LSCompilerException when compilation fails
      */
     public static JsonObject getAST(String uri, LSCompiler lsCompiler,
                                     WorkspaceDocumentManager documentManager, LSContext context)
-            throws JSONGenerationException {
+            throws JSONGenerationException, LSCompilerException {
         String[] uriParts = uri.split(Pattern.quote("/"));
         String fileName = uriParts[uriParts.length - 1];
         final BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager,
-                true, LSCustomErrorStrategy.class, false).getRight();
+                                                                      true, LSCustomErrorStrategy.class, false);
         context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, bLangPackage.symbol.getName().getValue());
         final List<Diagnostic> diagnostics = new ArrayList<>();
         JsonArray errors = new JsonArray();
@@ -128,8 +131,8 @@ public class TextDocumentFormatUtil {
     /**
      * Generate json representation for the given node.
      *
-     * @param node        Node to get the json representation
-     * @param anonStructs Map of anonymous structs
+     * @param node              Node to get the json representation
+     * @param anonStructs       Map of anonymous structs
      * @param symbolMetaInfoMap symbol meta information map
      * @return {@link JsonElement}          Json Representation of the node
      * @throws JSONGenerationException when Json error occurs
@@ -261,6 +264,11 @@ public class TextDocumentFormatUtil {
                             }
                         }
                         listPropJson.add(generateJSON((Node) listPropItem, anonStructs, symbolMetaInfoMap));
+                    } else if (listPropItem instanceof BLangRecordVarRef.BLangRecordVarRefKeyValue) {
+                        listPropJson.add(generateJSON(((BLangRecordVarRef.BLangRecordVarRefKeyValue) listPropItem)
+                                .getVariableName(), anonStructs, symbolMetaInfoMap));
+                        listPropJson.add(generateJSON(((BLangRecordVarRef.BLangRecordVarRefKeyValue) listPropItem)
+                                .getBindingPattern(), anonStructs, symbolMetaInfoMap));
                     } else if (listPropItem instanceof String) {
                         listPropJson.add((String) listPropItem);
                     } else {

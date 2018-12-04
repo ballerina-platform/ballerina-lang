@@ -4,7 +4,7 @@ public function main (string... args) returns error? {
     x += "static";
     secureFunction(x, x);
 
-    var x2 = int.create("100");
+    var x2 = int.convert("100");
     if (x2 is int) {
         x2 += 1;
         secureFunction(x2,x2);

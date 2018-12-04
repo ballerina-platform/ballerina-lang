@@ -80,6 +80,9 @@ public class TestCmd implements BLauncherCmd {
     @CommandLine.Option(names = "--exclude-modules", split = ",", description = "modules to be excluded")
     private List<String> excludedModuleList;
 
+    @CommandLine.Option(names = "--experimental", description = "enable experimental language features")
+    private boolean experimentalFlag;
+
     public void execute() {
         if (helpFlag) {
             outStream.println(BLauncherCmd.getCommandUsageInfo("test"));
@@ -142,13 +145,13 @@ public class TestCmd implements BLauncherCmd {
         }
         BTestRunner testRunner = new BTestRunner();
         if (listGroups) {
-            testRunner.listGroups(sourceRootPath.toString(), paths);
+            testRunner.listGroups(sourceRootPath.toString(), paths, experimentalFlag);
             Runtime.getRuntime().exit(0);
         }
         if (disableGroupList != null) {
-            testRunner.runTest(sourceRootPath.toString(), paths, disableGroupList, false);
+            testRunner.runTest(sourceRootPath.toString(), paths, disableGroupList, false, experimentalFlag);
         } else {
-            testRunner.runTest(sourceRootPath.toString(), paths, groupList);
+            testRunner.runTest(sourceRootPath.toString(), paths, groupList, experimentalFlag);
         }
         if (testRunner.getTesterinaReport().isFailure()) {
             TesterinaUtils.cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));

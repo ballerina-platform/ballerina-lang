@@ -286,17 +286,17 @@ function testUpdateNestedElement () returns (json) {
 
 function testEmptyStringToJson () returns (json) {
     string s = "";
-    return json.create(s);
+    return json.convert(s);
 }
 
 function testJsonStringToJson () returns (json) {
     string s = "{\"name\", \"supun\"}";
-    return json.create(s);
+    return json.convert(s);
 }
 
 function testStringWithEscapedCharsToJson () returns (json) {
     string s = "{\\\"name\\\", \"supun\"}";
-    return json.create(s);
+    return json.convert(s);
 }
 
 function testJsonLength () returns (int, int) {
@@ -370,7 +370,7 @@ function testNullJsonToBoolean() returns (boolean) {
 
 function testNullJsonToMap() returns (map<any>) {
     json j = null;
-    var m = map<json>.create(j);
+    var m = map<json>.convert(j);
     if (m is map<json>) {
         return m;
     } else {
