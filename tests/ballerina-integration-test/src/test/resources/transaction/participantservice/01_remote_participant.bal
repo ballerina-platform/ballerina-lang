@@ -447,7 +447,7 @@ service initiatorService on new http:Listener(8888) {
                     s += " error-getTextPayload";
                 }
             } else {
-                s += " error-from-remote: " + result.reason() + "desc: " + string.create(result.detail().message);
+                s += " error-from-remote: " + result.reason() + "desc: " + string.convert(result.detail().message);
             }
             s += localParticipant();
         } onretry {
