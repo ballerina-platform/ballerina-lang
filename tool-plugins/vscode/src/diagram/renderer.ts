@@ -75,7 +75,6 @@ function renderDiagram(context: ExtensionContext, docUri: Uri): string {
                     };
                     const diagram = ballerinaComposer.renderDiagramEditor(options);
                     webViewRPCHandler.addMethod("updateAST", (args) => {
-                        console.log(args);
                         diagram.updateAST(args[0]);
                         return Promise.resolve({});
                     });
