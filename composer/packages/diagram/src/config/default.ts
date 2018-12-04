@@ -40,7 +40,7 @@ export class DiagramConfig {
         padding: {
             bottom: 0,
             left: 0,
-            right: 0,
+            right: 200,
             top: 0,
         },
     };
