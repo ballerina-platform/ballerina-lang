@@ -10,8 +10,9 @@ export const Block: React.StatelessComponent<{
     }) => {
         const statements: React.ReactNode[] = [];
         statements.push(DiagramUtils.getComponents(model.statements));
+
         return (
-            <g className="panel">
+            <g className="worker-block-container">
                 {statements}
             </g>);
     };

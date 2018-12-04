@@ -83,6 +83,22 @@ export class DiagramConfig {
         width: 120,
     };
 
+    public condition = {
+        caseLabel: {
+            height: 19,
+            margin: {
+                bottom: 5,
+                left: 5,
+                right: 5,
+                top: 5,
+            },
+            padding: {
+                left: 4,
+                right: 4,
+            }
+        }
+    };
+
     public flowCtrl = {
         bottomMargin: STATEMENT_HEIGHT / 2,
         condition: {

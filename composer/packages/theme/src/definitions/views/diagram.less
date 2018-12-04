@@ -42,51 +42,31 @@
                             text-anchor: middle;
                         }
 
-                        &.life-line-worker{
-                            stroke: #257AA8;
-                            color: #257AA8;
+                        &.life-line-worker {
+                            stroke:  ~"@{@{color}-diagram-life-line-worker-stroke-color}";
+                            color: ~"@{@{color}-diagram-life-line-worker-stroke-color}";
 
                             rect {
-                                fill: #257AA8;
+                                fill: ~"@{@{color}-diagram-life-line-worker-stroke-color}";
                             }
-                            text{
-                                fill: #257AA8;
+                            text {
+                                fill: ~"@{@{color}-diagram-life-line-worker-stroke-color}";
                             }
                         }
-                        &.life-line-endpoint{
-                            stroke: @teal;
-                            color:@teal;
+                        &.life-line-endpoint {
+                            stroke: ~"@{@{color}-diagram-life-line-endpoint-stroke-color}";
+                            color: ~"@{@{color}-diagram-life-line-endpoint-stroke-color}";
 
                             rect {
-                                fill: @teal;
+                                fill: ~"@{@{color}-diagram-life-line-endpoint-stroke-color}";
                             }
-                            text{
-                                fill: @teal;
+                            text {
+                                fill: ~"@{@{color}-diagram-life-line-endpoint-stroke-color}";
                             }
                         }
                     }
-                    .endpoint-activity {
-                        fill: @teal;
-                    }
-
-                    .condition {
-                        .label {
-                            text-anchor: middle;
-                        }
-                        polyline {
-                            fill: ~"@{@{color}-diagram-condition-background-color}";
-                            stroke: ~"@{@{color}-diagram-condition-stroke-color}";
-                            stroke-width: @diagram-condition-stroke-width;
-                        }
-                    }
-                    .condition-line {
-                        fill: transparent;
-                        stroke: ~"@{@{color}-diagram-condition-line-stroke-color}";
-                        stroke-width: @diagram-condition-line-stroke-width;
-                    }
-                    .hide-line {
-                        stroke: ~"@{@{color}-diagram-panel-body-background-color}";
-                        stroke-width: 2px;
+                    .life-line-endpoint-activity {
+                        fill: ~"@{@{color}-diagram-life-line-endpoint-stroke-activity-color}";
                     }
                     .arrow-head {
                         fill: ~"@{@{color}-diagram-arrow-head-color}";
@@ -106,6 +86,31 @@
                             stroke: ~"@{@{color}-diagram-arrow-head-color}";
                             stroke-width: 1px;
                         }
+                    }
+                    .condition {
+                        .condition-case-background {
+                            fill: ~"@{@{color}-diagram-condition-case-background-color}";
+                        }
+                        .label {
+                            text-anchor: middle;
+                        }
+                        polyline {
+                            fill: ~"@{@{color}-diagram-condition-background-color}";
+                            stroke: ~"@{@{color}-diagram-condition-stroke-color}";
+                            stroke-width: @diagram-condition-stroke-width;
+                        }
+                    }
+                    .condition-line {
+                        fill: transparent;
+                        stroke: ~"@{@{color}-diagram-condition-line-stroke-color}";
+                        stroke-width: @diagram-condition-line-stroke-width;
+                    }
+                    .condition-arrow-head {
+                        fill: ~"@{@{color}-diagram-condition-line-worker-arrow-head-color}";
+                    }
+                    .hide-line {
+                        stroke: ~"@{@{color}-diagram-panel-body-background-color}";
+                        stroke-width: 2px;
                     }
                 }
             }
@@ -183,8 +188,4 @@
 
 body {
     .diagram("light");
-    
-    &.dark {
-        .diagram("dark");
-    }
 }

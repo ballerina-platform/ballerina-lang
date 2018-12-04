@@ -69,12 +69,12 @@ export const If: React.StatelessComponent<{
         r4.y = r3.y;
 
         return (
-            <g className="panel">
-                <Condition {...conditionProps} />
+            <g className="worker-block">
                 <polyline className="condition-line"
                     points={`${r1.x},${r1.y} ${r2.x},${r2.y} ${r3.x},${r3.y} ${r4.x},${r4.y}`}
                 />
-                <ArrowHead direction={"left"} {...r4} />
+                <ArrowHead condition direction={"left"} {...r4} />
+                <Condition {...conditionProps} />
                 {children}
             </g>);
     };

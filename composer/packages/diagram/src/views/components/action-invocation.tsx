@@ -33,7 +33,7 @@ export const ActionInvocation: React.StatelessComponent<{
                 <line {...receiveLine} strokeDasharray={5} />
                 <ArrowHead direction="left" x={receiveLine.x1} y={receiveLine.y1} />
                 <rect x={sendLine.x2} y={sendLine.y2} width="6" height={(config.statement.height / 2)}
-                    className="endpoint-activity" />
+                    className="life-line-endpoint-activity" />
                 <text {...actionProps}>{action}</text>
             </g>
         );
