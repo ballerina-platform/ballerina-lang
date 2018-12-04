@@ -1,6 +1,4 @@
 #To run this sample, navigate to the directory that contains the
 #'.bal' file and issue the 'ballerina run' command.
-$ ballerina run is_like.bal
+$ ballerina run type_convert.bal
 empPerson name: Jack Sparrow
-stampedEmpPerson name: Jack Sparrow
-emp name: John Doe

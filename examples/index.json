@@ -202,8 +202,8 @@
                 "url": "type-assertion"
             },
             {
-                "name": "Is Like",
-                "url": "is-like"
+                "name": "Type Convert",
+                "url": "type-convert"
             },
             {
                 "name": "Length",

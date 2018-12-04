@@ -11,9 +11,8 @@ type Employee record {
     int empNo = 0;
 };
 
-function explainTypeAssertion(anydata emp) returns () {
-    // There is no type casting happens here. Here, emp variable's type is asserted as `Employee` and assigns the same emp
-    // value to employee variable. This is safe type assertion.
+function assertTypes(anydata emp) {
+    // `emp` is asserted to be of type `Employee` and if successful the value is assigned to variable `employee`.
     Employee employee = <Employee>emp;
     io:println("Type asserted employee name: ", employee.name);
 
@@ -23,6 +22,6 @@ function explainTypeAssertion(anydata emp) returns () {
 }
 
 public function main() {
-    Employee emp2 = {name: "Speedy Gonzales", age: 4, empNo: 1};
-    explainTypeAssertion(emp2);
+    Employee emp2 = { name: "Speedy Gonzales", age: 4, empNo: 1 };
+    assertTypes(emp2);
 }

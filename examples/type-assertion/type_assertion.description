@@ -1,4 +1,2 @@
-// Type assertion is an exact type check. This will assert that given value is in asserted type. If it is, then assertion
-// assigns the provided value to the specified valriable, otherwise panic. In type assertion panic case, use `trap` to handle
-// the error. If the provided value that is being asserted E.g. type `any` or `anydata` then it is better to use `trap`
-// since it is not guaranteed to be safe.
+// Type assertion is a check for exact type. Type assertion checks if a given value's storage type is exactly a particular type.
+// Type assertion results in panic, if assertion fails (i. e., the value is not of the asserted type).

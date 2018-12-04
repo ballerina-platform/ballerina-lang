@@ -3,7 +3,7 @@ import ballerina/io;
 public function main() {
 
     int[5] intArray = [0, 1, 2, 3, 4];
-    foreach counter in intArray {
+    foreach int counter in intArray {
 
         // `counter` variable value assigned with the foreach is checked with the value match.
         match counter {
