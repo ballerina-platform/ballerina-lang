@@ -12,14 +12,14 @@ type Student record {
 
 
 public function main(string... args) {
-    endpoint mysql:Client customerDBEP {
+    mysql:Client customerDBEP = new ({
         host: "localhost",
         port: 3306,
         name: "testdb",
         username: "root",
         password: "root",
         poolOptions: { maximumPoolSize: 5 }
-    };
+    });
 
     // Sensitive parameters of functions built-in to Ballerina are decorated with the `@sensitive` annotation. This
     // ensures that tainted data cannot pass into the security sensitive parameter.
@@ -28,7 +28,7 @@ public function main(string... args) {
     // disallowing tainted data in the SQL query.
     //
     // This line results in a compiler error because the query is appended with a user-provided argument.
-    table dataTable = check customerDBEP->
+    table<string> dataTable = check customerDBEP->
     select("SELECT firstname FROM student WHERE registration_id = " +
             args[0], null);
 
@@ -41,7 +41,7 @@ public function main(string... args) {
         userDefinedSecureOperation(untaint args[0]);
     } else {
         error err = error("Validation error: ID should be an integer");
-        throw err;
+        panic err;
     }
 
     while (dataTable.hasNext()) {
