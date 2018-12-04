@@ -228,7 +228,7 @@ function testToJson() returns (json|error) {
     _ = dt.add(p2);
     _ = dt.add(p3);
 
-    json j = check json.create(dt);
+    json j = check json.convert(dt);
     return j;
 }
 
@@ -242,7 +242,7 @@ function testToXML() returns (xml|error) {
     _ = dt.add(p2);
     _ = dt.add(p3);
 
-    xml x = check xml.create(dt);
+    xml x = check xml.convert(dt);
     return x;
 }
 
@@ -283,7 +283,7 @@ function testTableWithAllDataToJson() returns (json|error) {
     _ = dt3.add(t1);
     _ = dt3.add(t2);
 
-    json j = check json.create(dt3);
+    json j = check json.convert(dt3);
     return j;
 }
 
@@ -297,7 +297,7 @@ function testTableWithAllDataToXml() returns (xml|error) {
     _ = dt3.add(t1);
     _ = dt3.add(t2);
 
-    xml x = check xml.create(dt3);
+    xml x = check xml.convert(dt3);
     return x;
 }
 
@@ -330,7 +330,7 @@ function testTableWithBlobDataToJson() returns (json|error) {
     table<BlobTypeTest> dt3 = table{};
     _ = dt3.add(t1);
 
-    json j = check json.create(dt3);
+    json j = check json.convert(dt3);
     return j;
 }
 
@@ -342,7 +342,7 @@ function testTableWithBlobDataToXml() returns (xml|error) {
     table<BlobTypeTest> dt3 = table{};
     _ = dt3.add(t1);
 
-    xml x = check xml.create(dt3);
+    xml x = check xml.convert(dt3);
     return x;
 }
 
@@ -370,7 +370,7 @@ function testTableWithAnyDataToJson() returns (json|error) {
     table<AnyTypeTest> dt3 = table{};
     _ = dt3.add(t1);
 
-    json j = check json.create(dt3);
+    json j = check json.convert(dt3);
     return j;
 }
 
@@ -380,7 +380,7 @@ function testStructWithDefaultDataToJson() returns (json|error) {
     table<Person> dt3 = table{};
     _ = dt3.add(p1);
 
-    json j = check json.create(dt3);
+    json j = check json.convert(dt3);
     return j;
 }
 
@@ -390,7 +390,7 @@ function testStructWithDefaultDataToXml() returns (xml|error) {
     table<Person> dt3 = table{};
     _ = dt3.add(p1);
 
-    xml x = check xml.create(dt3);
+    xml x = check xml.convert(dt3);
     return x;
 }
 
@@ -435,7 +435,7 @@ function testTableWithArrayDataToJson() returns (json|error) {
     _ = dt3.add(t1);
     _ = dt3.add(t2);
 
-    json j = check json.create(dt3);
+    json j = check json.convert(dt3);
     return j;
 }
 
@@ -458,7 +458,7 @@ function testTableWithArrayDataToXml() returns (xml|error) {
     _ = dt3.add(t1);
     _ = dt3.add(t2);
 
-    xml x = check xml.create(dt3);
+    xml x = check xml.convert(dt3);
     return x;
 }
 
@@ -501,7 +501,7 @@ function testTableRemoveSuccess() returns (int, json)|error {
     _ = dt.add(p3);
 
     int count = check dt.remove(isBelow35);
-    json j = check json.create(dt);
+    json j = check json.convert(dt);
 
     return (count, j);
 }
@@ -517,7 +517,7 @@ function testTableRemoveSuccessMultipleMatch() returns (int, json)|error {
     _ = dt.add(p3);
 
     int count = check dt.remove(isJohn);
-    json j = check json.create(dt);
+    json j = check json.convert(dt);
 
     return (count, j);
 }
@@ -534,7 +534,7 @@ function testTableRemoveFailed() returns (int, json)|error {
     _ = dt.add(p3);
 
     int count = check dt.remove(isBelow35);
-    json j = check json.create(dt);
+    json j = check json.convert(dt);
 
     return (count, j);
 }
@@ -549,11 +549,11 @@ function testTableAddAndAccess() returns (string, string)|error {
     _ = dt.add(p1);
     _ = dt.add(p2);
 
-    json j1 = check json.create(dt);
+    json j1 = check json.convert(dt);
     string s1 = j1.toString();
 
     _ = dt.add(p3);
-    json j2 = check json.create(dt);
+    json j2 = check json.convert(dt);
     string s2 = j2.toString();
 
     return (s1, s2);

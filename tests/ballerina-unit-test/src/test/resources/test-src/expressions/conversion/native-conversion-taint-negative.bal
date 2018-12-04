@@ -24,6 +24,6 @@ function testSensitiveArg(@sensitive int intArg) {
 
 public function convertTaintedValue() {
     float x = returnTaintedValue();
-    int y = int.create(x);
+    int y = int.convert(x);
     testSensitiveArg(y);
 }

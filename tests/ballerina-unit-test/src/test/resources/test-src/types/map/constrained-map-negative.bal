@@ -66,7 +66,7 @@ type Student record {
 
 function testInvalidStructToConstrainedMapSafeConversion() returns (map<int>|error) {
     Student s = {index:100, age:25};
-    map<int> imap = check map<int>.create(s);
+    map<int> imap = check map<int>.convert(s);
     return imap;
 }
 
