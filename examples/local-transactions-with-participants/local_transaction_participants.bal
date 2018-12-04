@@ -28,7 +28,7 @@ public function main() {
 }
 function localTransactionParticipant() {
     io:println("Invoke local participant function.");
-    error er = error("simulated Failure");
+    error er = error("Simulated Failure");
     panic er;
 }
 
