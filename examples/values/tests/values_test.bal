@@ -20,7 +20,9 @@ function testFunc() {
     main();
     test:assertEquals(outputs[0], 10);
     test:assertEquals(outputs[1], 20.0);
-    test:assertEquals(outputs[2], 23);
-    test:assertEquals(outputs[3], "Ballerina");
-    test:assertEquals(outputs[4], true);
+    // TODO: Change it to decimal comparison once issue #12393 is fixed
+    test:assertEquals(string.convert(outputs[2]), "27.5");
+    test:assertEquals(outputs[3], 23);
+    test:assertEquals(outputs[4], "Ballerina");
+    test:assertEquals(outputs[5], true);
 }

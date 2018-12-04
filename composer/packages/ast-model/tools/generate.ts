@@ -2,7 +2,6 @@ import * as fs from "fs";
 import { sync as globSync } from "glob";
 import * as path from "path";
 import { fix } from "prettier-tslint";
-import { CompilationUnit } from "../src/ast-interfaces";
 import { findModelInfo, genBaseVisitorFileCode, genCheckKindUtilCode,
     genInterfacesFileCode } from "./generators";
 import { genAST, shutdown } from "./lang-client";
@@ -18,7 +17,6 @@ const modelInfo: any = {};
 const AST_INTERFACES_PATH = "./src/ast-interfaces.ts";
 const BASE_VISITOR_PATH = "./src/base-visitor.ts";
 const CHECK_KIND_UTIL_PATH = "./src/check-kind-util.ts";
-const DEFAULT_NODES_PATH = "./src/default-nodes/resources";
 
 const balFiles = globSync(path.join(
     process.cwd(), "..", "..", "..", "{examples,tests}", "**", "*.bal"), {});
@@ -28,24 +26,6 @@ const notParsedBalFiles: string[] = [];
 const usedBalFiles: string[] = [];
 
 processPart(0, 100);
-
-function genDefaultNodes() {
-    const defaultNodesBal = path.join(__dirname, "resources", "top-level-defs.bal");
-    genAST(defaultNodesBal).then((ast: CompilationUnit) => {
-        if (!ast) {
-            return;
-        }
-
-        const defaultImportPath = path.join(DEFAULT_NODES_PATH, "import.json");
-        fs.writeFileSync(defaultImportPath, JSON.stringify(ast.topLevelNodes[0]));
-
-        const defaultFunctionPath = path.join(DEFAULT_NODES_PATH, "function.json");
-        fs.writeFileSync(defaultFunctionPath, JSON.stringify(ast.topLevelNodes[1]));
-
-        const defaultMainFunctionPath = path.join(DEFAULT_NODES_PATH, "main-function.json");
-        fs.writeFileSync(defaultMainFunctionPath, JSON.stringify(ast.topLevelNodes[6]));
-    });
-}
 
 function printSummary() {
     const { log } = console;
@@ -85,7 +65,6 @@ function processPart(start: number, count: number) {
             genFiles();
             shutdown();
             printSummary();
-            genDefaultNodes();
             return;
         }
 
