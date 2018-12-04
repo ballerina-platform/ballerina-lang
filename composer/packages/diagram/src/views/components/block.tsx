@@ -26,8 +26,6 @@ export class Block extends React.Component<{ model: BlockNode }, { isHovered: bo
             <g
                 className="panel block"
             >
-                {statements}
-                {<BlockDropdown active={isHovered} triggerPosition={triggerPosition} model={model} />}
                 <rect
                     className="hover-rect"
                     {...hoverRectBBox}
@@ -41,7 +39,10 @@ export class Block extends React.Component<{ model: BlockNode }, { isHovered: bo
                             isHovered: false
                         });
                     }}
+                    visibility="hidden"
                 />
+                {statements}
+                {<BlockDropdown active={isHovered} triggerPosition={triggerPosition} model={model} />}
             </g>);
     }
 }

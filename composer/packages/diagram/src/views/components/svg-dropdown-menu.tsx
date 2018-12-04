@@ -48,7 +48,7 @@ export class SVGDropDownMenu extends React.Component<SVGDropDownMenuProps, SVGDr
     public render() {
         const { triggerIcon, triggerPosition, triggerPosition: { x, y },
                 items, className, onMouseOut, onMouseOver } = this.props;
-        const btnRadius = 10;
+        const btnRadius = 8;
         const itemHeight = 25;
         const itemWidth = 150;
         const iconOffsetLeft = 5;

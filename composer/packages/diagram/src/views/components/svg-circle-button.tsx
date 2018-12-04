@@ -14,7 +14,7 @@ export interface SVGCircleButtonProps {
 }
 
 export const SVGCircleButton: StatelessComponent<SVGCircleButtonProps> =
-    ({ text, icon, enabled = true, radius = 10, position, className, onClick }) => {
+    ({ text, icon, enabled = true, radius = 8, position, className, onClick }) => {
     const iconText = (icon && getCodePoint(icon)) ? getCodePoint(icon) : icon;
     return <Fragment>
         <g className={cn("svg-button", "circle", "noselect", { enabled }, className)} onClick={onClick} >

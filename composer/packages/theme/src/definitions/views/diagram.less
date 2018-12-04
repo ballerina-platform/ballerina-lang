@@ -13,6 +13,9 @@
             font-size: @diagram-font-size;
 
             .panel {
+                .statement {
+                    pointer-events: none;
+                }
                 .panel-header {
                     fill: ~"@{@{color}-diagram-panel-header-background-color}";
 
@@ -110,8 +113,7 @@
                 }
                 &.block {
                     .hover-rect {
-                        fill: none;
-                        pointer-events: all;
+                        pointer-events: painted;
                     }
                 }
             }

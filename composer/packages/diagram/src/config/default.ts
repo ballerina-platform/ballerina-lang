@@ -99,8 +99,8 @@ export class DiagramConfig {
     };
 
     public block = {
-        bottomMargin: 40,
-        menuTriggerMargin: 15,
+        bottomMargin: STATEMENT_HEIGHT,
+        menuTriggerMargin: 12,
     };
 }
 
