@@ -678,6 +678,10 @@
             {
                 "name": "HTTP Compression",
                 "url": "http-compression"
+            },
+            {
+                "name": "HTTP Interceptors/Filters",
+                "url": "http-filters"
             }
         ]
     },
