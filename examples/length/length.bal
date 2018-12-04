@@ -1,11 +1,20 @@
 import ballerina/io;
 
+type Student record {
+    int id;
+    string fname;
+    string lname;
+    int age;
+    string...
+};
+
 public function main() {
     // This creates an integer array with several integer elements.
     int[] intArray = [1, 2, 3];
     int length;
 
-    // This prints the length of the integer array created. The length is calculated using the `length` function.
+    // This prints the length of the integer array created. The length is 
+    // calculated using the `length` function.
     length = intArray.length();
     io:println("Integer array size: ", length);
 
@@ -43,4 +52,25 @@ public function main() {
                   </book>`;
     length = x1.*.elements().length();
     io:println("XML child elements size: ", length);
+
+    // This creates a tuple with two members.
+    (int, string) tupleVar = (10, "John");
+    length = tupleVar.length();
+    io:println("Tuple size: ", length);
+
+    // This creates a record of `Student` type
+    Student stu = { id: 1, fname: "John", lname: "Doe", age: 17};
+    length = stu.length();
+    io:println("Field size in `Student` record: ", length);
+
+    // This creates an in-memory table constrained by the `Student` type.
+    table<Student> tbStudent = table {
+        { key id, fname, lname, age },
+        [ { 1, "Mary", "Popins" , 17 },
+          { 2, "John", "Doe", 16 },
+          { 3, "Jim", "Carter", 17 }
+        ]
+    };
+    length = tbStudent.length();
+    io:println("Row count in table : ", length);
 }
