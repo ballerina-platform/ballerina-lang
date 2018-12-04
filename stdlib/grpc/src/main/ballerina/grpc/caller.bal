@@ -17,8 +17,8 @@
 # Provides the gRPC actions for interacting with caller.
 #
 # + instanceId - The connection id
-# + remoteAddress - The remote address
-# + localAddress - The local address
+# + remoteDetails - The remote details
+# + local - The local details
 public type Caller client object {
 
     public Remote remoteDetails = {};
