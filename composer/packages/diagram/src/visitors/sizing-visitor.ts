@@ -213,7 +213,7 @@ export const visitor: Visitor = {
 
     endVisitService(node: Service) {
         const viewState: ViewState = node.viewState;
-        let height = 0;
+        let height = config.panelGroup.header.height;
         // tslint:disable-next-line:ban-types
         node.resources.forEach((element: Function) => {
             viewState.bBox.w = (viewState.bBox.w > element.viewState.bBox.w)

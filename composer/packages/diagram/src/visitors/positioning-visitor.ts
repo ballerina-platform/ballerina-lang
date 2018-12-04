@@ -103,7 +103,7 @@ export const visitor: Visitor = {
 
         // Position drop down menu for adding workers and endpoints
         viewState.menuTrigger.x = epX;
-        viewState.menuTrigger.y = defaultWorker.bBox.y;
+        viewState.menuTrigger.y = defaultWorker.bBox.y + config.lifeLine.header.height / 2;
 
         // Update the width of children
         viewState.body.w = viewState.bBox.w;
@@ -150,7 +150,7 @@ export const visitor: Visitor = {
 
     beginVisitService(node: Service) {
         const viewState: ViewState = node.viewState;
-        let y = viewState.bBox.y;
+        let y = viewState.bBox.y + config.panelGroup.header.height;
         // tslint:disable-next-line:ban-types
         node.resources.forEach((element: Function) => {
             element.viewState.bBox.x = viewState.bBox.x;
