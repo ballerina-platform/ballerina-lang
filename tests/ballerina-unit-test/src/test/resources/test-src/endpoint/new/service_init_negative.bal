@@ -1,7 +1,7 @@
 listener ABC ep = new;
 
 service on ep {
-    string name;
+
 
     resource function foo(string b) {
     }

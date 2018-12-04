@@ -50,6 +50,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -223,7 +224,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             DiagnosticPos identifierPos = HoverUtil.getIdentifierPosition(varNode);
             if (HoverUtil.isMatchingPosition(identifierPos, this.position)) {
                 addPosition(varNode, this.previousNode, varNode.symbol.name.getValue(), varNode.symbol.pkgID,
-                            ContextConstants.ENDPOINT, ContextConstants.ENDPOINT, varNode.symbol.name.getValue(),
+                            ContextConstants.VARIABLE, ContextConstants.VARIABLE, varNode.symbol.name.getValue(),
                             varNode.symbol.owner);
                 setTerminateVisitor(true);
             }
@@ -598,9 +599,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             acceptNode(foreach.collection);
         }
 
-        if (foreach.varRefs != null) {
-            foreach.varRefs.forEach(this::acceptNode);
-        }
+        acceptNode((BLangNode) foreach.variableDefinitionNode);
 
         if (foreach.body != null) {
             acceptNode(foreach.body);
@@ -844,6 +843,18 @@ public class PositionTreeVisitor extends LSNodeVisitor {
 
         if (typeDefinition.typeNode != null) {
             this.acceptNode(typeDefinition.typeNode);
+        }
+    }
+
+    @Override
+    public void visit(BLangConstant constant) {
+        addTopLevelNodeToContext(constant, constant.name.getValue(), constant.symbol.pkgID,
+                                 ContextConstants.VARIABLE, ContextConstants.VARIABLE,
+                                 constant.symbol.owner);
+        setPreviousNode(constant);
+
+        if (constant.typeNode != null) {
+            this.acceptNode(constant.typeNode);
         }
     }
 

@@ -59,6 +59,10 @@ public class UtilSymbolKeys {
 
     public static final String ITR_OP_LAMBDA_PARAM_REPLACE_TOKEN = "%params%";
 
+    public static final String ITR_OP_LAMBDA_KEY_REPLACE_TOKEN = "%key%";
+
+    public static final String ITR_OP_LAMBDA_VALUE_REPLACE_TOKEN = "%value%";
+
     public static final String ACTION_KEYWORD_KEY = "action";
 
     public static final String ANY_KEYWORD_KEY = "any";

@@ -11,16 +11,16 @@ type Employee record {
     int empNo = 0;
 };
 
-// Concept is-like contains `create()` and `stamp()` functions. is-like is about converting runtime value's inherent storage type.
-// But to change inherent storage type, runtime value should be is-like the other type. E.g. Person.create(emp); emp's
+// Concept is-like contains `convert()` and `stamp()` functions. is-like is about converting runtime value's inherent storage type.
+// But to change inherent storage type, runtime value should be is-like the other type. E.g. Person.convert(emp); emp's
 // inherent storage type Employee. Here Employee is like Person, thus `emp` runtime inherent storage type can be coverted
 // to Person.
 function explainIsLike(Employee emp) returns () {
-    // `stamp()` changes inherent type of itself and does not create new value.
-    Person|error empPerson = Person.create(emp);
+    // `stamp()` changes inherent type of itself and does not convert new value.
+    Person|error empPerson = Person.convert(emp);
     io:println("empPerson name: ", (empPerson is Person) ? empPerson["name"] : empPerson.reason());
 
-    // `create()` creates a new value and changes its type without editing provided value's inherent type.
+    // `convert()` converts a new value and changes its type without editing provided value's inherent type.
     Person|error stampedEmpPerson = Person.stamp(emp);
     if (stampedEmpPerson is Person) {
         io:println("stampedEmpPerson name: ", <string>stampedEmpPerson["name"]);

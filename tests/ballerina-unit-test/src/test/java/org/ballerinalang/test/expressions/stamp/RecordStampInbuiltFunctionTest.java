@@ -21,6 +21,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BAnydataType;
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BErrorType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
@@ -237,6 +238,24 @@ public class RecordStampInbuiltFunctionTest {
 
         Assert.assertEquals(employee0.get("age").getType().getTag(), TypeTags.INT_TAG);
         Assert.assertEquals(employee0.get("age").stringValue(), "25");
+
+        Assert.assertEquals(employee0.get("batch").getType().getClass(), BStringType.class);
+        Assert.assertEquals(employee0.get("batch").stringValue(), "LK2014");
+
+        Assert.assertEquals(employee0.get("school").getType().getClass(), BStringType.class);
+        Assert.assertEquals(employee0.get("school").stringValue(), "Hindu College");
+    }
+
+    @Test
+    public void testStampFunctionReferenceWithArgs() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampFunctionReferenceWithArgs");
+        BMap<String, BValue> employee0 = (BMap<String, BValue>) results[0];
+
+        Assert.assertEquals(results.length, 1);
+
+        Assert.assertEquals(employee0.get("age").getType().getTag(), TypeTags.INT_TAG);
+        Assert.assertEquals(employee0.get("age").stringValue(), "23");
 
         Assert.assertEquals(employee0.get("batch").getType().getClass(), BStringType.class);
         Assert.assertEquals(employee0.get("batch").stringValue(), "LK2014");
@@ -504,6 +523,26 @@ public class RecordStampInbuiltFunctionTest {
 
         Assert.assertEquals(employee0.get("school").getType().getClass(), BStringType.class);
         Assert.assertEquals(employee0.get("school").stringValue(), "Hindu College");
+    }
+
+    @Test
+    public void testStampComplexRecordToJSON() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampComplexRecordToJSON");
+        BMap<String, BValue> employee0 = (BMap<String, BValue>) results[0];
+
+        Assert.assertEquals(results.length, 1);
+
+        Assert.assertEquals(employee0.getType().getClass(), BMapType.class);
+        Assert.assertEquals(((BMapType) employee0.getType()).getConstrainedType().getClass(), BAnydataType.class);
+
+        Assert.assertEquals((employee0.get("marks").getType().getClass()), BArrayType.class);
+        Assert.assertEquals(((BArrayType) ((BArrayType) (employee0).get("marks").getType()).getElementType()).
+                getElementType().getTag(), TypeTags.INT_TAG);
+
+        Assert.assertEquals(employee0.get("info").getType().getClass(), BMapType.class);
+        Assert.assertEquals(((BMapType) employee0.get("info").getType()).getConstrainedType().getClass(),
+                BAnydataType.class);
     }
 
     //---------------------------------- Negative Test cases ----------------------------------------------

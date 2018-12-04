@@ -23,12 +23,8 @@ function testAssertionWithUnassignableTypes() {
 }
 
 function testAssertionForCurrentlyUnsupportedTypes() {
-    stream<int|string> s1 = new;
-    any a = s1;
-    stream<int|json> s2 = <stream<int|json>> a;
-
     future<int> f1 = start testFutureFunc();
-    a = f1;
+    any a = f1;
     future<int> f2 = <future<int>> a;
 }
 

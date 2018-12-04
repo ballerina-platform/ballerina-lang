@@ -1,0 +1,5 @@
+// Ballerina supports the `stamp` function which allows to mutate
+// the value itself and set its storage type to a specified type.
+// Stamp function can only be used for `anydata` type variables.
+// Stamp function either returns the value with the stamped type
+// or error.

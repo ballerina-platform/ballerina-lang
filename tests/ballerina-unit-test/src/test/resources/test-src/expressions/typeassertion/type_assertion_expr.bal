@@ -286,32 +286,32 @@ function testRecordAssertionNegative() {
     Lead e2 = <Lead> p;
 }
 
-//function testTableAssertionPositive() returns boolean {
-//    table<TableEmployee> t1 = table {
-//        { key id, name },
-//        [
-//            { 1, "Mary" },
-//            { 2, "John" },
-//            { 3, "Jim" }
-//        ]
-//    };
-//    anydata a = t1;
-//    table<TableEmployee> t2 = <table<TableEmployee>> a;
-//    return t1 === t2;
-//}
-//
-//function testTableAssertionNegative() {
-//    table<TableEmployee> t1 = table {
-//        { key id, name },
-//        [
-//            { 1, "Mary" },
-//            { 2, "John" },
-//            { 3, "Jim" }
-//        ]
-//    };
-//    anydata a = t1;
-//    table<TableEmployeeTwo> t2 = <table<TableEmployeeTwo>> a;
-//}
+function testTableAssertionPositive() returns boolean {
+    table<TableEmployee> t1 = table {
+        { key id, name },
+        [
+            { 1, "Mary" },
+            { 2, "John" },
+            { 3, "Jim" }
+        ]
+    };
+    anydata a = t1;
+    table<TableEmployee> t2 = <table<TableEmployee>> a;
+    return t1 === t2;
+}
+
+function testTableAssertionNegative() {
+    table<TableEmployee> t1 = table {
+        { key id, name },
+        [
+            { 1, "Mary" },
+            { 2, "John" },
+            { 3, "Jim" }
+        ]
+    };
+    anydata a = t1;
+    table<TableEmployeeTwo> t2 = <table<TableEmployeeTwo>> a;
+}
 
 function testXmlAssertionPositive() returns boolean {
     xml x1 = xml `<book>The Lost World</book>`;
@@ -382,18 +382,18 @@ function testObjectAssertionNegative() {
     LeadObject e2 = <LeadObject> p;
 }
 
-//function testStreamAssertionPositive() returns boolean {
-//    stream<int> s1;
-//    any a = s1;
-//    stream s2 = <stream<int>> a;
-//    return s1 === s2;
-//}
-//
-//function testStreamAssertionNegative() {
-//    stream<int> s1;
-//    any a = s1;
-//    stream s2 = <stream<json>> a;
-//}
+function testStreamAssertionPositive() returns boolean {
+    stream<int> s1 = new;
+    any a = s1;
+    stream<any> s2 = <stream<int>> a;
+    return s1 === s2;
+}
+
+function testStreamAssertionNegative() {
+    stream<int> s1 = new;
+    any a = s1;
+    stream<json> s2 = <stream<json>> a;
+}
 
 function testTypedescAssertionPositive() returns boolean {
     typedesc t1 = int;

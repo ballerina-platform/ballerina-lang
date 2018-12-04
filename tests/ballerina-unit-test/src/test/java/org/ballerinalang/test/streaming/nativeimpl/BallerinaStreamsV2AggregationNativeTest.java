@@ -40,7 +40,7 @@ public class BallerinaStreamsV2AggregationNativeTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/streaming/native/streamingv2-aggregation-unit-test.bal");
+        result = BCompileUtil.compile("test-src/streaming/native/streamingv2-native-aggregation-unit-test.bal");
     }
 
     @Test(description = "Test streaming query with aggregation and group by.")

@@ -66,13 +66,6 @@ public class BValueArray extends BNewArray implements Serializable {
         this.refValues = values;
         super.arrayType = type;
         this.size = values.length;
-        if (type != null) {
-            if (type.getTag() == TypeTags.ARRAY_TAG) {
-                this.elementType = ((BArrayType) type).getElementType();
-            } else {
-                this.elementType = type;
-            }
-        }
     }
 
     public BValueArray(long[] values) {
@@ -126,6 +119,7 @@ public class BValueArray extends BNewArray implements Serializable {
             super.arrayType = type;
             if (type.getTag() == TypeTags.ARRAY_TAG) {
                 BArrayType arrayType = (BArrayType) type;
+                this.elementType = arrayType.getElementType();
                 if (arrayType.getState() == BArrayState.CLOSED_SEALED) {
                     this.size = maxArraySize = arrayType.getSize();
                 }
@@ -316,7 +310,7 @@ public class BValueArray extends BNewArray implements Serializable {
                 return;
             }
 
-            if (isBasicType(arrayElementType) && elementType == null) {
+            if (isBasicType(arrayElementType) && !isBasicType(elementType)) {
                 moveRefValueArrayToBasicTypeArray(type, arrayElementType);
                 return;
             }
@@ -537,6 +531,10 @@ public class BValueArray extends BNewArray implements Serializable {
         } else {
             refValues = Arrays.copyOf(refValues, newLength);
         }
+    }
+
+    public BType getArrayType() {
+        return arrayType;
     }
 
     private void setArrayElementType(BType type) {

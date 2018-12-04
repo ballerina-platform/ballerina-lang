@@ -14,17 +14,83 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function floatToIntWithMultipleArguments() returns int {
+type PersonObj object { 
+    public string name = "Waruna";
+    public int age = 10;
+};
+
+type Person record {
+    string name = "";
+    int age = 0;
+    Person? parent = ();
+    json info?;
+    map<anydata>? address?;
+    int[]? marks?;
+    anydata a = ();
+    float score = 0.0;
+    boolean alive = false;
+    Person[]? children?;
+    !...
+};
+
+type Person2 record {
+    string name = "";
+    int age = 0;
+    !...
+};
+
+type Person3 record {
+    string name = "";
+    int age = 0;
+    string gender = "";
+    !...
+};
+
+function testFloatToIntWithMultipleArguments() returns int {
     float a = 5.0;
-    return int.create(a, a);
+    return int.convert(a, a);
 }
 
-function testToIntWithNoArguments() {
+function testFloatToIntWithNoArguments() {
     float a = 5.0;
-    return int.create();
+    return int.convert();
 }
 
-function anyToInt() returns int {
-    any a = 5;
-    return int.create(a);
+function testObjectToJson() returns json|error {
+    PersonObj p = new PersonObj();
+    return json.convert(p);
+}
+
+function testStructToJsonConstrained1() returns json|error {
+    Person p = { name: "Child",
+        age: 25,
+        parent: { name: "Parent", age: 50 },
+        address: { "city": "Colombo", "country": "SriLanka" },
+        info: { status: "single" },
+        marks: [87, 94, 72]
+    };
+    json<Person2> j = json<Person2>.convert(p);
+    return j;
+}
+
+function testStructToJsonConstrained2() returns json|error {
+    Person2 p = {   name:"Child",
+                    age:25
+                };
+    json<Person2> j = json<Person2>.convert(p);
+    return j;
+}
+
+function testStructToJsonConstrainedNegative() returns json {
+    Person2 p = {   name:"Child",
+                    age:25
+                };
+    json<Person3> j = ();
+    var result = json<Person3>.convert(p);
+    if (result is json<Person3>) {
+        j = result;
+    } else if (result is error) {
+        panic result;
+    }
+    return j;
 }

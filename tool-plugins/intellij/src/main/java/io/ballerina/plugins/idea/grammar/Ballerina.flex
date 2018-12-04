@@ -355,6 +355,7 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "__init"                                    { return OBJECT_INIT; }
 
     "abort"                                     { return ABORT; }
+    "aborted"                                   { return ABORTED; }
     "abstract"                                  { return ABSTRACT; }
     "all"                                       { return ALL; }
     "annotation"                                { return ANNOTATION; }
@@ -371,10 +372,10 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "channel"                                   { return CHANNEL; }
     "check"                                     { return CHECK; }
     "client"                                    { return CLIENT; }
+    "committed"                                 { return COMMITTED; }
     "const"                                     { return CONST; }
     "continue"                                  { return CONTINUE; }
 
-    "done"                                      { return DONE; }
     "decimal"                                   { return DECIMAL; }
     "deprecated"                                { return DEPRECATED; }
     "descending"                                { return DESCENDING; }
@@ -412,8 +413,6 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "new"                                       { return NEW; }
 
     "object"                                    { return OBJECT; }
-    "onabort"                                   { return ONABORT; }
-    "oncommit"                                  { return ONCOMMIT; }
     "onretry"                                   { return ONRETRY; }
 
     "panic"                                     { return PANIC; }
@@ -517,6 +516,7 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     ">>>="                                      { return COMPOUND_LOGICAL_SHIFT; }
 
     "..<"                                       { return HALF_OPEN_RANGE; }
+    "_"                                         { return UNDERSCORE; }
 
     "from"                                      { inTableSqlQuery = true; inSiddhiInsertQuery = true; inSiddhiOutputRateLimit = true; return FROM; }
     "on"                                        { return ON; }

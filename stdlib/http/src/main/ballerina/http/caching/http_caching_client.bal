@@ -182,7 +182,7 @@ public type HttpCachingClient client object {
     public remote function options(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                             message = ()) returns Response|error;
 
-    # Forward action can be used to invoke an HTTP call with inbound request's HTTP method. Only inbound requests of
+    # Forward remote function can be used to invoke an HTTP call with inbound request's HTTP method. Only inbound requests of
     # GET and HEAD HTTP method types are cacheable.
     #
     # + path - Request path
@@ -512,7 +512,7 @@ function handle304Response(Response validationResponse, Response cachedResponse,
             // Assuming ETags are the only strong validators
             Response[] matchingCachedResponses = cache.getAllByETag(getCacheKey(httpMethod, path), etag);
 
-            foreach resp in matchingCachedResponses {
+            foreach var resp in matchingCachedResponses {
                 updateResponse(resp, validationResponse);
             }
             log:printDebug("304 response received, with a strong validator. Response(s) updated");
@@ -521,7 +521,7 @@ function handle304Response(Response validationResponse, Response cachedResponse,
             // The weak validator should be either an ETag or a last modified date. Precedence given to ETag
             Response[] matchingCachedResponses = cache.getAllByWeakETag(getCacheKey(httpMethod, path), etag);
 
-            foreach resp in matchingCachedResponses {
+            foreach var resp in matchingCachedResponses {
                 updateResponse(resp, validationResponse);
             }
             log:printDebug("304 response received, with a weak validator. Response(s) updated");
@@ -717,10 +717,10 @@ function replaceHeaders(Response cachedResponse, Response validationResponse) {
 
     log:printDebug("Updating response headers using validation response.");
 
-    foreach headerName in headerNames {
+    foreach var headerName in headerNames {
         cachedResponse.removeHeader(headerName);
         string[] headerValues = validationResponse.getHeaders(headerName);
-        foreach value in headerValues {
+        foreach var value in headerValues {
             cachedResponse.addHeader(headerName, value);
         }
     }
@@ -731,7 +731,7 @@ function retain2xxWarnings(Response cachedResponse) {
         string[] warningHeaders = cachedResponse.getHeaders(WARNING);
         cachedResponse.removeHeader(WARNING);
         // TODO: Need to handle this in a better way using regex when the required regex APIs are there
-        foreach warningHeader in warningHeaders {
+        foreach var warningHeader in warningHeaders {
             if (warningHeader.contains("214") || warningHeader.contains("299")) {
                 log:printDebug(function() returns string {
                     return "Adding warning header: " + warningHeader;
@@ -749,7 +749,7 @@ function getResponseAge(Response cachedResponse) returns int {
     }
 
     string ageHeaderString = cachedResponse.getHeader(AGE);
-    var ageValue = int.create(ageHeaderString);
+    var ageValue = int.convert(ageHeaderString);
     if (ageValue is int) {
         return ageValue;
     }

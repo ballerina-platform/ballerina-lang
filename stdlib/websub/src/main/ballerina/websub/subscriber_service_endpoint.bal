@@ -100,14 +100,14 @@ function Listener.__stop() returns error? {
 function Listener.sendSubscriptionRequests() {
     map<any>[] subscriptionDetailsArray = self.retrieveSubscriptionParameters();
 
-    foreach subscriptionDetails in subscriptionDetailsArray {
+    foreach var subscriptionDetails in subscriptionDetailsArray {
         if (subscriptionDetails.keys().length() == 0) {
             continue;
         }
 
         // TODO: fix retrieveSubscriptionParameters to put values as relevant types.
         string strSubscribeOnStartUp = <string>subscriptionDetails.subscribeOnStartUp;
-        boolean subscribeOnStartUp = boolean.create(strSubscribeOnStartUp);
+        boolean subscribeOnStartUp = boolean.convert(strSubscribeOnStartUp);
 
         if (subscribeOnStartUp) {
             string resourceUrl = <string>subscriptionDetails.resourceUrl;
@@ -241,7 +241,7 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:ClientEndpointConfig? s
     return websubError;
 }
 
-# Function to invoke the WebSubSubscriberConnector's actions for subscription.
+# Function to invoke the WebSubSubscriberConnector's remote functions for subscription.
 #
 # + hub - The hub to which the subscription request is to be sent
 # + subscriptionClientConfig - The configuration for subscription client
@@ -260,7 +260,7 @@ function invokeClientConnectorForSubscription(string hub, http:ClientEndpointCon
     int leaseSeconds = 0;
 
     string strLeaseSeconds = <string>subscriptionDetails.leaseSeconds;
-    var convIntLeaseSeconds = int.create(strLeaseSeconds);
+    var convIntLeaseSeconds = int.convert(strLeaseSeconds);
     if (convIntLeaseSeconds is int) {
         leaseSeconds = convIntLeaseSeconds;
     } else if (convIntLeaseSeconds is error) {

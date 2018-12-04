@@ -335,7 +335,7 @@ function testToXmlWithinTransaction() returns (string, int) {
     transaction {
         var dt = testDB->select("SELECT int_type, long_type from DataTable WHERE row_id = 1", ());
         if (dt is table<record {}>) {
-            var result = xml.create(dt);
+            var result = xml.convert(dt);
             if (result is xml) {
                 resultXml = io:sprintf("%s", result);
                 returnValue = 0;
@@ -362,7 +362,7 @@ function testToJsonWithinTransaction() returns (string, int) {
     transaction {
         var dt = testDB->select("SELECT int_type, long_type from DataTable WHERE row_id = 1", ());
         if (dt is table<record {}>) {
-            var j = json.create(dt);
+            var j = json.convert(dt);
             if (j is json) {
                 result = io:sprintf("%s", j);
                 returnValue = 0;
@@ -1330,7 +1330,7 @@ function testGetPrimitiveTypesWithForEach() returns (int, int, float,
     boolean b = false;
     string s = "";
     if (selectRet is table<ResultPrimitive>) {
-        foreach x in selectRet {
+        foreach var x in selectRet {
             i = x.INT_TYPE;
             l = x.LONG_TYPE;
             f = x.FLOAT_TYPE;
@@ -1358,7 +1358,7 @@ function testMultipleRowsWithForEach() returns (int, int) {
     ResultPrimitiveInt rs2 = { INT_TYPE: -1 };
     if (selectRet is table<ResultPrimitiveInt>) {
         int i =0;
-        foreach x in selectRet {
+        foreach var x in selectRet {
             if (i ==0) {
                 rs1 = x;
             } else {
@@ -1459,7 +1459,7 @@ function testToJsonAndAccessFromMiddle() returns (json, int) {
     return (result, result.length());
 }
 
-function testToJsonAndIterate() returns (json, int) {
+function testToJsonAndIterate() returns (json, int)|error {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -1472,7 +1472,7 @@ function testToJsonAndIterate() returns (json, int) {
     json result = getJsonConversionResult(selectRet);
     json j = [];
     int i = 0;
-    foreach row in result {
+    foreach var row in check json[].convert(result) {
         j[i] = row;
         i += 1;
     }
@@ -1522,7 +1522,7 @@ function testToJsonAndLengthof() returns (int, int) {
 function getJsonConversionResult(table<record {}>|error tableOrError) returns json {
     json retVal = {};
     if (tableOrError is table<record {}>) {
-        var jsonConversionResult = json.create(tableOrError);
+        var jsonConversionResult = json.convert(tableOrError);
         if (jsonConversionResult is json) {
             // Converting to string to make sure the json is built before returning.
             _ = jsonConversionResult.toString();
@@ -1539,7 +1539,7 @@ function getJsonConversionResult(table<record {}>|error tableOrError) returns js
 function getXMLConversionResult(table<record {}>|error tableOrError) returns xml {
     xml retVal = xml `<Error/>`;
     if (tableOrError is table<record {}>) {
-        var xmlConversionResult = xml.create(tableOrError);
+        var xmlConversionResult = xml.convert(tableOrError);
         if (xmlConversionResult is xml) {
             // Converting to string to make sure the xml is built before returning.
             _ = io:sprintf("%s", xmlConversionResult);

@@ -1384,17 +1384,17 @@ function testSelectLoadToMemory() returns (CustomerFullName[],
 
     if (dt is table<CustomerFullName>) {
         int i = 0;
-        foreach x in dt {
+        foreach var x in dt {
             fullNameArray1[i] = x;
             i += 1;
         }
         i = 0;
-        foreach x in dt {
+        foreach var x in dt {
             fullNameArray2[i] = x;
             i += 1;
         }
         i = 0;
-        foreach x in dt {
+        foreach var x in dt {
             fullNameArray3[i] = x;
             i += 1;
         }
@@ -1440,7 +1440,7 @@ function testLoadToMemorySelectAfterTableClose() returns (
 function iterateTableAndReturnResultArray(table<CustomerFullName> dt) returns CustomerFullName[] {
     CustomerFullName[] fullNameArray = [];
     int i = 0;
-    foreach x in dt {
+    foreach var x in dt {
         fullNameArray[i] = x;
         i += 1;
     }
@@ -1507,14 +1507,14 @@ function getBatchUpdateCount(int[]|error result) returns int[] {
 function getJsonConversionResult(table<record {}>|error tableOrError) returns json {
     json retVal = {};
     if (tableOrError is table<record {}>) {
-        var jsonConversionResult = json.create(tableOrError);
+        var jsonConversionResult = json.convert(tableOrError);
         if (jsonConversionResult is json) {
             retVal = jsonConversionResult;
         } else if (jsonConversionResult is error) {
-            retVal = {"Error" : string.create(jsonConversionResult.detail().message)};
+            retVal = {"Error" : string.convert(jsonConversionResult.detail().message)};
         }
     } else if (tableOrError is error) {
-        retVal = {"Error" : string.create(tableOrError.detail().message)};
+        retVal = {"Error" : string.convert(tableOrError.detail().message)};
     }
     return retVal;
 }
@@ -1522,15 +1522,15 @@ function getJsonConversionResult(table<record {}>|error tableOrError) returns js
 function getXMLConversionResult(table<record {}>|error tableOrError) returns xml {
     xml retVal = xml `<Error/>`;
     if (tableOrError is table<record {}>) {
-        var xmlConversionResult = xml.create(tableOrError);
+        var xmlConversionResult = xml.convert(tableOrError);
         if (xmlConversionResult is xml) {
             retVal = xmlConversionResult;
         } else if (xmlConversionResult is error) {
-            string errorXML = string.create(xmlConversionResult.detail().message);
+            string errorXML = string.convert(xmlConversionResult.detail().message);
             retVal = xml `<Error>{{errorXML}}</Error>`;
         }
     } else if (tableOrError is error) {
-        string errorXML = string.create(tableOrError.detail().message);
+        string errorXML = string.convert(tableOrError.detail().message);
         retVal = xml `<Error>{{errorXML}}</Error>`;
     }
     return retVal;

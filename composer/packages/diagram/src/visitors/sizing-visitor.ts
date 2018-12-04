@@ -1,6 +1,7 @@
 import {
     Assignment, ASTNode, ASTUtil, Block,
-    ExpressionStatement, Foreach, Function, If, Invocation, Return, VariableDef, VisibleEndpoint, Visitor, While
+    ExpressionStatement, Foreach, Function, If, Invocation, Return,
+    Service, VariableDef, VisibleEndpoint, Visitor, While
 } from "@ballerina/ast-model";
 import * as _ from "lodash";
 import { DiagramConfig } from "../config/default";
@@ -11,7 +12,7 @@ import { ReturnViewState } from "../view-model/return";
 // Following element is created to calculate the width of a text rendered in an svg.
 // Please see getTextWidth on how we do the calculation.
 const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-svg.setAttribute("style", "border: 0px");
+svg.setAttribute("style", "border: 0px; visibility: hidden;");
 svg.setAttribute("width", "600");
 svg.setAttribute("height", "50");
 svg.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xlink", "http://www.w3.org/1999/xlink");
@@ -83,6 +84,7 @@ function sizeStatement(node: ASTNode) {
                 viewState.bBox.label = getTextWidth(actionName).text;
                 // Set visible to true so we can only draw used endpoints.
                 (element.viewState as EndpointViewState).visible = true;
+                viewState.isReturn = (element.viewState as EndpointViewState).usedAsClient;
             }
         });
     }
@@ -95,10 +97,24 @@ export const visitor: Visitor = {
 
     // tslint:disable-next-line:ban-types
     beginVisitFunction(node: Function) {
+        const viewState: FunctionViewState = node.viewState;
         if (node.VisibleEndpoints && !node.lambda) {
             endpointHolder = node.VisibleEndpoints;
             // clear return statements.
             returnStatements = [];
+        }
+        // If resource set the caller as first param.
+        if (node.resource && node.VisibleEndpoints !== undefined) {
+            const caller = node.VisibleEndpoints.find((element: VisibleEndpoint) => {
+                return element.caller;
+            });
+            if (caller) {
+                viewState.client = caller.viewState;
+                (caller.viewState as EndpointViewState).visible = true;
+                (caller.viewState as EndpointViewState).usedAsClient = true;
+            } else {
+                viewState.client = new ViewState();
+            }
         }
     },
 
@@ -116,10 +132,11 @@ export const visitor: Visitor = {
 
         // Size default worker
         defaultWorker.bBox.h = node.body!.viewState.bBox.h + (config.lifeLine.header.height * 2)
+            + config.statement.height  // leave room for start call.
             + config.statement.height; // for bottom plus
         defaultWorker.bBox.w = (node.body!.viewState.bBox.w) ? node.body!.viewState.bBox.w :
             config.lifeLine.width;
-        defaultWorker.lifeline.w = config.lifeLine.width;
+        defaultWorker.lifeline.bBox.w = config.lifeLine.width;
         // tslint:disable-next-line:prefer-conditional-expression
         if (node.body!.viewState.bBox.leftMargin) {
             defaultWorker.bBox.leftMargin = node.body!.viewState.bBox.leftMargin;
@@ -130,7 +147,7 @@ export const visitor: Visitor = {
         const lineHeight = (client.bBox.h > defaultWorker.bBox.h) ? client.bBox.h : defaultWorker.bBox.h;
         // Sync up the heights of lifelines
         client.bBox.h = defaultWorker.bBox.h = lineHeight;
-        defaultWorker.lifeline.h = defaultWorker.bBox.h; // Set the height of lifeline.
+        defaultWorker.lifeline.bBox.h = defaultWorker.bBox.h; // Set the height of lifeline.
 
         // Size endpoints
         let endpointWidth = 0;
@@ -144,7 +161,9 @@ export const visitor: Visitor = {
             });
         }
 
-        body.w = config.panel.padding.left + endpointWidth + config.panel.padding.right;
+        const lifeLinesWidth = client.bBox.w + config.lifeLine.gutter.h
+            + defaultWorker.bBox.w + endpointWidth;
+        body.w = config.panel.padding.left + lifeLinesWidth + config.panel.padding.right;
         body.h = config.panel.padding.top + lineHeight + config.panel.padding.bottom;
 
         header.w = config.panelHeading.padding.left + config.panelHeading.padding.right;
@@ -243,5 +262,18 @@ export const visitor: Visitor = {
     endVisitReturn(node: Return) {
         sizeStatement(node);
         returnStatements.push(node);
+    },
+
+    endVisitService(node: Service) {
+        const viewState: ViewState = node.viewState;
+        let height = 0;
+        // tslint:disable-next-line:ban-types
+        node.resources.forEach((element: Function) => {
+            viewState.bBox.w = (viewState.bBox.w > element.viewState.bBox.w)
+                ? viewState.bBox.w : element.viewState.bBox.w;
+            height = viewState.bBox.h;
+            element.viewState.icon = "resource";
+        });
+        viewState.bBox.h = height;
     }
 };

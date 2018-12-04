@@ -106,8 +106,8 @@ public class TypeAssertionExpressionsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: assertion error: expected 'table<TableEmployee>', found " +
-                    "'table'.*", enabled = false)
+            expectedExceptionsMessageRegExp = ".*error: assertion error: expected 'table<TableEmployeeTwo>', found " +
+                    "'table<TableEmployee>'.*")
     public void testTableAssertionNegative() {
         BRunUtil.invoke(result, "testTableAssertionNegative", new BValue[0]);
     }
@@ -147,8 +147,7 @@ public class TypeAssertionExpressionsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-        expectedExceptionsMessageRegExp = ".*error: assertion error: expected 'stream<json>', found 'stream<int>'.*",
-            enabled = false)
+        expectedExceptionsMessageRegExp = ".*error: assertion error: expected 'stream<json>', found 'stream<int>'.*")
     public void testStreamAssertionNegative() {
         BRunUtil.invoke(result, "testStreamAssertionNegative", new BValue[0]);
     }
@@ -195,15 +194,13 @@ public class TypeAssertionExpressionsTest {
 
     @Test
     public void testAssertionNegatives() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 4);
+        Assert.assertEquals(resultNegative.getErrorCount(), 3);
         int errIndex = 0;
         validateError(resultNegative, errIndex++, "incompatible types: 'Def' cannot be explicitly typed as 'Abc'",
                       19, 15);
         validateError(resultNegative, errIndex++, "incompatible types: 'map<int>' cannot be explicitly typed as 'map'",
                       22, 19);
-        validateError(resultNegative, errIndex++, "type assertion not yet supported for type 'stream<int|json>'",
-                      28, 27);
-        validateError(resultNegative, errIndex, "type assertion not yet supported for type 'future<int>'", 32, 22);
+        validateError(resultNegative, errIndex, "type assertion not yet supported for type 'future<int>'", 28, 22);
     }
 
     @DataProvider
@@ -220,13 +217,13 @@ public class TypeAssertionExpressionsTest {
                 {"testJsonAssertionPositive"},
                 {"testMapAssertionPositive"},
                 {"testRecordAssertionPositive"},
-//                {"testTableAssertionPositive"},
+                {"testTableAssertionPositive"},
                 {"testXmlAssertionPositive"},
 //                {"testErrorAssertionPositive"},
                 {"testFunctionAssertionPositive"},
 //                {"testFutureAssertionPositive"},
                 {"testObjectAssertionPositive"},
-//                {"testStreamAssertionPositive"},
+                {"testStreamAssertionPositive"},
                 {"testTypedescAssertionPositive"},
                 {"testMapElementAssertionPositive"},
                 {"testListElementAssertionPositive"}

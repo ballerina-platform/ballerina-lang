@@ -29,9 +29,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -47,14 +49,17 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.programfile.InstructionCodes;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import static org.wso2.ballerinalang.compiler.util.Names.GEN_VAR_PREFIX;
@@ -277,13 +282,18 @@ public class HttpFiltersDesugar {
                         resourceNode.pos, configField, filtersName, filtersVal.symbol, true);
         filtersField.type = filtersType;
 
-
         String filterVarName = GEN_VAR_PREFIX + HTTP_FILTER_VAR;
+
         BLangSimpleVarRef.BLangLocalVarRef filterRef = new BLangSimpleVarRef.BLangLocalVarRef(
                 new BVarSymbol(0, new Name(filterVarName), resourceNode.symbol.pkgID, filterType, resourceNode.symbol));
         filterRef.variableName = ASTBuilderUtil.createIdentifier(resourceNode.pos, filterVarName);
         filterRef.type = filterType;
         filterRef.pos = resourceNode.pos;
+
+        // Create a new variable definition. This is needed for the foreach node.
+        BLangSimpleVariable variable = ASTBuilderUtil.createVariable(resourceNode.pos, filterVarName, filterType,
+                null, (BVarSymbol) filterRef.symbol);
+        BLangSimpleVariableDef variableDefinition = ASTBuilderUtil.createVariableDef(resourceNode.pos, variable);
 
         BLangLiteral returnName = new BLangLiteral();
         returnName.value = Names.NIL_VALUE;
@@ -315,13 +325,14 @@ public class HttpFiltersDesugar {
                 new BLangInvocation.BLangAttachedFunctionInvocation(
                         resourceNode.pos, requiredArgs, new ArrayList<>(), new ArrayList<>(),
                         getFilterRequestFuncSymbol(filterType), symTable.booleanType, filterRef, false);
+        filterRequestInvocation.desugared = true;
 
-        BLangUnaryExpr unaryExpr = ASTBuilderUtil.createUnaryExpr(
-                resourceNode.pos, filterRequestInvocation, symTable.booleanType, OperatorKind.NOT,
-                new BOperatorSymbol(names.fromString(OperatorKind.NOT.value()), symTable.rootPkgSymbol.pkgID,
-                                    new BInvokableType(createSingletonArrayList(symTable.booleanType),
-                                                       symTable.booleanType, null), symTable.rootPkgSymbol,
-                                    InstructionCodes.BNOT));
+        BInvokableType type = new BInvokableType(createSingletonArrayList(symTable.booleanType), symTable.booleanType,
+                null);
+        BOperatorSymbol operatorSymbol = new BOperatorSymbol(names.fromString(OperatorKind.NOT.value()),
+                symTable.rootPkgSymbol.pkgID, type, symTable.rootPkgSymbol, InstructionCodes.BNOT);
+        BLangUnaryExpr unaryExpr = ASTBuilderUtil.createUnaryExpr(resourceNode.pos, filterRequestInvocation,
+                symTable.booleanType, OperatorKind.NOT, operatorSymbol);
 
         BLangIf ifNode = (BLangIf) TreeBuilder.createIfElseStatementNode();
         ifNode.pos = resourceNode.pos;
@@ -337,8 +348,15 @@ public class HttpFiltersDesugar {
         foreach.pos = resourceNode.pos;
         foreach.body = ifStatement;
         foreach.collection = filtersField;
-        foreach.varRefs.add(filterRef);
-        foreach.varTypes = createSingletonArrayList(filterType);
+        foreach.isDeclaredWithVar = false;
+        foreach.varType = filterType;
+        BMapType mapType = new BMapType(TypeTags.RECORD, filterType, symTable.mapType.tsymbol);
+        foreach.resultType = mapType;
+        LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
+        memberTypes.add(mapType);
+        foreach.nillableResultType = new BUnionType(null, memberTypes, true);
+
+        foreach.variableDefinitionNode = variableDefinition;
 
         resourceNode.body.stmts.add(2, foreach);
         //forEach statement END

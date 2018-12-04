@@ -28,12 +28,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntermediateCollectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIterableTypeVisitor;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -43,6 +43,8 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -114,10 +116,16 @@ public class IterableAnalyzer {
         if (op.iExpr.argExprs.size() > 0) {
             dlog.error(op.pos, DiagnosticCode.ITERABLE_NO_ARGS_REQUIRED, op.kind);
         }
-        op.arity = 1;
+
         op.iExpr.requiredArgs = op.iExpr.argExprs;
         op.inputType = op.collectionType.accept(terminalInputTypeChecker, op).get(0);
         op.resultType = op.outputType = op.collectionType.accept(terminalOutputTypeChecker, op).get(0);
+
+        if (op.inputType.tag == TypeTags.TUPLE) {
+            op.arity = 2;
+        } else {
+            op.arity = 1;
+        }
     }
 
     private void handleLambdaBasedIterableOperation(IterableContext context, Operation operation) {
@@ -234,8 +242,8 @@ public class IterableAnalyzer {
         if (operation.collectionType.getKind() == TypeKind.INTERMEDIATE_COLLECTION) {
             return ((BIntermediateCollectionType) operation.collectionType).tupleType.tupleTypes.size();
         }
-        // If not an intermediate collection, infer input parameter as a tuple
-        return 2;
+        // If not an intermediate collection, infer input parameter as a tuple.
+        return getArity(operation.collectionType);
     }
 
     private List<BType> calculateExpectedOutputArgs(Operation operation, List<BType> givenRetTypes) {
@@ -337,11 +345,9 @@ public class IterableAnalyzer {
 
         @Override
         public List<BType> visit(BMapType type, Operation op) {
-            if (op.arity == 0) {
-                logNotEnoughVariablesError(op, 1);
+            if (op.arity < 2) {
+                logNotEnoughVariablesError(op, 2);
                 return Lists.of(symTable.semanticError);
-            } else if (op.arity == 1) {
-                return Lists.of(type.constraint);
             } else if (op.arity == 2) {
                 return Lists.of(symTable.stringType, type.constraint);
             }
@@ -355,21 +361,10 @@ public class IterableAnalyzer {
                 logNotEnoughVariablesError(op, 1);
                 return Lists.of(symTable.semanticError);
             } else if (op.arity == 1) {
-                return Lists.of(symTable.xmlType);
-            } else if (op.arity == 2) {
-                return Lists.of(symTable.intType, symTable.xmlType);
-            }
-            logTooManyVariablesError(op);
-            return Lists.of(symTable.semanticError);
-        }
-
-        @Override
-        public List<BType> visit(BJSONType type, Operation op) {
-            if (op.arity == 0) {
-                logNotEnoughVariablesError(op, 1);
-                return Lists.of(symTable.semanticError);
-            } else if (op.arity == 1) {
-                return Lists.of(symTable.jsonType);
+                LinkedHashSet<BType> types = new LinkedHashSet<>();
+                types.add(symTable.xmlType);
+                types.add(symTable.stringType);
+                return Lists.of(new BUnionType(null, types, false));
             }
             logTooManyVariablesError(op);
             return Lists.of(symTable.semanticError);
@@ -382,8 +377,6 @@ public class IterableAnalyzer {
                 return Lists.of(symTable.semanticError);
             } else if (op.arity == 1) {
                 return Lists.of(type.eType);
-            } else if (op.arity == 2) {
-                return Lists.of(symTable.intType, type.eType);
             }
             logTooManyVariablesError(op);
             return Lists.of(symTable.semanticError);
@@ -403,11 +396,9 @@ public class IterableAnalyzer {
 
         @Override
         public List<BType> visit(BRecordType type, Operation op) {
-            if (op.arity == 0) {
-                logNotEnoughVariablesError(op, 1);
+            if (op.arity < 2) {
+                logNotEnoughVariablesError(op, 2);
                 return Lists.of(symTable.semanticError);
-            } else if (op.arity == 1) {
-                return Lists.of(types.inferRecordFieldType(type));
             } else if (op.arity == 2) {
                 return Lists.of(symTable.stringType, types.inferRecordFieldType(type));
             }
@@ -503,7 +494,8 @@ public class IterableAnalyzer {
                         }
                     }
                     if (elementType.tag == TypeTags.INT || elementType.tag == TypeTags.FLOAT) {
-                        return elementType;
+                        // Todo - Validate for intermediate collections?
+                        return getType(operation, elementType);
                     }
                     break;
                 case AVERAGE:
@@ -514,7 +506,8 @@ public class IterableAnalyzer {
                         }
                     }
                     if (elementType.tag == TypeTags.INT || elementType.tag == TypeTags.FLOAT) {
-                        return elementType;
+                        // Todo - Validate for intermediate collections?
+                        return getType(operation, elementType);
                     }
                     break;
                 case COUNT:
@@ -522,11 +515,23 @@ public class IterableAnalyzer {
                         BIntermediateCollectionType collectionType = (BIntermediateCollectionType) elementType;
                         elementType = collectionType.tupleType.tupleTypes.get(0);
                     }
-                    return elementType;
+                    // Todo - Validate for intermediate collections?
+                    return getType(operation, elementType);
                 default:
                     break;
             }
             return symTable.semanticError;
+        }
+
+        private BType getType(Operation operation, BType elementType) {
+            int arity = getArity(operation.collectionType);
+            if (arity == 1) {
+                return elementType;
+            }
+            List<BType> types = new LinkedList<>();
+            types.add(symTable.stringType);
+            types.add(elementType);
+            return new BTupleType(types);
         }
     }
 
@@ -600,5 +605,21 @@ public class IterableAnalyzer {
         // Validate compatibility with calculated and expected type.
         context.resultType = types.checkType(lastOperation.pos, outputType, expectedType,
                 DiagnosticCode.INCOMPATIBLE_TYPES);
+    }
+
+    /**
+     * Returns the expected arity of the given collection type.
+     *
+     * @param collectionType type of the collection
+     * @return expected arity
+     */
+    private static int getArity(BType collectionType) {
+        switch (collectionType.tag) {
+            case TypeTags.MAP:
+            case TypeTags.RECORD:
+                return 2;
+            default:
+                return 1;
+        }
     }
 }

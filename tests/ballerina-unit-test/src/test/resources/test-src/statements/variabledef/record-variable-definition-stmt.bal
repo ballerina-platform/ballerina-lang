@@ -283,3 +283,9 @@ function testMapRecordVar() returns (anydata, anydata, anydata, string?, string?
 
     return (var1, var2, var3, var10, var11, var12);
 }
+
+function testIgnoreVariable() returns (string, int) {
+    PersonWithAge p = {name: "John", age: {age:30, format: "YY", year: 1990}, married: true, work: "SE"};
+    PersonWithAge {name, age: {age, format: _, ...rest1}, married: _, ...rest2} = p;
+    return (name, age);
+}

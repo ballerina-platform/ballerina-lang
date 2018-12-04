@@ -43,7 +43,7 @@ service MyService on testEP {
                   boolean_type, string_type from DataTable WHERE row_id = 1", ());
         json result = {};
         if (selectRet is table<record {}>) {
-            var ret = json.create(selectRet);
+            var ret = json.convert(selectRet);
             if (ret is json) {
                 result = ret;
             } else if (ret is error) {
@@ -79,7 +79,7 @@ service MyService on testEP {
         json result = {};
         string statusVal = "ERROR";
         if (selectRet is table<record {}>) {
-            var ret = json.create(selectRet);
+            var ret = json.convert(selectRet);
             if (ret is json) {
                 result = ret;
                 statusVal = "SUCCESS";

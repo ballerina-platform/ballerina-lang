@@ -77,7 +77,7 @@ function HttpAuthzHandler.handle (string username, string serviceName, string re
     //TODO: Make sure userPrincipal.scopes array is sorted to prevent cache-misses that could happen due to ordering
     if (authCtxtScopes.length() > 0) {
         authzCacheKey += "-";
-        foreach authCtxtScope in authCtxtScopes {
+        foreach var authCtxtScope in authCtxtScopes {
             authzCacheKey += authCtxtScope + ",";
         }
     }
@@ -161,8 +161,8 @@ function HttpAuthzHandler.cacheAuthzResult (string authzCacheKey, boolean author
 # + scopesForRequest - Scopes of the user
 # + return - true if there is a match, else false
 function matchScopes (string[] scopesOfResource, string[] scopesForRequest) returns (boolean) {
-    foreach scopeForRequest in scopesForRequest {
-        foreach scopeOfResource in scopesOfResource {
+    foreach var scopeForRequest in scopesForRequest {
+        foreach var scopeOfResource in scopesOfResource {
             if (scopeForRequest == scopeOfResource) {
                 // if  that is equal to a group of a scope, authorization passes
                 return true;

@@ -94,6 +94,13 @@ public class DefinitionUtil {
                                 .equals(definitionContext.get(NodeContextKeys.VAR_NAME_OF_NODE_KEY)))
                         .findAny().orElse(null);
 
+                if (bLangNode == null) {
+                    bLangNode = bLangPackage.constants.stream()
+                            .filter(constant -> constant.name.getValue()
+                                    .equals(definitionContext.get(NodeContextKeys.VAR_NAME_OF_NODE_KEY)))
+                            .findAny().orElse(null);
+                }
+
                 // BLangNode is null only when node at the cursor position is a local variable.
                 if (bLangNode == null) {
                     DefinitionTreeVisitor definitionTreeVisitor = new DefinitionTreeVisitor(definitionContext);

@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents socket client and related actions.
+# Represents socket client and related remote functions.
 #
 # + remotePort - the remote port number to which this socket is connected
 # + localPort - the local port number to which this socket is bound

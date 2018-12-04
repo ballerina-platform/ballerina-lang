@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
-import org.antlr.v4.runtime.misc.OrderedHashSet;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.AttachPoint;
@@ -76,6 +75,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -172,10 +172,9 @@ import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -211,7 +210,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private BType resType;
     private boolean isSiddhiRuntimeEnabled;
     private boolean isGroupByAvailable;
-    private Map<BVarSymbol, Set<BType>> typeGuards;
+    private Map<BVarSymbol, LinkedHashSet<BType>> typeGuards;
 
     public static SemanticAnalyzer getInstance(CompilerContext context) {
         SemanticAnalyzer semAnalyzer = context.get(SYMBOL_ANALYZER_KEY);
@@ -462,10 +461,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (rhsExpr == null) {
             if (lhsType.tag == TypeTags.ARRAY && typeChecker.isArrayOpenSealedType((BArrayType) lhsType)) {
                 dlog.error(varNode.pos, DiagnosticCode.SEALED_ARRAY_TYPE_NOT_INITIALIZED);
-                return;
-            }
-            if (varNode.symbol.owner.tag == SymTag.PACKAGE || Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER)) {
-                dlog.error(varNode.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, varNode.name);
             }
             return;
         }
@@ -552,6 +547,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
 
             BLangSimpleVariable simpleVariable = (BLangSimpleVariable) variable;
+
+            Name varName = names.fromIdNode(simpleVariable.name);
+            if (varName == Names.IGNORE) {
+                dlog.error(simpleVariable.pos, DiagnosticCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT);
+                return;
+            }
+
             simpleVariable.type = rhsType;
 
             int ownerSymTag = env.scope.owner.tag;
@@ -598,8 +600,74 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    private void handleDeclaredWithVar(BLangVariable variable, BType rhsType, SymbolEnv blockEnv) {
+        if (NodeKind.VARIABLE == variable.getKind()) {
+            BLangSimpleVariable simpleVariable = (BLangSimpleVariable) variable;
+            Name varName = names.fromIdNode(simpleVariable.name);
+            if (varName == Names.IGNORE) {
+                dlog.error(simpleVariable.pos, DiagnosticCode.UNDERSCORE_NOT_ALLOWED);
+                return;
+            }
+
+            simpleVariable.type = rhsType;
+
+            int ownerSymTag = blockEnv.scope.owner.tag;
+            if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
+                // This is a variable declared in a function, an action or a resource
+                // If the variable is parameter then the variable symbol is already defined
+                if (simpleVariable.symbol == null) {
+                    symbolEnter.defineNode(simpleVariable, blockEnv);
+                }
+            }
+        } else if (NodeKind.TUPLE_VARIABLE == variable.getKind()) {
+            BLangTupleVariable tupleVariable = (BLangTupleVariable) variable;
+            if (TypeTags.TUPLE != rhsType.tag) {
+                dlog.error(variable.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR, rhsType);
+                recursivelyDefineVariables(tupleVariable, blockEnv);
+                return;
+            }
+
+            tupleVariable.type = rhsType;
+            if (!(checkTypeAndVarCountConsistency(tupleVariable, (BTupleType) tupleVariable.type, blockEnv))) {
+                return;
+            }
+            symbolEnter.defineNode(tupleVariable, blockEnv);
+        } else if (NodeKind.RECORD_VARIABLE == variable.getKind()) {
+            BLangRecordVariable recordVariable = (BLangRecordVariable) variable;
+            recordVariable.type = rhsType;
+            validateRecordVariable(recordVariable, blockEnv);
+        }
+    }
+
+    private void recursivelyDefineVariables(BLangVariable variable, SymbolEnv blockEnv) {
+        switch (variable.getKind()) {
+            case VARIABLE:
+                Name name = names.fromIdNode(((BLangSimpleVariable) variable).name);
+                if (name == Names.IGNORE) {
+                    return;
+                }
+                variable.type = symTable.semanticError;
+                symbolEnter.defineVarSymbol(variable.pos, variable.flagSet, variable.type, name, blockEnv);
+                break;
+            case TUPLE_VARIABLE:
+                ((BLangTupleVariable) variable).memberVariables.parallelStream()
+                        .forEach(memberVariable -> recursivelyDefineVariables(memberVariable, blockEnv));
+                break;
+            case RECORD_VARIABLE:
+                ((BLangRecordVariable) variable).variableList.parallelStream()
+                        .forEach(value ->recursivelyDefineVariables(value.valueBindingPattern, blockEnv));
+                break;
+        }
+    }
+
     private boolean checkTypeAndVarCountConsistency(BLangTupleVariable varNode) {
-        BTupleType tupleTypeNode;
+        return checkTypeAndVarCountConsistency(varNode, null, env);
+    }
+
+    private boolean checkTypeAndVarCountConsistency(BLangTupleVariable varNode, BTupleType tupleTypeNode,
+                                                    SymbolEnv env) {
+
+        if (tupleTypeNode == null) {
         /*
           This switch block will resolve the tuple type of the tuple variable.
           For example consider the following - (int, string)|(boolean, float) (a, b) = foo();
@@ -608,66 +676,67 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
           Consider anydata (a, b) = foo();
           Here, the type of 'a'and type of 'b' will be both anydata.
          */
-        switch (varNode.type.tag) {
-            case TypeTags.UNION:
-                Set<BType> unionType = types.expandAndGetMemberTypesRecursive(varNode.type);
-                List<BType> possibleTypes = unionType.stream()
-                        .filter(type -> {
-                            if (TypeTags.TUPLE == type.tag &&
-                                    (varNode.memberVariables.size() == ((BTupleType) type).tupleTypes.size())) {
-                                return true;
+            switch (varNode.type.tag) {
+                case TypeTags.UNION:
+                    Set<BType> unionType = types.expandAndGetMemberTypesRecursive(varNode.type);
+                    List<BType> possibleTypes = unionType.stream()
+                            .filter(type -> {
+                                if (TypeTags.TUPLE == type.tag &&
+                                        (varNode.memberVariables.size() == ((BTupleType) type).tupleTypes.size())) {
+                                    return true;
+                                }
+                                return TypeTags.ANY == type.tag || TypeTags.ANYDATA == type.tag;
+                            })
+                            .collect(Collectors.toList());
+
+                    if (possibleTypes.isEmpty()) {
+                        dlog.error(varNode.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR, varNode.type);
+                        return false;
+                    }
+
+                    if (possibleTypes.size() > 1) {
+                        List<BType> memberTupleTypes = new ArrayList<>();
+                        for (int i = 0; i < varNode.memberVariables.size(); i++) {
+                            LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
+                            for (BType possibleType : possibleTypes) {
+                                if (possibleType.tag == TypeTags.TUPLE) {
+                                    memberTypes.add(((BTupleType) possibleType).tupleTypes.get(i));
+                                } else {
+                                    memberTupleTypes.add(varNode.type);
+                                }
                             }
-                            return TypeTags.ANY == type.tag || TypeTags.ANYDATA == type.tag;
-                        })
-                        .collect(Collectors.toList());
+                            memberTupleTypes.add(new BUnionType(null, memberTypes, false));
+                        }
+                        tupleTypeNode = new BTupleType(memberTupleTypes);
+                        break;
+                    }
 
-                if (possibleTypes.isEmpty()) {
-                    dlog.error(varNode.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR, varNode.type);
-                    return false;
-                }
+                    if (possibleTypes.get(0).tag == TypeTags.TUPLE) {
+                        tupleTypeNode = (BTupleType) possibleTypes.get(0);
+                        break;
+                    }
 
-                if (possibleTypes.size() > 1) {
+                    List<BType> memberTypes = new ArrayList<>();
+                    for (int i = 0; i < varNode.memberVariables.size(); i++) {
+                        memberTypes.add(possibleTypes.get(0));
+                    }
+                    tupleTypeNode = new BTupleType(memberTypes);
+                    break;
+                case TypeTags.ANY:
+                case TypeTags.ANYDATA:
                     List<BType> memberTupleTypes = new ArrayList<>();
                     for (int i = 0; i < varNode.memberVariables.size(); i++) {
-                        Set<BType> memberTypes = new OrderedHashSet<>();
-                        for (BType possibleType : possibleTypes) {
-                            if (possibleType.tag == TypeTags.TUPLE) {
-                                memberTypes.add(((BTupleType) possibleType).tupleTypes.get(i));
-                            } else {
-                                memberTupleTypes.add(varNode.type);
-                            }
-                        }
-                        memberTupleTypes.add(new BUnionType(null, memberTypes, false));
+                        memberTupleTypes.add(varNode.type);
                     }
                     tupleTypeNode = new BTupleType(memberTupleTypes);
                     break;
-                }
-
-                if (possibleTypes.get(0).tag == TypeTags.TUPLE) {
-                    tupleTypeNode = (BTupleType) possibleTypes.get(0);
+                case TypeTags.TUPLE:
+                    tupleTypeNode = (BTupleType) varNode.type;
                     break;
-                }
-
-                List<BType> memberTypes = new ArrayList<>();
-                for (int i = 0; i < varNode.memberVariables.size(); i++) {
-                    memberTypes.add(possibleTypes.get(0));
-                }
-                tupleTypeNode = new BTupleType(memberTypes);
-                break;
-            case TypeTags.ANY:
-            case TypeTags.ANYDATA:
-                List<BType> memberTupleTypes = new ArrayList<>();
-                for (int i = 0; i < varNode.memberVariables.size(); i++) {
-                    memberTupleTypes.add(varNode.type);
-                }
-                tupleTypeNode = new BTupleType(memberTupleTypes);
-                break;
-            case TypeTags.TUPLE:
-                tupleTypeNode = (BTupleType) varNode.type;
-                break;
-            default:
-                dlog.error(varNode.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR, varNode.type);
-                return false;
+                default:
+                    dlog.error(varNode.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR, varNode.type);
+                    return false;
+            }
         }
 
         if (tupleTypeNode.tupleTypes.size() != varNode.memberVariables.size()) {
@@ -675,16 +744,35 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return false;
         }
 
+        int ignoredCount = 0;
         for (int i = 0; i < varNode.memberVariables.size(); i++) {
             BLangVariable var = varNode.memberVariables.get(i);
+            if (var.getKind() == NodeKind.VARIABLE) {
+                // '_' is allowed in tuple variables. Not allowed if all variables are named as '_'
+                BLangSimpleVariable simpleVar = (BLangSimpleVariable) var;
+                Name varName = names.fromIdNode(simpleVar.name);
+                if (varName == Names.IGNORE) {
+                    ignoredCount++;
+                    simpleVar.type = symTable.noType;
+                    continue;
+                }
+            }
             var.type = tupleTypeNode.tupleTypes.get(i);
-            var.accept(this);
+            analyzeNode(var, env);
         }
 
+        if (ignoredCount == varNode.memberVariables.size()) {
+            dlog.error(varNode.pos, DiagnosticCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT);
+            return false;
+        }
         return true;
     }
 
     private boolean validateRecordVariable(BLangRecordVariable recordVar) {
+        return validateRecordVariable(recordVar, env);
+    }
+
+    private boolean validateRecordVariable(BLangRecordVariable recordVar, SymbolEnv env) {
         BRecordType recordVarType;
         /*
           This switch block will resolve the record type of the record variable.
@@ -719,7 +807,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     List<BField> fields = populateAndGetPossibleFieldsForRecVar(recordVar, possibleTypes, recordSymbol);
 
                     if (recordVar.restParam != null) {
-                        Set<BType> memberTypes = possibleTypes.stream()
+                        LinkedHashSet<BType> memberTypes = possibleTypes.stream()
                                 .map(possibleType -> {
                                     if (possibleType.tag == TypeTags.RECORD) {
                                         return ((BRecordType) possibleType).restFieldType;
@@ -729,7 +817,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                                         return possibleType;
                                     }
                                 })
-                                .collect(Collectors.toCollection(OrderedHashSet::new));
+                                .collect(Collectors.toCollection(LinkedHashSet::new));
                         recordVarType.restFieldType = memberTypes.size() > 1 ?
                                 new BUnionType(null, memberTypes, false) :
                                 memberTypes.iterator().next();
@@ -784,10 +872,26 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 .collect(Collectors.toMap(field -> field.getName().getValue(), field -> field));
 
         boolean validRecord = true;
+        int ignoredCount = 0;
         for (BLangRecordVariableKeyValueNode variable : recordVar.variableList) {
             // Infer the type of each variable in recordVariable from the given record type
             // so that symbol enter is done recursively
+            if (names.fromIdNode((BLangIdentifier) variable.getKey()) == Names.IGNORE) {
+                dlog.error(recordVar.pos, DiagnosticCode.UNDERSCORE_NOT_ALLOWED);
+                continue;
+            }
+
             BLangVariable value = (BLangVariable) variable.getValue();
+            if (value.getKind() == NodeKind.VARIABLE) {
+                // '_' is allowed in tuple variables. Not allowed if all variables are named as '_'
+                BLangSimpleVariable simpleVar = (BLangSimpleVariable) value;
+                Name varName = names.fromIdNode(simpleVar.name);
+                if (varName == Names.IGNORE) {
+                    ignoredCount++;
+                    simpleVar.type = symTable.noType;
+                    continue;
+                }
+            }
             if (!recordVarTypeFields.containsKey(variable.getKey().getValue())) {
                 if (recordVarType.sealed) {
                     validRecord = false;
@@ -799,7 +903,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                             recordVarType.restFieldType.tag == TypeTags.ANY) {
                         restType = recordVarType.restFieldType;
                     } else {
-                        Set<BType> typesForRestField = new OrderedHashSet<>();
+                        LinkedHashSet<BType> typesForRestField = new LinkedHashSet<>();
                         typesForRestField.add(recordVarType.restFieldType);
                         typesForRestField.add(symTable.nilType);
                         restType = new BUnionType(null, typesForRestField, true);
@@ -812,6 +916,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
             value.type = recordVarTypeFields.get((variable.getKey().getValue())).type;
             value.accept(this);
+        }
+
+        if (ignoredCount == recordVar.variableList.size()) {
+            dlog.error(recordVar.pos, DiagnosticCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT);
+            return false;
         }
 
         if (recordVar.restParam != null) {
@@ -836,7 +945,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         List<BField> fields = new ArrayList<>();
         for (BLangRecordVariableKeyValue bLangRecordVariableKeyValue : recordVar.variableList) {
             String fieldName = bLangRecordVariableKeyValue.key.value;
-            Set<BType> memberTypes = new OrderedHashSet<>();
+            LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
             for (BType possibleType : possibleTypes) {
                 if (possibleType.tag == TypeTags.RECORD) {
                     BRecordType possibleRecordType = (BRecordType) possibleType;
@@ -878,7 +987,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (fieldTypes.tag == TypeTags.ANYDATA || fieldTypes.tag == TypeTags.ANY) {
             fieldType = fieldTypes;
         } else {
-            Set<BType> typesForField = new OrderedHashSet<>();
+            LinkedHashSet<BType> typesForField = new LinkedHashSet<>();
             typesForField.add(fieldTypes);
             typesForField.add(symTable.nilType);
             fieldType = new BUnionType(null, typesForField, true);
@@ -943,6 +1052,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangSimpleVariableDef varDefNode) {
+        // This will prevent cases Eg:- int _ = 100;
+        // We have prevented '_' from registering variable symbol at SymbolEnter, Hence this validation added.
+        Name varName = names.fromIdNode(varDefNode.var.name);
+        if (varName == Names.IGNORE) {
+            dlog.error(varDefNode.var.pos, DiagnosticCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT);
+            return;
+        }
+
         analyzeDef(varDefNode.var, env);
     }
 
@@ -1213,6 +1330,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 BVarSymbol originalVarSymbol = entry.getKey();
                 BVarSymbol varSymbol = symbolEnter.createVarSymbol(0, entry.getValue(), originalVarSymbol.name,
                                                                    this.env);
+                varSymbol.originalSymbol = getOriginalVarSymbol(originalVarSymbol);
                 symbolEnter.defineShadowedSymbol(ifNode.expr.pos, varSymbol, ifBodyEnv);
 
                 // Cache the type guards, to be reused at the desugar.
@@ -1228,7 +1346,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Add the type guards of 'if' to the current type guards map.
         addTypeGuards(typeGuards);
         // Reset the current type guards before visiting the body.
-        Map<BVarSymbol, Set<BType>> preTypeGuards = this.typeGuards;
+        Map<BVarSymbol, LinkedHashSet<BType>> preTypeGuards = this.typeGuards;
         resetTypeGards();
         analyzeStmt(ifNode.body, env);
         // Restore the type guards after visiting the body
@@ -1331,7 +1449,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 }
                 return bracedOrTupleExpr.type;
             case SIMPLE_VARIABLE_REF:
-                // to match "_"
+                // only support "_" in static match
+                Name varName = names.fromIdNode(((BLangSimpleVarRef) expression).variableName);
+                if (varName != Names.IGNORE) {
+                    dlog.error(expression.pos, DiagnosticCode.INVALID_LITERAL_FOR_MATCH_PATTERN);
+                }
                 expression.type = symTable.noType;
                 return expression.type;
             default:
@@ -1376,10 +1498,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangForeach foreach) {
+        // Check the collection's type.
         typeChecker.checkExpr(foreach.collection, env);
-        foreach.varTypes = types.checkForeachTypes(foreach.collection, foreach.varRefs.size());
+        // Set the type of the foreach node's type node.
+        types.setForeachTypedBindingPatternType(foreach);
+        // Create a new block environment for the foreach node's body.
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(foreach.body, env);
-        handleForeachVariables(foreach, foreach.varTypes, blockEnv);
+        // Check foreach node's variables and set types.
+        handleForeachVariables(foreach, blockEnv);
+        // Analyze foreach node's statements.
         analyzeStmt(foreach.body, blockEnv);
     }
 
@@ -1741,12 +1868,30 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         names.fromString(streamingInput.getAlias()), env);
             }
         } else {
-            //Create duplicate symbol for stream alias
-            if (streamingInput.getAlias() != null) {
-                BVarSymbol streamSymbol = (BVarSymbol) ((BLangSimpleVarRef) streamRef).symbol;
-                BVarSymbol streamAliasSymbol = ASTBuilderUtil.duplicateVarSymbol(streamSymbol);
-                streamAliasSymbol.name = names.fromString(streamingInput.getAlias());
-                symbolEnter.defineSymbol(streamingInput.pos, streamAliasSymbol, env);
+            if (isTableReference(streamingInput.getStreamReference())) {
+                if (streamingInput.getAlias() == null) {
+                    dlog.error(streamingInput.pos, DiagnosticCode.UNDEFINED_INVOCATION_ALIAS,
+                               ((BLangInvocation) streamRef).name.getValue());
+                }
+                if (streamingInput.getStreamReference().getKind() == NodeKind.INVOCATION) {
+                    BInvokableSymbol functionSymbol = (BInvokableSymbol) ((BLangInvocation) streamRef).symbol;
+                    symbolEnter.defineVarSymbol(streamingInput.pos, EnumSet.noneOf(Flag.class),
+                    ((BTableType) functionSymbol.retType).constraint, names.fromString(streamingInput.getAlias()), env);
+                } else {
+                    BType constraint =
+                            ((BTableType) ((BLangVariableReference) streamingInput.getStreamReference()).type)
+                                    .constraint;
+                    symbolEnter.defineVarSymbol(streamingInput.pos, EnumSet.noneOf(Flag.class), constraint,
+                                                names.fromString(streamingInput.getAlias()), env);
+                }
+            } else {
+                //Create duplicate symbol for stream alias
+                if (streamingInput.getAlias() != null) {
+                    BVarSymbol streamSymbol = (BVarSymbol) ((BLangSimpleVarRef) streamRef).symbol;
+                    BVarSymbol streamAliasSymbol = ASTBuilderUtil.duplicateVarSymbol(streamSymbol);
+                    streamAliasSymbol.name = names.fromString(streamingInput.getAlias());
+                    symbolEnter.defineSymbol(streamingInput.pos, streamAliasSymbol, env);
+                }
             }
         }
     }
@@ -2023,31 +2168,25 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void handleForeachVariables(BLangForeach foreachStmt, List<BType> varTypes, SymbolEnv env) {
-        for (int i = 0; i < foreachStmt.varRefs.size(); i++) {
-            BLangExpression varRef = foreachStmt.varRefs.get(i);
-            // foreach variables supports only simpleVarRef expressions only.
-            if (varRef.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
-                dlog.error(varRef.pos, DiagnosticCode.INVALID_VARIABLE_ASSIGNMENT, varRef);
-                continue;
-            }
-            BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) varRef;
-            simpleVarRef.lhsVar = true;
-            Name varName = names.fromIdNode(simpleVarRef.variableName);
-            if (varName == Names.IGNORE) {
-                simpleVarRef.type = this.symTable.noType;
-                typeChecker.checkExpr(simpleVarRef, env);
-                continue;
-            }
-            // Check variable symbol for existence.
-            BSymbol symbol = symResolver.lookupSymbol(env, varName, SymTag.VARIABLE);
-            if (symbol == symTable.notFoundSymbol) {
-                symbolEnter.defineVarSymbol(simpleVarRef.pos, Collections.emptySet(), varTypes.get(i), varName, env);
-                typeChecker.checkExpr(simpleVarRef, env);
-            } else {
-                dlog.error(simpleVarRef.pos, DiagnosticCode.REDECLARED_SYMBOL, varName);
-            }
+    private void handleForeachVariables(BLangForeach foreachStmt, SymbolEnv blockEnv) {
+        BLangVariable variableNode = (BLangVariable) foreachStmt.variableDefinitionNode.getVariable();
+        // Check whether the foreach node's variables are declared with var.
+        if (foreachStmt.isDeclaredWithVar) {
+            // If the foreach node's variables are declared with var, type is `varType`.
+            handleDeclaredWithVar(variableNode, foreachStmt.varType, blockEnv);
+            return;
         }
+        // If the type node is available, we get the type from it.
+        BType typeNodeType = symResolver.resolveTypeNode(variableNode.typeNode, blockEnv);
+        // Then we need to check whether the RHS type is assignable to LHS type.
+        if (types.isAssignable(foreachStmt.varType, typeNodeType)) {
+            // If assignable, we set types to the variables.
+            handleDeclaredWithVar(variableNode, foreachStmt.varType, blockEnv);
+            return;
+        }
+        // Log an error and define a symbol with the node's type to avoid undeclared symbol errors.
+        dlog.error(variableNode.typeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPES, foreachStmt.varType, typeNodeType);
+        handleDeclaredWithVar(variableNode, typeNodeType, blockEnv);
     }
 
     private void checkRetryStmtValidity(BLangExpression retryCountExpr) {
@@ -2463,11 +2602,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private void addElseTypeGuards(BLangIf ifNode) {
         SymbolEnv elseEnv = SymbolEnv.createBlockEnv((BLangBlockStmt) ifNode.elseStmt, env);
-        for (Entry<BVarSymbol, Set<BType>> entry : this.typeGuards.entrySet()) {
+        for (Entry<BVarSymbol, LinkedHashSet<BType>> entry : this.typeGuards.entrySet()) {
             BVarSymbol originalVarSymbol = entry.getKey();
             BType remainingType = types.getRemainingType(originalVarSymbol.type, entry.getValue());
             BVarSymbol varSymbol = new BVarSymbol(0, originalVarSymbol.name, elseEnv.scope.owner.pkgID, remainingType,
                     this.env.scope.owner);
+            varSymbol.originalSymbol = getOriginalVarSymbol(originalVarSymbol);
             symbolEnter.defineShadowedSymbol(ifNode.expr.pos, varSymbol, elseEnv);
 
             // Cache the type guards, to be reused at the desugar.
@@ -2479,7 +2619,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (this.typeGuards == null) {
             this.typeGuards = new HashMap<>();
             this.typeGuards = typeGuards.entrySet().stream()
-                    .collect(Collectors.toMap(Map.Entry::getKey, e -> new HashSet() {
+                    .collect(Collectors.toMap(Map.Entry::getKey, e -> new LinkedHashSet<BType>() {
                         {
                             add(e.getValue());
                         }
@@ -2488,9 +2628,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         for (Entry<BVarSymbol, BType> entry : typeGuards.entrySet()) {
-            Set<BType> typGuardsForSymbol = this.typeGuards.get(entry.getKey());
-            if (typGuardsForSymbol == null) {
-                typGuardsForSymbol = new HashSet<>();
+            Optional<LinkedHashSet<BType>> matchingGuards = this.typeGuards.entrySet().stream()
+                    .filter(typeGuard -> typeGuard.getKey().name.equals(entry.getKey().name))
+                    .map(keValue -> keValue.getValue()).findFirst();
+            LinkedHashSet<BType> typGuardsForSymbol;
+            if (matchingGuards.isPresent()) {
+                typGuardsForSymbol = matchingGuards.get();
+            } else {
+                typGuardsForSymbol = new LinkedHashSet<>();
                 this.typeGuards.put(entry.getKey(), typGuardsForSymbol);
             }
 
@@ -2501,4 +2646,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private void resetTypeGards() {
         this.typeGuards = null;
     }
+
+    private BVarSymbol getOriginalVarSymbol(BVarSymbol varSymbol) {
+        if (varSymbol.originalSymbol == null) {
+            return varSymbol;
+        }
+
+        return getOriginalVarSymbol(varSymbol.originalSymbol);
+    }
+
 }

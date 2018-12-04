@@ -26,5 +26,5 @@
 /*-------------------
     Brand Colors
 --------------------*/
-
+@teal: #1B9992;
 @primaryColor        : @teal;

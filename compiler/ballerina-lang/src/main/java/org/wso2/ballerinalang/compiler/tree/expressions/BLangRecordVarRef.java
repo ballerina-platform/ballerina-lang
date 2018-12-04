@@ -56,6 +56,10 @@ public class BLangRecordVarRef extends BLangVariableReference implements RecordV
         return recordRefFields;
     }
 
+    @Override
+    public ExpressionNode getRestParam() {
+        return restParam;
+    }
 
     @Override
     public String toString() {

@@ -20,6 +20,7 @@ package org.ballerinalang.model.values;
 
 import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeTags;
 
 import java.math.BigDecimal;
@@ -107,6 +108,17 @@ public abstract class BValueType implements BValue {
         if (type.getTag() == TypeTags.ANYDATA_TAG || type.getTag() == TypeTags.JSON_TAG) {
             return;
         }
+
+        if (type.getTag() == TypeTags.UNION_TAG) {
+            for (BType memberType : ((BUnionType) type).getMemberTypes()) {
+                if (BVM.checkIsLikeType(this, memberType)) {
+                    this.stamp(memberType);
+                    type = memberType;
+                    break;
+                }
+            }
+        }
+
         this.setType(type);
     }
 }

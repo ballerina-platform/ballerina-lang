@@ -21,7 +21,7 @@ import ballerina/log;
 import ballerina/math;
 import ballerina/config;
 
-# Provides redirect functionality for HTTP client actions.
+# Provides redirect functionality for HTTP client remote functions.
 #
 # + url - Target service url
 # + config - HTTP ClientEndpointConfig to be used for HTTP client invocation
@@ -49,7 +49,7 @@ public type RedirectClient client object {
         self.httpClient = httpClient;
     }
 
-    # If the received response for the `get()` action is redirect eligible, redirect will be performed automatically
+    # If the received response for the `get()` remote function is redirect eligible, redirect will be performed automatically
     # by this `get()` function.
     #
     # + path - Resource path
@@ -62,7 +62,7 @@ public type RedirectClient client object {
         return performRedirectIfEligible(self, path, request, HTTP_GET);
     }
 
-    # If the received response for the `post()` action is redirect eligible, redirect will be performed automatically
+    # If the received response for the `post()` remote function is redirect eligible, redirect will be performed automatically
     # by this `post()` function.
     #
     # + path - Resource path
@@ -75,7 +75,7 @@ public type RedirectClient client object {
         return performRedirectIfEligible(self, path, request, HTTP_POST);
     }
 
-    # If the received response for the `head()` action is redirect eligible, redirect will be performed automatically
+    # If the received response for the `head()` remote function is redirect eligible, redirect will be performed automatically
     # by this `head()` function.
     #
     # + path - Resource path
@@ -88,7 +88,7 @@ public type RedirectClient client object {
         return performRedirectIfEligible(self, path, request, HTTP_HEAD);
     }
 
-    # If the received response for the `put()` action is redirect eligible, redirect will be performed automatically
+    # If the received response for the `put()` remote function is redirect eligible, redirect will be performed automatically
     # by this `put()` function.
     #
     # + path - Resource path
@@ -128,7 +128,7 @@ public type RedirectClient client object {
         }
     }
 
-    # If the received response for the `patch()` action is redirect eligible, redirect will be performed automatically
+    # If the received response for the `patch()` remote function is redirect eligible, redirect will be performed automatically
     # by this `patch()` function.
     #
     # + path - Resource path
@@ -141,7 +141,7 @@ public type RedirectClient client object {
         return performRedirectIfEligible(self, path, request, HTTP_PATCH);
     }
 
-    # If the received response for the `delete()` action is redirect eligible, redirect will be performed automatically
+    # If the received response for the `delete()` remote function is redirect eligible, redirect will be performed automatically
     # by this `delete()` function.
     #
     # + path - Resource path
@@ -154,7 +154,7 @@ public type RedirectClient client object {
         return performRedirectIfEligible(self, path, request, HTTP_DELETE);
     }
 
-    # If the received response for the `options()` action is redirect eligible, redirect will be performed automatically
+    # If the received response for the `options()` remote function is redirect eligible, redirect will be performed automatically
     # by this `options()` function.
     #
     # + path - Resource path
@@ -360,9 +360,9 @@ function getRedirectMethod(HttpOperation httpVerb, Response response) returns Ht
 function createRedirectRequest(int statusCode, Request request) returns Request {
     Request redirectRequest = new;
     string[] headerNames = untaint request.getHeaderNames();
-    foreach headerName in headerNames {
+    foreach var headerName in headerNames {
         string[] headerValues = request.getHeaders(headerName);
-        foreach (headerValue in headerValues) {
+        foreach var headerValue in headerValues {
             redirectRequest.addHeader(headerName, headerValue);
         }
     }

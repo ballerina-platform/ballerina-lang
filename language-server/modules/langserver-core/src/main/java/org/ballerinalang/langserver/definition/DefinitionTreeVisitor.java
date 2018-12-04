@@ -34,6 +34,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -226,9 +227,7 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangForeach foreach) {
-        if (foreach.varRefs != null) {
-            foreach.varRefs.forEach(this::acceptNode);
-        }
+        acceptNode((BLangNode) foreach.variableDefinitionNode);
 
         if (foreach.body != null) {
             this.acceptNode(foreach.body);
@@ -430,6 +429,18 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
             this.acceptNode(typeDefinition.typeNode);
         }
 
+    }
+
+    @Override
+    public void visit(BLangConstant constant) {
+        if (constant.name.getValue().equals(this.context.get(NodeContextKeys.VAR_NAME_OF_NODE_KEY))) {
+            this.context.put(NodeContextKeys.NODE_KEY, constant);
+            terminateVisitor = true;
+        }
+
+        if (constant.typeNode != null) {
+            this.acceptNode(constant.typeNode);
+        }
     }
 
     @Override

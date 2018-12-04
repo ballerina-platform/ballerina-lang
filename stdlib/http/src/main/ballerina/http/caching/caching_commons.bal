@@ -223,7 +223,7 @@ function Request.parseCacheControlHeader () {
     string cacheControl = self.getHeader(CACHE_CONTROL);
     string[] directives = cacheControl.split(",");
 
-    foreach directive in directives {
+    foreach var directive in directives {
         directive = directive.trim();
         if (directive == NO_CACHE) {
             reqCC.noCache = true;
@@ -275,7 +275,7 @@ function getExpirationDirectiveValue (string directive) returns int {
         return -1;
     }
 
-    var age =  int.create(directiveParts[1]);
+    var age =  int.convert(directiveParts[1]);
     if (age is int) {
         return age;
     }

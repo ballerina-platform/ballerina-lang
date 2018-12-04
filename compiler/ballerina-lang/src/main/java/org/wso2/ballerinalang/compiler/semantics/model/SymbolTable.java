@@ -591,7 +591,7 @@ public class SymbolTable {
                 retType = targetType;
             } else {
                 BUnionType unionType = new BUnionType(null,
-                        new LinkedHashSet<BType>(2) {{
+                        new LinkedHashSet<BType>() {{
                             add(targetType);
                             add(errorType);
                         }}, false);

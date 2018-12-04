@@ -36,7 +36,7 @@ public const AUTH_HEADER_BEARER = "AUTH_HEADER_BEARER";
 # Indicates that the authentication credentials should be sent via the body of the POST request
 public const POST_BODY_BEARER = "POST_BODY_BEARER";
 
-# Provides secure HTTP actions for interacting with HTTP endpoints. This will make use of the authentication schemes
+# Provides secure HTTP remote functions for interacting with HTTP endpoints. This will make use of the authentication schemes
 # configured in the HTTP client endpoint to secure the HTTP requests.
 #
 # + url - The URL of the remote HTTP endpoint
@@ -60,7 +60,7 @@ public type HttpSecureClient client object {
         }
     }
 
-    # This wraps the `post()` function of the underlying HTTP actions provider. Add relevant authentication headers
+    # This wraps the `post()` function of the underlying HTTP remote functions provider. Add relevant authentication headers
     # to the request and send the request to actual network call.
     #
     # + path - Resource path
@@ -80,7 +80,7 @@ public type HttpSecureClient client object {
         return response;
     }
 
-    # This wraps the `head()` function of the underlying HTTP actions provider. Add relevant authentication headers
+    # This wraps the `head()` function of the underlying HTTP remote functions provider. Add relevant authentication headers
     # to the request and send the request to actual network call.
     #
     # + path - Resource path
@@ -100,7 +100,7 @@ public type HttpSecureClient client object {
         return response;
     }
 
-    # This wraps the `put()` function of the underlying HTTP actions provider. Add relevant authentication headers
+    # This wraps the `put()` function of the underlying HTTP remote functions provider. Add relevant authentication headers
     # to the request and send the request to actual network call.
     #
     # + path - Resource path
@@ -120,7 +120,7 @@ public type HttpSecureClient client object {
         return response;
     }
 
-    # This wraps the `execute()` function of the underlying HTTP actions provider. Add relevant authentication headers
+    # This wraps the `execute()` function of the underlying HTTP remote functions provider. Add relevant authentication headers
     # to the request and send the request to actual network call.
     #
     # + httpVerb - HTTP verb value
@@ -141,7 +141,7 @@ public type HttpSecureClient client object {
         return response;
     }
 
-    # This wraps the `patch()` function of the underlying HTTP actions provider. Add relevant authentication headers
+    # This wraps the `patch()` function of the underlying HTTP remote functions provider. Add relevant authentication headers
     # to the request and send the request to actual network call.
     #
     # + path - Resource path
@@ -161,7 +161,7 @@ public type HttpSecureClient client object {
         return response;
     }
 
-    # This wraps the `delete()` function of the underlying HTTP actions provider. Add relevant authentication headers
+    # This wraps the `delete()` function of the underlying HTTP remote functions provider. Add relevant authentication headers
     # to the request and send the request to actual network call.
     #
     # + path - Resource path
@@ -181,7 +181,7 @@ public type HttpSecureClient client object {
         return response;
     }
 
-    # This wraps the `get()` function of the underlying HTTP actions provider. Add relevant authentication headers
+    # This wraps the `get()` function of the underlying HTTP remote functions provider. Add relevant authentication headers
     # to the request and send the request to actual network call.
     #
     # + path - Request path
@@ -201,7 +201,7 @@ public type HttpSecureClient client object {
         return response;
     }
 
-    # This wraps the `options()` function of the underlying HTTP actions provider. Add relevant authentication headers
+    # This wraps the `options()` function of the underlying HTTP remote functions provider. Add relevant authentication headers
     # to the request and send the request to actual network call.
     #
     # + path - Request path
@@ -221,7 +221,7 @@ public type HttpSecureClient client object {
         return response;
     }
 
-    # This wraps the `forward()` function of the underlying HTTP actions provider. Add relevant authentication headers
+    # This wraps the `forward()` function of the underlying HTTP remote functions provider. Add relevant authentication headers
     # to the request and send the request to actual network call.
     #
     # + path - Request path
@@ -238,7 +238,7 @@ public type HttpSecureClient client object {
         return response;
     }
 
-    # This wraps the `submit()` function of the underlying HTTP actions provider. Add relevant authentication headers
+    # This wraps the `submit()` function of the underlying HTTP remote functions provider. Add relevant authentication headers
     # to the request and send the request to actual network call.
     #
     # + httpVerb - The HTTP verb value
@@ -384,7 +384,7 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns str
         Request refreshTokenRequest = new;
         string textPayload = "grant_type=refresh_token&refresh_token=" + refreshToken;
         string scopeString = EMPTY_STRING;
-        foreach requestScope in scopes {
+        foreach var requestScope in scopes {
             scopeString = scopeString + WHITE_SPACE + requestScope;
         }
         if (scopeString != EMPTY_STRING) {

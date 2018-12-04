@@ -43,7 +43,7 @@ function initRealtimeProductionAlert() returns () {
         => (MaterialUsage[] materialUsages) {
         // `materialUsages` is the output that matches the defined streaming rules. It is published to the `materialUsageStream` stream.
         // The selected clause should match the structure of the `MaterialUsage` type.
-            foreach usage in materialUsages {
+            foreach var usage in materialUsages {
                 materialUsageStream.publish(usage);
             }
         }
@@ -79,7 +79,7 @@ service productMaterialService on productMaterialListener {
     resource function rawmaterialrequests(http:Caller caller, http:Request req) {
         var jsonMsg = req.getJsonPayload();
         if (jsonMsg is json) {
-            var productMaterial = ProductMaterial.create(jsonMsg);
+            var productMaterial = ProductMaterial.convert(jsonMsg);
             rawMaterialStream.publish(productMaterial);
 
             http:Response res = new;
@@ -102,7 +102,7 @@ service productMaterialService on productMaterialListener {
                                http:Request req) {
         var jsonMsg = req.getJsonPayload();
         if (jsonMsg is json) {
-            var productMaterial = ProductMaterial.create(jsonMsg);
+            var productMaterial = ProductMaterial.convert(jsonMsg);
             productionInputStream.publish(productMaterial);
 
             http:Response res = new;

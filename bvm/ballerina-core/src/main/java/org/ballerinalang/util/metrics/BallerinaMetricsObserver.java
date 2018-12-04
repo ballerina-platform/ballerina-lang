@@ -148,6 +148,17 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
     }
 
     private void incrementHttpStatusCodeCounters(int statusCode, String connectorName, Set<Tag> tags) {
+        metricRegistry.counter(new MetricId(connectorName + "_1XX_requests_total",
+                "Total number of requests that resulted in HTTP 1xx informational responses", tags)).register();
+        metricRegistry.counter(new MetricId(connectorName + "_2XX_requests_total",
+                "Total number of requests that resulted in HTTP 1xx informational responses", tags)).register();
+        metricRegistry.counter(new MetricId(connectorName + "_3XX_requests_total",
+                "Total number of requests that resulted in HTTP 1xx informational responses", tags)).register();
+        metricRegistry.counter(new MetricId(connectorName + "_4XX_requests_total",
+                "Total number of requests that resulted in HTTP 1xx informational responses", tags)).register();
+        metricRegistry.counter(new MetricId(connectorName + "_5XX_requests_total",
+                "Total number of requests that resulted in HTTP 1xx informational responses", tags)).register();
+
         if (statusCode >= 100 && statusCode < 200) {
             metricRegistry.counter(new MetricId(connectorName + "_1XX_requests_total",
                     "Total number of requests that resulted in HTTP 1xx informational responses", tags))

@@ -55,7 +55,7 @@ function startTimeLengthwindowTest2() returns (TeacherOutput[]) {
     testTimeLengthwindow();
 
     outputStreamTimeLengthTest2.subscribe(function(TeacherOutput e) {printTeachers(e);});
-    foreach t in teachers {
+    foreach var t in teachers {
         inputStreamTimeLengthWindowTest2.publish(t);
         runtime:sleep(450);
     }
@@ -79,7 +79,7 @@ function testTimeLengthwindow() {
         select inputStreamTimeLengthWindowTest2.timestamp, inputStreamTimeLengthWindowTest2.name, count() as count
         group by inputStreamTimeLengthWindowTest2.school
         => (TeacherOutput [] teachers) {
-            foreach t in teachers {
+            foreach var t in teachers {
                 outputStreamTimeLengthTest2.publish(t);
             }
         }

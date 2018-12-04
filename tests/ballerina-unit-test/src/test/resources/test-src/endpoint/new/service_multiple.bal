@@ -4,7 +4,7 @@ int startCount = 0;
 int attachCount = -2;
 
 service on ep, new PQR("pqr") {
-    string name;
+
 
     resource function foo(string b) {
     }

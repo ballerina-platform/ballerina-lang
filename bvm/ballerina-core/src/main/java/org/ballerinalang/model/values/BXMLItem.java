@@ -40,7 +40,6 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.XMLNodeType;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.util.XMLValidationUtils;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.InputStream;
@@ -234,7 +233,7 @@ public final class BXMLItem extends BXML<OMNode> {
         }
 
         if (localName == null || localName.isEmpty()) {
-            throw new BLangRuntimeException("localname of the attribute cannot be empty");
+            throw new BallerinaException("localname of the attribute cannot be empty");
         }
 
         // Validate whether the attribute name is an XML supported qualified name, according to the XML recommendation.
@@ -280,7 +279,7 @@ public final class BXMLItem extends BXML<OMNode> {
 
             // If a namespace exists with the same prefix but a different uri, then do not add the new attribute.
             if (existingNs != null && !namespaceUri.equals(existingNs.getNamespaceURI())) {
-                throw new BLangRuntimeException("failed to add attribute '" + prefix + ":" + localName + "'. prefix '" +
+                throw new BallerinaException("failed to add attribute '" + prefix + ":" + localName + "'. prefix '" +
                         prefix + "' is already bound to namespace '" + existingNs.getNamespaceURI() + "'");
             }
 
@@ -698,7 +697,7 @@ public final class BXMLItem extends BXML<OMNode> {
     @Override
     public BXML<?> getItem(long index) {
         if (index != 0) {
-            throw new BLangRuntimeException("index out of range: index: " + index + ", size: 1");
+            throw new BallerinaException("index out of range: index: " + index + ", size: 1");
         }
 
         return this;
@@ -849,11 +848,12 @@ public final class BXMLItem extends BXML<OMNode> {
         }
 
         @Override
-        public BValue[] getNext(int arity) {
-            if (arity == 1) {
-                return cursor++ == 0 ? new BValue[] {value} : null;
+        public BValue getNext() {
+            if (hasNext()) {
+                cursor++;
+                return value;
             }
-            return cursor++ == 0 ? new BValue[] {new BInteger(0), value} : null;
+            return null;
         }
 
         @Override
