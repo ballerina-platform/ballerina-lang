@@ -160,7 +160,7 @@ public final class BLangConnectorSPIUtil {
     public static Service getService(ProgramFile programFile, BMap serviceValue) {
         final BObjectType serviceType = (BObjectType) serviceValue.getType();
         final ServiceInfo serviceInfo = programFile.getPackageInfo(serviceType.getPackagePath())
-                .getServiceInfo(serviceType.getName());
+                .getServiceInfo(serviceType);
         serviceInfo.serviceValue = serviceValue;
         return ConnectorSPIModelHelper.createService(programFile, serviceInfo, serviceValue);
     }

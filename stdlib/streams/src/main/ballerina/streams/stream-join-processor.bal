@@ -39,7 +39,7 @@ public type StreamJoinProcessor object {
     public function process(StreamEvent[] streamEvents) {
         StreamEvent?[] joinedEvents = [];
         int i = 0;
-        foreach event in streamEvents {
+        foreach var event in streamEvents {
             string originStream = event.data.keys()[0].split("\\.")[0];
             // resolve trigger according to join direction
             boolean triggerJoin = false;
@@ -73,7 +73,7 @@ public type StreamJoinProcessor object {
                         }
                     }
 
-                    foreach evtTuple in candidateEvents {
+                    foreach var evtTuple in candidateEvents {
                         joinedEvents[i] = self.joinEvents(evtTuple[0], evtTuple[1]);
                         i += 1;
                     }
@@ -91,7 +91,7 @@ public type StreamJoinProcessor object {
                             candidateEvents[0] = ((), event);
                         }
                     }
-                    foreach evtTuple in candidateEvents {
+                    foreach var evtTuple in candidateEvents {
                         joinedEvents[i] = self.joinEvents(evtTuple[0], evtTuple[1], lhsTriggered = false);
                         i += 1;
                     }
@@ -101,7 +101,7 @@ public type StreamJoinProcessor object {
 
         StreamEvent[] outputEvents = [];
         i = 0;
-        foreach e in joinedEvents {
+        foreach var e in joinedEvents {
             if (e is StreamEvent) {
                 outputEvents[i] = e;
                 i += 1;

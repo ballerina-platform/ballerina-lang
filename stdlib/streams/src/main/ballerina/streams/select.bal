@@ -37,7 +37,7 @@ public type Select object {
         StreamEvent[] outputStreamEvents = [];
         if (self.aggregatorArr.length() > 0) {
             map<StreamEvent> groupedEvents = {};
-            foreach event in streamEvents {
+            foreach var event in streamEvents {
                 if (event.eventType == RESET) {
                     self.aggregatorsCloneMap.clear();
                 }
@@ -49,7 +49,7 @@ public type Select object {
                     aggregatorsClone = aggregators;
                 } else {
                     int i = 0;
-                    foreach aggregator in self.aggregatorArr {
+                    foreach var aggregator in self.aggregatorArr {
                         aggregatorsClone[i] = aggregator.copy();
                         i += 1;
                     }
@@ -59,12 +59,12 @@ public type Select object {
                 StreamEvent e = new((OUTPUT, x), event.eventType, event.timestamp);
                 groupedEvents[groupbyKey] = e;
             }
-            foreach key in groupedEvents.keys() {
+            foreach var key in groupedEvents.keys() {
                 StreamEvent event = <StreamEvent>groupedEvents[key];
                 outputStreamEvents[outputStreamEvents.length()] = event;
             }
         } else {
-            foreach event in streamEvents {
+            foreach var event in streamEvents {
                 StreamEvent e = new((OUTPUT, self.selectFunc.call(event, self.aggregatorArr)), event.eventType,
                     event.timestamp);
                 outputStreamEvents[outputStreamEvents.length()] = e;
@@ -78,7 +78,7 @@ public type Select object {
     public function getGroupByKey((function (StreamEvent o) returns anydata)[] groupbyFunctionArray, StreamEvent e)
                         returns string {
         string key = "";
-        foreach func in groupbyFunctionArray {
+        foreach var func in groupbyFunctionArray {
             key += <string>func.call(e);
             key += ",";
         }

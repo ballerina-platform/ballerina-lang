@@ -35,25 +35,27 @@ public type TableJoinProcessor object {
     public function process(StreamEvent[] streamEvents) {
         StreamEvent?[] joinedEvents = [];
         int j = 0;
-        foreach event in streamEvents {
+        foreach var event in streamEvents {
             (StreamEvent?, StreamEvent?)[] candidateEvents = [];
-            foreach i, m in self.tableQuery.call(event) {
+            int i = 0;
+            foreach var m in self.tableQuery.call(event) {
                 StreamEvent resultEvent = new((self.tableName, m), "CURRENT", time:currentTime().time);
                 candidateEvents[i] = (event, resultEvent);
+                i += 1;
             }
             // with right/left/full joins, we need to emit an event even there're no candidate events in table.
             if (candidateEvents.length() == 0 && (self.joinType != "JOIN")) {
                 candidateEvents[0] = (event, ());
             }
 
-            foreach e in candidateEvents {
+            foreach var e in candidateEvents {
                 joinedEvents[j] = self.joinEvents(e[0], e[1]);
                 j += 1;
             }
         }
         StreamEvent[] outputEvents = [];
         int i = 0;
-        foreach e in joinedEvents {
+        foreach var e in joinedEvents {
             if (e is StreamEvent) {
                 outputEvents[i] = e;
                 i += 1;

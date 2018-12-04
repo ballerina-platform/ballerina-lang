@@ -241,6 +241,16 @@ function testComplexTernary_2() returns string {
     }
 }
 
+function testArray() returns int {
+    int [] intArr = [10, 20];
+    any[] arr = intArr;
+    if (arr is int[]) {
+        return arr[1];
+    } else {
+        return -1;
+    }
+}
+
 function testUpdatingGuardedVar_1() returns string {
     any value = "BALLERINA";
     if (value is int|string|float) {

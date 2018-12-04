@@ -275,7 +275,7 @@ public final class BXMLSequence extends BXML<BValueArray> {
         if (sequence.size() != 1) {
             throw new BallerinaException("not an " + XMLNodeType.ELEMENT);
         }
-        
+
         ((BXMLItem) sequence.getRefValue(0)).setChildren(seq);
     }
 
@@ -293,7 +293,7 @@ public final class BXMLSequence extends BXML<BValueArray> {
         if (sequence.size() != 1) {
             throw new BallerinaException("not an " + XMLNodeType.ELEMENT);
         }
-        
+
         ((BXMLItem) sequence.getRefValue(0)).addChildren(seq);
     }
 
@@ -306,7 +306,7 @@ public final class BXMLSequence extends BXML<BValueArray> {
         int j = 0;
         for (int i = 0; i < sequence.size(); i++) {
             BXMLItem element = (BXMLItem) sequence.getRefValue(i);
-            if (element.value() == null || (element.getNodeType() == XMLNodeType.TEXT && 
+            if (element.value() == null || (element.getNodeType() == XMLNodeType.TEXT &&
                     ((OMText) element.value()).getText().trim().isEmpty())) {
                 continue;
             }
@@ -464,7 +464,7 @@ public final class BXMLSequence extends BXML<BValueArray> {
         if (sequence.size() != 1) {
             throw new BallerinaException("not an " + XMLNodeType.ELEMENT);
         }
-        
+
         ((BXMLItem) sequence.getRefValue(0)).removeAttribute(qname);
     }
 
@@ -488,12 +488,11 @@ public final class BXMLSequence extends BXML<BValueArray> {
         }
 
         @Override
-        public BValue[] getNext(int arity) {
-            if (arity == 1) {
-                return new BValue[] {value.sequence.getRefValue(cursor++)};
+        public BValue getNext() {
+            if (hasNext()) {
+                return value.sequence.getRefValue(cursor++);
             }
-            int cursor = this.cursor++;
-            return new BValue[] {new BInteger(cursor), value.sequence.getRefValue(cursor)};
+            return null;
         }
 
         @Override

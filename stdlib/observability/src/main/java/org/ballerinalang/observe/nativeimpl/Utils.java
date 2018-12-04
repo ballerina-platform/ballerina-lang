@@ -20,8 +20,10 @@
 package org.ballerinalang.observe.nativeimpl;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -34,9 +36,6 @@ import org.ballerinalang.util.metrics.StatisticConfig;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
-import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
  * This provides the util functions to observe related functions.
@@ -53,10 +52,8 @@ public class Utils {
         return returnMap;
     }
 
-    public static BMap<String, BValue> createErrorStruct(Context context, String message) {
-        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(BALLERINA_BUILTIN_PKG);
-        StructureTypeInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
-        return BLangVMStructs.createBStruct(errorStructInfo, message);
+    public static BError createError(Context context, String message) {
+        return BLangVMErrors.createError(context, message);
     }
 
     public static BValueArray createBSnapshots(Snapshot[] snapshots, Context context) {

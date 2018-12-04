@@ -458,9 +458,9 @@ public class BTestRunner {
             if (value instanceof BValueArray) {
                 BValueArray array = (BValueArray) value;
                 for (BIterator it = array.newIterator(); it.hasNext(); ) {
-                    BValue[] vals = it.getNext(0);
-                    if (vals[1] instanceof BNewArray) {
-                        BNewArray bNewArray = (BNewArray) vals[1];
+                    BValue vals = it.getNext();
+                    if (vals instanceof BNewArray) {
+                        BNewArray bNewArray = (BNewArray) vals;
                         BValue[] args = new BValue[(int) bNewArray.size()];
                         for (int j = 0; j < bNewArray.size(); j++) {
                             args[j] = bNewArray.getBValue(j);

@@ -7,7 +7,7 @@ public function main() {
     worker w1 {
         // Calculate sum(n)
         int n = 10000000;
-        int sum;
+        int sum = 0;
         foreach i in 1...n {
             sum += i;
         }
@@ -16,7 +16,7 @@ public function main() {
     worker w2 {
         // Calculate sum(n^2)
         int n = 10000000;
-        int sum;
+        int sum = 0;
         foreach i in 1...n {
             sum += i * i;
         }

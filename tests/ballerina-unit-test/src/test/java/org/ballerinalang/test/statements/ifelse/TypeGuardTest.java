@@ -168,6 +168,14 @@ public class TypeGuardTest {
     }
 
     @Test
+    public void testArray() {
+        BValue[] returns = BRunUtil.invoke(result, "testArray");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 20);
+    }
+
+    @Test
     public void testUpdatingGuardedVar_1() {
         BValue[] returns = BRunUtil.invoke(result, "testUpdatingGuardedVar_1");
         Assert.assertEquals(returns.length, 1);

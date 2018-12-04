@@ -106,8 +106,8 @@ public class TypeAssertionExpressionsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: assertion error: expected 'table<TableEmployee>', found " +
-                    "'table'.*", enabled = false)
+            expectedExceptionsMessageRegExp = ".*error: assertion error: expected 'table<TableEmployeeTwo>', found " +
+                    "'table<TableEmployee>'.*")
     public void testTableAssertionNegative() {
         BRunUtil.invoke(result, "testTableAssertionNegative", new BValue[0]);
     }
@@ -220,7 +220,7 @@ public class TypeAssertionExpressionsTest {
                 {"testJsonAssertionPositive"},
                 {"testMapAssertionPositive"},
                 {"testRecordAssertionPositive"},
-//                {"testTableAssertionPositive"},
+                {"testTableAssertionPositive"},
                 {"testXmlAssertionPositive"},
 //                {"testErrorAssertionPositive"},
                 {"testFunctionAssertionPositive"},

@@ -143,7 +143,7 @@ function testInvalidTupleAssignments() {
 }
 
 function testInvalidMapInsertions() {
-    map<anydata> m;
+    map<anydata> m = {};
     m["bar"] = new Bar();
 
     DataType dt = "hello world!";
