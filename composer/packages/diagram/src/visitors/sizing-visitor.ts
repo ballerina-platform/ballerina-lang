@@ -146,7 +146,9 @@ export const visitor: Visitor = {
             });
         }
 
-        body.w = config.panel.padding.left + endpointWidth + config.panel.padding.right;
+        const lifeLinesWidth = client.bBox.w + config.lifeLine.gutter.h
+            + defaultWorker.bBox.w + endpointWidth;
+        body.w = config.panel.padding.left + lifeLinesWidth + config.panel.padding.right;
         body.h = config.panel.padding.top + lineHeight + config.panel.padding.bottom;
 
         header.w = config.panelHeading.padding.left + config.panelHeading.padding.right;

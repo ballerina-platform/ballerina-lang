@@ -157,9 +157,9 @@ class BallerinaTextDocumentService implements TextDocumentService {
             try {
                 BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager, false,
                                                                        CompletionCustomErrorStrategy.class,
-                                                                       false).getRight();
-                context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
-                        bLangPackage.symbol.getName().getValue());
+                                                                       false).get(0);
+                context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, bLangPackage.symbol.getName().getValue());
+                context.put(DocumentServiceKeys.CURRENT_PACKAGE_ID_KEY, bLangPackage.packageID);
                 context.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
                 CompletionUtil.resolveSymbols(context);
                 CompletionSubRuleParser.parse(context);
@@ -194,7 +194,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             hoverContext.put(DocumentServiceKeys.POSITION_KEY, position);
             try {
                 BLangPackage currentBLangPackage = lsCompiler.getBLangPackage(hoverContext, documentManager, false,
-                        LSCustomErrorStrategy.class, false).getRight();
+                        LSCustomErrorStrategy.class, false).get(0);
                 hoverContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                                  currentBLangPackage.symbol.getName().getValue());
                 hover = HoverUtil.getHoverContent(hoverContext, currentBLangPackage);
@@ -229,7 +229,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 signatureContext.put(DocumentServiceKeys.FILE_URI_KEY, uri);
                 SignatureHelp signatureHelp;
                 BLangPackage bLangPackage = lsCompiler.getBLangPackage(signatureContext, documentManager, false,
-                        LSCustomErrorStrategy.class, false).getRight();
+                        LSCustomErrorStrategy.class, false).get(0);
                 signatureContext.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
                 signatureContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                                      bLangPackage.symbol.getName().getValue());
@@ -261,9 +261,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 LSServiceOperationContext definitionContext = new LSServiceOperationContext();
                 definitionContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
                 definitionContext.put(DocumentServiceKeys.POSITION_KEY, position);
-                BLangPackage currentBLangPackage =
-                        lsCompiler.getBLangPackage(definitionContext, documentManager, false,
-                                LSCustomErrorStrategy.class, false).getRight();
+                BLangPackage currentBLangPackage = lsCompiler.getBLangPackage(definitionContext, documentManager, false,
+                                LSCustomErrorStrategy.class, false).get(0);
                 definitionContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                                       currentBLangPackage.symbol.getName().getValue());
                 PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(definitionContext);
@@ -295,22 +294,14 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 LSServiceOperationContext referenceContext = new LSServiceOperationContext();
                 referenceContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
                 referenceContext.put(DocumentServiceKeys.POSITION_KEY, params);
-                boolean isBallerinaProject = document.hasProjectRepo();
-                Either<List<BLangPackage>, BLangPackage> eitherBLangPackage =
-                        lsCompiler.getBLangPackage(referenceContext, documentManager, false,
-                                                   LSCustomErrorStrategy.class,
-                                                   isBallerinaProject);
-                BLangPackage currentBLangPackage;
-                List<BLangPackage> bLangPackages;
-                if (isBallerinaProject) {
-                    bLangPackages = eitherBLangPackage.getLeft();
-                    // Get the current package from multiple.
-                    currentBLangPackage = CommonUtil.getCurrentPackageByFileName(bLangPackages, fileUri);
-                } else {
-                    currentBLangPackage = eitherBLangPackage.getRight();
-                    bLangPackages = Collections.singletonList(currentBLangPackage);
+                List<BLangPackage> bLangPackages = lsCompiler.getBLangPackage(referenceContext, documentManager, false,
+                                                                                   LSCustomErrorStrategy.class, true);
+                // Get the current package from multiple.
+                BLangPackage currentBLangPackage = CommonUtil.getCurrentPackageByFileName(bLangPackages, fileUri);
+                if (currentBLangPackage == null) {
+                    // fail quietly
+                    return contents;
                 }
-
                 referenceContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                                      currentBLangPackage.symbol.getName().getValue());
 
@@ -365,7 +356,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 symbolsContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
                 symbolsContext.put(DocumentServiceKeys.SYMBOL_LIST_KEY, symbols);
                 BLangPackage bLangPackage = lsCompiler.getBLangPackage(symbolsContext, documentManager, false,
-                        LSCustomErrorStrategy.class, false).getRight();
+                        LSCustomErrorStrategy.class, false).get(0);
                 symbolsContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                                    bLangPackage.symbol.getName().getValue());
                 Optional<BLangCompilationUnit> documentCUnit = bLangPackage.getCompilationUnits().stream()
@@ -509,30 +500,25 @@ class BallerinaTextDocumentService implements TextDocumentService {
     public CompletableFuture<WorkspaceEdit> rename(RenameParams params) {
         return CompletableFuture.supplyAsync(() -> {
             TextDocumentIdentifier identifier = params.getTextDocument();
-            LSDocument document = new LSDocument(identifier.getUri());
+            String fileUri = identifier.getUri();
+            LSDocument document = new LSDocument(fileUri);
             Path renameFilePath = document.getPath();
             Path compilationPath = getUntitledFilePath(renameFilePath.toString()).orElse(renameFilePath);
             Optional<Lock> lock = documentManager.lockFile(compilationPath);
             WorkspaceEdit workspaceEdit = new WorkspaceEdit();
             try {
                 LSServiceOperationContext renameContext = new LSServiceOperationContext();
-                renameContext.put(DocumentServiceKeys.FILE_URI_KEY, identifier.getUri());
+                renameContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
                 renameContext.put(DocumentServiceKeys.POSITION_KEY,
                                   new TextDocumentPositionParams(identifier, params.getPosition()));
                 List<Location> contents = new ArrayList<>();
-                boolean isBallerinaProject = document.hasProjectRepo();
-                Either<List<BLangPackage>, BLangPackage> eitherBLangPackage =
-                        lsCompiler.getBLangPackage(renameContext, documentManager, false, LSCustomErrorStrategy.class,
-                                                   isBallerinaProject);
-                BLangPackage currentBLangPackage;
-                List<BLangPackage> bLangPackages;
-                if (isBallerinaProject) {
-                    bLangPackages = eitherBLangPackage.getLeft();
-                    // Get the current package from multiple.
-                    currentBLangPackage = CommonUtil.getCurrentPackageByFileName(bLangPackages, identifier.getUri());
-                } else {
-                    currentBLangPackage = eitherBLangPackage.getRight();
-                    bLangPackages = Collections.singletonList(currentBLangPackage);
+                List<BLangPackage> bLangPackages = lsCompiler.getBLangPackage(renameContext, documentManager, false,
+                                                                              LSCustomErrorStrategy.class, true);
+                // Get the current package from multiple.
+                BLangPackage currentBLangPackage = CommonUtil.getCurrentPackageByFileName(bLangPackages, fileUri);
+                if (currentBLangPackage == null) {
+                    // fail quietly
+                    return workspaceEdit;
                 }
 
                 renameContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,

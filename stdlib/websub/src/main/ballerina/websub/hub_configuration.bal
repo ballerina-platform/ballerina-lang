@@ -31,14 +31,12 @@ const string DEFAULT_DB_NAME = "HUB_DB";
 const string DEFAULT_DB_USERNAME = "sa";
 const string DEFAULT_DB_PASSWORD = "";
 
-string hubHost = DEFAULT_HOST;
-int hubPort = 0;
 int hubLeaseSeconds = DEFAULT_LEASE_SECONDS_VALUE;
 string hubSignatureMethod = DEFAULT_SIGNATURE_METHOD;
-boolean hubRemotePublishingEnabled = false;
-RemotePublishMode hubRemotePublishMode = PUBLISH_MODE_DIRECT;
+RemotePublishConfig remotePublishConfig = {};
 boolean hubTopicRegistrationRequired = false;
 string hubPublicUrl = "";
+http:ClientEndpointConfig? hubClientConfig = ();
 
 final boolean hubPersistenceEnabled = config:getAsBoolean("b7a.websub.hub.enablepersistence");
 final string hubDatabaseDirectory = config:getAsString("b7a.websub.hub.db.directory", default = DEFAULT_DB_DIRECTORY);
@@ -47,30 +45,13 @@ final string hubDatabaseUsername = config:getAsString("b7a.websub.hub.db.usernam
 final string hubDatabasePassword = config:getAsString("b7a.websub.hub.db.password", default = DEFAULT_DB_PASSWORD);
 //TODO:add pool options
 
-boolean hubSslEnabled = false;
-http:ServiceSecureSocket? hubServiceSecureSocket = ();
-http:SecureSocket? hubClientSecureSocket = ();
-
-# Function to bind and start the Ballerina WebSub Hub service.
+# Function to attach and start the Ballerina WebSub Hub service.
 #
-# + return - The `http:Listener` to which the service is bound
-function startHubService() returns http:Listener {
-    http:ServiceEndpointConfiguration httpEpConfig = {host: hubHost, port: hubPort,
-                                                      secureSocket: hubServiceSecureSocket};
-    http:Listener hubServiceEP = new http:Listener(hubPort, config = httpEpConfig);
+# + hubServiceListener - The `http:Listener` to which the service is attached
+function startHubService(http:Listener hubServiceListener) {
     // TODO : handle errors
-    _ = hubServiceEP.__attach(hubService, {});
-    _ = hubServiceEP.__start();
-    return hubServiceEP;
-}
-
-# Function to retrieve the URL for the Ballerina WebSub Hub, to which potential subscribers need to send
-# subscription/unsubscription requests.
-#
-# + return - The WebSub Hub's URL
-function getHubUrl() returns string {
-    return hubServiceSecureSocket is http:ServiceSecureSocket ? ("https://localhost:" + hubPort + BASE_PATH + HUB_PATH)
-                : ("http://localhost:" + hubPort + BASE_PATH + HUB_PATH);
+    _ = hubServiceListener.__attach(hubService, {});
+    _ = hubServiceListener.__start();
 }
 
 # Function to retrieve if persistence is enabled for the Hub.
@@ -87,69 +68,39 @@ function isHubTopicRegistrationRequired() returns boolean {
     return hubTopicRegistrationRequired;
 }
 
-function getServiceSecureSocketConfig(http:ServiceSecureSocket? currentServiceSecureSocket) returns
-                                                                                          http:ServiceSecureSocket? {
-    if (!hubSslEnabled) {
-        return;
-    }
 
-    string keyStoreFilePath = config:getAsString("b7a.websub.hub.ssl.key_store.file_path");
-    string keyStorePassword = config:getAsString("b7a.websub.hub.ssl.key_store.password");
-
-    if (keyStoreFilePath == "") {
-        if (currentServiceSecureSocket is http:ServiceSecureSocket) {
-            return currentServiceSecureSocket;
-        } else {
-            keyStoreFilePath = "${ballerina.home}/bre/security/ballerinaKeystore.p12";
-            keyStorePassword = "ballerina";
+function getSignatureMethod(SignatureMethod? signatureMethod) returns string {
+    string signaturemethodAsConfig = config:getAsString("b7a.websub.hub.signaturemethod");
+    if (signaturemethodAsConfig == "") {
+        match signatureMethod {
+            "SHA256" => return "SHA256";
+            "SHA1" => return "SHA1";
+        }
+    } else {
+        if (signaturemethodAsConfig.equalsIgnoreCase(SHA1)) {
+            return signaturemethodAsConfig;
+        }
+        if (!signaturemethodAsConfig.equalsIgnoreCase(SHA256)) {
+            log:printWarn("unknown signature method : [" + signaturemethodAsConfig + "], defaulting to SHA256");
         }
     }
-
-    http:ServiceSecureSocket newServiceSecureSocket = {
-        keyStore:{
-            path:keyStoreFilePath, password:keyStorePassword
-        }
-    };
-    return newServiceSecureSocket;
+    return DEFAULT_SIGNATURE_METHOD;
 }
 
-function getSecureSocketConfig(http:SecureSocket? currentSecureSocket) returns http:SecureSocket? {
-    string trustStoreFilePath;
-    string trustStorePassword;
+function getRemotePublishConfig(RemotePublishConfig? remotePublish) returns RemotePublishConfig {
+    RemotePublishMode hubRemotePublishMode = PUBLISH_MODE_DIRECT;
+    boolean remotePublishingEnabled = config:getAsBoolean("b7a.websub.hub.remotepublish",
+                                     default = remotePublish.enabled ?: false);
 
-    if (!hubSslEnabled) {
-        trustStoreFilePath = config:getAsString("b7a.websub.hub.ssl.trust_store.file_path");
-        trustStorePassword = config:getAsString("b7a.websub.hub.ssl.trust_store.password");
-
-        if (trustStoreFilePath == "") {
-            return currentSecureSocket;
-        }
-        http:SecureSocket newSecureSocket = {
-            trustStore:{
-                path:trustStoreFilePath, password:trustStorePassword
-            },
-            verifyHostname:false
-        };
-        return newSecureSocket;
-    }
-
-    trustStoreFilePath = config:getAsString("b7a.websub.hub.ssl.trust_store.file_path");
-    trustStorePassword = config:getAsString("b7a.websub.hub.ssl.trust_store.password");
-
-    if (trustStoreFilePath == "") {
-        if (currentSecureSocket is http:SecureSocket) {
-            return currentSecureSocket;
-        } else {
-            trustStoreFilePath = "${ballerina.home}/bre/security/ballerinaTruststore.p12";
-            trustStorePassword = "ballerina";
+    string remotePublishModeAsConfig =  config:getAsString("b7a.websub.hub.remotepublish.mode");
+    if (remotePublishModeAsConfig == "") {
+        hubRemotePublishMode = remotePublish.mode ?: PUBLISH_MODE_DIRECT;
+    } else {
+        if (remotePublishModeAsConfig.equalsIgnoreCase(REMOTE_PUBLISHING_MODE_FETCH)) {
+            hubRemotePublishMode = PUBLISH_MODE_FETCH;
+        } else if (!remotePublishModeAsConfig.equalsIgnoreCase(REMOTE_PUBLISHING_MODE_DIRECT)) {
+            log:printWarn("unknown publish mode: [" + remotePublishModeAsConfig + "], defaulting to direct mode");
         }
     }
-
-    http:SecureSocket newSecureSocket = {
-        trustStore:{
-            path:trustStoreFilePath, password:trustStorePassword
-        },
-        verifyHostname:false
-    };
-    return newSecureSocket;
+    return { enabled : remotePublishingEnabled, mode : hubRemotePublishMode };
 }

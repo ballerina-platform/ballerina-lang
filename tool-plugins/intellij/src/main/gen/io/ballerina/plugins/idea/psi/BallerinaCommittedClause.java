@@ -21,15 +21,18 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaOnAbortStatement extends BallerinaCompositeElement {
+public interface BallerinaCommittedClause extends BallerinaCompositeElement {
 
   @Nullable
-  BallerinaExpression getExpression();
+  BallerinaBlock getBlock();
 
   @Nullable
-  PsiElement getAssign();
+  PsiElement getLeftBrace();
+
+  @Nullable
+  PsiElement getRightBrace();
 
   @NotNull
-  PsiElement getOnabort();
+  PsiElement getCommitted();
 
 }

@@ -24,7 +24,6 @@ import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
-import org.ballerinalang.test.util.HttpsClientRequest;
 import org.ballerinalang.test.util.TestConstant;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -61,7 +60,7 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
     private BServerInstance webSubSubscriber;
     private BMainInstance subscriptionChanger;
 
-    private static String hubUrl = "https://localhost:9191/websub/hub";
+    private static String hubUrl = "http://localhost:9191/websub/hub";
     private static final String INTENT_VERIFICATION_LOG = "ballerina: Intent Verification agreed - Mode [subscribe], " +
             "Topic [http://one.websub.topic.com], Lease Seconds [86400]";
     private static final String EXPLICIT_INTENT_VERIFICATION_LOG = "Intent verified explicitly for subscription " +
@@ -178,12 +177,11 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
     public void testRemoteTopicRegistration() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_FORM_URL_ENCODED);
-        HttpResponse response = HttpsClientRequest.doPost(hubUrl,
-                                                          "hub.mode=subscribe" +
+        HttpResponse response = HttpClientRequest.doPost(hubUrl,
+                                                  "hub.mode=subscribe" +
                                                                   "&hub.topic=http://two.websub.topic.com" +
                                                                   "&hub.callback=http://localhost:8181/websub",
-                                                          headers,
-                                                          webSubSubscriber.getServerHome());
+                                                  headers);
         Assert.assertTrue(response != null);
         Assert.assertEquals(response.getResponseCode(), 202, "Remote topic registration unsuccessful "
                 + "to allow registering subscription");

@@ -55,7 +55,7 @@ export class SVGDropDownMenu extends React.Component<SVGDropDownMenuProps, SVGDr
             x: x + btnRadius / 2,
             y: y + btnRadius / 2
         };
-        const menuItem = items.map(({ name, icon, onClick }, index) => {
+        const menuItems = items.map(({ name, icon, onClick }, index) => {
                 const itemPosition = {
                     x: menuItemPosition.x,
                     y: menuItemPosition.y + index * itemHeight
@@ -104,7 +104,7 @@ export class SVGDropDownMenu extends React.Component<SVGDropDownMenuProps, SVGDr
             >
                 {this.state.active &&
                     <g className="content" ref={this.wrapperRef}>
-                        {menuItem}
+                        {menuItems}
                     </g>
                 }
         </SVGDropDownMenuTrigger>;
