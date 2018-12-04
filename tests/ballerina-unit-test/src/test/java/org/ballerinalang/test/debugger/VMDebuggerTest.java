@@ -321,7 +321,7 @@ public class VMDebuggerTest {
         VMDebuggerUtil.startDebug("test-src/debugger/test-worker.bal", breakPoints, expRes);
     }
 
-    @Test(enabled = false, description = "Testing debug paths in package init")
+    @Test(description = "Testing debug paths in package init")
     public void testDebuggingPackageInit() {
         BreakPointDTO[] breakPoints = createBreakNodeLocations(".", "test-package-init.bal", 3, 9);
 
@@ -408,7 +408,7 @@ public class VMDebuggerTest {
         VMDebuggerUtil.startDebug("test-src/debugger/test_object_and_match.bal", breakPoints, expRes);
     }
 
-    @Test(enabled = false, description = "Testing global variables availability in debug hit message")
+    @Test(description = "Testing global variables availability in debug hit message")
     public void testGlobalVarAvailability() {
         String file = "test_variables.bal";
         BreakPointDTO[] breakPoints = createBreakNodeLocations(".", file, 13);
@@ -435,7 +435,7 @@ public class VMDebuggerTest {
         VMDebuggerUtil.startDebug("test-src/debugger/test_variables.bal", breakPoints, expRes);
     }
 
-    @Test(enabled = false, description = "Testing local variables scopes")
+    @Test(description = "Testing local variables scopes")
     public void testLocalVarScope() {
         String file = "test_variables.bal";
         BreakPointDTO[] breakPoints = createBreakNodeLocations(".", file, 12);

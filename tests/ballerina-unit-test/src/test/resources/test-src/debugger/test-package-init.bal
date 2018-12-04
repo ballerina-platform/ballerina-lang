@@ -10,7 +10,7 @@ public function main(string... args) {
 }
 
 function calculateExp5(int x, int y) returns (int) {
-    int z;
+    int z = 0;
     int a = y;
     while(x >= a) {
         a = a + 1;

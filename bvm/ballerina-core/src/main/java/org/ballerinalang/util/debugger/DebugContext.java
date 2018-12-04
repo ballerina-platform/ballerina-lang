@@ -57,7 +57,7 @@ public class DebugContext {
     }
 
     public void updateContext(LineNumberInfo lastLine, int framePointer) {
-        this.framePointer= framePointer;
+        this.framePointer = framePointer;
         this.lastLine = lastLine;
     }
 
