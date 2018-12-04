@@ -60,8 +60,6 @@ import static org.wso2.ballerinalang.compiler.util.RestBindingPatternState.OPEN_
 public class BLangParserListener extends BallerinaParserBaseListener {
     private static final String KEYWORD_PUBLIC = "public";
     private static final String KEYWORD_KEY = "key";
-    private static final String STREAM_TYPE_NAME = "stream";
-    private static final String CHANNEL_TYPE_NAME = "channel";
 
     private BLangPackageBuilder pkgBuilder;
     private BDiagnosticSource diagnosticSrc;
@@ -3350,7 +3348,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        if (STREAM_TYPE_NAME.equals(typeName) || CHANNEL_TYPE_NAME.equals(typeName)) {
+        if (ExperimentalFeatures.STREAMS.value.equals(typeName) ||
+                ExperimentalFeatures.CHANNEL.value.equals(typeName)) {
             dlog.error(pos, DiagnosticCode.INVALID_USE_OF_EXPERIMENTAL_FEATURE, typeName);
         }
     }
@@ -3365,7 +3364,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     private enum ExperimentalFeatures {
         STREAMS("stream"),
-        CHANNEL("stream"),
+        CHANNEL("channel"),
         TABLE_QUERIES("table queries"),
         STREAMING_QUERIES("streaming queries"),
         TRANSACTIONS("transaction"),

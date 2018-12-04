@@ -74,7 +74,7 @@ public class PushCommand implements BLauncherCmd {
         }
 
         if (argList == null || argList.size() == 0) {
-            PushUtils.pushAllPackages(sourceRoot, repositoryHome, noBuild);
+            PushUtils.pushAllPackages(sourceRoot, repositoryHome, noBuild, experimentalFlag);
         } else if (argList.size() == 1) {
             String packageName = argList.get(0);
             PushUtils.pushPackages(packageName, sourceRoot, repositoryHome, noBuild, experimentalFlag);

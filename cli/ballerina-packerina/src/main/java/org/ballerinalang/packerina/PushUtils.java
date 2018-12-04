@@ -364,9 +364,11 @@ public class PushUtils {
      *
      * @param sourceRoot source root or project root
      * @param installToRepo repo the module should be pushed to central or the home repository
-     * @param noBuild    do not build sources before pushing
+     * @param noBuild do not build sources before pushing
+     * @param enableExperimentalFeatures Flag indicating to enable the experimental feature
      */
-    public static void pushAllPackages(String sourceRoot, String installToRepo, boolean noBuild) {
+    public static void pushAllPackages(String sourceRoot, String installToRepo, boolean noBuild,
+                                       boolean enableExperimentalFeatures) {
         Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
         try {
             List<String> fileList = Files.list(sourceRootPath)
@@ -377,7 +379,8 @@ public class PushUtils {
             if (fileList.size() == 0) {
                 throw createLauncherException("no modules found to push in " + sourceRootPath.toString());
             }
-            fileList.forEach(path -> pushPackages(path, sourceRoot, installToRepo, noBuild));
+            fileList.forEach(
+                    path -> pushPackages(path, sourceRoot, installToRepo, noBuild, enableExperimentalFeatures));
         } catch (IOException ex) {
             throw createLauncherException("error occurred while pushing modules from " + sourceRootPath.toString()
                                                      + " " + ex.getMessage());

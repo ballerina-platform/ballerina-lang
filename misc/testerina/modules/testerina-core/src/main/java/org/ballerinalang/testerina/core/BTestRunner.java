@@ -65,6 +65,10 @@ public class BTestRunner {
     private TesterinaRegistry registry = TesterinaRegistry.getInstance();
     private List<String> sourcePackages = new ArrayList<>();
 
+    public void runTest(String sourceRoot, Path[] sourceFilePaths, List<String> groups) {
+        runTest(sourceRoot, sourceFilePaths, groups, Boolean.TRUE);
+    }
+
     /**
      * Executes a given set of ballerina program files.
      *
@@ -124,11 +128,13 @@ public class BTestRunner {
                                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
 
     }
+
     /**
      * lists the groups available in tests.
      *
-     * @param sourceRoot      source root of the project
+     * @param sourceRoot source root of the project
      * @param sourceFilePaths module or program file paths
+     * @param enableExpFeatures Flag indicating to enable the experimental feature
      */
     public void listGroups(String sourceRoot, Path[] sourceFilePaths, boolean enableExpFeatures) {
         //Build the test suites

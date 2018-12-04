@@ -29,19 +29,21 @@ import org.testng.annotations.Test;
 public class ExperimentalFeaturesTest {
 
     @Test
-    public void testParseSemicolonMissingSerivce() {
+    public void testExperimentalFeaturesNegative() {
         CompileResult result =
                 BCompileUtil.compileWithoutExperimentalFeatures("test-src/parser/experimental-features-negative.bal");
         int i = 0;
-        BAssertUtil.validateError(result, i++, "invalid use of experimental feature 'stream'. " +
+        BAssertUtil.validateError(result, i++, "using experimental feature 'stream'. " +
                 "use '--experimental' flag to enable the experimental features", 8, 1);
-        BAssertUtil.validateError(result, i++, "invalid use of experimental feature 'channel'. " +
+        BAssertUtil.validateError(result, i++, "using experimental feature 'channel'. " +
                 "use '--experimental' flag to enable the experimental features", 9, 1);
-        BAssertUtil.validateError(result, i++, "invalid use of experimental feature 'streaming queries'. " +
+        BAssertUtil.validateError(result, i++, "using experimental feature 'streaming queries'. " +
                 "use '--experimental' flag to enable the experimental features", 15, 5);
-        BAssertUtil.validateError(result, i++, "invalid use of experimental feature 'stream'. " +
+        BAssertUtil.validateError(result, i++, "using experimental feature 'stream'. " +
                 "use '--experimental' flag to enable the experimental features", 29, 5);
-        BAssertUtil.validateError(result, i++, "invalid use of experimental feature 'table queries'. " +
+        BAssertUtil.validateError(result, i++, "using experimental feature 'table queries'. " +
                 "use '--experimental' flag to enable the experimental features", 33, 37);
+        BAssertUtil.validateError(result, i++, "using experimental feature 'transaction'. " +
+                "use '--experimental' flag to enable the experimental features", 43, 5);
     }
 }

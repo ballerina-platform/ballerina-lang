@@ -32,3 +32,34 @@ function foo() {
 function testTableQuery() {
     table<Person> personTableCopy = from personTable select *;
 }
+
+function testTransactionStmtWithCommitedAndAbortedBlocks() {
+    int failureCutOff = 3;
+    boolean requestAbort = false;
+    string a = "";
+    a = a + "start";
+    a = a + " fc-" + failureCutOff;
+    int count = 0;
+    transaction with retries=2 {
+        a = a + " inTrx";
+        count = count + 1;
+        if (count <= failureCutOff) {
+            a = a + " blowUp";
+            int bV = blowUp();
+        }
+
+        if (requestAbort) {
+            a = a + " aborting";
+            abort;
+        }
+        a = a + " endTrx";
+    } onretry {
+        a = a + " retry";
+    } committed {
+        a = a + " committed";
+    } aborted {
+        a = a + " aborted";
+    }
+    a = (a + " end");
+    return a;
+}
