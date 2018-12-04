@@ -31,6 +31,7 @@ import org.ballerinalang.langserver.command.testgen.TestGeneratorException;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
+import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
@@ -158,10 +159,16 @@ public class CreateTestExecutor implements LSCommandExecutor {
             throw new LSCommandExecutorException("Invalid parameters received for the create test command!");
         }
 
-        // Compile the source file
         WorkspaceDocumentManager docManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
         LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
-        BLangPackage builtSourceFile = lsCompiler.getBLangPackage(context, docManager, false, null, false).get(0);
+
+        // Compile the source file
+        BLangPackage builtSourceFile = null;
+        try {
+            builtSourceFile = lsCompiler.getBLangPackage(context, docManager, false, null, false);
+        } catch (LSCompilerException e) {
+            throw new LSCommandExecutorException("Couldn't compile the source", e);
+        }
 
         // Generate test file and notify Client
         BallerinaLanguageServer ballerinaLanguageServer = context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY);
