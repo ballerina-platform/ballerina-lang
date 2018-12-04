@@ -9,11 +9,11 @@ import ballerina/test;
 // Data is parsed to the function as function parameters.
 function testAddingValues(string fValue, string sValue, string result) {
 
-    int|error val1 = int.create(fValue);
+    int|error val1 = int.convert(fValue);
     int value1 = val1 is int ? val1 : 0;
-    int|error val2 = int.create(sValue);
+    int|error val2 = int.convert(sValue);
     int value2 = val2 is int ? val2 : 0;
-    int|error res1 = int.create(result);
+    int|error res1 = int.convert(result);
     int result1 = res1 is int ? res1 : 0;
 
     io:println("Input : [" + fValue + "," + sValue + "," + result + "]");

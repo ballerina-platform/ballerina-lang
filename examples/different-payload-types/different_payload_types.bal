@@ -93,7 +93,7 @@ service backEndService on new http:Listener(9091) {
                 if (returnValue is string) {
                     textValue = returnValue;
                 } else if (returnValue is error) {
-                    textValue = string.create(returnValue.detail().message);
+                    textValue = string.convert(returnValue.detail().message);
                 }
                 var result = caller->respond(untaint textValue);
                 handleError(result);
@@ -215,7 +215,7 @@ function handleResponse(http:Response|error response) {
 function sendErrorMsg(http:Caller caller, error err) {
     http:Response res = new;
     res.statusCode = 500;
-    res.setPayload(untaint string.create(err.detail().message));
+    res.setPayload(untaint string.convert(err.detail().message));
     var result = caller->respond(res);
     handleError(result);
 }
