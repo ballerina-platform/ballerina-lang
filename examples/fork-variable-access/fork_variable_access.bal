@@ -17,33 +17,34 @@ public function main() {
     // Declare the fork block.
     fork {
         worker W1 {
-            // Change value of the integer variable `i` within worker W1.
+            // Change the value of the integer variable `i` within worker `W1`.
             i = 23;
-            // Change value of the map variable `m` within worker W1.
+            // Change the value of the map variable `m` within worker `W1`.
             m["name"] = "Moose";
 
             fork {
                 worker W3 {
-                    // Change value of the map variable `m` within worker W3.
+                    // Change the value of the map variable `m` within worker
+                    // `W3`.
                     string street = "Wall Street";
                     m["street"] = street;
 
-                    // Change value of the integer variable `i` within worker 
-                    // W3.
+                    // Change the value of the integer variable `i` within worker
+                    // `W3`.
                     i = i + 100;
                 }
             }
         }
 
         worker W2 {
-            // Change value of the string variable `s` within worker W2.
+            // Change the value of the string variable `s` within worker `W2`.
             s = "Ballerina";
-            // Change value of the map variable `m` within the worker W2.
+            // Change the value of the map variable `m` within the worker `W2`.
             m["city"] = "Manhattan";
         }
     }
 
-    // Wait for both workers W1 and W2 to finish.
+    // Wait for both workers `W1` and `W2` to finish.
     _ = wait {W1, W2};
 
     // Print the values after the fork block to check if the values of the 
@@ -57,7 +58,7 @@ public function main() {
     // since they are passed in as a reference to the workers.
     name = <string> m["name"];
     city = <string> m["city"];
-    // Get value of the new field added to map variable `m` inside worker W3.
+    // Get value of the new field added to map variable `m` inside worker `W3`.
     string street = <string> m["street"];
     io:println("[default worker] after fork: " +
                "value of name is [", name,

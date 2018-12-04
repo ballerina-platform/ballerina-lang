@@ -44,9 +44,10 @@ public function main() {
     future<int> f4 = start square(20);
     future<string> f5 = start greet("Bert");
     // You can wait for either of the asynchronous functions to finish.
-    // Here `f4` will finish before `f5` since a `runtime:sleep` is 
-    // added to the `greet()` function to delay its execution. The 
-    // asynchronous function that finishes first will be taken as the result. 
+    // Here `f4` will finish before `f5` since runtim:sleep() is called
+    // in the `greet()` function to delay its execution. The value returned
+    // by the asynchronous function that finishes first will be taken as the
+    // result.
     int|string anyResult = wait f4 | f5;
     io:println(anyResult);
 

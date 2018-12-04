@@ -11,8 +11,8 @@ int counter = 0;
 }
 public function mockPrint(any... s) {
     string outStr;
-    foreach var str in s{
-        outStr = outStr + <string>str;
+    foreach var str in s {
+        outStr = outStr + <string> str;
     }
     lock {
         outputs[counter] = outStr;
