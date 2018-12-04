@@ -263,7 +263,7 @@ function testUpdatingGuardedVar_1() returns string {
         return "some other type";
     }
 
-    return string.create(value);
+    return string.convert(value);
 }
 
 function testUpdatingGuardedVar_2() returns string {
@@ -279,7 +279,7 @@ function testUpdatingGuardedVar_2() returns string {
         }
     }
 
-    return string.create(value);
+    return string.convert(value);
 }
 
 function getUpdatedString(string s) returns string {
