@@ -61,7 +61,7 @@ public class MicroTransactionTestCase extends BaseTest {
                 SQLDBUtils.DB_DIRECTORY, DB_NAME);
         String basePath = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "transaction").getAbsolutePath();
-        String[] args = new String[]{"-e", "http.coordinator.host=127.0.0.1"};
+        String[] args = new String[]{"-e", "http.coordinator.host=127.0.0.1", "--experimental"};
 
         serverInstance = new BServerInstance(balServer);
         serverInstance.startServer(basePath, "transactionservices", args, requiredPorts);

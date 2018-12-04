@@ -137,7 +137,7 @@ export const visitor: Visitor = {
                 ? element.viewState.bBox.leftMargin : viewState.bBox.leftMargin;
             height += element.viewState.bBox.h;
         });
-        viewState.bBox.h = (height === 0) ? config.statement.height : height;
+        viewState.bBox.h = ((height === 0) ? config.statement.height : height) + config.block.bottomMargin;
     },
 
     endVisitWhile(node: While) {

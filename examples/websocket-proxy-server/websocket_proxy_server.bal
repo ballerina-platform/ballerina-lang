@@ -31,7 +31,8 @@ service SimpleProxyService on new http:WebSocketListener(9090) {
     }
 
     //This resource is triggered when a new text frame is received from a client.
-    resource function onText(http:WebSocketCaller caller, string text, boolean finalFrame) {
+    resource function onText(http:WebSocketCaller caller, string text,
+                                boolean finalFrame) {
 
         http:WebSocketClient clientEp =
                     getAssociatedClientEndpoint(caller);
@@ -43,7 +44,8 @@ service SimpleProxyService on new http:WebSocketListener(9090) {
     }
 
     //This resource is triggered when a new binary frame is received from a client.
-    resource function onBinary(http:WebSocketCaller caller, byte[] data, boolean finalFrame) {
+    resource function onBinary(http:WebSocketCaller caller, byte[] data,
+                                boolean finalFrame) {
 
         http:WebSocketClient clientEp =
                         getAssociatedClientEndpoint(caller);
@@ -71,7 +73,8 @@ service SimpleProxyService on new http:WebSocketListener(9090) {
     }
 
     //This resource is triggered when a client connection is closed from the client side.
-    resource function onClose(http:WebSocketCaller caller, int statusCode, string reason) {
+    resource function onClose(http:WebSocketCaller caller, int statusCode,
+                                string reason) {
 
         http:WebSocketClient clientEp =
                         getAssociatedClientEndpoint(caller);
@@ -88,7 +91,8 @@ service SimpleProxyService on new http:WebSocketListener(9090) {
 service ClientService = @http:WebSocketServiceConfig {} service {
 
     //This resource is triggered when a new text frame is received from the remote backend.
-    resource function onText(http:WebSocketClient caller, string text, boolean finalFrame) {
+    resource function onText(http:WebSocketClient caller, string text,
+                                boolean finalFrame) {
 
         http:WebSocketCaller serverEp =
                         getAssociatedServerEndpoint(caller);
@@ -100,7 +104,8 @@ service ClientService = @http:WebSocketServiceConfig {} service {
     }
 
     //This resource is triggered when a new binary frame is received from the remote backend.
-    resource function onBinary(http:WebSocketClient caller, byte[] data, boolean finalFrame) {
+    resource function onBinary(http:WebSocketClient caller, byte[] data,
+                                boolean finalFrame) {
 
         http:WebSocketCaller serverEp =
                         getAssociatedServerEndpoint(caller);
@@ -128,7 +133,8 @@ service ClientService = @http:WebSocketServiceConfig {} service {
     }
 
     //This resource is triggered when a client connection is closed by the remote backend.
-    resource function onClose(http:WebSocketClient caller, int statusCode, string reason) {
+    resource function onClose(http:WebSocketClient caller, int statusCode,
+                                string reason) {
 
         http:WebSocketCaller serverEp =
                         getAssociatedServerEndpoint(caller);

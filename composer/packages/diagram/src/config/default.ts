@@ -113,6 +113,11 @@ export class DiagramConfig {
         rightMargin: STATEMENT_HEIGHT,
         whileGap: STATEMENT_HEIGHT,
     };
+
+    public block = {
+        bottomMargin: STATEMENT_HEIGHT,
+        menuTriggerMargin: 12,
+    };
 }
 
 export const DefaultConfig = new DiagramConfig();

@@ -148,7 +148,8 @@ service backEndService on new http:Listener(9091) {
         var bytes = req.getBinaryPayload();
         if (bytes is byte[]) {
             http:Response response = new;
-            response.setBinaryPayload(untaint bytes, contentType = mime:IMAGE_PNG);
+            response.setBinaryPayload(untaint bytes,
+                                        contentType = mime:IMAGE_PNG);
             var result = caller->respond(response);
             handleError(result);
         } else if (bytes is error) {
@@ -199,7 +200,8 @@ function handleResponse(http:Response|error response) {
                 if (payload is mime:Entity[]) {
                     handleBodyParts(payload);
                 } else if (payload is error) {
-                    log:printError("Error in parsing multipart data", err = payload);
+                    log:printError("Error in parsing multipart data",
+                                    err = payload);
                 }
             } else if (mime:IMAGE_PNG == baseType) {
                 log:printInfo("Response contains an image");
@@ -239,7 +241,7 @@ function getBaseType(string contentType) returns string {
 
 //Loop through body parts and print its content.
 function handleBodyParts(mime:Entity[] bodyParts) {
-    foreach bodyPart in bodyParts {
+    foreach var bodyPart in bodyParts {
         string baseType = getBaseType(bodyPart.getContentType());
         if (mime:APPLICATION_JSON == baseType) {
             var payload = bodyPart.getJson();

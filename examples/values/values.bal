@@ -1,6 +1,6 @@
 import ballerina/io;
 
-// The types `int`, `float`, `string`, `boolean`, `byte` and `nil` are called simple basic types
+// The types `int`, `float`, `decimal`, `string`, `boolean`, `byte` and `nil` are called simple basic types
 // because they are basic types with only simple values. Simple values are always immutable.
 public function main() {
     // The `int` type represents the set of 64-bit signed integers.
@@ -12,6 +12,11 @@ public function main() {
     // The implicit initial value of the `float` type is `+0.0.`
     float f = 20.0;
     io:println(f);
+
+    // The `decimal` type represents the set of 128-bits IEEE 754R decimal floating point numbers.
+    // The implicit initial value of the `decimal` type is `+0.0.`
+    decimal d = 27.5;
+    io:println(d);
 
     // The `byte` type represents the set of 8-bit unsigned integers.
     // The implicit initial value of the `byte` type is `0`. Value space for `byte` is 0-255 both inclusive.

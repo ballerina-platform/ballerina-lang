@@ -13,6 +13,9 @@
             font-size: @diagram-font-size;
 
             .panel {
+                .statement {
+                    pointer-events: none;
+                }
                 .panel-header {
                     fill: ~"@{@{color}-diagram-panel-header-background-color}";
 
@@ -115,9 +118,20 @@
                         stroke-width: 2px;
                     }
                 }
+                &.worker-block-container {
+                    .hover-rect {
+                        pointer-events: painted;
+                    }
+                }
             }
 
             .svg-dropdown-menu {
+                &.block-dropdown {
+                    display: none;
+                    &.active {
+                        display: block;
+                    }
+                }
                 .trigger {
                     fill: ~"@{@{color}-diagram-menu-trigger-background-color}";
                     text {
@@ -152,6 +166,10 @@
                 }
                 &:hover {
                     fill-opacity: 0.8;
+                }
+                .btn-icon {
+                    text-anchor: middle;
+                    dominant-baseline: middle;
                 }
             }
         }

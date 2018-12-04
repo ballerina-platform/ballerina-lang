@@ -6,12 +6,15 @@ import { traversNode } from "../model-utils";
 
 class SourceGenVisitor implements Visitor {
     private ws: any;
+    private wsArray: any[];
     constructor() {
         this.ws = {};
+        this.wsArray = [];
     }
 
     public reset() {
         this.ws = {};
+        this.wsArray = [];
     }
 
     public getSource(): string {
@@ -20,8 +23,11 @@ class SourceGenVisitor implements Visitor {
     }
 
     public getWS(): any[] {
-        return this.getWSKeys()
-            .map((i) => (this.ws[i]));
+        return this.wsArray.sort((a, b) => (a.i - b.i));
+    }
+
+    public getAllWS(): any[] {
+        return this.wsArray;
     }
 
     public beginVisitASTNode(node: ASTNode) {
@@ -33,6 +39,7 @@ class SourceGenVisitor implements Visitor {
             if (!this.ws[ws.i]) {
                 this.ws[ws.i] = ws;
             }
+            this.wsArray.push(ws);
         });
     }
 
@@ -77,6 +84,7 @@ export function attachNodeSilently(
 
     // get the range of new nodes ws. tree should be updated to accomadate these new ws.
     const treeDiff = newNodeWS[newNodeWS.length - 1].i - startIndex + 1;
+
     // update rest of the tree
     treeWS.forEach((ws) => {
         if (ws.i >= startIndex) {
