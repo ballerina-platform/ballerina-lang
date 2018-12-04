@@ -76,9 +76,9 @@ public function main() {
 
         appointment7.schedule();
 
-        runtime:sleep(60000); // Temp workaround to stop the process from exiting.
+        runtime:sleep(60000); // Sleep thread to avoid exiting
     }
-    wait w1; // temp workaround to stop returning the main function.
+    wait w1; // Wait for the worker to finish.
 }
 
 function appointment1Cleanup() returns (error?) {
