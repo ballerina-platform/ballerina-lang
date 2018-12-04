@@ -250,40 +250,6 @@ public class VMDebuggerTest {
         VMDebuggerUtil.startDebug("test-src/debugger/while-statement.bal", breakPoints, expRes);
     }
 
-    @Test(enabled = false, description = "Testing try catch finally scenario for path")
-    public void testTryCatchScenarioForPath() {
-        BreakPointDTO[] breakPoints = createBreakNodeLocations(".", "try-catch-finally.bal", 19);
-
-        String file = "try-catch-finally.bal";
-
-        List<DebugPoint> debugPoints = new ArrayList<>();
-        debugPoints.add(Util.createDebugPoint(".", file, 19, STEP_IN, 1));
-        debugPoints.add(Util.createDebugPoint(".", file, 27, STEP_OVER, 1));
-        debugPoints.add(Util.createDebugPoint(".", file, 29, STEP_OVER, 1));
-        debugPoints.add(Util.createDebugPoint(".", file, 31, STEP_OVER, 1));
-        debugPoints.add(Util.createDebugPoint(".", file, 32, STEP_OVER, 1));
-        debugPoints.add(Util.createDebugPoint(".", file, 33, STEP_OVER, 1));
-        debugPoints.add(Util.createDebugPoint(".", file, 34, STEP_OVER, 1));
-        debugPoints.add(Util.createDebugPoint(".", file, 35, STEP_OVER, 1));
-        debugPoints.add(Util.createDebugPoint(".", file, 43, STEP_OVER, 1));
-        debugPoints.add(Util.createDebugPoint(".", file, 44, STEP_OVER, 1));
-        debugPoints.add(Util.createDebugPoint(".", file, 45, STEP_OVER, 1));
-        debugPoints.add(Util.createDebugPoint(".", file, 50, STEP_OVER, 1));
-        debugPoints.add(Util.createDebugPoint(".", file, 55, STEP_OVER, 1));
-        debugPoints.add(Util.createDebugPoint(".", file, 56, STEP_OVER, 1));
-        debugPoints.add(Util.createDebugPoint(".", file, 58, STEP_OVER, 1));
-
-        // Key: expression, Value: expected results
-        Map<String, String> expMap1 = new HashMap<>();
-        populateExpressionMap(expMap1, "path", SUCCESS, "start insideTry insideInnerTry onError " +
-                "innerTestErrorCatch:test innerFinally TestErrorCatch Finally ");
-        debugPoints.add(Util.createDebugPoint(".", file, 60, RESUME, 1, expMap1));
-
-        ExpectedResults expRes = new ExpectedResults(debugPoints, 16, 0, new ArrayList<>(), false);
-
-        VMDebuggerUtil.startDebug("test-src/debugger/try-catch-finally.bal", breakPoints, expRes);
-    }
-
     @Test(enabled = false, description = "Testing debug paths in workers")
     public void testDebuggingWorkers() {
         BreakPointDTO[] breakPoints = createBreakNodeLocations(".", "test-worker.bal", 3, 9, 10, 18, 19, 23, 48);
