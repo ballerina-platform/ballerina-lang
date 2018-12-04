@@ -7,6 +7,7 @@
   "items": [
     {
       "label":"xmlns",
+      "kind":"Snippet",
       "detail":"Snippet",
       "sortText":"190",
       "insertText":"xmlns \"${1}\" as ${2:ns};",
@@ -14,13 +15,23 @@
     },
     {
       "label":"var",
+      "kind":"Keyword",
       "detail":"Keyword",
       "sortText":"210",
       "insertText":"var ",
       "insertTextFormat":"Snippet"
     },
     {
+      "label":"error",
+      "kind":"Snippet",
+      "detail":"Snippet",
+      "sortText":"190",
+      "insertText":"error ${1:name} \u003d error(\"${2:errorCode}\", { message: \"${3}\" });",
+      "insertTextFormat":"Snippet"
+    },
+    {
       "label":"foreach",
+      "kind":"Snippet",
       "detail":"Statement",
       "sortText":"200",
       "insertText":"foreach ${1:item} in ${2:itemList} {\n\t${3}\n}",
@@ -28,13 +39,15 @@
     },
     {
       "label":"fork",
+      "kind":"Snippet",
       "detail":"Statement",
       "sortText":"200",
-      "insertText":"fork {\n\t${1}\n} join (${2:all}) (map ${3:results}) {\n\t${4}\n}",
+      "insertText":"fork {\n\t${1}\n}",
       "insertTextFormat":"Snippet"
     },
     {
       "label":"if",
+      "kind":"Snippet",
       "detail":"Statement",
       "sortText":"200",
       "insertText":"if (${1:true}) {\n\t${2}\n}",
@@ -42,6 +55,7 @@
     },
     {
       "label":"lock",
+      "kind":"Snippet",
       "detail":"Statement",
       "sortText":"200",
       "insertText":"lock {\n\t${1}\n}",
@@ -49,41 +63,39 @@
     },
     {
       "label":"match",
+      "kind":"Snippet",
       "detail":"Statement",
       "sortText":"200",
       "insertText":"match ",
       "insertTextFormat":"Snippet"
     },
     {
+      "label":"panic",
+      "kind":"Snippet",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"panic ",
+      "insertTextFormat":"Snippet"
+    },
+    {
       "label":"return",
+      "kind":"Snippet",
       "detail":"Statement",
       "sortText":"200",
       "insertText":"return;",
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"throw",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"throw ",
-      "insertTextFormat":"Snippet"
-    },
-    {
       "label":"transaction",
+      "kind":"Snippet",
       "detail":"Statement",
       "sortText":"200",
       "insertText":"transaction with retries \u003d ${1:1}, oncommit \u003d ${2:onCommitFunction}, onabort \u003d ${3:onAbortFunction} {\n\t${4}\n} onretry {\n\t${5}\n}",
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"try",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"try {\n\t${1}\n} catch (${2:error} ${3:err}) {\n\t${4}\n}",
-      "insertTextFormat":"Snippet"
-    },
-    {
       "label":"while",
+      "kind":"Snippet",
       "detail":"Statement",
       "sortText":"200",
       "insertText":"while (${1:true}) {\n\t${2}\n}",
@@ -91,6 +103,7 @@
     },
     {
       "label":"wrply   Worker Reply Statement",
+      "kind":"Snippet",
       "detail":"Statement",
       "sortText":"200",
       "insertText":"${1:var1} \u003c- ${2:w1};",
@@ -98,6 +111,7 @@
     },
     {
       "label":"wtrg   Worker Trigger Statement",
+      "kind":"Snippet",
       "detail":"Statement",
       "sortText":"200",
       "insertText":"${1:var1} -\u003e ${2:w1};",
@@ -105,40 +119,47 @@
     },
     {
       "label":"channel",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"channel"
     },
     {
       "label":"xml",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"xml"
     },
     {
-      "label":"queryTableWithJoinClause(string sqlQuery, table fromTable, table joinTable, any parameters, any retType)(table)",
+      "label":"queryTableWithJoinClause(string sqlQuery, table fromTable, table joinTable, any parameters, any retType)(table\u003c$anonType$builtin$8\u003e)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Execute the given sql query to fetch the records and return as a new in memory table.\n",
       "sortText":"120",
       "insertText":"queryTableWithJoinClause(${1:sqlQuery}, ${2:fromTable}, ${3:joinTable}, ${4:parameters}, ${5:retType})",
       "insertTextFormat":"Snippet"
     },
     {
       "label":"TableConfig",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"TableConfig represents properties used during table initialization.\n",
       "sortText":"170",
       "insertText":"TableConfig"
     },
     {
       "label":"byte",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"byte"
     },
     {
-      "label":"queryTableWithoutJoinClause(string sqlQuery, table fromTable, any parameters, any retType)(table)",
+      "label":"queryTableWithoutJoinClause(string sqlQuery, table fromTable, any parameters, any retType)(table\u003c$anonType$builtin$10\u003e)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Execute the given sql query to fetch the records and return as a new in memory table.\n",
       "sortText":"120",
       "insertText":"queryTableWithoutJoinClause(${1:sqlQuery}, ${2:fromTable}, ${3:parameters}, ${4:retType})",
       "insertTextFormat":"Snippet"
@@ -147,123 +168,175 @@
       "label":"startForever(string streamQuery, any inStreamRefs, any inTableRefs, any outStreamRefs, any outTableRefs, any funcPointers)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Creates the forever runtime.\n",
       "sortText":"120",
       "insertText":"startForever(${1:streamQuery}, ${2:inStreamRefs}, ${3:inTableRefs}, ${4:outStreamRefs}, ${5:outTableRefs}, ${6:funcPointers})",
       "insertTextFormat":"Snippet"
     },
     {
       "label":"sum",
-      "kind":"Unit",
+      "kind":"Variable",
       "detail":"int",
       "sortText":"110",
       "insertText":"sum"
     },
     {
       "label":"stream",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"stream"
     },
     {
+      "label":"AbstractListener",
+      "kind":"Class",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"AbstractListener"
+    },
+    {
       "label":"map",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"map"
     },
     {
       "label":"table",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"table"
     },
     {
+      "label":"anydata",
+      "kind":"Keyword",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"anydata"
+    },
+    {
       "label":"n",
-      "kind":"Unit",
+      "kind":"Variable",
       "detail":"int",
       "sortText":"110",
       "insertText":"n"
     },
     {
       "label":"future",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"future"
     },
     {
       "label":"typedesc",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"typedesc"
     },
     {
       "label":"float",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"float"
     },
     {
+      "label":"w1",
+      "kind":"Unit",
+      "detail":"future",
+      "sortText":"110",
+      "insertText":"w1"
+    },
+    {
+      "label":"w2",
+      "kind":"Unit",
+      "detail":"future",
+      "sortText":"110",
+      "insertText":"w2"
+    },
+    {
       "label":"null",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"null"
     },
     {
+      "label":"decimal",
+      "kind":"Keyword",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"decimal"
+    },
+    {
       "label":"string",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"string"
     },
     {
       "label":"error",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"error"
     },
     {
       "label":"json",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"json"
     },
     {
       "label":"any",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"any"
     },
     {
       "label":"int",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"int"
     },
     {
-      "label":"docData",
-      "detail":"BType",
-      "sortText":"170",
-      "insertText":"docData"
-    },
-    {
       "label":"args",
-      "kind":"Unit",
+      "kind":"Variable",
       "detail":"string[]",
       "sortText":"110",
       "insertText":"args"
     },
     {
       "label":"boolean",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"boolean"
     },
     {
+      "label":"service",
+      "kind":"Keyword",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"service"
+    },
+    {
       "label":"ballerina/io",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"io"
     },
     {
       "label":"ballerina/transactions",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"transactions",
@@ -272,11 +345,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":20
+              "character":21
             },
             "end":{
               "line":0,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/transactions;\n"
@@ -285,6 +358,7 @@
     },
     {
       "label":"ballerina/websub",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"websub",
@@ -293,11 +367,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":20
+              "character":21
             },
             "end":{
               "line":0,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/websub;\n"
@@ -306,6 +380,7 @@
     },
     {
       "label":"ballerina/grpc",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"grpc",
@@ -314,11 +389,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":20
+              "character":21
             },
             "end":{
               "line":0,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/grpc;\n"
@@ -327,6 +402,7 @@
     },
     {
       "label":"ballerina/reflect",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"reflect",
@@ -335,11 +411,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":20
+              "character":21
             },
             "end":{
               "line":0,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/reflect;\n"
@@ -348,6 +424,7 @@
     },
     {
       "label":"ballerina/log",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"log",
@@ -356,11 +433,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":20
+              "character":21
             },
             "end":{
               "line":0,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/log;\n"
@@ -369,6 +446,7 @@
     },
     {
       "label":"ballerina/time",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"time",
@@ -377,11 +455,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":20
+              "character":21
             },
             "end":{
               "line":0,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/time;\n"
@@ -389,7 +467,30 @@
       ]
     },
     {
+      "label":"ballerina/test",
+      "kind":"Module",
+      "detail":"Package",
+      "sortText":"140",
+      "insertText":"test",
+      "additionalTextEdits":[
+        {
+          "range":{
+            "start":{
+              "line":0,
+              "character":21
+            },
+            "end":{
+              "line":0,
+              "character":21
+            }
+          },
+          "newText":"\nimport ballerina/test;\n"
+        }
+      ]
+    },
+    {
       "label":"ballerina/runtime",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"runtime",
@@ -398,11 +499,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":20
+              "character":21
             },
             "end":{
               "line":0,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/runtime;\n"
@@ -411,6 +512,7 @@
     },
     {
       "label":"ballerina/swagger",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"swagger",
@@ -419,11 +521,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":20
+              "character":21
             },
             "end":{
               "line":0,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/swagger;\n"
@@ -432,6 +534,7 @@
     },
     {
       "label":"ballerina/file",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"file",
@@ -440,11 +543,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":20
+              "character":21
             },
             "end":{
               "line":0,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/file;\n"
@@ -453,6 +556,7 @@
     },
     {
       "label":"ballerina/sql",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"sql",
@@ -461,11 +565,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":20
+              "character":21
             },
             "end":{
               "line":0,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/sql;\n"
@@ -474,6 +578,7 @@
     },
     {
       "label":"ballerina/internal",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"internal",
@@ -482,11 +587,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":20
+              "character":21
             },
             "end":{
               "line":0,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/internal;\n"
@@ -495,6 +600,7 @@
     },
     {
       "label":"ballerina/http",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"http",
@@ -503,11 +609,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":20
+              "character":21
             },
             "end":{
               "line":0,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/http;\n"
@@ -516,6 +622,7 @@
     },
     {
       "label":"ballerina/mysql",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"mysql",
@@ -524,11 +631,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":20
+              "character":21
             },
             "end":{
               "line":0,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/mysql;\n"
@@ -536,28 +643,8 @@
       ]
     },
     {
-      "label":"ballerina/mb",
-      "detail":"Package",
-      "sortText":"140",
-      "insertText":"mb",
-      "additionalTextEdits":[
-        {
-          "range":{
-            "start":{
-              "line":0,
-              "character":20
-            },
-            "end":{
-              "line":0,
-              "character":20
-            }
-          },
-          "newText":"\nimport ballerina/mb;\n"
-        }
-      ]
-    },
-    {
       "label":"ballerina/mime",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"mime",
@@ -566,11 +653,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":20
+              "character":21
             },
             "end":{
               "line":0,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/mime;\n"
@@ -579,6 +666,7 @@
     },
     {
       "label":"ballerina/task",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"task",
@@ -587,11 +675,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":20
+              "character":21
             },
             "end":{
               "line":0,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/task;\n"
@@ -600,6 +688,7 @@
     },
     {
       "label":"ballerina/crypto",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"crypto",
@@ -608,11 +697,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":20
+              "character":21
             },
             "end":{
               "line":0,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/crypto;\n"
@@ -621,6 +710,7 @@
     },
     {
       "label":"ballerina/cache",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"cache",
@@ -629,11 +719,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":20
+              "character":21
             },
             "end":{
               "line":0,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/cache;\n"
@@ -642,6 +732,7 @@
     },
     {
       "label":"ballerina/auth",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"auth",
@@ -650,11 +741,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":20
+              "character":21
             },
             "end":{
               "line":0,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/auth;\n"
@@ -663,6 +754,7 @@
     },
     {
       "label":"ballerina/jms",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"jms",
@@ -671,11 +763,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":20
+              "character":21
             },
             "end":{
               "line":0,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/jms;\n"
@@ -684,6 +776,7 @@
     },
     {
       "label":"ballerina/system",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"system",
@@ -692,11 +785,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":20
+              "character":21
             },
             "end":{
               "line":0,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/system;\n"
@@ -705,6 +798,7 @@
     },
     {
       "label":"ballerina/h2",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"h2",
@@ -713,11 +807,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":20
+              "character":21
             },
             "end":{
               "line":0,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/h2;\n"
@@ -726,12 +820,14 @@
     },
     {
       "label":"ballerina/builtin",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"builtin"
     },
     {
       "label":"ballerina/math",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"math",
@@ -740,11 +836,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":20
+              "character":21
             },
             "end":{
               "line":0,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/math;\n"
@@ -753,6 +849,7 @@
     },
     {
       "label":"ballerina/config",
+      "kind":"Module",
       "detail":"Package",
       "sortText":"140",
       "insertText":"config",
@@ -761,11 +858,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":20
+              "character":21
             },
             "end":{
               "line":0,
-              "character":20
+              "character":21
             }
           },
           "newText":"\nimport ballerina/config;\n"

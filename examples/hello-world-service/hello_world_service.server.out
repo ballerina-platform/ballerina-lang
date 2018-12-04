@@ -2,7 +2,7 @@
 # `.bal` file and use the `ballerina run` command.
 $ ballerina run hello_world_service.bal
 Initiating service(s) in 'hello_world_service.bal'
-ballerina: started HTTP/WS endpoint 0.0.0.0:9090
+[ballerina/http] started HTTP/WS endpoint 0.0.0.0:9090
 
 # To build a compiled program file, use the
 # `ballerina build` command followed by

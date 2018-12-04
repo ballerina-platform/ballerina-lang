@@ -18,7 +18,8 @@ public type Channel object {
 
     public State? b;
 
-    public new (b = "off", boolean a = true){
+    public function __init(State b = "off", boolean a = true){
+        self.b = b;
         State o =  "on";
         if(b == o) {
            int i = 4;

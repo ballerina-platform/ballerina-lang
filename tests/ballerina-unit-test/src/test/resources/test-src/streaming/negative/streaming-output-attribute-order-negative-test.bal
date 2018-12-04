@@ -34,8 +34,8 @@ type Teacher record {
 Employee[] globalEmployeeArray = [];
 int employeeIndex = 0;
 
-stream<Employee> employeeStream;
-stream<Teacher> teacherStream1;
+stream<Employee> employeeStream = new;
+stream<Teacher> teacherStream1 = new;
 
 function testFilterQuery() {
     forever {
@@ -43,7 +43,7 @@ function testFilterQuery() {
         where age > 30
         select name, age, status
         => (Employee[] emp) {
-            foreach e in emp {
+            foreach var e in emp {
                 employeeStream.publish(e);
             }
         }

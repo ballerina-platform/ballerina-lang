@@ -11,6 +11,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.ui.Messages
 import com.intellij.util.ui.UIUtil
+import io.ballerina.plugins.idea.codeinsight.semanticanalyzer.BallerinaSemanticAnalyzerSettings
 import org.eclipse.lsp4j._
 import org.eclipse.lsp4j.services.{LanguageClient, LanguageServer}
 
@@ -54,6 +55,8 @@ class LanguageClientImpl extends LanguageClient {
   }
 
   override def publishDiagnostics(publishDiagnosticsParams: PublishDiagnosticsParams): Unit = {
+    // Checks for the "Use semantics Analyzer" setting.
+    if (!BallerinaSemanticAnalyzerSettings.getInstance.useSemanticAnalyzer) return
     val uri = FileUtils.sanitizeURI(publishDiagnosticsParams.getUri)
     val diagnostics = publishDiagnosticsParams.getDiagnostics
     EditorEventManager.forUri(uri).foreach(e => e.diagnostics(diagnostics.asScala))

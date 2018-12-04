@@ -30,7 +30,7 @@ function testAggregationQuery(
         group by status
         having totalCount > 1
         => (StatusCount[] status) {
-            foreach s in status {
+            foreach var s in status {
                 filteredStatusCountStream.publish(s);
             }
         }
@@ -39,10 +39,10 @@ function testAggregationQuery(
 
 public function main() {
     // Create a stream that is constrained by the `StatusCount` record type.
-    stream<StatusCount> filteredStatusCountStream;
+    stream<StatusCount> filteredStatusCountStream = new;
 
     // Create a stream that is constrained by the `Teacher` record type.
-    stream<Teacher> teacherStream;
+    stream<Teacher> teacherStream = new;
 
     //Invoke the method that contains the forever streaming statement.
     testAggregationQuery(filteredStatusCountStream, teacherStream);

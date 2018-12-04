@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.diagnostic;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSCompiler;
+import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
@@ -118,13 +119,14 @@ public class DiagnosticsHelper {
      * @return diagnostics map
      */
     private Map<String, List<Diagnostic>> getDiagnostics(BallerinaFile balFile, Path filePath) {
+        Path currentModulePath = LSCompilerUtil.getCurrentModulePath(filePath);
         List<org.ballerinalang.util.diagnostic.Diagnostic>
                 balDiagnostics = balFile.getDiagnostics().orElseGet(ArrayList::new);
         Map<String, List<Diagnostic>> diagnosticsMap = new HashMap<>();
         balDiagnostics.forEach(diag -> {
             final org.ballerinalang.util.diagnostic.Diagnostic.DiagnosticPosition position = diag.getPosition();
             String fileName = position.getSource().getCompilationUnitName();
-            String fileURI = Paths.get(filePath.getParent() + "", fileName).toUri().toString() + "";
+            String fileURI = Paths.get(currentModulePath + "", fileName).toUri().toString() + "";
 
             if (!diagnosticsMap.containsKey(fileURI)) {
                 diagnosticsMap.put(fileURI, new ArrayList<>());

@@ -1,10 +1,10 @@
 import ballerina/io;
 import ballerina/task;
 
-int w1Count;
-error errorW1;
-string errorMsgW1;
-task:Appointment? app;
+int w1Count = 0;
+error? errorW1 = ();
+string errorMsgW1 = "";
+task:Appointment? app = ();
 
 function scheduleAppointment(string cronExpression, string errMsgW1) {
     worker default {
@@ -31,7 +31,7 @@ function onTriggerW1() returns error? {
     io:println("w1:onTriggerW1");
     if (errorMsgW1 != "") {
         io:println("w1:onTriggerW1 returning error");
-        error e = {message:errorMsgW1};
+        error e = error(errorMsgW1);
         return e;
     }
     return ();
@@ -47,9 +47,9 @@ function getCount() returns (int) {
 }
 
 function getError() returns (string) {
-    string w1ErrMsg;
-    if (errorW1 != null) {
-        w1ErrMsg = errorW1.message;
+    string w1ErrMsg = "";
+    if (errorW1 is error) {
+        w1ErrMsg = errorW1.reason();
     }
     return w1ErrMsg;
 }

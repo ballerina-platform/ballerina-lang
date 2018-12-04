@@ -22,7 +22,8 @@
 # + trustStore - Truststore.
 # + return - Verified status. true or false.
 extern function verifySignature(string data, string signature, string algorithm, TrustStore trustStore)
-    returns (boolean);
+    returns error?;
+
 type TrustStore record {
     string certificateAlias;
     string trustStoreFilePath;

@@ -7,13 +7,15 @@ function printFruits(string separator,
                      string title = "Fruits: ",
                      string... concatStrings) {
 
-    string finalStr;
-    foreach index, str in concatStrings {
+    string finalStr = "";
+    int index = 0;
+    foreach var str in concatStrings {
         if (index == 0) {
             finalStr = str;
         } else {
             finalStr = finalStr + separator + str;
         }
+        index += 1;
     }
 
     io:println(title + finalStr);

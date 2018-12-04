@@ -1,3 +1,5 @@
 // A worker can be used to handle background tasks of an application.
 // Workers interact with each other by sending messages. 
 // Messages are sent over a communication channel, which is transparent to the user.
+// Worker sync send waits until the message is delivered.
+// FLush can be used to check if all messages are successfully sent to a given worker.

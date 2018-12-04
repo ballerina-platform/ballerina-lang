@@ -47,10 +47,15 @@ http:AuthProvider basicAuthProvider = {
     authStoreProviderConfig: ldapAuthProviderConfig
 };
 
-endpoint http:SecureListener ep {
-    port: 9096,
-    authProviders: [basicAuthProvider]
-};
+listener http:Listener ep = new(9096, config = {
+    authProviders: [basicAuthProvider],
+    secureSocket: {
+        keyStore: {
+            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            password: "ballerina"
+        }
+    }
+});
 
 @http:ServiceConfig {
     basePath: "/ldapAuth",
@@ -58,12 +63,13 @@ endpoint http:SecureListener ep {
         authentication: { enabled: true }
     }
 }
-service<http:Service> helloService bind ep {
+service helloService on ep {
+
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/disableAuthz"
     }
-    disableAuthz(endpoint caller, http:Request req) {
+    resource function disableAuthz(http:Caller caller, http:Request req) {
         _ = caller->respond("Hello, World!!!");
     }
 
@@ -74,7 +80,7 @@ service<http:Service> helloService bind ep {
             scopes: ["test"]
         }
     }
-    enableAuthz(endpoint caller, http:Request req) {
+    resource function enableAuthz(http:Caller caller, http:Request req) {
         _ = caller->respond("Hello, World!!!");
     }
 
@@ -85,7 +91,7 @@ service<http:Service> helloService bind ep {
             scopes: ["admin", "support"]
         }
     }
-    failAuthz(endpoint caller, http:Request req) {
+    resource function failAuthz(http:Caller caller, http:Request req) {
         _ = caller->respond("Hello, World!!!");
     }
 }

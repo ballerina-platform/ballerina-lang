@@ -1,22 +1,20 @@
-channel<json> chn;
+channel<json> chn = new;
 
 function workerWithChannels() returns xml {
-    worker w1 {
-        json key = {"id":50, name:"john"};
-        xml result;
-        result <- chn, key;
-        return result;
-    }
-
     worker w2 {
         json key = {"id":50, name:"john"};
         string msg = "payment:1000";
         msg -> chn, key;
     }
+
+    json key = {"id":50, name:"john"};
+    xml result = xml `tt`;
+    result = <- chn, key;
+    return result;
 }
 
-channel<map> mapChannel;
-channel<(json,json)> tupleChan;
+channel<map<any>> mapChannel = new;
+channel<(json,json)> tupleChan = new;
 
 function myFunc() {
     json key = {"id":50, name:"john"};
@@ -24,8 +22,7 @@ function myFunc() {
     msg -> lastChan, key;
 }
 
-channel<string> lastChan;
+channel<string> lastChan = new;
 
-@final
-@readonly
-channel<string> annoChan;
+@sensitive
+channel<string> annoChan = new;

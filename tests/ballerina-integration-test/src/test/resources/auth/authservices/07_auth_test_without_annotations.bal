@@ -15,16 +15,25 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/io;
-import ballerina/auth;
 
-endpoint http:APIListener listener7 {
-    port:9098
+http:AuthProvider basicAuthProvider07 = {
+    scheme: "basic",
+    authStoreProvider: "config"
 };
 
-service<http:Service> echo7 bind listener7 {
-    test7 (endpoint caller, http:Request req) {
-        http:Response res = new;
-        _ = caller -> respond(res);
+listener http:Listener listener07 = new(9098, config = {
+    authProviders: [basicAuthProvider07],
+    secureSocket: {
+        keyStore: {
+            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            password: "ballerina"
+        }
+    }
+});
+
+service echo7 on listener07 {
+
+    resource function test7(http:Caller caller, http:Request req) {
+        _ = caller->respond(());
     }
 }

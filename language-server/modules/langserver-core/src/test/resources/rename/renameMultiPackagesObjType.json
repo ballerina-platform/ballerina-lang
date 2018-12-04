@@ -1,48 +1,48 @@
 {
-    "position": {
-        "line": 4,
-        "character": 10
-    },
-    "newName": "NewTestObject",
-    "expected": [
-        {
-            "range": {
-                "start": {
-                    "line": 0,
-                    "character": 0
-                },
-                "end": {
-                    "line": 7,
-                    "character": 0
-                }
-            },
-            "newText": "import ballerina/io;\r\nimport pkg1;\r\n\r\npublic function main(string... args) {\r\n    pkg1:NewTestObject obj = new();\r\n    obj.print();\r\n}"
+  "position": {
+    "line": 4,
+    "character": 10
+  },
+  "newName": "NewTestObject",
+  "expected": [
+    {
+      "range": {
+        "start": {
+          "line": 0,
+          "character": 0
         },
-        {
-            "range": {
-                "start": {
-                    "line": 0,
-                    "character": 0
-                },
-                "end": {
-                    "line": 8,
-                    "character": 0
-                }
-            },
-            "newText": "import ballerina/io;\r\nimport pkg1;\r\n\r\npublic function func2(){\r\n    io:println(\"func2...\");\r\n    pkg1:NewTestObject obj = new();\r\n    obj.print();\r\n}"
-        },
-        {
-            "range": {
-                "start": {
-                    "line": 0,
-                    "character": 0
-                },
-                "end": {
-                    "line": 10,
-                    "character": 0
-                }
-            },
-            "newText": "import ballerina/io;\r\n\r\npublic type NewTestObject object {\r\n    public int age;\r\n    public string name;\r\n    public new(age, name) {}\r\n    public function print(){\r\n        io:println(\"name:\" + name);\r\n    }\r\n};"
+        "end": {
+          "line": 7,
+          "character": 0
         }
-    ]
+      },
+      "newText": "import ballerina/io;\r\nimport pkg1;\r\n\r\npublic function main(string... args) {\r\n    pkg1:NewTestObject obj = new();\r\n    obj.print();\r\n}"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 0,
+          "character": 0
+        },
+        "end": {
+          "line": 8,
+          "character": 0
+        }
+      },
+      "newText": "import ballerina/io;\r\nimport pkg1;\r\n\r\npublic function func2(){\r\n    io:println(\"func2...\");\r\n    pkg1:NewTestObject obj = new();\r\n    obj.print();\r\n}"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 0,
+          "character": 0
+        },
+        "end": {
+          "line": 10,
+          "character": 0
+        }
+      },
+      "newText": "import ballerina/io;\r\n\r\npublic type NewTestObject object {\r\n    public int age = \"45\";\r\n    public string name = \"Bob\";\r\n    public new(age, name) {}\r\n    public function print(){\r\n        io:println(\"name:\" + name);\r\n    }\r\n};"
+    }
+  ]
 }

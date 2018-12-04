@@ -24,7 +24,7 @@ function funcReturnNilExplicit() returns () {
 function funcReturnNilOrError(int a) returns () | error {
     string s = "test";
     if( a > 20 ) {
-        error e = {message: "dummy error message"};
+        error e = error("dummy error message");
         return e;
     }
 
@@ -34,7 +34,7 @@ function funcReturnNilOrError(int a) returns () | error {
 function funcReturnOptionallyError(int a) returns error? {
     string s = "test";
     if( a > 20 ) {
-        error e = {message: "dummy error message"};
+        error e = error("dummy error message");
         return e;
     }
 

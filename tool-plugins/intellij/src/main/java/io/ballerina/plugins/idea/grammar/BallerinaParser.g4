@@ -36,38 +36,28 @@ definition
     |   typeDefinition
     |   annotationDefinition
     |   globalVariableDefinition
-    |   globalEndpointDefinition
+    |   constantDefinition
     ;
 
 serviceDefinition
-    :   SERVICE (LT nameReference GT)? Identifier serviceEndpointAttachments? serviceBody
-    ;
-
-serviceEndpointAttachments
-    :   BIND nameReference (COMMA nameReference)*
-    |   BIND recordLiteral
+    :   SERVICE Identifier? ON expressionList serviceBody
     ;
 
 serviceBody
-    :   LEFT_BRACE endpointDeclaration* (variableDefinitionStatement | namespaceDeclarationStatement)* resourceDefinition* RIGHT_BRACE
+    :   LEFT_BRACE serviceBodyMember* RIGHT_BRACE
     ;
 
-resourceDefinition
-    :   documentationString? annotationAttachment* deprecatedAttachment? Identifier LEFT_PARENTHESIS resourceParameterList? RIGHT_PARENTHESIS callableUnitBody
-    ;
-
-resourceParameterList
-    :   ENDPOINT Identifier (COMMA parameterList)?
-    |   parameterList
+serviceBodyMember
+    :   objectFieldDefinition
+    |   objectFunctionDefinition
     ;
 
 callableUnitBody
-    :   LEFT_BRACE endpointDeclaration* (statement* | workerDeclaration+) RIGHT_BRACE
+    : LEFT_BRACE statement* (workerDeclaration+ statement*)? RIGHT_BRACE
     ;
 
-
 functionDefinition
-    :   (PUBLIC)? (EXTERN)? FUNCTION ((Identifier | typeName) DOUBLE_COLON)? callableUnitSignature (callableUnitBody | SEMICOLON)
+    :   (PUBLIC)? (REMOTE)? (EXTERN)? FUNCTION ((Identifier | typeName) DOT)? callableUnitSignature (callableUnitBody | SEMICOLON)
     ;
 
 lambdaFunction
@@ -92,24 +82,11 @@ typeDefinition
     ;
 
 objectBody
-    :   objectMember* objectInitializer? objectMember*
-    ;
-objectMember
-    :   objectFieldDefinition
-    |   objectFunctionDefinition
-    |   typeReference
+    :   (objectFieldDefinition | objectFunctionDefinition | typeReference)*
     ;
 
 typeReference
     :   MUL simpleTypeName SEMICOLON
-    ;
-
-objectInitializer
-    :   documentationString? annotationAttachment* (PUBLIC)? NEW objectInitializerParameterList callableUnitBody
-    ;
-
-objectInitializerParameterList
-    :   LEFT_PARENTHESIS objectParameterList? RIGHT_PARENTHESIS
     ;
 
 objectFieldDefinition
@@ -131,30 +108,22 @@ sealedLiteral
 
 restDescriptorPredicate : {_input.get(_input.index() -1).getType() != WS}? ;
 
-objectParameterList
-    :   (objectParameter | objectDefaultableParameter) (COMMA (objectParameter | objectDefaultableParameter))* (COMMA restParameter)?
-    |   restParameter
-    ;
-
-objectParameter
-    :   annotationAttachment* typeName? Identifier
-    ;
-
-objectDefaultableParameter
-    :   objectParameter ASSIGN expression
-    ;
-
 objectFunctionDefinition
-    :   documentationString? annotationAttachment* deprecatedAttachment? (PUBLIC | PRIVATE)? (EXTERN)? FUNCTION callableUnitSignature (callableUnitBody | SEMICOLON)
+    :   documentationString? annotationAttachment* deprecatedAttachment? (PUBLIC | PRIVATE)? (REMOTE|RESOURCE)? (EXTERN)? FUNCTION callableUnitSignature (callableUnitBody | SEMICOLON)
     ;
 
 annotationDefinition
-    :   (PUBLIC)? ANNOTATION  (LT attachmentPoint (COMMA attachmentPoint)* GT)?  Identifier userDefineTypeName? SEMICOLON
+    :   (PUBLIC)? ANNOTATION  (LT attachmentPoint (COMMA attachmentPoint)* GT)?  Identifier typeName? SEMICOLON
+    ;
+
+constantDefinition
+    :   PUBLIC? CONST typeName? Identifier ASSIGN expression SEMICOLON
     ;
 
 globalVariableDefinition
-    :   (PUBLIC)? typeName Identifier (ASSIGN expression )? SEMICOLON
-    |   channelType Identifier SEMICOLON
+    :   PUBLIC? LISTENER? typeName Identifier (ASSIGN expression)? SEMICOLON
+    |   PUBLIC? FINAL (typeName | VAR) Identifier ASSIGN expression SEMICOLON
+    |   channelType Identifier ASSIGN expression SEMICOLON
     ;
 
 channelType
@@ -165,9 +134,11 @@ attachmentPoint
     :   SERVICE
     |   RESOURCE
     |   FUNCTION
+    |   REMOTE
     |   OBJECT
+    |   CLIENT
+    |   LISTENER
     |   TYPE
-    |   ENDPOINT
     |   PARAMETER
     |   ANNOTATION
     ;
@@ -177,24 +148,7 @@ workerDeclaration
     ;
 
 workerDefinition
-    :   WORKER Identifier
-    ;
-
-globalEndpointDefinition
-    :   PUBLIC? endpointDeclaration
-    ;
-
-endpointDeclaration
-    :   annotationAttachment* ENDPOINT endpointType Identifier endpointInitlization? SEMICOLON
-    ;
-
-endpointType
-    :   nameReference
-    ;
-
-endpointInitlization
-    :   recordLiteral
-    |   ASSIGN variableReference
+    :   WORKER Identifier returnParameter?
     ;
 
 finiteType
@@ -213,17 +167,18 @@ typeName
     |   typeName QUESTION_MARK                                                                  # nullableTypeNameLabel
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                                             # groupTypeNameLabel
     |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS                           # tupleTypeNameLabel
-    |   ABSTRACT? OBJECT LEFT_BRACE objectBody RIGHT_BRACE                                      # objectTypeNameLabel
+    |   ABSTRACT? CLIENT? OBJECT LEFT_BRACE objectBody RIGHT_BRACE                              # objectTypeNameLabel
     |   RECORD LEFT_BRACE recordFieldDefinitionList RIGHT_BRACE                                 # recordTypeNameLabel
     ;
 
 recordFieldDefinitionList
-    :   fieldDefinition* recordRestFieldDefinition?
+    :   (fieldDefinition | typeReference)* recordRestFieldDefinition?
     ;
 
 // Temporary production rule name
 simpleTypeName
     :   TYPE_ANY
+    |   TYPE_ANYDATA
     |   TYPE_DESC
     |   valueTypeName
     |   referenceTypeName
@@ -244,21 +199,28 @@ valueTypeName
     |   TYPE_INT
     |   TYPE_BYTE
     |   TYPE_FLOAT
+    |   TYPE_DECIMAL
     |   TYPE_STRING
     ;
 
 builtInReferenceTypeName
-    :   TYPE_MAP (LT typeName GT)?
-    |   TYPE_FUTURE (LT typeName GT)?
+    :   TYPE_MAP (LT typeName GT)
+    |   TYPE_FUTURE (LT typeName GT)
     |   TYPE_XML (LT (LEFT_BRACE xmlNamespaceName RIGHT_BRACE)? xmlLocalName GT)?
     |   TYPE_JSON (LT nameReference GT)?
-    |   TYPE_TABLE (LT nameReference GT)?
-    |   TYPE_STREAM (LT typeName GT)?
+    |   TYPE_TABLE (LT typeName GT)
+    |   TYPE_STREAM (LT typeName GT)
+    |   SERVICE
+    |   errorTypeName
     |   functionTypeName
     ;
 
 functionTypeName
     :   FUNCTION LEFT_PARENTHESIS (parameterList | parameterTypeNameList)? RIGHT_PARENTHESIS returnParameter?
+    ;
+
+errorTypeName
+    :   TYPE_ERROR (LT typeName (COMMA typeName)? GT)?
     ;
 
 xmlNamespaceName
@@ -277,9 +239,11 @@ annotationAttachment
 // STATEMENTS / BLOCKS
 
 statement
-    :   variableDefinitionStatement
+    :   errorDestructuringStatement
+    |   variableDefinitionStatement
     |   assignmentStatement
     |   tupleDestructuringStatement
+    |   recordDestructuringStatement
     |   compoundAssignmentStatement
     |   ifElseStatement
     |   matchStatement
@@ -290,8 +254,9 @@ statement
     |   forkJoinStatement
     |   tryCatchStatement
     |   throwStatement
+    |   panicStatement
     |   returnStatement
-    |   workerInteractionStatement
+    |   workerSendAsyncStatement
     |   expressionStmt
     |   transactionStatement
     |   abortStatement
@@ -300,17 +265,27 @@ statement
     |   namespaceDeclarationStatement
     |   foreverStatement
     |   streamingQueryStatement
-    |   doneStatement
-    |   scopeStatement
-    |   compensateStatement
     ;
 
 variableDefinitionStatement
-    :   typeName Identifier (ASSIGN expression)? SEMICOLON
+    :   typeName Identifier SEMICOLON
+    |   FINAL? (typeName | VAR) bindingPattern ASSIGN expression SEMICOLON
     ;
 
 recordLiteral
     :   LEFT_BRACE (recordKeyValue (COMMA recordKeyValue)*)? RIGHT_BRACE
+    ;
+
+staticMatchLiterals
+    :   simpleLiteral                                                       # staticMatchSimpleLiteral
+    |   recordLiteral                                                       # staticMatchRecordLiteral
+    |   tupleLiteral                                                        # staticMatchTupleLiteral
+    |   underscore                                                          # staticMatchUnderscoreLiteral
+    |   staticMatchLiterals PIPE staticMatchLiterals                        # staticMatchOrExpression
+    ;
+
+ tupleLiteral
+    :   LEFT_PARENTHESIS expression (COMMA expression)* RIGHT_PARENTHESIS
     ;
 
 recordKeyValue
@@ -331,7 +306,7 @@ tableColumnDefinition
     ;
 
 tableColumn
-    :   PRIMARYKEY? Identifier
+    :   Identifier? Identifier
     ;
 
 tableDataArray
@@ -351,18 +326,20 @@ arrayLiteral
     :   LEFT_BRACKET expressionList? RIGHT_BRACKET
     ;
 
-typeInitExpr
-    :   NEW (LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS)?
-    |   NEW userDefineTypeName LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
-    ;
-
 assignmentStatement
-    :   (VAR)? variableReference ASSIGN expression SEMICOLON
+    :   variableReference ASSIGN expression SEMICOLON
     ;
 
 tupleDestructuringStatement
-    :   VAR? LEFT_PARENTHESIS variableReferenceList RIGHT_PARENTHESIS ASSIGN expression SEMICOLON
-    |   LEFT_PARENTHESIS parameterList RIGHT_PARENTHESIS ASSIGN expression SEMICOLON
+    :   tupleRefBindingPattern ASSIGN expression SEMICOLON
+    ;
+
+recordDestructuringStatement
+    :   recordRefBindingPattern ASSIGN expression SEMICOLON
+    ;
+
+ errorDestructuringStatement
+    :   errorRefBindingPattern ASSIGN expression SEMICOLON
     ;
 
 compoundAssignmentStatement
@@ -407,8 +384,83 @@ matchStatement
     ;
 
 matchPatternClause
-    :   typeName EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
-    |   typeName Identifier EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
+    :   staticMatchLiterals EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
+    |   VAR bindingPattern (IF expression)? EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
+    ;
+
+bindingPattern
+    :   Identifier
+    |   structuredBindingPattern
+    ;
+
+structuredBindingPattern
+    :   tupleBindingPattern
+    |   recordBindingPattern
+    |   errorBindingPattern
+    ;
+
+errorBindingPattern
+    :   TYPE_ERROR LEFT_PARENTHESIS Identifier (COMMA (Identifier | recordBindingPattern))? RIGHT_PARENTHESIS
+    ;
+
+tupleBindingPattern
+    :   LEFT_PARENTHESIS bindingPattern (COMMA bindingPattern)+ RIGHT_PARENTHESIS
+    ;
+
+recordBindingPattern
+    :   LEFT_BRACE entryBindingPattern RIGHT_BRACE
+    ;
+
+entryBindingPattern
+    :   fieldBindingPattern (COMMA fieldBindingPattern)* (COMMA restBindingPattern)?
+    |   restBindingPattern
+    ;
+
+fieldBindingPattern
+    :   Identifier (COLON bindingPattern)?
+    ;
+
+restBindingPattern
+    :   ELLIPSIS Identifier
+    |   sealedLiteral
+    ;
+
+bindingRefPattern
+    :   variableReference
+    |   underscore
+    |   structuredRefBindingPattern
+    |   errorRefBindingPattern
+    ;
+
+structuredRefBindingPattern
+    :   tupleRefBindingPattern
+    |   recordRefBindingPattern
+    ;
+
+tupleRefBindingPattern
+    :   LEFT_PARENTHESIS bindingRefPattern (COMMA bindingRefPattern)+ RIGHT_PARENTHESIS
+    ;
+
+recordRefBindingPattern
+    :   LEFT_BRACE entryRefBindingPattern RIGHT_BRACE
+    ;
+
+errorRefBindingPattern
+    :   TYPE_ERROR LEFT_PARENTHESIS variableReference (COMMA (variableReference | recordRefBindingPattern))? RIGHT_PARENTHESIS
+    ;
+
+entryRefBindingPattern
+    :   fieldRefBindingPattern (COMMA fieldRefBindingPattern)* (COMMA restRefBindingPattern)?
+    |   restRefBindingPattern
+    ;
+
+fieldRefBindingPattern
+    :   Identifier (COLON bindingRefPattern)?
+    ;
+
+restRefBindingPattern
+    :   ELLIPSIS variableReference
+    |   sealedLiteral
     ;
 
 foreachStatement
@@ -431,81 +483,60 @@ breakStatement
     :   BREAK SEMICOLON
     ;
 
-scopeStatement
-    :   scopeClause compensationClause
-    ;
-
-scopeClause
-    :   SCOPE Identifier LEFT_BRACE statement* RIGHT_BRACE
-    ;
-
-compensationClause
-    :   COMPENSATION callableUnitBody
-    ;
-
-compensateStatement
-    :   COMPENSATE Identifier SEMICOLON
-    ;
-
 // typeName is only message
 forkJoinStatement
-    :   FORK LEFT_BRACE workerDeclaration* RIGHT_BRACE joinClause? timeoutClause?
+    :   FORK LEFT_BRACE workerDeclaration* RIGHT_BRACE
     ;
 
-// below typeName is only 'message[]'
-joinClause
-    :   JOIN (LEFT_PARENTHESIS joinConditions RIGHT_PARENTHESIS)? LEFT_PARENTHESIS typeName Identifier RIGHT_PARENTHESIS LEFT_BRACE statement* RIGHT_BRACE
-    ;
-
-joinConditions
-    :   SOME integerLiteral (Identifier (COMMA Identifier)*)?     # anyJoinCondition
-    |   ALL (Identifier (COMMA Identifier)*)?                     # allJoinCondition
-    ;
-
-// below typeName is only 'message[]'
-timeoutClause
-    :   TIMEOUT LEFT_PARENTHESIS expression RIGHT_PARENTHESIS LEFT_PARENTHESIS typeName Identifier RIGHT_PARENTHESIS  LEFT_BRACE statement* RIGHT_BRACE
-    ;
-
+// Depricated since 0.983.0, use trap expressoin. TODO : Remove this.
 tryCatchStatement
     :   TRY LEFT_BRACE statement* RIGHT_BRACE catchClauses
     ;
 
+// TODO : Remove this.
 catchClauses
     :   catchClause+ finallyClause?
     |   finallyClause
     ;
 
+// TODO : Remove this.
 catchClause
     :   CATCH LEFT_PARENTHESIS typeName Identifier RIGHT_PARENTHESIS LEFT_BRACE statement* RIGHT_BRACE
     ;
 
+// TODO : Remove this.
 finallyClause
     :   FINALLY LEFT_BRACE statement* RIGHT_BRACE
     ;
 
+// Depricated since 0.983.0, use panic instead. TODO : Remove this.
 throwStatement
     :   THROW expression SEMICOLON
+    ;
+
+panicStatement
+    :   PANIC expression SEMICOLON
     ;
 
 returnStatement
     :   RETURN expression? SEMICOLON
     ;
 
-workerInteractionStatement
-    :   triggerWorker
-    |   workerReply
+workerSendAsyncStatement
+    :   expression RARROW Identifier (COMMA expression)? SEMICOLON
     ;
 
-// below left Identifier is of type TYPE_MESSAGE and the right Identifier is of type WORKER or CHANNEL
-triggerWorker
-    :   expression RARROW Identifier (COMMA expression)? SEMICOLON        #invokeWorker
-    |   expression RARROW FORK SEMICOLON              #invokeFork
+flushWorker
+    :   FLUSH Identifier?
     ;
 
-// below left Identifier is of type WORKER or CHANNEL and the right Identifier is of type message
-workerReply
-    :   expression LARROW Identifier (COMMA expression)? SEMICOLON
+waitForCollection
+    :   LEFT_BRACE waitKeyValue (COMMA waitKeyValue)* RIGHT_BRACE
+    ;
+
+waitKeyValue
+    :   Identifier
+    |   Identifier COLON expression
     ;
 
 variableReference
@@ -515,6 +546,8 @@ variableReference
     |   variableReference field                                                 # fieldVariableReference
     |   variableReference xmlAttrib                                             # xmlAttribVariableReference
     |   variableReference invocation                                            # invocationReference
+    |   typeDescExpr invocation                                                 # typeDescExprInvocationReference
+    |   underscore                                                              # underscoreVariableReference
     ;
 
 field
@@ -548,7 +581,7 @@ invocationArg
     ;
 
 actionInvocation
-    :   START? nameReference RARROW functionInvocation
+    :   START? variableReference RARROW functionInvocation
     ;
 
 expressionList
@@ -560,7 +593,11 @@ expressionStmt
     ;
 
 transactionStatement
-    :   transactionClause onretryClause?
+    :   transactionClause onretryClause? committedAbortedClauses
+    ;
+
+committedAbortedClauses
+    :  ((committedClause? abortedClause?) | (abortedClause? committedClause?))
     ;
 
 transactionClause
@@ -569,8 +606,6 @@ transactionClause
 
 transactionPropertyInitStatement
     :   retriesStatement
-    |   oncommitStatement
-    |   onabortStatement
     ;
 
 transactionPropertyInitStatementList
@@ -584,6 +619,15 @@ lockStatement
 onretryClause
     :   ONRETRY LEFT_BRACE statement* RIGHT_BRACE
     ;
+
+committedClause
+    :   COMMITTED LEFT_BRACE statement* RIGHT_BRACE
+    ;
+
+abortedClause
+    :   ABORTED LEFT_BRACE statement* RIGHT_BRACE
+    ;
+
 abortStatement
     :   ABORT SEMICOLON
     ;
@@ -594,14 +638,6 @@ retryStatement
 
 retriesStatement
     :   RETRIES ASSIGN expression
-    ;
-
-oncommitStatement
-    :   ONCOMMIT ASSIGN expression
-    ;
-
-onabortStatement
-    :   ONABORT ASSIGN expression
     ;
 
 namespaceDeclarationStatement
@@ -624,29 +660,53 @@ expression
     |   lambdaFunction                                                      # lambdaFunctionExpression
     |   arrowFunction                                                       # arrowFunctionExpression
     |   typeInitExpr                                                        # typeInitExpression
+    |   errorConstructorExpr                                                # errorConstructorExpression
+    |   serviceConstructorExpr                                              # serviceConstructorExpression
     |   tableQuery                                                          # tableQueryExpression
     |   LT typeName (COMMA functionInvocation)? GT expression               # typeConversionExpression
     |   (ADD | SUB | BIT_COMPLEMENT | NOT | LENGTHOF | UNTAINT) expression  # unaryExpression
-    |   LEFT_PARENTHESIS expression (COMMA expression)* RIGHT_PARENTHESIS   # bracedOrTupleExpression
+    |   tupleLiteral                                                        # bracedOrTupleExpression
     |	CHECK expression										            # checkedExpression
+    |   expression IS typeName                                              # typeTestExpression
     |   expression (DIV | MUL | MOD) expression                             # binaryDivMulModExpression
     |   expression (ADD | SUB) expression                                   # binaryAddSubExpression
     |   expression (shiftExpression) expression                             # bitwiseShiftExpression
     |   expression (LT_EQUAL | GT_EQUAL | GT | LT) expression               # binaryCompareExpression
     |   expression (EQUAL | NOT_EQUAL) expression                           # binaryEqualExpression
+    |   expression (REF_EQUAL | REF_NOT_EQUAL) expression                   # binaryRefEqualExpression
     |   expression (BIT_AND | BIT_XOR | PIPE) expression                    # bitwiseExpression
     |   expression AND expression                                           # binaryAndExpression
     |   expression OR expression                                            # binaryOrExpression
     |   expression (ELLIPSIS | HALF_OPEN_RANGE) expression                  # integerRangeExpression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
-    |   awaitExpression                                                     # awaitExprExpression
-    |	expression matchExpression										    # matchExprExpression
+    |   expression SYNCRARROW Identifier                                    # workerSendSyncExpression
+    |   WAIT (waitForCollection | expression)                               # waitExpression
+    |   trapExpr                                                            # trapExpression
     |   expression ELVIS expression                                         # elvisExpression
-    |   typeName                                                            # typeAccessExpression
+    |   LARROW Identifier (COMMA expression)?                               # workerReceiveExpression
+    |   flushWorker                                                         # flushWorkerExpression
+    |   typeDescExpr                                                        # typeAccessExpression
     ;
 
-awaitExpression
-    :   AWAIT expression                                                    # awaitExpr
+typeDescExpr
+    : typeName
+    ;
+
+typeInitExpr
+    :   NEW (LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS)?
+    |   NEW userDefineTypeName LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
+    ;
+
+errorConstructorExpr
+    :   TYPE_ERROR LEFT_PARENTHESIS expression (COMMA expression)? RIGHT_PARENTHESIS
+    ;
+
+serviceConstructorExpr
+    :   annotationAttachment* SERVICE serviceBody
+    ;
+
+trapExpr
+    :   TRAP expression
     ;
 
 shiftExpression
@@ -657,15 +717,11 @@ shiftExpression
 
 shiftExprPredicate : {_input.get(_input.index() -1).getType() != WS}? ;
 
-matchExpression
-    :   BUT LEFT_BRACE matchExpressionPatternClause (COMMA matchExpressionPatternClause)* RIGHT_BRACE
-    	;
-
-matchExpressionPatternClause
-    :   typeName Identifier? EQUAL_GT expression
-    ;
-
 //reusable productions
+
+underscore
+    :   UNDERSCORE
+    ;
 
 nameReference
     :   (Identifier COLON)? Identifier
@@ -842,6 +898,7 @@ reservedWord
     |   TYPE_MAP
     |   START
     |   CONTINUE
+    |   OBJECT_INIT
     ;
 
 
@@ -855,10 +912,6 @@ tableQuery
 
 foreverStatement
     :   FOREVER LEFT_BRACE  streamingQueryStatement+ RIGHT_BRACE
-    ;
-
-doneStatement
-    :   DONE SEMICOLON
     ;
 
 streamingQueryStatement
@@ -929,7 +982,7 @@ streamingInput
     ;
 
 joinStreamingInput
-    :   (UNIDIRECTIONAL joinType | joinType UNIDIRECTIONAL | joinType) streamingInput ON expression
+    :   (UNIDIRECTIONAL joinType | joinType UNIDIRECTIONAL | joinType) streamingInput (ON expression)?
     ;
 
 outputRateLimit

@@ -1,19 +1,19 @@
-int count;
-string word;
+int count = 0;
+string word = "";
 
 function test1(){
     int x = 0;
-    x.foreach(function (int i) { count = count + i;});
+    x.foreach(function (int i) { count = count + i;}); // Iterating on invalid type
     string y = "foo";
-    y.map(function (string s) returns (int) { return lengthof s;});
+    y.map(function (string s) returns (int) { return s.length();}); // Iterating on invalid type
 }
 
 function test2(){
     string[] y = ["1", "a"];
 
-    y.count();
+    y.count(); // Not assigning the return value.
 
-    y.filter(function (int i, string x) returns (boolean) {
+    y.filter(function (int i, string x) returns boolean { // Too many arguments to lambda.
         return true;})
      .foreach(function (string x) { word = x;}).count();
 }
@@ -21,22 +21,22 @@ function test2(){
 function test3(){
     map<string> z = {a:"1", b:"2"};
     string[] keys = z.map(
-                     function (string s) returns (string, string) {
+                     function (string s) returns (string, string) { // Not enough arguments to lambda.
                          return (s, "value");
     }).keys();
 }
 
 function test4() {
-    map z = {a:"1", b:"2"};
-    string[] a = z.map(function (any x) returns (string, string) {
+    map<any> z = {a:"1", b:"2"};
+    map<string> a = z.map(function (any x) returns (string, string) {
                            var s = <string>x;
                            return (s, "value");
                        });
-    map m = z.filter(function (string s) returns boolean {
-          return s == null;
+    map<any> m = z.filter(function (string s) returns boolean {
+          return s == "";
     });
     any x = z.filter(function (string s) returns boolean {
-         return s == null;
+         return s == "";
      });
 }
 
@@ -94,9 +94,9 @@ function test10() {
 }
 
 function test11() {
-    map z = {a:"1", b:"2"};
+    map<any> z = {a:"1", b:"2"};
 
-    map m = z.filter(function (any s) returns boolean {
+    map<any> m = z.filter(function (any s) returns boolean {
           return s == null;
     });
 

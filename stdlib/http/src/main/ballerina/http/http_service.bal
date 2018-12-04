@@ -14,14 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# A representation of an HTTP service instance.
-public type Service object {
-
-    # Returns a `Listener` for the service.
-    #
-    # + return - A `Listener` instance for the service
-    public function getEndpoint() returns Listener {
-        Listener ep = new;
-        return ep;
-    }
-};
+//# A representation of an HTTP service instance.
+//public type Service object {
+//
+//    # Returns a `Listener` for the service.
+//    #
+//    # + return - A `Listener` instance for the service
+//    public function getEndpoint() returns Server {
+//        Server ep = new;
+//        return ep;
+//    }
+//};

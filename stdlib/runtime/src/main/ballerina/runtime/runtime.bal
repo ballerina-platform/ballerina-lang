@@ -27,5 +27,9 @@ public extern function sleep(int millis);
 # + return - Value of the property if the property exists, an empty string otherwise
 public extern function getProperty(@sensitive string name) returns string;
 
-# Check point the current state of the execution.
-public extern function checkpoint ();
+# Gives a timeout to the current worker for a predefined amount of time.
+#
+# + millis - Amount of time needed for the timeout in milliseconds
+public function timeout(int millis) returns future<()> {
+    return start sleep(millis);
+}

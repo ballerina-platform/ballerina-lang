@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.langserver.definition;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
@@ -39,6 +41,7 @@ public class DefinitionTest {
     private Path balPath1 = definitionsPath.resolve("test.definition.pkg").resolve("definition1.bal");
     private Path balPath2 = definitionsPath.resolve("test.definition.pkg").resolve("definition2.bal");
     private Path balPath3 = definitionsPath.resolve("test.definition.pkg").resolve("definition3.bal");
+    private Path testBalPath = definitionsPath.resolve("test.definition.pkg").resolve("tests").resolve("test1.bal");
     private Endpoint serviceEndpoint;
 
     @BeforeClass
@@ -48,74 +51,34 @@ public class DefinitionTest {
         TestUtil.openDocument(this.serviceEndpoint, balPath2);
         TestUtil.openDocument(this.serviceEndpoint, balPath3);
     }
-
-    @Test(description = "Test goto definition for local functions", dataProvider = "localFuncPosition")
-    public void definitionForLocalFunctionsTest(Position position, DefinitionTestDataModel dataModel)
-            throws InterruptedException, IOException {
-        Assert.assertEquals(TestUtil.getDefinitionResponse(dataModel.getBallerinaFilePath(), position, serviceEndpoint),
-                getExpectedValue(dataModel.getExpectedFileName(), dataModel.getDefinitionFileURI()),
+    
+    @Test(description = "Test goto definitions", dataProvider = "definitionsDataProvider")
+    public void testGoToDefinitions(Position position, DefinitionTestDataModel dataModel) throws IOException {
+        JsonParser parser = new JsonParser();
+        String actualStr = TestUtil.getDefinitionResponse(dataModel.getBallerinaFilePath(), position, serviceEndpoint);
+        JsonObject expected = parser.parse(getExpectedValue(dataModel.getExpectedFileName(),
+                dataModel.getDefinitionFileURI())).getAsJsonObject();
+        JsonObject actual = parser.parse(actualStr).getAsJsonObject();
+        Assert.assertEquals(actual, expected,
                 "Did not match the definition content for " + dataModel.getExpectedFileName()
                         + " and position line:" + position.getLine() + " character:" + position.getCharacter());
     }
-
-    @Test(description = "Test goto definition for records", dataProvider = "recordPositions")
-    public void definitionForRecordsTest(Position position, DefinitionTestDataModel dataModel)
-            throws InterruptedException, IOException {
-        Assert.assertEquals(TestUtil.getDefinitionResponse(dataModel.getBallerinaFilePath(), position, serviceEndpoint),
-                getExpectedValue(dataModel.getExpectedFileName(), dataModel.getDefinitionFileURI()),
-                "Did not match the definition content for " + dataModel.getExpectedFileName()
-                        + " and position line:" + position.getLine() + " character:" + position.getCharacter());
-    }
-
-    @Test(description = "Test goto definition for readonly variables", dataProvider = "readOnlyVariablePositions")
-    public void definitionForReadOnlyVariablesTest(Position position, DefinitionTestDataModel dataModel)
-            throws InterruptedException, IOException {
-        Assert.assertEquals(TestUtil.getDefinitionResponse(dataModel.getBallerinaFilePath(), position, serviceEndpoint),
-                getExpectedValue(dataModel.getExpectedFileName(), dataModel.getDefinitionFileURI()),
-                "Did not match the definition content for " + dataModel.getExpectedFileName() +
-                        " and position line:" + position.getLine() + " character:" + position.getCharacter());
-    }
-
-    @Test(description = "Test goto definition for local variables", dataProvider = "localVariablePositions")
-    public void definitionForLocalVariablesTest(Position position, DefinitionTestDataModel dataModel)
-            throws InterruptedException, IOException {
-        Assert.assertEquals(TestUtil.getDefinitionResponse(dataModel.getBallerinaFilePath(), position, serviceEndpoint),
-                getExpectedValue(dataModel.getExpectedFileName(), dataModel.getDefinitionFileURI()),
-                "Did not match the definition content for " + dataModel.getExpectedFileName() +
-                        " and position line:" + position.getLine() + " character:" + position.getCharacter());
-    }
-
-    @DataProvider(name = "localFuncPosition")
-    public Object[][] getLocalFunctionPositions() throws IOException {
+    
+    @DataProvider
+    public Object[][] definitionsDataProvider() throws IOException {
         return new Object[][]{
                 {new Position(23, 7),
                         new DefinitionTestDataModel("localFunctionInSameFile.json", balPath1, balPath1)},
                 {new Position(44, 7),
-                        new DefinitionTestDataModel("localFunctionInAnotherFile.json", balPath2, balPath1)}
-        };
-    }
-
-    @DataProvider(name = "recordPositions")
-    public Object[][] getRecordPositions() throws IOException {
-        return new Object[][]{
-                {new Position(36, 7), new DefinitionTestDataModel("recordInSameFile.json", balPath1, balPath1)},
-                {new Position(13, 7), new DefinitionTestDataModel("recordInAnotherFile.json", balPath2, balPath1)}
-        };
-    }
-
-    @DataProvider(name = "readOnlyVariablePositions")
-    public Object[][] getReadOnlyVariablePositions() throws IOException {
-        return new Object[][]{
+                        new DefinitionTestDataModel("localFunctionInAnotherFile.json", balPath2, balPath1)},
+                {new Position(36, 7),
+                        new DefinitionTestDataModel("recordInSameFile.json", balPath1, balPath1)},
+                {new Position(13, 7),
+                        new DefinitionTestDataModel("recordInAnotherFile.json", balPath2, balPath1)},
                 {new Position(41, 53),
                         new DefinitionTestDataModel("readOnlyVariableInSameFile.json", balPath1, balPath1)},
                 {new Position(11, 18),
-                        new DefinitionTestDataModel("readOnlyVariableInAnotherFile.json", balPath1, balPath2)}
-        };
-    }
-
-    @DataProvider(name = "localVariablePositions")
-    public Object[][] getLocalVariablePositions() throws IOException {
-        return new Object[][]{
+                        new DefinitionTestDataModel("readOnlyVariableInAnotherFile.json", balPath1, balPath2)},
                 {new Position(47, 9),
                         new DefinitionTestDataModel("localVariableInFunction.json", balPath1, balPath1)},
                 {new Position(51, 12),
@@ -127,7 +90,9 @@ public class DefinitionTest {
                 {new Position(39, 25),
                         new DefinitionTestDataModel("localVariableOfRecord.json", balPath1, balPath1)},
                 {new Position(11, 5),
-                        new DefinitionTestDataModel("localVariableOfEndpoint.json", balPath3, balPath3)}
+                        new DefinitionTestDataModel("localVariableOfEndpoint.json", balPath3, balPath3)},
+                {new Position(30, 6),
+                        new DefinitionTestDataModel("goToDefFromTestSource.json", balPath1, testBalPath)}
         };
     }
     

@@ -1,7 +1,7 @@
 import ballerina/io;
 import ballerina/runtime;
+
 function workerDeclTest() {
-   worker wx {
      int a = 20;
      fork {
 	   worker w1 {
@@ -11,52 +11,34 @@ function workerDeclTest() {
 	     int y = 0;
 	     int g = y + 1;
 	   }
-	} join (all) (map results) { io:println(results); }
-   }
+	}
+    map<any> results = wait {w1, w2};
+    io:println(results);
    worker wy { }
 }
 
-function forkJoinWithMessageParsingTest() returns int {
+function forkWithMessageParsingTest() returns int {
     int x = 5;
     fork {
 	   worker w1 {
 	     int a = 5;
 	     int b = 0;
 	     a -> w2;
-	     b <- w2;
+	     b = <- w2;
 	   }
 	   worker w2 {
 	     int a = 0;
 	     int b = 15;
-	     a <- w1;
+	     a = <- w1;
 	     b -> w1;
 	   }
-	} join (all) (map results) { io:println(results); }
+	}
+    map<any> results = wait {w1, w2};
+    io:println(results);
 	return x;
 }
 
-function forkJoinWithSingleForkMessages() returns int {
-    int x = 5;
-    fork {
-	   worker w1 {
-	     int a = 5;
-	     int b = 0;
-	     a -> w2;
-	     b <- w2;
-	     a -> fork;
-	   }
-	   worker w2 {
-	     int a = 0;
-	     int b = 15;
-	     a <- w1;
-	     b -> w1;
-	     b -> fork;
-	   }
-	} join (all) (map results) { io:println(results); }
-	return x;
-}
-
-function basicForkJoinTest() returns int {
+function basicForkTest() returns int {
     int x = 10;
     fork {
 	   worker w1 {
@@ -67,28 +49,8 @@ function basicForkJoinTest() returns int {
 	     int a = 0;
 	     int b = 15;
 	   }
-	} join (all) (map results) { }
-	return x;
-}
-
-function forkJoinWithMultipleForkMessages() returns int {
-    int x = 5;
-    fork {
-	   worker w1 {
-	     int a = 5;
-	     int b = 0;
-	     a -> w2;
-	     b <- w2;
-	     (a, b) -> fork;
-	   }
-	   worker w2 {
-	     int a = 0;
-	     int b = 15;
-	     a <- w1;
-	     b -> w1;
-	     (a, b) -> fork;
-	   }
-	} join (all) (map results) {  io:println(results);  }
+	}
+    map<any> results = wait {w1, w2};
 	return x;
 }
 
@@ -96,18 +58,18 @@ function simpleWorkerMessagePassingTest() {
    worker w1 {
      int a = 10;
      a -> w2;
-     a <- w2;
+     a = <- w2;
    }
    worker w2 {
      int a = 0;
      int b = 15;
-     a <- w1;
+     a = <- w1;
      b -> w1;
    }
 }
 
-function forkJoinWithSomeJoin() returns int | error {
-    map m;
+function forkWithWaitForAny() returns int | error {
+    map<any> m = {};
     m["x"] = 25;
     int ret;
     fork {
@@ -128,16 +90,17 @@ function forkJoinWithSomeJoin() returns int | error {
 	     int b = 15;
 	     m["x"] = b;
 	   }
-	} join (some 1) (map results) {  io:println(results);  }
-	match <int> m["x"] {
-	    int a => return a;
-	    error err => return err;
 	}
+
+    () results = wait w1 | w2 | w3;
+    io:println(results);
+    return int.convert(m["x"]);
 }
 
 function workerReturnTest() returns int {
-    worker wx {
+    worker wx returns int {
 	    int x = 50;
 	    return x + 1;
     }
+    return (wait wx);
 }

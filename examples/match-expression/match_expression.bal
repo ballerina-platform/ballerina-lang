@@ -4,7 +4,7 @@ import ballerina/io;
 // negative value, it returns an error. 
 function getAgeCategory(int age) returns string|error {
     if (age < 0) {
-        error e = { message: "Invalid" };
+        error e = error("Invalid");
         return e;
     } else if (age <= 18) {
         return "Child";
@@ -21,7 +21,7 @@ public function main() {
 
     string ageCategory = getAgeCategory(25) but {
         string s => s,
-        error e => e.message
+        error e => e.reason()
     };
     io:println(ageCategory);
 
@@ -32,7 +32,7 @@ public function main() {
 
     ageCategory = getAgeCategory(-5) but {
         string s => s,
-        error e => e.message
+        error e => e.reason()
     };
     io:println(ageCategory);
 
@@ -43,7 +43,7 @@ public function main() {
     // in the match expression. Any string value returned by the function
     // is assigned to the `ageCategory` by default.
     ageCategory = getAgeCategory(25) but {
-        error e => e.message
+        error e => e.reason()
     };
     io:println(ageCategory);
 }

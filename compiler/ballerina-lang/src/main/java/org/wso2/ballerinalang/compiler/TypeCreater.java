@@ -28,17 +28,19 @@ import java.util.List;
  */
 public interface TypeCreater<T> {
 
-    public T getBasicType(char typeChar);
+    T getBasicType(char typeChar);
 
-    public T getBuiltinRefType(String typeName);
+    T getBuiltinRefType(String typeName);
 
-    public T getRefType(char typeChar, String pkgPath, String typeName);
+    T getRefType(char typeChar, String pkgPath, String typeName);
 
-    public T getConstrainedType(char typeChar, T constraint);
+    T getConstrainedType(char typeChar, T constraint);
 
-    public T getArrayType(T elemType, int size);
+    T getArrayType(T elemType, int size);
 
-    public T getCollectionType(char typeChar, List<T> memberTypes);
+    T getCollectionType(char typeChar, List<T> memberTypes);
 
-    public T getFunctionType(List<T> funcParamsStack, T retType);
+    T getFunctionType(List<T> funcParamsStack, T retType);
+
+    T getErrorType(T reasonType, T detailsType);
 }

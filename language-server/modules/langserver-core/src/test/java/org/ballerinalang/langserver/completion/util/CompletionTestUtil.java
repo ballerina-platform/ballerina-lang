@@ -43,7 +43,7 @@ public class CompletionTestUtil {
                 completionItem.getInsertText() + "," +
                 completionItem.getDetail() + "," +
                 completionItem.getLabel() + additionalTextEdits +
-                "}").replace("\r\n", "\n");
+                "}").replace("\r\n", "\n").replace("\\r\\n", "\\n");
     }
 
     public static List<String> getStringListForEvaluation(List<CompletionItem> completionItems) {

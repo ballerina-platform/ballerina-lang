@@ -1,0 +1,32 @@
+{
+  "id": "324",
+  "result": [
+    {
+      "uri": "references2.bal",
+      "range": {
+        "start": {
+          "line": 6,
+          "character": 0
+        },
+        "end": {
+          "line": 12,
+          "character": 0
+        }
+      }
+    },
+    {
+      "uri": "tests/test1.bal",
+      "range": {
+        "start": {
+          "line": 30,
+          "character": 24
+        },
+        "end": {
+          "line": 30,
+          "character": 40
+        }
+      }
+    }
+  ],
+  "jsonrpc": "2.0"
+}

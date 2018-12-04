@@ -36,7 +36,7 @@ public class VersioningNegativeTest {
 
     @Test(description = "Test dispatching with invalid version segments",
           expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = ".*invalid versioning pattern.*")
+          expectedExceptionsMessageRegExp = ".*Invalid versioning pattern.*")
     public void testInvalidVersionSegmentsNegative() {
         CompileResult result = BServiceUtil
                 .setupProgramFile(this, "test-src/services/dispatching/versioning/negativecase1", PKG_NAME);
@@ -46,7 +46,7 @@ public class VersioningNegativeTest {
 
     @Test(description = "Test dispatching with minor version",
           expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = ".*invalid versioning pattern.*")
+          expectedExceptionsMessageRegExp = ".*Invalid versioning pattern.*")
     public void testWithMinorVersionTemplateNegative() {
         CompileResult result = BServiceUtil
                 .setupProgramFile(this, "test-src/services/dispatching/versioning/negativecase2", PKG_NAME);
@@ -56,7 +56,7 @@ public class VersioningNegativeTest {
 
     @Test(description = "Test dispatching with minor version",
           expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = ".*service registration failed: two services have the same basePath : " +
+          expectedExceptionsMessageRegExp = ".*Service registration failed: two services have the same basePath : " +
                   "'/echo/v2/bar'.*")
     public void testRegisteringTwoServicedsWithSameBasePath() {
         CompileResult result = BServiceUtil

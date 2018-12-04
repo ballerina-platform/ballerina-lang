@@ -4,6 +4,7 @@ import {
     ProviderResult, debug, ExtensionContext, window
 } from 'vscode';
 import { ballerinaExtInstance, BallerinaExtension } from '../core/index';
+import { ExtendedLangClient } from 'src/core/extended-language-client';
 
 const debugConfigProvider: DebugConfigurationProvider = {
     resolveDebugConfiguration(folder: WorkspaceFolder, config: DebugConfiguration)
@@ -38,6 +39,15 @@ const debugConfigProvider: DebugConfigurationProvider = {
             }
 
             config.script = window.activeTextEditor.document.uri.path;
+        }
+
+
+        let langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
+        if (langClient.initializeResult) {
+            const { experimental } = langClient.initializeResult!.capabilities;
+            if (experimental && experimental.introspection && experimental.introspection.port > 0) {
+                config.networkLogsPort = experimental.introspection.port;
+            }
         }
 
         return config;

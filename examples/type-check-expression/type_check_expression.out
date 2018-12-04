@@ -1,0 +1,7 @@
+#To run this sample, navigate to the directory that contains the
+#'.bal' file and issue the 'ballerina run' command.
+Is 'a' a string? true
+'a' is a string with value: Hello, world!
+Alex is a student
+Alex is a person
+Alex is not a vehicle

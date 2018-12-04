@@ -9,7 +9,7 @@ Ballerina makes it easy to build resilient services that integration and orchest
 ## Quick start
 - Download and install ballerina platform from [ballerina.io](https://ballerina.io/downloads/).
 - Install VSCode plugin.
-    - **Option 1.** Install this extension from the VSCode [marketplace](https://marketplace.visualstudio.com/items?itemName=WSO2.Ballerina) (or by entering `ext install Ballerina.Ballerina` at the command palette).
+    - **Option 1.** Install this extension from the VSCode [marketplace](https://marketplace.visualstudio.com/items?itemName=ballerina.ballerina) (or by entering `ext install Ballerina.Ballerina` at the command palette).
     - **Option 2.** Download and install the VSCode plugin manually.
         - Download `ballerina-vscode-plugin-VERSION.vsix` from [ballerina.io](https://ballerina.io/downloads/). When downloading make sure plugin version matches the platform version you have installed.
         - Go to Install from VSIX... command in the Extensions View command drop-down, or the Extensions: Install from VSIX... command in the Command Palette, and select the .vsix file to install. [More info](https://code.visualstudio.com/docs/editor/extension-gallery#_install-from-a-vsix)

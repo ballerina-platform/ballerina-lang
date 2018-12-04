@@ -21,7 +21,7 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 
 /**
- * @since 0.94
+ * @since 0.985.0
  */
 public interface VariableNode extends AnnotatableNode, DocumentableNode, TopLevelNode {
     
@@ -29,14 +29,8 @@ public interface VariableNode extends AnnotatableNode, DocumentableNode, TopLeve
     
     void setTypeNode(TypeNode type);
 
-    IdentifierNode getName();
-    
-    void setName(IdentifierNode name);
-
     ExpressionNode getInitialExpression();
     
     void setInitialExpression(ExpressionNode expr);
-
-    boolean isSafeAssignment();
     
 }

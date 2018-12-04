@@ -16,19 +16,20 @@
 
 public type OutputProcess object {
 
-    private function (map[]) outputFunc;
+    private function (map<anydata>[]) outputFunc;
 
-    public new (outputFunc) {
+    public function __init(function (map<anydata>[]) outputFunc) {
+        self.outputFunc = outputFunc;
     }
 
     public function process(StreamEvent[] streamEvents) {
         int index = 0;
-        map[] events;
+        map<anydata>[] events = [];
         int i = 0;
-        foreach event in streamEvents {
+        foreach var event in streamEvents {
             if (event.eventType == "CURRENT") {
-                map outputData;
-                foreach k, v in event.data {
+                map<anydata> outputData = {};
+                foreach var (k, v) in event.data {
                     string[] s = k.split("\\.");
                     if (OUTPUT.equalsIgnoreCase(s[0])) {
                         outputData[s[1]] = v;
@@ -38,11 +39,11 @@ public type OutputProcess object {
                 i += 1;
             }
         }
-        outputFunc(events);
+        self.outputFunc.call(events);
     }
 };
 
-public function createOutputProcess(function (map[]) outputFunc) returns OutputProcess {
+public function createOutputProcess(function (map<anydata>[]) outputFunc) returns OutputProcess {
     OutputProcess outputProcess = new(outputFunc);
     return outputProcess;
 }

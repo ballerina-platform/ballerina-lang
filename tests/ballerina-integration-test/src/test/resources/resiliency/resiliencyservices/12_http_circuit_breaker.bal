@@ -19,12 +19,9 @@ import ballerina/http;
 import ballerina/log;
 import ballerina/runtime;
 
-endpoint http:Listener circuitBreakerEP05 {
-    port:9311
-};
+listener http:Listener circuitBreakerEP05 = new(9311);
 
-endpoint http:Client backendClientEP05 {
-    url: "http://localhost:8091",
+http:ClientEndpointConfig conf05 = {
     circuitBreaker: {
         rollingWindow: {
             timeWindowMillis: 60000,
@@ -38,46 +35,49 @@ endpoint http:Client backendClientEP05 {
     timeoutMillis: 2000
 };
 
+http:Client backendClientEP05 = new("http://localhost:8091", config = conf05);
+
 @http:ServiceConfig {
     basePath: "/cb"
 }
-service<http:Service> circuitbreaker05 bind circuitBreakerEP05 {
+service circuitbreaker05 on circuitBreakerEP05 {
 
     @http:ResourceConfig {
         path: "/statuscode"
     }
-    getState(endpoint caller, http:Request request) {
+    resource function getState(http:Caller caller, http:Request request) {
         var backendRes = backendClientEP05->forward("/statuscode", request);
-        match backendRes {
-            http:Response res => {
-                caller->respond(res) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+        if (backendRes is http:Response) {
+            var responseToCaller = caller->respond(backendRes);
+            if (responseToCaller is error) {
+                log:printError("Error sending response", err = responseToCaller);
             }
-            error responseError => {
-                http:Response response = new;
-                response.statusCode = http:INTERNAL_SERVER_ERROR_500;
-                response.setPayload(responseError.message);
-                caller->respond(response) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+        } else if (backendRes is error) {
+            http:Response response = new;
+            response.statusCode = http:INTERNAL_SERVER_ERROR_500;
+            string errCause = <string> backendRes.detail().message;
+            response.setPayload(errCause);
+            var responseToCaller = caller->respond(response);
+            if (responseToCaller is error) {
+                log:printError("Error sending response", err = responseToCaller);
             }
         }
     }
 }
 
 @http:ServiceConfig { basePath: "/statuscode" }
-service<http:Service> statuscodeservice bind { port: 8091 } {
+service statuscodeservice on new http:Listener(8091) {
     @http:ResourceConfig {
         methods: ["GET", "POST"],
         path: "/"
     }
-    sayHello(endpoint caller, http:Request req) {
+    resource function sayHello(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.statusCode = http:SERVICE_UNAVAILABLE_503;
         res.setPayload("Service unavailable.");
-        caller->respond(res) but {
-            error e => log:printError("Error sending response from mock service", err = e)
-        };
+        var responseToCaller = caller->respond(res);
+        if (responseToCaller is error) {
+            log:printError("Error sending response from mock service", err = responseToCaller);
+        }
     }
 }

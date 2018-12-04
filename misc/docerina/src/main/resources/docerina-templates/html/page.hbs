@@ -193,6 +193,18 @@
                                                     </a>
                                                 </li>
                                             {{/exists}}
+                                            {{#exists constructs "constant"}}
+                                                <li>
+                                                    <a href="#Constants">
+                                                        <div class="construct-icon">
+                                                            <span class="fw-const"> </span>
+                                                        </div>
+                                                        <div class="construct-name">
+                                                            Constants
+                                                        </div>
+                                                    </a>
+                                                </li>
+                                            {{/exists}}
                                             {{#exists constructs "globalvar"}}
                                                 <li>
                                                     <a href="#GlobalVariables">
@@ -435,6 +447,32 @@
                                                                 <td class="cSummary-table-attach"></td>
                                                                 <td class="cSummary-table-type"></td>
                                                                 <td class="cSummary-table-desc"><a href="#{{name}}">{{name}}({{join parameters ", "}})</a><br/>{{{description}}}</td>
+                                                            </tr>
+                                                        {{/if}}
+                                                    {{/each}}
+                                                </table>
+                                            {{/exists}}
+                                            <!-- Constants -->
+                                            {{#exists constructs "constant"}}
+                                                <h2 id="Constants">
+                                                    <span class="fw-const sm-icon"></span> Constants
+                                                </h2>
+                                                <table class="cSummary-Table">
+                                                    <tr>
+                                                        <th class="cSummary-table-name">Name</th>
+                                                        <th class="cSummary-table-attach"></th>
+                                                        <th class="cSummary-table-type">Data Type</th>
+                                                        <th class="cSummary-table-type">Value</th>
+                                                        <th class="cSummary-table-desc">Description</th>
+                                                    </tr>
+                                                    {{#each constructs}}
+                                                        {{#if isConstant}}
+                                                            <tr>
+                                                                <td class="cSummary-table-name">{{name}}</td>
+                                                                <td class="cSummary-table-attach"></td>
+                                                                <td class="cSummary-table-type"><a href="{{href}}">{{typeNodeType}}</a></td>
+                                                                <td class="cSummary-table-type">{{value}}</td>
+                                                                <td class="cSummary-table-desc">{{{description}}}</td>
                                                             </tr>
                                                         {{/if}}
                                                     {{/each}}

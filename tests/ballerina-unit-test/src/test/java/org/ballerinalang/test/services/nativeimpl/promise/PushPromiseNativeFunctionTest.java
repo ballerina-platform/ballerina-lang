@@ -23,8 +23,8 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.testng.Assert;
@@ -106,8 +106,8 @@ public class PushPromiseNativeFunctionTest {
 
         Assert.assertFalse(returnVal == null || returnVal.length == 0 || returnVal[0] == null,
                            "Invalid Return Values.");
-        Assert.assertEquals(((BStringArray) returnVal[0]).get(0), headerValue1);
-        Assert.assertEquals(((BStringArray) returnVal[0]).get(1), headerValue2);
+        Assert.assertEquals(((BValueArray) returnVal[0]).getString(0), headerValue1);
+        Assert.assertEquals(((BValueArray) returnVal[0]).getString(1), headerValue2);
     }
 
     @Test(description = "Test removeHeader function of PushPromise")
@@ -221,11 +221,11 @@ public class PushPromiseNativeFunctionTest {
 
         Assert.assertFalse(returnVal == null || returnVal.length == 0 || returnVal[0] == null,
                            "Invalid Return Values.");
-        String result1 = ((BStringArray) returnVal[0]).get(0);
-        String result2 = ((BStringArray) returnVal[0]).get(1);
+        String result1 = ((BValueArray) returnVal[0]).getString(0);
+        String result2 = ((BValueArray) returnVal[0]).getString(1);
         Assert.assertTrue((result1.equals(headerName1) && result2.equals(headerName2) ||
                            result1.equals(headerName2) && result2.equals(headerName1)),
                           "Expected header names not found");
-        Assert.assertEquals(((BStringArray) returnVal[0]).get(1), headerName2);
+        Assert.assertEquals(((BValueArray) returnVal[0]).getString(1), headerName2);
     }
 }

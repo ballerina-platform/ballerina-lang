@@ -44,6 +44,7 @@ public class FormattingVisitorEntry {
                 if (child.getValue().isJsonObject() && child.getValue().getAsJsonObject().has("kind")) {
                     if (!(child.getValue().getAsJsonObject().has("skipFormatting") &&
                             child.getValue().getAsJsonObject().get("skipFormatting").getAsBoolean())) {
+                        child.getValue().getAsJsonObject().add("parent", node);
                         accept(child.getValue().getAsJsonObject());
                     }
                 } else if (child.getValue().isJsonArray()) {
@@ -52,6 +53,7 @@ public class FormattingVisitorEntry {
                         if (childItem.isJsonObject() && childItem.getAsJsonObject().has("kind")) {
                             if (!(childItem.getAsJsonObject().has("skipFormatting") &&
                                     childItem.getAsJsonObject().get("skipFormatting").getAsBoolean())) {
+                                childItem.getAsJsonObject().add("parent", node);
                                 accept(childItem.getAsJsonObject());
                             }
                         }

@@ -2,41 +2,39 @@ type ClientEndpointConfiguration record {
 
 };
 
-public type ABCClient object {
+public type ABCClient client object {
 
-    public function testAction1() returns string;
-    public function testAction2() returns string;
+    remote function testAction1() returns string;
+    remote function testAction2() returns string;
 
 };
 
-function ABCClient::testAction1() returns string {
-        worker default {
-            "xxx" -> sampleWorker;
-            string result;
-            result <- sampleWorker;
-            return result;
-        }
+remote function ABCClient.testAction1() returns string {
         worker sampleWorker {
-            string m;
-            m <- default;
+            string m = "";
+            m = <- default;
             string v = "result from sampleWorker";
             v -> default;
-        } 
+        }
+
+        "xxx" -> sampleWorker;
+        string result = "";
+        result = <- sampleWorker;
+        return result;
 }
 
-function ABCClient::testAction2() returns string {
-        worker default {
-            string result;
-            result <- sampleWorker;
-            return result;
-        }
+remote function ABCClient.testAction2() returns string {
         worker sampleWorker {
               "request" -> default;
         }
+
+        string result = "";
+        result = <- sampleWorker;
+        return result;
 }
 
 public type Client object {
-    public ABCClient abcClient;
+    public ABCClient abcClient = new;
 
     public function init(ClientEndpointConfiguration config);
 
@@ -54,18 +52,18 @@ public type Client object {
     }
 };
 
-function Client::init(ClientEndpointConfiguration config) {
+function Client.init(ClientEndpointConfiguration config) {
     self.abcClient = new;
 }
 
 function testAction1() returns string {
-   endpoint Client ep1 { };
-   string x = ep1->testAction1();
-   return x;
+    ABCClient ep1 = new;
+    string x = ep1->testAction1();
+    return x;
 }
 
 function testAction2() returns string {
-   endpoint Client ep1 { };
-   string x = ep1->testAction2();
-   return x;
+    ABCClient ep1 = new;
+    string x = ep1->testAction2();
+    return x;
 }

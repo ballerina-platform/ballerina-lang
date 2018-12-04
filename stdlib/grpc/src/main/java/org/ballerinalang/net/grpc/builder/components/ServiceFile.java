@@ -18,8 +18,11 @@
 
 package org.ballerinalang.net.grpc.builder.components;
 
-import org.ballerinalang.net.grpc.exception.BalGenerationException;
+import org.ballerinalang.net.grpc.ServerConnectorPortBindingListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -73,6 +76,9 @@ public class ServiceFile {
         String serviceName;
         List<Method> methodList = new ArrayList<>();
 
+        private static final Logger log = LoggerFactory.getLogger(ServerConnectorPortBindingListener.class);
+        private static final PrintStream console = System.err;
+
         private Builder(String serviceName) {
             this.serviceName = serviceName;
         }
@@ -92,29 +98,39 @@ public class ServiceFile {
                         serviceFile.unaryFunctions.add(method);
                         serviceFile.unary = true;
                     } else {
-                        throw new BalGenerationException(
-                                "There should be only one method for client streaming or bi directional streaming.");
+                        String message = serviceName + "/" + method.getMethodName() + " is not implemented. There " +
+                                "should be only one method for client streaming or bidirectional streaming.";
+                        log.error(message);
+                        console.println(message);
                     }
                     break;
                 case CLIENT_STREAMING:
-                    if (serviceFile.streamingFunction == null) {
+                    if (serviceFile.streamingFunction == null && !serviceFile.unary) {
                         serviceFile.streamingFunction = method;
                         serviceFile.clientStreaming = true;
                     } else {
-                        throw new BalGenerationException("There should be only one method for client streaming.");
+                        String message = serviceName + "/" + method.getMethodName() + " is not implemented. There " +
+                                "should be only one method for client streaming.";
+                        log.error(message);
+                        console.println(message);
                     }
                     break;
                 case BIDI_STREAMING:
-                    if (serviceFile.streamingFunction == null) {
+                    if (serviceFile.streamingFunction == null && !serviceFile.unary) {
                         serviceFile.streamingFunction = method;
                         serviceFile.bidiStreaming = true;
                     } else {
-                        throw new BalGenerationException(
-                                "There should be only one method for bidirectional streaming.");
+                        String message = serviceName + "/" + method.getMethodName() + " is not implemented. There " +
+                                "should be only one method for bidirectional streaming.";
+                        log.error(message);
+                        console.println(message);
                     }
                     break;
                 default:
-                    throw new BalGenerationException("Method type is unknown or not supported.");
+                    String message = serviceName + "/" + method.getMethodName() + " is not implemented. Method type " +
+                            "is unknown or not supported.";
+                    log.error(message);
+                    console.println(message);
                 }
             }
             return serviceFile;

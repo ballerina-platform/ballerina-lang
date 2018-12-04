@@ -50,7 +50,15 @@ public enum RuntimeErrors {
     INVALID_TASK_CONFIG("invalid.task.config", "RUNTIME_0025"),
     TASK_ALREADY_RUNNING("task.already.running", "RUNTIME_0026"),
     TASK_NOT_RUNNING("task.not.running", "RUNTIME_0027"),
-    ILLEGAL_FORMAT_CONVERSION("illegal.format.conversion", "RUNTIME_0028");
+    ILLEGAL_FORMAT_CONVERSION("illegal.format.conversion", "RUNTIME_0028"),
+    INCOMPATIBLE_STAMP_OPERATION("incompatible.stamp.operation", "RUNTIME_0029"),
+    CANNOT_STAMP_NULL("cannot.stamp.null", "RUNTIME_0030"),
+    UNSUPPORTED_CLONE_OPERATION("unsupported.clone.operation", "RUNTIME_0031"),
+    INVALID_RECORD_FIELD_ACCESS("invalid.record.field.access", "RUNTIME_0032"),
+    INVALID_RECORD_FIELD_ADDITION("invalid.record.field.addition", "RUNTIME_0033"),
+    INVALID_OBJECT_FIELD_ADDITION("invalid.object.field.addition", "RUNTIME_0034"),
+    TYPE_ASSERTION_ERROR("type.assertion.error", "RUNTIME_0035"),
+    INVALID_DYNAMICALLY_NESTED_TRANSACTION("dynamically.nested.transactions.are.not.allowed", "RUNTIME_0036");
 
     private String errorMsgKey;
     private String errorCode;

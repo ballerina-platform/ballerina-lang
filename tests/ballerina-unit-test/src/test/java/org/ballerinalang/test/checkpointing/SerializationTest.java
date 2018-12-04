@@ -18,16 +18,16 @@
 
 package org.ballerinalang.test.checkpointing;
 
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.bre.old.WorkerExecutionContext;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.persistence.Deserializer;
 import org.ballerinalang.persistence.serializable.SerializableState;
 import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
@@ -39,7 +39,6 @@ import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
 import org.ballerinalang.test.nativeimpl.functions.io.MockByteChannel;
-import org.ballerinalang.test.nativeimpl.functions.io.socket.ServerSocketTest;
 import org.ballerinalang.test.nativeimpl.functions.io.util.TestUtil;
 import org.ballerinalang.test.serializer.json.JsonSerializerTest;
 import org.ballerinalang.test.utils.debug.TestDebugger;
@@ -207,7 +206,7 @@ public class SerializationTest {
         BMap<String, BRefType> map = new BMap<>();
         map.put("map.A", new BString("A"));
         map.put("map.B", new BString("B"));
-        BRefValueArray value = new BRefValueArray(new BArrayType(BTypes.typeString));
+        BValueArray value = new BValueArray(new BArrayType(BTypes.typeString));
         value.append(new BString("List item 1"));
         value.append(new BString("List item 2"));
         map.put("map.C", value);
@@ -236,7 +235,7 @@ public class SerializationTest {
      */
     public class TestStorageProvider implements StorageProvider {
 
-        private final Logger log = LoggerFactory.getLogger(ServerSocketTest.class);
+        private final Logger log = LoggerFactory.getLogger(TestStorageProvider.class);
 
         @Override
         public void persistState(String instanceId, String stateString) {

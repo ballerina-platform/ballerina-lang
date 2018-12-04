@@ -6,10 +6,6 @@ function test () returns int {
 }
 
 type Person object {
-    public int age;
-    public string name;
+    public int age = 0;
+    public string name = "";
 };
-
-
-
-

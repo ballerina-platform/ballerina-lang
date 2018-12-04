@@ -83,6 +83,10 @@
                 "url": "match-expression"
             },
             {
+                "name": "Type Guard",
+                "url": "type-guard"
+            },
+            {
                 "name": "Elvis",
                 "url": "elvis-operator"
             }
@@ -111,6 +115,21 @@
             {
                 "name": "Functions as Entry Points",
                 "url": "functions-as-entry-points"
+            }
+        ]
+    },
+    {
+        "title": "Record",
+        "column": 1,
+        "category": "Language concepts",
+        "samples": [
+            {
+                "name": "Record",
+                "url": "records"
+            },
+            {
+                "name": "Optional Fields",
+                "url": "record-optional-fields"
             }
         ]
     },
@@ -171,16 +190,28 @@
                 "url": "any-type"
             },
             {
+                "name": "Any Data Type",
+                "url": "any-data-type"
+            },
+            {
                 "name": "Type Conversion",
                 "url": "type-conversion"
             },
             {
-                "name": "Lengthof",
-                "url": "lengthof"
+                "name": "Length",
+                "url": "length"
             },
             {
                 "name": "Integer Ranges",
                 "url": "integer-ranges"
+            },
+            {
+                "name": "Equality",
+                "url": "equality"
+            },
+            {
+                "name": "Immutable Values",
+                "url": "immutable-values"
             }
         ]
     },
@@ -273,16 +304,12 @@
                 "url": "worker-interaction"
             },
             {
-                "name": "Fork/Join",
-                "url": "fork-join"
+                "name": "Fork",
+                "url": "fork"
             },
             {
-                "name": "Fork/Join Conditional Join",
-                "url": "fork-join-conditional-join"
-            },
-            {
-                "name": "Fork/Join Variable Access",
-                "url": "fork-join-variable-access"
+                "name": "Fork Variable Access",
+                "url": "fork-variable-access"
             },
             {
                 "name": "Async",
@@ -325,6 +352,10 @@
             {
                 "name": "Abstract Objects",
                 "url": "abstract-objects"
+            },
+            {
+                "name": "Object Type Reference",
+                "url": "object-type-reference"
             }
         ]
     },
@@ -345,12 +376,12 @@
                 "url": "check"
             },
             {
-                "name": "Throw ",
-                "url": "throw"
+                "name": "Panic ",
+                "url": "panic"
             },
             {
-                "name": "Try/Catch/Finally",
-                "url": "try-catch-finally"
+                "name": "Trap Error",
+                "url": "trap-error"
             }
         ]
     },
@@ -454,8 +485,8 @@
                 "url": "jdbc-client-call-procedures"
             },
             {
-                "name": "JDBC Client Proxy Tables",
-                "url": "jdbc-client-proxy-tables"
+                "name": "Streaming a Big Dataset",
+                "url": "streaming-big-dataset"
             }
         ]
     },
@@ -546,6 +577,21 @@
         ]
     },
     {
+        "title": "Deployment",
+        "column": 3,
+        "category": "Language concepts",
+        "samples": [
+            {
+                "name": "Docker Deployment",
+                "url": "docker-deployment"
+            },
+            {
+                "name": "Kubernetes Deployment",
+                "url": "kubernetes-deployment"
+            }
+        ]
+    },
+    {
         "title": "HTTP/HTTPS",
         "column": 0,
         "category": "Working over the network",
@@ -624,6 +670,10 @@
             {
                 "name": "HTTP Streaming",
                 "url": "http-streaming"
+            },
+            {
+                "name": "HTTP Compression",
+                "url": "http-compression"
             }
         ]
     },
@@ -700,6 +750,10 @@
             {
                 "name": "Retry",
                 "url": "http-retry"
+            },
+            {
+                "name": "Timeout",
+                "url": "http-timeout"
             }
         ]
     },

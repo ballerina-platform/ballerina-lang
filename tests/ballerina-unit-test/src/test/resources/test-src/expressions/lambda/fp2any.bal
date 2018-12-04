@@ -1,4 +1,4 @@
-function test1 () returns (string) {
+function test1 () returns (string|error) {
 
     function (string,int) returns (string) fp = function (string a, int b) returns (string){
                                                      return a + b;
@@ -7,9 +7,8 @@ function test1 () returns (string) {
     return test2(aValue);
 }
 
-function test2(any a) returns (string){
-   var fp2 = check <function (string,int) returns (string)> a;
+function test2(any a) returns (string|error) {
+   var fp2 = <function (string,int) returns (string)> a;
 
-   return fp2("test", 1);
+   return fp2.call("test", 1);
 }
-

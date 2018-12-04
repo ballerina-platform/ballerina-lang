@@ -28,8 +28,8 @@ public function main() {
     // It is possible to get all the attributes at once. However, this cannot be assigned to any variable.
     io:println(x1@);
 
-    // To assign all the attributes to a variable, it can be cast to a map. Then the values can be accessed one by one using the map access syntax.
-    map attributeMap = <map>x1@;
+    // To assign all the attributes to a variable, it can be stamped to a map. Then the values can be accessed one by one using the map access syntax.
+    map<anydata> attributeMap = map<anydata>.convert(x1@);
     io:println(attributeMap);
     io:println(attributeMap["count"]);
 }

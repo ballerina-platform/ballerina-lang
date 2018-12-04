@@ -1,0 +1,2 @@
+// Ballerina provides two equality operators, `==` for deep value equality of `anydata` typed values and `===` for
+// reference equality.

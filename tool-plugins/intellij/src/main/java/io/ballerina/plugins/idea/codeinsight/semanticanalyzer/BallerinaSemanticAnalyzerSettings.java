@@ -27,10 +27,8 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Semantic analyzer settings provider.
  */
-@State(
-        name = "BallerinaSemanticAnalyzer",
-        storages = @Storage(file = "editor.semantic.analyzer.xml")
-)
+@State(name = "BallerinaSemanticAnalyzer",
+       storages = @Storage(value = "editor.semantic.analyzer.xml"))
 public class BallerinaSemanticAnalyzerSettings implements PersistentStateComponent<BallerinaSemanticAnalyzerSettings> {
 
     @Attribute

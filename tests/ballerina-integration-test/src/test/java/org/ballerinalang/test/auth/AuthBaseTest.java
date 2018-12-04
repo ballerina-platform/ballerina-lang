@@ -30,12 +30,14 @@ import java.io.File;
  * and after tests are run.
  */
 public class AuthBaseTest extends BaseTest {
+
     protected static BServerInstance serverInstance;
     protected static EmbeddedDirectoryServer embeddedDirectoryServer;
 
     @BeforeGroups(value = "auth-test", alwaysRun = true)
     public void start() throws Exception {
-        int[] requiredPorts = new int[]{9090, 9091, 9092, 9093, 9094, 9095, 9096, 9097, 9098};
+        int[] requiredPorts = new int[]{9090, 9091, 9092, 9093, 9094, 9095, 9096, 9097, 9098, 9099, 9100, 9101,
+                9190, 9191, 9192, 9193, 9194};
         embeddedDirectoryServer = new EmbeddedDirectoryServer();
         embeddedDirectoryServer.startLdapServer(9389);
 

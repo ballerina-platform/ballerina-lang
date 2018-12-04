@@ -2,4 +2,4 @@
 #`.bal` file and run the `ballerina run` command to start the server.  
 $ ballerina run base_path_and_path.bal
 Initiating service(s) in '.../base_path_and_path.bal'
-ballerina: started HTTP/WS server connector 0.0.0.0:9090
+[ballerina/http] started HTTP/WS endpoint 0.0.0.0:9090

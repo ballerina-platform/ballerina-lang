@@ -24,12 +24,12 @@ public type OpenFoo record {
 };
 
 public type ClosedBar record {
-    string var1;
+    string var1 = "";
     !...
 };
 
 public type OpenBar record {
-    string var1;
+    string var1 = "";
 };
 
 public type Bar2 record {

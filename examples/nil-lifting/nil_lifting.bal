@@ -8,7 +8,8 @@ type address record {
     string zipcode;
 };
 
-// According to this, `addr` and `guardian` fields may or may not contain a value.
+// According to this, `addr` and `guardian` fields may or may not contain a value. And either all the fields must be
+// assigned with default values e.g. `string name = ""` or be initialized before use.
 type person record {
     string name;
     int age;
@@ -17,19 +18,19 @@ type person record {
 };
 
 // This function optionally returns a person value.
-function getPerson(string name) returns person? {
-    if (name == "") {
+function getPerson(string name, int age) returns person? {
+    if (name == "" || age == 0) {
         return ();
     } else {
-        person p = {name: name, addr:
-                            {line01: "61 brandon stree", city: "Santa Clara",
-                                state: "CA", zipcode: "95134"}};
+        person p = {name: name, age: age, addr:
+                            {line01: "No. 61", line02: "Brandon street", city: "Santa Clara",
+                                state: "CA", zipcode: "95134"}, guardian: ()};
         return p;
     }
 }
 
 public function main() {
-    person? p1 = getPerson("John");
+    person? p1 = getPerson("John", 30);
     io:println(p1);
 
     // The field access operator is a lifted operator in Ballerina. As shown here,
@@ -39,7 +40,7 @@ public function main() {
     io:println(city1);
 
     // According to this, the `city2` variable will not contain a value.
-    person? p2 = getPerson("");
+    person? p2 = getPerson("", 0);
     string? city2 = p2.addr.city;
     io:println(city2);
 

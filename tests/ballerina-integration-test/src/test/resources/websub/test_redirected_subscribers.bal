@@ -19,9 +19,7 @@ import ballerina/mime;
 import ballerina/http;
 import ballerina/websub;
 
-endpoint websub:Listener websubEP {
-    port:8484
-};
+listener websub:Listener websubEP = new websub:Listener(8484);
 
 @websub:SubscriberServiceConfig {
     path:"/websub",
@@ -29,14 +27,19 @@ endpoint websub:Listener websubEP {
     resourceUrl: "http://localhost:8081/original/one",
     leaseSeconds: 3600,
     secret: "Kslk30SNF2AChs2",
-    followRedirects: {
-        enabled: true
+    subscriptionClientConfig: { followRedirects: {
+            enabled: true
+        }
     }
 }
-service<websub:Service> websubSubscriber bind websubEP {
-    onNotification (websub:Notification notification) {
-        json payload = check notification.getJsonPayload();
-        io:println("WebSub Notification Received: " + payload.toString());
+service websubSubscriber on websubEP {
+    resource function onNotification (websub:Notification notification) {
+        var payload = notification.getJsonPayload();
+        if (payload is json) {
+            io:println("WebSub Notification Received: " + payload.toString());
+        } else {
+            panic payload;
+        }
     }
 }
 
@@ -46,13 +49,18 @@ service<websub:Service> websubSubscriber bind websubEP {
     resourceUrl: "http://localhost:8081/original/two",
     leaseSeconds: 1200,
     secret: "SwklSSf42DLA",
-    followRedirects: {
-        enabled: true
+    subscriptionClientConfig: { followRedirects: {
+            enabled: true
+        }
     }
 }
-service<websub:Service> websubSubscriberTwo bind websubEP {
-    onNotification (websub:Notification notification) {
-        json payload = check notification.getJsonPayload();
-        io:println("WebSub Notification Received: " + payload.toString());
+service websubSubscriberTwo on websubEP {
+    resource function onNotification (websub:Notification notification) {
+        var payload = notification.getJsonPayload();
+        if (payload is json) {
+            io:println("WebSub Notification Received: " + payload.toString());
+        } else {
+            panic payload;
+        }
     }
 }

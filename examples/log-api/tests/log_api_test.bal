@@ -1,58 +1,70 @@
 import ballerina/test;
 import ballerina/io;
 
-string debugLog;
-string printError;
-string printInfo;
-string printTrace;
-string printWarn;
+string printDebug = "";
+string printError = "";
+string printInfo = "";
+string printTrace = "";
+string printWarn = "";
 
 // This is the mock function which will replace the real function
 @test:Mock {
     moduleName: "ballerina/log",
     functionName: "printDebug"
 }
-public function mockPrintDebug(string s) {
-    debugLog = s;
+public function mockPrintDebug(string | (function() returns (string)) msg) {
+    if (msg is string) {
+        printDebug = msg;
+    }
 }
 
 @test:Mock {
     moduleName: "ballerina/log",
     functionName: "printError"
 }
-public function mockPrintError(string s, error? err = ()) {
-    printError = s;
+public function mockPrintError(string | (function() returns (string)) msg, error? err = ()) {
+    if (msg is string) {
+        printError = msg;
+    }
 }
 
 @test:Mock {
     moduleName: "ballerina/log",
     functionName: "printInfo"
 }
-public function mockPrintInfo(string s) {
-    printInfo = s;
+public function mockPrintInfo(string | (function() returns (string)) msg) {
+    if (msg is string) {
+        printInfo = msg;
+    }
 }
 
 @test:Mock {
     moduleName: "ballerina/log",
     functionName: "printTrace"
 }
-public function mockPrintTrace(string s) {
-    printTrace = s;
+public function mockPrintTrace(string | (function() returns (string)) msg) {
+    if (msg is string) {
+        printTrace = msg;
+    }
 }
 
 @test:Mock {
     moduleName: "ballerina/log",
     functionName: "printWarn"
 }
-public function mockPrintWarn(string s) {
-    printWarn = s;
+public function mockPrintWarn(string | (function() returns (string)) msg) {
+    if (msg is string) {
+        printWarn = msg;
+    }
 }
 
 @test:Config
 function testFunc() {
     // Invoking the main function
     main();
-    test:assertEquals(printWarn, "warn log");
-    test:assertEquals(printInfo, "info log");
+    test:assertEquals(printDebug, "debug log");
     test:assertEquals(printError, "error log with cause");
+    test:assertEquals(printInfo, "info log");
+    test:assertEquals(printTrace, "trace log");
+    test:assertEquals(printWarn, "warn log");
 }

@@ -8,3 +8,7 @@ declare module 'ps-node' {
 declare module 'openport' {
     export function find(args: any) : void;
 }
+
+declare module 'ms-wmic' {
+    export function execute(args: any, callback?: any) : void;
+}

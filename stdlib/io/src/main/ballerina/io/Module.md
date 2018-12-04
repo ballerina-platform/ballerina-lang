@@ -16,15 +16,7 @@ The most primitive channel is the `ByteChannel` which reads and writes 8-bit byt
 io:ReadableByteChannel readableByteChannel = io:openReadableFile("some/file.txt");
 
 // Here is how 100 bytes are read from the channel.
-var readResult = readableByteChannel.read(100);
-    match readResult {
-        (byte[], int) content => {
-            return content; // Return the read content.
-        }
-    error err => {
-        return err; // An IO error occurred when reading the bytes.
-    }
-}
+(byte[], int)|error result = readableByteChannel.read(100);
 
 // Open a file in write mode.
 io:WritableByteChannel writableByteChannel = io:openWritableFile("some/file.txt");
@@ -32,15 +24,8 @@ io:WritableByteChannel writableByteChannel = io:openWritableFile("some/file.txt"
 // Write some content to the beginning of the file.
 string someContent = "some content";
 byte[] content = someContent.toByteArray("UTF-8");
-var writeResult = writableByteChannel.write(content, 0);
-match writeResult {
-    int numberOfBytesWritten => {
-        return numberOfBytesWritten; // Return the count of written bytes.
-    }
-    error err => {
-        return err; // An IO error occurred when writing the bytes.
-    }
-}
+int|error result = writableByteChannel.write(content, 0);
+
 ```
 ### Character channels
 The `CharacterChannel` is used to read and write characters. The charset encoding is specified when creating the
@@ -56,15 +41,7 @@ the respective type.
 
 ```ballerina
 // Reading a JSON.
-var readResult = readableCharChannel.readJson();
-match readResult {
-    json value => {
-        return value; // Return the read JSON value.;
-    }
-    error err => {
-        return err; // An IO error occurred when reading the JSON.
-    }
-}
+json|error result = readableCharChannel.readJson();
 ```
 ```ballerina
 // Reading an XML.
@@ -80,13 +57,10 @@ var writableCharChannel = new io:WritableCharacterChannel(writableByteChannel, "
 // Writing a JSON.
 json content = {fname:"Jhon", lname:"Doe", age:40};
 var writeResult = writableCharChannel.writeJson(content);
-match writeResult {
-    error err => {
-        return err; // An IO error occurred when writing the JSON.
-    }
-    () => {
-        io:println("JSON content written successfully.");
-    }
+if (writeResult is error) {
+    return writeResult;
+} else {
+    io:println("JSON content written successfully.");
 }
 ```
 
@@ -102,13 +76,10 @@ var readableRecordsChannel = new io:ReadableTextRecordChannel(readableCharChanne
 // Reading a few records.
 while (readableRecordsChannel.hasNext()) {
     var result = readableRecordsChannel.getNext();
-    match result {
-        string[] record => {
-            println(record); // Retrieved a record.
-        }
-        error err => {
-            return err; // An IO error occurred when reading the records.
-        }
+    if (result is string[]) {
+        println(record); // Retrieved a record.
+    } else {
+        return result; // An IO error occurred when reading the records.
     }
 }
 ```

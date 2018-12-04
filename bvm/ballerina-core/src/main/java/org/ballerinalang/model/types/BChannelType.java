@@ -48,11 +48,6 @@ public class BChannelType extends BType {
     }
 
     @Override
-    public TypeSignature getSig() {
-        return new TypeSignature(TypeSignature.SIG_CHANNEL);
-    }
-
-    @Override
     public int getTag() {
         return TypeTags.CHANNEL_TAG;
     }

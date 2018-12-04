@@ -1,21 +1,23 @@
 import ballerina/io;
-import ballerinax/jdbc;
+import ballerina/h2;
 
 // Create an endpoint for the first database named testdb1. Since this endpoint
 // participates in a distributed transaction, the `isXA` property should be true.
-endpoint jdbc:Client testDB1 {
-    url: "jdbc:h2:file:./xa-transactions/Testdb1",
-    username: "root",
-    password: "root",
+endpoint h2:Client testDB1 {
+    path: "./xa-transactions/",
+    name: "Testdb1",
+    username: "test",
+    password: "test",
     poolOptions: { maximumPoolSize: 5, isXA: true }
 };
 
 // Create an endpoint for the second database named testdb2. Since this endpoint
 // participates in a distributed transaction, the `isXA` property should be true.
-endpoint jdbc:Client testDB2 {
-    url: "jdbc:h2:file:./xa-transactions/Testdb2",
-    username: "root",
-    password: "root",
+endpoint h2:Client testDB2 {
+    path: "./xa-transactions/",
+    name: "Testdb2",
+    username: "test",
+    password: "test",
     poolOptions: { maximumPoolSize: 5, isXA: true }
 };
 
@@ -31,7 +33,7 @@ public function main() {
     // Begins the transaction.
     transaction with oncommit = onCommitFunction,
                      onabort = onAbortFunction {
-        // This is the first action to participate in the transaction. It inserts
+        // This is the first remote function to participate in the transaction. It inserts
         // customer name to the first DB and gets the generated key.
         var retWithKey = testDB1->updateWithGeneratedKeys("INSERT INTO
                                 CUSTOMER(NAME) VALUES ('Anne')", ());
@@ -56,7 +58,7 @@ public function main() {
                                     + err.message);
         }
         io:println("Generated key for the inserted row: " + key);
-        // This is the second action to participate in the transaction. It inserts the
+        // This is the second remote function to participate in the transaction. It inserts the
         // salary info to the second DB along with the key generated in the first DB.
         ret = testDB2->update("INSERT INTO SALARY (ID, VALUE) VALUES (?, ?)",
                                     key, 2500);

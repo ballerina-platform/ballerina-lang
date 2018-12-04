@@ -21,29 +21,25 @@ import ballerina/runtime;
 int total = 0;
 function testServerStreaming(string name) returns int {
     // Client endpoint configuration
-    endpoint HelloWorldClient helloWorldEp {
-        url:"http://localhost:9099"
-    };
+    HelloWorldClient helloWorldEp = new("http://localhost:9099");
+
     // Executing unary non-blocking call registering server message listener.
     error? result = helloWorldEp->lotsOfReplies(name, HelloWorldMessageListener);
-    match result {
-        error payloadError => {
-            io:println("Error occured while sending event " + payloadError.message);
-            return total;
-        }
-        () => {
-            io:println("Connected successfully");
-        }
+    if (result is error) {
+        io:println("Error from Connector: " + result.reason() + " - " + <string>result.detail().message);
+        return total;
+    } else {
+        io:println("Connected successfully");
     }
 
-    int wait = 0;
+    int waitCount = 0;
     while(total < 4) {
         runtime:sleep(1000);
         io:println("msg count: " + total);
-        if (wait > 10) {
+        if (waitCount > 10) {
             break;
         }
-        wait += 1;
+        waitCount += 1;
     }
     io:println("Client got response successfully.");
     io:println("responses count: " + total);
@@ -51,76 +47,62 @@ function testServerStreaming(string name) returns int {
 }
 
 // Server Message Listener.
-service<grpc:Service> HelloWorldMessageListener {
+service HelloWorldMessageListener = service {
 
     // Resource registered to receive server messages
-    onMessage(string message) {
+    resource function onMessage(string message) {
         io:println("Response received from server: " + message);
         total = total + 1;
     }
 
     // Resource registered to receive server error messages
-    onError(error err) {
-        if (err != ()) {
-            io:println("Error reported from server: " + err.message);
-        }
+    resource function onError(error err) {
+        io:println("Error from Connector: " + err.reason() + " - " + <string>err.detail().message);
     }
 
     // Resource registered to receive server completed message.
-    onComplete() {
+    resource function onComplete() {
         io:println("Server Complete Sending Response.");
         total = total + 1;
     }
-}
-
-// Non-blocking client
-public type HelloWorldStub object {
-
-    public grpc:Client clientEndpoint;
-    public grpc:Stub stub;
-
-    function initStub(grpc:Client ep) {
-        grpc:Stub navStub = new;
-        navStub.initStub(ep, "non-blocking", DESCRIPTOR_KEY, descriptorMap);
-        self.stub = navStub;
-    }
-
-    function lotsOfReplies(string req, typedesc listener, grpc:Headers? headers = ()) returns (error?) {
-        return self.stub.nonBlockingExecute("grpcservices.HelloWorld45/lotsOfReplies", req, listener, headers = headers);
-    }
 };
-
 
 // Non-blocking client endpoint
-public type HelloWorldClient object {
+public type HelloWorldClient client object {
 
-    public grpc:Client client;
-    public HelloWorldStub stub;
+    private grpc:Client grpcClient = new;
+    private grpc:ClientEndpointConfig config = {};
+    private string url;
 
-
-    public function init(grpc:ClientEndpointConfig config) {
+    function __init(string url, grpc:ClientEndpointConfig? config = ()) {
+        self.config = config ?: {};
+        self.url = url;
         // initialize client endpoint.
         grpc:Client c = new;
-        c.init(config);
-        self.client = c;
-        // initialize service stub.
-        HelloWorldStub s = new;
-        s.initStub(c);
-        self.stub = s;
+        c.init(self.url, self.config);
+        error? result = c.initStub("non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
+        if (result is error) {
+            panic result;
+        } else {
+            self.grpcClient = c;
+        }
     }
 
-    public function getCallerActions() returns (HelloWorldStub) {
-        return self.stub;
+    remote function lotsOfReplies(string req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
+        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld45/lotsOfReplies", req, msgListener, headers = headers);
     }
 };
 
-@final string DESCRIPTOR_KEY = "grpcservices.HelloWorld45.proto";
-map descriptorMap =
-{
-    "grpcservices.HelloWorld45.proto":"0A1248656C6C6F576F726C6434352E70726F746F120C6772706373657276696365731A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F325D0A0C48656C6C6F576F726C643435124D0A0D6C6F74734F665265706C696573121C2E676F6F676C652E70726F746F6275662E537472696E6756616C75651A1C2E676F6F676C652E70726F746F6275662E537472696E6756616C75653001620670726F746F33",
-    
-    "google.protobuf.google/protobuf/wrappers.proto":
-    "0A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F120F676F6F676C652E70726F746F627566221C0A0B446F75626C6556616C7565120D0A0576616C7565180120012801221B0A0A466C6F617456616C7565120D0A0576616C7565180120012802221B0A0A496E74363456616C7565120D0A0576616C7565180120012803221C0A0B55496E74363456616C7565120D0A0576616C7565180120012804221B0A0A496E74333256616C7565120D0A0576616C7565180120012805221C0A0B55496E74333256616C7565120D0A0576616C756518012001280D221A0A09426F6F6C56616C7565120D0A0576616C7565180120012808221C0A0B537472696E6756616C7565120D0A0576616C7565180120012809221B0A0A427974657356616C7565120D0A0576616C756518012001280C427C0A13636F6D2E676F6F676C652E70726F746F627566420D577261707065727350726F746F50015A2A6769746875622E636F6D2F676F6C616E672F70726F746F6275662F7074797065732F7772617070657273F80101A20203475042AA021E476F6F676C652E50726F746F6275662E57656C6C4B6E6F776E5479706573620670726F746F33"
+const string ROOT_DESCRIPTOR = "0A1248656C6C6F576F726C6434352E70726F746F120C6772706373657276696365731A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F325D0A0C48656C6C6F576F726C643435124D0A0D6C6F74734F665265706C696573121C2E676F6F676C652E70726F746F6275662E537472696E6756616C75651A1C2E676F6F676C652E70726F746F6275662E537472696E6756616C75653001620670726F746F33";
+function getDescriptorMap() returns map<string> {
+    return {
+        "HelloWorld45.proto":
+        "0A1248656C6C6F576F726C6434352E70726F746F120C6772706373657276696365731A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F325D0A0C48656C6C6F576F726C643435124D0A0D6C6F74734F665265706C696573121C2E676F6F676C652E70726F746F6275662E537472696E6756616C75651A1C2E676F6F676C652E70726F746F6275662E537472696E6756616C75653001620670726F746F33"
+        ,
 
-};
+        "google/protobuf/wrappers.proto":
+        "0A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F120F676F6F676C652E70726F746F627566221C0A0B446F75626C6556616C7565120D0A0576616C7565180120012801221B0A0A466C6F617456616C7565120D0A0576616C7565180120012802221B0A0A496E74363456616C7565120D0A0576616C7565180120012803221C0A0B55496E74363456616C7565120D0A0576616C7565180120012804221B0A0A496E74333256616C7565120D0A0576616C7565180120012805221C0A0B55496E74333256616C7565120D0A0576616C756518012001280D221A0A09426F6F6C56616C7565120D0A0576616C7565180120012808221C0A0B537472696E6756616C7565120D0A0576616C7565180120012809221B0A0A427974657356616C7565120D0A0576616C756518012001280C427C0A13636F6D2E676F6F676C652E70726F746F627566420D577261707065727350726F746F50015A2A6769746875622E636F6D2F676F6C616E672F70726F746F6275662F7074797065732F7772617070657273F80101A20203475042AA021E476F6F676C652E50726F746F6275662E57656C6C4B6E6F776E5479706573620670726F746F33"
+
+    };
+}
 

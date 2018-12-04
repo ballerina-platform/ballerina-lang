@@ -1,6 +1,6 @@
 $ ballerina run subscriber.bal
 Initiating service(s) in 'subscriber.bal'
-ballerina: started HTTP/WS endpoint 0.0.0.0:8181
+[ballerina/http] started HTTP/WS endpoint 0.0.0.0:8181
 2018-08-08 10:56:50,048 INFO  [ballerina/websub] - Subscription Request successful at Hub[https://localhost:9191/websub/hub], for Topic[http://localhost:9090/ordermgt/ordertopic], with Callback [http://localhost:8181/ordereventsubscriber]
 ballerina: Intent Verification agreed - Mode [subscribe], Topic [http://localhost:9090/ordermgt/ordertopic], Lease Seconds [3600]
 2018-08-08 10:57:00,991 INFO  [] - WebSub Notification Received: New Order Added: 1001

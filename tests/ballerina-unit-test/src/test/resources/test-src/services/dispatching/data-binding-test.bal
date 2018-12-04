@@ -1,21 +1,26 @@
 import ballerina/http;
 import ballerina/mime;
 
-endpoint http:NonListener testEP {
-    port: 9090
-};
+listener http:MockListener testEP = new(9090);
 
 type Person record {
     string name;
     int age;
+    !...
 };
 
-service<http:Service> echo bind testEP {
+type Stock record {
+    int id;
+    float price;
+    !...
+};
+
+service echo on testEP {
 
     @http:ResourceConfig {
         body: "person"
     }
-    body1(endpoint caller, http:Request req, string person) {
+    resource function body1(http:Caller caller, http:Request req, string person) {
         json responseJson = { "Person": person };
         _ = caller->respond(untaint responseJson);
     }
@@ -25,7 +30,7 @@ service<http:Service> echo bind testEP {
         path: "/body2/{key}",
         body: "person"
     }
-    body2(endpoint caller, http:Request req, string key, string person) {
+    resource function body2(http:Caller caller, http:Request req, string key, string person) {
         json responseJson = { Key: key, Person: person };
         _ = caller->respond(untaint responseJson);
     }
@@ -34,7 +39,7 @@ service<http:Service> echo bind testEP {
         methods: ["GET", "POST"],
         body: "person"
     }
-    body3(endpoint caller, http:Request req, json person) {
+    resource function body3(http:Caller caller, http:Request req, json person) {
         json name = untaint person.name;
         json team = untaint person.team;
         _ = caller->respond({ Key: name, Team: team });
@@ -44,7 +49,7 @@ service<http:Service> echo bind testEP {
         methods: ["POST"],
         body: "person"
     }
-    body4(endpoint caller, http:Request req, xml person) {
+    resource function body4(http:Caller caller, http:Request req, xml person) {
         string name = untaint person.getElementName();
         string team = untaint person.getTextValue();
         _ = caller->respond({ Key: name, Team: team });
@@ -54,7 +59,7 @@ service<http:Service> echo bind testEP {
         methods: ["POST"],
         body: "person"
     }
-    body5(endpoint caller, http:Request req, byte[] person) {
+    resource function body5(http:Caller caller, http:Request req, byte[] person) {
         string name = untaint mime:byteArrayToString(person, "UTF-8");
         _ = caller->respond({ Key: name });
     }
@@ -63,7 +68,7 @@ service<http:Service> echo bind testEP {
         methods: ["POST"],
         body: "person"
     }
-    body6(endpoint caller, http:Request req, Person person) {
+    resource function body6(http:Caller caller, http:Request req, Person person) {
         string name = untaint person.name;
         int age = untaint person.age;
         _ = caller->respond({ Key: name, Age: age });
@@ -73,7 +78,7 @@ service<http:Service> echo bind testEP {
         methods: ["POST"],
         body: "person"
     }
-    body7(endpoint caller, http:Request req, error person) {
+    resource function body7(http:Caller caller, http:Request req, Stock person) {
         _ = caller->respond(());
     }
 
@@ -81,8 +86,12 @@ service<http:Service> echo bind testEP {
         methods: ["POST"],
         body: "persons"
     }
-    body8(endpoint caller, http:Request req, Person[] persons) {
-        json jsonPayload = check <json>persons;
-        _ = caller->respond(untaint jsonPayload);
+    resource function body8(http:Caller caller, http:Request req, Person[] persons) {
+        var jsonPayload = json.convert(persons);
+        if (jsonPayload is json) {
+            _ = caller->respond(untaint jsonPayload);
+        } else if (jsonPayload is error) {
+            _ = caller->respond(untaint string.convert(jsonPayload.detail().message));
+        }
     }
 }

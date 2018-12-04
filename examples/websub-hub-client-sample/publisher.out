@@ -4,8 +4,8 @@
 
 $ ballerina run publisher.bal
 Starting up the Ballerina Hub Service
-ballerina: Default Ballerina WebSub Hub started up at https://localhost:9191/websub/hub
-ballerina: started HTTPS/WSS endpoint 0.0.0.0:9191
+[ballerina/http] started HTTPS/WSS endpoint 0.0.0.0:9191
+[ballerina/websub] Default Ballerina WebSub Hub started up at https://localhost:9191/websub/hub
 Topic registration successful!
 2018-04-26 22:40:35,678 INFO  [ballerina/websub] - Intent verification successful for mode: [subscribe], for callback URL: [http://localhost:8181/websub]
 Update notification successful!

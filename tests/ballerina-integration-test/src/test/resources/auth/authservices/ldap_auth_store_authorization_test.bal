@@ -47,10 +47,15 @@ http:AuthProvider authProvider = {
     authStoreProviderConfig: ldapConfig
 };
 
-endpoint http:SecureListener authEP {
-    port: 9097,
-    authProviders: [authProvider]
-};
+listener http:Listener authEP = new(9097, config = {
+    authProviders: [authProvider],
+    secureSocket: {
+        keyStore: {
+            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            password: "ballerina"
+        }
+    }
+});
 
 @http:ServiceConfig {
     basePath: "/auth",
@@ -58,7 +63,8 @@ endpoint http:SecureListener authEP {
         authentication: { enabled: true }
     }
 }
-service<http:Service> authService bind authEP {
+service authService on authEP {
+
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/failAuthz",
@@ -66,7 +72,7 @@ service<http:Service> authService bind authEP {
             scopes: ["admin", "support"]
         }
     }
-    failAuthz(endpoint caller, http:Request req) {
+    resource function failAuthz(http:Caller caller, http:Request req) {
         _ = caller->respond("Hello, World!!!");
     }
 }

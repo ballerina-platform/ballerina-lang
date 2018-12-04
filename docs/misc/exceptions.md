@@ -22,7 +22,7 @@ struct Error {
 }
 ```
 
-An error may be thrown by a native Ballerina function or any Ballerina construct using the `throw` statement. When thrown, the runtime searches for the nearest enclosing block containing a `try-catch` statement. If none is found in the current stack frame then execution of the function (or resource or action) stops and the frame is popped and the search continues until a `try-catch` statement is found. If none is found at the outermost level of the worker, then that worker thread dies in an abnormal state.
+An error may be thrown by a native Ballerina function or any Ballerina construct using the `throw` statement. When thrown, the runtime searches for the nearest enclosing block containing a `try-catch` statement. If none is found in the current stack frame then execution of the function (or resource or remote function) stops and the frame is popped and the search continues until a `try-catch` statement is found. If none is found at the outermost level of the worker, then that worker thread dies in an abnormal state.
 
 If the exception goes through the default worker of a `main` function without being caught then the entire program will stop executing. If the exception goes through a `resource` without being caught then that particular invocation of the service & resource will fail and the server connector will choose the appropriate behavior in that situation.
 

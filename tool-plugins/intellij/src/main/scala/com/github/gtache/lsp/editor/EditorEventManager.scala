@@ -138,7 +138,7 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
 
   private val completionTriggers =
     if (serverOptions.completionOptions != null && serverOptions.completionOptions.getTriggerCharacters != null)
-      serverOptions.completionOptions.getTriggerCharacters.asScala.toSet.filter(s => s != ".")
+      serverOptions.completionOptions.getTriggerCharacters.asScala.toSet
     else Set[String]()
 
   private val signatureTriggers =
@@ -176,7 +176,7 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
     */
   def characterTyped(c: Char): Unit = {
     if (completionTriggers.contains(c.toString)) {
-      //completion(DocumentUtils.offsetToLSPPos(editor,editor.getCaretModel.getCurrentCaret.getOffset))
+      completion(DocumentUtils.offsetToLSPPos(editor,editor.getCaretModel.getCurrentCaret.getOffset))
     } else if (signatureTriggers.contains(c.toString)) {
       signatureHelp()
     } else if (onTypeFormattingTriggers.contains(c.toString)) {
@@ -391,7 +391,7 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
             val doc = item.getDocumentation
             val filterText = item.getFilterText
             // Todo - Revert after fixing ballerina language server plain text snippet issues
-            val insertText = item.getInsertText.replaceAll("[$][{][^}]*[}]","")
+            val insertText = item.getInsertText.replaceAll("(\\$\\{\\d:)([a-zA-Z]*:*[a-zA-Z0-9]*)(\\})", "$2").replaceAll("(\\$\\{\\d\\})", "").replaceAll("\\r\\n","\n")
             val insertFormat = item.getInsertTextFormat
             val kind = item.getKind
             val label = item.getLabel
@@ -447,7 +447,6 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
                 })
               })
             }
-            if (kind == CompletionItemKind.Keyword) lookupElementBuilder = lookupElementBuilder.withBoldness(true)
             lookupElementBuilder.withPresentableText(presentableText).withTypeText(tailText, true).withIcon(icon).withAutoCompletionPolicy(AutoCompletionPolicy.SETTINGS_DEPENDENT)
           }
 

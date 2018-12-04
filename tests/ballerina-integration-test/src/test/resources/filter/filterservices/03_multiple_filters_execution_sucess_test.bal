@@ -20,9 +20,8 @@ import ballerina/log;
 // Filter1
 
 public type Filter06 object {
-    public function filterRequest(http:Listener listener, http:Request request, http:FilterContext context) returns
-                                                                                                                boolean
-    {
+    public function filterRequest(http:Caller caller, http:Request request, http:FilterContext context)
+                        returns boolean {
         log:printInfo("Intercepting request for filter 1");
         return true;
     }
@@ -32,12 +31,13 @@ public type Filter06 object {
     }
 };
 
-Filter06 filter06;
+Filter06 filter06 = new;
 
 // Filter2
 
 public type Filter07 object {
-    public function filterRequest(http:Listener listener, http:Request request, http:FilterContext context) returns boolean {
+    public function filterRequest(http:Caller caller, http:Request request, http:FilterContext context)
+                        returns boolean {
         log:printInfo("Intercepting request for filter 2");
         return true;
     }
@@ -47,22 +47,19 @@ public type Filter07 object {
     }
 };
 
-Filter07 filter07;
+Filter07 filter07 = new;
 
-endpoint http:Listener echoEP02 {
-    port: 9092,
-    filters: [filter06, filter07]
-};
+listener http:Listener echoEP02 = new(9092, config = { filters: [filter06, filter07] });
 
 @http:ServiceConfig {
     basePath: "/echo"
 }
-service<http:Service> echo02 bind echoEP02 {
+service echo02 on  echoEP02 {
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/test"
     }
-    echo(endpoint caller, http:Request req) {
+    resource function echo(http:Caller caller, http:Request req) {
         http:Response res = new;
         _ = caller->respond(res);
     }

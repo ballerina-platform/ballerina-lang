@@ -1,4 +1,4 @@
-$ ballerina run var.bal
+$ ballerina run tuple_type.bal
 (10, John)
 10
 John

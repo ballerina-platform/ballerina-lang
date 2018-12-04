@@ -23,10 +23,12 @@ import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -34,19 +36,19 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -68,11 +70,10 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.types.BLangEndpointTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
@@ -83,6 +84,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -101,11 +103,17 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangPackage pkgNode) {
-        if (pkgNode.topLevelNodes.isEmpty()) {
+        List<TopLevelNode> topLevelNodes = new ArrayList<>(pkgNode.topLevelNodes);
+        if (pkgNode.containsTestablePkg()) {
+            topLevelNodes.addAll(pkgNode.getTestablePkg().topLevelNodes);
+        }
+        if (topLevelNodes.isEmpty()) {
             terminateVisitor = true;
             acceptNode(null);
         } else {
-            pkgNode.topLevelNodes.forEach(topLevelNode -> acceptNode((BLangNode) topLevelNode));
+            topLevelNodes.stream()
+                    .filter(CommonUtil.checkInvalidTypesDefs())
+                    .forEach(topLevelNode -> acceptNode((BLangNode) topLevelNode));
         }
     }
 
@@ -113,7 +121,7 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
     public void visit(BLangFunction funcNode) {
         // Check for native functions
         BSymbol funcSymbol = funcNode.symbol;
-        if (Symbols.isNative(funcSymbol)) {
+        if (Symbols.isNative(funcSymbol) || !CommonUtil.isValidInvokableSymbol(funcSymbol)) {
             return;
         }
 
@@ -158,10 +166,10 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
         if (isReferenced(serviceNode.name.getValue(), servSymbol.owner, servSymbol.pkgID, servSymbol.owner.pkgID)) {
             addLocation(serviceNode, servSymbol.pkgID.name.getValue(), servSymbol.pkgID.name.getValue());
         }
-
-        if (serviceNode.serviceTypeStruct != null) {
-            this.acceptNode(serviceNode.serviceTypeStruct);
-        }
+// TODO: 11/28/18 Fix with the latest Service Changes 
+//        if (serviceNode.serviceTypeStruct != null) {
+//            this.acceptNode(serviceNode.serviceTypeStruct);
+//        }
 
         if (serviceNode.vars != null) {
             serviceNode.vars.forEach(this::acceptNode);
@@ -175,13 +183,13 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
             serviceNode.endpoints.forEach(this::acceptNode);
         }
 
-        if (serviceNode.boundEndpoints != null) {
-            serviceNode.boundEndpoints.forEach(this::acceptNode);
-        }
-
-        if (serviceNode.initFunction != null) {
-            this.acceptNode(serviceNode.initFunction);
-        }
+// TODO: 11/28/18 Fix with the latest Service Changes
+//        if (serviceNode.boundEndpoints != null) {
+//            serviceNode.boundEndpoints.forEach(this::acceptNode);
+//        }
+//        if (serviceNode.initFunction != null) {
+//            this.acceptNode(serviceNode.initFunction);
+//        }
     }
 
     @Override
@@ -203,28 +211,7 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangAction actionNode) {
-        if (isReferenced(actionNode.name.getValue(), actionNode.symbol.owner, actionNode.symbol.pkgID,
-                         actionNode.symbol.owner.pkgID)) {
-            addLocation(actionNode, actionNode.symbol.pkgID.name.getValue(),
-                        actionNode.symbol.pkgID.name.getValue());
-        }
-
-        if (actionNode.requiredParams != null) {
-            actionNode.requiredParams.forEach(this::acceptNode);
-        }
-
-        if (actionNode.body != null) {
-            acceptNode(actionNode.body);
-        }
-
-        if (actionNode.workers != null) {
-            actionNode.workers.forEach(this::acceptNode);
-        }
-    }
-
-    @Override
-    public void visit(BLangVariable varNode) {
+    public void visit(BLangSimpleVariable varNode) {
         BVarSymbol varSymbol = varNode.symbol;
         if (!(varNode.type instanceof BUnionType) && isReferenced(varNode.name.getValue(), varSymbol.owner,
                                                                   varSymbol.pkgID, varSymbol.owner.pkgID)) {
@@ -259,7 +246,7 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangVariableDef varDefNode) {
+    public void visit(BLangSimpleVariableDef varDefNode) {
         if (varDefNode.getVariable() != null) {
             this.acceptNode(varDefNode.getVariable());
         }
@@ -294,9 +281,7 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
     public void visit(BLangForeach foreach) {
         this.acceptNode(foreach.collection);
 
-        if (foreach.varRefs != null) {
-            foreach.varRefs.forEach(this::acceptNode);
-        }
+        acceptNode((BLangNode) foreach.variableDefinitionNode);
 
         if (foreach.body != null) {
             this.acceptNode(foreach.body);
@@ -352,14 +337,14 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
         if (forkJoin.getWorkers() != null) {
             forkJoin.getWorkers().forEach(this::acceptNode);
         }
-
-        if (forkJoin.joinedBody != null) {
-            this.acceptNode(forkJoin.joinedBody);
-        }
-
-        if (forkJoin.timeoutBody != null) {
-            this.acceptNode(forkJoin.timeoutBody);
-        }
+        // todo need to remove this block
+//        if (forkJoin.joinedBody != null) {
+//            this.acceptNode(forkJoin.joinedBody);
+//        }
+//
+//        if (forkJoin.timeoutBody != null) {
+//            this.acceptNode(forkJoin.timeoutBody);
+//        }
     }
 
     @Override
@@ -539,8 +524,8 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangTupleDestructure stmt) {
-        if (stmt.varRefs != null) {
-            stmt.varRefs.forEach(this::acceptNode);
+        if (stmt.varRef.expressions != null) {
+            stmt.varRef.expressions.forEach(this::acceptNode);
         }
 
         if (stmt.expr != null) {
@@ -578,14 +563,8 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatch.BLangMatchStmtPatternClause patternClauseNode) {
-        if (patternClauseNode.variable != null) {
-            this.acceptNode(patternClauseNode.variable);
-        }
-
-        if (patternClauseNode.body != null) {
-            this.acceptNode(patternClauseNode.body);
-        }
+    public void visit(BLangMatch.BLangMatchStaticBindingPatternClause patternClauseNode) {
+        /*ignore*/
     }
 
     @Override
@@ -666,6 +645,19 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
     }
 
     @Override
+    public void visit(BLangConstant constant) {
+        BConstantSymbol constSymbol = constant.symbol;
+        if (isReferenced(constant.name.value, constSymbol.owner, constSymbol.pkgID, constSymbol.owner.pkgID)) {
+            addLocation(constant, constSymbol.owner.pkgID.name.getValue(),
+                        constant.pos.getSource().pkgID.name.getValue());
+        }
+
+        if (constant.typeNode != null) {
+            this.acceptNode(constant.typeNode);
+        }
+    }
+
+    @Override
     public void visit(BLangCheckedExpr checkedExpr) {
         if (checkedExpr.expr != null) {
             this.acceptNode(checkedExpr.expr);
@@ -684,15 +676,6 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
         if (unaryExpr.expr != null) {
             this.acceptNode(unaryExpr.expr);
         }
-    }
-
-    @Override
-    public void visit(BLangScope scopeNode) {
-        if (scopeNode.scopeBody != null) {
-            this.acceptNode(scopeNode.scopeBody);
-        }
-
-        visit(scopeNode.compensationFunction);
     }
 
     @Override

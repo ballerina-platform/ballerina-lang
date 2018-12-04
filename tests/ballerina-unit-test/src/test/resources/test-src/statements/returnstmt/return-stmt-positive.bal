@@ -3,9 +3,8 @@ function testReturn() {
 }
 
 function testReturnOneVarDcl() {
-    int x;
+    int x = 0;
 
-    x = 0;
     return;
 }
 
@@ -22,40 +21,29 @@ function testReturnOneParamOneReturnArg(int a) returns (int) {
 }
 
 function testReturnOneParamOneVarDclOneReturnArg(int a) returns (int) {
-    int b;
+    int b = 10;
 
-    b = 10;
     return a + b;
 }
 
 function testReturnNoParamTwoVarDclsTwoReturnArgs() returns (int, string) {
-    int b;
-    string t;
-
-    b = 10;
-    t = "john";
+    int b = 10;
+    string t = "john";
 
     return (b, t);
 }
 
 function testReturnTwoVarDclsTwoReturnArgs(int a, int q) returns (int, string) {
-    int b;
-    string t;
-
-    b = a + q;
-    t = "john";
+    int b = a + q;
+    string t = "john";
 
     return (a + b, t);
 }
 
 function testReturnThreeVarDclsThreeReturnArgs(int a, int q) returns (int, string, float) {
-    int b;
-    string t;
-    float f;
-
-    b = a + q;
-    t = "john";
-    f = 0.5 * 2.0;
+    int b = a + q;
+    string t = "john";
+    float f = 0.5 * 2.0;
 
     return (a + b, t, f);
 }
@@ -66,9 +54,7 @@ function splitUtil(string s) returns (string, string, string) {
 }
 
 function testSplitString() returns (string, string, string) {
-    string section;
-
-    section = "Ballerina is a programming language";
+    string section = "Ballerina is a programming language";
     return splitUtil(section);
 }
 
@@ -106,8 +92,7 @@ function testToUpper4(string s1, string s2) returns (string, string) {
 }
 
 function testReturnWithThreeArguments() returns (int, string, int) {
-    int x;
-    x = 10;
+    int x = 10;
 
     return (x, foo(1, 4), bar(5, "john", 6));
 }

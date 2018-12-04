@@ -28,11 +28,10 @@ import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.util.StringUtils;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.net.http.HttpConstants;
@@ -146,7 +145,7 @@ public class ResponseNativeFunctionSuccessTest {
         BValue[] returnVals = BRunUtil.invokeStateful(result, "testGetBinaryPayload", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertEquals(new String(((BByteArray) returnVals[0]).getBytes()), payload);
+        Assert.assertEquals(new String(((BValueArray) returnVals[0]).getBytes()), payload);
     }
 
     @Test
@@ -236,8 +235,8 @@ public class ResponseNativeFunctionSuccessTest {
         BValue[] returnVals = BRunUtil.invokeStateful(result, "testGetHeaders", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertEquals(((BStringArray) returnVals[0]).get(0), APPLICATION_FORM);
-        Assert.assertEquals(((BStringArray) returnVals[0]).get(1), TEXT_PLAIN);
+        Assert.assertEquals(((BValueArray) returnVals[0]).getString(0), APPLICATION_FORM);
+        Assert.assertEquals(((BValueArray) returnVals[0]).getString(1), TEXT_PLAIN);
     }
 
     @Test
@@ -373,17 +372,10 @@ public class ResponseNativeFunctionSuccessTest {
     public void testRemoveHeader() {
         BMap<String, BValue> outResponse =
                 BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inResStruct);
-        BMap<String, BValue> entity =
-                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         String expect = "Expect";
-        String headerValue = "100-continue";
         BString key = new BString(expect);
 
-        HttpHeaders httpHeaders = new DefaultHttpHeaders();
-        httpHeaders.add(expect, headerValue);
-        entity.addNativeData(ENTITY_HEADERS, httpHeaders);
-
-        BValue[] inputArg = { outResponse, key };
+        BValue[] inputArg = {outResponse, key};
         BValue[] returnVals = BRunUtil.invokeStateful(result, "testRemoveHeader", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
@@ -391,7 +383,7 @@ public class ResponseNativeFunctionSuccessTest {
         BMap<String, BValue> entityStruct =
                 (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(RESPONSE_ENTITY_FIELD);
         HttpHeaders returnHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
-        Assert.assertNull(returnHeaders.get("100-continue"));
+        Assert.assertNull(returnHeaders.get(expect));
     }
 
     @Test(description = "Test RemoveHeader function within a service")

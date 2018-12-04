@@ -27,8 +27,10 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
+import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
+import org.ballerinalang.langserver.compiler.common.modal.SymbolMetaInfo;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.AttachPoint;
@@ -76,19 +78,20 @@ public class TextDocumentFormatUtil {
      * Get the AST for the current text document's content.
      *
      * @param uri             File path as a URI
-     * @param lsCompiler Language server compiler
+     * @param lsCompiler      Language server compiler
      * @param documentManager Workspace document manager instance
      * @param context         Document formatting context
      * @return {@link JsonObject}   AST as a Json Object
      * @throws JSONGenerationException when AST build fails
+     * @throws LSCompilerException when compilation fails
      */
     public static JsonObject getAST(String uri, LSCompiler lsCompiler,
                                     WorkspaceDocumentManager documentManager, LSContext context)
-            throws JSONGenerationException {
+            throws JSONGenerationException, LSCompilerException {
         String[] uriParts = uri.split(Pattern.quote("/"));
         String fileName = uriParts[uriParts.length - 1];
         final BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager,
-                true, LSCustomErrorStrategy.class, false).getRight();
+                                                                      true, LSCustomErrorStrategy.class, false);
         context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, bLangPackage.symbol.getName().getValue());
         final List<Diagnostic> diagnostics = new ArrayList<>();
         JsonArray errors = new JsonArray();
@@ -98,13 +101,30 @@ public class TextDocumentFormatUtil {
         Gson gson = new Gson();
         JsonElement diagnosticsJson = gson.toJsonTree(diagnostics);
         result.add("diagnostics", diagnosticsJson);
+        BLangCompilationUnit compilationUnit;
 
-        BLangCompilationUnit compilationUnit = bLangPackage.getCompilationUnits().stream().
-                filter(compUnit -> fileName.equals(compUnit.getName())).findFirst().orElseGet(null);
-        JsonElement modelElement = generateJSON(compilationUnit, new HashMap<>());
+        // If package is testable package process as tests
+        // else process normally
+        if (isTestablePackage(bLangPackage, fileName)) {
+            compilationUnit = bLangPackage.getTestablePkg().getCompilationUnits().stream().
+                    filter(compUnit -> ("tests/" + fileName).equals(compUnit.getName()))
+                    .findFirst().orElse(null);
+        } else {
+            compilationUnit = bLangPackage.getCompilationUnits().stream().
+                    filter(compUnit -> fileName.equals(compUnit.getName())).findFirst().orElse(null);
+        }
+
+        JsonElement modelElement = generateJSON(compilationUnit, new HashMap<>(), new HashMap<>());
         result.add("model", modelElement);
-
         return result;
+    }
+
+    private static boolean isTestablePackage(BLangPackage bLangPackage, String currentlyOpenName) {
+        return bLangPackage.getTestablePkgs() != null
+                && bLangPackage.getTestablePkgs().size() > 0
+                && bLangPackage.getTestablePkg().getCompilationUnits().stream().
+                filter(compUnit -> ("tests/" + currentlyOpenName).equals(compUnit.getName()))
+                .findFirst().orElse(null) != null;
     }
 
     /**
@@ -112,10 +132,13 @@ public class TextDocumentFormatUtil {
      *
      * @param node        Node to get the json representation
      * @param anonStructs Map of anonymous structs
+     * @param symbolMetaInfoMap symbol meta information map
      * @return {@link JsonElement}          Json Representation of the node
      * @throws JSONGenerationException when Json error occurs
      */
-    public static JsonElement generateJSON(Node node, Map<String, Node> anonStructs) throws JSONGenerationException {
+    public static JsonElement generateJSON(Node node, Map<String, Node> anonStructs,
+                                           Map<BLangNode, List<SymbolMetaInfo>> symbolMetaInfoMap)
+            throws JSONGenerationException {
         if (node == null) {
             return JsonNull.INSTANCE;
         }
@@ -151,6 +174,14 @@ public class TextDocumentFormatUtil {
 
         // Add UUID for each node.
         nodeJson.addProperty("id", UUID.randomUUID().toString());
+
+        // Add the visible endpoints for a given node
+        if (symbolMetaInfoMap.containsKey(node)) {
+            List<SymbolMetaInfo> endpointMetaList = symbolMetaInfoMap.get(node);
+            JsonArray endpoints = new JsonArray();
+            endpointMetaList.forEach(symbolMetaInfo -> endpoints.add(symbolMetaInfo.getJson()));
+            nodeJson.add("VisibleEndpoints", endpoints);
+        }
 
         JsonArray type = getType(node);
         if (type != null) {
@@ -217,7 +248,7 @@ public class TextDocumentFormatUtil {
 
             /* Node classes */
             if (prop instanceof Node) {
-                nodeJson.add(jsonName, generateJSON((Node) prop, anonStructs));
+                nodeJson.add(jsonName, generateJSON((Node) prop, anonStructs, symbolMetaInfoMap));
             } else if (prop instanceof List) {
                 List listProp = (List) prop;
                 JsonArray listPropJson = new JsonArray();
@@ -231,7 +262,7 @@ public class TextDocumentFormatUtil {
                                 continue;
                             }
                         }
-                        listPropJson.add(generateJSON((Node) listPropItem, anonStructs));
+                        listPropJson.add(generateJSON((Node) listPropItem, anonStructs, symbolMetaInfoMap));
                     } else if (listPropItem instanceof String) {
                         listPropJson.add((String) listPropItem);
                     } else {

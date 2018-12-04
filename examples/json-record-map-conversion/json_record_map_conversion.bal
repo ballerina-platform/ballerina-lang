@@ -33,8 +33,8 @@ public function main() {
 
     // Similarly, you can convert a record to a map.
     // This conversion is safe.
-    map m = <map>theRevenant;
-    map writerMap = check <map>m["writer"];
+    map movieMap = map.convert(theRevenant);
+    map writerMap = movieMap["writer"];
     Person writer = check <Person>writerMap;
     io:println(writer.age);
 

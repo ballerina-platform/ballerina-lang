@@ -7,10 +7,13 @@ function successfulXmlCasting() returns (string)  {
 }
 
 function extractFieldValue(json fieldValue) returns (string) {
-  match fieldValue {
-    string s => { return s; }
-    json j => { return "Error"; }
-  }
+    any a = fieldValue;
+    if a is string {
+        return a;
+    } else if a is json {
+        return "Error";
+    }
+    return "";
 }
 
 function jsonReturnFunction() returns (json) {

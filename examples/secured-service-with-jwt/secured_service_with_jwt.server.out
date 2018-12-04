@@ -2,4 +2,4 @@
 # `.bal` file and run the `ballerina run` command.
 $ ballerina run secured_service_with_jwt.bal
 Initiating service(s) in 'secured_service_with_jwt.bal'
-ballerina: started HTTPS/WSS endpoint 0.0.0.0:9090
+[ballerina/http] started HTTPS/WSS endpoint 0.0.0.0:9090

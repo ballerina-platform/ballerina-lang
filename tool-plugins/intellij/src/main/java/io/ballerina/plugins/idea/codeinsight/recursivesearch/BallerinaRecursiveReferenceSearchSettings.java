@@ -27,12 +27,10 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Recursive reference search settings provider.
  */
-@State(
-        name = "BallerinaRecursiveReferenceSearch",
-        storages = @Storage(file = "recursive.reference.search.xml")
-)
-public class BallerinaRecursiveReferenceSearchSettings implements
-        PersistentStateComponent<BallerinaRecursiveReferenceSearchSettings> {
+@State(name = "BallerinaRecursiveReferenceSearch",
+       storages = @Storage(value = "recursive.reference.search.xml"))
+public class BallerinaRecursiveReferenceSearchSettings
+        implements PersistentStateComponent<BallerinaRecursiveReferenceSearchSettings> {
 
     @Attribute
     private boolean myUseRecursiveReferenceSearch = true;

@@ -16,23 +16,26 @@
  */
 package org.ballerinalang.test.worker;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import java.util.Arrays;
 
 /**
  * Negative worker related tests.
  */
 public class WorkerFailTest {
     
-    @Test
+    @Test(enabled = false)
     public void invalidForkJoinJoinResult() {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-forkjoin-join-result.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
     }
-    
-    @Test
+
+    @Test(enabled = false)
     public void invalidForkJoinTimeoutResult() {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-forkjoin-timeout-result.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
@@ -41,25 +44,108 @@ public class WorkerFailTest {
     @Test
     public void invalidWorkerSendReceive() {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-worker-send-receive.bal");
+        String message = Arrays.toString(result.getDiagnostics());
         Assert.assertEquals(result.getErrorCount(), 1);
+        Assert.assertTrue(message.contains(" interactions are invalid"), message);
     }
     
-    @Test
+    @Test(enabled = false)
     public void invalidForkJoinWithReturn() {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-forkjoin-with-return.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
     }
-    
+
     @Test
     public void invalidWorkSendWithoutWorker() {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-worksend-without-worker.bal");
-        Assert.assertEquals(result.getErrorCount(), 3);
+        Assert.assertEquals(result.getErrorCount(), 2);
+        BAssertUtil.validateError(result, 0, "invalid usage of receive expression, var not allowed",
+                                  3, 12);
+        BAssertUtil.validateError(result, 1, "undefined worker 'worker1'", 3, 12);
     }
-    
+
     @Test
     public void invalidWorkReceiveWithoutWorker() {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-workreceive-without-worker.bal");
-        Assert.assertEquals(result.getErrorCount(), 3);
+        String message = Arrays.toString(result.getDiagnostics());
+        Assert.assertEquals(result.getErrorCount(), 1, message);
+        Assert.assertTrue(message.contains("undefined worker"), message);
     }
-    
+
+    @Test
+    public void invalidReceiveBeforeWorkers() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-receive-before-workers.bal");
+        String message = Arrays.toString(result.getDiagnostics());
+        Assert.assertEquals(result.getErrorCount(), 2);
+        BAssertUtil.validateError(result, 0, "invalid usage of receive expression, var not allowed",
+                                  2, 12);
+        BAssertUtil.validateError(result, 1, "undefined worker 'w1'", 2, 12);
+    }
+
+    @Test
+    public void invalidSendBeforeWorkers() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-send-before-workers.bal");
+        String message = Arrays.toString(result.getDiagnostics());
+        Assert.assertEquals(result.getErrorCount(), 2);
+        BAssertUtil.validateError(result, 0, "undefined worker 'w1'", 3, 3);
+        BAssertUtil.validateError(result, 1, "invalid usage of receive expression, var not allowed",
+                                  5, 14);
+    }
+
+    @Test
+    public void invalidSendInLambda() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-send-in-lambda.bal");
+        String message = Arrays.toString(result.getDiagnostics());
+        Assert.assertEquals(result.getErrorCount(), 1, message);
+        Assert.assertTrue(message.contains("undefined worker"), message);
+    }
+
+    @Test
+    public void invalidSendWithReturnTest() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-send-with-return.bal");
+        Assert.assertEquals(result.getErrorCount(), 1);
+        String message = result.getDiagnostics()[0].getMessage();
+        Assert.assertTrue(message.contains("can not be used after a non-error return"), message);
+    }
+
+    @Test
+    public void invalidSendWithErrorReturnTest() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-send-with-error-return.bal");
+        Assert.assertEquals(result.getErrorCount(), 1);
+        String message = result.getDiagnostics()[0].getMessage();
+        Assert.assertTrue(message.contains("expected 'int', found 'error|int'"), message);
+    }
+
+    @Test
+    public void invalidSendWithErrorCheckTest() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-send-with-error-check.bal");
+        Assert.assertEquals(result.getErrorCount(), 1);
+        String message = result.getDiagnostics()[0].getMessage();
+        Assert.assertTrue(message.contains("can not be used after a non-error return"), message);
+    }
+
+    @Test
+    public void invalidSendInIf() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-send-in-if.bal");
+        String message = Arrays.toString(result.getDiagnostics());
+        Assert.assertEquals(result.getErrorCount(), 1, message);
+        Assert.assertTrue(message.contains("invalid worker send statement position"), message);
+    }
+
+    @Test
+    public void invalidSyncSendInIf() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-sync-send-in-if.bal");
+        String message = Arrays.toString(result.getDiagnostics());
+        Assert.assertEquals(result.getErrorCount(), 1, message);
+        Assert.assertTrue(message.contains("invalid worker send statement position"), message);
+    }
+
+    @Test
+    public void invalidReceiveInIf() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-receive-in-if.bal");
+        String message = Arrays.toString(result.getDiagnostics());
+        Assert.assertEquals(result.getErrorCount(), 1, message);
+        Assert.assertTrue(message.contains("invalid worker receive statement position"), message);
+    }
+
 }

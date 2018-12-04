@@ -18,10 +18,10 @@
 
 package org.ballerinalang.test.net.http.resiliency;
 
-import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -78,12 +78,11 @@ public class FailoverConnectorTest {
 
         Assert.assertNotNull(returnVals);
         Assert.assertEquals(returnVals.length, 1);
-        BMap<String, BValue> res = (BMap<String, BValue>) returnVals[0];
+        BError error = (BError) returnVals[0];
 
-        if (res != null) {
-          //  long statusCode = res.getIntField(0);
-            String errorMsg = res.get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
-         //   Assert.assertEquals(statusCode, expectedHttpSC);
+        if (error != null) {
+            BMap<String, BValue> details = (BMap<String, BValue>) error.getDetails();
+            String errorMsg = String.valueOf(details.get("message"));
             Assert.assertEquals(errorMsg, expectedErrprMessageContent);
         }
     }

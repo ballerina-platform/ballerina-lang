@@ -40,6 +40,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import static org.ballerinalang.net.grpc.proto.ServiceProtoConstants.TMP_DIRECTORY_PATH;
 import static org.ballerinalang.protobuf.BalGenerationConstants.BUILD_COMMAND_NAME;
@@ -132,7 +133,7 @@ public class GrpcCmd implements BLauncherCmd {
         StringBuilder msg = new StringBuilder();
         LOG.debug("Initializing the ballerina code generation.");
         byte[] root;
-        List<byte[]> dependant;
+        Set<byte[]> dependant;
         try {
             ClassLoader classLoader = this.getClass().getClassLoader();
             List<String> protoFiles = readProperties(classLoader);

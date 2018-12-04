@@ -42,9 +42,9 @@ public class BallerinaJoinStreamingInputImpl extends BallerinaCompositeElementIm
   }
 
   @Override
-  @NotNull
+  @Nullable
   public BallerinaExpression getExpression() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaExpression.class));
+    return PsiTreeUtil.getChildOfType(this, BallerinaExpression.class);
   }
 
   @Override
@@ -60,9 +60,9 @@ public class BallerinaJoinStreamingInputImpl extends BallerinaCompositeElementIm
   }
 
   @Override
-  @NotNull
+  @Nullable
   public PsiElement getOn() {
-    return notNullChild(findChildByType(ON));
+    return findChildByType(ON);
   }
 
   @Override

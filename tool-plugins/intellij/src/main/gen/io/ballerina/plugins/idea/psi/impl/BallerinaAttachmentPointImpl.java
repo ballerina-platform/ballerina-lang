@@ -55,8 +55,8 @@ public class BallerinaAttachmentPointImpl extends BallerinaCompositeElementImpl 
 
   @Override
   @Nullable
-  public PsiElement getEndpoint() {
-    return findChildByType(ENDPOINT);
+  public PsiElement getClient() {
+    return findChildByType(CLIENT);
   }
 
   @Override
@@ -67,8 +67,20 @@ public class BallerinaAttachmentPointImpl extends BallerinaCompositeElementImpl 
 
   @Override
   @Nullable
+  public PsiElement getListener() {
+    return findChildByType(LISTENER);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getObject() {
     return findChildByType(OBJECT);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getRemote() {
+    return findChildByType(REMOTE);
   }
 
   @Override

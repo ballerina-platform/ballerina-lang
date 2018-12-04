@@ -19,7 +19,7 @@ type Person record {
     int age;
     float salary;
     string name;
-    boolean married;
+    boolean married = false;
     !...
 };
 
@@ -30,7 +30,10 @@ type Employee object {
     public string name = "sample name";
 
 
-    new(id, age, name) {
+    function __init(int id, int age, string name) {
+        self.id  = id;
+        self.age = age;
+        self.name = name;
     }
 };
 
@@ -81,15 +84,11 @@ function testTableLiteralDataAndAddWithObject() returns (int) {
     return count;
 }
 
-function testEmptyTableCreateInvalid() {
-    table t1 = table{};
-}
-
 function testUnknownTableType() {
     table<Student> t1 = table {};
 }
 
-function testTableRemoveInvalidFunctionPointer() returns (int, json) {
+function testTableRemoveInvalidFunctionPointer() returns (int, json) | error {
     Person p1 = { id: 1, age: 35, salary: 300.50, name: "jane", married: true };
     Person p2 = { id: 2, age: 40, salary: 200.50, name: "martin", married: true };
     Person p3 = { id: 3, age: 42, salary: 100.50, name: "john", married: false };
@@ -99,8 +98,12 @@ function testTableRemoveInvalidFunctionPointer() returns (int, json) {
     _ = dt.add(p2);
     _ = dt.add(p3);
 
-    int count = check dt.remove(isBelow35Invalid);
-    json j = check <json>dt;
+    var res = dt.remove(isBelow35Invalid);
+    int count = -1;
+    if (res is int) {
+        count = res;
+    }
+    json j = check json.convert(dt);
 
     return (count, j);
 }

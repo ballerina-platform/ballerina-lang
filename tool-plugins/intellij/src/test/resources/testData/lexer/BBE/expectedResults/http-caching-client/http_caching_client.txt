@@ -462,7 +462,7 @@ LINE_COMMENT ('// The `setETag()` function can be used for generating ETags for'
 WHITE_SPACE ('\n        ')
 LINE_COMMENT ('// `string`, `json`, and `xml` types. This uses the `getCRC32()')
 WHITE_SPACE ('\n        ')
-LINE_COMMENT ('// ` function from the `ballerina/crypto` package for generating the ETag.')
+LINE_COMMENT ('// ` function from the `ballerina/crypto` module for generating the ETag.')
 WHITE_SPACE ('\n        ')
 identifier ('res')
 . ('.')

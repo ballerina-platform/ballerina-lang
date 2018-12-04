@@ -2,4 +2,4 @@
 # .bal file and use the ballerina run command.
 $ ballerina run channels_correlation.bal
 Initiating service(s) in 'channels_correlation.bal'
-ballerina: started HTTP/WS endpoint 0.0.0.0:9090
+[ballerina/http] started HTTP/WS endpoint 0.0.0.0:9090

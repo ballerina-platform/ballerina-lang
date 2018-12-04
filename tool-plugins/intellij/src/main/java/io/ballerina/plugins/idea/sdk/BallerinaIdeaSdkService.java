@@ -18,18 +18,20 @@ package io.ballerina.plugins.idea.sdk;
 
 import com.intellij.ProjectTopics;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ex.ApplicationManagerEx;
 import com.intellij.openapi.components.ComponentManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.Sdk;
-import com.intellij.openapi.roots.ModuleRootAdapter;
 import com.intellij.openapi.roots.ModuleRootEvent;
+import com.intellij.openapi.roots.ModuleRootListener;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.ModuleRootModificationUtil;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.roots.ui.configuration.ProjectSettingsService;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
 import com.intellij.util.ObjectUtils;
@@ -44,7 +46,7 @@ public class BallerinaIdeaSdkService extends BallerinaSdkService {
 
     public BallerinaIdeaSdkService(@NotNull Project project) {
         super(project);
-        myProject.getMessageBus().connect(project).subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootAdapter() {
+        myProject.getMessageBus().connect(project).subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootListener() {
             @Override
             public void rootsChanged(ModuleRootEvent event) {
                 incModificationCount();
@@ -86,6 +88,9 @@ public class BallerinaIdeaSdkService extends BallerinaSdkService {
                 }
             });
         }
+        // Need to prompt a restart action to clear and re initiate language server instance from the new SDK.
+        // Todo - Figure out a way to apply language server changes without restarting.
+        ApplicationManager.getApplication().invokeLater(this::showRestartDialog);
     }
 
     @Override
@@ -107,5 +112,14 @@ public class BallerinaIdeaSdkService extends BallerinaSdkService {
         }
         Sdk sdk = ProjectRootManager.getInstance(myProject).getProjectSdk();
         return sdk != null && sdk.getSdkType() instanceof BallerinaSdkType ? sdk : null;
+    }
+
+    @Messages.YesNoResult
+    private void showRestartDialog() {
+        String action = ApplicationManagerEx.getApplicationEx().isRestartCapable() ? "Restart" : "Shutdown";
+        String message = action + " is required to activate SDK changes. Do you wish to continue?";
+        if (Messages.showYesNoDialog(message, "Apply Changes", action, "Postpone", Messages.getQuestionIcon()) == 0) {
+            ApplicationManagerEx.getApplicationEx().restart(true);
+        }
     }
 }

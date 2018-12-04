@@ -31,11 +31,11 @@ import java.util.stream.Collectors;
  */
 public class ParserRuleServiceEndpointAttachmentContextResolver extends AbstractItemResolver {
     @Override
-    public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
-        List<SymbolInfo> endpointSymbols = (completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)).stream()
+    public List<CompletionItem> resolveItems(LSServiceOperationContext context) {
+        List<SymbolInfo> endpointSymbols = (context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)).stream()
                 .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BEndpointVarSymbol)
                 .collect(Collectors.toList());
         
-        return this.getCompletionItemList(endpointSymbols);
+        return this.getCompletionItemList(endpointSymbols, context);
     }
 }

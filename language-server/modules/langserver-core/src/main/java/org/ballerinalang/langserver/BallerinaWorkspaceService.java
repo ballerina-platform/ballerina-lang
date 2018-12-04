@@ -15,8 +15,9 @@
  */
 package org.ballerinalang.langserver;
 
-import org.ballerinalang.langserver.command.CommandExecutor;
 import org.ballerinalang.langserver.command.ExecuteCommandKeys;
+import org.ballerinalang.langserver.command.LSCommandExecutor;
+import org.ballerinalang.langserver.command.LSCommandExecutorProvider;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
@@ -31,6 +32,8 @@ import org.eclipse.lsp4j.ExecuteCommandParams;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.WorkspaceSymbolParams;
 import org.eclipse.lsp4j.services.WorkspaceService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
@@ -39,17 +42,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
  * Workspace service implementation for Ballerina.
  */
-class BallerinaWorkspaceService implements WorkspaceService {
+public class BallerinaWorkspaceService implements WorkspaceService {
+    private static final Logger logger = LoggerFactory.getLogger(BallerinaWorkspaceService.class);
     private BallerinaLanguageServer ballerinaLanguageServer;
     private WorkspaceDocumentManager workspaceDocumentManager;
     private DiagnosticsHelper diagnosticsHelper;
     private LSGlobalContext lsGlobalContext;
     private LSCompiler lsCompiler;
+    private Map<String, Boolean> experimentalClientCapabilities;
 
     BallerinaWorkspaceService(LSGlobalContext globalContext) {
         this.lsGlobalContext = globalContext;
@@ -67,9 +73,8 @@ class BallerinaWorkspaceService implements WorkspaceService {
         this.workspaceDocumentManager.getAllFilePaths().forEach(path -> {
             symbolsContext.put(DocumentServiceKeys.SYMBOL_LIST_KEY, symbols);
             symbolsContext.put(DocumentServiceKeys.FILE_URI_KEY, path.toUri().toString());
-            List<BLangPackage> bLangPackage = lsCompiler.getBLangPackage(symbolsContext, workspaceDocumentManager,
-                                                                         false,
-                                                                         LSCustomErrorStrategy.class, true).getLeft();
+            List<BLangPackage> bLangPackage = lsCompiler.getBLangPackages(symbolsContext, workspaceDocumentManager,
+                                                                          false, LSCustomErrorStrategy.class, true);
             if (bLangPackage != null) {
                 bLangPackage.forEach(aPackage -> aPackage.compUnits.forEach(compUnit -> {
                     String unitName = compUnit.getName();
@@ -115,6 +120,59 @@ class BallerinaWorkspaceService implements WorkspaceService {
         executeCommandContext.put(ExecuteCommandKeys.LS_COMPILER_KEY, this.lsCompiler);
         executeCommandContext.put(ExecuteCommandKeys.DIAGNOSTICS_HELPER_KEY, this.diagnosticsHelper);
 
-        return CompletableFuture.supplyAsync(() -> CommandExecutor.executeCommand(params, executeCommandContext));
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                Optional<LSCommandExecutor> executor = LSCommandExecutorProvider.getInstance()
+                        .getCommandExecutor(params.getCommand());
+                if (executor.isPresent()) {
+                    return executor.get().execute(executeCommandContext);
+                }
+            } catch (Exception e) {
+                logger.error(e.getMessage());
+            }
+
+            logger.warn("No command executor found for \"" + params.getCommand() + "\"");
+            return false;
+        });
+    }
+
+    /**
+     * Sets experimental client capabilities.
+     *
+     * @param experimentalClientCapabilities a map of capabilities
+     */
+    public void setExperimentalClientCapabilities(Map<String, Boolean> experimentalClientCapabilities) {
+        this.experimentalClientCapabilities = experimentalClientCapabilities;
+    }
+
+    /**
+     * Returns experimental client capabilities.
+     *
+     * @return a map of capabilities
+     */
+    public Map<String, Boolean> getExperimentalClientCapabilities() {
+        return this.experimentalClientCapabilities;
+    }
+
+    /**
+     * Experimental capabilities.
+     */
+    public enum Experimental {
+        INTROSPECTION("introspection"), SHOW_TEXT_DOCUMENT("showTextDocument");
+
+        private final String value;
+
+        Experimental(String value) {
+            this.value = value;
+        }
+
+        /**
+         * Returns value.
+         *
+         * @return value
+         */
+        public String getValue() {
+            return value;
+        }
     }
 }

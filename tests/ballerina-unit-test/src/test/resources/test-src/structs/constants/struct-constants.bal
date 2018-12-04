@@ -1,12 +1,12 @@
 
-@final Person p = 10;
+final Person p = 10;
 
 public function main (string... i) {
     return;
 }
 
 type Person record {
-    string name;
-    map adrs;
-    int age;
+    string name = "";
+    map<any> adrs = {};
+    int age = 0;
 };
