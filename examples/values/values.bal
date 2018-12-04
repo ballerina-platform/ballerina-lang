@@ -13,6 +13,19 @@ public function main() {
     float f = 20.0;
     io:println(f);
 
+    // `isNaN()`, `isInfinite()` and `isFinite()` builtin functions are supported for the `float` type.
+    // `isNaN()` will return true if the `float` value is neither finite nor infinite.
+    float nanVal = 0.0/0.0;
+    io:println(nanVal.isNaN());
+
+    // `isInfinite()` will return true if the `float` value is neither NaN nor finite.
+    float infiniteVal = 12.0/0.0;
+    io:println(infiniteVal.isInfinite());
+
+    // `isFinite()` will return true if the `float` value is neither NaN nor infinite.
+    float finiteVal = 6.0/3.0;
+    io:println(finiteVal.isFinite());
+
     // The `byte` type represents the set of 8-bit unsigned integers.
     // The implicit initial value of the `byte` type is `0`. Value space for `byte` is 0-255 both inclusive.
     byte c = 23;
