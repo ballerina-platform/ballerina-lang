@@ -4,6 +4,7 @@ import {
     Service, VariableDef, VisibleEndpoint, Visitor, While
 } from "@ballerina/ast-model";
 import * as _ from "lodash";
+import { element } from "prop-types";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
 import { EndpointViewState, FunctionViewState, SimpleBBox, StmntViewState, ViewState } from "../view-model";
@@ -108,12 +109,23 @@ export const visitor: Visitor = {
         const viewState: FunctionViewState = node.viewState;
         const body = viewState.body;
         const header = viewState.header;
-        const client = viewState.client;
+        let client = new ViewState();
         const defaultWorker = viewState.defaultWorker;
 
         // Initialize the client width and height to default.
+        // If resource set the caller as first param.
+        if (node.resource && node.VisibleEndpoints !== undefined) {
+            const caller = node.VisibleEndpoints.find((ep: VisibleEndpoint) => {
+                return ep.caller;
+            });
+            if (caller) {
+                client = caller.viewState;
+                (caller.viewState as EndpointViewState).visible = true;
+            }
+        }
         client.bBox.h = config.lifeLine.line.height + (config.lifeLine.header.height * 2);
         client.bBox.w = config.lifeLine.width;
+        viewState.client = client;
 
         // Size default worker
         defaultWorker.bBox.h = node.body!.viewState.bBox.h + (config.lifeLine.header.height * 2)
