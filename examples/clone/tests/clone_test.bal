@@ -5,6 +5,7 @@ function testFunc() {
     // Invoke the main function.
     (Person, Person, string)? result = main();
 
+    // Check if the returned value of `main` function is of type `(Person, Person, string)`
     if (result is (Person, Person, string)) {
         string refCheck = "Source and Clone are at two different memory locations";
         test:assertEquals(result[0].name, result[1].name);
