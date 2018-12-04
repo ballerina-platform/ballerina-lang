@@ -289,24 +289,24 @@ public class NativeConversionTest {
 
     @Test(description = "Test converting a incompatible JSON to a struct",
           expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*error: incompatible stamp operation: 'json' value cannot be stamped as"
-                  + " 'Person.*")
+          expectedExceptionsMessageRegExp = "error: \\{ballerina\\}StampError \\{\"message\":\"incompatible stamp " +
+                  "operation: 'json' value cannot be stamped as 'Person'\"\\}.*")
     public void testJsonToStructWithMissingRequiredFields() {
         BRunUtil.invoke(compileResult, "testJsonToStructWithMissingRequiredFields");
     }
 
     @Test(description = "Test converting a JSON with incompatible inner map to a struct",
           expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*error: incompatible stamp operation: 'json' value cannot be stamped as"
-                  + " 'Person.*")
+          expectedExceptionsMessageRegExp = "error: \\{ballerina\\}StampError \\{\"message\":\"incompatible stamp " +
+                  "operation: 'json' value cannot be stamped as 'Person'\"\\}.*")
     public void testJsonWithIncompatibleMapToStruct() {
         BRunUtil.invoke(compileResult, "testJsonWithIncompatibleMapToStruct");
     }
 
     @Test(description = "Test converting a JSON with incompatible inner struct to a struct",
           expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*error: incompatible stamp operation: 'json' value cannot be stamped as"
-                  + " 'Person.*")
+          expectedExceptionsMessageRegExp = "error: \\{ballerina\\}StampError \\{\"message\":\"incompatible stamp " +
+                  "operation: 'json' value cannot be stamped as 'Person'\"\\}.*")
     public void testJsonWithIncompatibleStructToStruct() {
         BRunUtil.invoke(compileResult, "testJsonWithIncompatibleStructToStruct");
     }
@@ -401,7 +401,8 @@ public class NativeConversionTest {
 
     @Test(description = "Test converting a JSON integer array to string array",
             expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: cannot stamp 'null' value to type 'StringArray'.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}StampError \\{\"message\":\"cannot stamp 'null' " +
+                    "value to type 'StringArray'\"\\}.*")
     public void testNullJsonToArray() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testNullJsonToArray");
         Assert.assertNull(returns[0]);
@@ -409,8 +410,8 @@ public class NativeConversionTest {
 
     @Test(description = "Test converting a JSON null to string array",
           expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".* incompatible stamp operation: 'json' value cannot be stamped as " 
-                  + "'StringArray'.*")
+          expectedExceptionsMessageRegExp = "error: \\{ballerina\\}StampError \\{\"message\":\"incompatible stamp " +
+                  "operation: 'json' value cannot be stamped as 'StringArray'\"\\}.*")
     public void testNullJsonArrayToArray() {
         BRunUtil.invoke(compileResult, "testNullJsonArrayToArray");
     }
@@ -425,7 +426,8 @@ public class NativeConversionTest {
 
     @Test(description = "Test converting a null JSON to struct",
           expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = "error: cannot stamp 'null' value to type 'Person'.*")
+          expectedExceptionsMessageRegExp = "error: \\{ballerina\\}StampError \\{\"message\":\"cannot stamp 'null' " +
+                  "value to type 'Person'\"\\}.*")
     public void testNullJsonToStruct() {
         BRunUtil.invoke(compileResult, "testNullJsonToStruct");
     }

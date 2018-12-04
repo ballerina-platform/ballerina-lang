@@ -148,7 +148,8 @@ public class TypeAssertionExpressionsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-        expectedExceptionsMessageRegExp = ".*error: assertion error: expected 'stream<json>', found 'stream<int>'.*")
+        expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeAssertionError \\{\"message\":\"assertion error:" +
+                " expected 'stream<json>', found 'stream<int>'\"\\}.*")
     public void testStreamAssertionNegative() {
         BRunUtil.invoke(result, "testStreamAssertionNegative", new BValue[0]);
     }
