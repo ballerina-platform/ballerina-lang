@@ -26,8 +26,8 @@ import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.ballerinalang.compiler.tree.BLangResource;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,10 +37,10 @@ import java.util.Set;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.GENERIC_SUBSCRIBER_SERVICE_TYPE;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.RESOURCE_NAME_ON_INTENT_VERIFICATION;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.RESOURCE_NAME_ON_NOTIFICATION;
-import static org.ballerinalang.net.websub.WebSubSubscriberConstants.SERVICE_ENDPOINT;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.STRUCT_WEBSUB_INTENT_VERIFICATION_REQUEST;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.STRUCT_WEBSUB_NOTIFICATION_REQUEST;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERVICE_CALLER;
 
 /**
  * Resource validator for WebSub Subscriber Services.
@@ -51,7 +51,7 @@ public class WebSubSubscriberServiceValidator {
 
     private static final int CUSTOM_RESOURCE_PARAM_COUNT = 2;
 
-    public static void validateDefaultResources(BLangResource resource, DiagnosticLog dlog) {
+    public static void validateDefaultResources(BLangFunction resource, DiagnosticLog dlog) {
         String resourceName = resource.getName().getValue();
         switch (resourceName) {
             case RESOURCE_NAME_ON_INTENT_VERIFICATION:
@@ -68,18 +68,18 @@ public class WebSubSubscriberServiceValidator {
         }
     }
 
-    private static void validateOnIntentVerificationResource(BLangResource resource, DiagnosticLog dlog) {
-        List<BLangVariable> paramDetails = resource.getParameters();
+    private static void validateOnIntentVerificationResource(BLangFunction resource, DiagnosticLog dlog) {
+        List<BLangSimpleVariable> paramDetails = resource.getParameters();
         if (isValidParamNumber(resource, paramDetails, 2, resource.getName().getValue(), dlog)) {
-            validateStructType(resource.getName().getValue(), paramDetails.get(0), WEBSUB_PACKAGE, SERVICE_ENDPOINT,
-                               "first", dlog);
+            validateStructType(resource.getName().getValue(), paramDetails.get(0), WEBSUB_PACKAGE,
+                               WEBSUB_SERVICE_CALLER, "first", dlog);
             validateStructType(resource.getName().getValue(), paramDetails.get(1), WEBSUB_PACKAGE,
                                STRUCT_WEBSUB_INTENT_VERIFICATION_REQUEST, "second", dlog);
         }
     }
 
-    private static void validateOnNotificationResource(BLangResource resource, DiagnosticLog dlog) {
-        List<BLangVariable> paramDetails = resource.getParameters();
+    private static void validateOnNotificationResource(BLangFunction resource, DiagnosticLog dlog) {
+        List<BLangSimpleVariable> paramDetails = resource.getParameters();
         if (isValidParamNumber(resource, paramDetails, 1, resource.getName().getValue(), dlog)) {
             validateStructType(resource.getName().getValue(), paramDetails.get(0), WEBSUB_PACKAGE,
                                STRUCT_WEBSUB_NOTIFICATION_REQUEST, "first", dlog);
@@ -121,7 +121,7 @@ public class WebSubSubscriberServiceValidator {
         return invalidResourceNames;
     }
 
-    private static boolean isValidParamNumber(BLangResource resource, List<BLangVariable> paramDetails,
+    private static boolean isValidParamNumber(BLangFunction resource, List<BLangSimpleVariable> paramDetails,
                                               int expectedSize, String resourceName, DiagnosticLog dlog) {
         if (paramDetails == null || paramDetails.size() != expectedSize) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, "invalid param count for WebSub Resource '"
@@ -139,7 +139,7 @@ public class WebSubSubscriberServiceValidator {
         }
     }
 
-    private static void validateStructType(String resourceName, BLangVariable paramDetail, String packageName,
+    private static void validateStructType(String resourceName, BLangSimpleVariable paramDetail, String packageName,
                                            String structuralTypeName, String paramPosition, DiagnosticLog dlog) {
         if (!(packageName.concat(":").concat(structuralTypeName)).equals((paramDetail.type).toString())) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, paramDetail.pos, "invalid resource signature for '" + resourceName

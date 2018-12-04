@@ -31,8 +31,8 @@ type TeacherOutput record {
 };
 
 int index = 0;
-stream<Teacher> inputStream;
-stream<TeacherOutput> outputStream;
+stream<Teacher> inputStream = new;
+stream<TeacherOutput> outputStream = new;
 
 TeacherOutput[] globalTeacherOutputArray = [];
 
@@ -52,8 +52,8 @@ function startGroupByQueryWithMultipleAttributes() returns TeacherOutput[] {
 
     foo();
 
-    outputStream.subscribe(printTeachers);
-    foreach t in teachers {
+    outputStream.subscribe(function(TeacherOutput e) {printTeachers(e);});
+    foreach var t in teachers {
         inputStream.publish(t);
     }
 
@@ -61,7 +61,7 @@ function startGroupByQueryWithMultipleAttributes() returns TeacherOutput[] {
     while(true) {
         runtime:sleep(500);
         count += 1;
-        if((lengthof globalTeacherOutputArray) == 4 || count == 10) {
+        if((globalTeacherOutputArray.length()) == 4 || count == 10) {
             break;
         }
     }
@@ -74,7 +74,7 @@ function foo() {
         select inputStream.name, inputStream.age, count() as count
         group by inputStream.age, inputStream.school
         => (TeacherOutput [] teachers) {
-            foreach t in teachers {
+            foreach var t in teachers {
                 outputStream.publish(t);
             }
         }

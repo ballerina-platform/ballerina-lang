@@ -83,6 +83,10 @@
                 "url": "match-expression"
             },
             {
+                "name": "Type Guard",
+                "url": "type-guard"
+            },
+            {
                 "name": "Elvis",
                 "url": "elvis-operator"
             }
@@ -186,16 +190,28 @@
                 "url": "any-type"
             },
             {
+                "name": "Any Data Type",
+                "url": "any-data-type"
+            },
+            {
                 "name": "Type Conversion",
                 "url": "type-conversion"
             },
             {
-                "name": "Lengthof",
-                "url": "lengthof"
+                "name": "Length",
+                "url": "length"
             },
             {
                 "name": "Integer Ranges",
                 "url": "integer-ranges"
+            },
+            {
+                "name": "Equality",
+                "url": "equality"
+            },
+            {
+                "name": "Immutable Values",
+                "url": "immutable-values"
             }
         ]
     },
@@ -288,16 +304,12 @@
                 "url": "worker-interaction"
             },
             {
-                "name": "Fork/Join",
-                "url": "fork-join"
+                "name": "Fork",
+                "url": "fork"
             },
             {
-                "name": "Fork/Join Conditional Join",
-                "url": "fork-join-conditional-join"
-            },
-            {
-                "name": "Fork/Join Variable Access",
-                "url": "fork-join-variable-access"
+                "name": "Fork Variable Access",
+                "url": "fork-variable-access"
             },
             {
                 "name": "Async",
@@ -340,6 +352,10 @@
             {
                 "name": "Abstract Objects",
                 "url": "abstract-objects"
+            },
+            {
+                "name": "Object Type Reference",
+                "url": "object-type-reference"
             }
         ]
     },
@@ -360,12 +376,12 @@
                 "url": "check"
             },
             {
-                "name": "Throw ",
-                "url": "throw"
+                "name": "Panic ",
+                "url": "panic"
             },
             {
-                "name": "Try/Catch/Finally",
-                "url": "try-catch-finally"
+                "name": "Trap Error",
+                "url": "trap-error"
             }
         ]
     },
@@ -467,6 +483,10 @@
             {
                 "name": "JDBC Client Call Procedures",
                 "url": "jdbc-client-call-procedures"
+            },
+            {
+                "name": "Streaming a Big Dataset",
+                "url": "streaming-big-dataset"
             }
         ]
     },
@@ -553,6 +573,21 @@
             {
                 "name": "Group Tests",
                 "url": "testerina-group-tests"
+            }
+        ]
+    },
+    {
+        "title": "Deployment",
+        "column": 3,
+        "category": "Language concepts",
+        "samples": [
+            {
+                "name": "Docker Deployment",
+                "url": "docker-deployment"
+            },
+            {
+                "name": "Kubernetes Deployment",
+                "url": "kubernetes-deployment"
             }
         ]
     },
@@ -715,6 +750,10 @@
             {
                 "name": "Retry",
                 "url": "http-retry"
+            },
+            {
+                "name": "Timeout",
+                "url": "http-timeout"
             }
         ]
     },

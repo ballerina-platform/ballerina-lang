@@ -44,7 +44,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
@@ -406,10 +406,11 @@ public class HoverUtil {
                     wsArray[1].getPrevious().length() + wsArray[1].getWs().length() +
                     wsArray[2].getPrevious().length() + wsArray[2].getWs().length() + wsArray[3].getWs().length();
             int serviceTypeLength = 0;
-            Set<Whitespace> ws = serviceNode.getServiceTypeStruct().getWS();
-            for (Whitespace w : ws) {
-                serviceTypeLength += w.getPrevious().length() + w.getWs().length();
-            }
+// TODO: 11/28/18 Fix with the latest Service Changes
+//            Set<Whitespace> ws = serviceNode.getServiceTypeStruct().getWS();
+//            for (Whitespace w : ws) {
+//                serviceTypeLength += w.getPrevious().length() + w.getWs().length();
+//            }
             position.sCol += (serviceTypeLength + serviceKeywordLength);
             position.eCol = position.sCol + serviceNode.name.value.length();
         }
@@ -440,10 +441,10 @@ public class HoverUtil {
     /**
      * Calculate and returns identifier position of this BlangVariable.
      *
-     * @param varNode BLangVariable
+     * @param varNode BLangSimpleVariable
      * @return position
      */
-    public static DiagnosticPos getIdentifierPosition(BLangVariable varNode) {
+    public static DiagnosticPos getIdentifierPosition(BLangSimpleVariable varNode) {
         DiagnosticPos position = varNode.getPosition();
         Set<Whitespace> wsSet = varNode.getWS();
         if (wsSet != null && wsSet.size() > 0) {

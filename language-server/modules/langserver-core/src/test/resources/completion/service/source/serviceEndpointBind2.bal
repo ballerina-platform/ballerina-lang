@@ -1,19 +1,13 @@
 import ballerina/http;
 
-endpoint http:Listener cbrEP {
-    port: 9090
-};
-
-endpoint http:Client locationEp {
-    url: "www.mock.io"
-};
+listener http:Listener ep1 = new(9090);
+listener http:Listener ep2 = new(9090);
 
 @http:ServiceConfig {
     basePath: "/cbrBase"
 }
-service serviceName bind  {
-
-    newResource (endpoint caller, http:Request request) {
-        
-    }
+service myService1 on e {
+   resource function foo(http:Caller caller, http:Request req) {
+       _ = caller->respond("Hello");
+   }
 }

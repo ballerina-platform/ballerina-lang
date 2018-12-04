@@ -20,11 +20,11 @@
 //# WRITE - open the file in write mode
 //# READ/WRITE - open the file either to read or write
 //# APPEND - append to existing file instead of replacing
-public type Mode "r"|"w"|"rw"|"a";
-@final public Mode READ = "r";
-@final public Mode WRITE = "w";
-@final public Mode RW = "rw";
-@final public Mode APPEND = "a";
+public type Mode READ|WRITE|RW|APPEND;
+public const READ = "r";
+public const WRITE = "w";
+public const RW = "rw";
+public const APPEND = "a";
 
 # Retrieves a ReadableByteChannel from a given file path.
 #
@@ -39,16 +39,6 @@ public extern function openReadableFile(@sensitive string path) returns @tainted
 # + return - ByteChannel representation of the file resource
 public extern function openWritableFile(@sensitive string path, boolean append = false)
     returns @tainted WritableByteChannel;
-
-# Opens a secure socket connection with a remote server.
-#
-# + host - Remote server domain/IP
-# + port - Remote server port
-# + options - Mata data to initialize the connection(i.e security information)
-# + return - Socket which will represent the network object or an error
-public extern function openSecureSocket(@sensitive string host,
-                                        @sensitive int port,
-                                        SocketProperties options) returns @tainted Socket|error;
 
 # Creates an in-memory channel which will reference stream of bytes.
 #

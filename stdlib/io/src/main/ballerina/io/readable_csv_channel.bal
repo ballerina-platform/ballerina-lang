@@ -23,15 +23,15 @@ public type ReadableCSVChannel object {
     # + byteChannel - ChracterChannel which will represent the content in the CSV
     # + fs - Field separator which will separate between the records in the CSV
     # + nHeaders - Number of headers which should be skipped prior to reading records
-    public new(ReadableCharacterChannel byteChannel, Separator fs = ",", int nHeaders = 0) {
-        if (fs == TAB){
-            dc = new ReadableTextRecordChannel(byteChannel, fmt = "TDF");
-        } else if (fs == COLON){
-            dc = new ReadableTextRecordChannel(byteChannel, fs = FS_COLON, rs = CSV_RECORD_SEPERATOR);
+    public function __init(ReadableCharacterChannel byteChannel, Separator fs = ",", int nHeaders = 0) {
+        if (fs == TAB) {
+            self.dc = new ReadableTextRecordChannel(byteChannel, fmt = "TDF");
+        } else if (fs == COLON) {
+            self.dc = new ReadableTextRecordChannel(byteChannel, fs = FS_COLON, rs = CSV_RECORD_SEPERATOR);
         } else {
-            dc = new ReadableTextRecordChannel(byteChannel, fmt = "CSV");
+            self.dc = new ReadableTextRecordChannel(byteChannel, fmt = "CSV");
         }
-        skipHeaders(nHeaders);
+        self.skipHeaders(nHeaders);
     }
 
     # Skips the given number of headers.
@@ -39,8 +39,8 @@ public type ReadableCSVChannel object {
     # + nHeaders - Number of headers which should be skipped
     function skipHeaders(int nHeaders) {
         int count = MINIMUM_HEADER_COUNT;
-        while (count < nHeaders){
-            var result = getNext();
+        while (count < nHeaders) {
+            var result = self.getNext();
             count = count + 1;
         }
     }
@@ -49,14 +49,12 @@ public type ReadableCSVChannel object {
     #
     # + return - True if there's a record
     public function hasNext() returns boolean {
-        match dc{
-            ReadableTextRecordChannel delimitedChannel=>{
-                return delimitedChannel.hasNext();
-            }
-            () =>{
-                error e = {message: "Channel not initialized"};
-                throw e;
-            }
+        var recordChannel = self.dc;
+        if (recordChannel is ReadableTextRecordChannel) {
+            return recordChannel.hasNext();
+        } else {
+            error e = error("Channel not initialized");
+            panic e;
         }
     }
 
@@ -64,19 +62,19 @@ public type ReadableCSVChannel object {
     #
     # + return - List of fields in the CSV or error
     public function getNext() returns @tainted string[]|error? {
-        return dc.getNext();
+        return self.dc.getNext();
     }
 
     # Closes a given CSVChannel.
     #
     # + return - Returns if an error is encountered
     public function close() returns error? {
-        return dc.close();
+        return self.dc.close();
     }
 
     # Returns a table which coresponds to the CSV records.
     #
     # + structType - The object the CSV records should be deserialized
     # + return - Table which represents CSV records or error
-    public extern function getTable(typedesc structType) returns @tainted table|error;
+    public extern function getTable(typedesc structType) returns @tainted table<record {}>|error;
 };

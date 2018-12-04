@@ -33,6 +33,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static org.ballerinalang.net.grpc.proto.ServiceProtoConstants.TMP_DIRECTORY_PATH;
+
 /**
  * Protobuf to bal generation function testcase.
  */
@@ -67,15 +69,13 @@ public class StubGeneratorTestCase {
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
                 .getStructInfo("helloWorldBlockingClient"), "Connector not found.");
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                .getStructInfo("helloWorldBlockingStub"), "Connector not found.");
+                .getFunctionInfo("helloWorldBlockingClient.hello"), "Connector not found.");
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                .getFunctionInfo("helloWorldBlockingStub.hello"), "Connector not found.");
+                .getFunctionInfo("helloWorldClient.hello"), "Connector not found.");
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                .getFunctionInfo("helloWorldStub.hello"), "Connector not found.");
+                .getFunctionInfo("helloWorldBlockingClient.bye"), "Connector not found.");
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                .getFunctionInfo("helloWorldBlockingStub.bye"), "Connector not found.");
-        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                .getFunctionInfo("helloWorldStub.bye"), "Connector not found.");
+                .getFunctionInfo("helloWorldClient.bye"), "Connector not found.");
     }
 
     @Test(description = "Test service stub generation tool for package service")
@@ -97,15 +97,13 @@ public class StubGeneratorTestCase {
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
                 .getStructInfo("helloWorldBlockingClient"), "Connector not found.");
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                .getStructInfo("helloWorldBlockingStub"), "Connector not found.");
+                .getFunctionInfo("helloWorldBlockingClient.hello"), "Connector not found.");
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                .getFunctionInfo("helloWorldBlockingStub.hello"), "Connector not found.");
+                .getFunctionInfo("helloWorldClient.hello"), "Connector not found.");
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                .getFunctionInfo("helloWorldStub.hello"), "Connector not found.");
+                .getFunctionInfo("helloWorldBlockingClient.bye"), "Connector not found.");
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                .getFunctionInfo("helloWorldBlockingStub.bye"), "Connector not found.");
-        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                .getFunctionInfo("helloWorldStub.bye"), "Connector not found.");
+                .getFunctionInfo("helloWorldClient.bye"), "Connector not found.");
     }
 
     @Test(description = "Test service stub generation tool command without specifying output directory path")
@@ -125,15 +123,13 @@ public class StubGeneratorTestCase {
             Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
                     .getStructInfo("helloWorldBlockingClient"), "Connector not found.");
             Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                    .getStructInfo("helloWorldBlockingStub"), "Connector not found.");
+                    .getFunctionInfo("helloWorldBlockingClient.hello"), "Connector not found.");
             Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                    .getFunctionInfo("helloWorldBlockingStub.hello"), "Connector not found.");
+                    .getFunctionInfo("helloWorldClient.hello"), "Connector not found.");
             Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                    .getFunctionInfo("helloWorldStub.hello"), "Connector not found.");
+                    .getFunctionInfo("helloWorldBlockingClient.bye"), "Connector not found.");
             Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                    .getFunctionInfo("helloWorldBlockingStub.bye"), "Connector not found.");
-            Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                    .getFunctionInfo("helloWorldStub.bye"), "Connector not found.");
+                    .getFunctionInfo("helloWorldClient.bye"), "Connector not found.");
         } finally {
             if (Paths.get("temp", "helloWorld_pb.bal").toFile().exists()) {
                 BalFileGenerationUtils.delete(Paths.get("temp").toFile());
@@ -158,9 +154,7 @@ public class StubGeneratorTestCase {
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
                 .getStructInfo("helloWorldClientStreamingClient"), "Connector not found.");
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                .getStructInfo("helloWorldClientStreamingStub"), "Connector not found.");
-        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                        .getFunctionInfo("helloWorldClientStreamingStub.LotsOfGreetings"),
+                        .getFunctionInfo("helloWorldClientStreamingClient.LotsOfGreetings"),
                 "Connector not found.");
     }
 
@@ -181,9 +175,7 @@ public class StubGeneratorTestCase {
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
                 .getStructInfo("helloWorldServerStreamingClient"), "Connector not found.");
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                .getStructInfo("helloWorldServerStreamingStub"), "Connector not found.");
-        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                        .getFunctionInfo("helloWorldServerStreamingStub.lotsOfReplies"),
+                        .getFunctionInfo("helloWorldServerStreamingClient.lotsOfReplies"),
                 "Connector not found.");
     }
 
@@ -205,16 +197,14 @@ public class StubGeneratorTestCase {
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
                 .getStructInfo("helloWorldBlockingClient"), "Connector not found.");
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                .getStructInfo("helloWorldBlockingStub"), "Connector not found.");
+                .getFunctionInfo("helloWorldBlockingClient.hello"), "Connector not found.");
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                .getFunctionInfo("helloWorldBlockingStub.hello"), "Connector not found.");
-        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                .getFunctionInfo("helloWorldStub.hello"), "Connector not found.");
+                .getFunctionInfo("helloWorldClient.hello"), "Connector not found.");
         Assert.assertNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                        .getFunctionInfo("helloWorldBlockingStub.bye"),
+                        .getFunctionInfo("helloWorldBlockingClient.bye"),
                 "function should not exist in pb.bal file.");
         Assert.assertNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                        .getFunctionInfo("helloWorldStub.bye"),
+                        .getFunctionInfo("helloWorldClient.bye"),
                 "function should not exist in pb.bal file.");
     }
 
@@ -237,15 +227,13 @@ public class StubGeneratorTestCase {
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
                 .getStructInfo("helloWorldBlockingClient"), "Connector not found.");
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                .getStructInfo("helloWorldBlockingStub"), "Connector not found.");
+                .getFunctionInfo("helloWorldBlockingClient.hello"), "Connector not found.");
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                .getFunctionInfo("helloWorldBlockingStub.hello"), "Connector not found.");
+                .getFunctionInfo("helloWorldClient.hello"), "Connector not found.");
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                .getFunctionInfo("helloWorldStub.hello"), "Connector not found.");
+                .getFunctionInfo("helloWorldBlockingClient.bye"), "Connector not found.");
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                .getFunctionInfo("helloWorldBlockingStub.bye"), "Connector not found.");
-        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                .getFunctionInfo("helloWorldStub.bye"), "Connector not found.");
+                .getFunctionInfo("helloWorldClient.bye"), "Connector not found.");
     }
 
     @Test
@@ -284,7 +272,7 @@ public class StubGeneratorTestCase {
 
     @AfterClass
     public void clean() {
-        BalFileGenerationUtils.delete(new File(protoExeName));
+        BalFileGenerationUtils.delete(new File(TMP_DIRECTORY_PATH, protoExeName));
     }
 
 }

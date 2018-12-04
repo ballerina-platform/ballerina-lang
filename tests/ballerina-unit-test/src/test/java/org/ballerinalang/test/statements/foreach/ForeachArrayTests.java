@@ -257,13 +257,6 @@ public class ForeachArrayTests {
     }
 
     @Test
-    public void testThrow1() {
-        BValue[] returns = BRunUtil.invoke(program, "testThrow1");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:d0 d1 found");
-    }
-
-    @Test
     public void testEmptyString() {
         BValue[] returns = BRunUtil.invoke(program, "testEmptyString");
         Assert.assertEquals(returns.length, 1);
@@ -275,5 +268,12 @@ public class ForeachArrayTests {
         BValue[] returns = BRunUtil.invoke(program, "testNestedWithBreakContinue");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "0:d0 13 1:d1 13 2:d2 13 3:d3 13 ");
+    }
+
+    @Test
+    public void testArrayWithNullElements() {
+        BValue[] returns = BRunUtil.invoke(program, "testArrayWithNullElements");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "0:d0 1: 2:d2 3: ");
     }
 }

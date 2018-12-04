@@ -21,26 +21,20 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
+import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
+import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,14 +53,9 @@ public class ParserRuleServiceDefinitionContextResolver extends AbstractItemReso
         List<CompletionItem> completionItems = new ArrayList<>();
         TokenStream tokenStream = ctx.get(CompletionKeys.TOKEN_STREAM_KEY);
         Stack<Token> poppedTokens = ctx.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY);
-        Stack<String> fieldsStack = new Stack<>();
         int startIndex = poppedTokens.peek().getTokenIndex() + 1;
-        boolean bindKeywordFound = false;
-        boolean isWithinRecordLiteral = false;
-        String serviceType = "";
-        String serviceTypePkg = "";
-        int skipCount = 0;
-        
+        String stopToken = "";
+
         // Backtrack the tokens from the head of the popped tokens in order determine the cursor position
         tokenScanner:
         while (true) {
@@ -74,39 +63,10 @@ public class ParserRuleServiceDefinitionContextResolver extends AbstractItemReso
             String tokenString = token.getText();
             switch (tokenString) {
                 case ItemResolverConstants.SERVICE:
-                    break tokenScanner;
-                case ItemResolverConstants.BIND:
-                    bindKeywordFound = true;
-                    break;
-                case UtilSymbolKeys.OPEN_BRACE_KEY:
-                    isWithinRecordLiteral = true;
-                    Token tokenBefore = CommonUtil.getPreviousDefaultToken(tokenStream, token.getTokenIndex());
-                    if (tokenBefore.getText().equals(UtilSymbolKeys.PKG_DELIMITER_KEYWORD)) {
-                        Token fieldToken = CommonUtil.getPreviousDefaultToken(tokenStream, tokenBefore.getTokenIndex());
-                        if (skipCount == 0) {
-                            fieldsStack.push(fieldToken.getText());
-                        } else {
-                            skipCount--;
-                        }
-                        startIndex = fieldToken.getTokenIndex();
-                    } else {
-                        startIndex = token.getTokenIndex();
-                    }
-                    continue tokenScanner;
-                case UtilSymbolKeys.CLOSE_BRACE_KEY:
-                    skipCount++;
-                    break;
-                case UtilSymbolKeys.GT_SYMBOL_KEY:
-                    // Find the Service Type and the service type package
-                    Token serviceTypeToken = CommonUtil.getPreviousDefaultToken(tokenStream, token.getTokenIndex());
-                    serviceType = serviceTypeToken.getText();
-                    Token pkgDelim = CommonUtil.getPreviousDefaultToken(tokenStream, serviceTypeToken.getTokenIndex());
-                    if (pkgDelim.getText().equals(UtilSymbolKeys.PKG_DELIMITER_KEYWORD)) {
-                        serviceTypePkg = CommonUtil.getPreviousDefaultToken(tokenStream, pkgDelim.getTokenIndex())
-                                .getText();
-                    }
-                    // After matching the service type, there is no need to keep scanning the tokens.
-                    // Hence break the loop
+                case ItemResolverConstants.ON:
+                case ItemResolverConstants.NEW:
+                case UtilSymbolKeys.PKG_DELIMITER_KEYWORD:
+                    stopToken = tokenString;
                     break tokenScanner;
                 default:
                     break;
@@ -115,109 +75,54 @@ public class ParserRuleServiceDefinitionContextResolver extends AbstractItemReso
             startIndex = token.getTokenIndex();
         }
 
-        if (bindKeywordFound) {
-            if (!serviceType.isEmpty()) {
-                BType listenerType = getServiceTypeObject(serviceTypePkg, serviceType, ctx);
-                if (isWithinRecordLiteral) {
-                    // an endpoint listener is defined inline from the service types.
-                    // Filter the fields from the listener types.
-                    BRecordType listenerEndpointConfigRecord = getListenerEndpointConfigRecord(listenerType);
-                    if (listenerEndpointConfigRecord == null) {
-                        logger.error("Invalid listener type found");
-                    } else {
-                        completionItems.addAll(getFieldCompletionItems(listenerEndpointConfigRecord, fieldsStack));
-                    }
-                } else {
-                    // Suggest the defined listeners of service type
-                    List<SymbolInfo> endpointSymbols = ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)
-                            .stream()
-                            .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BEndpointVarSymbol
-                                    && symbolInfo.getScopeEntry().symbol.type == listenerType)
-                            .collect(Collectors.toList());
-                    completionItems.addAll(this.getCompletionItemList(endpointSymbols));
-                }
-            } else {
-                // suggest all the visible, defined endpoints
-                List<SymbolInfo> endpointSymbols = ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)
-                        .stream()
-                        .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BEndpointVarSymbol)
-                        .collect(Collectors.toList());
-                completionItems.addAll(this.getCompletionItemList(endpointSymbols));
+        boolean isSnippet = ctx.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem().getSnippetSupport();
+
+        switch (stopToken) {
+            case ItemResolverConstants.ON : {
+                // suggest all the visible, defined listeners
+                List<SymbolInfo> filtered = this.filterListenerVariables(ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY));
+                completionItems.addAll(this.getCompletionItemList(filtered, ctx));
+                CompletionItem kwNewItem = Snippet.KW_NEW.get().build(new CompletionItem(), isSnippet);
+                completionItems.add(kwNewItem);
+                break;
             }
-        } else {
-            boolean isSnippet = ctx.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem().getSnippetSupport();
-            // Fill the bind keyword completion item
-            CompletionItem bindItem = Snippet.KW_BIND.get().build(new CompletionItem(), isSnippet);
-            completionItems.add(bindItem);
+            case ItemResolverConstants.NEW: {
+                List<SymbolInfo> filteredSymbols =
+                        this.filterListenerTypes(ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY));
+                completionItems.addAll(this.getCompletionItemList(filteredSymbols, ctx));
+                completionItems.addAll(this.getPackagesCompletionItems(ctx));
+                break;
+            }
+            case UtilSymbolKeys.PKG_DELIMITER_KEYWORD: {
+                Either<List<CompletionItem>, List<SymbolInfo>> eitherList = SymbolFilters
+                        .get(DelimiterBasedContentFilter.class)
+                        .filterItems(ctx);
+                completionItems.addAll(this.getCompletionsFromEither(eitherList, ctx));
+                break;
+            }
+            default: {
+                // Fill the on keyword completion item
+                CompletionItem kwOnItem = Snippet.KW_ON.get().build(new CompletionItem(), isSnippet);
+                completionItems.add(kwOnItem);
+                break;
+            }
         }
         
         return completionItems;
     }
-    
-    private static BType getServiceTypeObject(String pkgName, String serviceType, LSContext ctx) {
-        List<SymbolInfo> visibleSymbols = ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
-        BType listenerType = null;
 
-        for (SymbolInfo visibleSymbol : visibleSymbols) {
-            BSymbol symbol = visibleSymbol.getScopeEntry().symbol;
-            if (symbol instanceof BPackageSymbol
-                    && pkgName.equals(((BPackageSymbol) symbol).pkgID.getName().getValue())) {
-
-                Scope.ScopeEntry scopeEntry = ((BPackageSymbol) symbol).scope.entries.entrySet()
-                        .stream()
-                        .filter(entry -> entry.getValue().symbol instanceof BObjectTypeSymbol
-                                && entry.getValue().symbol.getName().getValue().equals(serviceType))
-                        .findFirst().get().getValue();
-
-                if (scopeEntry.symbol instanceof BObjectTypeSymbol) {
-                    BAttachedFunction getEPFunction = ((BObjectTypeSymbol) scopeEntry.symbol).attachedFuncs
-                            .stream()
-                            .filter(function -> function.funcName.getValue().equals("getEndpoint"))
-                            .findFirst().get();
-                    listenerType = getEPFunction.symbol.type.getReturnType();
-                    break;
-                }
-            }
-        }
-        return listenerType;
+    private List<SymbolInfo> filterListenerVariables(List<SymbolInfo> symbolInfos) {
+        return symbolInfos.stream()
+                .filter(symbolInfo -> {
+                    BSymbol symbol = symbolInfo.getScopeEntry().symbol;
+                    return symbol instanceof BVarSymbol && CommonUtil.isListenerObject(symbol.type.tsymbol);
+                })
+                .collect(Collectors.toList());
     }
     
-    private BRecordType getListenerEndpointConfigRecord(BType listenerType) {
-        if (listenerType.tsymbol instanceof BObjectTypeSymbol) {
-            BAttachedFunction getActionsFUnction = ((BObjectTypeSymbol) listenerType.tsymbol).attachedFuncs
-                    .stream()
-                    .filter(function -> function.funcName.getValue().equals("getCallerActions"))
-                    .findFirst().get();
-            if (!(getActionsFUnction.type.retType instanceof BObjectType)) {
-                return null;
-            }
-            BField configField = ((BObjectType) getActionsFUnction.type.retType).fields
-                    .stream()
-                    .filter(bField -> bField.getName().getValue().equals("config"))
-                    .findFirst().get();
-            if (configField.type instanceof BRecordType) {
-                return (BRecordType) configField.type;
-            }
-        }
-        return null;
-    }
-
-    private static List<CompletionItem> getFieldCompletionItems(BRecordType recordType, Stack<String> fieldStack) {
-        List<CompletionItem> completionItems = new ArrayList<>();
-        if (fieldStack.isEmpty()) {
-            completionItems.addAll(CommonUtil.getStructFieldCompletionItems(recordType.fields));
-            completionItems.add(CommonUtil.getFillAllStructFieldsItem(recordType.fields));
-            return completionItems;
-        } else {
-            String fieldName = fieldStack.pop();
-            BField field = recordType.fields.stream()
-                    .filter(bField -> bField.getName().getValue().equals(fieldName))
-                    .findFirst().get();
-            if (field.type instanceof BRecordType) {
-                return getFieldCompletionItems((BRecordType) field.type, fieldStack);
-            }
-            // In the ideal case, empty list should not be returned
-            return new ArrayList<>();
-        }
+    private List<SymbolInfo> filterListenerTypes(List<SymbolInfo> symbolInfos) {
+        return symbolInfos.stream()
+                .filter(symbolInfo -> CommonUtil.isListenerObject(symbolInfo.getScopeEntry().symbol))
+                .collect(Collectors.toList());
     }
 }

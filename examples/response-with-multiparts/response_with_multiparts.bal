@@ -4,231 +4,189 @@ import ballerina/io;
 import ballerina/log;
 import ballerina/mime;
 
-// Creating an endpoint for the client.
-endpoint http:Client clientEP {
-    url: "http://localhost:9092"
-};
+// Creates an endpoint for the client.
+http:Client clientEP = new("http://localhost:9092");
 
-// Creating a listener for the service.
-endpoint http:Listener multipartEP {
-    port: 9090
-};
+// Creates a listener for the service.
+listener http:Listener multipartEP = new(9090);
 
 @http:ServiceConfig { basePath: "/multiparts" }
-service<http:Service> multipartResponseEncoder bind { port: 9092 } {
+service multipartResponseEncoder on new http:Listener(9092) {
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/encode_out_response"
     }
-    multipartSender(endpoint caller, http:Request request) {
+    resource function multipartSender(http:Caller caller, http:Request request) {
 
-        // Create an enclosing entity to hold child parts.
+        // Creates an enclosing entity to hold the child parts.
         mime:Entity parentPart = new;
 
-        // Create a child part with json content.
+        // Creates a child part with the json content.
         mime:Entity childPart1 = new;
         childPart1.setJson({ "name": "wso2" });
 
-        // Create another child part with a file.
+        // Creates another child part with a file.
         mime:Entity childPart2 = new;
         // This file path is relative to where the ballerina is running.
         //If your file is located outside, please give the
         //absolute file path instead.
         childPart2.setFileAsEntityBody("./files/test.xml",
             contentType = mime:TEXT_XML);
-        // Create an array to hold child parts.
+        // Creates an array to hold the child parts.
         mime:Entity[] childParts = [childPart1, childPart2];
 
-        // Set the child parts to the parent part.
+        // Sets the child parts to the parent part.
         parentPart.setBodyParts(childParts,
             contentType = mime:MULTIPART_MIXED);
 
-        // Create an array to hold the parent part and set it to response.
+        // Creates an array to hold the parent part and set it to the response.
         mime:Entity[] immediatePartsToResponse = [parentPart];
         http:Response outResponse = new;
         outResponse.setBodyParts(immediatePartsToResponse,
             contentType = mime:MULTIPART_FORM_DATA);
 
-        caller->respond(outResponse) but {
-            error e => log:printError("Error in responding ", err = e) };
+        var result = caller->respond(outResponse);
+        if (result is error) {
+            log:printError("Error in responding ", err = result);
+        }
     }
 }
 
-// Binding the listener to the service.
+// Binds the listener to the service.
 @http:ServiceConfig { basePath: "/multiparts" }
-service multipartResponseDecoder bind multipartEP {
+service multipartResponseDecoder on multipartEP {
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/decode_in_response"
     }
     // This resource accepts multipart responses.
-    multipartReceiver(endpoint caller, http:Request request) {
+    resource function multipartReceiver(http:Caller caller, http:Request request) {
         http:Response inResponse = new;
-        // Extract the bodyparts from the response.
         var returnResult = clientEP->get("/multiparts/encode_out_response");
         http:Response res = new;
-        match returnResult {
-            // Setting the error response in-case of an error
-            error connectionErr => {
-                res.statusCode = 500;
-                res.setPayload("Connection error");
-            }
-            http:Response returnResponse => {
-                match returnResponse.getBodyParts() {
-                    error err => {
-                        res.statusCode = 500;
-                        res.setPayload(err.message);
-                    }
-                    mime:Entity[] parentParts => {
-                        //Loop through body parts.
-                        foreach parentPart in parentParts {
-                            handleNestedParts(parentPart);
-                        }
-                        res.setPayload("Body Parts Received!");
-                    }
+        if (returnResult is http:Response) {
+            // Extracts the bodyparts from the response.
+            var parentParts = returnResult.getBodyParts();
+            if (parentParts is mime:Entity[]) {
+                //Loops through body parts.
+                foreach parentPart in parentParts {
+                    handleNestedParts(parentPart);
                 }
+
+                res.setPayload("Body Parts Received!");
             }
+
+        } else if (returnResult is error) {
+            res.statusCode = 500;
+            res.setPayload("Connection error");
         }
-        caller->respond(res) but {
-            error e => log:printError("Error in responding ", err = e) };
+        var result = caller->respond(res);
+        if (result is error) {
+            log:printError("Error in responding ", err = result);
+        }
     }
 }
 
-// Get the child parts that are nested within a parent.
+// Gets the child parts that are nested within the parent.
 function handleNestedParts(mime:Entity parentPart) {
     string contentTypeOfParent = parentPart.getContentType();
     if (contentTypeOfParent.hasPrefix("multipart/")) {
-        match parentPart.getBodyParts() {
-            error err => {
-                log:printError("Error retrieving child parts! " + err.message);
+        var childParts = parentPart.getBodyParts();
+        if (childParts is mime:Entity[]) {
+            log:printInfo("Nested Parts Detected!");
+            foreach childPart in childParts {
+                handleContent(childPart);
             }
-            mime:Entity[] childParts => {
-                int i = 0;
-                log:printInfo("Nested Parts Detected!");
-                foreach childPart in childParts {
-                    handleContent(childPart);
-                }
-            }
+        } else if (childParts is error) {
+            log:printError("Error retrieving child parts! " +
+                            string.convert(childParts.detail().message));
         }
     }
 }
 
-// The content logic that handles the body parts
+//The content logic that handles the body parts
 //vary based on your requirement.
 function handleContent(mime:Entity bodyPart) {
-    mime:MediaType mediaType = check
-                        mime:getMediaType(bodyPart.getContentType());
-    string baseType = mediaType.getBaseType();
+    string baseType = getBaseType(bodyPart.getContentType());
     if (mime:APPLICATION_XML == baseType || mime:TEXT_XML == baseType) {
-        // Extract xml data from body part and print.
+        // Extracts xml data from the body part.
         var payload = bodyPart.getXml();
-        match payload {
-            error err =>
-                log:printError("Error in getting xml payload :" + err.message);
-            xml xmlContent => log:printInfo(<string>xmlContent);
+        if (payload is xml) {
+            string strValue = io:sprintf("%s", payload);
+            log:printInfo("Xml data: " + strValue);
+        } else if (payload is error) {
+            log:printError("Error in parsing xml data", err = payload);
         }
+
     } else if (mime:APPLICATION_JSON == baseType) {
-        // Extract json data from body part and print.
+        // Extracts json data from the body part.
         var payload = bodyPart.getJson();
-        match payload {
-            error err => log:printError("Error in getting json payload :"
-                        + err.message);
-            json jsonContent => log:printInfo(jsonContent.toString());
+        if (payload is json) {
+            log:printInfo("Json data: " + payload.toString());
+        } else if (payload is error) {
+            log:printError("Error in parsing json data", err = payload);
         }
+
     } else if (mime:TEXT_PLAIN == baseType) {
-        // Extract text data from body part and print.
+        // Extracts text data from the body part.
         var payload = bodyPart.getText();
-        match payload {
-            error err => log:printError("Error in getting string payload :"
-                        + err.message);
-            string textContent => log:printInfo(textContent);
+        if (payload is string) {
+            log:printInfo("Text data: " + payload);
+        } else if (payload is error) {
+            log:printError("Error in parsing text data", err = payload);
         }
+
     } else if (mime:APPLICATION_PDF == baseType) {
+        //Extracts byte channel from the body part and save it as a file.
         var payload = bodyPart.getByteChannel();
-        match payload {
-            error err => log:printError("Error in getting byte channel :"
-                    + err.message);
-            io:ReadableByteChannel byteChannel => {
-                io:WritableByteChannel destinationChannel =
-                    io:openWritableFile("ReceivedFile.pdf");
-                try {
-                    copy(byteChannel, destinationChannel);
-                    log:printInfo("File Received");
-                } catch (error err) {
-                    log:printError("error occurred while saving file : "
-                            + err.message);
-                } finally {
-                    // Close the created connections.
-                    byteChannel.close() but {
-                        error e => log:printError("Error closing byteChannel ",
-                            err = e) };
-                    destinationChannel.close() but {
-                        error e =>
-                            log:printError("Error closing destinationChannel",
-                                err = e)
-                    };
-                }
+        if (payload is io:ReadableByteChannel) {
+            io:WritableByteChannel destinationChannel =
+                                    io:openWritableFile("ReceivedFile.pdf");
+            var result = copy(payload, destinationChannel);
+            if (result is error) {
+                log:printError("error occurred while performing copy ", err = result);
             }
+            close(payload);
+            close(destinationChannel);
+        } else if (payload is error) {
+            log:printError("Error in parsing byte channel :", err = payload);
         }
     }
 }
 
-// This function reads a specified number of bytes from the given channel.
-function readBytes(io:ReadableByteChannel byteChannel, int numberOfBytes)
-    returns (byte[], int) {
-
-    // Here is how the bytes are read from the channel.
-    var result = byteChannel.read(numberOfBytes);
-    match result {
-        (byte[], int) content => {
-            return content;
-        }
-        error readError => {
-            throw readError;
-        }
+//Gets the base type from a given content type.
+function getBaseType(string contentType) returns string {
+    var result = mime:getMediaType(contentType);
+    if (result is mime:MediaType) {
+        return result.getBaseType();
+    } else if (result is error) {
+        panic result;
     }
+    return "";
 }
 
-// This function writes a byte content with the given offset to a channel.
-function writeBytes(io:WritableByteChannel byteChannel, byte[] content, int startOffset = 0)
-    returns (int) {
 
-    // Here is how the bytes are written to the channel.
-    var result = byteChannel.write(content, startOffset);
-    match result {
-        int numberOfBytesWritten => {
-            return numberOfBytesWritten;
-        }
-        error err => {
-            throw err;
-        }
-    }
-}
-
-// This function copies content from the source channel to a
-//destination channel.
-function copy(io:ReadableByteChannel src, io:WritableByteChannel dst) {
-    // Specifies the number of bytes that should be read from a
-    //single read operation.
-    int bytesChunk = 10000;
-    int numberOfBytesWritten = 0;
-    int readCount = 0;
-    int offset = 0;
+// Copies the content from the source channel to the destination channel.
+function copy(io:ReadableByteChannel src, io:WritableByteChannel dst) returns error? {
+    int readCount = 1;
     byte[] readContent;
-    boolean doneCopying = false;
-    try {
-        // Here is how to read all the content from
-        // the source and copy it to the destination.
-        while (!doneCopying) {
-            (readContent, readCount) = readBytes(src, 1000);
-            if (readCount <= 0) {
-                //If no content is read, the loop is ended.
-                doneCopying = true;
-            }
-            numberOfBytesWritten = writeBytes(dst, readContent);
-        }
-    } catch (error err) {
-        throw err;
+    while (readCount > 0) {
+    //Operation attempts to read a maximum of 1000 bytes
+    (byte[], int) result = check src.read(1000);
+    (readContent, readCount) = result;
+    //Writes the given content into the channel
+    var writeResult = check dst.write(readContent, 0);
     }
+    return;
 }
 
+//Closes the byte channel.
+function close(io:ReadableByteChannel|io:WritableByteChannel ch) {
+    abstract object {
+        public function close() returns error?;
+    } channelResult = ch;
+    var cr = channelResult.close();
+    if (cr is error) {
+        log:printError("Error occured while closing the channel: ", err = cr);
+    }
+}

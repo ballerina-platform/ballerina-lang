@@ -1,0 +1,2 @@
+// Type check expression can be used to assert the runtime type of a value in ballerina.
+// It is an expression that always evaluates to `true` or `false`.

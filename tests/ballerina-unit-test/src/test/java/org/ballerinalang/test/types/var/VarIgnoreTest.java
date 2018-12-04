@@ -49,7 +49,7 @@ public class VarIgnoreTest {
     public void testVarIgnoreNegative() {
         CompileResult res = BCompileUtil.compile("test-src/types/var/var-ignore-negative.bal");
         Assert.assertEquals(res.getErrorCount(), 2);
-        BAssertUtil.validateError(res, 0, "underscore is not allowed here", 2, 5);
-        BAssertUtil.validateError(res, 1, "underscore is not allowed here", 3, 9);
+        BAssertUtil.validateError(res, 0, "no new variables on left side", 2, 5);
+        BAssertUtil.validateError(res, 1, "no new variables on left side", 3, 5);
     }
 }

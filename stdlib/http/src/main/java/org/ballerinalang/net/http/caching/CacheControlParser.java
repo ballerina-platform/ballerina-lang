@@ -32,7 +32,7 @@ public class CacheControlParser {
 
     // Taken from org.apache.abdera.protocol.util.CacheControlUtil
     private static final String DIRECTIVE_FORMAT =
-            "\\s*([\\w\\-]+)\\s*(=)?\\s*(\\d+|\\\"([^\"\\\\]*(\\\\.[^\"\\\\]*)*)+\\\")?\\s*";
+            "\\s*([\\w\\-]+)\\s*(=)?\\s*((\\+|-)?\\d+|\\\"([^\"\\\\]*(\\\\.[^\"\\\\]*)*)+\\\")?\\s*";
 
     private static final Pattern pattern = Pattern.compile(DIRECTIVE_FORMAT);
 

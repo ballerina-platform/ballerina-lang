@@ -3,156 +3,104 @@ import ballerina/io;
 import ballerina/log;
 import ballerina/mime;
 
-// Creating an endpoint for the client.
-endpoint http:Client clientEndpoint {
-    url: "http://localhost:9090"
-};
+// Creates an endpoint for the client.
+http:Client clientEndpoint = new("http://localhost:9090");
 
 @http:ServiceConfig { basePath: "/stream" }
-service<http:Service> HTTPStreamingService bind { port: 9090 } {
+service HTTPStreamingService on new http:Listener(9090) {
 
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/fileupload"
     }
-    handleOutputStream(endpoint caller, http:Request clientRequest) {
+    resource function handleOutputStream(http:Caller caller, http:Request clientRequest) {
         http:Request request = new;
 
-        //Set the file as request payload.
+        //Sets the file as request payload.
         request.setFileAsPayload("./files/BallerinaLang.pdf",
             contentType = mime:APPLICATION_PDF);
 
-        //Send the request to the client with file content.
-        var response = clientEndpoint->post("/stream/receiver", request);
+        //Sends the request to the client with the file content.
+        var clientResponse = clientEndpoint->post("/stream/receiver", request);
 
         http:Response res = new;
-        match response {
-            http:Response resp => {
-                //Get the text payload received from the client endpoint.
-                match resp.getTextPayload() {
-                    string payload => {
-                        //Set the response payload.
-                        res.setTextPayload(untaint payload);
-
-                    }
-                    error err => {
-                        log:printError(err.message, err = err);
-                        setError(res, err.message);
-                    }
-                }
+        if(clientResponse is http:Response) {
+            var payload = clientResponse.getTextPayload();
+            if (payload is string) {
+                res.setPayload(untaint payload);
+            } else if (payload is error) {
+                setError(res, payload);
             }
-            error err => { log:printError(err.message, err = err);
-            setError(res, err.message);}
+        } else if (clientResponse is error) {
+            log:printError("Error occurred while sending data to the client ",
+                            err = clientResponse);
+            setError(res, clientResponse);
         }
-        caller->respond(res) but { error e => log:printError(
-                                  "Error sending response", err = e) };
+        var result = caller->respond(res);
+        if (result is error) {
+            log:printError("Error while while sending response to the caller",
+                            err = result);
+        }
     }
 
     @http:ResourceConfig {
         methods: ["POST"],
         path: "/receiver"
     }
-    handleInputStream(endpoint caller, http:Request clientRequest) {
-        http:Response response = new;
-
-        //Get the payload as a byte channel.
-        match clientRequest.getByteChannel() {
-            io:ReadableByteChannel sourceChannel => {
-                //Write the incoming stream to a file. First get the destination
-                //channel by providing the file name the content should be
-                //written to.
-                io:WritableByteChannel destinationChannel =
-                    io:openWritableFile("./files/ReceivedFile.pdf");
-
-                try {
-                    //Copy the incoming stream to the destination channel.
-                    copy(sourceChannel, destinationChannel);
-
-                    response.setTextPayload("File Received!");
-                } catch (error err) {
-                    log:printError("error occurred while saving file : "
-                            + err.message);
-                } finally {
-                    sourceChannel.close() but {
-                        error e => log:printError("Error closing sourceChannel ",
-                            err = e) };
-                    destinationChannel.close() but {
-                        error e =>
-                        log:printError("Error closing destinationChannel",
-                            err = e)
-                    };
-                }
+    resource function handleInputStream(http:Caller caller, http:Request clientRequest) {
+        http:Response res = new;
+        var payload = clientRequest.getByteChannel();
+        if (payload is io:ReadableByteChannel) {
+            //Writes the incoming stream to a file. First get the destination
+            //channel by providing the file name, the content should be
+            //written to.
+            io:WritableByteChannel destinationChannel =
+                io:openWritableFile("./files/ReceivedFile.pdf");
+            var result = copy(payload, destinationChannel);
+            if (result is error) {
+                log:printError("error occurred while performing copy ", err = result);
             }
-            error err => {
-                setError(response, err.message);
-            }
-        }
-        caller->respond(response) but { error e => log:printError(
-                                        "Error sending response", err = e) };
-    }
-}
+            close(payload);
+            close(destinationChannel);
 
-// This function reads a specified number of bytes from the given channel.
-function readBytes(io:ReadableByteChannel byteChannel, int numberOfBytes)
-    returns (byte[], int) {
-
-    // Here is how the bytes are read from the channel.
-    var result = byteChannel.read(numberOfBytes);
-    match result {
-        (byte[], int) content => {
-            return content;
+            res.setPayload("File Received!");
+        } else if (payload is error) {
+            setError(res, payload);
         }
-        error readError => {
-            throw readError;
+        var result = caller->respond(res);
+        if (result is error) {
+           log:printError("Error occurred while sending response", err = result);
         }
     }
 }
 
-// This function writes a byte content with the given offset to a channel.
-function writeBytes(io:WritableByteChannel byteChannel, byte[] content, int startOffset = 0)
-    returns (int) {
-
-    // Here is how the bytes are written to the channel.
-    var result = byteChannel.write(content, startOffset);
-    match result {
-        int numberOfBytesWritten => {
-            return numberOfBytesWritten;
-        }
-        error err => {
-            throw err;
-        }
-    }
+//Sets the error to the response.
+function setError(http:Response res, error err) {
+    res.statusCode = 500;
+    res.setPayload(untaint string.convert(err.detail().message));
 }
 
-// This function copies content from the source channel to a
-//destination channel.
-function copy(io:ReadableByteChannel src, io:WritableByteChannel dst) {
-    // Specifies the number of bytes that should be read from a
-    //single read operation.
-    int bytesChunk = 10000;
-    
-    int numberOfBytesWritten = 0;
-    int readCount = 0;
-    int offset = 0;
+// Copies the content from the source channel to the destination channel.
+function copy(io:ReadableByteChannel src, io:WritableByteChannel dst) returns error? {
+    int readCount = 1;
     byte[] readContent;
-    boolean doneCopying = false;
-    try {
-        // Here is how to read all the content from
-        // the source and copy it to the destination.
-        while (!doneCopying) {
-            (readContent, readCount) = readBytes(src, 1000);
-            if (readCount <= 0) {
-                //If no content is read, the loop is ended.
-                doneCopying = true;
-            }
-            numberOfBytesWritten = writeBytes(dst, readContent);
-        }
-    } catch (error err) {
-        throw err;
+    while (readCount > 0) {
+        //Operation attempts to read a maximum of 1000 bytes
+        (byte[], int) result = check src.read(1000);
+        (readContent, readCount) = result;
+        //Writes the given content into the channel
+        var writeResult = check dst.write(readContent, 0);
     }
+    return;
 }
 
-function setError(http:Response response, string message) {
-    response.setPayload(untaint message);
-    response.statusCode = 500;
+//Closes the byte channel.
+function close(io:ReadableByteChannel|io:WritableByteChannel ch) {
+    abstract object {
+        public function close() returns error?;
+    } channelResult = ch;
+    var cr = channelResult.close();
+    if (cr is error) {
+        log:printError("Error occured while closing the channel: ", err = cr);
+    }
 }

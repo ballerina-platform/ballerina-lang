@@ -5,6 +5,6 @@ type Person record {
     !...
 };
 
-function Person::getName() returns string {
+function Person.getName() returns string {
     return self.name;
 }

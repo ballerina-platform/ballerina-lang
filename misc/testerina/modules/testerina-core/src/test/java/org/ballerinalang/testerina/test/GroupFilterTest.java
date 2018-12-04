@@ -99,7 +99,7 @@ public class GroupFilterTest {
         BTestRunner testRunner = new BTestRunner();
         List<String> groupList = new ArrayList<>();
         groupList.add("g5");
-        testRunner.runTest(sourceRoot, filePaths, groupList, false);
+        testRunner.runTest(sourceRoot, filePaths, groupList, false, Boolean.TRUE);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "passed"), 4);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "failed"), 0);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "skipped"), 0);
@@ -111,7 +111,7 @@ public class GroupFilterTest {
         List<String> groupList = new ArrayList<>();
         groupList.add("g4");
         groupList.add("g5");
-        testRunner.runTest(sourceRoot, filePaths, groupList, false);
+        testRunner.runTest(sourceRoot, filePaths, groupList, false, Boolean.TRUE);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "passed"), 3);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "failed"), 0);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "skipped"), 0);
@@ -122,7 +122,7 @@ public class GroupFilterTest {
         BTestRunner testRunner = new BTestRunner();
         List<String> groupList = new ArrayList<>();
         groupList.add("g10");
-        testRunner.runTest(sourceRoot, filePaths, groupList, false);
+        testRunner.runTest(sourceRoot, filePaths, groupList, false, Boolean.TRUE);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "passed"), 4);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "failed"), 1);
         Assert.assertEquals(testRunner.getTesterinaReport().getTestSummary(".", "skipped"), 0);

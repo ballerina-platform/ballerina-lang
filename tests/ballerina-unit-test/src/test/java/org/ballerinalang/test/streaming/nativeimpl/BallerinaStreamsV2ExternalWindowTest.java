@@ -39,13 +39,11 @@ public class BallerinaStreamsV2ExternalWindowTest {
 
     @BeforeClass
     public void setup() {
-        System.setProperty("enable.siddhiRuntime", "false");
-        result = BCompileUtil.compile("test-src/streaming/native/streamingv2-external-window-test.bal");
+        result = BCompileUtil.compile("test-src/streaming/native/streamingv2-native-external-window-test.bal");
     }
 
     @Test(description = "Test streaming query with external time window.")
-    public void testFilterQuery() {
-        System.setProperty("enable.siddhiRuntime", "true");
+    public void testExternalWindow() {
         BValue[] outputEvents = BRunUtil.invoke(result, "startExternalTimeWindowQuery");
         Assert.assertNotNull(outputEvents);
 

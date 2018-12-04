@@ -21,10 +21,10 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.NativeElementRepository;
 import org.ballerinalang.natives.NativeUnitLoader;
 import org.ballerinalang.test.utils.mock.StandardNativeElementProvider;
@@ -63,7 +63,7 @@ public class FunctionSignatureTest {
         Assert.assertTrue(returns[4] instanceof BString);
         Assert.assertEquals(returns[4].stringValue(), "Bob");
 
-        Assert.assertTrue(returns[5] instanceof BIntArray);
+        Assert.assertTrue(returns[5] instanceof BValueArray);
         Assert.assertEquals(returns[5].stringValue(), "[40, 50, 60]");
     }
 
@@ -85,7 +85,7 @@ public class FunctionSignatureTest {
         Assert.assertTrue(returns[4] instanceof BString);
         Assert.assertEquals(returns[4].stringValue(), "Bob");
 
-        Assert.assertTrue(returns[5] instanceof BIntArray);
+        Assert.assertTrue(returns[5] instanceof BValueArray);
         Assert.assertEquals(returns[5].stringValue(), "[40, 50, 60]");
     }
 
@@ -107,7 +107,7 @@ public class FunctionSignatureTest {
         Assert.assertTrue(returns[4] instanceof BString);
         Assert.assertEquals(returns[4].stringValue(), "Bob");
 
-        Assert.assertTrue(returns[5] instanceof BIntArray);
+        Assert.assertTrue(returns[5] instanceof BValueArray);
         Assert.assertEquals(returns[5].stringValue(), "[40, 50, 60]");
     }
 
@@ -129,7 +129,7 @@ public class FunctionSignatureTest {
         Assert.assertTrue(returns[4] instanceof BString);
         Assert.assertEquals(returns[4].stringValue(), "Bob");
 
-        Assert.assertTrue(returns[5] instanceof BIntArray);
+        Assert.assertTrue(returns[5] instanceof BValueArray);
         Assert.assertEquals(returns[5].stringValue(), "[40, 50, 60]");
     }
 
@@ -151,7 +151,7 @@ public class FunctionSignatureTest {
         Assert.assertTrue(returns[4] instanceof BString);
         Assert.assertEquals(returns[4].stringValue(), "Bob");
 
-        Assert.assertTrue(returns[5] instanceof BIntArray);
+        Assert.assertTrue(returns[5] instanceof BValueArray);
         Assert.assertEquals(returns[5].stringValue(), "[]");
     }
 
@@ -173,7 +173,7 @@ public class FunctionSignatureTest {
         Assert.assertTrue(returns[4] instanceof BString);
         Assert.assertEquals(returns[4].stringValue(), "Doe");
 
-        Assert.assertTrue(returns[5] instanceof BIntArray);
+        Assert.assertTrue(returns[5] instanceof BValueArray);
         Assert.assertEquals(returns[5].stringValue(), "[]");
     }
 
@@ -195,7 +195,7 @@ public class FunctionSignatureTest {
         Assert.assertTrue(returns[4] instanceof BString);
         Assert.assertEquals(returns[4].stringValue(), "Doe");
 
-        Assert.assertTrue(returns[5] instanceof BIntArray);
+        Assert.assertTrue(returns[5] instanceof BValueArray);
         Assert.assertEquals(returns[5].stringValue(), "[]");
     }
 
@@ -217,7 +217,7 @@ public class FunctionSignatureTest {
         Assert.assertTrue(returns[4] instanceof BString);
         Assert.assertEquals(returns[4].stringValue(), "Doe");
 
-        Assert.assertTrue(returns[5] instanceof BIntArray);
+        Assert.assertTrue(returns[5] instanceof BValueArray);
         Assert.assertEquals(returns[5].stringValue(), "[40, 50, 60]");
     }
 
@@ -300,28 +300,28 @@ public class FunctionSignatureTest {
     @Test
     public void testInvokeFuncWithOnlyRestParam1() {
         BValue[] returns = BRunUtil.invoke(result, "testInvokeFuncWithOnlyRestParam1");
-        Assert.assertTrue(returns[0] instanceof BIntArray);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
         Assert.assertEquals(returns[0].stringValue(), "[]");
     }
 
     @Test
     public void testInvokeFuncWithOnlyRestParam2() {
         BValue[] returns = BRunUtil.invoke(result, "testInvokeFuncWithOnlyRestParam2");
-        Assert.assertTrue(returns[0] instanceof BIntArray);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
         Assert.assertEquals(returns[0].stringValue(), "[10, 20, 30]");
     }
 
     @Test
     public void testInvokeFuncWithOnlyRestParam3() {
         BValue[] returns = BRunUtil.invoke(result, "testInvokeFuncWithOnlyRestParam3");
-        Assert.assertTrue(returns[0] instanceof BIntArray);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
         Assert.assertEquals(returns[0].stringValue(), "[10, 20, 30]");
     }
 
     @Test
     public void testInvokeFuncWithAnyRestParam1() {
         BValue[] returns = BRunUtil.invoke(result, "testInvokeFuncWithAnyRestParam1");
-        Assert.assertTrue(returns[0] instanceof BIntArray);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
         Assert.assertEquals(returns[0].stringValue(), "[10, 20, 30]");
     }
 
@@ -343,7 +343,7 @@ public class FunctionSignatureTest {
         Assert.assertTrue(returns[4] instanceof BString);
         Assert.assertEquals(returns[4].stringValue(), "Bob");
 
-        Assert.assertTrue(returns[5] instanceof BIntArray);
+        Assert.assertTrue(returns[5] instanceof BValueArray);
         Assert.assertEquals(returns[5].stringValue(), "[1, 2, 3, 4]");
     }
 
@@ -365,7 +365,7 @@ public class FunctionSignatureTest {
         Assert.assertTrue(returns[4] instanceof BString);
         Assert.assertEquals(returns[4].stringValue(), "Bob");
 
-        Assert.assertTrue(returns[5] instanceof BIntArray);
+        Assert.assertTrue(returns[5] instanceof BValueArray);
         Assert.assertEquals(returns[5].stringValue(), "[40, 50, 60]");
     }
 
@@ -387,7 +387,7 @@ public class FunctionSignatureTest {
         Assert.assertTrue(returns[4] instanceof BString);
         Assert.assertEquals(returns[4].stringValue(), "Doe");
 
-        Assert.assertTrue(returns[5] instanceof BIntArray);
+        Assert.assertTrue(returns[5] instanceof BValueArray);
         Assert.assertEquals(returns[5].stringValue(), "[]");
     }
 
@@ -415,7 +415,7 @@ public class FunctionSignatureTest {
         Assert.assertTrue(returns[4] instanceof BString);
         Assert.assertEquals(returns[4].stringValue(), "Doe");
 
-        Assert.assertTrue(returns[5] instanceof BIntArray);
+        Assert.assertTrue(returns[5] instanceof BValueArray);
         Assert.assertEquals(returns[5].stringValue(), "[4, 5, 6]");
     }
 

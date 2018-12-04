@@ -1,26 +1,24 @@
 import ballerina/http;
 import ballerina/log;
 
-// Create an endpoint for the client.
-endpoint http:Client clientEP {
-    url:"http://www.mocky.io"
-};
-
 public function main() {
+    // Create an endpoint for the client.
+    http:Client clientEP = new("http://www.mocky.io");
     // Send a get request to the server.
     var resp = clientEP->get("/v2/5ae082123200006b00510c3d/");
 
-    match resp {
-        http:Response response => {
-            // Retrieve the text message from the response.
-            match (response.getTextPayload()) {
-                // Log the retrieved text paylod.
-                string res => log:printInfo(res);
-                // If an error occurs when retrieving the text payload, log the error.
-                error err => log:printError(err.message);
-            }
+    if (resp is http:Response) {
+        // Retrieve the text message from the response.
+        var payload = resp.getTextPayload();
+        if (payload is string) {
+            // Log the retrieved text paylod.
+            log:printInfo(payload);
+        } else if (payload is error) {
+            // If an error occurs when retrieving the text payload, log the error.
+            log:printError(<string> payload.detail().message);
         }
-        // If an error occurs when getting the response, log the error.
-        error err => log:printError(err.message);
+    } else if (resp is error) {
+            // If an error occurs when getting the response, log the error.
+        log:printError(<string> resp.detail().message);
     }
 }

@@ -31,19 +31,19 @@ type TeacherOutput record{
 };
 
 int index = 0;
-stream<Teacher> inputStreamTimeLengthWindowTest2;
-stream<TeacherOutput > outputStreamTimeLengthTest2;
+stream<Teacher> inputStreamTimeLengthWindowTest2 = new;
+stream<TeacherOutput > outputStreamTimeLengthTest2 = new;
 TeacherOutput[] globalEmployeeArray = [];
 
 function startTimeLengthwindowTest2() returns (TeacherOutput[]) {
 
     Teacher[] teachers = [];
-    Teacher t1 = { name: "Mohan", age: 30, status: "single", school: "Hindu College" };
-    Teacher t2 = { name: "Raja", age: 45, status: "single", school: "Hindu College" };
-    Teacher t3 = { name: "Naveen", age: 45, status: "single", school: "Hindu College" };
-    Teacher t4 = { name: "Amal", age: 55, status: "married", school: "Hindu College" };
-    Teacher t5 = { name: "Nimal", age: 55, status: "married", school: "Hindu College" };
-    Teacher t6 = { name: "Kavindu", age: 55, status: "married", school: "Hindu College" };
+    Teacher t1 = {timestamp:1234, name: "Mohan", age: 30, status: "single", school: "Hindu College" };
+    Teacher t2 = {timestamp:1234, name: "Raja", age: 45, status: "single", school: "Hindu College" };
+    Teacher t3 = {timestamp:1235, name: "Naveen", age: 45, status: "single", school: "Hindu College" };
+    Teacher t4 = {timestamp:1236, name: "Amal", age: 55, status: "married", school: "Hindu College" };
+    Teacher t5 = {timestamp:1237, name: "Nimal", age: 55, status: "married", school: "Hindu College" };
+    Teacher t6 = {timestamp:1238, name: "Kavindu", age: 55, status: "married", school: "Hindu College" };
 
     teachers[0] = t1;
     teachers[1] = t2;
@@ -54,8 +54,8 @@ function startTimeLengthwindowTest2() returns (TeacherOutput[]) {
 
     testTimeLengthwindow();
 
-    outputStreamTimeLengthTest2.subscribe(printTeachers);
-    foreach t in teachers {
+    outputStreamTimeLengthTest2.subscribe(function(TeacherOutput e) {printTeachers(e);});
+    foreach var t in teachers {
         inputStreamTimeLengthWindowTest2.publish(t);
         runtime:sleep(450);
     }
@@ -64,7 +64,7 @@ function startTimeLengthwindowTest2() returns (TeacherOutput[]) {
     while(true) {
         runtime:sleep(500);
         count += 1;
-        if((lengthof globalEmployeeArray) == 6 || count == 10) {
+        if((globalEmployeeArray.length()) == 6 || count == 10) {
             break;
         }
     }
@@ -75,11 +75,11 @@ function startTimeLengthwindowTest2() returns (TeacherOutput[]) {
 function testTimeLengthwindow() {
 
     forever {
-        from inputStreamTimeLengthWindowTest2 window timeLengthWindow([2000, 3])
+        from inputStreamTimeLengthWindowTest2 window timeLengthWindow(2000, 3)
         select inputStreamTimeLengthWindowTest2.timestamp, inputStreamTimeLengthWindowTest2.name, count() as count
         group by inputStreamTimeLengthWindowTest2.school
         => (TeacherOutput [] teachers) {
-            foreach t in teachers {
+            foreach var t in teachers {
                 outputStreamTimeLengthTest2.publish(t);
             }
         }

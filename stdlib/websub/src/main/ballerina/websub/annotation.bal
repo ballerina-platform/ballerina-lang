@@ -31,23 +31,18 @@ import ballerina/http;
 # + leaseSeconds - The period for which the subscription is expected to be active
 # + secret - The secret to be used for authenticated content distribution
 # + callback - The callback to use when registering, if unspecified host:port/path will be used
-# + auth - The auth configuration to use when subscribing at the hub
-# + secureSocket - The secure socket configuration to use when subscribing at the hub
-# + followRedirects - The HTTP redirect related configuration specifying if subscription requests should be sent
-#                     to redirected hubs/topics
+# + subscriptionClientConfig - The configuration for subscription client
 public type SubscriberServiceConfiguration record {
-    Listener[] endpoints;
-    string path;
-    boolean subscribeOnStartUp;
-    string resourceUrl;
-    string hub;
-    string topic;
-    int leaseSeconds;
-    string secret;
-    string callback;
-    http:AuthConfig? auth;
-    http:SecureSocket? secureSocket;
-    http:FollowRedirects? followRedirects;
+    Listener[] endpoints = [];
+    string path = "";
+    boolean subscribeOnStartUp = false;
+    string resourceUrl = "";
+    string hub = "";
+    string topic = "";
+    int leaseSeconds = 0;
+    string secret = "";
+    string callback = "";
+    http:ClientEndpointConfig subscriptionClientConfig?;
     !...
 };
 

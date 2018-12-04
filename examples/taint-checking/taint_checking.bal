@@ -40,7 +40,7 @@ public function main(string... args) {
         // the proceeding value as 'trusted' and pass it to a sensitive parameter.
         userDefinedSecureOperation(untaint args[0]);
     } else {
-        error err = { message: "Validation error: ID should be an integer" };
+        error err = error("Validation error: ID should be an integer");
         throw err;
     }
 

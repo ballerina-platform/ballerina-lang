@@ -20,6 +20,7 @@ package org.ballerinalang.langserver.symbols;
 
 import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.eclipse.lsp4j.Location;
@@ -34,12 +35,13 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 
 import java.util.List;
@@ -60,7 +62,9 @@ public class SymbolFindingVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangCompilationUnit compUnit) {
-        compUnit.getTopLevelNodes().forEach(node -> ((BLangNode) node).accept(this));
+        compUnit.getTopLevelNodes().stream()
+                .filter(CommonUtil.checkInvalidTypesDefs())
+                .forEach(node -> ((BLangNode) node).accept(this));
     }
 
     @Override
@@ -85,6 +89,12 @@ public class SymbolFindingVisitor extends LSNodeVisitor {
     }
 
     @Override
+    public void visit(BLangConstant constant) {
+        this.addSymbol(constant, constant.symbol, SymbolKind.Class);
+        constant.typeNode.accept(this);
+    }
+
+    @Override
     public void visit(BLangObjectTypeNode objectTypeNode) {
         if (objectTypeNode.initFunction != null) {
             this.visit(objectTypeNode.initFunction);
@@ -96,11 +106,11 @@ public class SymbolFindingVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangService serviceNode) {
         this.addSymbol(serviceNode, serviceNode.symbol, SymbolKind.Class);
-        serviceNode.getResources().forEach(bLangResource -> bLangResource.accept(this));
+//        serviceNode.getResources().forEach(bLangResource -> bLangResource.accept(this));
     }
 
     @Override
-    public void visit(BLangVariable variableNode) {
+    public void visit(BLangSimpleVariable variableNode) {
         SymbolKind kind;
         String btype = variableNode.getTypeNode().toString();
         switch (btype) {
@@ -140,7 +150,7 @@ public class SymbolFindingVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangVariableDef varDefNode) {
+    public void visit(BLangSimpleVariableDef varDefNode) {
         varDefNode.getVariable().accept(this);
     }
 

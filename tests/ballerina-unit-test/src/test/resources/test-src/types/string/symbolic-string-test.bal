@@ -17,13 +17,14 @@
 import ballerina/crypto;
 
 type Person object {
-    public string name;
+    public string name = "";
     public string fullName;
-    new(name = 'John, string firstname, string lastname = 'Doe) {
-        fullName = firstname + " " + lastname;
+    function __init(string name = 'John, string firstname, string lastname = 'Doe) {
+        self.name = name;
+        self.fullName = firstname + " " + lastname;
     }
     public function getPersonInfo() returns string {
-        return name + "-" + fullName;
+        return self.name + "-" + self.fullName;
     }
 };
 
@@ -34,12 +35,10 @@ type Student record {
 
 string var1 = 'abcd;
 
-public string var2;
+public string var2 = "";
 
-@final
 public string var3 = 'efgh;
 
-@readonly
 public string var4 = 'ijkl;
 
 function contains() returns (boolean) {
@@ -123,7 +122,7 @@ function stringValueOf() returns (string) {
     return <string>(s);
 }
 
-function length() returns (int) {
+function lengthOfStr() returns (int) {
     string s = 'HelloWorld;
     return s.length();
 }
@@ -177,7 +176,7 @@ function testStringArray() returns (string) {
 }
 
 function testMap() returns (string[]) {
-    map addrMap = { number: "No.20", road: 'Mount_Lavinia, country: 'SriLanka };
+    map<any> addrMap = { number: "No.20", road: 'Mount_Lavinia, country: 'SriLanka };
     addrMap['postalCode] = 'PO00300;
     string [3] stringArr = [<string>addrMap['country], <string>addrMap['road], <string>addrMap["postalCode"]];
     return stringArr;
@@ -223,10 +222,11 @@ function testObject() returns (json) {
 
 function testRecords() returns (string) {
     Student stu = { name: 'AdamPage, age: 17};
-    match stu['name] {
-        string value => return value;
-        () => return "empty";
+    var value = stu['name];
+    if (value is string) {
+        return value;
     }
+    return "empty";
 }
 
 function testGlobalVars() returns (string) {

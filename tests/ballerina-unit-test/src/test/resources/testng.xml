@@ -29,9 +29,8 @@ under the License.
 
     <test name="ballerina-socket-test-suite" preserve-order="true" parallel="false">
         <classes>
-            <class name="org.ballerinalang.test.nativeimpl.functions.io.socket.ClientSocketTest"/>
-            <class name="org.ballerinalang.test.nativeimpl.functions.io.socket.SecureClientSocketTest"/>
-            <!--<class name="org.ballerinalang.test.nativeimpl.functions.io.socket.ServerSocketTest"/>-->
+            <class name="org.ballerinalang.test.nativeimpl.functions.socket.ServerSocketTest"/>
+            <class name="org.ballerinalang.test.nativeimpl.functions.socket.ClientSocketTest"/>
         </classes>
     </test>
     <!-- Ballerina language Test Cases. -->
@@ -47,15 +46,13 @@ under the License.
             <package name="org.ballerinalang.test.annotations.*"/>
             <package name="org.ballerinalang.test.expressions.*"/>
             <package name="org.ballerinalang.test.documentation.*"/>
-            <package name="org.ballerinalang.test.statements.*">
-                <exclude name="org.ballerinalang.test.statements.transform.*"/>
-            </package>
+            <package name="org.ballerinalang.test.statements.*"/>
             <package name="org.ballerinalang.test.types.*"/>
             <package name="org.ballerinalang.test.access.*"/>
             <package name="org.ballerinalang.test.functions.*"/>
             <package name="org.ballerinalang.test.worker.*"/>
             <package name="org.ballerinalang.test.nativeimpl.functions.*">
-                <exclude name="org.ballerinalang.test.nativeimpl.functions.io.socket"/>
+                <exclude name="org.ballerinalang.test.nativeimpl.functions.socket"/>
             </package>
             <package name="org.ballerinalang.test.jdbc.*"/>
             <package name="org.ballerinalang.test.h2"/>
@@ -89,6 +86,9 @@ under the License.
             <package name="org.ballerinalang.test.variable.shadowing.*" />
             <package name="org.ballerinalang.test.channels.*" />
             <package name="org.ballerinalang.test.privacy.*" />
+            <package name="org.ballerinalang.test.serializer.json.*" />
+            <package name="org.ballerinalang.test.dataflow.*" />
+            <package name="org.ballerinalang.test.error.*" />
         </packages>
 
 		<!-- TODO: remove once constraint tests are fixed -->
@@ -108,11 +108,6 @@ under the License.
             <class name="org.ballerinalang.test.observe.SummaryTest"/>
             <class name="org.ballerinalang.test.observe.RegistryTest"/>
             <class name="org.ballerinalang.test.observe.CounterTest"/>
-        </classes>
-    </test>
-    <test name="ballerina-checkpointing-test-suite" preserve-order="true" parallel="false">
-        <classes >
-            <class name="org.ballerinalang.test.checkpointing.SerializationTest"/>
         </classes>
     </test>
     <test name="ballerina-entry-function-test-suite" preserve-order="true" parallel="false">

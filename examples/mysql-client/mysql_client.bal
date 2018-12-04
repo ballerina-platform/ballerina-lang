@@ -2,15 +2,15 @@ import ballerina/io;
 import ballerina/mysql;
 
 // Create an endpoint for MySQL database. Change the DB details before running the sample.
-endpoint mysql:Client testDB {
-    host: "localhost",
-    port: 3306,
-    name: "testdb",
-    username: "test",
-    password: "test",
-    poolOptions: { maximumPoolSize: 5 },
-    dbOptions: { useSSL: false }
-};
+mysql:Client testDB = new({
+        host: "localhost",
+        port: 3306,
+        name: "testdb",
+        username: "test",
+        password: "test",
+        poolOptions: { maximumPoolSize: 5 },
+        dbOptions: { useSSL: false }
+    });
 
 public function main() {
 
@@ -29,21 +29,20 @@ public function main() {
     // Select data using the `select` operation.
     io:println("\nThe select operation - Select data from a table");
     var selectRet = testDB->select("SELECT * FROM student", ());
-    table dt;
-    match selectRet {
-        table tableReturned => dt = tableReturned;
-        error e => io:println("Select data from student table failed: "
-                               + e.message);
-    }
-    // Convert a table to JSON.
-    io:println("\nConvert the table into json");
-    var jsonConversionRet = <json>dt;
-    match jsonConversionRet {
-        json jsonRes => {
+
+    if (selectRet is table<record {}>) {
+        // Convert a table to JSON.
+        io:println("\nConvert the table into json");
+        var jsonConversionRet = json.convert(selectRet);
+        if (jsonConversionRet is json) {
             io:print("JSON: ");
-            io:println(io:sprintf("%s", jsonRes));
+            io:println(io:sprintf("%s", jsonConversionRet));
+        } else {
+            io:println("Error in table to json conversion");
         }
-        error e => io:println("Error in table to json conversion");
+    } else if (selectRet is error) {
+        io:println("Select data from student table failed: "
+                + <string>selectRet.detail().message);
     }
 
     // Drop the STUDENT table.
@@ -54,8 +53,9 @@ public function main() {
 
 // Function to handle return of the update operation.
 function handleUpdate(int|error returned, string message) {
-    match returned {
-        int retInt => io:println(message + " status: " + retInt);
-        error e => io:println(message + " failed: " + e.message);
+    if (returned is int) {
+        io:println(message + " status: " + returned);
+    } else if (returned is error) {
+        io:println(message + " failed: " + <string>returned.detail().message);
     }
 }

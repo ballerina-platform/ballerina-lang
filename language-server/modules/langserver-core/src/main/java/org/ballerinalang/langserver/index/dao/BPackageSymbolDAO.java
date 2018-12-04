@@ -186,15 +186,17 @@ public class BPackageSymbolDAO extends AbstractDAO<BPackageSymbolDTO> {
 
     /**
      * Get list of functions for the given Package criteria.
-     * 
+     *
      * @param dto                   Package Symbol DTO
      * @param objectId              Object ID which the function attached to, -1 if not
      * @param pvt                   Whether private or public items
      * @param attached              Whether attached function or not
+     * @param action                Whether action or not
      * @return {@link List}         List of retrieved functions
      * @throws LSIndexException     Exception while processing Index operation.
      */
-    public List<BFunctionSymbolDTO> getFunctions(BPackageSymbolDTO dto, int objectId, boolean pvt, boolean attached)
+    public List<BFunctionSymbolDTO> getFunctions(BPackageSymbolDTO dto, int objectId, boolean pvt, boolean attached,
+                                                 boolean action)
             throws LSIndexException {
         int indexCounter = 0;
         ResultSet rs = null;
@@ -207,8 +209,8 @@ public class BPackageSymbolDAO extends AbstractDAO<BPackageSymbolDTO> {
             query.append(" AND orgName = ?) ");
         }
         query.append("AS p INNER JOIN bLangFunction AS f WHERE p.id=f.packageId AND f.objectId = ? AND f.private = ? " +
-                " AND f.attached = ? AND f.name NOT LIKE '%<init>%' AND " + "f.name NOT LIKE '%<start>%' AND f.name " +
-                "NOT LIKE '%<stop>%'");
+                " AND f.attached = ? AND f.action = ? AND f.name NOT LIKE '%<init>%' AND " + "f.name NOT " +
+                "LIKE '%<start>%' AND f.name NOT LIKE '%<stop>%'");
 
         try {
             statement = this.connection.prepareStatement(query.toString());
@@ -219,6 +221,7 @@ public class BPackageSymbolDAO extends AbstractDAO<BPackageSymbolDTO> {
             statement.setInt(++indexCounter, objectId);
             statement.setBoolean(++indexCounter, pvt);
             statement.setBoolean(++indexCounter, attached);
+            statement.setBoolean(++indexCounter, action);
 
             rs = statement.executeQuery();
             List<BFunctionSymbolDTO> functionSymbolDTOList = new ArrayList<>();
@@ -377,6 +380,51 @@ public class BPackageSymbolDAO extends AbstractDAO<BPackageSymbolDTO> {
             return objectTypeSymbolDTOs;
         } catch (SQLException e) {
             throw new LSIndexException("Error while retrieving Object Type information for package from Index");
+        } finally {
+            this.releaseResources(rs, statement);
+        }
+    }
+
+    /**
+     * Get list of client endpoints in the given Package.
+     *
+     * @param dto                   Package Symbol DTO
+     * @return {@link List}         List of retrieved client objects
+     * @throws LSIndexException     Exception while processing Index operation.
+     */
+    public List<BObjectTypeSymbolDTO> getClientEndpoints(BPackageSymbolDTO dto) throws LSIndexException {
+        PreparedStatement statement = null;
+        ResultSet rs = null;
+        int parameterIndex = 0;
+        StringBuilder query = new StringBuilder("SELECT p.id, p.name, p.orgName, o.completionItem, o.name, " +
+                "o.private FROM (select id, name, orgName FROM bLangPackage WHERE name = ?");
+        if (dto.getOrgName().isEmpty()) {
+            query.append(") ");
+        } else {
+            query.append(" AND orgName = ?) ");
+        }
+        query.append("AS p INNER JOIN bLangObject AS o WHERE p.id = o.packageId AND o.type = 1");
+        try {
+            statement = this.connection.prepareStatement(query.toString());
+            statement.setString(++parameterIndex, dto.getName());
+            if (!dto.getOrgName().isEmpty()) {
+                statement.setString(++parameterIndex, dto.getOrgName());
+            }
+            
+            rs = statement.executeQuery();
+            List<BObjectTypeSymbolDTO> objectTypeSymbolDTOs = new ArrayList<>();
+            while (rs.next()) {
+                BObjectTypeSymbolDTO objectTypeSymbolDTO = new BObjectTypeSymbolDTO.BObjectTypeSymbolDTOBuilder()
+                        .setPackageId(rs.getInt(1))
+                        .setCompletionItem(DTOUtil.jsonToCompletionItem(rs.getString(4)))
+                        .setName(rs.getString(5))
+                        .build();
+                objectTypeSymbolDTOs.add(objectTypeSymbolDTO);
+            }
+
+            return objectTypeSymbolDTOs;
+        } catch (SQLException e) {
+            throw new LSIndexException("Error while retrieving Client endpoint information for package from Index");
         } finally {
             this.releaseResources(rs, statement);
         }

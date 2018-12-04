@@ -4,23 +4,20 @@ xmlns "http://ballerina.com/aa" as ns0;
 
 annotation<service, resource> customAnnotation;
 
-endpoint http:Listener listener {
-    port: 9090    
-};
+http:Listener ep = new(9090);
 
-function customTestFunction () {
+function customTestFunction() {
     int a = 12;
 }
 
-service<http:Service> customService bind { port: 9090 } {
-    customResource (endpoint caller, http:Request request) {
-        int b = 12;
+service customService on new http:Listener(8080) {
+    resource function customResource(http:Caller caller, http:Request request) {
     }
 }
 
 type customObject object {
-    int field1;
-    int field2;
+    int field1 = 0;
+    int field2 = 0;
 };
 
 type customRecord record {
@@ -33,7 +30,6 @@ function terminationFunction() {
     int num1 = 12;
     int testBinary = num1 + 10;
     int testBraced = (num1 + 12) * 10;
-    strVal = "Sri Lanka";
-    var intResult = <int>strVal;
+    string strVal = "Sri Lanka";
     
 }

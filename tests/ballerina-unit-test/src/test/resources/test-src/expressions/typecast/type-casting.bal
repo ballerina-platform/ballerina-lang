@@ -18,24 +18,24 @@ function inttofloat(int value) returns (float) {
     return result;
 }
 
-function stringtoint(string value) returns (int) {
+function stringtoint(string value) returns (int|error) {
     int result;
     //string to int should be a unsafe conversion
-    result = check <int>value;
+    result = check int.convert(value);
     return result;
 }
 
-function testJsonIntToString() returns (string) {
+function testJsonIntToString() returns (string|error) {
     json j = 5;
     int value;
-    value = check <int>j;
+    value = check trap <int>j;
     return <string> value;
 }
 
-function stringtofloat(string value) returns (float) {
+function stringtofloat(string value) returns (float|error) {
     float result;
     //string to float should be a conversion
-    result = check <float>value;
+    result = check float.convert(value);
     return result;
 }
 
@@ -78,44 +78,43 @@ function anyjsontostring() returns (string) {
     json j = {"a":"b"};
     any value = j;
     string result;
-    //any to string should be a conversion
-    result = <string>value;
+    result = string.convert(value);
     return result;
 }
 
-function testJsonToStringCast() returns (string) {
+function testJsonToStringCast() returns (string|error) {
     json j = "hello";
     string value;
-    value = check <string>j;
+    value = check trap <string> j;
     return value;
 }
 
 function testJSONObjectToStringCast() returns (string | error) {
     json j = {"foo":"bar"};
-    var value = <string>j;
+    var value = string.convert(j);
     //TODO : Handle error
 
     return value;
 }
 
-function testJsonToInt() returns (int){
+function testJsonToInt() returns (int|error){
     json j = 5;
     int value;
-    value = check <int>j;
+    value = check trap <int>j;
     return value;
 }
 
-function testJsonToFloat() returns (float){
+function testJsonToFloat() returns (float|error){
     json j = 7.65;
     float value;
-    value = check <float>j;
+    value = check trap <float>j;
     return value;
 }
 
-function testJsonToBoolean() returns (boolean){
+function testJsonToBoolean() returns (boolean|error){
     json j = true;
     boolean value;
-    value = check <boolean>j;
+    value = check trap <boolean>j;
     return value;
 }
 
@@ -126,20 +125,20 @@ function testStringToJson(string s) returns (json) {
 type Person record {
     string name;
     int age;
-    map address;
-    int[] marks;
-    Person | () parent;
-    json info;
-    any a;
-    float score;
-    boolean alive;
+    map<anydata> address = {};
+    int[] marks = [];
+    Person | () parent = ();
+    json info = {};
+    anydata a = 0;
+    float score = 0.0;
+    boolean alive = true;
 };
 
 type Student record {
     string name;
     int age;
-    map address;
-    int[] marks;
+    map<any> address = {};
+    int[] marks = [];
 };
 
 function testStructToStruct() returns (Student) {
@@ -159,7 +158,7 @@ function testStructToStruct() returns (Student) {
 //    return <Student> p;
 //}
 
-function testStructAsAnyToStruct() returns (Person) {
+function testStructAsAnyToStruct() returns (Person|error) {
     Person p1 = { name:"Supun",
                     age:25,
                     parent:{name:"Parent", age:50},
@@ -168,16 +167,16 @@ function testStructAsAnyToStruct() returns (Person) {
                     marks:[24, 81]
                 };
     any a = p1;
-    var p2 = check <Person> a;
+    var p2 = check trap <Person> a;
     return p2;
 }
 
-function testAnyToStruct() returns (Person) {
+function testAnyToStruct() returns Person {
     json address = {"city":"Kandy", "country":"SriLanka"};
-    map parent = {name:"Parent", age:50};
-    map info = {status:"single"};
+    map<any> parent = {name:"Parent", age:50};
+    map<any> info = {status:"single"};
     int[] marks = [24, 81];
-    map a = { name:"Supun",
+    map<any> a = { name:"Supun",
                 age:25,
                 parent:parent,
                 address:address,
@@ -185,17 +184,17 @@ function testAnyToStruct() returns (Person) {
                 marks:marks
             };
     any b = a;
-    var p2 = check <Person> b;
+    var p2 = <Person> b;
     return p2;
 }
 
-function testAnyNullToStruct() returns (Person) {
-    any a;
-    var p = check <Person> a;
+function testAnyNullToStruct() returns Person {
+    any a = ();
+    var p = <Person> a;
     return p;
 }
 
-function testStructToAnyExplicit() returns (any) {
+function testRecordToAny() returns (any) {
     Person p = { name:"Supun",
                    age:25,
                    parent:{name:"Parent", age:50},
@@ -203,162 +202,155 @@ function testStructToAnyExplicit() returns (any) {
                    info:{status:"single"},
                    marks:[24, 81]
                };
-    return <any> p;
+    return p;
 }
 
-function testMapToAnyExplicit() returns (any) {
-    map m = {name:"supun"};
-    return <any> m;
+function testMapToAny() returns (any) {
+    map<any> m = {name:"supun"};
+    return m;
 }
 
-function testBooleanInJsonToInt() returns (int) {
+function testBooleanInJsonToInt() returns int|error {
     json j = true;
     int value;
-    value = check <int>j;
+    value = check int.convert(j);
     return value;
 }
 
-function testIncompatibleJsonToInt() returns (int) {
+function testIncompatibleJsonToInt() returns (int|error) {
     json j = "hello";
     int value;
-    value = check <int>j;
+    value = check int.convert(j);
     return value;
 }
 
-function testIntInJsonToFloat() returns (float) {
+function testIntInJsonToFloat() returns (float|error) {
     json j = 7;
     float value;
-    value = check <float>j;
+    value = check float.convert(j);
     return value;
 }
 
-function testIncompatibleJsonToFloat() returns (float) {
+function testIncompatibleJsonToFloat() returns (float|error) {
     json j = "hello";
     float value;
-    value = check <float>j;
+    value = check float.convert(j);
     return value;
 }
 
-function testIncompatibleJsonToBoolean() returns (boolean) {
+function testIncompatibleJsonToBoolean() returns (boolean|error) {
     json j = "hello";
     boolean value;
-    value = check <boolean>j;
+    value = check boolean.convert(j);
     return value;
 }
 
 type Address record {
     string city;
-    string country;
+    string country = "";
 };
 
-function testNullJsonToString() returns (string) {
-    json j;
+function testNullJsonToString() returns string {
+    json j = {};
     string value;
-    value = check <string>j;
+    value = <string>j;
     return value;
 }
 
-function testNullJsonToInt() returns (int) {
-    json j;
+function testNullJsonToInt() returns int {
+    json j = {};
     int value;
-    value = check <int>j;
+    value = <int>j;
     return value;
 }
 
 
 
 
-function testNullJsonToFloat() returns (float) {
-    json j;
+function testNullJsonToFloat() returns float {
+    json j = {};
     float value;
-    value = check <float>j;
+    value = <float>j;
     return value;
 }
 
-function testNullJsonToBoolean() returns (boolean) {
-    json j;
+function testNullJsonToBoolean() returns boolean {
+    json j = {};
     boolean value;
-    value = check <boolean>j;
+    value = <boolean> j;
     return value;
 }
 
-function testAnyIntToJson() returns (json) {
+function testAnyIntToJson() returns (json|error) {
     any a = 8;
     json value;
-    value = check <json> a;
+    value = <json> a;
     return value;
 }
 
-function testAnyStringToJson() returns (json) {
+function testAnyStringToJson() returns json {
     any a = "Supun";
     json value;
-    value = check <json> a;
+    value = <json> a;
     return value;
 }
 
-function testAnyBooleanToJson() returns (json) {
+function testAnyBooleanToJson() returns json {
     any a = true;
     json value;
-    value = check <json> a;
+    value = <json> a;
     return value;
 }
 
-function testAnyFloatToJson() returns (json) {
+function testAnyFloatToJson() returns json {
     any a = 8.73;
     json value;
-    value = check <json> a;
+    value = <json> a;
     return value;
 }
 
-function testAnyMapToJson() returns (json) {
-    map m = {name:"supun"};
+function testAnyMapToJson() returns json {
+    map<any> m = {name:"supun"};
     any a = m;
     json value;
-    value = check <json> a;
+    value = <json> a;
     return value;
 }
 
-function testAnyStructToJson() returns (json) {
+function testAnyStructToJson() returns json {
     Address adrs = {city:"CA"};
     any a = adrs;
     json value;
-    value = check <json> a;
+    value = <json> a;
     return value;
 }
 
-function testAnyNullToJson() returns (json) {
+function testAnyNullToJson() returns (json|error) {
     any a = null;
     json value;
-    value = check <json> a;
+    value = check json.convert(a);
     return value;
 }
 
-function testAnyJsonToJson() returns (json) {
+function testAnyJsonToJson() returns (json|error) {
     json j = {home:"SriLanka"};
     any a = j;
     json value;
-    value = check <json> a;
+    value = check trap <json> a;
     return value;
 }
 
-function testAnyArrayToJson() returns (json) {
-    any[] a = [8,4,6];
-    json value;
-    value = check <json> a;
+function testAnyNullToMap() returns map<any> {
+    any a = ();
+    map<any> value;
+    value = <map<any>> a;
     return value;
 }
 
-function testAnyNullToMap() returns (map) {
-    any a;
-    map value;
-    value = check <map> a;
-    return value;
-}
-
-function testAnyNullToXml() returns (xml) {
-    any a;
+function testAnyNullToXml() returns xml {
+    any a = ();
     xml value;
-    value = check <xml> a;
+    value = <xml> a;
     return value;
 }
 
@@ -375,8 +367,8 @@ function testCompatibleStructForceCasting() returns (A | error) {
     A a = {x: "x-valueof-a", y:4};
     B b = {x: "x-valueof-b"};
 
-    b = <B> a;
-    A c = check <A> b;
+    b = a;
+    A c = check trap <A> b;
 
     //TODO Handle error
 
@@ -386,7 +378,7 @@ function testCompatibleStructForceCasting() returns (A | error) {
 
 function testInCompatibleStructForceCasting() returns (A | error) {
     B b = {x: "x-valueof-b"};
-    A a = check <A> b;
+    A a = check A.convert(b);
 
     //TODO Handle error
 
@@ -396,7 +388,7 @@ function testInCompatibleStructForceCasting() returns (A | error) {
 function testAnyToIntWithoutErrors() returns (int | error) {
     any a = 6;
     int s;
-    s = check <int> a;
+    s = check trap <int> a;
     //TODO Handle error
 
     return s;
@@ -405,7 +397,7 @@ function testAnyToIntWithoutErrors() returns (int | error) {
 function testAnyToFloatWithoutErrors() returns (float | error) {
     any a = 6.99;
     float s;
-    s = check <float> a;
+    s = check trap <float> a;
     // TODO Handle error
 
     return s;
@@ -414,16 +406,17 @@ function testAnyToFloatWithoutErrors() returns (float | error) {
 function testAnyToBooleanWithoutErrors() returns (boolean | error) {
     any a = true;
     boolean s;
-    s = check <boolean> a;
+    s = check trap <boolean> a;
     //TODO Handle error
 
     return s;
 }
 
 function testAnyToBooleanWithErrors() returns (boolean | error) {
-    any a = 5;
+    map<any> m = { one: "one" };
+    any a = m;
     boolean b;
-    b = check <boolean> a;
+    b = check trap <boolean> a;
     // TODO Handle error
 
     return b;
@@ -432,7 +425,7 @@ function testAnyToBooleanWithErrors() returns (boolean | error) {
 function testAnyNullToBooleanWithErrors() returns (boolean | error) {
     any a = null;
     boolean b;
-    b = check <boolean> a;
+    b = check trap <boolean> a;
     //TODO Handle error
 
     return b;
@@ -441,7 +434,7 @@ function testAnyNullToBooleanWithErrors() returns (boolean | error) {
 function testAnyToIntWithErrors() returns (int | error) {
     any a = "foo";
     int b;
-    b = check <int> a;
+    b = check trap <int> a;
     //TODO Handle error
 
     return b;
@@ -450,7 +443,7 @@ function testAnyToIntWithErrors() returns (int | error) {
 function testAnyNullToIntWithErrors() returns (int | error) {
     any a = null;
     int b;
-    b = check <int> a;
+    b = check trap <int> a;
     //TODO Handle error
 
     return b;
@@ -459,7 +452,7 @@ function testAnyNullToIntWithErrors() returns (int | error) {
 function testAnyToFloatWithErrors() returns (float | error) {
     any a = "foo";
     float b;
-    b = check <float> a;
+    b = check trap <float> a;
     //TODO Handle error
 
     return b;
@@ -468,16 +461,16 @@ function testAnyToFloatWithErrors() returns (float | error) {
 function testAnyNullToFloatWithErrors() returns (float | error) {
     any a = null;
     float b;
-    b = check <float> a;
+    b = check trap <float> a;
     //TODO Handle error
 
     return b;
 }
 
-function testAnyToMapWithErrors() returns (map | error) {
+function testAnyToMapWithErrors() returns (map<any> | error) {
     any a = "foo";
-    map b;
-    b = check <map> a;
+    map<any> b;
+    b = check trap <map<any>> a;
     //TODO Handle error
 
     return b;
@@ -486,7 +479,7 @@ function testAnyToMapWithErrors() returns (map | error) {
 function testAnyNullToString() returns (string) {
     any a = null;
     string s;
-    s = <string> a;
+    s = string.convert(a);
     return s;
 }
 
@@ -518,8 +511,8 @@ function testJSONValueCasting() returns (string | error, int | error, float | er
     return (s, i, f, b);
 }
 
-function testAnyToTable() returns (table | error) {
-    table < Employee> tb = table{};
+function testAnyToTable() returns table<Employee>|error {
+    table<Employee> tb = table{};
 
     Employee e1 = {id:1, name:"Jane"};
     Employee e2 = {id:2, name:"Anne"};
@@ -527,15 +520,7 @@ function testAnyToTable() returns (table | error) {
     _ = tb.add(e2);
 
     any anyValue = tb;
-    var casted = <table> anyValue;
-    return casted;
-}
-
-function testAnyToTableWithErrors() returns (table | error) {
-    any stringValue = "SomeString";
-    table casted;
-    casted = check <table> stringValue;
-   //TODO Handle error
+    var casted = check trap <table<Employee>> anyValue;
     return casted;
 }
 

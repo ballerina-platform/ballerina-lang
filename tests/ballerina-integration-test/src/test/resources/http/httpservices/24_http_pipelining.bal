@@ -19,9 +19,9 @@ import ballerina/log;
 import ballerina/runtime;
 import ballerina/io;
 
-service<http:Service> pipeliningTest bind { port: 9220 } {
+service pipeliningTest on new http:Listener(9220) {
 
-    responseOrder(endpoint caller, http:Request req) {
+    resource function responseOrder(http:Caller caller, http:Request req) {
         http:Response response = new;
 
         if (req.hasHeader("message-id")) {
@@ -44,15 +44,16 @@ service<http:Service> pipeliningTest bind { port: 9220 } {
             }
         }
 
-        caller->respond(untaint response) but {
-            error err => log:printError(err.message, err = err)
-        };
+        var result = caller->respond(untaint response);
+        if (result is error) {
+            log:printError(result.reason(), err = result);
+        }
     }
 }
 
-service<http:Service> pipelining bind { port: 9221, timeoutMillis: 1000 } {
+service pipelining on new http:Listener(9221, config = { timeoutMillis: 1000 }) {
 
-    testTimeout(endpoint caller, http:Request req) {
+    resource function testTimeout(http:Caller caller, http:Request req) {
         http:Response response = new;
 
         if (req.hasHeader("message-id")) {
@@ -74,22 +75,24 @@ service<http:Service> pipelining bind { port: 9221, timeoutMillis: 1000 } {
             }
         }
 
-        caller->respond(untaint response) but {
-            error err => log:printError("Pipeline timeout:" + err.message, err = err)
-        };
+        var responseError = caller->respond(response);
+        if (responseError is error) {
+            log:printError("Pipeline timeout:" + responseError.reason(), err = responseError);
+        }
     }
 }
 
-service<http:Service> pipeliningLimit bind { port: 9222, maxPipelinedRequests: 2 } {
+service pipeliningLimit on new http:Listener(9222, config = { maxPipelinedRequests: 2 }) {
 
-    testMaxRequestLimit(endpoint caller, http:Request req) {
+    resource function testMaxRequestLimit(http:Caller caller, http:Request req) {
         http:Response response = new;
         //Let the thread sleep for sometime so the requests have enough time to queue up
         runtime:sleep(8000);
         response.setPayload("Pipelined Response");
 
-        caller->respond(untaint response) but {
-            error err => log:printError("Pipeline limit exceeded:" + err.message, err = err)
-        };
+        var responseError = caller->respond(response);
+        if (responseError is error) {
+            log:printError("Pipeline limit exceeded:" + responseError.reason(), err = responseError);
+        }
     }
 }

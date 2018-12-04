@@ -33,6 +33,8 @@ public final class BFunctionSymbolDTO {
     private int objectId;
 
     private boolean isPrivate;
+    
+    private boolean isAction;
 
     private boolean isAttached;
 
@@ -40,12 +42,13 @@ public final class BFunctionSymbolDTO {
 
     private CompletionItem completionItem;
 
-    public BFunctionSymbolDTO(int id, int packageId, int objectId, boolean isPrivate, boolean isAttached,
-                              String name, CompletionItem completionItem) {
+    public BFunctionSymbolDTO(int id, int packageId, int objectId, boolean isPrivate, boolean isAction,
+                              boolean isAttached, String name, CompletionItem completionItem) {
         this.id = id;
         this.packageId = packageId;
         this.objectId = objectId;
         this.isPrivate = isPrivate;
+        this.isAction = isAction;
         this.isAttached = isAttached;
         this.name = name;
         this.completionItem = completionItem;
@@ -71,6 +74,10 @@ public final class BFunctionSymbolDTO {
         return isAttached;
     }
 
+    public boolean isAction() {
+        return isAction;
+    }
+
     public String getName() {
         return name;
     }
@@ -91,6 +98,8 @@ public final class BFunctionSymbolDTO {
         private int objectId = -1;
 
         private boolean isPrivate;
+
+        private boolean isAction;
 
         private boolean isAttached;
 
@@ -113,8 +122,13 @@ public final class BFunctionSymbolDTO {
             return this;
         }
 
-        public BFunctionDTOBuilder setPrivate(boolean aPrivate) {
-            isPrivate = aPrivate;
+        public BFunctionDTOBuilder setPrivate(boolean isPrivate) {
+            this.isPrivate = isPrivate;
+            return this;
+        }
+
+        public BFunctionDTOBuilder setAction(boolean isAction) {
+            this.isAction = isAction;
             return this;
         }
 
@@ -134,7 +148,7 @@ public final class BFunctionSymbolDTO {
         }
         
         public BFunctionSymbolDTO build() {
-            return new BFunctionSymbolDTO(this.id, this.packageId, this.objectId, this.isPrivate,
+            return new BFunctionSymbolDTO(this.id, this.packageId, this.objectId, this.isPrivate, this.isAction, 
                     this.isAttached, this.name, this.completionItem);
         }
     }

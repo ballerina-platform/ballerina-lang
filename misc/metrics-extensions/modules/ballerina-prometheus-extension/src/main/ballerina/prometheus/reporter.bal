@@ -18,22 +18,19 @@ import ballerina/http;
 import ballerina/observe;
 import ballerina/config;
 
-@final string METRIC_TYPE_GAUGE = "gauge";
-@final string METRIC_TYPE_SUMMARY = "summary";
-@final string EMPTY_STRING = "";
+const string METRIC_TYPE_GAUGE = "gauge";
+const string METRIC_TYPE_SUMMARY = "summary";
+const string EMPTY_STRING = "";
 
-@final string PROMETHEUS_PORT_CONFIG = "b7a.observability.metrics.prometheus.port";
-@final string PROMETHEUS_HOST_CONFIG = "b7a.observability.metrics.prometheus.host";
-@final int REPORTER_PORT = config:getAsInt(PROMETHEUS_PORT_CONFIG, default = 9797);
-@final string REPORTER_HOST = config:getAsString(PROMETHEUS_HOST_CONFIG, default = "0.0.0.0");
+const string PROMETHEUS_PORT_CONFIG = "b7a.observability.metrics.prometheus.port";
+const string PROMETHEUS_HOST_CONFIG = "b7a.observability.metrics.prometheus.host";
+final int REPORTER_PORT = config:getAsInt(PROMETHEUS_PORT_CONFIG, default = 9797);
+final string REPORTER_HOST = config:getAsString(PROMETHEUS_HOST_CONFIG, default = "0.0.0.0");
 
-@final string EXPIRY_TAG = "timeWindow";
-@final string PERCENTILE_TAG = "quantile";
+const string EXPIRY_TAG = "timeWindow";
+const string PERCENTILE_TAG = "quantile";
 
-endpoint http:Listener prometheusListener {
-    host: REPORTER_HOST,
-    port: REPORTER_PORT
-};
+listener http:Listener prometheusListener = new(REPORTER_PORT, config = {host:REPORTER_HOST});
 
 @http:ServiceConfig {
     basePath: "/metrics"
@@ -41,7 +38,7 @@ endpoint http:Listener prometheusListener {
 //documentation {
 //    The Prometheus service reporter. This service will be called periodically by prometheus server.
 //}
-service<http:Service> PrometheusReporter bind prometheusListener {
+service PrometheusReporter on prometheusListener {
 
     # This method retrieves all metrics registered in the ballerina metrics registry,
     # and reformats based on the expected format by prometheus server.
@@ -50,39 +47,38 @@ service<http:Service> PrometheusReporter bind prometheusListener {
         path: "/",
         produces: ["application/text"]
     }
-    getMetrics(endpoint caller, http:Request req) {
+    resource function getMetrics(http:Caller caller, http:Request req) {
         observe:Metric[] metrics = observe:getAllMetrics();
         string payload = EMPTY_STRING;
-        foreach metric in metrics {
+        foreach var metric in metrics {
             string  qualifiedMetricName = metric.name.replaceAll("/", "_");
             string metricReportName = getMetricName(qualifiedMetricName, "value");
             payload += generateMetricHelp(metricReportName, metric.desc);
             payload += generateMetricInfo(metricReportName, metric.metricType);
             payload += generateMetric(metricReportName, metric.tags, metric.value);
-            if (metric.metricType.equalsIgnoreCase(METRIC_TYPE_GAUGE) && metric.summary != null){
+            if (metric.metricType.equalsIgnoreCase(METRIC_TYPE_GAUGE) && metric.summary !== ()){
                 map<string> tags = metric.tags;
                 observe:Snapshot[]? summaries = metric.summary;
-                match summaries {
-                    observe:Snapshot[] snapshots => {
-                        foreach aSnapshot in snapshots{
-                            tags[EXPIRY_TAG] = <string>aSnapshot.timeWindow;
-                            payload += generateMetricHelp(qualifiedMetricName, "A Summary of " +  qualifiedMetricName
-                                    + " for window of " + aSnapshot.timeWindow);
-                            payload += generateMetricInfo(qualifiedMetricName, METRIC_TYPE_SUMMARY);
-                            payload += generateMetric(getMetricName(qualifiedMetricName, "mean"), tags, aSnapshot.mean);
-                            payload += generateMetric(getMetricName(qualifiedMetricName, "max"), tags, aSnapshot.max);
-                            payload += generateMetric(getMetricName(qualifiedMetricName, "min"), tags, aSnapshot.min);
-                            payload += generateMetric(getMetricName(qualifiedMetricName, "stdDev"), tags,
-                                       aSnapshot.stdDev);
-                            foreach percentileValue in aSnapshot.percentileValues  {
-                                tags[PERCENTILE_TAG] = <string>percentileValue.percentile;
-                                payload += generateMetric(qualifiedMetricName, tags, percentileValue.value);
-                            }
-                            _ = tags.remove(EXPIRY_TAG);
-                            _ = tags.remove(PERCENTILE_TAG);
+                if (summaries is ()) {
+                    payload += "\n";
+                } else {
+                    foreach var aSnapshot in summaries {
+                        tags[EXPIRY_TAG] = <string>aSnapshot.timeWindow;
+                        payload += generateMetricHelp(qualifiedMetricName, "A Summary of " +  qualifiedMetricName + " for window of "
+                                                    + aSnapshot.timeWindow);
+                        payload += generateMetricInfo(qualifiedMetricName, METRIC_TYPE_SUMMARY);
+                        payload += generateMetric(getMetricName(qualifiedMetricName, "mean"), tags, aSnapshot.mean);
+                        payload += generateMetric(getMetricName(qualifiedMetricName, "max"), tags, aSnapshot.max);
+                        payload += generateMetric(getMetricName(qualifiedMetricName, "min"), tags, aSnapshot.min);
+                        payload += generateMetric(getMetricName(qualifiedMetricName, "stdDev"), tags,
+                        aSnapshot.stdDev);
+                        foreach var percentileValue in aSnapshot.percentileValues  {
+                            tags[PERCENTILE_TAG] = <string>percentileValue.percentile;
+                            payload += generateMetric(qualifiedMetricName, tags, percentileValue.value);
                         }
+                        _ = tags.remove(EXPIRY_TAG);
+                        _ = tags.remove(PERCENTILE_TAG);
                     }
-                    () => {payload += "\n";}
                 }
             }
         }
@@ -115,24 +111,23 @@ function generateMetricHelp(string name, string description) returns string {
 # + metric - Formatted metric values.
 function generateMetric(string name, map<string>? labels, int|float value) returns string {
     string strValue = "";
-    match value {
-        int intValue => strValue = (<string>intValue) + ".0";
-        float floatValue => strValue = <string>floatValue;
+    if (value is int) {
+        strValue = (<string>value) + ".0";
+    } else if (value is float) {
+        strValue = <string>value;
     }
-    match labels {
-        map<string> mapLabels => {
-            string strLabels = getLabelsString(mapLabels);
-            return (name + strLabels + " " + strValue + "\n");
-        }
-        () => {
-            return (name + " " + strValue + "\n");
-        }
+
+    if (labels is map<string>) {
+        string strLabels = getLabelsString(labels);
+        return (name + strLabels + " " + strValue + "\n");
+    } else {
+        return (name + " " + strValue + "\n");
     }
 }
 
 function getLabelsString(map<string> labels) returns string {
     string stringLabel = "{";
-    foreach key, value in labels {
+    foreach var (key, value) in labels {
         string labelKey = key.replaceAll("\\.", "_");
         string entry = labelKey + "=\"" + value + "\"";
         stringLabel += (entry + ",");

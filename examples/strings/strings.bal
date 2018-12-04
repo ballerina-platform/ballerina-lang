@@ -3,7 +3,7 @@ import ballerina/io;
 
 public function main() {
 
-    string statement = "Lion in Town. Catch the Lion ";
+    string statement = "Lion in Town. Catch the Lion";
 
     string s1 = statement.toUpper();
     io:println("ToUpper: " + s1);
@@ -13,7 +13,7 @@ public function main() {
 
     //This compares two strings ignoring the case. It returns 'true' if the strings are equal, or 'false' if they are not equal.
     boolean isEqual =
-            statement.equalsIgnoreCase("lion in town. catch the lion ");
+            statement.equalsIgnoreCase("lion in town. catch the lion");
     io:println("EqualsIgnoreCase: " + isEqual);
 
     //This returns a new string that is a substring of the specified string. You must provide the original string,
@@ -58,7 +58,7 @@ public function main() {
     io:println("Trim: " + s8);
 
     //This checks whether the given string ends with the specified suffix.
-    boolean hasSuffix = statement.hasSuffix("Lion ");
+    boolean hasSuffix = statement.hasSuffix("Lion");
     io:println("HasSuffix: " + hasSuffix);
 
     //This checks whether the given string starts with the specified prefix.

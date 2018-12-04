@@ -10,7 +10,7 @@ ValueOf: 5.8
 ReplaceFirst: Tiger in Town. Catch the Lion
 Replace: Tiger in Town. Catch the Tiger
 ReplaceAll: Li0n in T0wn. Catch the Li0n
-Length: 29
+Length: 28
 Trim: Lion in Town. Catch the Lion
 HasSuffix: true
 HasPrefix: true

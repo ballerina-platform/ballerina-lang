@@ -72,7 +72,7 @@ service<http:Service> onlineStoreService bind { port: 9090 } {
             , statisticConfig = statsConfigs);
         int i = 1;
         while (i < 6) {
-            gaugeWithCustomStats.setValue(100 * i);
+            gaugeWithCustomStats.setValue(100.0 * i);
             i = i + 1;
         }
         //Log the current state of registered gauge with tags.
@@ -86,10 +86,11 @@ service<http:Service> onlineStoreService bind { port: 9090 } {
         res.setPayload("Order Processed!");
 
         // Send the response back to the caller.
-        caller->respond(res) but {
-            error e => log:printError(
-                           "Error sending response", err = e)
-        };
+        var result = caller->respond(res);
+
+        if (result is error) {
+            log:printError("Error sending response", err = result);
+        }
     }
 }
 

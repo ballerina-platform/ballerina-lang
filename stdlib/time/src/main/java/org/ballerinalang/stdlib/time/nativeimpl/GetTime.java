@@ -23,8 +23,8 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -56,7 +56,7 @@ public class GetTime extends AbstractTimeFunction {
     @Override
     public void execute(Context context) {
         BMap<String, BValue> timeStruct = ((BMap<String, BValue>) context.getRefArgument(0));
-        BRefValueArray time = new BRefValueArray(getTimeTupleType);
+        BValueArray time = new BValueArray(getTimeTupleType);
         time.add(0, new BInteger(getHour(timeStruct)));
         time.add(1, new BInteger(getMinute(timeStruct)));
         time.add(2, new BInteger(getSecond(timeStruct)));

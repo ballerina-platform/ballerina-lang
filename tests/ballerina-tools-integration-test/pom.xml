@@ -212,7 +212,7 @@
                                                         <fileset dir="${basedir}/../../misc/metrics-extensions/modules/ballerina-metrics-extension/target/classes" />
                                                         <fileset dir="${basedir}/../../misc/metrics-extensions/modules/ballerina-prometheus-extension/target/classes" />
                                                         <fileset dir="${basedir}/../../misc/protobuf-ballerina/target/classes" />
-                                                        <fileset dir="${basedir}/../../misc/swagger-ballerina/modules/ballerina-code-generator/target/classes" />
+                                                        <!--<fileset dir="${basedir}/../../misc/swagger-ballerina/modules/ballerina-code-generator/target/classes" />-->
                                                         <fileset dir="${basedir}/../../misc/swagger-ballerina/modules/ballerina-to-swagger/target/classes" />
                                                         <fileset dir="${basedir}/../../misc/swagger-ballerina/modules/swagger-to-ballerina-generator/target/classes" />
                                                         <fileset dir="${basedir}/../../misc/testerina/modules/testerina-core/target/classes" />
@@ -256,7 +256,7 @@
                                                         <fileset dir="${basedir}/../../misc/metrics-extensions/modules/ballerina-metrics-extension/src/main/java" />
                                                         <fileset dir="${basedir}/../../misc/metrics-extensions/modules/ballerina-prometheus-extension/src/main/java" />
                                                         <fileset dir="${basedir}/../../misc/protobuf-ballerina/src/main/java" />
-                                                        <fileset dir="${basedir}/../../misc/swagger-ballerina/modules/ballerina-code-generator/src/main/java" />
+                                                        <!--<fileset dir="${basedir}/../../misc/swagger-ballerina/modules/ballerina-code-generator/src/main/java" />-->
                                                         <fileset dir="${basedir}/../../misc/swagger-ballerina/modules/ballerina-to-swagger/src/main/java" />
                                                         <fileset dir="${basedir}/../../misc/swagger-ballerina/modules/swagger-to-ballerina-generator/src/main/java" />
                                                         <fileset dir="${basedir}/../../misc/testerina/modules/testerina-core/src/main/java" />
@@ -328,7 +328,7 @@
 
         <ballerina.unit.test.coverage>${basedir}/../ballerina-unit-test/target/coverage-reports</ballerina.unit.test.coverage>
         <ballerina.integration.test.coverage>${basedir}/../ballerina-integration-test/target/coverage-reports</ballerina.integration.test.coverage>
-        <ballerina.tools.integration.test.coverage>${build.directory}/coverage-reports</ballerina.tools.integration.test.coverage>
+        <ballerina.tools.integration.test.coverage>${project.build.directory}/coverage-reports</ballerina.tools.integration.test.coverage>
         <ballerina.compiler.plugin.test.coverage>${basedir}/../ballerina-compiler-plugin-test/target/coverage-reports</ballerina.compiler.plugin.test.coverage>
         <docerina.test.coverage>${basedir}/../../misc/docerina/target/coverage-reports</docerina.test.coverage>
         <ballerina.metrics.extension.test.coverage>${basedir}/../../misc/metrics-extensions/modules/ballerina-metrics-extension/target/coverage-reports</ballerina.metrics.extension.test.coverage>

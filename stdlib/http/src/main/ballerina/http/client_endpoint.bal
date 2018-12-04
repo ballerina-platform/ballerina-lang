@@ -24,27 +24,174 @@ import ballerina/io;
 # provides includes functions for the standard HTTP methods, forwarding a received request and sending requests
 # using custom HTTP verbs.
 
-# + epName - The name of the client
 # + config - The configurations associated with the client
-# + httpClient - The provider which implements the HTTP methods
-public type Client object {
+# + httpClient - Chain of different HTTP clients which provides the capability for initiating contact with a remote
+#                HTTP service in resilient manner
+public type Client client object {
 
-    public string epName;
-    public ClientEndpointConfig config;
-    public CallerActions httpClient;
+    public ClientEndpointConfig config = {};
+    public Client httpClient;
 
-    # Gets invoked to initialize the endpoint. During initialization, configurations provided through the `config`
-    # record is used to determine which type of additional behaviours are added to the endpoint (e.g: caching,
-    # security, circuit breaking).
+    public function __init(string url, ClientEndpointConfig? config = ()) {
+        self.config = config ?: {};
+        var result = initialize(url, self.config);
+        if (result is error) {
+            panic result;
+        } else {
+            self.httpClient = result;
+        }
+    }
+
+    # The `post()` function can be used to send HTTP POST requests to HTTP endpoints.
     #
-    # + c - The configurations to be used when initializing the endpoint
-    public function init(ClientEndpointConfig c);
+    # + path - Resource path
+    # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
+    # + return - The response for the request or an `error` if failed to establish communication with the upstream server
+    public remote function post(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+                                                            message) returns Response|error {
+        return self.httpClient->post(path, message);
+    }
 
-    # Returns the HTTP actions associated with the endpoint.
+    # The `head()` function can be used to send HTTP HEAD requests to HTTP endpoints.
     #
-    # + return - The HTTP caller actions provider of the endpoint
-    public function getCallerActions() returns CallerActions {
-        return self.httpClient;
+    # + path - Resource path
+    # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
+    # + return - The response for the request or an `error` if failed to establish communication with the upstream server
+    public remote function head(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+                                                            message = ()) returns Response|error {
+        return self.httpClient->head(path, message = message);
+    }
+
+    # The `put()` function can be used to send HTTP PUT requests to HTTP endpoints.
+    #
+    # + path - Resource path
+    # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
+    # + return - The response for the request or an `error` if failed to establish communication with the upstream server
+    public remote function put(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+                                                            message) returns Response|error {
+        return self.httpClient->put(path, message);
+    }
+
+    # Invokes an HTTP call with the specified HTTP verb.
+    #
+    # + httpVerb - HTTP verb value
+    # + path - Resource path
+    # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
+    # + return - The response for the request or an `error` if failed to establish communication with the upstream server
+    public remote function execute(@sensitive string httpVerb, @sensitive string path, Request|string|xml|json|byte[]
+                                                            |io:ReadableByteChannel|mime:Entity[]|() message) returns Response|error {
+        return self.httpClient->execute(httpVerb, path, message);
+    }
+
+    # The `patch()` function can be used to send HTTP PATCH requests to HTTP endpoints.
+    #
+    # + path - Resource path
+    # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
+    # + return - The response for the request or an `error` if failed to establish communication with the upstream server
+    public remote function patch(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+                                                            message) returns Response|error {
+        return self.httpClient->patch(path, message);
+    }
+
+    # The `delete()` function can be used to send HTTP DELETE requests to HTTP endpoints.
+    #
+    # + path - Resource path
+    # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
+    # + return - The response for the request or an `error` if failed to establish communication with the upstream server
+    public remote function delete(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+                                                            message) returns Response|error {
+        return self.httpClient->delete(path, message);
+    }
+
+    # The `get()` function can be used to send HTTP GET requests to HTTP endpoints.
+    #
+    # + path - Request path
+    # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
+    # + return - The response for the request or an `error` if failed to establish communication with the upstream server
+    public remote function get(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+                                                            message = ()) returns Response|error {
+        return self.httpClient->get(path, message = message);
+    }
+
+    # The `options()` function can be used to send HTTP OPTIONS requests to HTTP endpoints.
+    #
+    # + path - Request path
+    # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
+    # + return - The response for the request or an `error` if failed to establish communication with the upstream server
+    public remote function options(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
+                                                            message = ()) returns Response|error {
+        return self.httpClient->options(path, message = message);
+    }
+
+    # The `forward()` function can be used to invoke an HTTP call with inbound request's HTTP verb
+    #
+    # + path - Request path
+    # + request - An HTTP inbound request message
+    # + return - The response for the request or an `error` if failed to establish communication with the upstream server
+    public remote function forward(@sensitive string path, Request request) returns Response|error {
+        return self.httpClient->forward(path, request);
+    }
+
+    # Submits an HTTP request to a service with the specified HTTP verb.
+    # The `submit()` function does not give out a `Response` as the result,
+    # rather it returns an `HttpFuture` which can be used to do further interactions with the endpoint.
+    #
+    # + httpVerb - The HTTP verb value
+    # + path - The resource path
+    # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
+    # + return - An `HttpFuture` that represents an asynchronous service invocation, or an `error` if the submission fails
+    public remote function submit(@sensitive string httpVerb, string path, Request|string|xml|json|byte[]|
+                                            io:ReadableByteChannel|mime:Entity[]|() message) returns HttpFuture|error {
+        return self.httpClient->submit(httpVerb, path, message);
+
+    }
+
+    # This just pass the request to actual network call.
+    #
+    # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
+    # + return - An HTTP response message, or an error if the invocation fails
+    public remote function getResponse(HttpFuture httpFuture) returns Response|error {
+        return self.httpClient->getResponse(httpFuture);
+    }
+
+    # This just pass the request to actual network call.
+    #
+    # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
+    # + return - A `boolean` that represents whether a `PushPromise` exists
+    public remote function hasPromise(HttpFuture httpFuture) returns boolean {
+        return self.httpClient->hasPromise(httpFuture);
+    }
+
+    # This just pass the request to actual network call.
+    #
+    # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
+    # + return - An HTTP Push Promise message, or an error if the invocation fails
+    public remote function getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
+        return self.httpClient->getNextPromise(httpFuture);
+    }
+
+    # This just pass the request to actual network call.
+    #
+    # + promise - The related `PushPromise`
+    # + return - A promised HTTP `Response` message, or an error if the invocation fails
+    public remote function getPromisedResponse(PushPromise promise) returns Response|error {
+        return self.httpClient->getPromisedResponse(promise);
+    }
+
+    # This just pass the request to actual network call.
+    #
+    # + promise - The Push Promise to be rejected
+    public remote function rejectPromise(PushPromise promise) {
+        return self.httpClient->rejectPromise(promise);
     }
 };
 
@@ -53,14 +200,13 @@ public type Client object {
 # + url - URL of the target service
 # + secureSocket - Configurations for secure communication with the remote HTTP endpoint
 public type TargetService record {
-    string url;
-    SecureSocket? secureSocket;
+    string url = "";
+    SecureSocket? secureSocket = ();
     !...
 };
 
 # Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.
 #
-# + url - URL of the target service
 # + circuitBreaker - Configurations associated with Circuit Breaker behaviour
 # + timeoutMillis - The maximum time to wait (in milliseconds) for a response before closing the connection
 # + keepAlive - Specifies whether to reuse a connection for multiple requests
@@ -74,29 +220,26 @@ public type TargetService record {
 # + secureSocket - SSL/TLS related options
 # + cache - HTTP caching related configurations
 # + compression - Specifies the way of handling compression (`accept-encoding`) header
-# + auth - HTTP authentication releated configurations
+# + auth - HTTP authentication related configurations
 public type ClientEndpointConfig record {
-    string url;
-    CircuitBreakerConfig? circuitBreaker;
+    CircuitBreakerConfig? circuitBreaker = ();
     int timeoutMillis = 60000;
     KeepAlive keepAlive = KEEPALIVE_AUTO;
     Chunking chunking = "AUTO";
     string httpVersion = "1.1";
     string forwarded = "disable";
-    FollowRedirects? followRedirects;
-    RetryConfig? retryConfig;
-    ProxyConfig? proxy;
-    ConnectionThrottling? connectionThrottling;
-    SecureSocket? secureSocket;
-    CacheConfig cache;
+    FollowRedirects? followRedirects = ();
+    RetryConfig? retryConfig = ();
+    ProxyConfig? proxy = ();
+    ConnectionThrottling? connectionThrottling = ();
+    SecureSocket? secureSocket = ();
+    CacheConfig cache = {};
     Compression compression = COMPRESSION_AUTO;
-    AuthConfig? auth;
+    AuthConfig? auth = ();
     !...
 };
 
-extern function createHttpClient(string uri, ClientEndpointConfig config) returns CallerActions;
-
-extern function createSimpleHttpClient(string uri, ClientEndpointConfig config) returns CallerActions;
+extern function createSimpleHttpClient(string uri, ClientEndpointConfig config) returns Client;
 
 # Provides configurations for controlling the retry behaviour in failure scenarios.
 #
@@ -106,11 +249,11 @@ extern function createSimpleHttpClient(string uri, ClientEndpointConfig config) 
 # + maxWaitInterval - Maximum time of the retry interval in milliseconds
 # + statusCodes - HTTP response status codes which are considered as failures
 public type RetryConfig record {
-    int count;
-    int interval;
-    float backOffFactor;
-    int maxWaitInterval;
-    int[] statusCodes;
+    int count = 0;
+    int interval = 0;
+    float backOffFactor = 0.0;
+    int maxWaitInterval = 0;
+    int[] statusCodes = [];
     !...
 };
 
@@ -130,18 +273,18 @@ public type RetryConfig record {
 # + shareSession - Enable/disable new SSL session creation
 # + ocspStapling - Enable/disable OCSP stapling
 public type SecureSocket record {
-    TrustStore? trustStore;
-    KeyStore? keyStore;
-    string certFile;
-    string keyFile;
-    string keyPassword;
-    string trustedCertFile;
-    Protocols? protocol;
-    ValidateCert? certValidation;
-    string[] ciphers;
+    TrustStore? trustStore = ();
+    KeyStore? keyStore = ();
+    string certFile = "";
+    string keyFile = "";
+    string keyPassword = "";
+    string trustedCertFile = "";
+    Protocols? protocol = ();
+    ValidateCert? certValidation = ();
+    string[] ciphers = [];
     boolean verifyHostname = true;
     boolean shareSession = true;
-    boolean ocspStapling;
+    boolean ocspStapling = false;
     !...
 };
 
@@ -162,10 +305,10 @@ public type FollowRedirects record {
 # + userName - Proxy server username
 # + password - proxy server password
 public type ProxyConfig record {
-    string host;
-    int port;
-    string userName;
-    string password;
+    string host = "";
+    int port = 0;
+    string userName = "";
+    string password = "";
     !...
 };
 
@@ -178,7 +321,8 @@ public type ProxyConfig record {
 public type ConnectionThrottling record {
     int maxActiveConnections = -1;
     int waitTime = 60000;
-    int maxActiveStreamsPerConnection = -1;
+    // In order to distribute the workload among multiple connections in HTTP/2 scenario.
+    int maxActiveStreamsPerConnection = 20000;
     !...
 };
 
@@ -199,170 +343,174 @@ public type ConnectionThrottling record {
 # + scopes - Scope of the access request
 public type AuthConfig record {
     AuthScheme scheme;
-    string username;
-    string password;
-    string accessToken;
-    string refreshToken;
-    string refreshUrl;
-    string consumerKey;
-    string consumerSecret;
-    string tokenUrl;
-    string clientId;
-    string clientSecret;
+    string username = "";
+    string password = "";
+    string accessToken = "";
+    string refreshToken = "";
+    string refreshUrl = "";
+    string consumerKey = "";
+    string consumerSecret = "";
+    string tokenUrl = "";
+    string clientId = "";
+    string clientSecret = "";
     CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
-    string[] scopes;
+    string[] scopes = [];
     !...
 };
 
-function Client::init(ClientEndpointConfig c) {
+function initialize(string serviceUrl, ClientEndpointConfig config) returns Client|error {
     boolean httpClientRequired = false;
-    string url = c.url;
+    string url = serviceUrl;
     if (url.hasSuffix("/")) {
         int lastIndex = url.length() - 1;
         url = url.substring(0, lastIndex);
     }
-    self.config = c;
-    var cbConfig = c.circuitBreaker;
-    match cbConfig {
-        CircuitBreakerConfig cb => {
-            if (url.hasSuffix("/")) {
-                int lastIndex = url.length() - 1;
-                url = url.substring(0, lastIndex);
-            }
-            httpClientRequired = false;
+    var cbConfig = config.circuitBreaker;
+    if (cbConfig is CircuitBreakerConfig) {
+        if (url.hasSuffix("/")) {
+            int lastIndex = url.length() -1;
+            url = url.substring(0, lastIndex);
         }
-        () => {
-            httpClientRequired = true;
+    } else {
+        httpClientRequired = true;
+    }
+    if (httpClientRequired) {
+        var redirectConfigVal = config.followRedirects;
+        if (redirectConfigVal is FollowRedirects) {
+            return createRedirectClient(url, config);
+        } else {
+            return checkForRetry(url, config);
+        }
+    } else {
+        return createCircuitBreakerClient(url, config);
+    }
+}
+
+function createRedirectClient(string url, ClientEndpointConfig configuration) returns Client|error {
+    var redirectConfig = configuration.followRedirects;
+    if (redirectConfig is FollowRedirects) {
+        if (redirectConfig.enabled) {
+            var retryClient = createRetryClient(url, configuration);
+            if (retryClient is Client) {
+                return new RedirectClient(url, configuration, redirectConfig, retryClient);
+            } else {
+                return retryClient;
+            }
+        } else {
+            return createRetryClient(url, configuration);
+        }
+    } else {
+        return createRetryClient(url, configuration);
+    }
+}
+
+function checkForRetry(string url, ClientEndpointConfig config) returns Client|error {
+    var retryConfigVal = config.retryConfig;
+    if (retryConfigVal is RetryConfig) {
+        return createRetryClient(url, config);
+    } else {
+        if (config.cache.enabled) {
+            return createHttpCachingClient(url, config, config.cache);
+        } else {
+            return createHttpSecureClient(url, config);
         }
     }
+}
 
-    if (httpClientRequired) {
-        var redirectConfigVal = c.followRedirects;
-        match redirectConfigVal {
-            FollowRedirects redirectConfig => {
-                self.httpClient = createRedirectClient(url, c);
+function createCircuitBreakerClient(string uri, ClientEndpointConfig configuration) returns Client|error {
+    Client cbHttpClient;
+    var cbConfig = configuration.circuitBreaker;
+    if (cbConfig is CircuitBreakerConfig) {
+        validateCircuitBreakerConfiguration(cbConfig);
+        boolean [] statusCodes = populateErrorCodeIndex(cbConfig.statusCodes);
+        var redirectConfig = configuration.followRedirects;
+        if (redirectConfig is FollowRedirects) {
+            var redirectClient = createRedirectClient(uri, configuration);
+            if (redirectClient is Client) {
+                cbHttpClient = redirectClient;
+            } else {
+                return redirectClient;
             }
-            () => {
-                self.httpClient = checkForRetry(url, c);
+        } else {
+            var retryClient = checkForRetry(uri, configuration);
+            if (retryClient is Client) {
+                cbHttpClient = retryClient;
+            } else {
+                return retryClient;
+            }
+        }
+
+        time:Time circuitStartTime = time:currentTime();
+        int numberOfBuckets = (cbConfig.rollingWindow.timeWindowMillis/ cbConfig.rollingWindow.bucketSizeMillis);
+        Bucket[] bucketArray = [];
+        int bucketIndex = 0;
+        while (bucketIndex < numberOfBuckets) {
+            bucketArray[bucketIndex] = {};
+            bucketIndex = bucketIndex + 1;
+        }
+
+        CircuitBreakerInferredConfig circuitBreakerInferredConfig = {
+                                                            failureThreshold:cbConfig.failureThreshold,
+                                                            resetTimeMillis:cbConfig.resetTimeMillis,
+                                                            statusCodes:statusCodes,
+                                                            noOfBuckets:numberOfBuckets,
+                                                            rollingWindow:cbConfig.rollingWindow
+                                                        };
+        CircuitHealth circuitHealth = {
+                                        startTime:circuitStartTime,
+                                        lastRequestTime:circuitStartTime,
+                                        lastErrorTime:circuitStartTime,
+                                        lastForcedOpenTime:circuitStartTime,
+                                        totalBuckets: bucketArray
+                                      };
+        return new CircuitBreakerClient(uri, configuration, circuitBreakerInferredConfig, cbHttpClient, circuitHealth);
+    } else {
+        //remove following once we can ignore
+        if (configuration.cache.enabled) {
+            return createHttpCachingClient(uri, configuration, configuration.cache);
+        } else {
+            return createHttpSecureClient(uri, configuration);
+        }
+    }
+}
+
+function createRetryClient(string url, ClientEndpointConfig configuration) returns Client|error {
+    var retryConfig = configuration.retryConfig;
+    if (retryConfig is RetryConfig) {
+        boolean[] statusCodes = populateErrorCodeIndex(retryConfig.statusCodes);
+        RetryInferredConfig retryInferredConfig = {
+            count: retryConfig.count,
+            interval: retryConfig.interval,
+            backOffFactor: retryConfig.backOffFactor,
+            maxWaitInterval: retryConfig.maxWaitInterval,
+            statusCodes: statusCodes
+        };
+        if (configuration.cache.enabled) {
+            var httpCachingClient = createHttpCachingClient(url, configuration, configuration.cache);
+            if (httpCachingClient is Client) {
+                return new RetryClient(url, configuration, retryInferredConfig, httpCachingClient);
+            } else {
+                return httpCachingClient;
+            }
+        } else{
+            var httpSecureClient = createHttpSecureClient(url, configuration);
+            if (httpSecureClient is Client) {
+                return new RetryClient(url, configuration, retryInferredConfig, httpSecureClient);
+            } else {
+                return httpSecureClient;
             }
         }
     } else {
-        self.httpClient = createCircuitBreakerClient(url, c);
-    }
-}
-
-function createRedirectClient(string url, ClientEndpointConfig configuration) returns CallerActions {
-    var redirectConfigVal = configuration.followRedirects;
-    match redirectConfigVal {
-        FollowRedirects redirectConfig => {
-            if (redirectConfig.enabled) {
-                return new RedirectClient(url, configuration, redirectConfig, createRetryClient(url, configuration));
-            } else {
-                return createRetryClient(url, configuration);
-            }
-        }
-        () => {
-            return createRetryClient(url, configuration);
+        //remove following once we can ignore
+        if (configuration.cache.enabled) {
+            return createHttpCachingClient(url, configuration, configuration.cache);
+        } else {
+            return createHttpSecureClient(url, configuration);
         }
     }
 }
 
-function checkForRetry(string url, ClientEndpointConfig config) returns CallerActions {
-    var retryConfigVal = config.retryConfig;
-    match retryConfigVal {
-        RetryConfig retryConfig => {
-            return createRetryClient(url, config);
-        }
-        () => {
-            if (config.cache.enabled) {
-                return createHttpCachingClient(url, config, config.cache);
-            } else {
-                return createHttpSecureClient(url, config);
-            }
-        }
-    }
-}
-
-function createCircuitBreakerClient(string uri, ClientEndpointConfig configuration) returns CallerActions {
-    var cbConfig = configuration.circuitBreaker;
-    match cbConfig {
-        CircuitBreakerConfig cb => {
-            validateCircuitBreakerConfiguration(cb);
-            boolean [] statusCodes = populateErrorCodeIndex(cb.statusCodes);
-            CallerActions cbHttpClient = new;
-            var redirectConfigVal = configuration.followRedirects;
-            match redirectConfigVal {
-                FollowRedirects redirectConfig => {
-                    cbHttpClient = createRedirectClient(uri, configuration);
-                }
-                () => {
-                    cbHttpClient = checkForRetry(uri, configuration);
-                }
-            }
-
-            time:Time circuitStartTime = time:currentTime();
-            int numberOfBuckets = (cb.rollingWindow.timeWindowMillis/ cb.rollingWindow.bucketSizeMillis);
-            Bucket[] bucketArray = [];
-            int bucketIndex = 0;
-            while (bucketIndex < numberOfBuckets) {
-                bucketArray[bucketIndex] = {};
-                bucketIndex = bucketIndex + 1;
-            }
-
-            CircuitBreakerInferredConfig circuitBreakerInferredConfig = {
-                                                                failureThreshold:cb.failureThreshold,
-                                                                resetTimeMillis:cb.resetTimeMillis,
-                                                                statusCodes:statusCodes,
-                                                                noOfBuckets:numberOfBuckets,
-                                                                rollingWindow:cb.rollingWindow
-                                                            };
-            CircuitHealth circuitHealth = {
-                                            startTime:circuitStartTime,
-                                            lastRequestTime:circuitStartTime,
-                                            lastErrorTime:circuitStartTime,
-                                            lastForcedOpenTime:circuitStartTime,
-                                            totalBuckets: bucketArray
-                                          };
-            return new CircuitBreakerClient(uri, configuration, circuitBreakerInferredConfig, cbHttpClient, circuitHealth);
-        }
-        () => {
-            //remove following once we can ignore
-            if (configuration.cache.enabled) {
-                return createHttpCachingClient(uri, configuration, configuration.cache);
-            } else {
-                return createHttpSecureClient(uri, configuration);
-            }
-        }
-    }
-}
-
-function createRetryClient(string url, ClientEndpointConfig configuration) returns CallerActions {
-    var retryConfigVal = configuration.retryConfig;
-    match retryConfigVal {
-        RetryConfig retryConfig => {
-            boolean[] statusCodes = populateErrorCodeIndex(retryConfig.statusCodes);
-            RetryInferredConfig retryInferredConfig = {
-                count: retryConfig.count,
-                interval: retryConfig.interval,
-                backOffFactor: retryConfig.backOffFactor,
-                maxWaitInterval: retryConfig.maxWaitInterval,
-                statusCodes: statusCodes
-            };
-            if (configuration.cache.enabled) {
-                return new RetryClient(url, configuration, retryInferredConfig,
-                    createHttpCachingClient(url, configuration, configuration.cache));
-            } else{
-                return new RetryClient(url, configuration, retryInferredConfig,
-                    createHttpSecureClient(url, configuration));
-            }
-        }
-        () => {
-            //remove following once we can ignore
-            if (configuration.cache.enabled) {
-                return createHttpCachingClient(url, configuration, configuration.cache);
-            } else {
-                return createHttpSecureClient(url, configuration);
-            }
-        }
-    }
+function createClient(string url, ClientEndpointConfig config) returns Client|error {
+    HttpClient simpleClient =  new(url, config);
+    return simpleClient;
 }

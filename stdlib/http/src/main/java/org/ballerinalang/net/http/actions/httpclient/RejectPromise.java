@@ -21,7 +21,6 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpConstants;
@@ -36,13 +35,8 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "rejectPromise",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = HttpConstants.CALLER_ACTIONS,
-                structPackage = "ballerina/http"),
-        args = {
-                @Argument(name = "client", type = TypeKind.OBJECT),
-                @Argument(name = "promise", type = TypeKind.OBJECT, structType = "PushPromise",
-                        structPackage = "ballerina/http")
-        }
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = HttpConstants.HTTP_CALLER,
+                structPackage = "ballerina/http")
 )
 public class RejectPromise extends AbstractHTTPAction {
 
@@ -55,8 +49,8 @@ public class RejectPromise extends AbstractHTTPAction {
             throw new BallerinaException("invalid push promise");
         }
         BMap<String, BValue> bConnector = (BMap<String, BValue>) context.getRefArgument(0);
-        HttpClientConnector clientConnector =
-                (HttpClientConnector) bConnector.getNativeData(HttpConstants.CALLER_ACTIONS);
+        HttpClientConnector clientConnector = (HttpClientConnector) ((BMap<String, BValue>) bConnector.values()[0])
+                .getNativeData(HttpConstants.HTTP_CLIENT);
         clientConnector.rejectPushResponse(http2PushPromise);
         callback.notifySuccess();
     }

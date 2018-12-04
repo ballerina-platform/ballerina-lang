@@ -25,6 +25,8 @@ import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.util.exceptions.BLangFreezeException;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
  * {@code Add} is the function to add data to a table.
@@ -45,6 +47,10 @@ public class Add extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BTable table = (BTable) context.getRefArgument(0);
         BMap<String, BValue> data = (BMap) context.getRefArgument(1);
-        table.performAddOperation(data, context);
+        try {
+            table.performAddOperation(data, context);
+        } catch (BLangFreezeException e) {
+            throw new BallerinaException("Failed to add data to the table: " + e.getMessage());
+        }
     }
 }

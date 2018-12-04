@@ -22,10 +22,9 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -58,7 +57,7 @@ public class Sprintf extends BlockingNativeCallableUnit {
     @Override
     public final void execute(final Context context) {
         String format = context.getStringArgument(0);
-        BRefValueArray args = (BRefValueArray) context.getRefArgument(0);
+        BValueArray args = (BValueArray) context.getRefArgument(0);
         StringBuilder result = new StringBuilder();
 
         /* Special chars in case additional formatting is required later
@@ -101,14 +100,14 @@ public class Sprintf extends BlockingNativeCallableUnit {
                         case 'B':
                         case 'd':
                         case 'f':
-                            result.append(String.format("%" + padding + formatSpecifier, args.get(k).value()));
+                            result.append(String.format("%" + padding + formatSpecifier, args.getRefValue(k).value()));
                             break;
                         case 'x':
                         case 'X':
                             formatHexString(args, result, k, padding, formatSpecifier);
                             break;
                         case 's':
-                            result.append(String.format("%" + padding + "s", args.get(k).stringValue()));
+                            result.append(String.format("%" + padding + "s", args.getRefValue(k).stringValue()));
                             break;
                         case '%':
                             result.append("%");
@@ -120,7 +119,8 @@ public class Sprintf extends BlockingNativeCallableUnit {
                     }
                 } catch (IllegalFormatConversionException e) {
                     throw BLangExceptionHelper.getRuntimeException(
-                            RuntimeErrors.ILLEGAL_FORMAT_CONVERSION, format.charAt(j) + " != " + args.get(k).getType());
+                            RuntimeErrors.ILLEGAL_FORMAT_CONVERSION,
+                            format.charAt(j) + " != " + args.getRefValue(k).getType());
                 }
                 if (format.charAt(j) == '%') {
                     // special case %%, don't count as a format specifier
@@ -137,16 +137,16 @@ public class Sprintf extends BlockingNativeCallableUnit {
         context.setReturnValues(new BString(result.toString()));
     }
 
-    private void formatHexString(BRefValueArray args, StringBuilder result, int k, StringBuilder padding, char x) {
-        BRefType ref = args.get(k);
+    private void formatHexString(BValueArray args, StringBuilder result, int k, StringBuilder padding, char x) {
+        BRefType ref = args.getRefValue(k);
         if (TypeTags.ARRAY_TAG == ref.getType().getTag() &&
                 TypeTags.BYTE_TAG == ((BArrayType) ref.getType()).getElementType().getTag()) {
-            BByteArray byteArray = ((BByteArray) ref);
+            BValueArray byteArray = ((BValueArray) ref);
             for (int i = 0; i < byteArray.size(); i++) {
-                result.append(String.format("%" + padding + x, byteArray.get(i)));
+                result.append(String.format("%" + padding + x, byteArray.getByte(i)));
             }
         } else {
-            result.append(String.format("%" + padding + x, args.get(k).value()));
+            result.append(String.format("%" + padding + x, args.getRefValue(k).value()));
         }
     }
 }

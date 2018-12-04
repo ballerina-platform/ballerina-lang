@@ -21,6 +21,7 @@ import org.awaitility.Duration;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
+import org.ballerinalang.test.context.LogLeecher.LeecherType;
 import org.ballerinalang.test.utils.PackagingTestUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -81,9 +82,9 @@ public class PackagingTestCase extends BaseTest {
         datePushed = dtf.format(LocalDateTime.now());
 
         // First try to push with the --no-build flag
-        String firstMsg = "ballerina: couldn't locate the package artifact to be pushed. Run 'ballerina push' " +
+        String firstMsg = "error: Couldn't locate the module artifact to be pushed. Run 'ballerina push' " +
                 "without the --no-build flag";
-        LogLeecher clientLeecher = new LogLeecher(firstMsg);
+        LogLeecher clientLeecher = new LogLeecher(firstMsg, LeecherType.ERROR);
         balClient.runMain("push", new String[]{moduleName, "--no-build"}, envVariables, new String[]{},
                           new LogLeecher[]{clientLeecher}, projectPath.toString());
         clientLeecher.waitForText(2000);
@@ -134,22 +135,23 @@ public class PackagingTestCase extends BaseTest {
     @Test(description = "Test searching a package from central", dependsOnMethods = "testPush")
     public void testSearch() throws BallerinaTestException, IOException {
         String[] clientArgs = {moduleName};
-        String msg = "Ballerina Central\n" +
-                "=================\n" +
-                "\n" +
-                "|NAME                                                  | DESCRIPTION                                " +
-                "                                       | AUTHOR         | DATE           | VERSION |\n" +
-                "|------------------------------------------------------| -------------------------------------------" +
-                "---------------------------------------| ---------------| ---------------| --------|\n" +
-                "|" + orgName + "/" + moduleName + "                             | Prints \"hello world\" to " +
-                "command line output" +
-                "                                       |                | " + datePushed + " | 0.0.1   |\n";
+        LogLeecher clientLeecherOne = new LogLeecher("Ballerina Central");
+        LogLeecher clientLeecherTwo = new LogLeecher("=================");
+        LogLeecher clientLeecherThree = new LogLeecher("|NAME            | DESCRIPTION                   | DATE     " +
+                                                               "      | VERSION |");
+        LogLeecher clientLeecherFour = new LogLeecher("|----------------| ------------------------------| " +
+                                                              "---------------| --------|");
+        LogLeecher clientLeecherFive = new LogLeecher("|integrationte...| Prints \"hello world\" to com...| " +
+                                                           datePushed + " | 0.0.1   |");
+        balClient.runMain("search", clientArgs, envVariables, new String[]{}, new LogLeecher[]{clientLeecherOne,
+                                  clientLeecherTwo, clientLeecherThree, clientLeecherFour, clientLeecherFive},
+                          balServer.getServerHome());
 
-        LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.runMain("search", clientArgs, envVariables, new String[]{},
-                new LogLeecher[]{clientLeecher}, balServer.getServerHome());
-
-        clientLeecher.waitForText(3000);
+        clientLeecherOne.waitForText(3000);
+        clientLeecherTwo.waitForText(1000);
+        clientLeecherThree.waitForText(1000);
+        clientLeecherFour.waitForText(1000);
+        clientLeecherFive.waitForText(1000);
     }
 
     @Test(description = "Test push all packages in project to central")
@@ -167,13 +169,13 @@ public class PackagingTestCase extends BaseTest {
         balClient.runMain("init", clientArgsForInit, envVariables, options,
                 new LogLeecher[]{}, projectPath.toString());
 
-        String msg = orgName + "/" + firstPackage + ":0.0.1 [project repo -> central]\n" +
-                orgName + "/" + secondPackage + ":0.0.1 [project repo -> central]";
-
-        LogLeecher clientLeecher = new LogLeecher(msg);
+        LogLeecher clientLeecherOne = new LogLeecher(orgName + "/" + firstPackage + ":0.0.1 [project repo -> central]");
+        LogLeecher clientLeecherTwo = new LogLeecher(orgName + "/" + secondPackage +
+                                                             ":0.0.1 [project repo -> central]");
         balClient.runMain("push", new String[0], envVariables, new String[]{},
-                new LogLeecher[]{clientLeecher}, projectPath.toString());
-        clientLeecher.waitForText(5000);
+                new LogLeecher[]{clientLeecherOne, clientLeecherTwo}, projectPath.toString());
+        clientLeecherOne.waitForText(5000);
+        clientLeecherTwo.waitForText(5000);
     }
 
     @Test(description = "Test ballerina version")
@@ -215,6 +217,7 @@ public class PackagingTestCase extends BaseTest {
         Assert.assertTrue(Files.notExists(tempHomeDirectory.resolve(dirPath).resolve(moduleName + ".zip")));
         Assert.assertTrue(Files.notExists(tempHomeDirectory.resolve(dirPath)));
     }
+
     /**
      * Get environment variables and add ballerina_home as a env variable the tmp directory.
      *

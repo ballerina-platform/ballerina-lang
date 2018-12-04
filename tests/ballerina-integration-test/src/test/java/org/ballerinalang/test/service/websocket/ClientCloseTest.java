@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Test client close without a close frame and using a close frame without a status code.
  */
-@Test(groups = "websocket-test")
+@Test(groups = {"websocket-test"})
 public class ClientCloseTest extends WebSocketTestCommons {
 
     private WebSocketTestClient client;

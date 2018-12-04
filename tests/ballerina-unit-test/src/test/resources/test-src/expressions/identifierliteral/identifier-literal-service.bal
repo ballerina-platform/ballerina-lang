@@ -1,8 +1,6 @@
 import ballerina/http;
 
-endpoint http:NonListener testEP {
-    port:9090
-};
+listener http:MockListener testEP = new(9090);
 
 @http:ServiceConfig {
     basePath:"/identifierLiteral",
@@ -14,13 +12,13 @@ endpoint http:NonListener testEP {
               maxAge : 1
           }
 }
-service<http:Service> ^"sample Service" bind testEP{
+service ^"sample Service" on testEP{
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/resource"
     }
-    ^"sample resource" (endpoint caller, http:Request req) {
+    resource function ^"sample resource" (http:Caller caller, http:Request req) {
         http:Response res = new;
         json responseJson = {"key":"keyVal", "value":"valueOfTheString"};
         res.setJsonPayload(responseJson);
@@ -31,7 +29,7 @@ service<http:Service> ^"sample Service" bind testEP{
         methods:["GET"],
         path:"/resource2"
     }
-    ^"sample resource2" (endpoint caller, http:Request req) {
+    resource function ^"sample resource2" (http:Caller caller, http:Request req) {
         http:Response res = new;
         string ^"a a" = "hello";
         res.setTextPayload(^"a a");

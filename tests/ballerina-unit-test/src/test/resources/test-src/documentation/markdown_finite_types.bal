@@ -2,7 +2,7 @@
 type state "foo"|"bar";
 
 #
-@final string foo = "foo";
+final string foo = "foo";
 
 #
-@final string bar = "bar";
+final string bar = "bar";

@@ -31,10 +31,10 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -89,7 +89,7 @@ public class TableJSONDataSource implements JSONDataSource {
 
     @Override
     public BRefType<?> build() {
-        BRefValueArray values = new BRefValueArray(new BArrayType(BTypes.typeJSON));
+        BValueArray values = new BValueArray(new BArrayType(BTypes.typeJSON));
         while (this.hasNext()) {
             values.append(this.next());
         }
@@ -108,7 +108,7 @@ public class TableJSONDataSource implements JSONDataSource {
             BStructureType structType = df.getStructType();
             BField[] structFields = null;
             if (structType != null) {
-                structFields = structType.getFields();
+                structFields = structType.getFields().values().toArray(new BField[0]);
             }
             int index = 0;
             for (ColumnDefinition col : df.getColumnDefs()) {
@@ -167,7 +167,7 @@ public class TableJSONDataSource implements JSONDataSource {
     private static BRefType<?> getStructData(Object[] data, BField[] structFields, int index) {
         try {
             if (structFields == null) {
-                BRefValueArray jsonArray = new BRefValueArray(new BArrayType(BTypes.typeJSON));
+                BValueArray jsonArray = new BValueArray(new BArrayType(BTypes.typeJSON));
                 if (data != null) {
                     for (Object value : data) {
                         if (value instanceof String) {
@@ -197,26 +197,27 @@ public class TableJSONDataSource implements JSONDataSource {
                         BType internaltType = structFields[index - 1].fieldType;
                         if (internaltType.getTag() == TypeTags.OBJECT_TYPE_TAG
                                 || internaltType.getTag() == TypeTags.RECORD_TYPE_TAG) {
-                            BField[] interanlStructFields = ((BStructureType) internaltType).getFields();
-                            if (interanlStructFields != null) {
+                            BField[] internalStructFields =
+                                    ((BStructureType) internaltType).getFields().values().toArray(new BField[0]);
+                            if (internalStructFields != null) {
                                 if (value instanceof String) {
-                                    jsonData.put(interanlStructFields[i].fieldName, new BString((String) value));
+                                    jsonData.put(internalStructFields[i].fieldName, new BString((String) value));
                                 } else if (value instanceof Boolean) {
-                                    jsonData.put(interanlStructFields[i].fieldName, new BBoolean((Boolean) value));
+                                    jsonData.put(internalStructFields[i].fieldName, new BBoolean((Boolean) value));
                                 } else if (value instanceof Long) {
-                                    jsonData.put(interanlStructFields[i].fieldName, new BInteger((long) value));
+                                    jsonData.put(internalStructFields[i].fieldName, new BInteger((long) value));
                                 } else if (value instanceof Double) {
-                                    jsonData.put(interanlStructFields[i].fieldName, new BFloat((double) value));
+                                    jsonData.put(internalStructFields[i].fieldName, new BFloat((double) value));
                                 } else if (value instanceof Integer) {
-                                    jsonData.put(interanlStructFields[i].fieldName, new BInteger((int) value));
+                                    jsonData.put(internalStructFields[i].fieldName, new BInteger((int) value));
                                 } else if (value instanceof Float) {
-                                    jsonData.put(interanlStructFields[i].fieldName, new BFloat((float) value));
+                                    jsonData.put(internalStructFields[i].fieldName, new BFloat((float) value));
                                 } else if (value instanceof BigDecimal) {
-                                    jsonData.put(interanlStructFields[i].fieldName,
+                                    jsonData.put(internalStructFields[i].fieldName,
                                             new BFloat(((BigDecimal) value).doubleValue()));
                                 } else if (value instanceof Struct) {
-                                    jsonData.put(interanlStructFields[i].fieldName,
-                                            getStructData(((Struct) value).getAttributes(), interanlStructFields,
+                                    jsonData.put(internalStructFields[i].fieldName,
+                                            getStructData(((Struct) value).getAttributes(), internalStructFields,
                                                     i + 1));
                                 }
                                 structError = false;
@@ -240,7 +241,7 @@ public class TableJSONDataSource implements JSONDataSource {
     private static BRefType<?> getDataArray(BTable df, int columnIndex) {
         Object[] dataArray = df.getArray(columnIndex);
         int length = dataArray.length;
-        BRefValueArray jsonArray = new BRefValueArray(new BArrayType(BTypes.typeJSON));
+        BValueArray jsonArray = new BValueArray(new BArrayType(BTypes.typeJSON));
         if (length > 0) {
             Object obj = dataArray[0];
             if (obj instanceof String) {

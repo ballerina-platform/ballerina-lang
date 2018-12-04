@@ -52,7 +52,7 @@ public class BJSONType extends BBuiltInRefType implements ConstrainedType {
 
     @Override
     public String toString() {
-        if (constraint.tag == TypeTags.NONE || constraint.tag == TypeTags.ERROR) {
+        if (constraint.tag == TypeTags.NONE || constraint.tag == TypeTags.SEMANTIC_ERROR) {
             return super.toString();
         }
 
@@ -69,7 +69,7 @@ public class BJSONType extends BBuiltInRefType implements ConstrainedType {
 
     @Override
     public String getDesc() {
-        if (constraint.tag == TypeTags.NONE || constraint.tag == TypeTags.ERROR) {
+        if (constraint.tag == TypeTags.NONE || constraint.tag == TypeTags.SEMANTIC_ERROR) {
             return TypeDescriptor.SIG_JSON + ";";
         }
 

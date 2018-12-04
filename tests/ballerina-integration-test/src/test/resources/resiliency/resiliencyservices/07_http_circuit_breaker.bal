@@ -21,12 +21,9 @@ import ballerina/runtime;
 
 public int counter = 1;
 
-endpoint http:Listener circuitBreakerEP00 {
-    port:9306
-};
+listener http:Listener circuitBreakerEP00 = new(9306);
 
-endpoint http:Client backendClientEP00 {
-    url: "http://localhost:8086",
+http:ClientEndpointConfig conf = {
     circuitBreaker: {
         rollingWindow: {
             timeWindowMillis: 60000,
@@ -37,38 +34,39 @@ endpoint http:Client backendClientEP00 {
         resetTimeMillis: 3000,
         statusCodes: [501, 502, 503]
     },
-
     timeoutMillis: 2000
 };
+
+http:Client backendClientEP00 = new("http://localhost:8086", config = conf);
 
 @http:ServiceConfig {
     basePath: "/cb"
 }
-service<http:Service> circuitbreaker00 bind circuitBreakerEP00 {
+service circuitbreaker00 on circuitBreakerEP00 {
     @http:ResourceConfig {
         methods: ["GET", "POST"],
         path: "/typical"
     }
-    invokeEndpoint(endpoint caller, http:Request request) {
+    resource function invokeEndpoint(http:Caller caller, http:Request request) {
         var backendRes = backendClientEP00->forward("/hello/typical", request);
         if (counter % 5 == 0) {
             runtime:sleep(3000);
         } else {
             runtime:sleep(1000);
         }
-        match backendRes {
-            http:Response res => {
-                caller->respond(res) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+        if (backendRes is http:Response) {
+            var responseToCaller = caller->respond(backendRes);
+            if (responseToCaller is error) {
+                log:printError("Error sending response", err = responseToCaller);
             }
-            error responseError => {
-                http:Response response = new;
-                response.statusCode = http:INTERNAL_SERVER_ERROR_500;
-                response.setPayload(responseError.message);
-                caller->respond(response) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+        } else if (backendRes is error) {
+            http:Response response = new;
+            response.statusCode = http:INTERNAL_SERVER_ERROR_500;
+            string errCause = <string> backendRes.detail().message;
+            response.setPayload(errCause);
+            var responseToCaller = caller->respond(response);
+            if (responseToCaller is error) {
+                log:printError("Error sending response", err = responseToCaller);
             }
         }
     }
@@ -78,22 +76,21 @@ service<http:Service> circuitbreaker00 bind circuitBreakerEP00 {
 // Mock a service outage by stopping/starting this service.
 // This should run separately from the `circuitBreakerDemo` service.
 @http:ServiceConfig { basePath: "/hello" }
-service<http:Service> helloWorld bind { port: 8086 } {
+service helloWorld on new http:Listener(8086) {
     @http:ResourceConfig {
         methods: ["GET", "POST"],
         path: "/typical"
     }
-    sayHello(endpoint caller, http:Request req) {
-        http:Response res = new;
+    resource function sayHello(http:Caller caller, http:Request req) {
         if (counter % 5 == 3) {
             counter += 1;
             runtime:sleep(3000);
         } else {
             counter += 1;
         }
-        res.setPayload("Hello World!!!");
-        caller->respond(res) but {
-            error e => log:printError("Error sending response from mock service", err = e)
-        };
+        var responseToCaller = caller->respond("Hello World!!!");
+        if (responseToCaller is error) {
+            log:printError("Error sending response from mock service", err = responseToCaller);
+        }
     }
 }

@@ -23,6 +23,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -119,17 +120,12 @@ public class HeaderTest {
         Assert.assertEquals(returns[1].stringValue(), "totally different value");
     }
 
-    @Test(description = "Test getting a value out of a non existence header")
+    @Test(description = "Test getting a value out of a non existence header", expectedExceptions =
+            BLangRuntimeException.class, expectedExceptionsMessageRegExp = ".*error: Http Header does not exist!.*")
     public void testNonExistenceHeader() {
-        try {
-            BValue[] returns = BRunUtil.invoke(compileResult, "testNonExistenceHeader");
-            Assert.assertEquals(returns.length, 1);
-            Assert.assertEquals(returns[0].stringValue(), "");
-        } catch (Exception exception) {
-            String errorMessage = exception.getMessage();
-            Assert.assertTrue(errorMessage.contains(" message: http Header does not exist!"));
-        }
-
+        BValue[] returns = BRunUtil.invoke(compileResult, "testNonExistenceHeader");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "");
     }
 
     @Test(description = "Test getting all header names")

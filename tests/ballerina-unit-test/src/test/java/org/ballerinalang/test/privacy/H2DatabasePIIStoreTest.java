@@ -20,7 +20,7 @@ package org.ballerinalang.test.privacy;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.utils.SQLDBUtils;
@@ -83,8 +83,8 @@ public class H2DatabasePIIStoreTest {
         BValue[] depseudonymizeArgs = { new BString(invalidId) };
         BValue[] depseudonymizeReturns = BRunUtil.invokeFunction(result, "depseudonymizePii", depseudonymizeArgs);
         Assert.assertEquals(depseudonymizeReturns.length, 1);
-        Assert.assertTrue(depseudonymizeReturns[0] instanceof BMap);
-        Assert.assertEquals(((BMap) depseudonymizeReturns[0]).get("message").stringValue(),
+        Assert.assertTrue(depseudonymizeReturns[0] instanceof BError);
+        Assert.assertEquals(((BError) depseudonymizeReturns[0]).getReason(),
                 "Identifier " + invalidId + " is not found in PII store");
     }
 
@@ -102,8 +102,8 @@ public class H2DatabasePIIStoreTest {
 
         BValue[] depseudonymizeReturns = BRunUtil.invokeFunction(result, "depseudonymizePii", returns);
         Assert.assertEquals(depseudonymizeReturns.length, 1);
-        Assert.assertTrue(depseudonymizeReturns[0] instanceof BMap);
-        Assert.assertEquals(((BMap) depseudonymizeReturns[0]).get("message").stringValue(),
+        Assert.assertTrue(depseudonymizeReturns[0] instanceof BError);
+        Assert.assertEquals(((BError) depseudonymizeReturns[0]).getReason(),
                 "Identifier " + ((BString) returns[0]).value() + " is not found in PII store");
     }
 
@@ -113,8 +113,8 @@ public class H2DatabasePIIStoreTest {
         BValue[] deleteArgs = { new BString(invalidId) };
         BValue[] deleteReturns = BRunUtil.invokeFunction(result, "deletePii", deleteArgs);
         Assert.assertEquals(deleteReturns.length, 1);
-        Assert.assertTrue(deleteReturns[0] instanceof BMap);
-        Assert.assertEquals(((BMap) deleteReturns[0]).get("message").stringValue(),
+        Assert.assertTrue(deleteReturns[0] instanceof BError);
+        Assert.assertEquals(((BError) deleteReturns[0]).getReason(),
                 "Identifier " + invalidId + " is not found in PII store");
     }
 
@@ -136,7 +136,7 @@ public class H2DatabasePIIStoreTest {
     }
 
     @Test (expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error:.*caused by error, message: table name is required.*")
+            expectedExceptionsMessageRegExp = ".*error: Table name is required.*")
     public void testEmptyTableName() {
         BRunUtil.invokeFunction(result, "pseudonymizePiiWithEmptyTableName",
                 new BValue[] { new BString(SAMPLE_PII_VALUE) });

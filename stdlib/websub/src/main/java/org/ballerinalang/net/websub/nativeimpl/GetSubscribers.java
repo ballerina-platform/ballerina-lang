@@ -23,8 +23,8 @@ import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -64,7 +64,7 @@ public class GetSubscribers extends BlockingNativeCallableUnit {
 
         final PackageInfo packageInfo = context.getProgramFile().getPackageInfo(WEBSUB_PACKAGE);
         final StructureTypeInfo structInfo = packageInfo.getStructInfo(SUBSCRIPTION_DETAILS);
-        BRefValueArray subscriberDetailArray = new BRefValueArray(structInfo.getType());
+        BValueArray subscriberDetailArray = new BValueArray(structInfo.getType());
 
         for (HubSubscriber subscriber : subscribers) {
             if (subscriber.getTopic().equals(topic)) {

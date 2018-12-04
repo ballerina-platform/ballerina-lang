@@ -1,50 +1,50 @@
 // OPEN RECORDS
 
 type Person record {
-    string name;
-    int age;
-    Address address;
+    string name = "";
+    int age = 0;
+    Address address = {};
 };
 
 type Address record {
-    string street;
-    string city;
+    string street = "";
+    string city = "";
 };
 
 type Foo record {
-    string a;
-    string b;
-    string c;
-    string d;
-    string e;
+    string a = "";
+    string b = "";
+    string c = "";
+    string d = "";
+    string e = "";
 };
 
 type RestrictedFoo record {
-    string a;
-    string b;
-    string c;
-    string d;
-    string e;
+    string a = "";
+    string b = "";
+    string c = "";
+    string d = "";
+    string e = "";
     string...
 };
 
 type Grades record {
-    int maths;
-    int physics;
-    int chemistry;
+    int maths = 0;
+    int physics = 0;
+    int chemistry = 0;
 };
 
 type RestrictedGrades record {
-    int maths;
-    int physics;
-    int chemistry;
+    int maths = 0;
+    int physics = 0;
+    int chemistry = 0;
     int...
 };
 
 type RestrictedBar record {
-    float x;
-    float y;
-    float z;
+    float x = 0.0;
+    float y = 0.0;
+    float z = 0.0;
     float...
 };
 
@@ -54,7 +54,7 @@ function testForeachWithOpenRecords() returns (string[], any[]) {
     any[] values = [];
 
     int i = 0;
-    foreach f, v in p {
+    foreach var (f, v) in p {
         fields[i] = f;
         values[i] = v;
         i += 1;
@@ -69,7 +69,7 @@ function testForeachWithOpenRecords2() returns (string[], any[]) {
     any[] values = [];
 
     int i = 0;
-    foreach f, v in p {
+    foreach var (f, v) in p {
         fields[i] = f;
         values[i] = v;
         i += 1;
@@ -83,17 +83,17 @@ function testForeachWithOpenRecords3() returns any[] {
     any[] values = [];
 
     int i = 0;
-    foreach v in p {
-        values[i] = v;
+    foreach var v in p {
+        values[i] = v[1];
         i += 1;
     }
 
     return values;
 }
 
-function testForeachOpWithOpenRecords() returns map {
+function testForeachOpWithOpenRecords() returns map<any> {
     Person p = { name: "John Doe", age: 25, address: { street: "Palm Grove", city: "Colombo 3" }, height: 5.9 };
-    map rec;
+    map<any> rec = {};
 
     p.foreach(function ((string, any) entry) {
             var (field, value) = entry;
@@ -103,27 +103,27 @@ function testForeachOpWithOpenRecords() returns map {
     return rec;
 }
 
-function testMapOpWithOpenRecords() returns map {
+function testMapOpWithOpenRecords() returns map<any> {
     Person p = { name: "John Doe", age: 25, address: { street: "Palm Grove", city: "Colombo 3" }, profession: "Software Engineer" };
 
-    map newp =  p.map(function ((string, any) entry) returns (string, any) {
+    map<any> newp =  p.map(function ((string, any) entry) returns (string, any) {
            var (field, value) = entry;
-            match value {
-                string str => value = str.toLower();
-                any => {}
-            }
-            return (field, value);
+           if value is string {
+               value = value.toLower();
+               return (field, value);
+           }
+           return(field, value);
         });
         
     return newp;
 }
 
-function testFilterOpWithOpenRecords() returns map {
+function testFilterOpWithOpenRecords() returns map<any> {
     Foo f = {a: "A", b: "B", c: "C", d: "D", e: "E", f: "F"};
 
-    map newf = f.filter(function ((string, any) entry) returns boolean {
+    map<any> newf = f.filter(function ((string, any) entry) returns boolean {
         var (field, value) = entry;
-        if (value != "A" && value != "E") {
+        if (value !== "A" && value !== "E") {
             return true;
         }
         return false;
@@ -137,20 +137,20 @@ function testCountOpWithOpenRecords() returns int {
     return f.count();
 }
 
-function testChainedOpsWithOpenRecords() returns map {
+function testChainedOpsWithOpenRecords() returns map<any> {
     Foo f = {a: "AA", b: "BB", c: "CC", d: "DD", e: "EE", f: "FF"};
 
-    map newf = f.map(function ((string, any) entry) returns (string, any) {
+    map<any> newf = f.map(function ((string, any) entry) returns (string, any) {
                     var (field, value) = entry;
-                    match value {
-                        string str => value = str.toLower();
-                        any => {}
+                    if value is string {
+                        value = value.toLower();
+                        return (field, value);
                     }
                     return (field, value);
                 })
                 .filter(function ((string, any) entry) returns boolean {
                     var (field, value) = entry;
-                    if (value != "aa" && value != "ee") {
+                    if (value !== "aa" && value !== "ee") {
                         return true;
                     }
                     return false;
@@ -167,7 +167,7 @@ function testMapWithAllStringOpenRecord() returns (map<string>, string[]) {
         return (k, v.toLower());
     });
 
-    string[] modFooAr = f.map(function (string val) returns string { return val.toLower(); });
+    string[] modFooAr = f.map(function ((string, string) value) returns string { return value[1].toLower(); });
 
     return (modFooMap, modFooAr);
 }
@@ -180,7 +180,7 @@ function testMapWithAllIntOpenRecord(int m, int p, int c, int e) returns (map<in
         return (subj, grade + 10);
     });
 
-    int[] adjGradesAr = grades.map(function (int grade) returns int { return grade + 10; });
+    int[] adjGradesAr = grades.map(function ((string, int) value) returns int { return value[1] + 10; });
 
     return (adjGrades, adjGradesAr);
 }
@@ -193,7 +193,7 @@ function testMapWithAllFloatOpenRecord(float a, float b, float c) returns (map<f
         return (k, val + 10);
     });
 
-    float[] modBarAr = bar.map(function (float val) returns float { return val + 10; });
+    float[] modBarAr = bar.map(function ((string, float) val) returns float { return val[1] + 10; });
 
     return (modBar, modBarAr);
 }
@@ -209,12 +209,12 @@ function testFilterWithAllStringOpenRecord() returns (map<string>, string[]) {
         return false;
     });
 
-    string[] modFooAr = f.filter(function (string val) returns boolean {
-         if (val == "AA" || val == "EE" || val == "FF") {
+    string[] modFooAr = f.filter(function ((string, string) val) returns boolean {
+         if (val[1] == "AA" || val[1] == "EE" || val[1] == "FF") {
              return true;
          }
          return false;
-    });
+    }).map(v => v[1]);
 
     return (modFooMap, modFooAr);
 }
@@ -230,12 +230,12 @@ function testFilterWithAllIntOpenRecord() returns (map<int>, int[]) {
         return false;
     });
 
-    int[] adjGradesAr = grades.filter(function (int grade) returns boolean {
-        if (grade > 70) {
+    int[] adjGradesAr = grades.filter(function ((string, int) grade) returns boolean {
+        if (grade[1] > 70) {
             return true;
         }
         return false;
-    });
+    }).map(v => v[1]);
 
     return (adjGrades, adjGradesAr);
 }
@@ -251,12 +251,12 @@ function testFilterWithAllFloatOpenRecord(float a, float b, float c) returns (ma
         return false;
     });
 
-    float[] modBarAr = bar.filter(function (float val) returns boolean {
-        if (val > 6) {
+    float[] modBarAr = bar.filter(function ((string, float) val) returns boolean {
+        if (val[1] > 6) {
             return true;
         }
         return false;
-    });
+    }).map(v => v[1]);
 
     return (modBar, modBarAr);
 }
@@ -322,9 +322,8 @@ function testChainedOpsWithOpenRecords3() returns map<float> {
 
     map<float> m = grades.map(function ((string, any) entry) returns (string, int) {
         var (subj, grade) = entry;
-        match grade {
-            int g => return (subj, g + 10);
-            any => {}
+        if grade is int {
+            return (subj, grade + 10);
         }
         return (subj, -1);
     })

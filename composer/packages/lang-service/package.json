@@ -1,0 +1,44 @@
+{
+  "name": "@ballerina/lang-service",
+  "version": "0.983.1-SNAPSHOT",
+  "description": "lang-service",
+  "license": "Apache-2.0",
+  "files": [
+    "lib"
+  ],
+  "main": "lib/src/index.js",
+  "typings": "lib/src/index.d.ts",
+  "scripts": {
+    "prepublishOnly": "npm run build",
+    "prebuild": "npm run clean && npm run lint",
+    "clean": "composer pkg:clean",
+    "lint": "composer pkg:lint",
+    "build": "composer pkg:build",
+    "test": "composer pkg:test",
+    "coverage": "composer pkg:test:coverage",
+    "watch": "composer pkg:watch",
+    "watch:test": "composer pkg:test:watch"
+  },
+  "dependencies": {
+    "fs-extra": "^7.0.1",
+    "glob": "^7.1.3",
+    "lodash": "^4.17.11",
+    "monaco-languageclient": "0.9.0",
+    "tree-kill": "^1.2.1",
+    "vscode-languageserver-protocol": "3.13.0",
+    "vscode-uri": "1.0.6",
+    "vscode-ws-jsonrpc": "0.0.2-2",
+    "ws": "^6.1.0"
+  },
+  "devDependencies": {
+    "@ballerina/composer-cli": "^0.983.1-SNAPSHOT",
+    "@types/fs-extra": "^5.0.4",
+    "@types/glob": "^7.1.1",
+    "@types/jest": "^22.0.1",
+    "@types/lodash": "^4.14.117",
+    "@types/ws": "^6.0.1"
+  },
+  "engines": {
+    "node": ">=6.0.0"
+  }
+}

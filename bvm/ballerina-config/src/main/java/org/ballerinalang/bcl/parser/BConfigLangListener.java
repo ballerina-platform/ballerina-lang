@@ -18,6 +18,7 @@
 
 package org.ballerinalang.bcl.parser;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.toml.antlr4.TomlBaseListener;
 import org.ballerinalang.toml.antlr4.TomlParser;
 
@@ -81,6 +82,7 @@ public class BConfigLangListener extends TomlBaseListener {
     @Override
     public void enterBasicString(TomlParser.BasicStringContext context) {
         String stringVal = context.basicStringValue().getText();
+        stringVal = StringEscapeUtils.unescapeJava(stringVal);
         currentValue = getResolvedStringValue(stringVal);
     }
 

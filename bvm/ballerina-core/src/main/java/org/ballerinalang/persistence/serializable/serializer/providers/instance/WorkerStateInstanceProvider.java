@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.persistence.serializable.serializer.providers.instance;
 
-import org.ballerinalang.bre.bvm.WorkerState;
+import org.ballerinalang.bre.old.WorkerState;
 import org.ballerinalang.model.util.serializer.TypeInstanceProvider;
 
 /**

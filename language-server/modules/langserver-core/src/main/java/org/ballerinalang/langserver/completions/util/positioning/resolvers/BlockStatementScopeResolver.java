@@ -21,12 +21,14 @@ import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.model.tree.Node;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
@@ -37,21 +39,19 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Block statement scope position resolver.
  */
 public class BlockStatementScopeResolver extends CursorPositionResolver {
+
     /**
-     * Check whether the cursor position is located before the evaluating statement node.
-     *
-     * @param nodePosition position of the node
-     * @param node         statement being evaluated
-     * @return true|false
+     * {@inheritDoc}
      */
     @Override
-    public boolean isCursorBeforeNode(DiagnosticPos nodePosition, BLangNode node, TreeVisitor treeVisitor,
-                                      LSContext completionContext) {
+    public boolean isCursorBeforeNode(DiagnosticPos nodePosition, TreeVisitor treeVisitor, LSContext completionContext,
+                                      BLangNode node, BSymbol bSymbol) {
         int line = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
         int col = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter();
         DiagnosticPos zeroBasedPos = CommonUtil.toZeroBasedPosition(nodePosition);
@@ -74,7 +74,7 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
                     treeVisitor.resolveAllVisibleSymbols(treeVisitor.getSymbolEnv());
             treeVisitor.populateSymbols(visibleSymbolEntries, treeVisitor.getSymbolEnv());
             treeVisitor.forceTerminateVisitor();
-            treeVisitor.setNextNode(node);
+            treeVisitor.setNextNode(bSymbol);
             return true;
         }
 
@@ -103,10 +103,14 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
 
     private boolean isNodeLastStatement(BLangBlockStmt bLangBlockStmt, Node blockOwner, Node node) {
         if (bLangBlockStmt != null) {
-            return (bLangBlockStmt.stmts.indexOf(node) == (bLangBlockStmt.stmts.size() - 1));
+            List<BLangStatement> statements = bLangBlockStmt.stmts.stream()
+                    .filter(bLangStatement -> !CommonUtil.isWorkerDereivative(bLangStatement))
+                    .collect(Collectors.toList());
+            statements.sort(new CommonUtil.BLangNodeComparator());
+            return (statements.indexOf(node) == (statements.size() - 1));
         } else if (blockOwner instanceof BLangTypeDefinition
                 && ((BLangTypeDefinition) blockOwner).typeNode instanceof BLangObjectTypeNode) {
-            List<BLangVariable> structFields = (List<BLangVariable>)
+            List<BLangSimpleVariable> structFields = (List<BLangSimpleVariable>)
                     ((BLangObjectTypeNode) ((BLangTypeDefinition) blockOwner).typeNode).getFields();
             return (structFields.indexOf(node) == structFields.size() - 1);
         } else {

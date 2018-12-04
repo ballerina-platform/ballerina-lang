@@ -35,7 +35,7 @@ function cleanup() returns error? {
     // to the 'onError' function when an error occurs in the 'onTrigger'
     // function.
     if (math:randomInRange(0, 10) == 5) {
-        error e = { message: "Cleanup error" };
+        error e = error("Cleanup error");
         return e;
     }
     

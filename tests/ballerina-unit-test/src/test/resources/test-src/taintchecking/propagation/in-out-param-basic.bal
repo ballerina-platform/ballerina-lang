@@ -1,9 +1,9 @@
 type ExampleObject object {
-    string taintedData;
+    string taintedData = "";
 };
 
 type ExampleRecord record {
-    string taintedData;
+    string taintedData = "";
 };
 
 public function secureFunction(@sensitive any secureIn, any insecureIn) {

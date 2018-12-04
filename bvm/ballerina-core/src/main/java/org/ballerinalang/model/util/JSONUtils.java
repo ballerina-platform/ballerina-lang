@@ -23,7 +23,7 @@ import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.OMText;
-import org.ballerinalang.bre.bvm.CPU;
+import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.model.TableJSONDataSource;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BField;
@@ -35,20 +35,18 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BBooleanArray;
+import org.ballerinalang.model.values.BDecimal;
+import org.ballerinalang.model.values.BDecimalArray;
 import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BFloatArray;
-import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStreamingJSON;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BValueType;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
@@ -56,9 +54,11 @@ import org.ballerinalang.model.values.BXMLSequence;
 import org.ballerinalang.util.codegen.StructFieldInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
+import org.ballerinalang.util.exceptions.BLangFreezeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -95,60 +95,75 @@ public class JSONUtils {
     }
 
     /**
-     * Convert {@link BIntArray} to JSON.
+     * Convert {@link BValueArray} to JSON.
      *
-     * @param intArray {@link BIntArray} to be converted to JSON
+     * @param intArray {@link BValueArray} to be converted to JSON
      * @return JSON representation of the provided intArray
      */
-    public static BRefValueArray convertArrayToJSON(BIntArray intArray) {
-        BRefValueArray json = new BRefValueArray(new BArrayType(BTypes.typeJSON));
+    private static BValueArray convertIntArrayToJSON(BValueArray intArray) {
+        BValueArray json = new BValueArray(new BArrayType(BTypes.typeJSON));
         for (int i = 0; i < intArray.size(); i++) {
-            long value = intArray.get(i);
+            long value = intArray.getInt(i);
             json.append(new BInteger(value));
         }
         return json;
     }
 
     /**
-     * Convert {@link BFloatArray} to JSON.
+     * Convert {@link BValueArray} to JSON.
      *
-     * @param floatArray {@link BFloatArray} to be converted to JSON
+     * @param floatArray {@link BValueArray} to be converted to JSON
      * @return JSON representation of the provided floatArray
      */
-    public static BRefValueArray convertArrayToJSON(BFloatArray floatArray) {
-        BRefValueArray json = new BRefValueArray(new BArrayType(BTypes.typeJSON));
+    private static BValueArray convertFloatArrayToJSON(BValueArray floatArray) {
+        BValueArray json = new BValueArray(new BArrayType(BTypes.typeJSON));
         for (int i = 0; i < floatArray.size(); i++) {
-            double value = floatArray.get(i);
+            double value = floatArray.getFloat(i);
             json.append(new BFloat(value));
         }
         return json;
     }
 
     /**
-     * Convert {@link BStringArray} to JSON.
+     * Convert {@link BDecimalArray} to JSON.
      *
-     * @param stringArray {@link BStringArray} to be converted to JSON
+     * @param decimalArray {@link BDecimalArray} to be converted to JSON
+     * @return JSON representation of the provided decimalArray
+     */
+    private static BValueArray convertDecimalArrayToJSON(BDecimalArray decimalArray) {
+        BValueArray json = new BValueArray(new BArrayType(BTypes.typeJSON));
+        for (int i = 0; i < decimalArray.size(); i++) {
+            BigDecimal value = decimalArray.get(i);
+            json.append(new BDecimal(value));
+        }
+        return json;
+    }
+
+    /**
+     * Convert {@link BValueArray} to JSON.
+     *
+     * @param stringArray {@link BValueArray} to be converted to JSON
      * @return JSON representation of the provided stringArray
      */
-    public static BRefValueArray convertArrayToJSON(BStringArray stringArray) {
-        BRefValueArray json = new BRefValueArray(new BArrayType(BTypes.typeJSON));
+    private static BValueArray convertStringArrayToJSON(BValueArray stringArray) {
+        BValueArray json = new BValueArray(new BArrayType(BTypes.typeJSON));
         for (int i = 0; i < stringArray.size(); i++) {
-            String value = stringArray.get(i);
+            String value = stringArray.getString(i);
             json.append(new BString(value));
         }
         return json;
     }
 
     /**
-     * Convert {@link BBooleanArray} to JSON.
+     * Convert {@link BValueArray} to JSON.
      *
-     * @param booleanArray {@link BBooleanArray} to be converted to JSON
+     * @param booleanArray {@link BValueArray} to be converted to JSON
      * @return JSON representation of the provided booleanArray
      */
-    public static BRefValueArray convertArrayToJSON(BBooleanArray booleanArray) {
-        BRefValueArray json = new BRefValueArray(new BArrayType(BTypes.typeJSON));
+    private static BValueArray convertBooleanArrayToJSON(BValueArray booleanArray) {
+        BValueArray json = new BValueArray(new BArrayType(BTypes.typeJSON));
         for (int i = 0; i < booleanArray.size(); i++) {
-            int value = booleanArray.get(i);
+            int value = booleanArray.getBoolean(i);
             json.append(new BBoolean(value == 1));
         }
         return json;
@@ -160,17 +175,21 @@ public class JSONUtils {
      * @param bArray {@link BNewArray} to be converted to JSON
      * @return JSON representation of the provided bArray
      */
-    public static BRefValueArray convertArrayToJSON(BNewArray bArray) {
-        if (bArray instanceof BIntArray) {
-            return convertArrayToJSON((BIntArray) bArray);
-        } else if (bArray instanceof BFloatArray) {
-            return convertArrayToJSON((BFloatArray) bArray);
-        } else if (bArray instanceof BStringArray) {
-            return convertArrayToJSON((BStringArray) bArray);
-        } else if (bArray instanceof BBooleanArray) {
-            return convertArrayToJSON((BBooleanArray) bArray);
-        } else if (bArray instanceof BRefValueArray) {
-            return convertRefArrayToJSON((BRefValueArray) bArray);
+    public static BValueArray convertArrayToJSON(BNewArray bArray) {
+        if (bArray instanceof BDecimalArray) {
+            return convertArrayToJSON(bArray);
+        } else if (bArray instanceof BValueArray) {
+            if (((BValueArray) bArray).elementType == BTypes.typeInt) {
+                return convertIntArrayToJSON((BValueArray) bArray);
+            } else if (((BValueArray) bArray).elementType == BTypes.typeBoolean) {
+                return convertBooleanArrayToJSON((BValueArray) bArray);
+            } else if (((BValueArray) bArray).elementType == BTypes.typeFloat) {
+                return convertFloatArrayToJSON((BValueArray) bArray);
+            } else if (((BValueArray) bArray).elementType == BTypes.typeString) {
+                return convertStringArrayToJSON((BValueArray) bArray);
+            } else {
+                return convertRefArrayToJSON((BValueArray) bArray);
+            }
         }
 
         throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, BTypes.typeJSON,
@@ -178,16 +197,16 @@ public class JSONUtils {
     }
 
     /**
-     * Convert {@link BRefValueArray} to JSON.
+     * Convert {@link BValueArray} to JSON.
      *
-     * @param refValueArray {@link BRefValueArray} to be converted to JSON
+     * @param refValueArray {@link BValueArray} to be converted to JSON
      * @return JSON representation of the provided refValueArray
      */
     @SuppressWarnings({ "rawtypes" })
-    public static BRefValueArray convertRefArrayToJSON(BRefValueArray refValueArray) {
-        BRefValueArray json = new BRefValueArray(new BArrayType(BTypes.typeJSON));
+    public static BValueArray convertRefArrayToJSON(BValueArray refValueArray) {
+        BValueArray json = new BValueArray(new BArrayType(BTypes.typeJSON));
         for (int i = 0; i < refValueArray.size(); i++) {
-            BRefType value = refValueArray.get(i);
+            BRefType value = refValueArray.getRefValue(i);
             if (value == null) {
                 json.append(null);
             }
@@ -232,15 +251,16 @@ public class JSONUtils {
                 populateJSON(json, key, value, BTypes.typeJSON);
             }
         } else {
-            if (!CPU.checkCast(map, targetType.getConstrainedType())) {
+            if (!BVM.checkCast(map, targetType.getConstrainedType())) {
                 throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
                         targetType, map.getType());
             }
 
-            for (BField field : ((BStructureType) targetType.getConstrainedType()).getFields()) {
-                String key = field.fieldName;
+            for (Entry<String, BField> fieldEntry :
+                    ((BStructureType) targetType.getConstrainedType()).getFields().entrySet()) {
+                String key = fieldEntry.getKey();
                 BValue value = map.get(key);
-                populateJSON(json, key, value, field.fieldType);
+                populateJSON(json, key, value, fieldEntry.getValue().fieldType);
             }
         }
         return json;
@@ -256,6 +276,7 @@ public class JSONUtils {
             switch (value.getType().getTag()) {
                 case TypeTags.INT_TAG:
                 case TypeTags.FLOAT_TAG:
+                case TypeTags.DECIMAL_TAG:
                 case TypeTags.STRING_TAG:
                 case TypeTags.BOOLEAN_TAG:
                 case TypeTags.JSON_TAG:
@@ -282,10 +303,9 @@ public class JSONUtils {
      * Convert {@link BTable} to JSON.
      *
      * @param table {@link BTable} to be converted to {@link BStreamingJSON}
-     * @param isInTransaction   Within a transaction or not
      * @return JSON representation of the provided table
      */
-    public static BRefType<?> toJSON(BTable table, boolean isInTransaction) {
+    public static BRefType<?> toJSON(BTable table) {
         TableJSONDataSource jsonDataSource = new TableJSONDataSource(table);
         if (table.isInMemoryTable()) {
             return jsonDataSource.build();
@@ -330,6 +350,8 @@ public class JSONUtils {
 
         try {
             ((BMap<String, BValue>) json).put(elementName, element);
+        } catch (BLangFreezeException e) {
+            throw e;
         } catch (Throwable t) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_SET_ERROR, t.getMessage());
         }
@@ -395,7 +417,7 @@ public class JSONUtils {
 
         BArrayType jsonArray = (BArrayType) json.getType();
         BType elementType = jsonArray.getElementType();
-        if (!CPU.checkCast(element, elementType)) {
+        if (!BVM.checkCast(element, elementType)) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
                     elementType, (element != null) ? element.getType() : BTypes.typeNull);
         }
@@ -427,7 +449,7 @@ public class JSONUtils {
             xml = omElementArrayList.get(0);
         } else {
             // There is a multi rooted node and create xml sequence from it
-            BRefValueArray elementsSeq = new BRefValueArray();
+            BValueArray elementsSeq = new BValueArray();
             int count = omElementArrayList.size();
             for (int i = 0; i < count; i++) {
                 elementsSeq.add(i, omElementArrayList.get(i));
@@ -513,10 +535,10 @@ public class JSONUtils {
                     }
                     break;
                 case TypeTags.ARRAY_TAG:
-                    BRefValueArray array = (BRefValueArray) json;
+                    BValueArray array = (BValueArray) json;
                     for (int i = 0; i < array.size(); i++) {
-                        currentRoot = traverseJsonNode(array.get(i), arrayEntryTag, currentRoot, omElementArrayList,
-                                attributePrefix, arrayEntryTag);
+                        currentRoot = traverseJsonNode(array.getRefValue(i), arrayEntryTag, currentRoot,
+                                omElementArrayList, attributePrefix, arrayEntryTag);
                         if (nodeName == null) { // Outermost array
                             omElementArrayList.add(new BXMLItem(currentRoot));
                             currentRoot = null;
@@ -525,6 +547,7 @@ public class JSONUtils {
                     break;
                 case TypeTags.INT_TAG:
                 case TypeTags.FLOAT_TAG:
+                case TypeTags.DECIMAL_TAG:
                 case TypeTags.STRING_TAG:
                 case TypeTags.BOOLEAN_TAG:
                     if (currentRoot == null) {
@@ -580,6 +603,29 @@ public class JSONUtils {
         }
 
         return (BFloat) json;
+    }
+
+    /**
+     * Convert JSON to decimal.
+     *
+     * @param json JSON to be converted
+     * @return BDecimal value of the JSON, if it's a valid convertible JSON node. Error, otherwise.
+     */
+    private static BDecimal jsonNodeToDecimal(BValue json) {
+        if (json == null ||
+                (json.getType().getTag() != TypeTags.INT_TAG && json.getType().getTag() != TypeTags.FLOAT_TAG &&
+                        json.getType().getTag() != TypeTags.DECIMAL_TAG)) {
+            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
+                    BTypes.typeDecimal, getTypeName(json));
+        }
+
+        if (json.getType().getTag() == TypeTags.INT_TAG) {
+            return new BDecimal(((BInteger) json).decimalValue());
+        } else if (json.getType().getTag() == TypeTags.FLOAT_TAG) {
+            return new BDecimal(((BFloat) json).decimalValue());
+        }
+
+        return (BDecimal) json;
     }
 
     /**
@@ -672,12 +718,14 @@ public class JSONUtils {
                 return jsonNodeToInt(jsonValue);
             case TypeTags.FLOAT_TAG:
                 return jsonNodeToFloat(jsonValue);
+            case TypeTags.DECIMAL_TAG:
+                return jsonNodeToDecimal(jsonValue);
             case TypeTags.STRING_TAG:
                 return new BString(jsonValue.stringValue());
             case TypeTags.BOOLEAN_TAG:
                 return jsonNodeToBool(jsonValue);
             case TypeTags.JSON_TAG:
-                if (jsonValue != null && !CPU.checkCast(jsonValue, targetType)) {
+                if (jsonValue != null && !BVM.checkCast(jsonValue, targetType)) {
                     throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
                             targetType, getTypeName(jsonValue));
                 }
@@ -716,18 +764,18 @@ public class JSONUtils {
     }
 
     /**
-     * Returns the keys of a JSON as a {@link BStringArray}.
+     * Returns the keys of a JSON as a {@link BValueArray}.
      * 
      * @param json JSON to get the keys
-     * @return Keys of the JSON as a {@link BStringArray}
+     * @return Keys of the JSON as a {@link BValueArray}
      */
-    public static BStringArray getKeys(BValue json) {
+    public static BValueArray getKeys(BValue json) {
         if (json == null || !isJSONObject(json)) {
-            return new BStringArray();
+            return new BValueArray(BTypes.typeString);
         }
 
         String[] keys = ((BMap<String, BValue>) json).keys();
-        return new BStringArray(keys);
+        return new BValueArray(keys);
     }
 
     public static BRefType<?> convertUnionTypeToJSON(BRefType<?> source, BJSONType targetType) {
@@ -738,6 +786,7 @@ public class JSONUtils {
         switch (source.getType().getTag()) {
             case TypeTags.INT_TAG:
             case TypeTags.FLOAT_TAG:
+            case TypeTags.DECIMAL_TAG:
             case TypeTags.STRING_TAG:
             case TypeTags.BOOLEAN_TAG:
                 return source;
@@ -784,63 +833,74 @@ public class JSONUtils {
         }
 
         BType targetElementType = targetArrayType.getElementType();
-        BRefValueArray jsonArray = (BRefValueArray) json;
+        BValueArray jsonArray = (BValueArray) json;
         switch (targetElementType.getTag()) {
             case TypeTags.INT_TAG:
                 return jsonArrayToBIntArray(jsonArray);
             case TypeTags.FLOAT_TAG:
                 return jsonArrayToBFloatArray(jsonArray);
+            case TypeTags.DECIMAL_TAG:
+                return jsonArrayToBDecimalArray(jsonArray);
             case TypeTags.STRING_TAG:
                 return jsonArrayToBStringArray(jsonArray);
             case TypeTags.BOOLEAN_TAG:
                 return jsonArrayToBBooleanArray(jsonArray);
             case TypeTags.ANY_TAG:
-                BRefValueArray array = new BRefValueArray(targetArrayType);
+                BValueArray array = new BValueArray(targetArrayType);
                 for (int i = 0; i < jsonArray.size(); i++) {
-                    array.add(i, jsonArray.get(i));
+                    array.add(i, jsonArray.getRefValue(i));
                 }
                 return array;
             default:
-                array = new BRefValueArray(targetArrayType);
+                array = new BValueArray(targetArrayType);
                 for (int i = 0; i < jsonArray.size(); i++) {
-                    array.append(convertJSON(jsonArray.get(i), targetElementType));
+                    array.append(convertJSON(jsonArray.getRefValue(i), targetElementType));
                 }
                 return array;
         }
     }
 
-    private static BIntArray jsonArrayToBIntArray(BRefValueArray arrayNode) {
-        BIntArray intArray = new BIntArray();
+    private static BValueArray jsonArrayToBIntArray(BValueArray arrayNode) {
+        BValueArray intArray = new BValueArray(BTypes.typeInt);
         for (int i = 0; i < arrayNode.size(); i++) {
-            BRefType<?> jsonValue = arrayNode.get(i);
+            BRefType<?> jsonValue = arrayNode.getRefValue(i);
             intArray.add(i, ((BInteger) convertJSON(jsonValue, BTypes.typeInt)).intValue());
         }
         return intArray;
     }
 
-    private static BFloatArray jsonArrayToBFloatArray(BRefValueArray arrayNode) {
-        BFloatArray floatArray = new BFloatArray();
+    private static BValueArray jsonArrayToBFloatArray(BValueArray arrayNode) {
+        BValueArray floatArray = new BValueArray(BTypes.typeFloat);
         for (int i = 0; i < arrayNode.size(); i++) {
-            BRefType<?> jsonValue = arrayNode.get(i);
+            BRefType<?> jsonValue = arrayNode.getRefValue(i);
             floatArray.add(i, ((BFloat) convertJSON(jsonValue, BTypes.typeFloat)).floatValue());
         }
         return floatArray;
     }
 
-    private static BStringArray jsonArrayToBStringArray(BRefValueArray arrayNode) {
-        BStringArray stringArray = new BStringArray();
+    private static BDecimalArray jsonArrayToBDecimalArray(BValueArray arrayNode) {
+        BDecimalArray decimalArray = new BDecimalArray();
         for (int i = 0; i < arrayNode.size(); i++) {
-            BRefType<?> jsonValue = arrayNode.get(i);
+            BRefType<?> jsonValue = arrayNode.getRefValue(i);
+            decimalArray.add(i, ((BDecimal) convertJSON(jsonValue, BTypes.typeDecimal)).decimalValue());
+        }
+        return decimalArray;
+    }
+
+    private static BValueArray jsonArrayToBStringArray(BValueArray arrayNode) {
+        BValueArray stringArray = new BValueArray(BTypes.typeString);
+        for (int i = 0; i < arrayNode.size(); i++) {
+            BRefType<?> jsonValue = arrayNode.getRefValue(i);
             String value = jsonValue.stringValue();
             stringArray.add(i, value);
         }
         return stringArray;
     }
 
-    private static BBooleanArray jsonArrayToBBooleanArray(BRefValueArray arrayNode) {
-        BBooleanArray booleanArray = new BBooleanArray();
+    private static BValueArray jsonArrayToBBooleanArray(BValueArray arrayNode) {
+        BValueArray booleanArray = new BValueArray(BTypes.typeBoolean);
         for (int i = 0; i < arrayNode.size(); i++) {
-            BRefType<?> jsonValue = arrayNode.get(i);
+            BRefType<?> jsonValue = arrayNode.getRefValue(i);
             booleanArray.add(i, ((BBoolean) convertJSON(jsonValue, BTypes.typeBoolean)).booleanValue() ? 1 : 0);
         }
         return booleanArray;
