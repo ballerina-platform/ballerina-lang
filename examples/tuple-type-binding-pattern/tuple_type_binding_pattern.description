@@ -1,0 +1,2 @@
+// Tuple binding patterns are used with de-structure and assign values to each individual variables of the tuple.
+// The tuple typed binding patters will be used declaring and defining new tuple variables.
