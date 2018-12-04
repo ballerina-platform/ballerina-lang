@@ -34,13 +34,41 @@
                         rect {
                             fill: ~"@{@{color}-diagram-life-line-head-background-color}";
                             stroke: ~"@{@{color}-diagram-life-line-head-stroke-color}";
+                            stroke-width: 0; 
                         }
                         text {
                             fill: ~"@{@{color}-diagram-life-line-text-color}";
                             stroke-width: 0;
                             text-anchor: middle;
                         }
+
+                        &.life-line-worker{
+                            stroke: #257AA8;
+                            color: #257AA8;
+
+                            rect {
+                                fill: #257AA8;
+                            }
+                            text{
+                                fill: #257AA8;
+                            }
+                        }
+                        &.life-line-endpoint{
+                            stroke: @teal;
+                            color:@teal;
+
+                            rect {
+                                fill: @teal;
+                            }
+                            text{
+                                fill: @teal;
+                            }
+                        }
                     }
+                    .endpoint-activity {
+                        fill: @teal;
+                    }
+
                     .condition {
                         .label {
                             text-anchor: middle;
