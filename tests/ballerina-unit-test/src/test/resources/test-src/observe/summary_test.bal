@@ -7,10 +7,10 @@ function testMaxSummary() returns (float) {
     gauge.setValue(2.0);
     gauge.setValue(3.0);
     observe:Snapshot[]? summarySnapshot = gauge.getSnapshot();
-    if summarySnapshot is () {
-        return 0.0;
-    } else {
+    if summarySnapshot is observe:Snapshot[] {
         return summarySnapshot[0].max;
+    } else {
+        return 0.0;
     }
 }
 
@@ -21,10 +21,10 @@ function testMeanSummary() returns (float) {
     gauge.setValue(2.0);
     gauge.setValue(3.0);
     observe:Snapshot[]? summarySnapshot = gauge.getSnapshot();
-    if summarySnapshot is () {
-        return 0.0;
-    } else {
+    if summarySnapshot is observe:Snapshot[] {
         return summarySnapshot[0].mean;
+    } else {
+        return 0.0;
     }
 }
 
@@ -38,10 +38,10 @@ function testPercentileSummary() returns (observe:PercentileValue[]?) {
     gauge.setValue(5.0);
     gauge.setValue(6.0);
     observe:Snapshot[]? summarySnapshot = gauge.getSnapshot();
-    if summarySnapshot is () {
-        return ();
-    } else {
+    if summarySnapshot is observe:Snapshot[] {
         return summarySnapshot[0].percentileValues;
+    } else {
+        return ();
     }
 }
 
@@ -61,10 +61,10 @@ function testSummaryWithoutTags() returns (float) {
     gauge.setValue(2.0);
     gauge.setValue(3.0);
     observe:Snapshot[]? summarySnapshot = gauge.getSnapshot();
-    if summarySnapshot is () {
-        return 0.0;
-    } else {
+    if summarySnapshot is observe:Snapshot[] {
         return summarySnapshot[0].mean;
+    } else {
+        return 0.0;
     }
 }
 
