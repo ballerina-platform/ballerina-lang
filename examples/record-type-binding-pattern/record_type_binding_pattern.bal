@@ -12,6 +12,16 @@ type Employee record {
     !...
 };
 
+type Country record {
+    string name;
+    Capital capital;
+};
+
+type Capital record {
+    string name;
+    !...
+};
+
 public function main() {
     // This record type binding pattern will destructure a record of type Person and create three variables as follows:
     // The value of the field `name` in the Person record will be set to a new `string` variable `firstName`.
@@ -46,6 +56,10 @@ public function main() {
     Employee { name: empName, age: empAge, !... } = getEmployee();
     io:println("Name: " + empName);
     io:println("Age: " + empAge);
+
+    var { name: countryName, capital: {name: capitalName, !... }} = getCountry();
+    io:println("Country Name: " + countryName);
+    io:println("Capital Name: " + capitalName);
 }
 
 function getPerson() returns Person {
@@ -56,4 +70,10 @@ function getPerson() returns Person {
 function getEmployee() returns Employee {
     Employee employee = { name: "John", age: 26 };
     return employee;
+}
+
+function getCountry() returns Country {
+    Capital capital = { name: "Colombo" };
+    Country country = { name: "Sri Lanka", capital: capital };
+    return country;
 }

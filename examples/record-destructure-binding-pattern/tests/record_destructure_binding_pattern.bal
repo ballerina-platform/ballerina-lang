@@ -25,4 +25,6 @@ function testFunc() {
     test:assertEquals(outputs[4], "Age: 28");
     test:assertEquals(outputs[5], "Name: John");
     test:assertEquals(outputs[6], "Age: 26");
+    test:assertEquals(outputs[7], "Country Name: Sri Lanka");
+    test:assertEquals(outputs[8], "Capital Name: Colombo");
 }
