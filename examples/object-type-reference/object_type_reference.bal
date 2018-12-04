@@ -38,7 +38,7 @@ type Manager object {
 
     public string dpt;
 
-    // All the fileds referenced through the type reference can be accessed within this object.
+    // All the fields referenced through the type reference can be accessed within this object.
     function __init(int age, string firstName, string lastName, string status) {
         self.age = age;
         self.firstName = firstName;
