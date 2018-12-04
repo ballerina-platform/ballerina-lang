@@ -54,7 +54,7 @@ function testConnectionPoolProperties3() returns (json) {
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_INIT",
         username: "SA",
-        password: "",
+        password: ""
     });
 
     var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
