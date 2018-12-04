@@ -8,7 +8,7 @@ To access a database, you must first create a `client` object. Create a client o
 
 ### Database operations
 
-Once the client is created, database operations can be executed through that client. This module provides support for creating tables and executing stored procedures. It also supports selecting, inserting, deleting, updating, and batch updating data. For more details on the supported actions refer to the `sql` module. Also the details of the SQL data types and query parameters relevant to these database operations can be found in the documentation of the `sql` module.
+Once the client is created, database operations can be executed through that client. This module provides support for creating tables and executing stored procedures. It also supports selecting, inserting, deleting, updating, and batch updating data. For more details on the supported remote functions refer to the `sql` module. Also the details of the SQL data types and query parameters relevant to these database operations can be found in the documentation of the `sql` module.
 
 ## Samples
 

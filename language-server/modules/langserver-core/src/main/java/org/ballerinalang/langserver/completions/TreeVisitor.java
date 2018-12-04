@@ -58,6 +58,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
@@ -232,6 +233,15 @@ public class TreeVisitor extends LSNodeVisitor {
             return;
         }
         this.acceptNode(typeDefinition.typeNode, symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangConstant constant) {
+        CursorPositionResolver cpr = CursorPositionResolvers.getResolverByClass(cursorPositionResolver);
+        if (cpr.isCursorBeforeNode(constant.getPosition(), this, this.lsContext, constant, constant.symbol)) {
+            return;
+        }
+        this.acceptNode(constant.typeNode, symbolEnv);
     }
 
     @Override

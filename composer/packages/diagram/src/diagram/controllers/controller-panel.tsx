@@ -18,7 +18,11 @@ export const ControllerPanel: StatelessComponent<{
         ) => {
     return <DiagramContext.Consumer>
         {({ diagramWidth: width }) => (
-            <Sticky className="diagram-controllers" context={stickTo.current || undefined}>
+            <Sticky
+                className="diagram-controllers"
+                context={stickTo.current || undefined}
+                style={{ width }}
+            >
                 <Menu
                     className={
                         "top-menu "

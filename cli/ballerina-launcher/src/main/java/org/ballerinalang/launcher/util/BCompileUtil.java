@@ -17,6 +17,7 @@
 package org.ballerinalang.launcher.util;
 
 import org.ballerinalang.bre.bvm.BLangVMStructs;
+import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.model.elements.PackageID;
@@ -116,6 +117,10 @@ public class BCompileUtil {
         return compile(sourceFilePath, CompilerPhase.CODE_GEN);
     }
 
+    public static CompileResult compileWithoutExperimentalFeatures(String sourceFilePath) {
+        return compile(sourceFilePath, CompilerPhase.CODE_GEN, false);
+    }
+
     /**
      * Compile and return the semantic errors.
      *
@@ -189,14 +194,48 @@ public class BCompileUtil {
      * Compile and return the semantic errors.
      *
      * @param sourceFilePath Path to source package/file
+     * @param compilerPhase Compiler phase
+     * @param enableExpFeatures Flag indicating to enable the experimental feature
+     * @return Semantic errors
+     */
+    public static CompileResult compile(String sourceFilePath, CompilerPhase compilerPhase, boolean enableExpFeatures) {
+        Path sourcePath = Paths.get(sourceFilePath);
+        String packageName = sourcePath.getFileName().toString();
+        Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
+        return compile(sourceRoot.toString(), packageName, compilerPhase, enableExpFeatures);
+    }
+
+
+    /**
+     * Compile and return the semantic errors.
+     *
+     * @param sourceFilePath Path to source package/file
      * @param compilerPhase  Compiler phase
      * @return Semantic errors
      */
     public static CompileResult compile(String sourceFilePath, CompilerPhase compilerPhase) {
-        Path sourcePath = Paths.get(sourceFilePath);
-        String packageName = sourcePath.getFileName().toString();
-        Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
-        return compile(sourceRoot.toString(), packageName, compilerPhase);
+        return compile(sourceFilePath, compilerPhase, true);
+    }
+
+    /**
+     * Compile and return the semantic errors.
+     *
+     * @param sourceRoot root path of the modules
+     * @param packageName name of the module to compile
+     * @param compilerPhase Compiler phase
+     * @param enableExpFeatures Flag indicating to enable the experimental features
+     * @return Semantic errors
+     */
+    public static CompileResult compile(String sourceRoot, String packageName, CompilerPhase compilerPhase,
+                                        boolean enableExpFeatures) {
+        CompilerContext context = new CompilerContext();
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(PROJECT_DIR, sourceRoot);
+        options.put(COMPILER_PHASE, compilerPhase.toString());
+        options.put(PRESERVE_WHITESPACE, "false");
+        options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExpFeatures));
+
+        return compile(context, packageName, compilerPhase, false);
     }
 
     /**
@@ -208,15 +247,8 @@ public class BCompileUtil {
      * @return Semantic errors
      */
     public static CompileResult compile(String sourceRoot, String packageName, CompilerPhase compilerPhase) {
-        CompilerContext context = new CompilerContext();
-        CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(PROJECT_DIR, sourceRoot);
-        options.put(COMPILER_PHASE, compilerPhase.toString());
-        options.put(PRESERVE_WHITESPACE, "false");
-
-        return compile(context, packageName, compilerPhase, false);
+        return compile(sourceRoot, packageName, compilerPhase, true);
     }
-
 
     /**
      * Compile with tests and return the semantic errors.
@@ -239,12 +271,18 @@ public class BCompileUtil {
      * @return new compiler context object
      */
     public static CompilerContext createCompilerContext(String sourceRoot, CompilerPhase compilerPhase) {
+        return createCompilerContext(sourceRoot, compilerPhase, Boolean.TRUE);
+    }
+
+    public static CompilerContext createCompilerContext(String sourceRoot, CompilerPhase compilerPhase,
+                                                        boolean enableExpFeatures) {
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRoot);
         options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(PRESERVE_WHITESPACE, "false");
         options.put(TEST_ENABLED, "true");
+        options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExpFeatures));
         return context;
     }
 
@@ -255,6 +293,7 @@ public class BCompileUtil {
         options.put(PROJECT_DIR, sourceRoot);
         options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(PRESERVE_WHITESPACE, "false");
+        options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
         context.put(SourceDirectory.class, sourceDirectory);
 
         CompileResult comResult = new CompileResult();
@@ -324,6 +363,7 @@ public class BCompileUtil {
         options.put(PROJECT_DIR, resourceDir.resolve(sourceRoot).toString());
         options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
         options.put(PRESERVE_WHITESPACE, "false");
+        options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
 
         CompileResult comResult = new CompileResult();
 
@@ -420,6 +460,7 @@ public class BCompileUtil {
         options.put(PROJECT_DIR, sourceRoot);
         options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
         options.put(PRESERVE_WHITESPACE, "false");
+        options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
 
         CompileResult comResult = new CompileResult();
 

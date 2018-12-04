@@ -99,7 +99,7 @@ function handleNestedParts(mime:Entity parentPart) {
             }
         } else if (childParts is error) {
             log:printError("Error retrieving child parts! " +
-                            string.create(childParts.detail().message));
+                            string.convert(childParts.detail().message));
         }
     }
 }

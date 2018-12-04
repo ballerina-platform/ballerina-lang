@@ -111,7 +111,7 @@ Now that you have added a service, you need a connector to connect to the extern
 
 1. Add a HTTP GET request by dragging it from the tool palette to the canvas.
     ![alt text](../images/AddGET.gif)
-1. To call the connector from the main program, draw an arrow to the connector from the GET action.
+1. To call the connector from the main program, draw an arrow to the connector from the GET remote function.
     ![alt text](../images/callConnector2.gif)
 1. Pass a message from the main program to the connector by specifying the remaining part of the endpoint URL (volumes?q=intitle:wso2) and message `m`. Also rename the HTTP GET message name to `m`.
     ![alt text](../images/ConnectorMessage.png)

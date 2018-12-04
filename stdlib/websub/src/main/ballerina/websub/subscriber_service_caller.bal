@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# The caller actions to respond to client requests.
+# The caller remote functions to respond to client requests.
 public type Caller client object {
     private http:Caller httpCaller;
 
