@@ -73,8 +73,8 @@ public class CreateObjectInitializerExecutor implements LSCommandExecutor {
         }
         LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
         WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
-        BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager,
-                false, LSCustomErrorStrategy.class, false).getRight();
+        BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager, false,
+                                                               LSCustomErrorStrategy.class, false).get(0);
         context.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
         context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, bLangPackage.symbol.getName().getValue());
         String relativeSourcePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);

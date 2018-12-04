@@ -204,6 +204,15 @@ public class ClosedRecordTest {
         Assert.assertEquals(returns[2].stringValue(), "Embedded mode configuration");
     }
 
+    @Test
+    public void testAmbiguityResolution2() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAmbiguityResolution2");
+        Assert.assertEquals(returns[0].stringValue(), "A");
+        Assert.assertEquals(returns[1].stringValue(), "B");
+        Assert.assertEquals(returns[2].stringValue(), "B");
+        Assert.assertEquals(returns[3].stringValue(), "C");
+    }
+
     @Test(description = "Test white space between the type name and ellipsis in rest descriptor")
     public void testRestDescriptorSyntax() {
         CompileResult result = BCompileUtil.compile("test-src/record/closed_record_negative.bal");

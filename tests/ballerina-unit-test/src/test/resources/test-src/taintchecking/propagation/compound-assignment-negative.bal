@@ -8,7 +8,7 @@ public function main (string... args) returns error? {
     x1 += "static";
     secureFunction(x1, x1);
 
-    var x3 = int.create(args[0]);
+    var x3 = int.convert(args[0]);
     if (x3 is int) {
         x3 += 1;
         secureFunction(x3,x3);

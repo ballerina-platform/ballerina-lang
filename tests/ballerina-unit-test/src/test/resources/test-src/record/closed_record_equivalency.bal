@@ -66,7 +66,7 @@ function testEqOfPublicStructs () returns (string) {
     eq:closedEmployee e = {age:14, name:"rat"};
     e.ssn = "234-56-7890:employee";
 
-    eq:closedPerson p = eq:closedPerson.create(e);
+    eq:closedPerson p = eq:closedPerson.convert(e);
 
     return p.ssn;
 }
@@ -168,7 +168,7 @@ function testRuntimeEqPublicStructsInSamePackage () returns (string|error) {
 
     userPA uA = uFoo;
 
-    var uB = userPB.create(uA);
+    var uB = userPB.convert(uA);
     return uB.name;
 }
 
@@ -188,7 +188,7 @@ function testRuntimeEqPublicStructs1 () returns (string|error) {
     userPA uA = uFoo;
 
     // This is a unsafe cast
-    var uB  = req2:closedUserPB.create(uA);
+    var uB  = req2:closedUserPB.convert(uA);
     return uB.name;
 }
 

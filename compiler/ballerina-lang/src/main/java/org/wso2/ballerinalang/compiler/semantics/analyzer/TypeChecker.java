@@ -149,7 +149,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
@@ -460,7 +459,7 @@ public class TypeChecker extends BLangNodeVisitor {
                             (type.tag == TypeTags.RECORD && !((BRecordType) type).sealed) ||
                             (type.tag == TypeTags.RECORD
                                     && ((BRecordType) type).sealed
-                                    && isRecordLiteralCompatible((BRecordType) type, recordLiteral)))
+                                    && isCompatibleClosedRecordLiteral((BRecordType) type, recordLiteral)))
                     .collect(Collectors.toList());
         } else {
             switch (expType.tag) {
@@ -474,11 +473,9 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private boolean isRecordLiteralCompatible(BRecordType bRecordType, BLangRecordLiteral recordLiteral) {
-        if (recordLiteral.getKeyValuePairs().isEmpty()) {
-            return bRecordType.getFields().stream().allMatch(
-                    // Check if the field is either an optional field or has an explicit default value set
-                    field -> Symbols.isOptional(field.symbol) || !Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED));
+    private boolean isCompatibleClosedRecordLiteral(BRecordType bRecordType, BLangRecordLiteral recordLiteral) {
+        if (!hasRequiredRecordFields(recordLiteral.getKeyValuePairs(), bRecordType)) {
+            return false;
         }
 
         for (BLangRecordKeyValue literalKeyValuePair : recordLiteral.getKeyValuePairs()) {
@@ -511,6 +508,20 @@ public class TypeChecker extends BLangNodeVisitor {
                 dlog.error(pos, DiagnosticCode.MISSING_REQUIRED_RECORD_FIELD, field.name);
             }
         });
+    }
+
+    private boolean hasRequiredRecordFields(List<BLangRecordKeyValue> keyValuePairs, BRecordType targetRecType) {
+        for (BField field : targetRecType.fields) {
+            boolean hasField = keyValuePairs.stream()
+                    .filter(keyVal -> keyVal.key.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF)
+                    .anyMatch(keyVal -> field.name.value
+                            .equals(((BLangSimpleVarRef) keyVal.key.expr).variableName.value));
+
+            if (!hasField && Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private List<BType> getArrayCompatibleTypes(BType expType, BType actualType) {
@@ -2859,14 +2870,14 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 return symResolver.createSymbolForStampOperator(iExpr.pos, new Name(function.getName()),
                         functionArgList, iExpr.expr);
-            case CREATE:
+            case CONVERT:
                 functionArgList = iExpr.argExprs;
-                // Resolve the type of the variables passed as arguments to create in-built function.
+                // Resolve the type of the variables passed as arguments to convert in-built function.
                 for (BLangExpression expression : functionArgList) {
                     checkExpr(expression, env, symTable.noType);
                 }
-                return symResolver.createSymbolForCreateOperator(iExpr.pos, new Name(function.getName()),
-                        functionArgList, iExpr.expr);
+                return symResolver.createSymbolForConvertOperator(iExpr.pos, new Name(function.getName()),
+                                                                  functionArgList, iExpr.expr);
             case CALL:
                 return getFunctionPointerCallSymbol(iExpr);
             case DETAIL:

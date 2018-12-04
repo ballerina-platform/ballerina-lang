@@ -15,18 +15,26 @@
 // under the License.
 
 import ballerina/io;
-import ballerina/websub;
-import ballerina/http;
 
-function startupHub(int hubPort) returns websub:WebSubHub|websub:HubStartedUpError {
-    return websub:startHub(new http:Listener(hubPort));
-}
-
-function stopHub(websub:WebSubHub|websub:HubStartedUpError hubStartUpResult) returns boolean {
-    if (hubStartUpResult is websub:WebSubHub) {
-        return hubStartUpResult.stop();
-    } else if (hubStartUpResult is websub:HubStartedUpError) {
-        return hubStartUpResult.startedUpHub.stop();
+function forkToDefaultWorkerInteraction() returns int {
+    int x = 5;
+    fork {
+        worker w1 {
+            int a = 5;
+            int b = 0;
+            a -> w2;
+            b = <- w2;
+            a -> default;
+        }
+        worker w2 {
+            int a = 0;
+            int b = 15;
+            a = <- w1;
+            b -> w1;
+            b -> default;
+        }
     }
-    return false;
+    map<any> results = wait {w1, w2};
+    io:println(results);
+    return x;
 }

@@ -161,7 +161,7 @@ public class CreateTestExecutor implements LSCommandExecutor {
         // Compile the source file
         WorkspaceDocumentManager docManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
         LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
-        BLangPackage builtSourceFile = lsCompiler.getBLangPackage(context, docManager, false, null, false).getRight();
+        BLangPackage builtSourceFile = lsCompiler.getBLangPackage(context, docManager, false, null, false).get(0);
 
         // Generate test file and notify Client
         BallerinaLanguageServer ballerinaLanguageServer = context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY);
