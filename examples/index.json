@@ -208,6 +208,10 @@
             {
                 "name": "Equality",
                 "url": "equality"
+            },
+            {
+                "name": "Immutable Values",
+                "url": "immutable-values"
             }
         ]
     },
