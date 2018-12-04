@@ -19,8 +19,8 @@ service helloWorld on new http:Listener(9090) {
             }
         }
 
-        // The client starts sending the payload once it receives the 100-continue response.
-        // Retrieve the payload that is sent by the client.
+        // The client starts sending the payload once it receives the
+        // 100-continue response. Retrieve the payload that is sent by the client.
         http:Response res = new;
         var payload = request.getTextPayload();
         if (payload is string) {
@@ -33,7 +33,7 @@ service helloWorld on new http:Listener(9090) {
             }
         } else if (payload is error) {
             res.statusCode = 500;
-            res.setPayload(<string> payload.detail().message);
+            res.setPayload(untaint <string> payload.detail().message);
             var result = caller->respond(res);
             if (result is error) {
                 log:printError("Error sending response", err = result);

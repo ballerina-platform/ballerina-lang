@@ -8,7 +8,7 @@ listener grpc:Listener ep = new (9000);
     serverStreaming: true
 }{{/if}}{{#if clientStreaming}}
 @grpc:ServiceConfig { {{#streamingFunction}}
-    name: {{methodName}},{{/streamingFunction}}
+    name: "{{methodName}}",{{/streamingFunction}}
     clientStreaming: true
 }
 {{/if}}
