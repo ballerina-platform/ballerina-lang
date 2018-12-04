@@ -31,7 +31,6 @@ public function main(string... args) {
     var result = customerDBEP->
     select("SELECT firstname FROM student WHERE registration_id = " +
             args[0], ());
-
     table<record {}> dataTable;
     if (result is error) {
         panic result;
