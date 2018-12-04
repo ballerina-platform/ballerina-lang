@@ -107,6 +107,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.FLUSH;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FOLLOWED;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FOR;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FOREACH;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.FOREACH_STATEMENT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FOREVER;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FORK;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FROM;
@@ -464,6 +465,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(RECORD_FIELD_DEFINITION_LIST).spaceIf(true)
 
                 // Statements
+                .beforeInside(LEFT_BRACE,FOREACH_STATEMENT).spaceIf(true)
                 .between(LEFT_BRACE, RIGHT_BRACE).spaceIf(false)
                 .between(LEFT_BRACKET, RIGHT_BRACKET).spaceIf(false)
                 .between(SIMPLE_VARIABLE_REFERENCE, ASSIGN).spaceIf(true)
