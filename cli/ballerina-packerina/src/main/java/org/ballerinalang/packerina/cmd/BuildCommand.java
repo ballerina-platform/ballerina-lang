@@ -152,7 +152,7 @@ public class BuildCommand implements BLauncherCmd {
                                                                             "command.");
                     }
                 } else {
-                    throw LauncherUtils.createLauncherException("ballerina source does not exist " + sourcePath);
+                    throw LauncherUtils.createLauncherException("ballerina source does not exist '" + sourcePath + "'");
                 }
                 // If we are trying to run a bal file inside a module from a project directory an error is thrown.
                 // To differentiate between top level bals and bals inside modules we need to check if the parent of

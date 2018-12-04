@@ -69,8 +69,8 @@ public class BalxRunFunctionNegativeTestCase extends BaseTest {
     @Test(description = "test an invalid source argument, ending with a colon, e.g., ballerina run <FILE_NAME>:")
     public void testInvalidSourceArg() throws BallerinaTestException {
         String sourceArg = balxPath + ":";
-        LogLeecher errLogLeecher = new LogLeecher("error: no ballerina source files found in module " + balxPath +
-                                                          ":", LeecherType.ERROR);
+        LogLeecher errLogLeecher = new LogLeecher("error: ballerina source does not exist '" + balxPath +
+                                                          ":" + "'", LeecherType.ERROR);
         balClient.runMain(sourceArg, new LogLeecher[]{errLogLeecher});
         errLogLeecher.waitForText(2000);
     }

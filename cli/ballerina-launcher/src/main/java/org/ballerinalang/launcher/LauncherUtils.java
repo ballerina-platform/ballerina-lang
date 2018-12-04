@@ -113,7 +113,7 @@ public class LauncherUtils {
                                                           "'ballerina run' command.");
                 }
             } else {
-                throw createLauncherException("ballerina source does not exist " + srcPathStr);
+                throw createLauncherException("ballerina source does not exist '" + srcPathStr + "'");
             }
             // If we are trying to run a bal file inside a module from inside a project directory an error is thrown.
             // To differentiate between top level bals and bals inside modules we need to check if the parent of the
