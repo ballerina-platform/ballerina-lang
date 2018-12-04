@@ -3,7 +3,7 @@
 This module provides apis for observing Ballerina services.
 Ballerina supports Observability out of the box. This module provides user api's to make Ballerina Observability more flexible for the user.
 
-To observe ballerina code, the `--observe` flag should be given when starting the service. i.e. `ballerina run hello_world.bal --observe`.
+To observe ballerina code, the `--observe` flag should be given when starting the service. i.e. `ballerina run --observe hello_world.bal`.
 For more information on Ballerina Observability visit [How to Observe Ballerina Services](https://ballerina.io/learn/how-to-observe-ballerina-code/)
 
 ## Tracing
@@ -49,7 +49,7 @@ When no parentSpanId is given or a parentSpanId of -1 is given, a span is starte
 It is possible to add tags to span by using the `observe:addTagToSpan()` api by providing the span id and relevant tag key and tag value.
 
 ```ballerina
-    _ = observe:addTagToSpan(spanId, "Tag Key", "Tag Value");
+    _ = observe:addTagToSpan(spanId = spanId, "Tag Key", "Tag Value");
 ```
 #### Attach a tag to a span in the system trace
 When no spanId is provided or -1 is given, the defined tags are added to the current active span in the ootb system trace.
@@ -94,9 +94,10 @@ be returned.
 ```ballerina
     map<string> counterTags = { "method": "GET" };
     observe:Counter counterWithTags = new ("CounterWithTags", desc = "Some description", tags = counterTags);
-    counterWithTags.register() but {
-        error e => log:printError("Cannot register the counter", err = e)
-    };
+    var anyError = counterWithTags.register();
+    if anyError is error {
+        log:printError("Cannot register the counter", err = anyError);
+    }
     
 ```
 
@@ -107,9 +108,10 @@ then further it'll not be included in metrics reporting.
 ```ballerina
     map<string> counterTags = { "method": "GET" };
     observe:Counter counterWithTags = new ("CounterWithTags", desc = "Some description", tags = counterTags);
-    counterWithTags.register() but {
-        error e => log:printError("Cannot register the counter", err = e)
-    };
+    var anyError = counterWithTags.register();
+    if anyError is error {
+        log:printError("Cannot register the counter", err = anyError);
+    }
     counterWithTags.unregister();
     
 ```
@@ -191,9 +193,10 @@ be returned.
 ```ballerina
     map<string> gaugeTags = { "method": "GET" };
     observe:Gauge gaugeWithTags = new ("GaugeWithTags", desc = "Some description", tags = gaugeTags);
-    gaugeWithTags.register() but {
-        error e => log:printError("Cannot register the gauge.", err = e)
-    };
+    var anyError = gaugeWithTags.register();
+    if anyError is error {
+        log:printError("Cannot register the gauge", err = anyError);
+    }
     
 ```
 
@@ -204,9 +207,10 @@ then further it'll not be included in metrics reporting.
 ```ballerina
      map<string> gaugeTags = { "method": "GET" };
      observe:Gauge gaugeWithTags = new ("GaugeWithTags", desc = "Some description", tags = gaugeTags);
-     gaugeWithTags.register() but {
-            error e => log:printError("Cannot register the gauge.", err = e)
-     };
+    var anyError = gaugeWithTags.register();
+    if anyError is error {
+        log:printError("Cannot register the gauge", err = anyError);
+    }
      gaugeWithTags.unregister();
     
 ```
@@ -269,14 +273,11 @@ If the statistics are disabled, then it'll be returning nil ().
     gaugeWithTags.setValue(3.0);
     
     observe:Snapshot[]? summarySnapshot = gaugeWithTags.getSnapshot();
-    match summarySnapshot {
-        observe:Snapshot[] stats => {
-            io:println(stats);
-        }
-        () => {
-            io:println("No statistics available!");
-        }
-    } 
+    if summarySnapshot is observe:Snapshot[] {
+        io:println(summarySnapshot);
+    } else {
+        io:println("No statistics available!");
+    }
 ```
 
 ### Global Metrics Samples
@@ -287,7 +288,7 @@ metric reporters, where they can fetch all metrics, format those, and report.
 
 ```ballerina
      observe:Metric[] metrics = observe:getAllMetrics();
-     foreach metric in metrics {
+     foreach var metric in metrics {
         //do something.
      }
 ```
@@ -298,15 +299,11 @@ This method will lookup for the metric from the global metric registry and retur
 ```ballerina
     map<string> tags = { "method": "GET" };
     observe:Counter|observe:Gauge|() metric = observe:lookupMetric("MetricName", tags = tags);
-    match metric {
-        observe:Counter counter => {
-                counter.increment(amount=10);
-        }
-        observe:Gauge gauge => {
-                gauge.increment(amount = 10.0);
-        }
-        () => {
-               io:println("No Metric Found!");
-        }
+    if metric is observe:Counter {
+        metric.increment(amount=10);
+    } else if metric is observe:Gauge {
+        metric.increment(amount=10.0);
+    } else {
+        io:println("No Metric Found!");
     }
 ```
