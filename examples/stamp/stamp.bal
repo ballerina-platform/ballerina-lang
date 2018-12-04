@@ -14,7 +14,7 @@ type Teacher record {
     string school;
 };
 
-type Foo record{
+type Foo record {
     string [] a;
     !...
 };
