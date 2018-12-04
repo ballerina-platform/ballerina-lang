@@ -28,7 +28,7 @@ function testUndeclaredStructAccess () {
 
 function testUndeclaredAttributeAccess () {
     string name;
-    Department dpt;
+    Department dpt = {};
     dpt.id = "HR";
 }
 

@@ -19,7 +19,7 @@ function workerFuncParam(Student param, CircuitBreakerInferredConfig conf) {
 
 function incrementParam(Student param, CircuitBreakerInferredConfig conf) {
    lock {
-       foreach i in 1 ... 1000 {
+       foreach var i in 1 ... 1000 {
             conf.rollingWindow.requestVolumeThreshold = conf.rollingWindow.requestVolumeThreshold + i;
             conf.resetTimeMillis = i;
            param.score = param.score + i;
@@ -76,7 +76,7 @@ function buckWorkerFuncParam(Bucket buck) {
 
 function incrementParam2(Bucket buck) {
    lock {
-       foreach i in 1 ... 1000 {
+       foreach var i in 1 ... 1000 {
             buck.windows[0].requestVolumeThreshold = buck.windows[0].requestVolumeThreshold + i;
        }
     }

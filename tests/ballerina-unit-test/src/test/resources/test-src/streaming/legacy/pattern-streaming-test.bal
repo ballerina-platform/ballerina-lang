@@ -47,7 +47,7 @@ function testPatternQuery () {
         followed by regulatorStream where e1.roomNo == roomNo as e3 within 2 seconds
         select e1.roomNo, e2[1].temp - e2[0].temp as tempDifference
         => (TempDiffInfo[] emp) {
-            foreach e in emp {
+            foreach var e in emp {
                 tempDiffStream.publish(e);
             }
         }
@@ -124,7 +124,7 @@ function testPatternQueryWithOr() {
         || regulatorStateChangeStream where e1.roomNo == roomNo && userAction == "off" as e3
         select e1.roomNo as roomNo, e2 == null ? "none" : "stop" as userAction having userAction != "none"
         => (RoomKeyAction[] keyAction) {
-            foreach e in keyAction {
+            foreach var e in keyAction {
                 regulatorActionStream.publish(e);
             }
         }
@@ -185,7 +185,7 @@ function testPatternQueryWithAnd() {
         select e1.roomNo as roomNo, e2 != null ? "RoomClosedWithRegulatorOff" : "other" as userAction having userAction
         != "other"
         => (RoomKeyAction[] keyAction) {
-            foreach e in keyAction {
+            foreach var e in keyAction {
                 regulatorActionStream2.publish(e);
             }
         }
@@ -242,7 +242,7 @@ function testPatternQueryWithNot() {
         select e1.roomNo as roomNo, e2 != null ? "RoomNotClosedWithRegulatorNotOff" : "other" as userAction
         having userAction != "other"
         => (RoomKeyAction[] keyAction) {
-            foreach e in keyAction {
+            foreach var e in keyAction {
                 regulatorActionStream3.publish(e);
             }
         }
@@ -298,7 +298,7 @@ function testPatternQueryWithFor() {
         followed by !roomKeyStream4 where e1.roomNo == roomNo && userAction == "removed" for 2 seconds
         select e1.roomNo as roomNo, "CloseRoomAfter2Sec" as userAction
         => (RoomKeyAction[] keyAction) {
-            foreach e in keyAction {
+            foreach var e in keyAction {
                 regulatorActionStream4.publish(e);
             }
         }
@@ -353,7 +353,7 @@ function testPatternQuery6 () {
         followed by regulatorStream6 where e1.roomNo == roomNo as e3 within 2 seconds
         select e1.roomNo, e2[1].temp - e2[0].temp as tempDifference
         => (TempDiffInfo[] emp) {
-            foreach e in emp {
+            foreach var e in emp {
                 tempDiffStream6.publish(e);
             }
         }

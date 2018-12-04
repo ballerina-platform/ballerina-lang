@@ -21,7 +21,7 @@ service name on xx {
     }
 }
 
-service on ex {
+service MyService on ex {
 
 
     resource function foo(string b) {

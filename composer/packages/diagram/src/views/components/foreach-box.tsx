@@ -13,7 +13,7 @@ export const ForeachBox: React.StatelessComponent<{
     }> = ({
         x, y, label, expression
     }) => {
-        const hHeight = (config.flowCtrl.foreach.height / 2);
+        const hHeight = (config.flowCtrl.foreach.height / 2) - 5;
         const hWidth = (config.flowCtrl.foreach.width / 2);
 
         const labelProps = { x , y };

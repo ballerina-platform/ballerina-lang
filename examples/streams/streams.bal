@@ -9,7 +9,7 @@ type Employee record {
 public function main() {
 
     // Declare a stream constrained by the `Employee` type.
-    stream<Employee> employeeStream;
+    stream<Employee> employeeStream = new;
 
     // Subscribe to the `employeeStream` using a function that accepts `Employee` events.
     employeeStream.subscribe(printEmployeeName);
@@ -28,7 +28,7 @@ public function main() {
 
 
     // Declare a stream constrained by `float` values.
-    stream<float> temperatureStream;
+    stream<float> temperatureStream = new;
 
     // Subscribe to the `temperatureStream` using a function that accepts `float` events.
     temperatureStream.subscribe(printTemperature);
@@ -42,10 +42,10 @@ public function main() {
     runtime:sleep(1000);
 
 
-    // Declare an unconstrained stream that accepts events of any type, equivalent to `stream<any>`.
-    stream updateStream;
+    // Declare a stream that accepts events of anydata type`.
+    stream<anydata> updateStream = new;
 
-    // Subscribe to the unconstrained stream using a function that accepts events of any type.
+    // Subscribe to the stream using a function that accepts events of anydata type.
     updateStream.subscribe(printEvent);
 
     // Publish events to the stream.
@@ -69,7 +69,7 @@ function printTemperature(float temperature) {
     io:println("Temperature event received: " + temperature);
 }
 
-// This function accepts events of any type and is used to subscribe to a stream.  
-function printEvent(any event) {
+// This function accepts events of anydata type and is used to subscribe to a stream.
+function printEvent(anydata event) {
     io:println("Event received: ", event);
 }

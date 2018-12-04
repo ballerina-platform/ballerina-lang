@@ -39,7 +39,8 @@ public class BallerinaStreamsV2SimpleSelectAggregationTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/streaming/native/streamingv2-simple-select-aggregation-test.bal");
+        result = BCompileUtil.compile(
+                "test-src/streaming/native/streamingv2-native-simple-select-aggregation-test.bal");
     }
 
     @Test(description = "Test streaming query with aggregation.")

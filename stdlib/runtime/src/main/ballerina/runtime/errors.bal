@@ -36,5 +36,5 @@ public extern function getCallStack() returns CallStackElement[];
 # Retrieves the Call Stack Frame for a particular error
 #
 # + e - optional `error` instance
-# + return - `CallStackElement` instance
-public extern function getErrorCallStackFrame(error? e) returns CallStackElement;
+# + return - Array of `CallStackElement` elements
+public extern function getErrorCallStackFrame(error? e) returns CallStackElement[];

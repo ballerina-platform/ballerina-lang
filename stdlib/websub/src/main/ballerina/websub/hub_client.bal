@@ -162,7 +162,7 @@ remote function Client.publishUpdate(string topic, string|xml|json|byte[]|io:Rea
     }
 
     if (headers is map<string>) {
-        foreach key, value in headers {
+        foreach var (key, value) in headers {
             request.setHeader(key, value);
         }
     }
@@ -190,7 +190,7 @@ remote function Client.notifyUpdate(string topic, map<string>? headers = ()) ret
     string queryParams = HUB_MODE + "=" + MODE_PUBLISH + "&" + HUB_TOPIC + "=" + topic;
 
     if (headers is map<string>) {
-        foreach key, value in headers {
+        foreach var (key, value) in headers {
             request.setHeader(key, value);
         }
     }

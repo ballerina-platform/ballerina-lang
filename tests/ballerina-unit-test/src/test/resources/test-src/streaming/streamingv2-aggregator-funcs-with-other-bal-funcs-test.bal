@@ -51,7 +51,7 @@ function startAggregationWithGroupByQuery() returns TeacherOutput[] {
     foo();
 
     outputStream.subscribe(function(TeacherOutput e) {printTeachers(e);});
-    foreach t in teachers {
+    foreach var t in teachers {
         inputStream.publish(t);
     }
 
@@ -85,7 +85,7 @@ function foo() {
         select inputStream.name, sqr(inputStream.age) as age, sum(inputStream.age) as sumAge, count() as count
         group by inputStream.name
         => (TeacherOutput [] teachers) {
-            foreach t in teachers {
+            foreach var t in teachers {
                 outputStream.publish(t);
             }
         }

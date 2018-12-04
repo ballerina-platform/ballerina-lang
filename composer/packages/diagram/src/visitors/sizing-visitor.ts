@@ -11,7 +11,7 @@ import { ReturnViewState } from "../view-model/return";
 // Following element is created to calculate the width of a text rendered in an svg.
 // Please see getTextWidth on how we do the calculation.
 const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-svg.setAttribute("style", "border: 0px");
+svg.setAttribute("style", "border: 0px; visibility: hidden;");
 svg.setAttribute("width", "600");
 svg.setAttribute("height", "50");
 svg.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xlink", "http://www.w3.org/1999/xlink");
@@ -116,10 +116,11 @@ export const visitor: Visitor = {
 
         // Size default worker
         defaultWorker.bBox.h = node.body!.viewState.bBox.h + (config.lifeLine.header.height * 2)
+            + config.statement.height  // leave room for start call.
             + config.statement.height; // for bottom plus
         defaultWorker.bBox.w = (node.body!.viewState.bBox.w) ? node.body!.viewState.bBox.w :
             config.lifeLine.width;
-        defaultWorker.lifeline.w = config.lifeLine.width;
+        defaultWorker.lifeline.bBox.w = config.lifeLine.width;
         // tslint:disable-next-line:prefer-conditional-expression
         if (node.body!.viewState.bBox.leftMargin) {
             defaultWorker.bBox.leftMargin = node.body!.viewState.bBox.leftMargin;
@@ -130,7 +131,7 @@ export const visitor: Visitor = {
         const lineHeight = (client.bBox.h > defaultWorker.bBox.h) ? client.bBox.h : defaultWorker.bBox.h;
         // Sync up the heights of lifelines
         client.bBox.h = defaultWorker.bBox.h = lineHeight;
-        defaultWorker.lifeline.h = defaultWorker.bBox.h; // Set the height of lifeline.
+        defaultWorker.lifeline.bBox.h = defaultWorker.bBox.h; // Set the height of lifeline.
 
         // Size endpoints
         let endpointWidth = 0;

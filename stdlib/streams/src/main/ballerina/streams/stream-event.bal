@@ -23,7 +23,7 @@ public type StreamEvent object {
         self.eventType = eventType;
         self.timestamp = timestamp;
         if (eventData is (string, map<anydata>)) {
-            foreach k, v in eventData[1] {
+            foreach var (k, v) in eventData[1] {
                 self.data[eventData[0] + DELIMITER + k] = v;
             }
         }
@@ -38,14 +38,14 @@ public type StreamEvent object {
     }
 
     public function addData(map<anydata> eventData) {
-        foreach k, v in eventData {
+        foreach var (k, v) in eventData {
             self.data[k] = v;
         }
     }
 
     function cloneData() returns map<anydata> {
         map<anydata> dataClone = {};
-        foreach k, v in self.data {
+        foreach var (k, v) in self.data {
             dataClone[k] = v;
         }
         return dataClone;

@@ -101,7 +101,7 @@ service publisher on publisherServiceEP {
             map<string> allTopics = {};
             int index=1;
             string [] availableTopics = webSubHub.getAvailableTopics();
-            foreach topic in availableTopics {
+            foreach var topic in availableTopics {
                 allTopics["Topic_" + index] = topic;
                 index += 1;
             }
