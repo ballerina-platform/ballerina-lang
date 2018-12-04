@@ -17,7 +17,7 @@ export const ReturnActionInvocation: React.StatelessComponent<{
 
         returnLine.x1 = model.bBox.x;
         returnLine.y1 = returnLine.y2 = model.bBox.y + config.statement.height;
-        returnLine.x2 = model.endpoint.bBox.x + (model.endpoint.bBox.w / 2) - 3;
+        returnLine.x2 = model.endpoint.bBox.x + (model.endpoint.bBox.w / 2);
 
         actionProps.x = returnLine.x2 + config.statement.padding.left;
         actionProps.y = returnLine.y2 - (config.statement.height / 2);
