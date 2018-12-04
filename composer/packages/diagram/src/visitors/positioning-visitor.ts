@@ -1,6 +1,6 @@
 import {
-    ASTKindChecker, Block, CompilationUnit, Foreach, Function,
-    If, Service, VisibleEndpoint, Visitor, While
+    ASTKindChecker, ASTUtil, Block, CompilationUnit, Foreach,
+    Function, If, Lambda, Service, Variable, VariableDef, VisibleEndpoint, Visitor, While
 } from "@ballerina/ast-model";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
@@ -62,6 +62,7 @@ export const visitor: Visitor = {
 
     // tslint:disable-next-line:ban-types
     beginVisitFunction(node: Function) {
+        if (node.lambda) {return; }
         const viewState: FunctionViewState = node.viewState;
         const defaultWorker: WorkerViewState = node.viewState.defaultWorker;
 
@@ -79,6 +80,24 @@ export const visitor: Visitor = {
         defaultWorker.bBox.y = viewState.client.bBox.y;
         // Position default worker lifeline.
         positionWorkerLine(defaultWorker);
+
+        // Size the other workers
+        let workerX = defaultWorker.bBox.x + defaultWorker.bBox.w + config.lifeLine.gutter.h;
+        node.body!.statements.filter((element) => ASTUtil.isWorker(element)).forEach((worker) => {
+            const workerViewState: WorkerViewState = worker.viewState;
+            const variable: Variable = ((worker as VariableDef).variable as Variable);
+            const lambda: Lambda = (variable.initialExpression as Lambda);
+            const functionNode = lambda.functionNode;
+            // Position worker lifeline
+            workerViewState.lifeline.bBox.y = defaultWorker.bBox.y;
+            workerViewState.lifeline.bBox.x = workerX;
+            // Position worker body
+            let leftMargin = functionNode.body!.viewState.bBox.leftMargin;
+            leftMargin = (leftMargin === 0) ? 60 : leftMargin;
+            functionNode.body!.viewState.bBox.x = workerX + leftMargin;
+            workerX = workerX + functionNode.body!.viewState.bBox.w + leftMargin;
+            functionNode.body!.viewState.bBox.y = defaultWorker.bBox.y + config.lifeLine.header.height;
+        });
 
         // Position the body block node
         if (node.body) {

@@ -38,15 +38,15 @@ export class DiagramConfig {
             v: 30
         },
         padding: {
-            bottom: 0,
+            bottom: 20,
             left: 0,
             right: 200,
-            top: 0,
+            top: 20,
         },
     };
 
     public panelHeading = {
-        height: 60,
+        height: 30,
         padding: {
             bottom: 0,
             left: 0,
