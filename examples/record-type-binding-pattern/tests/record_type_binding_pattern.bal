@@ -28,4 +28,6 @@ function testFunc() {
     test:assertEquals(outputs[7], "Country: {\"country\":\"Sri Lanka\", \"occupation\":\"Software Engineer\"}");
     test:assertEquals(outputs[8], "Name: John");
     test:assertEquals(outputs[9], "Age: 26");
+    test:assertEquals(outputs[10], "Country Name: Sri Lanka");
+    test:assertEquals(outputs[11], "Capital Name: Colombo");
 }

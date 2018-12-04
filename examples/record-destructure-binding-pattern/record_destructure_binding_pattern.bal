@@ -12,6 +12,16 @@ type Employee record {
     !...
 };
 
+type Country record {
+    string name;
+    Capital capital;
+};
+
+type Capital record {
+    string name;
+    !...
+};
+
 public function main() {
 
     string firstName;
@@ -44,6 +54,13 @@ public function main() {
     { name: empName, age: empAge, !... } = getEmployee();
     io:println("Name: " + empName);
     io:println("Age: " + empAge);
+
+    string countryName;
+    string capitalName;
+    // Binding patterns are recursive in nature. `Capital`, which is a field type of `Country` can also be destructured as follows:
+    { name: countryName, capital: {name: capitalName, !... }} = getCountry();
+    io:println("Country Name: " + countryName);
+    io:println("Capital Name: " + capitalName);
 }
 
 function getPerson() returns Person {
@@ -54,4 +71,10 @@ function getPerson() returns Person {
 function getEmployee() returns Employee {
     Employee employee = { name: "John", age: 26 };
     return employee;
+}
+
+function getCountry() returns Country {
+    Capital capital = { name: "Colombo" };
+    Country country = { name: "Sri Lanka", capital: capital };
+    return country;
 }
