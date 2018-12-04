@@ -39,7 +39,7 @@ public class BallerinaStreamsV2HavingTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/streaming/native/streamingv2-having-test.bal");
+        result = BCompileUtil.compile("test-src/streaming/native/streamingv2-native-having-test.bal");
     }
 
     @Test(description = "Test streaming query with having and group by.")

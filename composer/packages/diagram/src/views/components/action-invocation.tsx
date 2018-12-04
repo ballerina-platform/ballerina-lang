@@ -12,7 +12,7 @@ export const ActionInvocation: React.StatelessComponent<{
 }> = ({
     model, action
 }) => {
-        const sendLine = { x1: 1, y1: 0, x2: 0, y2: 0 };
+        const sendLine = { x1: 0, y1: 0, x2: 0, y2: 0 };
         const receiveLine = { x1: 0, y1: 0, x2: 0, y2: 0 };
         const actionProps = {x: 0, y: 0};
 
