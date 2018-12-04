@@ -1,4 +1,4 @@
-function testForkJoinAll() returns int[]|error {
+function testForkAndWaitForAll() returns int[]|error {
 
     int[] results = [];
 
@@ -13,9 +13,9 @@ function testForkJoinAll() returns int[]|error {
             return x;
         }
     }
-    var resultRecode = wait {ABC_Airline, XYZ_Airline};
-    results[0] = resultRecode.ABC_Airline;
-    results[1] = resultRecode.XYZ_Airline;
+    map<int> resultRecode = wait {ABC_Airline, XYZ_Airline};
+    results[0] = resultRecode["ABC_Airline"] ?: 0;
+    results[1] = resultRecode["XYZ_Airline"] ?: 0;
     return results;
 }
 
