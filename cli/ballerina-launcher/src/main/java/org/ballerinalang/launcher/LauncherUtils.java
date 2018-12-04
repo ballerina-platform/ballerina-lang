@@ -114,10 +114,14 @@ public class LauncherUtils {
                                               "folder or use --sourceroot to specify the project path and run the " +
                                               "module");
             }
-            if (Files.isRegularFile(fullPath) && !srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX)) {
-                throw createLauncherException("only modules, " + BLANG_SRC_FILE_SUFFIX + " and " +
-                                                      BLANG_EXEC_FILE_SUFFIX + " files can be used with the " +
-                                                      "'ballerina run' command.");
+            if (Files.exists(fullPath)) {
+                if (Files.isRegularFile(fullPath) && !srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX)) {
+                    throw createLauncherException("only modules, " + BLANG_SRC_FILE_SUFFIX + " and " +
+                                                          BLANG_EXEC_FILE_SUFFIX + " files can be used with the " +
+                                                          "'ballerina run' command.");
+                }
+            } else {
+                throw createLauncherException("ballerina source does not exist '" + srcPathStr + "'");
             }
             // If we are trying to run a bal file inside a module from inside a project directory an error is thrown.
             // To differentiate between top level bals and bals inside modules we need to check if the parent of the

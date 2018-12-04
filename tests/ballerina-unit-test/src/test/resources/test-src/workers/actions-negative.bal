@@ -92,6 +92,18 @@ function workerActionThirdTest() {
     }
 }
 
+function invalidReceiveUsage() {
+    fork {
+        worker w1 {
+            int a = 5;
+            a -> w2;
+        }
+        worker w2 {
+            var a = <- w1;
+        }
+    }
+}
+
 function print(string str) {
     string result = str.toUpper();
 }

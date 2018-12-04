@@ -146,6 +146,17 @@ public class BuildCommand implements BLauncherCmd {
                                                                 "files can be used with the 'ballerina build' " +
                                                                         "command.");
                 }
+
+                if (Files.exists(resolvedFullPath)) {
+                    if (Files.isRegularFile(resolvedFullPath) && !sourcePath.toString()
+                                                                            .endsWith(BLANG_SRC_FILE_SUFFIX)) {
+                        throw LauncherUtils.createLauncherException("only modules and " + BLANG_SRC_FILE_SUFFIX + " " +
+                                                                    "files can be used with the 'ballerina build' " +
+                                                                            "command.");
+                    }
+                } else {
+                    throw LauncherUtils.createLauncherException("ballerina source does not exist '" + sourcePath + "'");
+                }
                 // If we are trying to run a bal file inside a module from a project directory an error is thrown.
                 // To differentiate between top level bals and bals inside modules we need to check if the parent of
                 // the sourcePath given is null. If it is null then its a top level bal else its a bal inside a module

@@ -373,8 +373,8 @@ public enum DiagnosticCode {
     INVALID_TYPE_FOR_RECEIVE("invalid.type.for.receive"),
     INVALID_TYPE_FOR_SEND("invalid.type.for.send"),
 
-    INVALID_USE_OF_EXPERIMENTAL_FEATURE("invalid.use.of.experimental.feature")
-    ;
+    INVALID_USAGE_OF_RECEIVE_EXPRESSION("invalid.usage.of.receive.expression"),
+    INVALID_USE_OF_EXPERIMENTAL_FEATURE("invalid.use.of.experimental.feature");
 
     private String value;
 

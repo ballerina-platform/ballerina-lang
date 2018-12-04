@@ -178,7 +178,8 @@ public class BTestRunner {
         }
         // Reuse the same compiler context so that modules already compiled and persisted in the module cache are not
         // compiled again.
-        CompilerContext compilerContext = BCompileUtil.createCompilerContext(sourceRoot, CompilerPhase.CODE_GEN, enableExpFeatures);
+        CompilerContext compilerContext =
+                BCompileUtil.createCompilerContext(sourceRoot, CompilerPhase.CODE_GEN, enableExpFeatures);
         Arrays.stream(sourceFilePaths).forEach(sourcePackage -> {
             // compile
             CompileResult compileResult = BCompileUtil.compileWithTests(compilerContext, sourcePackage.toString(),

@@ -9,6 +9,7 @@ export class FunctionViewState extends ViewState {
     public client: ViewState = new ViewState();
     public defaultWorker: WorkerViewState = new WorkerViewState();
     public menuTrigger: SimplePoint = new SimplePoint();
+    public icon: string = "function";
 
     constructor() {
         super();
