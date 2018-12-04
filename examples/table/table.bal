@@ -41,7 +41,7 @@ public function main() {
 
     Employee[] employees = [e3, e4];
     // This adds the created records to the table.
-    foreach (emp in employees) {
+    foreach var emp in employees {
         var ret = tb.add(emp);
         if (ret is ()) {
             io:println("Adding record to table successful");
@@ -56,14 +56,14 @@ public function main() {
 
     // This accesses rows using the `foreach` loop.
     io:println("Using foreach: ");
-    foreach x in tb {
+    foreach var x in tb {
         io:println("Name: " + x.name);
     }
 
     //This accesses rows using the `while` loop.
     io:println("Using while loop: ");
     while (tb.hasNext()) {
-        var ret = <Employee>tb.getNext();
+        var ret = Employee.convert(tb.getNext());
         if (ret is Employee) {
             io:println("Name: " + ret.name);
         } else if (ret is error) {
@@ -96,23 +96,21 @@ public function main() {
     io:println(tb);
 
     // This converts the table to JSON format.
-    var retValJson = <json>tb;
-    match retValJson {
-        json j => {
-            io:print("JSON: ");
-            io:println(j);
-        }
-        error e => io:println("Error in table to json conversion");
+    var retValJson = json.convert(tb);
+    if (retValJson is json) {
+        io:print("JSON: ");
+        io:println(retValJson);
+    } else {
+        io:println("Error in table to json conversion");
     }
 
     // This converts the table to XML format.
-    var retValXml = <xml>tb;
-    match retValXml {
-        xml x => {
-            io:print("XML: ");
-            io:println(x);
-        }
-        error e => io:println("Error in table to xml conversion");
+    var retValXml = xml.convert(tb);
+    if (retValXml is xml) {
+        io:print("XML: ");
+        io:println(retValXml);
+    } else {
+        io:println("Error in table to xml conversion");
     }
 }
 
