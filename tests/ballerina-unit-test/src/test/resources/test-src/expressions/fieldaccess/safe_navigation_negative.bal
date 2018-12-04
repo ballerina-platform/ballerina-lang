@@ -36,7 +36,7 @@ function testFieldAcessWithoutErrorLifting () returns any {
 }
 
 function testErrorLiftingOnRHS() {
-    Person|error p = {};
+    Person|error p;
     p!info1!address1!city = "Colombo";
 }
 

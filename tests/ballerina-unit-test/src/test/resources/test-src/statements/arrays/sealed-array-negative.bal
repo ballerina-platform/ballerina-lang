@@ -32,7 +32,7 @@ function initializeInvalidSizedSealedArray() {
 }
 
 function assignValueToInvalidIndex() {
-    int[5] sealedArray1 = [0, 0, 0, 0, 0];
+    int[5] sealedArray1;
     int[!...] sealedArray2 = [1, 2, 3, 4, 5];
     sealedArray1[5] = 12;
     sealedArray2[5] = 12;

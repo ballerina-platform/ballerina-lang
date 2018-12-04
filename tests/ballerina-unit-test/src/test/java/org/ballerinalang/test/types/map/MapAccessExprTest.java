@@ -156,7 +156,7 @@ public class MapAccessExprTest {
 
     @Test(description = "Map access negative scenarios")
     public void negativeTest() {
-        Assert.assertEquals(incorrectCompileResult.getDiagnostics().length, 7);
+        Assert.assertEquals(incorrectCompileResult.getDiagnostics().length, 6);
 
         int index = 0;
         // testMapAccessWithIndex
@@ -167,7 +167,6 @@ public class MapAccessExprTest {
         BAssertUtil.validateError(incorrectCompileResult, index++, "cannot get all fields from a map", 9, 13);
 
         // uninitialized map access
-        BAssertUtil.validateError(incorrectCompileResult, index++, "variable 'globalM' is not initialized", 12, 1);
         BAssertUtil.validateError(incorrectCompileResult, index++, "variable 'ints' is not initialized", 16, 5);
         BAssertUtil.validateError(incorrectCompileResult, index++, "variable 'ints' is not initialized", 18, 41);
         BAssertUtil.validateError(incorrectCompileResult, index++, "variable 'globalM' is not initialized", 22, 5);
