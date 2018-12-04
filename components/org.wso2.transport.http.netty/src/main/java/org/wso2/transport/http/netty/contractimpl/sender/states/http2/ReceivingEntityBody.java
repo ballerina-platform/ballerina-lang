@@ -35,9 +35,6 @@ import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
-import java.io.IOException;
-
-import static org.wso2.transport.http.netty.contract.Constants.INBOUND_RESPONSE_ALREADY_RECEIVED;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.releaseContent;
 
 /**
@@ -51,7 +48,7 @@ public class ReceivingEntityBody implements SenderState {
 
     private final Http2TargetHandler http2TargetHandler;
     private final Http2ClientChannel http2ClientChannel;
-    private Http2TargetHandler.Http2RequestWriter http2RequestWriter = null;
+    private Http2TargetHandler.Http2RequestWriter http2RequestWriter;
 
     ReceivingEntityBody(Http2TargetHandler http2TargetHandler) {
         this.http2TargetHandler = http2TargetHandler;
@@ -70,16 +67,17 @@ public class ReceivingEntityBody implements SenderState {
     }
 
     @Override
-    public void writeOutboundRequestBody(ChannelHandlerContext ctx, HttpContent httpContent, Http2MessageStateContext
-            http2MessageStateContext) throws Http2Exception {
+    public void writeOutboundRequestBody(ChannelHandlerContext ctx, HttpContent httpContent,
+                                         Http2MessageStateContext http2MessageStateContext) throws Http2Exception {
         // In bidirectional streaming case, while sending the request data frames, server response data frames can
         // receive. In order to handle it. we need to change the states depending on the action.
+        // This is temporary check. Remove the conditional check after reviewing message flow.
         if (http2RequestWriter != null) {
             http2MessageStateContext.setSenderState(new SendingEntityBody(http2TargetHandler, http2RequestWriter));
             http2MessageStateContext.getSenderState().writeOutboundRequestBody(ctx, httpContent,
                     http2MessageStateContext);
         } else {
-            //Response is already receiving, if request writer does not exist the outgoing data frames need to be
+            // Response is already receiving, if request writer does not exist the outgoing data frames need to be
             // released.
             releaseContent(httpContent);
         }
@@ -119,8 +117,7 @@ public class ReceivingEntityBody implements SenderState {
             onResponseDataRead(outboundMsgHolder, streamId, endOfStream, data);
         }
         if (endOfStream) {
-            outboundMsgHolder.getRequest().setIoException(new IOException(INBOUND_RESPONSE_ALREADY_RECEIVED));
-            http2MessageStateContext.setSenderState(new EntityBodyReceived(http2TargetHandler));
+            http2MessageStateContext.setSenderState(new EntityBodyReceived(http2TargetHandler, http2RequestWriter));
         }
     }
 

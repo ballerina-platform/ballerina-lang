@@ -84,8 +84,8 @@ public class SendingHeaders implements SenderState {
     }
 
     @Override
-    public void writeOutboundRequestBody(ChannelHandlerContext ctx, HttpContent httpContent, Http2MessageStateContext
-            http2MessageStateContext) throws Http2Exception {
+    public void writeOutboundRequestBody(ChannelHandlerContext ctx, HttpContent httpContent,
+                                         Http2MessageStateContext http2MessageStateContext) throws Http2Exception {
         writeOutboundRequestHeaders(ctx, httpContent);
     }
 

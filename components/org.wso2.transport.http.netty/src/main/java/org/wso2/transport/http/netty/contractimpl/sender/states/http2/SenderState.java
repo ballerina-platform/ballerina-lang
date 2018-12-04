@@ -49,8 +49,8 @@ public interface SenderState {
      * @param httpContent the content of the entity body
      * @param http2MessageStateContext the message state context
      */
-    void writeOutboundRequestBody(ChannelHandlerContext ctx, HttpContent httpContent, Http2MessageStateContext
-            http2MessageStateContext) throws Http2Exception;
+    void writeOutboundRequestBody(ChannelHandlerContext ctx, HttpContent httpContent,
+                                  Http2MessageStateContext http2MessageStateContext) throws Http2Exception;
 
     /**
      * Reads headers of inbound response.

@@ -55,8 +55,8 @@ public class RequestCompleted implements SenderState {
     }
 
     @Override
-    public void writeOutboundRequestBody(ChannelHandlerContext ctx, HttpContent httpContent, Http2MessageStateContext
-            http2MessageStateContext) {
+    public void writeOutboundRequestBody(ChannelHandlerContext ctx, HttpContent httpContent,
+                                         Http2MessageStateContext http2MessageStateContext) {
         LOG.warn("writeOutboundRequestBody is not a dependant action of this state");
     }
 

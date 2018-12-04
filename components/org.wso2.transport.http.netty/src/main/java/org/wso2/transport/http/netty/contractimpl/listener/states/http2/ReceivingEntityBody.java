@@ -45,15 +45,15 @@ public class ReceivingEntityBody implements ListenerState {
     private static final Logger LOG = LoggerFactory.getLogger(ReceivingEntityBody.class);
 
     private final Http2MessageStateContext http2MessageStateContext;
-    private boolean headerSent = false;
+    private boolean headerSent;
 
     ReceivingEntityBody(Http2MessageStateContext http2MessageStateContext) {
         this.http2MessageStateContext = http2MessageStateContext;
     }
 
-    ReceivingEntityBody(Http2MessageStateContext http2MessageStateContext, boolean respHeaderSent) {
+    ReceivingEntityBody(Http2MessageStateContext http2MessageStateContext, boolean headerSent) {
         this(http2MessageStateContext);
-        this.headerSent = respHeaderSent;
+        this.headerSent = headerSent;
     }
 
     @Override
@@ -93,6 +93,8 @@ public class ReceivingEntityBody implements ListenerState {
                                           int streamId) throws Http2Exception {
         // When receiving entity body, if payload is not consumed by the server, this method is invoked if server is
         // going to send the response back.
+        // This conditional check is needed because, either to write response headers or response body, response
+        // writer calls this method. So we need to check whether headers sent to change the state.
         if (headerSent) {
             // response header already sent. move the state to SendingEntityBody.
             http2MessageStateContext.setListenerState(

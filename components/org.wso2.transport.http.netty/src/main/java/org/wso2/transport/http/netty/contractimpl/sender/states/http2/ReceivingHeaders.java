@@ -68,7 +68,7 @@ public class ReceivingHeaders implements SenderState {
 
     private final Http2TargetHandler http2TargetHandler;
     private final Http2ClientChannel http2ClientChannel;
-    private Http2TargetHandler.Http2RequestWriter http2RequestWriter = null;
+    private Http2TargetHandler.Http2RequestWriter http2RequestWriter;
 
     public ReceivingHeaders(Http2TargetHandler http2TargetHandler) {
         this.http2TargetHandler = http2TargetHandler;
@@ -87,10 +87,11 @@ public class ReceivingHeaders implements SenderState {
     }
 
     @Override
-    public void writeOutboundRequestBody(ChannelHandlerContext ctx, HttpContent httpContent, Http2MessageStateContext
-            http2MessageStateContext) throws Http2Exception {
+    public void writeOutboundRequestBody(ChannelHandlerContext ctx, HttpContent httpContent,
+                                         Http2MessageStateContext http2MessageStateContext) throws Http2Exception {
         // In bidirectional streaming case, while sending the request data frames, server response data frames can
         // receive. In order to handle it. we need to change the states depending on the action.
+        // This is temporary check. Remove the conditional check after reviewing message flow.
         if (http2RequestWriter != null) {
             http2MessageStateContext.setSenderState(new SendingEntityBody(http2TargetHandler, http2RequestWriter));
             http2MessageStateContext.getSenderState().writeOutboundRequestBody(ctx, httpContent,

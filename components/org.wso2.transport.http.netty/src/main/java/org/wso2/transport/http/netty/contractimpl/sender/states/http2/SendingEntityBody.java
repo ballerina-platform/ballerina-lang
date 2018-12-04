@@ -78,8 +78,8 @@ public class SendingEntityBody implements SenderState {
     }
 
     @Override
-    public void writeOutboundRequestBody(ChannelHandlerContext ctx, HttpContent httpContent, Http2MessageStateContext
-            http2MessageStateContext) throws Http2Exception {
+    public void writeOutboundRequestBody(ChannelHandlerContext ctx, HttpContent httpContent,
+                                         Http2MessageStateContext http2MessageStateContext) throws Http2Exception {
         writeContent(ctx, httpContent);
     }
 
@@ -87,9 +87,6 @@ public class SendingEntityBody implements SenderState {
     public void readInboundResponseHeaders(ChannelHandlerContext ctx, Http2HeadersFrame http2HeadersFrame,
                                            OutboundMsgHolder outboundMsgHolder, boolean serverPush,
                                            Http2MessageStateContext http2MessageStateContext) {
-        // PREVIOUS: This is an action due to an application error. When the initial frames of the response is being
-        // received before sending the complete request.
-        // PREVIOUS: outboundMsgHolder.getRequest().setIoException(new IOException(INBOUND_RESPONSE_ALREADY_RECEIVED));
         // In bidirectional streaming case, while sending the request data frames, server response data frames can
         // receive. In order to handle it. we need to change the states depending on the action.
         http2MessageStateContext.setSenderState(new ReceivingHeaders(http2TargetHandler, http2RequestWriter));
@@ -106,7 +103,6 @@ public class SendingEntityBody implements SenderState {
         http2MessageStateContext.setSenderState(new ReceivingEntityBody(http2TargetHandler, http2RequestWriter));
         http2MessageStateContext.getSenderState().readInboundResponseBody(ctx, http2DataFrame, outboundMsgHolder,
                 serverPush, http2MessageStateContext);
-        //PREVIOUS: LOG.warn("readInboundResponseEntityBody is not a dependant action of this state");
     }
 
     @Override
