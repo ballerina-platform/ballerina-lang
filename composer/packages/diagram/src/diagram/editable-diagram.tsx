@@ -141,7 +141,7 @@ export class EditableDiagram extends React.Component<EdiatableDiagramProps, Edit
 
     private createContext(): IDiagramContext {
         // create context contributions for the children
-        const contextContributions = {
+        const contextContributions: Partial<IDiagramContext> = {
             editingEnabled: this.state.editingEnabled,
             langClient: this.props.langClient,
             toggleEditing: () => {

@@ -109,22 +109,41 @@
                     }
                 }
             }
-            .svg-button {
-                cursor: pointer;
-                &.circle {
-                    circle {
-                        fill: ~"@{@{color}-diagram-button-background-color}";
-                    }
+
+            .svg-dropdown-menu {
+                .trigger {
+                    fill: ~"@{@{color}-diagram-menu-trigger-background-color}";
                     text {
-                        fill: ~"@{@{color}-diagram-button-text-color}";
+                        fill: ~"@{@{color}-diagram-menu-trigger-text-color}";
+                    }
+                    &:hover {
+                        fill-opacity: 0;
                     }
                 }
-                &:hover {
-                    &.circle {
-                        circle {
-                            fill-opacity: 0.8;
+                .content {
+                    .item {
+                        cursor: pointer;
+                        fill: ~"@{@{color}-diagram-menu-item-background-color}";
+                        text {
+                            fill: ~"@{@{color}-diagram-menu-item-text-color}";
+                        }
+                        &:hover {
+                            .item-body {
+                                fill: ~"@{@{color}-diagram-menu-item-hover-background-color}";
+                            }
                         }
                     }
+                }
+            }
+            .svg-button {
+                cursor: pointer;
+                fill: ~"@{@{color}-diagram-svg-button-background-color}";
+                text {
+                    fill: ~"@{@{color}-diagram-svg-button-text-color}";
+                    text-anchor: middle;
+                }
+                &:hover {
+                    fill-opacity: 0.8;
                 }
             }
         }
