@@ -59,7 +59,7 @@ function sizeWorker(node: VariableDef) {
     } else {
         viewState.bBox.leftMargin = config.lifeLine.leftMargin;
     }
-    viewState.name = variable.name.value.replace("0", ""); 
+    viewState.name = variable.name.value.replace("0", "");
 }
 
 let endpointHolder: VisibleEndpoint[] = [];
