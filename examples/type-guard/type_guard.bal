@@ -26,7 +26,7 @@ function explainTypeTest(Person p) returns (Address?|Employment|error) {
     // Person's employment is assigned to simple variable reference.
     Employment? emp = p.employment;
     if (p.address is Address) {
-        // This is a type-test. thus this returns `Address?`
+        // This is a type-test, thus this returns `Address?`
         return p.address;
     } else if (emp is Employment) {
         // This is a type-guard, thus this returns `Employment`

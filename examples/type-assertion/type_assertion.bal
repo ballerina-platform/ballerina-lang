@@ -12,7 +12,7 @@ type Employee record {
 };
 
 function assertTypes(anydata emp) {
-    // `emp` is asserted to be of type `Employee` and if successful the value is assigned to variable `employee`.
+    // The `emp` is asserted to be of type `Employee` and if successful the value is assigned to variable `employee`.
     Employee employee = <Employee>emp;
     io:println("Type asserted employee name: ", employee.name);
 
