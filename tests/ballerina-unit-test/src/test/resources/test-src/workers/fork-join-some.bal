@@ -1,4 +1,4 @@
-function testForkJoinAny() returns string {
+function testForkAndWaitForAny() returns string {
         fork {
             worker ABC_Airline returns string {
                 return "abc";

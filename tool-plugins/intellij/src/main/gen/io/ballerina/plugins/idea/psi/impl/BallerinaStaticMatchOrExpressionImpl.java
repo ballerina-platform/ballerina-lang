@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaDoneStatementImpl extends BallerinaCompositeElementImpl implements BallerinaDoneStatement {
+public class BallerinaStaticMatchOrExpressionImpl extends BallerinaStaticMatchLiteralsImpl implements BallerinaStaticMatchOrExpression {
 
-  public BallerinaDoneStatementImpl(@NotNull ASTNode node) {
+  public BallerinaStaticMatchOrExpressionImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitDoneStatement(this);
+    visitor.visitStaticMatchOrExpression(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -42,15 +42,15 @@ public class BallerinaDoneStatementImpl extends BallerinaCompositeElementImpl im
   }
 
   @Override
-  @Nullable
-  public PsiElement getSemicolon() {
-    return findChildByType(SEMICOLON);
+  @NotNull
+  public List<BallerinaStaticMatchLiterals> getStaticMatchLiteralsList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaStaticMatchLiterals.class);
   }
 
   @Override
   @NotNull
-  public PsiElement getDone() {
-    return notNullChild(findChildByType(DONE));
+  public PsiElement getPipe() {
+    return notNullChild(findChildByType(PIPE));
   }
 
 }

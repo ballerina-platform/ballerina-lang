@@ -6,37 +6,37 @@ import ballerina/mime;
 //Client endpoint.
 http:Client clientEP = new("http://localhost:9091/backEndService");
 
-//Service to test HTTP client actions with different payload types.
+//Service to test HTTP client remote functions with different payload types.
 service actionService on new http:Listener(9090) {
 
     resource function messageUsage(http:Caller caller, http:Request req) {
 
-        //GET action without any payload.
+        //GET remote function without any payload.
         var response = clientEP->get("/greeting");
         handleResponse(response);
 
-        //GET action with request as message.
+        //GET remote function with request as message.
         http:Request request = new;
         response = clientEP->get("/greeting", message = request);
         handleResponse(response);
 
-        //POST action without any payload.
+        //POST remote function without any payload.
         response = clientEP->post("/echo", ());
         handleResponse(response);
 
-        //POST action with text as payload.
+        //POST remote function with text as payload.
         response = clientEP->post("/echo", "Sample Text");
         handleResponse(response);
 
-        //POST action with xml as payload.
+        //POST remote function with xml as payload.
         response = clientEP->post("/echo", xml `<yy>Sample Xml</yy>`);
         handleResponse(response);
 
-        //POST action with json as payload.
+        //POST remote function with json as payload.
         response = clientEP->post("/echo", { name: "apple", color: "red" });
         handleResponse(response);
 
-        //POST action with byte array as payload.
+        //POST remote function with byte array as payload.
         string textVal = "Sample Text";
         byte[] binaryValue = textVal.toByteArray("UTF-8");
         response = clientEP->post("/echo", binaryValue);
@@ -45,7 +45,7 @@ service actionService on new http:Listener(9090) {
         //Get a byte channel to a given file.
         io:ReadableByteChannel byteChannel = io:openReadableFile("./files/logo.png");
 
-        //POST action with byte channel as payload. Xince the file path is static
+        //POST remote function with byte channel as payload. Xince the file path is static
         //`untaint` is used to denote that the byte channel is trusted .
         response = clientEP->post("/image", untaint byteChannel);
         handleResponse(response);
@@ -58,7 +58,7 @@ service actionService on new http:Listener(9090) {
         mime:Entity part2 = new;
         part2.setText("Hello");
 
-        //POST action with body parts as payload.
+        //POST remote function with body parts as payload.
         mime:Entity[] bodyParts = [part1, part2];
         response = clientEP->post("/echo", bodyParts);
         handleResponse(response);
@@ -93,7 +93,7 @@ service backEndService on new http:Listener(9091) {
                 if (returnValue is string) {
                     textValue = returnValue;
                 } else if (returnValue is error) {
-                    textValue = string.create(returnValue.detail().message);
+                    textValue = string.convert(returnValue.detail().message);
                 }
                 var result = caller->respond(untaint textValue);
                 handleError(result);
@@ -157,7 +157,7 @@ service backEndService on new http:Listener(9091) {
     }
 }
 
-//Handle response data received from HTTP client actions.
+//Handle response data received from HTTP client remote functions.
 function handleResponse(http:Response|error response) {
     if (response is http:Response) {
         //Print the content type of the received data.
@@ -215,7 +215,7 @@ function handleResponse(http:Response|error response) {
 function sendErrorMsg(http:Caller caller, error err) {
     http:Response res = new;
     res.statusCode = 500;
-    res.setPayload(untaint string.create(err.detail().message));
+    res.setPayload(untaint string.convert(err.detail().message));
     var result = caller->respond(res);
     handleError(result);
 }

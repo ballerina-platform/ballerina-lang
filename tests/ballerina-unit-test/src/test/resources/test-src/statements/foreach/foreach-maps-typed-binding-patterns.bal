@@ -32,7 +32,7 @@ function concatStringIntString(int s1, int i, string s2) {
 }
 
 function concatIntStringAny(int i, string s, any a) {
-    output = output + i + ":" + s + ":" + string.create(a) + " ";
+    output = output + i + ":" + s + ":" + string.convert(a) + " ";
 }
 
 function concatIntStringIntString(int i1, string s1, int i2, string s2) {
@@ -48,7 +48,7 @@ function concatIntStringIntIntString(int i1, string s1, int i2, int i3, string s
 }
 
 function concatIntStringAnyIntString(int i1, string s1, any a, int i2, string s2) {
-    output = output + i1 + ":" + s1 + ":" + string.create(a) + ":" + i2 + ":" + s2 + " ";
+    output = output + i1 + ":" + s1 + ":" + string.convert(a) + ":" + i2 + ":" + s2 + " ";
 }
 
 // ---------------------------------------------------------------------------------------------------------------------

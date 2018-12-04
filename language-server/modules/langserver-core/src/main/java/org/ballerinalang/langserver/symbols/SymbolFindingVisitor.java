@@ -39,6 +39,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
@@ -85,6 +86,12 @@ public class SymbolFindingVisitor extends LSNodeVisitor {
     public void visit(BLangTypeDefinition typeDefinition) {
         this.addSymbol(typeDefinition, typeDefinition.symbol, SymbolKind.Class);
         typeDefinition.typeNode.accept(this);
+    }
+
+    @Override
+    public void visit(BLangConstant constant) {
+        this.addSymbol(constant, constant.symbol, SymbolKind.Class);
+        constant.typeNode.accept(this);
     }
 
     @Override

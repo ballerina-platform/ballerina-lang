@@ -28,10 +28,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Test case for fork join.
+ * Test case for fork.
  */
-@Test(groups = "broken")
-public class ForkJoinReturnAnyTest {
+public class ForkReturnAnyTest {
     private CompileResult result;
 
     @BeforeClass
@@ -40,8 +39,8 @@ public class ForkJoinReturnAnyTest {
     }
 
     @Test(description = "Test Fork Join With workers returning any type")
-    public void testForkJoinReturnAnyType() {
-        BValue[] returns = BRunUtil.invoke(result, "testForkJoinReturnAnyType");
+    public void testForkReturnAnyType() {
+        BValue[] returns = BRunUtil.invoke(result, "testForkReturnAnyType");
         Assert.assertEquals(returns.length, 2);
         Assert.assertTrue(returns[0] instanceof BInteger);
         Assert.assertTrue(returns[1] instanceof BString);

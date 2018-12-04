@@ -24,7 +24,6 @@ import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile;
@@ -79,7 +78,7 @@ public class Compiler {
 
     public BLangPackage compile(String sourcePackage, boolean isBuild) {
         if (!isBuild && !this.sourceDirectoryManager.checkIfSourcesExists(sourcePackage)) {
-            throw new BLangCompilerException(formatError(sourcePackage));
+            throw new BLangCompilerException("no ballerina source files found in module '" + sourcePackage + "'");
         }
         PackageID packageID = this.sourceDirectoryManager.getPackageID(sourcePackage);
         if (packageID == null) {
@@ -95,7 +94,7 @@ public class Compiler {
 
     public BLangPackage build(String sourcePackage) {
         if (!this.sourceDirectoryManager.checkIfSourcesExists(sourcePackage)) {
-            throw new BLangCompilerException(formatError(sourcePackage));
+            throw new BLangCompilerException("no ballerina source files found in module '" + sourcePackage + "'");
         }
         outStream.println("Compiling source");
         BLangPackage bLangPackage = compile(sourcePackage, true);
@@ -184,13 +183,5 @@ public class Compiler {
             throw new BLangCompilerException("compilation contains errors");
         }
         return compiledPackages.get(0);
-    }
-
-    private String formatError(String sourcePackage) {
-        if (sourcePackage.endsWith(ProjectDirConstants.BLANG_SOURCE_EXT)) {
-            return "no ballerina constructs found in " + sourcePackage;
-        }
-        return "no ballerina source files found in module " + sourcePackage;
-
     }
 }

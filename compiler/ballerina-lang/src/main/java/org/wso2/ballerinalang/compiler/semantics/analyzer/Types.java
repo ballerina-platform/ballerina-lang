@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
-import org.antlr.v4.runtime.misc.OrderedHashSet;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.types.TypeKind;
@@ -435,8 +434,8 @@ public class Types {
     }
 
     private boolean checkUnionEquivalencyForStamping(BType source, BType target) {
-        Set<BType> sourceTypes = new OrderedHashSet<>();
-        Set<BType> targetTypes = new OrderedHashSet<>();
+        Set<BType> sourceTypes = new LinkedHashSet<>();
+        Set<BType> targetTypes = new LinkedHashSet<>();
 
         if (source.tag == TypeTags.UNION) {
             BUnionType sourceUnionType = (BUnionType) source;
@@ -773,7 +772,7 @@ public class Types {
     void setForeachTypedBindingPatternType(BLangForeach foreachNode) {
         BType collectionType = foreachNode.collection.type;
         BMapType mapType = new BMapType(TypeTags.MAP, null, symTable.mapType.tsymbol);
-        LinkedHashSet<BType> memberTypes = new OrderedHashSet<>();
+        LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
         memberTypes.add(mapType);
         BUnionType unionType = new BUnionType(null, memberTypes, true);
         switch (collectionType.tag) {
@@ -796,7 +795,7 @@ public class Types {
                 }});
                 break;
             case TypeTags.XML:
-                Set<BType> bTypes = new OrderedHashSet<>();
+                LinkedHashSet<BType> bTypes = new LinkedHashSet<>();
                 bTypes.add(symTable.xmlType);
                 bTypes.add(symTable.stringType);
                 mapType.constraint = new BUnionType(null, bTypes, false);
@@ -1225,7 +1224,7 @@ public class Types {
             // Handle constrained JSON
             if (isSameType(s, t)) {
                 return createConversionOperatorSymbol(s, t, true, InstructionCodes.NOP);
-            } else if (s.tag == TypeTags.OBJECT || s.tag == TypeTags.RECORD) {
+            } else if (s.tag == TypeTags.OBJECT) {
 //                TODO: do type checking and fail for obvious incompatible types
 //                if (checkStructToJSONConvertibility(s)) {
 //                    return createConversionOperatorSymbol(s, t, false, InstructionCodes.T2JSON);
@@ -1500,10 +1499,8 @@ public class Types {
                 return false;
             }
 
-            Set<BType> sourceTypes = new OrderedHashSet<>();
-            Set<BType> targetTypes = new OrderedHashSet<>();
-            sourceTypes.addAll(sUnionType.memberTypes);
-            targetTypes.addAll(tUnionType.memberTypes);
+            Set<BType> sourceTypes = new LinkedHashSet<>(sUnionType.memberTypes);
+            Set<BType> targetTypes = new LinkedHashSet<>(tUnionType.memberTypes);
 
             boolean notSameType = sourceTypes
                     .stream()
@@ -1657,8 +1654,8 @@ public class Types {
     }
 
     private boolean isAssignableToUnionType(BType source, BType target, List<TypePair> unresolvedTypes) {
-        Set<BType> sourceTypes = new OrderedHashSet<>();
-        Set<BType> targetTypes = new OrderedHashSet<>();
+        Set<BType> sourceTypes = new LinkedHashSet<>();
+        Set<BType> targetTypes = new LinkedHashSet<>();
 
         if (source.tag == TypeTags.UNION) {
             BUnionType sourceUnionType = (BUnionType) source;
@@ -1712,11 +1709,8 @@ public class Types {
             return true;
         }
 
-        Set<BType> lhsTypes = new OrderedHashSet<>();
-        Set<BType> rhsTypes = new OrderedHashSet<>();
-
-        lhsTypes.addAll(expandAndGetMemberTypesRecursive(lhsType));
-        rhsTypes.addAll(expandAndGetMemberTypesRecursive(rhsType));
+        Set<BType> lhsTypes = new LinkedHashSet<>(expandAndGetMemberTypesRecursive(lhsType));
+        Set<BType> rhsTypes = new LinkedHashSet<>(expandAndGetMemberTypesRecursive(rhsType));
         return equalityIntersectionExists(lhsTypes, rhsTypes);
     }
 
@@ -1748,7 +1742,7 @@ public class Types {
      * @return  a set containing all the retrieved member types
      */
     public Set<BType> expandAndGetMemberTypesRecursive(BType bType) {
-        Set<BType> memberTypes = new OrderedHashSet<>();
+        Set<BType> memberTypes = new LinkedHashSet<>();
         switch (bType.tag) {
             case TypeTags.BYTE:
             case TypeTags.INT:
@@ -2041,7 +2035,7 @@ public class Types {
         return false;
     }
 
-    public BType getRemainingType(BType originalType, Set<BType> typesToRemove) {
+    public BType getRemainingType(BType originalType, LinkedHashSet<BType> typesToRemove) {
         return getRemainingType(originalType, new BUnionType(null, typesToRemove, false));
     }
 
@@ -2062,7 +2056,7 @@ public class Types {
             return remainingTypes.get(0);
         }
 
-        return new BUnionType(null, new HashSet<>(remainingTypes), remainingTypes.contains(symTable.nilType));
+        return new BUnionType(null, new LinkedHashSet<>(remainingTypes), remainingTypes.contains(symTable.nilType));
     }
 
     public BType getSafeType(BType type, boolean liftError) {

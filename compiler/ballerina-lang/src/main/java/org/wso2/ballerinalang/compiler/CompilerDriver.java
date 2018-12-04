@@ -68,6 +68,7 @@ public class CompilerDriver {
     private final CompilerPhase compilerPhase;
     private final DataflowAnalyzer dataflowAnalyzer;
 
+
     public static CompilerDriver getInstance(CompilerContext context) {
         CompilerDriver compilerDriver = context.get(COMPILER_DRIVER_KEY);
         if (compilerDriver == null) {

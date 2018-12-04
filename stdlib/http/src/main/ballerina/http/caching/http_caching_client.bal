@@ -182,7 +182,7 @@ public type HttpCachingClient client object {
     public remote function options(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                             message = ()) returns Response|error;
 
-    # Forward action can be used to invoke an HTTP call with inbound request's HTTP method. Only inbound requests of
+    # Forward remote function can be used to invoke an HTTP call with inbound request's HTTP method. Only inbound requests of
     # GET and HEAD HTTP method types are cacheable.
     #
     # + path - Request path
@@ -749,7 +749,7 @@ function getResponseAge(Response cachedResponse) returns int {
     }
 
     string ageHeaderString = cachedResponse.getHeader(AGE);
-    var ageValue = int.create(ageHeaderString);
+    var ageValue = int.convert(ageHeaderString);
     if (ageValue is int) {
         return ageValue;
     }

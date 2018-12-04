@@ -21,15 +21,9 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaOnCommitStatement extends BallerinaCompositeElement {
-
-  @Nullable
-  BallerinaExpression getExpression();
-
-  @Nullable
-  PsiElement getAssign();
+public interface BallerinaUnderscoreVariableReference extends BallerinaVariableReference {
 
   @NotNull
-  PsiElement getOncommit();
+  PsiElement getUnderscore();
 
 }

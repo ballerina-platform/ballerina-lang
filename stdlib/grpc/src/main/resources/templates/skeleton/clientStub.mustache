@@ -27,13 +27,13 @@ public type {{serviceName}}{{#equals stubType "blocking"}}Blocking{{/equals}}Cli
         grpc:Headers resHeaders = new;
         {{#if outputType}}any result = ();
         (result, resHeaders) = payload;
-        {{#not_equal outputType "string"}}var value = {{outputType}}.create(result);
+        {{#not_equal outputType "string"}}var value = {{outputType}}.convert(result);
         if (value is {{outputType}}) {
             return (value, resHeaders);
         } else {
             error err = error("{ballerina/grpc}INTERNAL", {"message": value.reason()});
             return err;
-        }{{/not_equal}}{{#equals outputType "string"}}return ({{outputType}}.create(result), resHeaders);{{/equals}}{{else}}(_, resHeaders) = payload;
+        }{{/not_equal}}{{#equals outputType "string"}}return ({{outputType}}.convert(result), resHeaders);{{/equals}}{{else}}(_, resHeaders) = payload;
         return resHeaders;{{/if}}
     }
 {{/blockingFunctions}}{{#nonBlockingFunctions}}

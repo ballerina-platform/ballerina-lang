@@ -88,7 +88,7 @@ service publisher on publisherServiceEP {
         if (req.hasHeader("x-topic")) {
             string topicName = req.getHeader("x-topic");
             websub:SubscriberDetails[] details = webSubHub.getSubscribers(topicName);
-            var j = json.create(details[0]);
+            var j = json.convert(details[0]);
             if (j is json) {
                 var err = caller->respond(j);
                 if (err is error) {
@@ -105,7 +105,7 @@ service publisher on publisherServiceEP {
                 allTopics["Topic_" + index] = topic;
                 index += 1;
             }
-            var j = json.create(allTopics);
+            var j = json.convert(allTopics);
             if (j is json) {
                 var err = caller->respond(j);
                 if (err is error) {
@@ -182,7 +182,7 @@ function startHubAndRegisterTopic() returns websub:WebSubHub {
 }
 
 function startWebSubHub() returns websub:WebSubHub {
-    var result = websub:startHub(9191, remotePublishingEnabled = true);
+    var result = websub:startHub(new http:Listener(9191), hubConfiguration = { remotePublish : { enabled : true }});
     if (result is websub:WebSubHub) {
         return result;
     } else {

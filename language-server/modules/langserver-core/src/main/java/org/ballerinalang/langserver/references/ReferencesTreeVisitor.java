@@ -28,6 +28,7 @@ import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -47,6 +48,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -640,6 +642,19 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
 //            typeDefinition.valueSpace.forEach(this::acceptNode);
 //        }
 
+    }
+
+    @Override
+    public void visit(BLangConstant constant) {
+        BConstantSymbol constSymbol = constant.symbol;
+        if (isReferenced(constant.name.value, constSymbol.owner, constSymbol.pkgID, constSymbol.owner.pkgID)) {
+            addLocation(constant, constSymbol.owner.pkgID.name.getValue(),
+                        constant.pos.getSource().pkgID.name.getValue());
+        }
+
+        if (constant.typeNode != null) {
+            this.acceptNode(constant.typeNode);
+        }
     }
 
     @Override

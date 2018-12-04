@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaOnCommitStatementImpl extends BallerinaCompositeElementImpl implements BallerinaOnCommitStatement {
+public class BallerinaUnderscoreVariableReferenceImpl extends BallerinaVariableReferenceImpl implements BallerinaUnderscoreVariableReference {
 
-  public BallerinaOnCommitStatementImpl(@NotNull ASTNode node) {
+  public BallerinaUnderscoreVariableReferenceImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitOnCommitStatement(this);
+    visitor.visitUnderscoreVariableReference(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -42,21 +42,9 @@ public class BallerinaOnCommitStatementImpl extends BallerinaCompositeElementImp
   }
 
   @Override
-  @Nullable
-  public BallerinaExpression getExpression() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaExpression.class);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getAssign() {
-    return findChildByType(ASSIGN);
-  }
-
-  @Override
   @NotNull
-  public PsiElement getOncommit() {
-    return notNullChild(findChildByType(ONCOMMIT));
+  public PsiElement getUnderscore() {
+    return notNullChild(findChildByType(UNDERSCORE));
   }
 
 }

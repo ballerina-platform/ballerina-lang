@@ -232,6 +232,9 @@ public class Main {
         @CommandLine.Option(names = "-B", description = "Ballerina VM options")
         private Map<String, String> vmOptions = new HashMap<>();
 
+        @CommandLine.Option(names = "--experimental", description = "enable experimental language features")
+        private boolean experimentalFlag;
+
         public void execute() {
             if (helpFlag) {
                 printUsageInfo(BallerinaCliCommands.RUN);
@@ -276,7 +279,7 @@ public class Main {
 
             // Normalize the source path to remove './' or '.\' characters that can appear before the name
             LauncherUtils.runProgram(sourceRootPath, sourcePath.normalize(), functionName, runtimeParams,
-                                     configFilePath, programArgs, offline, observeFlag, printReturn);
+                    configFilePath, programArgs, offline, observeFlag, printReturn, experimentalFlag);
         }
 
         @Override

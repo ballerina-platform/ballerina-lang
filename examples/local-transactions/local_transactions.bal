@@ -31,10 +31,10 @@ public function main() {
     // executed at the end when the transaction is either aborted or committed.
     transaction with retries = 4, oncommit = onCommitFunction,
                                   onabort = onAbortFunction {
-    // This is the first action participant in the transaction.
+        // This is the first remote function participant in the transaction.
         var result = testDB->update("INSERT INTO CUSTOMER(ID,NAME)
                                      VALUES (1, 'Anne')");
-        // This is the second action participant in the transaction.
+        // This is the second remote function participant in the transaction.
         result = testDB->update("INSERT INTO SALARY (ID, MON_SALARY)
                                  VALUES (1, 2500)");
         match result {

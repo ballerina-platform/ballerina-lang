@@ -21,12 +21,12 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaDoneStatement extends BallerinaCompositeElement {
-
-  @Nullable
-  PsiElement getSemicolon();
+public interface BallerinaStaticMatchOrExpression extends BallerinaStaticMatchLiterals {
 
   @NotNull
-  PsiElement getDone();
+  List<BallerinaStaticMatchLiterals> getStaticMatchLiteralsList();
+
+  @NotNull
+  PsiElement getPipe();
 
 }
