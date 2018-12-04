@@ -526,6 +526,10 @@
                 "url": "local-transactions"
             },
             {
+                "name": "Local Transactions with participants",
+                "url": "local-transactions-with-participants"
+            },
+            {
                 "name": "XA Transactions",
                 "url": "xa-transactions"
             },
