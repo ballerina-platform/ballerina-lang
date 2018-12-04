@@ -1,5 +1,3 @@
-import ballerina/io;
-
 public type Person record {
     string name;
     int age;
