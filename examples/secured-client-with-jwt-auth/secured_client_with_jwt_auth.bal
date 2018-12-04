@@ -11,7 +11,8 @@ http:Client httpEndpoint = new("https://localhost:9090", config = {
 });
 
 public function main() {
-    // Set the JWT token into runtime invocation context mentioning scheme as `jwt`
+    // Set the JWT token into runtime invocation context mentioning
+    // scheme as `jwt`
     string token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiYWxsZXJ" +
         "pbmEiLCJpc3MiOiJiYWxsZXJpbmEiLCJleHAiOjI4MTg0MTUwMTksImlhdCI6MTUyND" +
         "U3NTAxOSwianRpIjoiZjVhZGVkNTA1ODVjNDZmMmI4Y2EyMzNkMGMyYTNjOWQiLCJhdW" +
@@ -29,7 +30,8 @@ public function main() {
     var response = httpEndpoint->get("/hello/sayHello");
     if (response is http:Response) {
         var result = response.getPayloadAsString();
-        log:printInfo((result is error) ? "Failed to retrieve payload." : result);
+        log:printInfo((result is error) ? "Failed to retrieve payload."
+                                        : result);
     } else {
         log:printError("Failed to call the endpoint.", err = response);
     }
