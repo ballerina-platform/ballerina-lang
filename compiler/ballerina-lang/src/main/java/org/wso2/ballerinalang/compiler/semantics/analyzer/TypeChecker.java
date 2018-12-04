@@ -1065,6 +1065,11 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.MAP:
                 checkTypesForMap(waitForAllExpr.keyValuePairs, ((BMapType) expType).constraint);
                 HashSet<BType> memberTypesForMap = collectWaitExprTypes(waitForAllExpr.keyValuePairs);
+                if (memberTypesForMap.size() == 1) {
+                    resultType = new BMapType(TypeTags.MAP,
+                            memberTypesForMap.iterator().next(), symTable.mapType.tsymbol);
+                    break;
+                }
                 BUnionType constraintTypeForMap = new BUnionType(null, memberTypesForMap, false);
                 resultType = new BMapType(TypeTags.MAP, constraintTypeForMap, symTable.mapType.tsymbol);
                 break;
@@ -1072,6 +1077,10 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.ANY:
                 checkTypesForMap(waitForAllExpr.keyValuePairs, expType);
                 HashSet<BType> memberTypes = collectWaitExprTypes(waitForAllExpr.keyValuePairs);
+                if (memberTypes.size() == 1) {
+                    resultType = new BMapType(TypeTags.MAP, memberTypes.iterator().next(), symTable.mapType.tsymbol);
+                    break;
+                }
                 BUnionType constraintType = new BUnionType(null, memberTypes, false);
                 resultType = new BMapType(TypeTags.MAP, constraintType, symTable.mapType.tsymbol);
                 break;
