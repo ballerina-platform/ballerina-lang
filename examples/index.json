@@ -304,8 +304,8 @@
                 "url": "worker-interaction"
             },
             {
-                "name": "Fork/Join",
-                "url": "fork-join"
+                "name": "Fork",
+                "url": "fork"
             },
             {
                 "name": "Fork/Join Conditional Join",
