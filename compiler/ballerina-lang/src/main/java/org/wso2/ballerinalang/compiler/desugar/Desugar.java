@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.desugar;
 
-import org.antlr.v4.runtime.misc.OrderedHashSet;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
@@ -371,7 +370,7 @@ public class Desugar extends BLangNodeVisitor {
             functionSymbol.params.add(param.symbol);
         }
 
-        LinkedHashSet<BType> members = new OrderedHashSet<>();
+        LinkedHashSet<BType> members = new LinkedHashSet<>();
         members.add(symTable.errorType);
         members.add(symTable.nilType);
         final BUnionType returnType = new BUnionType(null, members, true);
@@ -3385,7 +3384,7 @@ public class Desugar extends BLangNodeVisitor {
         BType enclosingFuncReturnType = ((BInvokableType) invokableSymbol.type).retType;
         Set<BType> returnTypeSet = enclosingFuncReturnType.tag == TypeTags.UNION ?
                 ((BUnionType) enclosingFuncReturnType).memberTypes :
-                new OrderedHashSet<BType>() {{
+                new LinkedHashSet<BType>() {{
                     add(enclosingFuncReturnType);
                 }};
 

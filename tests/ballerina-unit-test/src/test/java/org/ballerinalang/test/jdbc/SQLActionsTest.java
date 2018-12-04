@@ -257,7 +257,7 @@ public class SQLActionsTest {
                 + "\"TIMESTAMP_TYPE\":null, \"DATETIME_TYPE\":null}]");
     }
 
-    @Test(dependsOnGroups = CONNECTOR_TEST, enabled = false, groups = "broken")
+    @Test(dependsOnGroups = CONNECTOR_TEST)
     public void testCloseConnectionPool() {
         BValue connectionCountQuery;
         connectionCountQuery = new BString("SELECT COUNT(*) FROM INFORMATION_SCHEMA.SESSIONS");

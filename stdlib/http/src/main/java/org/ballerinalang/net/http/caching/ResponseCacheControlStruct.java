@@ -165,10 +165,21 @@ public class ResponseCacheControlStruct {
                     responseCacheControl.put(RES_CACHE_CONTROL_PROXY_REVALIDATE_FIELD, new BBoolean(TRUE));
                     break;
                 case MAX_AGE:
-                    responseCacheControl.put(RES_CACHE_CONTROL_MAX_AGE_FIELD, new BInteger(Long.parseLong(value)));
+                    try {
+                        responseCacheControl.put(RES_CACHE_CONTROL_MAX_AGE_FIELD, new BInteger(Long.parseLong(value)));
+                    } catch (NumberFormatException e) {
+                        // Ignore the exception and set 0 as the max-age so that it will be treated as a stale response.
+                        // Note that this won't change the value of the actual cache-control header
+                        responseCacheControl.put(RES_CACHE_CONTROL_MAX_AGE_FIELD, new BInteger(0));
+                    }
                     break;
                 case S_MAXAGE:
-                    responseCacheControl.put(RES_CACHE_CONTROL_S_MAXAGE_FIELD, new BInteger(Long.parseLong(value)));
+                    try {
+                        responseCacheControl.put(RES_CACHE_CONTROL_S_MAXAGE_FIELD, new BInteger(Long.parseLong(value)));
+                    } catch (NumberFormatException e) {
+                        // Ignore the exception and set 0 as the s-maxage.
+                        responseCacheControl.put(RES_CACHE_CONTROL_S_MAXAGE_FIELD, new BInteger(0));
+                    }
                     break;
                 default:
                     break;

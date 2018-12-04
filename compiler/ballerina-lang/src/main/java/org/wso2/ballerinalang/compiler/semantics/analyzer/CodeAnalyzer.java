@@ -165,6 +165,7 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -1165,7 +1166,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private BType createAccumulatedErrorTypeFor(BLangWorkerSend workerSendNode) {
         Set<BType> returnTypesUpToNow = this.returnTypes.peek();
-        TreeSet<BType> returnTypeAndSendType = new TreeSet<>(Comparator.comparing(BType::toString));
+        LinkedHashSet<BType> returnTypeAndSendType = new LinkedHashSet<BType>() {
+            {
+                Comparator.comparing(BType::toString);
+            }
+        };
         for (BType returnType : returnTypesUpToNow) {
             if (returnType.tag == TypeTags.ERROR) {
                 returnTypeAndSendType.add(returnType);

@@ -25,8 +25,10 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
+import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
@@ -66,10 +68,15 @@ public class AddAllDocumentationExecutor implements LSCommandExecutor {
                 context.put(DocumentServiceKeys.FILE_URI_KEY, documentUri);
             }
         }
-        LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
-        BLangPackage bLangPackage = lsCompiler.getBLangPackage(context,
-                                                               context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY),
-                                                               false, LSCustomErrorStrategy.class, false).get(0);
+
+        BLangPackage bLangPackage = null;
+        try {
+            WorkspaceDocumentManager docManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
+            LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
+            bLangPackage = lsCompiler.getBLangPackage(context, docManager, false, LSCustomErrorStrategy.class, false);
+        } catch (LSCompilerException e) {
+            throw new LSCommandExecutorException("Couldn't compile the source", e);
+        }
 
         context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, bLangPackage.symbol.getName().getValue());
         String relativeSourcePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
