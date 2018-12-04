@@ -426,6 +426,8 @@ public class JSONUtils {
 
         try {
             ListUtils.execListAddOperation((BNewArray) json, index, element);
+        } catch (BLangFreezeException e) {
+            throw e;
         } catch (BallerinaException e) {
             throw BLangExceptionHelper.getRuntimeException(e.getMessage(),
                                                            RuntimeErrors.JSON_SET_ERROR, e.getDetail());
