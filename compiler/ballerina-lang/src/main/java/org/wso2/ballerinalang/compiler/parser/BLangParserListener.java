@@ -22,6 +22,7 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.tree.CompilationUnitNode;
@@ -32,6 +33,7 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.ObjectTypeN
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.StringTemplateContentContext;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserBaseListener;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.QuoteType;
 import org.wso2.ballerinalang.compiler.util.RestBindingPatternState;
@@ -58,6 +60,8 @@ import static org.wso2.ballerinalang.compiler.util.RestBindingPatternState.OPEN_
 public class BLangParserListener extends BallerinaParserBaseListener {
     private static final String KEYWORD_PUBLIC = "public";
     private static final String KEYWORD_KEY = "key";
+    private static final String STREAM_TYPE_NAME = "stream";
+    private static final String CHANNEL_TYPE_NAME = "channel";
 
     private BLangPackageBuilder pkgBuilder;
     private BDiagnosticSource diagnosticSrc;
@@ -66,12 +70,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     private List<String> pkgNameComps;
     private String pkgVersion;
     private boolean isInErrorState = false;
+    private boolean enableExperimentalFeatures;
 
-    BLangParserListener(CompilerContext context, CompilationUnitNode compUnit,
-                        BDiagnosticSource diagnosticSource) {
+    BLangParserListener(CompilerContext context, CompilationUnitNode compUnit, BDiagnosticSource diagnosticSource) {
         this.pkgBuilder = new BLangPackageBuilder(context, compUnit);
         this.diagnosticSrc = diagnosticSource;
         this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.enableExperimentalFeatures = Boolean.parseBoolean(
+                CompilerOptions.getInstance(context).get(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED));
     }
 
     @Override
@@ -758,13 +764,17 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.errorTypeName() != null) {
             return;
         }
+
         String typeName = ctx.getChild(0).getText();
+        DiagnosticPos pos = getCurrentPos(ctx);
+        checkTypeValidity(typeName, pos);
+
         if (ctx.nameReference() != null) {
-            this.pkgBuilder.addConstraintType(getCurrentPos(ctx), getWS(ctx), typeName);
+            this.pkgBuilder.addConstraintType(pos, getWS(ctx), typeName);
         } else if (ctx.typeName() != null) {
-            this.pkgBuilder.addConstraintTypeWithTypeName(getCurrentPos(ctx), getWS(ctx), typeName);
+            this.pkgBuilder.addConstraintTypeWithTypeName(pos, getWS(ctx), typeName);
         } else {
-            this.pkgBuilder.addBuiltInReferenceType(getCurrentPos(ctx), getWS(ctx), typeName);
+            this.pkgBuilder.addBuiltInReferenceType(pos, getWS(ctx), typeName);
         }
     }
 
@@ -1147,7 +1157,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         String typeName = ctx.getChild(0).getText();
-        this.pkgBuilder.addConstraintTypeWithTypeName(getCurrentPos(ctx), getWS(ctx), typeName);
+        DiagnosticPos pos = getCurrentPos(ctx);
+        checkTypeValidity(typeName, pos);
+        this.pkgBuilder.addConstraintTypeWithTypeName(pos, getWS(ctx), typeName);
     }
 
     /**
@@ -1802,7 +1814,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.endTransactionStmt(getCurrentPos(ctx), getWS(ctx));
+        DiagnosticPos pos = getCurrentPos(ctx);
+        checkExperimentalFeatureValidity(ExperimentalFeatures.TRANSACTIONS.value, pos);
+        this.pkgBuilder.endTransactionStmt(pos, getWS(ctx));
     }
 
     /**
@@ -2566,7 +2580,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addTableQueryExpression(getCurrentPos(ctx), getWS(ctx));
+        DiagnosticPos pos = getCurrentPos(ctx);
+        checkExperimentalFeatureValidity(ExperimentalFeatures.TABLE_QUERIES.value, pos);
+        this.pkgBuilder.addTableQueryExpression(pos, getWS(ctx));
     }
 
     @Override
@@ -3075,7 +3091,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.endForeverNode(getCurrentPos(ctx), getWS(ctx));
+        DiagnosticPos pos = getCurrentPos(ctx);
+        checkExperimentalFeatureValidity(ExperimentalFeatures.STREAMING_QUERIES.value, pos);
+        this.pkgBuilder.endForeverNode(pos, getWS(ctx));
     }
 
     /**
@@ -3325,6 +3343,44 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             }
         }
         return originalNodeValue;
+    }
+
+    private void checkTypeValidity(String typeName, DiagnosticPos pos) {
+        if (enableExperimentalFeatures) {
+            return;
+        }
+
+        if (STREAM_TYPE_NAME.equals(typeName) || CHANNEL_TYPE_NAME.equals(typeName)) {
+            dlog.error(pos, DiagnosticCode.INVALID_USE_OF_EXPERIMENTAL_FEATURE, typeName);
+        }
+    }
+
+    private void checkExperimentalFeatureValidity(String constructName, DiagnosticPos pos) {
+        if (enableExperimentalFeatures) {
+            return;
+        }
+
+        dlog.error(pos, DiagnosticCode.INVALID_USE_OF_EXPERIMENTAL_FEATURE, constructName);
+    }
+
+    private enum ExperimentalFeatures {
+        STREAMS("stream"),
+        CHANNEL("stream"),
+        TABLE_QUERIES("table queries"),
+        STREAMING_QUERIES("streaming queries"),
+        TRANSACTIONS("transaction"),
+        CHECKPOINTING("checkpoint");
+
+        private String value;
+
+        private ExperimentalFeatures(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
     }
 
     /**

@@ -75,12 +75,14 @@ public class PushUtils {
     /**
      * Push/Uploads modules to the central repository.
      *
-     * @param packageName   path of the module folder to be pushed
-     * @param sourceRoot    path to the directory containing source files and modules
+     * @param packageName path of the module folder to be pushed
+     * @param sourceRoot path to the directory containing source files and modules
      * @param installToRepo repo the module should be pushed to central or the home repository
-     * @param noBuild       do not build sources before pushing
+     * @param enableExperimentalFeatures Flag indicating to enable the experimental feature
+     * @param noBuild do not build sources before pushing
      */
-    public static void pushPackages(String packageName, String sourceRoot, String installToRepo, boolean noBuild) {
+    public static void pushPackages(String packageName, String sourceRoot, String installToRepo, boolean noBuild,
+                                    boolean enableExperimentalFeatures) {
         Path prjDirPath = LauncherUtils.getSourceRootPath(sourceRoot);
         // Check if the Ballerina.toml exists
         if (Files.notExists(prjDirPath.resolve(ProjectDirConstants.MANIFEST_FILE_NAME))) {
@@ -123,7 +125,8 @@ public class PushUtils {
 
         // Always build if the flag is not given
         if (!noBuild) {
-            BuilderUtils.compileWithTestsAndWrite(prjDirPath, packageName, packageName, false, false, false, false);
+            BuilderUtils.compileWithTestsAndWrite(prjDirPath, packageName, packageName, false, false, false, false,
+                    enableExperimentalFeatures);
         } else if (Files.notExists(pkgPathFromPrjtDir)) {
             // If --no-build is given, first check if the module artifact exists. If it does not exist prompt the user
             // to run "ballerina push" without the --no-build flag

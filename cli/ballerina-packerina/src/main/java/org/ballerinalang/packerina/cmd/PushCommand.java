@@ -57,6 +57,9 @@ public class PushCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--no-build"}, description = "skip building before pushing")
     private boolean noBuild;
 
+    @CommandLine.Option(names = "--experimental", description = "enable experimental language features")
+    private boolean experimentalFlag;
+
     @Override
     public void execute() {
         if (helpFlag) {
@@ -74,7 +77,7 @@ public class PushCommand implements BLauncherCmd {
             PushUtils.pushAllPackages(sourceRoot, repositoryHome, noBuild);
         } else if (argList.size() == 1) {
             String packageName = argList.get(0);
-            PushUtils.pushPackages(packageName, sourceRoot, repositoryHome, noBuild);
+            PushUtils.pushPackages(packageName, sourceRoot, repositoryHome, noBuild, experimentalFlag);
         } else {
             throw LauncherUtils.createUsageExceptionWithHelp("too many arguments");
         }
