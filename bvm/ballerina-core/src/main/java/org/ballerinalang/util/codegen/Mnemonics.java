@@ -243,6 +243,7 @@ public class Mnemonics {
 
         mnemonics[InstructionCodes.WRKSEND] = "wrksend";
         mnemonics[InstructionCodes.WRKRECEIVE] = "wrkreceive";
+        mnemonics[InstructionCodes.WORKERSYNCSEND] = "wrksyncsend";
 
         mnemonics[InstructionCodes.WAIT] = "wait";
 
