@@ -24,7 +24,7 @@ type Manager record {
 
 public function main() {
     // `Employee` has all the fields of `Person`.
-    Employee john = {name:"John Doe", designation:"Software Engineer"};
+    Employee john = { name:" John Doe", designation:" Software Engineer" };
     Employee jane = {name:"Jane Doe", designation:"UX Engineer"};
 
     // Type referencing copies the fields, including their properties
