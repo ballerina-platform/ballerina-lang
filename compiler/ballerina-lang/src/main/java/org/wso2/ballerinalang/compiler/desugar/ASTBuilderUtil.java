@@ -261,6 +261,10 @@ public class ASTBuilderUtil {
         return assignment;
     }
 
+    static BLangAssignment createAssignmentStmt(DiagnosticPos pos, BLangExpression varRef, BLangExpression rhsExpr) {
+        return createAssignmentStmt(pos, varRef, rhsExpr, false);
+    }
+
     static BLangAssignment createAssignmentStmt(DiagnosticPos pos, BLangExpression varRef,
                                                 BLangExpression rhsExpr, boolean declaredWithVar) {
         final BLangAssignment assignment = (BLangAssignment) TreeBuilder.createAssignmentNode();

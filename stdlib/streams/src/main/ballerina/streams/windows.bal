@@ -1309,14 +1309,12 @@ public type UniqueLengthWindow object {
                 clonedEvent.eventType = EXPIRED;
                 StreamEvent eventClonedForMap = clonedEvent.copy();
 
-                anydata? data = eventClonedForMap.data[self.uniqueKey];
+                string str = <string>eventClonedForMap.data[self.uniqueKey];
                 StreamEvent? oldEvent;
-                if (data is string) {
-                    if (self.uniqueMap[data] is StreamEvent) {
-                        oldEvent = self.uniqueMap[data];
-                    }
-                    self.uniqueMap[data] = eventClonedForMap;
+                if (self.uniqueMap[str] is StreamEvent) {
+                    oldEvent = self.uniqueMap[str];
                 }
+                self.uniqueMap[str] = eventClonedForMap;
 
                 if (oldEvent is ()) {
                     self.count += 1;
