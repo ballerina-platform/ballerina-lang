@@ -1431,7 +1431,7 @@ function tableGetNextInvalid() returns string {
         selectRet.close();
         var ret = trap selectRet.getNext();
         if (ret is error) {
-            retVal = <string> ret.reason();
+            retVal = <string> ret.detail().message;
         }
     }
     testDB.stop();
