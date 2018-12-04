@@ -37,6 +37,6 @@ public function main() {
 }
 
 function toUpper((string, string) pair) returns string {
-    var (k, value) = pair;
+    var (key, value) = pair;
     return value.toUpper();
 }
