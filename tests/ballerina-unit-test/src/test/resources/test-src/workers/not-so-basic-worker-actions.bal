@@ -134,8 +134,8 @@ function forkWithWaitOnSomeSelectedWorkers1() returns int|error {
     () results = wait w2 | w3;
     int j;
     int k;
-    j = check int.create(m["x"]);
-    k = check int.create(m["y"]);
+    j = check int.convert(m["x"]);
+    k = check int.convert(m["y"]);
     return j * k;
 }
 
@@ -292,8 +292,8 @@ function forkWithMessagePassing() returns map<any>|error {
         }
     }
     map<any> results = wait {w1, w2};
-    int b = check int.create(results["w1"]);
-    int a = check int.create(results["w2"]);
+    int b = check int.convert(results["w1"]);
+    int a = check int.convert(results["w2"]);
 
     m["x"] = (a + 1) * b;
     return m;
@@ -314,8 +314,8 @@ function forkWithinWorkers() returns int|error {
         map<any> results = wait {wx1, wx2};
         int a;
         int b;
-        a = check int.create(m["a"]);
-        b = check int.create(m["b"]);
+        a = check int.convert(m["a"]);
+        b = check int.convert(m["b"]);
         x = a + b;
         return x;
     }
@@ -393,7 +393,7 @@ function largeForkCreationTest() returns int|error {
         }
 
         map<any> results = wait {w1, w2, w3, w4, w5, w6, w7, w8, w9, w10};
-        result = check int.create(m["x"]);
+        result = check int.convert(m["x"]);
         c = c - 1;
     }
     return result;
@@ -412,9 +412,9 @@ function forkWithStruct() returns string|error {
         }
     }
     map<any> results = wait {w1, w2};
-    var f = check foo.create(results["w1"]);
+    var f = check foo.convert(results["w1"]);
     result = "[block] sW1: " + f.y;
-    var fW2 = check float.create(results["w2"]);
+    var fW2 = check float.convert(results["w2"]);
     result = result + "[block] fW2: " + fW2;
     return result;
 }
