@@ -2954,14 +2954,23 @@ public class BVM {
                 /*
                  In case of a for loop, need to clear the last hit line, so that, same line can get hit again.
                  */
-                debugContext.clearLastDebugLine();
+                debugContext.clearContext();
                 break;
             case STEP_IN:
+                debugHit(ctx, currentExecLine, debugger);
+                return true;
             case STEP_OVER:
+                if (debugContext.getFramePointer() < ctx.fp) {
+                    return false;
+                }
                 debugHit(ctx, currentExecLine, debugger);
                 return true;
             case STEP_OUT:
-                break;
+                if (debugContext.getFramePointer() > ctx.fp) {
+                    debugHit(ctx, currentExecLine, debugger);
+                    return true;
+                }
+                return false;
             default:
                 debugger.notifyExit();
                 debugger.stopDebugging();
@@ -2995,7 +3004,7 @@ public class BVM {
      * @param debugger        Debugger object.
      */
     private static void debugHit(Strand ctx, LineNumberInfo currentExecLine, Debugger debugger) {
-        ctx.getDebugContext().setLastLine(currentExecLine);
+        ctx.getDebugContext().updateContext(currentExecLine, ctx.fp);
         debugger.pauseWorker(ctx);
         debugger.notifyDebugHit(ctx, currentExecLine, ctx.getId());
     }

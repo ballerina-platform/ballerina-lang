@@ -29,6 +29,8 @@ public class DebugContext {
 
     private LineNumberInfo lastLine;
 
+    private int framePointer;
+
     private boolean strandPaused;
 
     private boolean cmdChanged = false;
@@ -54,11 +56,17 @@ public class DebugContext {
         return lastLine;
     }
 
-    public void setLastLine(LineNumberInfo lastLine) {
+    public void updateContext(LineNumberInfo lastLine, int framePointer) {
+        this.framePointer= framePointer;
         this.lastLine = lastLine;
     }
 
-    public void clearLastDebugLine() {
+    public int getFramePointer() {
+        return framePointer;
+    }
+
+    public void clearContext() {
+        this.framePointer = -1;
         this.lastLine = null;
     }
 
