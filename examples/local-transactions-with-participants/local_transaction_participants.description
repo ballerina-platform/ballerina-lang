@@ -3,4 +3,6 @@
 // system in a consistent state. This sample demonstrate usage of transaction
 // local participants. If participant panics, even when it is trapped and
 // initiator completes, the the transaction is considered failure.
+// Ballerina transactions are at experimental stage,
+// please use  --experimental flag to enable them.
 

@@ -47,7 +47,7 @@ public function main() {
         }
 
         //Converte the returned key into integer.
-        ret = int.create(generatedKey);
+        ret = int.convert(generatedKey);
         int key = -1;
         if (ret is int) {
             key = ret;
