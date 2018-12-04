@@ -20,6 +20,7 @@ export const If: React.StatelessComponent<{
         const conditionProps = {
             expression: ASTUtil.genSource(model.condition),
             label: "if",
+            width: model.body.viewState.bBox.w,
             x: viewState.bBox.x,
             y: viewState.bBox.y + (config.flowCtrl.condition.height / 2),
         };
