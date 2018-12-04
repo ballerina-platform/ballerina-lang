@@ -33,7 +33,6 @@ import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * @since 0.94
@@ -170,7 +169,7 @@ public class Symbols {
             unionType.memberTypes.add(errorType);
             retType = unionType;
         } else {
-            Set<BType> memberTypes = new OrderedHashSet<>();
+            OrderedHashSet<BType> memberTypes = new OrderedHashSet<>();
             memberTypes.add(targetType);
             memberTypes.add(errorType);
             retType = new BUnionType(null, memberTypes, false);

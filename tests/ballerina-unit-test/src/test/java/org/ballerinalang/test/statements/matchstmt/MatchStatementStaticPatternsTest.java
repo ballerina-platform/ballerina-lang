@@ -270,7 +270,7 @@ public class MatchStatementStaticPatternsTest {
 
     @Test(description = "Test pattern will not be matched")
     public void testPatternNotMatched() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 61);
+        Assert.assertEquals(resultNegative.getErrorCount(), 62);
         int i = -1;
         String patternNotMatched = "pattern will not be matched";
 
@@ -343,6 +343,8 @@ public class MatchStatementStaticPatternsTest {
                 "invalid key: only identifiers are allowed for record literal keys", 260, 10);
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 260, 9);
         BAssertUtil.validateError(resultNegative, ++i, "pattern will always be matched", 272, 9);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "invalid literal for match pattern; allowed literals are simple, tuple and record only", 280, 9);
     }
 
     @Test(description = "Test unreachable pattern")

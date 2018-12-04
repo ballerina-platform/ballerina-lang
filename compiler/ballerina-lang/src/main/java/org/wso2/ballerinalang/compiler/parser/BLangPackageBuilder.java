@@ -1440,11 +1440,6 @@ public class BLangPackageBuilder {
         addExpressionNode(binaryExpressionNode);
     }
 
-    void createUnderscoreIdentifierExpr(DiagnosticPos pos, Set<Whitespace> ws) {
-        addNameReference(pos, ws, null, "_");
-        createSimpleVariableReference(pos, ws);
-    }
-
     void createElvisExpr(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangElvisExpr elvisExpr = (BLangElvisExpr) TreeBuilder.createElvisExpressionNode();
         elvisExpr.pos = pos;

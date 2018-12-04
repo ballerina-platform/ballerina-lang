@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import org.antlr.v4.runtime.misc.OrderedHashSet;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.UnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -35,9 +36,9 @@ import java.util.StringJoiner;
 public class BUnionType extends BType implements UnionType {
     private boolean nullable;
 
-    public Set<BType> memberTypes;
+    public OrderedHashSet<BType> memberTypes;
 
-    public BUnionType(BTypeSymbol tsymbol, Set<BType> memberTypes, boolean nullable) {
+    public BUnionType(BTypeSymbol tsymbol, OrderedHashSet<BType> memberTypes, boolean nullable) {
         super(TypeTags.UNION, tsymbol);
         this.memberTypes = memberTypes;
         this.nullable = nullable;

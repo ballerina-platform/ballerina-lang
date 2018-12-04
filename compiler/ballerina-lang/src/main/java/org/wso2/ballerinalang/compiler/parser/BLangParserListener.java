@@ -2028,12 +2028,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitUnderscore(BallerinaParser.UnderscoreContext ctx) {
+    public void exitStaticMatchIdentifierLiteral(BallerinaParser.StaticMatchIdentifierLiteralContext ctx) {
         if (isInErrorState) {
             return;
         }
 
-        this.pkgBuilder.createUnderscoreIdentifierExpr(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.addNameReference(getCurrentPos(ctx), getWS(ctx), null, ctx.Identifier().getText());
+        this.pkgBuilder.createSimpleVariableReference(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override public void exitTypeDescExpr(BallerinaParser.TypeDescExprContext ctx) {

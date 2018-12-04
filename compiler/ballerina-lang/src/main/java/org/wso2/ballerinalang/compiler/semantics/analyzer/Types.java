@@ -70,7 +70,6 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -773,7 +772,7 @@ public class Types {
     void setForeachTypedBindingPatternType(BLangForeach foreachNode) {
         BType collectionType = foreachNode.collection.type;
         BMapType mapType = new BMapType(TypeTags.MAP, null, symTable.mapType.tsymbol);
-        LinkedHashSet<BType> memberTypes = new OrderedHashSet<>();
+        OrderedHashSet<BType> memberTypes = new OrderedHashSet<>();
         memberTypes.add(mapType);
         BUnionType unionType = new BUnionType(null, memberTypes, true);
         switch (collectionType.tag) {
@@ -796,7 +795,7 @@ public class Types {
                 }});
                 break;
             case TypeTags.XML:
-                Set<BType> bTypes = new OrderedHashSet<>();
+                OrderedHashSet<BType> bTypes = new OrderedHashSet<>();
                 bTypes.add(symTable.xmlType);
                 bTypes.add(symTable.stringType);
                 mapType.constraint = new BUnionType(null, bTypes, false);
@@ -2041,7 +2040,7 @@ public class Types {
         return false;
     }
 
-    public BType getRemainingType(BType originalType, Set<BType> typesToRemove) {
+    public BType getRemainingType(BType originalType, OrderedHashSet<BType> typesToRemove) {
         return getRemainingType(originalType, new BUnionType(null, typesToRemove, false));
     }
 
@@ -2062,7 +2061,11 @@ public class Types {
             return remainingTypes.get(0);
         }
 
-        return new BUnionType(null, new HashSet<>(remainingTypes), remainingTypes.contains(symTable.nilType));
+        return new BUnionType(null, new OrderedHashSet<BType>() {
+            {
+                addAll(remainingTypes);
+            }
+        }, remainingTypes.contains(symTable.nilType));
     }
 
     public BType getSafeType(BType type, boolean liftError) {
@@ -2084,12 +2087,20 @@ public class Types {
 
         BUnionType unionType = (BUnionType) type;
         BUnionType errorLiftedType =
-                new BUnionType(null, new LinkedHashSet<>(unionType.memberTypes), unionType.isNullable());
+                new BUnionType(null, new OrderedHashSet<BType>() {
+                    {
+                        addAll(unionType.memberTypes);
+                    }
+                }, unionType.isNullable());
 
         // Lift nil always. Lift error only if safe navigation is used.
-        errorLiftedType.memberTypes.remove(symTable.nilType);
+        errorLiftedType.memberTypes = errorLiftedType.memberTypes.stream()
+                .filter(memberType -> memberType.tag != TypeTags.NIL)
+                .collect(Collectors.toCollection(OrderedHashSet::new));
         if (liftError) {
-            errorLiftedType.memberTypes.remove(symTable.errorType);
+            errorLiftedType.memberTypes = errorLiftedType.memberTypes.stream()
+                    .filter(memberType -> memberType.tag != TypeTags.ERROR)
+                    .collect(Collectors.toCollection(OrderedHashSet::new));
         }
 
         if (errorLiftedType.memberTypes.size() == 1) {
