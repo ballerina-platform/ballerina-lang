@@ -14,8 +14,8 @@
  // specific language governing permissions and limitations
  // under the License.
  
- import ballerina/http;
- import ballerina/io;
+import ballerina/http;
+import ballerina/io;
  
  function testDataflow_1() returns string {
     string msg;
@@ -312,9 +312,12 @@ type Foo object {
     int d;
     int e;
 
-    new (c, e=4, f, int x) {
+    function __init (int c, int e=4, int f, int x) {
         self.a = globalVar;
         self.b = e;
+        self.c = c;
+        self.e = e;
+        self.f = f;
     }
 
     function getGlobalVar() returns int {
@@ -361,144 +364,49 @@ function testMatch_1() returns string {
     any x = 6;
     string val;
     match x {
-        int => val = "int";
-        string => val = "string";
-        any => val = "any";
+        6 => val = "int";
+        "" => val = "string";
+        var y => val = "any";
     }
 
     return val;
 }
 
-function testMatch_2() returns string {
-    any x = 6;
-    string val;
-    match x {
-        int => val = "int";
-        string => {}
-        any => val = "any";
-    }
+listener http:MockListener echoEP = new(9090);
 
-    return val;
-}
+service echo on echoEP {
 
-function testMatch_3() returns string {
-    any x = 6;
-    string val;
-    match x {
-        int => val = "int";
-        string => val = "string";
-        any a => {
-            match a {
-                int => val = "int";
-                string => { val = "string";}
-                any => val = "any";
-            }
-        }
-    }
-
-    return val;
-}
-
-function testMatch_4() returns string {
-    any x = 6;
-    string val;
-    match x {
-        int => val = "int";
-        string => val = "string";
-        any a => {
-            match a {
-                int => val = "int";
-                string => {}
-                any => val = "any";
-            }
-        }
-    }
-
-    return val;
-}
-
-function testMatch_5() returns string {
-    any x = 6;
-    string val;
-    match x {
-        int => val = "int";
-        string => val = "string";
-        any a => {
-            match a {
-                int => val = "int";
-                string => {
-                    if (true) {
-                        val = "true string";
-                    } else {
-                        val = "false string";
-                    }
-                }
-                any => val = "any";
-            }
-        }
-    }
-
-    return val;
-}
-
-function testMatch_6() returns string {
-    any x = 6;
-    string val;
-    match x {
-        int => val = "int";
-        string => val = "string";
-        any a => {
-            match a {
-                int => val = "int";
-                string => {
-                    if (true) {
-                        val = "true string";
-                    } else {
-
-                    }
-                }
-                any => val = "any";
-            }
-        }
-    }
-
-    return val;
-}
-
-endpoint http:NonListener echoEP {
-    port:9090
-};
-
-service<http:Service> echo bind echoEP {
-
-    string x;
+    private string x;
     string y = "sample value";
 
-    echo_1(endpoint conn, http:Request req) {
-        string a = x;
-        a = y;
-        x = "init within echo_1";
+    resource function echo_1(http:Caller conn, http:Request request) {
+        string a = self.x;
+        a = self.y;
+        self.x = "init within echo_1";
     }
 
-    echo_2(endpoint conn, http:Request req) {
-        string a = x;
-        a = y;
-        x = "init within echo_2";
+    resource function echo_2(http:Caller conn, http:Request request) {
+        string a = self.x;
+        a = self.y;
+        self.x = "init within echo_2";
     }
 }
 
 string yyy;
 function testWorkers() returns string {
-    worker w1 {
+    worker w1 returns string {
         io:println(yyy);
         yyy = "w1";
         return yyy;
     }
 
-    worker w2 {
+    worker w2 returns string {
         io:println(yyy);
         yyy = "w2";
+        return "hello";
     }
+    
+    return "hello";
 }
 
 function testCounpundAssignment() {
@@ -530,7 +438,7 @@ type A object {
     private int b;
     int c;
 
-    new () {
+    function __init() {
         self.a = 1;
         self.b = 2;
         self.c = 3;
@@ -542,7 +450,10 @@ type B object {
     private int b;
     int c;
 
-    new (a, b, c) {
+    function __init(int a, int b, int c) {
+        self.a = a;
+        self.b = b;
+        self.c = c;
     }
 };
 
@@ -551,7 +462,7 @@ type C object {
     private int b;
     int c;
 
-    new () {
+    function __init() {
     }
 };
 
@@ -564,17 +475,16 @@ public type D record {
     int c;
 };
 
-endpoint http:Listener testEP {
-    port: 9092
-};
 
-service<http:Service> testService bind testEP {
+listener http:MockListener testEP = new(9092);
 
-    int a;
+service testService on testEP {
 
-    resource_1(endpoint caller, http:Request req) {
-        a = 5;
-        int b = a;
+    private int a;
+
+    resource function resource_1(http:Caller conn, http:Request request) {
+        self.a = 5;
+        int b = self.a;
         int c;
 
         if (true) {
@@ -586,8 +496,8 @@ service<http:Service> testService bind testEP {
         int d = c;
     }
 
-    resource_2(endpoint caller, http:Request req) {
-        int b = a;
+    resource function resource_2(http:Caller conn, http:Request request) {
+        int b = self.a;
     }
 }
 
@@ -673,4 +583,24 @@ function testVariableAssignment() returns (string, boolean, int, string) {
 
 function getPerson() returns Person {
     return {name: "Peter", married: true, age: {age:12, format: "Y"}};
+}
+
+function testDataflow_12() returns string {
+    any x = 6;
+    string val;
+    if (x is int) {
+        val = "int";
+    } else if (x is string) {
+        val = "string";
+    } else {
+        if (x is int) {
+            val = "int";
+        } else if (x is string) {
+            val = "";
+        } else {
+            val = "any";
+        }
+    }
+
+    return val;
 }

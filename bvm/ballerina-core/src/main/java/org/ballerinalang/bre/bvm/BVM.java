@@ -4349,7 +4349,7 @@ public class BVM {
             callbacks[i] = (SafeStrandCallback) future.value().respCallback;
         }
         strand.createWaitHandler(c, null);
-        return CallbackReturnHandler.handleReturn(strand, expType, retValReg, callbacks);
+        return WaitCallbackHandler.handleReturnInWait(strand, expType, retValReg, callbacks);
     }
 
     private static Strand execWaitForAll(Strand strand, int[] operands) {
@@ -4359,7 +4359,7 @@ public class BVM {
         BType expType = typeEntry.getType();
         int retValReg = operands[2];
 
-        HashMap<Integer, SafeStrandCallback> callbackHashMap = new HashMap<>();
+        List<SafeStrandCallback.WaitMultipleCallback> callbackList = new ArrayList<>();
         for (int i = 0; i < c; i = i + 2) {
             int index = i + 3;
             // Get the key
@@ -4367,10 +4367,15 @@ public class BVM {
             // Get the expression followed
             int futureReg = operands[index + 1];
             BFuture future = (BFuture) strand.currentFrame.refRegs[futureReg];
-            callbackHashMap.put(keyRegIndex, (SafeStrandCallback) future.value().respCallback);
+            callbackList.add(new SafeStrandCallback.WaitMultipleCallback(keyRegIndex,
+                                                                         (SafeStrandCallback) future.value().
+                                                                                 respCallback));
         }
-        strand.createWaitHandler(c,  new ArrayList(callbackHashMap.keySet()));
-        return CallbackReturnHandler.handleReturn(strand, retValReg, callbackHashMap);
+        strand.createWaitHandler(c, new ArrayList(callbackList.stream()
+                                                              .map(SafeStrandCallback.WaitMultipleCallback::
+                                                                            getKeyRegIndex)
+                                                              .collect(Collectors.toList())));
+        return WaitCallbackHandler.handleReturnInWaitMultiple(strand, retValReg, callbackList);
     }
     /**
      * This is used to propagate the results of {@link BVM#handleError(Strand)} to the
@@ -4565,7 +4570,45 @@ public class BVM {
         return true;
     }
 
+    private static boolean isDeepStampingRequiredForArray(BType sourceType) {
+        BType elementType = ((BArrayType) sourceType).getElementType();
+
+        if (elementType != null) {
+            if (BTypes.isValueType(elementType)) {
+                return false;
+            } else if (elementType instanceof BArrayType) {
+                return isDeepStampingRequiredForArray(elementType);
+            }
+            return true;
+        }
+        return true;
+    }
+
+    private static boolean isDeepStampingRequiredForMap(BType sourceType) {
+        BType constrainedType = ((BMapType) sourceType).getConstrainedType();
+
+        if (constrainedType != null) {
+            if (BTypes.isValueType(constrainedType)) {
+                return false;
+            } else if (constrainedType instanceof BMapType) {
+                return isDeepStampingRequiredForMap(constrainedType);
+            }
+            return true;
+        }
+        return true;
+    }
+
     public static BType resolveMatchingTypeForUnion(BValue value, BType type) {
+        if (value instanceof BValueArray && value.getType().getTag() == TypeTags.ARRAY_TAG &&
+                !isDeepStampingRequiredForArray(((BValueArray) value).getArrayType())) {
+            return ((BValueArray) value).getArrayType();
+        }
+
+        if (value instanceof BMap && value.getType().getTag() == TypeTags.MAP_TAG &&
+                !isDeepStampingRequiredForMap(value.getType())) {
+            return value.getType();
+        }
+
         if (checkIsLikeType(value, BTypes.typeInt)) {
             return BTypes.typeInt;
         }
@@ -4677,9 +4720,7 @@ public class BVM {
             return false;
         }
 
-        if (source.elementType == BTypes.typeInt || source.elementType == BTypes.typeString ||
-                source.elementType == BTypes.typeFloat || source.elementType == BTypes.typeBoolean ||
-                source.elementType == BTypes.typeByte) {
+        if (BTypes.isValueType(source.elementType)) {
             int bound = (int) source.size();
             for (int i = 0; i < bound; i++) {
                 if (!checkIsType(source.elementType, targetType.getTupleTypes().get(i), new ArrayList<>())) {
@@ -4704,9 +4745,7 @@ public class BVM {
         }
 
         BValueArray source = (BValueArray) sourceValue;
-        if (source.elementType == BTypes.typeInt || source.elementType == BTypes.typeString ||
-                source.elementType == BTypes.typeFloat || source.elementType == BTypes.typeBoolean ||
-                source.elementType == BTypes.typeByte) {
+        if (BTypes.isValueType(source.elementType)) {
             return checkIsType(source.elementType, targetType.getElementType(), new ArrayList<>());
         }
 
@@ -4738,9 +4777,7 @@ public class BVM {
             return checkIsLikeType(sourceValue, targetType.getConstrainedType());
         } else if (sourceValue.getType().getTag() == TypeTags.ARRAY_TAG) {
             BValueArray source = (BValueArray) sourceValue;
-            if (source.elementType == BTypes.typeInt || source.elementType == BTypes.typeString ||
-                    source.elementType == BTypes.typeFloat || source.elementType == BTypes.typeBoolean ||
-                    source.elementType == BTypes.typeByte) {
+            if (BTypes.isValueType(source.elementType)) {
                 return checkIsType(source.elementType, targetType, new ArrayList<>());
             }
 
@@ -4781,9 +4818,8 @@ public class BVM {
         for (Map.Entry targetTypeEntry : targetTypeField.entrySet()) {
             String fieldName = targetTypeEntry.getKey().toString();
 
-            int flags = targetType.getFields().get(fieldName).flags;
             if (!(((BMap) sourceValue).getMap().containsKey(fieldName)) &&
-                    (!Flags.isFlagOn(flags, Flags.OPTIONAL) && Flags.isFlagOn(flags, Flags.REQUIRED))) {
+                    !Flags.isFlagOn(targetType.getFields().get(fieldName).flags, Flags.OPTIONAL)) {
                 return false;
             }
         }
@@ -4809,7 +4845,7 @@ public class BVM {
         return true;
     }
 
-    private static boolean checkIsType(BValue sourceVal, BType targetType) {
+    public static boolean checkIsType(BValue sourceVal, BType targetType) {
         if (isMutable(sourceVal)) {
             BType sourceType = sourceVal == null ? BTypes.typeNull : sourceVal.getType();
             return checkIsType(sourceType, targetType, new ArrayList<>());
@@ -4966,8 +5002,8 @@ public class BVM {
         if (sourceType.getTag() != TypeTags.TABLE_TAG) {
             return false;
         }
-        return checkContraints(((BTableType) sourceType).getConstrainedType(), targetType.getConstrainedType(),
-                unresolvedTypes);
+        return checkTableConstraints(((BTableType) sourceType).getConstrainedType(),
+                                     targetType.getConstrainedType(), unresolvedTypes);
     }
 
     private static boolean checkIsArrayType(BType sourceType, BArrayType targetType, List<TypePair> unresolvedTypes) {
@@ -5030,6 +5066,20 @@ public class BVM {
 
         if (targetConstraint == null) {
             targetConstraint = BTypes.typeAny;
+        }
+
+        return checkIsType(sourceConstraint, targetConstraint, unresolvedTypes);
+    }
+
+    private static boolean checkTableConstraints(BType sourceConstraint, BType targetConstraint,
+                                                 List<TypePair> unresolvedTypes) {
+        // handle unconstrained tables returned by actions
+        if (sourceConstraint == null) {
+            if (targetConstraint.getTag() == TypeTags.RECORD_TYPE_TAG) {
+                BRecordType targetConstrRecord = (BRecordType) targetConstraint;
+                return !targetConstrRecord.sealed && targetConstrRecord.restFieldType == BTypes.typeAnydata;
+            }
+            return false;
         }
 
         return checkIsType(sourceConstraint, targetConstraint, unresolvedTypes);

@@ -17,5 +17,5 @@ function testWithConstrainedRestParam() {
 }
 
 function testWithOpenRecord() {
-    json<Student> j = {name:"John Doe", age:20, address:"London"};
+    json<Student> j = {name:"John Doe", age:20, address:"London", class:"Engineering"};
 }

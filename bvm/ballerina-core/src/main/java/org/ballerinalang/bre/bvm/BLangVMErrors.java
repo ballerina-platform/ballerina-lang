@@ -34,6 +34,7 @@ import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -128,7 +129,7 @@ public class BLangVMErrors {
 
     public static void attachStack(BError error, ProgramFile programFile, Strand strand) {
         for (StackFrame frame : strand.getStack()) {
-            Optional.ofNullable(getStackFrame(programFile, frame)).ifPresent(error.callStack::add);
+            Optional.ofNullable(getStackFrame(programFile, frame)).ifPresent(sf -> error.callStack.add(0, sf));
         }
     }
 
@@ -144,6 +145,22 @@ public class BLangVMErrors {
 //            callStack.add(index, getStackFrame(context));
             context = context.parent;
             index++;
+        }
+        return callStack;
+    }
+
+    public static BValueArray generateCallStack(ProgramFile programFile, Strand strand) {
+        List<BMap<String, BValue>> sfList = new ArrayList<>();
+        for (StackFrame frame : strand.getStack()) {
+            BMap<String, BValue> sf = getStackFrame(programFile, frame);
+            if (sf != null) {
+                sfList.add(0, sf);
+            }
+        }
+
+        BValueArray callStack = new BValueArray();
+        for (int i = 0; i < sfList.size(); i++) {
+            callStack.add(i, sfList.get(i));
         }
         return callStack;
     }
@@ -198,7 +215,7 @@ public class BLangVMErrors {
 
         List<BMap<String, BValue>> stackFrames = error.callStack;
         // Append function/action/resource name with package path (if any)
-        for (int i = stackFrames.size() - 1; i >= 0; i--) {
+        for (int i = 0; i < stackFrames.size(); i++) {
             BMap<String, BValue> stackFrame = stackFrames.get(i);
             String pkgName = stackFrame.get(STACK_FRAME_PACKAGE_NAME).stringValue();
             if (pkgName.isEmpty() || DEFAULT_PKG_PATH.equals(pkgName) || BALLERINA_BUILTIN_PKG.equals(pkgName)) {

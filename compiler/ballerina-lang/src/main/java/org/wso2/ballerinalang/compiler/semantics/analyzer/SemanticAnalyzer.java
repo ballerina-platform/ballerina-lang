@@ -461,10 +461,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (rhsExpr == null) {
             if (lhsType.tag == TypeTags.ARRAY && typeChecker.isArrayOpenSealedType((BArrayType) lhsType)) {
                 dlog.error(varNode.pos, DiagnosticCode.SEALED_ARRAY_TYPE_NOT_INITIALIZED);
-                return;
-            }
-            if (varNode.symbol.owner.tag == SymTag.PACKAGE || Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER)) {
-                dlog.error(varNode.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, varNode.name);
             }
             return;
         }
@@ -1816,12 +1812,30 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         names.fromString(streamingInput.getAlias()), env);
             }
         } else {
-            //Create duplicate symbol for stream alias
-            if (streamingInput.getAlias() != null) {
-                BVarSymbol streamSymbol = (BVarSymbol) ((BLangSimpleVarRef) streamRef).symbol;
-                BVarSymbol streamAliasSymbol = ASTBuilderUtil.duplicateVarSymbol(streamSymbol);
-                streamAliasSymbol.name = names.fromString(streamingInput.getAlias());
-                symbolEnter.defineSymbol(streamingInput.pos, streamAliasSymbol, env);
+            if (isTableReference(streamingInput.getStreamReference())) {
+                if (streamingInput.getAlias() == null) {
+                    dlog.error(streamingInput.pos, DiagnosticCode.UNDEFINED_INVOCATION_ALIAS,
+                               ((BLangInvocation) streamRef).name.getValue());
+                }
+                if (streamingInput.getStreamReference().getKind() == NodeKind.INVOCATION) {
+                    BInvokableSymbol functionSymbol = (BInvokableSymbol) ((BLangInvocation) streamRef).symbol;
+                    symbolEnter.defineVarSymbol(streamingInput.pos, EnumSet.noneOf(Flag.class),
+                    ((BTableType) functionSymbol.retType).constraint, names.fromString(streamingInput.getAlias()), env);
+                } else {
+                    BType constraint =
+                            ((BTableType) ((BLangVariableReference) streamingInput.getStreamReference()).type)
+                                    .constraint;
+                    symbolEnter.defineVarSymbol(streamingInput.pos, EnumSet.noneOf(Flag.class), constraint,
+                                                names.fromString(streamingInput.getAlias()), env);
+                }
+            } else {
+                //Create duplicate symbol for stream alias
+                if (streamingInput.getAlias() != null) {
+                    BVarSymbol streamSymbol = (BVarSymbol) ((BLangSimpleVarRef) streamRef).symbol;
+                    BVarSymbol streamAliasSymbol = ASTBuilderUtil.duplicateVarSymbol(streamSymbol);
+                    streamAliasSymbol.name = names.fromString(streamingInput.getAlias());
+                    symbolEnter.defineSymbol(streamingInput.pos, streamAliasSymbol, env);
+                }
             }
         }
     }
@@ -2557,8 +2571,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         for (Entry<BVarSymbol, BType> entry : typeGuards.entrySet()) {
-            Set<BType> typGuardsForSymbol = this.typeGuards.get(entry.getKey());
-            if (typGuardsForSymbol == null) {
+            Optional<Set<BType>> matchingGuards = this.typeGuards.entrySet().stream()
+                    .filter(typeGuard -> typeGuard.getKey().name.equals(entry.getKey().name))
+                    .map(keValue -> keValue.getValue()).findFirst();
+            Set<BType> typGuardsForSymbol;
+            if (matchingGuards.isPresent()) {
+                typGuardsForSymbol = matchingGuards.get();
+            } else {
                 typGuardsForSymbol = new HashSet<>();
                 this.typeGuards.put(entry.getKey(), typGuardsForSymbol);
             }

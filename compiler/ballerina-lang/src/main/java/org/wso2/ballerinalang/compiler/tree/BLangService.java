@@ -30,7 +30,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
-import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -51,13 +50,12 @@ public class BLangService extends BLangNode implements ServiceNode {
 
     public BSymbol symbol;
     public BLangIdentifier name;
-    public BLangUserDefinedType serviceUDT;
     public BLangTypeDefinition serviceTypeDefinition;
     public List<BLangExpression> attachedExprs;
+    public BLangVariable variableNode;
     public boolean isAnonymousServiceValue;
 
     // Cached values.
-    public String listenerName;
     public BType listenerType;
     public List<BLangFunction> resourceFunctions;
 
@@ -102,11 +100,6 @@ public class BLangService extends BLangNode implements ServiceNode {
 
     public List<BLangExpression> getAttachedExprs() {
         return this.attachedExprs;
-    }
-
-    @Override
-    public BLangUserDefinedType getUserDefinedTypeNode() {
-        return this.serviceUDT;
     }
 
     @Override

@@ -15,13 +15,13 @@ type TempDiffInfo record {
 };
 
 // The stream that gets the input temperature readings.
-stream<DeviceTempInfo> tempStream;
+stream<DeviceTempInfo> tempStream = new;
 
 // The output stream with peak temperature values.
-stream<TempDiffInfo> tempDiffInfoStream;
+stream<TempDiffInfo> tempDiffInfoStream = new;
 
 TempDiffInfo[] tempDiffInfoArray = [];
-int index;
+int index = 0;
 
 // This is the function that contains the rules that detect the temperature peak values. The first event's temperature
 // should be greater than the temperature values that are returned with the next event, which is e2. The last
@@ -85,7 +85,7 @@ public function main() {
     while (true) {
         runtime:sleep(500);
         count += 1;
-        if ((lengthof tempDiffInfoArray) > 1 || count == 10) {
+        if ((tempDiffInfoArray.length()) > 1 || count == 10) {
             break;
         }
     }

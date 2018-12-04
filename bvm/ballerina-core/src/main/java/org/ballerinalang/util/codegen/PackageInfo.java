@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.util.codegen;
 
+import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
@@ -165,6 +166,11 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
     public ServiceInfo getServiceInfo(String serviceName) {
         return serviceInfoMap.get(serviceName);
+    }
+
+    public ServiceInfo getServiceInfo(BType serviceType) {
+        return serviceInfoMap.values().stream()
+                .filter(serviceInfo -> serviceInfo.serviceType.getType().equals(serviceType)).findFirst().orElse(null);
     }
 
     public void addServiceInfo(String serviceName, ServiceInfo serviceInfo) {

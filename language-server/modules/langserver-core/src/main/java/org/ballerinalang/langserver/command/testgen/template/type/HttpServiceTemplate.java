@@ -91,6 +91,7 @@ public class HttpServiceTemplate extends AbstractTestTemplate {
         RendererOutput serviceOutput = new TemplateBasedRendererOutput(filename);
         serviceOutput.put(PlaceHolder.OTHER.get("testServiceFunctionName"), testServiceFunctionName);
         serviceOutput.put(PlaceHolder.OTHER.get("serviceUriStrName"), serviceUriStrName);
+        serviceOutput.put(PlaceHolder.OTHER.get("endpointName"), getSafeName("wsEndpoint"));
 
         // Iterate through resources
         for (BLangFunction resource : resources) {

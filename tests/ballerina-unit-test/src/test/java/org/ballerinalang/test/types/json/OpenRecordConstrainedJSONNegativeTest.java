@@ -41,12 +41,10 @@ public class OpenRecordConstrainedJSONNegativeTest {
 
     @Test(description = "Test basic json struct constraint")
     public void testConstrainedJSONNegative() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 4);
-        BAssertUtil.validateError(negativeResult, 0,
-                "incompatible types: json cannot be constrained with open record type 'json'", 16, 5);
-        BAssertUtil.validateError(negativeResult, 1, "invalid literal for type 'other'", 16, 22);
-        BAssertUtil.validateError(negativeResult,
-                2, "incompatible types: 'json' cannot be constrained with 'Student'", 20, 5);
-        BAssertUtil.validateError(negativeResult, 3, "invalid literal for type 'other'", 20, 23);
+        Assert.assertEquals(negativeResult.getErrorCount(), 3);
+        BAssertUtil.validateError(negativeResult, 0, "incompatible types: expected 'string', found 'float'", 16, 66);
+        BAssertUtil.validateError(negativeResult, 1, "incompatible types: 'json' cannot be constrained with 'Student'",
+                                  20, 5);
+        BAssertUtil.validateError(negativeResult, 2, "invalid literal for type 'other'", 20, 23);
     }
 }

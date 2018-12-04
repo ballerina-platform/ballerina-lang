@@ -34,14 +34,13 @@ import org.testng.annotations.Test;
  *
  * @since 0.985.0
  */
-@Test(groups = "broken")
 public class BallerinaStreamsV2StreamJoinTest {
 
     private CompileResult result;
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/streaming/native/streamingv2-stream-join-test.bal");
+        result = BCompileUtil.compile("test-src/streaming/native/streamingv2-native-stream-join-test.bal");
     }
 
     @Test(description = "Test streaming join query.")
