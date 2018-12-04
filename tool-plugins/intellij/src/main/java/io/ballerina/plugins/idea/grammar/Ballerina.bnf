@@ -245,8 +245,9 @@ AnnotationDefinition ::= (public)? annotation (LT AttachmentPoint (COMMA Attachm
     stubClass="io.ballerina.plugins.idea.stubs.BallerinaAnnotationDefinitionStub"
 }
 
-ConstantDefinition ::= PUBLIC? CONST TypeName? identifier ASSIGN Expression SEMICOLON {pin=2}
-
+ConstantDefinition ::= constWithoutType | constWithType
+private constWithType ::= PUBLIC? CONST TypeName identifier ASSIGN Expression SEMICOLON
+private constWithoutType ::= PUBLIC? CONST identifier ASSIGN Expression SEMICOLON
 //private AttachmentPointsRecover ::= !(GT | Identifier | SEMICOLON)
 
 GlobalVariableDefinition ::= finalVariableDefinition
