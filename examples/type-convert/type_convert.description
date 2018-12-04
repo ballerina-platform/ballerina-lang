@@ -1,1 +1,1 @@
-// `convert()` function creates a new runtime target value's storage with provided value and assign it to target variable.
+// The `convert()` function creates a new runtime target value's storage with provided value and assign it to target variable.
