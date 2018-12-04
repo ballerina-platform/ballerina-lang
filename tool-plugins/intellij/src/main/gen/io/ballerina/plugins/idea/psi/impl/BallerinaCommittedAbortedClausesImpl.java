@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaServiceDefinitionImpl extends BallerinaCompositeElementImpl implements BallerinaServiceDefinition {
+public class BallerinaCommittedAbortedClausesImpl extends BallerinaCompositeElementImpl implements BallerinaCommittedAbortedClauses {
 
-  public BallerinaServiceDefinitionImpl(@NotNull ASTNode node) {
+  public BallerinaCommittedAbortedClausesImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitServiceDefinition(this);
+    visitor.visitCommittedAbortedClauses(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -43,32 +43,14 @@ public class BallerinaServiceDefinitionImpl extends BallerinaCompositeElementImp
 
   @Override
   @Nullable
-  public BallerinaExpressionList getExpressionList() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaExpressionList.class);
+  public BallerinaAbortedClause getAbortedClause() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaAbortedClause.class);
   }
 
   @Override
   @Nullable
-  public BallerinaServiceBody getServiceBody() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaServiceBody.class);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getIdentifier() {
-    return findChildByType(IDENTIFIER);
-  }
-
-  @Override
-  @NotNull
-  public PsiElement getOn() {
-    return notNullChild(findChildByType(ON));
-  }
-
-  @Override
-  @NotNull
-  public PsiElement getService() {
-    return notNullChild(findChildByType(SERVICE));
+  public BallerinaCommittedClause getCommittedClause() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaCommittedClause.class);
   }
 
 }

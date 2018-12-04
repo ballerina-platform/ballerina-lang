@@ -43,6 +43,12 @@ public class BallerinaStructuredBindingPatternImpl extends BallerinaCompositeEle
 
   @Override
   @Nullable
+  public BallerinaErrorBindingPattern getErrorBindingPattern() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaErrorBindingPattern.class);
+  }
+
+  @Override
+  @Nullable
   public BallerinaRecordBindingPattern getRecordBindingPattern() {
     return PsiTreeUtil.getChildOfType(this, BallerinaRecordBindingPattern.class);
   }

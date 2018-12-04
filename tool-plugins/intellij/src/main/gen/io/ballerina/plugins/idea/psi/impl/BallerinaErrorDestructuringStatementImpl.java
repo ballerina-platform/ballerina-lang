@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaExpressionPatternImpl extends BallerinaCompositeElementImpl implements BallerinaExpressionPattern {
+public class BallerinaErrorDestructuringStatementImpl extends BallerinaCompositeElementImpl implements BallerinaErrorDestructuringStatement {
 
-  public BallerinaExpressionPatternImpl(@NotNull ASTNode node) {
+  public BallerinaErrorDestructuringStatementImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitExpressionPattern(this);
+    visitor.visitErrorDestructuringStatement(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -42,9 +42,9 @@ public class BallerinaExpressionPatternImpl extends BallerinaCompositeElementImp
   }
 
   @Override
-  @Nullable
-  public BallerinaBlock getBlock() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaBlock.class);
+  @NotNull
+  public BallerinaErrorRefBindingPattern getErrorRefBindingPattern() {
+    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaErrorRefBindingPattern.class));
   }
 
   @Override
@@ -54,27 +54,15 @@ public class BallerinaExpressionPatternImpl extends BallerinaCompositeElementImp
   }
 
   @Override
-  @Nullable
-  public BallerinaStatement getStatement() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaStatement.class);
+  @NotNull
+  public PsiElement getAssign() {
+    return notNullChild(findChildByType(ASSIGN));
   }
 
   @Override
   @NotNull
-  public PsiElement getEqualGt() {
-    return notNullChild(findChildByType(EQUAL_GT));
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getLeftBrace() {
-    return findChildByType(LEFT_BRACE);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getRightBrace() {
-    return findChildByType(RIGHT_BRACE);
+  public PsiElement getSemicolon() {
+    return notNullChild(findChildByType(SEMICOLON));
   }
 
 }

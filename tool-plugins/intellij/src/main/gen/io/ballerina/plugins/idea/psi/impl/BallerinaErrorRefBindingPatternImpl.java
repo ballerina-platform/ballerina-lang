@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaServiceDefinitionImpl extends BallerinaCompositeElementImpl implements BallerinaServiceDefinition {
+public class BallerinaErrorRefBindingPatternImpl extends BallerinaCompositeElementImpl implements BallerinaErrorRefBindingPattern {
 
-  public BallerinaServiceDefinitionImpl(@NotNull ASTNode node) {
+  public BallerinaErrorRefBindingPatternImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitServiceDefinition(this);
+    visitor.visitErrorRefBindingPattern(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -43,32 +43,38 @@ public class BallerinaServiceDefinitionImpl extends BallerinaCompositeElementImp
 
   @Override
   @Nullable
-  public BallerinaExpressionList getExpressionList() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaExpressionList.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaServiceBody getServiceBody() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaServiceBody.class);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getIdentifier() {
-    return findChildByType(IDENTIFIER);
+  public BallerinaRecordRefBindingPattern getRecordRefBindingPattern() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaRecordRefBindingPattern.class);
   }
 
   @Override
   @NotNull
-  public PsiElement getOn() {
-    return notNullChild(findChildByType(ON));
+  public List<BallerinaVariableReference> getVariableReferenceList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaVariableReference.class);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getComma() {
+    return findChildByType(COMMA);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getLeftParenthesis() {
+    return findChildByType(LEFT_PARENTHESIS);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getRightParenthesis() {
+    return findChildByType(RIGHT_PARENTHESIS);
   }
 
   @Override
   @NotNull
-  public PsiElement getService() {
-    return notNullChild(findChildByType(SERVICE));
+  public PsiElement getError() {
+    return notNullChild(findChildByType(ERROR));
   }
 
 }

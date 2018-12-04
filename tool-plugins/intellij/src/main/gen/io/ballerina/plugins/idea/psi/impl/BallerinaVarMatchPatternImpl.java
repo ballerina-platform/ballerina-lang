@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaBindingPatternPatternImpl extends BallerinaCompositeElementImpl implements BallerinaBindingPatternPattern {
+public class BallerinaVarMatchPatternImpl extends BallerinaCompositeElementImpl implements BallerinaVarMatchPattern {
 
-  public BallerinaBindingPatternPatternImpl(@NotNull ASTNode node) {
+  public BallerinaVarMatchPatternImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitBindingPatternPattern(this);
+    visitor.visitVarMatchPattern(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {

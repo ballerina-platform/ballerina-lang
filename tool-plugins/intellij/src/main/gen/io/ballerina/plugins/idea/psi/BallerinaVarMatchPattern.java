@@ -21,15 +21,33 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaTransactionStatement extends BallerinaCompositeElement {
+public interface BallerinaVarMatchPattern extends BallerinaCompositeElement {
 
   @Nullable
-  BallerinaCommittedAbortedClauses getCommittedAbortedClauses();
+  BallerinaBindingPattern getBindingPattern();
 
   @Nullable
-  BallerinaOnRetryClause getOnRetryClause();
+  BallerinaBlock getBlock();
+
+  @Nullable
+  BallerinaExpression getExpression();
+
+  @Nullable
+  BallerinaStatement getStatement();
+
+  @Nullable
+  PsiElement getEqualGt();
+
+  @Nullable
+  PsiElement getLeftBrace();
+
+  @Nullable
+  PsiElement getRightBrace();
+
+  @Nullable
+  PsiElement getIf();
 
   @NotNull
-  BallerinaTransactionClause getTransactionClause();
+  PsiElement getVar();
 
 }

@@ -23,7 +23,7 @@ import com.intellij.psi.PsiElement;
 
 public interface BallerinaRecordDestructuringStatement extends BallerinaCompositeElement {
 
-  @Nullable
+  @NotNull
   BallerinaExpression getExpression();
 
   @NotNull
@@ -34,8 +34,5 @@ public interface BallerinaRecordDestructuringStatement extends BallerinaComposit
 
   @Nullable
   PsiElement getSemicolon();
-
-  @Nullable
-  PsiElement getVar();
 
 }

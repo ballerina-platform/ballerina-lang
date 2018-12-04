@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaServiceDefinitionImpl extends BallerinaCompositeElementImpl implements BallerinaServiceDefinition {
+public class BallerinaStaticMatchPatternImpl extends BallerinaCompositeElementImpl implements BallerinaStaticMatchPattern {
 
-  public BallerinaServiceDefinitionImpl(@NotNull ASTNode node) {
+  public BallerinaStaticMatchPatternImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitServiceDefinition(this);
+    visitor.visitStaticMatchPattern(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -43,32 +43,38 @@ public class BallerinaServiceDefinitionImpl extends BallerinaCompositeElementImp
 
   @Override
   @Nullable
-  public BallerinaExpressionList getExpressionList() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaExpressionList.class);
+  public BallerinaBlock getBlock() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaBlock.class);
   }
 
   @Override
   @Nullable
-  public BallerinaServiceBody getServiceBody() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaServiceBody.class);
+  public BallerinaStatement getStatement() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaStatement.class);
+  }
+
+  @Override
+  @NotNull
+  public BallerinaStaticMatchLiterals getStaticMatchLiterals() {
+    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaStaticMatchLiterals.class));
+  }
+
+  @Override
+  @NotNull
+  public PsiElement getEqualGt() {
+    return notNullChild(findChildByType(EQUAL_GT));
   }
 
   @Override
   @Nullable
-  public PsiElement getIdentifier() {
-    return findChildByType(IDENTIFIER);
+  public PsiElement getLeftBrace() {
+    return findChildByType(LEFT_BRACE);
   }
 
   @Override
-  @NotNull
-  public PsiElement getOn() {
-    return notNullChild(findChildByType(ON));
-  }
-
-  @Override
-  @NotNull
-  public PsiElement getService() {
-    return notNullChild(findChildByType(SERVICE));
+  @Nullable
+  public PsiElement getRightBrace() {
+    return findChildByType(RIGHT_BRACE);
   }
 
 }
