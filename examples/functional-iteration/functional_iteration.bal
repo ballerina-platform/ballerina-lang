@@ -26,7 +26,7 @@ public function main() {
     // The foreach operation applies the given function to each item of the iterable collection.
     map<json> j = { name: "apple", colors: ["red", "green"], price: 5 };
     j.map(function ((string, json) pair) returns string {
-            var (k, value) = pair;
+            var (key, value) = pair;
             string s = value.toString();
             io:println("- map operation's value: ", s);
             return s;
