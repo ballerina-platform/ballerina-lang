@@ -153,13 +153,13 @@ public class ReceivingHeaders implements SenderState {
                 outboundMsgHolder.addPushResponse(streamId, responseMessage);
             }
             http2ClientChannel.removePromisedMessage(streamId);
-            http2MessageStateContext.setSenderState(new EntityBodyReceived(http2TargetHandler));
+            http2MessageStateContext.setSenderState(new EntityBodyReceived(http2TargetHandler, http2RequestWriter));
         } else {
             // Create response carbon message.
             HttpCarbonResponse responseMessage = setupResponseCarbonMessage(ctx, streamId,
                     http2Headers, outboundMsgHolder);
             outboundMsgHolder.addPushResponse(streamId, responseMessage);
-            http2MessageStateContext.setSenderState(new ReceivingEntityBody(http2TargetHandler));
+            http2MessageStateContext.setSenderState(new ReceivingEntityBody(http2TargetHandler, http2RequestWriter));
         }
     }
 
@@ -178,8 +178,7 @@ public class ReceivingHeaders implements SenderState {
                 outboundMsgHolder.setResponse(responseMessage);
             }
             http2ClientChannel.removeInFlightMessage(streamId);
-            outboundMsgHolder.getRequest().setIoException(new IOException(INBOUND_RESPONSE_ALREADY_RECEIVED));
-            http2MessageStateContext.setSenderState(new EntityBodyReceived(http2TargetHandler));
+            http2MessageStateContext.setSenderState(new EntityBodyReceived(http2TargetHandler, http2RequestWriter));
         } else {
             // Create response carbon message.
             HttpCarbonResponse responseMessage = setupResponseCarbonMessage(ctx, streamId,
