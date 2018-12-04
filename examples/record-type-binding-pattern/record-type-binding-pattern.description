@@ -1,0 +1,1 @@
+// Record type binding patterns are used to de-structure and create individual variables for each field in the destructed record

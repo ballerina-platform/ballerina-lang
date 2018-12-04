@@ -1,0 +1,11 @@
+# At the command line, navigate to the directory that contains the
+# `.bal` file and use the `ballerina run` command.
+$ ballerina run record-destructure-binding-pattern.bal
+Name: Peter
+Age: 28
+Country: {"country":"Sri Lanka", "occupation":"Software Engineer"}
+Name: Peter
+Age: 28
+Name: John
+Age: 26
+
