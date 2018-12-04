@@ -51,8 +51,7 @@ public function main() {
     }
 
     // This prints the table data.
-    io:print("Table Information: ");
-    io:println(tb);
+    io:println("Table Information: ", tb);
 
     // This accesses rows using the `foreach` loop.
     io:println("Using foreach: ");
@@ -92,14 +91,12 @@ public function main() {
         io:println("Error in removing employees from table: "
                                + ret.reason());
     }
-    io:print("After Delete: ");
-    io:println(tb);
+    io:println("After Delete: ", tb);
 
     // This converts the table to JSON format.
     var retValJson = json.convert(tb);
     if (retValJson is json) {
-        io:print("JSON: ");
-        io:println(retValJson);
+        io:println("JSON: ", retValJson);
     } else {
         io:println("Error in table to json conversion");
     }
@@ -107,8 +104,7 @@ public function main() {
     // This converts the table to XML format.
     var retValXml = xml.convert(tb);
     if (retValXml is xml) {
-        io:print("XML: ");
-        io:println(retValXml);
+        io:println("XML: ", retValXml);
     } else {
         io:println("Error in table to xml conversion");
     }
