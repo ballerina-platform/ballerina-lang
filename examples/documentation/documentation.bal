@@ -1,7 +1,7 @@
 import ballerina/io;
 
 public function main() {
-    io:println("Documentation attachments are non executable constructs in Ballerina.");
+    io:println("Documentation attachments are non executable constructs.");
 }
 
 // This is the documentation attachment for object `DummyObject`.
