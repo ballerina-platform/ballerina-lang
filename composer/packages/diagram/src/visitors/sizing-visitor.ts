@@ -59,6 +59,7 @@ function sizeWorker(node: VariableDef) {
     } else {
         viewState.bBox.leftMargin = config.lifeLine.leftMargin;
     }
+    viewState.name = variable.name.value.replace("0", ""); 
 }
 
 let endpointHolder: VisibleEndpoint[] = [];
@@ -186,6 +187,7 @@ export const visitor: Visitor = {
 
         viewState.bBox.w = node.body.viewState.bBox.w + config.flowCtrl.rightMargin;
         viewState.bBox.h = node.body.viewState.bBox.h + config.flowCtrl.condition.height
+            + config.flowCtrl.condition.bottomMargin
             + config.flowCtrl.whileGap + config.flowCtrl.bottomMargin;
         // If body has a left margin assign to while
         // tslint:disable-next-line:prefer-conditional-expression
@@ -218,6 +220,7 @@ export const visitor: Visitor = {
 
         viewState.bBox.w = node.body.viewState.bBox.w;
         viewState.bBox.h = node.body.viewState.bBox.h + config.flowCtrl.condition.height
+            + config.flowCtrl.condition.bottomMargin
             + config.flowCtrl.bottomMargin;
         // If body has a left margin assign to while
         // tslint:disable-next-line:prefer-conditional-expression

@@ -62,7 +62,7 @@ export const visitor: Visitor = {
 
     // tslint:disable-next-line:ban-types
     beginVisitFunction(node: Function) {
-        if (node.lambda) {return; }
+        if (node.lambda) { return; }
         const viewState: FunctionViewState = node.viewState;
         const defaultWorker: WorkerViewState = node.viewState.defaultWorker;
 
@@ -108,7 +108,7 @@ export const visitor: Visitor = {
         }
 
         let epX = defaultWorker.bBox.x + defaultWorker.bBox.w
-                    + config.lifeLine.gutter.h;
+            + config.lifeLine.gutter.h;
         // Position endpoints
         if (node.VisibleEndpoints) {
             node.VisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
@@ -146,7 +146,8 @@ export const visitor: Visitor = {
     beginVisitWhile(node: While) {
         const viewState: ViewState = node.viewState;
         node.body.viewState.bBox.x = viewState.bBox.x;
-        node.body.viewState.bBox.y = viewState.bBox.y + config.flowCtrl.condition.height;
+        node.body.viewState.bBox.y = viewState.bBox.y + + config.flowCtrl.condition.bottomMargin
+            + config.flowCtrl.condition.height;
     },
 
     beginVisitForeach(node: Foreach) {
@@ -158,7 +159,8 @@ export const visitor: Visitor = {
     beginVisitIf(node: If) {
         const viewState: ViewState = node.viewState;
         node.body.viewState.bBox.x = viewState.bBox.x;
-        node.body.viewState.bBox.y = viewState.bBox.y + config.flowCtrl.condition.height;
+        node.body.viewState.bBox.y = viewState.bBox.y + config.flowCtrl.condition.bottomMargin
+            + config.flowCtrl.condition.height;
 
         if (node.elseStatement) {
             node.elseStatement.viewState.bBox.x = viewState.bBox.x + node.body.viewState.bBox.w;

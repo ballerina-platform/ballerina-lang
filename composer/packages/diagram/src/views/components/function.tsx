@@ -30,7 +30,7 @@ export const Function = (props: { model: FunctionNode }) => {
                 const lambda: Lambda = (variable.initialExpression as Lambda);
                 const functionNode = lambda.functionNode;
                 return <g>
-                    <LifeLine title="Worker" icon="worker" model={workerViewState.lifeline.bBox} />
+                    <LifeLine title={workerViewState.name} icon="worker" model={workerViewState.lifeline.bBox} />
                     {functionNode.body && <Block model={functionNode.body} />}
                 </g>;
             })}

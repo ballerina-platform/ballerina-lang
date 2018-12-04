@@ -46,7 +46,9 @@ export class DiagramUtils {
         maxWidth = DefaultConfig.statement.maxWidth,
         paddingLeft = DefaultConfig.statement.padding.left,
         paddingRight = DefaultConfig.statement.padding.right) {
-
+        text = text.trim();
+        text = text.replace(/(\/\/.*)\w+/g, "");
+        text = text.trim();
         textElement.innerHTML = _.escape(text);
 
         let width = paddingLeft + textElement.getComputedTextLength() + paddingRight;
