@@ -13,6 +13,7 @@ export interface LaunchRequestArguments extends DebugProtocol.LaunchRequestArgum
     'ballerina.home': string; 
     debugTests: boolean;
     networkLogs: Boolean;
+    networkLogsPort: number;
     port: number;
 }
 
