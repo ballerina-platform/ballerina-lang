@@ -79,11 +79,6 @@ export const visitor: Visitor = {
         // Position default worker lifeline.
         positionWorkerLine(defaultWorker);
 
-        // Position drop down menu for adding workers and endpoints
-        viewState.menuTrigger.x = defaultWorker.bBox.x + defaultWorker.bBox.w
-            + config.lifeLine.gutter.h;
-        viewState.menuTrigger.y = defaultWorker.bBox.y + config.lifeLine.header.height / 2;
-
         // Position the body block node
         if (node.body) {
             const bodyViewState: ViewState = node.body.viewState;
@@ -92,10 +87,10 @@ export const visitor: Visitor = {
                 + config.statement.height; // leave room for start line.
         }
 
+        let epX = defaultWorker.bBox.x + defaultWorker.bBox.w
+                    + config.lifeLine.gutter.h;
         // Position endpoints
         if (node.VisibleEndpoints) {
-            let epX = defaultWorker.bBox.x + defaultWorker.bBox.w
-                + config.lifeLine.gutter.h;
             node.VisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
                 if (!endpoint.caller && endpoint.viewState.visible) {
                     endpoint.viewState.bBox.x = epX;
@@ -104,6 +99,11 @@ export const visitor: Visitor = {
                 }
             });
         }
+
+        // Position drop down menu for adding workers and endpoints
+        viewState.menuTrigger.x = epX;
+        viewState.menuTrigger.y = defaultWorker.bBox.y + config.lifeLine.header.height / 2;
+
 
         // Update the width of children
         viewState.body.w = viewState.bBox.w;
