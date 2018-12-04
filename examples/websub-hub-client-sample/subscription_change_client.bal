@@ -4,9 +4,13 @@ import ballerina/runtime;
 import ballerina/websub;
 
 // This is the remote WebSub Hub Endpoint to which subscription and unsubscription requests are sent.
-endpoint websub:Client websubHubClientEP {
-    url: "https://localhost:9191/websub/hub"
-};
+//endpoint websub:Client websubHubClientEP {
+//    url: "https://localhost:9191/websub/hub"
+//};
+//listener websub:Client websubHubClientEP = new websub:Listener("https://localhost:9191/websub/hub", config = { host: "0.0.0.0" });
+
+
+websub:Client websubHubClientEP = new websub:Client("https://localhost:9191/websub/hub");
 
 public function main() {
 
@@ -19,15 +23,13 @@ public function main() {
 
     var response = websubHubClientEP->subscribe(subscriptionRequest);
 
-    match (response) {
-        websub:SubscriptionChangeResponse subscriptionChangeResponse => {
-            io:println("Subscription Request successful at Hub ["
-                    + subscriptionChangeResponse.hub + "] for Topic ["
-                    + subscriptionChangeResponse.topic + "]");
-        }
-        error e => {
-            io:println("Error occurred with Subscription Request: ", e);
-        }
+    if (response is websub:SubscriptionChangeResponse) {
+            io:println("Subscription Request successful at Hub [" + response.hub + "] for Topic [" +
+                    response.topic + "]");
+    }
+    else {
+            string errCause = <string> response.detail().message;
+            io:println("Error occurred with Subscription Request: ", errCause);
     }
 
     // Wait for the initial notification, before unsubscribing.
@@ -41,14 +43,12 @@ public function main() {
 
     response = websubHubClientEP->unsubscribe(unsubscriptionRequest);
 
-    match (response) {
-        websub:SubscriptionChangeResponse subscriptionChangeResponse => {
-            io:println("Unsubscription Request successful at Hub ["
-                + subscriptionChangeResponse.hub
-                + "] for Topic [" + subscriptionChangeResponse.topic + "]");
-        }
-        error e => {
-            io:println("Error occurred with Unsubscription Request: ", e);
-        }
+    if (response is websub:SubscriptionChangeResponse) {
+        io:println("Unsubscription Request successful at Hub [" + response.hub + "] for Topic [" +
+                response.topic + "]");
+    }
+    else {
+        string errCause = <string> response.detail().message;
+        io:println("Error occurred with Unsubscription Request: ", errCause);
     }
 }
