@@ -21,7 +21,7 @@ function testForkJoin() returns (int, int)|error {
         }
     }
     map<any> results = wait {w1, w2};
-    int st = check int.create(results["w1"]);
+    int st = check int.convert(results["w1"]);
     int x = i;
     return (st, x);
 }
