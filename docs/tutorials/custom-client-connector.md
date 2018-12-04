@@ -38,7 +38,7 @@ A connector contains the following syntax in Ballerina.
 
 Any variables declared at the connector level is visible to all remote functions. The lifetime of the connector also defines the lifetime of the variables and they are local to each connector instance.
 
-The structure of an remote function definition is as follows.
+The structure of a remote function definition is as follows.
 
 ```
 [ActionAnnotations]
@@ -46,7 +46,7 @@ remote function remoteFunctionName ([Input parameters]) ([Output parameters]){
 }
 ```
 
-The execution semantics of an remote function are the same as that of a function: it runs using the caller's thread and the caller blocks until the remote function completes execution.
+The execution semantics of a remote function are the same as that of a function: it runs using the caller's thread and the caller blocks until the remote function completes execution.
 
 ## About custom client connectors
 
