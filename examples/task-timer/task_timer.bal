@@ -17,7 +17,8 @@ public function main() {
 
     // Schedule a timer task, which initially runs 500ms from now.
     //After that, it runs every 1000ms.
-    timer = new task:Timer(onTriggerFunction, onErrorFunction, 1000, delay = 500);
+    timer = new task:Timer(onTriggerFunction, onErrorFunction, 1000,
+        delay = 500);
 
     // Start the timer.
     timer.start();
