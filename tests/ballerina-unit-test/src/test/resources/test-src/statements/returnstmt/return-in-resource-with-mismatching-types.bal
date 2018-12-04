@@ -14,16 +14,19 @@
 // specific language governing permissions and limitations
 // under the License.
 
-service<DummyService> helloWorld {
-    sayHelloWithString(int x) returns string {
+import ballerina/http;
+
+service helloWorld on new http:Listener(9090) {
+
+    resource function sayHelloWithString(int x) returns string {
         return x;
     }
 
-    sayHelloWithInt(string x) returns int {
+    resource function sayHelloWithInt(string x) returns int {
         return x;
     }
 
-    sayHelloWithNil(string x) {
+    resource function sayHelloWithNil(string x) {
         return x;
     }
 }

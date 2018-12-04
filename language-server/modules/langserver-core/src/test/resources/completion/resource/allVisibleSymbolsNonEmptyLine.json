@@ -121,7 +121,7 @@
     {
       "label":"self",
       "kind":"Variable",
-      "detail":"serviceName",
+      "detail":"serviceName$$service$0",
       "sortText":"110",
       "insertText":"self"
     },
@@ -801,7 +801,7 @@
       "kind":"Snippet",
       "detail":"Statement",
       "sortText":"200",
-      "insertText":"foreach ${1:item} in ${2:itemList} {\n\t${3}\n}",
+      "insertText":"foreach ${1:var} ${2:item} in ${3:itemList} {\n\t${4}\n}",
       "insertTextFormat":"Snippet"
     },
     {

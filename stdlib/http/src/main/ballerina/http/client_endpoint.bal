@@ -231,7 +231,7 @@ public type ClientEndpointConfig record {
     FollowRedirects? followRedirects = ();
     RetryConfig? retryConfig = ();
     ProxyConfig? proxy = ();
-    ConnectionThrottling? connectionThrottling = ();
+    ConnectionThrottling? connectionThrottling = {};
     SecureSocket? secureSocket = ();
     CacheConfig cache = {};
     Compression compression = COMPRESSION_AUTO;

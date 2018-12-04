@@ -30,10 +30,8 @@ import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
@@ -44,7 +42,9 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * A visitor for creating a flat list of symbols found in a compilation unit.
@@ -106,13 +106,28 @@ public class SymbolFindingVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangService serviceNode) {
         this.addSymbol(serviceNode, serviceNode.symbol, SymbolKind.Class);
-//        serviceNode.getResources().forEach(bLangResource -> bLangResource.accept(this));
+        BLangObjectTypeNode serviceType = (BLangObjectTypeNode) serviceNode.serviceTypeDefinition.typeNode;
+        List<BLangNode> serviceContent = new ArrayList<>();
+        List<BLangFunction> serviceFunctions = ((BLangObjectTypeNode) serviceNode.serviceTypeDefinition.typeNode)
+                .getFunctions();
+        List<BLangSimpleVariable> serviceFields = serviceType.getFields().stream()
+                .map(simpleVar -> (BLangSimpleVariable) simpleVar)
+                .collect(Collectors.toList());
+        serviceContent.addAll(serviceFunctions);
+        serviceContent.addAll(serviceFields);
+        serviceContent.sort(new CommonUtil.BLangNodeComparator());
+        serviceContent.forEach(serviceField -> serviceField.accept(this));
     }
 
     @Override
     public void visit(BLangSimpleVariable variableNode) {
         SymbolKind kind;
-        String btype = variableNode.getTypeNode().toString();
+        String btype = "";
+        if (variableNode.getTypeNode() != null) {
+            btype = variableNode.getTypeNode().toString();
+        } else if (variableNode.symbol != null) {
+            btype = variableNode.symbol.type.toString();
+        }
         switch (btype) {
             case "boolean":
                 kind = SymbolKind.Boolean;
@@ -151,6 +166,9 @@ public class SymbolFindingVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVariableDef varDefNode) {
+        if (varDefNode.getVariable().getName().getValue().startsWith("0")) {
+            return;
+        }
         varDefNode.getVariable().accept(this);
     }
 
@@ -160,20 +178,9 @@ public class SymbolFindingVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangResource resourceNode) {
-        this.addSymbol(resourceNode, resourceNode.symbol, SymbolKind.Function);
-        resourceNode.body.accept(this);
-    }
-
-    @Override
     public void visit(BLangWorker workerNode) {
         this.addSymbol(workerNode, workerNode.symbol, SymbolKind.Class);
         workerNode.body.accept(this);
-    }
-
-    @Override
-    public void visit(BLangEndpoint endpointNode) {
-        this.addSymbol(endpointNode, endpointNode.symbol, SymbolKind.Variable);
     }
 
     private void addSymbol(BLangNode node, BSymbol balSymbol, SymbolKind kind) {

@@ -40,8 +40,7 @@ public function main() {
                 "Grapes");
 
     // The placement of defaultable parameters can be mixed with rest 
-    // parameters 
-    // when invoking the function.
+    // parameters when invoking the function.
     printFruits(",", "Apples", "Oranges", title = "Available Fruits: ",
                 "Grapes");
 

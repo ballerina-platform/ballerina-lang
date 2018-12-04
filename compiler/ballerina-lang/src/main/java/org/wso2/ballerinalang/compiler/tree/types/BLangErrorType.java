@@ -22,8 +22,6 @@ import org.ballerinalang.model.tree.types.ErrorTypeNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
-import java.util.Optional;
-
 /**
  * Implementation of {@link ErrorTypeNode}.
  *
@@ -44,8 +42,18 @@ public class BLangErrorType extends BLangType implements ErrorTypeNode {
 
     @Override
     public String toString() {
-        return this.type.toString() + "<" + this.reasonType.toString() + Optional.ofNullable(detailType)
-                .map(type -> "," + type.toString()) + ">";
+        StringBuilder val = new StringBuilder(this.type.toString());
+        val.append("<");
+        
+        if (this.reasonType != null) {
+            val.append(this.reasonType.toString());
+        }
+        if (this.detailType != null) {
+            val.append(",");
+            val.append(detailType.toString());
+        }
+        val.append(">");
+        return val.toString();
     }
 
     @Override

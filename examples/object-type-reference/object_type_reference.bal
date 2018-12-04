@@ -38,25 +38,29 @@ type Manager object {
 
     public string dpt;
 
-    // All the fileds referenced through th type reference can be accessed within this object.
-    new(age, firstName, lastName) {
-        salary = 2000;
-        dpt = "HR";
+    // All the fields referenced through the type reference can be accessed within this object.
+    function __init(int age, string firstName, string lastName, string status) {
+        self.age = age;
+        self.firstName = firstName;
+        self.lastName = lastName;
+        self.status = status;
+        self.salary = 2000;
+        self.dpt = "HR";
     }
 
     // Member methods coming from the referenced type can be defined within the object.
     function getFullName() returns string {
-        return firstName + " " + lastName; 
+        return self.firstName + " " + self.lastName;
     }
 };
 
 // Member methods coming from the referenced type can also be defined outside of the object.
-function Manager::getSalary() returns float {
+function Manager.getSalary() returns float {
         return self.salary;
 }
 
 public function main() {
-    Manager p = new Manager(5, "John", "Doe");
+    Manager p = new Manager(5, "John", "Doe", "Senior");
 
     // Accessing fields that are coming from the referenced type.
     io:println(p.age);

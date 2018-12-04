@@ -1,9 +1,8 @@
-// Workers within a fork can access the variables that are declared within the scope of that statement.
+// Workers within a fork can access the variables that are declared within the scope of that block.
 // The variables can be value type variables or reference type variables.
 // Value type variables such as `string`, `int`, `float`, and `byte` are passed into the workers as a copy
 // of the original data. Therefore, you are able to update the value of it within the worker and that value is only
 // defined within the specific worker.
 // Reference type variables such as `map`, `json`, `xml`, and `record` are passed into these workers as a
 // reference to the original data. Therefore, if you update the value of these variables within a worker, the value gets
-// updated for the entire function.
-// The `wait` expression will wait until all the defined workers are completed
+// updated for the entire function. You may wait for the worker to return using the `wait` expression.
