@@ -98,7 +98,7 @@ public type TopicSubscriberEndpointConfiguration record {
     !...
 };
 
-# Actions that topic subscriber endpoint could perform
+# Remote functions that topic subscriber endpoint could perform
 #
 # + topicSubscriber - JMS TopicSubscriber
 public type TopicSubscriberCaller client object {

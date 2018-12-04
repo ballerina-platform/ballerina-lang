@@ -241,7 +241,7 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:ClientEndpointConfig? s
     return websubError;
 }
 
-# Function to invoke the WebSubSubscriberConnector's actions for subscription.
+# Function to invoke the WebSubSubscriberConnector's remote functions for subscription.
 #
 # + hub - The hub to which the subscription request is to be sent
 # + subscriptionClientConfig - The configuration for subscription client

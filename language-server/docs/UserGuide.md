@@ -70,7 +70,7 @@ As well as the top level constructs, you can get the templates for following sta
 <a name="ContextawareSuggestionsAndCompletions" />
 
 #### Context aware Suggestions and Completions
-Language server provides context aware suggestions and completions for a wide range of language attributes. As an example, if you have defined endpoint variable, actions defined against the endpoint will be suggested as shown below.
+Language server provides context aware suggestions and completions for a wide range of language attributes. As an example, if you have defined endpoint variable, remote functions defined against the endpoint will be suggested as shown below.
 
 ![](../docs/images/endpointActions.gif)
 

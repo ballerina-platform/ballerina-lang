@@ -25,7 +25,7 @@ Example:
 jms:ClientConnector jmsEP = create jms:ClientConnector("org.wso2.andes.jndi.PropertiesFileInitialContextFactory", "jndi.properties");
 ```
 ### Step 3
-Invoke the send action of the JMS client connector and pass the relevant parameters as mentioned below.
+Invoke the send remote function of the JMS client connector and pass the relevant parameters as mentioned below.
 
 Parameter Name | Parameter type | Description | Expected Values
 ------------ | ------------- | ----------- | -------------

@@ -23,7 +23,7 @@ service SimpleProxyService on new http:WebSocketListener(9090) {
         wsClientEp.attributes[ASSOCIATED_CONNECTION] = caller;
         caller.attributes[ASSOCIATED_CONNECTION] = wsClientEp;
         //When creating client endpoint, if `readyOnClient` flag is set to false client endpoint does not start reading frames automatically.
-        //So `ready` action of endpoint should be called separately when ready to accept messsages.
+        //So `ready` remote function of endpoint should be called separately when ready to accept messsages.
         var err = wsClientEp->ready();
         if (err is error) {
             log:printError("Error calling ready on client", err = err);
