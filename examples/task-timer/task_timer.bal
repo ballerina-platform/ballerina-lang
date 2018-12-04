@@ -43,7 +43,7 @@ function cleanup() returns error? {
         timer.stop();
         io:println("Stopped timer");
     }
-    return ();
+    return;
 }
 
 function cleanupError(error e) {
