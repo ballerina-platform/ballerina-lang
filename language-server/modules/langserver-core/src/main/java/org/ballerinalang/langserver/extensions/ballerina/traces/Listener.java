@@ -16,7 +16,6 @@
 
 package org.ballerinalang.langserver.extensions.ballerina.traces;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.slf4j.Logger;
@@ -30,7 +29,6 @@ import java.net.Socket;
 
 /**
  * TraceLogs Listener.
- *
  */
 public class Listener {
 
@@ -45,34 +43,42 @@ public class Listener {
     }
 
     /**
-     * Start listening.
+     * Start listening for netorklogs.
+     *
+     * @return started port
      */
-    public void startListener() {
+    public int startListener() {
+        try {
+            listenSocket = new ServerSocket(0);
+        } catch (IOException e) {
+            logger.error("Error starting network logs listener", e);
+            return 0;
+        }
         Runnable listener = () -> {
             try {
-                listenSocket = new ServerSocket(5010);
-                Socket dataSocket = listenSocket.accept();
-                logReader = new BufferedReader(new InputStreamReader(dataSocket.getInputStream(), "UTF-8"));
-                String line;
-                while ((line = logReader.readLine()) != null) {
-                    JsonElement parsedTraceLog = new JsonParser().parse(line);
-                    JsonObject rawTrace = parsedTraceLog.getAsJsonObject();
-                    String rawMessage;
-                    JsonObject record = rawTrace.get("record").getAsJsonObject();
-                    try {
-                        rawMessage = record.get("message").getAsString();
-                    } catch (Exception e) {
-                        rawMessage = parsedTraceLog.getAsString();
+                while (!listenSocket.isClosed()) {
+                    Socket dataSocket = listenSocket.accept();
+                    logReader = new BufferedReader(new InputStreamReader(dataSocket.getInputStream(), "UTF-8"));
+                    String line;
+                    while ((line = logReader.readLine()) != null) {
+                        JsonObject record = new JsonParser().parse(line).getAsJsonObject();
+                        String rawMessage;
+                        try {
+                            rawMessage = record.get("message").getAsString();
+                        } catch (Exception e) {
+                            rawMessage = "";
+                        }
+                        TraceRecord traceRecord = new TraceRecord(LogParser.fromString(rawMessage), record, rawMessage);
+                        ballerinaTraceService.pushLogToClient(traceRecord);
                     }
-                    TraceRecord traceRecord = new TraceRecord(LogParser.fromString(rawMessage), record, rawMessage);
-                    ballerinaTraceService.pushLogToClient(traceRecord);
                 }
             } catch (IOException e) {
-                logger.error("Error starting trace logs listener", e);
+                logger.error("Error listening to network logs", e);
             }
         };
         Thread serverThread = new Thread(listener);
         serverThread.start();
+        return listenSocket.getLocalPort();
     }
 
     /**

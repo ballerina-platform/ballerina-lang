@@ -19,10 +19,17 @@ function testAssertionWithUnassignableTypes() {
     Abc abc = <Abc> def;
 
     map<int> m1 = {};
-    map m2 = <map> m1;
+    map<any> m2 = <map<any>> m1;
+}
 
-    stream<int|string> f1;
-    stream<int|json> f2 = <stream<int|json>> f1;
+function testAssertionForCurrentlyUnsupportedTypes() {
+    stream<int|string> s1 = new;
+    any a = s1;
+    stream<int|json> s2 = <stream<int|json>> a;
+
+    future<int> f1 = start testFutureFunc();
+    a = f1;
+    future<int> f2 = <future<int>> a;
 }
 
 type Abc record {
@@ -33,6 +40,11 @@ type Abc record {
 type Def record {
     json name;
     float id;
+};
+
+type Employee record {
+    string name;
+    !...
 };
 
 function testFutureFunc() returns int {

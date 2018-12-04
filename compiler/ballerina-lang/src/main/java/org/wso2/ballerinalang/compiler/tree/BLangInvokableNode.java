@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.tree;
 
+import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.DeprecatedNode;
@@ -45,7 +46,10 @@ import java.util.Set;
  */
 public abstract class BLangInvokableNode extends BLangNode implements InvokableNode {
 
+    public static final String DEFAULT_WORKER_NAME = "default";
+
     public BLangIdentifier name;
+    public BLangIdentifier defaultWorkerName;
     public List<BLangSimpleVariable> requiredParams;
     public BLangType returnTypeNode;
     public List<BLangAnnotationAttachment> returnTypeAnnAttachments;
@@ -72,6 +76,8 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
         this.workers = new ArrayList<>();
         this.deprecatedAttachments = new ArrayList<>();
         this.defaultableParams = new ArrayList<>();
+        this.defaultWorkerName = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        this.defaultWorkerName.value = DEFAULT_WORKER_NAME;
     }
 
     @Override

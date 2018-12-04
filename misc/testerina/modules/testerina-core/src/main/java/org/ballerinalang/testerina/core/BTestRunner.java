@@ -26,8 +26,8 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BIterator;
 import org.ballerinalang.model.values.BNewArray;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.testerina.core.entity.TestSuite;
 import org.ballerinalang.testerina.core.entity.TesterinaReport;
 import org.ballerinalang.testerina.core.entity.TesterinaResult;
@@ -455,12 +455,12 @@ public class BTestRunner {
         List<BValue[]> argsList = new ArrayList<>();
 
         for (BValue value : valueSets) {
-            if (value instanceof BRefValueArray) {
-                BRefValueArray array = (BRefValueArray) value;
+            if (value instanceof BValueArray) {
+                BValueArray array = (BValueArray) value;
                 for (BIterator it = array.newIterator(); it.hasNext(); ) {
-                    BValue[] vals = it.getNext(0);
-                    if (vals[1] instanceof BNewArray) {
-                        BNewArray bNewArray = (BNewArray) vals[1];
+                    BValue vals = it.getNext();
+                    if (vals instanceof BNewArray) {
+                        BNewArray bNewArray = (BNewArray) vals;
                         BValue[] args = new BValue[(int) bNewArray.size()];
                         for (int j = 0; j < bNewArray.size(); j++) {
                             args[j] = bNewArray.getBValue(j);

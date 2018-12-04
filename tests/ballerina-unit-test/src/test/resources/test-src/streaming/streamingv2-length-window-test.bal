@@ -21,12 +21,12 @@ type Teacher record {
     int age;
     string status;
     string school;
-    int count;
+    int count = 0;
 };
 
 int index = 0;
-stream<Teacher> inputStreamLengthWindowTest;
-stream<Teacher > outputStreamLengthWindowTest;
+stream<Teacher> inputStreamLengthWindowTest = new;
+stream<Teacher > outputStreamLengthWindowTest = new;
 Teacher[] globalEmployeeArray = [];
 
 function startLengthWindowTest() returns (Teacher[]) {
@@ -48,8 +48,8 @@ function startLengthWindowTest() returns (Teacher[]) {
 
     testLengthWindow();
 
-    outputStreamLengthWindowTest.subscribe(printTeachers);
-    foreach t in teachers {
+    outputStreamLengthWindowTest.subscribe(function(Teacher e) {printTeachers(e);});
+    foreach var t in teachers {
         inputStreamLengthWindowTest.publish(t);
     }
 
@@ -67,12 +67,12 @@ function startLengthWindowTest() returns (Teacher[]) {
 function testLengthWindow() {
 
     forever {
-        from inputStreamLengthWindowTest window lengthWindow([2])
+        from inputStreamLengthWindowTest window lengthWindow(2)
         select inputStreamLengthWindowTest.name, inputStreamLengthWindowTest.age, inputStreamLengthWindowTest.status, inputStreamLengthWindowTest
         .school, count() as count
         group by inputStreamLengthWindowTest.school
         => (Teacher [] emp) {
-            foreach e in emp {
+            foreach var e in emp {
                 outputStreamLengthWindowTest.publish(e);
             }
         }

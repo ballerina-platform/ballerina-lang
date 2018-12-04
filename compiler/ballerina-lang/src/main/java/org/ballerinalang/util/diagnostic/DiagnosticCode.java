@@ -42,6 +42,8 @@ public enum DiagnosticCode {
     TABLE_KEY_EXPECTED("table.key.expected"),
     OBJECT_TYPE_NOT_ALLOWED("object.type.not.allowed"),
     UNDEFINED_STRUCTURE_FIELD("undefined.field.in.structure"),
+    TYPE_NOT_ALLOWED_WITH_NEW("type.not.allowed.with.new"),
+    STREAM_INIT_NOT_ALLOWED_HERE("stream.initialization.not.allowed.here"),
     CANNOT_INFER_OBJECT_TYPE_FROM_LHS("cannot.infer.object.type.from.lhs"),
     OBJECT_UNINITIALIZED_FIELD("object.uninitialized.field"),
     CYCLIC_TYPE_REFERENCE("cyclic.type.reference"),
@@ -100,7 +102,7 @@ public enum DiagnosticCode {
 
     //Transaction related error codes
     ABORT_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("abort.cannot.be.outside.transaction.block"),
-    FAIL_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("fail.cannot.be.outside.transaction.block"),
+    RETRY_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("retry.cannot.be.outside.transaction.block"),
     BREAK_CANNOT_BE_USED_TO_EXIT_TRANSACTION("break.statement.cannot.be.used.to.exit.from.a.transaction"),
     CONTINUE_CANNOT_BE_USED_TO_EXIT_TRANSACTION("continue.statement.cannot.be.used.to.exit.from.a.transaction"),
     RETURN_CANNOT_BE_USED_TO_EXIT_TRANSACTION("return.statement.cannot.be.used.to.exit.from.a.transaction"),
@@ -110,6 +112,7 @@ public enum DiagnosticCode {
     INVALID_TRANSACTION_HANDLER_SIGNATURE("invalid.transaction.handler.signature"),
     LAMBDA_REQUIRED_FOR_TRANSACTION_HANDLER("lambda.required.for.transaction.handler"),
     TRANSACTION_CANNOT_BE_USED_WITHIN_HANDLER("transaction.cannot.be.used.within.handler"),
+    NESTED_TRANSACTIONS_ARE_INVALID("nested.transactions.are.invalid"),
     INVALID_FUNCTION_POINTER_ASSIGNMENT_FOR_HANDLER("invalid.function.pointer.assignment.for.handler"),
 
     // Service, endpoint related errors codes
@@ -131,6 +134,7 @@ public enum DiagnosticCode {
     REMOTE_REQUIRED_ON_REMOTE_FUNCTION("remote.required.on.remote.function"),
     INVALID_ENDPOINT_DECLARATION("invalid.endpoint.declaration"),
     INVALID_LISTENER_VARIABLE("invalid.listener.var"),
+    INVALID_LISTENER_ATTACHMENT("invalid.listener.attachment"),
 
     ENDPOINT_NOT_SUPPORT_REGISTRATION("endpoint.not.support.registration"),
     INVALID_ACTION_INVOCATION_SYNTAX("invalid.action.invocation.syntax"),
@@ -138,6 +142,7 @@ public enum DiagnosticCode {
     INVALID_ACTION_INVOCATION("invalid.action.invocation"),
     UNDEFINED_ACTION("undefined.action"),
 
+    TYPE_ASSERTION_NOT_YET_SUPPORTED("type.assertion.not.yet.supported.for.type"),
     INVALID_EXPLICIT_TYPE_FOR_EXPRESSION("invalid.explicit.type.for.expression"),
 
     // Cast and conversion related codes
@@ -230,6 +235,9 @@ public enum DiagnosticCode {
     NOT_ENOUGH_PATTERNS_TO_MATCH_RECORD_REF("not.enough.patterns.to.match.record.ref"),
     INVALID_CLOSED_RECORD_BINDING_PATTERN("invalid.closed.record.binding.pattern"),
     NOT_ENOUGH_FIELDS_TO_MATCH_CLOSED_RECORDS("not.enough.fields.to.match.closed.record"),
+    INVALID_TYPE_DEFINITION_FOR_RECORD_VAR("invalid.type.definition.for.record.var"),
+
+    ERROR_BINDING_PATTERN_NOT_SUPPORTED("error.binding.pattern.not.supported"),
 
     INVALID_NAMESPACE_PREFIX("invalid.namespace.prefix"),
     XML_TAGS_MISMATCH("mismatching.xml.start.end.tags"),
@@ -282,6 +290,8 @@ public enum DiagnosticCode {
     MATCH_STMT_CANNOT_GUARANTEE_A_MATCHING_PATTERN("match.stmt.cannot.guarantee.a.matching.pattern"),
     MATCH_STMT_UNREACHABLE_PATTERN("match.stmt.unreachable.pattern"),
     MATCH_STMT_UNMATCHED_PATTERN("match.stmt.unmatched.pattern"),
+    MATCH_STMT_PATTERN_ALWAYS_MATCHES("match.stmt.pattern.always.matches"),
+    MATCH_STMT_CONTAINS_TWO_DEFAULT_PATTERNS("match.stmt.contains.two.default.patterns"),
 
     // error type related errors
     REQUIRE_ERROR_MAPPING_VALUE("require.error.mapping.value"),
@@ -361,7 +371,8 @@ public enum DiagnosticCode {
 
     // Worker receive and send related error codes
     INVALID_TYPE_FOR_RECEIVE("invalid.type.for.receive"),
-    INVALID_TYPE_FOR_SEND("invalid.type.for.send");
+    INVALID_TYPE_FOR_SEND("invalid.type.for.send"),
+    INVALID_USAGE_OF_RECEIVE_EXPRESSION("invalid.usage.of.receive.expression");
 
     private String value;
 

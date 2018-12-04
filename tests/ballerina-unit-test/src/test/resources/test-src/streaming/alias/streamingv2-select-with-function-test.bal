@@ -30,8 +30,8 @@ type TeacherOutput record{
 };
 
 int index = 0;
-stream<Teacher> inputStream;
-stream<TeacherOutput> outputStream;
+stream<Teacher> inputStream = new;
+stream<TeacherOutput> outputStream = new;
 TeacherOutput[] globalEmployeeArray = [];
 
 function startSelectQuery() returns (TeacherOutput[]) {
@@ -46,8 +46,8 @@ function startSelectQuery() returns (TeacherOutput[]) {
 
     testSelectQuery();
 
-    outputStream.subscribe(printTeachers);
-    foreach t in teachers {
+    outputStream.subscribe(function(TeacherOutput e) {printTeachers(e);});
+    foreach var t in teachers {
         inputStream.publish(t);
     }
 
@@ -68,7 +68,7 @@ function testSelectQuery() {
         from inputStream as input
         select input.name as teacherName, getDefaultAge() as age
         => (TeacherOutput[] teachers) {
-            foreach t in teachers {
+            foreach var t in teachers {
                 outputStream.publish(t);
             }
         }

@@ -58,7 +58,7 @@ function createError (string errMessage) returns error {
 # + args - Arguments for pulling a module
 # + return - nil if no error occurred, else error.
 public function invokePull (string... args) returns error? {
-    http:Client httpEndpoint = new ("");
+    http:Client httpEndpoint;
     string url = args[0];
     string dirPath = args[1];
     string pkgPath = args[2];
@@ -82,6 +82,7 @@ public function invokePull (string... args) returns error? {
             http:Client|error result = trap defineEndpointWithProxy(url, host, port, proxyUsername, proxyPassword);
             if (result is http:Client) {
                 httpEndpoint = result;
+                return pullPackage(httpEndpoint, url, pkgPath, dirPath, versionRange, fileSeparator, terminalWidth);
             } else {
                 return createError("failed to resolve host : " + host + " with port " + port);
             }
@@ -92,9 +93,8 @@ public function invokePull (string... args) returns error? {
         return createError("both host and port should be provided to enable proxy");
     } else {
         httpEndpoint = defineEndpointWithoutProxy(url);
+        return pullPackage(httpEndpoint, url, pkgPath, dirPath, versionRange, fileSeparator, terminalWidth);
     }
-
-    return pullPackage(httpEndpoint, url, pkgPath, dirPath, versionRange, fileSeparator, terminalWidth);
 }
 
 # Pulling a module
@@ -131,11 +131,11 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
     } else if (statusCode != "200") {
         var resp = httpResponse.getJsonPayload();
         if (resp is json) {
-            if (!(statusCode == "404" && isBuild)) {
-                return createError(resp.message.toString());
-            } else {
+            if (statusCode == "404" && isBuild && resp.message.toString().contains("could not find module")) {
                 // To ignore printing the error
                 return createError("");
+            } else {
+                return createError(resp.message.toString());
             }
         } else {
             return createError("error occurred when pulling the module");

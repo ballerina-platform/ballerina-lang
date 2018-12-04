@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.serializer.json;
 
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.serializer.BPacket;
 import org.ballerinalang.model.util.serializer.BValueSerializer;
 import org.ballerinalang.model.util.serializer.BValueTree;
@@ -24,9 +25,9 @@ import org.ballerinalang.model.util.serializer.JsonSerializer;
 import org.ballerinalang.model.util.serializer.providers.bvalue.NumericBValueProviders;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -162,18 +163,33 @@ public class SerializationBValueProviderTest {
         Assert.assertEquals(deserialize, hashSet);
     }
 
-    @Test(description = "test HashSet serialization")
+    @Test(description = "test serialization of BValueArray with type int")
     public void testBIntArray() {
-        BIntArray bIntArray = new BIntArray(5);
+        BValueArray bIntArray = new BValueArray(BTypes.typeInt, 5);
         bIntArray.add(0, 1);
         bIntArray.add(1, 1);
 
         JsonSerializer serializer = new JsonSerializer();
         String json = serializer.serialize(bIntArray);
-        BIntArray deserializedArray = serializer.deserialize(json, BIntArray.class);
+        BValueArray deserializedArray = serializer.deserialize(json, BValueArray.class);
 
-        Assert.assertEquals(deserializedArray.get(0), 1);
-        Assert.assertEquals(deserializedArray.get(1), 1);
+        Assert.assertEquals(deserializedArray.getInt(0), 1);
+        Assert.assertEquals(deserializedArray.getInt(1), 1);
+        Assert.assertEquals(deserializedArray.size(), 5);
+    }
+
+    @Test(description = "test serialization of BValueArray with type int")
+    public void testBValueArrayWithStringElements() {
+        BValueArray bArray = new BValueArray(BTypes.typeString, 5);
+        bArray.add(0, "str-1");
+        bArray.add(1, "str-2");
+
+        JsonSerializer serializer = new JsonSerializer();
+        String json = serializer.serialize(bArray);
+        BValueArray deserializedArray = serializer.deserialize(json, BValueArray.class);
+
+        Assert.assertEquals(deserializedArray.getString(0), "str-1");
+        Assert.assertEquals(deserializedArray.getString(1), "str-2");
         Assert.assertEquals(deserializedArray.size(), 5);
     }
 }

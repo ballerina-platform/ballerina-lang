@@ -27,25 +27,14 @@ import ballerina/mime;
 public type Client client object {
 
     public string hubUrl;
-    HubClientEndpointConfig? config = ();
 
     private http:Client httpClientEndpoint;
     private http:FollowRedirects? followRedirects = ();
 
-    public function __init(string url, HubClientEndpointConfig? config = ()) {
+    public function __init(string url, http:ClientEndpointConfig? config = ()) {
         self.hubUrl = url;
-        http:ClientEndpointConfig? httpClientConfig = ();
-        if (config is HubClientEndpointConfig) {
-            http:ClientEndpointConfig httpConfig = {
-                auth: config.auth,
-                secureSocket: config.clientSecureSocket,
-                followRedirects: config.followRedirects
-            };
-            httpClientConfig = httpConfig;
-        }
-        self.httpClientEndpoint = new (self.hubUrl, config = httpClientConfig);
+        self.httpClientEndpoint = new (self.hubUrl, config = config);
         self.followRedirects = config.followRedirects;
-        self.config = config;
     }
 
     # Sends a subscription request to a WebSub Hub.
@@ -173,7 +162,7 @@ remote function Client.publishUpdate(string topic, string|xml|json|byte[]|io:Rea
     }
 
     if (headers is map<string>) {
-        foreach key, value in headers {
+        foreach var (key, value) in headers {
             request.setHeader(key, value);
         }
     }
@@ -201,7 +190,7 @@ remote function Client.notifyUpdate(string topic, map<string>? headers = ()) ret
     string queryParams = HUB_MODE + "=" + MODE_PUBLISH + "&" + HUB_TOPIC + "=" + topic;
 
     if (headers is map<string>) {
-        foreach key, value in headers {
+        foreach var (key, value) in headers {
             request.setHeader(key, value);
         }
     }
@@ -223,17 +212,6 @@ remote function Client.notifyUpdate(string topic, map<string>? headers = ()) ret
     return;
 }
 
-# Record representing the configuration parameters for the WebSub Hub Client Endpoint.
-#
-# + clientSecureSocket - SSL/TLS related options for the underlying HTTP Client
-# + auth - Authentication mechanism for the underlying HTTP Client
-# + followRedirects - HTTP redirect related configuration
-public type HubClientEndpointConfig record {
-    http:SecureSocket? clientSecureSocket = ();
-    http:AuthConfig? auth = ();
-    http:FollowRedirects? followRedirects = ();
-    !...
-};
 
 # Builds the topic registration change request to register or unregister a topic at the hub.
 #

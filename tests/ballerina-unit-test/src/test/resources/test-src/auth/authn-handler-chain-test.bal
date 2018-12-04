@@ -1,14 +1,13 @@
-import ballerina/http;
-import ballerina/mime;
 import ballerina/auth;
+import ballerina/http;
 
-function testCreateAuthnHandlerChain () returns (http:AuthnHandlerChain) {
+function testCreateAuthnHandlerChain() returns (http:AuthnHandlerChain) {
     http:AuthHandlerRegistry registry = new;
     http:AuthnHandlerChain authnHandlerChain = new(registry);
     return authnHandlerChain;
 }
 
-function testAuthFailure () returns (boolean) {
+function testAuthFailure() returns (boolean) {
     http:AuthHandlerRegistry registry = new;
     registry.add("basicProvider1", createBasicAuthnHandler());
     http:Request inRequest = createRequest();
@@ -18,7 +17,7 @@ function testAuthFailure () returns (boolean) {
     return authnHandlerChain.handle(inRequest);
 }
 
-function testAuthFailureWithSpecificHandlers () returns (boolean) {
+function testAuthFailureWithSpecificHandlers() returns (boolean) {
     http:AuthHandlerRegistry registry = new;
     registry.add("basicProvider1", createBasicAuthnHandler());
     http:Request inRequest = createRequest();
@@ -30,7 +29,7 @@ function testAuthFailureWithSpecificHandlers () returns (boolean) {
     return authnHandlerChain.handleWithSpecificAuthnHandlers(authProviders, inRequest);
 }
 
-function testAuthSuccess () returns (boolean) {
+function testAuthSuccess() returns (boolean) {
     http:AuthHandlerRegistry registry = new;
     registry.add("basicProvider1", createBasicAuthnHandler());
     http:Request inRequest = createRequest();
@@ -40,7 +39,7 @@ function testAuthSuccess () returns (boolean) {
     return authnHandlerChain.handle(inRequest);
 }
 
-function testAuthSuccessWithSpecificHandlers () returns (boolean) {
+function testAuthSuccessWithSpecificHandlers() returns (boolean) {
     http:AuthHandlerRegistry registry = new;
     registry.add("basicProvider1", createBasicAuthnHandler());
     http:Request inRequest = createRequest();
@@ -52,7 +51,7 @@ function testAuthSuccessWithSpecificHandlers () returns (boolean) {
     return authnHandlerChain.handleWithSpecificAuthnHandlers(authProviders, inRequest);
 }
 
-function createRequest () returns (http:Request) {
+function createRequest() returns (http:Request) {
     http:Request inRequest = new;
     inRequest.rawPath = "/helloWorld/sayHello";
     inRequest.method = "GET";
@@ -60,7 +59,7 @@ function createRequest () returns (http:Request) {
     return inRequest;
 }
 
-function createBasicAuthnHandler () returns (http:HttpAuthnHandler) {
+function createBasicAuthnHandler() returns (http:HttpAuthnHandler) {
     auth:ConfigAuthStoreProvider configAuthStoreProvider = new();
     auth:AuthStoreProvider authStoreProvider = configAuthStoreProvider;
     http:HttpBasicAuthnHandler basicAuthnHandler = new(authStoreProvider);

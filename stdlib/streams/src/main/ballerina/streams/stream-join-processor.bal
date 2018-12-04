@@ -14,11 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-
 public type StreamJoinProcessor object {
-    private (function (map<any> e1Data, map<any> e2Data) returns boolean)? onConditionFunc;
-    private function (any) nextProcessor;
+    private (function (map<anydata> e1Data, map<anydata> e2Data) returns boolean)? onConditionFunc;
+    private function (StreamEvent[]) nextProcessor;
     public Window? lhsWindow;
     public Window? rhsWindow;
     public string? lhsStream;
@@ -26,7 +24,11 @@ public type StreamJoinProcessor object {
     public string? unidirectionalStream;
     public JoinType joinType;
 
-    public new(nextProcessor, joinType, onConditionFunc) {
+    public function __init(function (StreamEvent[]) nextProcessor, JoinType joinType,
+                           (function (map<anydata> e1Data, map<anydata> e2Data) returns boolean)? onConditionFunc) {
+        self.nextProcessor = nextProcessor;
+        self.joinType = joinType;
+        self.onConditionFunc = onConditionFunc;
         self.lhsWindow = ();
         self.rhsWindow = ();
         self.lhsStream = ();
@@ -37,21 +39,19 @@ public type StreamJoinProcessor object {
     public function process(StreamEvent[] streamEvents) {
         StreamEvent?[] joinedEvents = [];
         int i = 0;
-        foreach event in streamEvents {
+        foreach var event in streamEvents {
             string originStream = event.data.keys()[0].split("\\.")[0];
             // resolve trigger according to join direction
             boolean triggerJoin = false;
-            match self.unidirectionalStream {
-                string s => {
-                    // unidirectional
-                    if (s.equalsIgnoreCase(originStream)) {
-                        triggerJoin = true;
-                    }
-                }
-                () => {
-                    // bidirectional
+            var s = self.unidirectionalStream;
+            if (s is string) {
+                // unidirectional
+                if (s.equalsIgnoreCase(originStream)) {
                     triggerJoin = true;
                 }
+            } else {
+                // bidirectional
+                triggerJoin = true;
             }
 
             if (triggerJoin) {
@@ -59,42 +59,39 @@ public type StreamJoinProcessor object {
                 // join events according to the triggered side
                 if (self.lhsStream.equalsIgnoreCase(originStream) ?: false) {
                     // triggered from LHS
-                    match self.rhsWindow.getCandidateEvents(event, self.onConditionFunc) {
-                        (StreamEvent?, StreamEvent?)[] evtArr => {
-                            candidateEvents = evtArr;
-                            // with left/full joins, we need to emit an event even there's no candidate events in rhs.
-                            if (candidateEvents.length() == 0 && (self.joinType == "LEFTOUTERJOIN"
-                                    || self.joinType == "FULLOUTERJOIN")) {
-                                candidateEvents[0] = (event, ());
-                            }
+                    var evtArr = self.rhsWindow.getCandidateEvents(event, self.onConditionFunc);
+                    if (evtArr is (StreamEvent?, StreamEvent?)[]) {
+                        candidateEvents = evtArr;
+                        // with left/full joins, we need to emit an event even there's no candidate events in rhs.
+                        if (candidateEvents.length() == 0 && (self.joinType == "LEFTOUTERJOIN"
+                                || self.joinType == "FULLOUTERJOIN")) {
+                            candidateEvents[0] = (event, ());
                         }
-                        () => {
-                            if (self.joinType == "LEFTOUTERJOIN" || self.joinType == "FULLOUTERJOIN") {
-                                candidateEvents[0] = (event, ());
-                            }
+                    } else {
+                        if (self.joinType == "LEFTOUTERJOIN" || self.joinType == "FULLOUTERJOIN") {
+                            candidateEvents[0] = (event, ());
                         }
                     }
-                    foreach evtTuple in candidateEvents {
+
+                    foreach var evtTuple in candidateEvents {
                         joinedEvents[i] = self.joinEvents(evtTuple[0], evtTuple[1]);
                         i += 1;
                     }
                 } else {
-                    match self.lhsWindow.getCandidateEvents(event, self.onConditionFunc, isLHSTrigger = false) {
-                        (StreamEvent?, StreamEvent?)[] evtArr => {
-                            candidateEvents = evtArr;
-                            // with right/full joins, we need to emit an event even there's no candidate events in rhs.
-                            if (candidateEvents.length() == 0 && (self.joinType == "RIGHTOUTERJOIN"
-                                    || self.joinType == "FULLOUTERJOIN")) {
-                                candidateEvents[0] = ((), event);
-                            }
+                    var evtArr = self.lhsWindow.getCandidateEvents(event, self.onConditionFunc, isLHSTrigger = false);
+                    if (evtArr is (StreamEvent?, StreamEvent?)[]) {
+                        candidateEvents = evtArr;
+                        // with right/full joins, we need to emit an event even there's no candidate events in rhs.
+                        if (candidateEvents.length() == 0 && (self.joinType == "RIGHTOUTERJOIN"
+                                || self.joinType == "FULLOUTERJOIN")) {
+                            candidateEvents[0] = ((), event);
                         }
-                        () => {
-                            if (self.joinType == "RIGHTOUTERJOIN" || self.joinType == "FULLOUTERJOIN") {
-                                candidateEvents[0] = ((), event);
-                            }
+                    } else {
+                        if (self.joinType == "RIGHTOUTERJOIN" || self.joinType == "FULLOUTERJOIN") {
+                            candidateEvents[0] = ((), event);
                         }
                     }
-                    foreach evtTuple in candidateEvents {
+                    foreach var evtTuple in candidateEvents {
                         joinedEvents[i] = self.joinEvents(evtTuple[0], evtTuple[1], lhsTriggered = false);
                         i += 1;
                     }
@@ -104,17 +101,13 @@ public type StreamJoinProcessor object {
 
         StreamEvent[] outputEvents = [];
         i = 0;
-        foreach e in joinedEvents {
-            match e {
-                StreamEvent s => {
-                    outputEvents[i] = s;
-                    i += 1;
-                }
-                () => {
-                }
+        foreach var e in joinedEvents {
+            if (e is StreamEvent) {
+                outputEvents[i] = e;
+                i += 1;
             }
         }
-        self.nextProcessor(outputEvents);
+        self.nextProcessor.call(outputEvents);
     }
 
     public function setLHS(string streamName, Window windowInstance) {
@@ -137,84 +130,71 @@ public type StreamJoinProcessor object {
         if (self.joinType == "LEFTOUTERJOIN") {
             // Left outer join: Returns all the events of left stream
             // even if there are no matching events in the right stream.
-            match lhsEvent {
-                StreamEvent lhs => {
-                    joined = lhs.copy();
-                    match rhsEvent {
-                        StreamEvent rhs => {
-                            joined.addData(rhs.data);
-                        }
-                        () => {
-                            // nothing to do.
-                        }
-                    }
-                }
-                () => {
+            if (lhsEvent is StreamEvent) {
+                joined = lhsEvent.copy();
+
+                if (rhsEvent is StreamEvent) {
+                    joined.addData(rhsEvent.data);
+                } else {
                     // nothing to do.
                 }
+            } else {
+                // nothing to do.
             }
         } else if (self.joinType == "RIGHTOUTERJOIN") {
             // Right outer join: Returns all the events of the right stream
             // even if there are no matching events in the left stream.
-            match rhsEvent {
-                StreamEvent rhs => {
-                    joined = rhs.copy();
-                    match lhsEvent {
-                        StreamEvent lhs => {
-                            joined.addData(lhs.data);
-                        }
-                        () => {
-                            // nothing to do.
-                        }
-                    }
-                }
-                () => {
+
+            if (rhsEvent is StreamEvent) {
+                joined = rhsEvent.copy();
+
+                if (lhsEvent is StreamEvent) {
+                    joined.addData(lhsEvent.data);
+                } else {
                     // nothing to do.
                 }
+
+            } else {
+                // nothing to do.
             }
         } else if (self.joinType == "FULLOUTERJOIN") {
             // Full outer join: output event are generated for each incoming
             // event even if there are no matching events in the other stream.
             if (lhsTriggered) {
-                match lhsEvent {
-                    StreamEvent lhs => {
-                        joined = lhs.copy();
-                        match rhsEvent {
-                            StreamEvent rhs => {
-                                joined.addData(rhs.data);
-                            }
-                            () => {
-                                // nothing to do.
-                            }
-                        }
-                    }
-                    () => {
+
+                if (lhsEvent is StreamEvent) {
+                    joined = lhsEvent.copy();
+
+                    if (rhsEvent is StreamEvent) {
+                        joined.addData(rhsEvent.data);
+                    } else {
                         // nothing to do.
                     }
+                } else {
+                    // nothing to do.
                 }
             } else {
-                match rhsEvent {
-                    StreamEvent rhs => {
-                        joined = rhs.copy();
-                        match lhsEvent {
-                            StreamEvent lhs => {
-                                joined.addData(lhs.data);
-                            }
-                            () => {
-                                // nothing to do.
-                            }
-                        }
-                    }
-                    () => {
+                if (rhsEvent is StreamEvent) {
+                    joined = rhsEvent.copy();
+                    if (lhsEvent is StreamEvent) {
+                        joined.addData(lhsEvent.data);
+                    } else {
                         // nothing to do.
                     }
+                } else {
+                    // nothing to do.
                 }
             }
         } else {
             // Inner join (join): The output is generated only if
             // there is a matching event in both the streams.
-            StreamEvent lEvt = lhsEvent ?: new StreamEvent({}, "CURRENT", 1);
-            StreamEvent rEvt = rhsEvent ?: new StreamEvent({}, "CURRENT", 1);
+            StreamEvent lEvt = lhsEvent is ()? new
+            StreamEvent({}, "CURRENT", 1) : <
+                StreamEvent > lhsEvent;
+            StreamEvent rEvt = rhsEvent is ()? new
+            StreamEvent({}, "CURRENT", 1) : <
+                StreamEvent > rhsEvent;
+
             if (lhsTriggered) {
                 joined = lEvt.copy();
                 joined.addData(rEvt.data);
@@ -227,8 +207,9 @@ public type StreamJoinProcessor object {
     }
 };
 
-public function createStreamJoinProcessor(function (any) nextProcessor, JoinType joinType,
-                                          (function (map<any> e1Data, map<any> e2Data) returns boolean)? conditionFunc = ())
+public function createStreamJoinProcessor(function (StreamEvent[]) nextProcessor, JoinType joinType,
+                                          (function (map<anydata> e1Data, map<anydata> e2Data) returns boolean)?
+                                          conditionFunc = ())
                     returns StreamJoinProcessor {
     StreamJoinProcessor joinProcesor = new(nextProcessor, joinType, conditionFunc);
     return joinProcesor;

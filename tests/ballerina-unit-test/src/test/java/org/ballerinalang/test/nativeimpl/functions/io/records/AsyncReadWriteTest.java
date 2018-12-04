@@ -18,7 +18,7 @@
 
 package org.ballerinalang.test.nativeimpl.functions.io.records;
 
-import org.ballerinalang.model.values.BStringArray;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
 import org.ballerinalang.stdlib.io.channels.base.DelimitedRecordChannel;
@@ -105,14 +105,14 @@ public class AsyncReadWriteTest {
         DelimitedRecordChannel recordChannel = new DelimitedRecordChannel(characterChannel, "\n", ",");
 
         String[] recordOne = {"Foo", "Bar", "911"};
-        BStringArray recordOneArr = new BStringArray(recordOne);
+        BValueArray recordOneArr = new BValueArray(recordOne);
 
         DelimitedRecordWriteEvent recordWriteEvent = new DelimitedRecordWriteEvent(recordChannel, recordOneArr);
         Future<EventResult> future = eventManager.publish(recordWriteEvent);
         future.get();
 
         String[] recordTwo = {"Jim", "Com", "119"};
-        BStringArray recordTwoArr = new BStringArray(recordTwo);
+        BValueArray recordTwoArr = new BValueArray(recordTwo);
 
         recordWriteEvent = new DelimitedRecordWriteEvent(recordChannel, recordTwoArr);
         future = eventManager.publish(recordWriteEvent);

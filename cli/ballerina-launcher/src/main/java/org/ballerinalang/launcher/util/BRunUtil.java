@@ -17,10 +17,12 @@
  */
 package org.ballerinalang.launcher.util;
 
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.bre.vm.BVMExecutor;
-import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.bre.bvm.BVMExecutor;
+import org.ballerinalang.bre.old.WorkerExecutionContext;
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -233,15 +235,21 @@ public class BRunUtil {
     }
 
     private static BValue[] spreadToBValueArray(BValue[] response) {
-        if (!(response != null && response.length > 0 && response[0] instanceof BRefValueArray)) {
+        if (!(response != null && response.length > 0 && response[0] instanceof BValueArray)) {
             return response;
         }
 
-        BRefValueArray refValueArray = (BRefValueArray) response[0];
+        BValueArray refValueArray = (BValueArray) response[0];
+        BType elementType = refValueArray.elementType;
+        if (elementType == BTypes.typeString || elementType == BTypes.typeInt || elementType == BTypes.typeFloat
+                || elementType == BTypes.typeBoolean || elementType == BTypes.typeByte) {
+            return response;
+        }
+
         int length = (int) refValueArray.size();
         BValue[] arr = new BValue[length];
         for (int i = 0; i < length; i++) {
-            arr[i] = refValueArray.get(i);
+            arr[i] = refValueArray.getRefValue(i);
         }
         return arr;
     }

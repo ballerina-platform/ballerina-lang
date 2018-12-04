@@ -19,7 +19,8 @@ package org.ballerinalang.model.values;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.OMText;
-import org.ballerinalang.bre.vm.BVM;
+import org.ballerinalang.bre.bvm.BVM;
+import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.XMLNodeType;
 import org.ballerinalang.util.BLangConstants;
@@ -42,15 +43,15 @@ import static org.ballerinalang.util.BLangConstants.STRING_NULL_VALUE;
  *
  * @since 0.88
  */
-public final class BXMLSequence extends BXML<BRefValueArray> {
+public final class BXMLSequence extends BXML<BValueArray> {
 
-    private BRefValueArray sequence;
+    private BValueArray sequence;
 
     /**
      * Create an empty xml sequence.
      */
     public BXMLSequence() {
-        sequence = new BRefValueArray();
+        sequence = new BValueArray();
     }
 
     /**
@@ -58,7 +59,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
      *
      * @param sequence xml object
      */
-    public BXMLSequence(BRefValueArray sequence) {
+    public BXMLSequence(BValueArray sequence) {
         this.sequence = sequence;
     }
 
@@ -92,7 +93,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
     @Override
     public BString getItemType() {
         if (sequence.size() == 1) {
-            return ((BXMLItem) sequence.get(0)).getItemType();
+            return ((BXMLItem) sequence.getRefValue(0)).getItemType();
         }
 
         return new BString(XMLNodeType.SEQUENCE.value());
@@ -104,7 +105,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
     @Override
     public BString getElementName() {
         if (sequence.size() == 1) {
-            return ((BXMLItem) sequence.get(0)).getElementName();
+            return ((BXMLItem) sequence.getRefValue(0)).getElementName();
         }
         return BTypes.typeString.getZeroValue();
     }
@@ -116,7 +117,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
     public BString getTextValue() {
         StringBuilder seqTextBuilder = new StringBuilder();
         for (int i = 0; i < sequence.size(); i++) {
-            BXMLItem item = (BXMLItem) sequence.get(i);
+            BXMLItem item = (BXMLItem) sequence.getRefValue(i);
             seqTextBuilder.append(item.getTextValue().stringValue());
         }
         return new BString(seqTextBuilder.toString());
@@ -128,7 +129,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
     @Override
     public String getAttribute(String localName, String namespace) {
         if (sequence.size() == 1) {
-            return ((BXMLItem) sequence.get(0)).getAttribute(localName, namespace);
+            return ((BXMLItem) sequence.getRefValue(0)).getAttribute(localName, namespace);
         }
 
         return STRING_NULL_VALUE;
@@ -140,7 +141,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
     @Override
     public String getAttribute(String localName, String namespace, String prefix) {
         if (sequence.size() == 1) {
-            return ((BXMLItem) sequence.get(0)).getAttribute(localName, namespace, prefix);
+            return ((BXMLItem) sequence.getRefValue(0)).getAttribute(localName, namespace, prefix);
         }
 
         return STRING_NULL_VALUE;
@@ -152,7 +153,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
     @Override
     public void setAttribute(String localName, String namespace, String prefix, String value) {
         if (sequence.size() == 1) {
-            ((BXMLItem) sequence.get(0)).setAttribute(localName, namespace, prefix, value);
+            ((BXMLItem) sequence.getRefValue(0)).setAttribute(localName, namespace, prefix, value);
         }
     }
 
@@ -162,10 +163,10 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
     @Override
     public BMap<?, ?> getAttributesMap() {
         if (sequence.size() == 1) {
-            return ((BXMLItem) sequence.get(0)).getAttributesMap();
+            return ((BXMLItem) sequence.getRefValue(0)).getAttributesMap();
         }
 
-        return BTypes.typeMap.getEmptyValue();
+        return new BMap<>(new BMapType(BTypes.typeString));
     }
 
     @Override
@@ -177,7 +178,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
         }
 
         if (sequence.size() == 1) {
-            ((BXMLItem) sequence.get(0)).setAttributes(attributes);
+            ((BXMLItem) sequence.getRefValue(0)).setAttributes(attributes);
         }
     }
 
@@ -186,10 +187,10 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
      */
     @Override
     public BXML<?> elements() {
-        BRefValueArray elementsSeq = new BRefValueArray(BTypes.typeXML);
+        BValueArray elementsSeq = new BValueArray(BTypes.typeXML);
         int j = 0;
         for (int i = 0; i < sequence.size(); i++) {
-            BXMLItem item = (BXMLItem) sequence.get(i);
+            BXMLItem item = (BXMLItem) sequence.getRefValue(i);
             if (item.getNodeType() == XMLNodeType.ELEMENT) {
                 elementsSeq.add(j++, item);
             }
@@ -202,11 +203,11 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
      */
     @Override
     public BXML<?> elements(String qname) {
-        BRefValueArray elementsSeq = new BRefValueArray(BTypes.typeXML);
+        BValueArray elementsSeq = new BValueArray(BTypes.typeXML);
         String qnameStr = getQname(qname).toString();
         int j = 0;
         for (int i = 0; i < sequence.size(); i++) {
-            BXMLItem item = (BXMLItem) sequence.get(i);
+            BXMLItem item = (BXMLItem) sequence.getRefValue(i);
             if (item.getNodeType() == XMLNodeType.ELEMENT
                     && item.getElementName().stringValue().equals(qnameStr)) {
                 elementsSeq.add(j++, item);
@@ -220,10 +221,10 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
      */
     @Override
     public BXML<?> children() {
-        BRefValueArray elementsSeq = new BRefValueArray(BTypes.typeXML);
+        BValueArray elementsSeq = new BValueArray(BTypes.typeXML);
         int index = 0;
         for (int i = 0; i < sequence.size(); i++) {
-            BXMLItem element = (BXMLItem) sequence.get(i);
+            BXMLItem element = (BXMLItem) sequence.getRefValue(i);
             if (element.getNodeType() != XMLNodeType.ELEMENT) {
                 continue;
             }
@@ -242,11 +243,11 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
      */
     @Override
     public BXML<?> children(String qname) {
-        BRefValueArray elementsSeq = new BRefValueArray();
+        BValueArray elementsSeq = new BValueArray();
         QName name = getQname(qname);
         int index = 0;
         for (int i = 0; i < sequence.size(); i++) {
-            BXMLItem element = (BXMLItem) sequence.get(i);
+            BXMLItem element = (BXMLItem) sequence.getRefValue(i);
             if (element.getNodeType() != XMLNodeType.ELEMENT) {
                 continue;
             }
@@ -275,7 +276,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
             throw new BallerinaException("not an " + XMLNodeType.ELEMENT);
         }
 
-        ((BXMLItem) sequence.get(0)).setChildren(seq);
+        ((BXMLItem) sequence.getRefValue(0)).setChildren(seq);
     }
 
     /**
@@ -293,7 +294,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
             throw new BallerinaException("not an " + XMLNodeType.ELEMENT);
         }
 
-        ((BXMLItem) sequence.get(0)).addChildren(seq);
+        ((BXMLItem) sequence.getRefValue(0)).addChildren(seq);
     }
 
     /**
@@ -301,10 +302,10 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
      */
     @Override
     public BXML<?> strip() {
-        BRefValueArray elementsSeq = new BRefValueArray();
+        BValueArray elementsSeq = new BValueArray();
         int j = 0;
         for (int i = 0; i < sequence.size(); i++) {
-            BXMLItem element = (BXMLItem) sequence.get(i);
+            BXMLItem element = (BXMLItem) sequence.getRefValue(i);
             if (element.value() == null || (element.getNodeType() == XMLNodeType.TEXT &&
                     ((OMText) element.value()).getText().trim().isEmpty())) {
                 continue;
@@ -341,9 +342,9 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
         }
 
         int j = 0;
-        BRefValueArray elementsSeq = new BRefValueArray();
+        BValueArray elementsSeq = new BValueArray();
         for (long i = startIndex; i < endIndex; i++) {
-            elementsSeq.add(j++, sequence.get(i));
+            elementsSeq.add(j++, sequence.getRefValue(i));
         }
 
         return new BXMLSequence(elementsSeq);
@@ -356,7 +357,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
     public BXML<?> descendants(String qname) {
         List<BXML<?>> descendants = new ArrayList<BXML<?>>();
         for (int i = 0; i < sequence.size(); i++) {
-            BXMLItem element = (BXMLItem) sequence.get(i);
+            BXMLItem element = (BXMLItem) sequence.getRefValue(i);
             switch (element.getNodeType()) {
                 case ELEMENT:
                     addDescendants(descendants, (OMElement) element.value(), getQname(qname).toString());
@@ -366,7 +367,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
             }
         }
 
-        return new BXMLSequence(new BRefValueArray(descendants.toArray(new BXML[descendants.size()]), BTypes.typeXML));
+        return new BXMLSequence(new BValueArray(descendants.toArray(new BXML[descendants.size()]), BTypes.typeXML));
     }
 
     // Methods from Datasource impl
@@ -377,7 +378,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
     @Override
     public void serialize(OutputStream outputStream) {
         for (int i = 0; i < sequence.size(); i++) {
-            ((BXML<?>) sequence.get(i)).serialize(outputStream);
+            ((BXML<?>) sequence.getRefValue(i)).serialize(outputStream);
         }
     }
 
@@ -385,7 +386,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
      * {@inheritDoc}
      */
     @Override
-    public BRefValueArray value() {
+    public BValueArray value() {
         return sequence;
     }
 
@@ -397,7 +398,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
         try {
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < sequence.size(); i++) {
-                sb.append(sequence.get(i).stringValue());
+                sb.append(sequence.getRefValue(i).stringValue());
             }
             return sb.toString();
         } catch (Throwable t) {
@@ -420,9 +421,9 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
         }
 
         BRefType[] copiedVals = new BRefType[(int) sequence.size()];
-        refs.put(this, new BXMLSequence(new BRefValueArray(copiedVals, BTypes.typeXML)));
+        refs.put(this, new BXMLSequence(new BValueArray(copiedVals, BTypes.typeXML)));
         for (int i = 0; i < sequence.size(); i++) {
-            copiedVals[i] = ((BXML<?>) sequence.get(i)).copy(refs);
+            copiedVals[i] = ((BXML<?>) sequence.getRefValue(i)).copy(refs);
         }
         return (BXMLSequence) refs.get(this);
     }
@@ -432,7 +433,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
      */
     @Override
     public BXML<?> getItem(long index) {
-        return (BXML<?>) this.sequence.get(index);
+        return (BXML<?>) this.sequence.getRefValue(index);
     }
 
     /**
@@ -448,7 +449,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
     @Override
     public void build() {
         for (int i = 0; i < sequence.size(); i++) {
-            ((BXML<?>) sequence.get(i)).build();
+            ((BXML<?>) sequence.getRefValue(i)).build();
         }
     }
 
@@ -464,7 +465,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
             throw new BallerinaException("not an " + XMLNodeType.ELEMENT);
         }
 
-        ((BXMLItem) sequence.get(0)).removeAttribute(qname);
+        ((BXMLItem) sequence.getRefValue(0)).removeAttribute(qname);
     }
 
     @Override
@@ -487,12 +488,11 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
         }
 
         @Override
-        public BValue[] getNext(int arity) {
-            if (arity == 1) {
-                return new BValue[] {value.sequence.get(cursor++)};
+        public BValue getNext() {
+            if (hasNext()) {
+                return value.sequence.getRefValue(cursor++);
             }
-            int cursor = this.cursor++;
-            return new BValue[] {new BInteger(cursor), value.sequence.get(cursor)};
+            return null;
         }
 
         @Override
@@ -513,7 +513,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
             throw new BallerinaException("not an " + XMLNodeType.ELEMENT);
         }
 
-        ((BXMLItem) sequence.get(0)).removeChildren(qname);
+        ((BXMLItem) sequence.getRefValue(0)).removeChildren(qname);
     }
 
     /**
@@ -523,7 +523,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
     public synchronized void attemptFreeze(BVM.FreezeStatus freezeStatus) {
         if (isOpenForFreeze(this.freezeStatus, freezeStatus)) {
             this.freezeStatus = freezeStatus;
-            Arrays.stream(sequence.values).forEach(val -> val.attemptFreeze(freezeStatus));
+            Arrays.stream(sequence.refValues).forEach(val -> val.attemptFreeze(freezeStatus));
         }
     }
 }

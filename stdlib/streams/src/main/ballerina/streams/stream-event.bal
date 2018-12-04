@@ -19,16 +19,16 @@ public type StreamEvent object {
     public int timestamp;
     public map<anydata> data = {};
 
-    public new((string, map<any>) | map<any> eventData, eventType, timestamp) {
-        match eventData {
-            (string, map<anydata>) t => {
-                foreach k, v in t[1] {
-                    self.data[t[0] + DELIMITER + k] = v;
-                }
+    public function __init((string, map<anydata>)|map<anydata> eventData, EventType eventType, int timestamp) {
+        self.eventType = eventType;
+        self.timestamp = timestamp;
+        if (eventData is (string, map<anydata>)) {
+            foreach var (k, v) in eventData[1] {
+                self.data[eventData[0] + DELIMITER + k] = v;
             }
-            map<anydata> m => {
-                self.data = m;
-            }
+        }
+        else if (eventData is map<anydata>) {
+            self.data = eventData;
         }
     }
 
@@ -38,14 +38,14 @@ public type StreamEvent object {
     }
 
     public function addData(map<anydata> eventData) {
-        foreach k, v in eventData {
+        foreach var (k, v) in eventData {
             self.data[k] = v;
         }
     }
 
-    function cloneData() returns map<any> {
-        map<any> dataClone = {};
-        foreach k, v in self.data {
+    function cloneData() returns map<anydata> {
+        map<anydata> dataClone = {};
+        foreach var (k, v) in self.data {
             dataClone[k] = v;
         }
         return dataClone;

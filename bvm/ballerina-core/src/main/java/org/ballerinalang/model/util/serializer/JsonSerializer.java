@@ -21,12 +21,11 @@ import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.util.serializer.providers.bvalue.ArrayListBValueProvider;
 import org.ballerinalang.model.util.serializer.providers.bvalue.BBooleanBValueProvider;
 import org.ballerinalang.model.util.serializer.providers.bvalue.BFloatBValueProvider;
-import org.ballerinalang.model.util.serializer.providers.bvalue.BIntArrayBValueProvider;
 import org.ballerinalang.model.util.serializer.providers.bvalue.BIntegerBValueProvider;
 import org.ballerinalang.model.util.serializer.providers.bvalue.BMapBValueProvider;
-import org.ballerinalang.model.util.serializer.providers.bvalue.BRefValueArrayBValueProvider;
 import org.ballerinalang.model.util.serializer.providers.bvalue.BStringBValueProvider;
 import org.ballerinalang.model.util.serializer.providers.bvalue.BTypeBValueProviders;
+import org.ballerinalang.model.util.serializer.providers.bvalue.BValueArrayBValueProvider;
 import org.ballerinalang.model.util.serializer.providers.bvalue.BXMLBValueProviders;
 import org.ballerinalang.model.util.serializer.providers.bvalue.BallerinaBrokerByteBufBValueProvider;
 import org.ballerinalang.model.util.serializer.providers.bvalue.ClassBValueProvider;
@@ -57,7 +56,6 @@ public class JsonSerializer implements ObjectToJsonSerializer {
         bValueProvider.register(new NumericBValueProviders.BigIntegerBValueProvider());
         bValueProvider.register(new NumericBValueProviders.BigDecimalBValueProvider());
         bValueProvider.register(new BStringBValueProvider());
-        bValueProvider.register(new BRefValueArrayBValueProvider());
         bValueProvider.register(new BMapBValueProvider());
         bValueProvider.register(new ClassBValueProvider());
         bValueProvider.register(new BallerinaBrokerByteBufBValueProvider());
@@ -77,7 +75,7 @@ public class JsonSerializer implements ObjectToJsonSerializer {
         bValueProvider.register(new BXMLBValueProviders.BXMLSequenceBValueProvider());
         bValueProvider.register(new BXMLBValueProviders.BXMLQNameBValueProvider());
         bValueProvider.register(new InetSocketAddressBValueProvider());
-        bValueProvider.register(new BIntArrayBValueProvider());
+        bValueProvider.register(new BValueArrayBValueProvider());
     }
 
     /**

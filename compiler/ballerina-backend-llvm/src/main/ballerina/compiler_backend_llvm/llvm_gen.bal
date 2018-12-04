@@ -25,10 +25,10 @@ function genFunctions(llvm:LLVMModuleRef mod, bir:Function[] funcs) {
     genPrintfDeclration(mod);
 
     map<FuncGenrator> funcGenrators = mapFuncsToNameAndGenrator(mod, builder, funcs);
-    foreach g in funcGenrators  {
+    foreach var (k, g) in funcGenrators  {
         g.genFunctionDecl();
     }
-    foreach g in funcGenrators  {
+    foreach var (k, g) in funcGenrators  {
         g.genFunctionBody(funcGenrators);
     }
     llvm:LLVMDisposeBuilder(builder);
@@ -76,7 +76,7 @@ function initAllTargets() {
 function mapFuncsToNameAndGenrator(llvm:LLVMModuleRef mod, llvm:LLVMBuilderRef builder, bir:Function[] funcs)
              returns map<FuncGenrator> {
     map<FuncGenrator> genrators = {};
-    foreach func in funcs {
+    foreach var func in funcs {
         FuncGenrator funcGen = new(mod, builder, func);
         genrators[func.name.value] = funcGen;
     }
@@ -121,7 +121,7 @@ function genBType(bir:BType bType) returns llvm:LLVMTypeRef {
 
 function appendAllTo(any[] toArr, any[] fromArr) {
     int i = toArr.length();
-    foreach bI in fromArr{
+    foreach var bI in fromArr{
         toArr[i] = bI;
         i += 1;
     }

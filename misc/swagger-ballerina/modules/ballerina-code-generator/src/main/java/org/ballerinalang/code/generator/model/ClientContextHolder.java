@@ -17,9 +17,10 @@
 package org.ballerinalang.code.generator.model;
 
 import org.ballerinalang.code.generator.exception.CodeGeneratorException;
-import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.ServiceNode;
+import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +42,7 @@ public class ClientContextHolder {
      * @return A parsable data model for provided ballerina {@code service}
      * @throws CodeGeneratorException when there are generation exceptions
      */
-    public static ClientContextHolder buildContext(ServiceNode service, List<EndpointNode> endpoints)
+    public static ClientContextHolder buildContext(BLangService service, List<BLangSimpleVariable> endpoints)
             throws CodeGeneratorException {
         ClientContextHolder context = new ClientContextHolder();
         context.name = service.getName().getValue();
@@ -49,7 +50,7 @@ public class ClientContextHolder {
         context.endpoints = new ArrayList<>();
 
         // Extract bound endpoint details
-        for (EndpointNode ep : endpoints) {
+        for (BLangSimpleVariable ep : endpoints) {
             EndpointContextHolder epContext = EndpointContextHolder.buildContext(service, ep);
             if (epContext != null) {
                 context.endpoints.add(EndpointContextHolder.buildContext(service, ep));

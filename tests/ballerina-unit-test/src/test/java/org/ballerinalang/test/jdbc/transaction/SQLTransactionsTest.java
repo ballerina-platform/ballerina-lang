@@ -19,6 +19,7 @@ package org.ballerinalang.test.jdbc.transaction;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.utils.SQLDBUtils.TestDatabase;
@@ -56,6 +57,8 @@ public class SQLTransactionsTest {
         BValue[] returns = BRunUtil.invoke(result, "testLocalTransaction");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0, "Transaction shouldn't have been retried");
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 2, "Insertion count inside transaction is incorrect");
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), true, "'committed' block did not get executed");
+        Assert.assertEquals(((BBoolean) returns[3]).booleanValue(), false, "'aborted' block executed");
     }
 
     @Test(groups = TRANSACTION_TEST_GROUP)
@@ -63,6 +66,9 @@ public class SQLTransactionsTest {
         BValue[] returns = BRunUtil.invoke(result, "testTransactionRollback");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), -1, "Transaction should have been retried");
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0, "Insertion count inside transaction is incorrect");
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), true,
+                "Statements after Tx failing statements did not invoked");
+
     }
 
     @Test(groups = TRANSACTION_TEST_GROUP)
@@ -158,8 +164,8 @@ public class SQLTransactionsTest {
     public void testLocalTransactionFailed() {
         BValue[] returns = BRunUtil.invoke(result, "testLocalTransactionFailed");
         Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals(returns[0].stringValue(), "beforetx inTrx inFld inTrx inFld inTrx inFld inTrx inFld "
-                + "afterTrx");
+        Assert.assertEquals(returns[0].stringValue(), "beforetx inTrx onRetry inTrx onRetry inTrx onRetry inTrx "
+                + "trxAborted afterTrx");
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0, "Insertion count inside transaction is incorrect");
     }
 
@@ -167,7 +173,7 @@ public class SQLTransactionsTest {
     public void testLocalTransactionSuccessWithFailed() {
         BValue[] returns = BRunUtil.invoke(result, "testLocalTransactionSuccessWithFailed");
         Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals(returns[0].stringValue(), "beforetx inTrx inFld inTrx inFld inTrx afterTrx");
+        Assert.assertEquals(returns[0].stringValue(), "beforetx inTrx onRetry inTrx onRetry inTrx committed afterTrx");
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 2, "Insertion count inside transaction is incorrect");
     }
 
@@ -192,19 +198,11 @@ public class SQLTransactionsTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 3, "Insertion count inside transaction is incorrect");
     }
 
-    @Test(groups = TRANSACTION_TEST_GROUP, enabled = false) //Issue #7706
+    @Test(groups = TRANSACTION_TEST_GROUP)
     public void testNestedThreeLevelTransactionFailed() {
         BValue[] returns = BRunUtil.invoke(result, "testNestedThreeLevelTransactionFailed");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), -1, "Transaction should have been retried");
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0, "Insertion count inside transaction is incorrect");
-    }
-
-    @Test(groups = TRANSACTION_TEST_GROUP)
-    public void testNestedThreeLevelTransactionFailedWithRetrySuccess() {
-        BValue[] returns = BRunUtil.invoke(result, "testNestedThreeLevelTransactionFailedWithRetrySuccess");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0, "Transaction shouldn't have been retried");
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 0, "Insertion count inside transaction is incorrect");
-        Assert.assertEquals(returns[2].stringValue(), "start txL1 txL2 txL3 txL3_Else txL3_Failed");
     }
 
     @Test(groups = TRANSACTION_TEST_GROUP)

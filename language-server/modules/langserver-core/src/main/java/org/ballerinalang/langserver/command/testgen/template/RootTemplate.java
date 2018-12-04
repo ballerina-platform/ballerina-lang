@@ -16,20 +16,23 @@
 package org.ballerinalang.langserver.command.testgen.template;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+import org.ballerinalang.langserver.command.testgen.TestGenerator;
+import org.ballerinalang.langserver.command.testgen.TestGenerator.TestFunctionGenerator;
 import org.ballerinalang.langserver.command.testgen.TestGeneratorException;
 import org.ballerinalang.langserver.command.testgen.renderer.RendererOutput;
 import org.ballerinalang.langserver.command.testgen.renderer.TemplateBasedRendererOutput;
 import org.ballerinalang.langserver.command.testgen.template.type.FunctionTemplate;
 import org.ballerinalang.langserver.command.testgen.template.type.HttpServiceTemplate;
-import org.ballerinalang.langserver.command.testgen.template.type.WSClientServiceTemplate;
 import org.ballerinalang.langserver.command.testgen.template.type.WSServiceTemplate;
-import org.ballerinalang.model.tree.EndpointNode;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 
 /**
@@ -39,49 +42,54 @@ import java.util.function.BiConsumer;
  */
 public class RootTemplate extends AbstractTestTemplate {
     public static final String LINE_FEED = System.lineSeparator();
-    private final List<BLangService> httpServices = new ArrayList<>();
-    private final List<BLangService> httpWSServices = new ArrayList<>();
-    private final List<BLangService> httpWSClientServices = new ArrayList<>();
+    private final List<Pair<BLangService, BLangTypeInit>> httpServices = new ArrayList<>();
+    private final List<Pair<BLangService, BLangTypeInit>> httpWSServices = new ArrayList<>();
+    private final List<String[]> httpWSClientServices = new ArrayList<>();
     private final List<BLangFunction> functions = new ArrayList<>();
 
-    private final List<EndpointNode> globalEndpoints = new ArrayList<>();
-    private final List<BLangFunction> globalFunctions = new ArrayList<>();
-
-    private RootTemplate(BLangPackage bLangPackage) {
-        super(bLangPackage);
+    private RootTemplate(BLangPackage bLangPackage, BiConsumer<Integer, Integer> focusLineAcceptor) {
+        super(bLangPackage, focusLineAcceptor);
     }
 
-    public RootTemplate(String fileName, BLangPackage builtTestFile) {
-        super(builtTestFile);
-        // TODO: Fix with the latest service changes
-//        builtTestFile.getServices().stream()
-//                .filter(service -> fileName.equals(service.pos.src.cUnitName) &&
-//                        service.serviceTypeStruct.toString().equals("httpService"))
-//                .forEach(httpServices::add);
-//        builtTestFile.getServices().stream()
-//                .filter(service -> fileName.equals(service.pos.src.cUnitName) &&
-//                        service.serviceTypeStruct.toString().equals("httpWebSocketService"))
-//                .forEach(httpWSServices::add);
-//        builtTestFile.getServices().stream()
-//                .filter(service -> fileName.equals(service.pos.src.cUnitName) &&
-//                        service.serviceTypeStruct.toString().equals("httpWebSocketClientService"))
-//                .forEach(httpWSClientServices::add);
-//        builtTestFile.getFunctions().stream()
-//                .filter(func -> fileName.equals(func.pos.src.cUnitName))
-//                .forEach(functions::add);
-        globalEndpoints.addAll(builtTestFile.getGlobalEndpoints());
-        globalFunctions.addAll(builtTestFile.getFunctions());
+    public RootTemplate(String fileName, BLangPackage builtTestFile,
+                        BiConsumer<Integer, Integer> focusLineAcceptor) {
+        super(builtTestFile, focusLineAcceptor);
+        builtTestFile.getServices().forEach(service -> {
+            String owner = service.listenerType.tsymbol.owner.name.value;
+            String serviceTypeName = service.listenerType.tsymbol.name.value;
+
+            Optional<BLangTypeInit> optionalServiceInit = TestGenerator.getServiceInit(builtTestFile, service);
+            optionalServiceInit.ifPresent(init -> {
+                if ("http".equals(owner)) {
+                    switch (serviceTypeName) {
+                        case "Listener":
+                            httpServices.add(new ImmutablePair<>(service, init));
+                            break;
+                        case "WebSocketListener":
+                            httpWSServices.add(new ImmutablePair<>(service, init));
+                            break;
+                        default:
+                            // do nothing
+                    }
+                }
+            });
+        });
+        builtTestFile.getFunctions().stream()
+                .filter(func -> fileName.equals(func.pos.src.cUnitName))
+                .forEach(functions::add);
     }
 
     /**
      * Create root template for a function.
      *
-     * @param function function
-     * @param builtTestFile built test file package
+     * @param function          function
+     * @param builtTestFile     built test file package
+     * @param focusLineAcceptor focus line acceptor
      * @return root template
      */
-    public static RootTemplate fromFunction(BLangFunction function, BLangPackage builtTestFile) {
-        RootTemplate rootTemplate = new RootTemplate(builtTestFile);
+    public static RootTemplate fromFunction(BLangFunction function, BLangPackage builtTestFile,
+                                            BiConsumer<Integer, Integer> focusLineAcceptor) {
+        RootTemplate rootTemplate = new RootTemplate(builtTestFile, focusLineAcceptor);
         rootTemplate.functions.add(function);
         return rootTemplate;
     }
@@ -89,42 +97,34 @@ public class RootTemplate extends AbstractTestTemplate {
     /**
      * Create root template for a http service.
      *
-     * @param service service
-     * @param builtTestFile built test file package
+     * @param service           service
+     * @param init              {@link BLangTypeInit}
+     * @param builtTestFile     built test file package
+     * @param focusLineAcceptor focus line acceptor
      * @return root template
      */
-    public static RootTemplate fromHttpService(BLangService service, BLangPackage builtTestFile) {
-        RootTemplate rootTemplate = new RootTemplate(builtTestFile);
-        rootTemplate.globalEndpoints.addAll(builtTestFile.getGlobalEndpoints());
-        rootTemplate.httpServices.add(service);
+    public static RootTemplate fromHttpService(BLangService service, BLangTypeInit init, BLangPackage builtTestFile,
+                                               BiConsumer<Integer, Integer> focusLineAcceptor) {
+        RootTemplate rootTemplate = new RootTemplate(builtTestFile, focusLineAcceptor);
+        rootTemplate.httpServices.add(new ImmutablePair<>(service, init));
         return rootTemplate;
     }
 
     /**
      * Create root template for a websocket service.
      *
-     * @param service service
-     * @param builtTestFile built test file package
+     * @param service           service
+     * @param init              {@link BLangTypeInit}
+     * @param builtTestFile     built test file package
+     * @param focusLineAcceptor focus line acceptor
      * @return root template
      */
-    public static RootTemplate fromHttpWSService(BLangService service, BLangPackage builtTestFile) {
-        RootTemplate rootTemplate = new RootTemplate(builtTestFile);
-        rootTemplate.globalEndpoints.addAll(builtTestFile.getGlobalEndpoints());
-        rootTemplate.httpWSServices.add(service);
-        return rootTemplate;
-    }
-
-    /**
-     * Create root template for a client websocket service.
-     *
-     * @param service service
-     * @param builtTestFile built test file package
-     * @return root template
-     */
-    public static RootTemplate fromHttpClientWSService(BLangService service, BLangPackage builtTestFile) {
-        RootTemplate rootTemplate = new RootTemplate(builtTestFile);
-        rootTemplate.globalFunctions.addAll(builtTestFile.getFunctions());
-        rootTemplate.httpWSServices.add(service);
+    public static RootTemplate fromHttpWSService(BLangService service,
+                                                 BLangTypeInit init,
+                                                 BLangPackage builtTestFile,
+                                                 BiConsumer<Integer, Integer> focusLineAcceptor) {
+        RootTemplate rootTemplate = new RootTemplate(builtTestFile, focusLineAcceptor);
+        rootTemplate.httpWSServices.add(new ImmutablePair<>(service, init));
         return rootTemplate;
     }
 
@@ -135,47 +135,39 @@ public class RootTemplate extends AbstractTestTemplate {
      * @throws TestGeneratorException when template population process fails
      */
     public void render(RendererOutput rendererOutput) throws TestGeneratorException {
-        // Add imports
-        if (rendererOutput.isNewTestFile() || isNonExistImport("ballerina", "test")) {
-            rendererOutput.append(PlaceHolder.IMPORTS, "import ballerina/test;" + LINE_FEED);
-            imports.add(new ImmutablePair<>("ballerina", "test"));
-        }
-        if (rendererOutput.isNewTestFile() || isNonExistImport("ballerina", "log")) {
-            rendererOutput.append(PlaceHolder.IMPORTS, "import ballerina/log;" + LINE_FEED);
-            imports.add(new ImmutablePair<>("ballerina", "log"));
-        }
-        if (httpServices.size() > 0 || httpWSServices.size() > 0 || httpWSClientServices.size() > 0) {
-            if (rendererOutput.isNewTestFile() || isNonExistImport("ballerina", "http")) {
-                rendererOutput.append(PlaceHolder.IMPORTS, "import ballerina/http;" + LINE_FEED);
-                imports.add(new ImmutablePair<>("ballerina", "http"));
-            }
-        }
-
-        BiConsumer<String, String> importsConsumer = (orgName, alias) -> {
+        BiConsumer<String, String> importsAcceptor = (orgName, alias) -> {
             if (isNonExistImport(orgName, alias)) {
                 rendererOutput.append(PlaceHolder.IMPORTS, "import " + orgName + "/" + alias + ";" + LINE_FEED);
                 imports.add(new ImmutablePair<>(orgName, alias));
+                focusLineAcceptor.accept(null, 1); //Increment focus line by one
             }
         };
 
+        // Add imports
+        importsAcceptor.accept("ballerina", "test");
+        importsAcceptor.accept("ballerina", "log");
+        if (httpServices.size() > 0 || httpWSServices.size() > 0 || httpWSClientServices.size() > 0) {
+            importsAcceptor.accept("ballerina", "http");
+        }
+
         // Render test functions
         for (BLangFunction func : functions) {
-            new FunctionTemplate(importsConsumer, builtTestFile, func).render(rendererOutput);
+            TestFunctionGenerator generator = new TestFunctionGenerator(importsAcceptor, builtTestFile.packageID, func);
+            new FunctionTemplate(builtTestFile, func, focusLineAcceptor, generator).render(rendererOutput);
         }
 
         // Render httpService tests
-        for (BLangService service : httpServices) {
-            new HttpServiceTemplate(builtTestFile, globalEndpoints, service).render(rendererOutput);
+        for (Pair<BLangService, BLangTypeInit> pair : httpServices) {
+            BLangService service = pair.getLeft();
+            BLangTypeInit init = pair.getRight();
+            new HttpServiceTemplate(builtTestFile, service, init, focusLineAcceptor).render(rendererOutput);
         }
 
         // Render WS-Service tests
-        for (BLangService service : httpWSServices) {
-            new WSServiceTemplate(builtTestFile, globalEndpoints, service).render(rendererOutput);
-        }
-
-        // Render WS-ClientService tests
-        for (BLangService service : httpWSClientServices) {
-            new WSClientServiceTemplate(builtTestFile, globalFunctions, service).render(rendererOutput);
+        for (Pair<BLangService, BLangTypeInit> pair : httpWSServices) {
+            BLangService service = pair.getLeft();
+            BLangTypeInit init = pair.getRight();
+            new WSServiceTemplate(builtTestFile, service, init, focusLineAcceptor).render(rendererOutput);
         }
     }
 }

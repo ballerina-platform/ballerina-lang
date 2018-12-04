@@ -33,13 +33,13 @@ import org.apache.axiom.om.impl.llom.OMAttributeImpl;
 import org.apache.axiom.om.impl.llom.OMDocumentImpl;
 import org.apache.axiom.om.impl.llom.OMElementImpl;
 import org.apache.axiom.om.impl.llom.OMProcessingInstructionImpl;
-import org.ballerinalang.bre.vm.BVM;
+import org.ballerinalang.bre.bvm.BVM;
+import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.XMLNodeType;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.util.XMLValidationUtils;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.InputStream;
@@ -233,7 +233,7 @@ public final class BXMLItem extends BXML<OMNode> {
         }
 
         if (localName == null || localName.isEmpty()) {
-            throw new BLangRuntimeException("localname of the attribute cannot be empty");
+            throw new BallerinaException("localname of the attribute cannot be empty");
         }
 
         // Validate whether the attribute name is an XML supported qualified name, according to the XML recommendation.
@@ -279,7 +279,7 @@ public final class BXMLItem extends BXML<OMNode> {
 
             // If a namespace exists with the same prefix but a different uri, then do not add the new attribute.
             if (existingNs != null && !namespaceUri.equals(existingNs.getNamespaceURI())) {
-                throw new BLangRuntimeException("failed to add attribute '" + prefix + ":" + localName + "'. prefix '" +
+                throw new BallerinaException("failed to add attribute '" + prefix + ":" + localName + "'. prefix '" +
                         prefix + "' is already bound to namespace '" + existingNs.getNamespaceURI() + "'");
             }
 
@@ -319,7 +319,7 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public BMap<?, ?> getAttributesMap() {
-        BMap<String, BString> attrMap = new BMap<>();
+        BMap<String, BString> attrMap = new BMap<>(new BMapType(BTypes.typeString));
 
         if (nodeType != XMLNodeType.ELEMENT) {
             return attrMap;
@@ -399,7 +399,7 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public BXML<?> elements() {
-        BRefValueArray elementsSeq = new BRefValueArray();
+        BValueArray elementsSeq = new BValueArray();
         switch (nodeType) {
             case ELEMENT:
                 elementsSeq.add(0, this);
@@ -415,7 +415,7 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public BXML<?> elements(String qname) {
-        BRefValueArray elementsSeq = new BRefValueArray();
+        BValueArray elementsSeq = new BValueArray();
         switch (nodeType) {
             case ELEMENT:
                 if (getElementName().stringValue().equals(getQname(qname).toString())) {
@@ -433,7 +433,7 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public BXML<?> children() {
-        BRefValueArray elementsSeq = new BRefValueArray();
+        BValueArray elementsSeq = new BValueArray();
         switch (nodeType) {
             case ELEMENT:
                 Iterator<OMNode> childrenItr = ((OMElement) omNode).getChildren();
@@ -454,7 +454,7 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public BXML<?> children(String qname) {
-        BRefValueArray elementsSeq = new BRefValueArray();
+        BValueArray elementsSeq = new BValueArray();
         switch (nodeType) {
             case ELEMENT:
                 /*
@@ -506,9 +506,9 @@ public final class BXMLItem extends BXML<OMNode> {
         currentNode.removeChildren();
 
         if (seq.getNodeType() == XMLNodeType.SEQUENCE) {
-            BRefValueArray childSeq = ((BXMLSequence) seq).value();
+            BValueArray childSeq = ((BXMLSequence) seq).value();
             for (int i = 0; i < childSeq.size(); i++) {
-                currentNode.addChild((OMNode) childSeq.get(i).value());
+                currentNode.addChild((OMNode) childSeq.getRefValue(i).value());
             }
         } else {
             currentNode.addChild((OMNode) seq.value());
@@ -540,9 +540,9 @@ public final class BXMLItem extends BXML<OMNode> {
         }
 
         if (seq.getNodeType() == XMLNodeType.SEQUENCE) {
-            BRefValueArray childSeq = ((BXMLSequence) seq).value();
+            BValueArray childSeq = ((BXMLSequence) seq).value();
             for (int i = 0; i < childSeq.size(); i++) {
-                currentNode.addChild((OMNode) childSeq.get(i).value());
+                currentNode.addChild((OMNode) childSeq.getRefValue(i).value());
             }
         } else {
             currentNode.addChild((OMNode) seq.value());
@@ -604,7 +604,7 @@ public final class BXMLItem extends BXML<OMNode> {
                 break;
         }
 
-        return new BXMLSequence(new BRefValueArray(descendants.toArray(new BXML[descendants.size()]), BTypes.typeXML));
+        return new BXMLSequence(new BValueArray(descendants.toArray(new BXML[descendants.size()]), BTypes.typeXML));
     }
 
     /**
@@ -697,7 +697,7 @@ public final class BXMLItem extends BXML<OMNode> {
     @Override
     public BXML<?> getItem(long index) {
         if (index != 0) {
-            throw new BLangRuntimeException("index out of range: index: " + index + ", size: 1");
+            throw new BallerinaException("index out of range: index: " + index + ", size: 1");
         }
 
         return this;
@@ -848,11 +848,12 @@ public final class BXMLItem extends BXML<OMNode> {
         }
 
         @Override
-        public BValue[] getNext(int arity) {
-            if (arity == 1) {
-                return cursor++ == 0 ? new BValue[] {value} : null;
+        public BValue getNext() {
+            if (hasNext()) {
+                cursor++;
+                return value;
             }
-            return cursor++ == 0 ? new BValue[] {new BInteger(0), value} : null;
+            return null;
         }
 
         @Override

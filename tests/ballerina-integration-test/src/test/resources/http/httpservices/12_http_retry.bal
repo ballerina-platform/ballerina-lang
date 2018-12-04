@@ -97,7 +97,7 @@ service mockHelloService on serviceEndpoint1 {
                 && req.getHeader(mime:CONTENT_TYPE).hasPrefix(http:MULTIPART_AS_PRIMARY_TYPE)) {
                 var bodyParts = req.getBodyParts();
                 if (bodyParts is mime:Entity[]) {
-                    foreach bodyPart in bodyParts {
+                    foreach var bodyPart in bodyParts {
                         if (bodyPart.hasHeader(mime:CONTENT_TYPE)
                             && bodyPart.getHeader(mime:CONTENT_TYPE).hasPrefix(http:MULTIPART_AS_PRIMARY_TYPE)) {
                             var nestedParts = bodyPart.getBodyParts();
@@ -107,7 +107,7 @@ service mockHelloService on serviceEndpoint1 {
                                 response.statusCode = 500;
                             } else {
                                 mime:Entity[] childParts = nestedParts;
-                                foreach childPart in childParts {
+                                foreach var childPart in childParts {
                                     // When performing passthrough scenarios, message needs to be built before
                                     // invoking the endpoint to create a message datasource.
                                     var childBlobContent = childPart.getByteArray();

@@ -109,7 +109,9 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
             terminateVisitor = true;
             acceptNode(null);
         } else {
-            topLevelNodes.forEach(topLevelNode -> acceptNode((BLangNode) topLevelNode));
+            topLevelNodes.stream()
+                    .filter(CommonUtil.checkInvalidTypesDefs())
+                    .forEach(topLevelNode -> acceptNode((BLangNode) topLevelNode));
         }
     }
 
@@ -277,9 +279,7 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
     public void visit(BLangForeach foreach) {
         this.acceptNode(foreach.collection);
 
-        if (foreach.varRefs != null) {
-            foreach.varRefs.forEach(this::acceptNode);
-        }
+        acceptNode((BLangNode) foreach.variableDefinitionNode);
 
         if (foreach.body != null) {
             this.acceptNode(foreach.body);

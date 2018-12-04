@@ -19,13 +19,24 @@ package org.ballerinalang.langserver.command.testgen.template;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.ballerinalang.net.http.HttpConstants;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
+
+import static org.ballerinalang.langserver.command.testgen.AnnotationConfigsProcessor.isRecordValueExists;
 
 /**
  * This class provides shared functionalities across Ballerina Test Templates.
@@ -39,10 +50,12 @@ public abstract class AbstractTestTemplate implements TestTemplate {
     protected static final String HTTPS = "https://";
     protected static final String WS = "ws://";
     protected static final String WSS = "wss://";
-    protected BLangPackage builtTestFile;
-    protected List<Pair<String, String>> imports;
+    protected final BiConsumer<Integer, Integer> focusLineAcceptor;
+    protected final BLangPackage builtTestFile;
+    protected final List<Pair<String, String>> imports;
 
-    public AbstractTestTemplate(BLangPackage builtTestFile) {
+    public AbstractTestTemplate(BLangPackage builtTestFile, BiConsumer<Integer, Integer> focusLineAcceptor) {
+        this.focusLineAcceptor = focusLineAcceptor;
         this.builtTestFile = builtTestFile;
         this.imports = new ArrayList<>();
         if (builtTestFile != null) {
@@ -92,57 +105,73 @@ public abstract class AbstractTestTemplate implements TestTemplate {
     }
 
     /**
-     * Returns a conflict free global variable name for the proposed variable name.
+     * Returns a conflict free name.
      *
      * @param name variable name
      * @return suggested name
      */
-    protected String getSafeGlobalVariableName(String name) {
+    protected String getSafeName(String name) {
         List<String> names = builtTestFile.getGlobalVariables().stream()
                 .map(variable -> variable.name.value)
                 .collect(Collectors.toList());
-        builtTestFile.testablePkgs.stream().findAny().ifPresent(
-                testablePkg -> names.addAll(testablePkg.getGlobalVariables().stream()
-                                                    .map(variable -> variable.name.value)
-                                                    .collect(Collectors.toList()))
+        Optional<BLangTestablePackage> testablePkg = builtTestFile.testablePkgs.stream().findAny();
+        testablePkg.ifPresent(pkg -> names.addAll(pkg.getGlobalVariables().stream()
+                                                          .map(variable -> variable.name.value)
+                                                          .collect(Collectors.toList()))
+        );
+        names.addAll(builtTestFile.getFunctions().stream()
+                             .map(function -> function.name.value)
+                             .collect(Collectors.toList()));
+        testablePkg.ifPresent(pkg -> names.addAll(pkg.getFunctions().stream()
+                                                          .map(function -> function.name.value)
+                                                          .collect(Collectors.toList()))
+        );
+        names.addAll(builtTestFile.getServices().stream()
+                             .map(service -> service.name.value)
+                             .collect(Collectors.toList()));
+        testablePkg.ifPresent(pkg -> names.addAll(pkg.getServices().stream()
+                                                          .map(service -> service.name.value)
+                                                          .collect(Collectors.toList()))
         );
         return getSafeName(name, names);
     }
 
     /**
-     * Returns a conflict free function name for the proposed function name.
+     * Check for secure service.
      *
-     * @param name function name
-     * @return suggested name
+     * @param init {@link BLangTypeInit}
+     * @return True if secure service, False otherwise
      */
-    protected String getSafeFunctionName(String name) {
-        List<String> names = builtTestFile.getFunctions().stream()
-                .map(function -> function.name.value)
-                .collect(Collectors.toList());
-        builtTestFile.testablePkgs.stream().findAny().ifPresent(
-                testablePkg -> names.addAll(testablePkg.getFunctions().stream()
-                                                    .map(function -> function.name.value)
-                                                    .collect(Collectors.toList()))
-        );
-        return getSafeName(name, names);
+    protected boolean isSecureService(BLangTypeInit init) {
+        for (BLangExpression expression : init.initInvocation.namedArgs) {
+            if (expression instanceof BLangNamedArgsExpression) {
+                BLangNamedArgsExpression namedArgsExpression = (BLangNamedArgsExpression) expression;
+                if (namedArgsExpression.name.value.equals("config") &&
+                        namedArgsExpression.expr instanceof BLangRecordLiteral) {
+                    return isRecordValueExists(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET,
+                                               (BLangRecordLiteral) namedArgsExpression.expr);
+                }
+            }
+        }
+        return false;
     }
 
     /**
-     * Returns a conflict free service name for the proposed service name.
+     * Find service port.
      *
-     * @param name service name
-     * @return suggested name
+     * @param init {@link BLangTypeInit}
+     * @return optional port
      */
-    protected String getSafeServiceName(String name) {
-        List<String> names = builtTestFile.getServices().stream()
-                .map(service -> service.name.value)
-                .collect(Collectors.toList());
-        builtTestFile.testablePkgs.stream().findAny().ifPresent(
-                testablePkg -> names.addAll(testablePkg.getServices().stream()
-                                                    .map(service -> service.name.value)
-                                                    .collect(Collectors.toList()))
-        );
-        return getSafeName(name, names);
+    protected Optional<String> findServicePort(BLangTypeInit init) {
+        BLangExpression bLangExpression = init.initInvocation.requiredArgs.get(0);
+        if (bLangExpression instanceof BLangLiteral) {
+            BLangLiteral literal = (BLangLiteral) bLangExpression;
+            Object value = literal.value;
+            if (value instanceof Long) {
+                return Optional.of(String.valueOf(value));
+            }
+        }
+        return Optional.empty();
     }
 
     private String getSafeName(String name, List<String> nodeNames) {

@@ -60,7 +60,7 @@ public class AnydataStampInbuiltFunctionTest {
 
         Assert.assertEquals(results.length, 1);
         Assert.assertEquals(anydataValue.stringValue(), "3");
-        Assert.assertEquals(anydataValue.getType().getClass(), BJSONType.class);
+        Assert.assertEquals(anydataValue.getType().getTag(), TypeTags.INT_TAG);
     }
 
     @Test
@@ -88,7 +88,8 @@ public class AnydataStampInbuiltFunctionTest {
         BMap<String, BValue> mapValue0 = (BMap<String, BValue>) results[0];
 
         Assert.assertEquals(results.length, 1);
-        Assert.assertEquals(mapValue0.getType().getClass(), BJSONType.class);
+        Assert.assertEquals(mapValue0.getType().getClass(), BMapType.class);
+        Assert.assertEquals(((BMapType) mapValue0.getType()).getConstrainedType().getClass(), BJSONType.class);
 
         Assert.assertEquals((mapValue0.getMap()).size(), 5);
         Assert.assertEquals(((LinkedHashMap) mapValue0.getMap()).get("school").toString(), "Hindu College");
@@ -203,7 +204,8 @@ public class AnydataStampInbuiltFunctionTest {
         BMap<String, BValue> mapValue = (BMap<String, BValue>) results[0];
 
         Assert.assertEquals(results.length, 1);
-        Assert.assertEquals(mapValue.getType().getClass(), BAnydataType.class);
+        Assert.assertEquals(mapValue.getType().getClass(), BMapType.class);
+        Assert.assertEquals(((BMapType) mapValue.getType()).getConstrainedType().getClass(), BAnydataType.class);
     }
 
     @Test

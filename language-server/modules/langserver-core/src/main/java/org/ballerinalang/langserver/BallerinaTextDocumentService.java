@@ -462,7 +462,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
                 // Build the given ast.
                 JsonObject ast = TextDocumentFormatUtil.getAST(fileUri, lsCompiler, documentManager, formatContext);
-                FormattingSourceGen.build(ast.getAsJsonObject("model"), null, "CompilationUnit");
+                FormattingSourceGen.build(ast.getAsJsonObject("model"), "CompilationUnit");
 
                 // Format the given ast.
                 FormattingVisitorEntry formattingUtil = new FormattingVisitorEntry();

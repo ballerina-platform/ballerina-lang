@@ -57,8 +57,9 @@ import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.observability.ObservabilityUtils;
+import org.ballerinalang.util.observability.ObserveUtils;
 import org.ballerinalang.util.observability.ObserverContext;
+import org.ballerinalang.util.transactions.TransactionConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
@@ -106,6 +107,7 @@ import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSI
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION_CONTENT_TYPES;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION_ENABLE;
 import static org.ballerinalang.net.http.HttpConstants.AUTO;
+import static org.ballerinalang.net.http.HttpConstants.COLON;
 import static org.ballerinalang.net.http.HttpConstants.ENABLED_PROTOCOLS;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_CERTIFICATE;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY;
@@ -433,11 +435,20 @@ public class HttpUtil {
         sendPipelinedResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
     }
 
-    public static void handleFailure(HttpCarbonMessage requestMessage, BError error) {
-        String errorMsg = error.reason;
+    static void handleFailure(HttpCarbonMessage requestMessage, BError error) {
+        String errorMsg = getErrorMessage(error);
         int statusCode = getStatusCode(requestMessage, errorMsg);
         ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
         sendPipelinedResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
+    }
+
+    private static String getErrorMessage(BError error) {
+        String errorMsg = error.reason;
+        BMap<String, BValue> errorDetails = (BMap<String, BValue>) error.getDetails();
+        if (!errorDetails.isEmpty()) {
+            errorMsg = errorMsg.concat(COLON + errorDetails.get(HTTP_ERROR_MESSAGE));
+        }
+        return errorMsg;
     }
 
     private static int getStatusCode(HttpCarbonMessage requestMessage, String errorMsg) {
@@ -846,7 +857,7 @@ public class HttpUtil {
         Service serviceInstance = BLangConnectorSPIUtil.getService(context.getProgramFile(),
                 context.getServiceInfo().serviceValue);
         Annotation configAnnot = getServiceConfigAnnotation(serviceInstance, PROTOCOL_PACKAGE_HTTP);
-        if (configAnnot == null) {
+        if (!checkConfigAnnotationAvailability(configAnnot)) {
             return;
         }
         String contentEncoding = outboundResponseMsg.getHeaders().get(HttpHeaderNames.CONTENT_ENCODING);
@@ -1057,6 +1068,21 @@ public class HttpUtil {
         return annotationList.isEmpty() ? null : annotationList.get(0);
     }
 
+    public static Annotation getTransactionConfigAnnotation(Resource resource, String transactionPackagePath) {
+        List<Annotation> annotationList = resource.getAnnotationList(transactionPackagePath,
+                TransactionConstants.ANN_NAME_TRX_PARTICIPANT_CONFIG);
+
+        if (annotationList == null || annotationList.isEmpty()) {
+            return null;
+        }
+        if (annotationList.size() > 1) {
+            throw new BallerinaException(
+                    "multiple transaction configuration annotations found in resource: " +
+                            resource.getServiceName() + "." + resource.getName());
+        }
+        return annotationList.get(0);
+    }
+
     private static int getIntValue(long val) {
         int intVal = (int) val;
 
@@ -1109,13 +1135,13 @@ public class HttpUtil {
     }
 
     public static void checkAndObserveHttpRequest(Context context, HttpCarbonMessage message) {
-        Optional<ObserverContext> observerContext = ObservabilityUtils.getParentContext(context);
+        Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(context);
         observerContext.ifPresent(ctx -> {
-            HttpUtil.injectHeaders(message, ObservabilityUtils.getContextProperties(ctx));
+            HttpUtil.injectHeaders(message, ObserveUtils.getContextProperties(ctx));
             ctx.addTag(TAG_KEY_HTTP_METHOD, String.valueOf(message.getProperty(HttpConstants.HTTP_METHOD)));
             ctx.addTag(TAG_KEY_HTTP_URL, String.valueOf(message.getProperty(HttpConstants.TO)));
             ctx.addTag(TAG_KEY_PEER_ADDRESS,
-                    message.getProperty(PROPERTY_HTTP_HOST) + ":" + message.getProperty(PROPERTY_HTTP_PORT));
+                       message.getProperty(PROPERTY_HTTP_HOST) + ":" + message.getProperty(PROPERTY_HTTP_PORT));
             // Add HTTP Status Code tag. The HTTP status code will be set using the response message.
             // Sometimes the HTTP status code will not be set due to errors etc. Therefore, it's very important to set
             // some value to HTTP Status Code to make sure that tags will not change depending on various
@@ -1136,7 +1162,7 @@ public class HttpUtil {
         Service serviceInstance = BLangConnectorSPIUtil.getService(context.getProgramFile(),
                 context.getServiceInfo().serviceValue);
         Annotation configAnnot = getServiceConfigAnnotation(serviceInstance, PROTOCOL_PACKAGE_HTTP);
-        if (configAnnot == null) {
+        if (!checkConfigAnnotationAvailability(configAnnot)) {
             return;
         }
         String transferValue = configAnnot.getValue().getRefField(ANN_CONFIG_ATTR_CHUNKING).getStringValue();
@@ -1304,6 +1330,16 @@ public class HttpUtil {
         } else {
             outboundMessageSource.serialize(messageOutputStream);
         }
+    }
+
+    /**
+     * Check the availability of an annotation.
+     *
+     * @param configAnnotation      Represent the annotation
+     * @return True if the annotation and the annotation value are available
+     */
+    public static boolean checkConfigAnnotationAvailability(Annotation configAnnotation) {
+        return configAnnotation != null && configAnnotation.getValue() != null;
     }
 
     private HttpUtil() {

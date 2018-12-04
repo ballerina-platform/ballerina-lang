@@ -334,8 +334,8 @@ function testToXmlWithinTransaction() returns (string, int) {
     string resultXml = "";
     transaction {
         var dt = testDB->select("SELECT int_type, long_type from DataTable WHERE row_id = 1", ());
-        if (dt is table) {
-            var result = <xml>dt;
+        if (dt is table<record {}>) {
+            var result = xml.create(dt);
             if (result is xml) {
                 resultXml = io:sprintf("%s", result);
                 returnValue = 0;
@@ -361,8 +361,8 @@ function testToJsonWithinTransaction() returns (string, int) {
     string result = "";
     transaction {
         var dt = testDB->select("SELECT int_type, long_type from DataTable WHERE row_id = 1", ());
-        if (dt is table) {
-            var j = <json>dt;
+        if (dt is table<record {}>) {
+            var j = json.create(dt);
             if (j is json) {
                 result = io:sprintf("%s", j);
                 returnValue = 0;
@@ -392,9 +392,9 @@ function testGetPrimitiveTypes() returns (int, int, float, float, boolean, strin
     string s = "";
     var dtRet = testDB->select("SELECT int_type, long_type, float_type, double_type,
               boolean_type, string_type from DataTable WHERE row_id = 1", ResultPrimitive);
-    if (dtRet is table) {
+    if (dtRet is table<ResultPrimitive>) {
         while (dtRet.hasNext()) {
-            var rs = <ResultPrimitive>dtRet.getNext();
+            var rs = dtRet.getNext();
             if (rs is ResultPrimitive) {
                 i = rs.INT_TYPE;
                 l = rs.LONG_TYPE;
@@ -422,9 +422,9 @@ function testGetComplexTypes() returns (byte[], string, byte[]) {
     byte[] binaryData = [];
     var tableOrError = testDB->select("SELECT blob_type,clob_type,binary_type from ComplexTypes where row_id = 1",
     ResultObject);
-    if (tableOrError is table) {
+    if (tableOrError is table<ResultObject>) {
         while (tableOrError.hasNext()) {
-            var rs = <ResultObject>tableOrError.getNext();
+            var rs = tableOrError.getNext();
             if (rs is ResultObject) {
             blobData = rs.BLOB_TYPE;
             clob = rs.CLOB_TYPE;
@@ -453,8 +453,8 @@ function testArrayData() returns (int[], int[], float[], string[],
     float[] float_arr = [];
     string[] string_arr = [];
     boolean[] boolean_arr = [];
-    if (tableOrError is table) {
-        var rs = <ResultMap>tableOrError.getNext();
+    if (tableOrError is table<ResultMap>) {
+        var rs =tableOrError.getNext();
         if (rs is ResultMap) {
             int_arr = rs.INT_ARRAY;
             long_arr = rs.LONG_ARRAY;
@@ -500,9 +500,9 @@ function testArrayDataInsertAndPrint() returns (int, int, int, int, int,
         paraID, paraInt, paraLong, paraFloat, paraString, paraBool);
     var dtRet = testDB->select("SELECT int_array, long_array, float_array, boolean_array, string_array
                                  from ArrayTypes where row_id = 4", ResultMap);
-    if (dtRet is table) {
+    if (dtRet is table<ResultMap>) {
         while (dtRet.hasNext()) {
-            var rs = <ResultMap>dtRet.getNext();
+            var rs =dtRet.getNext();
             if (rs is ResultMap) {
                 io:println(rs.INT_ARRAY);
                 intArrLen = rs.INT_ARRAY.length();
@@ -547,9 +547,9 @@ function testDateTime(int datein, int timein, int timestampin)
 
     var selectRet = testDB->select("SELECT date_type, time_type, timestamp_type, datetime_type
                 from DateTimeTypes where row_id = 1", ResultDates);
-    if (selectRet is table) {
+    if (selectRet is table<ResultDates>) {
         while (selectRet.hasNext()) {
-            var rs = <ResultDates>selectRet.getNext();
+            var rs =selectRet.getNext();
             if (rs is ResultDates) {
                 time = rs.TIME_TYPE;
                 date = rs.DATE_TYPE;
@@ -605,9 +605,9 @@ function testDateTimeAsTimeStruct() returns (int, int, int, int, int,
 
     var selectRet = testDB->select("SELECT date_type, time_type, timestamp_type, datetime_type
                 from DateTimeTypes where row_id = 31", ResultDatesStruct);
-    if (selectRet is table) {
+    if (selectRet is table<ResultDatesStruct>) {
         while (selectRet.hasNext()) {
-            var rs = <ResultDatesStruct>selectRet.getNext();
+            var rs =selectRet.getNext();
             if (rs is ResultDatesStruct) {
                 dateRetrieved = rs.DATE_TYPE.time;
                 timeRetrieved = rs.TIME_TYPE.time;
@@ -649,9 +649,9 @@ returns (int, int, int, int) {
     var selectRet = testDB->select("SELECT date_type, time_type, timestamp_type, datetime_type
                 from DateTimeTypes where row_id = 32", ResultDatesInt);
 
-    if (selectRet is table) {
+    if (selectRet is table<ResultDatesInt>) {
         while (selectRet.hasNext()) {
-            var rs = <ResultDatesInt>selectRet.getNext();
+            var rs = selectRet.getNext();
             if (rs is ResultDatesInt) {
                 time = rs.TIME_TYPE;
                 date = rs.DATE_TYPE;
@@ -674,9 +674,9 @@ function testBlobData() returns (byte[]) {
     });
     byte[] blobData = [];
     var selectRet = testDB->select("SELECT blob_type from ComplexTypes where row_id = 1", ResultBlob);
-    if (selectRet is table) {
+    if (selectRet is table<ResultBlob>) {
         while (selectRet.hasNext()) {
-            var rs = <ResultBlob>selectRet.getNext();
+            var rs = selectRet.getNext();
             if (rs is ResultBlob) {
                 blobData = rs.BLOB_TYPE;
             }
@@ -706,9 +706,9 @@ function testColumnAlias() returns (int, int, float, float, boolean,
     var selectRet = testDB->select("SELECT dt1.int_type, dt1.long_type, dt1.float_type,
            dt1.double_type,dt1.boolean_type, dt1.string_type,dt2.int_type as dt2int_type from DataTable dt1
            left join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1;", ResultSetTestAlias);
-    if (selectRet is table) {
+    if (selectRet is table<ResultSetTestAlias>) {
         while (selectRet.hasNext()) {
-            var rs = <ResultSetTestAlias>selectRet.getNext();
+            var rs = selectRet.getNext();
             if (rs is ResultSetTestAlias) {
                 i = rs.INT_TYPE;
                 l = rs.LONG_TYPE;
@@ -734,9 +734,9 @@ function testBlobInsert() returns (int) {
     });
     var selectRet = testDB->select("SELECT blob_type from ComplexTypes where row_id = 1", ResultBlob);
     byte[] blobData = [];
-    if (selectRet is table) {
+    if (selectRet is table<ResultBlob>) {
         while (selectRet.hasNext()) {
-            var rs = <ResultBlob>selectRet.getNext();
+            var rs = selectRet.getNext();
             if (rs is ResultBlob) {
                 blobData = rs.BLOB_TYPE;
             }
@@ -764,9 +764,9 @@ function testTableAutoClose() returns (int, json) {
     string test = "";
     var selectRet = testDB->select("SELECT int_type from DataTable WHERE row_id = 1", ResultPrimitiveInt);
 
-    if (selectRet is table) {
+    if (selectRet is table<ResultPrimitiveInt>) {
         while (selectRet.hasNext()) {
-            var rs = <ResultPrimitiveInt>selectRet.getNext();
+            var rs = selectRet.getNext();
             if (rs is ResultPrimitiveInt) {
                 i = rs.INT_TYPE;
             }
@@ -794,9 +794,9 @@ function testTableManualClose() returns (int) {
     });
     var selectRet = testDB->select("SELECT int_type from DataTable", ResultPrimitiveInt);
     int i = 0;
-    if (selectRet is table) {
+    if (selectRet is table<ResultPrimitiveInt>) {
         while (selectRet.hasNext()) {
-            var rs = <ResultPrimitiveInt>selectRet.getNext();
+            var rs = selectRet.getNext();
             if (rs is ResultPrimitiveInt) {
                 int ret = rs.INT_TYPE;
                 i = i + 1;
@@ -817,9 +817,9 @@ function testTableManualClose() returns (int) {
     int data = -4;
     var selectRet2 = testDB->select("SELECT int_type from DataTable WHERE row_id = 1", ResultPrimitiveInt);
 
-    if (selectRet2 is table) {
+    if (selectRet2 is table<ResultPrimitiveInt>) {
         while (selectRet2.hasNext()) {
-            var rs2 = <ResultPrimitiveInt>selectRet2.getNext();
+            var rs2 =selectRet2.getNext();
             if (rs2 is ResultPrimitiveInt) {
                 data = rs2.INT_TYPE;
             } else {
@@ -847,9 +847,9 @@ function testCloseConnectionPool(string connectionCountQuery) returns (int) {
 
     var selectRet = testDB->select (connectionCountQuery, ResultCount);
     int retVal;
-    if (selectRet is table) {
+    if (selectRet is table<ResultCount>) {
         while (selectRet.hasNext()) {
-            var rs = <ResultCount>selectRet.getNext();
+            var rs =selectRet.getNext();
             if (rs is ResultCount) {
                 retVal = rs.COUNTVAL;
             } else {
@@ -873,7 +873,7 @@ function testTablePrintAndPrintln() {
     });
     var selectRet = testDB->select("SELECT int_type, long_type, float_type, double_type,
         boolean_type, string_type from DataTable WHERE row_id = 1", ());
-    if (selectRet is table) {
+    if (selectRet is table<record {}>) {
         io:println(selectRet);
         io:print(selectRet);
     } else if (selectRet is error) {
@@ -896,18 +896,12 @@ function testMultipleRows() returns (int, int) {
     ResultPrimitiveInt rs1 = { INT_TYPE: -1 };
     ResultPrimitiveInt rs2 = { INT_TYPE: -1 };
     int i = 0;
-    if (selectRet is table) {
+    if (selectRet is table<ResultPrimitiveInt>) {
         while (selectRet.hasNext()) {
             if (i == 0) {
-                var rs1Ret = <ResultPrimitiveInt>selectRet.getNext();
-                if (rs1Ret is ResultPrimitiveInt) {
-                    rs1 = rs1Ret;
-                }
+                rs1 = <ResultPrimitiveInt>selectRet.getNext();
             } else {
-                var rs2Ret = <ResultPrimitiveInt>selectRet.getNext();
-                if (rs2Ret is ResultPrimitiveInt) {
-                    rs2 = rs2Ret;
-                }
+                rs2 = <ResultPrimitiveInt>selectRet.getNext();
             }
             i = i + 1;
         }
@@ -935,9 +929,9 @@ function testMultipleRowsWithoutLoop() returns (int, int, int, int,
     int i4 = 0;
     string st1;
     string st2;
-    if (selectRet is table) {
+    if (selectRet is table<ResultPrimitiveInt>) {
         while (selectRet.hasNext()) {
-            var rs = <ResultPrimitiveInt>selectRet.getNext();
+            var rs = selectRet.getNext();
             if (rs is ResultPrimitiveInt) {
                 i1 = rs.INT_TYPE;
             }
@@ -947,9 +941,9 @@ function testMultipleRowsWithoutLoop() returns (int, int, int, int,
     //Pick the first row only
     var selectRet2 = testDB->select("SELECT int_type from DataTableRep order by int_type desc", ResultPrimitiveInt);
 
-    if (selectRet2 is table) {
+    if (selectRet2 is table<ResultPrimitiveInt>) {
         if (selectRet2.hasNext()) {
-            var rs = <ResultPrimitiveInt>selectRet2.getNext();
+            var rs = selectRet2.getNext();
             if (rs is ResultPrimitiveInt) {
                 i2 = rs.INT_TYPE;
             }
@@ -960,13 +954,13 @@ function testMultipleRowsWithoutLoop() returns (int, int, int, int,
     //Pick all the rows without checking
     var selectRet3 = testDB->select("SELECT int_type from DataTableRep order by int_type desc", ResultPrimitiveInt);
 
-    if (selectRet3 is table) {
-        var rs1 = <ResultPrimitiveInt>selectRet3.getNext();
+    if (selectRet3 is table<ResultPrimitiveInt>) {
+        var rs1 =selectRet3.getNext();
         if (rs1 is ResultPrimitiveInt) {
             i3 = rs1.INT_TYPE;
         }
 
-        var rs2 = <ResultPrimitiveInt>selectRet3.getNext();
+        var rs2 =selectRet3.getNext();
         if (rs2 is ResultPrimitiveInt) {
             i4 = rs2.INT_TYPE;
         }
@@ -977,13 +971,13 @@ function testMultipleRowsWithoutLoop() returns (int, int, int, int,
     string s1 = "";
     var selectRet4 = testDB->select("SELECT int_type from DataTableRep order by int_type desc", ResultPrimitiveInt);
 
-    if (selectRet4 is table) {
+    if (selectRet4 is table<ResultPrimitiveInt>) {
         if (selectRet4.hasNext()) {
-            var rs = <ResultPrimitiveInt>selectRet4.getNext();
+            var rs = selectRet4.getNext();
             if (rs is ResultPrimitiveInt) {
                 s1 = s1 + rs.INT_TYPE;
             }
-            var rs2 = <ResultPrimitiveInt>selectRet4.getNext();
+            var rs2 =selectRet4.getNext();
             if (rs2 is ResultPrimitiveInt) {
                 s1 = s1 + "_" + rs2.INT_TYPE;
             }
@@ -999,8 +993,8 @@ function testMultipleRowsWithoutLoop() returns (int, int, int, int,
     string s2 = "";
     var selectRet5 = testDB->select("SELECT int_type from DataTableRep order by int_type desc", ResultPrimitiveInt);
 
-    if (selectRet5 is table) {
-        var rs = <ResultPrimitiveInt>selectRet5.getNext();
+    if (selectRet5 is table<ResultPrimitiveInt>) {
+        var rs = selectRet5.getNext();
         if (rs is ResultPrimitiveInt) {
             s2 = s2 + rs.INT_TYPE;
         }
@@ -1015,7 +1009,7 @@ function testMultipleRowsWithoutLoop() returns (int, int, int, int,
             s2 = s2 + "_" + "NO";
         }
         if (selectRet5.hasNext()) {
-            var rs2 = <ResultPrimitiveInt>selectRet5.getNext();
+            var rs2 =selectRet5.getNext();
             if (rs2 is ResultPrimitiveInt) {
                 s2 = s2 + "_" + rs2.INT_TYPE;
             }
@@ -1051,7 +1045,7 @@ function testHasNextWithoutConsume() returns (boolean, boolean, boolean)
     boolean b2 = false;
     boolean b3 = false;
 
-    if (selectRet is table) {
+    if (selectRet is table<ResultPrimitiveInt>) {
         if (selectRet.hasNext()) {
             b1 = true;
         }
@@ -1083,9 +1077,9 @@ function testGetFloatTypes() returns (float, float, float, float) {
     float num = 0;
     float dec = 0;
 
-    if (selectRet is table) {
+    if (selectRet is table<ResultSetFloat>) {
         while (selectRet.hasNext()) {
-            var rs = <ResultSetFloat>selectRet.getNext();
+            var rs = selectRet.getNext();
             if (rs is ResultSetFloat) {
                 f = rs.FLOAT_TYPE;
                 d = rs.DOUBLE_TYPE;
@@ -1148,23 +1142,23 @@ function testSignedIntMaxMinValues() returns (int, int, int, string,
 
     var dtRet = testDB->select(selectSQL, ());
 
-    if (dtRet is table) {
+    if (dtRet is table<record {}>) {
         json j = getJsonConversionResult(dtRet);
         jsonStr = io:sprintf("%s", j);
     }
 
     var dtRet2 = testDB->select(selectSQL, ());
 
-    if (dtRet2 is table) {
+    if (dtRet2 is table<record {}>) {
         xml x = getXMLConversionResult(dtRet2);
         xmlStr = io:sprintf("%s", x);
     }
     var dtRet3 = testDB->select(selectSQL, ResultSignedInt);
 
-    if (dtRet3 is table) {
+    if (dtRet3 is table<ResultSignedInt>) {
         str = "";
         while (dtRet3.hasNext()) {
-            var result = <ResultSignedInt>dtRet3.getNext();
+            var result = dtRet3.getNext();
             if (result is ResultSignedInt) {
                 var tinyIntData = result.TINYINTDATA;
                 var smallIntData = result.SMALLINTDATA;
@@ -1233,9 +1227,9 @@ function testComplexTypeInsertAndRetrieval() returns (int, int, string,
     byte[][] expected = [];
     int i = 0;
 
-    if (selectRet3 is table) {
+    if (selectRet3 is table<ResultComplexTypes>) {
         while (selectRet3.hasNext()) {
-            var result = <ResultComplexTypes>selectRet3.getNext();
+            var result = selectRet3.getNext();
             if (result is ResultComplexTypes) {
                 string blobType;
                 expected[i] = result.BLOB_TYPE ?: [];
@@ -1289,9 +1283,9 @@ function testStructFieldNotMatchingColumnName() returns (int, int, int,
     int i2 = -1;
     int i3 = -1;
     int i4 = -1;
-    if (selectRet is table) {
+    if (selectRet is table<ResultCount>) {
         while (selectRet.hasNext()) {
-            var rs = <ResultCount> selectRet.getNext();
+            var rs = selectRet.getNext();
             if (rs is ResultCount) {
                 countAll = rs.COUNTVAL;
             }
@@ -1301,9 +1295,9 @@ function testStructFieldNotMatchingColumnName() returns (int, int, int,
     var selectRet2 = testDB->select("SELECT dt1.row_id, dt1.int_type, dt2.row_id, dt2.int_type from DataTable dt1 left
             join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1", ResultTest);
 
-    if (selectRet2 is table) {
+    if (selectRet2 is table<ResultTest>) {
         while (selectRet2.hasNext()) {
-            var rs = <ResultTest>selectRet2.getNext();
+            var rs = selectRet2.getNext();
             if (rs is ResultTest) {
                 i1 = rs.t1Row;
                 i2 = rs.t1Int;
@@ -1336,7 +1330,7 @@ function testGetPrimitiveTypesWithForEach() returns (int, int, float,
     boolean b = false;
     string s = "";
     if (selectRet is table<ResultPrimitive>) {
-        foreach x in selectRet {
+        foreach var x in selectRet {
             i = x.INT_TYPE;
             l = x.LONG_TYPE;
             f = x.FLOAT_TYPE;
@@ -1364,7 +1358,7 @@ function testMultipleRowsWithForEach() returns (int, int) {
     ResultPrimitiveInt rs2 = { INT_TYPE: -1 };
     if (selectRet is table<ResultPrimitiveInt>) {
         int i =0;
-        foreach x in selectRet {
+        foreach var x in selectRet {
             if (i ==0) {
                 rs1 = x;
             } else {
@@ -1388,7 +1382,7 @@ function testTableAddInvalid() returns string {
     var selectRet = testDB->select("SELECT int_type from DataTableRep", ResultPrimitiveInt);
     string s = "";
     ResultPrimitiveInt row = { INT_TYPE: 443 };
-    if (selectRet is table) {
+    if (selectRet is table<ResultPrimitiveInt>) {
         var ret = trap selectRet.add(row);
         if (ret is error) {
             s = <string>ret.detail().message;
@@ -1411,7 +1405,7 @@ function testTableRemoveInvalid() returns string {
     var selectRet = testDB->select("SELECT int_type from DataTableRep", ResultPrimitiveInt);
     string s = "";
     ResultPrimitiveInt row = { INT_TYPE: 443 };
-    if (selectRet is table) {
+    if (selectRet is table<ResultPrimitiveInt>) {
         var ret = trap selectRet.remove(isDelete);
         if (ret is int) {
             s = <string> ret;
@@ -1433,7 +1427,7 @@ function tableGetNextInvalid() returns string {
     });
     var selectRet = testDB->select("SELECT * from DataTable WHERE row_id = 1", ());
     string retVal = "";
-    if (selectRet is table) {
+    if (selectRet is table<record {}>) {
         selectRet.close();
         var ret = trap selectRet.getNext();
         if (ret is error) {
@@ -1465,7 +1459,7 @@ function testToJsonAndAccessFromMiddle() returns (json, int) {
     return (result, result.length());
 }
 
-function testToJsonAndIterate() returns (json, int) {
+function testToJsonAndIterate() returns (json, int)|error {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -1478,7 +1472,7 @@ function testToJsonAndIterate() returns (json, int) {
     json result = getJsonConversionResult(selectRet);
     json j = [];
     int i = 0;
-    foreach row in result {
+    foreach var row in check json[].create(result) {
         j[i] = row;
         i += 1;
     }
@@ -1525,10 +1519,10 @@ function testToJsonAndLengthof() returns (int, int) {
     return (beforeLen, afterLen);
 }
 
-function getJsonConversionResult(table|error tableOrError) returns json {
+function getJsonConversionResult(table<record {}>|error tableOrError) returns json {
     json retVal = {};
-    if (tableOrError is table) {
-        var jsonConversionResult = <json>tableOrError;
+    if (tableOrError is table<record {}>) {
+        var jsonConversionResult = json.create(tableOrError);
         if (jsonConversionResult is json) {
             // Converting to string to make sure the json is built before returning.
             _ = jsonConversionResult.toString();
@@ -1542,10 +1536,10 @@ function getJsonConversionResult(table|error tableOrError) returns json {
     return retVal;
 }
 
-function getXMLConversionResult(table|error tableOrError) returns xml {
+function getXMLConversionResult(table<record {}>|error tableOrError) returns xml {
     xml retVal = xml `<Error/>`;
-    if (tableOrError is table) {
-        var xmlConversionResult = <xml>tableOrError;
+    if (tableOrError is table<record {}>) {
+        var xmlConversionResult = xml.create(tableOrError);
         if (xmlConversionResult is xml) {
             // Converting to string to make sure the xml is built before returning.
             _ = io:sprintf("%s", xmlConversionResult);

@@ -252,3 +252,34 @@ function testRecordVarWithUnionType() returns (int, float, (UnionOne|UnionTwo)) 
     UnionThree {var1, var2, var3, ...rest} = u3;
     return (var1, var2, var3);
 }
+
+type UnionRec1 record {
+    string var1;
+    string var2;
+    string var3?;
+    int...
+};
+
+type UnionRec2 record {
+    boolean var1;
+    boolean var2;
+    boolean var3;
+    float...
+};
+
+function testUnionRecordVariable() returns (string|boolean, string|boolean, string|boolean?, int|float?) {
+    UnionRec1 rec = {var1: "A", var2: "B"};
+    UnionRec1|UnionRec2 {var1, var2, var3, var4} = rec;
+
+    return (var1, var2, var3, var4);
+}
+
+function testMapRecordVar() returns (anydata, anydata, anydata, string?, string?, string?) {
+    map<anydata> m = {var1: "A", var2: true};
+    map<string> m2 = {var10: "B", var11: "C"};
+
+    var {var1, var2, var3} = m;
+    var {var10, var11, var12} = m2;
+
+    return (var1, var2, var3, var10, var11, var12);
+}

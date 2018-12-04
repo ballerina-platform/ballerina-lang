@@ -32,9 +32,9 @@ type Teacher record {
 StatusCount[] globalStatusCountArray = [];
 int index = 0;
 
-stream<StatusCount> filteredStatusCountStream1;
-stream<Teacher> preProcessedStatusCountStream;
-stream<Teacher> teacherStream3;
+stream<StatusCount> filteredStatusCountStream1 = new;
+stream<Teacher> preProcessedStatusCountStream = new;
+stream<Teacher> teacherStream3 = new;
 
 function testPipelineQuery() {
 
@@ -42,7 +42,7 @@ function testPipelineQuery() {
         from teacherStream3 where age > 18
         select *
         => (Teacher[] emp) {
-            foreach e in emp {
+            foreach var e in emp {
                 preProcessedStatusCountStream.publish(e);
             }
         }
@@ -54,7 +54,7 @@ function testPipelineQuery() {
         group by status
         having totalCount > 1
         => (StatusCount[] emp) {
-            foreach e in emp {
+            foreach var e in emp {
                 filteredStatusCountStream1.publish(e);
             }
         }

@@ -17,12 +17,13 @@
  */
 package org.ballerinalang.bre;
 
+import org.ballerinalang.bre.bvm.BVMScheduler;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.bre.vm.BVMScheduler;
-import org.ballerinalang.bre.vm.StackFrame;
-import org.ballerinalang.bre.vm.Strand;
+import org.ballerinalang.bre.bvm.StackFrame;
+import org.ballerinalang.bre.bvm.Strand;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BError;
+import org.ballerinalang.util.observability.ObserveUtils;
 import org.ballerinalang.util.program.BLangVMUtils;
 
 /**
@@ -51,6 +52,8 @@ public class BLangCallableUnitCallback implements CallableUnitCallback {
     @Override
     public void notifySuccess() {
         if (strand.fp > 0) {
+            // Stop the observation context before popping the stack frame
+            ObserveUtils.stopCallableObservation(strand);
             strand.popFrame();
             StackFrame sf = strand.currentFrame;
             BLangVMUtils.populateWorkerDataWithValues(sf, this.retReg,
@@ -59,13 +62,13 @@ public class BLangCallableUnitCallback implements CallableUnitCallback {
             return;
         }
         strand.respCallback.signal();
-//        //TODO fix - rajith
-//        BLangScheduler.handleInterruptibleAfterCallback(this.parentCtx);
     }
 
     @Override
     public void notifyFailure(BError error) {
         if (strand.fp > 0) {
+            // Stop the observation context before popping the stack frame
+            ObserveUtils.stopCallableObservation(strand);
             strand.popFrame();
             StackFrame sf = strand.currentFrame;
             strand.setError(error);
@@ -74,8 +77,6 @@ public class BLangCallableUnitCallback implements CallableUnitCallback {
         }
         strand.respCallback.setError(error);
         strand.respCallback.signal();
-        //TODO fix - rajith
-//        BLangScheduler.handleInterruptibleAfterCallback(this.parentCtx);
     }
 
 }

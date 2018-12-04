@@ -33,7 +33,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -45,6 +44,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -61,6 +61,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.ServiceLoader;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 /**
  * Invoke {@link CompilerPlugin} plugins.
@@ -77,14 +78,15 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     private PackageCache packageCache;
     private SymbolResolver symResolver;
     private Names names;
+    private final Types types;
     private BLangDiagnosticLog dlog;
 
     private DiagnosticPos defaultPos;
     private CompilerContext context;
     private List<CompilerPlugin> pluginList;
     private Map<DefinitionID, List<CompilerPlugin>> processorMap;
-    private Map<DefinitionID, List<CompilerPlugin>> resourceTypeProcessorMap;
-    private Map<DefinitionID, BType> serviceListenerMap;
+    private Map<CompilerPlugin, List<DefinitionID>> resourceTypeProcessorMap;
+    private Map<CompilerPlugin, BType> serviceListenerMap;
     private boolean pluginLoaded = false;
 
 
@@ -104,6 +106,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         this.packageCache = PackageCache.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.names = Names.getInstance(context);
+        this.types = Types.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.context = context;
 
@@ -188,9 +191,6 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     }
 
     public void visit(BLangXMLNS xmlnsNode) {
-    }
-
-    public void visit(BLangEndpoint endpointNode) {
     }
 
     public void visit(BLangForever foreverStatement) {
@@ -302,47 +302,76 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
             return;
         }
         // Set Listener type.
-        Name listenerName = names.fromString(resParamTypes.expectedListenerType().name());
-        BPackageSymbol symbol = this.packageCache.getSymbol(resParamTypes.expectedListenerType().packageName());
         BType listenerType = null;
-        if (symbol != null) {
-            SymbolEnv pkgEnv = symTable.pkgEnvMap.get(symbol);
-            final BSymbol listenerSymbol = symResolver
-                    .lookupSymbolInPackage(defaultPos, pkgEnv, symbol.pkgID.name, listenerName, SymTag.OBJECT);
-            if (listenerSymbol != symTable.notFoundSymbol) {
-                listenerType = listenerSymbol.type;
+        if (!resParamTypes.expectedListenerType().name().isEmpty() && !resParamTypes.expectedListenerType()
+                .packageName().isEmpty()) {
+            Name listenerName = names.fromString(resParamTypes.expectedListenerType().name());
+            String packageQName =
+                    resParamTypes.expectedListenerType().orgName() + "/" + resParamTypes.expectedListenerType()
+                            .packageName();
+            BPackageSymbol symbol = this.packageCache.getSymbol(packageQName);
+            if (symbol != null) {
+                SymbolEnv pkgEnv = symTable.pkgEnvMap.get(symbol);
+                final BSymbol listenerSymbol = symResolver.lookupSymbol(pkgEnv, listenerName, SymTag.OBJECT);
+                if (listenerSymbol != symTable.notFoundSymbol) {
+                    listenerType = listenerSymbol.type;
+                }
             }
         }
 
-        DefinitionID[] definitions = Arrays.stream(supportedTypes)
-                .map(type -> new DefinitionID(type.packageName(), type.name()))
-                .toArray(DefinitionID[]::new);
-        for (DefinitionID definitionID : definitions) {
-            List<CompilerPlugin> processorList = resourceTypeProcessorMap
-                    .computeIfAbsent(definitionID, k -> new ArrayList<>());
-            processorList.add(plugin);
-            if (listenerType != null) {
-                serviceListenerMap.put(definitionID, listenerType);
-            }
-        }
+        List<DefinitionID> definitions = Arrays.stream(supportedTypes)
+                .map(type -> new DefinitionID(type.packageName(), type.name())).collect(Collectors.toList());
+        resourceTypeProcessorMap.put(plugin, definitions);
+        serviceListenerMap.put(plugin, listenerType);
     }
 
     private void notifyServiceTypeProcessors(BLangService serviceNode, List<BLangAnnotationAttachment> attachments,
             BiConsumer<CompilerPlugin, List<AnnotationAttachmentNode>> notifier) {
-        for (DefinitionID def : resourceTypeProcessorMap.keySet()) {
-            for (FunctionNode function : serviceNode.getResources()) {
-                final BLangFunction resourceNode = (BLangFunction) function;
-                if (resourceNode.symbol.params.stream().map(varSym -> varSym.type.tsymbol)
-                        .map(tsym -> new DefinitionID(tsym.pkgID.name.value, tsym.name.value))
-                        .anyMatch(definitionID -> definitionID.equals(def))) {
-                    final List<CompilerPlugin> compilerPlugins = resourceTypeProcessorMap.get(def);
-                    compilerPlugins.forEach(proc -> notifier.accept(proc, Collections.unmodifiableList(attachments)));
-                    // Hacking till we figure out service type.
-                    if (serviceNode.listerType == null) {
-                        serviceNode.listerType = serviceListenerMap.get(def);
+
+        for (CompilerPlugin plugin : resourceTypeProcessorMap.keySet()) {
+            boolean isCurrentPluginProcessed = false;
+            BType listenerType;
+            if ((listenerType = serviceListenerMap.get(plugin)) != null) {
+                for (BLangExpression expr : serviceNode.getAttachedExprs()) {
+                    if (!types.isSameType(expr.type, listenerType)) {
+                        continue;
                     }
+                    isCurrentPluginProcessed = true;
+                    invokeServiceProcessor(serviceNode, attachments, notifier, plugin);
+                    break;
                 }
             }
+            if (isCurrentPluginProcessed) {
+                continue;
+            }
+            // Now look for resource parameters.
+            for (DefinitionID definitionID : resourceTypeProcessorMap.get(plugin)) {
+                for (FunctionNode function : serviceNode.getResources()) {
+                    final BLangFunction resourceNode = (BLangFunction) function;
+                    if (resourceNode.symbol.params.stream().filter(varSym -> varSym.type.tsymbol != null)
+                            .map(varSym -> varSym.type.tsymbol).noneMatch(
+                                    tsym -> definitionID.name.equals(tsym.name.value) && definitionID.pkgName
+                                            .equals(tsym.pkgID.name.value))) {
+                        continue;
+                    }
+                    isCurrentPluginProcessed = true;
+                    invokeServiceProcessor(serviceNode, attachments, notifier, plugin);
+                    break;
+                }
+                // We have to invoke the plugin one time per service, if only there is one matching service.
+                if (isCurrentPluginProcessed) {
+                    break;
+                }
+            }
+        }
+    }
+
+    private void invokeServiceProcessor(BLangService serviceNode, List<BLangAnnotationAttachment> attachments,
+            BiConsumer<CompilerPlugin, List<AnnotationAttachmentNode>> notifier, CompilerPlugin plugin) {
+        notifier.accept(plugin, Collections.unmodifiableList(attachments));
+        // Hacking till we figure out service type.
+        if (serviceNode.listenerType == null) {
+            serviceNode.listenerType = serviceListenerMap.get(plugin);
         }
     }
 
@@ -359,6 +388,10 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         DefinitionID(String pkgName, String name) {
             this.pkgName = pkgName;
             this.name = name;
+        }
+
+        public String getName() {
+            return name;
         }
 
         @Override

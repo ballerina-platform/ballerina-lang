@@ -20,7 +20,9 @@
 #
 # + url - The URL of the remote HTTP endpoint
 # + config - HTTP ClientEndpointConfig to be used for HTTP client invocation
-# + httpClient - HTTP client for outbound HTTP requests
+# + httpCaller - HTTP client for outbound HTTP requests
+# + httpClient - Chain of different HTTP clients which provides the capability for initiating contact with a remote
+#                HTTP service in resilient manner.
 public type HttpClient client object {
 
     public string url;

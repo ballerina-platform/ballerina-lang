@@ -184,6 +184,18 @@ public class ClosedRecordTest {
         Assert.assertEquals(returns[0].stringValue(), "Doe, John");
     }
 
+    @Test(description = "Test nil-able function pointer invocation")
+    public void testNilableFuncPtrInvocation() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testNilableFuncPtrInvocation");
+        Assert.assertEquals(returns[0].stringValue(), "Bob White");
+    }
+
+    @Test(description = "Test nil-able function pointer invocation")
+    public void testNilableFuncPtrInvocation2() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testNilableFuncPtrInvocation2");
+        Assert.assertNull(returns[0]);
+    }
+
     @Test
     public void testAmbiguityResolution() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAmbiguityResolution");
@@ -212,11 +224,7 @@ public class ClosedRecordTest {
     public void testNilableFunctionPtrInvocation() {
         CompileResult result = BCompileUtil.compile("test-src/record/negative/closed_record_nil-able_fn_ptr.bal");
 
-        BAssertUtil.validateError(result, 0,
-                                  "invalid function pointer invocation on non-invokable field 'getName' in record " +
-                                          "'Person'", 29, 16);
-        BAssertUtil.validateError(result, 1,
-                                  "invalid function pointer invocation on non-invokable field 'getName' in record " +
-                                          "'Person'", 34, 16);
+        BAssertUtil.validateError(result, 0, "incompatible types: expected 'string', found 'string?'", 29, 16);
+        BAssertUtil.validateError(result, 1, "incompatible types: expected 'string', found 'string?'", 34, 16);
     }
 }

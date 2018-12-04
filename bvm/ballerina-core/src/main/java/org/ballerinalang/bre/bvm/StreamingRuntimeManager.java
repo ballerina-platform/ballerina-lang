@@ -18,7 +18,6 @@
 
 package org.ballerinalang.bre.bvm;
 
-import org.ballerinalang.bre.vm.BVMExecutor;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BStructureType;
@@ -29,9 +28,9 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.siddhi.core.SiddhiAppRuntime;
 import org.ballerinalang.siddhi.core.SiddhiManager;
 import org.ballerinalang.siddhi.core.event.Event;
@@ -96,7 +95,7 @@ public class StreamingRuntimeManager {
         siddhiAppRuntime.addCallback(streamId, new StreamCallback() {
             @Override
             public void receive(Event[] events) {
-                BRefValueArray outputArray = new BRefValueArray(new BMapType(structType));
+                BValueArray outputArray = new BValueArray(new BMapType(structType));
                 int j = 0;
                 for (Event event : events) {
                     // Here it is assumed that an event data will contain all the fields

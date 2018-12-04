@@ -53,16 +53,4 @@ public class BallerinaMatchPatternClauseImpl extends BallerinaCompositeElementIm
     return PsiTreeUtil.getChildOfType(this, BallerinaExpressionPattern.class);
   }
 
-  @Override
-  @Nullable
-  public BallerinaNamedPattern getNamedPattern() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaNamedPattern.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaUnnamedPattern getUnnamedPattern() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaUnnamedPattern.class);
-  }
-
 }

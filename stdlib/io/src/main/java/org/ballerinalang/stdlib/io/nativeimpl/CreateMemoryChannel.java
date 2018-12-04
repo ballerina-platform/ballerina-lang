@@ -20,7 +20,7 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BByteArray;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.io.channels.AbstractNativeChannel;
@@ -57,7 +57,7 @@ public class CreateMemoryChannel extends AbstractNativeChannel {
      * @param array byte array with elements initialized.
      * @return byte array which is shrunk.
      */
-    private byte[] shrink(BByteArray array) {
+    private byte[] shrink(BValueArray array) {
         int contentLength = (int) array.size();
         byte[] content = new byte[contentLength];
         System.arraycopy(array.getBytes(), 0, content, 0, contentLength);
@@ -70,7 +70,7 @@ public class CreateMemoryChannel extends AbstractNativeChannel {
     @Override
     public Channel inFlow(Context context) throws BallerinaException {
         try {
-            byte[] content = shrink(((BByteArray) context.getRefArgument(MESSAGE_CONTENT_INDEX)));
+            byte[] content = shrink(((BValueArray) context.getRefArgument(MESSAGE_CONTENT_INDEX)));
             ByteArrayInputStream contentStream = new ByteArrayInputStream(content);
             ReadableByteChannel readableByteChannel = Channels.newChannel(contentStream);
             return new BlobIOChannel(new BlobChannel(readableByteChannel));

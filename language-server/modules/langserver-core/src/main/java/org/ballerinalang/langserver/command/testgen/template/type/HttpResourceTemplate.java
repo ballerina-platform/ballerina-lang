@@ -43,7 +43,7 @@ public class HttpResourceTemplate extends AbstractTestTemplate {
     private final String serviceUriStrName;
 
     public HttpResourceTemplate(String serviceUriStrName, String basePath, BLangFunction resource) {
-        super(null);
+        super(null, null);
         this.serviceUriStrName = serviceUriStrName;
         this.resourceMethods = new ArrayList<>();
         String resourceName = resource.name.value;
@@ -64,6 +64,9 @@ public class HttpResourceTemplate extends AbstractTestTemplate {
             // Or else, add default resource method
             resourceMethods.add(new String[]{resourceName, "get"});
         }
+
+        // Remove path variables
+        tempResourcePath = tempResourcePath.replaceAll("[{}]", "");
         this.resourcePath = tempResourcePath;
     }
 

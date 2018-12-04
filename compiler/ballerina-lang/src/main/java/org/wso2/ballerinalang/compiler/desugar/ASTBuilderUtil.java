@@ -232,16 +232,12 @@ public class ASTBuilderUtil {
 
     static BLangForeach createForeach(DiagnosticPos pos,
                                       BLangBlockStmt target,
-                                      BLangSimpleVarRef collectionVarRef,
-                                      List<BLangSimpleVarRef> varRefs,
-                                      List<BType> inputTypes) {
+                                      BLangSimpleVarRef collectionVarRef) {
         final BLangForeach foreach = (BLangForeach) TreeBuilder.createForeachNode();
         foreach.pos = pos;
         target.addStatement(foreach);
         foreach.body = ASTBuilderUtil.createBlockStmt(pos);
         foreach.collection = collectionVarRef;
-        foreach.varRefs.addAll(varRefs);
-        foreach.varTypes = inputTypes;
         return foreach;
     }
 
@@ -263,6 +259,10 @@ public class ASTBuilderUtil {
         assignment.pos = pos;
         target.addStatement(assignment);
         return assignment;
+    }
+
+    static BLangAssignment createAssignmentStmt(DiagnosticPos pos, BLangExpression varRef, BLangExpression rhsExpr) {
+        return createAssignmentStmt(pos, varRef, rhsExpr, false);
     }
 
     static BLangAssignment createAssignmentStmt(DiagnosticPos pos, BLangExpression varRef,
@@ -418,7 +418,7 @@ public class ASTBuilderUtil {
         return argsExpr;
     }
 
-    static BLangInvocation createInvocationExpr(DiagnosticPos pos, BInvokableSymbol invokableSymbol,
+    public static BLangInvocation createInvocationExpr(DiagnosticPos pos, BInvokableSymbol invokableSymbol,
                                                 List<BLangSimpleVariable> requiredArgs, SymbolResolver symResolver) {
         return createInvocationExpr(pos, invokableSymbol, requiredArgs, new ArrayList<>(), new ArrayList<>(),
                 symResolver);
@@ -470,7 +470,7 @@ public class ASTBuilderUtil {
         return varRefs;
     }
 
-    static BLangSimpleVarRef createVariableRef(DiagnosticPos pos, BVarSymbol varSymbol) {
+    static BLangSimpleVarRef createVariableRef(DiagnosticPos pos, BSymbol varSymbol) {
         final BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
         varRef.pos = pos;
         varRef.variableName = createIdentifier(pos, varSymbol.name.value);
@@ -598,7 +598,7 @@ public class ASTBuilderUtil {
     }
 
     static BLangTypeInit createEmptyTypeInit(DiagnosticPos pos, BType type) {
-        BLangTypeInit objectInitNode = (BLangTypeInit) TreeBuilder.createObjectInitNode();
+        BLangTypeInit objectInitNode = (BLangTypeInit) TreeBuilder.createInitNode();
         objectInitNode.pos = pos;
         objectInitNode.type = type;
 
@@ -614,7 +614,7 @@ public class ASTBuilderUtil {
         invocationNode.name = nameNode;
         invocationNode.pkgAlias = pkgNameNode;
 
-        objectInitNode.objectInitInvocation = invocationNode;
+        objectInitNode.initInvocation = invocationNode;
         return objectInitNode;
     }
 

@@ -20,11 +20,12 @@ package org.ballerinalang.test.types.bytetype;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -173,7 +174,7 @@ public class BByteValueTest {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(result, "testByteArray", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BByteArray.class);
+        Assert.assertSame(returns[0].getClass(), BValueArray.class);
     }
 
     @Test(description = "Test byte array assignment")
@@ -183,7 +184,7 @@ public class BByteValueTest {
         byte input3 = 89;
         byte input4 = 23;
 
-        BByteArray bByteArrayIn = new BByteArray();
+        BValueArray bByteArrayIn = new BValueArray(BTypes.typeByte);
         bByteArrayIn.add(0, input1);
         bByteArrayIn.add(1, input2);
         bByteArrayIn.add(2, input3);
@@ -192,13 +193,13 @@ public class BByteValueTest {
 
         BValue[] returns = BRunUtil.invoke(result, "testByteArrayAssignment", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BByteArray.class);
-        BByteArray bByteArrayOut = (BByteArray) returns[0];
+        Assert.assertSame(returns[0].getClass(), BValueArray.class);
+        BValueArray bByteArrayOut = (BValueArray) returns[0];
 
-        Assert.assertEquals(bByteArrayOut.get(0), input1);
-        Assert.assertEquals(bByteArrayOut.get(1), input2);
-        Assert.assertEquals(bByteArrayOut.get(2), input3);
-        Assert.assertEquals(bByteArrayOut.get(3), input4);
+        Assert.assertEquals(bByteArrayOut.getByte(0), input1);
+        Assert.assertEquals(bByteArrayOut.getByte(1), input2);
+        Assert.assertEquals(bByteArrayOut.getByte(2), input3);
+        Assert.assertEquals(bByteArrayOut.getByte(3), input4);
     }
 
 

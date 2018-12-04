@@ -491,6 +491,8 @@ public class CompiledPackageSymbolEnter {
         if (!type.sealed) {
             String restFieldTypeDesc = getUTF8CPEntryValue(dataInStream);
             type.restFieldType = getBTypeFromDescriptor(restFieldTypeDesc);
+        } else {
+            type.restFieldType = symTable.noType;
         }
 
         // Define Object Fields
@@ -561,7 +563,7 @@ public class CompiledPackageSymbolEnter {
             case TypeDescriptor.SIG_FLOAT:
                 valueCPIndex = dataInStream.readInt();
                 FloatCPEntry floatCPEntry = (FloatCPEntry) this.env.constantPool[valueCPIndex];
-                litExpr.value = floatCPEntry.getValue();
+                litExpr.value = Double.toString(floatCPEntry.getValue());
                 litExpr.typeTag = TypeTags.FLOAT;
                 break;
             case TypeDescriptor.SIG_DECIMAL:
@@ -617,8 +619,6 @@ public class CompiledPackageSymbolEnter {
     }
 
     private void defineService(DataInputStream dataInStream) throws IOException {
-        dataInStream.readInt();
-        dataInStream.readInt();
         dataInStream.readInt();
         dataInStream.readInt();
         dataInStream.readInt();

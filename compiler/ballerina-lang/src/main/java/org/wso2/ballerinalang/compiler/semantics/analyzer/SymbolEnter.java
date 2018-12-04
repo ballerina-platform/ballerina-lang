@@ -543,7 +543,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 names.fromIdNode(serviceNode.name), env.enclPkg.symbol.pkgID, serviceNode.type, env.scope.owner);
         serviceSymbol.markdownDocumentation = getMarkdownDocAttachment(serviceNode.markdownDocumentationAttachment);
 
-        BType serviceObjectType = symResolver.resolveTypeNode(serviceNode.serviceUDT, env);
+        BType serviceObjectType = serviceNode.serviceTypeDefinition.symbol.type;
         serviceNode.symbol = serviceSymbol;
         serviceNode.symbol.type = new BServiceType(serviceObjectType.tsymbol);
         defineSymbol(serviceNode.name.pos, serviceSymbol);
@@ -855,8 +855,11 @@ public class SymbolEnter extends BLangNodeVisitor {
             Iterator<BLangLambdaFunction> lambdaFunctions = env.enclPkg.lambdaFunctions.iterator();
             while (lambdaFunctions.hasNext()) {
                 BLangLambdaFunction lambdaFunction = lambdaFunctions.next();
-                //last lambda needs to be skipped to avoid self reference
-                if (lambdaFunctions.hasNext()) {
+                // let's inject future symbol to all the lambdas
+                // last lambda needs to be skipped to avoid self reference
+                // lambda's form others functions also need to be skiped
+                if (lambdaFunctions.hasNext() &&
+                    varSymbol.owner == lambdaFunction.cachedEnv.enclInvokable.symbol) {
                     lambdaFunction.cachedEnv.scope.define(varSymbol.name, varSymbol);
                 }
             }
@@ -1263,15 +1266,19 @@ public class SymbolEnter extends BLangNodeVisitor {
         return varSymbol;
     }
 
-    private BVarSymbol createVarSymbol(Set<Flag> flagSet, BType varType, Name varName, SymbolEnv env) {
+    public BVarSymbol createVarSymbol(Set<Flag> flagSet, BType varType, Name varName, SymbolEnv env) {
+        return createVarSymbol(Flags.asMask(flagSet), varType, varName, env);
+    }
+
+    public BVarSymbol createVarSymbol(int flags, BType varType, Name varName, SymbolEnv env) {
+        BType safeType = types.getSafeType(varType, false);
         BVarSymbol varSymbol;
-        if (varType.tag == TypeTags.INVOKABLE) {
-            varSymbol = new BInvokableSymbol(SymTag.VARIABLE, Flags.asMask(flagSet), varName,
-                    env.enclPkg.symbol.pkgID, varType, env.scope.owner);
+        if (safeType.tag == TypeTags.INVOKABLE) {
+            varSymbol = new BInvokableSymbol(SymTag.VARIABLE, flags, varName, env.enclPkg.symbol.pkgID, varType,
+                                             env.scope.owner);
             varSymbol.kind = SymbolKind.FUNCTION;
         } else {
-            varSymbol = new BVarSymbol(Flags.asMask(flagSet), varName,
-                    env.enclPkg.symbol.pkgID, varType, env.scope.owner);
+            varSymbol = new BVarSymbol(flags, varName, env.enclPkg.symbol.pkgID, varType, env.scope.owner);
             if (varType.tsymbol != null && Symbols.isFlagOn(varType.tsymbol.flags, Flags.CLIENT)) {
                 varSymbol.tag = SymTag.ENDPOINT;
             }

@@ -44,7 +44,7 @@ function tracePath (string path) {
 
 function testBreakWithForeach (string command) returns (string) {
     output = "start";
-    foreach i in 0 ... 5 {
+    foreach var i in 0 ... 5 {
         tracePath("foreach" + i);
         if (i == 3 && command == "break") {
             tracePath("break");

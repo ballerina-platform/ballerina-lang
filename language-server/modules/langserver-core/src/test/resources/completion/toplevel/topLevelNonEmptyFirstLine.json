@@ -34,7 +34,7 @@
       "kind":"Snippet",
       "detail":"Snippet",
       "sortText":"190",
-      "insertText":"service\u003c${1:http:Service}\u003e ${2:serviceName} bind { port: 9090 } {\n\t${3:newResource} (endpoint ${4:caller}, http:Request ${5:request}) {\n\t}\n}",
+      "insertText":"service ${1:serviceName} on new http:Listener(8080) {\n\tresource function ${2:newResource}(http:Caller ${3:caller}, http:Request ${5:request}) {\n\t}\n}",
       "insertTextFormat":"Snippet"
     },
     {
@@ -63,7 +63,7 @@
     },
     {
       "label":"xmlns",
-      "kind":"Unit",
+      "kind":"Snippet",
       "detail":"Snippet",
       "sortText":"190",
       "insertText":"xmlns \"${1}\" as ${2:ns};",
@@ -86,14 +86,6 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"endpoint",
-      "kind":"Snippet",
-      "detail":"Snippet",
-      "sortText":"190",
-      "insertText":"endpoint ${1:http:Listener} ${2:listener} {\n\t${3}\n};",
-      "insertTextFormat":"Snippet"
-    },
-    {
       "label":"type",
       "kind":"Keyword",
       "detail":"Keyword",
@@ -110,6 +102,22 @@
       "insertTextFormat":"Snippet"
     },
     {
+      "label":"const",
+      "kind":"Keyword",
+      "detail":"Keyword",
+      "sortText":"210",
+      "insertText":"const ",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"extern",
+      "kind":"Keyword",
+      "detail":"Keyword",
+      "sortText":"210",
+      "insertText":"extern ",
+      "insertTextFormat":"Snippet"
+    },
+    {
       "label":"error",
       "kind":"Snippet",
       "detail":"Snippet",
@@ -119,129 +127,151 @@
     },
     {
       "label":"channel",
-      "kind":"Reference",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"channel"
     },
     {
       "label":"xml",
-      "kind":"Reference",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"xml"
     },
     {
       "label":"TableConfig",
-      "kind":"Reference",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"TableConfig represents properties used during table initialization.\n",
       "sortText":"170",
       "insertText":"TableConfig"
     },
     {
       "label":"byte",
-      "kind":"Reference",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"byte"
     },
     {
       "label":"stream",
-      "kind":"Reference",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"stream"
     },
     {
+      "label":"AbstractListener",
+      "kind":"Class",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"AbstractListener"
+    },
+    {
       "label":"map",
-      "kind":"Reference",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"map"
     },
     {
       "label":"table",
-      "kind":"Reference",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"table"
     },
     {
+      "label":"anydata",
+      "kind":"Keyword",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"anydata"
+    },
+    {
       "label":"future",
-      "kind":"Reference",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"future"
     },
     {
       "label":"typedesc",
-      "kind":"Reference",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"typedesc"
     },
     {
       "label":"float",
-      "kind":"Reference",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"float"
     },
     {
       "label":"null",
-      "kind":"Reference",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"null"
     },
     {
+      "label":"decimal",
+      "kind":"Keyword",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"decimal"
+    },
+    {
       "label":"string",
-      "kind":"Reference",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"string"
     },
     {
       "label":"error",
-      "kind":"Reference",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"error"
     },
     {
       "label":"json",
-      "kind":"Reference",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"json"
     },
     {
       "label":"any",
-      "kind":"Reference",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"any"
     },
     {
       "label":"int",
-      "kind":"Reference",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"int"
     },
     {
-      "label":"docData",
-      "kind":"Reference",
-      "detail":"BType",
-      "sortText":"170",
-      "insertText":"docData"
-    },
-    {
       "label":"boolean",
-      "kind":"Reference",
+      "kind":"Keyword",
       "detail":"BType",
       "sortText":"170",
       "insertText":"boolean"
+    },
+    {
+      "label":"service",
+      "kind":"Keyword",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"service"
     }
   ]
 }

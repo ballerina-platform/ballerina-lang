@@ -7,7 +7,7 @@ import ballerina/http;
     subProtocols: ["xml", "json"],
     idleTimeoutInSeconds: 120
 }
-service basic on new http:WebSocketServer(9090) {
+service basic on new http:WebSocketListener(9090) {
 
     string ping = "ping";
     byte[] pingData = ping.toByteArray("UTF-8");

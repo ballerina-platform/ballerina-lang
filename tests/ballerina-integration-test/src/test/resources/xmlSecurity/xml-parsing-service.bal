@@ -4,12 +4,12 @@ import ballerina/log;
 @http:ServiceConfig {
     basePath: "/xmlparser"
 }
-service<http:Service> xmlParserService bind { port: 9090 } {
+service xmlParserService on new http:Listener(9090) {
 
     @http:ResourceConfig {
         path: "/"
     }
-    parse(endpoint caller, http:Request request) {
+    resource function parse(http:Caller caller, http:Request request) {
         var payload = request.getXmlPayload();
         if (payload is xml) {
             var responseToCaller = caller->respond(untaint payload.getTextValue());

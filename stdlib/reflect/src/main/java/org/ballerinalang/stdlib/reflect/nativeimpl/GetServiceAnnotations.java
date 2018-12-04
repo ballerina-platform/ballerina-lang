@@ -35,6 +35,7 @@ public class GetServiceAnnotations extends AbstractAnnotationReader {
     @Override
     public void execute(Context context) {
         BType serviceType = context.getRefArgument(0).getType();
-        context.setReturnValues(getAnnotationValue(context, serviceType.getPackagePath(), serviceType.getName()));
+        String serviceVarName = serviceType.getName().split("\\$\\$")[0];
+        context.setReturnValues(getAnnotationValue(context, serviceType.getPackagePath(), serviceVarName));
     }
 }

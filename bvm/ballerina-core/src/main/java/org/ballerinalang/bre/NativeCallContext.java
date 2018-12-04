@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.bre;
 
-import org.ballerinalang.bre.bvm.WorkerData;
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.bre.vm.StackFrame;
-import org.ballerinalang.bre.vm.Strand;
+import org.ballerinalang.bre.bvm.StackFrame;
+import org.ballerinalang.bre.bvm.Strand;
+import org.ballerinalang.bre.old.WorkerData;
+import org.ballerinalang.bre.old.WorkerExecutionContext;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.exceptions.ArgumentOutOfRangeException;
@@ -31,7 +31,7 @@ import org.ballerinalang.util.debugger.DebugContext;
 import org.ballerinalang.util.exceptions.BLangNullReferenceException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangVMUtils;
-import org.ballerinalang.util.transactions.LocalTransactionInfo;
+import org.ballerinalang.util.transactions.TransactionLocalContext;
 
 import java.util.Map;
 
@@ -118,8 +118,7 @@ public class NativeCallContext implements Context {
 
     @Override
     public boolean isInTransaction() {
-//        return this.parentCtx.isInTransaction();//TODO fix - rajith
-        return false;
+        return this.strand.isInTransaction();
     }
 
     @Override
@@ -227,9 +226,8 @@ public class NativeCallContext implements Context {
         return this.returnValue;
     }
 
-    public LocalTransactionInfo getLocalTransactionInfo() {
-//        return this.parentCtx.getLocalTransactionInfo();//TODO fix - rajith
-        return null;
+    public TransactionLocalContext getLocalTransactionInfo() {
+        return this.strand.getLocalTransactionContext();
     }
 
 }

@@ -18,12 +18,7 @@ public type {{cut info.title " "}}ClientEp object {
     public {{cut info.title " "}}ClientConfig config;
 
     public function init({{cut info.title " "}}ClientConfig config) {
-        endpoint http:Client httpEp {
-            url: config.serviceUrl;
-            auth: config.clientConfig.auth;
-            cache: config.clientConfig.cache
-        };
-
+        http:Client httpEp = new(config.serviceUrl, config = {auth: config.clientConfig.auth, cache: config.clientConfig.cache});
         self.client = httpEp;
         self.config = config;
     }
@@ -42,7 +37,7 @@ public type {{cut info.title " "}}Client object {
     new (clientEp) {}
 {{#paths}}{{#value}}{{#operations}}{{#value}}{{#equals key "multi"}}{{#if methods}}{{#methods}}
     public function {{lower .}}{{operationId}}({{#parameters}}{{>pathParams}}{{/parameters}}) returns http:Response | error {
-        endpoint http:Client ep = self.clientEp.client;
+        http:Client ep = self.clientEp.client;
         http:Request request = new;
 
         // TODO: Update the request as needed
@@ -50,7 +45,7 @@ public type {{cut info.title " "}}Client object {
     }
     {{/methods}}{{else}}{{#allMethods}}
     public function {{lower .}}{{operationId}}({{#parameters}}{{>pathParams}}{{/parameters}}) returns http:Response | error {
-        endpoint http:Client ep = self.clientEp.client;
+        http:Client ep = self.clientEp.client;
         http:Request request = new;
 
         // TODO: Update the request as needed
@@ -58,7 +53,7 @@ public type {{cut info.title " "}}Client object {
     }
     {{/allMethods}}{{/if}}{{else}}
     public function {{operationId}}({{#requestBody}}{{>reqBody}}{{/requestBody}}{{#parameters}}{{>pathParams}}{{/parameters}}) returns http:Response | error {
-        endpoint http:Client _{{operationId}}Ep = self.clientEp.client;
+        http:Client _{{operationId}}Ep = self.clientEp.client;
         http:Request request = new;{{#requestBody}}{{#equals requestBody.selectedMedia.mediaType "application/json"}}
         json _{{operationId}}JsonBody = check <json> _{{operationId}}Body;
         request.setPayload(_{{operationId}}JsonBody);{{else}}

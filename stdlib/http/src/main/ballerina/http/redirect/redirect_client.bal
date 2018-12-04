@@ -360,9 +360,9 @@ function getRedirectMethod(HttpOperation httpVerb, Response response) returns Ht
 function createRedirectRequest(int statusCode, Request request) returns Request {
     Request redirectRequest = new;
     string[] headerNames = untaint request.getHeaderNames();
-    foreach headerName in headerNames {
+    foreach var headerName in headerNames {
         string[] headerValues = request.getHeaders(headerName);
-        foreach (headerValue in headerValues) {
+        foreach var headerValue in headerValues {
             redirectRequest.addHeader(headerName, headerValue);
         }
     }

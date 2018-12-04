@@ -25,6 +25,7 @@ import org.testng.annotations.Test;
 
 /**
  * Test class for Symbolic String Literal negative tests.
+ *
  * @since 0.982.1
  */
 public class SymbolicStringNegativeTest {
@@ -35,16 +36,17 @@ public class SymbolicStringNegativeTest {
         Assert.assertEquals(resultNegative.getErrorCount(), 17);
         BAssertUtil.validateError(resultNegative, 0, "extraneous input 'World'", 23, 26);
         BAssertUtil.validateError(resultNegative, 1, "token recognition error at: '$'", 24, 25);
-        BAssertUtil.validateError(resultNegative, 2, "mismatched input '0'. expecting {'but', 'is', ';', " +
-                "'?', '+', '-', '*', '/', '%', '==', '!=', '>', '<', '>=', '<=', '&&', '||', '===', '!==', '&', '^', " +
-                "'...', '|', '?:', '..<'}", 25, 23);
+        BAssertUtil.validateError(resultNegative, 2,
+                "mismatched input '0'. expecting {'is', ';', '?', '+', '-', '*', '/', '%', '==', '!=', '>', '<',"
+                        + " '>=', '<=', '&&', '||', '===', '!==', '&', '^', '...', '|', '?:', '->>', '..<'}",
+                25, 23);
         BAssertUtil.validateError(resultNegative, 3, "token recognition error at: '\\'", 26, 25);
         BAssertUtil.validateError(resultNegative, 4, "extraneous input 'nWorld'", 26, 26);
         BAssertUtil.validateError(resultNegative, 5, "token recognition error at: '\\'", 27, 25);
         BAssertUtil.validateError(resultNegative, 6, "extraneous input 'uFFFEWorld'", 27, 26);
         BAssertUtil.validateError(resultNegative, 7, "extraneous input '\uDB80\uDC07'", 28, 25);
         BAssertUtil.validateError(resultNegative, 8, "extraneous input '\uDBBF\uDFFD'", 29, 25);
-        BAssertUtil.validateError(resultNegative, 9, "extraneous input 'Lavinia'", 32, 34);
+        BAssertUtil.validateError(resultNegative, 9, "extraneous input 'Lavinia'", 32, 39);
         BAssertUtil.validateError(resultNegative, 10, "invalid token 'sl'", 33, 22);
         BAssertUtil.validateError(resultNegative, 11, "extraneous input 'Page'", 35, 33);
         BAssertUtil.validateError(resultNegative, 12, "token recognition error at: '$'", 36, 21);

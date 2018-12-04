@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.model.values;
 
-import org.ballerinalang.bre.vm.BVM;
+import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
@@ -149,12 +149,12 @@ public abstract class BNewArray implements BRefType, BCollection {
         }
 
         @Override
-        public BValue[] getNext(int arity) {
+        public BValue getNext() {
             long cursor = this.cursor++;
-            if (arity == 1) {
-                return new BValue[] {array.getBValue(cursor)};
+            if (cursor == length) {
+                return null;
             }
-            return new BValue[] {new BInteger(cursor), array.getBValue(cursor)};
+            return array.getBValue(cursor);
         }
 
         @Override

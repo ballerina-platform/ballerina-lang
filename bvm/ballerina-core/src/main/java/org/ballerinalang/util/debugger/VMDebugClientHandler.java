@@ -21,7 +21,7 @@ package org.ballerinalang.util.debugger;
 
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
-import org.ballerinalang.bre.vm.Strand;
+import org.ballerinalang.bre.bvm.Strand;
 import org.ballerinalang.util.debugger.dto.MessageDTO;
 import org.ballerinalang.util.debugger.util.DebugMsgUtil;
 

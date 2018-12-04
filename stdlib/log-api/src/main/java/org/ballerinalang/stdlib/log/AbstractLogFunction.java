@@ -19,14 +19,14 @@
 package org.ballerinalang.stdlib.log;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.bre.vm.BVMExecutor;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.logging.util.BLogLevel;
 import org.ballerinalang.model.values.BClosure;
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.observability.ObservabilityUtils;
+import org.ballerinalang.util.observability.ObserveUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,7 +86,7 @@ public abstract class AbstractLogFunction extends BlockingNativeCallableUnit {
         if (logEnabled) {
             consumer.accept(pkg, logMessage.get());
         }
-        ObservabilityUtils.logMessageToActiveSpan(ctx, logLevel.name(), logMessage, logLevel == BLogLevel.ERROR);
+        ObserveUtils.logMessageToActiveSpan(ctx, logLevel.name(), logMessage, logLevel == BLogLevel.ERROR);
         ctx.setReturnValues();
     }
 

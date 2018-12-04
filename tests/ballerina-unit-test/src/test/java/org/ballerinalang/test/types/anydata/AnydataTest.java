@@ -28,8 +28,8 @@ import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BXML;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -189,12 +189,12 @@ public class AnydataTest {
                 "Lost World</book>], \"hello world!\")");
 
         // Verifying nested tuple
-        BRefValueArray tuple = (BRefValueArray) returns[3];
+        BValueArray tuple = (BValueArray) returns[3];
         assertEquals(tuple.getType().getTag(), TypeTags.TUPLE_TAG);
         assertEquals(tuple.stringValue(), "(([{\"name\":\"apple\", \"color\":\"red\", \"price\":40}, <book>The Lost " +
                 "World</book>], \"hello world!\"), 123, 23.45)");
 
-        BRefValueArray nestedTuple = (BRefValueArray) tuple.get(0);
+        BValueArray nestedTuple = (BValueArray) tuple.getRefValue(0);
         assertEquals(nestedTuple.getType().getTag(), TypeTags.TUPLE_TAG);
         assertEquals(nestedTuple.stringValue(), "([{\"name\":\"apple\", \"color\":\"red\", \"price\":40}, <book>The " +
                 "Lost World</book>], \"hello world!\")");
@@ -220,16 +220,16 @@ public class AnydataTest {
     public void testAnydataArray() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testAnydataArray", new BValue[]{});
         assertTrue(((BArrayType) returns[0].getType()).getElementType().getTag() == TypeTags.ANYDATA_TAG);
-        BRefValueArray adArr = (BRefValueArray) returns[0];
+        BValueArray adArr = (BValueArray) returns[0];
 
-        assertEquals(((BInteger) adArr.get(0)).intValue(), 1234);
-        assertEquals(((BFloat) adArr.get(1)).floatValue(), 23.45);
-        assertTrue(((BBoolean) adArr.get(2)).booleanValue());
-        assertEquals(adArr.get(3).stringValue(), "Hello World!");
-        assertEquals(((BByte) adArr.get(4)).byteValue(), 10);
-        assertEquals(adArr.get(5).stringValue(), "{a:15}");
-        assertEquals(adArr.get(6).stringValue(), "{\"name\":\"apple\", \"color\":\"red\", \"price\":40}");
-        assertEquals(adArr.get(7).stringValue(), "<book>The Lost World</book>");
+        assertEquals(((BInteger) adArr.getRefValue(0)).intValue(), 1234);
+        assertEquals(((BFloat) adArr.getRefValue(1)).floatValue(), 23.45);
+        assertTrue(((BBoolean) adArr.getRefValue(2)).booleanValue());
+        assertEquals(adArr.getRefValue(3).stringValue(), "Hello World!");
+        assertEquals(((BByte) adArr.getRefValue(4)).byteValue(), 10);
+        assertEquals(adArr.getRefValue(5).stringValue(), "{a:15}");
+        assertEquals(adArr.getRefValue(6).stringValue(), "{\"name\":\"apple\", \"color\":\"red\", \"price\":40}");
+        assertEquals(adArr.getRefValue(7).stringValue(), "<book>The Lost World</book>");
     }
 
     @Test(description = "Test anydata to value type conversion")
@@ -329,8 +329,8 @@ public class AnydataTest {
         BValue[] returns = BRunUtil.invokeFunction(result, "testAnydataToTuple3");
         assertEquals(returns[0].getType().getTag(), TypeTags.TUPLE_TAG);
         assertEquals(returns[0].getType().toString(),
-                     "((int|float|string|boolean|byte|table|json|xml|ClosedFoo|Foo|map<anydata>|anydata[][]|null," +
-                             "string),int,float)");
+                     "((int|float|string|boolean|byte|table<any>|json|xml|ClosedFoo|Foo|map<anydata>|anydata" +
+                             "[][]|null,string),int,float)");
         assertEquals(returns[0].stringValue(), "(([{\"name\":\"apple\", \"color\":\"red\", \"price\":40}, <book>The " +
                 "Lost World</book>], \"hello world!\"), 123, 23.45)");
     }
@@ -358,14 +358,14 @@ public class AnydataTest {
         assertEquals(returns[0].getType().getTag(), TypeTags.ARRAY_TAG);
         assertEquals(((BArrayType) returns[0].getType()).getElementType().getTag(), TypeTags.ANYDATA_TAG);
 
-        BRefValueArray rets = (BRefValueArray) returns[0];
-        assertEquals(((BInteger) rets.get(0)).intValue(), 10);
-        assertEquals(((BFloat) rets.get(1)).floatValue(), 23.45);
-        assertTrue(((BBoolean) rets.get(2)).booleanValue());
-        assertEquals(rets.get(3).stringValue(), "hello world!");
-        assertEquals(rets.get(4).stringValue(), "{\"name\":\"apple\", \"color\":\"red\", \"price\":40}");
-        assertEquals(rets.get(5).stringValue(), "<book>The Lost World</book>");
-        assertEquals(rets.get(6).stringValue(), "{a:15}");
-        assertEquals(rets.get(7).stringValue(), "{ca:15}");
+        BValueArray rets = (BValueArray) returns[0];
+        assertEquals(((BInteger) rets.getRefValue(0)).intValue(), 10);
+        assertEquals(((BFloat) rets.getRefValue(1)).floatValue(), 23.45);
+        assertTrue(((BBoolean) rets.getRefValue(2)).booleanValue());
+        assertEquals(rets.getRefValue(3).stringValue(), "hello world!");
+        assertEquals(rets.getRefValue(4).stringValue(), "{\"name\":\"apple\", \"color\":\"red\", \"price\":40}");
+        assertEquals(rets.getRefValue(5).stringValue(), "<book>The Lost World</book>");
+        assertEquals(rets.getRefValue(6).stringValue(), "{a:15}");
+        assertEquals(rets.getRefValue(7).stringValue(), "{ca:15}");
     }
 }

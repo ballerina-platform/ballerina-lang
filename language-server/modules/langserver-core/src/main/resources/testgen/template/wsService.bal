@@ -1,13 +1,16 @@
 @test:Config
 function ${testServiceFunctionName} () {
-    endpoint http:WebSocketClient wsEndpoint { url: ${serviceUriStrName}, callbackService: ${callbackServiceName} };
+    http:WebSocketClient ${endpointName} = new(
+        ${serviceUriStrName},
+        config = {callbackService: ${callbackServiceName}, readyOnConnect: false}
+    );
     //Send a message
-    _ = wsEndpoint->pushText("hey");
+    _ = ${endpointName}->pushText("hey");
 }
 
-service<http:WebSocketClientService> ${callbackServiceName} {
-    onText(endpoint caller, string text, boolean final) {
+service ${callbackServiceName} = @http:WebSocketServiceConfig {} service {
+    resource function onText(http:WebSocketClient ${callbackServiceName}Ep, string text) {
         //Test received message
         test:assertEquals(text, "hey", msg = "Received message should be equal to the expected message");
     }
-}
+};

@@ -30,7 +30,7 @@ service echo on echoEP {
         methods:["GET"],
         path:"/message_worker"
     }
-    resource function echo_worker(http:Caller caller, http:Request req) {
+    resource function message_worker(http:Caller caller, http:Request req) {
         worker w1 {
             http:Response res = new;
             _ = caller->respond(res);
@@ -50,7 +50,7 @@ service echo on echoEP {
         string payloadData = "";
         var payload = req.getTextPayload();
         if (payload is error) {
-            done;
+            return;
         } else if (payload is string) {
             payloadData = payload;
         }
@@ -127,7 +127,7 @@ service echo on echoEP {
             res.setJsonPayload(untaint responseJson);
         } else if (params is error) {
             string errMsg = <string> params.detail().message;
-            res.setTextPayload(errMsg);
+            res.setPayload(untaint errMsg);
         }
         _ = caller->respond(res);
     }
@@ -145,4 +145,13 @@ service echo on echoEP {
 
 function getConstPath() returns(string) {
     return "/constantPath";
+}
+
+@http:ServiceConfig
+service hello on echoEP {
+
+    @http:ResourceConfig
+    resource function echo(http:Caller caller, http:Request req) {
+        _ = caller->respond("Uninitialized configs");
+    }
 }

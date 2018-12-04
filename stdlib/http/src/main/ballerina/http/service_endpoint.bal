@@ -60,6 +60,7 @@ public type Listener object {
     # Gets invoked when attaching a service to the endpoint.
     #
     # + s - The service that needs to be attached
+    # + return - An `error` if there is any error occured during the service attachment process or else nil
     extern function register(service s, map<any> annotationData) returns error?;
 
     # Starts the registered service.
@@ -291,7 +292,7 @@ function createAuthFiltersForSecureListener(ServiceEndpointConfiguration config,
         return authFilters;
     }
 
-    foreach provider in authProviderList {
+    foreach var provider in authProviderList {
         if (provider.id.length() > 0) {
             registry.add(provider.id, createAuthHandler(provider, instanceId));
         } else {
@@ -310,7 +311,7 @@ function createAuthFiltersForSecureListener(ServiceEndpointConfiguration config,
     evictionFactor = config.negativeAuthzCache.evictionFactor);
     auth:AuthStoreProvider authStoreProvider = new;
 
-    foreach provider in authProviderList {
+    foreach var provider in authProviderList {
         if (provider.scheme == AUTHN_SCHEME_BASIC) {
             if (provider.authStoreProvider == AUTH_PROVIDER_LDAP) {
                 var authStoreProviderConfig = provider.authStoreProviderConfig;
@@ -418,6 +419,7 @@ function getInferredJwtAuthProviderConfig(AuthProvider authProvider) returns aut
 /// WebSocket Service Endpoint ///
 //////////////////////////////////
 # Represents a WebSocket service endpoint.
+// public type WebSocketListener Listener;
 public type WebSocketListener object {
 
     *AbstractListener;
@@ -439,7 +441,8 @@ public type WebSocketListener object {
 
     # Gets invoked during module initialization to initialize the endpoint.
     #
-    # + c - The `ServiceEndpointConfiguration` of the endpoint
+    # + port - The port of the endpoint
+    # + config - The `ServiceEndpointConfiguration` of the endpoint
     public function __init(int port, ServiceEndpointConfiguration? config = ()) {
         self.httpEndpoint = new(port, config = config);
     }

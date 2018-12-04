@@ -17,28 +17,29 @@
 import ballerina/http;
 import ballerina/testobserve;
 
-endpoint http:Listener listener0 {
-    port : 9090
-};
-
 @http:ServiceConfig {
     basePath:"/echoService"
 }
-service echoService0 bind listener0 {
-    resourceOne (endpoint caller, http:Request clientRequest) {
+service echoService0 on new http:Listener(9090) {
+    resource function resourceOne (http:Caller caller, http:Request clientRequest) {
         http:Response outResponse = new;
-        var response = check callNextResource0();
-        outResponse.setTextPayload("Hello, World!");
-        _ = caller -> respond(outResponse);
+        var response = callNextResource0();
+        if (response is http:Response) {
+            outResponse.setTextPayload("Hello, World!");
+            _ = caller -> respond(outResponse);
+        } else {
+            error err = error ("error occurred");
+            panic err;
+        }
     }
 
-    resourceTwo (endpoint caller, http:Request clientRequest) {
+    resource function resourceTwo (http:Caller caller, http:Request clientRequest) {
         http:Response res = new;
         res.setTextPayload("Hello, World 2!");
         _ = caller -> respond(res);
     }
 
-    getMockTracers(endpoint caller, http:Request clientRequest) {
+    resource function getMockTracers(http:Caller caller, http:Request clientRequest) {
         http:Response res = new;
         json returnString = testobserve:getMockTracers();
         res.setJsonPayload(returnString);
@@ -47,9 +48,7 @@ service echoService0 bind listener0 {
 }
 
 function callNextResource0() returns (http:Response | error) {
-    endpoint http:Client httpEndpoint {
-        url: "http://localhost:9090/echoService"
-    };
+    http:Client httpEndpoint = new("http://localhost:9090/echoService", config = {});
     http:Response resp = check httpEndpoint -> get("/resourceTwo");
     return resp;
 }

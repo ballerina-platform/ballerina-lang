@@ -32,8 +32,8 @@ type TeacherOutput record {
 };
 
 int index = 0;
-stream<Teacher> inputStream;
-stream<TeacherOutput> outputStream;
+stream<Teacher> inputStream = new;
+stream<TeacherOutput> outputStream = new;
 
 TeacherOutput[] globalTeacherOutputArray = [];
 
@@ -56,8 +56,8 @@ function startAggregationWithGroupByQuery() returns TeacherOutput[] {
 
     foo();
 
-    outputStream.subscribe(printTeachers);
-    foreach t in teachers {
+    outputStream.subscribe(function(TeacherOutput e) {printTeachers(e);});
+    foreach var t in teachers {
         inputStream.publish(t);
     }
     int count = 0;
@@ -83,11 +83,11 @@ function startAggregationWithGroupByQuery() returns TeacherOutput[] {
 
 function foo() {
     forever {
-        from inputStream where inputStream.age > 25 window lengthWindow([5]) as input
+        from inputStream where inputStream.age > 25 window lengthWindow(5) as input
         select input.name, input.age, sum (input.age) as sumAge, count() as count
         group by input.name
         => (TeacherOutput[] teachers) {
-            foreach t in teachers {
+            foreach var t in teachers {
                 outputStream.publish(t);
             }
         }

@@ -42,7 +42,9 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -57,6 +59,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -76,6 +79,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
@@ -92,7 +96,6 @@ import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 import javax.annotation.Nonnull;
 
 /**
@@ -158,11 +161,13 @@ public class TreeVisitor extends LSNodeVisitor {
             acceptNode(bLangImportPackage, pkgEnv);
         });
 
-        topLevelNodes.forEach(topLevelNode -> {
-            cursorPositionResolver = TopLevelNodeScopeResolver.class;
-            this.blockOwnerStack.push(evalPkg);
-            acceptNode((BLangNode) topLevelNode, pkgEnv);
-        });
+        topLevelNodes.stream()
+                .filter(CommonUtil.checkInvalidTypesDefs())
+                .forEach(topLevelNode -> {
+                    cursorPositionResolver = TopLevelNodeScopeResolver.class;
+                    this.blockOwnerStack.push(evalPkg);
+                    acceptNode((BLangNode) topLevelNode, pkgEnv);
+                });
 
         // If the cursor is at an empty document's first line or is bellow the last construct, symbol env node is null
         if (this.lsContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY) == null) {
@@ -186,6 +191,11 @@ public class TreeVisitor extends LSNodeVisitor {
     }
 
     @Override
+    public void visit(BLangLambdaFunction lambdaFunction) {
+        this.acceptNode(lambdaFunction.function, symbolEnv);
+    }
+
+    @Override
     public void visit(BLangFunction funcNode) {
         String functionName = funcNode.getName().getValue();
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, this.symbolEnv);
@@ -202,16 +212,7 @@ public class TreeVisitor extends LSNodeVisitor {
             return;
         }
 
-        funcNode.endpoints.forEach(bLangEndpoint -> this.acceptNode(bLangEndpoint, funcEnv));
-
-        if (!funcNode.getWorkers().isEmpty()) {
-            funcNode.workers.forEach(e -> {
-                this.blockOwnerStack.push(funcNode);
-                this.cursorPositionResolver = FunctionNodeScopeResolver.class;
-                this.acceptNode(e, funcEnv);
-                this.blockOwnerStack.pop();
-            });
-        } else if (funcNode.getBody() != null) {
+        if (funcNode.getBody() != null) {
             this.blockOwnerStack.push(funcNode);
             this.cursorPositionResolver = BlockStatementScopeResolver.class;
             this.acceptNode(funcNode.body, funcEnv);
@@ -314,8 +315,13 @@ public class TreeVisitor extends LSNodeVisitor {
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, symbolEnv);
         // Reset the previous node to null
         this.setPreviousNode(null);
+        
+        List<BLangStatement> statements = blockNode.stmts.stream()
+                .filter(bLangStatement -> !CommonUtil.isWorkerDereivative(bLangStatement))
+                .collect(Collectors.toList());
+        statements.sort(new CommonUtil.BLangNodeComparator());
 
-        if (blockNode.stmts.isEmpty() && CompletionVisitorUtil
+        if (statements.isEmpty() && CompletionVisitorUtil
                 .isCursorWithinBlock((DiagnosticPos) (this.blockOwnerStack.peek()).getPosition(), blockEnv,
                         this.lsContext, this)) {
             return;
@@ -329,8 +335,9 @@ public class TreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVariableDef varDefNode) {
+        boolean isFuture = varDefNode.getVariable().expr.type instanceof BFutureType;
         CursorPositionResolver cpr = CursorPositionResolvers.getResolverByClass(cursorPositionResolver);
-        if (cpr.isCursorBeforeNode(varDefNode.getPosition(), this, this.lsContext, varDefNode,
+        if (isFuture || cpr.isCursorBeforeNode(varDefNode.getPosition(), this, this.lsContext, varDefNode,
                 varDefNode.getVariable().symbol)) {
             return;
         }
@@ -517,29 +524,6 @@ public class TreeVisitor extends LSNodeVisitor {
     public void visit(BLangForkJoin forkJoin) {
         SymbolEnv folkJoinEnv = SymbolEnv.createFolkJoinEnv(forkJoin, this.symbolEnv);
         forkJoin.workers.forEach(e -> this.acceptNode(e, folkJoinEnv));
-
-        // todo need to remove this block
-//        /* create code block and environment for join result section, i.e. (map results) */
-//        BLangSimpleVariableDef variableDef = CompletionVisitorUtil.createVarDef(forkJoin.joinResultVar);
-//        BLangBlockStmt joinResultsBlock = CompletionVisitorUtil.generateCodeBlock(variableDef);
-//        SymbolEnv joinResultsEnv = SymbolEnv.createBlockEnv(joinResultsBlock, this.symbolEnv);
-//        this.acceptNode(joinResultsBlock, joinResultsEnv);
-//        /* create an environment for the join body, making the enclosing environment the earlier
-//         * join result's environment */
-//        SymbolEnv joinBodyEnv = SymbolEnv.createBlockEnv(forkJoin.joinedBody, joinResultsEnv);
-//        this.acceptNode(forkJoin.joinedBody, joinBodyEnv);
-//
-//        if (forkJoin.timeoutExpression != null) {
-//            /* create code black and environment for timeout section */
-//            variableDef = CompletionVisitorUtil.createVarDef(forkJoin.timeoutVariable);
-//            BLangBlockStmt timeoutVarBlock = CompletionVisitorUtil.generateCodeBlock(variableDef);
-//            SymbolEnv timeoutVarEnv = SymbolEnv.createBlockEnv(timeoutVarBlock, this.symbolEnv);
-//            this.acceptNode(timeoutVarBlock, timeoutVarEnv);
-//            /* create an environment for the timeout body, making the enclosing environment the earlier
-//             * timeout var's environment */
-//            SymbolEnv timeoutBodyEnv = SymbolEnv.createBlockEnv(forkJoin.timeoutBody, timeoutVarEnv);
-//            this.acceptNode(forkJoin.timeoutBody, timeoutBodyEnv);
-//        }
     }
 
     @Override
@@ -759,10 +743,12 @@ public class TreeVisitor extends LSNodeVisitor {
     }
 
     public void setNextNode(BSymbol symbol) {
+        int flags;
         if (symbol == null) {
             return;
         }
-        lsContext.put(CompletionKeys.NEXT_NODE_KEY, symbol.flags);
+        flags = (symbol instanceof BServiceSymbol) ? symbol.type.tsymbol.flags : symbol.flags;
+        lsContext.put(CompletionKeys.NEXT_NODE_KEY, flags);
     }
 
     /**

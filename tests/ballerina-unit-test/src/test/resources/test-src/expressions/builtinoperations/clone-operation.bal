@@ -125,7 +125,7 @@ public function cloneMap() returns (map<any>, map<any>, map<any>) {
     return (a, x, y);
 }
 
-public function cloneTable() returns (table, table, table) {
+public function cloneTable() returns (table<Employee>, table<Employee>, table<Employee>) {
 
     Employee e1 = { id: 1, name: "Jane", salary: 300.50 };
     Employee e2 = { id: 2, name: "Anne", salary: 100.50 };
@@ -135,8 +135,8 @@ public function cloneTable() returns (table, table, table) {
         { key id, name, salary },
         [e1, e2]
     };
-    table x = a.clone();
-    table y = a.clone();
+    table<Employee> x = a.clone();
+    table<Employee> y = a.clone();
     _ = a.add(e3);
     _ = y.add(e3);
     return (a, x, y);
@@ -355,7 +355,7 @@ public function cloneFrozenAnydata() returns (any, any) {
     return (p, q);
 }
 
-public function cloneNonAnydata() returns (any, any) {
+public function cloneNonAnydata() returns (any, any|error) {
     Employee p = {id: 100, name: "Alex", salary: 300.5};
     (Employee, any) x = (p, Employee);
     ((Employee, any) | error) q = x.clone();

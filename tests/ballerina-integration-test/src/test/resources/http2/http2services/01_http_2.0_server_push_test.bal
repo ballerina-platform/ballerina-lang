@@ -26,7 +26,7 @@ service frontendHttpService on frontendEP {
             io:println("Error occurred while submitting a request");
             json errMsg = { "error": "error occurred while submitting a request" };
             _ = caller->respond(errMsg);
-            done;
+            return;
         }
 
         // Check whether promises exists
@@ -43,7 +43,7 @@ service frontendHttpService on frontendEP {
                 io:println("Error occurred while fetching a push promise");
                 json errMsg = { "error": "error occurred while fetching a push promise" };
                 _ = caller->respond(errMsg);
-                done;
+                return;
             }
 
             io:println("Received a promise for " + pushPromise.path);
@@ -56,7 +56,7 @@ service frontendHttpService on frontendEP {
         if (promiseCount != 3) {
             json errMsg = { "error": "expected number of promises not received" };
             _ = caller->respond(errMsg);
-            done;
+            return;
         }
         io:println("Number of promises received : " + promiseCount);
 
@@ -69,7 +69,7 @@ service frontendHttpService on frontendEP {
             io:println("Error occurred while fetching response");
             json errMsg = { "error": "error occurred while fetching response" };
             _ = caller->respond(errMsg);
-            done;
+            return;
         }
 
         var responsePayload = response.getJsonPayload();
@@ -79,19 +79,19 @@ service frontendHttpService on frontendEP {
         } else if (responsePayload is error) {
             json errMsg = { "error": "expected response message not received" };
             _ = caller->respond(errMsg);
-            done;
+            return;
         }
         // Check whether correct response received
         string responseStringPayload = responseJsonPayload.toString();
         if (!(responseStringPayload.contains("main"))) {
             json errMsg = { "error": "expected response message not received" };
             _ = caller->respond(errMsg);
-            done;
+            return;
         }
         io:println("Response : " + responseStringPayload);
 
         // Fetch required promised responses
-        foreach promise in promises {
+        foreach var promise in promises {
             http:Response promisedResponse = new;
             var promisedResponseResult = backendClientEP->getPromisedResponse(promise);
             if (promisedResponseResult is http:Response) {
@@ -100,7 +100,7 @@ service frontendHttpService on frontendEP {
                 io:println("Error occurred while fetching promised response");
                 json errMsg = { "error": "error occurred while fetching promised response" };
                 _ = caller->respond(errMsg);
-                done;
+                return;
             }
 
             json promisedJsonPayload = {};
@@ -110,7 +110,7 @@ service frontendHttpService on frontendEP {
             } else if (promisedPayload is error) {
                 json errMsg = { "error": "expected promised response not received" };
                 _ = caller->respond(errMsg);
-                done;
+                return;
             }
 
             // check whether expected
@@ -119,7 +119,7 @@ service frontendHttpService on frontendEP {
             if (!(promisedStringPayload.contains(expectedVal))) {
                 json errMsg = { "error": "expected promised response not received" };
                 _ = caller->respond(errMsg);
-                done;
+                return;
             }
             io:println("Promised resource : " + promisedStringPayload);
         }

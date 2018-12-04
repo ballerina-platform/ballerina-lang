@@ -42,11 +42,12 @@ function testPrintInWorkers() {
 
     worker w2 {
         string hello = "";
-        hello <- w1;
+        hello = <- w1;
         io:println(hello);
         io:println(sampleFunction1());
         io:println("Ballerina");
     }
+    wait w2;
 }
 
 function testNoReturnFuncInvocnInNilReturnFuncRetStmt() {

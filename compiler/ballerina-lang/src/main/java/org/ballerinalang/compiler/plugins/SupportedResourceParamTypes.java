@@ -41,7 +41,8 @@ public @interface SupportedResourceParamTypes {
      */
     Type[] paramTypes();
 
-    Type expectedListenerType();
+    Type expectedListenerType() default @Type(name = "",
+                                              packageName = "");
 
     /**
      * Represents endpoint type.
@@ -63,5 +64,12 @@ public @interface SupportedResourceParamTypes {
          * @return name of the package
          */
         String packageName();
+
+        /**
+         * Name of the organization.
+         *
+         * @return name of the organization
+         */
+        String orgName() default "ballerina";
     }
 }

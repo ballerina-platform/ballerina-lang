@@ -83,6 +83,10 @@
                 "url": "match-expression"
             },
             {
+                "name": "Type Guard",
+                "url": "type-guard"
+            },
+            {
                 "name": "Elvis",
                 "url": "elvis-operator"
             }
@@ -186,12 +190,16 @@
                 "url": "any-type"
             },
             {
+                "name": "Any Data Type",
+                "url": "any-data-type"
+            },
+            {
                 "name": "Type Conversion",
                 "url": "type-conversion"
             },
             {
-                "name": "Lengthof",
-                "url": "lengthof"
+                "name": "Length",
+                "url": "length"
             },
             {
                 "name": "Integer Ranges",
@@ -200,6 +208,10 @@
             {
                 "name": "Equality",
                 "url": "equality"
+            },
+            {
+                "name": "Immutable Values",
+                "url": "immutable-values"
             }
         ]
     },
@@ -368,12 +380,12 @@
                 "url": "check"
             },
             {
-                "name": "Throw ",
-                "url": "throw"
+                "name": "Panic ",
+                "url": "panic"
             },
             {
-                "name": "Try/Catch/Finally",
-                "url": "try-catch-finally"
+                "name": "Trap Error",
+                "url": "trap-error"
             }
         ]
     },
@@ -565,6 +577,21 @@
             {
                 "name": "Group Tests",
                 "url": "testerina-group-tests"
+            }
+        ]
+    },
+    {
+        "title": "Deployment",
+        "column": 3,
+        "category": "Language concepts",
+        "samples": [
+            {
+                "name": "Docker Deployment",
+                "url": "docker-deployment"
+            },
+            {
+                "name": "Kubernetes Deployment",
+                "url": "kubernetes-deployment"
             }
         ]
     },

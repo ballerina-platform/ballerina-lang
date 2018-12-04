@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model;
 
+import org.antlr.v4.runtime.misc.OrderedHashSet;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.OperatorKind;
@@ -62,7 +63,6 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -105,6 +105,7 @@ public class SymbolTable {
     public final BType anydataType = new BAnydataType(TypeTags.ANYDATA, null);
     public final BType streamType = new BStreamType(TypeTags.STREAM, anyType, null);
     public final BType mapType = new BMapType(TypeTags.MAP, anyType, null);
+    public final BType mapStringType = new BMapType(TypeTags.MAP, stringType, null);
     public final BType futureType = new BFutureType(TypeTags.FUTURE, nilType, null);
     public final BType xmlAttributesType = new BXMLAttributesType(TypeTags.XML_ATTRIBUTES);
     public final BType arrayType = new BArrayType(noType);
@@ -157,6 +158,7 @@ public class SymbolTable {
         initializeType(tableType, TypeKind.TABLE.typeName());
         initializeType(streamType, TypeKind.STREAM.typeName());
         initializeType(mapType, TypeKind.MAP.typeName());
+        initializeType(mapStringType, TypeKind.MAP.typeName());
         initializeType(futureType, TypeKind.FUTURE.typeName());
         initializeType(anyType, TypeKind.ANY.typeName());
         initializeType(anydataType, TypeKind.ANYDATA.typeName());
@@ -494,7 +496,7 @@ public class SymbolTable {
         defineConversionOperator(booleanType, decimalType, true, InstructionCodes.B2D);
         defineConversionOperator(tableType, xmlType, false, InstructionCodes.DT2XML);
         defineConversionOperator(tableType, jsonType, false, InstructionCodes.DT2JSON);
-        defineConversionOperator(xmlAttributesType, mapType, true, InstructionCodes.XMLATTRS2MAP);
+        defineConversionOperator(xmlAttributesType, mapStringType, true, InstructionCodes.XMLATTRS2MAP);
 //        defineConversionOperator(stringType, xmlType, false, InstructionCodes.S2XML);
         defineConversionOperator(xmlType, stringType, true, InstructionCodes.XML2S);
 //        defineConversionOperator(stringType, jsonType, false, InstructionCodes.S2JSONX);
@@ -504,7 +506,6 @@ public class SymbolTable {
 
         // Error related methods.
         defineBuiltinMethod(BLangBuiltInMethod.REASON, errorType, stringType, InstructionCodes.REASON);
-        defineBuiltinMethod(BLangBuiltInMethod.DETAIL, errorType, mapType, InstructionCodes.DETAIL);
 
         // Length methods.
         defineBuiltinMethod(BLangBuiltInMethod.LENGTH, stringType, intType, InstructionCodes.LENGTHOF);
@@ -590,7 +591,7 @@ public class SymbolTable {
                 retType = targetType;
             } else {
                 BUnionType unionType = new BUnionType(null,
-                        new LinkedHashSet<BType>(2) {{
+                        new OrderedHashSet<BType>() {{
                             add(targetType);
                             add(errorType);
                         }}, false);

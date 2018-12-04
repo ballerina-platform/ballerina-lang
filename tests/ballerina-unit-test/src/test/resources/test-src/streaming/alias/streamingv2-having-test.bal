@@ -22,8 +22,8 @@ type Employee record {
 };
 
 int index = 0;
-stream<Employee> inputStream;
-stream<Employee> outputStream;
+stream<Employee> inputStream = new;
+stream<Employee> outputStream = new;
 Employee[] globalEmployeeArray = [];
 
 function startFilterQuery() returns (Employee[]) {
@@ -40,8 +40,8 @@ function startFilterQuery() returns (Employee[]) {
 
     testFilterQuery();
 
-    outputStream.subscribe(printTeachers);
-    foreach e in employeeArr {
+    outputStream.subscribe(function(Employee e) {printTeachers(e);});
+    foreach var e in employeeArr {
         inputStream.publish(e);
     }
 
@@ -63,7 +63,7 @@ function testFilterQuery() {
         select input.name, input.age
         having age > getMaxAge() && age > 25
         => (Employee[] emp) {
-            foreach e in emp {
+            foreach var e in emp {
                 outputStream.publish(e);
             }
         }

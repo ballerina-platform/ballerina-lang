@@ -31,11 +31,11 @@ public type AuthnFilter object {
 
     # Request filter method which attempts to authenticated the request.
     #
-    # + listenerObj - The http endpoint
+    # + caller - Caller for outbound HTTP responses
     # + request - An inboud HTTP request message
     # + context - A filter context
     # + return - True if the filter succeeds
-    public function filterRequest(Listener listenerObj, Request request, FilterContext context) returns boolean {
+    public function filterRequest(Caller caller, Request request, FilterContext context) returns boolean {
         // get auth config for this resource
         boolean authenticated = false;
         var (isSecured, authProviders) = getResourceAuthConfig(context);
@@ -49,9 +49,9 @@ public type AuthnFilter object {
             }
         } else {
             // not secured, no need to authenticate
-            return isAuthnSuccesfull(listenerObj, true);
+            return isAuthnSuccesfull(caller, true);
         }
-        return isAuthnSuccesfull(listenerObj, authenticated);
+        return isAuthnSuccesfull(caller, authenticated);
     }
 
     public function filterResponse(Response response, FilterContext context) returns boolean {
@@ -61,22 +61,20 @@ public type AuthnFilter object {
 
 # Verifies if the authentication is successful. If not responds to the user.
 #
-# + listenerObj - The http endpoint
+# + caller - Caller for outbound HTTP responses
 # + authenticated - Authorization status for the request
 # + return - Authorization result to indicate if the filter can proceed(true) or not(false)
-function isAuthnSuccesfull(Listener listenerObj, boolean authenticated) returns boolean {
-    //TODO:Fix this properly
-    //endpoint Listener callerObj = listenerObj;
-    //Response response = new;
-    //if (!authenticated) {
-    //    response.statusCode = 401;
-    //    response.setTextPayload("Authentication failure");
-    //    var err = callerObj->respond(response);
-    //    if (err is error) {
-    //        panic err;
-    //    }
-    //    return false;
-    //}
+function isAuthnSuccesfull(Caller caller, boolean authenticated) returns boolean {
+    Response response = new;
+    if (!authenticated) {
+        response.statusCode = 401;
+        response.setTextPayload("Authentication failure");
+        var err = caller->respond(response);
+        if (err is error) {
+            panic err;
+        }
+        return false;
+    }
     return true;
 }
 
@@ -89,9 +87,9 @@ function getResourceAuthConfig(FilterContext context) returns (boolean, string[]
     string[] authProviderIds = [];
     // get authn details from the resource level
     ListenerAuthConfig? resourceLevelAuthAnn = getAuthAnnotation(ANN_MODULE, RESOURCE_ANN_NAME,
-        reflect:getResourceAnnotations(context.serviceType, context.resourceName));
+        reflect:getResourceAnnotations(context.serviceRef, context.resourceName));
     ListenerAuthConfig? serviceLevelAuthAnn = getAuthAnnotation(ANN_MODULE, SERVICE_ANN_NAME,
-        reflect:getServiceAnnotations(context.serviceType));
+        reflect:getServiceAnnotations(context.serviceRef));
     // check if authentication is enabled
     resourceSecured = isResourceSecured(resourceLevelAuthAnn, serviceLevelAuthAnn);
     // if resource is not secured, no need to check further
@@ -145,7 +143,7 @@ function getAuthAnnotation(string annotationModule, string annotationName, refle
         return ();
     }
     reflect:annotationData|() authAnn = ();
-    foreach ann in annData {
+    foreach var ann in annData {
         if (ann.name == annotationName && ann.moduleName == annotationModule) {
             authAnn = ann;
             break;

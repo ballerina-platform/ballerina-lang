@@ -1,0 +1,190 @@
+.diagram(@color) {
+    background: ~"@{@{color}-diagram-background-color}";
+    
+    .diagram-container {
+        background: ~"@{@{color}-diagram-background-color}";
+
+        text {
+            fill: ~"@{@{color}-diagram-base-text-color}";
+            dominant-baseline: central;
+        }
+        .diagram-canvas {
+            font-family: @diagram-font;
+            font-size: @diagram-font-size;
+
+            .panel {
+                .panel-header {
+                    fill: ~"@{@{color}-diagram-panel-header-background-color}";
+
+                    .panel-icon {
+                        font-family: @diagram-icon-font;
+                    }
+                    text {
+                        fill: ~"@{@{color}-diagram-panel-header-text-color}";
+                        font-size: @diagram-life-line-head-font-size;
+                    }
+                }
+                .panel-body {
+                    fill: ~"@{@{color}-diagram-panel-body-background-color}";
+                    
+                    .life-line {
+                        stroke: ~"@{@{color}-diagram-life-line-stroke-color}";
+                        stroke-width: @diagram-life-line-stroke-width;
+
+                        rect {
+                            fill: ~"@{@{color}-diagram-life-line-head-background-color}";
+                            stroke: ~"@{@{color}-diagram-life-line-head-stroke-color}";
+                            stroke-width: 0; 
+                        }
+                        text {
+                            fill: ~"@{@{color}-diagram-life-line-text-color}";
+                            stroke-width: 0;
+                            text-anchor: middle;
+                        }
+
+                        &.life-line-worker{
+                            stroke: #257AA8;
+                            color: #257AA8;
+
+                            rect {
+                                fill: #257AA8;
+                            }
+                            text{
+                                fill: #257AA8;
+                            }
+                        }
+                        &.life-line-endpoint{
+                            stroke: @teal;
+                            color:@teal;
+
+                            rect {
+                                fill: @teal;
+                            }
+                            text{
+                                fill: @teal;
+                            }
+                        }
+                    }
+                    .endpoint-activity {
+                        fill: @teal;
+                    }
+
+                    .condition {
+                        .label {
+                            text-anchor: middle;
+                        }
+                        polyline {
+                            fill: ~"@{@{color}-diagram-condition-background-color}";
+                            stroke: ~"@{@{color}-diagram-condition-stroke-color}";
+                            stroke-width: @diagram-condition-stroke-width;
+                        }
+                    }
+                    .condition-line {
+                        fill: transparent;
+                        stroke: ~"@{@{color}-diagram-condition-line-stroke-color}";
+                        stroke-width: @diagram-condition-line-stroke-width;
+                    }
+                    .hide-line {
+                        stroke: ~"@{@{color}-diagram-panel-body-background-color}";
+                        stroke-width: 2px;
+                    }
+                    .arrow-head {
+                        fill: ~"@{@{color}-diagram-arrow-head-color}";
+                    }
+                    .statement {
+                        font-size: @diagram-statement-font-size;
+                    }
+                    .action-invocation {
+                        line {
+                            stroke: ~"@{@{color}-diagram-arrow-head-color}";
+                            stroke-width: 1px;
+                        }
+                        fill: ~"@{@{color}-diagram-arrow-head-color}";
+                    }
+                    .start-invocation {
+                        line {
+                            stroke: ~"@{@{color}-diagram-arrow-head-color}";
+                            stroke-width: 1px;
+                        }
+                    }
+                }
+            }
+
+            .svg-dropdown-menu {
+                .trigger {
+                    fill: ~"@{@{color}-diagram-menu-trigger-background-color}";
+                    text {
+                        fill: ~"@{@{color}-diagram-menu-trigger-text-color}";
+                    }
+                    &:hover {
+                        fill-opacity: 0;
+                    }
+                }
+                .content {
+                    .item {
+                        cursor: pointer;
+                        fill: ~"@{@{color}-diagram-menu-item-background-color}";
+                        text {
+                            fill: ~"@{@{color}-diagram-menu-item-text-color}";
+                        }
+                        &:hover {
+                            .item-body {
+                                fill: ~"@{@{color}-diagram-menu-item-hover-background-color}";
+                            }
+                        }
+                    }
+                }
+            }
+            .svg-button {
+                cursor: pointer;
+                fill: ~"@{@{color}-diagram-svg-button-background-color}";
+                text {
+                    fill: ~"@{@{color}-diagram-svg-button-text-color}";
+                    text-anchor: middle;
+                }
+                &:hover {
+                    fill-opacity: 0.8;
+                }
+            }
+        }
+        
+        .diagram-controllers {
+            .ui.menu.top-menu {
+                padding: 10px;
+
+                .item {
+                    padding: 0;
+                    margin-right: 5px;
+                }
+                .button {
+                    z-index: 1;
+                }
+            }
+        }
+        .non-editable-text {
+            cursor: default;
+        }
+        .editable-text {
+            cursor: text;
+        }
+        .noselect {
+            -webkit-touch-callout: none; /* iOS Safari */
+            -webkit-user-select: none; /* Safari */
+            -khtml-user-select: none; /* Konqueror HTML */
+            -moz-user-select: none; /* Firefox */
+            -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
+        }
+    }
+    .endpoint-search-dialog {
+        top: 15px;
+    }
+}
+
+body {
+    .diagram("light");
+    
+    &.dark {
+        .diagram("dark");
+    }
+}

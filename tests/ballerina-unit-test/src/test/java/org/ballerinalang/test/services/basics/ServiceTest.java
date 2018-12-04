@@ -270,13 +270,25 @@ public class ServiceTest {
     //TODO: add more test cases
 
     /* Negative cases */
-    @Test(description = "verify code analyzer errors in services.")
+    @Test(description = "verify code analyzer errors in services.", groups = {"broken"})
     public void testCheckCodeAnalyzerErrors() {
-        BAssertUtil.validateError(negativeResult, 0, "break cannot be used outside of a loop", 12, 9);
-        BAssertUtil.validateError(negativeResult, 1, "continue cannot be used outside of a loop", 18, 9);
-        BAssertUtil.validateError(negativeResult, 2, "abort cannot be used outside of a transaction block", 24, 9);
-        BAssertUtil.validateError(negativeResult, 3, "unreachable code", 31, 9);
+        BAssertUtil.validateError(negativeResult, 0, "break cannot be used outside of a loop", 10, 9);
+        BAssertUtil.validateError(negativeResult, 1, "continue cannot be used outside of a loop", 16, 9);
+        BAssertUtil.validateError(negativeResult, 2, "abort cannot be used outside of a transaction block", 22, 9);
+        BAssertUtil.validateError(negativeResult, 3, "unreachable code", 29, 9);
         BAssertUtil.validateError(negativeResult, 4, "worker send/receive interactions are invalid; worker(s) cannot "
-                + "move onwards from the state: '{w1=a -> w2, w2=b -> w1}'", 35, 9);
+                + "move onwards from the state: '{w1=a -> w2, w2=b -> w1}'", 33, 9);
+    }
+
+    @Test(description = "Test uninitialized service/resource config annotations")
+    public void testUninitializedAnnotations() {
+        String path = "/hello/echo";
+        HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, requestMsg);
+
+        Assert.assertNotNull(responseMsg, "responseMsg message not found");
+        String responseMsgPayload = StringUtils
+                .getStringFromInputStream(new HttpMessageDataStreamer(responseMsg).getInputStream());
+        Assert.assertEquals(responseMsgPayload, "Uninitialized configs");
     }
 }

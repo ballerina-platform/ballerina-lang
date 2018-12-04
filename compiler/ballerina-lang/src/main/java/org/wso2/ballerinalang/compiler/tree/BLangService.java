@@ -30,7 +30,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
-import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -51,14 +50,13 @@ public class BLangService extends BLangNode implements ServiceNode {
 
     public BSymbol symbol;
     public BLangIdentifier name;
-    public BLangUserDefinedType serviceUDT;
     public BLangTypeDefinition serviceTypeDefinition;
-    public BLangExpression attachExpr;
+    public List<BLangExpression> attachedExprs;
+    public BLangVariable variableNode;
     public boolean isAnonymousServiceValue;
 
     // Cached values.
-    public String listenerName;
-    public BType listerType;
+    public BType listenerType;
     public List<BLangFunction> resourceFunctions;
 
     // Old values. TODO : Remove this.
@@ -78,6 +76,7 @@ public class BLangService extends BLangNode implements ServiceNode {
         this.annAttachments = new ArrayList<>();
         this.deprecatedAttachments = new ArrayList<>();
         this.resourceFunctions = new ArrayList<>();
+        this.attachedExprs = new ArrayList<>();
     }
 
     @Override
@@ -99,13 +98,8 @@ public class BLangService extends BLangNode implements ServiceNode {
         return resourceFunctions;
     }
 
-    public BLangExpression getAttachExpr() {
-        return this.attachExpr;
-    }
-
-    @Override
-    public BLangUserDefinedType getUserDefinedTypeNode() {
-        return this.serviceUDT;
+    public List<BLangExpression> getAttachedExprs() {
+        return this.attachedExprs;
     }
 
     @Override

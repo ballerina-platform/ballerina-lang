@@ -13,23 +13,26 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/io;
 
 public type OrderBy object {
 
     public function (StreamEvent[]) nextProcessorPointer;
 
-    public (function(map<any>) returns any)[] fieldFuncs;
+    public (function (map<anydata>) returns anydata)[] fieldFuncs;
     // contains the field name to be sorted and the sort type (ascending/descending)
     public string[] sortTypes;
 
-    public new(nextProcessorPointer, fieldFuncs, sortTypes) {
+    public function __init(function (StreamEvent[]) nextProcessorPointer,
+                           (function (map<anydata>) returns anydata)[] fieldFuncs, string[] sortTypes) {
+        self.nextProcessorPointer = nextProcessorPointer;
+        self.fieldFuncs = fieldFuncs;
+        self.sortTypes = sortTypes;
 
     }
 
     public function process(StreamEvent[] streamEvents) {
         self.topDownMergeSort(streamEvents, self.sortTypes);
-        self.nextProcessorPointer(streamEvents);
+        self.nextProcessorPointer.call(streamEvents);
     }
 
     function topDownMergeSort(StreamEvent[] a, string[] tmpSortTypes) {
@@ -40,31 +43,28 @@ public type OrderBy object {
             b[index] = a[index];
             index += 1;
         }
-        self.topDownSplitMerge(b, 0, n, a, self.sortFunc, tmpSortTypes);
+        self.topDownSplitMerge(b, 0, n, a, tmpSortTypes);
     }
 
-    function topDownSplitMerge(StreamEvent[] b, int iBegin, int iEnd, StreamEvent[] a,
-                               function (StreamEvent, StreamEvent, string[], int) returns int sortFunc,
-                               string[] tmpSortTypes) {
+    function topDownSplitMerge(StreamEvent[] b, int iBegin, int iEnd, StreamEvent[] a, string[] tmpSortTypes) {
 
         if (iEnd - iBegin < 2) {
             return;
         }
         int iMiddle = (iEnd + iBegin) / 2;
-        self.topDownSplitMerge(a, iBegin, iMiddle, b, sortFunc, tmpSortTypes);
-        self.topDownSplitMerge(a, iMiddle, iEnd, b, sortFunc, tmpSortTypes);
-        self.topDownMerge(b, iBegin, iMiddle, iEnd, a, sortFunc, tmpSortTypes);
+        self.topDownSplitMerge(a, iBegin, iMiddle, b, tmpSortTypes);
+        self.topDownSplitMerge(a, iMiddle, iEnd, b, tmpSortTypes);
+        self.topDownMerge(b, iBegin, iMiddle, iEnd, a, tmpSortTypes);
     }
 
     function topDownMerge(StreamEvent[] a, int iBegin, int iMiddle, int iEnd, StreamEvent[] b,
-                          function (StreamEvent, StreamEvent, string[], int) returns int sortFunc,
                           string[] sortFieldMetadata) {
         int i = iBegin;
         int j = iMiddle;
 
         int k = iBegin;
         while (k < iEnd) {
-            if (i < iMiddle && (j >= iEnd || sortFunc(a[i], a[j], sortFieldMetadata, 0) < 0)) {
+            if (i < iMiddle && (j >= iEnd || self.sortFunc(a[i], a[j], sortFieldMetadata, 0) < 0)) {
                 b[k] = a[i];
                 i = i + 1;
             } else {
@@ -76,27 +76,18 @@ public type OrderBy object {
     }
 
     function numberSort(int|float x, int|float y) returns int {
-        match x {
-            int ix => {
-                match y {
-                    int iy => {
-                        return ix - iy;
-                    }
-                    float fy => {
-                        return <float>ix < fy ? -1 : <float>ix == fy ? 0 : 1;
-                    }
-                }
+        if (x is int) {
+            if (y is int) {
+                return x - y;
+            } else {
+                return <float>x < y ? -1 : <float>x == y ? 0 : 1;
             }
-
-            float fx => {
-                match y {
-                    int iy => {
-                        return fx < (<float>iy) ? -1 : fx == <float>iy ? 0 : 1;
-                    }
-                    float fy => {
-                        return fx < fy ? -1 : fx == fy ? 0 : 1;
-                    }
-                }
+        } else {
+            if (y is int) {
+                return x < (<float>y) ? -1 : x == <float>y ? 0 : 1;
+            }
+            else {
+                return x < y ? -1 : x == y ? 0 : 1;
             }
         }
     }
@@ -123,56 +114,50 @@ public type OrderBy object {
 
     function sortFunc(StreamEvent x, StreamEvent y, string[] sortFieldMetadata, int fieldIndex) returns int {
         var fieldFunc = self.fieldFuncs[fieldIndex];
-        match fieldFunc(x.data) {
-            string sx => {
-                match fieldFunc(y.data) {
-                    string sy => {
-                        int c;
-                        //odd indices contain the sort type (ascending/descending)
-                        if (sortFieldMetadata[fieldIndex].equalsIgnoreCase(ASCENDING)) {
-                            c = self.stringSort(sx, sy);
-                        } else {
-                            c = self.stringSort(sy, sx);
-                        }
-                        // if c == 0 then check for the next sort field
-                        return self.callNextSortFunc(x, y, c, sortFieldMetadata, fieldIndex + 1);
-                    }
-                    any a => {
-                        error err = error("Values to be orderred contain non-string values in fieldIndex: " +
-                            fieldIndex + ", sortType: " + sortFieldMetadata[fieldIndex]);
-                        panic err;
-                    }
-                }
-            }
+        var xFieldFuncResult = fieldFunc.call(x.data);
 
-            int|float ax => {
-                match fieldFunc(y.data) {
-                    int|float ay => {
-                        int c;
-                        if (sortFieldMetadata[fieldIndex].equalsIgnoreCase(ASCENDING)) {
-                            c = self.numberSort(ax, ay);
-                        } else {
-                            c = self.numberSort(ay, ax);
-                        }
-                        return self.callNextSortFunc(x, y, c, sortFieldMetadata,fieldIndex + 1);
-                    }
-                    any aa => {
-                        error err = error("Values to be orderred contain non-number values in fieldIndex: " +
-                            fieldIndex + ", sortType: " + sortFieldMetadata[fieldIndex]);
-                        panic err;
-                    }
+        if (xFieldFuncResult is string) {
+            var yFieldFuncResult = fieldFunc.call(y.data);
+            if (yFieldFuncResult is string) {
+                int c;
+                //odd indices contain the sort type (ascending/descending)
+                if (sortFieldMetadata[fieldIndex].equalsIgnoreCase(ASCENDING)) {
+                    c = self.stringSort(xFieldFuncResult, yFieldFuncResult);
+                } else {
+                    c = self.stringSort(yFieldFuncResult, xFieldFuncResult);
                 }
-
-            }
-            any a => {
-                error err = error("Values of types other than strings and numbers cannot be sorted in fieldIndex:
-                 " + fieldIndex + ", sortType: " + sortFieldMetadata[fieldIndex]);
+                // if c == 0 then check for the next sort field
+                return self.callNextSortFunc(x, y, c, sortFieldMetadata, fieldIndex + 1);
+            } else {
+                error err = error("Values to be orderred contain non-string values in fieldIndex: " +
+                    fieldIndex + ", sortType: " + sortFieldMetadata[fieldIndex]);
                 panic err;
             }
+
+        } else if (xFieldFuncResult is (int|float)) {
+            var yFieldFuncResult = fieldFunc.call(y.data);
+            if (yFieldFuncResult is (int|float)) {
+                int c;
+                if (sortFieldMetadata[fieldIndex].equalsIgnoreCase(ASCENDING)) {
+                    c = self.numberSort(xFieldFuncResult, yFieldFuncResult);
+                } else {
+                    c = self.numberSort(yFieldFuncResult, xFieldFuncResult);
+                }
+                return self.callNextSortFunc(x, y, c, sortFieldMetadata, fieldIndex + 1);
+            } else {
+                error err = error("Values to be orderred contain non-number values in fieldIndex: " +
+                    fieldIndex + ", sortType: " + sortFieldMetadata[fieldIndex]);
+                panic err;
+            }
+        } else {
+            error err = error("Values of types other than strings and numbers cannot be sorted in fieldIndex:
+                 " + fieldIndex + ", sortType: " + sortFieldMetadata[fieldIndex]);
+            panic err;
         }
     }
 
-    function callNextSortFunc(StreamEvent x, StreamEvent y, int c, string[] sortFieldMetadata, int fieldIndex) returns int {
+    function callNextSortFunc(StreamEvent x, StreamEvent y, int c, string[] sortFieldMetadata, int fieldIndex) returns
+                                                                                                                   int {
         int result = c;
         if (result == 0 && (sortFieldMetadata.length() > fieldIndex)) {
             result = self.sortFunc(x, y, sortFieldMetadata, fieldIndex);
@@ -182,7 +167,7 @@ public type OrderBy object {
 };
 
 public function createOrderBy(function (StreamEvent[]) nextProcessorPointer,
-                              (function (map<any>) returns any)[] fields, string[] sortFieldMetadata)
+                              (function (map<anydata>) returns anydata)[] fields, string[] sortFieldMetadata)
                     returns OrderBy {
     return new(nextProcessorPointer, fields, sortFieldMetadata);
 }

@@ -71,7 +71,7 @@ function testForEachInTableWithStmt() returns (int, int, float, string) {
     string name = "";
 
     if (dt is table<Person>) {
-        foreach x in dt {
+        foreach var x in dt {
             id = x.id;
             age = x.age;
             salary = x.salary;
@@ -96,9 +96,11 @@ function testForEachInTableWithIndex() returns (string, string) {
     string indexStr = "";
     string idStr = "";
     if (dt is table<Person>) {
-        foreach i, x in dt {
+        int i = 0;
+        foreach var x in dt {
             indexStr = indexStr + "," + i;
             idStr = idStr + "," + x.id;
+            i += 1;
         }
     }
     testDB.stop();
@@ -374,9 +376,9 @@ function testCloseConnectionPool() returns (int) {
     var dt = testDB->select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SESSIONS",
         ResultCount);
     int count = -1;
-    if (dt is table) {
+    if (dt is table<ResultCount>) {
         while (dt.hasNext()) {
-            var rs = <ResultCount>dt.getNext();
+            var rs = dt.getNext();
             if (rs is ResultCount) {
                 count = rs.COUNTVAL;
             }
@@ -391,7 +393,7 @@ function testSelect() returns (json) {
     table<Employee> dt = createTable();
 
     table<EmployeeSalary> salaryTable = dt.select(getEmployeeSalary);
-    var ret = <json>salaryTable;
+    var ret = json.create(salaryTable);
     json res = {};
     if (ret is json) {
         res = ret;
@@ -405,7 +407,7 @@ function testSelectCompatibleLambdaInput() returns (json) {
     table<Employee> dt = createTable();
 
     table<EmployeeSalary> salaryTable = dt.select(getEmployeeSalaryCompatibleInput);
-    var ret = <json>salaryTable;
+    var ret = json.create(salaryTable);
     json res = {};
     if (ret is json) {
         res = ret;
@@ -419,7 +421,7 @@ function testSelectCompatibleLambdaOutput() returns (json) {
     table<Employee> dt = createTable();
 
     table<EmployeeSalary> salaryTable = dt.select(getEmployeeSalaryCompatibleOutput);
-    var ret = <json>salaryTable;
+    var ret = json.create(salaryTable);
     json res = {};
     if (ret is json) {
         res = ret;
@@ -433,7 +435,7 @@ function testSelectCompatibleLambdaInputOutput() returns (json) {
     table<Employee> dt = createTable();
 
     table<EmployeeSalary> salaryTable = dt.select(getEmployeeSalaryCompatibleInputOutput);
-    var ret = <json>salaryTable;
+    var ret = json.create(salaryTable);
     json res = {};
     if (ret is json) {
         res = ret;

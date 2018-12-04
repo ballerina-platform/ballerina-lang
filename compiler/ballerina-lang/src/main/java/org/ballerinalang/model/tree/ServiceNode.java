@@ -18,7 +18,6 @@
 package org.ballerinalang.model.tree;
 
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
 
 import java.util.List;
 
@@ -36,9 +35,7 @@ public interface ServiceNode extends AnnotatableNode, DocumentableNode, TopLevel
 
     boolean isAnonymousService();
 
-    ExpressionNode getAttachExpr();
-
-    UserDefinedTypeNode getUserDefinedTypeNode();
+    List<? extends ExpressionNode> getAttachedExprs();
 
     TypeDefinition getTypeDefinition();
 

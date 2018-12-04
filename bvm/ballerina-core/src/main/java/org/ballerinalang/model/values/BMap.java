@@ -17,13 +17,14 @@
  */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.bre.bvm.VarLock;
-import org.ballerinalang.bre.vm.BVM;
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BStructureType;
+import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.BUnionType;
@@ -43,6 +44,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
@@ -352,8 +355,13 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
 
     @Override
     public void stamp(BType type) {
-        if (type.getTag() == TypeTags.JSON_TAG && ((BJSONType) type).getConstrainedType() != null) {
-            this.stamp(((BJSONType) type).getConstrainedType());
+        if (type.getTag() == TypeTags.JSON_TAG) {
+            if (((BJSONType) type).getConstrainedType() != null) {
+                this.stamp(((BJSONType) type).getConstrainedType());
+            } else {
+                type = BVM.resolveMatchingTypeForUnion(this, type);
+                this.stamp(type);
+            }
         } else if (type.getTag() == TypeTags.MAP_TAG) {
             for (Object value : this.values()) {
                 if (value != null) {
@@ -382,6 +390,9 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
                     break;
                 }
             }
+        } else if (type.getTag() == TypeTags.ANYDATA_TAG) {
+            type = BVM.resolveMatchingTypeForUnion(this, type);
+            this.stamp(type);
         }
 
         this.type = type;
@@ -430,6 +441,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
 
         BMap<K, V> collection;
         Iterator<Map.Entry<K, V>> iterator;
+        long cursor = 0;
 
         BMapIterator(BMap<K, V> value) {
             collection = value;
@@ -437,12 +449,28 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
         }
 
         @Override
-        public BValue[] getNext(int arity) {
-            Map.Entry<K, V> next = iterator.next();
-            if (arity == 1) {
-                return new BValue[] {next.getValue()};
+        public BValue getNext() {
+            if (cursor++ == collection.size()) {
+                return null;
             }
-            return new BValue[] {new BString((String) next.getKey()), next.getValue()};
+
+            List<BType> types = new LinkedList<>();
+            types.add(BTypes.typeString);
+            types.add(BTypes.typeAny);
+            BTupleType tupleType = new BTupleType(types);
+
+            if (!hasNext()) {
+                return null;
+            }
+
+            Map.Entry<K, V> next = iterator.next();
+            BValueArray tuple = new BValueArray(tupleType);
+            BString key = new BString((String) next.getKey());
+            tuple.add(0, key);
+            BRefType value = (BRefType<?>) next.getValue();
+            tuple.add(1, value);
+
+            return tuple;
         }
 
         @Override

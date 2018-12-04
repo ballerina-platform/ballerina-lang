@@ -1,7 +1,7 @@
 import ballerina/log;
 import ballerina/time;
 
-stream<Employee> globalEmployeeStream;
+stream<Employee> globalEmployeeStream = new;
 
 type Employee record {
     int id = 0;
@@ -62,34 +62,34 @@ type Coach object {
 };
 
 function testInvalidRecordPublishingToStream() {
-    stream<Employee> s1;
+    stream<Employee> s1 = new;
     Job j1 = { description:"Dummy Description 1" };
     s1.publish(j1);
 }
 
 function testSubscriptionFunctionWithIncorrectRecordParameter() {
-    stream<Employee> s1;
+    stream<Employee> s1 = new;
     s1.subscribe(printJobDescription);
 }
 
 function testInvalidObjectPublishingToStream() {
-    stream<Captain> s1;
+    stream<Captain> s1 = new;
     Coach c1 = new("Maryam", 120384, 1000.0);
     s1.publish(c1);
 }
 
 function testSubscriptionFunctionWithIncorrectObjectParameter() {
-    stream<Captain> s1;
+    stream<Captain> s1 = new;
     s1.subscribe(printCoachName);
 }
 
 function testSubscriptionFunctionWithUnassignableUnionParameter() {
-    stream<int[]|string|boolean|float> unionStream;
+    stream<int[]|string|boolean|float> unionStream = new;
     unionStream.subscribe(addToGlobalAnyArrayForUnionType);
 }
 
 function testSubscriptionFunctionWithUnassignableTupleTypeParameter() {
-    stream<(int, float)> tupleStream;
+    stream<(int, float)> tupleStream = new;
     tupleStream.subscribe(addToGlobalAnyArrayForTupleType);
 }
 
@@ -110,7 +110,7 @@ function testGlobalStream() returns (Employee, Employee, Employee) {
 
 function testStreamPublishingAndSubscriptionForRecord() returns (Employee, Employee, Employee) {
     Employee origEmployee = globalEmployee;
-    stream<Employee> s1;
+    stream<Employee> s1 = new;
     s1.subscribe(assignGlobalEmployee);
     Employee publishedEmployee = { id:1234, name:"Maryam" };
     s1.publish(publishedEmployee);
@@ -125,7 +125,7 @@ Employee[] globalEmployeeArray = [];
 
 function testStreamPublishingAndSubscriptionForMultipleRecordEvents() returns (Employee[], Employee[]) {
     arrayIndex = 0;
-    stream<Employee> s1;
+    stream<Employee> s1 = new;
     s1.subscribe(addToGlobalEmployeeArray);
     Employee e1 = { id:1234, name:"Maryam" };
     Employee e2 = { id:2345, name:"Aysha" };
@@ -145,10 +145,10 @@ int[] globalIntegerArray = [];
 
 function testStreamPublishingAndSubscriptionForIntegerStream() returns (int[], int[]) {
     arrayIndex = 0;
-    stream<int> intStream;
+    stream<int> intStream = new;
     intStream.subscribe(addToGlobalIntegerArray);
     int[] publishedIntegerEvents = [11, 24857, 0, -1, 999];
-    foreach intEvent in publishedIntegerEvents {
+    foreach var intEvent in publishedIntegerEvents {
         intStream.publish(intEvent);
     }
     int startTime = time:currentTime().time;
@@ -162,10 +162,10 @@ boolean[] globalBooleanArray = [];
 
 function testStreamPublishingAndSubscriptionForBooleanStream() returns (boolean[], boolean[]) {
     arrayIndex = 0;
-    stream<boolean> booleanStream;
+    stream<boolean> booleanStream = new;
     booleanStream.subscribe(addToGlobalBooleanArray);
     boolean[] publishedBooleanEvents = [true, false, false, true, false];
-    foreach booleanEvent in publishedBooleanEvents {
+    foreach var booleanEvent in publishedBooleanEvents {
         booleanStream.publish(booleanEvent);
     }
     int startTime = time:currentTime().time;
@@ -180,11 +180,11 @@ any[] globalAnyArray = [];
 function testStreamPublishingAndSubscriptionForUnionTypeStream() returns (any[], any[]) {
     globalAnyArray = [];
     arrayIndex = 0;
-    stream<int[]|string|boolean> unionStream;
+    stream<int[]|string|boolean> unionStream = new;
     unionStream.subscribe(addToGlobalAnyArrayForUnionType);
     int[] intarray = [1, 2, 3];
     any[] publishedEvents = [intarray, "Maryam", false];
-    foreach event in publishedEvents {
+    foreach var event in publishedEvents {
         unionStream.publish(event);
     }
     int startTime = time:currentTime().time;
@@ -197,11 +197,11 @@ function testStreamPublishingAndSubscriptionForUnionTypeStream() returns (any[],
 function testStreamPublishingAndSubscriptionForAssignableUnionTypeStream(int intVal) returns (any[], any[]) {
     globalAnyArray = [];
     arrayIndex = 0;
-    stream<int[]|string|boolean|int> unionStream;
+    stream<string|boolean|int|int[]> unionStream = new;
     unionStream.subscribe(addToGlobalAnyArrayForAssignableUnionType);
     int[] intarray = [1, 2, 3];
     any[] publishedEvents = [intarray, "Maryam", false, intVal];
-    foreach event in publishedEvents {
+    foreach var event in publishedEvents {
         unionStream.publish(event);
     }
     int startTime = time:currentTime().time;
@@ -214,12 +214,12 @@ function testStreamPublishingAndSubscriptionForAssignableUnionTypeStream(int int
 function testStreamPublishingAndSubscriptionForTupleTypeStream() returns (any[], any[]) {
     globalAnyArray = [];
     arrayIndex = 0;
-    stream<(string, int)> tupleStream;
+    stream<(string, int)> tupleStream = new;
     tupleStream.subscribe(addToGlobalAnyArrayForTupleType);
     (string, int) tuple = ("tuple1", 1234);
     (string, int) tuple2 = ("tuple2", 9876);
     any[] publishedEvents = [tuple, tuple2];
-    foreach event in publishedEvents {
+    foreach var event in publishedEvents {
         tupleStream.publish(event);
     }
     int startTime = time:currentTime().time;
@@ -233,10 +233,10 @@ function testStreamPublishingAndSubscriptionForAssignableTupleTypeStream(string 
 any[] {
     globalAnyArray = [];
     arrayIndex = 0;
-    stream<(string, int)> tupleStream;
+    stream<(string, int)> tupleStream = new;
     tupleStream.subscribe(addToGlobalAnyArrayForAssignableTupleType);
     (string, int)[] publishedEvents = [(s1, i1), (s2, i2)];
-    foreach event in publishedEvents {
+    foreach var event in publishedEvents {
         tupleStream.publish(event);
     }
     int startTime = time:currentTime().time;
@@ -249,29 +249,12 @@ any[] {
 function testStreamPublishingAndSubscriptionForAnyTypeStream() returns (any[], any[]) {
     globalAnyArray = [];
     arrayIndex = 0;
-    stream<any> anyStream;
+    stream<any> anyStream = new;
     anyStream.subscribe(addToGlobalAnyArrayForAnyType);
     (string, int) tuple = ("anyStream", 1234);
     any[] publishedEvents = [tuple, "any", false, 0.5];
-    foreach event in publishedEvents {
+    foreach var event in publishedEvents {
         anyStream.publish(event);
-    }
-    int startTime = time:currentTime().time;
-    while (globalAnyArray.length() < publishedEvents.length() && time:currentTime().time - startTime < 5000) {
-        //allow for value update
-    }
-    return (publishedEvents, globalAnyArray);
-}
-
-function testStreamPublishingAndSubscriptionForUnconstrainedStream() returns (any[], any[]) {
-    globalAnyArray = [];
-    arrayIndex = 0;
-    stream unconstrainedStream;
-    unconstrainedStream.subscribe(addToGlobalAnyArrayForAnyType);
-    (string, int) tuple = ("unconstrainedStream", 9876);
-    any[] publishedEvents = [tuple, "unconstrained", true, 10.5];
-    foreach event in publishedEvents {
-        unconstrainedStream.publish(event);
     }
     int startTime = time:currentTime().time;
     while (globalAnyArray.length() < publishedEvents.length() && time:currentTime().time - startTime < 5000) {
@@ -283,12 +266,12 @@ function testStreamPublishingAndSubscriptionForUnconstrainedStream() returns (an
 function testStreamsPublishingForStructurallyEquivalentRecords() returns (any[], any[]) {
     globalEmployeeArray = [];
     arrayIndex = 0;
-    stream<Employee> employeeStream;
+    stream<Employee> employeeStream = new;
     employeeStream.subscribe(addPersonToGlobalEmployeeArray);
     Person p1 = { id:3000, name:"Maryam" };
     Person p2 = { id:3003, name:"Ziyad" };
     Person[] publishedEvents = [p1, p2];
-    foreach event in publishedEvents {
+    foreach var event in publishedEvents {
         employeeStream.publish(event);
     }
     int startTime = time:currentTime().time;
@@ -303,12 +286,12 @@ Member[] globalMemberArray = [];
 function testStreamsPublishingForStructurallyEquivalentObjects() returns (any[], any[]) {
     globalMemberArray = [];
     arrayIndex = 0;
-    stream<Member> memberStream;
+    stream<Member> memberStream = new;
     memberStream.subscribe(addCaptainToGlobalMemberArray);
     Captain c1 = new("Maryam", 123456);
     Captain c2 = new("Ziyad", 654321);
     Captain[] publishedCaptains = [c1, c2];
-    foreach event in publishedCaptains {
+    foreach var event in publishedCaptains {
         memberStream.publish(event);
     }
     int startTime = time:currentTime().time;
@@ -360,11 +343,8 @@ function addToGlobalAnyArrayForUnionType(int[]|string|boolean val) {
     arrayIndex = arrayIndex + 1;
 }
 
-function addToGlobalAnyArrayForAssignableUnionType(int[]|string|boolean|float val) {
-    match(val) {
-        float f => globalAnyArray[arrayIndex] = f;
-        int[]|string|boolean => globalAnyArray[arrayIndex] = val;
-    }
+function addToGlobalAnyArrayForAssignableUnionType(string|boolean|int|int[]|boolean[] val) {
+    globalAnyArray[arrayIndex] = val;
     arrayIndex = arrayIndex + 1;
 }
 

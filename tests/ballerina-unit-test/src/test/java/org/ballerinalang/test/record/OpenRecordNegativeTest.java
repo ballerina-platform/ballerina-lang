@@ -21,8 +21,9 @@ package org.ballerinalang.test.record;
 import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import static org.testng.Assert.assertEquals;
 
 /**
  * Negative test cases for open records.
@@ -34,14 +35,14 @@ public class OpenRecordNegativeTest {
     @Test(description = "Test use of undefined types as the rest field type", enabled = false)
     public void testUndefinedTypeAsRestFieldType() {
         CompileResult result = BCompileUtil.compile("test-src/record/undefined_rest_field.bal");
-        Assert.assertEquals(result.getErrorCount(), 1);
+        assertEquals(result.getErrorCount(), 1);
     }
 
     @Test(description = "Test invalid rest field type")
     public void testInvalidRestField() {
         CompileResult result = BCompileUtil.compile("test-src/record/open_record_negative.bal");
 
-        Assert.assertEquals(result.getErrorCount(), 5);
+        assertEquals(result.getErrorCount(), 5);
 
         String expectedErrMsg = "incompatible types: expected 'string', ";
         BAssertUtil.validateError(result, 0, expectedErrMsg + "found 'int'", 8, 45);
@@ -70,11 +71,29 @@ public class OpenRecordNegativeTest {
     @Test(description = "Test function invocation on a nil-able function pointer")
     public void testNilableFuncPtrInvocation() {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/negative/open_record_nil-able_fn_ptr.bal");
-        BAssertUtil.validateError(compileResult, 0,
-                                  "invalid function pointer invocation on non-invokable field 'getName' in record " +
-                                          "'Person'", 28, 16);
-        BAssertUtil.validateError(compileResult, 1,
-                                  "invalid function pointer invocation on non-invokable field 'getName' in record " +
-                                          "'Person'", 33, 16);
+        BAssertUtil.validateError(compileResult, 0, "incompatible types: expected 'string', found 'string?'", 28, 16);
+        BAssertUtil.validateError(compileResult, 1, "incompatible types: expected 'string', found 'string?'", 33, 16);
+    }
+
+    @Test(description = "Test uninitialized record access")
+    public void testUninitRecordAccess() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/record/negative/open_record_uninit_access.bal");
+        assertEquals(compileResult.getErrorCount(), 15);
+        int index = 0;
+        BAssertUtil.validateError(compileResult, index++, "variable 'publicPerson' is not initialized", 22, 1);
+        BAssertUtil.validateError(compileResult, index++, "variable 'p' is not initialized", 27, 19);
+        BAssertUtil.validateError(compileResult, index++, "variable 'p' is not initialized", 28, 12);
+        BAssertUtil.validateError(compileResult, index++, "variable 'p' is not initialized", 30, 5);
+        BAssertUtil.validateError(compileResult, index++, "variable 'p' is not initialized", 31, 5);
+        BAssertUtil.validateError(compileResult, index++, "variable 'p' is not initialized", 33, 42);
+        BAssertUtil.validateError(compileResult, index++, "variable 'publicPerson' is not initialized", 37, 12);
+        BAssertUtil.validateError(compileResult, index++, "variable 'publicPerson' is not initialized", 38, 12);
+        BAssertUtil.validateError(compileResult, index++, "variable 'publicPerson' is not initialized", 40, 5);
+        BAssertUtil.validateError(compileResult, index++, "variable 'publicPerson' is not initialized", 41, 5);
+        BAssertUtil.validateError(compileResult, index++, "variable 'globalPerson' is not initialized", 43, 12);
+        BAssertUtil.validateError(compileResult, index++, "variable 'globalPerson' is not initialized", 44, 12);
+        BAssertUtil.validateError(compileResult, index++, "variable 'globalPerson' is not initialized", 46, 5);
+        BAssertUtil.validateError(compileResult, index++, "variable 'globalPerson' is not initialized", 47, 5);
+        BAssertUtil.validateError(compileResult, index, "variable 'p4' is not initialized", 67, 12);
     }
 }

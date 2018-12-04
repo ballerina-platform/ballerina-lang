@@ -26,8 +26,8 @@ import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -51,7 +51,7 @@ public class SafeNavigationTest {
 
     @Test
     public void testNegativeCases() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 11);
+        Assert.assertEquals(negativeResult.getErrorCount(), 13);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string?', found 'string|error'",
                 25, 19);
@@ -65,6 +65,8 @@ public class SafeNavigationTest {
                 "error lifting operator cannot be used in the target expression of an assignment", 40, 5);
         BAssertUtil.validateError(negativeResult, i++,
                 "error lifting operator cannot be used in the target expression of an assignment", 40, 5);
+        BAssertUtil.validateError(negativeResult, i++, "variable 'p' is not initialized", 40, 5);
+        BAssertUtil.validateError(negativeResult, i++, "cannot infer type of the error from 'Person[]|error'", 44, 24);
         BAssertUtil.validateError(negativeResult, i++,
                 "invalid operation: type 'Person[]|error' does not support indexing", 45, 12);
         BAssertUtil.validateError(negativeResult, i++, "safe navigation operator not required for type 'error?'", 50,
@@ -294,23 +296,8 @@ public class SafeNavigationTest {
         Assert.assertTrue(returns[1] instanceof BString);
         Assert.assertEquals(returns[1].stringValue(), "null");
 
-        Assert.assertTrue(returns[2] instanceof BStringArray);
+        Assert.assertTrue(returns[2] instanceof BValueArray);
         Assert.assertEquals(returns[2].stringValue(), "[]");
-    }
-
-    @Test
-    public void testCountOnJSON() {
-        BValue[] vals = { JsonParser.parse("\"hello\"") };
-        BValue[] returns = BRunUtil.invoke(result, "testCountOnJSON", vals);
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
-    }
-
-    @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
-    public void testCountOnNullJSON() {
-        BValue[] vals = { JsonParser.parse("\"hello\"") };
-        BRunUtil.invoke(result, "testCountOnNullJSON", vals);
     }
 
     @Test
