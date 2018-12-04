@@ -121,6 +121,25 @@ public class WaitCallbackHandler {
         return null;
     }
 
+    static Strand handleFlush(Strand strand, int retReg, String[] channels) {
+        Strand flushStrand = strand;
+        for (int i = 0; i < channels.length; i++) {
+            WorkerDataChannel dataChannel = strand.respCallback.parentChannels.getWorkerDataChannel(channels[i]);
+            if (dataChannel.isFailed(strand, retReg)) {
+                return strand;
+            }
+            if (dataChannel.isPanicked(strand, retReg)) {
+                BVM.handleError(strand);
+                return null;
+            }
+            if (!dataChannel.isDataSent(strand, retReg)) {
+                flushStrand = null;
+                break;
+            }
+        }
+        return flushStrand;
+    }
+
     private static void copyReturnsInWaitMultiple(StackFrame sf, SafeStrandCallback strandCallback, int retReg,
                                                   int keyReg) {
         String keyValue = ((UTF8CPEntry) sf.constPool[keyReg]).getValue();

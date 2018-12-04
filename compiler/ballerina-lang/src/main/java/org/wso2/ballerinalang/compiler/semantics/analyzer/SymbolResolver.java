@@ -374,6 +374,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         return resolveTargetSymbolForStamping(targetType, variableSourceType, name, pos);
     }
 
+
     public BSymbol createSymbolForDetailBuiltInMethod(BLangIdentifier name, BType type) {
         if (type.tag != TypeTags.ERROR) {
             return symTable.notFoundSymbol;
@@ -382,9 +383,9 @@ public class SymbolResolver extends BLangNodeVisitor {
                 ((BErrorType) type).detailType, InstructionCodes.DETAIL);
     }
 
-    public BSymbol createSymbolForCreateOperator(DiagnosticPos pos, Name name, List<BLangExpression> functionArgList,
+    public BSymbol createSymbolForConvertOperator(DiagnosticPos pos, Name name, List<BLangExpression> functionArgList,
                                           BLangExpression targetTypeExpression) {
-        // If there are more than one argument for create in-built function then fail.
+        // If there are more than one argument for convert in-built function then fail.
         if (functionArgList.size() < 1) {
             dlog.error(pos, DiagnosticCode.NOT_ENOUGH_ARGS_FUNC_CALL, name);
             resultType = symTable.semanticError;
@@ -398,7 +399,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         BLangExpression argumentExpression = functionArgList.get(0);
         BType variableSourceType = argumentExpression.type;
-        // Create in-built function can only called on typedesc.
+        // Convert in-built function can only called on typedesc.
         if (targetTypeExpression.type.tag != TypeTags.TYPEDESC) {
             dlog.error(pos, DiagnosticCode.FUNC_DEFINED_ON_NOT_SUPPORTED_TYPE, name, variableSourceType.toString());
             resultType = symTable.semanticError;

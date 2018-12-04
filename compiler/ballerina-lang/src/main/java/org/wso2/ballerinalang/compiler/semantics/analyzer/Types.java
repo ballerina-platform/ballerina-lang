@@ -1225,7 +1225,7 @@ public class Types {
             // Handle constrained JSON
             if (isSameType(s, t)) {
                 return createConversionOperatorSymbol(s, t, true, InstructionCodes.NOP);
-            } else if (s.tag == TypeTags.OBJECT || s.tag == TypeTags.RECORD) {
+            } else if (s.tag == TypeTags.OBJECT) {
 //                TODO: do type checking and fail for obvious incompatible types
 //                if (checkStructToJSONConvertibility(s)) {
 //                    return createConversionOperatorSymbol(s, t, false, InstructionCodes.T2JSON);

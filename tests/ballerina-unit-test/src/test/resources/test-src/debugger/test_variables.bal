@@ -20,10 +20,14 @@ type Foo record {
 };
 
 type Person object {
-    public int age;
-    public string name;
-    public Person? parent;
+    public int age = 0;
+    public string name = "";
+    public Person? parent = ();
     private string email = "default@abc.com";
+
+    function __init() {
+
+    }
 };
 
 function callFunc() returns (string) {

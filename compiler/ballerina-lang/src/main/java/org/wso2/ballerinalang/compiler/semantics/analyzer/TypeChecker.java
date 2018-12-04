@@ -593,7 +593,10 @@ public class TypeChecker extends BLangNodeVisitor {
         } else {
             workerReceiveExpr.workerType = symbol.type;
         }
-
+        // The receive expression cannot be assigned to var, since we cannot infer the type.
+        if (symTable.noType == this.expType) {
+            this.dlog.error(workerReceiveExpr.pos, DiagnosticCode.INVALID_USAGE_OF_RECEIVE_EXPRESSION);
+        }
         // We cannot predict the type of the receive expression as it depends on the type of the data sent by the other
         // worker/channel. Since receive is an expression now we infer the type of it from the lhs of the statement.
         workerReceiveExpr.type = this.expType;
@@ -1065,6 +1068,11 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.MAP:
                 checkTypesForMap(waitForAllExpr.keyValuePairs, ((BMapType) expType).constraint);
                 HashSet<BType> memberTypesForMap = collectWaitExprTypes(waitForAllExpr.keyValuePairs);
+                if (memberTypesForMap.size() == 1) {
+                    resultType = new BMapType(TypeTags.MAP,
+                            memberTypesForMap.iterator().next(), symTable.mapType.tsymbol);
+                    break;
+                }
                 BUnionType constraintTypeForMap = new BUnionType(null, memberTypesForMap, false);
                 resultType = new BMapType(TypeTags.MAP, constraintTypeForMap, symTable.mapType.tsymbol);
                 break;
@@ -1072,6 +1080,10 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.ANY:
                 checkTypesForMap(waitForAllExpr.keyValuePairs, expType);
                 HashSet<BType> memberTypes = collectWaitExprTypes(waitForAllExpr.keyValuePairs);
+                if (memberTypes.size() == 1) {
+                    resultType = new BMapType(TypeTags.MAP, memberTypes.iterator().next(), symTable.mapType.tsymbol);
+                    break;
+                }
                 BUnionType constraintType = new BUnionType(null, memberTypes, false);
                 resultType = new BMapType(TypeTags.MAP, constraintType, symTable.mapType.tsymbol);
                 break;
@@ -2847,14 +2859,14 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 return symResolver.createSymbolForStampOperator(iExpr.pos, new Name(function.getName()),
                         functionArgList, iExpr.expr);
-            case CREATE:
+            case CONVERT:
                 functionArgList = iExpr.argExprs;
-                // Resolve the type of the variables passed as arguments to create in-built function.
+                // Resolve the type of the variables passed as arguments to convert in-built function.
                 for (BLangExpression expression : functionArgList) {
                     checkExpr(expression, env, symTable.noType);
                 }
-                return symResolver.createSymbolForCreateOperator(iExpr.pos, new Name(function.getName()),
-                        functionArgList, iExpr.expr);
+                return symResolver.createSymbolForConvertOperator(iExpr.pos, new Name(function.getName()),
+                                                                  functionArgList, iExpr.expr);
             case CALL:
                 return getFunctionPointerCallSymbol(iExpr);
             case DETAIL:

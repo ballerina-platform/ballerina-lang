@@ -33,7 +33,7 @@ public function main() {
     if (selectRet is table<record {}>) {
         // Convert a table to JSON.
         io:println("\nConvert the table into json");
-        var jsonConversionRet = json.create(selectRet);
+        var jsonConversionRet = json.convert(selectRet);
         if (jsonConversionRet is json) {
             io:print("JSON: ");
             io:println(io:sprintf("%s", jsonConversionRet));

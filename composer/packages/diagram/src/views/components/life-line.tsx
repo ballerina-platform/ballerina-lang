@@ -1,6 +1,7 @@
 
 // import { getCodePoint } from "@ballerina/font";
 import { getCodePoint } from "@ballerina/font";
+import classNames from "classnames";
 import * as React from "react";
 import { DiagramConfig } from "../../config/default";
 import { DiagramUtils } from "../../diagram/diagram-utils";
@@ -20,7 +21,7 @@ export const LifeLine: React.StatelessComponent<{
 }) => {
 
         const topLabel = { x: 0, y: 0 };
-        const topIcon = { x: 0, y: 0, className: "lifeline-icon" };
+        const topIcon = { x: 0, y: 0, className: "life-line-icon" };
         const bottomLabel = { x: 0, y: 0 };
         const topBox = { x: 0, y: 0 , width: 0, height: 0};
         const bottomBox = { x: 0, y: 0 , width: 0, height: 0};
@@ -46,7 +47,7 @@ export const LifeLine: React.StatelessComponent<{
         topIcon.y -= config.statement.height;
 
         return (
-            <g className="life-line">
+            <g className={classNames("life-line", `life-line-${icon}`)}>
                 <line {...lifeLine} />
                 <rect {...topBox} />
                 <rect {...bottomBox} />

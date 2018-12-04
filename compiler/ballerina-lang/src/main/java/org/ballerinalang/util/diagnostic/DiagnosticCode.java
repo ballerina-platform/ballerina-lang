@@ -371,7 +371,8 @@ public enum DiagnosticCode {
 
     // Worker receive and send related error codes
     INVALID_TYPE_FOR_RECEIVE("invalid.type.for.receive"),
-    INVALID_TYPE_FOR_SEND("invalid.type.for.send");
+    INVALID_TYPE_FOR_SEND("invalid.type.for.send"),
+    INVALID_USAGE_OF_RECEIVE_EXPRESSION("invalid.usage.of.receive.expression");
 
     private String value;
 

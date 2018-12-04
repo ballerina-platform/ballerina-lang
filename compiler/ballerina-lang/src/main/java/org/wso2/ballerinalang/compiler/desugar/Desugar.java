@@ -1058,8 +1058,26 @@ public class Desugar extends BLangNodeVisitor {
 
         assignNode.varRef = rewriteExpr(assignNode.varRef);
         assignNode.expr = rewriteExpr(assignNode.expr);
-        result = assignNode;
 
+        // If this is an update of a type guarded variable, then generate code
+        // to update the original variable as well.
+        if (assignNode.varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            BLangSimpleVarRef varRef = (BLangSimpleVarRef) assignNode.varRef;
+            BVarSymbol varSymbol = (BVarSymbol) varRef.symbol;
+            if (varSymbol.originalSymbol != null) {
+                BLangExpression guardedVarRef = ASTBuilderUtil.createVariableRef(assignNode.pos, varSymbol);
+                guardedVarRef = addConversionExprIfRequired(guardedVarRef, varSymbol.originalSymbol.type);
+                BLangSimpleVarRef originalVarRef =
+                        ASTBuilderUtil.createVariableRef(assignNode.pos, varSymbol.originalSymbol);
+                BLangAssignment updateOriginalVar =
+                        ASTBuilderUtil.createAssignmentStmt(assignNode.pos, originalVarRef, guardedVarRef);
+                updateOriginalVar = rewrite(updateOriginalVar, env);
+                result = ASTBuilderUtil.createBlockStmt(assignNode.pos, Lists.of(assignNode, updateOriginalVar));
+                return;
+            }
+        }
+
+        result = assignNode;
     }
 
     @Override
@@ -2644,7 +2662,7 @@ public class Desugar extends BLangNodeVisitor {
             // Create an assignment node. Add a conversion from rhs to lhs of the pattern, if required.
             pattern.expr = addConversionExprIfRequired(pattern.expr, tempResultVarRef.type);
             BLangAssignment assignmentStmt =
-                    ASTBuilderUtil.createAssignmentStmt(pattern.pos, tempResultVarRef, pattern.expr, false);
+                    ASTBuilderUtil.createAssignmentStmt(pattern.pos, tempResultVarRef, pattern.expr);
             BLangBlockStmt patternBody = ASTBuilderUtil.createBlockStmt(pattern.pos, Lists.of(assignmentStmt));
 
             // Create the pattern
@@ -3094,12 +3112,12 @@ public class Desugar extends BLangNodeVisitor {
             case IS_FROZEN:
                 visitFreezeBuiltInMethodInvocation(iExpr);
                 break;
-            case CREATE:
+            case CONVERT:
                 if (iExpr.symbol.kind == SymbolKind.CONVERSION_OPERATOR) {
                     result = new BLangBuiltInMethodInvocation(iExpr, iExpr.builtInMethod);
                 } else {
-                    result = visitCreateStampMethod(iExpr.pos, iExpr.expr, iExpr.requiredArgs,
-                                                    (BInvokableSymbol) iExpr.symbol);
+                    result = visitConvertStampMethod(iExpr.pos, iExpr.expr, iExpr.requiredArgs,
+                                                     (BInvokableSymbol) iExpr.symbol);
                 }
                 break;
             case CALL:
@@ -3252,10 +3270,10 @@ public class Desugar extends BLangNodeVisitor {
         return conversionExpr;
     }
 
-    private BLangInvocation.BLangBuiltInMethodInvocation visitCreateStampMethod(DiagnosticPos pos,
-                                                                                BLangExpression expr,
-                                                                                List<BLangExpression> requiredArgs,
-                                                                                BInvokableSymbol invokableSymbol) {
+    private BLangInvocation.BLangBuiltInMethodInvocation visitConvertStampMethod(DiagnosticPos pos,
+                                                                                 BLangExpression expr,
+                                                                                 List<BLangExpression> requiredArgs,
+                                                                                 BInvokableSymbol invokableSymbol) {
         BType targetType = invokableSymbol.retType;
         if (types.isValueType(targetType) || targetType == symTable.nilType) {
             return ASTBuilderUtil.createBuiltInMethod(pos, expr, invokableSymbol, requiredArgs, symResolver,

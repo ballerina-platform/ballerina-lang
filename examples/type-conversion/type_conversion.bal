@@ -17,7 +17,7 @@ public function main() {
     // `create` function will create a new value without modifying the input `strVal` and assign it to `intResult`.
     // Like `create` function, you can use `stamp` function to get the input value modified and assign it to ressulting variable.
     strVal = "Sri Lanka";
-    var intResult = int.create(strVal);
+    var intResult = int.convert(strVal);
     if (intResult is int) {
         io:println(intResult);
     } else {
@@ -37,7 +37,7 @@ public function main() {
     // This is a `string` to `boolean` conversion.
     // This conversion is safe because `string true` always evaluates to `boolean true` and `string false` always evaluates to `boolean false`.
     strVal = "true";
-    boolean|error strBoolVal = boolean.create(strVal);
+    boolean|error strBoolVal = boolean.convert(strVal);
     io:println(strBoolVal);
 
     // This assigns a value of the `float` type to a variable of the `any` type.

@@ -102,6 +102,7 @@ import org.ballerinalang.util.codegen.WorkerDataChannelInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 import org.ballerinalang.util.codegen.attributes.DefaultValueAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.WorkerSendInsAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.BlobCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ByteCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
@@ -478,10 +479,18 @@ public class BVM {
                             chnSendIns.keyType, chnSendIns.keyReg);
                     break;
                 case InstructionCodes.FLUSH:
-                    // TODO fix - rajith
+                    Instruction.InstructionFlush flushIns = (Instruction.InstructionFlush) instruction;
+                    if (WaitCallbackHandler.handleFlush(strand, flushIns.retReg, flushIns.channels) == null) {
+                        return;
+                    }
                     break;
                 case InstructionCodes.WORKERSYNCSEND:
-                    // TODO fix - rajith
+                    Instruction.InstructionWRKSyncSend syncSendIns = (Instruction.InstructionWRKSyncSend) instruction;
+                    if (!handleWorkerSyncSend(strand, syncSendIns.dataChannelInfo, syncSendIns.type, syncSendIns.reg,
+                            syncSendIns.retReg)) {
+                        return;
+                    }
+                    //worker data channel will resume this upon data retrieval or error
                     break;
                 case InstructionCodes.PANIC:
                     i = operands[0];
@@ -802,6 +811,13 @@ public class BVM {
         }
     }
 
+    private static boolean handleWorkerSyncSend(Strand strand, WorkerDataChannelInfo dataChannelInfo, BType type,
+                                                int reg, int retReg) {
+        BRefType val = extractValue(strand.currentFrame, type, reg);
+        WorkerDataChannel dataChannel = getWorkerChannel(strand, dataChannelInfo.getChannelName(), false);
+        return dataChannel.putData(val, strand, retReg);
+    }
+
     private static void createClone(Strand ctx, int[] operands, StackFrame sf) {
         int i = operands[0];
         int j = operands[1];
@@ -837,9 +853,16 @@ public class BVM {
             return strand;
         }
 
-        SafeStrandCallback strndCallback = new SafeStrandCallback(callableUnitInfo.getRetParamTypes()[0]);
+        SafeStrandCallback strandCallback = new SafeStrandCallback(callableUnitInfo.getRetParamTypes()[0],
+                strand.respCallback.getWorkerDataChannels());
+        if (callableUnitInfo.workerSendInChannels == null) {
+            WorkerSendInsAttributeInfo attributeInfo =
+                    (WorkerSendInsAttributeInfo) callableUnitInfo.getAttributeInfo(AttributeInfo.Kind.WORKER_SEND_INS);
+            callableUnitInfo.workerSendInChannels = attributeInfo.sendIns;
+        }
+        strandCallback.sendIns = callableUnitInfo.workerSendInChannels;
         Strand calleeStrand = new Strand(strand.programFile, callableUnitInfo.getName(),
-                strand.globalProps, strndCallback, strand.wdChannels);
+                strand.globalProps, strandCallback);
         calleeStrand.pushFrame(df);
         // Start observation after pushing the stack frame
         ObserveUtils.startCallableObservation(calleeStrand, strand.respCallback.getObserverContext());
@@ -1462,7 +1485,7 @@ public class BVM {
                 bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
                     sf.longRegs[k] = bValueArray.getInt(sf.longRegs[j]);
-                } catch (Exception e) {
+                } catch (BallerinaException e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
@@ -1474,7 +1497,7 @@ public class BVM {
                 bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
                     sf.intRegs[k] = bValueArray.getByte(sf.longRegs[j]);
-                } catch (Exception e) {
+                } catch (BallerinaException e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
@@ -1486,7 +1509,7 @@ public class BVM {
                 bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
                     sf.doubleRegs[k] = bValueArray.getFloat(sf.longRegs[j]);
-                } catch (Exception e) {
+                } catch (BallerinaException e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
@@ -1498,7 +1521,7 @@ public class BVM {
                 bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
                     sf.stringRegs[k] = bValueArray.getString(sf.longRegs[j]);
-                } catch (Exception e) {
+                } catch (BallerinaException e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
@@ -1510,7 +1533,7 @@ public class BVM {
                 bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
                     sf.intRegs[k] = bValueArray.getBoolean(sf.longRegs[j]);
-                } catch (Exception e) {
+                } catch (BallerinaException e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
@@ -1522,7 +1545,7 @@ public class BVM {
                 BNewArray bNewArray = Optional.of((BNewArray) sf.refRegs[i]).get();
                 try {
                     sf.refRegs[k] = ListUtils.execListGetOperation(bNewArray, sf.longRegs[j]);
-                } catch (Exception e) {
+                } catch (BallerinaException e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
@@ -1534,7 +1557,7 @@ public class BVM {
 
                 try {
                     sf.refRegs[k] = JSONUtils.getArrayElement(sf.refRegs[i], sf.longRegs[j]);
-                } catch (Exception e) {
+                } catch (BallerinaException e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
@@ -1587,7 +1610,7 @@ public class BVM {
                 boolean except = exceptCPEntry.getValue() == 1;
                 try {
                     sf.refRegs[k] = bMap.get(sf.stringRegs[j], except);
-                } catch (Exception e) {
+                } catch (BallerinaException e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
@@ -1621,7 +1644,7 @@ public class BVM {
                 bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
                     bValueArray.add(sf.longRegs[j], sf.longRegs[k]);
-                } catch (Exception e) {
+                } catch (BLangFreezeException | BallerinaException e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
@@ -1633,7 +1656,7 @@ public class BVM {
                 bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
                     bValueArray.add(sf.longRegs[j], (byte) sf.intRegs[k]);
-                } catch (Exception e) {
+                } catch (BLangFreezeException | BallerinaException e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
@@ -1645,7 +1668,7 @@ public class BVM {
                 bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
                     bValueArray.add(sf.longRegs[j], sf.doubleRegs[k]);
-                } catch (Exception e) {
+                } catch (BLangFreezeException | BallerinaException e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
@@ -1657,7 +1680,7 @@ public class BVM {
                 bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
                     bValueArray.add(sf.longRegs[j], sf.stringRegs[k]);
-                } catch (Exception e) {
+                } catch (BLangFreezeException | BallerinaException e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
@@ -1669,7 +1692,7 @@ public class BVM {
                 bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
                     bValueArray.add(sf.longRegs[j], sf.intRegs[k]);
-                } catch (Exception e) {
+                } catch (BLangFreezeException | BallerinaException e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
@@ -1694,7 +1717,7 @@ public class BVM {
 
                 try {
                     ListUtils.execListAddOperation(list, index, refReg);
-                } catch (BLangFreezeException e) {
+                } catch (BLangFreezeException | BallerinaException e) {
                     ctx.setError(BLangVMErrors.createError(ctx, "Failed to add element: " + e.getMessage()));
                     handleError(ctx);
                 }
@@ -1706,7 +1729,7 @@ public class BVM {
 
                 try {
                     JSONUtils.setArrayElement(sf.refRegs[i], sf.longRegs[j], sf.refRegs[k]);
-                } catch (Exception e) {
+                } catch (BLangFreezeException | BallerinaException e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
                 }
@@ -1765,7 +1788,7 @@ public class BVM {
                 k = operands[2];
                 try {
                     JSONUtils.setElement(sf.refRegs[i], sf.stringRegs[j], sf.refRegs[k]);
-                } catch (BLangFreezeException e) {
+                } catch (BLangFreezeException | BallerinaException e) {
                     ctx.setError(BLangVMErrors.createError(ctx, "failed to set element to json: " + e.getMessage()));
                     handleError(ctx);
                 }
@@ -2165,8 +2188,13 @@ public class BVM {
 
                 xmlVal = Optional.of((BXML) sf.refRegs[i]).get();
                 xmlQName = Optional.of((BXMLQName) sf.refRegs[j]).get();
-                xmlVal.setAttribute(xmlQName.getLocalName(), xmlQName.getUri(), xmlQName.getPrefix(),
-                        sf.stringRegs[k]);
+                try {
+                    xmlVal.setAttribute(xmlQName.getLocalName(), xmlQName.getUri(), xmlQName.getPrefix(),
+                            sf.stringRegs[k]);
+                } catch (BallerinaException e) {
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+                    handleError(ctx);
+                }
                 break;
             case InstructionCodes.XMLATTRLOAD:
                 i = operands[0];
@@ -2222,7 +2250,12 @@ public class BVM {
 
                 xmlVal = Optional.of((BXML) sf.refRegs[i]).get();
                 long index = sf.longRegs[j];
-                sf.refRegs[k] = xmlVal.getItem(index);
+                try {
+                    sf.refRegs[k] = xmlVal.getItem(index);
+                } catch (BallerinaException e) {
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+                    handleError(ctx);
+                }
                 break;
             case InstructionCodes.XMLLOAD:
                 i = operands[0];
@@ -2746,18 +2779,23 @@ public class BVM {
                 nextInstruction = (InstructionIteratorNext) instruction;
                 iterator = (BIterator) sf.refRegs[nextInstruction.iteratorIndex];
 
-                // Get the next value.
-                BValue value = Optional.of(iterator).get().getNext();
-                if (value != null) {
-                    // If the value is not null, we create a new map and add the value to the map with the key
-                    // `value`. Then we set this map to the corresponding registry location.
-                    BMap<String, BValue> newMap = new BMap<>(nextInstruction.constraintType);
-                    newMap.put("value", value);
-                    sf.refRegs[nextInstruction.retRegs[0]] = (BRefType) newMap;
-                } else {
-                    // If the value is null, that means we have reached the end of the iterable list. So we set null
-                    // to the corresponding registry location.
-                    sf.refRegs[nextInstruction.retRegs[0]] = null;
+                try {
+                    // Get the next value.
+                    BValue value = Optional.of(iterator).get().getNext();
+                    if (value != null) {
+                        // If the value is not null, we create a new map and add the value to the map with the key
+                        // `value`. Then we set this map to the corresponding registry location.
+                        BMap<String, BValue> newMap = new BMap<>(nextInstruction.constraintType);
+                        newMap.put("value", value);
+                        sf.refRegs[nextInstruction.retRegs[0]] = (BRefType) newMap;
+                    } else {
+                        // If the value is null, that means we have reached the end of the iterable list. So we set null
+                        // to the corresponding registry location.
+                        sf.refRegs[nextInstruction.retRegs[0]] = null;
+                    }
+                } catch (BallerinaException e) {
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+                    handleError(ctx);
                 }
                 break;
         }
@@ -2939,14 +2977,23 @@ public class BVM {
                 /*
                  In case of a for loop, need to clear the last hit line, so that, same line can get hit again.
                  */
-                debugContext.clearLastDebugLine();
+                debugContext.clearContext();
                 break;
             case STEP_IN:
+                debugHit(ctx, currentExecLine, debugger);
+                return true;
             case STEP_OVER:
+                if (debugContext.getFramePointer() < ctx.fp) {
+                    return false;
+                }
                 debugHit(ctx, currentExecLine, debugger);
                 return true;
             case STEP_OUT:
-                break;
+                if (debugContext.getFramePointer() > ctx.fp) {
+                    debugHit(ctx, currentExecLine, debugger);
+                    return true;
+                }
+                return false;
             default:
                 debugger.notifyExit();
                 debugger.stopDebugging();
@@ -2980,7 +3027,7 @@ public class BVM {
      * @param debugger        Debugger object.
      */
     private static void debugHit(Strand ctx, LineNumberInfo currentExecLine, Debugger debugger) {
-        ctx.getDebugContext().setLastLine(currentExecLine);
+        ctx.getDebugContext().updateContext(currentExecLine, ctx.fp);
         debugger.pauseWorker(ctx);
         debugger.notifyDebugHit(ctx, currentExecLine, ctx.getId());
     }
@@ -3351,9 +3398,9 @@ public class BVM {
 
     private static WorkerDataChannel getWorkerChannel(Strand ctx, String name, boolean channelInSameStrand) {
         if (channelInSameStrand) {
-            return ctx.wdChannels.getWorkerDataChannel(name);
+            return ctx.respCallback.getWorkerDataChannels().getWorkerDataChannel(name);
         }
-        return ctx.parentChannels.getWorkerDataChannel(name);
+        return ctx.respCallback.getParentWorkerDataChannels().getWorkerDataChannel(name);
     }
 
     private static BRefType extractValue(StackFrame data, BType type, int reg) {

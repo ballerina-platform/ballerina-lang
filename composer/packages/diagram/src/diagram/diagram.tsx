@@ -78,13 +78,14 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
         const { ast, width, height } = this.props;
         const { currentMode } = this.state;
         // create context contributions
-        const contextContributions = {
+        const contextContributions: Partial<IDiagramContext> = {
             ast,
             changeMode: (newMode: DiagramMode) => {
                 this.setState({
                     currentMode: newMode,
                 });
             },
+            containerRef: this.containerRef,
             diagramHeight: height,
             diagramWidth: width,
             mode: currentMode,

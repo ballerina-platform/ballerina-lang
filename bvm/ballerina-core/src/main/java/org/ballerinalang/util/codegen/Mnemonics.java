@@ -209,7 +209,9 @@ public class Mnemonics {
         mnemonics[InstructionCodes.JSON2MAP] = "json2map";
         mnemonics[InstructionCodes.MAP2JSON] = "map2json";
         mnemonics[InstructionCodes.JSON2T] = "json2t";
+        mnemonics[InstructionCodes.FLUSH] = "flush";
         mnemonics[InstructionCodes.LENGTHOF] = "lengthof";
+        mnemonics[InstructionCodes.WAITALL] = "waitall";
         mnemonics[InstructionCodes.ANY2SCONV] = "any2sconv";
         mnemonics[InstructionCodes.IS_ASSIGNABLE] = "is_assignable";
 
@@ -241,6 +243,7 @@ public class Mnemonics {
 
         mnemonics[InstructionCodes.WRKSEND] = "wrksend";
         mnemonics[InstructionCodes.WRKRECEIVE] = "wrkreceive";
+        mnemonics[InstructionCodes.WORKERSYNCSEND] = "wrksyncsend";
 
         mnemonics[InstructionCodes.WAIT] = "wait";
 

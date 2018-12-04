@@ -22,7 +22,7 @@ type Data4 record {
 };
 
 function concatIntStringAny(int i, string s, any a) {
-    output = output + i + ":" + s + ":" + string.create(a) + " ";
+    output = output + i + ":" + s + ":" + string.convert(a) + " ";
 }
 
 // ---------------------------------------------------------------------------------------------------------------------

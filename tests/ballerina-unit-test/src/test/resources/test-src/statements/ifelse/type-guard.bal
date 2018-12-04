@@ -250,3 +250,38 @@ function testArray() returns int {
         return -1;
     }
 }
+
+function testUpdatingGuardedVar_1() returns string {
+    any value = "BALLERINA";
+    if (value is int|string|float) {
+        if (value is string) {
+         value = value + " - updated";
+        } else {
+            return "an int or float";
+        }
+    } else {
+        return "some other type";
+    }
+
+    return string.convert(value);
+}
+
+function testUpdatingGuardedVar_2() returns string {
+    any value = "BALLERINA";
+    if (!(value is int|string|float)) {
+        return "some other type";
+    } else {
+        if (value is string) {
+            value = value + " - updated once";
+            value = getUpdatedString(value);
+        } else {
+            return "an int or float";
+        }
+    }
+
+    return string.convert(value);
+}
+
+function getUpdatedString(string s) returns string {
+    return s + " - updated via function";
+}
