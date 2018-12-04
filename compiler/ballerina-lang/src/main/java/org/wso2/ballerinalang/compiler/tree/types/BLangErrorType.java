@@ -22,8 +22,6 @@ import org.ballerinalang.model.tree.types.ErrorTypeNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
-import java.util.Optional;
-
 /**
  * Implementation of {@link ErrorTypeNode}.
  *
