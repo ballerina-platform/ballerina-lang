@@ -107,8 +107,6 @@ public class SendingEntityBody implements ListenerState {
         // receive. In order to handle it. we need to change the states depending on the action.
         http2MessageStateContext.setListenerState(new ReceivingEntityBody(http2MessageStateContext, Boolean.TRUE));
         http2MessageStateContext.getListenerState().readInboundRequestBody(http2SourceHandler, dataFrame);
-        // PREVIOUS: Response is already started to send, hence the incoming data frames need to be released.
-        // PREVIOUS: releaseDataFrame(http2SourceHandler, dataFrame);
     }
 
     @Override
