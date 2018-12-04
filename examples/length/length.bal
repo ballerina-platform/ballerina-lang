@@ -14,7 +14,7 @@ public function main() {
     int length;
 
     // This prints the length of the integer array created. The length is 
-    // calculated using the `length` function.
+    // calculated using the `length()` function.
     length = intArray.length();
     io:println("Integer array size: ", length);
 
