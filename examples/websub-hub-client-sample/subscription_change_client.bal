@@ -3,13 +3,6 @@ import ballerina/io;
 import ballerina/runtime;
 import ballerina/websub;
 
-// This is the remote WebSub Hub Endpoint to which subscription and unsubscription requests are sent.
-//endpoint websub:Client websubHubClientEP {
-//    url: "https://localhost:9191/websub/hub"
-//};
-//listener websub:Client websubHubClientEP = new websub:Listener("https://localhost:9191/websub/hub", config = { host: "0.0.0.0" });
-
-
 websub:Client websubHubClientEP = new websub:Client("https://localhost:9191/websub/hub");
 
 public function main() {

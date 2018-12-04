@@ -6,8 +6,7 @@ import ballerina/io;
 import ballerina/config;
 
 // The endpoint to which the subscriber service is bound.
-listener websub:Listener websubEP = new websub:Listener(8181,
-config = { host: "0.0.0.0" });
+listener websub:Listener websubEP = new websub:Listener(8181, config = { host: "0.0.0.0" });
 
 // Annotations specifying the subscription parameters.
 @websub:SubscriberServiceConfig {
