@@ -28,7 +28,7 @@ public function main() {
     j.map(function ((string, json) pair) returns string {
             var (key, value) = pair;
             string result = value.toString();
-            io:println("- map operation's value: ", s);
+            io:println("- map operation's value: ", result);
             return s;
         }).foreach(function (string s) {
             io:println("-- foreach operation's value: ", s);
