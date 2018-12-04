@@ -4,6 +4,7 @@ import * as Ballerina from "../ast-interfaces";
 const defaultImport = JSON.stringify(require("./resources/function.json"));
 const defaultFunction = JSON.stringify(require("./resources/function.json"));
 const defaultMainFunction = JSON.stringify(require("./resources/function.json"));
+const defaultService = JSON.stringify(require("./resources/service.json"));
 // tslint:enable:no-var-requires
 
 export function createImportNode(): Ballerina.Import {
@@ -16,4 +17,8 @@ export function createFunctionNode(): Ballerina.Function {
 
 export function createMainFunctionNode(): Ballerina.Function {
     return JSON.parse(defaultMainFunction);
+}
+
+export function createServiceNode(): Ballerina.Function {
+    return JSON.parse(defaultService);
 }

@@ -69,7 +69,7 @@ export const If: React.StatelessComponent<{
         r4.y = r3.y;
 
         return (
-            <g className="panel">
+            <g className="panel if">
                 <Condition {...conditionProps} />
                 <polyline className="condition-line"
                     points={`${r1.x},${r1.y} ${r2.x},${r2.y} ${r3.x},${r3.y} ${r4.x},${r4.y}`}

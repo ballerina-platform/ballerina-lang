@@ -9,7 +9,7 @@ task:Appointment? app = ();
 function scheduleAppointment(string cronExpression, string errMsgW1) {
     worker default {
         errorMsgW1 = errMsgW1;
-        app <- w1;
+        app =<- w1;
     }
     worker w1 {
         (function() returns error?) onTriggerFunction = onTriggerW1;

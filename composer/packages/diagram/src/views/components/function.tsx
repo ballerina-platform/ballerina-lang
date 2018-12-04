@@ -33,6 +33,8 @@ export const Function = (props: { model: FunctionNode }) => {
                 triggerPosition={viewState.menuTrigger}
                 onAddEndpoint={(epDef: any) => {
                     // todo
+                    // tslint:disable-next-line:no-console
+                    console.log("Selected EP: " + JSON.stringify(epDef));
                 }}
                 onAddWorker={() => {
                     // todo

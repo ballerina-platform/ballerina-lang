@@ -36,7 +36,7 @@ function deployPeakTempDetectionRules() {
             e2[e2.length - 1].temp as peakTemp
         => (TempDiffInfo[] tempDiffInfos) {
         // If the sequence is matched, the data is pushed/published to the output stream.
-            foreach t in tempDiffInfos {
+            foreach var t in tempDiffInfos {
                 tempDiffInfoStream.publish(t);
             }
         }
