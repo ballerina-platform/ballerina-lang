@@ -1,6 +1,5 @@
-$ ballerina run type_conversion.bal
+$ ballerina run explicitly_typed_expressions.bal
 10
-error: 'string' cannot be converted to 'int'
 1
 true
 true
