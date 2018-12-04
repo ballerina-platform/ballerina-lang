@@ -42,6 +42,8 @@ public interface RecordVariableReferenceNode extends VariableReferenceNode {
 
     List<? extends BLangRecordVarRef.BLangRecordVarRefKeyValueNode> getRecordRefFields();
 
+    ExpressionNode getRestParam();
+
     /**
      * Interface for key and value of a record var ref.
      */
