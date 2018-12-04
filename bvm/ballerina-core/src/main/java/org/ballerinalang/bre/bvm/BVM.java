@@ -3892,6 +3892,10 @@ public class BVM {
             }
         }
 
+        if (lhsType.sealed) {
+            return lhsFieldNames.containsAll(rhsFields.keySet());
+        }
+
         return rhsFields.values().stream()
                             .filter(field -> !lhsFieldNames.contains(field.fieldName))
                             .allMatch(field -> isAssignable(field.fieldType, lhsType.restFieldType, unresolvedTypes));
@@ -5038,8 +5042,13 @@ public class BVM {
             }
         }
 
-        // If there are fields remaining in the source record, check if they are compatible with the rest field of
-        // the target type.
+        // If there are fields remaining in the source record, first check if it's a closed record. Closed records
+        // should only have the fields specified by its type.
+        if (targetType.sealed) {
+            return targetFieldNames.containsAll(sourceFields.keySet());
+        }
+
+        // If it's an open record, check if they are compatible with the rest field of the target type.
         return sourceFields.values().stream()
                 .filter(field -> !targetFieldNames.contains(field.fieldName))
                 .allMatch(field -> checkIsType(field.getFieldType(), targetType.restFieldType, unresolvedTypes));
