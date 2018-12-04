@@ -36,11 +36,13 @@ import java.util.Map;
 
 import static org.ballerinalang.compiler.CompilerOptionName.BUILD_COMPILED_MODULE;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
+import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
-import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
+import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;;
+
 /**
  * This class provides util methods for building Ballerina programs and packages.
  *
@@ -55,7 +57,8 @@ public class BuilderUtils {
                                                 boolean buildCompiledPkg,
                                                 boolean offline,
                                                 boolean lockEnabled,
-                                                boolean skiptests) {
+                                                boolean skiptests,
+                                                boolean enableExperimentalFeatures) {
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRootPath.toString());
@@ -65,6 +68,7 @@ public class BuilderUtils {
         options.put(LOCK_ENABLED, Boolean.toString(lockEnabled));
         options.put(SKIP_TESTS, Boolean.toString(skiptests));
         options.put(TEST_ENABLED, "true");
+        options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExperimentalFeatures));
 
         Compiler compiler = Compiler.getInstance(context);
         BLangPackage bLangPackage = compiler.build(packagePath);
@@ -79,7 +83,7 @@ public class BuilderUtils {
     }
 
     public static void compileWithTestsAndWrite(Path sourceRootPath, boolean offline, boolean lockEnabled,
-                                                boolean skiptests) {
+                                                boolean skiptests, boolean enableExperimentalFeatures) {
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRootPath.toString());
@@ -88,6 +92,7 @@ public class BuilderUtils {
         options.put(LOCK_ENABLED, Boolean.toString(lockEnabled));
         options.put(SKIP_TESTS, Boolean.toString(skiptests));
         options.put(TEST_ENABLED, "true");
+        options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExperimentalFeatures));
 
         Compiler compiler = Compiler.getInstance(context);
         List<BLangPackage> packages = compiler.build();
