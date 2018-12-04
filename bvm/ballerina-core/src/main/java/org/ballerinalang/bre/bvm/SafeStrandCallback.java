@@ -22,8 +22,8 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BError;
 
 import java.io.PrintStream;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -58,19 +58,21 @@ public class SafeStrandCallback extends StrandCallback {
                 return;
             }
             if (this.callbackWaitHandler.waitForAll) {
-                Map<Integer, SafeStrandCallback> callbackHashMap = new HashMap();
-                callbackHashMap.put(this.callbackWaitHandler.keyReg, this);
-
-                Strand resultStrand = CallbackReturnHandler.handleReturn(this.callbackWaitHandler.waitingStrand,
-                        this.callbackWaitHandler.retReg, callbackHashMap);
+                List<WaitMultipleCallback> callbackList = new ArrayList<>();
+                callbackList.add(new WaitMultipleCallback(this.callbackWaitHandler.keyReg, this));
+                Strand resultStrand = WaitCallbackHandler.handleReturnInWaitMultiple(this.callbackWaitHandler
+                                                                                             .waitingStrand,
+                                                                                     this.callbackWaitHandler.retReg,
+                                                                                     callbackList);
                 if (resultStrand != null) {
                     BVMScheduler.stateChange(resultStrand, State.PAUSED, State.RUNNABLE);
                     BVMScheduler.schedule(resultStrand);
                 }
                 return;
             }
-            Strand resultStrand = CallbackReturnHandler.handleReturn(this.callbackWaitHandler.waitingStrand,
-                    this.callbackWaitHandler.expType, this.callbackWaitHandler.retReg, this);
+            Strand resultStrand = WaitCallbackHandler.handleReturnInWait(this.callbackWaitHandler.waitingStrand,
+                                                                         this.callbackWaitHandler.expType,
+                                                                         this.callbackWaitHandler.retReg, this);
             if (resultStrand != null) {
                 BVMScheduler.stateChange(resultStrand, State.PAUSED, State.RUNNABLE);
                 BVMScheduler.schedule(resultStrand);
@@ -126,4 +128,26 @@ public class SafeStrandCallback extends StrandCallback {
             dataLock = new ReentrantLock();
         }
     }
+
+    /**
+     * This class holds relevant data for wait for all callbacks.
+     */
+    public static class WaitMultipleCallback {
+        private int keyRegIndex;
+        private SafeStrandCallback callback;
+
+        public WaitMultipleCallback(int keyRegIndex, SafeStrandCallback callback) {
+            this.keyRegIndex = keyRegIndex;
+            this.callback = callback;
+        }
+
+        public int getKeyRegIndex() {
+            return keyRegIndex;
+        }
+
+        public SafeStrandCallback getCallback() {
+            return callback;
+        }
+    }
+
 }
