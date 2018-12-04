@@ -29,7 +29,7 @@ public function main() {
             var (key, value) = pair;
             string result = value.toString();
             io:println("- map operation's value: ", result);
-            return s;
+            return result;
         }).foreach(function (string s) {
             io:println("-- foreach operation's value: ", s);
         });
