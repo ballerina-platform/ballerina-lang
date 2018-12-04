@@ -28,19 +28,7 @@ import java.util.Arrays;
  * Negative worker related tests.
  */
 public class WorkerFailTest {
-    
-    @Test(enabled = false)
-    public void invalidForkJoinJoinResult() {
-        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-forkjoin-join-result.bal");
-        Assert.assertEquals(result.getErrorCount(), 1);
-    }
 
-    @Test(enabled = false)
-    public void invalidForkJoinTimeoutResult() {
-        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-forkjoin-timeout-result.bal");
-        Assert.assertEquals(result.getErrorCount(), 1);
-    }
-    
     @Test
     public void invalidWorkerSendReceive() {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-worker-send-receive.bal");
@@ -48,18 +36,12 @@ public class WorkerFailTest {
         Assert.assertEquals(result.getErrorCount(), 1);
         Assert.assertTrue(message.contains(" interactions are invalid"), message);
     }
-    
-    @Test(enabled = false)
-    public void invalidForkJoinWithReturn() {
-        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-forkjoin-with-return.bal");
-        Assert.assertEquals(result.getErrorCount(), 1);
-    }
 
     @Test
     public void invalidWorkSendWithoutWorker() {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-worksend-without-worker.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 1, "undefined worker 'worker1'", 3, 12);
+        BAssertUtil.validateError(result, 0, "undefined worker 'worker1'", 3, 12);
     }
 
     @Test

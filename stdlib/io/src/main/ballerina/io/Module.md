@@ -102,17 +102,18 @@ type Employee record {
 };
 
 // Now read the CSV file as a table of Employees and compute total salary.
-float totalSalary = 0;
-match readableCSVChannel.getTable(Employee) {
-    table<Employee> employees => {
-        foreach employee in employees {
-            totalSalary += employee.salary;
-        }
-        return totalSalary; // Return total of salaries of all employees.
-    }
-    error err => {
-        return err; // An IO error occurred when reading the records.
-    }
+float total = 0.0;
+var tableResult = csv.getTable(Employee);
+if (tableResult is table<Employee>) {
+     foreach var x in tableResult {
+       total = total + x.salary;
+     }
+     return total;
+} else if (tableResult is error) {
+     return tableResult; //Return the error back to the caller
+} else {
+     error e = error(IO_ERROR_CODE, { message : "Record channel not initialized properly" });
+     return e;
 }
 ```
 
@@ -132,7 +133,7 @@ public type Person record {
 //Serialize record into binary
 function serialize(Person p, io:WritableByteChannel byteChannel) {
     io:WritableDataChannel dc = new io:WritableDataChannel(byteChannel);
-    var length = lengthof p.name.toByteArray("UTF-8");
+    var length = p.name.toByteArray("UTF-8").length();
     var lengthResult = dc.writeInt32(length);
     var nameResult = dc.writeString(p.name, "UTF-8");
     var ageResult = dc.writeInt16(p.age);
@@ -143,34 +144,44 @@ function serialize(Person p, io:WritableByteChannel byteChannel) {
 
 //Deserialize record into binary
 function deserialize(io:ReadableByteChannel byteChannel) returns Person {
-    Person person;
-    int nameLength;
+    Person person = {};
+    int nameLength = 0;
     string nameValue;
     io:ReadableDataChannel dc = new io:ReadableDataChannel(byteChannel);
     //Read 32 bit singed integer
-    match dc.readInt32() {
-        int namel => nameLength = namel;
-        error e => log:printError("Error occurred while reading name length",err = e);
+    var int32Result = dc.readInt32();
+    if (int32Result is int) {
+        nameLength = int32Result;
+    } else if (int32Result is error) {
+        log:printError("Error occurred while reading name length", err = int32Result);
     }
     //Read UTF-8 encoded string represented through specified amount of bytes
-    match dc.readString(nameLength, "UTF-8") {
-        string name => person.name = name;
-        error e =>log:printError("Error occurred while reading name",err = e);
+    var strResult = dc.readString(nameLength, "UTF-8");
+    if (strResult is string) {
+        person.name = strResult;
+    } else if (strResult is error) {
+        log:printError("Error occurred while reading name", err = strResult);
     }
     //Read 16 bit signed integer
-    match dc.readInt16() {
-        int age => person.age = age;
-        error e =>log:printError("Error occurred while reading age",err = e);
+    var int16Result = dc.readInt16();
+    if (int16Result is int) {
+        person.age = int16Result;
+    } else if (int16Result is error) {
+        log:printError("Error occurred while reading age", err = int16Result);
     }
     //Read 64 bit signed float
-    match dc.readFloat64() {
-        float income => person.income = income;
-        error e =>log:printError("Error occurred while reading income",err = e);
+    var float64Result = dc.readFloat64();
+    if (float64Result is float) {
+        person.income = float64Result;
+    } else if (float64Result is error) {
+        log:printError("Error occurred while reading income", err = float64Result);
     }
     //Read boolean
-    match dc.readBool() {
-        boolean isMarried => person.isMarried = isMarried;
-        error e =>log:printError("Error occurred while reading marital status",err = e);
+    var boolResult = dc.readBool();
+    if (boolResult is boolean) {
+        person.isMarried = boolResult;
+    } else if (boolResult is error) {
+        log:printError("Error occurred while reading marital status", err = boolResult);
     }
     //Finally close the data channel
     var closeResult = dc.close();
