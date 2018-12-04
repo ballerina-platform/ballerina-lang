@@ -13,7 +13,7 @@ export interface SVGDropDownMenuTriggerProps {
 }
 
 export const SVGDropDownMenuTrigger: StatelessComponent<SVGDropDownMenuTriggerProps> =
-    ({ position, onClick, children, radius = 10, icon = "add" }) => {
+    ({ position, onClick, children, radius = 10, icon = "add", className }) => {
     const btnProps = {
         icon, onClick, position, radius
     };
@@ -21,8 +21,12 @@ export const SVGDropDownMenuTrigger: StatelessComponent<SVGDropDownMenuTriggerPr
         {({ editingEnabled }) => {
             return editingEnabled &&
                 <SVGOverlayComponent>
-                   <SVGCircleButton {...btnProps} />
-                   {children}
+                    <g className={className}>
+                        <g className="trigger">
+                            <SVGCircleButton {...btnProps} />
+                        </g>
+                        {children}
+                   </g>
                 </SVGOverlayComponent>;
         }}
     </DiagramContext.Consumer>;

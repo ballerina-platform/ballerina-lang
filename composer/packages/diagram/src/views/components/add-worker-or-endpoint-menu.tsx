@@ -24,12 +24,14 @@ export class AddWorkerOrEndpointMenu extends React.Component<{
                     triggerIcon="add"
                     items={[
                         {
-                            onSelect: onAddWorker,
-                            title: "Worker",
+                            icon: "worker",
+                            name: "Worker",
+                            onClick: onAddWorker,
                         },
                         {
-                            onSelect: this.openEpSearchDialog,
-                            title: "Endpoint",
+                            icon: "endpoint",
+                            name: "Endpoint",
+                            onClick: this.openEpSearchDialog
                         }
                     ]}
                 />
