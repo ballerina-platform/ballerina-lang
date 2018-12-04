@@ -232,3 +232,40 @@ function testNilableFuncPtrInvocation2() returns string? {
     return x;
 }
 
+public type A record {
+    string a;
+    string b;
+    string c;
+    !...
+};
+
+public type B record {
+    string f;
+    int g?;
+    *A;
+    !...
+};
+
+public type C record {
+    string i;
+    *A;
+    !...
+};
+
+function testAmbiguityResolution2() returns (string, string, string, string){
+    string s1 = resolve({a:"", b:"", c:""});
+    string s2 = resolve({a:"", b:"", c:"", f:""});
+    string s3 = resolve({a:"", b:"", c:"", f:"", g:0});
+    string s4 = resolve({a:"", b:"", c:"", i:""});
+    return (s1, s2, s3, s4);
+}
+
+function resolve(A|B|C rec) returns string {
+    if (rec is A) {
+        return "A";
+    } else if (rec is B) {
+        return "B";
+    } else {
+        return "C";
+    }
+}

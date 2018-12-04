@@ -40,7 +40,7 @@ definition
     ;
 
 serviceDefinition
-    :   SERVICE Identifier? ON expression serviceBody
+    :   SERVICE Identifier? ON expressionList serviceBody
     ;
 
 serviceBody
@@ -53,9 +53,8 @@ serviceBodyMember
     ;
 
 callableUnitBody
-    :   LEFT_BRACE statement* workerDeclaration* statement* RIGHT_BRACE
+    : LEFT_BRACE statement* (workerDeclaration+ statement*)? RIGHT_BRACE
     ;
-
 
 functionDefinition
     :   (PUBLIC)? (REMOTE)? (EXTERN)? FUNCTION ((Identifier | typeName) DOT)? callableUnitSignature (callableUnitBody | SEMICOLON)
@@ -124,7 +123,7 @@ constantDefinition
 globalVariableDefinition
     :   PUBLIC? LISTENER? typeName Identifier (ASSIGN expression)? SEMICOLON
     |   PUBLIC? FINAL (typeName | VAR) Identifier ASSIGN expression SEMICOLON
-    |   channelType Identifier SEMICOLON
+    |   channelType Identifier ASSIGN expression SEMICOLON
     ;
 
 channelType
@@ -240,7 +239,8 @@ annotationAttachment
 // STATEMENTS / BLOCKS
 
 statement
-    :   variableDefinitionStatement
+    :   errorDestructuringStatement
+    |   variableDefinitionStatement
     |   assignmentStatement
     |   tupleDestructuringStatement
     |   recordDestructuringStatement
@@ -265,7 +265,6 @@ statement
     |   namespaceDeclarationStatement
     |   foreverStatement
     |   streamingQueryStatement
-    |   doneStatement
     ;
 
 variableDefinitionStatement
@@ -275,6 +274,18 @@ variableDefinitionStatement
 
 recordLiteral
     :   LEFT_BRACE (recordKeyValue (COMMA recordKeyValue)*)? RIGHT_BRACE
+    ;
+
+staticMatchLiterals
+    :   simpleLiteral                                                       # staticMatchSimpleLiteral
+    |   recordLiteral                                                       # staticMatchRecordLiteral
+    |   tupleLiteral                                                        # staticMatchTupleLiteral
+    |   underscore                                                          # staticMatchUnderscoreLiteral
+    |   staticMatchLiterals PIPE staticMatchLiterals                        # staticMatchOrExpression
+    ;
+
+ tupleLiteral
+    :   LEFT_PARENTHESIS expression (COMMA expression)* RIGHT_PARENTHESIS
     ;
 
 recordKeyValue
@@ -324,7 +335,11 @@ tupleDestructuringStatement
     ;
 
 recordDestructuringStatement
-    :   VAR? recordRefBindingPattern ASSIGN expression SEMICOLON
+    :   recordRefBindingPattern ASSIGN expression SEMICOLON
+    ;
+
+ errorDestructuringStatement
+    :   errorRefBindingPattern ASSIGN expression SEMICOLON
     ;
 
 compoundAssignmentStatement
@@ -369,7 +384,7 @@ matchStatement
     ;
 
 matchPatternClause
-    :   expression EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
+    :   staticMatchLiterals EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
     |   VAR bindingPattern (IF expression)? EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
     ;
 
@@ -381,6 +396,11 @@ bindingPattern
 structuredBindingPattern
     :   tupleBindingPattern
     |   recordBindingPattern
+    |   errorBindingPattern
+    ;
+
+errorBindingPattern
+    :   TYPE_ERROR LEFT_PARENTHESIS Identifier (COMMA (Identifier | recordBindingPattern))? RIGHT_PARENTHESIS
     ;
 
 tupleBindingPattern
@@ -407,7 +427,9 @@ restBindingPattern
 
 bindingRefPattern
     :   variableReference
+    |   underscore
     |   structuredRefBindingPattern
+    |   errorRefBindingPattern
     ;
 
 structuredRefBindingPattern
@@ -421,6 +443,10 @@ tupleRefBindingPattern
 
 recordRefBindingPattern
     :   LEFT_BRACE entryRefBindingPattern RIGHT_BRACE
+    ;
+
+errorRefBindingPattern
+    :   TYPE_ERROR LEFT_PARENTHESIS variableReference (COMMA (variableReference | recordRefBindingPattern))? RIGHT_PARENTHESIS
     ;
 
 entryRefBindingPattern
@@ -521,6 +547,7 @@ variableReference
     |   variableReference xmlAttrib                                             # xmlAttribVariableReference
     |   variableReference invocation                                            # invocationReference
     |   typeDescExpr invocation                                                 # typeDescExprInvocationReference
+    |   underscore                                                              # underscoreVariableReference
     ;
 
 field
@@ -566,7 +593,11 @@ expressionStmt
     ;
 
 transactionStatement
-    :   transactionClause onretryClause?
+    :   transactionClause onretryClause? committedAbortedClauses
+    ;
+
+committedAbortedClauses
+    :  ((committedClause? abortedClause?) | (abortedClause? committedClause?))
     ;
 
 transactionClause
@@ -575,8 +606,6 @@ transactionClause
 
 transactionPropertyInitStatement
     :   retriesStatement
-    |   oncommitStatement
-    |   onabortStatement
     ;
 
 transactionPropertyInitStatementList
@@ -590,6 +619,15 @@ lockStatement
 onretryClause
     :   ONRETRY LEFT_BRACE statement* RIGHT_BRACE
     ;
+
+committedClause
+    :   COMMITTED LEFT_BRACE statement* RIGHT_BRACE
+    ;
+
+abortedClause
+    :   ABORTED LEFT_BRACE statement* RIGHT_BRACE
+    ;
+
 abortStatement
     :   ABORT SEMICOLON
     ;
@@ -600,14 +638,6 @@ retryStatement
 
 retriesStatement
     :   RETRIES ASSIGN expression
-    ;
-
-oncommitStatement
-    :   ONCOMMIT ASSIGN expression
-    ;
-
-onabortStatement
-    :   ONABORT ASSIGN expression
     ;
 
 namespaceDeclarationStatement
@@ -635,7 +665,7 @@ expression
     |   tableQuery                                                          # tableQueryExpression
     |   LT typeName (COMMA functionInvocation)? GT expression               # typeConversionExpression
     |   (ADD | SUB | BIT_COMPLEMENT | NOT | LENGTHOF | UNTAINT) expression  # unaryExpression
-    |   LEFT_PARENTHESIS expression (COMMA expression)* RIGHT_PARENTHESIS   # bracedOrTupleExpression
+    |   tupleLiteral                                                        # bracedOrTupleExpression
     |	CHECK expression										            # checkedExpression
     |   expression IS typeName                                              # typeTestExpression
     |   expression (DIV | MUL | MOD) expression                             # binaryDivMulModExpression
@@ -688,6 +718,10 @@ shiftExpression
 shiftExprPredicate : {_input.get(_input.index() -1).getType() != WS}? ;
 
 //reusable productions
+
+underscore
+    :   UNDERSCORE
+    ;
 
 nameReference
     :   (Identifier COLON)? Identifier
@@ -878,10 +912,6 @@ tableQuery
 
 foreverStatement
     :   FOREVER LEFT_BRACE  streamingQueryStatement+ RIGHT_BRACE
-    ;
-
-doneStatement
-    :   DONE SEMICOLON
     ;
 
 streamingQueryStatement

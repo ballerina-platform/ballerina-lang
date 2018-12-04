@@ -280,7 +280,7 @@ staticMatchLiterals
     :   simpleLiteral                                                       # staticMatchSimpleLiteral
     |   recordLiteral                                                       # staticMatchRecordLiteral
     |   tupleLiteral                                                        # staticMatchTupleLiteral
-    |   underscore                                                          # staticMatchUnderscoreLiteral
+    |   Identifier                                                          # staticMatchIdentifierLiteral
     |   staticMatchLiterals PIPE staticMatchLiterals                        # staticMatchOrExpression
     ;
 
@@ -427,7 +427,6 @@ restBindingPattern
 
 bindingRefPattern
     :   variableReference
-    |   underscore
     |   structuredRefBindingPattern
     |   errorRefBindingPattern
     ;
@@ -547,7 +546,6 @@ variableReference
     |   variableReference xmlAttrib                                             # xmlAttribVariableReference
     |   variableReference invocation                                            # invocationReference
     |   typeDescExpr invocation                                                 # typeDescExprInvocationReference
-    |   underscore                                                              # underscoreVariableReference
     ;
 
 field
@@ -718,10 +716,6 @@ shiftExpression
 shiftExprPredicate : {_input.get(_input.index() -1).getType() != WS}? ;
 
 //reusable productions
-
-underscore
-    :   UNDERSCORE
-    ;
 
 nameReference
     :   (Identifier COLON)? Identifier

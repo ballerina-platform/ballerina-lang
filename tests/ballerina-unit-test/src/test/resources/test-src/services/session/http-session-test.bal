@@ -125,7 +125,7 @@ service sample on sessionEP {
             http:Session session = req.createSessionIfAbsent();
             any attribute = session.getAttribute("name");
             if (attribute != null) {
-                result = string.create(attribute);
+                result = string.convert(attribute);
             } else {
                 session.setAttribute("name", result);
             }
@@ -149,7 +149,7 @@ service counter on sessionEP {
         if (session.getAttribute("Counter") == null) {
             sessionCounter = 0;
         } else {
-            var result = int.create(session.getAttribute("Counter"));
+            var result = int.convert(session.getAttribute("Counter"));
             if (result is int) {
                 sessionCounter = value;
             } else if (result is error) {
@@ -160,7 +160,7 @@ service counter on sessionEP {
         session.setAttribute("Counter", sessionCounter);
 
         http:Response res = new;
-        res.setTextPayload(string.create(sessionCounter));
+        res.setTextPayload(string.convert(sessionCounter));
         _ = caller->respond(res);
     }
 
@@ -174,7 +174,7 @@ service counter on sessionEP {
         if (session.getAttribute("Counter") == null) {
             sessionCounter = 0;
         } else {
-            var result = int.create(session.getAttribute("Counter"));
+            var result = int.convert(session.getAttribute("Counter"));
             if (result is int) {
                 sessionCounter = value;
             } else if (result is error) {
@@ -220,7 +220,7 @@ service sample2 on sessionEP {
             http:Session Session = req.createSessionIfAbsent();
             any attribute = Session.getAttribute("nameStruct");
             if (attribute != null) {
-                var result = Data.create(attribute);
+                var result = Data.convert(attribute);
                 if (result is Data) {
                     d = returnData;
                 } else if (result is error) {

@@ -45,7 +45,7 @@ public type Participant2pcClientEP client object {
         http:Client httpClient = self.httpClient;
         http:Request req = new;
         PrepareRequest prepareReq = {transactionId:transactionId};
-        json j = check json.create(prepareReq);
+        json j = check json.convert(prepareReq);
         req.setJsonPayload(j);
         var result = httpClient->post("/prepare", req);
         http:Response res = check result;
@@ -55,7 +55,7 @@ public type Participant2pcClientEP client object {
             return err;
         } else if (statusCode == http:OK_200) {
             json payload = check res.getJsonPayload();
-            PrepareResponse prepareRes = check PrepareResponse.create(payload);
+            PrepareResponse prepareRes = check PrepareResponse.convert(payload);
             return prepareRes.message;
         } else {
             error err = error("Prepare failed. Transaction: " + transactionId + ", Participant: " +
@@ -68,12 +68,12 @@ public type Participant2pcClientEP client object {
         http:Client httpClient = self.httpClient;
         http:Request req = new;
         NotifyRequest notifyReq = {transactionId:transactionId, message:message};
-        json j = check json.create(notifyReq);
+        json j = check json.convert(notifyReq);
         req.setJsonPayload(j);
         var result = httpClient->post("/notify", req);
         http:Response res = check result;
         json payload = check res.getJsonPayload();
-        NotifyResponse notifyRes = check NotifyResponse.create(payload);
+        NotifyResponse notifyRes = check NotifyResponse.convert(payload);
         string msg = notifyRes.message;
         int statusCode = res.statusCode;
         if (statusCode == http:OK_200) {

@@ -101,9 +101,9 @@ public class ErrorTest {
             expectedException = e;
         }
         Assert.assertNotNull(expectedException);
-        String result =
-                "error: largeNumber {\"message\":\"large number\"}\n" + "\tat errorPanicTest(basicErrorTest.bal:28)\n"
-                        + "\t   errorPanicCallee(basicErrorTest.bal:35)";
+        String result = "error: largeNumber {\"message\":\"large number\"}\n" +
+                "\tat errorPanicCallee(basicErrorTest.bal:34)\n" +
+                "\t   errorPanicTest(basicErrorTest.bal:28)";
         Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
     }
 

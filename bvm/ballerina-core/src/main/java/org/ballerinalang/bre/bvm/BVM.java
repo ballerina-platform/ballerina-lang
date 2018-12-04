@@ -2780,19 +2780,20 @@ public class BVM {
                 iterator = (BIterator) sf.refRegs[nextInstruction.iteratorIndex];
 
                 try {
+                    // Check whether we have a next value.
+                    if (!Optional.of(iterator).get().hasNext()) {
+                        // If we don't have a next value, that means we have reached the end of the iterable list. So
+                        // we set null to the corresponding registry location.
+                        sf.refRegs[nextInstruction.retRegs[0]] = null;
+                        return;
+                    }
                     // Get the next value.
                     BValue value = Optional.of(iterator).get().getNext();
-                    if (value != null) {
-                        // If the value is not null, we create a new map and add the value to the map with the key
-                        // `value`. Then we set this map to the corresponding registry location.
-                        BMap<String, BValue> newMap = new BMap<>(nextInstruction.constraintType);
-                        newMap.put("value", value);
-                        sf.refRegs[nextInstruction.retRegs[0]] = (BRefType) newMap;
-                    } else {
-                        // If the value is null, that means we have reached the end of the iterable list. So we set null
-                        // to the corresponding registry location.
-                        sf.refRegs[nextInstruction.retRegs[0]] = null;
-                    }
+                    // We create a new map and add the value to the map with the key `value`. Then we set this
+                    // map to the corresponding registry location.
+                    BMap<String, BValue> newMap = new BMap<>(nextInstruction.constraintType);
+                    newMap.put("value", value);
+                    sf.refRegs[nextInstruction.retRegs[0]] = (BRefType) newMap;
                 } catch (BallerinaException e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
@@ -2977,14 +2978,23 @@ public class BVM {
                 /*
                  In case of a for loop, need to clear the last hit line, so that, same line can get hit again.
                  */
-                debugContext.clearLastDebugLine();
+                debugContext.clearContext();
                 break;
             case STEP_IN:
+                debugHit(ctx, currentExecLine, debugger);
+                return true;
             case STEP_OVER:
+                if (debugContext.getFramePointer() < ctx.fp) {
+                    return false;
+                }
                 debugHit(ctx, currentExecLine, debugger);
                 return true;
             case STEP_OUT:
-                break;
+                if (debugContext.getFramePointer() > ctx.fp) {
+                    debugHit(ctx, currentExecLine, debugger);
+                    return true;
+                }
+                return false;
             default:
                 debugger.notifyExit();
                 debugger.stopDebugging();
@@ -3018,7 +3028,7 @@ public class BVM {
      * @param debugger        Debugger object.
      */
     private static void debugHit(Strand ctx, LineNumberInfo currentExecLine, Debugger debugger) {
-        ctx.getDebugContext().setLastLine(currentExecLine);
+        ctx.getDebugContext().updateContext(currentExecLine, ctx.fp);
         debugger.pauseWorker(ctx);
         debugger.notifyDebugHit(ctx, currentExecLine, ctx.getId());
     }
@@ -3881,6 +3891,10 @@ public class BVM {
             if (rhsField == null || !isAssignable(rhsField.fieldType, lhsField.fieldType, unresolvedTypes)) {
                 return false;
             }
+        }
+
+        if (lhsType.sealed) {
+            return lhsFieldNames.containsAll(rhsFields.keySet());
         }
 
         return rhsFields.values().stream()
@@ -5029,8 +5043,13 @@ public class BVM {
             }
         }
 
-        // If there are fields remaining in the source record, check if they are compatible with the rest field of
-        // the target type.
+        // If there are fields remaining in the source record, first check if it's a closed record. Closed records
+        // should only have the fields specified by its type.
+        if (targetType.sealed) {
+            return targetFieldNames.containsAll(sourceFields.keySet());
+        }
+
+        // If it's an open record, check if they are compatible with the rest field of the target type.
         return sourceFields.values().stream()
                 .filter(field -> !targetFieldNames.contains(field.fieldName))
                 .allMatch(field -> checkIsType(field.getFieldType(), targetType.restFieldType, unresolvedTypes));

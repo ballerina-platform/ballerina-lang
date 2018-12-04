@@ -27,6 +27,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
+import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.common.modal.SymbolMetaInfo;
@@ -82,14 +83,15 @@ public class TextDocumentFormatUtil {
      * @param context         Document formatting context
      * @return {@link JsonObject}   AST as a Json Object
      * @throws JSONGenerationException when AST build fails
+     * @throws LSCompilerException when compilation fails
      */
     public static JsonObject getAST(String uri, LSCompiler lsCompiler,
                                     WorkspaceDocumentManager documentManager, LSContext context)
-            throws JSONGenerationException {
+            throws JSONGenerationException, LSCompilerException {
         String[] uriParts = uri.split(Pattern.quote("/"));
         String fileName = uriParts[uriParts.length - 1];
         final BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager,
-                true, LSCustomErrorStrategy.class, false).getRight();
+                                                                      true, LSCustomErrorStrategy.class, false);
         context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, bLangPackage.symbol.getName().getValue());
         final List<Diagnostic> diagnostics = new ArrayList<>();
         JsonArray errors = new JsonArray();

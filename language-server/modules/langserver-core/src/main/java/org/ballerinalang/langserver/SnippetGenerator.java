@@ -150,7 +150,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getForeachSnippet() {
-        String snippet = "foreach ${1:item} in ${2:itemList} {" + CommonUtil.LINE_SEPARATOR + "\t${3}"
+        String snippet = "foreach ${1:var} ${2:item} in ${3:itemList} {" + CommonUtil.LINE_SEPARATOR + "\t${4}"
                 + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.FOREACH, snippet, ItemResolverConstants.STATEMENT_TYPE,
                                 SnippetType.STATEMENT);
@@ -525,7 +525,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getIterableForeachSnippet() {
-        String snippet = "foreach((%params%) => {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
+        String snippet = "foreach(function(%params%) {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
                 + CommonUtil.LINE_SEPARATOR + "});";
 
         return new SnippetBlock(ItemResolverConstants.ITR_FOREACH_LABEL, snippet, "", SnippetType.SNIPPET);
@@ -537,7 +537,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getIterableMapSnippet() {
-        String snippet = "map((%params%) => (any) {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
+        String snippet = "map(function(%params%) returns (any) {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
                 + CommonUtil.LINE_SEPARATOR + "});";
 
         return new SnippetBlock(ItemResolverConstants.ITR_MAP_LABEL, snippet, "", SnippetType.SNIPPET);
@@ -549,7 +549,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getIterableFilterSnippet() {
-        String snippet = "filter((%params%) => (boolean) {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
+        String snippet = "filter(function(%params%) returns (boolean) {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
                 + CommonUtil.LINE_SEPARATOR + "});";
 
         return new SnippetBlock(ItemResolverConstants.ITR_FILTER_LABEL, snippet, "", SnippetType.SNIPPET);
@@ -690,7 +690,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getIterableOnMapParamSnippet() {
-        return new SnippetBlock("string k, any v", SnippetType.SNIPPET);
+        return new SnippetBlock("(%key%, %value%) entry", SnippetType.SNIPPET);
     }
 
     /**

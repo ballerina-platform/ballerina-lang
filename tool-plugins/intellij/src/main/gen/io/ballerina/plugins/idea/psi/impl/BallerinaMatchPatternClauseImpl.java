@@ -43,14 +43,14 @@ public class BallerinaMatchPatternClauseImpl extends BallerinaCompositeElementIm
 
   @Override
   @Nullable
-  public BallerinaBindingPatternPattern getBindingPatternPattern() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaBindingPatternPattern.class);
+  public BallerinaStaticMatchPattern getStaticMatchPattern() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaStaticMatchPattern.class);
   }
 
   @Override
   @Nullable
-  public BallerinaExpressionPattern getExpressionPattern() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaExpressionPattern.class);
+  public BallerinaVarMatchPattern getVarMatchPattern() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaVarMatchPattern.class);
   }
 
 }

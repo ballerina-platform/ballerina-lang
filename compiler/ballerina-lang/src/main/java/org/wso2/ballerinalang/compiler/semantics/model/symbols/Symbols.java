@@ -17,7 +17,6 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
-import org.antlr.v4.runtime.misc.OrderedHashSet;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -32,8 +31,8 @@ import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @since 0.94
@@ -170,7 +169,7 @@ public class Symbols {
             unionType.memberTypes.add(errorType);
             retType = unionType;
         } else {
-            Set<BType> memberTypes = new OrderedHashSet<>();
+            LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
             memberTypes.add(targetType);
             memberTypes.add(errorType);
             retType = new BUnionType(null, memberTypes, false);

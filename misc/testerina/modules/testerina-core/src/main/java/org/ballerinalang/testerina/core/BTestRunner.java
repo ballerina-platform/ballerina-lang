@@ -65,15 +65,20 @@ public class BTestRunner {
     private TesterinaRegistry registry = TesterinaRegistry.getInstance();
     private List<String> sourcePackages = new ArrayList<>();
 
+    public void runTest(String sourceRoot, Path[] sourceFilePaths, List<String> groups) {
+        runTest(sourceRoot, sourceFilePaths, groups, Boolean.TRUE);
+    }
+
     /**
      * Executes a given set of ballerina program files.
      *
-     * @param sourceRoot      source root
+     * @param sourceRoot source root
      * @param sourceFilePaths List of @{@link Path} of ballerina files
-     * @param groups          List of groups to be included
+     * @param groups List of groups to be included
+     * @param enableExpFeatures Flag indicating to enable the experimental features
      */
-    public void runTest(String sourceRoot, Path[] sourceFilePaths, List<String> groups) {
-        runTest(sourceRoot, sourceFilePaths, groups, true);
+    public void runTest(String sourceRoot, Path[] sourceFilePaths, List<String> groups, boolean enableExpFeatures) {
+        runTest(sourceRoot, sourceFilePaths, groups, true, enableExpFeatures);
     }
 
     /**
@@ -83,11 +88,13 @@ public class BTestRunner {
      * @param sourceFilePaths List of @{@link Path} of ballerina files
      * @param groups          List of groups to be included/excluded
      * @param shouldIncludeGroups    flag to specify whether to include or exclude provided groups
+     * @param enableExpFeatures Flag indicating to enable the experimental features
      */
-    public void runTest(String sourceRoot, Path[] sourceFilePaths, List<String> groups, boolean shouldIncludeGroups) {
+    public void runTest(String sourceRoot, Path[] sourceFilePaths, List<String> groups, boolean shouldIncludeGroups,
+                        boolean enableExpFeatures) {
         registry.setGroups(groups);
         registry.setShouldIncludeGroups(shouldIncludeGroups);
-        compileAndBuildSuites(sourceRoot, sourceFilePaths);
+        compileAndBuildSuites(sourceRoot, sourceFilePaths, enableExpFeatures);
         // Filter the test suites
         filterTestSuites();
         // execute the test programs
@@ -121,15 +128,17 @@ public class BTestRunner {
                                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
 
     }
+
     /**
      * lists the groups available in tests.
      *
-     * @param sourceRoot      source root of the project
+     * @param sourceRoot source root of the project
      * @param sourceFilePaths module or program file paths
+     * @param enableExpFeatures Flag indicating to enable the experimental feature
      */
-    public void listGroups(String sourceRoot, Path[] sourceFilePaths) {
+    public void listGroups(String sourceRoot, Path[] sourceFilePaths, boolean enableExpFeatures) {
         //Build the test suites
-        compileAndBuildSuites(sourceRoot, sourceFilePaths);
+        compileAndBuildSuites(sourceRoot, sourceFilePaths, enableExpFeatures);
         List<String> groupList = getGroupList();
         if (groupList.size() == 0) {
             outStream.println("There are no groups available!");
@@ -164,9 +173,10 @@ public class BTestRunner {
     /**
      * Compiles the source and populate the registry with suites when executing tests using the test command.
      * @param sourceRoot source root
+     * @param enableExpFeatures Flag indicating to enable the experimental features
      * @param sourceFilePaths List of @{@link Path} of ballerina files
      */
-    private void compileAndBuildSuites(String sourceRoot, Path[] sourceFilePaths) {
+    private void compileAndBuildSuites(String sourceRoot, Path[] sourceFilePaths, boolean enableExpFeatures) {
         outStream.println("Compiling tests");
         if (sourceFilePaths.length == 0) {
             outStream.println("    No tests found");
@@ -174,7 +184,8 @@ public class BTestRunner {
         }
         // Reuse the same compiler context so that modules already compiled and persisted in the module cache are not
         // compiled again.
-        CompilerContext compilerContext = BCompileUtil.createCompilerContext(sourceRoot, CompilerPhase.CODE_GEN);
+        CompilerContext compilerContext =
+                BCompileUtil.createCompilerContext(sourceRoot, CompilerPhase.CODE_GEN, enableExpFeatures);
         Arrays.stream(sourceFilePaths).forEach(sourcePackage -> {
             // compile
             CompileResult compileResult = BCompileUtil.compileWithTests(compilerContext, sourcePackage.toString(),
