@@ -61,7 +61,7 @@ public class WorkerFailTest {
         Assert.assertEquals(result.getErrorCount(), 2);
         BAssertUtil.validateError(result, 0, "invalid usage of receive expression, var not allowed",
                                   3, 12);
-        BAssertUtil.validateError(result, 1, "undefined worker 'worker1'",3, 12);
+        BAssertUtil.validateError(result, 1, "undefined worker 'worker1'", 3, 12);
     }
 
     @Test
@@ -79,7 +79,7 @@ public class WorkerFailTest {
         Assert.assertEquals(result.getErrorCount(), 2);
         BAssertUtil.validateError(result, 0, "invalid usage of receive expression, var not allowed",
                                   2, 12);
-        BAssertUtil.validateError(result, 1, "undefined worker 'w1'",2, 12);
+        BAssertUtil.validateError(result, 1, "undefined worker 'w1'", 2, 12);
     }
 
     @Test
@@ -88,7 +88,8 @@ public class WorkerFailTest {
         String message = Arrays.toString(result.getDiagnostics());
         Assert.assertEquals(result.getErrorCount(), 2);
         BAssertUtil.validateError(result, 0, "undefined worker 'w1'", 3, 3);
-        BAssertUtil.validateError(result, 1, "invalid usage of receive expression, var not allowed",5, 14);
+        BAssertUtil.validateError(result, 1, "invalid usage of receive expression, var not allowed",
+                                  5, 14);
     }
 
     @Test
