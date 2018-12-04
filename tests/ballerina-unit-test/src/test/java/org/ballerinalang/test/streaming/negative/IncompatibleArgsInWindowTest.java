@@ -50,8 +50,7 @@ public class IncompatibleArgsInWindowTest {
 
     @Test(description = "Checks if the args of window functions have correct types",
           expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*time window expects an int parameter.*",
-          groups = "broken")
+          expectedExceptionsMessageRegExp = ".*Time window expects an int parameter.*")
     public void testArgTypes() {
         BRunUtil.invoke(incompatibleArgsResult, "startTimeWindowTest");
         System.setProperty("enable.siddhiRuntime", "true");

@@ -13,7 +13,7 @@ export class DiagramConfig {
     };
 
     public statement = {
-        actionHeight: STATEMENT_HEIGHT + 15,
+        actionHeight: STATEMENT_HEIGHT * 2,
         height: STATEMENT_HEIGHT,
         margin: {
             bottom: 0,
@@ -25,7 +25,7 @@ export class DiagramConfig {
         minWdith: 100,
         padding: {
             bottom: 5,
-            left: 5,
+            left: 8,
             right: 5,
             top: 5,
         },
@@ -83,8 +83,8 @@ export class DiagramConfig {
             height: STATEMENT_HEIGHT * 3
         },
         foreach: {
-            height: STATEMENT_HEIGHT * 2,
-            width: STATEMENT_HEIGHT * 3
+            height: STATEMENT_HEIGHT * 2 + 10,
+            width: STATEMENT_HEIGHT * 3 + 10
         },
         leftMargin: STATEMENT_HEIGHT,
         leftMarginDefault: 60,

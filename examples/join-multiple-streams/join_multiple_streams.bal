@@ -13,13 +13,13 @@ type MaterialUsage record {
 };
 
 // These are the input streams that use `ProductMaterial` as the constraint type.
-stream<ProductMaterial> rawMaterialStream;
-stream<ProductMaterial> productionInputStream;
+stream<ProductMaterial> rawMaterialStream = new;
+stream<ProductMaterial> productionInputStream = new;
 
 // This is the output stream that contains the events/alerts that are generated based on streaming logic.
-stream<MaterialUsage> materialUsageStream;
+stream<MaterialUsage> materialUsageStream = new;
 
-function initRealtimeProductionAlert() {
+function initRealtimeProductionAlert() returns () {
 
     // Whenever the `materialUsageStream` stream receives an event from the streaming rules defined in the `forever`
     // block, the `printMaterialUsageAlert` function is invoked.
@@ -61,42 +61,36 @@ function printMaterialUsageAlert(MaterialUsage materialUsage) {
             " , usage difference (%) : " + materialUsageDifference);
 }
 
-endpoint http:Listener productMaterialListener {
-    port: 9090
-};
+listener http:Listener productMaterialListener = new (9090);
 
 // The service, which receives events related to the production outcome and the raw material input.
 @http:ServiceConfig {
     basePath: "/"
 }
-service productMaterialService bind productMaterialListener {
+service productMaterialService on productMaterialListener {
 
     // Initialize the function that contains streaming queries.
-    future ftr = start initRealtimeProductionAlert();
+    future<()> ftr = start initRealtimeProductionAlert();
 
     @http:ResourceConfig {
         methods: ["POST"],
         path: "/rawmaterial"
     }
-    rawmaterialrequests(endpoint outboundEP, http:Request req) {
+    resource function rawmaterialrequests(http:Caller caller, http:Request req) {
         var jsonMsg = req.getJsonPayload();
-        match jsonMsg {
-            json msg => {
-                var productMaterial = check <ProductMaterial>msg;
-                rawMaterialStream.publish(productMaterial);
+        if (jsonMsg is json) {
+            var productMaterial = ProductMaterial.create(jsonMsg);
+            rawMaterialStream.publish(productMaterial);
 
-                http:Response res = new;
-                res.setJsonPayload({"message": "Raw material request"
+            http:Response res = new;
+            res.setJsonPayload({"message": "Raw material request"
                                         + " successfully received"});
-                _ = outboundEP->respond(res);
-
-            }
-            error err => {
-                http:Response res = new;
-                res.statusCode = 500;
-                res.setPayload(untaint err.message);
-                _ = outboundEP->respond(res);
-            }
+            _ = caller->respond(res);
+        } else if (jsonMsg is error) {
+            http:Response res = new;
+            res.statusCode = 500;
+            res.setPayload(untaint jsonMsg.reason());
+            _ = caller->respond(res);
         }
     }
 
@@ -104,27 +98,23 @@ service productMaterialService bind productMaterialListener {
         methods: ["POST"],
         path: "/productionmaterial"
     }
-    productionmaterialrequests(endpoint outboundEP,
+    resource function productionmaterialrequests(http:Caller caller,
                                http:Request req) {
         var jsonMsg = req.getJsonPayload();
-        match jsonMsg {
-            json msg => {
-                var productMaterial = check <ProductMaterial>msg;
-                productionInputStream.publish(productMaterial);
+        if (jsonMsg is json) {
+            var productMaterial = ProductMaterial.create(jsonMsg);
+            productionInputStream.publish(productMaterial);
 
-                http:Response res = new;
-                res.setJsonPayload({"message": "Production input " +
+            http:Response res = new;
+            res.setJsonPayload({"message": "Production input " +
                                     "request successfully received"});
-                _ = outboundEP->respond(res);
+            _ = caller->respond(res);
 
-            }
-            error err => {
-                http:Response res = new;
-                res.statusCode = 500;
-                res.setPayload(untaint err.message);
-                _ = outboundEP->respond(res);
-            }
+        } else if (jsonMsg is error) {
+            http:Response res = new;
+            res.statusCode = 500;
+            res.setPayload(untaint jsonMsg.reason());
+            _ = caller->respond(res);
         }
-
     }
 }

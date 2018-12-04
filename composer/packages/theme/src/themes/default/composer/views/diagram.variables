@@ -6,7 +6,7 @@
 @diagram-base-dark-color: #1e1e1e;
 
 @diagram-icon-font: "font-ballerina";
-@diagram-font: Monaco, Consolas, "Courier New", monospace, "@{diagram-icon-font}";
+@diagram-font: @fontName, "@{diagram-icon-font}";
 @diagram-font-size: @fontSize;
 
 @light-diagram-background-color: @diagram-base-light-color;

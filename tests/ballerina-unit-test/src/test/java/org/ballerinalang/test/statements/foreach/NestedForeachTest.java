@@ -27,9 +27,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Test case for nested foreach loops.
- *
- * @since 0.990.0
+ * Test cases for nested foreach statement.
  */
 public class NestedForeachTest {
 
