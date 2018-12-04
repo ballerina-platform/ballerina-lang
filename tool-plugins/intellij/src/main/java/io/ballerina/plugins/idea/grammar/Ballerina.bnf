@@ -98,8 +98,6 @@
         INCREMENT           = '++' ;
         DECREMENT           = '--' ;
 
-        UNDERSCORE          = '_'  ;
-
         LINE_COMMENT        = 'regexp://[^\r\n]*'
 
         WHITE_SPACE = 'regexp:\s+'
@@ -116,7 +114,7 @@
 
     extends("(Simple|Array|Nullable|Union|Group|Tuple|Object|Record)TypeName|BinaryAndExpression") = TypeName
 
-    extends("StaticMatch(OrExpression|(Simple|Record|Tuple|Underscore)Literal)") = StaticMatchLiterals
+    extends("StaticMatch(OrExpression|(Simple|Record|Tuple|Identifier)Literal)") = StaticMatchLiterals
 
     // Each named definition which can be renamed should implement this interface.
     implements("(Function|Annotation|Action|Worker|Type)Definition") = "io.ballerina.plugins.idea.psi.BallerinaNamedElement"
@@ -128,10 +126,6 @@
     // Each stubbed element should have this element type factory.
     elementTypeFactory("(Function|Struct|Annotation|Action|Worker|Type)Definition") = "io.ballerina.plugins.idea.stubs.factory.BallerinaElementTypeFactory.stubFactory"
 
-    // Each stub which is not a named definition should extend this class.
-//    extends("PackageDeclaration") = "BallerinaStubbedElementImpl<?>"
-
-    // "|NamespaceDeclaration|ParameterList|ParameterTypeNameList|CallableUnitSignature|ParameterTypeNameList|ReturnParameters"
     // Todo - Add CatchClause, TriggerWorker, WorkerReply?
     // Each named element (which can be renamed) should implement this interface.
     implements("Package(Name|Version)|OrgName|Alias|(Name|Package)Reference|NamespaceDeclaration") = "io.ballerina.plugins.idea.psi.BallerinaNamedElement"
@@ -467,13 +461,13 @@ staticMatchPattern ::=  StaticMatchLiterals EQUAL_GT (LEFT_BRACE Block RIGHT_BRA
 StaticMatchLiterals ::= StaticMatchSimpleLiteral
                     |   StaticMatchRecordLiteral
                     |   StaticMatchTupleLiteral
-                    |   StaticMatchUnderscoreLiteral
+                    |   StaticMatchIdentifierLiteral
                     |   StaticMatchOrExpression
 
 StaticMatchSimpleLiteral ::= SimpleLiteral
 StaticMatchRecordLiteral ::= RecordLiteral
 StaticMatchTupleLiteral ::= TupleLiteral
-StaticMatchUnderscoreLiteral ::=  UNDERSCORE
+StaticMatchIdentifierLiteral ::=  identifier
 StaticMatchOrExpression ::= StaticMatchLiterals PIPE StaticMatchLiterals
 
 TupleLiteral::=   LEFT_PARENTHESIS Expression (COMMA Expression)* RIGHT_PARENTHESIS
@@ -497,7 +491,6 @@ RestBindingPattern ::= ELLIPSIS identifier | SealedLiteral
 BindingRefPattern ::= VariableReference
                     | StructuredRefBindingPattern
                     | ErrorRefBindingPattern
-                    | UNDERSCORE
 
 StructuredRefBindingPattern ::= TupleRefBindingPattern | RecordRefBindingPattern
 
@@ -513,7 +506,7 @@ FieldRefBindingPattern ::= identifier (COLON BindingRefPattern)? {pin=1}
 
 RestRefBindingPattern ::= ELLIPSIS VariableReference | SealedLiteral
 
-ForeachStatement ::= foreach (LEFT_PARENTHESIS? VariableReferenceList in Expression RIGHT_PARENTHESIS? (LEFT_BRACE Block RIGHT_BRACE)) {pin(".*")=1}
+ForeachStatement ::= foreach (LEFT_PARENTHESIS? (TypeName | var) BindingPattern in Expression RIGHT_PARENTHESIS? (LEFT_BRACE Block RIGHT_BRACE)) {pin(".*")=1}
 
 IntRangeExpression ::= openRange | closedRange
 private openRange ::= Expression RANGE Expression {pin=2}
@@ -560,8 +553,7 @@ WaitKeyValue ::= identifier COLON Expression | identifier
 
 // Note - Order of 'simpleVariableReference' and 'functionInvocationReference' because otherwise all function
 // invocations will match simpleVariableReference first.
-VariableReference ::= UnderscoreVariableReference
-                      | MapArrayVariableReference
+VariableReference ::= MapArrayVariableReference
                       | InvocationReference
                       | FieldVariableReference
                       | XmlAttribVariableReference
@@ -578,7 +570,6 @@ XmlAttribVariableReference ::= VariableReference XmlAttrib
 FunctionInvocationReference ::= FunctionInvocation
 SimpleVariableReference ::=  NameReference
 TypeAccessExprInvocationReference ::=  TypeAccessExpression Invocation
-UnderscoreVariableReference ::= UNDERSCORE {pin=1}
 
 // Todo - Adding pin will mess function invocation.
 Invocation ::= (DOT | NOT) AnyIdentifierName LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS
