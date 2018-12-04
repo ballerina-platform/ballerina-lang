@@ -465,7 +465,7 @@ public class VMDebuggerTest {
         VMDebuggerUtil.startDebug("test-src/debugger/test_variables.bal", breakPoints, expRes);
     }
 
-    @Test(enabled = false, description = "Test debugging when multi-packages available")
+    @Test(description = "Test debugging when multi-packages available")
     public void testMultiPackage() {
         String file = "apple.bal";
         String packagePath = "abc/fruits:0.0.1";
@@ -483,7 +483,7 @@ public class VMDebuggerTest {
         VMDebuggerUtil.startDebug("test-src/debugger/multi-package/main.bal", breakPoints, expRes);
     }
 
-    @Test(enabled = false, description = "Test evaluating global variables from other packages")
+    @Test(description = "Test evaluating global variables from other packages")
     public void testEvaluatingOtherPackageGlobalVars() {
         String file = "apple.bal";
         String packagePath = "abc/fruits:0.0.1";
@@ -507,14 +507,14 @@ public class VMDebuggerTest {
         VMDebuggerUtil.startDebug("test-src/debugger/multi-package/main.bal", breakPoints, expRes);
     }
 
-    @Test(enabled = false, description = "Test ignoring non-nullable global variables with null values")
+    @Test(description = "Test ignoring non-nullable global variables with null values")
     public void testGlobalVariableNullability() {
         String file = "test_variables.bal";
-        BreakPointDTO[] breakPoints = createBreakNodeLocations(".", file, 31);
+        BreakPointDTO[] breakPoints = createBreakNodeLocations(".", file, 34);
 
         List<DebugPoint> debugPoints = new ArrayList<>();
-        debugPoints.add(Util.createDebugPoint(".", file, 31, STEP_OVER, 1));
-        debugPoints.add(Util.createDebugPoint(".", file, 32, RESUME, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 34, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 35, RESUME, 1));
 
         List<VariableDTO> variables = new ArrayList<>();
         variables.add(Util.createVariable("gInt", "Global", new BInteger(5)));
