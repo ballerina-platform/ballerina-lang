@@ -404,6 +404,8 @@ public class BallerinaDocGenerator {
         options.put(CompilerOptionName.COMPILER_PHASE, CompilerPhase.TYPE_CHECK.toString());
         options.put(CompilerOptionName.PRESERVE_WHITESPACE, "false");
         options.put(CompilerOptionName.OFFLINE, Boolean.valueOf(offline).toString());
+        options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
+
         context.put(SourceDirectory.class, new FileSystemProjectDirectory(Paths.get(sourceRoot)));
 
         Compiler compiler = Compiler.getInstance(context);
