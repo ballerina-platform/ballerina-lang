@@ -26,7 +26,7 @@ import ballerina/sql;
 # + poolOptions - Properties for the connection pool configuration. Refer `sql:PoolOptions` for more details
 # + dbOptions - A map of DB specific properties
 public type ClientEndpointConfig record {
-    string host = "";
+    string host;
     int port = 3306;
     string name = "";
     string username = "";
