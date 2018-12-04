@@ -40,7 +40,7 @@ export class DiagramConfig {
         padding: {
             bottom: 0,
             left: 0,
-            right: 0,
+            right: 200,
             top: 0,
         },
     };
@@ -57,6 +57,12 @@ export class DiagramConfig {
             margin: {
                 left: 25
             }
+        }
+    };
+
+    public panelGroup = {
+        header: {
+            height: STATEMENT_HEIGHT * 2,
         }
     };
 

@@ -101,3 +101,7 @@ function fn1(any t) returns (string, int, boolean, int, float, int) {
     ((string, (int, (boolean, int))), (float, int)) ((s, (i1, (b, y))), (f, i2)) = t;
     return (s, i1, b, y, f, i2);
 }
+
+function testIgnoredVariables() {
+    (string, int, float) (_, _, _) = ("D", 4, 6.7); // no new variables on left side
+}

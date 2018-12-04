@@ -145,7 +145,7 @@ public class ArraysOfArraysTest {
         assertJBytesWithBBytes(hexStringToByteArray("aa"), (BValueArray) returns[0]);
     }
 
-    @Test(description = "Test nested string array iteration", enabled = false, groups = "broken")
+    @Test(description = "Test nested string array iteration")
     public void testRefArrayIterator() {
         BValue[] args = new BValue[0];
         BValue[] returns = BRunUtil.invoke(result, "testRefArrayIterator", args);

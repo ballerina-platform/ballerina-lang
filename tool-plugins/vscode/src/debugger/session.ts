@@ -149,6 +149,24 @@ export class BallerinaDebugSession extends LoggingDebugSession {
         const openFile = args.script;
         let cwd: string | undefined = path.dirname(openFile);
         this.setSourceRoot(cwd);
+        const { sourceRoot, ballerinaPackage } = this._getRunningInfo(cwd, path.parse(openFile).root);
+
+        if (ballerinaPackage && sourceRoot) {
+            this._ballerinaPackage = ballerinaPackage;
+            this.setSourceRoot(cwd);
+
+            try {
+                const balConfigString = fs.readFileSync(path.join(<string>sourceRoot, 'Ballerina.toml'));
+                this._projectConfig = toml.parse(balConfigString.toString()).project;
+                this.setSourceRoot(sourceRoot);
+            } catch (e) {
+                console.log(e);
+                // no log file
+            }
+        } else {
+            this.setSourceRoot(cwd);
+        }
+
 
         this._debugManager.connect(`ws://${args.host}:${args.port}/debug`, () => {
             this.sendResponse(response);
@@ -236,11 +254,11 @@ export class BallerinaDebugSession extends LoggingDebugSession {
                 executableArgs = executableArgs.concat(commandOptions);
             }
 
-            if (args.networkLogs && args.port > 0) {
+            if (args.networkLogs && args.networkLogsPort > 0) {
                 executableArgs.push('-e');
                 executableArgs.push('b7a.http.tracelog.host=localhost');
                 executableArgs.push('-e');
-                executableArgs.push(`b7a.http.tracelog.port=${args.port}`);
+                executableArgs.push(`b7a.http.tracelog.port=${args.networkLogsPort}`);
             }
 
             executableArgs.push(<string>this._debugTarget);

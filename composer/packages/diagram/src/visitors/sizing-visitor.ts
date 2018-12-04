@@ -84,6 +84,7 @@ function sizeStatement(node: ASTNode) {
                 viewState.bBox.label = getTextWidth(actionName).text;
                 // Set visible to true so we can only draw used endpoints.
                 (element.viewState as EndpointViewState).visible = true;
+                viewState.isReturn = (element.viewState as EndpointViewState).usedAsClient;
             }
         });
     }
@@ -96,10 +97,24 @@ export const visitor: Visitor = {
 
     // tslint:disable-next-line:ban-types
     beginVisitFunction(node: Function) {
+        const viewState: FunctionViewState = node.viewState;
         if (node.VisibleEndpoints && !node.lambda) {
             endpointHolder = node.VisibleEndpoints;
             // clear return statements.
             returnStatements = [];
+        }
+        // If resource set the caller as first param.
+        if (node.resource && node.VisibleEndpoints !== undefined) {
+            const caller = node.VisibleEndpoints.find((element: VisibleEndpoint) => {
+                return element.caller;
+            });
+            if (caller) {
+                viewState.client = caller.viewState;
+                (caller.viewState as EndpointViewState).visible = true;
+                (caller.viewState as EndpointViewState).usedAsClient = true;
+            } else {
+                viewState.client = new ViewState();
+            }
         }
     },
 
@@ -146,7 +161,9 @@ export const visitor: Visitor = {
             });
         }
 
-        body.w = config.panel.padding.left + endpointWidth + config.panel.padding.right;
+        const lifeLinesWidth = client.bBox.w + config.lifeLine.gutter.h
+            + defaultWorker.bBox.w + endpointWidth;
+        body.w = config.panel.padding.left + lifeLinesWidth + config.panel.padding.right;
         body.h = config.panel.padding.top + lineHeight + config.panel.padding.bottom;
 
         header.w = config.panelHeading.padding.left + config.panelHeading.padding.right;

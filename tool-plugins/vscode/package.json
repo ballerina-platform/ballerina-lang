@@ -99,10 +99,6 @@
                             "script": {
                                 "type": "string",
                                 "default": "${file}"
-                            },
-                            "networkLogs": {
-                                "type": "boolean",
-                                "default": true
                             }
                         }
                     },
@@ -156,8 +152,7 @@
                         "request": "attach",
                         "name": "Ballerina Remote",
                         "host": "127.0.0.1",
-                        "port": 5000,
-                        "networkLogs": true
+                        "port": 5000
                     }
                 ]
             }

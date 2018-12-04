@@ -68,6 +68,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntermediateCollectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
@@ -769,7 +770,6 @@ public class CommonUtil {
     static void populateIterableAndBuiltinFunctions(SymbolInfo variable, List<SymbolInfo> symbolInfoList,
                                                     LSContext context) {
         BType bType = variable.getScopeEntry().symbol.getType();
-
         if (iterableType(bType)) {
             SymbolInfo itrForEach = getIterableOpSymbolInfo(Snippet.ITR_FOREACH.get(), bType,
                     ItemResolverConstants.ITR_FOREACH_LABEL, context);
@@ -914,7 +914,7 @@ public class CommonUtil {
         List<TopLevelNode> topLevelNodes = filteredCUnit == null
                 ? new ArrayList<>()
                 : new ArrayList<>(filteredCUnit.getTopLevelNodes());
-        
+
         // Filter out the lambda functions from the top level nodes
         return topLevelNodes.stream()
                 .filter(topLevelNode -> !(topLevelNode instanceof BLangFunction
@@ -962,10 +962,17 @@ public class CommonUtil {
     private static String getIterableOpLambdaParam(BType bType, LSContext context) {
         String params = "";
         boolean isSnippet = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem().getSnippetSupport();
+        PackageID currentPkgId = context.get(DocumentServiceKeys.CURRENT_PACKAGE_ID_KEY);
         if (bType instanceof BMapType) {
-            params = Snippet.ITR_ON_MAP_PARAMS.get().getString(isSnippet);
+            BMapType bMapType = (BMapType) bType;
+            String valueType = FunctionGenerator.generateTypeDefinition(null, currentPkgId, bMapType.constraint);
+            params = Snippet.ITR_ON_MAP_PARAMS.get().getString(isSnippet)
+                    .replace(UtilSymbolKeys.ITR_OP_LAMBDA_KEY_REPLACE_TOKEN, "string")
+                    .replace(UtilSymbolKeys.ITR_OP_LAMBDA_VALUE_REPLACE_TOKEN, valueType);
         } else if (bType instanceof BArrayType) {
-            params = ((BArrayType) bType).eType.toString() + " v";
+            BArrayType bArrayType = (BArrayType) bType;
+            String valueType = FunctionGenerator.generateTypeDefinition(null, currentPkgId, bArrayType.eType);
+            params = valueType + " value";
         } else if (bType instanceof BJSONType) {
             params = Snippet.ITR_ON_JSON_PARAMS.get().getString(isSnippet);
         } else if (bType instanceof BXMLType) {
@@ -1363,6 +1370,29 @@ public class CommonUtil {
                 return "(" + String.join(", ", list) + ")";
             } else if (bType instanceof BNilType) {
                 return "()";
+            } else if (bType instanceof BIntermediateCollectionType) {
+                // TODO: 29/11/2018 fix this. A hack to infer type definition
+                // We assume;
+                // 1. Tuple of <key(string), value(string)> as a map(though it can be a record as well)
+                // 2. Tuple of <index(int), value(string)> as an array
+                BIntermediateCollectionType collectionType = (BIntermediateCollectionType) bType;
+                List<String> list = new ArrayList<>();
+                List<BType> tupleTypes = collectionType.tupleType.tupleTypes;
+                if (tupleTypes.size() == 2) {
+                    BType leftType = tupleTypes.get(0);
+                    BType rightType = tupleTypes.get(1);
+                    switch (leftType.tsymbol.name.value) {
+                        case "int":
+                            return generateTypeDefinition(importsAcceptor, currentPkgId, rightType) + "[]";
+                        case "string":
+                        default:
+                            return "map<" + generateTypeDefinition(importsAcceptor, currentPkgId, rightType) + ">";
+                    }
+                }
+                for (BType memberType : tupleTypes) {
+                    list.add(generateTypeDefinition(importsAcceptor, currentPkgId, memberType));
+                }
+                return "(" + String.join(", ", list) + ")[]";
             }
             return (bType.tsymbol != null) ? generateTypeDefinition(importsAcceptor, currentPkgId, bType.tsymbol) :
                     "any";

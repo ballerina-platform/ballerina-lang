@@ -16,7 +16,6 @@
  */
 package org.wso2.ballerinalang.compiler.desugar;
 
-import org.antlr.v4.runtime.misc.OrderedHashSet;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.NodeKind;
@@ -589,7 +588,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         foreach.isDeclaredWithVar = true;
         foreach.varType = foreachVariable.type;
         foreach.resultType = indexAccessExpr.type;
-        LinkedHashSet<BType> memberTypes = new OrderedHashSet<>();
+        LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
         memberTypes.add(indexAccessExpr.type);
         foreach.nillableResultType = new BUnionType(null, memberTypes, true);
         return foreach;

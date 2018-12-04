@@ -16,5 +16,5 @@
 
 
 # Represents caller object in socket service resources and client callback service resources.
-# This has all the actions expose by socket:Client.
+# This has all the remote functions expose by socket:Client.
 public type Caller Client;

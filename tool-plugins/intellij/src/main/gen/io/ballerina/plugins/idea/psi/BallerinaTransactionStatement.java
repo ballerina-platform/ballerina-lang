@@ -24,6 +24,9 @@ import com.intellij.psi.PsiElement;
 public interface BallerinaTransactionStatement extends BallerinaCompositeElement {
 
   @Nullable
+  BallerinaCommittedAbortedClauses getCommittedAbortedClauses();
+
+  @Nullable
   BallerinaOnRetryClause getOnRetryClause();
 
   @NotNull

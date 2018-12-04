@@ -42,9 +42,9 @@ public class BallerinaRecordDestructuringStatementImpl extends BallerinaComposit
   }
 
   @Override
-  @Nullable
+  @NotNull
   public BallerinaExpression getExpression() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaExpression.class);
+    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaExpression.class));
   }
 
   @Override
@@ -63,12 +63,6 @@ public class BallerinaRecordDestructuringStatementImpl extends BallerinaComposit
   @Nullable
   public PsiElement getSemicolon() {
     return findChildByType(SEMICOLON);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getVar() {
-    return findChildByType(VAR);
   }
 
 }

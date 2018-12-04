@@ -206,3 +206,9 @@ function testVarDefWithUnionType6() returns (int|float|string, int|boolean|strin
     (string, int)|(int, boolean)|(float, string) (a, b) = ("Test", 23);
     return (a, b);
 }
+
+function testIgnoreVariable() returns (int, int) {
+    (string, int) (_, a) = ("Test", 23);
+    (string, (int, boolean)) (_, (b, _)) = ("Test", (24, true));
+    return (a, b);
+}

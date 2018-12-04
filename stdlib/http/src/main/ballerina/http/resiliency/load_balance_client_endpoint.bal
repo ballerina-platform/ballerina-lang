@@ -48,7 +48,7 @@ public type LoadBalanceClient client object {
         }
     }
 
-    # The POST action implementation of the LoadBalancer Connector.
+    # The POST remote function implementation of the LoadBalancer Connector.
     #
     # + path - Resource path
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
@@ -57,7 +57,7 @@ public type LoadBalanceClient client object {
     public remote function post(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                         message) returns Response|error;
 
-    # The HEAD action implementation of the LoadBalancer Connector.
+    # The HEAD remote function implementation of the LoadBalancer Connector.
     #
     # + path - Resource path
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
@@ -66,7 +66,7 @@ public type LoadBalanceClient client object {
     public remote function head(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                         message = ()) returns Response|error;
 
-    # The PATCH action implementation of the LoadBalancer Connector.
+    # The PATCH remote function implementation of the LoadBalancer Connector.
     #
     # + path - Resource path
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
@@ -75,7 +75,7 @@ public type LoadBalanceClient client object {
     public remote function patch(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                             message) returns Response|error;
 
-    # The PUT action implementation of the Load Balance Connector.
+    # The PUT remote function implementation of the Load Balance Connector.
     #
     # + path - Resource path
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
@@ -84,7 +84,7 @@ public type LoadBalanceClient client object {
     public remote function put(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                         message) returns Response|error;
 
-    # The OPTIONS action implementation of the LoadBalancer Connector.
+    # The OPTIONS remote function implementation of the LoadBalancer Connector.
     #
     # + path - Resource path
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
@@ -93,15 +93,15 @@ public type LoadBalanceClient client object {
     public remote function options(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                             message = ()) returns Response|error;
 
-    # The FORWARD action implementation of the LoadBalancer Connector.
+    # The FORWARD remote function implementation of the LoadBalancer Connector.
     #
     # + path - Resource path
     # + request - An optional HTTP request
     # + return - The response or an `error` if failed to fulfill the request
     public remote function forward(string path, Request request) returns Response|error;
 
-    # The EXECUTE action implementation of the LoadBalancer Connector.
-    # The Execute action can be used to invoke an HTTP call with the given HTTP verb.
+    # The EXECUTE remote function implementation of the LoadBalancer Connector.
+    # The Execute remote function can be used to invoke an HTTP call with the given HTTP verb.
     #
     # + httpVerb - HTTP method to be used for the request
     # + path - Resource path
@@ -111,7 +111,7 @@ public type LoadBalanceClient client object {
     public remote function execute(string httpVerb, string path,
                 Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()message) returns Response|error;
 
-    # The DELETE action implementation of the LoadBalancer Connector.
+    # The DELETE remote function implementation of the LoadBalancer Connector.
     #
     # + path - Resource path
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
@@ -120,7 +120,7 @@ public type LoadBalanceClient client object {
     public remote function delete(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                             message) returns Response|error;
 
-    # The GET action implementation of the LoadBalancer Connector.
+    # The GET remote function implementation of the LoadBalancer Connector.
 
     # + path - Resource path
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
@@ -169,7 +169,7 @@ public type LoadBalanceClient client object {
     public remote function rejectPromise(PushPromise promise);
 };
 
-# Represents an error occurred in an action of the Load Balance connector.
+# Represents an error occurred in an remote function of the Load Balance connector.
 #
 # + message - An error message explaining about the error
 # + statusCode - HTTP status code of the LoadBalanceActionError

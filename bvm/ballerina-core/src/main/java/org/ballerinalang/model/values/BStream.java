@@ -30,7 +30,6 @@ import org.ballerinalang.model.types.BIndexedType;
 import org.ballerinalang.model.types.BStreamType;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.siddhi.core.stream.input.InputHandler;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -49,6 +48,7 @@ public class BStream implements BRefType<Object> {
 
     private static final String TOPIC_NAME_PREFIX = "TOPIC_NAME_";
 
+    private BType type;
     private BType constraintType;
 
     private String streamId = "";
@@ -70,6 +70,7 @@ public class BStream implements BRefType<Object> {
             throw new BallerinaException("Error starting up internal broker for streams");
         }
         this.constraintType = ((BStreamType) type).getConstrainedType();
+        this.type = new BStreamType(constraintType);
         if (constraintType instanceof BIndexedType) {
             this.topicName = TOPIC_NAME_PREFIX + ((BIndexedType) constraintType).getElementType() + "_" + name;
         } else if (constraintType != null) {
@@ -92,7 +93,7 @@ public class BStream implements BRefType<Object> {
 
     @Override
     public BType getType() {
-        return BTypes.typeStream;
+        return this.type;
     }
 
     @Override

@@ -191,11 +191,34 @@ public class LSCompiler {
      * @param errStrategy        custom error strategy class
      * @param compileFullProject updateAndCompileFile full project from the source root
      * @return {@link List}      A list of packages when compile full project
+     * @throws LSCompilerException when compilation fails
      */
-    public List<BLangPackage> getBLangPackage(LSContext context,
-                                              WorkspaceDocumentManager docManager, boolean preserveWS,
-                                              Class errStrategy,
-                                              boolean compileFullProject) {
+    public BLangPackage getBLangPackage(LSContext context,
+                                        WorkspaceDocumentManager docManager, boolean preserveWS,
+                                        Class errStrategy,
+                                        boolean compileFullProject) throws LSCompilerException {
+        List<BLangPackage> bLangPackages = getBLangPackages(context, docManager, preserveWS, errStrategy,
+                                                            compileFullProject);
+        if (bLangPackages.isEmpty()) {
+            throw new LSCompilerException("Couldn't find any compiled artifact!");
+        }
+        return bLangPackages.get(0);
+    }
+
+    /**
+     * Get the BLangPackage for a given program.
+     *
+     * @param context            Language Server Context
+     * @param docManager         Document manager
+     * @param preserveWS         Enable preserve whitespace
+     * @param errStrategy        custom error strategy class
+     * @param compileFullProject updateAndCompileFile full project from the source root
+     * @return {@link List}      A list of packages when compile full project
+     */
+    public List<BLangPackage> getBLangPackages(LSContext context,
+                                               WorkspaceDocumentManager docManager, boolean preserveWS,
+                                               Class errStrategy,
+                                               boolean compileFullProject) {
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
         Optional<String> unsavedFileId = LSCompilerUtil.getUntitledFileId(uri);
         if (unsavedFileId.isPresent()) {

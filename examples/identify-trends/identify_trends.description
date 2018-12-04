@@ -6,3 +6,5 @@
 // temperature is increasing (incoming events have higher temperature reading than the previous event's reading), and
 // then decreasing (incoming events have lower temperature reading than the previous event's temperature reading), a
 // peak temperature is in the middle.
+// Ballerina Streams is an experimental feature. Please use `--experimental` flag when compiling Ballerina files
+// which have streaming constructs.
