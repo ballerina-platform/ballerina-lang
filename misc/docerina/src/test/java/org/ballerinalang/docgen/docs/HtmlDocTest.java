@@ -750,6 +750,19 @@ public class HtmlDocTest {
                 "struct {string address1, string address2, string state}");
     }
 
+    @Test(description = "Test error in return parameters")
+    public void testErrorReturn() {
+        BLangPackage bLangPackage = createPackage("public type Test object {\n" +
+                "\n" +
+                "    public function test() returns string|error {\n" +
+                "        return \"\"\n;" +
+                "    }\n" +
+                "};");
+        Page page = generatePage(bLangPackage);
+        Assert.assertEquals(page.constructs.size(), 1);
+        Assert.assertEquals(page.constructs.get(0).name, "Test");
+    }
+
     /**
      * Create the package from the bal file.
      *
