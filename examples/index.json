@@ -134,6 +134,10 @@
             {
                 "name": "Optional Fields",
                 "url": "record-optional-fields"
+            },
+            {
+                "name": "Record Type Reference",
+                "url": "record-type-reference"
             }
         ]
     },
