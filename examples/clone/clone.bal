@@ -1,3 +1,5 @@
+import ballerina/io;
+
 public type Person record {
     string name;
     int age;
@@ -30,9 +32,14 @@ public function main() returns (Person, Person, string) {
     };
 
     var result = person.clone();
+
+    io:println("Source value: ", person);
+    io:println("Cloned value: ", result);
+
     string refCheck = "";
     if (result !== person) {
         refCheck = "Source and Clone are at two different memory locations";
+        io:println(refCheck);
     }
     return (person, result, refCheck);
 }
