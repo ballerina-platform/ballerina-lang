@@ -24,7 +24,7 @@ function testFunc() {
     string out3 = "School of the Employee is Hindu College";
     string out4 = "Map is stamped as Teacher record type";
     string out5 = "Tuple is stamped as int array";
-    string out5 = "JSON value is stamped as Foo";
+    string out6 = "JSON value is stamped as Foo";
     test:assertEquals(outputs[0], out1);
     test:assertEquals(outputs[1], out2);
     test:assertEquals(outputs[2], out3);
