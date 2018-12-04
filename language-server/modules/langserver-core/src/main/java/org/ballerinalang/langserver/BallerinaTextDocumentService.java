@@ -38,7 +38,7 @@ import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.definition.util.DefinitionUtil;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.formatting.FormattingSourceGen;
-import org.ballerinalang.langserver.formatting.FormattingVisitorEntry;
+//import org.ballerinalang.langserver.formatting.FormattingVisitorEntry;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
 import org.ballerinalang.langserver.index.LSIndexImpl;
 import org.ballerinalang.langserver.references.util.ReferenceUtil;
@@ -456,8 +456,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 FormattingSourceGen.build(ast.getAsJsonObject("model"), "CompilationUnit");
 
                 // Format the given ast.
-                FormattingVisitorEntry formattingUtil = new FormattingVisitorEntry();
-                formattingUtil.accept(ast.getAsJsonObject("model"));
+                // FormattingVisitorEntry formattingUtil = new FormattingVisitorEntry();
+                // formattingUtil.accept(ast.getAsJsonObject("model"));
 
                 // Generate source for the ast.
                 textEditContent = FormattingSourceGen.getSourceOf(ast.getAsJsonObject("model"));

@@ -16,7 +16,8 @@ service multipartResponseEncoder on new http:Listener(9092) {
         methods: ["GET"],
         path: "/encode_out_response"
     }
-    resource function multipartSender(http:Caller caller, http:Request request) {
+    resource function multipartSender(http:Caller caller,
+                                        http:Request request) {
 
         // Creates an enclosing entity to hold the child parts.
         mime:Entity parentPart = new;
@@ -60,7 +61,8 @@ service multipartResponseDecoder on multipartEP {
         path: "/decode_in_response"
     }
     // This resource accepts multipart responses.
-    resource function multipartReceiver(http:Caller caller, http:Request request) {
+    resource function multipartReceiver(http:Caller caller,
+                                        http:Request request) {
         http:Response inResponse = new;
         var returnResult = clientEP->get("/multiparts/encode_out_response");
         http:Response res = new;
@@ -69,7 +71,7 @@ service multipartResponseDecoder on multipartEP {
             var parentParts = returnResult.getBodyParts();
             if (parentParts is mime:Entity[]) {
                 //Loops through body parts.
-                foreach parentPart in parentParts {
+                foreach var parentPart in parentParts {
                     handleNestedParts(parentPart);
                 }
 
@@ -94,7 +96,7 @@ function handleNestedParts(mime:Entity parentPart) {
         var childParts = parentPart.getBodyParts();
         if (childParts is mime:Entity[]) {
             log:printInfo("Nested Parts Detected!");
-            foreach childPart in childParts {
+            foreach var childPart in childParts {
                 handleContent(childPart);
             }
         } else if (childParts is error) {
@@ -144,7 +146,8 @@ function handleContent(mime:Entity bodyPart) {
                                     io:openWritableFile("ReceivedFile.pdf");
             var result = copy(payload, destinationChannel);
             if (result is error) {
-                log:printError("error occurred while performing copy ", err = result);
+                log:printError("error occurred while performing copy ",
+                                err = result);
             }
             close(payload);
             close(destinationChannel);
@@ -167,7 +170,8 @@ function getBaseType(string contentType) returns string {
 
 
 // Copies the content from the source channel to the destination channel.
-function copy(io:ReadableByteChannel src, io:WritableByteChannel dst) returns error? {
+function copy(io:ReadableByteChannel src, io:WritableByteChannel dst)
+                returns error? {
     int readCount = 1;
     byte[] readContent;
     while (readCount > 0) {

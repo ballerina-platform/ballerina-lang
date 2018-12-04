@@ -107,14 +107,6 @@ public class SQLConnectorInitTest {
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
-    // Cannot be applied to H2 client
-    @Test(enabled = false)
-    public void testPropertiesGetUsedOnlyIfDataSourceGiven() {
-        BValue[] returns = BRunUtil.invokeFunction(result, "testPropertiesGetUsedOnlyIfDataSourceGiven");
-        final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
-        Assert.assertEquals(returns[0].stringValue(), expected);
-    }
-
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = ".*Failed to initialize pool: Database "
                   + "\".*/target/tempdb/NON_EXISTING_DB\" not found.*")

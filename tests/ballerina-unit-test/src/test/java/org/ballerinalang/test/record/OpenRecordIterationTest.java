@@ -162,7 +162,7 @@ public class OpenRecordIterationTest {
         Assert.assertEquals(addressRecord.get("city").stringValue(), "Colombo 3");
     }
 
-    // disabled due to https://github.com/ballerina-platform/ballerina-lang/issues/10074
+    // disabled due to https://github.com/ballerina-platform/ballerina-lang/issues/10149
     @Test(description = "Tests foreach iterable operation on open records", enabled = false)
     public void testForeachOpWithOpenRecords() {
         String[] expectedFields = new String[]{"name", "age", "address"};
