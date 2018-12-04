@@ -15,28 +15,32 @@ jms:Session jmsSession = new(conn, {
 });
 
 // This initializes a queue receiver using the created session.
-endpoint jms:QueueReceiver consumerEndpoint {
+listener jms:QueueReceiver consumerEndpoint = new({
     session:jmsSession,
     queueName:"MyQueue"
-};
+});
 
 // This binds the created consumer to the listener service.
-service<jms:Consumer> jmsListener bind consumerEndpoint {
+service jmsListener on consumerEndpoint {
 
     // This resource is invoked when a message is received.
-    onMessage(endpoint consumer, jms:Message message) {
+    resource function onMessage(jms:QueueReceiverCaller consumer,
+    jms:Message message) {
         // This retrieves the text message.
-        match (message.getTextMessageContent()) {
-            string messageText => {
-                log:printInfo("Message : " + messageText);
-                // This acknowledges the received message using the acknowledge function of the queue receiver endpoint.
-                consumer->acknowledge(message) but {
-                    error e => log:printError("Error occurred while"
-                                              + "acknowledging message", err=e)
-                };
+        var result = message.getTextMessageContent();
+        if (result is string) {
+            log:printInfo("Message : " + result);
+            // This acknowledges the received message using the acknowledge function
+            // of the queue receiver endpoint.
+            var ack = consumer->acknowledge(message);
+            if (ack is error) {
+                log:printError("Error occurred while acknowledging message",
+                                  err = ack);
             }
-            error e => log:printError("Error occurred while reading message",
-                                      err=e);
+        } else {
+                log:printError("Error occurred while reading message",
+                                 err = result);
         }
+
     }
 }

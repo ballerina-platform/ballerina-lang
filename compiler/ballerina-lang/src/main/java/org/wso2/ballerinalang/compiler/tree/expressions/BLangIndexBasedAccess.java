@@ -38,7 +38,7 @@ public class BLangIndexBasedAccess extends BLangAccessExpression implements Inde
     }
 
     @Override
-    public BLangVariableReference getExpression() {
+    public BLangExpression getExpression() {
         return expr;
     }
 

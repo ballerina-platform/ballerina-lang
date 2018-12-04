@@ -1,4 +1,4 @@
 $ ballerina run optional_type.bal
-{name:"", age:0, addr:null, guardian:null}
+{name:"Paul", age:40, addr:null, guardian:null}
 
-{line01:"61 brandon street", line02:"", city:"Santa Clara", state:"CA", zipcode:"95134"}
+{line01:"No. 61", line02:"Brandon street", city:"Santa Clara", state:"CA", zipcode:"95134"}

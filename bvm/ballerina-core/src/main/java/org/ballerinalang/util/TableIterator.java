@@ -29,19 +29,14 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BBooleanArray;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BFloatArray;
-import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -52,6 +47,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Struct;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -192,7 +188,7 @@ public class TableIterator implements DataIterator {
         BMap<String, BValue> bStruct = new BMap<>(type);
         int index = 0;
         try {
-            BField[] structFields = type.getFields();
+            Collection<BField> structFields = type.getFields().values();
             for (BField sf : structFields) {
                 BType type = sf.getFieldType();
                 String fieldName = sf.fieldName;
@@ -227,7 +223,7 @@ public class TableIterator implements DataIterator {
                         BType arrayElementType = ((BArrayType) type).getElementType();
                         if (arrayElementType.getTag() == TypeTags.BYTE_TAG) {
                             Blob blobValue = rs.getBlob(index);
-                            value = new BByteArray(blobValue.getBytes(1L, (int) blobValue.length()));
+                            value = new BValueArray(blobValue.getBytes(1L, (int) blobValue.length()));
                         } else {
                             Array arrayValue = rs.getArray(index);
                             value = getDataArray(arrayValue);
@@ -267,7 +263,7 @@ public class TableIterator implements DataIterator {
         int length = dataArray.length;
         if (firstNonNullElement == null) {
             // Each element is null so a nil element array is returned
-            return new BRefValueArray(new BRefType[length], new BArrayType(BTypes.typeNull));
+            return new BValueArray(new BRefType[length], new BArrayType(BTypes.typeNull));
         } else if (containsNull) {
             // If there are some null elements, return a union-type element array
             return createAndPopulateRefValueArray(firstNonNullElement, dataArray);
@@ -280,43 +276,43 @@ public class TableIterator implements DataIterator {
     private BNewArray createAndPopulatePrimitiveValueArray(Object firstNonNullElement, Object[] dataArray) {
         int length = dataArray.length;
         if (firstNonNullElement instanceof String) {
-            BStringArray stringDataArray = new BStringArray();
+            BValueArray stringDataArray = new BValueArray(BTypes.typeString);
             for (int i = 0; i < length; i++) {
                 stringDataArray.add(i, (String) dataArray[i]);
             }
             return stringDataArray;
         } else if (firstNonNullElement instanceof Boolean) {
-            BBooleanArray boolDataArray = new BBooleanArray();
+            BValueArray boolDataArray = new BValueArray(BTypes.typeBoolean);
             for (int i = 0; i < length; i++) {
                 boolDataArray.add(i, ((Boolean) dataArray[i]) ? 1 : 0);
             }
             return boolDataArray;
         } else if (firstNonNullElement instanceof Integer) {
-            BIntArray intDataArray = new BIntArray();
+            BValueArray intDataArray = new BValueArray(BTypes.typeInt);
             for (int i = 0; i < length; i++) {
                 intDataArray.add(i, ((Integer) dataArray[i]));
             }
             return intDataArray;
         } else if (firstNonNullElement instanceof Long) {
-            BIntArray longDataArray = new BIntArray();
+            BValueArray longDataArray = new BValueArray(BTypes.typeInt);
             for (int i = 0; i < length; i++) {
                 longDataArray.add(i, (Long) dataArray[i]);
             }
             return longDataArray;
         } else if (firstNonNullElement instanceof Float) {
-            BFloatArray floatDataArray = new BFloatArray();
+            BValueArray floatDataArray = new BValueArray(BTypes.typeFloat);
             for (int i = 0; i < length; i++) {
                 floatDataArray.add(i, (Float) dataArray[i]);
             }
             return floatDataArray;
         } else if (firstNonNullElement instanceof Double) {
-            BFloatArray doubleDataArray = new BFloatArray();
+            BValueArray doubleDataArray = new BValueArray(BTypes.typeFloat);
             for (int i = 0; i < dataArray.length; i++) {
                 doubleDataArray.add(i, (Double) dataArray[i]);
             }
             return doubleDataArray;
         } else if ((firstNonNullElement instanceof BigDecimal)) {
-            BFloatArray doubleDataArray = new BFloatArray();
+            BValueArray doubleDataArray = new BValueArray(BTypes.typeFloat);
             for (int i = 0; i < dataArray.length; i++) {
                 doubleDataArray.add(i, ((BigDecimal) dataArray[i]).doubleValue());
             }
@@ -326,8 +322,8 @@ public class TableIterator implements DataIterator {
         }
     }
 
-    private BRefValueArray createAndPopulateRefValueArray(Object firstNonNullElement, Object[] dataArray) {
-        BRefValueArray refValueArray = null;
+    private BValueArray createAndPopulateRefValueArray(Object firstNonNullElement, Object[] dataArray) {
+        BValueArray refValueArray = null;
         int length = dataArray.length;
         if (firstNonNullElement instanceof String) {
             refValueArray = createEmptyRefValueArray(BTypes.typeString, length);
@@ -369,12 +365,12 @@ public class TableIterator implements DataIterator {
         return refValueArray;
     }
 
-    private BRefValueArray createEmptyRefValueArray(BType type, int length) {
+    private BValueArray createEmptyRefValueArray(BType type, int length) {
         List<BType> memberTypes = new ArrayList<>(2);
         memberTypes.add(type);
         memberTypes.add(BTypes.typeNull);
         BUnionType unionType = new BUnionType(memberTypes);
-        return new BRefValueArray(new BRefType[length], new BArrayType(unionType));
+        return new BValueArray(new BRefType[length], new BArrayType(unionType));
     }
 
     private ArrayElementAttributes getArrayElementNullabilityInfo(Object[] objects) {
@@ -407,8 +403,8 @@ public class TableIterator implements DataIterator {
     }
 
     private void generateColumnDefinitions() {
-        BField[] structFields = this.type.getFields();
-        columnDefs = new ArrayList<>(structFields.length);
+        Collection<BField> structFields = this.type.getFields().values();
+        columnDefs = new ArrayList<>(structFields.size());
         for (BField sf : structFields) {
             BType type = sf.getFieldType();
             TypeKind typeKind = TypeKind.ANY;

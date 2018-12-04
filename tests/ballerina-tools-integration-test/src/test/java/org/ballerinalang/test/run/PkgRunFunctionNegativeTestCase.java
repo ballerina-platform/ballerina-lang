@@ -28,7 +28,7 @@ import java.io.File;
 /**
  * This class tests invoking an entry function in a package via the Ballerina Run Command and the data binding
  * functionality.
- *
+ *testInvalidSourceArg:
  * e.g., ballerina run abc:nomoremain 1 "Hello World" data binding main
  *  where nomoremain is the following function
  *      public function nomoremain(int i, string s, string... args) {
@@ -39,11 +39,20 @@ public class PkgRunFunctionNegativeTestCase extends BaseTest {
 
     private String sourceRoot = (new File("src/test/resources/run/package/")).getAbsolutePath();
 
-    @Test
-    public void testEmptyEntryFunctionName() throws BallerinaTestException {
+    @Test(description = "test an invalid source argument, ending with a colon, e.g., ballerina run <PKG>:")
+    public void testInvalidSourceArg() throws BallerinaTestException {
         String sourceArg = "entry:";
-        LogLeecher errLogLeecher = new LogLeecher("ballerina: expected function name after final ':'",
-                LeecherType.ERROR);
+        LogLeecher errLogLeecher = new LogLeecher("error: ballerina source does not exist 'entry:'",
+                                                  LeecherType.ERROR);
+        balClient.runMain(sourceRoot, sourceArg, new LogLeecher[]{errLogLeecher});
+        errLogLeecher.waitForText(2000);
+    }
+
+    @Test(description = "test an invalid function name with ballerina run, where the function name includes colons")
+    public void testWrongEntryFunctionNameWithColons() throws BallerinaTestException {
+        String sourceArg = "pkg_with_colons:colonsInName:WrongFunction";
+        LogLeecher errLogLeecher = new LogLeecher("'colonsInName:WrongFunction' function not found in " +
+                                                          "'pkg_with_colons'", LeecherType.ERROR);
         balClient.runMain(sourceRoot, sourceArg, new LogLeecher[]{errLogLeecher});
         errLogLeecher.waitForText(2000);
     }

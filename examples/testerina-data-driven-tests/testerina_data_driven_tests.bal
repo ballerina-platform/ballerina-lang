@@ -9,9 +9,13 @@ import ballerina/test;
 // Data is parsed to the function as function parameters.
 function testAddingValues(string fValue, string sValue, string result) {
 
-    int value1 = check <int>fValue;
-    int value2 = check <int>sValue;
-    int result1 = check <int>result;
+    int|error val1 = int.convert(fValue);
+    int value1 = val1 is int ? val1 : 0;
+    int|error val2 = int.convert(sValue);
+    int value2 = val2 is int ? val2 : 0;
+    int|error res1 = int.convert(result);
+    int result1 = res1 is int ? res1 : 0;
+
     io:println("Input : [" + fValue + "," + sValue + "," + result + "]");
     test:assertEquals(value1 + value2, result1, msg = "Incorrect Sum");
 }
@@ -26,12 +30,12 @@ function ValueProvider() returns (string[][]) {
     dataProvider: "jsonDataProvider"
 }
 function testJsonObjects(json fValue, json sValue, json result) {
-    json a = { "a": "a" };
-    json b = { "b": "b" };
-    json c = { "c": "c" };
-    test:assertEquals(fValue, a, msg = "json data provider failed");
-    test:assertEquals(sValue, b, msg = "json data provider failed");
-    test:assertEquals(result, c, msg = "json data provider failed");
+json a = { "a": "a" };
+json b = { "b": "b" };
+json c = { "c": "c" };
+test:assertEquals(fValue, a, msg = "json data provider failed");
+test:assertEquals(sValue, b, msg = "json data provider failed");
+test:assertEquals(result, c, msg = "json data provider failed");
 }
 
 // This function returns a JSON value set.

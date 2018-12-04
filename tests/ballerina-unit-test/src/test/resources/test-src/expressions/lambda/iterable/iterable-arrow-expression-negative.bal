@@ -24,9 +24,9 @@ function testSingleIterable() {
     string[] lambda3 = words.map((index, word) => word[1].toUpper()); // invalid number of parameters used in arrow expression. expected: '1' but found '2'
 
     float avg1 = flArray.map((index, value) => value).average(); // invalid number of parameters used in arrow expression. expected: '1' but found '2'
-    string avg2 = flArray.map(entry => entry[1]).average(); // incompatible types: expected 'string', found 'float'
-    string avg3 = flArray.map(entry => entry[1].toUpper()).average(); // undefined function 'float.toUpper'
-    string str1 = flArray.map(entry => <string> entry[1]); // incompatible types: expected 'string', found '(string) collection'
+    string avg2 = flArray.map(entry => entry).average(); // incompatible types: expected 'string', found 'float'
+    string avg3 = flArray.map(entry => entry.toUpper()).average(); // undefined function 'float.toUpper'
+    string str1 = flArray.map(entry => <string> entry); // incompatible types: expected 'string', found '(string) collection'
 
 }
 

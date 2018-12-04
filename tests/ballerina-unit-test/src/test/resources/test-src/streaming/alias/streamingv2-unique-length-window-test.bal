@@ -29,8 +29,8 @@ type TeacherOutput record {
 };
 
 int index = 0;
-stream<Teacher> inputStreamUniqueLengthTest3;
-stream<TeacherOutput> outputStreamUniqueLengthTest3;
+stream<Teacher> inputStreamUniqueLengthTest3 = new;
+stream<TeacherOutput> outputStreamUniqueLengthTest3 = new;
 TeacherOutput[] globalEmployeeArray = [];
 
 function startUniqueLengthwindowTest3() returns TeacherOutput[] {
@@ -46,8 +46,8 @@ function startUniqueLengthwindowTest3() returns TeacherOutput[] {
 
     testUniqueLengthwindow();
 
-    outputStreamUniqueLengthTest3.subscribe(printTeachers);
-    foreach t in teachers {
+    outputStreamUniqueLengthTest3.subscribe(function(TeacherOutput e) {printTeachers(e);});
+    foreach var t in teachers {
         inputStreamUniqueLengthTest3.publish(t);
         runtime:sleep(500);
     }
@@ -56,7 +56,7 @@ function startUniqueLengthwindowTest3() returns TeacherOutput[] {
     while(true) {
         runtime:sleep(500);
         count += 1;
-        if((lengthof globalEmployeeArray) == 3 || count == 10) {
+        if((globalEmployeeArray.length()) == 3 || count == 10) {
             break;
         }
     }
@@ -70,7 +70,7 @@ function testUniqueLengthwindow() {
         select input.timestamp, input.name, count() as count
         group by input.school
         => (TeacherOutput [] emp) {
-            foreach e in emp {
+            foreach var e in emp {
                 outputStreamUniqueLengthTest3.publish(e);
             }
         }

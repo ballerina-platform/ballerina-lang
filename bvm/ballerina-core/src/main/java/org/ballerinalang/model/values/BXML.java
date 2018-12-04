@@ -18,14 +18,16 @@ package org.ballerinalang.model.values;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNode;
+import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.XMLNodeType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.Iterator;
 import java.util.List;
-
+import java.util.Map;
 import javax.xml.namespace.QName;
 
 /**
@@ -37,33 +39,37 @@ import javax.xml.namespace.QName;
  * <li>processing instruction</li>
  * <li>sequence of above</li>
  * </ul>
- * 
+ *
  * @param <T> Type of the BXML
  *
  * @since 0.8.0
  */
 public abstract class BXML<T> implements BRefType<T>, BCollection {
 
+    BType type = BTypes.typeXML;
+
     /**
      * Start of a XML comment.
      */
     public static final String COMMENT_START = "<!--";
-    
+
     /**
      * End of a XML Comment.
      */
     public static final String COMMENT_END = "-->";
-    
+
     /**
      * Start of a XML processing instruction.
      */
     public static final String PI_START = "<?";
-    
+
     /**
      * End of a XML processing instruction.
      */
     public static final String PI_END = "?>";
-    
+
+    protected volatile BVM.FreezeStatus freezeStatus = new BVM.FreezeStatus(BVM.FreezeStatus.State.UNFROZEN);
+
     /**
      * Check whether the XML sequence is empty.
      * 
@@ -206,7 +212,7 @@ public abstract class BXML<T> implements BRefType<T>, BCollection {
     /**
      * Returns a deep copy of the XML.
      */
-    public abstract BXML<?> copy();
+    public abstract BXML<?> copy(Map<BValue, BValue> refs);
 
     /**
      * Slice and return a subsequence of the given XML sequence.
@@ -259,7 +265,15 @@ public abstract class BXML<T> implements BRefType<T>, BCollection {
      */
     @Override
     public BType getType() {
-        return BTypes.typeXML;
+        return type;
+    }
+
+    @Override
+    public void stamp(BType type) {
+        if (type.getTag() == TypeTags.ANYDATA_TAG) {
+            type = BVM.resolveMatchingTypeForUnion(this, type);
+        }
+        this.type = type;
     }
 
     // private methods
@@ -331,4 +345,11 @@ public abstract class BXML<T> implements BRefType<T>, BCollection {
      * @param qname Namespace qualified name of the children to be removed.
      */
     public abstract void removeChildren(String qname);
+
+    /**
+     * {@inheritDoc}
+     */
+    public synchronized boolean isFrozen() {
+        return this.freezeStatus.isFrozen();
+    }
 }

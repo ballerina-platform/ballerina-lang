@@ -19,14 +19,14 @@ type CountryCode "LK"|"USA"|"UK";
 type Person record {
     string fname = "default";
     string lname?;
-    Address adrs;
+    Address adrs = {};
     !...
 };
 
 type Address record {
-    string street;
-    string city;
-    CountryCode country;
+    string street = "";
+    string city = "";
+    CountryCode country = "LK";
     !...
 };
 
@@ -44,13 +44,13 @@ function testNonDefReqField2() returns Person {
 type Person2 record {
     string fname = "default";
     string lname?;
-    Address2 adrs;
+    Address2 adrs = {};
     !...
 };
 
 type Address2 record {
-    string street;
-    string city;
+    string street = "";
+    string city = "";
     CountryCode country = "LK";
     !...
 };
@@ -69,9 +69,9 @@ type Person3 record {
 };
 
 type Address3 record {
-    string street;
-    string city;
-    CountryCode country;
+    string street = "";
+    string city = "";
+    CountryCode country = "LK";
     !...
 };
 
@@ -94,8 +94,8 @@ type Person4 record {
 };
 
 type Address4 record {
-    string street;
-    string city;
+    string street = "";
+    string city = "";
     CountryCode country = "LK";
     !...
 };

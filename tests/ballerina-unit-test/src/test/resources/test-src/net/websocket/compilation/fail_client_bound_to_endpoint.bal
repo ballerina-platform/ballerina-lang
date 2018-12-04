@@ -17,30 +17,30 @@
 import ballerina/http;
 import ballerina/io;
 
-endpoint http:WebSocketClient wsClientEp {
-    url: "wss://echo.websocket.org",
-    callbackService: wsService
-};
+http:WebSocketClient wsClientEp = new("wss://echo.websocket.org", config = {callbackService: wsService});
 
-service<http:WebSocketClientService> wsService bind wsClientEp {
-    onText(endpoint caller, string text) {
+service wsService on wsClientEp {
+
+    resource function onText(http:WebSocketCaller caller, string text) {
     }
 
-    onBinary(endpoint caller, byte[] text, boolean final) {
-
-    }
-
-    onClose(endpoint caller, int val, string text) {
+    resource function onBinary(http:WebSocketCaller caller, byte[] text, boolean isFinal) {
 
     }
 
-    onIdleTimeout(endpoint caller) {
+    resource function onClose(http:WebSocketCaller caller, int val, string text) {
 
     }
-    onPing(endpoint caller, byte[] data) {
+
+    resource function onIdleTimeout(http:WebSocketCaller caller) {
 
     }
-    onPong(endpoint caller, byte[] data) {
+
+    resource function onPing(http:WebSocketCaller caller, byte[] data) {
+
+    }
+
+    resource function onPong(http:WebSocketCaller caller, byte[] data) {
 
     }
 }

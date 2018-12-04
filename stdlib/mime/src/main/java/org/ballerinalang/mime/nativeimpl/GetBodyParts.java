@@ -25,8 +25,8 @@ import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -55,7 +55,7 @@ public class GetBodyParts extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BRefValueArray partsArray;
+        BValueArray partsArray;
         try {
             BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
             String baseType = HeaderUtil.getBaseType(entityStruct);
@@ -81,8 +81,8 @@ public class GetBodyParts extends BlockingNativeCallableUnit {
                         "composite media type. Received content-type : " + baseType));
             }
         } catch (Throwable e) {
-            context.setReturnValues(MimeUtil.createError(context,
-                    "Error occurred while extracting body parts from entity: " + e.getMessage()));
+            context.setReturnValues(MimeUtil.createError(context, "Error occurred while extracting body parts " +
+                    "from entity: " + e.getMessage()));
         }
     }
 }

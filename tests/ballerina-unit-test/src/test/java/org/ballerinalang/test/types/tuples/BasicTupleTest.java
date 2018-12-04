@@ -89,6 +89,11 @@ public class BasicTupleTest {
         returns = BRunUtil.invoke(result, "testIgnoredValue3");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "foo");
+
+        returns = BRunUtil.invoke(result, "testIgnoredValue4");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertEquals(returns[0].stringValue(), "foo");
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
     }
 
     @Test(description = "Test index based access of tuple type")

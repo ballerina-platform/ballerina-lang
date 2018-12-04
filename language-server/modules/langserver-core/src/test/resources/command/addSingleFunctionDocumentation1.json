@@ -21,7 +21,7 @@
                     "character":0
                   }
                 },
-                "newText":"# Description\n"
+                "newText":"# Description\n#\n# + a - a Parameter Description \n# + default1 - default1 Parameter Description \n# + b - b Parameter Description \n# + bl - bl Parameter Description \n# + rst - rst Parameter Description\n"
               }
             ]
           }

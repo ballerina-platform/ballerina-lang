@@ -1,5 +1,5 @@
 $ ballerina run tuple_type.bal
-(10, John)
+(10, "John")
 10
 John
 06/10: quotient=0 remainder=6

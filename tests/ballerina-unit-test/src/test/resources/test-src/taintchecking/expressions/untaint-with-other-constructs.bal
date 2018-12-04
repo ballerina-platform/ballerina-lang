@@ -34,7 +34,7 @@ function untaintWithReceiver () returns (string) {
 function untaintWithLengthOf () returns (int) {
     string data1 = "input1";
     string data2 = "input2";
-    return untaint lengthof returnInput(data1 + data2 + "input3" + globalvariable);
+    return untaint returnInput(data1 + data2 + "input3" + globalvariable).length();
 }
 
 function returnInput (string inputData) returns (string) {

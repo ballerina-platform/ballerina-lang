@@ -17,8 +17,14 @@
  */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.util.exceptions.BallerinaException;
+
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.util.Map;
 
 /**
  * The {@code BFloat} represents a float value in Ballerina.
@@ -28,6 +34,7 @@ import org.ballerinalang.model.types.BTypes;
 public final class BFloat extends BValueType implements BRefType<Double> {
 
     private double value;
+    private BType type = BTypes.typeFloat;
 
     public BFloat(double value) {
         this.value = value;
@@ -35,7 +42,14 @@ public final class BFloat extends BValueType implements BRefType<Double> {
 
     @Override
     public long intValue() {
-        return (long) this.value;
+        if (Double.isNaN(value) || Double.isInfinite(value)) {
+            throw new BallerinaException("'float' value '" + value + "' cannot be converted to 'int'");
+        }
+
+        if (!BVM.isFloatWithinIntRange(value)) {
+            throw new BallerinaException("out of range 'float' value '" + value + "' cannot be converted to 'int'");
+        }
+        return Math.round(value);
     }
 
     @Override
@@ -49,8 +63,13 @@ public final class BFloat extends BValueType implements BRefType<Double> {
     }
 
     @Override
+    public BigDecimal decimalValue() {
+        return new BigDecimal(value, MathContext.DECIMAL128);
+    }
+
+    @Override
     public boolean booleanValue() {
-        return false;
+        return value != 0.0;
     }
 
     @Override
@@ -60,7 +79,12 @@ public final class BFloat extends BValueType implements BRefType<Double> {
 
     @Override
     public BType getType() {
-        return BTypes.typeFloat;
+        return type;
+    }
+
+    @Override
+    public void setType(BType type) {
+        this.type = type;
     }
 
     @Override
@@ -90,7 +114,7 @@ public final class BFloat extends BValueType implements BRefType<Double> {
     }
 
     @Override
-    public BValue copy() {
-        return new BFloat(value);
+    public BValue copy(Map<BValue, BValue> refs) {
+        return this;
     }
 }

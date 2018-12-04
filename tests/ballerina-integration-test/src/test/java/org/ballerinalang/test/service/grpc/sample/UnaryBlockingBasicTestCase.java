@@ -67,8 +67,7 @@ public class UnaryBlockingBasicTestCase extends GrpcBaseTest {
     @Test
     public void testBlockingErrorResponse() {
         BString request = new BString("invalid");
-        final String serverMsg = "Error from Connector: Status{ code ABORTED, description Operation aborted, cause " +
-                "null}";
+        final String serverMsg = "Error from Connector: {ballerina/grpc}ABORTED - Operation aborted";
 
         BValue[] responses = BRunUtil.invoke(result, "testUnaryBlockingClient", new BValue[]{request});
         Assert.assertEquals(responses.length, 1);

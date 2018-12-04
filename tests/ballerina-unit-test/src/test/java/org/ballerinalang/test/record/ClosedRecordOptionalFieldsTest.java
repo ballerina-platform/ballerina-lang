@@ -47,10 +47,9 @@ public class ClosedRecordOptionalFieldsTest {
         CompileResult negativeResult = BCompileUtil.compile(
                 "test-src/record/closed_record_optional_fields_negatives.bal");
         int i = 0;
-        Assert.assertEquals(negativeResult.getErrorCount(), 3);
+        Assert.assertEquals(negativeResult.getErrorCount(), 2);
         BAssertUtil.validateError(negativeResult, i++, "a default value specified for optional field 'age'", 22, 5);
-        BAssertUtil.validateError(negativeResult, i++, "missing non-defaultable required record field 'adrs'", 35, 17);
-        BAssertUtil.validateError(negativeResult, i, "variable 'p2' is not initialized", 36, 5);
+        BAssertUtil.validateError(negativeResult, i, "missing non-defaultable required record field 'adrs'", 35, 17);
     }
 
     @Test(description = "Test creating a record with a non-defaultable required field")

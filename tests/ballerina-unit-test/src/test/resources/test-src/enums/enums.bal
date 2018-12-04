@@ -1,7 +1,7 @@
 
 import org.test;
 
-type state "ACTIVE" | "RESOLVED" | "INSTALLED" | "ABORTED";
+public type state "ACTIVE" | "RESOLVED" | "INSTALLED" | "ABORTED";
 
 public state activeState = "ACTIVE" ;
 public state resolvedState = "RESOLVED" ;
@@ -26,9 +26,9 @@ function testEnumAsParameter(state st) returns (boolean) {
 }
 
 type person record {
-        string name;
-        int age;
-        state st;
+        string name = "";
+        int age = 0;
+        state st = activeState;
 };
 
 function testEnumInStruct() returns (int) {

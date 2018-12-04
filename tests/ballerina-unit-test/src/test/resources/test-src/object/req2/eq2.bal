@@ -1,20 +1,20 @@
 
 public type userPB object {
-    public int age;
-    public string name;
-    public string address;
+    public int age = 0;
+    public string name = "";
+    public string address = "";
 
-    new () {}
+    function __init () {}
 
     public function getName () returns (string);
 
     public function getAge () returns (int);
 };
 
-function userPB::getName () returns (string) {
+function userPB.getName () returns (string) {
     return self.name;
 }
 
-function userPB::getAge () returns (int) {
+function userPB.getAge () returns (int) {
     return self.age;
 }

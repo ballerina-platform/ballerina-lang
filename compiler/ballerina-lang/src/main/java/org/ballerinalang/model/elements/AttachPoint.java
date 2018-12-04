@@ -34,6 +34,10 @@ public enum AttachPoint {
      */
     RESOURCE("resource"),
     /**
+     * Indicates REMOTE Attach point.
+     */
+    REMOTE("remote"),
+    /**
      * Indicates Function Attach point.
      */
     FUNCTION("function"),
@@ -42,13 +46,17 @@ public enum AttachPoint {
      */
     OBJECT("object"),
     /**
+     * Indicates client Attach point.
+     */
+    CLIENT("client"),
+    /**
      * Indicates Type Attach point.
      */
     TYPE("type"),
     /**
-     * Indicates Endpoint Attach point.
+     * Indicates listener Attach point.
      */
-    ENDPOINT("endpoint"),
+    LISTENER("listener"),
     /**
      * Indicates Parameter Attach point.
      */

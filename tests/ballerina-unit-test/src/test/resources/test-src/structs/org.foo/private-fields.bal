@@ -1,39 +1,39 @@
 
 public type userFoo record {
-    int age;
-    string name;
-    string address;
+    int age = 0;
+    string name = "";
+    string address = "";
     string zipcode = "23468";
-    string ssn;
+    string ssn = "";
 };
 
 public type user record {
-    int age;
-    string name;
-    string address;
+    int age = 0;
+    string name = "";
+    string address = "";
     string zipcode = "23468";
 };
 
 public type userObject object {
-    public int age;
-    public string name;
-    public string address;
+    public int age = 0;
+    public string name = "";
+    public string address = "";
     public string zipcode = "23468";
 };
 
 public type person record {
-    int age;
-    string name;
-    string ssn;
-    int id;
+    int age = 0;
+    string name = "";
+    string ssn = "";
+    int id = 0;
 };
 
 type student record {
-    int age;
-    string name;
-    string ssn;
-    int id;
-    int schoolId;
+    int age = 0;
+    string name = "";
+    string ssn = "";
+    int id = 0;
+    int schoolId = 0;
 };
 
 public function newPerson() returns (person) {

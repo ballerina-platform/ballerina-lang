@@ -38,12 +38,12 @@ type Employee record {
 };
 
 # PizzaService HTTP Service
-service<http:Service> PizzaService {
+service PizzaService on new http:MockListener(9090){
 
     # Check orderPizza resource.
     # + conn - HTTP connection.
     # + req - In request.
-    orderPizza(endpoint conn, http:Request req) {
+    resource function orderPizza(http:Caller conn, http:Request req) {
         http:Response res = new;
         _ = conn -> respond(res);
     }
@@ -51,7 +51,7 @@ service<http:Service> PizzaService {
     # Check status resource.
     # + conn - HTTP connection.
     # + req - In request.
-    checkStatus(endpoint conn, http:Request req) {
+    resource function checkStatus(http:Caller conn, http:Request req) {
         http:Response res = new;
         _ = conn -> respond(res);
     }

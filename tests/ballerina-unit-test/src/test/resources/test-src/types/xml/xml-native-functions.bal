@@ -537,7 +537,7 @@ function testToString() returns (string) {
     
     xml book = bookComment + bookName + bookId + bookAuthor + bookMeta;
     
-    string s = <string> book;
+    string s = string.convert(book);
     return s;
 }
 
@@ -545,7 +545,7 @@ function testStrip() returns (xml, xml) {
     var x1 = xml `<!-- comment about the book-->`;
     xml x2 = xml `     `;
     var x3 = xml `<bookId>001</bookId>`;
-    xml x4;
+    xml x4 = xml ` `;
     var x5 = xml `<?word document="book.doc" ?>`;
     
     xml x6 = x1 + x2 + x3 + x4 + x5;
@@ -558,7 +558,7 @@ function testStripSingleton() returns (xml, xml) {
 }
 
 function testStripEmptySingleton() returns (xml, xml, boolean) {
-    xml x1;
+    xml x1 = xml ` `;
     xml x2 = x1.strip();
     boolean isEmpty = x2.isEmpty();
     
@@ -646,7 +646,7 @@ function testToJsonForValue() returns (json) {
 }
 
 function testToJsonForEmptyValue() returns (json) {
-    xml x;
+    xml x = xml ` `;
     return x.toJSON({});
 }
 
@@ -840,7 +840,7 @@ function testGetChildrenOfSequence() returns (int, xml) {
     xml x2 = xml `<name2><fname2>Jane</fname2><lname2>Doe</lname2></name2>`;
     xml x3 = x1 + x2 + xml `<foo>apple</foo>`;
     xml x4 = x3.*;
-    return (lengthof x4, x4);
+    return (x4.length(), x4);
 }
 
 function testAddChildren() returns (xml, xml) {
@@ -897,4 +897,22 @@ function testRemoveInnerChildren() returns (xml, xml) {
     xml children = x1.*;
     x1.address.country.removeChildren("code");
     return (children, x1.*);
+}
+
+function testToJSONAndSubsequentStore() returns json {
+    xml xmlPerson = xml `<person><name>David</name></person>`;
+    json person = xmlPerson.toJSON({});
+    json people = [person];
+    people[1] = person;
+    return people;
+}
+
+function testToJSONAndSubsequentRemove() returns (json, json) {
+    xml xmlPerson = xml `<name>David</name>`;
+    json person = xmlPerson.toJSON({});
+    person.age = 37;
+    json intermediatePerson = person.clone();
+    person.remove("name");
+    person.remove("age");
+    return (intermediatePerson, person);
 }

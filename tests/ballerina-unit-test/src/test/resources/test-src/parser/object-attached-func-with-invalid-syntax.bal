@@ -3,7 +3,7 @@ type TestObj object {
     function bar(string a) returns int;
 };
 
-function TestObj::foo(int a) returns string {
+function TestObj.foo(int a) returns string {
     return <string>a;
 }
 

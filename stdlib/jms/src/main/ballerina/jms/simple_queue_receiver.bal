@@ -16,96 +16,89 @@
 
 import ballerina/log;
 
-# Simplified queue receiver endpoint.
+# JMS Simplified QueueReceiver endpoint.
 # A new connection and a session will be create when this endpoint is initialize. If your requirement is complex
 # please refer QueueReceiver endpoint.
 #
-# + config - configurations related to the SimpleQueueReceiver endpoint
+# + config - Used to store configurations related to a JMS SimpleQueueReceiver
 public type SimpleQueueReceiver object {
 
-    public SimpleQueueReceiverEndpointConfiguration config;
+    *AbstractListener;
 
+    public SimpleQueueReceiverEndpointConfiguration config = {};
     private Connection? connection;
-    private Session? session;
-    private QueueReceiver? queueReceiver;
+    private Session? session = ();
+    private QueueReceiver queueReceiver;
 
     # Initialize the SimpleQueueReceiver endpoint
     #
     # + c - Configurations related to the SimpleQueueReceiver endpoint
-    public function init(SimpleQueueReceiverEndpointConfiguration c) {
+    public function __init(SimpleQueueReceiverEndpointConfiguration c) {
         self.config = c;
         Connection conn = new({
-                initialContextFactory:config.initialContextFactory,
-                providerUrl:config.providerUrl,
-                connectionFactoryName:config.connectionFactoryName,
-                properties:config.properties
+                initialContextFactory: self.config.initialContextFactory,
+                providerUrl: self.config.providerUrl,
+                connectionFactoryName: self.config.connectionFactoryName,
+                properties: self.config.properties
             });
         self.connection = conn;
 
         Session newSession = new(conn, {
-                acknowledgementMode:config.acknowledgementMode
+                acknowledgementMode: self.config.acknowledgementMode
             });
         self.session = newSession;
 
-        QueueReceiver receiver = new;
         QueueReceiverEndpointConfiguration queueReceiverConfig = {
-            session:newSession,
+            session: newSession,
             queueName: c.queueName,
             messageSelector: c.messageSelector
         };
-        receiver.init(queueReceiverConfig);
-        self.queueReceiver = receiver;
+        self.queueReceiver = new(queueReceiverConfig);
     }
 
     # Binds the SimlpeQueueReceiver endpoint to a service
     #
-    # + serviceType - type descriptor of the service to bind to
-    public function register(typedesc serviceType) {
-        match (queueReceiver) {
-            QueueReceiver c => {
-                c.register(serviceType);
-            }
-            () => {
-                error e = {message:"Queue receiver cannot be nil"};
-                throw e;
-            }
-        }
+    # + serviceType - Type descriptor of the service to bind to
+    # + data - Service annotations
+    # + return - Nil or error upon failure to register listener
+    public function __attach(service serviceType, map<any> data) returns error? {
+        return self.queueReceiver.registerListener(serviceType, self.queueReceiver.consumerActions, data);
     }
 
     # Starts the endpoint. Function is ignored by the receiver endpoint
-    public function start() {
-
+    #
+    # + return - Nil or error upon failure to start
+    public function __start() returns error?  {
+        return ();
     }
 
     # Retrieves the SimpleQueueReceiver consumer action handler
     #
-    # + return - simple queue receiver action handler
-    public function getCallerActions() returns QueueReceiverActions {
-        match (queueReceiver) {
-            QueueReceiver c => return c.getCallerActions();
-            () => {
-                error e = {message:"Queue receiver cannot be nil"};
-                throw e;
-            }
-        }
+    # + return - SimpleQueueReceiver actions handler
+    public function getCallerActions() returns QueueReceiverCaller {
+        return self.queueReceiver.getCallerActions();
     }
 
     # Stops consuming messages through QueueReceiver endpoint
-    public function stop() {
-
+    #
+    # + return - Nil or error upon failure to close queue receiver
+    public function __stop() returns error? {
+        return self.queueReceiver.closeQueueReceiver(self.queueReceiver.consumerActions);
     }
 
     # Creates a JMS message which holds text content
     #
-    # + content - the text content used to initialize this message
-    # + return - the created message, or nil if the session is nil
+    # + content - Text content used to initialize this message
+    # + return - Message or nil if the session is nil
     public function createTextMessage(string content) returns Message|error {
-        match (session) {
-            Session s => return s.createTextMessage(content);
-            () => {
-                error e = {message:"Session cannot be null"};
-                throw e;
-            }
+        var session = self.session;
+        if (session is Session) {
+            return session.createTextMessage(content);
+        } else {
+            string errorMessage = "Session cannot be nil";
+            map<any> errorDetail = { message: errorMessage };
+            error e = error(JMS_ERROR_CODE, errorDetail);
+            panic e;
         }
     }
 };
@@ -115,18 +108,18 @@ public type SimpleQueueReceiver object {
 # + initialContextFactory - JMS provider specific inital context factory
 # + providerUrl - JMS provider specific provider URL used to configure a connection
 # + connectionFactoryName - JMS connection factory to be used in creating JMS connections
-# + acknowledgementMode - specifies the session mode that will be used. Legal values are "AUTO_ACKNOWLEDGE",
+# + acknowledgementMode - Specifies the session mode that will be used. Legal values are "AUTO_ACKNOWLEDGE",
 #                         "CLIENT_ACKNOWLEDGE", "SESSION_TRANSACTED" and "DUPS_OK_ACKNOWLEDGE"
-# + messageSelector - JMS selector statement
-# + properties - Additional properties use in initializing the initial context
+# + messageSelector - Message selector condition to filter messages
+# + properties - Additional properties used when initializing the initial context
 # + queueName - Name of the target queue
 public type SimpleQueueReceiverEndpointConfiguration record {
     string initialContextFactory = "bmbInitialContextFactory";
     string providerUrl = "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'";
     string connectionFactoryName = "ConnectionFactory";
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
-    string messageSelector;
-    map properties;
-    string queueName;
+    string messageSelector = "";
+    map<any> properties = {};
+    string queueName = "";
     !...
 };

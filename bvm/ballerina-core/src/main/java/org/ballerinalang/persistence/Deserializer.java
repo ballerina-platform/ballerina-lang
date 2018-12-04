@@ -18,8 +18,8 @@
  */
 package org.ballerinalang.persistence;
 
-import org.ballerinalang.bre.bvm.CallableWorkerResponseContext;
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.bre.old.CallableWorkerResponseContext;
+import org.ballerinalang.bre.old.WorkerExecutionContext;
 import org.ballerinalang.model.values.BRefType;
 
 import java.util.Map;

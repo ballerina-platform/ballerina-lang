@@ -26,8 +26,8 @@ import org.ballerinalang.model.util.serializer.JsonSerializerConst;
 import org.ballerinalang.model.util.serializer.SerializationBValueProvider;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 
 import java.util.HashSet;
 
@@ -51,7 +51,7 @@ public class HashSetBValueProvider implements SerializationBValueProvider<HashSe
 
     @Override
     public BPacket toBValue(HashSet set, BValueSerializer serializer) {
-        BRefValueArray array = new BRefValueArray(new BArrayType(BTypes.typeAny));
+        BValueArray array = new BValueArray(new BArrayType(BTypes.typeAny));
         for (Object item : set) {
             array.append((BRefType) serializer.toBValue(item, null));
         }
@@ -64,10 +64,10 @@ public class HashSetBValueProvider implements SerializationBValueProvider<HashSe
     @Override
     public HashSet toObject(BPacket packet, BValueDeserializer bValueDeserializer) {
         BInteger length = (BInteger) packet.get(JsonSerializerConst.LENGTH_TAG);
-        BRefValueArray array = (BRefValueArray) packet.getValue();
+        BValueArray array = (BValueArray) packet.getValue();
         HashSet set = new HashSet((int) length.intValue());
         for (int i = 0; i < array.size(); i++) {
-            set.add(bValueDeserializer.deserialize(array.get(i), null));
+            set.add(bValueDeserializer.deserialize(array.getRefValue(i), null));
         }
         return set;
     }

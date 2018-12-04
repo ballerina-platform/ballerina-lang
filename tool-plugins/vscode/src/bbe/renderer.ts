@@ -4,30 +4,18 @@ import { getLibraryWebViewContent } from '../utils';
 
 export function render(context: ExtensionContext, langClient: ExtendedLangClient)
     : string {
-    const body = `<div id="examples" />`;
+    const body = `<div id="examples" class="examples" />`;
     const script = `
-        function getSamples() {
-            return Promise.resolve(examples);
-        }
-        function getExamples() {
-            return new Promise((resolve, reject) => {
-                webViewRPCHandler.invokeRemoteMethod('getExamples', [], (resp) => {
-                    resolve(resp.samples);
-                });
-            })
-        }
-        function openExample(url) {
-            vscode.postMessage({
-                command: 'openExample',
-                url: JSON.stringify(url)
-            });
-        }
-        function renderSamples() {
-            ballerinaComposer.renderSamplesList(document.getElementById("examples"), openExample, getExamples, () => {});
-        }
-        renderSamples();
-        renderSamples();
-        
+            function loadedScript() {
+                    function openExample(url) {
+                        webViewRPCHandler.invokeRemoteMethod("openExample", [url]);
+                    }
+                    const langClient = getLangClient();
+                    function renderSamples() {
+                        ballerinaComposer.renderSamplesList(document.getElementById("examples"), openExample, langClient.getExamples, () => {});
+                    }
+                    renderSamples();
+            }
         `;
     const styles = `
         body.vscode-dark {

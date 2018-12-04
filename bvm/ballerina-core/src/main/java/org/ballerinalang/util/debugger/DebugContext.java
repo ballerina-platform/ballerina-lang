@@ -29,9 +29,9 @@ public class DebugContext {
 
     private LineNumberInfo lastLine;
 
-    private String workerId;
+    private int framePointer;
 
-    private boolean workerPaused;
+    private boolean strandPaused;
 
     private boolean cmdChanged = false;
 
@@ -56,28 +56,26 @@ public class DebugContext {
         return lastLine;
     }
 
-    public void setLastLine(LineNumberInfo lastLine) {
+    public void updateContext(LineNumberInfo lastLine, int framePointer) {
+        this.framePointer = framePointer;
         this.lastLine = lastLine;
     }
 
-    public void clearLastDebugLine() {
+    public int getFramePointer() {
+        return framePointer;
+    }
+
+    public void clearContext() {
+        this.framePointer = -1;
         this.lastLine = null;
     }
 
-    public String getWorkerId() {
-        return workerId;
+    public boolean isStrandPaused() {
+        return strandPaused;
     }
 
-    public void setWorkerId(String workerId) {
-        this.workerId = workerId;
-    }
-
-    public boolean isWorkerPaused() {
-        return workerPaused;
-    }
-
-    public void setWorkerPaused(boolean workerPaused) {
-        this.workerPaused = workerPaused;
+    public void setStrandPaused(boolean strandPaused) {
+        this.strandPaused = strandPaused;
     }
 
     public boolean isCmdChanged() {

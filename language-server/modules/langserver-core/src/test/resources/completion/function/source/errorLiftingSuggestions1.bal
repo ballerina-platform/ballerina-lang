@@ -1,19 +1,19 @@
 import ballerina/io;
 import ballerina/http;
 
-endpoint http:Client client {
-    url: "http://example.com/"
+http:ClientEndpointConfig conf = {
+   url: "https://postman-echo.com/basic-auth",
+   auth: {
+       scheme: http:BASIC_AUTH,
+       username: "postman",
+       password: "password"
+   }
 };
 
 function main(string... args) {
-
-    var res1 = client -> get("/", message = ());
+    http:Client httpClient = new ("http://localhost:8080", config = conf );
+    var res1 = httpClient -> get("/", message = ());
     
     string s1 = check res1!
-    io:println(s1);
-
-    http:Response? res2;
-    res2 = check res1;
-
     io:println(s1);
 }

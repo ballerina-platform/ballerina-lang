@@ -112,18 +112,6 @@ function testAssertFalse() {
     test:assertFalse(value, msg = "AssertFalse failed");
 }
 
-// Intentionally failing a test.
-@test:Config
-function testAssertFail1() {
-    try {
-        // I'm expecting an error
-        test:assertFail(msg = "Exception Never occured");
-
-    } catch (error e) {
-        // Do more assertions
-    }
-}
-
 // Intentionally failing a test-example 2.
 @test:Config
 function testAssertFail2() {

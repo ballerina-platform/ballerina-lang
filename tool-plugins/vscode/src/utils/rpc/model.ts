@@ -1,6 +1,6 @@
 
 export interface WebViewMethodHandler {
-    (args: any[]) : Thenable<any>;
+    (args: any[]) : Thenable<any> | void | any;
 }
 
 export interface WebViewMethod {

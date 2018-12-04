@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.982.1-SNAPSHOT</version>
+        <version>0.983.1-SNAPSHOT</version>
         <relativePath>../../../pom.xml</relativePath>
     </parent>
 
@@ -100,6 +100,12 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-socket</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-sources</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-jms</artifactId>
             <type>zip</type>
             <classifier>ballerina-sources</classifier>
@@ -113,12 +119,6 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-math</artifactId>
-            <type>zip</type>
-            <classifier>ballerina-sources</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-mb</artifactId>
             <type>zip</type>
             <classifier>ballerina-sources</classifier>
         </dependency>
@@ -229,10 +229,10 @@
             <groupId>org.ballerinalang</groupId>
             <artifactId>swagger-to-ballerina-generator</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-codegen</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.ballerinalang</groupId>-->
+            <!--<artifactId>ballerina-codegen</artifactId>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>protobuf-ballerina</artifactId>
@@ -391,10 +391,10 @@
                                 ballerina-http,
                                 ballerina-internal,
                                 ballerina-io,
+                                ballerina-socket,
                                 ballerina-jms,
                                 ballerina-log-api,
                                 ballerina-math,
-                                ballerina-mb,
                                 ballerina-mime,
                                 ballerina-mysql,
                                 ballerina-observability,
@@ -501,6 +501,11 @@
                                 </resource>
                                 <resource>
                                     <directory>
+                                        ${project.build.directory}/extracted-distributions/ballerina-socket-ballerina-sources-zip/ballerina
+                                    </directory>
+                                </resource>
+                                <resource>
+                                    <directory>
                                         ${project.build.directory}/extracted-distributions/ballerina-jms-ballerina-sources-zip/ballerina
                                     </directory>
                                 </resource>
@@ -512,11 +517,6 @@
                                 <resource>
                                     <directory>
                                         ${project.build.directory}/extracted-distributions/ballerina-math-ballerina-sources-zip/ballerina
-                                    </directory>
-                                </resource>
-                                <resource>
-                                    <directory>
-                                        ${project.build.directory}/extracted-distributions/ballerina-mb-ballerina-sources-zip/ballerina
                                     </directory>
                                 </resource>
                                 <resource>

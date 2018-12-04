@@ -1,12 +1,10 @@
 function arrayInitTest() returns (int) {
     int[] arr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
-    int size;
-    int index;
-    int sum;
+    int size = 11;
+    int index = 0;
+    int sum = 0;
 
     arr[5] = 50;
-
-    size = 11;
 
     while (index < size) {
         sum = sum + arr[index];
@@ -31,11 +29,11 @@ function testNestedArrayInit() returns (int[][]) {
     return array;
 }
 
-function testArrayOfMapsInit() returns (map[]) {
-    map addressOne = {city:"Colombo", "country":"SriLanka"};
-    map addressTwo = {city:"Kandy", "country":"SriLanka"};
-    map addressThree = {city:"Galle", "country":"SriLanka"};
-    map[] array = [
+function testArrayOfMapsInit() returns (map<any>[]) {
+    map<any> addressOne = {city:"Colombo", "country":"SriLanka"};
+    map<any> addressTwo = {city:"Kandy", "country":"SriLanka"};
+    map<any> addressThree = {city:"Galle", "country":"SriLanka"};
+    map<any>[] array = [
                      {address: addressOne},
                      {address: addressTwo},
                      {address: addressThree}

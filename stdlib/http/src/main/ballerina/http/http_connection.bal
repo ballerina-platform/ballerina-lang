@@ -14,34 +14,39 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 # The caller actions for responding to client requests.
-public type Connection object {
+#
+# + remoteAddress - The remote address
+# + localAddress - The local address
+# + protocol - The protocol associated with the service endpoint
+public type Caller client object {
 
-    private ServiceEndpointConfiguration config;
-    private FilterContext? filterContext;
+    private ServiceEndpointConfiguration config = {};
+    private FilterContext? filterContext = ();
+
+    //TODO:Make these readonly
+    public Remote remoteAddress = {};
+    public Local localAddress = {};
+    public string protocol = "";
 
     # Sends the outbound response to the caller.
     #
     # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - Returns an `error` if failed to respond
-    public function respond(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns error? {
+    public remote function respond(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns error? {
         Response response = buildResponse(message);
-        match filterContext {
-            FilterContext filterCtx => {
-                foreach filter in config.filters {
-                    if (!filter.filterResponse(response, filterCtx)){
-                        Response res;
-                        res.statusCode = 500;
-                        res.setTextPayload("Failure when invoking response filter/s");
-                        return nativeRespond(self, res);
-                    }
+        FilterContext? filterContext = self.filterContext;
+        if (filterContext is FilterContext) {
+            foreach var filter in self.config.filters {
+                if (!filter.filterResponse(response, filterContext)){
+                    Response res = new;
+                    res.statusCode = 500;
+                    res.setTextPayload("Failure when invoking response filter/s");
+                    return nativeRespond(self, res);
                 }
             }
-            () => {}
         }
-
         return nativeRespond(self, response);
     }
 
@@ -49,20 +54,20 @@ public type Connection object {
     #
     # + promise - Push promise message
     # + return - An `error` in case of failures
-    public extern function promise(PushPromise promise) returns error?;
+    public remote extern function promise(PushPromise promise) returns error?;
 
     # Sends a promised push response to the caller.
     #
     # + promise - Push promise message
     # + response - The outbound response
     # + return - An `error` in case of failures while responding with the promised response
-    public extern function pushPromisedResponse(PushPromise promise, Response response) returns error?;
+    public remote extern function pushPromisedResponse(PushPromise promise, Response response) returns error?;
 
     # Sends an upgrade request with custom headers.
     #
     # + headers - A `map` of custom headers for handshake
     # + return - WebSocket service endpoint
-    public extern function acceptWebSocketUpgrade(map<string> headers) returns WebSocketListener;
+    public remote extern function acceptWebSocketUpgrade(map<string> headers) returns WebSocketCaller;
 
     # Cancels the handshake.
     #
@@ -70,12 +75,12 @@ public type Connection object {
     #            This error status code need to be 4xx or 5xx else the default status code would be 400.
     # + reason - Reason for cancelling the upgrade
     # + return - An `error` if an error occurs during cancelling the upgrade or nil
-    public extern function cancelWebSocketUpgrade(int status, string reason) returns error?;
+    public remote extern function cancelWebSocketUpgrade(int status, string reason) returns error?;
 
     # Sends a `100-continue` response to the caller.
     #
     # + return - Returns an `error` if failed to send the `100-continue` response
-    public function continue() returns error?;
+    public remote function continue() returns error?;
 
     # Sends a redirect response to the user with the specified redirection status code.
     #
@@ -83,14 +88,14 @@ public type Connection object {
     # + code - The redirect status code to be sent
     # + locations - An array of URLs to which the caller can redirect to
     # + return - Returns an `error` if failed to send the redirect response
-    public function redirect(Response response, RedirectCode code, string[] locations) returns error?;
+    public remote function redirect(Response response, RedirectCode code, string[] locations) returns error?;
 
     # Sends the outbound response to the caller with the status 200 OK.
     #
     # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - Returns an `error` if failed to respond
-    public function ok(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns error?;
+    public remote function ok(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns error?;
 
     # Sends the outbound response to the caller with the status 201 Created.
     #
@@ -98,7 +103,7 @@ public type Connection object {
     # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`. This message is optional.
     # + return - Returns an `error` if failed to respond
-    public function created(string uri, Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
+    public remote function created(string uri, Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
                                                                                             returns error?;
 
     # Sends the outbound response to the caller with the status 202 Accepted.
@@ -106,42 +111,43 @@ public type Connection object {
     # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`. This message is optional.
     # + return - Returns an `error` if failed to respond
-    public function accepted(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
+    public remote function accepted(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
                                                                                             returns error?;
 };
 
-extern function nativeRespond(Connection connection, Response response) returns error?;
+extern function nativeRespond(Caller caller, Response response) returns error?;
 
 /////////////////////////////////
 /// Ballerina Implementations ///
 /////////////////////////////////
 # Defines the HTTP redirect codes as a type.
-public type RedirectCode 300|301|302|303|304|305|307|308;
+public type RedirectCode REDIRECT_MULTIPLE_CHOICES_300|REDIRECT_MOVED_PERMANENTLY_301|REDIRECT_FOUND_302|REDIRECT_SEE_OTHER_303|
+REDIRECT_NOT_MODIFIED_304|REDIRECT_USE_PROXY_305|REDIRECT_TEMPORARY_REDIRECT_307|REDIRECT_PERMANENT_REDIRECT_308;
 
 # Represents the HTTP redirect status code `300 - Multiple Choices`.
-@final public RedirectCode REDIRECT_MULTIPLE_CHOICES_300 = 300;
+public const REDIRECT_MULTIPLE_CHOICES_300 = 300;
 # Represents the HTTP redirect status code `301 - Moved Permanently`.
-@final public RedirectCode REDIRECT_MOVED_PERMANENTLY_301 = 301;
+public const REDIRECT_MOVED_PERMANENTLY_301 = 301;
 # Represents the HTTP redirect status code `302 - Found`.
-@final public RedirectCode REDIRECT_FOUND_302 = 302;
+public const REDIRECT_FOUND_302 = 302;
 # Represents the HTTP redirect status code `303 - See Other`.
-@final public RedirectCode REDIRECT_SEE_OTHER_303 = 303;
+public const REDIRECT_SEE_OTHER_303 = 303;
 # Represents the HTTP redirect status code `304 - Not Modified`.
-@final public RedirectCode REDIRECT_NOT_MODIFIED_304 = 304;
+public const REDIRECT_NOT_MODIFIED_304 = 304;
 # Represents the HTTP redirect status code `305 - Use Proxy`.
-@final public RedirectCode REDIRECT_USE_PROXY_305 = 305;
+public const REDIRECT_USE_PROXY_305 = 305;
 # Represents the HTTP redirect status code `307 - Temporary Redirect`.
-@final public RedirectCode REDIRECT_TEMPORARY_REDIRECT_307 = 307;
+public const REDIRECT_TEMPORARY_REDIRECT_307 = 307;
 # Represents the HTTP redirect status code `308 - Permanent Redirect`.
-@final public RedirectCode REDIRECT_PERMANENT_REDIRECT_308 = 308;
+public const REDIRECT_PERMANENT_REDIRECT_308 = 308;
 
-function Connection::continue() returns error? {
+remote function Caller.continue() returns error? {
     Response res = new;
     res.statusCode = CONTINUE_100;
-    return self.respond(res);
+    return self->respond(res);
 }
 
-function Connection::redirect(Response response, RedirectCode code, string[] locations) returns error? {
+remote function Caller.redirect(Response response, RedirectCode code, string[] locations) returns error? {
     if (code == REDIRECT_MULTIPLE_CHOICES_300) {
         response.statusCode = MULTIPLE_CHOICES_300;
     } else if (code == REDIRECT_MOVED_PERMANENTLY_301) {
@@ -160,34 +166,34 @@ function Connection::redirect(Response response, RedirectCode code, string[] loc
         response.statusCode = PERMANENT_REDIRECT_308;
     }
     string locationsStr = "";
-    foreach location in locations {
+    foreach var location in locations {
         locationsStr = locationsStr + location + ",";
     }
-    locationsStr = locationsStr.substring(0, (lengthof locationsStr) - 1);
+    locationsStr = locationsStr.substring(0, (locationsStr.length()) - 1);
 
     response.setHeader(LOCATION, locationsStr);
-    return self.respond(response);
+    return self->respond(response);
 }
 
-function Connection::ok(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns error? {
+remote function Caller.ok(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns error? {
     Response response = buildResponse(message);
     response.statusCode = OK_200;
-    return self.respond(response);
+    return self->respond(response);
 }
 
-function Connection::created(string uri, Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
+remote function Caller.created(string uri, Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
                                                                                             returns error? {
     Response response = buildResponse(message);
     response.statusCode = CREATED_201;
     if (uri.length() > 0) {
         response.setHeader(LOCATION, uri);
     }
-    return self.respond(response);
+    return self->respond(response);
 }
 
-function Connection::accepted(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
+remote function Caller.accepted(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
                                                                                             returns error? {
     Response response = buildResponse(message);
     response.statusCode = ACCEPTED_202;
-    return self.respond(response);
+    return self->respond(response);
 }

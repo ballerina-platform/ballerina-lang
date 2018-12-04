@@ -16,116 +16,104 @@
 
 import ballerina/log;
 
-# JMS simple topic publisher
+# JMS Simplified TopicPublisher endpoint
 #
-# + config - Simple topic publisher enpoint configuration
-public type SimpleTopicPublisher object {
+# + config - Used to store configurations related to a JMS SimpleTopicPublisher
+public type SimpleTopicPublisher client object {
 
-    public SimpleTopicPublisherEndpointConfiguration config;
-
+    public SimpleTopicPublisherEndpointConfiguration config = {};
     private Connection? connection;
-    private Session? session;
-    private TopicPublisher? publisher;
+    private Session? session = ();
+    private TopicPublisher publisher;
 
-    # Initialize simple topic publisher endpoint
+    # Initialize the SimpleTopicPublisher endpoint
     #
-    # + c - Simple topic publisher enpoint configuration
-    public function init(SimpleTopicPublisherEndpointConfiguration c) {
+    # + c - Configurations related to the SimpleTopicPublisher endpoint
+    public function __init(SimpleTopicPublisherEndpointConfiguration c) {
         self.config = c;
         Connection conn = new({
-                initialContextFactory:config.initialContextFactory,
-                providerUrl:config.providerUrl,
-                connectionFactoryName:config.connectionFactoryName,
-                properties:config.properties
+                initialContextFactory: self.config.initialContextFactory,
+                providerUrl: self.config.providerUrl,
+                connectionFactoryName: self.config.connectionFactoryName,
+                properties: self.config.properties
             });
         self.connection = conn;
 
         Session newSession = new(conn, {
-                acknowledgementMode:config.acknowledgementMode
+                acknowledgementMode: self.config.acknowledgementMode
             });
         self.session = newSession;
 
-        TopicPublisher topicPublisher = new;
-        TopicPublisherEndpointConfiguration publisherConfig = {
-            session:newSession,
-            topicPattern: c.topicPattern
-        };
-        topicPublisher.init(publisherConfig);
-        self.publisher = topicPublisher;
-    }
-
-    # Register simple topic publisher endpoint
-    #
-    # + serviceType - Type descriptor of the service
-    public function register(typedesc serviceType) {
-
-    }
-
-    # Start simple topic pubilsher endpoint
-    public function start() {
-
-    }
-
-    # Get simple topic pubilsher actions
-    #
-    # + return - Topic publisher actions
-    public function getCallerActions() returns TopicPublisherActions {
-        match (publisher) {
-            TopicPublisher s => return s.getCallerActions();
-            () => {
-                error e = {message:"Topic publisher cannot be nil"};
-                throw e;
-            }
-        }
-    }
-
-    # Stop simple topic pubilsher endpoint
-    public function stop() {
-
+        self.publisher = new ({
+                session: newSession,
+                topicPattern: c.topicPattern
+        });
     }
 
     # Create JMS text message
     #
-    # + message - A message body to create a text message
-    # + return - a message or nil if the session is nil
+    # + message - Message body to create a text message
+    # + return - Message or nil if the session is nil
     public function createTextMessage(string message) returns Message|error {
-        match (session) {
-            Session s => return s.createTextMessage(message);
-            () => {
-                error e = {message:"Session cannot be nil"};
-                throw e;
-            }
+        var session = self.session;
+        if (session is Session) {
+            return session.createTextMessage(message);
+        } else {
+            string errorMessage = "Session cannot be nil";
+            map<any> errorDetail = { message: errorMessage };
+            error e = error(JMS_ERROR_CODE, errorDetail);
+            panic e;
         }
     }
     # Create JMS map message
     #
-    # + message - A message body to create a map message
-    # + return - a message or nil if the session is nil
-    public function createMapMessage(map message) returns Message|error {
-        match (session) {
-            Session s => return s.createMapMessage(message);
-            () => {
-                error e = {message:"Session cannot be nil"};
-                throw e;
-            }
+    # + message - Message body to create a map message
+    # + return - Message or nil if the session is nil
+    public function createMapMessage(map<any> message) returns Message|error {
+        var session = self.session;
+        if (session is Session) {
+            return session.createMapMessage(message);
+        } else {
+            string errorMessage = "Session cannot be nil";
+            map<any> errorDetail = { message: errorMessage };
+            error e = error(JMS_ERROR_CODE, errorDetail);
+            panic e;
         }
+    }
+
+    # Sends a message to the JMS provider
+    #
+    # + message - Message to be sent to the JMS provider
+    # + return - Error upon failure to send the message to the JMS provider
+    public remote function send(Message message) returns error? {
+        return self.publisher->send(message);
+    }
+
+    # Sends a message to the JMS provider
+    #
+    # + destination - Destination used for the message sender
+    # + message - Message to be sent to the JMS provider
+    # + return - Error upon failure to send the message to the JMS provider
+    public remote function sendTo(Destination destination, Message message) returns error? {
+        return self.publisher->sendTo(destination, message);
     }
 };
 
-# Configuration related to simple topic publisher endpoint
+# Configurations related to the SimpleQueueSender endpoint
 #
-# + initialContextFactory - JNDI initial context factory class
-# + providerUrl - JNDI provider URL
-# + connectionFactoryName - JNDI name of the connection factory
-# + acknowledgementMode - JMS session acknwoledge mode
-# + properties - JMS message properties
-# + topicPattern - name of the target topic
+# + initialContextFactory - JMS provider specific inital context factory
+# + providerUrl - JMS provider specific provider URL used to configure a connection
+# + connectionFactoryName - JMS connection factory to be used in creating JMS connections
+# + acknowledgementMode - Specifies the session mode that will be used. Legal values are "AUTO_ACKNOWLEDGE",
+#                         "CLIENT_ACKNOWLEDGE", "SESSION_TRANSACTED" and "DUPS_OK_ACKNOWLEDGE"
+# + properties - Additional properties used when initializing the initial context
+# + topicPattern - Name of the target queue
 public type SimpleTopicPublisherEndpointConfiguration record {
     string initialContextFactory = "bmbInitialContextFactory";
     string providerUrl = "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'";
     string connectionFactoryName = "ConnectionFactory";
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
-    map properties;
-    string topicPattern;
+    map<any> properties = {};
+    string topicPattern = "";
     !...
 };

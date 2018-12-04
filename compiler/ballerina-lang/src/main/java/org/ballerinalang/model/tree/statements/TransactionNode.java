@@ -18,6 +18,7 @@
 package org.ballerinalang.model.tree.statements;
 
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 
 /**
  * {@code TransactionNode} represents the transaction statement in Ballerina.
@@ -31,9 +32,9 @@ public interface TransactionNode extends StatementNode {
 
     ExpressionNode getRetryCount();
 
-    ExpressionNode getOnCommitFunction();
+    BLangBlockStmt getAbortedBody();
 
-    ExpressionNode getOnAbortFunction();
+    BLangBlockStmt getCommittedBody();
 
     void setTransactionBody(BlockNode body);
 
@@ -41,8 +42,7 @@ public interface TransactionNode extends StatementNode {
 
     void setRetryCount(ExpressionNode retryCount);
 
-    void setOnCommitFunction(ExpressionNode onCommitFunction);
+    void setCommittedBody(BlockNode committedBlock);
 
-    void setOnAbortFunction(ExpressionNode onAbortFunction);
-
+    void setAbortedBody(BlockNode abortedBlock);
 }

@@ -69,7 +69,7 @@ public class BallerinaFragmentServiceImpl implements BallerinaFragmentService {
                     return jsonModel;
                 }
                 JsonObject jsonASTFragment = getJsonNodeForFragment(jsonModel, sourceFragment);
-                return FormattingSourceGen.build(jsonASTFragment, null, null);
+                return FormattingSourceGen.build(jsonASTFragment, null);
             }
         } catch (JSONGenerationException | LSCompilerException e) {
             logger.error("Error while generating AST for fragment", e);
@@ -152,7 +152,7 @@ public class BallerinaFragmentServiceImpl implements BallerinaFragmentService {
                 .map(b -> b.getCompilationUnits().stream().filter(
                         compUnit -> LSCompilerUtil.UNTITLED_BAL.equals(compUnit.getName())
                 ).findFirst().orElse(null));
-        return TextDocumentFormatUtil.generateJSON(compilationUnit.orElse(null), new HashMap<>());
+        return TextDocumentFormatUtil.generateJSON(compilationUnit.orElse(null), new HashMap<>(), new HashMap<>());
     }
 
     private static String getParsableString(BallerinaFragmentASTRequest sourceFragment) {

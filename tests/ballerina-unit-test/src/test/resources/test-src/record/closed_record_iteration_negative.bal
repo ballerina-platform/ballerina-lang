@@ -1,20 +1,20 @@
 type ClosedPerson record {
-    string name;
-    int age;
-    ClosedAddress address;
+    string name = "";
+    int age = 0;
+    ClosedAddress address = {};
     !...
 };
 
 type ClosedAddress record {
-    string street;
-    string city;
+    string street = "";
+    string city = "";
     !...
 };
 
 type ClosedGrades record {
-    int maths;
-    int physics;
-    int chemistry;
+    int maths = 0;
+    int physics = 0;
+    int chemistry = 0;
     !...
 };
 
@@ -40,14 +40,14 @@ function testInvalidArgForForeachWithClosedRecords() {
     any[] vals = [];
     int i = 0;
 
-    foreach k, val, e in p {
+    foreach var (k, val, e) in p {
         vals[i] = val;
         i += 1;
     }
 }
 
 function testInvalidForeachOpWithClosedRecords() {
-    p.foreach(function (any entry) {
+    p.foreach(function ((string,any) entry) {
     });
 
     p.foreach(function ((string, string, any) entry) {
@@ -55,7 +55,7 @@ function testInvalidForeachOpWithClosedRecords() {
 }
 
 function testInvalidMapOpWithClosedRecords() {
-    map newp = p.map(function (any entry) returns (string, any) {
+    map<any> newp = p.map(function ((string, any) entry) returns (string, any) {
         return ("", "");
     });
 
@@ -77,7 +77,7 @@ function testInvalidMapOpWithClosedRecords() {
 }
 
 function testInvalidFilterOpWithClosedRecords() {
-    map newp = p.filter(function ((string,any) entry) returns boolean {
+    map<any> newp = p.filter(function ((string,any) entry) returns boolean {
         return true;
     });
 
@@ -131,8 +131,8 @@ function testInvalidChainedItrOpReturns() {
 function testInvalidChainedItrOpReturns2() {
     ClosedGrades f = {maths: 80, physics: 75, chemistry: 65};
 
-    int[] ar = f.map(function (int grade) returns int {
-        return grade + 10;
+    int[] ar = f.map(function ((string, int) value) returns int {
+        return value[1] + 10;
     })
     .map(function (int grade) returns string {
         if (grade > 75) {

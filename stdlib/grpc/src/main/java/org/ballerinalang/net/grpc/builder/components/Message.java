@@ -20,7 +20,11 @@ package org.ballerinalang.net.grpc.builder.components;
 import com.google.protobuf.DescriptorProtos;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.toCamelCase;
 
 /**
  * Message Definition bean class.
@@ -30,10 +34,28 @@ import java.util.List;
 public class Message {
     private List<Field> fieldList;
     private String messageName;
+    private Map<String, List<Message>> oneofFieldMap;
+    private List<EnumMessage> enumList;
 
     private Message(String messageName, List<Field> fieldList) {
         this.messageName = messageName;
         this.fieldList = fieldList;
+    }
+
+    private void setOneofFieldMap(Map<String, List<Message>> oneofFieldMap) {
+        this.oneofFieldMap = oneofFieldMap;
+    }
+
+    public Map<String, List<Message>> getOneofFieldMap() {
+        return oneofFieldMap;
+    }
+
+    public List<EnumMessage> getEnumList() {
+        return enumList;
+    }
+
+    private void setEnumList(List<EnumMessage> enumList) {
+        this.enumList = enumList;
     }
 
     public static Message.Builder newBuilder(DescriptorProtos.DescriptorProto messageDescriptor) {
@@ -56,11 +78,35 @@ public class Message {
 
         public Message build() {
             List<Field> fieldList = new ArrayList<>();
+            Map<String, List<Message>> oneofFieldMap = new HashMap<>();
             for (DescriptorProtos.FieldDescriptorProto fieldDescriptorProto : messageDescriptor.getFieldList()) {
-               Field field = Field.newBuilder(fieldDescriptorProto).build();
-               fieldList.add(field);
+                if (fieldDescriptorProto.hasOneofIndex()) {
+                    List<Field> tempList = new ArrayList<>(1);
+                    tempList.add(Field.newBuilder(fieldDescriptorProto).build());
+                    Message message = new Message(messageDescriptor.getName() + "_" + toCamelCase
+                            (fieldDescriptorProto.getName()), tempList);
+                    String oneofField = messageDescriptor.getOneofDecl(fieldDescriptorProto.getOneofIndex()).getName();
+                    List<Message> oneofMessageList = oneofFieldMap.computeIfAbsent(oneofField, k -> new ArrayList<>());
+                    oneofMessageList.add(message);
+                } else {
+                    Field field = Field.newBuilder(fieldDescriptorProto).build();
+                    fieldList.add(field);
+                }
             }
-            return new Message(messageDescriptor.getName(), fieldList);
+            List<EnumMessage> enumList = new ArrayList<>();
+            for (DescriptorProtos.EnumDescriptorProto enumDescriptorProto : messageDescriptor.getEnumTypeList()) {
+                EnumMessage enumMessage = EnumMessage.newBuilder(enumDescriptorProto).build();
+                enumList.add(enumMessage);
+            }
+            Message message = new Message(messageDescriptor.getName(), fieldList);
+
+            if (!oneofFieldMap.isEmpty()) {
+                message.setOneofFieldMap(oneofFieldMap);
+            }
+            if (!enumList.isEmpty()) {
+                message.setEnumList(enumList);
+            }
+            return message;
         }
 
         private Builder(DescriptorProtos.DescriptorProto messageDescriptor) {

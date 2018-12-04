@@ -24,9 +24,9 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.TestUtils;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
@@ -61,8 +61,8 @@ public class UnaryBlockingEmptyValueTestCase extends GrpcBaseTest {
         final BMap<String, BValue> response = (BMap<String, BValue>) responses[0];
 //        StockQuote res = {symbol: "WSO2", name: "WSO2 Inc.", last: 14, low: 15, high: 16};
 //        StockQuote res1 = {symbol: "Google", name: "Google Inc.", last: 100, low: 101, high: 102};
-        Assert.assertTrue(response.get("stock") instanceof BRefValueArray);
-        final BRefValueArray structArray = (BRefValueArray) response.get("stock");
+        Assert.assertTrue(response.get("stock") instanceof BValueArray);
+        final BValueArray structArray = (BValueArray) response.get("stock");
         Assert.assertEquals(structArray.size(), 2);
     }
 

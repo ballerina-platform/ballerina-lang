@@ -95,7 +95,7 @@ public class TracingTestCase extends BaseTest {
         out.println(data);
         List<BMockSpan> mockSpans = new Gson().fromJson(data, type);
 
-        Assert.assertEquals(mockSpans.size(), 5, "Mismatch in number of spans reported.");
+        Assert.assertEquals(mockSpans.size(), 8, "Mismatch in number of spans reported.");
         Assert.assertEquals(mockSpans.stream()
                 .filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 1, "Mismatch in number of root spans.");
     }
@@ -112,7 +112,7 @@ public class TracingTestCase extends BaseTest {
         out.println(data);
         List<BMockSpan> mockSpans = new Gson().fromJson(data, type);
 
-        Assert.assertEquals(mockSpans.size(), 14, "Mismatch in number of spans reported.");
+        Assert.assertEquals(mockSpans.size(), 20, "Mismatch in number of spans reported.");
         Assert.assertEquals(mockSpans
                 .stream()
                 .filter(bMockSpan -> bMockSpan.getParentId() == 0)
@@ -131,7 +131,7 @@ public class TracingTestCase extends BaseTest {
         out.println(data);
         List<BMockSpan> mockSpans = new Gson().fromJson(data, type);
 
-        Assert.assertEquals(mockSpans.size(), 23, "Mismatch in number of spans reported.");
+        Assert.assertEquals(mockSpans.size(), 32, "Mismatch in number of spans reported.");
 
         Assert.assertEquals(mockSpans.stream()
                 .filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 6, "Mismatch in number of root spans.");

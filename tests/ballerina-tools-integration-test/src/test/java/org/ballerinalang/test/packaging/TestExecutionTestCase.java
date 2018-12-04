@@ -23,6 +23,7 @@ import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.utils.PackagingTestUtils;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
@@ -37,6 +38,7 @@ import java.util.Map;
  *
  * @since 0.982.0
  */
+@Ignore
 public class TestExecutionTestCase extends BaseTest {
     private Path tempProjectDirectory;
     private Map<String, String> envVariables;

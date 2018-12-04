@@ -28,8 +28,8 @@ public class SymbolInfo {
     private String symbolName;
     private BLangSymbol symbol;
     private Scope.ScopeEntry scopeEntry;
-    private boolean isIterableOperation;
-    private IterableOperationSignature iterableOperationSignature;
+    private boolean isCustomOperation;
+    private CustomOperationSignature customOperationSignature;
 
     public SymbolInfo(String symbolName, BLangSymbol symbol) {
         this.symbolName = symbolName;
@@ -64,30 +64,30 @@ public class SymbolInfo {
         return scopeEntry;
     }
 
-    public boolean isIterableOperation() {
-        return isIterableOperation;
+    public boolean isCustomOperation() {
+        return isCustomOperation;
     }
 
-    public void setIterableOperation(boolean iterableOperation) {
-        isIterableOperation = iterableOperation;
+    public void setCustomOperation(boolean customOperation) {
+        isCustomOperation = customOperation;
     }
 
-    public IterableOperationSignature getIterableOperationSignature() {
-        return iterableOperationSignature;
+    public CustomOperationSignature getCustomOperationSignature() {
+        return customOperationSignature;
     }
 
-    public void setIterableOperationSignature(IterableOperationSignature iterableOperationSignature) {
-        this.iterableOperationSignature = iterableOperationSignature;
+    public void setCustomOperationSignature(CustomOperationSignature customOperationSignature) {
+        this.customOperationSignature = customOperationSignature;
     }
 
     /**
      * Holds the iterable operation signature information.
      */
-    public static class IterableOperationSignature {
+    public static class CustomOperationSignature {
         String label;
         String insertText;
 
-        public IterableOperationSignature(String label, String insertText) {
+        public CustomOperationSignature(String label, String insertText) {
             this.label = label;
             this.insertText = insertText;
         }
