@@ -54,7 +54,7 @@ public type testEnumServiceBlockingClient client object {
         grpc:Headers resHeaders = new;
         any result = ();
         (result, resHeaders) = unionResp;
-        return (string.create(result), resHeaders);
+        return (string.convert(result), resHeaders);
     }
 };
 

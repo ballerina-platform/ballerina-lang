@@ -16,6 +16,7 @@
  */
 package org.ballerinalang.test.worker;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.testng.Assert;
@@ -57,9 +58,10 @@ public class WorkerFailTest {
     @Test
     public void invalidWorkSendWithoutWorker() {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-worksend-without-worker.bal");
-        String message = Arrays.toString(result.getDiagnostics());
-        Assert.assertEquals(result.getErrorCount(), 1, message);
-        Assert.assertTrue(message.contains("undefined worker "), message);
+        Assert.assertEquals(result.getErrorCount(), 2);
+        BAssertUtil.validateError(result, 0, "invalid usage of receive expression, var not allowed",
+                                  3, 12);
+        BAssertUtil.validateError(result, 1, "undefined worker 'worker1'", 3, 12);
     }
 
     @Test
@@ -74,16 +76,20 @@ public class WorkerFailTest {
     public void invalidReceiveBeforeWorkers() {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-receive-before-workers.bal");
         String message = Arrays.toString(result.getDiagnostics());
-        Assert.assertEquals(result.getErrorCount(), 1, message);
-        Assert.assertTrue(message.contains("undefined worker"), message);
+        Assert.assertEquals(result.getErrorCount(), 2);
+        BAssertUtil.validateError(result, 0, "invalid usage of receive expression, var not allowed",
+                                  2, 12);
+        BAssertUtil.validateError(result, 1, "undefined worker 'w1'", 2, 12);
     }
 
     @Test
     public void invalidSendBeforeWorkers() {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-send-before-workers.bal");
         String message = Arrays.toString(result.getDiagnostics());
-        Assert.assertEquals(result.getErrorCount(), 1, message);
-        Assert.assertTrue(message.contains("undefined worker"), message);
+        Assert.assertEquals(result.getErrorCount(), 2);
+        BAssertUtil.validateError(result, 0, "undefined worker 'w1'", 3, 3);
+        BAssertUtil.validateError(result, 1, "invalid usage of receive expression, var not allowed",
+                                  5, 14);
     }
 
     @Test

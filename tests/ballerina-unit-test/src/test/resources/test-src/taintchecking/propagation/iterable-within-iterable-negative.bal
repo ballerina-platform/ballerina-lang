@@ -1,7 +1,7 @@
 record{} globalVar = {};
 
 public function main (string... args) {
-    data.address_components
+    taintedJsonReturn().address_components
     .filter(function (any comp) returns boolean {
             if comp is record{} {
                 secureFunction(taintedReturn(), taintedReturn());

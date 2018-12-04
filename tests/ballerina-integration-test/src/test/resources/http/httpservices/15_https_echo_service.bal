@@ -34,7 +34,7 @@ service echo2 on echoEP2 {
 @http:ServiceConfig  {
     basePath:"/echoOne"
 }
-service echoOne1 on echoEP2 {
+service echoOne1 on echoEP2, echoHttpEP {
     @http:ResourceConfig {
         methods:["POST"],
         path:"/abc"

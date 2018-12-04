@@ -24,12 +24,6 @@ import com.intellij.psi.PsiElement;
 public interface BallerinaBracedOrTupleExpression extends BallerinaExpression {
 
   @NotNull
-  List<BallerinaExpression> getExpressionList();
-
-  @NotNull
-  PsiElement getLeftParenthesis();
-
-  @NotNull
-  PsiElement getRightParenthesis();
+  BallerinaTupleLiteral getTupleLiteral();
 
 }

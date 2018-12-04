@@ -84,7 +84,7 @@ function convertStringToInt() {
     lockWithinLockInt1 = lockWithinLockInt1 +1;
     lockWithinLockString1 = "hello";
     int ddd;
-    var result = int.create(lockWithinLockString1);
+    var result = int.convert(lockWithinLockString1);
     if (result is int) {
         ddd = result;
     } else {
@@ -168,7 +168,7 @@ function throwErrorInsideTryFinallyInsideLock() returns (int, string) {
             lockWithinLockInt1 = lockWithinLockInt1 + 1;
             lockWithinLockString1 = "hello";
             int ddd;
-            var result = int.create(lockWithinLockString1);
+            var result = int.convert(lockWithinLockString1);
             if (result is int) {
                 ddd = result;
             } else {

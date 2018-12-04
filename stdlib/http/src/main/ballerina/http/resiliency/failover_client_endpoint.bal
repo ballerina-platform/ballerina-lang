@@ -74,7 +74,7 @@ public type FailoverClient client object {
         }
     }
 
-    # The POST action implementation of the Failover Connector.
+    # The POST remote function implementation of the Failover Connector.
     #
     # + path - Resource path
     # + message - HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
@@ -83,7 +83,7 @@ public type FailoverClient client object {
     public remote function post(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                         message) returns Response|error;
 
-    # The HEAD action implementation of the Failover Connector.
+    # The HEAD remote function implementation of the Failover Connector.
     #
     # + path - Resource path
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
@@ -92,7 +92,7 @@ public type FailoverClient client object {
     public remote function head(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                         message = ()) returns Response|error;
 
-    # The PATCH action implementation of the Failover Connector.
+    # The PATCH remote function implementation of the Failover Connector.
     #
     # + path - Resource path
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
@@ -101,7 +101,7 @@ public type FailoverClient client object {
     public remote function patch(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                             message) returns Response|error;
 
-    # The PUT action  implementation of the Failover Connector.
+    # The PUT remote function  implementation of the Failover Connector.
     #
     # + path - Resource path
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
@@ -110,7 +110,7 @@ public type FailoverClient client object {
     public remote function put(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                         message) returns Response|error;
 
-    # The OPTIONS action implementation of the Failover Connector.
+    # The OPTIONS remote function implementation of the Failover Connector.
     #
     # + path - Resource path
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
@@ -136,7 +136,7 @@ public type FailoverClient client object {
     public remote function execute(string httpVerb, string path,
             Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()message) returns Response|error;
 
-    # The DELETE action implementation of the Failover Connector.
+    # The DELETE remote function implementation of the Failover Connector.
     #
     # + path - Resource path
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
@@ -145,7 +145,7 @@ public type FailoverClient client object {
     public remote function delete(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                             message) returns Response|error;
 
-    # The GET action implementation of the Failover Connector.
+    # The GET remote function implementation of the Failover Connector.
     #
     # + path - Resource path
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
