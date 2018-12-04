@@ -206,6 +206,14 @@
                 "url": "type-conversion"
             },
             {
+                "name": "Type Assertion",
+                "url": "type-assertion"
+            },
+            {
+                "name": "Type Convert",
+                "url": "type-convert"
+            },
+            {
                 "name": "Length",
                 "url": "length"
             },
