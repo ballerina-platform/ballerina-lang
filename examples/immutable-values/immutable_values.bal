@@ -1,10 +1,12 @@
 import ballerina/io;
 
+// Define a `Department` record that only has `anydata` typed fields
 type Department record {
     string name;
     int id;
 };
 
+// Define an `Employee` object
 type Employee object {
     string name;
 
@@ -18,7 +20,7 @@ type Employee object {
 };
 
 public function main() {
-    // Define an `anydata` typed `map` with two entries.
+    // Create an `anydata` typed `map` with two entries.
     map<string|int> m1 = { stringVal: "str", intVal: 1 };
 
     // Freeze the map `m1` and assign the returned value to another variable.
@@ -35,14 +37,14 @@ public function main() {
     // Attempt adding an entry to the map, and trap the error if an error occurs.
     error? updateResult = trap addEntryToMap(m2, "intValTwo", 10);
     if (updateResult is error) {
-        // an error should occur since `m2` is frozen
+        // An error should occur since `m2` is frozen
         io:println("error occurred on update: ", updateResult.reason());
     }
 
-    // Define a `Department` record.
+    // Create a `Department` record.
     Department d = { name: "finance", id: 1100 };
 
-    // Define a map that may hold anydata values.
+    // Create a map that may hold `anydata` typed values.
     map<any> m3 = { stringVal: "str", intVal: 1, recVal: d };
 
     // Attempt freezing `m3`. Note how the return type could now be an error, since there is the possibility that a
@@ -54,10 +56,10 @@ public function main() {
         io:println("'freeze()' successful for m3");
     }
 
-    // Define an `Employee` object.
+    // Create an `Employee` object.
     Employee e = new("Anne");
 
-    // Now, define a map that may hold anydata values, and add the `non-anydata` object `Employee` too.
+    // Now, create a map that may hold `anydata` values, and add the `non-anydata` object `Employee` too.
     map<any> m4 = { stringVal: "str", intVal: 1, objVal: e };
 
     // Attempt freezing `m4`.
