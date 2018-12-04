@@ -45,8 +45,3 @@ function updateVarValue (int v1, boolean v3, string v4, float v5) returns (int, 
 
     return (i, b, s, f);
 }
-
-function testIgnoreVariable() {
-    int _ = 123;
-    var _ = "123";
-}
