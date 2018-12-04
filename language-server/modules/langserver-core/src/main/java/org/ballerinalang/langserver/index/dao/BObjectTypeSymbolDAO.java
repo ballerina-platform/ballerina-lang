@@ -133,8 +133,8 @@ public class BObjectTypeSymbolDAO extends AbstractDAO<BObjectTypeSymbolDTO> {
                         .setPackageId(rs.getInt(2))
                         .setName(rs.getString(3))
                         .setType(ObjectType.get(rs.getInt(4)))
-                        .setPrivate(rs.getBoolean(6))
-                        .setCompletionItem(DTOUtil.jsonToCompletionItem(rs.getString(7)))
+                        .setPrivate(rs.getBoolean(5))
+                        .setCompletionItem(DTOUtil.jsonToCompletionItem(rs.getString(6)))
                         .build();
                 epDTOs.add(epDto);
             }
