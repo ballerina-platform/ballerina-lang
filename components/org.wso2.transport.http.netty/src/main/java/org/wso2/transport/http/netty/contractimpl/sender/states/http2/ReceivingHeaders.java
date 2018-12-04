@@ -44,15 +44,12 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 
-import java.io.IOException;
-
 import static org.wso2.transport.http.netty.contract.Constants.DIRECTION;
 import static org.wso2.transport.http.netty.contract.Constants.DIRECTION_RESPONSE;
 import static org.wso2.transport.http.netty.contract.Constants.EXECUTOR_WORKER_POOL;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP2_METHOD;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_STATUS_CODE;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_VERSION_2_0;
-import static org.wso2.transport.http.netty.contract.Constants.INBOUND_RESPONSE_ALREADY_RECEIVED;
 import static org.wso2.transport.http.netty.contract.Constants.POOLED_BYTE_BUFFER_FACTORY;
 
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.releaseContent;
