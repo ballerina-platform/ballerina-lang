@@ -1,4 +1,3 @@
-
 import * as React from "react";
 
 const ARROW_SIZE = 3;

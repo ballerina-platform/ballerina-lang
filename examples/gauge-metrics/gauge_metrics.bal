@@ -3,19 +3,19 @@ import ballerina/io;
 import ballerina/log;
 import ballerina/observe;
 
+//Create a gauge as a global varaible in the service with optional field description,
+//and default statistics configurations = { timeWindow: 600000, buckets: 5,
+// percentiles: [0.33, 0.5, 0.66, 0.99] }.
+observe:Gauge globalGauge = new("global_gauge", desc = "Global gauge defined");
+
 // Make sure you start the service with `--observe`, or metrics enabled.
 @http:ServiceConfig { basePath: "/online-store-service" }
-service<http:Service> onlineStoreService bind { port: 9090 } {
-
-    //Create a gauge as a global varaible in the service with optional field description,
-    //and default statistics configurations = { timeWindow: 600000, buckets: 5,
-    // percentiles: [0.33, 0.5, 0.66, 0.99] }.
-    observe:Gauge globalGauge = new("global_gauge", desc = "Global gauge defined");
+service onlineStoreService on new http:Listener(9090) {
 
     @http:ResourceConfig {
         path: "/make-order"
     }
-    makeOrder(endpoint caller, http:Request req) {
+    resource function makeOrder(http:Caller caller, http:Request req) {
         io:println("------------------------------------------");
         //Incrementing the global gauge defined by 15.0.
         globalGauge.increment(amount = 15.0);

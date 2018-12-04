@@ -284,6 +284,9 @@ public class Generator {
             String value = userDefinedType.typeName.value;
             union.add(new EnumDoc(typeName, description(typeDefinition), new ArrayList<>(), value));
             added = true;
+        } else if (kind == NodeKind.ERROR_TYPE) {
+            // TODO: Add errors section in API docs
+            added = true;
         }
         if (!added) {
             throw new UnsupportedOperationException("Type def not supported for " + kind);

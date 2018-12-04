@@ -1,6 +1,6 @@
 import ballerina/io;
 
-// This function takes a string argument, but does not have a return value.
+// This function takes a `string` argument, but does not have a return value.
 function printValue(string value) {
     io:println(value);
 }

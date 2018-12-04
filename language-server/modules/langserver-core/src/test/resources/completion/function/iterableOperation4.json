@@ -10,7 +10,7 @@
       "kind":"Function",
       "detail":"Function",
       "sortText":"121",
-      "insertText":"foreach((string k, any v) \u003d\u003e {\n\t${1}\n});",
+      "insertText":"foreach(function((string, string) entry) {\n\t${1}\n});",
       "insertTextFormat":"Snippet"
     },
     {
@@ -18,7 +18,7 @@
       "kind":"Function",
       "detail":"Function",
       "sortText":"121",
-      "insertText":"map((string k, any v) \u003d\u003e (any) {\n\t${1}\n});",
+      "insertText":"map(function((string, string) entry) returns (any) {\n\t${1}\n});",
       "insertTextFormat":"Snippet"
     },
     {
@@ -26,7 +26,7 @@
       "kind":"Function",
       "detail":"Function",
       "sortText":"121",
-      "insertText":"filter((string k, any v) \u003d\u003e (boolean) {\n\t${1}\n});",
+      "insertText":"filter(function((string, string) entry) returns (boolean) {\n\t${1}\n});",
       "insertTextFormat":"Snippet"
     },
     {
