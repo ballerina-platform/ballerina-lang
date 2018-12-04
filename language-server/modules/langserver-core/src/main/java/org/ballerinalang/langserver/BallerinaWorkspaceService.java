@@ -73,8 +73,8 @@ public class BallerinaWorkspaceService implements WorkspaceService {
         this.workspaceDocumentManager.getAllFilePaths().forEach(path -> {
             symbolsContext.put(DocumentServiceKeys.SYMBOL_LIST_KEY, symbols);
             symbolsContext.put(DocumentServiceKeys.FILE_URI_KEY, path.toUri().toString());
-            List<BLangPackage> bLangPackage = lsCompiler.getBLangPackage(symbolsContext, workspaceDocumentManager,
-                                                                         false, LSCustomErrorStrategy.class, true);
+            List<BLangPackage> bLangPackage = lsCompiler.getBLangPackages(symbolsContext, workspaceDocumentManager,
+                                                                          false, LSCustomErrorStrategy.class, true);
             if (bLangPackage != null) {
                 bLangPackage.forEach(aPackage -> aPackage.compUnits.forEach(compUnit -> {
                     String unitName = compUnit.getName();
