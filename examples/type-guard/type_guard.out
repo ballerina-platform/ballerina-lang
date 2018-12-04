@@ -3,3 +3,4 @@ $ ballerina run type_guard.bal
 value: value1
 value is ()
 key 'key3' not found
+Address: {company:"Ballerina", position:"CEO"}

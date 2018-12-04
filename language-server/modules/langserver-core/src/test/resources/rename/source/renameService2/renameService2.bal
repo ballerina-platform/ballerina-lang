@@ -1,14 +1,9 @@
 import ballerina/http;
 
-endpoint http:NonListener mockEP {
-    port:9090
-};
+listener http:MockListener mockEP = new(9090);
 
-@http:ServiceConfig {basePath:"/hello"}
-@http:ServiceConfig {compression: http:COMPRESSION_AUTO}
-service<http:Service> hello bind mockEP {
-
-    protocol (endpoint caller, http:Request req) {
+service hello on mockEP {
+    resource function protocol(http:Caller caller, http:Request request) {
         http:Response res = new;
         json connectionJson = {protocol:caller.protocol};
         res.statusCode = 200;

@@ -3,7 +3,8 @@ import ballerina/log;
 
 // Create an HTTP client endpoint that can send HTTP/2 messages.
 // HTTP version is set to 2.0.
-http:Client clientEP = new("http://localhost:7090", config = { httpVersion: "2.0" });
+http:Client clientEP = new("http://localhost:7090",
+    config = { httpVersion: "2.0" });
 
 public function main() {
 
@@ -75,7 +76,7 @@ public function main() {
     }
 
     // Fetch required promise responses.
-    foreach promise in promises {
+    foreach http:PushPromise promise in promises {
         http:Response promisedResponse = new;
         var promisedResponseResult = clientEP->getPromisedResponse(promise);
         if (promisedResponseResult is http:Response) {

@@ -35,7 +35,7 @@ export function getServerOptions(ballerinaHome: string) : ServerOptions {
     }
 
     if (process.env.LSDEBUG === "true") {
-        log('Language Server is staring in debug mode.');
+        log('Language Server is starting in debug mode.');
         args.push('--debug');
     }
     if (process.env.LS_CUSTOM_CLASSPATH) {

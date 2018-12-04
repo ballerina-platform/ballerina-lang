@@ -173,6 +173,7 @@
                 <configuration>
                     <systemPropertyVariables>
                         <ballerina.home>${project.build.directory}</ballerina.home>
+                        <experimental>true</experimental>
                     </systemPropertyVariables>
                     <suiteXmlFiles>
                         <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>

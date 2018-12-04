@@ -46,7 +46,7 @@ const debugConfigProvider: DebugConfigurationProvider = {
         if (langClient.initializeResult) {
             const { experimental } = langClient.initializeResult!.capabilities;
             if (experimental && experimental.introspection && experimental.introspection.port > 0) {
-                config.port = experimental.introspection.port;
+                config.networkLogsPort = experimental.introspection.port;
             }
         }
 

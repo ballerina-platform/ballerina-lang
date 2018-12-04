@@ -16,7 +16,8 @@ service chatAppUpgrader on new http:Listener(9090) {
             upgradeService: chatApp
         }
     }
-    resource function upgrader(http:Caller caller, http:Request req, string name) {
+    resource function upgrader(http:Caller caller, http:Request req,
+                                string name) {
         http:WebSocketCaller wsEp;
         map<string> queryParams = req.getQueryParams();
         // Cancel handshake by sending a 400 status code if the age parameter is missing in the request.
@@ -63,7 +64,8 @@ service chatApp = @http:WebSocketServiceConfig {} service {
     }
 
     // Broadcast that a user has left the chat once a user leaves the chat.
-    resource function onClose(http:WebSocketCaller caller, int statusCode, string reason) {
+    resource function onClose(http:WebSocketCaller caller, int statusCode,
+                                string reason) {
         _ = connectionsMap.remove(caller.id);
         string msg = getAttributeStr(caller, NAME) + " left the chat";
         broadcast(msg);
@@ -72,7 +74,7 @@ service chatApp = @http:WebSocketServiceConfig {} service {
 
 function broadcast(string text) {
     http:WebSocketCaller ep;
-    foreach id, con in connectionsMap {
+    foreach var (id, con) in connectionsMap {
         ep = con;
         var err = ep->pushText(text);
         if (err is error) {

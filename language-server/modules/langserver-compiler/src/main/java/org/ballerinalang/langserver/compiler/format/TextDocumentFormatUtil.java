@@ -48,6 +48,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -130,8 +131,8 @@ public class TextDocumentFormatUtil {
     /**
      * Generate json representation for the given node.
      *
-     * @param node        Node to get the json representation
-     * @param anonStructs Map of anonymous structs
+     * @param node              Node to get the json representation
+     * @param anonStructs       Map of anonymous structs
      * @param symbolMetaInfoMap symbol meta information map
      * @return {@link JsonElement}          Json Representation of the node
      * @throws JSONGenerationException when Json error occurs
@@ -263,6 +264,11 @@ public class TextDocumentFormatUtil {
                             }
                         }
                         listPropJson.add(generateJSON((Node) listPropItem, anonStructs, symbolMetaInfoMap));
+                    } else if (listPropItem instanceof BLangRecordVarRef.BLangRecordVarRefKeyValue) {
+                        listPropJson.add(generateJSON(((BLangRecordVarRef.BLangRecordVarRefKeyValue) listPropItem)
+                                .getVariableName(), anonStructs, symbolMetaInfoMap));
+                        listPropJson.add(generateJSON(((BLangRecordVarRef.BLangRecordVarRefKeyValue) listPropItem)
+                                .getBindingPattern(), anonStructs, symbolMetaInfoMap));
                     } else if (listPropItem instanceof String) {
                         listPropJson.add((String) listPropItem);
                     } else {
