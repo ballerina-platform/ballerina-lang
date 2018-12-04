@@ -90,7 +90,7 @@ service hello on new http:Listener(8889) {
             if (participant is string) {
                 s += participant;
             } else {
-                s += "remote-local-error:[" + participant.reason() + "]";
+                s += "remote-local-error:[" + <string>participant.detail().message + "]";
             }
         } else if (nestedTrxInNonParticipantLocalFunc) {
             log:printInfo("In nested trx in remote's local non participant");
@@ -98,7 +98,7 @@ service hello on new http:Listener(8889) {
             if (participant is string) {
                 s += participant;
             } else {
-                s += "remote-local-error-trapped:[" + participant.reason() + "]";
+                s += "remote-local-error-trapped:[" + <string>participant.detail().message + "]";
             }
         }
 
