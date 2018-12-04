@@ -17,7 +17,6 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
-import org.antlr.v4.runtime.misc.OrderedHashSet;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -166,6 +165,7 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -1166,7 +1166,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private BType createAccumulatedErrorTypeFor(BLangWorkerSend workerSendNode) {
         Set<BType> returnTypesUpToNow = this.returnTypes.peek();
-        OrderedHashSet<BType> returnTypeAndSendType = new OrderedHashSet<BType>() {
+        LinkedHashSet<BType> returnTypeAndSendType = new LinkedHashSet<BType>() {
             {
                 Comparator.comparing(BType::toString);
             }

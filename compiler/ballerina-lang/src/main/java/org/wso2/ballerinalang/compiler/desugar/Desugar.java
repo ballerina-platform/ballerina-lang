@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.desugar;
 
-import org.antlr.v4.runtime.misc.OrderedHashSet;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
@@ -215,6 +214,7 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -370,7 +370,7 @@ public class Desugar extends BLangNodeVisitor {
             functionSymbol.params.add(param.symbol);
         }
 
-        OrderedHashSet<BType> members = new OrderedHashSet<>();
+        LinkedHashSet<BType> members = new LinkedHashSet<>();
         members.add(symTable.errorType);
         members.add(symTable.nilType);
         final BUnionType returnType = new BUnionType(null, members, true);
@@ -3384,7 +3384,7 @@ public class Desugar extends BLangNodeVisitor {
         BType enclosingFuncReturnType = ((BInvokableType) invokableSymbol.type).retType;
         Set<BType> returnTypeSet = enclosingFuncReturnType.tag == TypeTags.UNION ?
                 ((BUnionType) enclosingFuncReturnType).memberTypes :
-                new OrderedHashSet<BType>() {{
+                new LinkedHashSet<BType>() {{
                     add(enclosingFuncReturnType);
                 }};
 
@@ -3881,11 +3881,7 @@ public class Desugar extends BLangNodeVisitor {
         if (unmatchedTypes.size() == 1) {
             defaultPatternType = unmatchedTypes.get(0);
         } else {
-            defaultPatternType = new BUnionType(null, new OrderedHashSet<BType>() {
-                {
-                    addAll(unmatchedTypes);
-                }
-            }, false);
+            defaultPatternType = new BUnionType(null, new LinkedHashSet<>(unmatchedTypes), false);
         }
 
         String patternCaseVarName = GEN_VAR_PREFIX.value + "t_match_default";

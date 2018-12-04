@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
-import org.antlr.v4.runtime.misc.OrderedHashSet;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.AttachPoint;
@@ -175,6 +174,7 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -210,7 +210,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private BType resType;
     private boolean isSiddhiRuntimeEnabled;
     private boolean isGroupByAvailable;
-    private Map<BVarSymbol, OrderedHashSet<BType>> typeGuards;
+    private Map<BVarSymbol, LinkedHashSet<BType>> typeGuards;
 
     public static SemanticAnalyzer getInstance(CompilerContext context) {
         SemanticAnalyzer semAnalyzer = context.get(SYMBOL_ANALYZER_KEY);
@@ -697,7 +697,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     if (possibleTypes.size() > 1) {
                         List<BType> memberTupleTypes = new ArrayList<>();
                         for (int i = 0; i < varNode.memberVariables.size(); i++) {
-                            OrderedHashSet<BType> memberTypes = new OrderedHashSet<>();
+                            LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
                             for (BType possibleType : possibleTypes) {
                                 if (possibleType.tag == TypeTags.TUPLE) {
                                     memberTypes.add(((BTupleType) possibleType).tupleTypes.get(i));
@@ -807,7 +807,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     List<BField> fields = populateAndGetPossibleFieldsForRecVar(recordVar, possibleTypes, recordSymbol);
 
                     if (recordVar.restParam != null) {
-                        OrderedHashSet<BType> memberTypes = possibleTypes.stream()
+                        LinkedHashSet<BType> memberTypes = possibleTypes.stream()
                                 .map(possibleType -> {
                                     if (possibleType.tag == TypeTags.RECORD) {
                                         return ((BRecordType) possibleType).restFieldType;
@@ -817,7 +817,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                                         return possibleType;
                                     }
                                 })
-                                .collect(Collectors.toCollection(OrderedHashSet::new));
+                                .collect(Collectors.toCollection(LinkedHashSet::new));
                         recordVarType.restFieldType = memberTypes.size() > 1 ?
                                 new BUnionType(null, memberTypes, false) :
                                 memberTypes.iterator().next();
@@ -903,7 +903,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                             recordVarType.restFieldType.tag == TypeTags.ANY) {
                         restType = recordVarType.restFieldType;
                     } else {
-                        OrderedHashSet<BType> typesForRestField = new OrderedHashSet<>();
+                        LinkedHashSet<BType> typesForRestField = new LinkedHashSet<>();
                         typesForRestField.add(recordVarType.restFieldType);
                         typesForRestField.add(symTable.nilType);
                         restType = new BUnionType(null, typesForRestField, true);
@@ -945,7 +945,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         List<BField> fields = new ArrayList<>();
         for (BLangRecordVariableKeyValue bLangRecordVariableKeyValue : recordVar.variableList) {
             String fieldName = bLangRecordVariableKeyValue.key.value;
-            OrderedHashSet<BType> memberTypes = new OrderedHashSet<>();
+            LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
             for (BType possibleType : possibleTypes) {
                 if (possibleType.tag == TypeTags.RECORD) {
                     BRecordType possibleRecordType = (BRecordType) possibleType;
@@ -987,7 +987,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (fieldTypes.tag == TypeTags.ANYDATA || fieldTypes.tag == TypeTags.ANY) {
             fieldType = fieldTypes;
         } else {
-            OrderedHashSet<BType> typesForField = new OrderedHashSet<>();
+            LinkedHashSet<BType> typesForField = new LinkedHashSet<>();
             typesForField.add(fieldTypes);
             typesForField.add(symTable.nilType);
             fieldType = new BUnionType(null, typesForField, true);
@@ -1346,7 +1346,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Add the type guards of 'if' to the current type guards map.
         addTypeGuards(typeGuards);
         // Reset the current type guards before visiting the body.
-        Map<BVarSymbol, OrderedHashSet<BType>> preTypeGuards = this.typeGuards;
+        Map<BVarSymbol, LinkedHashSet<BType>> preTypeGuards = this.typeGuards;
         resetTypeGards();
         analyzeStmt(ifNode.body, env);
         // Restore the type guards after visiting the body
@@ -2602,7 +2602,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private void addElseTypeGuards(BLangIf ifNode) {
         SymbolEnv elseEnv = SymbolEnv.createBlockEnv((BLangBlockStmt) ifNode.elseStmt, env);
-        for (Entry<BVarSymbol, OrderedHashSet<BType>> entry : this.typeGuards.entrySet()) {
+        for (Entry<BVarSymbol, LinkedHashSet<BType>> entry : this.typeGuards.entrySet()) {
             BVarSymbol originalVarSymbol = entry.getKey();
             BType remainingType = types.getRemainingType(originalVarSymbol.type, entry.getValue());
             BVarSymbol varSymbol = new BVarSymbol(0, originalVarSymbol.name, elseEnv.scope.owner.pkgID, remainingType,
@@ -2619,7 +2619,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (this.typeGuards == null) {
             this.typeGuards = new HashMap<>();
             this.typeGuards = typeGuards.entrySet().stream()
-                    .collect(Collectors.toMap(Map.Entry::getKey, e -> new OrderedHashSet<BType>() {
+                    .collect(Collectors.toMap(Map.Entry::getKey, e -> new LinkedHashSet<BType>() {
                         {
                             add(e.getValue());
                         }
@@ -2628,14 +2628,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         for (Entry<BVarSymbol, BType> entry : typeGuards.entrySet()) {
-            Optional<OrderedHashSet<BType>> matchingGuards = this.typeGuards.entrySet().stream()
+            Optional<LinkedHashSet<BType>> matchingGuards = this.typeGuards.entrySet().stream()
                     .filter(typeGuard -> typeGuard.getKey().name.equals(entry.getKey().name))
                     .map(keValue -> keValue.getValue()).findFirst();
-            OrderedHashSet<BType> typGuardsForSymbol;
+            LinkedHashSet<BType> typGuardsForSymbol;
             if (matchingGuards.isPresent()) {
                 typGuardsForSymbol = matchingGuards.get();
             } else {
-                typGuardsForSymbol = new OrderedHashSet<>();
+                typGuardsForSymbol = new LinkedHashSet<>();
                 this.typeGuards.put(entry.getKey(), typGuardsForSymbol);
             }
 

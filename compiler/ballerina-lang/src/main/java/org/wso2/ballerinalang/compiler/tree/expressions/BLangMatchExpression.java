@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
-import org.antlr.v4.runtime.misc.OrderedHashSet;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.MatchExpressionNode;
@@ -27,6 +26,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
@@ -72,8 +72,8 @@ public class BLangMatchExpression extends BLangExpression implements MatchExpres
         public BLangExpression expr;
 
         // This field is used to capture types that are matched to this pattern.
-        public Set<BType> matchedTypesDirect = new OrderedHashSet<>();
-        public Set<BType> matchedTypesIndirect = new OrderedHashSet<>();
+        public Set<BType> matchedTypesDirect = new LinkedHashSet<>();
+        public Set<BType> matchedTypesIndirect = new LinkedHashSet<>();
 
         @Override
         public NodeKind getKind() {

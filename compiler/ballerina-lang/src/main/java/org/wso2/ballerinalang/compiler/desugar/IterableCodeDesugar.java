@@ -16,7 +16,6 @@
  */
 package org.wso2.ballerinalang.compiler.desugar;
 
-import org.antlr.v4.runtime.misc.OrderedHashSet;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.NodeKind;
@@ -73,6 +72,7 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -266,7 +266,7 @@ public class IterableCodeDesugar {
         foreachStmt.varType = paramType;
         BMapType mapType = new BMapType(TypeTags.RECORD, paramType, symTable.mapType.tsymbol);
         foreachStmt.resultType = mapType;
-        OrderedHashSet<BType> memberTypes = new OrderedHashSet<>();
+        LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
         memberTypes.add(mapType);
         foreachStmt.nillableResultType = new BUnionType(null, memberTypes, true);
 
@@ -321,7 +321,7 @@ public class IterableCodeDesugar {
         foreachStmt.varType = paramType;
         BMapType mapType = new BMapType(TypeTags.RECORD, paramType, symTable.mapType.tsymbol);
         foreachStmt.resultType = mapType;
-        OrderedHashSet<BType> memberTypes = new OrderedHashSet<>();
+        LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
         memberTypes.add(mapType);
         foreachStmt.nillableResultType = new BUnionType(null, memberTypes, true);
 
