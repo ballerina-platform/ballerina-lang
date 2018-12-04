@@ -55,11 +55,11 @@ service redirected on publisherServiceEPTwo {
 service hub on publisherServiceEPTwo {
     resource function one(http:Caller caller, http:Request req) {
         http:Response res = new;
-        _ = caller->redirect(res, http:REDIRECT_TEMPORARY_REDIRECT_307, ["https://localhost:9191/websub/hub"]);
+        _ = caller->redirect(res, http:REDIRECT_TEMPORARY_REDIRECT_307, ["http://localhost:9191/websub/hub"]);
     }
 
     resource function two(http:Caller caller, http:Request req) {
         http:Response res = new;
-        _ = caller->redirect(res, http:REDIRECT_PERMANENT_REDIRECT_308, ["https://localhost:9191/websub/hub"]);
+        _ = caller->redirect(res, http:REDIRECT_PERMANENT_REDIRECT_308, ["http://localhost:9191/websub/hub"]);
     }
 }

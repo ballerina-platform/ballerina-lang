@@ -88,7 +88,7 @@ service {
             }
             return;
         } else if (mode == MODE_REGISTER) {
-            if (!hubRemotePublishingEnabled || !hubTopicRegistrationRequired) {
+            if (!remotePublishConfig.enabled || !hubTopicRegistrationRequired) {
                 response.statusCode = http:BAD_REQUEST_400;
                 response.setTextPayload("Remote topic registration not allowed/not required at the Hub");
                 log:printWarn("Remote topic registration denied at Hub");
@@ -114,7 +114,7 @@ service {
                 log:printError("Error responding remote topic registration status", err = responseError);
             }
         } else if (mode == MODE_UNREGISTER) {
-            if (!hubRemotePublishingEnabled || !hubTopicRegistrationRequired) {
+            if (!remotePublishConfig.enabled || !hubTopicRegistrationRequired) {
                 response.statusCode = http:BAD_REQUEST_400;
                 response.setTextPayload("Remote unregistration not allowed/not required at the Hub");
                 log:printWarn("Remote topic unregistration denied at Hub");
@@ -148,13 +148,13 @@ service {
                 topic = decodedTopic is string ? decodedTopic : topicValue;
             }
 
-            if (mode == MODE_PUBLISH && hubRemotePublishingEnabled) {
+            if (mode == MODE_PUBLISH && remotePublishConfig.enabled) {
                 if (!hubTopicRegistrationRequired || isTopicRegistered(topic)) {
                     byte [0] arr = [];
                     byte[]|error binaryPayload = arr;
                     string stringPayload;
                     string contentType = "";
-                    if (hubRemotePublishMode == PUBLISH_MODE_FETCH) {
+                    if (remotePublishConfig.mode == PUBLISH_MODE_FETCH) {
                         var fetchResponse = fetchTopicUpdate(topic);
                         if (fetchResponse is http:Response) {
                             binaryPayload = fetchResponse.getBinaryPayload();
@@ -273,7 +273,7 @@ function validateSubscriptionChangeRequest(string mode, string topic, string cal
 # + topic - The topic specified in the new subscription/unsubscription request
 # + params - Parameters specified in the new subscription/unsubscription request
 function verifyIntentAndAddSubscription(string callback, string topic, map<string> params) {
-    http:Client callbackEp = new http:Client(callback, config = { secureSocket: hubClientSecureSocket });
+    http:Client callbackEp = new http:Client(callback, config = hubClientConfig);
     string mode = params[HUB_MODE] ?: "";
     string strLeaseSeconds = params[HUB_LEASE_SECONDS] ?: "";
     var result = int.convert(strLeaseSeconds);
@@ -541,7 +541,7 @@ function clearSubscriptionDataInDb() {
 # + return - `http:Response` indicating the response received on fetching the topic URL if successful,
 #            `error` if an HTTP error occurred
 function fetchTopicUpdate(string topic) returns http:Response|error {
-    http:Client topicEp = new http:Client(topic, config = { secureSocket: hubClientSecureSocket });
+    http:Client topicEp = new http:Client(topic, config = hubClientConfig);
     http:Request request = new;
 
     var fetchResponse = topicEp->get("", message = request);
@@ -556,7 +556,7 @@ function fetchTopicUpdate(string topic) returns http:Response|error {
 # + return - Nil if successful, error in case of invalid content-type
 function distributeContent(string callback, SubscriptionDetails subscriptionDetails, WebSubContent webSubContent)
 returns error? {
-    http:Client callbackEp = new http:Client(callback, config = { secureSocket: hubClientSecureSocket });
+    http:Client callbackEp = new http:Client(callback, config = hubClientConfig);
     http:Request request = new;
     request.setPayload(webSubContent.payload);
     check request.setContentType(webSubContent.contentType);
