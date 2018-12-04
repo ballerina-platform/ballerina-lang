@@ -17,9 +17,14 @@
  */
 package org.ballerinalang.model.tree.expressions;
 
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
+
 /**
  * @since 0.985.0
  */
 public interface ConstantNode extends LiteralNode {
+    BLangType getTypeNode();
 
+    BLangTypeDefinition getAssociatedTypeDefinition();
 }
