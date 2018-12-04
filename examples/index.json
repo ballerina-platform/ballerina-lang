@@ -79,8 +79,12 @@
                 "url": "match"
             },
             {
-                "name": "Match Expression",
-                "url": "match-expression"
+                "name": "Tuple Match",
+                "url": "tuple-match-statement"
+            },
+            {
+                "name": "Record Match",
+                "url": "record-match-statement"
             },
             {
                 "name": "Type Guard",
@@ -212,6 +216,29 @@
             {
                 "name": "Immutable Values",
                 "url": "immutable-values"
+            }
+        ]
+    },
+    {
+        "title": "Binding Patterns",
+        "column": 1,
+        "category": "Language concepts",
+        "samples": [
+            {
+                "name": "Tuple Type Binding Pattern",
+                "url": "tuple-type-binding-pattern"
+            },
+            {
+                "name": "Record Type Binding Pattern",
+                "url": "record-type-binding-pattern"
+            },
+            {
+                "name": "Tuple Destructure Binding Pattern",
+                "url": "tuple-destructure-binding-pattern"
+            },
+            {
+                "name": "Record Destructure Binding Pattern",
+                "url": "record-destructure-binding-pattern"
             }
         ]
     },
