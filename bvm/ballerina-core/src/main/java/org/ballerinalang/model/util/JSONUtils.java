@@ -329,6 +329,11 @@ public class JSONUtils {
         
         try {
             return ((BMap<String, BRefType<?>>) json).get(elementName);
+        } catch (BallerinaException e) {
+            if (e.getDetail() != null) {
+                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, e.getDetail());
+            }
+            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, e.getMessage());
         } catch (Throwable t) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, t.getMessage());
         }
@@ -399,6 +404,11 @@ public class JSONUtils {
 
         try {
             return ListUtils.execListGetOperation((BNewArray) jsonArray, index);
+        } catch (BallerinaException e) {
+            if (e.getDetail() != null) {
+                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, e.getDetail());
+            }
+            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, e.getMessage());
         } catch (Throwable t) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, t.getMessage());
         }
