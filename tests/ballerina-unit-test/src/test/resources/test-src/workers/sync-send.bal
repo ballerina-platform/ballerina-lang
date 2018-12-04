@@ -29,6 +29,7 @@ function process() returns string {
    }
 
    wait w1;
+   runtime:sleep(50);
    return "done";
 }
 
