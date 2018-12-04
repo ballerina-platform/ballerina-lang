@@ -300,9 +300,9 @@ This method will lookup for the metric from the global metric registry and retur
     map<string> tags = { "method": "GET" };
     observe:Counter|observe:Gauge|() metric = observe:lookupMetric("MetricName", tags = tags);
     if metric is observe:Counter {
-        metric.increment(amount=10);
+        metric.increment(amount = 10);
     } else if metric is observe:Gauge {
-        metric.increment(amount=10.0);
+        metric.increment(amount = 10.0);
     } else {
         io:println("No Metric Found!");
     }
