@@ -5,4 +5,3 @@
 // is trapped and initiator completes, the transaction is considered failure.
 // Ballerina transactions are at experimental stage,
 // please use  --experimental flag to enable them.
-

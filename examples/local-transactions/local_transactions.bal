@@ -31,7 +31,7 @@ public function main() {
     // This is the first remote function participant in the transaction.
         var count = testDB->update("INSERT INTO CUSTOMER(ID,NAME)
                                      VALUES (1, 'Anne')");
-        // This is the second action participant in the transaction.
+        // This is the second remote function participant in the transaction.
         count = testDB->update("INSERT INTO SALARY (ID, MON_SALARY)
                                  VALUES (1, 2500)");
         if (count is int) {

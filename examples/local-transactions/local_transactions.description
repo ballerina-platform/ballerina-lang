@@ -5,4 +5,3 @@
 // change the DB connection properties as required.
 // Ballerina transactions are at experimental stage,
 // please use  --experimental flag to enable them.
-
