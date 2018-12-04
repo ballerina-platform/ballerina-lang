@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
-import org.antlr.v4.runtime.misc.OrderedHashSet;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
@@ -99,7 +98,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -490,7 +488,11 @@ public class SymbolResolver extends BLangNodeVisitor {
             List<BType> unionReturnTypes = new ArrayList<>();
             unionReturnTypes.add(targetType);
             unionReturnTypes.add(symTable.errorType);
-            BType returnType = new BUnionType(null, new LinkedHashSet<>(unionReturnTypes), false);
+            BType returnType = new BUnionType(null, new LinkedHashSet<BType>() {
+                {
+                    addAll(unionReturnTypes);
+                }
+            }, false);
             List<BType> paramTypes = new ArrayList<>();
             paramTypes.add(variableSourceType);
             return symTable.createOperator(name, paramTypes, returnType, InstructionCodes.STAMP);
@@ -656,7 +658,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             unionType.memberTypes.add(symTable.nilType);
             unionType.setNullable(true);
         } else if (typeNode.nullable && resultType.tag != TypeTags.JSON && resultType.tag != TypeTags.ANY) {
-            Set<BType> memberTypes = new OrderedHashSet<BType>() {{
+            LinkedHashSet<BType> memberTypes = new LinkedHashSet<BType>() {{
                 add(resultType);
                 add(symTable.nilType);
             }};
@@ -847,7 +849,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public void visit(BLangUnionTypeNode unionTypeNode) {
-        Set<BType> memberTypes = unionTypeNode.memberTypeNodes.stream()
+        LinkedHashSet<BType> memberTypes = unionTypeNode.memberTypeNodes.stream()
                 .map(memTypeNode -> resolveTypeNode(memTypeNode, env))
                 .flatMap(memBType ->
                         memBType.tag == TypeTags.UNION ?
