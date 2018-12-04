@@ -9,7 +9,8 @@ service sample on new http:Listener(9090) {
         path: "/path/{foo}"
     }
     // The `PathParam` and `QueryParam` parameters extract values from the request URI.
-    resource function params(http:Caller caller, http:Request req, string foo) {
+    resource function params(http:Caller caller, http:Request req,
+                                string foo) {
         // Get `QueryParams`.
         var params = req.getQueryParams();
         var bar = <string>params.bar;
@@ -26,7 +27,8 @@ service sample on new http:Listener(9090) {
         json matrixJson = { "path": pathMatrixStr, "foo": fooMatrixStr };
 
         // Create a JSON payload with the extracted values.
-        json responseJson = { "pathParam": foo, "queryParam": bar, "matrix": matrixJson };
+        json responseJson = { "pathParam": foo, "queryParam": bar,
+                                "matrix": matrixJson };
         http:Response res = new;
         // A util method to set the JSON payload to the response message.
         res.setJsonPayload(untaint responseJson);
