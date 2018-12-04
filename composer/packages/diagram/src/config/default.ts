@@ -63,6 +63,11 @@ export class DiagramConfig {
     public panelGroup = {
         header: {
             height: STATEMENT_HEIGHT * 2,
+        },
+        title: {
+            margin: {
+                left: 25
+            }
         }
     };
 

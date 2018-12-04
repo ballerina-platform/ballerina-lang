@@ -12,6 +12,18 @@
             font-family: @diagram-font;
             font-size: @diagram-font-size;
 
+            .panel-group-header {
+                fill: ~"@{@{color}-diagram-panel-header-background-color}";
+
+                .panel-icon {
+                    font-family: @diagram-icon-font;
+                }
+                text {
+                    fill: ~"@{@{color}-diagram-panel-header-text-color}";
+                    font-size: 18px;
+                }
+            }
+            
             .panel {
                 .statement {
                     pointer-events: none;
