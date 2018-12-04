@@ -123,13 +123,28 @@ public class RequestCacheControlStruct {
                     requestCacheControl.put(REQ_CACHE_CONTROL_ONLY_IF_CACHED_FIELD, new BBoolean(TRUE));
                     break;
                 case MAX_AGE:
-                    requestCacheControl.put(REQ_CACHE_CONTROL_MAX_AGE_FIELD, new BInteger(Long.parseLong(value)));
+                    try {
+                        requestCacheControl.put(REQ_CACHE_CONTROL_MAX_AGE_FIELD, new BInteger(Long.parseLong(value)));
+                    } catch (NumberFormatException e) {
+                        // Ignore the exception and set max-age to 0.
+                        requestCacheControl.put(REQ_CACHE_CONTROL_MAX_AGE_FIELD, new BInteger(0));
+                    }
                     break;
                 case MAX_STALE:
-                    requestCacheControl.put(REQ_CACHE_CONTROL_MAX_STALE_FIELD, new BInteger(Long.parseLong(value)));
+                    try {
+                        requestCacheControl.put(REQ_CACHE_CONTROL_MAX_STALE_FIELD, new BInteger(Long.parseLong(value)));
+                    } catch (NumberFormatException e) {
+                        // Ignore the exception and set max-stale to 0.
+                        requestCacheControl.put(REQ_CACHE_CONTROL_MAX_STALE_FIELD, new BInteger(0));
+                    }
                     break;
                 case MIN_FRESH:
-                    requestCacheControl.put(REQ_CACHE_CONTROL_MIN_FRESH_FIELD, new BInteger(Long.parseLong(value)));
+                    try {
+                        requestCacheControl.put(REQ_CACHE_CONTROL_MIN_FRESH_FIELD, new BInteger(Long.parseLong(value)));
+                    } catch (NumberFormatException e) {
+                        // Ignore the exception and set min-fresh to 0.
+                        requestCacheControl.put(REQ_CACHE_CONTROL_MIN_FRESH_FIELD, new BInteger(0));
+                    }
                     break;
                 default:
                     break;
