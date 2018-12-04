@@ -12,14 +12,14 @@ type Student record {
 
 
 public function main(string... args) {
-    endpoint mysql:Client customerDBEP {
+    mysql:Client customerDBEP = new ({
         host: "localhost",
         port: 3306,
         name: "testdb",
         username: "root",
         password: "root",
         poolOptions: { maximumPoolSize: 5 }
-    };
+    });
 
     // Sensitive parameters of functions built-in to Ballerina are decorated with the `@sensitive` annotation. This
     // ensures that tainted data cannot pass into the security sensitive parameter.
@@ -28,9 +28,15 @@ public function main(string... args) {
     // disallowing tainted data in the SQL query.
     //
     // This line results in a compiler error because the query is appended with a user-provided argument.
-    table dataTable = check customerDBEP->
+    var result = customerDBEP->
     select("SELECT firstname FROM student WHERE registration_id = " +
-            args[0], null);
+            args[0], ());
+    table<record {}> dataTable;
+    if (result is error) {
+        panic result;
+    } else {
+        dataTable = result;
+    }
 
     // This line results in a compiler error because a user-provided argument is passed to a sensitive parameter.
     userDefinedSecureOperation(args[0]);
@@ -41,11 +47,17 @@ public function main(string... args) {
         userDefinedSecureOperation(untaint args[0]);
     } else {
         error err = error("Validation error: ID should be an integer");
-        throw err;
+        panic err;
     }
 
     while (dataTable.hasNext()) {
-        var jsonData = check <Student>dataTable.getNext();
+        var jsonResult = Student.convert(dataTable.getNext());
+        Student jsonData;
+        if (jsonResult is error) {
+            panic jsonResult;
+        } else {
+            jsonData = jsonResult;
+        }
         // The return values of certain functions built-in to Ballerina are decorated with the `@tainted` annotation to
         // denote that the return value should be untrusted (tainted). One such example is the data read from a
         // database.
@@ -83,6 +95,10 @@ function sanitizeAndReturnUntainted(string input) returns @untainted string {
 
 function isInteger(string input) returns boolean {
     string regEx = "\\d+";
-    boolean isInt = check input.matches(regEx);
-    return isInt;
+    boolean|error isInt = input.matches(regEx);
+    if (isInt is error) {
+        panic isInt;
+    } else {
+        return isInt;
+    }
 }
