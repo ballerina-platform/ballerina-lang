@@ -836,6 +836,7 @@ public class BLangPackageBuilder {
         BLangRecordVarRefKeyValue keyValue = new BLangRecordVarRefKeyValue();
         keyValue.variableName = (BLangIdentifier) createIdentifier(identifier);
         keyValue.variableReference = expression;
+        keyValue.variableReference.addWS(ws);
         this.recordVarRefListStack.peek().add(keyValue);
     }
 
