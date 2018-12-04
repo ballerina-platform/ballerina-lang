@@ -1330,6 +1330,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 BVarSymbol originalVarSymbol = entry.getKey();
                 BVarSymbol varSymbol = symbolEnter.createVarSymbol(0, entry.getValue(), originalVarSymbol.name,
                                                                    this.env);
+                varSymbol.originalSymbol = getOriginalVarSymbol(originalVarSymbol);
                 symbolEnter.defineShadowedSymbol(ifNode.expr.pos, varSymbol, ifBodyEnv);
 
                 // Cache the type guards, to be reused at the desugar.
@@ -2606,6 +2607,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             BType remainingType = types.getRemainingType(originalVarSymbol.type, entry.getValue());
             BVarSymbol varSymbol = new BVarSymbol(0, originalVarSymbol.name, elseEnv.scope.owner.pkgID, remainingType,
                     this.env.scope.owner);
+            varSymbol.originalSymbol = getOriginalVarSymbol(originalVarSymbol);
             symbolEnter.defineShadowedSymbol(ifNode.expr.pos, varSymbol, elseEnv);
 
             // Cache the type guards, to be reused at the desugar.
@@ -2644,4 +2646,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private void resetTypeGards() {
         this.typeGuards = null;
     }
+
+    private BVarSymbol getOriginalVarSymbol(BVarSymbol varSymbol) {
+        if (varSymbol.originalSymbol == null) {
+            return varSymbol;
+        }
+
+        return getOriginalVarSymbol(varSymbol.originalSymbol);
+    }
+
 }

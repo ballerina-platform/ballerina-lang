@@ -55,6 +55,7 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
     public int attachedToTypeCPIndex;
     public BType attachedToType;
     public BFunctionType funcType;
+    public String[] workerSendInChannels;
 
     protected Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
     
