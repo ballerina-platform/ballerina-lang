@@ -89,7 +89,7 @@ public class TextDocumentFormatUtil {
         String[] uriParts = uri.split(Pattern.quote("/"));
         String fileName = uriParts[uriParts.length - 1];
         final BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager,
-                true, LSCustomErrorStrategy.class, false).getRight();
+                true, LSCustomErrorStrategy.class, false).get(0);
         context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, bLangPackage.symbol.getName().getValue());
         final List<Diagnostic> diagnostics = new ArrayList<>();
         JsonArray errors = new JsonArray();
