@@ -593,7 +593,10 @@ public class TypeChecker extends BLangNodeVisitor {
         } else {
             workerReceiveExpr.workerType = symbol.type;
         }
-
+        // The receive expression cannot be assigned to var, since we cannot infer the type.
+        if (symTable.noType == this.expType) {
+            this.dlog.error(workerReceiveExpr.pos, DiagnosticCode.INVALID_USAGE_OF_RECEIVE_EXPRESSION);
+        }
         // We cannot predict the type of the receive expression as it depends on the type of the data sent by the other
         // worker/channel. Since receive is an expression now we infer the type of it from the lhs of the statement.
         workerReceiveExpr.type = this.expType;
