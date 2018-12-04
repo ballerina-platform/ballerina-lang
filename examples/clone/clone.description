@@ -1,0 +1,4 @@
+// Clone built-in method is used to make a copy of any anydata value.
+// Clone is defined on all structured types but return an error if value is not anydata.
+// The resultant copy will be a deep copy
+// It preserves cycles, it preserves the storage type and it preserves immutability
