@@ -85,13 +85,13 @@ public const PUBLISH_MODE_DIRECT = "PUBLISH_MODE_DIRECT";
 # needs to fetch the topic URL to identify the update content.
 public const PUBLISH_MODE_FETCH = "PUBLISH_MODE_FETCH";
 
-# The identifier to be used to identify the cryptographic hash Algorithm.
+# The identifier to be used to identify the cryptographic hash algorithm.
 public type SignatureMethod SHA1|SHA256;
 
-# The constant used to represent SHA-1 cryptographic hash Algorithm
+# The constant used to represent SHA-1 cryptographic hash algorithm
 public const string SHA1 = "SHA1";
 
-# The constant used to represent SHA-256 cryptographic hash Algorithm
+# The constant used to represent SHA-256 cryptographic hash algorithm
 public const string SHA256 = "SHA256";
 
 ///////////////////////////////// Custom Webhook/Extension specific constants /////////////////////////////////
@@ -451,12 +451,12 @@ public type SubscriptionChangeResponse record {
 #
 # + leaseSeconds - The default lease seconds value to honour if not specified in subscription requests
 # + signatureMethod - The signature method to use for authenticated content delivery (`SHA1`|`SHA256`)
-# + remotePublish - The record representing configs related to remote publishing allowance
+# + remotePublish - The record representing configuration related to remote publishing allowance
 # + topicRegistrationRequired - Whether a topic needs to be registered at the hub prior to publishing/subscribing
 #                               to the topic
 # + publicUrl - The URL for the hub to be included in content delivery requests, defaults to
 #               `http(s)://localhost:{port}/websub/hub` if unspecified
-# + clientConfig - The configurations for the hub to communicate with remote HTTP endpoints
+# + clientConfig - The configuration for the hub to communicate with remote HTTP endpoints
 public type HubConfiguration record {
     int leaseSeconds = 86400;
     SignatureMethod signatureMethod = SHA256;
@@ -464,6 +464,7 @@ public type HubConfiguration record {
     boolean topicRegistrationRequired = true;
     string publicUrl?;
     http:ClientEndpointConfig clientConfig?;
+    !...
 };
 
 # Record representing remote publishing allowance.
@@ -475,23 +476,24 @@ public type HubConfiguration record {
 public type RemotePublishConfig record {
     boolean enabled = false;
     RemotePublishMode mode = PUBLISH_MODE_DIRECT;
+    !...
 };
 
 # Starts up the Ballerina Hub.
 #
 # + hubServiceListener - The `http:Listener` to which the hub service is attached
-# + hubConfiguration - The hub specific configurations
+# + hubConfiguration - The hub specific configuration
 # + return - `WebSubHub` The WebSubHub object representing the newly started up hub, or `HubStartedUpError` indicating
 #            that the hub is already started, and including the WebSubHub object representing the
 #            already started up hub
 public function startHub(http:Listener hubServiceListener, HubConfiguration? hubConfiguration = ())
                                                                     returns WebSubHub|HubStartedUpError {
     hubLeaseSeconds = config:getAsInt("b7a.websub.hub.leasetime",
-                                      default = hubConfiguration["leaseSeconds"] ?: DEFAULT_LEASE_SECONDS_VALUE);
-    hubSignatureMethod = getSignatureMethod(hubConfiguration["signatureMethod"]);
+                                      default = hubConfiguration.leaseSeconds ?: DEFAULT_LEASE_SECONDS_VALUE);
+    hubSignatureMethod = getSignatureMethod(hubConfiguration.signatureMethod);
     remotePublishConfig = getRemotePublishConfig(hubConfiguration["remotePublish"]);
     hubTopicRegistrationRequired = config:getAsBoolean("b7a.websub.hub.topicregistration",
-                                    default = hubConfiguration["topicRegistrationRequired"] ?: true);
+                                    default = hubConfiguration.topicRegistrationRequired ?: true);
 
     // reset the hubUrl once the other parameters are set. if url is an empty strung, create hub url with listener
     // configs in the native code
