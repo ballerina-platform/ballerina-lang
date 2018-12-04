@@ -45,7 +45,7 @@ public class WorkerSyncSendTest {
     @Test
     public void simpleSyncSendTest() {
 
-        BValue[] returns = BRunUtil.invoke(result, "simpleSyncSend" );
+        BValue[] returns = BRunUtil.invoke(result, "simpleSyncSend");
         Assert.assertTrue(returns[0].stringValue().startsWith("w2w2w2w2w2"),
                 "Returned wrong value:" + returns[0].stringValue());
     }
@@ -56,7 +56,7 @@ public class WorkerSyncSendTest {
         BValue[] returns = BRunUtil.invoke(result, "multipleSyncSend");
         Assert.assertTrue(returns[0].stringValue().startsWith("w2w2w2w2w2"),
                 "Returned wrong value:" + returns[0].stringValue());
-        Assert.assertTrue(returns[0].stringValue().endsWith("w11w11w11w11w11"),
+        Assert.assertFalse(returns[0].stringValue().startsWith("w11"),
                 "Returned wrong value:" + returns[0].stringValue());
     }
 
@@ -73,7 +73,7 @@ public class WorkerSyncSendTest {
         BValue[] returns = BRunUtil.invoke(result, "multiWorkerSend");
         Assert.assertFalse(returns[0].stringValue().startsWith("w1"),
                 "Returned wrong value:" + returns[0].stringValue());
-        Assert.assertTrue(returns[0].stringValue().endsWith("w11w11w11w11w11"),
+        Assert.assertFalse(returns[0].stringValue().startsWith("w11"),
                 "Returned wrong value:" + returns[0].stringValue());
     }
 
@@ -95,8 +95,7 @@ public class WorkerSyncSendTest {
             expectedException = e;
         }
         Assert.assertNotNull(expectedException);
-        String result =
-                "error: error3 {\"message\":\"msg3\"}\n" + "\tat $lambda$14(sync-send.bal:235)";
+        String result = "error: error3 {\"message\":\"msg3\"}\n" + "\tat $lambda$14(sync-send.bal:235)";
         Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
     }
 }

@@ -43,7 +43,7 @@ public class WorkerFlushTest {
     }
 
     @Test
-    public void simpleSyncSendTest() {
+    public void simpleFlushTest() {
 
         BValue[] returns = BRunUtil.invoke(result, "singleFlush");
         Assert.assertEquals(returns[0].stringValue(), "w2w2w2w2w2w1w1w1w1w1");
@@ -60,7 +60,7 @@ public class WorkerFlushTest {
     public void flushAll() {
 
         BValue[] returns = BRunUtil.invoke(result, "flushAll");
-        Assert.assertTrue(returns[0].stringValue().endsWith("w1w1w1w1w1"),
+        Assert.assertFalse(returns[0].stringValue().startsWith("w1"),
                 "Returned wrong value:" + returns[0].stringValue());
     }
 
