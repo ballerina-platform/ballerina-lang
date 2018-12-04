@@ -55,6 +55,7 @@ import org.ballerinalang.util.codegen.StructFieldInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BLangFreezeException;
+import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 
@@ -353,7 +354,8 @@ public class JSONUtils {
         } catch (BLangFreezeException e) {
             throw e;
         } catch (Throwable t) {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_SET_ERROR, t.getMessage());
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
+                                                           RuntimeErrors.JSON_SET_ERROR, t.getMessage());
         }
     }
 
@@ -424,6 +426,9 @@ public class JSONUtils {
 
         try {
             ListUtils.execListAddOperation((BNewArray) json, index, element);
+        } catch (BallerinaException e) {
+            throw BLangExceptionHelper.getRuntimeException(e.getMessage(),
+                                                           RuntimeErrors.JSON_SET_ERROR, e.getDetail());
         } catch (Throwable t) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_SET_ERROR, t.getMessage());
         }

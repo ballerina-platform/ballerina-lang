@@ -26,6 +26,7 @@ import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
@@ -85,6 +86,14 @@ public class BLangVMErrors {
 
     public static BError createError(Strand strand, String message) {
         return generateError(strand, true, BTypes.typeError, message, null);
+    }
+
+    public static BError createError(Strand strand, String reason, String detail) {
+        BMap<String, BValue> detailMap = new BMap<>(BTypes.typeMap);
+        if (detail != null) {
+            detailMap.put(ERROR_MESSAGE_FIELD, new BString(detail));
+        }
+        return generateError(strand, true, BTypes.typeError, reason, detailMap);
     }
 
     public static BError createError(Context context, boolean attachCallStack, BErrorType errorType, String reason,

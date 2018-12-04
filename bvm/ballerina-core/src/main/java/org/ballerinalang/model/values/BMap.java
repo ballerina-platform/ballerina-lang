@@ -36,6 +36,7 @@ import org.ballerinalang.persistence.serializable.reftypes.Serializable;
 import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
 import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBMap;
 import org.ballerinalang.util.exceptions.BLangFreezeException;
+import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.ByteArrayOutputStream;
@@ -130,7 +131,8 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
         readLock.lock();
         try {
             if (!map.containsKey(key) && except) {
-                throw new BallerinaException("cannot find key '" + key + "'");
+                throw new BallerinaException(BallerinaErrorReasons.KEY_NOT_FOUND_ERROR,
+                                             "cannot find key '" + key + "'");
             }
             return map.get(key);
         } finally {

@@ -16,6 +16,7 @@
  */
 package org.ballerinalang.nativeimpl.lang.utils;
 
+import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,15 +86,16 @@ public class ErrorHandler {
      * Handle any json related exception.
      * 
      * @param operation     Operation that executed
+     * @param reason        The reason to set as error reason
      * @param e             Throwable to handle
      */
-    public static void handleJsonException(String operation, Throwable e) {
+    public static void handleJsonException(String operation, String reason, Throwable e) {
         // here local message  of the cause is logged whenever possible, to avoid java class being logged 
         // along with the error message.
         if (e.getCause() != null) {
-            throw new BallerinaException("Failed to " + operation + ": " + e.getCause().getMessage());
+            throw new BallerinaException(reason, "Failed to " + operation + ": " + e.getCause().getMessage());
         } else {
-            throw new BallerinaException("Failed to " + operation + ": " + e.getMessage());
+            throw new BallerinaException(reason, "Failed to " + operation + ": " + e.getMessage());
         }
     }
     
@@ -122,9 +124,11 @@ public class ErrorHandler {
         // here local message of the cause is logged whenever possible, to avoid java class being logged 
         // along with the error message.
         if (e.getCause() != null) {
-            throw new BallerinaException("Failed to " + operation + ": " + e.getCause().getMessage());
+            throw new BallerinaException(BallerinaErrorReasons.XML_OPERATION_ERROR,
+                                         "Failed to " + operation + ": " + e.getCause().getMessage());
         } else {
-            throw new BallerinaException("Failed to " + operation + ": " + e.getMessage());
+            throw new BallerinaException(BallerinaErrorReasons.XML_OPERATION_ERROR,
+                                         "Failed to " + operation + ": " + e.getMessage());
         }
     }
 
