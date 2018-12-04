@@ -97,7 +97,7 @@ public class HtmlDocTest {
     @Test(description = "Param links should be generated correctly")
     public void testComplexReturn() {
         BLangPackage bLangPackage = createPackage("public function hello(string name) returns ((string[],int) | " +
-                                                  "error<>)"
+                                                  "error)"
                 + "{return ([\"a\"], 2);}");
         Page page = generatePage(bLangPackage);
         Assert.assertEquals(page.constructs.size(), 1);
@@ -105,7 +105,7 @@ public class HtmlDocTest {
         Assert.assertTrue(page.constructs.get(0) instanceof FunctionDoc, "Invalid documentable type");
         FunctionDoc functionDoc = (FunctionDoc) page.constructs.get(0);
         Assert.assertEquals(functionDoc.parameters.get(0).toString(), "string name", "Invalid parameter string value");
-        Assert.assertEquals(functionDoc.returnParams.get(0).toString(), "(string[],int) | error", "Invalid return " +
+        Assert.assertEquals(functionDoc.returnParams.get(0).toString(), "(string[],int) | error<>", "Invalid return " +
                 "type");
         Assert.assertEquals(functionDoc.returnParams.get(0).href, "primitive-types.html#string,primitive-types" + "" +
                 ".html#int,builtin.html#error", "Invalid link to return type");
