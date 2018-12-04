@@ -61,6 +61,16 @@ public class BLangTransaction extends BLangStatement implements TransactionNode 
     }
 
     @Override
+    public BLangBlockStmt getAbortedBody() {
+        return abortedBody;
+    }
+
+    @Override
+    public BLangBlockStmt getCommittedBody() {
+        return committedBody;
+    }
+
+    @Override
     public void setTransactionBody(BlockNode body) {
         this.transactionBody = (BLangBlockStmt) body;
     }
