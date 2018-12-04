@@ -754,6 +754,10 @@
             {
                 "name": "Retry",
                 "url": "http-retry"
+            },
+            {
+                "name": "Timeout",
+                "url": "http-timeout"
             }
         ]
     },
