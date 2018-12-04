@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.signature;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.completion.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
@@ -61,7 +62,12 @@ public class SignatureHelpTest {
         String response = this.getSignatureResponse(configJsonObject, sourcePath).replace("\\r\\n", "\\n");
         JsonObject responseJson = parser.parse(response).getAsJsonObject();
         responseJson.remove("id");
-        Assert.assertTrue(expected.equals(responseJson));
+        boolean result = expected.equals(responseJson);
+        if (!result) {
+            String diff = CommonUtil.LINE_SEPARATOR + "Expected: " + expected.toString()
+                    + CommonUtil.LINE_SEPARATOR + "Actual: " + responseJson.toString();
+            Assert.fail("Failed Test for: " + configJsonPath + diff);
+        }
     }
     
     @DataProvider(name = "signature-help-data-provider")
@@ -81,7 +87,7 @@ public class SignatureHelpTest {
                 {"signatureWithinTransaction1.json", "signatureWithinTransaction1.bal"},
         };
     }
-    
+
     private String getSignatureResponse(JsonObject config, Path sourcePath)
             throws InterruptedException, IOException {
         JsonObject positionObj = config.get("position").getAsJsonObject();

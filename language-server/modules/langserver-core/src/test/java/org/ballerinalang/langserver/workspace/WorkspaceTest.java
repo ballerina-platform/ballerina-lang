@@ -51,7 +51,7 @@ public class WorkspaceTest {
         this.openDocuments();
     }
     
-    @Test(description = "Test the Workspace symbol", dataProvider = "workspace-data-provider", enabled = false)
+    @Test(description = "Test the Workspace symbol", dataProvider = "workspace-data-provider")
     public void testWorkspaceSymbol(String config, String query) throws IOException {
         String configJsonPath = "workspace" + File.separator + config;
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
@@ -71,8 +71,8 @@ public class WorkspaceTest {
     @DataProvider(name = "workspace-data-provider")
     public Object[][] workspaceSymbolDataProvider() {
         return new Object[][] {
-                {"workspaceSymbol.json", ""},
                 {"workspaceSymbolWithQuery.json", "test"},
+                {"workspaceSymbol.json", ""},
         };
     }
     

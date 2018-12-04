@@ -1,32 +1,30 @@
 {
   "module": "ballerina/io",
   "expected": {
-    "result":{
-      "edit":{
-        "changes":{
-
-        },
-        "documentChanges":[
+    "result": {
+      "edit": {
+        "changes": {},
+        "documentChanges": [
           {
-            "edits":[
+            "edits": [
               {
-                "range":{
-                  "start":{
-                    "line":1,
-                    "character":22
+                "range": {
+                  "start": {
+                    "line": 1,
+                    "character": 23
                   },
-                  "end":{
-                    "line":7,
-                    "character":0
+                  "end": {
+                    "line": 7,
+                    "character": 0
                   }
                 },
-                "newText":"\nimport ballerina/io;\n\nfunction testImportCommand() {\n    io:println(\"Hello World\");\n}\n"
+                "newText":"\nimport ballerina/io;\nfunction testImportCommand() {\n    io:println(\"Hello World\");\n}\n"
               }
             ]
           }
         ]
       }
     },
-    "jsonrpc":"2.0"
+    "jsonrpc": "2.0"
   }
 }
