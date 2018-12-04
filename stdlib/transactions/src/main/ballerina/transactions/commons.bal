@@ -165,7 +165,7 @@ function respondToBadRequest(http:Caller ep, string msg) {
     }
 }
 
-function getCoordinatorProtocolAt(string protocolName, int transactionBlockId) returns string {
+function getCoordinatorProtocolAt(string protocolName, string transactionBlockId) returns string {
     //TODO: protocolName is unused for the moment
     return "http://" + coordinatorHost + ":" + coordinatorPort + initiator2pcCoordinatorBasePath + "/" +
         transactionBlockId;

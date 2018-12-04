@@ -79,8 +79,12 @@
                 "url": "match"
             },
             {
-                "name": "Match Expression",
-                "url": "match-expression"
+                "name": "Tuple Match",
+                "url": "tuple-match-statement"
+            },
+            {
+                "name": "Record Match",
+                "url": "record-match-statement"
             },
             {
                 "name": "Type Guard",
@@ -212,6 +216,33 @@
             {
                 "name": "Immutable Values",
                 "url": "immutable-values"
+            },
+            {
+                "name": "Constants",
+                "url": "constants"
+            }
+        ]
+    },
+    {
+        "title": "Binding Patterns",
+        "column": 1,
+        "category": "Language concepts",
+        "samples": [
+            {
+                "name": "Tuple Type Binding Pattern",
+                "url": "tuple-type-binding-pattern"
+            },
+            {
+                "name": "Record Type Binding Pattern",
+                "url": "record-type-binding-pattern"
+            },
+            {
+                "name": "Tuple Destructure Binding Pattern",
+                "url": "tuple-destructure-binding-pattern"
+            },
+            {
+                "name": "Record Destructure Binding Pattern",
+                "url": "record-destructure-binding-pattern"
             }
         ]
     },
@@ -304,16 +335,12 @@
                 "url": "worker-interaction"
             },
             {
-                "name": "Fork/Join",
-                "url": "fork-join"
+                "name": "Fork",
+                "url": "fork"
             },
             {
-                "name": "Fork/Join Conditional Join",
-                "url": "fork-join-conditional-join"
-            },
-            {
-                "name": "Fork/Join Variable Access",
-                "url": "fork-join-variable-access"
+                "name": "Fork Variable Access",
+                "url": "fork-variable-access"
             },
             {
                 "name": "Async",
@@ -503,6 +530,10 @@
                 "url": "local-transactions"
             },
             {
+                "name": "Local Transactions with participants",
+                "url": "local-transactions-with-participants"
+            },
+            {
                 "name": "XA Transactions",
                 "url": "xa-transactions"
             },
@@ -678,6 +709,10 @@
             {
                 "name": "HTTP Compression",
                 "url": "http-compression"
+            },
+            {
+                "name": "HTTP Interceptors/Filters",
+                "url": "http-filters"
             }
         ]
     },

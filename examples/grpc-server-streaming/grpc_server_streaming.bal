@@ -11,7 +11,7 @@ service HelloWorld on new grpc:Listener(9090) {
         string[] greets = ["Hi", "Hey", "GM"];
 
         // Send multiple messages to the caller.
-        foreach greet in greets {
+        foreach string greet in greets {
             string msg = greet + " " + name;
             error? err = caller->send(msg);
             if (err is error) {

@@ -8,12 +8,14 @@ function printFruits(string separator,
                      string... concatStrings) {
 
     string finalStr = "";
-    foreach index, str in concatStrings {
+    int index = 0;
+    foreach var str in concatStrings {
         if (index == 0) {
             finalStr = str;
         } else {
             finalStr = finalStr + separator + str;
         }
+        index += 1;
     }
 
     io:println(title + finalStr);
@@ -38,8 +40,7 @@ public function main() {
                 "Grapes");
 
     // The placement of defaultable parameters can be mixed with rest 
-    // parameters 
-    // when invoking the function.
+    // parameters when invoking the function.
     printFruits(",", "Apples", "Oranges", title = "Available Fruits: ",
                 "Grapes");
 

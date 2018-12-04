@@ -40,7 +40,7 @@ export class DiagramConfig {
         padding: {
             bottom: 0,
             left: 0,
-            right: 0,
+            right: 200,
             top: 0,
         },
     };
@@ -57,6 +57,12 @@ export class DiagramConfig {
             margin: {
                 left: 25
             }
+        }
+    };
+
+    public panelGroup = {
+        header: {
+            height: STATEMENT_HEIGHT * 2,
         }
     };
 
@@ -77,6 +83,22 @@ export class DiagramConfig {
         width: 120,
     };
 
+    public condition = {
+        caseLabel: {
+            height: 19,
+            margin: {
+                bottom: 5,
+                left: 5,
+                right: 5,
+                top: 5,
+            },
+            padding: {
+                left: 4,
+                right: 4,
+            }
+        }
+    };
+
     public flowCtrl = {
         bottomMargin: STATEMENT_HEIGHT / 2,
         condition: {
@@ -90,6 +112,11 @@ export class DiagramConfig {
         leftMarginDefault: 60,
         rightMargin: STATEMENT_HEIGHT,
         whileGap: STATEMENT_HEIGHT,
+    };
+
+    public block = {
+        bottomMargin: STATEMENT_HEIGHT,
+        menuTriggerMargin: 12,
     };
 }
 

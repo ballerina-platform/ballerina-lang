@@ -9,54 +9,51 @@ import ballerina/transactions;
 @http:ServiceConfig {
     basePath: "/stockquote"
 }
-service<http:Service> ParticipantService bind { port: 8889 } {
+service ParticipantService on new http:Listener(8889) {
 
     @http:ResourceConfig {
         path: "/update"
     }
-    updateStockQuote(endpoint conn, http:Request req) {
+    @transactions:Participant {
+        oncommit:printParticipantCommit,
+        onabort:printParticipantAbort
+    }
+    resource function updateStockQuote(http:Caller conn, http:Request req) {
         log:printInfo("Received update stockquote request");
         http:Response res = new;
 
         // At the beginning of the transaction statement, since a transaction
         // context has been received, this service will register with the
         // initiator as a participant.
-        transaction with oncommit = printParticipantCommit, 
-                         onabort = printParticipantAbort {
-        
-            // Print the current transaction ID
-            log:printInfo("Joined transaction: " +
-                           transactions:getCurrentTransactionId());
-            
-            var updateReq = untaint req.getJsonPayload();
-            match updateReq {
-                json updateReqJson => {
-                    string msg = 
-                        io:sprintf("Update stock quote request received.
-                                    symbol:%s, price:%s",
-                                    updateReqJson.symbol,
-                                    updateReqJson.price);
-                    log:printInfo(msg);
 
-                    json jsonRes = { "message": "updating stock" };
-                    res.statusCode = http:OK_200;
-                    res.setJsonPayload(jsonRes);
-                }
-                error e => {
-                    res.statusCode = http:INTERNAL_SERVER_ERROR_500;
-                    res.setPayload(e.message);
-                    log:printError("Payload error occurred!", err = e);
-                }
-            }
+        // Print the current transaction ID
+        log:printInfo("Joined transaction: " +
+                       transactions:getCurrentTransactionId());
 
-            var result = conn->respond(res);
-            match result {
-                error e =>
-                     log:printError("Could not send response back to initiator",
-                                     err = e);
-                () => 
-                   log:printInfo("Sent response back to initiator");
-            }
+        var updateReq = untaint req.getJsonPayload();
+        if (updateReq is json) {
+            string msg =
+                io:sprintf("Update stock quote request received.
+                            symbol:%s, price:%s",
+                            updateReq.symbol,
+                            updateReq.price);
+            log:printInfo(msg);
+
+            json jsonRes = { "message": "updating stock" };
+            res.statusCode = http:OK_200;
+            res.setJsonPayload(jsonRes);
+        } else {
+            res.statusCode = http:INTERNAL_SERVER_ERROR_500;
+            res.setPayload(updateReq.reason());
+            log:printError("Payload error occurred!", err = updateReq);
+        }
+
+        var result = conn->respond(res);
+        if (result is error) {
+            log:printError("Could not send response back to initiator",
+                                 err = result);
+        } else {
+            log:printInfo("Sent response back to initiator");
         }
     }
 }

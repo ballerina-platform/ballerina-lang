@@ -1,33 +1,31 @@
 {
   "nodeType": "record",
-  "nodeLine": "18",
+  "nodeLine": "14",
   "expected": {
-    "result":{
-      "edit":{
-        "changes":{
-
-        },
-        "documentChanges":[
+    "result": {
+      "edit": {
+        "changes": {},
+        "documentChanges": [
           {
-            "edits":[
+            "edits": [
               {
-                "range":{
-                  "start":{
-                    "line":18,
-                    "character":0
+                "range": {
+                  "start": {
+                    "line": 14,
+                    "character": 0
                   },
-                  "end":{
-                    "line":18,
-                    "character":0
+                  "end": {
+                    "line": 14,
+                    "character": 0
                   }
                 },
-                "newText":"# Description\n#\n# + field1 - field1 Parameter Description \n# + field2 - field2 Parameter Description\n"
+                "newText": "# Description\n#\n# + field1 - field1 Parameter Description \n# + field2 - field2 Parameter Description\n"
               }
             ]
           }
         ]
       }
     },
-    "jsonrpc":"2.0"
+    "jsonrpc": "2.0"
   }
 }

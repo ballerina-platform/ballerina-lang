@@ -12,12 +12,13 @@ service multipartDemoService on new http:Listener(9090) {
         methods: ["POST"],
         path: "/decode"
     }
-    resource function multipartReceiver(http:Caller caller, http:Request request) {
+    resource function multipartReceiver(http:Caller caller, http:Request
+                                        request) {
         http:Response response = new;
         // Extracts bodyparts from the request.
         var bodyParts = request.getBodyParts();
         if (bodyParts is mime:Entity[]) {
-            foreach part in bodyParts {
+            foreach var part in bodyParts {
                 handleContent(part);
             }
             response.setPayload(untaint bodyParts);
@@ -75,7 +76,8 @@ service multipartDemoService on new http:Listener(9090) {
             }
         } else if (returnResponse is error) {
             http:Response response = new;
-            response.setPayload("Error occurred while sending multipart request!");
+            response.setPayload("Error occurred while sending multipart
+                                    request!");
             response.statusCode = 500;
             var result = caller->respond(response);
 

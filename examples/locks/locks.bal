@@ -6,12 +6,31 @@ int counter = 0;
 public function main() {
     process();
     io:println("final counter value - ", counter);
+    io:println("final count field value - ", counterObj.count);
 }
+
+type Counter object {
+    //shared field among same object instances
+    int count = 0;
+
+    public function update() {
+        foreach var i in 1 ... 1000 {
+            lock {
+                // Lock the field variable and increment the count.
+                // The `count' field of same object instance is locked.
+                self.count = self.count + 1;
+            }
+        }
+    }
+};
+// Shared object instance among multiple workers.
+Counter counterObj = new;
 
 function process() {
     worker w1 {
+        counterObj.update();
         // Lock the shared variable and increment the counter.
-        foreach i in 1 ... 1000 {
+        foreach var i in 1 ... 1000 {
             lock {
                 // Lock the shared variable and increment the counter.
                 counter = counter + 1;
@@ -19,7 +38,8 @@ function process() {
         }
     }
     worker w2 {
-        foreach i in 1 ... 1000 {
+        counterObj.update();
+        foreach var i in 1 ... 1000 {
             lock {
                 // Lock the shared variable and increment the counter.
                 counter = counter + 1;
@@ -27,7 +47,8 @@ function process() {
         }
     }
     worker w3 {
-        foreach i in 1 ... 1000 {
+        counterObj.update();
+        foreach var i in 1 ... 1000 {
             lock {
                 // Lock the shared variable and increment the counter.
                 counter = counter + 1;
@@ -35,11 +56,14 @@ function process() {
         }
     }
     worker w4 {
-        foreach i in 1 ... 1000 {
+        counterObj.update();
+        foreach var i in 1 ... 1000 {
             lock {
                 // Lock the shared variable and increment the counter.
                 counter = counter + 1;
             }
         }
     }
+    // Wait for all workers to complete
+    var result = wait {w1,w2,w3,w4};
 }

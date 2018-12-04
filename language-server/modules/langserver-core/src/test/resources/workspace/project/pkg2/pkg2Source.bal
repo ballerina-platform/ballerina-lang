@@ -2,14 +2,11 @@
 // Package objects referenced with 'http:' in code
 import ballerina/http;
 
-# A service endpoint represents a listener.
-endpoint http:Listener listener {
-    port:9090
-};
+listener http:Listener listenerEp = new(9090); 
 
 # A service is a network-accessible API
 # Advertised on '/hello', port comes from listener endpoint
-service<http:Service> hello bind listener {
+service testDocService on listenerEp {
 
     # A resource is an invokable API method
     # Accessible at '/hello/sayHello
@@ -17,7 +14,7 @@ service<http:Service> hello bind listener {
     #
     # + caller - Server Connector
     # + request - Request
-    sayHello (endpoint caller, http:Request request) {
+    resource function sayHello(http:Caller caller, http:Request request) {
 
         // Create object to carry data back to caller
         http:Response response = new;

@@ -70,8 +70,7 @@ public class XMLIterationTest {
         }
     }
 
-    // Disabled due to https://github.com/ballerina-platform/ballerina-lang/issues/10149
-    @Test(enabled = false)
+    @Test
     public void testXMLForeachOp() {
         String[] titles = new String[]{"Everyday Italian", "Harry Potter", "XQuery Kick Start", "Learning XML"};
         BValue[] returns = BRunUtil.invoke(result, "foreachOpTest");

@@ -122,7 +122,7 @@ public class CommandExecutionTest {
         Assert.assertEquals(responseJson, expected);
     }
 
-    @Test(description = "Test Create Initializer for object")
+    @Test(description = "Test Create Initializer for object", enabled = false)
     public void testCreateInitializer() {
         String configJsonPath = "command" + File.separator + "createInitializer.json";
         Path sourcePath = sourcesPath.resolve("source").resolve("commonDocumentation.bal");
@@ -172,7 +172,7 @@ public class CommandExecutionTest {
         Assert.assertEquals(responseJson, expected);
     }
 
-    @Test(dataProvider = "testgen-fail-data-provider")
+    @Test(dataProvider = "testgen-fail-data-provider", enabled = false)
     public void testTestGenerationFailCases(String config, Path source) throws IOException {
         String configJsonPath = "command" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);
@@ -201,7 +201,7 @@ public class CommandExecutionTest {
         }
     }
 
-    @Test(dataProvider = "testgen-data-provider")
+    @Test(dataProvider = "testgen-data-provider", enabled = false)
     public void testTestGeneration(String config, Path source) throws IOException {
         String configJsonPath = "command" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);
@@ -310,7 +310,6 @@ public class CommandExecutionTest {
                 {"addSingleFunctionDocumentation1.json", "addSingleFunctionDocumentation1.bal"},
                 {"addSingleFunctionDocumentation2.json", "commonDocumentation.bal"},
                 {"addObjectFunctionDocumentation.json", "commonDocumentation.bal"},
-                {"addSingleEndpointDocumentation.json", "commonDocumentation.bal"},
                 {"addSingleServiceDocumentation.json", "commonDocumentation.bal"},
                 {"addSingleRecordDocumentation.json", "commonDocumentation.bal"},
                 {"addSingleObjectDocumentation.json", "commonDocumentation.bal"},

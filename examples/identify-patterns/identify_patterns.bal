@@ -39,7 +39,7 @@ function deployRegulatorActionDecisionRules() {
             e2 == null ? "none" : "stop" as userAction
         having userAction != "none"
         => (RoomKeyAction[] keyAction) {
-            foreach k in keyAction {
+            foreach var k in keyAction {
                 regulatorActionStream.publish(k);
             }
         }

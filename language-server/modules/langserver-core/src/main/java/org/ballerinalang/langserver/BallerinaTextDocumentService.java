@@ -38,7 +38,7 @@ import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.definition.util.DefinitionUtil;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.formatting.FormattingSourceGen;
-import org.ballerinalang.langserver.formatting.FormattingVisitorEntry;
+//import org.ballerinalang.langserver.formatting.FormattingVisitorEntry;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
 import org.ballerinalang.langserver.index.LSIndexImpl;
 import org.ballerinalang.langserver.references.util.ReferenceUtil;
@@ -156,8 +156,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
             try {
                 BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager, false,
-                                                                       CompletionCustomErrorStrategy.class,
-                                                                       false).get(0);
+                                                                        CompletionCustomErrorStrategy.class,
+                                                                        false);
                 context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, bLangPackage.symbol.getName().getValue());
                 context.put(DocumentServiceKeys.CURRENT_PACKAGE_ID_KEY, bLangPackage.packageID);
                 context.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
@@ -194,7 +194,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             hoverContext.put(DocumentServiceKeys.POSITION_KEY, position);
             try {
                 BLangPackage currentBLangPackage = lsCompiler.getBLangPackage(hoverContext, documentManager, false,
-                        LSCustomErrorStrategy.class, false).get(0);
+                                                                               LSCustomErrorStrategy.class, false);
                 hoverContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                                  currentBLangPackage.symbol.getName().getValue());
                 hover = HoverUtil.getHoverContent(hoverContext, currentBLangPackage);
@@ -229,10 +229,10 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 signatureContext.put(DocumentServiceKeys.FILE_URI_KEY, uri);
                 SignatureHelp signatureHelp;
                 BLangPackage bLangPackage = lsCompiler.getBLangPackage(signatureContext, documentManager, false,
-                        LSCustomErrorStrategy.class, false).get(0);
+                                                                        LSCustomErrorStrategy.class, false);
                 signatureContext.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
-                signatureContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
-                                     bLangPackage.symbol.getName().getValue());
+                signatureContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, 
+                        bLangPackage.packageID.getName().getValue());
                 SignatureTreeVisitor signatureTreeVisitor = new SignatureTreeVisitor(signatureContext);
                 bLangPackage.accept(signatureTreeVisitor);
                 signatureHelp = SignatureHelpUtil.getFunctionSignatureHelp(signatureContext);
@@ -262,7 +262,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 definitionContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
                 definitionContext.put(DocumentServiceKeys.POSITION_KEY, position);
                 BLangPackage currentBLangPackage = lsCompiler.getBLangPackage(definitionContext, documentManager, false,
-                                LSCustomErrorStrategy.class, false).get(0);
+                                                                               LSCustomErrorStrategy.class, false);
                 definitionContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                                       currentBLangPackage.symbol.getName().getValue());
                 PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(definitionContext);
@@ -294,8 +294,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 LSServiceOperationContext referenceContext = new LSServiceOperationContext();
                 referenceContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
                 referenceContext.put(DocumentServiceKeys.POSITION_KEY, params);
-                List<BLangPackage> bLangPackages = lsCompiler.getBLangPackage(referenceContext, documentManager, false,
-                                                                                   LSCustomErrorStrategy.class, true);
+                List<BLangPackage> bLangPackages = lsCompiler.getBLangPackages(referenceContext, documentManager, false,
+                                                                               LSCustomErrorStrategy.class, true);
                 // Get the current package from multiple.
                 BLangPackage currentBLangPackage = CommonUtil.getCurrentPackageByFileName(bLangPackages, fileUri);
                 if (currentBLangPackage == null) {
@@ -356,7 +356,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 symbolsContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
                 symbolsContext.put(DocumentServiceKeys.SYMBOL_LIST_KEY, symbols);
                 BLangPackage bLangPackage = lsCompiler.getBLangPackage(symbolsContext, documentManager, false,
-                        LSCustomErrorStrategy.class, false).get(0);
+                                                                        LSCustomErrorStrategy.class, false);
                 symbolsContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                                    bLangPackage.symbol.getName().getValue());
                 Optional<BLangCompilationUnit> documentCUnit = bLangPackage.getCompilationUnits().stream()
@@ -456,8 +456,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 FormattingSourceGen.build(ast.getAsJsonObject("model"), "CompilationUnit");
 
                 // Format the given ast.
-                FormattingVisitorEntry formattingUtil = new FormattingVisitorEntry();
-                formattingUtil.accept(ast.getAsJsonObject("model"));
+                // FormattingVisitorEntry formattingUtil = new FormattingVisitorEntry();
+                // formattingUtil.accept(ast.getAsJsonObject("model"));
 
                 // Generate source for the ast.
                 textEditContent = FormattingSourceGen.getSourceOf(ast.getAsJsonObject("model"));
@@ -512,8 +512,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 renameContext.put(DocumentServiceKeys.POSITION_KEY,
                                   new TextDocumentPositionParams(identifier, params.getPosition()));
                 List<Location> contents = new ArrayList<>();
-                List<BLangPackage> bLangPackages = lsCompiler.getBLangPackage(renameContext, documentManager, false,
-                                                                              LSCustomErrorStrategy.class, true);
+                List<BLangPackage> bLangPackages = lsCompiler.getBLangPackages(renameContext, documentManager, false,
+                                                                               LSCustomErrorStrategy.class, true);
                 // Get the current package from multiple.
                 BLangPackage currentBLangPackage = CommonUtil.getCurrentPackageByFileName(bLangPackages, fileUri);
                 if (currentBLangPackage == null) {

@@ -72,28 +72,28 @@ import ballerina/runtime;
 runtime:getProperty("ballerina.version");
 ```
 
-The following sample shows how to create and throw and error and how to access the call stack for the error.
+The following sample shows how to access the call stack and how to trap an error.
+
 ```ballerina
 import ballerina/runtime;
 import ballerina/io;
 
-// prints the current call stack
-io:println(runtime:getCallStack());
-
-function throwError1 () {
-    throwError2();
+public function main() {
+    // prints the current call stack
+    io:println(runtime:getCallStack());
+    var errorMessage = trap getError();
+    if (errorMessage is error) {
+        io:println(errorMessage.reason());
+    }
 }
 
-function throwError2 () {
-    // creates an error with a message
-    error e = error("error 2 occured");
-    throw e;
+function getError() {
+    panicWithError();
 }
 
-try {
-    throwError1();
-} catch (error e) {
-    // prints the call stack frame for the error caught
-    io:println(runtime:getErrorCallStackFrame(e));
+function panicWithError() {
+    // creates an error with a reason
+    error e = error("error occured");
+    panic e;
 }
 ```

@@ -4,6 +4,7 @@ import {
 } from "@ballerina/ast-model";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
+import { BlockViewState } from "../view-model/block";
 import { CompilationUnitViewState, FunctionViewState, ViewState } from "../view-model/index";
 import { WorkerViewState } from "../view-model/worker";
 
@@ -102,8 +103,7 @@ export const visitor: Visitor = {
 
         // Position drop down menu for adding workers and endpoints
         viewState.menuTrigger.x = epX;
-        viewState.menuTrigger.y = defaultWorker.bBox.y + config.lifeLine.header.height / 2;
-
+        viewState.menuTrigger.y = defaultWorker.bBox.y;
 
         // Update the width of children
         viewState.body.w = viewState.bBox.w;
@@ -111,13 +111,17 @@ export const visitor: Visitor = {
     },
 
     beginVisitBlock(node: Block) {
-        const viewState: ViewState = node.viewState;
+        const viewState: BlockViewState = node.viewState;
         let height = 0;
         node.statements.forEach((element) => {
             element.viewState.bBox.x = viewState.bBox.x;
             element.viewState.bBox.y = viewState.bBox.y + height;
             height += element.viewState.bBox.h;
         });
+        viewState.menuTrigger = {
+            x: viewState.bBox.x,
+            y: viewState.bBox.y + viewState.bBox.h - config.block.menuTriggerMargin
+        };
     },
 
     beginVisitWhile(node: While) {

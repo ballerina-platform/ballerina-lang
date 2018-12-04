@@ -11,18 +11,19 @@ import { StartInvocation } from "./start-invocation";
 
 const config: DiagramConfig = DiagramUtils.getConfig();
 
-export const Function = (props: {model: FunctionNode}) => {
+export const Function = (props: { model: FunctionNode }) => {
     const { model } = props;
     const viewState: FunctionViewState = model.viewState;
 
     return (
         <Panel model={viewState} title={model.name.value} icon={viewState.icon}>
-            <LifeLine title="Client" icon="client" model={viewState.client.bBox}/>
-            <LifeLine title="Default" icon="worker" model={viewState.defaultWorker.lifeline.bBox}/>
+            {!model.resource &&
+                <LifeLine title="Client" icon="client" model={viewState.client.bBox} />}
+            <LifeLine title="Default" icon="worker" model={viewState.defaultWorker.lifeline.bBox} />
             <StartInvocation client={viewState.client} worker={viewState.defaultWorker.lifeline}
                 y={viewState.defaultWorker.bBox.y + config.lifeLine.header.height} label="" />
-            { model.body && <Block model={model.body} />}
-            { model.VisibleEndpoints && model.VisibleEndpoints
+            {model.body && <Block model={model.body} />}
+            {model.VisibleEndpoints && model.VisibleEndpoints
                 .filter((element) => element.viewState.visible)
                 .map((element: VisibleEndpoint) => {
                     return <LifeLine title={element.name} icon="endpoint" model={element.viewState.bBox} />;
@@ -32,6 +33,8 @@ export const Function = (props: {model: FunctionNode}) => {
                 triggerPosition={viewState.menuTrigger}
                 onAddEndpoint={(epDef: any) => {
                     // todo
+                    // tslint:disable-next-line:no-console
+                    console.log("Selected EP: " + JSON.stringify(epDef));
                 }}
                 onAddWorker={() => {
                     // todo

@@ -63,16 +63,18 @@ export const While: React.StatelessComponent<{
         r4.y = r3.y;
 
         return (
-            <g className="panel">
-                <Condition {...conditionProps}/>
-                {body}
-                <polyline className="condition-line"
-                    points={`${p1.x},${p1.y} ${p2.x},${p2.y} ${p3.x},${p3.y} ${p4.x},${p4.y}`}
-                />
-                <polyline className="condition-line"
-                    points={`${r1.x},${r1.y} ${r2.x},${r2.y} ${r3.x},${r3.y} ${r4.x},${r4.y}`}
-                />
-                <line className="hide-line" x1={p1.x} y1={p1.y + 1} x2={r4.x} y2={r4.y - 1} strokeLinecap="round" />
-                <ArrowHead direction={"right"} {...p4} />
+            <g className="worker-block">
+                <g className="condition-block">
+                    {body}
+                    <polyline className="condition-line"
+                        points={`${p1.x},${p1.y} ${p2.x},${p2.y} ${p3.x},${p3.y} ${p4.x},${p4.y}`}
+                    />
+                    <polyline className="condition-line"
+                        points={`${r1.x},${r1.y} ${r2.x},${r2.y} ${r3.x},${r3.y} ${r4.x},${r4.y}`}
+                    />
+                    <line className="hide-line" x1={p1.x} y1={p1.y + 1} x2={r4.x} y2={r4.y - 1} strokeLinecap="round" />
+                    <ArrowHead direction={"right"} {...p4} />
+                    <Condition {...conditionProps}/>
+                </g>
             </g>);
     };
