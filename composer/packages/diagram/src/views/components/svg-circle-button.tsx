@@ -18,7 +18,7 @@ export const SVGCircleButton: StatelessComponent<SVGCircleButtonProps> =
     return <Fragment>
         <g className={cn("svg-button", "circle", "noselect", { enabled }, className)} onClick={onClick} >
             <circle cx={position.x} cy={position.y} r={radius} />
-            {icon && <text x={position.x - radius / 2} y={position.y} >{getCodePoint(icon)}</text>}
+            {icon && <text x={position.x} y={position.y} >{getCodePoint(icon)}</text>}
             {text && <text {...position} >{text}</text>}
         </g>
     </Fragment>;

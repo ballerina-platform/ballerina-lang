@@ -88,7 +88,7 @@ public type HelloWorldBlockingClient client object {
         any result;
         grpc:Headers resHeaders;
         (result, resHeaders) = payload;
-        var value = Person.create(result);
+        var value = Person.convert(result);
         if (value is Person) {
             return (value, resHeaders);
         } else if (value is error) {

@@ -48,19 +48,19 @@ function floatToAny (float value) returns (any) {
 
 function stringToInt(string value) returns (int|error) {
     int result;
-    result = check int.create(value);
+    result = check int.convert(value);
     return result;
 }
 
 function stringToFloat(string value) returns (float|error) {
     float result;
-    result = check float.create(value);
+    result = check float.convert(value);
     return result;
 }
 
 function stringToBoolean(string value) returns (boolean) {
     boolean result;
-    result = boolean.create(value);
+    result = boolean.convert(value);
     return result;
 }
 

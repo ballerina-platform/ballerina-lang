@@ -1,6 +1,7 @@
 import {
     Assignment, ASTNode, ASTUtil, Block,
-    ExpressionStatement, Foreach, Function, If, Invocation, Return, VariableDef, VisibleEndpoint, Visitor, While
+    ExpressionStatement, Foreach, Function, If, Invocation, Return,
+    Service, VariableDef, VisibleEndpoint, Visitor, While
 } from "@ballerina/ast-model";
 import * as _ from "lodash";
 import { DiagramConfig } from "../config/default";
@@ -244,5 +245,18 @@ export const visitor: Visitor = {
     endVisitReturn(node: Return) {
         sizeStatement(node);
         returnStatements.push(node);
+    },
+
+    endVisitService(node: Service) {
+        const viewState: ViewState = node.viewState;
+        let height = 0;
+        // tslint:disable-next-line:ban-types
+        node.resources.forEach((element: Function) => {
+            viewState.bBox.w = (viewState.bBox.w > element.viewState.bBox.w)
+                ? viewState.bBox.w : element.viewState.bBox.w;
+            height = viewState.bBox.h;
+            element.viewState.icon = "resource";
+        });
+        viewState.bBox.h = height;
     }
 };

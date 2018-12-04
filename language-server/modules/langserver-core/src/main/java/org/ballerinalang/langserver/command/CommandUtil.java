@@ -302,7 +302,8 @@ public class CommandUtil {
         TextDocumentIdentifier identifier = new TextDocumentIdentifier(uri);
         context.put(DocumentServiceKeys.POSITION_KEY, new TextDocumentPositionParams(identifier, position));
         List<BLangPackage> bLangPackages = lsCompiler.getBLangPackage(context, documentManager, false,
-                                                                      LSCustomErrorStrategy.class, true).getLeft();
+                                                                      LSCustomErrorStrategy.class, true);
+
         // Get the current package.
         BLangPackage currentBLangPackage = CommonUtil.getCurrentPackageByFileName(bLangPackages, uri);
 

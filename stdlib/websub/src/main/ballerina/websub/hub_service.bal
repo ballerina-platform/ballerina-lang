@@ -276,7 +276,7 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
     http:Client callbackEp = new http:Client(callback, config = { secureSocket: hubClientSecureSocket });
     string mode = params[HUB_MODE] ?: "";
     string strLeaseSeconds = params[HUB_LEASE_SECONDS] ?: "";
-    var result = int.create(strLeaseSeconds);
+    var result = int.convert(strLeaseSeconds);
     int leaseSeconds = result is error ? 0 : result;
 
     //measured from the time the verification request was made from the hub to the subscriber from the recommendation
