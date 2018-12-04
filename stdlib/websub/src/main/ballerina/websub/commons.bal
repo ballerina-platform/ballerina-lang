@@ -67,8 +67,6 @@ const string X_HUB_UUID = "X-Hub-Uuid";
 const string X_HUB_TOPIC = "X-Hub-Topic";
 
 const string CONTENT_TYPE = "Content-Type";
-//const string SHA1 = "SHA1";
-//const string SHA256 = "SHA256";
 
 const string ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG = "SubscriberServiceConfig";
 const string WEBSUB_MODULE_NAME = "ballerina/websub";
@@ -449,6 +447,16 @@ public type SubscriptionChangeResponse record {
 /////////////////////////////////////////////////////////////
 //////////////////// WebSub Hub Commons /////////////////////
 /////////////////////////////////////////////////////////////
+# Record representing hub specific configurations.
+#
+# + leaseSeconds - The default lease seconds value to honour if not specified in subscription requests
+# + signatureMethod - The signature method to use for authenticated content delivery (`SHA1`|`SHA256`)
+# + remotePublish - The record representing configs related to remote publishing allowance
+# + topicRegistrationRequired - Whether a topic needs to be registered at the hub prior to publishing/subscribing
+#                               to the topic
+# + publicUrl - The URL for the hub to be included in content delivery requests, defaults to
+#               `http(s)://localhost:{port}/websub/hub` if unspecified
+# + clientConfig - The configurations for the hub to communicate with remote HTTP endpoints
 public type HubConfiguration record {
     int leaseSeconds = 86400;
     SignatureMethod signatureMethod = SHA256;
@@ -458,6 +466,12 @@ public type HubConfiguration record {
     http:ClientEndpointConfig clientConfig?;
 };
 
+# Record representing remote publishing allowance.
+#
+# + enabled - Whether remote publishers should be allowed to publish to this hub (HTTP requests)
+# + mode - If remote publishing is allowed, the mode to use, `direct` (default) - fat ping with
+#                          the notification payload specified or `fetch` - the hub fetches the topic URL
+#                          specified in the "publish" request to identify the payload
 public type RemotePublishConfig record {
     boolean enabled = false;
     RemotePublishMode mode = PUBLISH_MODE_DIRECT;
@@ -465,22 +479,8 @@ public type RemotePublishConfig record {
 
 # Starts up the Ballerina Hub.
 #
-# + host - The hostname to start up the hub on
-# + port - The port to start up the hub on
-# + leaseSeconds - The default lease seconds value to honour if not specified in subscription requests
-# + signatureMethod - The signature method to use for authenticated content delivery (`SHA1`|`SHA256`)
-# + remotePublishingEnabled - Whether remote publishers should be allowed to publish to this hub (HTTP requests)
-# + remotePublishMode - If remote publishing is allowed, the mode to use, `direct` (default) - fat ping with
-#                          the notification payload specified or `fetch` - the hub fetches the topic URL
-#                          specified in the "publish" request to identify the payload
-# + topicRegistrationRequired - Whether a topic needs to be registered at the hub prior to publishing/subscribing
-#                               to the topic
-# + publicUrl - The URL for the hub to be included in content delivery requests, defaults to
-#               `http(s)://localhost:{port}/websub/hub` if unspecified
-# + sslEnabled - Whether SSL needs to be enabled for the hub, enabled by default
-# + serviceSecureSocket - The SSL configuration for the hub service endpoint
-# + clientSecureSocket - The SSL configuration for the hub service for secure communication with remote HTTP
-#                        endpoints
+# + hubServiceListener - The `http:Listener` to which the hub service is attached
+# + hubConfiguration - The hub specific configurations
 # + return - `WebSubHub` The WebSubHub object representing the newly started up hub, or `HubStartedUpError` indicating
 #            that the hub is already started, and including the WebSubHub object representing the
 #            already started up hub

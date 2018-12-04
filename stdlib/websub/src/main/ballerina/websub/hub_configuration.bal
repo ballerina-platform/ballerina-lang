@@ -36,6 +36,7 @@ string hubSignatureMethod = DEFAULT_SIGNATURE_METHOD;
 RemotePublishConfig remotePublishConfig = {};
 boolean hubTopicRegistrationRequired = false;
 string hubPublicUrl = "";
+http:ClientEndpointConfig? hubClientConfig = ();
 
 final boolean hubPersistenceEnabled = config:getAsBoolean("b7a.websub.hub.enablepersistence");
 final string hubDatabaseDirectory = config:getAsString("b7a.websub.hub.db.directory", default = DEFAULT_DB_DIRECTORY);
@@ -44,8 +45,6 @@ final string hubDatabaseUsername = config:getAsString("b7a.websub.hub.db.usernam
 final string hubDatabasePassword = config:getAsString("b7a.websub.hub.db.password", default = DEFAULT_DB_PASSWORD);
 //TODO:add pool options
 
-http:ClientEndpointConfig? hubClientConfig = ();
-
 # Function to attach and start the Ballerina WebSub Hub service.
 #
 # + hubServiceListener - The `http:Listener` to which the service is attached
@@ -53,16 +52,6 @@ function startHubService(http:Listener hubServiceListener) {
     // TODO : handle errors
     _ = hubServiceListener.__attach(hubService, {});
     _ = hubServiceListener.__start();
-}
-
-# Function to retrieve the URL for the Ballerina WebSub Hub, to which potential subscribers need to send
-# subscription/unsubscription requests.
-#
-# + return - The WebSub Hub's URL
-function getHubUrl() returns string {
-    //return hubServiceSecureSocket is http:ServiceSecureSocket ? ("https://localhost:" + hubPort + BASE_PATH + HUB_PATH)
-    //            : ("http://localhost:" + hubPort + BASE_PATH + HUB_PATH);
-    return "http://localhost:" + 9090 + BASE_PATH + HUB_PATH;
 }
 
 # Function to retrieve if persistence is enabled for the Hub.
@@ -84,7 +73,7 @@ function getSignatureMethod(SignatureMethod? signatureMethod) returns string {
     string signaturemethodAsConfig = config:getAsString("b7a.websub.hub.signaturemethod");
     if (signaturemethodAsConfig == "") {
         match signatureMethod {
-            "SHA256" => return DEFAULT_SIGNATURE_METHOD;
+            "SHA256" => return "SHA256";
             "SHA1" => return "SHA1";
         }
     } else {

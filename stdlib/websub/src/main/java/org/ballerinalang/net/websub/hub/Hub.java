@@ -214,7 +214,6 @@ public class Hub {
                 BString publicUrl = new BString(context.getStringArgument(0));
                 BMap<String, BValue> hubListener = ((BMap<String, BValue>) context.getRefArgument(0));
 
-
                 if (hubPackageInfo != null) {
                     hubTopicRegistrationRequired = topicRegistrationRequired.booleanValue();
                     String hubUrl = populateHubUrl(publicUrl, hubListener);
