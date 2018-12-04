@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Provides the gRPC actions for interacting with caller.
+# Provides the gRPC remote functions for interacting with caller.
 #
 # + instanceId - The connection id
 # + remoteDetails - The remote details
