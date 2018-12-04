@@ -110,7 +110,7 @@ if (tableResult is table<Employee>) {
      }
      return total;
 } else if (tableResult is error) {
-     return tableResult;
+     return tableResult; //Return the error back to the caller
 } else {
      error e = error(IO_ERROR_CODE, { message : "Record channel not initialized properly" });
      return e;
@@ -153,8 +153,7 @@ function deserialize(io:ReadableByteChannel byteChannel) returns Person {
     if (int32Result is int) {
         nameLength = int32Result;
     } else if (int32Result is error) {
-        log:printError("Error occurred while reading name length",
-                        err = int32Result);
+        log:printError("Error occurred while reading name length", err = int32Result);
     }
     //Read UTF-8 encoded string represented through specified amount of bytes
     var strResult = dc.readString(nameLength, "UTF-8");
@@ -168,24 +167,21 @@ function deserialize(io:ReadableByteChannel byteChannel) returns Person {
     if (int16Result is int) {
         person.age = int16Result;
     } else if (int16Result is error) {
-        log:printError("Error occurred while reading age",
-                        err = int16Result);
+        log:printError("Error occurred while reading age", err = int16Result);
     }
     //Read 64 bit signed float
     var float64Result = dc.readFloat64();
     if (float64Result is float) {
         person.income = float64Result;
     } else if (float64Result is error) {
-        log:printError("Error occurred while reading income",
-                        err = float64Result);
+        log:printError("Error occurred while reading income", err = float64Result);
     }
     //Read boolean
     var boolResult = dc.readBool();
     if (boolResult is boolean) {
         person.isMarried = boolResult;
     } else if (boolResult is error) {
-        log:printError("Error occurred while reading marital status",
-                        err = boolResult);
+        log:printError("Error occurred while reading marital status", err = boolResult);
     }
     //Finally close the data channel
     var closeResult = dc.close();
