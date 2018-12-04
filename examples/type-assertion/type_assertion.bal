@@ -22,6 +22,6 @@ function assertTypes(anydata emp) {
 }
 
 public function main() {
-    Employee emp2 = { name: "Speedy Gonzales", age: 4, empNo: 1 };
-    assertTypes(emp2);
+    Employee emp = { name: "Speedy Gonzales", age: 4, empNo: 1 };
+    assertTypes(emp);
 }

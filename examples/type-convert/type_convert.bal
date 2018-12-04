@@ -11,13 +11,13 @@ type Employee record {
     int empNo = 0;
 };
 
-function explainTypeConvert(Employee emp) returns () {
-    // `convert()` creates a new value and changes its type without editing provided value's inherent type.
+function convertType(Employee emp) returns () {
+    // The `convert()` creates a new value and changes its type without editing provided value's inherent type.
     Person|error empPerson = Person.convert(emp);
     io:println("empPerson name: ", (empPerson is Person) ? empPerson["name"] : empPerson.reason());
 }
 
 public function main() {
     Employee emp = {name: "Jack Sparrow", age: 54, empNo: 100};
-    explainTypeConvert(emp);
+    convertType(emp);
 }
