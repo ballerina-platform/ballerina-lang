@@ -269,4 +269,11 @@ public class ForeachArrayTests {
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "0:d0 13 1:d1 13 2:d2 13 3:d3 13 ");
     }
+
+    @Test
+    public void testArrayWithNullElements() {
+        BValue[] returns = BRunUtil.invoke(program, "testArrayWithNullElements");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "0:d0 1: 2:d2 3: ");
+    }
 }

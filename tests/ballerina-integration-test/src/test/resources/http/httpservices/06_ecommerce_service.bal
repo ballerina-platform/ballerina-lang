@@ -165,7 +165,7 @@ service productmgt on serviceEndpoint5 {
     }
     resource function product(http:Caller caller, http:Request req, string prodId) {
         http:Response res = new;
-        var result = json.create(self.productsMap[prodId]);
+        var result = json.convert(self.productsMap[prodId]);
         if (result is json) {
             res.setPayload(result);
         } else if (result is error) {

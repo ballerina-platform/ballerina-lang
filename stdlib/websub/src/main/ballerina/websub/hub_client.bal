@@ -20,7 +20,7 @@ import ballerina/io;
 import ballerina/log;
 import ballerina/mime;
 
-# The HTTP based Caller actions for outbound WebSub Subscription, Unsubscription, Registration, Unregistration and
+# The HTTP based Caller remote functions for outbound WebSub Subscription, Unsubscription, Registration, Unregistration and
 # Notification requests to a Hub.
 #
 # + hubUrl - The URL of the target Hub to which requests need to be sent
@@ -310,7 +310,7 @@ function processHubResponse(@sensitive string hub, @sensitive string mode,
     }
 }
 
-# Function to invoke the WebSubSubscriberConnector's actions for subscription/unsubscription on redirection from the
+# Function to invoke the WebSubSubscriberConnector's remote functions for subscription/unsubscription on redirection from the
 # original hub.
 #
 # + hub - The hub to which the subscription/unsubscription request is to be sent

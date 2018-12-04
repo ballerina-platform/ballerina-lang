@@ -208,6 +208,10 @@
             {
                 "name": "Equality",
                 "url": "equality"
+            },
+            {
+                "name": "Immutable Values",
+                "url": "immutable-values"
             }
         ]
     },
@@ -300,16 +304,12 @@
                 "url": "worker-interaction"
             },
             {
-                "name": "Fork/Join",
-                "url": "fork-join"
+                "name": "Fork",
+                "url": "fork"
             },
             {
-                "name": "Fork/Join Conditional Join",
-                "url": "fork-join-conditional-join"
-            },
-            {
-                "name": "Fork/Join Variable Access",
-                "url": "fork-join-variable-access"
+                "name": "Fork Variable Access",
+                "url": "fork-variable-access"
             },
             {
                 "name": "Async",
@@ -473,6 +473,18 @@
                 "url": "mysql-client"
             },
             {
+                "name": "JDBC Client CRUD Operations",
+                "url": "jdbc-client-crud-operations"
+            },
+            {
+                "name": "JDBC Client Batch Update",
+                "url": "jdbc-client-batch-update"
+            },
+            {
+                "name": "JDBC Client Call Procedures",
+                "url": "jdbc-client-call-procedures"
+            },
+            {
                 "name": "Streaming a Big Dataset",
                 "url": "streaming-big-dataset"
             }
@@ -561,6 +573,21 @@
             {
                 "name": "Group Tests",
                 "url": "testerina-group-tests"
+            }
+        ]
+    },
+    {
+        "title": "Deployment",
+        "column": 3,
+        "category": "Language concepts",
+        "samples": [
+            {
+                "name": "Docker Deployment",
+                "url": "docker-deployment"
+            },
+            {
+                "name": "Kubernetes Deployment",
+                "url": "kubernetes-deployment"
             }
         ]
     },
@@ -723,6 +750,10 @@
             {
                 "name": "Retry",
                 "url": "http-retry"
+            },
+            {
+                "name": "Timeout",
+                "url": "http-timeout"
             }
         ]
     },

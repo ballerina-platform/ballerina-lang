@@ -34,7 +34,7 @@ service dataService on dataServiceListener {
 
         var selectRet = testDB->select("SELECT * FROM Data", ());
         if (selectRet is table<record {}>) {
-            var xmlConversionRet = xml.create(selectRet);
+            var xmlConversionRet = xml.convert(selectRet);
             if (xmlConversionRet is xml) {
                 var responseToCaller = caller->respond(untaint xmlConversionRet);
                 if (responseToCaller is error) {

@@ -153,8 +153,8 @@ public type CircuitBreakerClient object {
         self.circuitHealth = circuitHealth;
     }
 
-    # The POST action implementation of the Circuit Breaker. This wraps the `post()` function of the underlying
-    # HTTP actions provider.
+    # The POST remote function implementation of the Circuit Breaker. This wraps the `post()` function of the underlying
+    # HTTP remote functions provider.
     #
     # + path - Resource path
     # + message - A Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
@@ -162,8 +162,8 @@ public type CircuitBreakerClient object {
     public function post(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
         message) returns Response|error;
 
-    # The HEAD action implementation of the Circuit Breaker. This wraps the `head()` function of the underlying
-    # HTTP actions provider.
+    # The HEAD remote function implementation of the Circuit Breaker. This wraps the `head()` function of the underlying
+    # HTTP remote functions provider.
     #
     # + path - Resource path
     # + message - A Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
@@ -171,8 +171,8 @@ public type CircuitBreakerClient object {
     public function head(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
         message = ()) returns Response|error;
 
-    # The PUT action implementation of the Circuit Breaker. This wraps the `put()` function of the underlying
-    # HTTP actions provider.
+    # The PUT remote function implementation of the Circuit Breaker. This wraps the `put()` function of the underlying
+    # HTTP remote functions provider.
     #
     # + path - Resource path
     # + message - A Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
@@ -180,7 +180,7 @@ public type CircuitBreakerClient object {
     public function put(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
         message) returns Response|error;
 
-    # This wraps the `post()` function of the underlying HTTP actions provider. The `execute()` function can be used
+    # This wraps the `post()` function of the underlying HTTP remote functions provider. The `execute()` function can be used
     # to invoke an HTTP call with the given HTTP verb.
     #
     # + httpVerb - HTTP verb to be used for the request
@@ -190,8 +190,8 @@ public type CircuitBreakerClient object {
     public function execute(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
         message) returns Response|error;
 
-    # The PATCH action implementation of the Circuit Breaker. This wraps the `patch()` function of the underlying
-    # HTTP actions provider.
+    # The PATCH remote function implementation of the Circuit Breaker. This wraps the `patch()` function of the underlying
+    # HTTP remote functions provider.
     #
     # + path - Resource path
     # + message - A Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
@@ -199,8 +199,8 @@ public type CircuitBreakerClient object {
     public function patch(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
         message) returns Response|error;
 
-    # The DELETE action implementation of the Circuit Breaker. This wraps the `delete()` function of the underlying
-    # HTTP actions provider.
+    # The DELETE remote function implementation of the Circuit Breaker. This wraps the `delete()` function of the underlying
+    # HTTP remote functions provider.
     #
     # + path - Resource path
     # + message - A Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
@@ -208,8 +208,8 @@ public type CircuitBreakerClient object {
     public function delete(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
         message) returns Response|error;
 
-    # The GET action implementation of the Circuit Breaker. This wraps the `get()` function of the underlying
-    # HTTP actions provider.
+    # The GET remote function implementation of the Circuit Breaker. This wraps the `get()` function of the underlying
+    # HTTP remote functions provider.
     #
     # + path - Resource path
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
@@ -218,8 +218,8 @@ public type CircuitBreakerClient object {
     public function get(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
         message = ()) returns Response|error;
 
-    # The OPTIONS action implementation of the Circuit Breaker. This wraps the `options()` function of the underlying
-    # HTTP actions provider.
+    # The OPTIONS remote function implementation of the Circuit Breaker. This wraps the `options()` function of the underlying
+    # HTTP remote functions provider.
     #
     # + path - Resource path
     # + message - An optional HTTP Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
@@ -228,7 +228,7 @@ public type CircuitBreakerClient object {
     public function options(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
         message = ()) returns Response|error;
 
-    # This wraps the `forward()` function of the underlying HTTP actions provider. The Forward action can be used to
+    # This wraps the `forward()` function of the underlying HTTP remote functions provider. The Forward remote function can be used to
     # forward an incoming request to an upstream service as it is.
     #
     # + path - Resource path
@@ -236,7 +236,7 @@ public type CircuitBreakerClient object {
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
     public function forward(string path, Request request) returns Response|error;
 
-    # Circuit breaking not supported. Defaults to the `submit()` function of the underlying HTTP actions provider.
+    # Circuit breaking not supported. Defaults to the `submit()` function of the underlying HTTP remote functions provider.
     #
     # + httpVerb - The HTTP verb value
     # + path - The resource path
@@ -247,34 +247,34 @@ public type CircuitBreakerClient object {
         message) returns HttpFuture|error;
 
     # Circuit breaking not supported. Defaults to the `getResponse()` function of the underlying HTTP
-    # actions provider.
+    # remote functions provider.
     #
     # + httpFuture - The `HttpFuture` related to a previous asynchronous invocation
     # + return - An HTTP response message, or an `error` if the invocation fails
     public function getResponse(HttpFuture httpFuture) returns Response|error;
 
-    # Circuit breaking not supported. Defaults to the `hasPromise()` function of the underlying HTTP actions provider.
+    # Circuit breaking not supported. Defaults to the `hasPromise()` function of the underlying HTTP remote functions provider.
 
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
     # + return - A `boolean` that represents whether a `PushPromise` exists
     public function hasPromise(HttpFuture httpFuture) returns (boolean);
 
     # Circuit breaking not supported. Defaults to the `getNextPromise()` function of the underlying HTTP
-    # actions provider.
+    # remote functions provider.
     #
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
     # + return - An HTTP `PushPromise` message, or an `error` if the invocation fails
     public function getNextPromise(HttpFuture httpFuture) returns PushPromise|error;
 
     # Circuit breaking not supported. Defaults to the `getPromisedResponse()` function of the underlying HTTP
-    # actions provider.
+    # remote functions provider.
     #
     # + promise - The related `PushPromise`
     # + return - A promised HTTP `Response` message, or an `error` if the invocation fails
     public function getPromisedResponse(PushPromise promise) returns Response|error;
 
     # Circuit breaking not supported. Defaults to the `rejectPromise()` function of the underlying HTTP
-    # actions provider.
+    # remote functions provider.
     #
     # + promise - The `PushPromise` to be rejected
     public function rejectPromise(PushPromise promise);

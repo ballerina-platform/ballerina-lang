@@ -158,12 +158,14 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.programfile.WorkerDataChannelInfo;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -1164,7 +1166,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private BType createAccumulatedErrorTypeFor(BLangWorkerSend workerSendNode) {
         Set<BType> returnTypesUpToNow = this.returnTypes.peek();
-        TreeSet<BType> returnTypeAndSendType = new TreeSet<>(Comparator.comparing(BType::toString));
+        LinkedHashSet<BType> returnTypeAndSendType = new LinkedHashSet<BType>() {
+            {
+                Comparator.comparing(BType::toString);
+            }
+        };
         for (BType returnType : returnTypesUpToNow) {
             if (returnType.tag == TypeTags.ERROR) {
                 returnTypeAndSendType.add(returnType);
@@ -1909,7 +1915,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
                         systemRunning = true;
                     }
-                    otherSM.node.sendsToThis.add(worker.workerId);
+                    otherSM.node.sendsToThis.add(WorkerDataChannelInfo.generateChannelName(worker.workerId,
+                            otherSM.workerId));
                 }
             }
         } while (systemRunning);

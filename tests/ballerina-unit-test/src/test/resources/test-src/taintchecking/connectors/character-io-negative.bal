@@ -4,7 +4,7 @@ public function main (string... args) returns error? {
     string filePath = args[0];
     string chars = args[0];
 
-    var intArg = int.create(args[0]);
+    var intArg = int.convert(args[0]);
     if (intArg is int) {
         io:ReadableByteChannel rbh = io:openReadableFile(filePath);
         io:ReadableCharacterChannel rch = new io:ReadableCharacterChannel(rbh, "UTF-8");

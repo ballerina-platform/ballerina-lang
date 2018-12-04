@@ -5,10 +5,15 @@ SQ + CB = 737100
 false
 false
 true
-Counting done in one second: 17839763
-true
+Counting done in one second: 14516615
+false
 true
 100
 false
 {"args":{"test":"123"},"headers":{"host":"postman-echo.com","accept-encoding":"deflate, gzip","user-agent":"ballerina/0.9xx","x-forwarded-port":"443","x-forwarded-proto":"https"},"url":"https://postman-echo.com/get?test=123"}
 true
+400
+{"first_field":100, "second_field":27, "third_field":"Hello Moose!!"}
+first field of record --> 100
+second field of record --> 27
+third field of record --> Hello Bert!!

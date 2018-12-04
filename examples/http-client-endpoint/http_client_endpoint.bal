@@ -53,7 +53,7 @@ public function main() {
     }
 
     req.setPayload("CUSTOM: Hello World");
-    // The `execute()` action can be used if one needs to use custom HTTP verbs.
+    // The `execute()` remote function can be used if one needs to use custom HTTP verbs.
     response = clientEndpoint->execute("COPY", "/get", req);
 
     req = new;

@@ -34,7 +34,7 @@ public class Flags {
     public static final int READONLY = DEPRECATED << 1;
     public static final int FUNCTION_FINAL = READONLY << 1;
     public static final int INTERFACE = FUNCTION_FINAL << 1;
-    public static final int REQUIRED = INTERFACE << 1;
+    public static final int REQUIRED = INTERFACE << 1; // Marks as a field for which the user MUST provide a value
     public static final int RECORD = REQUIRED << 1;
     public static final int PRIVATE = RECORD << 1;
     public static final int COMPENSATE = PRIVATE << 1;

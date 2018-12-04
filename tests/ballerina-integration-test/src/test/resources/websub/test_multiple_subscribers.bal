@@ -25,7 +25,7 @@ listener websub:Listener websubEP = new websub:Listener(8383);
     path:"/websub",
     subscribeOnStartUp:true,
     topic: "http://three.websub.topic.com",
-    hub: "https://localhost:9191/websub/hub",
+    hub: "http://localhost:9191/websub/hub",
     resourceUrl: "https://localhost:8080/publish", //invalid resource URL to test hub/topic prioritization
     leaseSeconds: 3600,
     secret: "Kslk30SNF2AChs2"

@@ -42,12 +42,12 @@ service headerBasedRouting on new http:Listener(9090) {
 
         http:Response|error response;
         if (nameString == "location") {
-            //`post()` represent the POST action of HTTP connector. Route payload to relevant service.
+            //`post()` represent the POST remote function of HTTP connector. Route payload to relevant service.
             response = locationEP->post("/v2/5adddd66300000bd2a4b2912",
                                         newRequest);
 
         } else {
-            //`get()` action can be used to make http GET call.
+            //`get()` remote function can be used to make http GET call.
             response =
                 weatherEP->get("/data/2.5/weather?lat=35&lon=139&appid=b1b1",
                                 message = newRequest);

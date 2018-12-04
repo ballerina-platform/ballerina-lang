@@ -12,6 +12,6 @@ As you create your program, there are several constructs available that you can 
 
 * **Worker**: A worker is a thread that executes a function.  
 * **Connector**: A connector represents a participant in the integration and is used to interact with an external system or a service you've defined in Ballerina. Ballerina includes a set of standard connectors that allow you to connect to Twitter, Facebook, and more, and you can define additional connectors within your Ballerina programs.  
-* **Action**: An action is an operation you can execute against a connector. It represents a single interaction with a participant of the integration.  
+* **Remote function**: A remote function is an operation you can execute against a connector. It represents a single interaction with a participant of the integration.  
 
 You can also define constants, variables, structured types, and more as you do with other programming languages, and you can use logic statements like if and while.

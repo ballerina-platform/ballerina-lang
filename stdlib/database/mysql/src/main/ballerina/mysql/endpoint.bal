@@ -26,7 +26,7 @@ import ballerina/sql;
 # + poolOptions - Properties for the connection pool configuration. Refer `sql:PoolOptions` for more details
 # + dbOptions - A map of DB specific properties
 public type ClientEndpointConfig record {
-    string host = "";
+    string host;
     int port = 3306;
     string name = "";
     string username = "";
@@ -56,7 +56,7 @@ public type Client client object {
     # + sqlQuery - The SQL stored procedure to execute
     # + recordType - Array of record types of the returned tables if there is any
     # + parameters - The parameters to be passed to the procedure/function call. The number of parameters is variable
-    # + return - A `table[]` if there are tables returned by the call action and else nil,
+    # + return - A `table[]` if there are tables returned by the call remote function and else nil,
     #            `error` will be returned if there is any error
     public remote function call(@sensitive string sqlQuery, typedesc[]? recordType, sql:Param... parameters)
                                returns @tainted table<record {}>[]|()|error {
@@ -103,7 +103,7 @@ public type Client client object {
     }
 
     # The updateWithGeneratedKeys operation implementation for MySQL Client which returns the auto
-    # generated keys during the update action.
+    # generated keys during the update remote function.
     #
     # + sqlQuery - SQL statement to execute
     # + keyColumns - Names of auto generated columns for which the auto generated key values are returned

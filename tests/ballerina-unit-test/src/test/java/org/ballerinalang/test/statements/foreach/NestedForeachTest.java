@@ -26,6 +26,11 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * Test cases for nested foreach.
+ *
+ * @since 0.985.0
+ */
 public class NestedForeachTest {
 
     private CompileResult program;
