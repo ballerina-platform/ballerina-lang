@@ -65,17 +65,13 @@ public class ReceivingHeaders implements SenderState {
 
     private final Http2TargetHandler http2TargetHandler;
     private final Http2ClientChannel http2ClientChannel;
-    private Http2TargetHandler.Http2RequestWriter http2RequestWriter;
+    private final Http2TargetHandler.Http2RequestWriter http2RequestWriter;
 
-    public ReceivingHeaders(Http2TargetHandler http2TargetHandler) {
+    public ReceivingHeaders(Http2TargetHandler http2TargetHandler,
+                            Http2TargetHandler.Http2RequestWriter http2RequestWriter) {
         this.http2TargetHandler = http2TargetHandler;
-        this.http2ClientChannel = http2TargetHandler.getHttp2ClientChannel();
-    }
-
-    public ReceivingHeaders(Http2TargetHandler http2TargetHandler, Http2TargetHandler.Http2RequestWriter
-            http2RequestWriter) {
-        this(http2TargetHandler);
         this.http2RequestWriter = http2RequestWriter;
+        this.http2ClientChannel = http2TargetHandler.getHttp2ClientChannel();
     }
 
     @Override

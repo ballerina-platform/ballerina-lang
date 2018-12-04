@@ -43,8 +43,11 @@ public class RequestCompleted implements SenderState {
 
     private final Http2TargetHandler http2TargetHandler;
     private final Http2ClientChannel http2ClientChannel;
+    private final Http2TargetHandler.Http2RequestWriter http2RequestWriter;
 
-    public RequestCompleted(Http2TargetHandler http2TargetHandler) {
+    public RequestCompleted(Http2TargetHandler http2TargetHandler,
+                            Http2TargetHandler.Http2RequestWriter http2RequestWriter) {
+        this.http2RequestWriter = http2RequestWriter;
         this.http2TargetHandler = http2TargetHandler;
         this.http2ClientChannel = http2TargetHandler.getHttp2ClientChannel();
     }
@@ -65,7 +68,7 @@ public class RequestCompleted implements SenderState {
                                            OutboundMsgHolder outboundMsgHolder, boolean serverPush,
                                            Http2MessageStateContext http2MessageStateContext) {
         // When the initial frames of the response is to be received after sending the complete request.
-        http2MessageStateContext.setSenderState(new ReceivingHeaders(http2TargetHandler));
+        http2MessageStateContext.setSenderState(new ReceivingHeaders(http2TargetHandler, http2RequestWriter));
         http2MessageStateContext.getSenderState().readInboundResponseHeaders(ctx, http2HeadersFrame, outboundMsgHolder,
                 serverPush, http2MessageStateContext);
     }

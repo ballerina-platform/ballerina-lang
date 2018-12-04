@@ -49,16 +49,15 @@ public class EntityBodyReceived implements SenderState {
     private Http2TargetHandler.Http2RequestWriter http2RequestWriter;
     private OutboundMsgHolder outboundMsgHolder;
 
-    EntityBodyReceived(Http2TargetHandler http2TargetHandler) {
-        this.http2TargetHandler = http2TargetHandler;
-    }
-
     EntityBodyReceived(Http2TargetHandler http2TargetHandler,
                        Http2TargetHandler.Http2RequestWriter http2RequestWriter) {
-        this(http2TargetHandler);
-        this.http2RequestWriter = http2RequestWriter;
-        this.outboundMsgHolder = http2RequestWriter.getOutboundMsgHolder();
+        this.http2TargetHandler = http2TargetHandler;
+        if (http2RequestWriter != null) {
+            this.http2RequestWriter = http2RequestWriter;
+            this.outboundMsgHolder = http2RequestWriter.getOutboundMsgHolder();
+        }
     }
+
     @Override
     public void writeOutboundRequestHeaders(ChannelHandlerContext ctx, HttpContent httpContent) {
         LOG.warn("writeOutboundRequestHeaders is not a dependant action of this state");
@@ -69,13 +68,17 @@ public class EntityBodyReceived implements SenderState {
                                          Http2MessageStateContext http2MessageStateContext) throws Http2Exception {
         // Response is already received, hence the outgoing data frames need to be released and send last http
         // content frame to the server.
-        outboundMsgHolder.getRequest().setIoException(new IOException(INBOUND_RESPONSE_ALREADY_RECEIVED));
+        // http2RequestWriter can be null in http upgrade path. If http2RequestWriter is null, we don't need to send
+        // the content to server.
+        if (http2RequestWriter != null && outboundMsgHolder != null) {
+            outboundMsgHolder.getRequest().setIoException(new IOException(INBOUND_RESPONSE_ALREADY_RECEIVED));
+            http2MessageStateContext.setSenderState(new SendingEntityBody(http2TargetHandler, http2RequestWriter));
+            http2MessageStateContext.getSenderState().writeOutboundRequestBody(ctx, new DefaultLastHttpContent(),
+                    http2MessageStateContext);
+            // Move back to EntityBodyReceived state to ensure proper state transition.
+            http2MessageStateContext.setSenderState(new EntityBodyReceived(http2TargetHandler, http2RequestWriter));
+        }
         releaseContent(httpContent);
-        http2MessageStateContext.setSenderState(new SendingEntityBody(http2TargetHandler, http2RequestWriter));
-        http2MessageStateContext.getSenderState().writeOutboundRequestBody(ctx, new DefaultLastHttpContent(),
-                http2MessageStateContext);
-        // Move back to EntityBodyReceived state to ensure proper state transition.
-        http2MessageStateContext.setSenderState(new EntityBodyReceived(http2TargetHandler, http2RequestWriter));
     }
 
     @Override
@@ -84,7 +87,7 @@ public class EntityBodyReceived implements SenderState {
                                            Http2MessageStateContext http2MessageStateContext) {
         // When promised response message is going to be received after the original response or previous promised
         // responses has been received.
-        http2MessageStateContext.setSenderState(new ReceivingHeaders(http2TargetHandler));
+        http2MessageStateContext.setSenderState(new ReceivingHeaders(http2TargetHandler, http2RequestWriter));
         http2MessageStateContext.getSenderState().readInboundResponseHeaders(ctx, http2HeadersFrame, outboundMsgHolder,
                 serverPush, http2MessageStateContext);
     }

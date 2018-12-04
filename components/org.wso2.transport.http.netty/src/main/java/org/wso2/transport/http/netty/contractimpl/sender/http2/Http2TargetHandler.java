@@ -257,7 +257,7 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
         Http2MessageStateContext http2MessageStateContext = getHttp2MessageContext(outboundMsgHolder);
         if (http2MessageStateContext == null) {
             http2MessageStateContext = new Http2MessageStateContext();
-            http2MessageStateContext.setSenderState(new RequestCompleted(this));
+            http2MessageStateContext.setSenderState(new RequestCompleted(this, null));
             outboundMsgHolder.getRequest().setHttp2MessageStateContext(http2MessageStateContext);
         }
         return http2MessageStateContext;

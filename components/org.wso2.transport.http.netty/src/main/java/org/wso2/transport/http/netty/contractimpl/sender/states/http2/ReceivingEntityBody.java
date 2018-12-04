@@ -48,17 +48,13 @@ public class ReceivingEntityBody implements SenderState {
 
     private final Http2TargetHandler http2TargetHandler;
     private final Http2ClientChannel http2ClientChannel;
-    private Http2TargetHandler.Http2RequestWriter http2RequestWriter;
+    private final Http2TargetHandler.Http2RequestWriter http2RequestWriter;
 
-    ReceivingEntityBody(Http2TargetHandler http2TargetHandler) {
+    ReceivingEntityBody(Http2TargetHandler http2TargetHandler,
+                        Http2TargetHandler.Http2RequestWriter http2RequestWriter) {
         this.http2TargetHandler = http2TargetHandler;
-        this.http2ClientChannel = http2TargetHandler.getHttp2ClientChannel();
-    }
-
-    ReceivingEntityBody(Http2TargetHandler http2TargetHandler, Http2TargetHandler.Http2RequestWriter
-            http2RequestWriter) {
-        this(http2TargetHandler);
         this.http2RequestWriter = http2RequestWriter;
+        this.http2ClientChannel = http2TargetHandler.getHttp2ClientChannel();
     }
 
     @Override
@@ -88,7 +84,7 @@ public class ReceivingEntityBody implements SenderState {
                                            OutboundMsgHolder outboundMsgHolder, boolean serverPush,
                                            Http2MessageStateContext http2MessageStateContext) {
         // When trailer headers are going to be received after receiving entity body of the response.
-        http2MessageStateContext.setSenderState(new ReceivingHeaders(http2TargetHandler));
+        http2MessageStateContext.setSenderState(new ReceivingHeaders(http2TargetHandler, http2RequestWriter));
         http2MessageStateContext.getSenderState().readInboundResponseHeaders(ctx, http2HeadersFrame, outboundMsgHolder,
                 serverPush, http2MessageStateContext);
     }
