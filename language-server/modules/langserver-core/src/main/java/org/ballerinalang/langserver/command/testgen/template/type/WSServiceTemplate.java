@@ -84,6 +84,7 @@ public class WSServiceTemplate extends AbstractTestTemplate {
         serviceOutput.put(PlaceHolder.OTHER.get("testServiceFunctionName"), testServiceFunctionName);
         serviceOutput.put(PlaceHolder.OTHER.get("serviceUriStrName"), serviceUriStrName);
         serviceOutput.put(PlaceHolder.OTHER.get("callbackServiceName"), callbackServiceName);
+        serviceOutput.put(PlaceHolder.OTHER.get("endpointName"), getSafeName("wsClient"));
 
         //Append to root template
         rendererOutput.setFocusLineAcceptor(testServiceFunctionName, focusLineAcceptor);

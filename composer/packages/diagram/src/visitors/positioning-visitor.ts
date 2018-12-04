@@ -10,8 +10,8 @@ import { WorkerViewState } from "../view-model/worker";
 const config: DiagramConfig = DiagramUtils.getConfig();
 
 function positionWorkerLine(worker: WorkerViewState) {
-    worker.lifeline.y = worker.bBox.y;
-    worker.lifeline.x = worker.bBox.x + worker.bBox.leftMargin - (worker.lifeline.w / 2);
+    worker.lifeline.bBox.y = worker.bBox.y;
+    worker.lifeline.bBox.x = worker.bBox.x + worker.bBox.leftMargin - (worker.lifeline.bBox.w / 2);
 }
 
 export const visitor: Visitor = {
@@ -88,7 +88,8 @@ export const visitor: Visitor = {
         if (node.body) {
             const bodyViewState: ViewState = node.body.viewState;
             bodyViewState.bBox.x = defaultWorker.bBox.x + defaultWorker.bBox.leftMargin;
-            bodyViewState.bBox.y = defaultWorker.bBox.y + config.lifeLine.header.height;
+            bodyViewState.bBox.y = defaultWorker.bBox.y + config.lifeLine.header.height
+                + config.statement.height; // leave room for start line.
         }
 
         // Position endpoints

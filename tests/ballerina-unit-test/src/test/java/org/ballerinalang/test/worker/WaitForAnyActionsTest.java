@@ -167,4 +167,38 @@ public class WaitForAnyActionsTest {
         Assert.assertEquals(vals.length, 1);
         Assert.assertEquals("65", vals[0].stringValue());
     }
+
+    @Test
+    public void waitTest19() {
+        BValue[] vals = BRunUtil.invoke(result, "waitTest19", new BValue[0]);
+        Assert.assertEquals(vals.length, 1);
+        Assert.assertEquals("err returned {}", vals[0].stringValue());
+    }
+
+    @Test
+    public void waitTest20() {
+        BValue[] vals = BRunUtil.invoke(result, "waitTest20", new BValue[0]);
+        Assert.assertEquals(vals.length, 1);
+        Assert.assertEquals("hello moo", vals[0].stringValue());
+    }
+
+    @Test(expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = "error: err from panic \\{\\}.*")
+    public void waitTest21() {
+        BRunUtil.invoke(result, "waitTest21", new BValue[0]);
+    }
+
+    @Test
+    public void waitTest22() {
+        BValue[] vals = BRunUtil.invoke(result, "waitTest22", new BValue[0]);
+        Assert.assertEquals(vals.length, 1);
+        Assert.assertEquals("hello foo", vals[0].stringValue());
+    }
+
+    @Test
+    public void waitTest23() {
+        BValue[] vals = BRunUtil.invoke(result, "waitTest23", new BValue[0]);
+        Assert.assertEquals(vals.length, 1);
+        Assert.assertEquals(null, vals[0]);
+    }
 }
