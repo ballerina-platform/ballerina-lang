@@ -34,7 +34,7 @@ public function main() {
     io:println(john);
     io:println(jane);
 
-    Manager mgr = {name:"Mark", age: 35, designation:"Engineering Manager"};
+    Manager mgr = { name: "Mark", age: 35, designation: "Engineering Manager" };
     mgr.team = [john, jane];
     mgr.company = "XYZ Inc.";
 
