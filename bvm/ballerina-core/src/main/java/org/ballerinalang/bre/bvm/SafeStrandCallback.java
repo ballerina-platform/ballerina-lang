@@ -19,6 +19,7 @@ package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.bre.bvm.Strand.State;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BError;
 
 import java.io.PrintStream;
@@ -39,10 +40,13 @@ public class SafeStrandCallback extends StrandCallback {
 
     private CallbackWaitHandler callbackWaitHandler;
 
-    SafeStrandCallback(BType retType) {
+    String[] sendIns;
+
+    SafeStrandCallback(BType retType, WDChannels parentChannels) {
         super(retType);
         this.callbackWaitHandler = new CallbackWaitHandler();
         this.done = false;
+        this.parentChannels = parentChannels;
     }
 
     @Override
@@ -51,6 +55,16 @@ public class SafeStrandCallback extends StrandCallback {
         try {
             this.callbackWaitHandler.dataLock.lock();
             this.done = true;
+            if (this.getErrorVal() != null) {
+                for (int i = 0; i < sendIns.length; i++) {
+                    this.parentChannels.getWorkerDataChannel(sendIns[i]).setPanic(this.getErrorVal());
+                }
+            }
+            if (getRefRetVal() != null && getRefRetVal().getType().getTag() == TypeTags.ERROR_TAG) {
+                for (int i = 0; i < sendIns.length; i++) {
+                    this.parentChannels.getWorkerDataChannel(sendIns[i]).setError(getRefRetVal());
+                }
+            }
             if (this.callbackWaitHandler.waitingStrand == null) {
                 return;
             }
@@ -82,7 +96,6 @@ public class SafeStrandCallback extends StrandCallback {
         }
     }
 
-    @Override
     public void setError(BError error) {
         super.setError(error);
         //Printing current stack trace for strand callback

@@ -24,9 +24,15 @@ import com.intellij.psi.PsiElement;
 public interface BallerinaBindingRefPattern extends BallerinaCompositeElement {
 
   @Nullable
+  BallerinaErrorRefBindingPattern getErrorRefBindingPattern();
+
+  @Nullable
   BallerinaStructuredRefBindingPattern getStructuredRefBindingPattern();
 
   @Nullable
   BallerinaVariableReference getVariableReference();
+
+  @Nullable
+  PsiElement getUnderscore();
 
 }

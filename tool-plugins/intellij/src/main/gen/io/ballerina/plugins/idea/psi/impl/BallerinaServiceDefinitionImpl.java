@@ -43,8 +43,8 @@ public class BallerinaServiceDefinitionImpl extends BallerinaCompositeElementImp
 
   @Override
   @Nullable
-  public BallerinaExpression getExpression() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaExpression.class);
+  public BallerinaExpressionList getExpressionList() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaExpressionList.class);
   }
 
   @Override
@@ -60,9 +60,9 @@ public class BallerinaServiceDefinitionImpl extends BallerinaCompositeElementImp
   }
 
   @Override
-  @Nullable
+  @NotNull
   public PsiElement getOn() {
-    return findChildByType(ON);
+    return notNullChild(findChildByType(ON));
   }
 
   @Override

@@ -100,7 +100,7 @@ service InitiatorService on coordinatorListener {
                     i = i + 1;
                 }
                 RegistrationResponse regRes = {transactionId:txnId, coordinatorProtocols:coordinatorProtocols};
-                var resPayload = json.create(regRes);
+                var resPayload = json.convert(regRes);
                 if (resPayload is json) {
                     http:Response res = new;
                     res.statusCode = http:OK_200;

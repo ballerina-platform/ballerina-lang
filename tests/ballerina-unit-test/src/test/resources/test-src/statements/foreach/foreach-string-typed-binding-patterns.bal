@@ -5,7 +5,7 @@ function concatIntString(int i, string s) {
 }
 
 function concatIntAny(int i, any a) {
-    output = output + i + ":" + string.create(a) + " ";
+    output = output + i + ":" + string.convert(a) + " ";
 }
 
 // ---------------------------------------------------------------------------------------------------------------------

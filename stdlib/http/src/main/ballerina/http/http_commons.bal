@@ -234,8 +234,8 @@ function buildResponse(Response|string|xml|json|byte[]|io:ReadableByteChannel|mi
     return response;
 }
 
-# The HEAD action implementation of the Circuit Breaker. This wraps the `head()` function of the underlying
-# HTTP actions provider.
+# The HEAD remote function implementation of the Circuit Breaker. This wraps the `head()` function of the underlying
+# HTTP remote function provider.
 
 # + path - Resource path
 # + outRequest - A Request struct

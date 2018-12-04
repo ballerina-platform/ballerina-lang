@@ -66,6 +66,7 @@ import org.ballerinalang.util.codegen.attributes.ParamDefaultValueAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.ParameterAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.TaintTableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.VarTypeCountAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.WorkerSendInsAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.BlobCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ByteCPEntry;
@@ -953,6 +954,15 @@ public class PackageInfoReader {
                     localVarAttrInfo.addLocalVarInfo(localVariableInfo);
                 }
                 return localVarAttrInfo;
+            case WORKER_SEND_INS:
+                WorkerSendInsAttributeInfo workerSendInsAttrInfo = new WorkerSendInsAttributeInfo(attribNameCPIndex);
+                int sendInsCount = dataInStream.readShort();
+                workerSendInsAttrInfo.sendIns = new String[sendInsCount];
+                for (int i = 0; i < sendInsCount; i++) {
+                    UTF8CPEntry stringCPEntry = (UTF8CPEntry) constantPool.getCPEntry(dataInStream.readInt());
+                    workerSendInsAttrInfo.sendIns[i] = stringCPEntry.getValue();
+                }
+                return workerSendInsAttrInfo;
             case LINE_NUMBER_TABLE_ATTRIBUTE:
                 LineNumberTableAttributeInfo lnNoTblAttrInfo = new LineNumberTableAttributeInfo(attribNameCPIndex);
                 int lineNoInfoCount = dataInStream.readInt();
@@ -1380,10 +1390,29 @@ public class PackageInfoReader {
                     packageInfo.addInstruction(InstructionFactory.get(opcode, oprds));
                     break;
                 case InstructionCodes.FLUSH:
-                    // TODO fix - rajith
+                    int retReg = codeStream.readInt();
+                    int workerCount  = codeStream.readInt();
+                    String[] workerList = new String[workerCount];
+                    for (int wrkCount = 0; wrkCount < workerCount; wrkCount++) {
+                        int channelRefCPIndex = codeStream.readInt();
+                        WorkerDataChannelRefCPEntry channelRefCPEntry = (WorkerDataChannelRefCPEntry)
+                                packageInfo.getCPEntry(channelRefCPIndex);
+                        workerList[wrkCount] = channelRefCPEntry.getWorkerDataChannelInfo().getChannelName();
+                    }
+                    packageInfo.addInstruction(new Instruction.InstructionFlush(opcode, retReg, workerList));
                     break;
                 case InstructionCodes.WORKERSYNCSEND:
-                    // TODO fix - rajith
+                    int syncChannelRefCPIndex = codeStream.readInt();
+                    WorkerDataChannelRefCPEntry syncChannelRefCPEntry = (WorkerDataChannelRefCPEntry)
+                            packageInfo.getCPEntry(syncChannelRefCPIndex);
+                    int syncSigCPIndex = codeStream.readInt();
+                    UTF8CPEntry syncSigCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(syncSigCPIndex);
+                    BType syncSendType = getParamTypes(packageInfo, syncSigCPEntry.getValue())[0];
+                    int exprIndex = codeStream.readInt();
+                    int syncSendIndex = codeStream.readInt();
+                    packageInfo.addInstruction(new Instruction.InstructionWRKSyncSend(opcode, syncChannelRefCPIndex,
+                            syncChannelRefCPEntry.getWorkerDataChannelInfo(), syncSigCPIndex, syncSendType, exprIndex
+                            , syncSendIndex));
                     break;
                 case InstructionCodes.IGLOAD:
                 case InstructionCodes.FGLOAD:

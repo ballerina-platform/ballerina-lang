@@ -81,7 +81,7 @@ function tableJoinFunc() {
     function (map<anydata>[]) outputFunc = function (map<anydata>[] events) {
         foreach var m in events {
             // just cast input map into the output type
-            var o = <StockWithPrice>StockWithPrice.create(m);
+            var o = <StockWithPrice>StockWithPrice.convert(m);
             stockWithPriceStream.publish(o);
         }
     };
@@ -108,7 +108,7 @@ function tableJoinFunc() {
             map<anydata>[] result = [];
             int i = 0;
             foreach var r in queryStocksTable(<string>s.data["twitterStream.company"], 1) {
-                result[i] = <map<anydata>>map<anydata>.create(r);
+                result[i] = <map<anydata>>map<anydata>.convert(r);
                 i += 1;
             }
             return result;
@@ -122,7 +122,7 @@ function tableJoinFunc() {
     tableJoinProcessor.setJoinProperties("tb", "twitterStream", lengthWindow);
 
     twitterStream.subscribe(function (Twitter i) {
-            map<anydata> keyVal = <map<anydata>>map<anydata>.create(i);
+            map<anydata> keyVal = <map<anydata>>map<anydata>.convert(i);
             streams:StreamEvent[] eventArr = streams:buildStreamEvent(keyVal, "twitterStream");
             lengthWindow.process(eventArr);
         }

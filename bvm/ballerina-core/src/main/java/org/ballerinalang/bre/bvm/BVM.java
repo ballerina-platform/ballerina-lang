@@ -102,6 +102,7 @@ import org.ballerinalang.util.codegen.WorkerDataChannelInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 import org.ballerinalang.util.codegen.attributes.DefaultValueAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.WorkerSendInsAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.BlobCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ByteCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
@@ -478,10 +479,18 @@ public class BVM {
                             chnSendIns.keyType, chnSendIns.keyReg);
                     break;
                 case InstructionCodes.FLUSH:
-                    // TODO fix - rajith
+                    Instruction.InstructionFlush flushIns = (Instruction.InstructionFlush) instruction;
+                    if (WaitCallbackHandler.handleFlush(strand, flushIns.retReg, flushIns.channels) == null) {
+                        return;
+                    }
                     break;
                 case InstructionCodes.WORKERSYNCSEND:
-                    // TODO fix - rajith
+                    Instruction.InstructionWRKSyncSend syncSendIns = (Instruction.InstructionWRKSyncSend) instruction;
+                    if (!handleWorkerSyncSend(strand, syncSendIns.dataChannelInfo, syncSendIns.type, syncSendIns.reg,
+                            syncSendIns.retReg)) {
+                        return;
+                    }
+                    //worker data channel will resume this upon data retrieval or error
                     break;
                 case InstructionCodes.PANIC:
                     i = operands[0];
@@ -802,6 +811,13 @@ public class BVM {
         }
     }
 
+    private static boolean handleWorkerSyncSend(Strand strand, WorkerDataChannelInfo dataChannelInfo, BType type,
+                                                int reg, int retReg) {
+        BRefType val = extractValue(strand.currentFrame, type, reg);
+        WorkerDataChannel dataChannel = getWorkerChannel(strand, dataChannelInfo.getChannelName(), false);
+        return dataChannel.putData(val, strand, retReg);
+    }
+
     private static void createClone(Strand ctx, int[] operands, StackFrame sf) {
         int i = operands[0];
         int j = operands[1];
@@ -837,9 +853,16 @@ public class BVM {
             return strand;
         }
 
-        SafeStrandCallback strndCallback = new SafeStrandCallback(callableUnitInfo.getRetParamTypes()[0]);
+        SafeStrandCallback strandCallback = new SafeStrandCallback(callableUnitInfo.getRetParamTypes()[0],
+                strand.respCallback.getWorkerDataChannels());
+        if (callableUnitInfo.workerSendInChannels == null) {
+            WorkerSendInsAttributeInfo attributeInfo =
+                    (WorkerSendInsAttributeInfo) callableUnitInfo.getAttributeInfo(AttributeInfo.Kind.WORKER_SEND_INS);
+            callableUnitInfo.workerSendInChannels = attributeInfo.sendIns;
+        }
+        strandCallback.sendIns = callableUnitInfo.workerSendInChannels;
         Strand calleeStrand = new Strand(strand.programFile, callableUnitInfo.getName(),
-                strand.globalProps, strndCallback, strand.wdChannels);
+                strand.globalProps, strandCallback);
         calleeStrand.pushFrame(df);
         // Start observation after pushing the stack frame
         ObserveUtils.startCallableObservation(calleeStrand, strand.respCallback.getObserverContext());
@@ -2757,19 +2780,20 @@ public class BVM {
                 iterator = (BIterator) sf.refRegs[nextInstruction.iteratorIndex];
 
                 try {
+                    // Check whether we have a next value.
+                    if (!Optional.of(iterator).get().hasNext()) {
+                        // If we don't have a next value, that means we have reached the end of the iterable list. So
+                        // we set null to the corresponding registry location.
+                        sf.refRegs[nextInstruction.retRegs[0]] = null;
+                        return;
+                    }
                     // Get the next value.
                     BValue value = Optional.of(iterator).get().getNext();
-                    if (value != null) {
-                        // If the value is not null, we create a new map and add the value to the map with the key
-                        // `value`. Then we set this map to the corresponding registry location.
-                        BMap<String, BValue> newMap = new BMap<>(nextInstruction.constraintType);
-                        newMap.put("value", value);
-                        sf.refRegs[nextInstruction.retRegs[0]] = (BRefType) newMap;
-                    } else {
-                        // If the value is null, that means we have reached the end of the iterable list. So we set null
-                        // to the corresponding registry location.
-                        sf.refRegs[nextInstruction.retRegs[0]] = null;
-                    }
+                    // We create a new map and add the value to the map with the key `value`. Then we set this
+                    // map to the corresponding registry location.
+                    BMap<String, BValue> newMap = new BMap<>(nextInstruction.constraintType);
+                    newMap.put("value", value);
+                    sf.refRegs[nextInstruction.retRegs[0]] = (BRefType) newMap;
                 } catch (BallerinaException e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
@@ -2954,14 +2978,23 @@ public class BVM {
                 /*
                  In case of a for loop, need to clear the last hit line, so that, same line can get hit again.
                  */
-                debugContext.clearLastDebugLine();
+                debugContext.clearContext();
                 break;
             case STEP_IN:
+                debugHit(ctx, currentExecLine, debugger);
+                return true;
             case STEP_OVER:
+                if (debugContext.getFramePointer() < ctx.fp) {
+                    return false;
+                }
                 debugHit(ctx, currentExecLine, debugger);
                 return true;
             case STEP_OUT:
-                break;
+                if (debugContext.getFramePointer() > ctx.fp) {
+                    debugHit(ctx, currentExecLine, debugger);
+                    return true;
+                }
+                return false;
             default:
                 debugger.notifyExit();
                 debugger.stopDebugging();
@@ -2995,7 +3028,7 @@ public class BVM {
      * @param debugger        Debugger object.
      */
     private static void debugHit(Strand ctx, LineNumberInfo currentExecLine, Debugger debugger) {
-        ctx.getDebugContext().setLastLine(currentExecLine);
+        ctx.getDebugContext().updateContext(currentExecLine, ctx.fp);
         debugger.pauseWorker(ctx);
         debugger.notifyDebugHit(ctx, currentExecLine, ctx.getId());
     }
@@ -3366,9 +3399,9 @@ public class BVM {
 
     private static WorkerDataChannel getWorkerChannel(Strand ctx, String name, boolean channelInSameStrand) {
         if (channelInSameStrand) {
-            return ctx.wdChannels.getWorkerDataChannel(name);
+            return ctx.respCallback.getWorkerDataChannels().getWorkerDataChannel(name);
         }
-        return ctx.parentChannels.getWorkerDataChannel(name);
+        return ctx.respCallback.getParentWorkerDataChannels().getWorkerDataChannel(name);
     }
 
     private static BRefType extractValue(StackFrame data, BType type, int reg) {
@@ -3858,6 +3891,10 @@ public class BVM {
             if (rhsField == null || !isAssignable(rhsField.fieldType, lhsField.fieldType, unresolvedTypes)) {
                 return false;
             }
+        }
+
+        if (lhsType.sealed) {
+            return lhsFieldNames.containsAll(rhsFields.keySet());
         }
 
         return rhsFields.values().stream()
@@ -5006,8 +5043,13 @@ public class BVM {
             }
         }
 
-        // If there are fields remaining in the source record, check if they are compatible with the rest field of
-        // the target type.
+        // If there are fields remaining in the source record, first check if it's a closed record. Closed records
+        // should only have the fields specified by its type.
+        if (targetType.sealed) {
+            return targetFieldNames.containsAll(sourceFields.keySet());
+        }
+
+        // If it's an open record, check if they are compatible with the rest field of the target type.
         return sourceFields.values().stream()
                 .filter(field -> !targetFieldNames.contains(field.fieldName))
                 .allMatch(field -> checkIsType(field.getFieldType(), targetType.restFieldType, unresolvedTypes));

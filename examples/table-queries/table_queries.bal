@@ -154,7 +154,7 @@ public function main() {
 }
 
 function printTable(string stmt, string tableName, table<anydata> returnedTable) returns () {
-    var retData = json.create(returnedTable);
+    var retData = json.convert(returnedTable);
     io:println(stmt);
     io:print(tableName);
     if (retData is json) {

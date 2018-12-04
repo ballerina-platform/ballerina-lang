@@ -1,6 +1,6 @@
 import {
     ASTKindChecker, Block, CompilationUnit, Foreach, Function,
-    If, VisibleEndpoint, Visitor, While
+    If, Service, VisibleEndpoint, Visitor, While
 } from "@ballerina/ast-model";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
@@ -79,11 +79,6 @@ export const visitor: Visitor = {
         // Position default worker lifeline.
         positionWorkerLine(defaultWorker);
 
-        // Position drop down menu for adding workers and endpoints
-        viewState.menuTrigger.x = defaultWorker.bBox.x + defaultWorker.bBox.w
-            + config.lifeLine.gutter.h;
-        viewState.menuTrigger.y = defaultWorker.bBox.y + config.lifeLine.header.height / 2;
-
         // Position the body block node
         if (node.body) {
             const bodyViewState: ViewState = node.body.viewState;
@@ -92,10 +87,10 @@ export const visitor: Visitor = {
                 + config.statement.height; // leave room for start line.
         }
 
+        let epX = defaultWorker.bBox.x + defaultWorker.bBox.w
+                    + config.lifeLine.gutter.h;
         // Position endpoints
         if (node.VisibleEndpoints) {
-            let epX = defaultWorker.bBox.x + defaultWorker.bBox.w
-                + config.lifeLine.gutter.h;
             node.VisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
                 if (!endpoint.caller && endpoint.viewState.visible) {
                     endpoint.viewState.bBox.x = epX;
@@ -104,6 +99,10 @@ export const visitor: Visitor = {
                 }
             });
         }
+
+        // Position drop down menu for adding workers and endpoints
+        viewState.menuTrigger.x = epX;
+        viewState.menuTrigger.y = defaultWorker.bBox.y;
 
         // Update the width of children
         viewState.body.w = viewState.bBox.w;
@@ -142,5 +141,16 @@ export const visitor: Visitor = {
             node.elseStatement.viewState.bBox.y = viewState.bBox.y +
                 config.flowCtrl.condition.height + node.body.viewState.bBox.h;
         }
+    },
+
+    beginVisitService(node: Service) {
+        const viewState: ViewState = node.viewState;
+        let y = viewState.bBox.y;
+        // tslint:disable-next-line:ban-types
+        node.resources.forEach((element: Function) => {
+            element.viewState.bBox.x = viewState.bBox.x;
+            element.viewState.bBox.y = y;
+            y += element.viewState.bBox.h;
+        });
     }
 };

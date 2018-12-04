@@ -46,7 +46,7 @@ goto setJava
 
 :setJava
 set JAVA_HOME="%BALLERINA_HOME%\bre\lib\jre1.8.0_172"
-if not exist "%JAVA_HOME%\bin\java.exe" goto checkJavaHome
+if not exist "%JAVA_HOME%\bin\java.exe" goto checkJava
 goto updateClasspath
 
 :checkJava

@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model;
 
-import org.antlr.v4.runtime.misc.OrderedHashSet;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.OperatorKind;
@@ -63,6 +62,7 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -591,7 +591,7 @@ public class SymbolTable {
                 retType = targetType;
             } else {
                 BUnionType unionType = new BUnionType(null,
-                        new OrderedHashSet<BType>() {{
+                        new LinkedHashSet<BType>() {{
                             add(targetType);
                             add(errorType);
                         }}, false);

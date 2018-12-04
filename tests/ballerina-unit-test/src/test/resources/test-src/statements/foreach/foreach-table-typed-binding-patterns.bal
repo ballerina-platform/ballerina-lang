@@ -16,7 +16,7 @@ table<Employee> data = table {
 };
 
 function concatIntAny(int i, any a) {
-    output = output + i + ":" + string.create(a) + " ";
+    output = output + i + ":" + string.convert(a) + " ";
 }
 
 function concatIntIntStringFloat(int i1, int i2, string s, float f) {
