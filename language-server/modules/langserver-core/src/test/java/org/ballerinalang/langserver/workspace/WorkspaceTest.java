@@ -71,8 +71,8 @@ public class WorkspaceTest {
     @DataProvider(name = "workspace-data-provider")
     public Object[][] workspaceSymbolDataProvider() {
         return new Object[][] {
-                {"workspaceSymbol.json", ""},
                 {"workspaceSymbolWithQuery.json", "test"},
+                {"workspaceSymbol.json", ""},
         };
     }
     

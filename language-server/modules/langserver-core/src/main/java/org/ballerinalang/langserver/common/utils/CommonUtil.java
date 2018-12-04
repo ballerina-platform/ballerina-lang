@@ -84,6 +84,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -918,7 +919,9 @@ public class CommonUtil {
         // Filter out the lambda functions from the top level nodes
         return topLevelNodes.stream()
                 .filter(topLevelNode -> !(topLevelNode instanceof BLangFunction
-                        && ((BLangFunction) topLevelNode).flagSet.contains(Flag.LAMBDA)))
+                        && ((BLangFunction) topLevelNode).flagSet.contains(Flag.LAMBDA))
+                        && !(topLevelNode instanceof BLangSimpleVariable
+                        && ((BLangSimpleVariable) topLevelNode).flagSet.contains(Flag.SERVICE)))
                 .collect(Collectors.toList());
     }
 

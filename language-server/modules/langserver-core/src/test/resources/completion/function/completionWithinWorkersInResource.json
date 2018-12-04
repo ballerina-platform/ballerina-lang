@@ -34,7 +34,7 @@
       "kind":"Snippet",
       "detail":"Statement",
       "sortText":"200",
-      "insertText":"foreach ${1:item} in ${2:itemList} {\n\t${3}\n}",
+      "insertText":"foreach ${1:var} ${2:item} in ${3:itemList} {\n\t${4}\n}",
       "insertTextFormat":"Snippet"
     },
     {
@@ -257,13 +257,6 @@
       "detail":"BType",
       "sortText":"170",
       "insertText":"future"
-    },
-    {
-      "label":"self",
-      "kind":"Variable",
-      "detail":"sampleService",
-      "sortText":"110",
-      "insertText":"self"
     },
     {
       "label":"typedesc",

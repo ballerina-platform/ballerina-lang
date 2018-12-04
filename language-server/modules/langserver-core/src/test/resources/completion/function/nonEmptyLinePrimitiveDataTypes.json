@@ -6,118 +6,6 @@
   "source": "function/source/nonEmptyLinePrimitiveDataTypes.bal",
   "items": [
     {
-      "label":"xmlns",
-      "kind":"Snippet",
-      "detail":"Snippet",
-      "sortText":"190",
-      "insertText":"xmlns \"${1}\" as ${2:ns};",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"var",
-      "kind":"Keyword",
-      "detail":"Keyword",
-      "sortText":"210",
-      "insertText":"var ",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"error",
-      "kind":"Snippet",
-      "detail":"Snippet",
-      "sortText":"190",
-      "insertText":"error ${1:name} \u003d error(\"${2:errorCode}\", { message: \"${3}\" });",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"foreach",
-      "kind":"Snippet",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"foreach ${1:item} in ${2:itemList} {\n\t${3}\n}",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"fork",
-      "kind":"Snippet",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"fork {\n\t${1}\n}",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"if",
-      "kind":"Snippet",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"if (${1:true}) {\n\t${2}\n}",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"lock",
-      "kind":"Snippet",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"lock {\n\t${1}\n}",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"match",
-      "kind":"Snippet",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"match ",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"panic",
-      "kind":"Snippet",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"panic ",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"return",
-      "kind":"Snippet",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"return;",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"transaction",
-      "kind":"Snippet",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"transaction with retries \u003d ${1:1}, oncommit \u003d ${2:onCommitFunction}, onabort \u003d ${3:onAbortFunction} {\n\t${4}\n} onretry {\n\t${5}\n}",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"while",
-      "kind":"Snippet",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"while (${1:true}) {\n\t${2}\n}",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"wrply   Worker Reply Statement",
-      "kind":"Snippet",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"${1:var1} \u003c- ${2:w1};",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"wtrg   Worker Trigger Statement",
-      "kind":"Snippet",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"${1:var1} -\u003e ${2:w1};",
-      "insertTextFormat":"Snippet"
-    },
-    {
       "label":"channel",
       "kind":"Keyword",
       "detail":"BType",
@@ -856,6 +744,118 @@
           "newText":"\nimport ballerina/config;\n"
         }
       ]
+    },
+    {
+      "label":"xmlns",
+      "kind":"Snippet",
+      "detail":"Snippet",
+      "sortText":"190",
+      "insertText":"xmlns \"${1}\" as ${2:ns};",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"var",
+      "kind":"Keyword",
+      "detail":"Keyword",
+      "sortText":"210",
+      "insertText":"var ",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"error",
+      "kind":"Snippet",
+      "detail":"Snippet",
+      "sortText":"190",
+      "insertText":"error ${1:name} \u003d error(\"${2:errorCode}\", { message: \"${3}\" });",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"foreach",
+      "kind":"Snippet",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"foreach ${1:var} ${2:item} in ${3:itemList} {\n\t${4}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"fork",
+      "kind":"Snippet",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"fork {\n\t${1}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"if",
+      "kind":"Snippet",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"if (${1:true}) {\n\t${2}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"lock",
+      "kind":"Snippet",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"lock {\n\t${1}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"match",
+      "kind":"Snippet",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"match ",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"panic",
+      "kind":"Snippet",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"panic ",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"return",
+      "kind":"Snippet",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"return;",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"transaction",
+      "kind":"Snippet",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"transaction with retries \u003d ${1:1}, oncommit \u003d ${2:onCommitFunction}, onabort \u003d ${3:onAbortFunction} {\n\t${4}\n} onretry {\n\t${5}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"while",
+      "kind":"Snippet",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"while (${1:true}) {\n\t${2}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"wrply   Worker Reply Statement",
+      "kind":"Snippet",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"${1:var1} \u003c- ${2:w1};",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"wtrg   Worker Trigger Statement",
+      "kind":"Snippet",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"${1:var1} -\u003e ${2:w1};",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"worker",
