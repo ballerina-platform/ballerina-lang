@@ -270,9 +270,6 @@ export interface Visitor {
   beginVisitTernaryExpr?(node: Ballerina.TernaryExpr): void;
   endVisitTernaryExpr?(node: Ballerina.TernaryExpr): void;
 
-  beginVisitThrow?(node: Ballerina.Throw): void;
-  endVisitThrow?(node: Ballerina.Throw): void;
-
   beginVisitTransaction?(node: Ballerina.Transaction): void;
   endVisitTransaction?(node: Ballerina.Transaction): void;
 

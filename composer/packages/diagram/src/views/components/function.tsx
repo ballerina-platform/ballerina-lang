@@ -16,11 +16,11 @@ export const Function = (props: {model: FunctionNode}) => {
     const viewState: FunctionViewState = model.viewState;
 
     return (
-        <Panel model={viewState} title={model.name.value} icon="function">
+        <Panel model={viewState} title={model.name.value} icon={viewState.icon}>
             <LifeLine title="Client" icon="client" model={viewState.client.bBox}/>
             <LifeLine title="Default" icon="worker" model={viewState.defaultWorker.lifeline.bBox}/>
             <StartInvocation client={viewState.client} worker={viewState.defaultWorker.lifeline}
-                y={viewState.defaultWorker.bBox.y + config.lifeLine.header.height} label="Start" />
+                y={viewState.defaultWorker.bBox.y + config.lifeLine.header.height} label="" />
             { model.body && <Block model={model.body} />}
             { model.VisibleEndpoints && model.VisibleEndpoints
                 .filter((element) => element.viewState.visible)

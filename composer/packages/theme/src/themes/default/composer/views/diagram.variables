@@ -56,7 +56,7 @@
 @light-diagram-life-line-text-color: @light-diagram-base-text-color;
 @dark-diagram-life-line-text-color: @dark-diagram-base-text-color;
 
-@light-diagram-life-line-head-background-color: @white;
+@light-diagram-life-line-head-background-color: @diagram-base-dark-color;
 @dark-diagram-life-line-head-background-color: @diagram-base-dark-color;
 @light-diagram-life-line-head-stroke-color: @light-diagram-life-line-stroke-color;
 @dark-diagram-life-line-head-stroke-color: @dark-diagram-life-line-stroke-color;
