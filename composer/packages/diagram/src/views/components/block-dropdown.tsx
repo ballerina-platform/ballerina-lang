@@ -6,7 +6,7 @@ import { SimplePoint } from "../../view-model/simple-point";
 import { SVGDropDownMenu } from "./svg-dropdown-menu";
 
 export interface BlockDropdownProps {
-    active: boolean;
+    isHovered: boolean;
     triggerPosition: SimplePoint;
     model: Block;
 }
@@ -16,12 +16,13 @@ export class BlockDropdown extends React.Component<BlockDropdownProps, { isHover
     public static contextType = DiagramContext;
 
     public state = {
-        isHovered: this.props.active
+        isHovered: this.props.isHovered
     };
 
     public componentWillReceiveProps(nextProps: BlockDropdownProps) {
+        const { isHovered } = nextProps;
         this.setState({
-            isHovered: nextProps.active
+            isHovered
         });
     }
 
@@ -30,7 +31,7 @@ export class BlockDropdown extends React.Component<BlockDropdownProps, { isHover
         const { isHovered } = this.state;
         const context = this.context as IDiagramContext;
         return <SVGDropDownMenu
-                    className={cn("block-dropdown", { active: isHovered })}
+                    className={cn("block-dropdown", { "on-hover": isHovered })}
                     triggerPosition={triggerPosition}
                     triggerIcon="add"
                     items={[

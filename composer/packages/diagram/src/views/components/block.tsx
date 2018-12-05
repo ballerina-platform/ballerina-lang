@@ -25,7 +25,7 @@ export class Block extends React.Component<{ model: BlockNode }, { isHovered: bo
             y
         };
         statements.push(DiagramUtils.getComponents(model.statements));
-
+        const dropDownProps = { model, isHovered, triggerPosition };
         return (
             <g className="worker-block-container">
                 <rect
@@ -44,7 +44,7 @@ export class Block extends React.Component<{ model: BlockNode }, { isHovered: bo
                     visibility="hidden"
                 />
                 {statements}
-                {<BlockDropdown active={isHovered} triggerPosition={triggerPosition} model={model} />}
+                {<BlockDropdown {...dropDownProps} />}
             </g>);
     }
 }
