@@ -378,6 +378,8 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(EQUAL_GT).spaceIf(true)
 
                 // Binding Patterns
+                .betweenInside(LEFT_PARENTHESIS, BINDING_PATTERN, TUPLE_BINDING_PATTERN).spaceIf(false)
+                .betweenInside(BINDING_PATTERN, RIGHT_PARENTHESIS, TUPLE_BINDING_PATTERN).spaceIf(false)
                 .around(BINDING_PATTERN).spaceIf(true)
 
                 // Record binding pattern
