@@ -1085,38 +1085,102 @@ public class BVM {
         int j = operands[2];
         TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) sf.constPool[cpIndex];
         BRefType bRefTypeValue = sf.refRegs[i];
-        if (checkCast(bRefTypeValue, typeRefCPEntry.getType())) {
+        try {
             switch (typeRefCPEntry.getType().getTag()) {
                 case TypeTags.INT_TAG:
-                    sf.refRegs[j] = new BInteger(Long.valueOf(bRefTypeValue.value().toString()));
+                    if (bRefTypeValue.value() instanceof Double) {
+                        double value = (Double) bRefTypeValue.value();
+                        if (Double.isNaN(value) || Double.isInfinite(value)) {
+                            strand.setError(BLangVMErrors
+                                                    .createError(strand, BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+                                                                 "'float' value '" + value + "' cannot be " +
+                                                                         "converted to 'int'"));
+                            handleError(strand);
+                            break;
+                        }
+                        if (!isFloatWithinIntRange(value)) {
+                            strand.setError(BLangVMErrors
+                                                    .createError(strand, BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+                                                                 "out of range 'float' value '" + value +
+                                                                         "' cannot be converted to 'int'"));
+                            handleError(strand);
+                            break;
+                        }
+                        sf.refRegs[j] = new BInteger(Math.round(value));
+                        break;
+                    }
+
+                    if (bRefTypeValue.value() instanceof String) {
+                        sf.refRegs[j] = new BInteger(Long.parseLong((String) bRefTypeValue.value()));
+                        break;
+                    }
+                    handleTypeConversionError(strand, sf, j, bRefTypeValue.getType(), typeRefCPEntry.getType());
                     break;
                 case TypeTags.FLOAT_TAG:
-                    sf.refRegs[j] = new BFloat(Double.valueOf(bRefTypeValue.value().toString()));
+                    if (bRefTypeValue.value() instanceof Double) {
+                        sf.refRegs[j] = new BFloat((Double) bRefTypeValue.value());
+                        break;
+                    }
+                    if (bRefTypeValue.value() instanceof Long) {
+                        sf.refRegs[j] = new BFloat((Long) bRefTypeValue.value());
+                        break;
+                    }
+                    if (bRefTypeValue.value() instanceof String) {
+                        sf.refRegs[j] = new BFloat(Double.parseDouble((String) bRefTypeValue.value()));
+                        break;
+                    }
+                    handleTypeConversionError(strand, sf, j, bRefTypeValue.getType(), typeRefCPEntry.getType());
                     break;
                 case TypeTags.DECIMAL_TAG:
                     if (bRefTypeValue.value() instanceof Double) {
-                        sf.refRegs[j] = new BDecimal(BigDecimal.valueOf((Double) bRefTypeValue.value()));
-                    } else {
-                        sf.refRegs[j] = new BDecimal(BigDecimal.valueOf((Long) bRefTypeValue.value()));
+                        sf.refRegs[j] = new BDecimal((new BigDecimal((Double) bRefTypeValue.value(),
+                                                                     MathContext.DECIMAL128)));
+                        break;
                     }
+                    if (bRefTypeValue.value() instanceof Long) {
+                        sf.refRegs[j] = new BDecimal(new BigDecimal((Long) bRefTypeValue.value(),
+                                                                    MathContext.DECIMAL128));
+                        break;
+                    }
+                    if (bRefTypeValue.value() instanceof String) {
+                        sf.refRegs[j] = new BDecimal(new BigDecimal((String) bRefTypeValue.value(),
+                                                                    MathContext.DECIMAL128));
+                        break;
+                    }
+                    handleTypeConversionError(strand, sf, j, bRefTypeValue.getType(), typeRefCPEntry.getType());
                     break;
                 case TypeTags.STRING_TAG:
                     sf.refRegs[j] = new BString((String) bRefTypeValue.value());
                     break;
                 case TypeTags.BOOLEAN_TAG:
-                    sf.refRegs[j] = new BBoolean((Boolean) bRefTypeValue.value());
+                    if (bRefTypeValue.value() instanceof String) {
+                        sf.refRegs[j] = new BBoolean(Boolean.parseBoolean((String) bRefTypeValue.value()));
+                        break;
+                    }
+                    if (bRefTypeValue.value() instanceof Long) {
+                        sf.refRegs[j] = new BBoolean(((Long) bRefTypeValue.value()) != 0);
+                        break;
+                    }
                     break;
                 case TypeTags.BYTE_TAG:
-                    sf.refRegs[j] = new BByte(((Long) bRefTypeValue.value()).byteValue());
-                    break;
+                    if (bRefTypeValue.value() instanceof Long) {
+                        Long value = (Long) bRefTypeValue.value();
+                        if (isByteLiteral(value)) {
+                            sf.refRegs[j] = new BByte(((Long) bRefTypeValue.value()).byteValue());
+                            break;
+                        }
+                    }
+                    if (bRefTypeValue.value() instanceof String) {
+                        sf.refRegs[j] = new BByte(Byte.parseByte((String) bRefTypeValue.value()));
+                        break;
+                    }
+                    handleTypeConversionError(strand, sf, j, bRefTypeValue.getType(), typeRefCPEntry.getType()); break;
                 default:
-                    throw new UnsupportedOperationException();
+                    handleTypeConversionError(strand, sf, j, bRefTypeValue.getType(), typeRefCPEntry.getType());
             }
-        } else {
-            handleTypeConversionError(strand, sf, j, bRefTypeValue != null ? bRefTypeValue.getType() : BTypes.typeNull,
-                                      typeRefCPEntry.getType());
+        } catch (NumberFormatException e) {
+            handleTypeConversionError(strand, sf, j, bRefTypeValue.getType(), typeRefCPEntry.getType());
         }
-
     }
 
     /**
