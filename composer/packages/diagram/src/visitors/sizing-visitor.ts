@@ -8,6 +8,7 @@ import { DiagramUtils } from "../diagram/diagram-utils";
 import { EndpointViewState, FunctionViewState, SimpleBBox, StmntViewState, ViewState } from "../view-model";
 import { ReturnViewState } from "../view-model/return";
 import { WorkerViewState } from "../view-model/worker";
+import { BlockViewState } from "../view-model/block";
 
 const config: DiagramConfig = DiagramUtils.getConfig();
 
@@ -168,7 +169,7 @@ export const visitor: Visitor = {
     },
 
     endVisitBlock(node: Block) {
-        const viewState: ViewState = node.viewState;
+        const viewState: BlockViewState = node.viewState;
         let height = 0;
         viewState.bBox.w = config.statement.width;
         node.statements.forEach((element) => {
@@ -179,6 +180,14 @@ export const visitor: Visitor = {
             height += element.viewState.bBox.h;
         });
         viewState.bBox.h = ((height === 0) ? config.statement.height : height) + config.block.bottomMargin;
+        const hoverRectLeftMargin = viewState.bBox.leftMargin === 0
+                                    ? config.block.hoverRect.leftMargin
+                                    : viewState.bBox.leftMargin;
+
+        viewState.hoverRect.h = viewState.bBox.h;
+        viewState.hoverRect.w = viewState.bBox.w + hoverRectLeftMargin;
+        viewState.hoverRect.x = viewState.bBox.x - hoverRectLeftMargin;
+        viewState.hoverRect.y = viewState.bBox.y;
     },
 
     endVisitWhile(node: While) {
