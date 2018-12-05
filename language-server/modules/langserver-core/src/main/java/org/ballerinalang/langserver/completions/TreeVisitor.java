@@ -347,7 +347,8 @@ public class TreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVariableDef varDefNode) {
-        boolean isFuture = varDefNode.getVariable().expr.type instanceof BFutureType;
+        boolean isFuture = varDefNode.getVariable().expr != null
+                && varDefNode.getVariable().expr.type instanceof BFutureType;
         CursorPositionResolver cpr = CursorPositionResolvers.getResolverByClass(cursorPositionResolver);
         if (isFuture || cpr.isCursorBeforeNode(varDefNode.getPosition(), this, this.lsContext, varDefNode,
                 varDefNode.getVariable().symbol)) {
@@ -782,7 +783,7 @@ public class TreeVisitor extends LSNodeVisitor {
     /////     Private Methods     /////
     ///////////////////////////////////
     private void acceptNode(BLangNode node, SymbolEnv env) {
-        if (this.terminateVisitor) {
+        if (this.terminateVisitor || node == null) {
             return;
         }
 
