@@ -19,7 +19,7 @@ export function genInterfacesFileCode(modelInfo: any) {
             kind: string;
             viewState?: any;
             ws?: any[];
-            position?: NodePosition
+            position?: NodePosition;
         }
 
         ${interfaces.join("\n")}

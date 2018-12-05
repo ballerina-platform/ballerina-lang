@@ -20,6 +20,9 @@ export function spawnStdioServer(ballerinaHome: string): ChildProcess {
         args.push(path.join(cwd, "language-server-launcher.sh"));
     }
 
+    // always run with experimental features enabled
+    args.push("--experimental");
+
     if (LS_DEBUG) {
         args.push("--debug");
     }
