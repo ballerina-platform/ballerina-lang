@@ -975,10 +975,17 @@ function testRecordToJsonWithIsJson() returns boolean {
     return personData is json;
 }
 
-function testJsonIntToFloat() returns float|error {
-    json operationReq = {"firstNumber": 10, "secondNumber": 200.1, "operation": "add"};
-    var input = float.convert(operationReq.firstNumber);
-    return input;
+function testImplicitConversion() returns map<any>|error {
+    json operationReq = {"toFloat": 10, "toInt": 200.1, "toDecimal": "23.456", "ToBoolean":100};
+    float f = check float.convert(operationReq.toFloat);
+    int i = check int.convert(operationReq.toInt);
+    decimal d = check decimal.convert(operationReq.toDecimal);
+    boolean b = check boolean.convert(operationReq.ToBoolean);
+    any a = 4;
+    byte t = check byte.convert(a);
+    anydata an = 78.9;
+    string s = string.convert(an);
+    return {"toFloat":f, "toString":s ,"toInt":i, "toDecimal":d, "ToByte":t, "ToBoolean":b};
 }
 
 function testConvertWithFuncCall() returns int {
