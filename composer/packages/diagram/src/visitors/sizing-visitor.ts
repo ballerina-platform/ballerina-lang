@@ -1,17 +1,21 @@
 import {
-    Assignment, ASTNode, ASTUtil, Block,
-    ExpressionStatement, Foreach, Function, If, Invocation, Return,
-    Service, VariableDef, VisibleEndpoint, Visitor, While
+    Assignment, ASTNode, ASTUtil,
+    Block, ExpressionStatement, Foreach, Function, If, Invocation,
+    Lambda, Return, Service, Variable, VariableDef, VisibleEndpoint, Visitor, While
 } from "@ballerina/ast-model";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
 import { EndpointViewState, FunctionViewState, SimpleBBox, StmntViewState, ViewState } from "../view-model";
 import { ReturnViewState } from "../view-model/return";
+import { WorkerViewState } from "../view-model/worker";
 
 const config: DiagramConfig = DiagramUtils.getConfig();
 
 function sizeStatement(node: ASTNode) {
     const viewState: StmntViewState = node.viewState;
+    // If hidden do nothing.
+    if (node.viewState.hidden) { return; }
+
     const label = DiagramUtils.getTextWidth(ASTUtil.genSource(node));
     viewState.bBox.h = config.statement.height;
     viewState.bBox.w = (config.statement.width > label.w) ? config.statement.width : label.w;
@@ -35,6 +39,27 @@ function sizeStatement(node: ASTNode) {
             }
         });
     }
+}
+
+function sizeWorker(node: VariableDef) {
+    const variable: Variable = (node.variable as Variable);
+    const lambda: Lambda = (variable.initialExpression as Lambda);
+    const functionNode = lambda.functionNode;
+    const viewState: WorkerViewState = node.viewState;
+
+    viewState.bBox.h = functionNode.body!.viewState.bBox.h + (config.lifeLine.header.height * 2)
+        + config.statement.height  // leave room for start call.
+        + config.statement.height; // for bottom plus
+    viewState.bBox.w = (functionNode.body!.viewState.bBox.w) ? functionNode.body!.viewState.bBox.w :
+        config.lifeLine.width;
+    viewState.lifeline.bBox.w = config.lifeLine.width;
+    // tslint:disable-next-line:prefer-conditional-expression
+    if (functionNode.body!.viewState.bBox.leftMargin) {
+        viewState.bBox.leftMargin = functionNode.body!.viewState.bBox.leftMargin;
+    } else {
+        viewState.bBox.leftMargin = config.lifeLine.leftMargin;
+    }
+    viewState.name = variable.name.value.replace("0", "");
 }
 
 let endpointHolder: VisibleEndpoint[] = [];
@@ -67,6 +92,7 @@ export const visitor: Visitor = {
 
     // tslint:disable-next-line:ban-types
     endVisitFunction(node: Function) {
+        if (node.lambda) {return; }
         const viewState: FunctionViewState = node.viewState;
         const body = viewState.body;
         const header = viewState.header;
@@ -90,11 +116,26 @@ export const visitor: Visitor = {
         } else {
             defaultWorker.bBox.leftMargin = config.lifeLine.leftMargin;
         }
+        // Size the other workers
+        let lineHeight = (client.bBox.h > defaultWorker.bBox.h) ? client.bBox.h : defaultWorker.bBox.h;
+        let workerWidth = 0;
+        node.body!.statements.filter((element) => ASTUtil.isWorker(element)).forEach((worker) => {
+            sizeWorker(worker as VariableDef);
+            if (lineHeight < worker.viewState.bBox.h) {
+                lineHeight = worker.viewState.bBox.h;
+            }
+            workerWidth += worker.viewState.bBox.w;
+        });
 
-        const lineHeight = (client.bBox.h > defaultWorker.bBox.h) ? client.bBox.h : defaultWorker.bBox.h;
         // Sync up the heights of lifelines
         client.bBox.h = defaultWorker.bBox.h = lineHeight;
         defaultWorker.lifeline.bBox.h = defaultWorker.bBox.h; // Set the height of lifeline.
+        // Sync height of workers
+        node.body!.statements.filter((element) => ASTUtil.isWorker(element)).forEach((worker) => {
+            const workerViewState: WorkerViewState = worker.viewState;
+            workerViewState.bBox.h = lineHeight;
+            workerViewState.lifeline.bBox.h = lineHeight;
+        });
 
         // Size endpoints
         let endpointWidth = 0;
@@ -109,7 +150,7 @@ export const visitor: Visitor = {
         }
 
         const lifeLinesWidth = client.bBox.w + config.lifeLine.gutter.h
-            + defaultWorker.bBox.w + endpointWidth;
+            + defaultWorker.bBox.w + endpointWidth + workerWidth;
         body.w = config.panel.padding.left + lifeLinesWidth + config.panel.padding.right;
         body.h = config.panel.padding.top + lineHeight + config.panel.padding.bottom;
 
@@ -146,6 +187,7 @@ export const visitor: Visitor = {
 
         viewState.bBox.w = node.body.viewState.bBox.w + config.flowCtrl.rightMargin;
         viewState.bBox.h = node.body.viewState.bBox.h + config.flowCtrl.condition.height
+            + config.flowCtrl.condition.bottomMargin
             + config.flowCtrl.whileGap + config.flowCtrl.bottomMargin;
         // If body has a left margin assign to while
         // tslint:disable-next-line:prefer-conditional-expression
@@ -178,6 +220,7 @@ export const visitor: Visitor = {
 
         viewState.bBox.w = node.body.viewState.bBox.w;
         viewState.bBox.h = node.body.viewState.bBox.h + config.flowCtrl.condition.height
+            + config.flowCtrl.condition.bottomMargin
             + config.flowCtrl.bottomMargin;
         // If body has a left margin assign to while
         // tslint:disable-next-line:prefer-conditional-expression
@@ -213,7 +256,7 @@ export const visitor: Visitor = {
 
     endVisitService(node: Service) {
         const viewState: ViewState = node.viewState;
-        let height = 0;
+        let height = config.panelGroup.header.height;
         // tslint:disable-next-line:ban-types
         node.resources.forEach((element: Function) => {
             viewState.bBox.w = (viewState.bBox.w > element.viewState.bBox.w)

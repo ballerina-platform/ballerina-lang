@@ -1,0 +1,3 @@
+$ ballerina run type_assertion.bal
+Type asserted employee name: Speedy Gonzales
+Type asserted person name or error: assertion error: expected 'Person', found 'Employee'

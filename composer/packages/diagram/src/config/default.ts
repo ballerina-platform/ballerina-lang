@@ -38,15 +38,15 @@ export class DiagramConfig {
             v: 30
         },
         padding: {
-            bottom: 0,
+            bottom: 20,
             left: 0,
             right: 200,
-            top: 0,
+            top: 20,
         },
     };
 
     public panelHeading = {
-        height: 60,
+        height: 30,
         padding: {
             bottom: 0,
             left: 0,
@@ -63,6 +63,11 @@ export class DiagramConfig {
     public panelGroup = {
         header: {
             height: STATEMENT_HEIGHT * 2,
+        },
+        title: {
+            margin: {
+                left: 25
+            }
         }
     };
 
@@ -102,7 +107,8 @@ export class DiagramConfig {
     public flowCtrl = {
         bottomMargin: STATEMENT_HEIGHT / 2,
         condition: {
-            height: STATEMENT_HEIGHT * 3
+            bottomMargin: 20,
+            height: STATEMENT_HEIGHT * 3,
         },
         foreach: {
             height: STATEMENT_HEIGHT * 2 + 10,

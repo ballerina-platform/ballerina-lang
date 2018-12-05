@@ -1,4 +1,4 @@
-import { ASTNode, Invocation, SimpleVariableRef } from "./ast-interfaces";
+import { ASTNode, Invocation, SimpleVariableRef, Variable, VariableDef } from "./ast-interfaces";
 import { Visitor } from "./base-visitor";
 import { ASTKindChecker } from "./check-kind-util";
 
@@ -71,4 +71,16 @@ export function getEndpointName(node: Invocation): string | undefined {
         return simpleVariableRef.variableName.value;
     }
     return;
+}
+
+export function isWorker(node: ASTNode) {
+    if (ASTKindChecker.isVariableDef(node)) {
+        if (ASTKindChecker.isVariable((node as VariableDef).variable)) {
+            const name: string = ((node as VariableDef).variable as Variable).name.value;
+            if (/^0.*/.test(name)) {
+                return true;
+            }
+        }
+    }
+    return false;
 }

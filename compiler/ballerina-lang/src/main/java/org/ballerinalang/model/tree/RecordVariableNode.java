@@ -40,6 +40,10 @@ public interface RecordVariableNode extends VariableNode, AnnotatableNode, Docum
 
     List<? extends BLangRecordVariable.BLangRecordVariableKeyValueNode> getVariables();
 
+    VariableNode getRestParam();
+
+    boolean isClosed();
+
     /**
      * Interface for key and value of a record variable.
      */

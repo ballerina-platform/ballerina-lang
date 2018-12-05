@@ -1,6 +1,6 @@
 import {
-    ASTKindChecker, Block, CompilationUnit, Foreach, Function,
-    If, Service, VisibleEndpoint, Visitor, While
+    ASTKindChecker, ASTUtil, Block, CompilationUnit, Foreach,
+    Function, If, Lambda, Service, Variable, VariableDef, VisibleEndpoint, Visitor, While
 } from "@ballerina/ast-model";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
@@ -62,6 +62,7 @@ export const visitor: Visitor = {
 
     // tslint:disable-next-line:ban-types
     beginVisitFunction(node: Function) {
+        if (node.lambda) { return; }
         const viewState: FunctionViewState = node.viewState;
         const defaultWorker: WorkerViewState = node.viewState.defaultWorker;
 
@@ -80,6 +81,24 @@ export const visitor: Visitor = {
         // Position default worker lifeline.
         positionWorkerLine(defaultWorker);
 
+        // Size the other workers
+        let workerX = defaultWorker.bBox.x + defaultWorker.bBox.w + config.lifeLine.gutter.h;
+        node.body!.statements.filter((element) => ASTUtil.isWorker(element)).forEach((worker) => {
+            const workerViewState: WorkerViewState = worker.viewState;
+            const variable: Variable = ((worker as VariableDef).variable as Variable);
+            const lambda: Lambda = (variable.initialExpression as Lambda);
+            const functionNode = lambda.functionNode;
+            // Position worker lifeline
+            workerViewState.lifeline.bBox.y = defaultWorker.bBox.y;
+            workerViewState.lifeline.bBox.x = workerX;
+            // Position worker body
+            let leftMargin = functionNode.body!.viewState.bBox.leftMargin;
+            leftMargin = (leftMargin === 0) ? 60 : leftMargin;
+            functionNode.body!.viewState.bBox.x = workerX + leftMargin;
+            workerX = workerX + functionNode.body!.viewState.bBox.w + leftMargin;
+            functionNode.body!.viewState.bBox.y = defaultWorker.bBox.y + config.lifeLine.header.height;
+        });
+
         // Position the body block node
         if (node.body) {
             const bodyViewState: ViewState = node.body.viewState;
@@ -89,7 +108,7 @@ export const visitor: Visitor = {
         }
 
         let epX = defaultWorker.bBox.x + defaultWorker.bBox.w
-                    + config.lifeLine.gutter.h;
+            + config.lifeLine.gutter.h;
         // Position endpoints
         if (node.VisibleEndpoints) {
             node.VisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
@@ -103,7 +122,7 @@ export const visitor: Visitor = {
 
         // Position drop down menu for adding workers and endpoints
         viewState.menuTrigger.x = epX;
-        viewState.menuTrigger.y = defaultWorker.bBox.y;
+        viewState.menuTrigger.y = defaultWorker.bBox.y + config.lifeLine.header.height / 2;
 
         // Update the width of children
         viewState.body.w = viewState.bBox.w;
@@ -127,7 +146,8 @@ export const visitor: Visitor = {
     beginVisitWhile(node: While) {
         const viewState: ViewState = node.viewState;
         node.body.viewState.bBox.x = viewState.bBox.x;
-        node.body.viewState.bBox.y = viewState.bBox.y + config.flowCtrl.condition.height;
+        node.body.viewState.bBox.y = viewState.bBox.y + + config.flowCtrl.condition.bottomMargin
+            + config.flowCtrl.condition.height;
     },
 
     beginVisitForeach(node: Foreach) {
@@ -139,7 +159,8 @@ export const visitor: Visitor = {
     beginVisitIf(node: If) {
         const viewState: ViewState = node.viewState;
         node.body.viewState.bBox.x = viewState.bBox.x;
-        node.body.viewState.bBox.y = viewState.bBox.y + config.flowCtrl.condition.height;
+        node.body.viewState.bBox.y = viewState.bBox.y + config.flowCtrl.condition.bottomMargin
+            + config.flowCtrl.condition.height;
 
         if (node.elseStatement) {
             node.elseStatement.viewState.bBox.x = viewState.bBox.x + node.body.viewState.bBox.w;
@@ -150,7 +171,7 @@ export const visitor: Visitor = {
 
     beginVisitService(node: Service) {
         const viewState: ViewState = node.viewState;
-        let y = viewState.bBox.y;
+        let y = viewState.bBox.y + config.panelGroup.header.height;
         // tslint:disable-next-line:ban-types
         node.resources.forEach((element: Function) => {
             element.viewState.bBox.x = viewState.bBox.x;
