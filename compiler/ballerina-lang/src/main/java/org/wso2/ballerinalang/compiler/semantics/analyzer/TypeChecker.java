@@ -2073,6 +2073,10 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BType checkInvocationParam(BLangInvocation iExpr) {
         BType safeType = getSafeType(iExpr.symbol.type, iExpr);
+        if (safeType == symTable.semanticError) {
+            return symTable.semanticError;
+        }
+
         List<BType> paramTypes = ((BInvokableType) safeType).getParameterTypes();
         int requiredParamsCount;
         if (iExpr.symbol.tag == SymTag.VARIABLE) {
@@ -2736,12 +2740,12 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType getSafeType(BType type, BLangAccessExpression accessExpr) {
-        if (accessExpr.safeNavigate && type == symTable.errorType) {
-            dlog.error(accessExpr.pos, DiagnosticCode.SAFE_NAVIGATION_NOT_REQUIRED, type);
-            return symTable.semanticError;
-        }
-
         if (type.tag != TypeTags.UNION) {
+            // If the type is a semantic error, we don't need to log an error again.
+            if (accessExpr.safeNavigate && type != symTable.semanticError) {
+                dlog.error(accessExpr.pos, DiagnosticCode.SAFE_NAVIGATION_NOT_REQUIRED, type);
+                return symTable.semanticError;
+            }
             return type;
         }
 
