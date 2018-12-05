@@ -1565,6 +1565,16 @@
                 </exclusions>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk15on</artifactId>
+                <version>${bouncycastle.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcpkix-jdk15on</artifactId>
+                <version>${bouncycastle.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -2374,6 +2384,7 @@
 
         <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
         <apache.directory.server.version>1.5.5</apache.directory.server.version>
+        <bouncycastle.version>1.60</bouncycastle.version>
     </properties>
 
 </project>
