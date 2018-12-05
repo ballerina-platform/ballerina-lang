@@ -222,7 +222,7 @@ public abstract class AbstractItemResolver {
      * @param ctx               LS Operation context
      * @return {@link List}     List of packages completion items
      */
-    protected List<CompletionItem> getPackagesCompletionItems(LSServiceOperationContext ctx) {
+    protected List<CompletionItem> getPackagesCompletionItems(LSContext ctx) {
         // First we include the packages from the imported list.
         List<String> populatedList = new ArrayList<>();
         BLangPackage pkg = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
