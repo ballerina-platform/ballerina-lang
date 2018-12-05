@@ -519,6 +519,9 @@ public class BVM {
                 case InstructionCodes.STAMP:
                     handleStampBuildInMethod(strand, operands, sf);
                     break;
+                case InstructionCodes.CONVERT:
+                    handleConvertBuildInMethod(strand, sf, operands);
+                    break;
                 case InstructionCodes.FPCALL:
                     i = operands[0];
                     if (sf.refRegs[i] == null) {
@@ -1063,6 +1066,47 @@ public class BVM {
                             valueToBeStamped.getType(), targetType));
             sf.refRegs[k] = error;
         }
+    }
+
+    private static void handleConvertBuildInMethod(Strand strand, StackFrame sf, int[] operands) {
+
+        int i = operands[0];
+        int cpIndex = operands[1];
+        int j = operands[2];
+        TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) sf.constPool[cpIndex];
+        BRefType bRefTypeValue = sf.refRegs[i];
+        if (checkCast(bRefTypeValue, typeRefCPEntry.getType())) {
+            switch (typeRefCPEntry.getType().getTag()) {
+                case TypeTags.INT_TAG:
+                    sf.refRegs[j] = new BInteger(Long.valueOf(bRefTypeValue.value().toString()));
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    sf.refRegs[j] = new BFloat(Double.valueOf(bRefTypeValue.value().toString()));
+                    break;
+                case TypeTags.DECIMAL_TAG:
+                    if (bRefTypeValue.value() instanceof Double) {
+                        sf.refRegs[j] = new BDecimal(BigDecimal.valueOf((Double) bRefTypeValue.value()));
+                    } else {
+                        sf.refRegs[j] = new BDecimal(BigDecimal.valueOf((Long) bRefTypeValue.value()));
+                    }
+                    break;
+                case TypeTags.STRING_TAG:
+                    sf.refRegs[j] = new BString((String) bRefTypeValue.value());
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    sf.refRegs[j] = new BBoolean((Boolean) bRefTypeValue.value());
+                    break;
+                case TypeTags.BYTE_TAG:
+                    sf.refRegs[j] = new BByte(((Long) bRefTypeValue.value()).byteValue());
+                    break;
+                default:
+                    throw new UnsupportedOperationException();
+            }
+        } else {
+            handleTypeConversionError(strand, sf, j, bRefTypeValue != null ? bRefTypeValue.getType() : BTypes.typeNull,
+                                      typeRefCPEntry.getType());
+        }
+
     }
 
     /**
