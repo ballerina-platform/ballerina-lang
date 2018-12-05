@@ -381,23 +381,6 @@ public class ConstrainedMapTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 63);
     }
 
-    // This will be a compilation error.
-    @Test(groups = { "broken" }, description = "Test struct to map conversion for constrained map negative.")
-    public void testMapToStructConversionNegative() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testMapToStructConversionNegative");
-        Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BError) returns[0]).getReason();
-        Assert.assertEquals(errorMsg, "cannot convert 'map<string>' to type 'Student: error while mapping 'index': " +
-                "incompatible types: expected 'int', found 'string'");
-    }
-
-    @Test(description = "Test struct to map conversion for constrained map negative.")
-    public void testMapFunctionsOnConstrainedMaps() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testMapFunctionsOnConstrainedMaps");
-        Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertEquals(((BValueArray) returns[0]).size(), 2);
-    }
-
     @Test(description = "Test struct to map conversion for constrained map negative.")
     public void testForEachOnConstrainedMaps() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testForEachOnConstrainedMaps");

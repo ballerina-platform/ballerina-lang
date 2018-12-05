@@ -111,25 +111,6 @@ function testJSONToConstraintJsonUnsafeCastPositive() returns (json, json, json)
     }
 }
 
-
-//function testConstraintJSONToConstraintJsonCast() returns (json) {
-//    json<Person> j = getStudent();
-//    return j;
-//}
-
-//function testConstraintJSONToConstraintJsonUnsafePositiveCast() returns (json | error) {
-//    json<Person> jp = getStudent();
-//    var js  = <json<Student>> jp;
-//    return js;
-//}
-
-// This will be a compilation error.
-//function testConstraintJSONToConstraintJsonUnsafeNegativeCast() returns (json | error) {
-//    json<Employee> je = {first_name:"John", last_name:"Doe", age:30, address:{phoneNumber:{number:"1234"}, street:"York St"}};
-//    var js = json<Student>.convert(je);
-//    return js;
-//}
-
 function testJSONArrayToConstraintJsonArrayCastPositive() returns (json<Student>[] | error) {
     json j1 = [getStudent()];
     var j2 = json<Student>[].stamp(j1);

@@ -93,3 +93,27 @@ function testInvalidIndexBasedAccessOfConstrainedJSON() {
     json j = 12;
     string name = j[0.0];
 }
+
+function getStudent() returns (json<Student>){
+    json<Student> j = {name:"John Doe", age:30, address:"Colombo", class:"5"};
+    return j;
+}
+
+function testConstraintJSONToConstraintJsonCast() returns (json) {
+    json<Person> j = getStudent();
+    return j;
+}
+
+function testConstraintJSONToConstraintJsonUnsafePositiveCast() returns (json | error) {
+    json<Person> jp = getStudent();
+    var js  = json<Student>.convert(jp);
+    return js;
+}
+
+function testConstraintJSONToConstraintJsonUnsafeNegativeCast() returns (json | error) {
+    json<Employee> je = {first_name:"John", last_name:"Doe", age:30, address:{phoneNumber:{number:"1234"},
+                        street:"York St"}};
+    var js = json<Student>.convert(je);
+    return js;
+}
+
