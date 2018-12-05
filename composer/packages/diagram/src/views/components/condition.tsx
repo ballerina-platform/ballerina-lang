@@ -8,7 +8,7 @@ const config: DiagramConfig = DiagramUtils.getConfig();
 export const Condition: React.StatelessComponent<{
         x: number,
         y: number,
-        label: string,
+        label: string | React.ReactNode,
         expression: string,
         width?: number
     }> = ({
@@ -81,7 +81,8 @@ export const Condition: React.StatelessComponent<{
                 <polyline
                     points={`${p1.x},${p1.y} ${p2.x},${p2.y} ${p3.x},${p3.y} ${p4.x},${p4.y} ${p1.x},${p1.y}`}
                 />
-                <text {...labelProps} className="label">{label}</text>
+                {(typeof label === "string") && <text {...labelProps} className="label">{label}</text>}
+                {(typeof label === "object") && label}
                 <rect {...trueProps} className="condition-case-background condition-case-background-true"></rect>
                 <text {...trueTextProps} className="condition-case condition-case-true">{conditionLables.true}</text>
                 <rect {...falseProps} className="condition-case-background condition-case-background-false"></rect>

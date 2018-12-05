@@ -3,13 +3,6 @@ import cn from "classnames";
 import * as React from "react";
 import { DiagramContext } from "../../diagram/index";
 
-export interface NodePosition {
-    endColumn: number;
-    endLine: number;
-    startColumn: number;
-    startLine: number;
-}
-
 export const SourceLinkedLabel: React.StatelessComponent<{
         x: number,
         y: number,
@@ -31,10 +24,12 @@ export const SourceLinkedLabel: React.StatelessComponent<{
                     className={cn(className, "source-linked-label")}
                     onClick={() => {
                         if (langClient) {
-                            // FIXME: update this to use interface from @ballerina/ast-model
-                            // once new interfaces are generated with NodePosition
+                            const position = target.position;
+                            if (!position) {
+                                return;
+                            }
                             const { startLine, startColumn, endColumn, endLine }
-                                = (target as any).position as NodePosition;
+                                = position;
                             langClient.revealRange({
                                 range: {
                                     end: {
