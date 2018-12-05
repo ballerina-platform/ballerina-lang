@@ -224,6 +224,10 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public BType checkExpr(BLangExpression expr, SymbolEnv env, BType expType, DiagnosticCode diagCode) {
+        if (expr.typeChecked) {
+            return expr.type;
+        }
+
         // TODO Check the possibility of using a try/finally here
         SymbolEnv prevEnv = this.env;
         BType preExpType = this.expType;
@@ -238,6 +242,7 @@ public class TypeChecker extends BLangNodeVisitor {
         this.env = prevEnv;
         this.expType = preExpType;
         this.diagCode = preDiagCode;
+        expr.typeChecked = true;
         return resultType;
     }
 

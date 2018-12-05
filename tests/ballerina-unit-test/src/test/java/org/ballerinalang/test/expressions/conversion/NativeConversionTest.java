@@ -699,4 +699,11 @@ public class NativeConversionTest {
         Assert.assertTrue(returns[0] instanceof BFloat);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 10.0);
     }
+    
+    @Test
+    public void testConvertWithFuncCall() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConvertWithFuncCall");
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
+    }
 }

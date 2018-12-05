@@ -61,6 +61,8 @@ export function render(context: ExtensionContext, langClient: ExtendedLangClient
             </div>
     </div>`;
 
+    const bodyCss = "network-logs";
+
     const styles = `
         body.vscode-dark, body.vscode-light {
             background-color: #1e1e1e;
@@ -125,7 +127,7 @@ export function render(context: ExtensionContext, langClient: ExtendedLangClient
             display: table-header-group!important;
         }
     `;
-    return getLibraryWebViewContent(context, body, script, styles);
+    return getLibraryWebViewContent(context, body, script, styles, bodyCss);
 }
 
 
@@ -137,7 +139,11 @@ export function renderDetailView (context: ExtensionContext, langClient: Extende
                 </div>
             </div>
     </div>`;
+
+    const bodyCss = "network-logs network-logs-details";
+
     const traceString = encodeURIComponent(JSON.stringify(trace));
+
     const styles = `
         body.vscode-dark, body.vscode-light {
             background-color: #1e1e1e;
@@ -167,6 +173,7 @@ export function renderDetailView (context: ExtensionContext, langClient: Extende
             background: #1e1e1e!important;
         }
         `;
+
     const script = `
         function loadedScript() {
             function renderDetailedTrace(trace) {
@@ -181,5 +188,6 @@ export function renderDetailView (context: ExtensionContext, langClient: Extende
             renderDetailedTrace("${traceString}");
         }
     `;
-    return getLibraryWebViewContent(context, body, script, styles);
+
+    return getLibraryWebViewContent(context, body, script, styles, bodyCss);
 }

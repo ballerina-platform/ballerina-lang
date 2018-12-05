@@ -980,3 +980,16 @@ function testJsonIntToFloat() returns float|error {
     var input = float.convert(operationReq.firstNumber);
     return input;
 }
+
+function testConvertWithFuncCall() returns int {
+    var val = int.convert(getString("66"));
+    if (val is int) {
+        return val;
+    } else {
+        return -1;
+    }
+}
+
+function getString(any s) returns string {
+    return "5";
+}
