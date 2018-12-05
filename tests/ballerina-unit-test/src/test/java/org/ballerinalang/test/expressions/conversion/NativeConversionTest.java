@@ -685,4 +685,11 @@ public class NativeConversionTest {
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
+
+    @Test
+    public void testConvertWithFuncCall() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConvertWithFuncCall");
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
+    }
 }

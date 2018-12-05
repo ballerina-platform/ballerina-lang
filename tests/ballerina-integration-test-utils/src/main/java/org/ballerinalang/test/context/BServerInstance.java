@@ -96,7 +96,7 @@ public class BServerInstance implements BServer {
 
     @Override
     public void startServer(String balFile, int[] requiredPorts) throws BallerinaTestException {
-        startServer(balFile, new String[]{}, requiredPorts);
+        startServer(balFile, new String[]{"--experimental"}, requiredPorts);
     }
 
     @Override
