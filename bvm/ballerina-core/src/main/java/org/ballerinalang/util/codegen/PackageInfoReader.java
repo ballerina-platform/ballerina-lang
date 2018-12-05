@@ -1298,6 +1298,7 @@ public class PackageInfoReader {
                 case InstructionCodes.XMLLOAD:
                 case InstructionCodes.LENGTHOF:
                 case InstructionCodes.STAMP:
+                case InstructionCodes.CONVERT:
                 case InstructionCodes.NEWSTREAM:
                 case InstructionCodes.CHECKCAST:
                 case InstructionCodes.TYPE_ASSERTION:
