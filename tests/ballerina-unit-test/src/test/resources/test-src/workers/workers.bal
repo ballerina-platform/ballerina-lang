@@ -45,3 +45,21 @@ function workerSendFromDefault() returns int{
 
     return (wait w1) + 1;
 }
+
+public function receiveWithTrap() returns error|int {
+    worker w1 {
+      int i = 2;
+      if(true) {
+           error err = error("err", { message: "err msg" });
+           panic err;
+      }
+      i -> w2;
+    }
+
+    worker w2 returns error|int {
+      error|int  j = trap <- w1;
+      return j;
+    }
+
+    return wait w2;
+}

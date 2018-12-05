@@ -170,6 +170,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private IterableAnalyzer iterableAnalyzer;
     private BLangDiagnosticLog dlog;
     private SymbolEnv env;
+    private boolean isTypeChecked;
 
     /**
      * Expected types or inherited types.
@@ -236,14 +237,15 @@ public class TypeChecker extends BLangNodeVisitor {
         this.env = env;
         this.diagCode = diagCode;
         this.expType = expType;
+        this.isTypeChecked = true;
 
         expr.accept(this);
 
         expr.type = resultType;
+        expr.typeChecked = isTypeChecked;
         this.env = prevEnv;
         this.expType = preExpType;
         this.diagCode = preDiagCode;
-        expr.typeChecked = true;
         return resultType;
     }
 
@@ -598,6 +600,8 @@ public class TypeChecker extends BLangNodeVisitor {
         BSymbol symbol = symResolver.lookupSymbol(env, names.fromIdNode(workerReceiveExpr.workerIdentifier),
                                                   SymTag.VARIABLE);
 
+        // TODO Need to remove this cached env
+        workerReceiveExpr.env = this.env;
         if (workerReceiveExpr.isChannel || symbol.getType().tag == TypeTags.CHANNEL) {
             visitChannelReceive(workerReceiveExpr, symbol);
             return;
@@ -610,7 +614,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
         // The receive expression cannot be assigned to var, since we cannot infer the type.
         if (symTable.noType == this.expType) {
-            this.dlog.error(workerReceiveExpr.pos, DiagnosticCode.INVALID_USAGE_OF_RECEIVE_EXPRESSION);
+            //            this.dlog.error(workerReceiveExpr.pos, DiagnosticCode.INVALID_USAGE_OF_RECEIVE_EXPRESSION);
         }
         // We cannot predict the type of the receive expression as it depends on the type of the data sent by the other
         // worker/channel. Since receive is an expression now we infer the type of it from the lhs of the statement.
@@ -620,9 +624,6 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private void visitChannelReceive(BLangWorkerReceive workerReceiveNode, BSymbol symbol) {
         workerReceiveNode.isChannel = true;
-        // TODO Need to remove this cached env
-        workerReceiveNode.env = this.env;
-
         if (symbol == null) {
             symbol = symResolver.lookupSymbol(env, names.fromString(workerReceiveNode.getWorkerName().getValue()),
                                               SymTag.VARIABLE);
@@ -1260,8 +1261,21 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTrapExpr trapExpr) {
+        boolean firstVisit = trapExpr.expr.type == null;
         BType actualType;
         BType exprType = checkExpr(trapExpr.expr, env, this.symTable.noType);
+
+        if (trapExpr.expr.getKind() == NodeKind.WORKER_RECEIVE) {
+            if (firstVisit) {
+                isTypeChecked = false;
+                resultType = expType;
+                return;
+            } else {
+                expType = trapExpr.type;
+                exprType = trapExpr.expr.type;
+            }
+        }
+
         if (expType == symTable.semanticError) {
             actualType = symTable.semanticError;
         } else {

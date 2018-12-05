@@ -1954,6 +1954,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private void validateWorkerActionParameters(BLangWorkerSend send, BLangWorkerReceive receive) {
         types.checkType(receive, send.type, receive.type);
         addImplicitCast(send.type, receive);
+        if (receive.parent.getKind() == NodeKind.TRAP_EXPR) {
+            typeChecker.checkExpr((BLangTrapExpr) receive.parent, receive.env);
+        }
     }
 
     private void validateWorkerActionParameters(BLangWorkerSyncSendExpr send, BLangWorkerReceive receive) {
