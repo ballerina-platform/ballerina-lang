@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.langserver.completions;
 
+import org.ballerinalang.langserver.AnnotationNodeKind;
 import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -42,6 +43,7 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
@@ -448,7 +450,7 @@ public class TreeVisitor extends LSNodeVisitor {
         serviceContent.addAll(serviceFields);
         serviceContent.sort(new CommonUtil.BLangNodeComparator());
 
-//        serviceNode.annAttachments.forEach(annotationAttachment -> this.acceptNode(annotationAttachment, serviceEnv));
+        serviceNode.annAttachments.forEach(annotationAttachment -> this.acceptNode(annotationAttachment, serviceEnv));
         // Reset the previous node
         this.setPreviousNode(null);
         boolean cursorWithinBlock = serviceFunctions.isEmpty()
@@ -753,12 +755,13 @@ public class TreeVisitor extends LSNodeVisitor {
     }
 
     public void setNextNode(BSymbol symbol) {
-        int flags;
-        if (symbol == null) {
-            return;
+        if (symbol instanceof BServiceSymbol) {
+            lsContext.put(CompletionKeys.NEXT_NODE_KEY, AnnotationNodeKind.SERVICE);
+        } else if (symbol instanceof BInvokableSymbol && (symbol.flags & Flags.RESOURCE) == Flags.RESOURCE) {
+            lsContext.put(CompletionKeys.NEXT_NODE_KEY, AnnotationNodeKind.RESOURCE);
+        } else if (symbol instanceof BInvokableSymbol) {
+            lsContext.put(CompletionKeys.NEXT_NODE_KEY, AnnotationNodeKind.FUNCTION);
         }
-        flags = (symbol instanceof BServiceSymbol) ? symbol.type.tsymbol.flags : symbol.flags;
-        lsContext.put(CompletionKeys.NEXT_NODE_KEY, flags);
     }
 
     /**

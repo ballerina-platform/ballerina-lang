@@ -33,7 +33,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.AttachPoints;
-import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -118,7 +117,8 @@ public class LSAnnotationCache {
      * @param ctx               LSContext
      * @return {@link HashMap}  Map of annotation lists
      */
-    public HashMap<PackageID, List<BAnnotationSymbol>> getAnnotationMapForType(int attachmentPoint, LSContext ctx) {
+    public HashMap<PackageID, List<BAnnotationSymbol>> getAnnotationMapForType(AnnotationNodeKind attachmentPoint,
+                                                                               LSContext ctx) {
         HashMap<PackageID, List<BAnnotationSymbol>> annotationMap;
         
         // Check whether the imported packages in the current bLang package has been already processed
@@ -130,16 +130,19 @@ public class LSAnnotationCache {
                                 ctx.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY), bLangImportPackage.symbol.pkgID));
                     }
                 });
-
-        if ((attachmentPoint & Flags.SERVICE) == Flags.SERVICE) {
-            annotationMap = serviceAnnotations;
-        } else if ((attachmentPoint & Flags.RESOURCE) == Flags.RESOURCE) {
-            annotationMap = resourceAnnotations;
-        } else if ((attachmentPoint & Flags.CLIENT) == Flags.CLIENT) {
-            annotationMap = clientEndpointAnnotations;
-        } else {
-            // TODO: Here return the common annotations
-            annotationMap = new HashMap<>();
+        switch (attachmentPoint) {
+            case SERVICE:
+                annotationMap = serviceAnnotations;
+                break;
+            case RESOURCE:
+                annotationMap = resourceAnnotations;
+                break;
+            case FUNCTION:
+                annotationMap = functionAnnotations;
+                break;
+            default:
+                annotationMap = new HashMap<>();
+                break;
         }
 
         return annotationMap;
