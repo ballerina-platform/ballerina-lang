@@ -473,6 +473,14 @@ public class NativeConversionTest {
     }
 
     @Test
+    public void testEmptyJSONtoStructWithOptionals() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testEmptyJSONtoStructWithOptionals");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        BMap<String, BValue> bValue = (BMap<String, BValue>) returns[0];
+        Assert.assertEquals(bValue.size(), 0);
+    }
+
+    @Test
     public void testSameTypeConversion() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testSameTypeConversion");
         Assert.assertTrue(returns[0] instanceof BInteger);
