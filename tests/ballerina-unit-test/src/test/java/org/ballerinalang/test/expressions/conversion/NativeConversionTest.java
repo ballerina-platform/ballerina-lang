@@ -21,6 +21,8 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BByte;
+import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -690,11 +692,18 @@ public class NativeConversionTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test(description = "Test json int to float")
-    public void testJsonIntToFloat() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testJsonIntToFloat");
-        Assert.assertTrue(returns[0] instanceof BFloat);
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 10.0);
+    @Test(description = "Test convert values which can be implicitly cast")
+    public void testImplicitConversion() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testImplicitConversion");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        BMap<String, ?> map = (BMap<String, ?>) returns[0];
+        Assert.assertEquals(((BFloat) map.get("toFloat")).floatValue(), 10.0);
+        Assert.assertEquals(map.get("toString").stringValue(), "78.9");
+        Assert.assertEquals(((BInteger) map.get("toInt")).intValue(), 200);
+        Assert.assertEquals(((BDecimal) map.get("toDecimal")).floatValue(), 23.456);
+        Assert.assertEquals(((BByte) map.get("ToByte")).intValue(), 4);
+        Assert.assertTrue(((BBoolean) map.get("ToBoolean")).booleanValue());
+        
     }
     
     @Test
