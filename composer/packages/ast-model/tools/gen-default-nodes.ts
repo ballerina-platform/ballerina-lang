@@ -18,16 +18,16 @@ function genDefaultNodes() {
         }
 
         const defaultImportPath = path.join(DEFAULT_NODES_PATH, "import.json");
-        fs.writeFileSync(defaultImportPath, JSON.stringify(ast.topLevelNodes[0], null, 2));
+        fs.writeFileSync(defaultImportPath, JSON.stringify(ast.topLevelNodes[0], null, 2) + "\n");
 
         const defaultFunctionPath = path.join(DEFAULT_NODES_PATH, "function.json");
-        fs.writeFileSync(defaultFunctionPath, JSON.stringify(ast.topLevelNodes[1], null, 2));
+        fs.writeFileSync(defaultFunctionPath, JSON.stringify(ast.topLevelNodes[1], null, 2) + "\n");
 
         const defaultServicePath = path.join(DEFAULT_NODES_PATH, "service.json");
-        fs.writeFileSync(defaultServicePath, JSON.stringify(ast.topLevelNodes[2], null, 2));
+        fs.writeFileSync(defaultServicePath, JSON.stringify(ast.topLevelNodes[2], null, 2) + "\n");
 
         const defaultMainFunctionPath = path.join(DEFAULT_NODES_PATH, "main-function.json");
-        fs.writeFileSync(defaultMainFunctionPath, JSON.stringify(ast.topLevelNodes[5], null, 2));
+        fs.writeFileSync(defaultMainFunctionPath, JSON.stringify(ast.topLevelNodes[5], null, 2) + "\n");
 
         const defaultIfPath = path.join(DEFAULT_NODES_PATH, "if.json");
         const defaultWhilePath = path.join(DEFAULT_NODES_PATH, "while.json");
@@ -40,8 +40,8 @@ function genDefaultNodes() {
             whileAST = fBody.statements[1];
         }
 
-        fs.writeFileSync(defaultIfPath, JSON.stringify(ifAST, null, 2));
-        fs.writeFileSync(defaultWhilePath, JSON.stringify(whileAST, null, 2));
+        fs.writeFileSync(defaultIfPath, JSON.stringify(ifAST, null, 2) + "\n");
+        fs.writeFileSync(defaultWhilePath, JSON.stringify(whileAST, null, 2) + "\n");
 
         shutdown();
     });
