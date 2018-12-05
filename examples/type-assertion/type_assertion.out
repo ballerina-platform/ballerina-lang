@@ -1,3 +1,5 @@
+# To run the program, navigate to the directory that contains the
+# `.bal` file and use the `ballerina run` command.
 $ ballerina run type_assertion.bal
 Type asserted employee name: Speedy Gonzales
 Type asserted person name or error: assertion error: expected 'Person', found 'Employee'

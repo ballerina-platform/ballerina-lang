@@ -15,7 +15,7 @@ public function main() {
                     enabled : true
                 }});
     websub:WebSubHub webSubHub = result is websub:HubStartedUpError ?
-                                                    result.startedUpHub : result;
+                                               result.startedUpHub : result;
 
     // Wait for the subscriber to subscribe at this hub and for the publisher to publish the notifications.
     runtime:sleep(10000);

@@ -1,5 +1,5 @@
-# At the command line, navigate to the directory that contains the
-# `identify_trends.bal` file and run the `ballerina run` command.
+# To run the program, navigate to the directory that contains the
+# `.bal` file and use the `ballerina run` command.
 $ ballerina run --experimental identify_trends.bal
 printInitalAndPeakTemp function is invoked. InitialTemp : 20.0 and Peak temp : 23.0
 printInitalAndPeakTemp function is invoked. InitialTemp : 21.0 and Peak temp : 24.0

@@ -42,7 +42,8 @@ function forwardToBakend(string textContent) {
             log:printInfo("Response from backend service: "
                             + responseMessage);
         } else {
-            log:printError("Error while reading response", err = responseMessage);
+            log:printError("Error while reading response",
+                            err = responseMessage);
         }
     } else {
         log:printError("Error while sending payload", err = result);
@@ -71,7 +72,8 @@ service backend on new http:Listener(9090) {
             var result = caller->respond(res);
 
             if (result is error) {
-                log:printError("Error occurred while acknowledging message", err = result);
+                log:printError("Error occurred while acknowledging message",
+                                err = result);
             }
         } else {
             log:printError("Error while reading payload", err = stringPayload);

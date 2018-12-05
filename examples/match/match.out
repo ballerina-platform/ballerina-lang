@@ -1,4 +1,5 @@
-To run the match.bal to execute this example, place this file in a specific location and issue this command.
+# To run the program, navigate to the directory that contains the
+# `.bal` file and use the `ballerina run` command.
 $ ballerina run match.bal
 value is: 0
 value is: 1

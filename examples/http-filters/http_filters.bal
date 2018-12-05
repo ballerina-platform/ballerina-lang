@@ -5,21 +5,25 @@ final string filter_name_header = "X-filterName";
 final string filter_name_header_value = "RequestFilter-1";
 
 public type RequestFilter object {
-    public function filterRequest(http:Caller caller, http:Request request, http:FilterContext context)
+    public function filterRequest(http:Caller caller, http:Request request,
+                        http:FilterContext context)
                         returns boolean {
         // set a header for filter
         request.setHeader(filter_name_header, filter_name_header_value);
         return true;
     }
 
-    public function filterResponse(http:Response response, http:FilterContext context) returns boolean {
+    public function filterResponse(http:Response response,
+                                    http:FilterContext context)
+                                    returns boolean {
         return true;
     }
 };
 
 RequestFilter filter = new;
 
-listener http:Listener echoListener = new http:Listener(9090, config = { filters: [filter]});
+listener http:Listener echoListener = new http:Listener(9090,
+                                            config = { filters: [filter]});
 
 @http:ServiceConfig {
     basePath: "/hello"

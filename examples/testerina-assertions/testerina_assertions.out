@@ -1,3 +1,5 @@
+# To run the program, navigate to the directory that contains the
+# `.bal` file and use the `ballerina test` command.
 $ ballerina test testerina_assertions.bal
 Compiling tests
     testerina_assertions.bal

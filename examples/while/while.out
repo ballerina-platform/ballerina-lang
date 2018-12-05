@@ -1,3 +1,5 @@
+# To run the program, navigate to the directory that contains the
+# `.bal` file and use the `ballerina run` command.
 $ ballerina run while.bal
 0
 1
