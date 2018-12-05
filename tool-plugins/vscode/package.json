@@ -162,7 +162,7 @@
                 "command": "ballerina.showDiagram",
                 "title": "Show Diagram",
                 "icon": {
-                    "dark": "./resources/images/icons/design-view-white.svg",
+                    "dark": "./resources/images/icons/design-view-inverse.svg",
                     "light": "./resources/images/icons/design-view.svg"
                 },
                 "category": "Ballerina"
