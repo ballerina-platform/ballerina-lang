@@ -6,7 +6,7 @@ export function getWebViewResourceRoot(context: ExtensionContext): Uri {
 }
 
 export function getLibraryWebViewContent(context: ExtensionContext,
-        body: string, scripts: string, styles: string, isAPIDesigner?: boolean) {
+        body: string, scripts: string, styles: string, bodyCss?: string, isAPIDesigner?: boolean) {
     const resourceRoot = getWebViewResourceRoot(context).toString();
     const composerResourcesRoot = process.env.COMPOSER_DEBUG === "true" 
                 ? process.env.COMPOSER_DEV_HOST
@@ -26,7 +26,7 @@ export function getLibraryWebViewContent(context: ExtensionContext,
         </style>
     </head>
     
-    <body style="overflow-y: scroll;">
+    <body style="overflow-y: auto;" class="${bodyCss}">
         ${body}
         <script>
             ${scripts}
