@@ -50,7 +50,7 @@ public class Add extends BlockingNativeCallableUnit {
         try {
             table.performAddOperation(data, context);
         } catch (BLangFreezeException e) {
-            throw new BallerinaException("Failed to add data to the table: " + e.getMessage());
+            throw new BallerinaException(e.getMessage(), "Failed to add data to the table: " + e.getDetail());
         }
     }
 }

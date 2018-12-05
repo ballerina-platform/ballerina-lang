@@ -16,6 +16,8 @@
  */
 package org.ballerinalang.nativeimpl.lang.utils;
 
+import org.ballerinalang.util.exceptions.BLangFreezeException;
+import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,16 +86,23 @@ public class ErrorHandler {
     /**
      * Handle any json related exception.
      * 
+     * @param reason        The reason to set as error reason
      * @param operation     Operation that executed
      * @param e             Throwable to handle
      */
-    public static void handleJsonException(String operation, Throwable e) {
+    public static void handleJsonException(String reason, String operation, Throwable e) {
         // here local message  of the cause is logged whenever possible, to avoid java class being logged 
         // along with the error message.
-        if (e.getCause() != null) {
-            throw new BallerinaException("Failed to " + operation + ": " + e.getCause().getMessage());
+        if (e instanceof BallerinaException && ((BallerinaException) e).getDetail() != null) {
+            throw new BallerinaException(reason, "Failed to " + operation + ": " +
+                    ((BallerinaException) e).getDetail());
+        } else if (e instanceof BLangFreezeException) {
+            throw new BallerinaException(reason, "Failed to " + operation + ": " +
+                    ((BLangFreezeException) e).getDetail());
+        } else if (e.getCause() != null) {
+            throw new BallerinaException(reason, "Failed to " + operation + ": " + e.getCause().getMessage());
         } else {
-            throw new BallerinaException("Failed to " + operation + ": " + e.getMessage());
+            throw new BallerinaException(reason, "Failed to " + operation + ": " + e.getMessage());
         }
     }
     
@@ -121,10 +130,18 @@ public class ErrorHandler {
     public static void handleXMLException(String operation, Throwable e) {
         // here local message of the cause is logged whenever possible, to avoid java class being logged 
         // along with the error message.
-        if (e.getCause() != null) {
-            throw new BallerinaException("Failed to " + operation + ": " + e.getCause().getMessage());
+        if (e instanceof BallerinaException && ((BallerinaException) e).getDetail() != null) {
+            throw new BallerinaException(BallerinaErrorReasons.XML_OPERATION_ERROR, "Failed to " + operation + ": " +
+                    ((BallerinaException) e).getDetail());
+        } else if (e instanceof BLangFreezeException) {
+            throw new BallerinaException(BallerinaErrorReasons.XML_OPERATION_ERROR, "Failed to " + operation + ": " +
+                    ((BLangFreezeException) e).getDetail());
+        } else if (e.getCause() != null) {
+            throw new BallerinaException(BallerinaErrorReasons.XML_OPERATION_ERROR,
+                                         "Failed to " + operation + ": " + e.getCause().getMessage());
         } else {
-            throw new BallerinaException("Failed to " + operation + ": " + e.getMessage());
+            throw new BallerinaException(BallerinaErrorReasons.XML_OPERATION_ERROR,
+                                         "Failed to " + operation + ": " + e.getMessage());
         }
     }
 

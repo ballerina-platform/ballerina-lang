@@ -119,6 +119,7 @@ import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BLangFreezeException;
 import org.ballerinalang.util.exceptions.BLangMapStoreException;
 import org.ballerinalang.util.exceptions.BLangNullReferenceException;
+import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 import org.ballerinalang.util.observability.ObserveUtils;
@@ -829,8 +830,10 @@ public class BVM {
         }
 
         if (!checkIsLikeType(refRegVal, BTypes.typeAnydata)) {
-            sf.refRegs[j] = BLangVMErrors.createError(ctx, BLangExceptionHelper
-                    .getErrorMessage(RuntimeErrors.UNSUPPORTED_CLONE_OPERATION, refRegVal.getType()));
+            sf.refRegs[j] =
+                    BLangVMErrors.createError(ctx, BallerinaErrorReasons.CLONE_ERROR,
+                                              BLangExceptionHelper.getErrorMessage(
+                                                      RuntimeErrors.UNSUPPORTED_CLONE_OPERATION, refRegVal.getType()));
             return;
         }
         sf.refRegs[j] = (BRefType<?>) refRegVal.copy(new HashMap<>());
@@ -909,6 +912,8 @@ public class BVM {
             return null;
         } catch (BLangNullReferenceException e) {
             strand.setError(BLangVMErrors.createNullRefException(strand));
+        } catch (BallerinaException e) {
+            strand.setError(BLangVMErrors.createError(strand, e.getMessage(), e.getDetail()));
         } catch (Throwable e) {
             strand.setError(BLangVMErrors.createError(strand, e.getMessage()));
         }
@@ -999,12 +1004,12 @@ public class BVM {
                     // if freeze is unsuccessful due to an invalid value, set the frozen status of the value and its
                     // constituents to false, and return an error
                     freezeStatus.setUnfrozen();
-                    sf.refRegs[j] = BLangVMErrors.createError(ctx, e.getMessage());
+                    sf.refRegs[j] = BLangVMErrors.createError(ctx, BallerinaErrorReasons.FREEZE_ERROR, e.getMessage());
                 } catch (BallerinaException e) {
                     // if freeze is unsuccessful due to concurrent freeze attempts, set the frozen status of the value
                     // and its constituents to false, and panic
                     freezeStatus.setUnfrozen();
-                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage(), e.getDetail()));
                     handleError(ctx);
                 }
                 break;
@@ -1041,11 +1046,11 @@ public class BVM {
         if (!checkIsLikeType(valueToBeStamped, targetType)) {
             BError error;
             if (valueToBeStamped != null) {
-                error = BLangVMErrors.createError(ctx,
+                error = BLangVMErrors.createError(ctx, BallerinaErrorReasons.STAMP_ERROR,
                         BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_STAMP_OPERATION,
                                 valueToBeStamped.getType(), targetType));
             } else {
-                error = BLangVMErrors.createError(ctx,
+                error = BLangVMErrors.createError(ctx, BallerinaErrorReasons.STAMP_ERROR,
                         BLangExceptionHelper.getErrorMessage(RuntimeErrors.CANNOT_STAMP_NULL, targetType));
             }
             sf.refRegs[k] = error;
@@ -1058,7 +1063,7 @@ public class BVM {
             }
             sf.refRegs[k] = valueToBeStamped;
         } catch (BallerinaException e) {
-            BError error = BLangVMErrors.createError(ctx,
+            BError error = BLangVMErrors.createError(ctx, BallerinaErrorReasons.STAMP_ERROR,
                     BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_STAMP_OPERATION,
                             valueToBeStamped.getType(), targetType));
             sf.refRegs[k] = error;
@@ -1486,7 +1491,7 @@ public class BVM {
                 try {
                     sf.longRegs[k] = bValueArray.getInt(sf.longRegs[j]);
                 } catch (BallerinaException e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage(), e.getDetail()));
                     handleError(ctx);
                 }
                 break;
@@ -1498,7 +1503,7 @@ public class BVM {
                 try {
                     sf.intRegs[k] = bValueArray.getByte(sf.longRegs[j]);
                 } catch (BallerinaException e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage(), e.getDetail()));
                     handleError(ctx);
                 }
                 break;
@@ -1510,7 +1515,7 @@ public class BVM {
                 try {
                     sf.doubleRegs[k] = bValueArray.getFloat(sf.longRegs[j]);
                 } catch (BallerinaException e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage(), e.getDetail()));
                     handleError(ctx);
                 }
                 break;
@@ -1522,7 +1527,7 @@ public class BVM {
                 try {
                     sf.stringRegs[k] = bValueArray.getString(sf.longRegs[j]);
                 } catch (BallerinaException e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage(), e.getDetail()));
                     handleError(ctx);
                 }
                 break;
@@ -1534,7 +1539,7 @@ public class BVM {
                 try {
                     sf.intRegs[k] = bValueArray.getBoolean(sf.longRegs[j]);
                 } catch (BallerinaException e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage(), e.getDetail()));
                     handleError(ctx);
                 }
                 break;
@@ -1546,7 +1551,7 @@ public class BVM {
                 try {
                     sf.refRegs[k] = ListUtils.execListGetOperation(bNewArray, sf.longRegs[j]);
                 } catch (BallerinaException e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage(), e.getDetail()));
                     handleError(ctx);
                 }
                 break;
@@ -1558,7 +1563,7 @@ public class BVM {
                 try {
                     sf.refRegs[k] = JSONUtils.getArrayElement(sf.refRegs[i], sf.longRegs[j]);
                 } catch (BallerinaException e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage(), e.getDetail()));
                     handleError(ctx);
                 }
                 break;
@@ -1611,7 +1616,7 @@ public class BVM {
                 try {
                     sf.refRegs[k] = bMap.get(sf.stringRegs[j], except);
                 } catch (BallerinaException e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage(), e.getDetail()));
                     handleError(ctx);
                 }
                 break;
@@ -1644,8 +1649,11 @@ public class BVM {
                 bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
                     bValueArray.add(sf.longRegs[j], sf.longRegs[k]);
-                } catch (BLangFreezeException | BallerinaException e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+                } catch (BLangFreezeException e) {
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage(), e.getDetail()));
+                    handleError(ctx);
+                } catch (BallerinaException e) {
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage(), e.getDetail()));
                     handleError(ctx);
                 }
                 break;
@@ -1656,8 +1664,11 @@ public class BVM {
                 bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
                     bValueArray.add(sf.longRegs[j], (byte) sf.intRegs[k]);
-                } catch (BLangFreezeException | BallerinaException e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+                } catch (BLangFreezeException e) {
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage(), e.getDetail()));
+                    handleError(ctx);
+                } catch (BallerinaException e) {
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage(), e.getDetail()));
                     handleError(ctx);
                 }
                 break;
@@ -1668,8 +1679,11 @@ public class BVM {
                 bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
                     bValueArray.add(sf.longRegs[j], sf.doubleRegs[k]);
-                } catch (BLangFreezeException | BallerinaException e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+                } catch (BLangFreezeException e) {
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage(), e.getDetail()));
+                    handleError(ctx);
+                } catch (BallerinaException e) {
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage(), e.getDetail()));
                     handleError(ctx);
                 }
                 break;
@@ -1680,8 +1694,11 @@ public class BVM {
                 bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
                     bValueArray.add(sf.longRegs[j], sf.stringRegs[k]);
-                } catch (BLangFreezeException | BallerinaException e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+                } catch (BLangFreezeException e) {
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage(), e.getDetail()));
+                    handleError(ctx);
+                } catch (BallerinaException e) {
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage(), e.getDetail()));
                     handleError(ctx);
                 }
                 break;
@@ -1692,8 +1709,11 @@ public class BVM {
                 bValueArray = Optional.of((BValueArray) sf.refRegs[i]).get();
                 try {
                     bValueArray.add(sf.longRegs[j], sf.intRegs[k]);
-                } catch (BLangFreezeException | BallerinaException e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+                } catch (BLangFreezeException e) {
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage(), e.getDetail()));
+                    handleError(ctx);
+                } catch (BallerinaException e) {
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage(), e.getDetail()));
                     handleError(ctx);
                 }
                 break;
@@ -1708,7 +1728,7 @@ public class BVM {
                         ? ((BArrayType) list.getType()).getElementType()
                         : ((BTupleType) list.getType()).getTupleTypes().get((int) index);
                 if (!checkCast(refReg, elementType)) {
-                    ctx.setError(BLangVMErrors.createError(ctx,
+                    ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
                             BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_TYPE,
                                     elementType, (refReg != null) ? refReg.getType() : BTypes.typeNull)));
                     handleError(ctx);
@@ -1717,8 +1737,11 @@ public class BVM {
 
                 try {
                     ListUtils.execListAddOperation(list, index, refReg);
-                } catch (BLangFreezeException | BallerinaException e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, "Failed to add element: " + e.getMessage()));
+                } catch (BLangFreezeException e) {
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage(), e.getDetail()));
+                    handleError(ctx);
+                } catch (BallerinaException e) {
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage(), e.getDetail()));
                     handleError(ctx);
                 }
                 break;
@@ -1729,8 +1752,11 @@ public class BVM {
 
                 try {
                     JSONUtils.setArrayElement(sf.refRegs[i], sf.longRegs[j], sf.refRegs[k]);
-                } catch (BLangFreezeException | BallerinaException e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+                } catch (BLangFreezeException e) {
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage(), e.getDetail()));
+                    handleError(ctx);
+                } catch (BallerinaException e) {
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage(), e.getDetail()));
                     handleError(ctx);
                 }
                 break;
@@ -1778,7 +1804,7 @@ public class BVM {
                 try {
                     handleMapStore(ctx, bMap, sf.stringRegs[j], sf.refRegs[k]);
                 } catch (BLangMapStoreException e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage(), e.getDetail()));
                     handleError(ctx);
                 }
                 break;
@@ -1788,8 +1814,11 @@ public class BVM {
                 k = operands[2];
                 try {
                     JSONUtils.setElement(sf.refRegs[i], sf.stringRegs[j], sf.refRegs[k]);
-                } catch (BLangFreezeException | BallerinaException e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, "failed to set element to json: " + e.getMessage()));
+                } catch (BallerinaException e) {
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage(), e.getDetail()));
+                    handleError(ctx);
+                } catch (BLangFreezeException e) {
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage(), e.getDetail()));
                     handleError(ctx);
                 }
                 break;
@@ -1887,7 +1916,8 @@ public class BVM {
                 j = operands[1];
                 k = operands[2];
                 if (sf.longRegs[j] == 0) {
-                    ctx.setError(BLangVMErrors.createError(ctx, " / by zero"));
+                    ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.DIVISION_BY_ZERO_ERROR,
+                                                           " / by zero"));
                     handleError(ctx);
                     break;
                 }
@@ -1907,7 +1937,8 @@ public class BVM {
                 lhsValue = ((BDecimal) sf.refRegs[i]).decimalValue();
                 rhsValue = ((BDecimal) sf.refRegs[j]).decimalValue();
                 if (rhsValue.compareTo(BigDecimal.ZERO) == 0) {
-                    ctx.setError(BLangVMErrors.createError(ctx, " / by zero"));
+                    ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.DIVISION_BY_ZERO_ERROR,
+                                                           " / by zero"));
                     handleError(ctx);
                     break;
                 }
@@ -1919,7 +1950,8 @@ public class BVM {
                 j = operands[1];
                 k = operands[2];
                 if (sf.longRegs[j] == 0) {
-                    ctx.setError(BLangVMErrors.createError(ctx, " / by zero"));
+                    ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.DIVISION_BY_ZERO_ERROR,
+                                                           " / by zero"));
                     handleError(ctx);
                     break;
                 }
@@ -1939,7 +1971,8 @@ public class BVM {
                 lhsValue = ((BDecimal) sf.refRegs[i]).decimalValue();
                 rhsValue = ((BDecimal) sf.refRegs[j]).decimalValue();
                 if (rhsValue.compareTo(BigDecimal.ZERO) == 0) {
-                    ctx.setError(BLangVMErrors.createError(ctx, " / by zero"));
+                    ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.DIVISION_BY_ZERO_ERROR,
+                                                           " / by zero"));
                     handleError(ctx);
                     break;
                 }
@@ -2192,7 +2225,8 @@ public class BVM {
                     xmlVal.setAttribute(xmlQName.getLocalName(), xmlQName.getUri(), xmlQName.getPrefix(),
                             sf.stringRegs[k]);
                 } catch (BallerinaException e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.XML_OPERATION_ERROR,
+                                                           e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -2253,7 +2287,8 @@ public class BVM {
                 try {
                     sf.refRegs[k] = xmlVal.getItem(index);
                 } catch (BallerinaException e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.XML_OPERATION_ERROR,
+                                                           e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -2309,7 +2344,7 @@ public class BVM {
                         sf.refRegs[j] = null;
                         break;
                     }
-                    ctx.setError(BLangVMErrors.createError(ctx,
+                    ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.TYPE_ASSERTION_ERROR,
                                                            BLangExceptionHelper.getErrorMessage(
                                                                    RuntimeErrors.TYPE_ASSERTION_ERROR, expectedType,
                                                                    "()")));
@@ -2320,7 +2355,7 @@ public class BVM {
                     sf.refRegs[j] = bRefTypeValue;
                 } else {
                     ctx.setError(
-                            BLangVMErrors.createError(ctx,
+                            BLangVMErrors.createError(ctx, BallerinaErrorReasons.TYPE_ASSERTION_ERROR,
                                                       BLangExceptionHelper.getErrorMessage(
                                                               RuntimeErrors.TYPE_ASSERTION_ERROR,
                                                                    (expectedType.getTag() == TypeTags.NULL_TAG ?
@@ -2457,8 +2492,9 @@ public class BVM {
         int targetTag = targetType.getTag();
         if (!isSimpleBasicType(sourceType) ||
                 (sourceType.getTag() == TypeTags.STRING_TAG && targetTag != TypeTags.STRING_TAG)) {
-            ctx.setError(BLangVMErrors.createError(ctx,  "assertion error: expected '" + targetType + "', found '" +
-                    bRefTypeValue.getType() + "'"));
+            ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.TYPE_ASSERTION_ERROR,
+                                                   "assertion error: expected '" + targetType + "', found '" +
+                                                           bRefTypeValue.getType() + "'"));
             handleError(ctx);
             return;
         }
@@ -2482,7 +2518,7 @@ public class BVM {
                     break;
             }
         } catch (BallerinaException e) {
-            ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+            ctx.setError(BLangVMErrors.createError(ctx, e.getMessage(), e.getDetail()));
             handleError(ctx);
         }
     }
@@ -2536,15 +2572,16 @@ public class BVM {
                 j = operands[1];
                 double valueToConvert = sf.doubleRegs[i];
                 if (Double.isNaN(valueToConvert) || Double.isInfinite(valueToConvert)) {
-                    ctx.setError(BLangVMErrors.createError(ctx, "'float' value '" + valueToConvert + "' cannot be " +
-                            "converted to 'int'"));
+                    ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+                                                           "'float' value '" + valueToConvert + "' cannot be " +
+                                                                   "converted to 'int'"));
                     handleError(ctx);
                     break;
                 }
 
                 if (!isFloatWithinIntRange(valueToConvert)) {
-                    ctx.setError(BLangVMErrors.createError(ctx, "out of range 'float' value '" + valueToConvert + "'" +
-                            " cannot be converted to 'int'"));
+                    ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.NUMBER_CONVERSION_ERROR, "out " +
+                            "of range 'float' value '" + valueToConvert + "' cannot be converted to 'int'"));
                     handleError(ctx);
                     break;
                 }
@@ -2630,8 +2667,9 @@ public class BVM {
                 i = operands[0];
                 j = operands[1];
                 if (!isDecimalWithinIntRange(((BDecimal) sf.refRegs[i]).decimalValue())) {
-                    ctx.setError(BLangVMErrors.createError(ctx, "out of range 'decimal' value '" +
-                            sf.refRegs[i] + "' cannot be converted to 'int'"));
+                    ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+                                                           "out of range 'decimal' value '" + sf.refRegs[i] +
+                                                                   "' cannot be converted to 'int'"));
                     handleError(ctx);
                     break;
                 }
@@ -2795,7 +2833,7 @@ public class BVM {
                     newMap.put("value", value);
                     sf.refRegs[nextInstruction.retRegs[0]] = (BRefType) newMap;
                 } catch (BallerinaException e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage(), e.getDetail()));
                     handleError(ctx);
                 }
                 break;
@@ -2823,7 +2861,8 @@ public class BVM {
                 try {
                     sf.refRegs[i] = XMLUtils.createXMLElement(startTagName, endTagName, sf.stringRegs[l]);
                 } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+                    ctx.setError(BLangVMErrors.createError(ctx, BallerinaErrorReasons.XML_CREATION_ERROR,
+                                                           e.getMessage()));
                     handleError(ctx);
                 }
                 break;
@@ -3107,7 +3146,8 @@ public class BVM {
             retryCount = (int) strand.currentFrame.longRegs[retryCountRegIndex];
             if (retryCount < 0) {
                 strand.setError(BLangVMErrors
-                        .createError(strand, BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_RETRY_COUNT)));
+                        .createError(strand, BallerinaErrorReasons.TRANSACTION_ERROR,
+                                     BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_RETRY_COUNT)));
                 handleError(strand);
                 return;
             }
@@ -3161,8 +3201,9 @@ public class BVM {
     }
 
     private static void createAndSetDynamicNestedTrxError(Strand strand) {
-        BError error = BLangVMErrors.createError(strand, BLangExceptionHelper.getErrorMessage(
-                RuntimeErrors.INVALID_DYNAMICALLY_NESTED_TRANSACTION));
+        BError error = BLangVMErrors.createError(strand, BallerinaErrorReasons.TRANSACTION_ERROR,
+                                                 BLangExceptionHelper.getErrorMessage(
+                                                         RuntimeErrors.INVALID_DYNAMICALLY_NESTED_TRANSACTION));
         strand.setError(error);
     }
 
@@ -3274,7 +3315,7 @@ public class BVM {
                     throw new IllegalArgumentException("Invalid transaction end endType: " + endType);
             }
         } catch (Throwable e) {
-            strand.setError(BLangVMErrors.createError(strand, e.getMessage()));
+            strand.setError(BLangVMErrors.createError(strand, BallerinaErrorReasons.TRANSACTION_ERROR, e.getMessage()));
             handleError(strand);
         }
     }
@@ -4453,7 +4494,8 @@ public class BVM {
             case TypeTags.MAP_TAG:
                 if (!isValidMapInsertion(mapType, value)) {
                     BType expType = ((BMapType) mapType).getConstrainedType();
-                    throw new BLangMapStoreException(BLangExceptionHelper
+                    throw new BLangMapStoreException(BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
+                                                     BLangExceptionHelper
                                                              .getErrorMessage(RuntimeErrors.INVALID_MAP_INSERTION,
                                                                               expType, value.getType()));
                 }
@@ -4465,8 +4507,10 @@ public class BVM {
                 BField objField = objType.getFields().get(fieldName);
                 BType objFieldType = objField.getFieldType();
                 if (!checkIsType(value, objFieldType)) {
-                    throw new BLangMapStoreException(BLangExceptionHelper.getErrorMessage(
-                            RuntimeErrors.INVALID_OBJECT_FIELD_ADDITION, fieldName, objFieldType, value.getType()));
+                    throw new BLangMapStoreException(BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
+                                                     BLangExceptionHelper.getErrorMessage(
+                                                             RuntimeErrors.INVALID_OBJECT_FIELD_ADDITION, fieldName,
+                                                             objFieldType, value.getType()));
                 }
                 insertToMap(ctx, bMap, fieldName, value);
                 break;
@@ -4484,14 +4528,17 @@ public class BVM {
                 } else {
                     // If both of the above conditions fail, the implication is that this is an attempt to insert a
                     // value to a non-existent field in a closed record.
-                    throw new BLangMapStoreException(BLangExceptionHelper
-                                                             .getErrorMessage(RuntimeErrors.INVALID_RECORD_FIELD_ACCESS,
-                                                                              fieldName, recType));
+                    throw new BLangMapStoreException(BallerinaErrorReasons.KEY_NOT_FOUND_ERROR,
+                                                     BLangExceptionHelper.getErrorMessage(
+                                                             RuntimeErrors.INVALID_RECORD_FIELD_ACCESS, fieldName,
+                                                             recType));
                 }
 
                 if (!checkIsType(value, recFieldType)) {
-                    throw new BLangMapStoreException(BLangExceptionHelper.getErrorMessage(
-                            RuntimeErrors.INVALID_RECORD_FIELD_ADDITION, fieldName, recFieldType, value.getType()));
+                    throw new BLangMapStoreException(BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
+                                                     BLangExceptionHelper.getErrorMessage(
+                                                             RuntimeErrors.INVALID_RECORD_FIELD_ADDITION, fieldName,
+                                                             recFieldType, value.getType()));
                 }
 
                 insertToMap(ctx, bMap, fieldName, value);
@@ -4513,7 +4560,7 @@ public class BVM {
                     errMessage = "Invalid map insertion: ";
                     break;
             }
-            ctx.setError(BLangVMErrors.createError(ctx, errMessage + e.getMessage()));
+            ctx.setError(BLangVMErrors.createError(ctx, e.getMessage(), errMessage + e.getDetail()));
             handleError(ctx);
         }
     }
