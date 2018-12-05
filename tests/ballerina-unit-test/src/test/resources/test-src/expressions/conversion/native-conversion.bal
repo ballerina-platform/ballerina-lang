@@ -958,8 +958,14 @@ type A record {
     float f = 0.0;
 };
 
-function testJsonIntToFloat() returns A|error {
+function testJsonFloatToRecordWithFloat() returns A|error {
     json j = {f : 3.0};
+    return check A.convert(j);
+}
+
+function testJsonIntToRecordWithFloat() returns A|error {
+    json j = {f : 3};
+    j.f = check float.convert(j.f);
     return check A.convert(j);
 }
 
@@ -967,4 +973,10 @@ function testRecordToJsonWithIsJson() returns boolean {
     Person2 p = {name:"Waruna", age:10};
     var personData = json.convert(p);
     return personData is json;
+}
+
+function testJsonIntToFloat() returns float|error {
+    json operationReq = {"firstNumber": 10, "secondNumber": 200.1, "operation": "add"};
+    var input = float.convert(operationReq.firstNumber);
+    return input;
 }

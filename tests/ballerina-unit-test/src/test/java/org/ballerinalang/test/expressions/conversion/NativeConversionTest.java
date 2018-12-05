@@ -666,12 +666,19 @@ public class NativeConversionTest {
     }
 
     @Test
-    public void testJsonFloatToInt() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testJsonIntToFloat");
+    public void testJsonFloatToRecordWithFloat() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testJsonFloatToRecordWithFloat");
         Assert.assertTrue(returns[0] instanceof BMap);
         Assert.assertEquals(returns[0].stringValue(), "{f:3.0}");
     }
 
+    @Test
+    public void testJsonIntToRecordWithFloat() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testJsonIntToRecordWithFloat");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].stringValue(), "{f:3.0}");
+    }
+    
     @Test
     public void testAnyToFloat() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAnyToFloat");
@@ -684,5 +691,12 @@ public class NativeConversionTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testRecordToJsonWithIsJson");
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(description = "Test json int to float")
+    public void testJsonIntToFloat() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testJsonIntToFloat");
+        Assert.assertTrue(returns[0] instanceof BFloat);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 10.0);
     }
 }
