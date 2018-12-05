@@ -19,6 +19,7 @@ package org.ballerinalang.test.worker;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
@@ -71,5 +72,14 @@ public class WorkerTest {
         BInteger ret = (BInteger) returns[0];
         Assert.assertEquals(ret.intValue(), 51);
     }
+
+    @Test
+    public void receiveWithTrap() {
+        BValue[] returns = BRunUtil.invoke(result, "receiveWithTrap", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        BError ret = (BError) returns[0];
+        Assert.assertEquals(ret.reason, "err");
+    }
+
 
 }
