@@ -25,7 +25,8 @@ export class DiagramUtils {
         nodeArray.forEach((node: any) => {
             const ChildComp = (components as any)[node.kind];
             if (!ChildComp) { return; }
-
+            // Do not return hidden elements
+            if (node.viewState && node.viewState.hidden) {return; }
             children.push(<ChildComp model={node} />);
         });
         return children;
@@ -45,7 +46,9 @@ export class DiagramUtils {
         maxWidth = DefaultConfig.statement.maxWidth,
         paddingLeft = DefaultConfig.statement.padding.left,
         paddingRight = DefaultConfig.statement.padding.right) {
-
+        text = text.trim();
+        text = text.replace(/(\/\/.*)\w+/g, "");
+        text = text.trim();
         textElement.innerHTML = _.escape(text);
 
         let width = paddingLeft + textElement.getComputedTextLength() + paddingRight;

@@ -134,6 +134,10 @@
             {
                 "name": "Optional Fields",
                 "url": "record-optional-fields"
+            },
+            {
+                "name": "Record Type Reference",
+                "url": "record-type-reference"
             }
         ]
     },
@@ -196,6 +200,14 @@
             {
                 "name": "Any Data Type",
                 "url": "any-data-type"
+            },
+            {
+                "name": "Explicitly Typed Expressions",
+                "url": "explicitly_typed_expressions"
+            },
+            {
+                "name": "Type Assertion",
+                "url": "type-assertion"
             },
             {
                 "name": "Type Conversion",

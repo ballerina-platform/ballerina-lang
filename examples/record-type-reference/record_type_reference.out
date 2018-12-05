@@ -1,0 +1,4 @@
+$ ballerina run record_type_reference.bal
+{age:25, name:"John Doe", designation:"Software Engineer"}
+{age:25, name:"Jane Doe", designation:"UX Engineer"}
+{age:35, name:"Mark", designation:"Engineering Manager", team:[{age:25, name:"John Doe", designation:"Software Engineer"}, {age:25, name:"Jane Doe", designation:"UX Engineer"}], company:"XYZ Inc."}

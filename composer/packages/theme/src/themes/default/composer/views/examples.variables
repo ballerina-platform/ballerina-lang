@@ -1,0 +1,27 @@
+/*---------------------------
+       Examples Globals 
+----------------------------*/
+
+@examples-base-light-color: @offWhite;
+@examples-base-dark-color: @black;
+
+@light-examples-background-color: @diagram-base-light-color;
+@dark-examples-background-color: @diagram-base-dark-color;
+
+@light-examples-text-color: @examples-base-dark-color;
+@dark-examples-text-color: @examples-base-light-color;
+
+/*---------------------------
+       Example Blocks 
+----------------------------*/
+
+@light-examples-block-background-color: #f5f5f5;
+@dark-examples-block-background-color: #181818;
+
+@light-example-background-color: #ebebeb;
+@dark-example-background-color: #131313;
+@light-example-text-color: @examples-base-dark-color;
+@dark-example-text-color: #c7c7c7;
+
+@light-example-border-color: @light-examples-background-color;
+@dark-example-border-color: #1e1e1e;
