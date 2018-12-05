@@ -167,7 +167,7 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertEquals(new String(((BValueArray) returnVals[0]).getBytes()), payload);
     }
 
-    @Test(description = "Enable this once the getContentLength() is added back in http package", enabled = false)
+    @Test(description = "Enable this once the getContentLength() is added back in http package")
     public void testGetContentLength() {
         BMap<String, BValue> inRequest =
                 BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
@@ -183,7 +183,7 @@ public class RequestNativeFunctionSuccessTest {
         BValue[] returnVals = BRunUtil.invokeStateful(result, "testGetContentLength", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertEquals(payload.length(), ((BInteger) returnVals[0]).intValue());
+        Assert.assertEquals(payload.length(), ((BString) returnVals[0]).intValue());
     }
 
     @Test(description = "Test GetContentLength function within a service. Enable this once this method is back in " +
