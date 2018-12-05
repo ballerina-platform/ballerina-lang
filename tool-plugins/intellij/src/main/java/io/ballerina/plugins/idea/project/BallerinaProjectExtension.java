@@ -33,6 +33,7 @@ import com.intellij.openapi.util.AsyncResult;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkService;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
+import io.ballerina.plugins.idea.BallerinaConstants;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -67,7 +68,9 @@ public class BallerinaProjectExtension extends ProjectExtension {
 
         // Need to prompt a restart action to clear and re initiate language server instance from the new SDK.
         // Todo - Figure out a way to apply language server changes without restarting.
-        ApplicationManager.getApplication().invokeLater(this::showRestartDialog);
+        if (isBallerinaSdk(sdk)) {
+            ApplicationManager.getApplication().invokeLater(this::showRestartDialog);
+        }
     }
 
     @Override
@@ -78,6 +81,10 @@ public class BallerinaProjectExtension extends ProjectExtension {
     @Override
     public void writeExternal(@NotNull Element element) {
         // We don't have any use of this method at the moment.
+    }
+
+    private boolean isBallerinaSdk(Sdk sdk) {
+        return sdk != null && BallerinaConstants.BALLERINA_SDK_TYPE.equals(sdk.getSdkType().getName());
     }
 
     @Messages.YesNoResult
