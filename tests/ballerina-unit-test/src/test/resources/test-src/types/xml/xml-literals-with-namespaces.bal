@@ -150,3 +150,12 @@ function testInnerScopeNamespaceDclr() returns (string, string, string) {
     
     return (s1, s2, s3);
 }
+
+type Person object {
+    xml info = xml `<p:person xmlns:p="foo" xmlns:q="bar">hello</p:person>`;
+};
+
+function testObjectLevelXML() returns xml {
+    Person p = new();
+    return p.info;
+}
