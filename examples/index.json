@@ -202,16 +202,16 @@
                 "url": "any-data-type"
             },
             {
-                "name": "Type Conversion",
-                "url": "type-conversion"
+                "name": "Explicitly Typed Expressions",
+                "url": "explicitly_typed_expressions"
             },
             {
                 "name": "Type Assertion",
                 "url": "type-assertion"
             },
             {
-                "name": "Type Convert",
-                "url": "type-convert"
+                "name": "Type Conversion",
+                "url": "type-conversion"
             },
             {
                 "name": "Length",

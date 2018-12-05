@@ -67,8 +67,8 @@ import org.eclipse.lsp4j.DocumentSymbolParams;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.MarkedString;
-import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.Range;
+//import org.eclipse.lsp4j.Position;
+//import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.ReferenceParams;
 import org.eclipse.lsp4j.RenameParams;
 import org.eclipse.lsp4j.SignatureHelp;
@@ -95,8 +95,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.Lock;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+//import java.util.regex.Matcher;
+//import java.util.regex.Pattern;
 import java.util.zip.ZipError;
 
 import static org.ballerinalang.langserver.command.CommandUtil.getCommandForNodeType;
@@ -440,7 +440,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
     @Override
     public CompletableFuture<List<? extends TextEdit>> formatting(DocumentFormattingParams params) {
         return CompletableFuture.supplyAsync(() -> {
-            String textEditContent = null;
+//            String textEditContent = null;
             TextEdit textEdit = new TextEdit();
 
             String fileUri = params.getTextDocument().getUri();
@@ -460,19 +460,19 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 // formattingUtil.accept(ast.getAsJsonObject("model"));
 
                 // Generate source for the ast.
-                textEditContent = FormattingSourceGen.getSourceOf(ast.getAsJsonObject("model"));
-                Matcher matcher = Pattern.compile("\r\n|\r|\n").matcher(textEditContent);
-                int totalLines = 0;
-                while (matcher.find()) {
-                    totalLines++;
-                }
+                // textEditContent = FormattingSourceGen.getSourceOf(ast.getAsJsonObject("model"));
+                // Matcher matcher = Pattern.compile("\r\n|\r|\n").matcher(textEditContent);
+                // int totalLines = 0;
+                // while (matcher.find()) {
+                //    totalLines++;
+                // }
 
-                int lastNewLineCharIndex = Math.max(textEditContent.lastIndexOf("\n"),
-                        textEditContent.lastIndexOf("\r"));
-                int lastCharCol = textEditContent.substring(lastNewLineCharIndex + 1).length();
+                // int lastNewLineCharIndex = Math.max(textEditContent.lastIndexOf("\n"),
+                //        textEditContent.lastIndexOf("\r"));
+                // int lastCharCol = textEditContent.substring(lastNewLineCharIndex + 1).length();
 
-                Range range = new Range(new Position(0, 0), new Position(totalLines, lastCharCol));
-                textEdit = new TextEdit(range, textEditContent);
+                // Range range = new Range(new Position(0, 0), new Position(totalLines, lastCharCol));
+                // textEdit = new TextEdit(range, textEditContent);
                 return Collections.singletonList(textEdit);
             } catch (Exception e) {
                 if (CommonUtil.LS_DEBUG_ENABLED) {

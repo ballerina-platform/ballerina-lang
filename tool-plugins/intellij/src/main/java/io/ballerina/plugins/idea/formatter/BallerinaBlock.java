@@ -159,7 +159,7 @@ public class BallerinaBlock extends AbstractBlock {
                 alignment = Alignment.createAlignment(true, Alignment.Anchor.LEFT);
                 myAlignmentMap.put(myNode, alignment);
             }
-        }else if ((childElementType == BallerinaTypes.RETURNS
+        } else if ((childElementType == BallerinaTypes.RETURNS
                 || childElementType == BallerinaTypes.DEFAULTABLE_PARAMETER
                 || childElementType == BallerinaTypes.RETURN_TYPE)
                 && parentElementType == BallerinaTypes.RETURN_PARAMETER) {
