@@ -18,7 +18,7 @@
                     "character": 0
                   }
                 },
-                "newText":"\nimport ballerina/io;\nfunction testImportCommand() {\n    io:println(\"Hello World\");\n}\n"
+                "newText":"import ballerina/io;\nfunction testImportCommand() {\n    io:println(\"Hello World\");\n}\n"
               }
             ]
           }

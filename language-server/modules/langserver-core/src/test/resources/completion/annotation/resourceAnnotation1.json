@@ -23,7 +23,7 @@
               "character":23
             }
           },
-          "newText":"\nimport ballerina/swagger;\n"
+          "newText":"import ballerina/swagger;\n"
         }
       ]
     },
@@ -45,7 +45,7 @@
               "character":23
             }
           },
-          "newText":"\nimport ballerina/swagger;\n"
+          "newText":"import ballerina/swagger;\n"
         }
       ]
     },
@@ -67,7 +67,7 @@
               "character":23
             }
           },
-          "newText":"\nimport ballerina/grpc;\n"
+          "newText":"import ballerina/grpc;\n"
         }
       ]
     },
@@ -89,7 +89,7 @@
               "character":23
             }
           },
-          "newText":"\nimport ballerina/transactions;\n"
+          "newText":"import ballerina/transactions;\n"
         }
       ]
     },

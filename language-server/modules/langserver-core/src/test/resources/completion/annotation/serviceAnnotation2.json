@@ -24,7 +24,7 @@
               "character":23
             }
           },
-          "newText":"\nimport ballerina/swagger;\n"
+          "newText":"import ballerina/swagger;\n"
         }
       ]
     },
@@ -47,7 +47,7 @@
               "character":23
             }
           },
-          "newText":"\nimport ballerina/swagger;\n"
+          "newText":"import ballerina/swagger;\n"
         }
       ]
     },
@@ -70,7 +70,7 @@
               "character":23
             }
           },
-          "newText":"\nimport ballerina/websub;\n"
+          "newText":"import ballerina/websub;\n"
         }
       ]
     },
@@ -93,7 +93,7 @@
               "character":23
             }
           },
-          "newText":"\nimport ballerina/grpc;\n"
+          "newText":"import ballerina/grpc;\n"
         }
       ]
     },
@@ -116,7 +116,7 @@
               "character":23
             }
           },
-          "newText":"\nimport ballerina/grpc;\n"
+          "newText":"import ballerina/grpc;\n"
         }
       ]
     },
