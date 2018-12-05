@@ -270,7 +270,7 @@ export const visitor: Visitor = {
         node.resources.forEach((element: Function) => {
             viewState.bBox.w = (viewState.bBox.w > element.viewState.bBox.w)
                 ? viewState.bBox.w : element.viewState.bBox.w;
-            height = viewState.bBox.h;
+            height +=  element.viewState.bBox.h;
             element.viewState.icon = "resource";
         });
         viewState.bBox.h = height;
