@@ -77,7 +77,7 @@ public class InvalidServiceMethodTestCase extends GrpcBaseTest {
             "error is expected with Invalid protobuf byte sequence")
     public void testInvalidOutputResponse() {
         BFloat request = new BFloat(1000.5);
-        final String expectedMsg = "Error from Connector: {ballerina/grpc}INTERNAL - 'string' cannot be cast to " +
+        final String expectedMsg = "Error from Connector: {ballerina/grpc}INTERNAL - 'string' cannot be converted to " +
                 "'float'";
 
         BValue[] responses = BRunUtil.invoke(result, "testInvalidOutputResponse", new BValue[]{request});
