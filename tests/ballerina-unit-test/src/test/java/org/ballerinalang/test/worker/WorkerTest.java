@@ -42,33 +42,33 @@ public class WorkerTest {
 
     @Test
     public void workerReturnTest() {
-        BValue[] vals = BRunUtil.invoke(result, "workerReturnTest", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
-        BInteger ret = (BInteger) vals[0];
+        BValue[] returns = BRunUtil.invoke(result, "workerReturnTest", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        BInteger ret = (BInteger) returns[0];
         Assert.assertEquals(ret.intValue(), 52);
     }
 
     @Test
     public void workerSendToWorkerTest() {
-        BValue[] vals = BRunUtil.invoke(result, "workerSendToWorker", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
-        BInteger ret = (BInteger) vals[0];
+        BValue[] returns = BRunUtil.invoke(result, "workerSendToWorker", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        BInteger ret = (BInteger) returns[0];
         Assert.assertEquals(ret.intValue(), 41);
     }
 
     @Test
     public void workerSendToDefault() {
-        BValue[] vals = BRunUtil.invoke(result, "workerSendToDefault", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
-        BInteger ret = (BInteger) vals[0];
+        BValue[] returns = BRunUtil.invoke(result, "workerSendToDefault", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        BInteger ret = (BInteger) returns[0];
         Assert.assertEquals(ret.intValue(), 51);
     }
 
     @Test
     public void workerSendFromDefault() {
-        BValue[] vals = BRunUtil.invoke(result, "workerSendFromDefault", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
-        BInteger ret = (BInteger) vals[0];
+        BValue[] returns = BRunUtil.invoke(result, "workerSendFromDefault", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        BInteger ret = (BInteger) returns[0];
         Assert.assertEquals(ret.intValue(), 51);
     }
 
