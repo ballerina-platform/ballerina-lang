@@ -65,9 +65,17 @@ function testFunctionCallOnJSONInRecord() {
 }
 
 function testSafeNavigateOnXMLAttachedFunctions(xml x) {
-    _ = x!toString();
+    _ = x!getTextValue();
 }
 
 function testSafeNavigateOnJSONAttachedFunctions(json j) {
     _ = j!toString();
+}
+
+function getValue() returns json|string {
+    return 10;
+}
+
+function testRedundatSafeNavigate(xml x) {
+    _ = getValue()!toString();
 }

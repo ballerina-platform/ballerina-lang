@@ -51,7 +51,7 @@ public class SafeNavigationTest {
 
     @Test
     public void testNegativeCases() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 15);
+        Assert.assertEquals(negativeResult.getErrorCount(), 16);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string?', found 'string|error'",
                 25, 19);
@@ -81,6 +81,8 @@ public class SafeNavigationTest {
                 9);
         BAssertUtil.validateError(negativeResult, i++, "safe navigation operator not required for type 'json'", 72,
                 9);
+        BAssertUtil.validateError(negativeResult, i++, "safe navigation operator not required for type 'json|string'",
+                80, 9);
     }
 
     @Test
