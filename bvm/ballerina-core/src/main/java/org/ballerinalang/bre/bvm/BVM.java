@@ -1085,9 +1085,21 @@ public class BVM {
         int j = operands[2];
         TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) sf.constPool[cpIndex];
         BRefType bRefTypeValue = sf.refRegs[i];
+        if (bRefTypeValue == null) {
+            sf.refRegs[j] = null;
+            return;
+        }
         try {
             switch (typeRefCPEntry.getType().getTag()) {
                 case TypeTags.INT_TAG:
+                    if (bRefTypeValue.value() instanceof Long) {
+                        sf.refRegs[j] = new BInteger(((Long) bRefTypeValue.value()));
+                        break;
+                    }
+                    if (bRefTypeValue.value() instanceof Byte) {
+                        sf.refRegs[j] = new BInteger(((Byte) bRefTypeValue.value()));
+                        break;
+                    }
                     if (bRefTypeValue.value() instanceof Double) {
                         double value = (Double) bRefTypeValue.value();
                         if (Double.isNaN(value) || Double.isInfinite(value)) {
@@ -1109,7 +1121,6 @@ public class BVM {
                         sf.refRegs[j] = new BInteger(Math.round(value));
                         break;
                     }
-
                     if (bRefTypeValue.value() instanceof String) {
                         sf.refRegs[j] = new BInteger(Long.parseLong((String) bRefTypeValue.value()));
                         break;
@@ -1132,6 +1143,10 @@ public class BVM {
                     handleTypeConversionError(strand, sf, j, bRefTypeValue.getType(), typeRefCPEntry.getType());
                     break;
                 case TypeTags.DECIMAL_TAG:
+                    if (bRefTypeValue.value() instanceof BigDecimal) {
+                        sf.refRegs[j] = new BDecimal((BigDecimal) bRefTypeValue.value());
+                        break;
+                    }
                     if (bRefTypeValue.value() instanceof Double) {
                         sf.refRegs[j] = new BDecimal((new BigDecimal((Double) bRefTypeValue.value(),
                                                                      MathContext.DECIMAL128)));
@@ -1150,9 +1165,13 @@ public class BVM {
                     handleTypeConversionError(strand, sf, j, bRefTypeValue.getType(), typeRefCPEntry.getType());
                     break;
                 case TypeTags.STRING_TAG:
-                    sf.refRegs[j] = new BString((String) bRefTypeValue.value());
+                    sf.refRegs[j] = new BString(bRefTypeValue.toString());
                     break;
                 case TypeTags.BOOLEAN_TAG:
+                    if (bRefTypeValue.value() instanceof Boolean) {
+                        sf.refRegs[j] = new BBoolean(((Boolean) bRefTypeValue.value()));
+                        break;
+                    }
                     if (bRefTypeValue.value() instanceof String) {
                         sf.refRegs[j] = new BBoolean(Boolean.parseBoolean((String) bRefTypeValue.value()));
                         break;
@@ -1163,6 +1182,10 @@ public class BVM {
                     }
                     break;
                 case TypeTags.BYTE_TAG:
+                    if (bRefTypeValue.value() instanceof Byte) {
+                        sf.refRegs[j] = new BByte((Byte) bRefTypeValue.value());
+                        break;
+                    }
                     if (bRefTypeValue.value() instanceof Long) {
                         Long value = (Long) bRefTypeValue.value();
                         if (isByteLiteral(value)) {
