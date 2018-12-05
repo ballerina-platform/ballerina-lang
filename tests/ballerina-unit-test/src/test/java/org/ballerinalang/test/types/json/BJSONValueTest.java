@@ -410,11 +410,14 @@ public class BJSONValueTest {
         Assert.assertEquals(returns[0].stringValue(), "[[1, 2, 3], [3, 4, 5], [7, 8, 9]]");
     }
 
-    @Test(groups = {"broken"})
+    @Test
     public void testJsonToJsonArrayCasting() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJsonToJsonArrayCasting");
         Assert.assertTrue(returns[0] instanceof BValueArray);
         Assert.assertEquals(returns[0].stringValue(), "[[1, 2, 3], [3, 4, 5], [7, 8, 9]]");
+        Assert.assertTrue(
+                returns[1].stringValue().contains("assertion error: expected 'json[][]', found 'json[]'"));
+        Assert.assertEquals(returns[2].stringValue(), "[[1, 2, 3], [3, 4, 5], [7, 8, 9]]");
     }
 
     @Test
