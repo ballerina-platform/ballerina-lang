@@ -19,8 +19,9 @@ package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.bre.bvm.Strand.State;
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BError;
+import org.ballerinalang.model.values.BRefType;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -36,7 +37,9 @@ import java.util.concurrent.locks.ReentrantLock;
 public class SafeStrandCallback extends StrandCallback {
     private static PrintStream errStream = System.err;
 
-    private volatile boolean done;
+    private volatile CallbackStatus status;
+
+    private CallbackStatus valueStatus;
 
     private CallbackWaitHandler callbackWaitHandler;
 
@@ -45,7 +48,7 @@ public class SafeStrandCallback extends StrandCallback {
     SafeStrandCallback(BType retType, WDChannels parentChannels) {
         super(retType);
         this.callbackWaitHandler = new CallbackWaitHandler();
-        this.done = false;
+        this.status = CallbackStatus.NOT_RETURNED;
         this.parentChannels = parentChannels;
     }
 
@@ -54,15 +57,19 @@ public class SafeStrandCallback extends StrandCallback {
         super.signal();
         try {
             this.callbackWaitHandler.dataLock.lock();
-            this.done = true;
-            if (this.getErrorVal() != null) {
+            this.status = valueStatus;
+
+            if (this.status == null) {
+                this.status =  CallbackStatus.VALUE_RETURNED;
+            }
+            if (this.status == CallbackStatus.PANIC) {
                 for (int i = 0; i < sendIns.length; i++) {
                     this.parentChannels.getWorkerDataChannel(sendIns[i]).setPanic(this.getErrorVal());
                 }
             }
-            if (getRefRetVal() != null && getRefRetVal().getType().getTag() == TypeTags.ERROR_TAG) {
+            if (this.status == CallbackStatus.ERROR_RETURN) {
                 for (int i = 0; i < sendIns.length; i++) {
-                    this.parentChannels.getWorkerDataChannel(sendIns[i]).setError(getRefRetVal());
+                    this.parentChannels.getWorkerDataChannel(sendIns[i]).setError(super.getRefRetVal());
                 }
             }
             if (this.callbackWaitHandler.waitingStrand == null) {
@@ -74,30 +81,60 @@ public class SafeStrandCallback extends StrandCallback {
             if (this.callbackWaitHandler.waitForAll) {
                 List<WaitMultipleCallback> callbackList = new ArrayList<>();
                 callbackList.add(new WaitMultipleCallback(this.callbackWaitHandler.keyReg, this));
-                Strand resultStrand = WaitCallbackHandler.handleReturnInWaitMultiple(this.callbackWaitHandler
-                                                                                             .waitingStrand,
-                                                                                     this.callbackWaitHandler.retReg,
-                                                                                     callbackList);
-                if (resultStrand != null) {
-                    BVMScheduler.stateChange(resultStrand, State.PAUSED, State.RUNNABLE);
-                    BVMScheduler.schedule(resultStrand);
+                if (WaitCallbackHandler.handleReturnInWaitMultiple(this.callbackWaitHandler.waitingStrand,
+                        this.callbackWaitHandler.retReg, callbackList)) {
+                    BVMScheduler.stateChange(this.callbackWaitHandler.waitingStrand, State.PAUSED, State.RUNNABLE);
+                    BVMScheduler.schedule(this.callbackWaitHandler.waitingStrand);
                 }
                 return;
             }
-            Strand resultStrand = WaitCallbackHandler.handleReturnInWait(this.callbackWaitHandler.waitingStrand,
-                                                                         this.callbackWaitHandler.expType,
-                                                                         this.callbackWaitHandler.retReg, this);
-            if (resultStrand != null) {
-                BVMScheduler.stateChange(resultStrand, State.PAUSED, State.RUNNABLE);
-                BVMScheduler.schedule(resultStrand);
+            if (WaitCallbackHandler.handleReturnInWait(this.callbackWaitHandler.waitingStrand,
+                    this.callbackWaitHandler.expType, this.callbackWaitHandler.retReg, this)) {
+                BVMScheduler.stateChange(this.callbackWaitHandler.waitingStrand, State.PAUSED, State.RUNNABLE);
+                BVMScheduler.schedule(this.callbackWaitHandler.waitingStrand);
             }
         } finally {
             this.callbackWaitHandler.dataLock.unlock();
         }
     }
 
+    public void setIntReturn(long value) {
+        super.setIntReturn(value);
+        this.valueStatus = CallbackStatus.VALUE_RETURNED;
+    }
+
+    public void setFloatReturn(double value) {
+        super.setFloatReturn(value);
+        this.valueStatus = CallbackStatus.VALUE_RETURNED;
+    }
+
+    public void setStringReturn(String value) {
+        super.setStringReturn(value);
+        this.valueStatus = CallbackStatus.VALUE_RETURNED;
+    }
+
+    public void setBooleanReturn(int value) {
+        super.setBooleanReturn(value);
+        this.valueStatus = CallbackStatus.VALUE_RETURNED;
+    }
+
+    public void setByteReturn(int value) {
+        super.setByteReturn(value);
+        this.valueStatus = CallbackStatus.VALUE_RETURNED;
+    }
+
+    public void setRefReturn(BRefType<?> value) {
+        super.setRefReturn(value);
+        if (BVM.checkIsType(super.getRefRetVal(), BTypes.typeError)) {
+            this.valueStatus = CallbackStatus.ERROR_RETURN;
+        } else {
+            this.valueStatus = CallbackStatus.VALUE_RETURNED;
+        }
+    }
+
     public void setError(BError error) {
         super.setError(error);
+        this.valueStatus = CallbackStatus.PANIC;
         //Printing current stack trace for strand callback
         //This will be printed regardless of the parent strand handling this error or not.
         //This may be improved to log the error only if parent strand doesn't handle it.
@@ -120,8 +157,8 @@ public class SafeStrandCallback extends StrandCallback {
         this.callbackWaitHandler.keyReg = keyReg;
     }
 
-    public boolean isDone() {
-        return this.done;
+    public CallbackStatus getStatus() {
+        return this.status;
     }
 
     /**
@@ -160,6 +197,19 @@ public class SafeStrandCallback extends StrandCallback {
 
         public SafeStrandCallback getCallback() {
             return callback;
+        }
+    }
+
+    /**
+     * Callback statuses.
+     */
+    public static enum CallbackStatus {
+        NOT_RETURNED(false), VALUE_RETURNED(true), ERROR_RETURN(true), PANIC(false);
+
+        public final boolean returned;
+
+        CallbackStatus(boolean returned) {
+            this.returned = returned;
         }
     }
 

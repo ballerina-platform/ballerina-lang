@@ -102,7 +102,6 @@ import org.ballerinalang.util.codegen.WorkerDataChannelInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 import org.ballerinalang.util.codegen.attributes.DefaultValueAttributeInfo;
-import org.ballerinalang.util.codegen.attributes.WorkerSendInsAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.BlobCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ByteCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
@@ -793,14 +792,12 @@ public class BVM {
                             instructionUnLock.hasFieldVar);
                     break;
                 case InstructionCodes.WAIT:
-                    strand = execWait(strand, operands);
-                    if (strand == null) {
+                    if (!execWait(strand, operands)) {
                         return;
                     }
                     break;
                 case InstructionCodes.WAITALL:
-                    strand = execWaitForAll(strand, operands);
-                    if (strand == null) {
+                    if (!execWaitForAll(strand, operands)) {
                         return;
                     }
                     break;
@@ -855,11 +852,7 @@ public class BVM {
 
         SafeStrandCallback strandCallback = new SafeStrandCallback(callableUnitInfo.getRetParamTypes()[0],
                 strand.respCallback.getWorkerDataChannels());
-        if (callableUnitInfo.workerSendInChannels == null) {
-            WorkerSendInsAttributeInfo attributeInfo =
-                    (WorkerSendInsAttributeInfo) callableUnitInfo.getAttributeInfo(AttributeInfo.Kind.WORKER_SEND_INS);
-            callableUnitInfo.workerSendInChannels = attributeInfo.sendIns;
-        }
+
         strandCallback.sendIns = callableUnitInfo.workerSendInChannels;
         Strand calleeStrand = new Strand(strand.programFile, callableUnitInfo.getName(),
                 strand.globalProps, strandCallback);
@@ -4388,7 +4381,7 @@ public class BVM {
         return;
     }
 
-    private static Strand execWait(Strand strand, int[] operands) {
+    private static boolean execWait(Strand strand, int[] operands) {
         int c = operands[0];
         TypeRefCPEntry typeEntry = (TypeRefCPEntry) strand.currentFrame.constPool[operands[1]];
         BType expType = typeEntry.getType();
@@ -4404,7 +4397,7 @@ public class BVM {
         return WaitCallbackHandler.handleReturnInWait(strand, expType, retValReg, callbacks);
     }
 
-    private static Strand execWaitForAll(Strand strand, int[] operands) {
+    private static boolean execWaitForAll(Strand strand, int[] operands) {
         int c = operands[0];
         // TODO: 11/22/18  Remove this from the CodeGen
         TypeRefCPEntry typeEntry = (TypeRefCPEntry) strand.currentFrame.constPool[operands[1]];
