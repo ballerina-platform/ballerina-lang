@@ -238,7 +238,7 @@ class InlineEdit extends React.Component<InlineEditProps, InlineEditState> {
 
         switch (attribute.key) {
             case "info.description":
-                model.info.descrption = stateText;
+                model.info.description = stateText;
                 break;
             case "info.termsOfService":
                 model.info.termsOfService = stateText;

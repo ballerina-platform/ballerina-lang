@@ -109,10 +109,6 @@ class OpenApiResource extends React.Component<OpenApiResourceProps, OpenApiResou
                             );
                         }}
                     </OpenApiContextConsumer>
-                    <Icon
-                        className="delete-op"
-                        name="trash alternate"
-                    />
                 </Accordion.Title>
                 <Accordion.Content active={activeIndex === currIndex}>
                     <OpenApiContextConsumer>
