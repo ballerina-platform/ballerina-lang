@@ -968,3 +968,16 @@ function testRecordToJsonWithIsJson() returns boolean {
     var personData = json.convert(p);
     return personData is json;
 }
+
+function testConvertWithFuncCall() returns int {
+    var val = int.convert(getString("66"));
+    if (val is int) {
+        return val;
+    } else {
+        return -1;
+    }
+}
+
+function getString(any s) returns string {
+    return "5";
+}

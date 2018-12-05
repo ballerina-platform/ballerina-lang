@@ -30,6 +30,7 @@
 # ---------------------- Developer Configurations ---------------------------
 BALLERINA_DEBUG_LOG=false;
 DEBUG_MODE=false;
+ALLOW_EXPERIMETAL=false;
 DEBUG_PORT=5005;
 CUSTOM_CLASSPATH="";
 # ----------------------------------------------------------------------------
@@ -43,6 +44,9 @@ while [ "$1" != "" ]; do
     then
        shift
        CUSTOM_CLASSPATH="$1";
+    elif [ "$1" = "--experimental" ];
+    then
+       ALLOW_EXPERIMETAL=true;
     fi
     # Add more if elseif clauses or use a switch case to check $1
     # if parsing more arguments is required in future.
@@ -160,5 +164,6 @@ $JAVACMD \
 	$JAVA_DEBUG \
 	-Dballerina.home=$BALLERINA_HOME \
 	-Dballerina.debugLog=$DEBUG_LOG \
+	-Dexperimental=$ALLOW_EXPERIMETAL \
 	-cp "$CLASSPATHS" \
 	 org.ballerinalang.langserver.launchers.stdio.Main
