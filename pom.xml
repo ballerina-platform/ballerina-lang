@@ -347,8 +347,8 @@
         <jsch.version>0.1.51.wso2v1</jsch.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <org.atomikos.wso2.version>3.8.0.wso2v1</org.atomikos.wso2.version>
-        <bcprov-jdk15on.version>1.59</bcprov-jdk15on.version>
-        <bcpkix-jdk15on.version>1.59</bcpkix-jdk15on.version>
+        <bcprov-jdk15on.version>1.60</bcprov-jdk15on.version>
+        <bcpkix-jdk15on.version>1.60</bcpkix-jdk15on.version>
         <netty-tcnative-boringssl-static.version>2.0.7.Final</netty-tcnative-boringssl-static.version>
 
         <unirest.version>1.4.9</unirest.version>
