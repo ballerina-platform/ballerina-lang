@@ -21,10 +21,11 @@ export const visitor: Visitor = {
         }
     },
 
-    beginVisitBlock(node: Block) {
+    beginVisitBlock(node: Block, parent: ASTNode) {
         if (!node.viewState) {
             node.viewState = new BlockViewState();
         }
+        node.parent = parent;
     },
 
     // tslint:disable-next-line:ban-types

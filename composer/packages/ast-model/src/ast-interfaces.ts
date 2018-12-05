@@ -14,6 +14,7 @@ export interface ASTNode {
   viewState?: any;
   ws?: any[];
   position?: NodePosition;
+  parent?: ASTNode;
 }
 
 export interface Abort extends ASTNode {
