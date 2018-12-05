@@ -95,6 +95,7 @@ class OpenApiResource extends React.Component<OpenApiResourceProps, OpenApiResou
                         {(appContext: OpenApiContext) => {
                             return (
                                 <InlineEdit
+                                    characterLimit={50}
                                     changeModel={appContext.openApiJson}
                                     changeAttribute={{
                                         changeValue: operationType,
