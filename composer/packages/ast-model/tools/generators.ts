@@ -14,7 +14,6 @@ export function genInterfacesFileCode(modelInfo: any) {
             startColumn: number;
             startLine: number;
         }
-
         export interface ASTNode {
             id: string;
             kind: string;
@@ -73,7 +72,7 @@ export function findModelInfo(node: any, modelInfo: any = {}) {
     model.__count++;
 
     Object.keys(node).forEach((key) => {
-        if (["kind", "id"].includes(key)) {
+        if (["kind", "id", "position"].includes(key)) {
             // These properties are in the interface ASTNode
             // Other interfaces we generate extends it, so no need to add it.
             return;
