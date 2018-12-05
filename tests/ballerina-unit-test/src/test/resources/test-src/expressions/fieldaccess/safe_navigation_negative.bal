@@ -63,3 +63,11 @@ function testFunctionCallOnJSONInRecord() {
     Student? st = {};
     string s = st.info.toString();
 }
+
+function testSafeNavigateOnXMLAttachedFunctions(xml x) {
+    _ = x!toString();
+}
+
+function testSafeNavigateOnJSONAttachedFunctions(json j) {
+    _ = j!toString();
+}
