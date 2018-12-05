@@ -12,7 +12,13 @@ const definitions: any[] = [{
     icon: "service",
     id: "service",
     name: "Service"
-}];
+},
+{
+    icon: "function",
+    id: "main-function",
+    name: "MainFunction"
+}
+];
 
 export const AddDefinitionsMenu: StatelessComponent<{}> = (
             { children }

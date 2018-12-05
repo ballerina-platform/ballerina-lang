@@ -2,16 +2,16 @@ import { ASTNode, Invocation, SimpleVariableRef, Variable, VariableDef } from ".
 import { Visitor } from "./base-visitor";
 import { ASTKindChecker } from "./check-kind-util";
 
-const metaNodes = ["viewState", "ws", "position"];
+const metaNodes = ["viewState", "ws", "position", "parent"];
 
-export function traversNode(node: ASTNode, visitor: Visitor) {
+export function traversNode(node: ASTNode, visitor: Visitor, parent?: ASTNode) {
     let beginVisitFn: any = (visitor as any)[`beginVisit${node.kind}`];
     if (!beginVisitFn) {
         beginVisitFn = visitor.beginVisitASTNode && visitor.beginVisitASTNode;
     }
 
     if (beginVisitFn) {
-        beginVisitFn.bind(visitor)(node);
+        beginVisitFn.bind(visitor)(node, parent);
     }
 
     const keys = Object.keys(node);
@@ -28,7 +28,7 @@ export function traversNode(node: ASTNode, visitor: Visitor) {
                     return;
                 }
 
-                traversNode(elementNode, visitor);
+                traversNode(elementNode, visitor, node);
             });
             return;
         }
@@ -37,7 +37,7 @@ export function traversNode(node: ASTNode, visitor: Visitor) {
             return;
         }
 
-        traversNode(childNode, visitor);
+        traversNode(childNode, visitor, node);
     });
 
     let endVisitFn: any = (visitor as any)[`endVisit${node.kind}`];
@@ -45,7 +45,7 @@ export function traversNode(node: ASTNode, visitor: Visitor) {
         endVisitFn = visitor.endVisitASTNode && visitor.endVisitASTNode;
     }
     if (endVisitFn) {
-        endVisitFn.bind(visitor)(node);
+        endVisitFn.bind(visitor)(node, parent);
     }
 }
 

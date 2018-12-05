@@ -1,0 +1,93 @@
+{
+  "ws": [
+    {
+      "ws": "\n\n    ",
+      "i": 101,
+      "text": "while",
+      "static": true
+    },
+    {
+      "ws": " ",
+      "i": 107,
+      "text": "{",
+      "static": true
+    },
+    {
+      "ws": "\n\n    ",
+      "i": 110,
+      "text": "}",
+      "static": true
+    }
+  ],
+  "position": {
+    "startColumn": 5,
+    "startLine": 21,
+    "endColumn": 6,
+    "endLine": 23
+  },
+  "id": "46770f6e-db78-4ac8-9f97-85283a21c693",
+  "condition": {
+    "ws": [
+      {
+        "ws": " ",
+        "i": 103,
+        "text": "(",
+        "static": true
+      },
+      {
+        "ws": "",
+        "i": 105,
+        "text": ")",
+        "static": true
+      }
+    ],
+    "position": {
+      "startColumn": 11,
+      "startLine": 21,
+      "endColumn": 17,
+      "endLine": 21
+    },
+    "id": "2d61adff-f4ef-42ce-95b7-2eac6dcfd96f",
+    "symbolType": [
+      "boolean"
+    ],
+    "expressions": [
+      {
+        "ws": [
+          {
+            "ws": "",
+            "i": 104,
+            "text": "true",
+            "static": false
+          }
+        ],
+        "position": {
+          "startColumn": 12,
+          "startLine": 21,
+          "endColumn": 16,
+          "endLine": 21
+        },
+        "id": "4a052c18-70db-41cb-ab6c-3e3759c1553b",
+        "symbolType": [
+          "boolean"
+        ],
+        "value": "true",
+        "originalValue": "true",
+        "kind": "Literal"
+      }
+    ],
+    "kind": "BracedTupleExpr"
+  },
+  "kind": "While",
+  "body": {
+    "position": {
+      "startColumn": 5,
+      "startLine": 21,
+      "endColumn": 6,
+      "endLine": 23
+    },
+    "id": "59f510bd-ac40-4d36-9597-9769837cd684",
+    "statements": [],
+    "kind": "Block"
+  }
+}

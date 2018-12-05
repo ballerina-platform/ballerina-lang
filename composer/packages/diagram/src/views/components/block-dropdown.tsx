@@ -1,4 +1,4 @@
-import { Block } from "@ballerina/ast-model";
+import { ASTUtil, Block } from "@ballerina/ast-model";
 import cn from "classnames";
 import React from "react";
 import { DiagramContext, IDiagramContext } from "../../diagram/diagram-context";
@@ -12,7 +12,6 @@ export interface BlockDropdownProps {
 }
 
 export class BlockDropdown extends React.Component<BlockDropdownProps, { isHovered: boolean }> {
-
     public static contextType = DiagramContext;
 
     public state = {
@@ -39,15 +38,24 @@ export class BlockDropdown extends React.Component<BlockDropdownProps, { isHover
                             icon: "if-else",
                             name: "If",
                             onClick: () => {
-                                // tslint:disable-next-line:no-console
-                                console.log(context.ast);
+                                const ifNode = ASTUtil.createIfNode();
+                                const { ast } = context;
+                                if (ast) {
+                                    ASTUtil.attachNode(ifNode, ast, this.props.model,
+                                        "statements", this.props.model.statements.length);
+                                }
                             }
                         },
                         {
                             icon: "while",
                             name: "While",
                             onClick: () => {
-                                // todo
+                                const whileNode = ASTUtil.createWhileNode();
+                                const { ast } = context;
+                                if (ast) {
+                                    ASTUtil.attachNode(whileNode, ast, this.props.model,
+                                        "statements", this.props.model.statements.length);
+                                }
                             }
                         },
                         {

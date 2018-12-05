@@ -12,3 +12,13 @@ service serviceName on new http:Listener(8080) {
 public function main(string... args) {
     
 }
+
+function blockLevelNodes() {
+    if (true) {
+
+    }
+
+    while (true) {
+
+    }
+}

@@ -70,7 +70,7 @@ export function attachNodeSilently(
 
     const newNodeWS = getWS(newNode);
     const treeWS = getWS(tree);
-    const attachPointNodes: ASTNode[] = (tree as any)[attachPoint];
+    const attachPointNodes: ASTNode[] = (attachingNode as any)[attachPoint];
 
     // should be index of the first whitespace of the new node
     const startIndex = getStartIndex(attachingNode, attachPointNodes, insertAt);
@@ -81,7 +81,6 @@ export function attachNodeSilently(
     newNodeWS.forEach((ws) => {
         ws.i = ws.i + newNodeDiff;
     });
-
     // get the range of new nodes ws. tree should be updated to accomadate these new ws.
     const treeDiff = newNodeWS[newNodeWS.length - 1].i - startIndex + 1;
 
@@ -113,8 +112,12 @@ function getStartIndex(attachingNode: ASTNode, attachPointNodes: ASTNode[], inse
         return 1;
     }
 
-    const attachingNodeWS = getWS(attachingNode);
-    const index = attachingNodeWS.find((ws) => (ws.text === "{"));
+    if (!attachingNode.parent) {
+        return 1;
+    }
 
-    return index === undefined ? 1 : index;
+    const attachingNodeWS = getWS(attachingNode.parent);
+    const indexWS = attachingNodeWS.find((ws) => (ws.text === "{"));
+
+    return indexWS === undefined ? 1 : indexWS.i + 1;
 }
