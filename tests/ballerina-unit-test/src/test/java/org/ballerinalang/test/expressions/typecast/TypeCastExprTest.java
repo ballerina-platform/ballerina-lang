@@ -178,7 +178,8 @@ public class TypeCastExprTest {
     @Test
     public void testJSONObjectToStringCast() {
         BValue[] returns = BRunUtil.invoke(result, "testJSONObjectToStringCast");
-        Assert.assertEquals(((BError) returns[0]).getReason(), "'json' cannot be converted to 'string'");
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "{\"foo\":\"bar\"}");
     }
 
     @Test
@@ -324,7 +325,7 @@ public class TypeCastExprTest {
         BValue[] returns = BRunUtil.invoke(result, "testIncompatibleJsonToInt");
         Assert.assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
-        String errorMsg = error.getReason();
+        String errorMsg = ((BMap) error.getDetails()).get("message").stringValue();
         Assert.assertEquals(errorMsg, "'string' cannot be converted to 'int'");
     }
 
@@ -333,18 +334,15 @@ public class TypeCastExprTest {
         BValue[] returns = BRunUtil.invoke(result, "testIncompatibleJsonToFloat");
         Assert.assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
-        String errorMsg = error.getReason();
+        String errorMsg = ((BMap) error.getDetails()).get("message").stringValue();
         Assert.assertEquals(errorMsg, "'string' cannot be converted to 'float'");
     }
 
     @Test
     public void testIncompatibleJsonToBoolean() {
         BValue[] returns = BRunUtil.invoke(result, "testIncompatibleJsonToBoolean");
-
-        Assert.assertTrue(returns[0] instanceof BError);
-        BError error = (BError) returns[0];
-        String errorMsg = error.getReason();
-        Assert.assertEquals(errorMsg, "'string' cannot be converted to 'boolean'");
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertTrue(!((BBoolean) returns[0]).booleanValue());
     }
 
     public void testBooleanInJsonToInt() {
