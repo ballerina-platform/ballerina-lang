@@ -1,8 +1,8 @@
 import ballerina/http;
 import ballerina/log;
 
-string filter_name_header = "X-filterName";
-string filter_name_header_value = "RequestFilter-1";
+final string filter_name_header = "X-filterName";
+final string filter_name_header_value = "RequestFilter-1";
 
 public type RequestFilter object {
     public function filterRequest(http:Caller caller, http:Request request, http:FilterContext context)

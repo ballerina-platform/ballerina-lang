@@ -1006,8 +1006,8 @@ public class Types {
                 }
             }
 
-            // If only the target type is an array type, then the source type must be of type 'any'
-            if (s.tag == TypeTags.ANY) {
+            // If only the target type is an array type, then the source type must be of type 'any' or 'anydata'
+            if (s.tag == TypeTags.ANY || s.tag == TypeTags.ANYDATA) {
                 return createConversionOperatorSymbol(origS, origT, false, InstructionCodes.CHECKCAST);
             }
             return symTable.notFoundSymbol;

@@ -13,6 +13,19 @@ public function main() {
     float f = 20.0;
     io:println(f);
 
+    // `isNaN()`, `isInfinite()` and `isFinite()` builtin functions are supported for the `float` type.
+    // `isNaN()` will return true if the `float` value is neither finite nor infinite.
+    float nanVal = 0.0/0.0;
+    io:println(nanVal.isNaN());
+
+    // `isInfinite()` will return true if the `float` value is neither NaN nor finite.
+    float infiniteVal = 12.0/0.0;
+    io:println(infiniteVal.isInfinite());
+
+    // `isFinite()` will return true if the `float` value is neither NaN nor infinite.
+    float finiteVal = 6.0/3.0;
+    io:println(finiteVal.isFinite());
+
     // The `decimal` type represents the set of 128-bits IEEE 754R decimal floating point numbers.
     // The implicit initial value of the `decimal` type is `+0.0.`
     decimal d = 27.5;

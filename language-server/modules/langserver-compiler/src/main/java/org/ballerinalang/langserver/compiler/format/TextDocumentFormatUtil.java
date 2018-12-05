@@ -47,6 +47,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 
@@ -269,6 +270,11 @@ public class TextDocumentFormatUtil {
                                 .getVariableName(), anonStructs, symbolMetaInfoMap));
                         listPropJson.add(generateJSON(((BLangRecordVarRef.BLangRecordVarRefKeyValue) listPropItem)
                                 .getBindingPattern(), anonStructs, symbolMetaInfoMap));
+                    } else if (listPropItem instanceof BLangRecordVariable.BLangRecordVariableKeyValue) {
+                        listPropJson.add(generateJSON(((BLangRecordVariable.BLangRecordVariableKeyValue) listPropItem)
+                                .getKey(), anonStructs, symbolMetaInfoMap));
+                        listPropJson.add(generateJSON(((BLangRecordVariable.BLangRecordVariableKeyValue) listPropItem)
+                                .getValue(), anonStructs, symbolMetaInfoMap));
                     } else if (listPropItem instanceof String) {
                         listPropJson.add((String) listPropItem);
                     } else {

@@ -4,7 +4,7 @@ import { getLibraryWebViewContent } from '../utils';
 
 export function render(context: ExtensionContext, langClient: ExtendedLangClient)
     : string {
-    const body = `<div id="examples" />`;
+    const body = `<div id="examples" class="examples" />`;
     const script = `
             function loadedScript() {
                     function openExample(url) {

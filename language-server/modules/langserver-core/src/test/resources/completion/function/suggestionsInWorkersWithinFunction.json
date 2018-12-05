@@ -34,7 +34,7 @@
       "kind":"Snippet",
       "detail":"Statement",
       "sortText":"200",
-      "insertText":"foreach ${1:item} in ${2:itemList} {\n\t${3}\n}",
+      "insertText":"foreach ${1:var} ${2:item} in ${3:itemList} {\n\t${4}\n}",
       "insertTextFormat":"Snippet"
     },
     {
@@ -277,6 +277,22 @@
       "detail":"BType",
       "sortText":"170",
       "insertText":"string"
+    },
+    {
+      "label":"0w1()",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"0w1()",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"0w2()",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"0w2()",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"error",

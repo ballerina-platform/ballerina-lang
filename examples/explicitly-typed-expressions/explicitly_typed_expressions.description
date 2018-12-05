@@ -1,0 +1,2 @@
+// Explicitly typed expressions specify a static type for an expression explicitly.
+// For simple basic types, explicitly typed expressions result in a conversion.

@@ -37,7 +37,7 @@ import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentExceptio
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.extensions.OASGenerationException;
 import org.ballerinalang.langserver.formatting.FormattingSourceGen;
-import org.ballerinalang.langserver.formatting.FormattingVisitorEntry;
+//import org.ballerinalang.langserver.formatting.FormattingVisitorEntry;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.swagger.CodeGenerator;
@@ -281,8 +281,8 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             FormattingSourceGen.build(ast, "CompilationUnit");
             // we are reformatting entire document upon each astChange
             // until partial formatting is supported
-            FormattingVisitorEntry formattingUtil = new FormattingVisitorEntry();
-            formattingUtil.accept(ast);
+            // FormattingVisitorEntry formattingUtil = new FormattingVisitorEntry();
+            // formattingUtil.accept(ast);
             String textEditContent = FormattingSourceGen.getSourceOf(ast);
 
             // create text edit

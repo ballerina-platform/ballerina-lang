@@ -20,6 +20,7 @@ export const If: React.StatelessComponent<{
         const conditionProps = {
             expression: ASTUtil.genSource(model.condition),
             label: "if",
+            width: model.body.viewState.bBox.w,
             x: viewState.bBox.x,
             y: viewState.bBox.y + (config.flowCtrl.condition.height / 2),
         };
@@ -69,12 +70,14 @@ export const If: React.StatelessComponent<{
         r4.y = r3.y;
 
         return (
-            <g className="panel if">
-                <Condition {...conditionProps} />
-                <polyline className="condition-line"
-                    points={`${r1.x},${r1.y} ${r2.x},${r2.y} ${r3.x},${r3.y} ${r4.x},${r4.y}`}
-                />
-                <ArrowHead direction={"left"} {...r4} />
-                {children}
+            <g className="worker-block">
+                <g className="condition-block">
+                    <polyline className="condition-line"
+                        points={`${r1.x},${r1.y} ${r2.x},${r2.y} ${r3.x},${r3.y} ${r4.x},${r4.y}`}
+                    />
+                    <ArrowHead direction={"left"} {...r4} />
+                    <Condition {...conditionProps} />
+                    {children}
+                </g>
             </g>);
     };
