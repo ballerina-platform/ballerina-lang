@@ -39,7 +39,7 @@ Using below command to generate stub and sample code.
 ```
 #ballerina grpc --input [proto_file] --output [output_directory] --mode [service/client]
 ```
-#####Options
+#### Options ####
 
 `--input`  - Set proto file path.
 
