@@ -1197,7 +1197,8 @@ public class BVM {
                         sf.refRegs[j] = new BByte(Byte.parseByte((String) bRefTypeValue.value()));
                         break;
                     }
-                    handleTypeConversionError(strand, sf, j, bRefTypeValue.getType(), typeRefCPEntry.getType()); break;
+                    handleTypeConversionError(strand, sf, j, bRefTypeValue.getType(), typeRefCPEntry.getType());
+                    break;
                 default:
                     handleTypeConversionError(strand, sf, j, bRefTypeValue.getType(), typeRefCPEntry.getType());
             }
