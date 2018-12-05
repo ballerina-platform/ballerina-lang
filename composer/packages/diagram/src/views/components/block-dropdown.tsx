@@ -1,6 +1,7 @@
 import { Block } from "@ballerina/ast-model";
 import cn from "classnames";
 import React from "react";
+import { DiagramContext, IDiagramContext } from "../../diagram/diagram-context";
 import { SimplePoint } from "../../view-model/simple-point";
 import { SVGDropDownMenu } from "./svg-dropdown-menu";
 
@@ -11,6 +12,8 @@ export interface BlockDropdownProps {
 }
 
 export class BlockDropdown extends React.Component<BlockDropdownProps, { isHovered: boolean }> {
+
+    public static contextType = DiagramContext;
 
     public state = {
         isHovered: this.props.active
@@ -25,6 +28,7 @@ export class BlockDropdown extends React.Component<BlockDropdownProps, { isHover
     public render() {
         const { triggerPosition } = this.props;
         const { isHovered } = this.state;
+        const context = this.context as IDiagramContext;
         return <SVGDropDownMenu
                     className={cn("block-dropdown", { active: isHovered })}
                     triggerPosition={triggerPosition}
@@ -34,7 +38,8 @@ export class BlockDropdown extends React.Component<BlockDropdownProps, { isHover
                             icon: "if-else",
                             name: "If",
                             onClick: () => {
-                                // todo
+                                // tslint:disable-next-line:no-console
+                                console.log(context.ast);
                             }
                         },
                         {
