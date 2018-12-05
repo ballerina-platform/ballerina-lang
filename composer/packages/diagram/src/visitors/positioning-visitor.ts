@@ -133,6 +133,7 @@ export const visitor: Visitor = {
         const viewState: BlockViewState = node.viewState;
         let height = 0;
         node.statements.forEach((element) => {
+            if (ASTUtil.isWorker(element)) {return; }
             element.viewState.bBox.x = viewState.bBox.x;
             element.viewState.bBox.y = viewState.bBox.y + height;
             height += element.viewState.bBox.h;
