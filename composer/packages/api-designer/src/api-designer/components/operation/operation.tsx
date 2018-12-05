@@ -18,7 +18,7 @@
  */
 
 import * as React from "react";
-import { Accordion, AccordionTitleProps, Icon } from "semantic-ui-react";
+import { Accordion, AccordionTitleProps } from "semantic-ui-react";
 
 import InlineEdit from "../../util-components/inline-edit";
 import OpenApiAddParameter from "../parameter/add-parameter";
