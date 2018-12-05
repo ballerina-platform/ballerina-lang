@@ -186,8 +186,7 @@ export const visitor: Visitor = {
 
         viewState.hoverRect.h = viewState.bBox.h;
         viewState.hoverRect.w = viewState.bBox.w + hoverRectLeftMargin;
-        viewState.hoverRect.x = viewState.bBox.x - hoverRectLeftMargin;
-        viewState.hoverRect.y = viewState.bBox.y;
+        viewState.hoverRect.leftMargin = hoverRectLeftMargin;
     },
 
     endVisitWhile(node: While) {

@@ -31,7 +31,7 @@ export class BlockDropdown extends React.Component<BlockDropdownProps, { isHover
         const { isHovered } = this.state;
         const context = this.context as IDiagramContext;
         return <SVGDropDownMenu
-                    className={cn("block-dropdown", { "on-hover": isHovered })}
+                    className={cn("block-dropdown", { hover: isHovered })}
                     triggerPosition={triggerPosition}
                     triggerIcon="add"
                     items={[
