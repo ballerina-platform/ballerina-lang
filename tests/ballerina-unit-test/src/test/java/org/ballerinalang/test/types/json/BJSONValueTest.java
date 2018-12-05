@@ -421,7 +421,7 @@ public class BJSONValueTest {
     public void testJsonToJsonArrayInvalidCasting() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJsonToJsonArrayInvalidCasting");
         Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BError) returns[0]).getReason();
+        String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).getDetails()).get("message").stringValue();
         Assert.assertEquals(errorMsg, "incompatible stamp operation: 'json[]' value cannot be stamped as 'json[][][]'");
     }
 
@@ -437,7 +437,8 @@ public class BJSONValueTest {
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = ".*error: assertion error: expected 'string', found '\\(\\)' .*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeAssertionError \\{\"message\":\"assertion " +
+                    "error: expected 'string', found '\\(\\)'\"\\}.*")
     public void testGetFromNull() {
         BRunUtil.invoke(compileResult, "testGetFromNull");
     }
@@ -456,37 +457,43 @@ public class BJSONValueTest {
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: assertion error: expected 'int', found '\\(\\)'.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeAssertionError \\{\"message\":\"assertion " +
+                    "error: expected 'int', found '\\(\\)'\"\\}.*")
     public void testNullJsonToInt() {
         BRunUtil.invoke(compileResult, "testNullJsonToInt");
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: assertion error: expected 'float', found '\\(\\)'.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeAssertionError \\{\"message\":\"assertion " +
+                    "error: expected 'float', found '\\(\\)'\"\\}.*")
     public void testNullJsonToFloat() {
         BRunUtil.invoke(compileResult, "testNullJsonToFloat");
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: assertion error: expected 'string', found '\\(\\)'.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeAssertionError \\{\"message\":\"assertion " +
+                    "error: expected 'string', found '\\(\\)'\"\\}.*")
     public void testNullJsonToString() {
         BRunUtil.invoke(compileResult, "testNullJsonToString");
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: assertion error: expected 'boolean', found '\\(\\)'.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeAssertionError \\{\"message\":\"assertion " +
+                    "error: expected 'boolean', found '\\(\\)'\"\\}.*")
     public void testNullJsonToBoolean() {
         BRunUtil.invoke(compileResult, "testNullJsonToBoolean");
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: cannot stamp 'null' value to type 'map<json>'.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}StampError \\{\"message\":\"cannot stamp 'null' " +
+                    "value to type 'map<json>'\"\\}.*")
     public void testNullJsonToMap() {
         BRunUtil.invoke(compileResult, "testNullJsonToMap");
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: assertion error: expected 'int\\[\\]', found '\\(\\)'.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeAssertionError \\{\"message\":\"assertion " +
+                    "error: expected 'int\\[\\]', found '\\(\\)'\"\\}.*")
     public void testNullJsonToArray() {
         BRunUtil.invoke(compileResult, "testNullJsonToArray");
     }

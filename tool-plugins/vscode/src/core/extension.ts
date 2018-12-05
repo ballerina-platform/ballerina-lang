@@ -94,7 +94,7 @@ export class BallerinaExtension {
                 this.checkCompatibleVersion(pluginVersion, ballerinaVersion);
                 // if Home is found load Language Server.
                 this.langClient = new ExtendedLangClient('ballerina-vscode', 'Ballerina LS Client',
-                    getServerOptions(this.getBallerinaHome()), this.clientOptions, false);
+                    getServerOptions(this.getBallerinaHome(), this.isExperimental()), this.clientOptions, false);
 
                 // 0.983.0 and 0.982.0 versions are incable of handling client capabilies 
                 if (ballerinaVersion !== "0.983.0" && ballerinaVersion !== "0.982.0") {
@@ -145,6 +145,7 @@ export class BallerinaExtension {
         // We need to restart VSCode if we change plugin configurations.
         workspace.onDidChangeConfiguration((params: ConfigurationChangeEvent) => {
             if (params.affectsConfiguration('ballerina.home') ||
+                params.affectsConfiguration('ballerina.allowExperimental') ||
                 params.affectsConfiguration('ballerina.debugLog')) {
                 this.showMsgAndRestart(CONFIG_CHANGED);
             }
@@ -282,6 +283,10 @@ export class BallerinaExtension {
         } else {
             return <string>workspace.getConfiguration().get('ballerina.home');
         }
+    }
+
+    isExperimental(): boolean {
+        return <boolean>workspace.getConfiguration().get('ballerina.allowExperimental');
     }
 
     autoDitectBallerinaHome(): string {

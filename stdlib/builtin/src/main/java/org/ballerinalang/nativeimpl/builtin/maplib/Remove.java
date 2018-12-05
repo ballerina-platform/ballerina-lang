@@ -50,7 +50,7 @@ public class Remove extends BlockingNativeCallableUnit {
             boolean isRemoved = map.remove(ctx.getStringArgument(0));
             ctx.setReturnValues(new BBoolean(isRemoved));
         } catch (BLangFreezeException e) {
-            throw new BallerinaException("Failed to remove element from map: " + e.getMessage());
+            throw new BallerinaException(e.getMessage(), "Failed to remove element from map: " + e.getDetail());
         }
     }
 }

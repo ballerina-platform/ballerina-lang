@@ -117,7 +117,6 @@ FORK        : 'fork' ;
 JOIN        : 'join' ;
 SOME        : 'some' ;
 ALL         : 'all' ;
-TIMEOUT     : 'timeout' ;
 TRY         : 'try' ;
 CATCH       : 'catch' ;
 FINALLY     : 'finally' ;
@@ -205,7 +204,6 @@ PIPE        : '|' ;
 EQUAL_GT    : '=>' ;
 ELVIS       : '?:' ;
 SYNCRARROW  : '->>' ;
-UNDERSCORE  : '_' ;
 
 // Compound Assignment operators.
 

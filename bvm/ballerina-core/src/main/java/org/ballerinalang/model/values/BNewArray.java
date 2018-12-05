@@ -20,6 +20,7 @@ package org.ballerinalang.model.values;
 import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
+import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 
 import java.lang.reflect.Array;
@@ -90,21 +91,21 @@ public abstract class BNewArray implements BRefType, BCollection {
 
     protected void rangeCheck(long index, int size) {
         if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {
-            throw BLangExceptionHelper.getRuntimeException(
-                    RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
+                                                           RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
         }
 
         if ((int) index < 0 || index >= maxArraySize) {
-            throw BLangExceptionHelper.getRuntimeException(
-                    RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, index, size);
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
+                                                           RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, index, size);
         }
     }
 
     protected void rangeCheckForGet(long index, int size) {
         rangeCheck(index, size);
         if (index < 0 || index >= size) {
-            throw BLangExceptionHelper.getRuntimeException(
-                    RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, index, size);
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
+                                                           RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, index, size);
         }
     }
 

@@ -237,13 +237,13 @@ public interface BallerinaTypes {
   IElementType SINGLE_BACK_TICK_DEPRECATED_INLINE_CODE = new BallerinaCompositeElementType("SINGLE_BACK_TICK_DEPRECATED_INLINE_CODE");
   IElementType START_TAG = new BallerinaCompositeElementType("START_TAG");
   IElementType STATEMENT = new BallerinaCompositeElementType("STATEMENT");
+  IElementType STATIC_MATCH_IDENTIFIER_LITERAL = new BallerinaCompositeElementType("STATIC_MATCH_IDENTIFIER_LITERAL");
   IElementType STATIC_MATCH_LITERALS = new BallerinaCompositeElementType("STATIC_MATCH_LITERALS");
   IElementType STATIC_MATCH_OR_EXPRESSION = new BallerinaCompositeElementType("STATIC_MATCH_OR_EXPRESSION");
   IElementType STATIC_MATCH_PATTERN = new BallerinaCompositeElementType("STATIC_MATCH_PATTERN");
   IElementType STATIC_MATCH_RECORD_LITERAL = new BallerinaCompositeElementType("STATIC_MATCH_RECORD_LITERAL");
   IElementType STATIC_MATCH_SIMPLE_LITERAL = new BallerinaCompositeElementType("STATIC_MATCH_SIMPLE_LITERAL");
   IElementType STATIC_MATCH_TUPLE_LITERAL = new BallerinaCompositeElementType("STATIC_MATCH_TUPLE_LITERAL");
-  IElementType STATIC_MATCH_UNDERSCORE_LITERAL = new BallerinaCompositeElementType("STATIC_MATCH_UNDERSCORE_LITERAL");
   IElementType STREAMING_ACTION = new BallerinaCompositeElementType("STREAMING_ACTION");
   IElementType STREAMING_INPUT = new BallerinaCompositeElementType("STREAMING_INPUT");
   IElementType STREAMING_QUERY_STATEMENT = new BallerinaCompositeElementType("STREAMING_QUERY_STATEMENT");
@@ -289,7 +289,6 @@ public interface BallerinaTypes {
   IElementType TYPE_REFERENCE = new BallerinaCompositeElementType("TYPE_REFERENCE");
   IElementType TYPE_TEST_EXPRESSION = new BallerinaCompositeElementType("TYPE_TEST_EXPRESSION");
   IElementType UNARY_EXPRESSION = new BallerinaCompositeElementType("UNARY_EXPRESSION");
-  IElementType UNDERSCORE_VARIABLE_REFERENCE = new BallerinaCompositeElementType("UNDERSCORE_VARIABLE_REFERENCE");
   IElementType UNION_TYPE_NAME = new BallerinaCompositeElementType("UNION_TYPE_NAME");
   IElementType USER_DEFINE_TYPE_NAME = new BallerinaCompositeElementType("USER_DEFINE_TYPE_NAME");
   IElementType VALUE_TYPE_NAME = new BallerinaCompositeElementType("VALUE_TYPE_NAME");
@@ -370,7 +369,7 @@ public interface BallerinaTypes {
   IElementType COMPOUND_MUL = new BallerinaTokenType("*=");
   IElementType COMPOUND_RIGHT_SHIFT = new BallerinaTokenType("COMPOUND_RIGHT_SHIFT");
   IElementType COMPOUND_SUB = new BallerinaTokenType("-=");
-  IElementType CONST = new BallerinaTokenType("const");
+  IElementType CONST = new BallerinaTokenType("CONST");
   IElementType CONTINUE = new BallerinaTokenType("continue");
   IElementType DAY = new BallerinaTokenType("day");
   IElementType DAYS = new BallerinaTokenType("days");
@@ -546,7 +545,7 @@ public interface BallerinaTypes {
   IElementType TYPE = new BallerinaTokenType("type");
   IElementType TYPEDESC = new BallerinaTokenType("typedesc");
   IElementType TYPE_PARAMETER = new BallerinaTokenType("TYPE_PARAMETER");
-  IElementType UNDERSCORE = new BallerinaTokenType("_");
+  IElementType UNDERSCORE = new BallerinaTokenType("UNDERSCORE");
   IElementType UNIDIRECTIONAL = new BallerinaTokenType("unidirectional");
   IElementType UNTAINT = new BallerinaTokenType("untaint");
   IElementType VAR = new BallerinaTokenType("var");
@@ -1222,6 +1221,9 @@ public interface BallerinaTypes {
       else if (type == STATEMENT) {
         return new BallerinaStatementImpl(node);
       }
+      else if (type == STATIC_MATCH_IDENTIFIER_LITERAL) {
+        return new BallerinaStaticMatchIdentifierLiteralImpl(node);
+      }
       else if (type == STATIC_MATCH_OR_EXPRESSION) {
         return new BallerinaStaticMatchOrExpressionImpl(node);
       }
@@ -1236,9 +1238,6 @@ public interface BallerinaTypes {
       }
       else if (type == STATIC_MATCH_TUPLE_LITERAL) {
         return new BallerinaStaticMatchTupleLiteralImpl(node);
-      }
-      else if (type == STATIC_MATCH_UNDERSCORE_LITERAL) {
-        return new BallerinaStaticMatchUnderscoreLiteralImpl(node);
       }
       else if (type == STREAMING_ACTION) {
         return new BallerinaStreamingActionImpl(node);
@@ -1371,9 +1370,6 @@ public interface BallerinaTypes {
       }
       else if (type == UNARY_EXPRESSION) {
         return new BallerinaUnaryExpressionImpl(node);
-      }
-      else if (type == UNDERSCORE_VARIABLE_REFERENCE) {
-        return new BallerinaUnderscoreVariableReferenceImpl(node);
       }
       else if (type == UNION_TYPE_NAME) {
         return new BallerinaUnionTypeNameImpl(node);

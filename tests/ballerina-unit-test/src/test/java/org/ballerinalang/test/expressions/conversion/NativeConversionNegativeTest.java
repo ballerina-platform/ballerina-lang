@@ -22,6 +22,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BError;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
@@ -57,7 +58,7 @@ public class NativeConversionNegativeTest {
 
         // check the error
         Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BError) returns[0]).getReason();
+        String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue();
         Assert.assertEquals(errorMsg, "incompatible stamp operation: 'json' value cannot be stamped as 'Person'");
     }
 
@@ -65,7 +66,7 @@ public class NativeConversionNegativeTest {
     public void testEmptyJSONtoStructWithoutDefaults() {
         BValue[] returns = BRunUtil.invoke(negativeResult, "testEmptyJSONtoStructWithoutDefaults");
         Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BError) returns[0]).getReason();
+        String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue();
         Assert.assertEquals(errorMsg, "incompatible stamp operation: 'json' value cannot be stamped as "
                 + "'StructWithoutDefaults'");
     }
@@ -74,7 +75,7 @@ public class NativeConversionNegativeTest {
     public void testEmptyMaptoStructWithDefaults() {
         BValue[] returns = BRunUtil.invoke(negativeResult, "testEmptyMaptoStructWithDefaults");
         Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BError) returns[0]).getReason();
+        String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue();
         Assert.assertEquals(errorMsg, "incompatible stamp operation: 'map' value cannot be stamped as "
                 + "'StructWithDefaults'");
     }
@@ -83,7 +84,7 @@ public class NativeConversionNegativeTest {
     public void testEmptyMaptoStructWithoutDefaults() {
         BValue[] returns = BRunUtil.invoke(negativeResult, "testEmptyMaptoStructWithoutDefaults");
         Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BError) returns[0]).getReason();
+        String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue();
         Assert.assertEquals(errorMsg, "incompatible stamp operation: 'map' value cannot be stamped as "
                 + "'StructWithoutDefaults'");
     }
@@ -91,7 +92,7 @@ public class NativeConversionNegativeTest {
     @Test(description = "Test performing an invalid tuple conversion")
     public void testTupleConversionFail() {
         BValue[] returns = BRunUtil.invoke(negativeResult, "testTupleConversionFail");
-        String errorMsg = ((BError) returns[0]).getReason();
+        String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue();
         Assert.assertEquals(errorMsg, "incompatible stamp operation: '(T1,T1)' value cannot be stamped as '(T1,T2)'");
     }
 
