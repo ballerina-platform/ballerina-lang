@@ -688,7 +688,12 @@ public class BVM {
                     BValueArray indexColumns = (BValueArray) sf.refRegs[j];
                     BValueArray keyColumns = (BValueArray) sf.refRegs[k];
                     BValueArray dataRows = (BValueArray) sf.refRegs[l];
-                    sf.refRegs[i] = new BTable(typeRefCPEntry.getType(), indexColumns, keyColumns, dataRows);
+                    try {
+                        sf.refRegs[i] = new BTable(typeRefCPEntry.getType(), indexColumns, keyColumns, dataRows);
+                    } catch (BallerinaException e) {
+                        strand.setError(BLangVMErrors.createError(strand, e.getMessage()));
+                        handleError(strand);
+                    }
                     break;
                 case InstructionCodes.NEWSTREAM:
                     i = operands[0];
