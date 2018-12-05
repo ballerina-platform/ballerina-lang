@@ -26,8 +26,6 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.util.Arrays;
-
 /**
  * Tests the sync send worker action.
  */
@@ -39,7 +37,7 @@ public class WorkerSyncSendTest {
     public void setup() {
 
         this.result = BCompileUtil.compile("test-src/workers/sync-send.bal");
-        Assert.assertEquals(result.getErrorCount(), 0, Arrays.asList(result.getDiagnostics()).toString());
+        Assert.assertEquals(result.getErrorCount(), 0, result.toString());
     }
 
     @Test
@@ -95,7 +93,7 @@ public class WorkerSyncSendTest {
             expectedException = e;
         }
         Assert.assertNotNull(expectedException);
-        String result = "error: error3 {\"message\":\"msg3\"}\n" + "\tat $lambda$14(sync-send.bal:236)";
+        String result = "error: error3 {\"message\":\"msg3\"}\n" + "\tat $lambda$14(sync-send.bal:271)";
         Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
     }
 }
