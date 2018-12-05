@@ -106,7 +106,6 @@ public class SymbolTable {
     public final BType streamType = new BStreamType(TypeTags.STREAM, anyType, null);
     public final BType mapType = new BMapType(TypeTags.MAP, anyType, null);
     public final BType mapStringType = new BMapType(TypeTags.MAP, stringType, null);
-    public final BType mapAnydataType = new BMapType(TypeTags.MAP, anydataType, null);
     public final BType futureType = new BFutureType(TypeTags.FUTURE, nilType, null);
     public final BType xmlAttributesType = new BXMLAttributesType(TypeTags.XML_ATTRIBUTES);
     public final BType arrayType = new BArrayType(noType);
@@ -160,7 +159,6 @@ public class SymbolTable {
         initializeType(streamType, TypeKind.STREAM.typeName());
         initializeType(mapType, TypeKind.MAP.typeName());
         initializeType(mapStringType, TypeKind.MAP.typeName());
-        initializeType(mapAnydataType, TypeKind.MAP.typeName());
         initializeType(futureType, TypeKind.FUTURE.typeName());
         initializeType(anyType, TypeKind.ANY.typeName());
         initializeType(anydataType, TypeKind.ANYDATA.typeName());
