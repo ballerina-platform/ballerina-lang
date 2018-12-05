@@ -24,13 +24,13 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.common.Constants;
-import org.wso2.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.transport.http.netty.config.SenderConfiguration;
+import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
+import org.wso2.transport.http.netty.contract.config.ListenerConfiguration;
+import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.server.HttpsServer;
@@ -47,7 +47,7 @@ import static org.testng.AssertJUnit.assertEquals;
  * A test case for https pass-through transport.
  */
 public class PassThroughHttpsTestCase {
-    private static final Logger log = LoggerFactory.getLogger(PassThroughHttpsTestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PassThroughHttpsTestCase.class);
 
     private static final String testValue = "Test Message";
     private HttpsServer httpsServer;
@@ -78,7 +78,7 @@ public class PassThroughHttpsTestCase {
         try {
             serverConnectorFuture.sync();
         } catch (InterruptedException e) {
-            log.warn("Interrupted while waiting for server connector to start");
+            LOG.warn("Interrupted while waiting for server connector to start");
         }
 
         httpsServer = TestUtil.startHttpsServer(TestUtil.HTTP_SERVER_PORT,
@@ -112,7 +112,7 @@ public class PassThroughHttpsTestCase {
             httpsServer.shutdown();
             httpWsConnectorFactory.shutdown();
         } catch (InterruptedException e) {
-            log.warn("Interrupted while waiting for clean up");
+            LOG.warn("Interrupted while waiting for clean up");
         }
     }
 }

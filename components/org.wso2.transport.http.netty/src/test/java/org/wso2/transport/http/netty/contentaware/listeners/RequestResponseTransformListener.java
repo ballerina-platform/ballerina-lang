@@ -24,13 +24,13 @@ import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.Constants;
-import org.wso2.transport.http.netty.config.SenderConfiguration;
+import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
+import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
@@ -47,7 +47,7 @@ import java.util.concurrent.Executors;
  */
 public class RequestResponseTransformListener implements HttpConnectorListener {
 
-    private static final Logger logger = LoggerFactory.getLogger(RequestResponseTransformListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RequestResponseTransformListener.class);
 
     private ExecutorService executor = Executors.newSingleThreadExecutor();
     private String responseValue;
@@ -105,7 +105,7 @@ public class RequestResponseTransformListener implements HttpConnectorListener {
                                 try {
                                     httpRequest.respond(httpMessage);
                                 } catch (ServerConnectorException e) {
-                                    logger.error("Error occurred during message notification: " + e.getMessage());
+                                    LOG.error("Error occurred during message notification: " + e.getMessage());
                                 }
                             }
                         });
@@ -117,7 +117,7 @@ public class RequestResponseTransformListener implements HttpConnectorListener {
                     }
                 });
             } catch (Exception e) {
-                logger.error("Error while reading stream", e);
+                LOG.error("Error while reading stream", e);
             }
         });
     }

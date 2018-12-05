@@ -24,14 +24,14 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.common.Constants;
-import org.wso2.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.transport.http.netty.config.SenderConfiguration;
-import org.wso2.transport.http.netty.config.TransportsConfiguration;
+import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
+import org.wso2.transport.http.netty.contract.config.ListenerConfiguration;
+import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
+import org.wso2.transport.http.netty.contract.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.http2.listeners.Http2ServerConnectorListener;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
@@ -53,7 +53,7 @@ import static org.testng.Assert.fail;
  */
 public class Http2ServerPushTestCase {
 
-    private static Logger log = LoggerFactory.getLogger(Http2ServerPushTestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Http2ServerPushTestCase.class);
 
     private HttpClientConnector httpClientConnector;
     private ServerConnector serverConnector;
@@ -81,8 +81,7 @@ public class Http2ServerPushTestCase {
         future.sync();
 
         TransportsConfiguration transportsConfiguration = new TransportsConfiguration();
-        senderConfiguration =
-                HttpConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME);
+        senderConfiguration = HttpConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME);
         senderConfiguration.setHttpVersion(String.valueOf(Constants.HTTP_2_0));
 
         httpClientConnector = connectorFactory.createHttpClientConnector(
@@ -150,7 +149,7 @@ public class Http2ServerPushTestCase {
         try {
             connectorFactory.shutdown();
         } catch (InterruptedException e) {
-            log.warn("Interrupted while waiting for HttpWsFactory to close");
+            LOG.warn("Interrupted while waiting for HttpWsFactory to close");
         }
     }
 }

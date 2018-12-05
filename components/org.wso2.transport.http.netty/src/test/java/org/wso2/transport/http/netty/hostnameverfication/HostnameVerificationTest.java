@@ -22,8 +22,6 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contentaware.listeners.EchoMessageListener;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
@@ -31,6 +29,8 @@ import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
+import org.wso2.transport.http.netty.contract.config.ListenerConfiguration;
+import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.https.SSLConnectorListener;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -47,7 +47,7 @@ import java.util.stream.Collectors;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 import static org.testng.AssertJUnit.assertNotNull;
-import static org.wso2.transport.http.netty.common.Constants.HTTPS_SCHEME;
+import static org.wso2.transport.http.netty.contract.Constants.HTTPS_SCHEME;
 
 /**
  * A test for hostname verification. Contains two test scenarios to test certificates with CN included and not included.
@@ -55,7 +55,7 @@ import static org.wso2.transport.http.netty.common.Constants.HTTPS_SCHEME;
  */
 public class HostnameVerificationTest {
 
-    private static final Logger log = LoggerFactory.getLogger(HostnameVerificationTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HostnameVerificationTest.class);
 
     private HttpClientConnector httpClientConnector;
     private ServerConnector serverConnector;
@@ -104,6 +104,7 @@ public class HostnameVerificationTest {
                 .createHttpClientConnector(new HashMap<>(), getSenderConfigs(trustStoreFilePath, trustStorePassword));
 
         sendRequest(hasException, serverPort);
+        serverConnector.stop();
     }
 
     public void sendRequest(boolean hasException, int serverPort) {
@@ -166,7 +167,7 @@ public class HostnameVerificationTest {
         try {
             factory.shutdown();
         } catch (InterruptedException e) {
-            log.error("Interrupted while waiting for HttpWsFactory to shutdown", e);
+            LOG.error("Interrupted while waiting for HttpWsFactory to shutdown", e);
         }
     }
 }

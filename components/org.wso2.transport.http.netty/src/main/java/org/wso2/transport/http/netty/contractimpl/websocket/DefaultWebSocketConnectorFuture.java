@@ -83,6 +83,12 @@ public class DefaultWebSocketConnectorFuture implements WebSocketConnectorFuture
         wsConnectorListener.onIdleTimeout(controlMessage);
     }
 
+    @Override
+    public void notifyWebSocketListener(WebSocketConnection webSocketConnection) throws WebSocketConnectorException {
+        checkConnectorState();
+        wsConnectorListener.onClose(webSocketConnection);
+    }
+
     private void checkConnectorState() throws WebSocketConnectorException {
         if (wsConnectorListener == null) {
             throw new WebSocketConnectorException("WebSocket connector listener is not set");

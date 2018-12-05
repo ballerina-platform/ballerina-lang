@@ -20,13 +20,13 @@ package org.wso2.transport.http.netty.passthrough;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.Constants;
-import org.wso2.transport.http.netty.config.SenderConfiguration;
+import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
+import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.util.TestUtil;
@@ -39,7 +39,7 @@ import java.util.concurrent.Executors;
  * A class for https pass-through message processor.
  */
 public class PassthroughHttpsMessageProcessorListener implements HttpConnectorListener {
-    private static final Logger log = LoggerFactory.getLogger(PassthroughHttpsMessageProcessorListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PassthroughHttpsMessageProcessorListener.class);
     private ExecutorService executor = Executors.newSingleThreadExecutor();
     private HttpClientConnector clientConnector;
     private HttpWsConnectorFactory httpWsConnectorFactory;
@@ -67,7 +67,7 @@ public class PassthroughHttpsMessageProcessorListener implements HttpConnectorLi
                             try {
                                 httpRequestMessage.respond(httpResponse);
                             } catch (ServerConnectorException e) {
-                                log.error("Error occurred during message notification: " + e.getMessage());
+                                LOG.error("Error occurred during message notification: " + e.getMessage());
                             }
                         });
                     }
@@ -77,7 +77,7 @@ public class PassthroughHttpsMessageProcessorListener implements HttpConnectorLi
                     }
                 });
             } catch (Exception e) {
-                log.error("Error occurred during message processing: ", e);
+                LOG.error("Error occurred during message processing: ", e);
             }
         });
     }

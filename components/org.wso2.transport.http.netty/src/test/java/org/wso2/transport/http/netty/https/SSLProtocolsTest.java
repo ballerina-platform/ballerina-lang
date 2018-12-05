@@ -23,9 +23,6 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.transport.http.netty.config.Parameter;
-import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contentaware.listeners.EchoMessageListener;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
@@ -33,6 +30,9 @@ import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
+import org.wso2.transport.http.netty.contract.config.ListenerConfiguration;
+import org.wso2.transport.http.netty.contract.config.Parameter;
+import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
@@ -50,14 +50,14 @@ import java.util.stream.Collectors;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 import static org.testng.AssertJUnit.assertNotNull;
-import static org.wso2.transport.http.netty.common.Constants.HTTPS_SCHEME;
+import static org.wso2.transport.http.netty.contract.Constants.HTTPS_SCHEME;
 
 /**
  * Tests for SSL protocols.
  */
 public class SSLProtocolsTest {
 
-    private static Logger logger = LoggerFactory.getLogger(SSLProtocolsTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SSLProtocolsTest.class);
 
     private static HttpClientConnector httpClientConnector;
     private static HttpWsConnectorFactory httpWsConnectorFactory;
@@ -105,6 +105,7 @@ public class SSLProtocolsTest {
         httpClientConnector = httpWsConnectorFactory.createHttpClientConnector(new HashMap<>(), getSenderConfigs());
 
         testSSLProtocols(hasException, serverPort);
+        serverConnector.stop();
     }
 
     private ListenerConfiguration getListenerConfiguration(int serverPort, List<Parameter> severParams) {
@@ -126,7 +127,7 @@ public class SSLProtocolsTest {
         senderConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
         senderConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(TestUtil.TRUST_STORE_FILE_PATH));
         senderConfiguration.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
-        senderConfiguration.setKeyStorePassword(TestUtil.KEY_STORE_PASSWORD);
+        senderConfiguration.setKeyStorePass(TestUtil.KEY_STORE_PASSWORD);
         senderConfiguration.setParameters(clientParams);
         senderConfiguration.setScheme(HTTPS_SCHEME);
         return senderConfiguration;
@@ -176,7 +177,7 @@ public class SSLProtocolsTest {
             httpClientConnector.close();
             httpWsConnectorFactory.shutdown();
         } catch (Exception e) {
-            logger.warn("Interrupted while waiting for response two", e);
+            LOG.warn("Interrupted while waiting for response two", e);
         }
     }
 }

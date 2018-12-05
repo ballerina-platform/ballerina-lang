@@ -53,12 +53,12 @@ public class Http2EchoServerInitializer extends Http2ServerInitializer {
     private class EchoHandler extends ChannelDuplexHandler {
 
         final ByteBuf responseBytes = unreleasableBuffer(copiedBuffer("Hello..!", CharsetUtil.UTF_8));
-        private final Logger logger = LoggerFactory.getLogger(EchoHandler.class);
+        private final Logger log = LoggerFactory.getLogger(EchoHandler.class);
 
         @Override
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
             super.exceptionCaught(ctx, cause);
-            logger.error(cause.getMessage());
+            log.error(cause.getMessage());
             ctx.close();
         }
 

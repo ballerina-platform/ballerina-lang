@@ -48,7 +48,7 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
  */
 public class RedirectServerInitializer extends HttpServerInitializer {
 
-    private static final Logger logger = LoggerFactory.getLogger(MockServerInitializer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MockServerInitializer.class);
 
     private String stringContent;
     private String contentType;
@@ -96,12 +96,12 @@ public class RedirectServerInitializer extends HttpServerInitializer {
 
                     if (!keepAlive) {
                         ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
-                        logger.debug("Writing response with data to client-connector");
-                        logger.debug("Closing the client-connector connection");
+                        LOG.debug("Writing response with data to client-connector");
+                        LOG.debug("Closing the client-connector connection");
                     } else {
                         response.headers().set(CONNECTION, HttpHeaderValues.KEEP_ALIVE);
                         ctx.executor().schedule(() -> ctx.writeAndFlush(response), delay, TimeUnit.MILLISECONDS);
-                        logger.debug("Writing response with data to client-connector");
+                        LOG.debug("Writing response with data to client-connector");
                     }
                 }
             }

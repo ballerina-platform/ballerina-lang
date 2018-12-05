@@ -22,6 +22,7 @@ package org.wso2.transport.http.netty.contractimpl.websocket.message;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
@@ -33,15 +34,15 @@ import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import io.netty.handler.timeout.IdleStateHandler;
-import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contract.websocket.ServerHandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
+import org.wso2.transport.http.netty.contractimpl.listener.MessageQueueHandler;
 import org.wso2.transport.http.netty.contractimpl.websocket.DefaultServerHandshakeFuture;
 import org.wso2.transport.http.netty.contractimpl.websocket.WebSocketInboundFrameHandler;
 import org.wso2.transport.http.netty.contractimpl.websocket.WebSocketUtil;
-import org.wso2.transport.http.netty.listener.MessageQueueHandler;
 import org.wso2.transport.http.netty.message.HttpCarbonRequest;
 
 import java.nio.charset.StandardCharsets;
@@ -144,6 +145,7 @@ public class DefaultWebSocketHandshaker implements WebSocketHandshaker {
                 responseFuture = ctx.writeAndFlush(new DefaultFullHttpResponse(
                         HttpVersion.HTTP_1_1, HttpResponseStatus.valueOf(responseStatusCode)));
             }
+            responseFuture.addListener((ChannelFutureListener) future -> ctx.close());
             return responseFuture;
         } finally {
             cancelled = true;
@@ -182,6 +184,9 @@ public class DefaultWebSocketHandshaker implements WebSocketHandshaker {
 
     private ServerHandshakeFuture handleHandshake(WebSocketServerHandshaker handshaker, int idleTimeout,
                                                   HttpHeaders headers) {
+        if (handshaker == null) {
+            WebSocketServerHandshakerFactory.sendUnsupportedVersionResponse(ctx.channel());
+        }
         DefaultServerHandshakeFuture handshakeFuture = new DefaultServerHandshakeFuture();
         if (cancelled) {
             Throwable e = new IllegalAccessException("Handshake is already cancelled.");
@@ -209,8 +214,7 @@ public class DefaultWebSocketHandshaker implements WebSocketHandshaker {
         pipeline.remove(Constants.WEBSOCKET_SERVER_HANDSHAKE_HANDLER);
         if (idleTimeout > 0) {
             pipeline.replace(Constants.IDLE_STATE_HANDLER, Constants.IDLE_STATE_HANDLER,
-                             new IdleStateHandler(idleTimeout, idleTimeout, idleTimeout,
-                                                  TimeUnit.MILLISECONDS));
+                             new IdleStateHandler(0, 0, idleTimeout, TimeUnit.MILLISECONDS));
         } else {
             pipeline.remove(Constants.IDLE_STATE_HANDLER);
         }

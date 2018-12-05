@@ -30,40 +30,40 @@ import io.netty.util.AsciiString;
 import io.netty.util.CharsetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.Constants;
-import org.wso2.transport.http.netty.common.HttpRoute;
-import org.wso2.transport.http.netty.common.ssl.SSLConfig;
-import org.wso2.transport.http.netty.config.ChunkConfig;
-import org.wso2.transport.http.netty.config.ForwardedExtensionConfig;
-import org.wso2.transport.http.netty.config.KeepAliveConfig;
-import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
+import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.transport.http.netty.listener.SourceHandler;
+import org.wso2.transport.http.netty.contract.config.ChunkConfig;
+import org.wso2.transport.http.netty.contract.config.ForwardedExtensionConfig;
+import org.wso2.transport.http.netty.contract.config.KeepAliveConfig;
+import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
+import org.wso2.transport.http.netty.contractimpl.common.HttpRoute;
+import org.wso2.transport.http.netty.contractimpl.common.ssl.SSLConfig;
+import org.wso2.transport.http.netty.contractimpl.listener.SourceHandler;
+import org.wso2.transport.http.netty.contractimpl.sender.ConnectionAvailabilityListener;
+import org.wso2.transport.http.netty.contractimpl.sender.channel.TargetChannel;
+import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.ConnectionManager;
+import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ClientChannel;
+import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ConnectionManager;
+import org.wso2.transport.http.netty.contractimpl.sender.http2.OutboundMsgHolder;
+import org.wso2.transport.http.netty.contractimpl.sender.http2.TimeoutHandler;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.Http2Reset;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.ResponseHandle;
-import org.wso2.transport.http.netty.sender.ConnectionAvailabilityListener;
-import org.wso2.transport.http.netty.sender.channel.TargetChannel;
-import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
-import org.wso2.transport.http.netty.sender.http2.Http2ClientChannel;
-import org.wso2.transport.http.netty.sender.http2.Http2ConnectionManager;
-import org.wso2.transport.http.netty.sender.http2.OutboundMsgHolder;
-import org.wso2.transport.http.netty.sender.http2.TimeoutHandler;
 
 import java.util.NoSuchElementException;
 
-import static org.wso2.transport.http.netty.common.Constants.COLON;
-import static org.wso2.transport.http.netty.common.Constants.HTTP_SCHEME;
+import static org.wso2.transport.http.netty.contract.Constants.COLON;
+import static org.wso2.transport.http.netty.contract.Constants.HTTP_SCHEME;
 
 /**
  * Implementation of the client connector.
  */
 public class DefaultHttpClientConnector implements HttpClientConnector {
 
-    private static final Logger log = LoggerFactory.getLogger(HttpClientConnector.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HttpClientConnector.class);
 
     private ConnectionManager connectionManager;
     private Http2ConnectionManager http2ConnectionManager;
@@ -141,10 +141,9 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
         final HttpResponseFuture httpResponseFuture;
 
         SourceHandler srcHandler = (SourceHandler) httpOutboundRequest.getProperty(Constants.SRC_HANDLER);
-        if (srcHandler == null && log.isDebugEnabled()) {
-            log.debug(Constants.SRC_HANDLER + " property not found in the message."
+        if (srcHandler == null && LOG.isDebugEnabled()) {
+            LOG.debug(Constants.SRC_HANDLER + " property not found in the message."
                               + " Message is not originated from the HTTP Server connector");
-
         }
 
         try {
@@ -178,9 +177,9 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
             targetChannel.getConnenctionReadyFuture().setListener(new ConnectionAvailabilityListener() {
                 @Override
                 public void onSuccess(String protocol, ChannelFuture channelFuture) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("Created the connection to address: {}",
-                                route.toString() + " " + "Original Channel ID is : " + channelFuture.channel().id());
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Created the connection to address: {}",
+                                  route.toString() + " " + "Original Channel ID is : " + channelFuture.channel().id());
                     }
                     if (srcHandler != null) {
                         channelFuture.channel().deregister().addListener(future ->
@@ -273,7 +272,7 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
         } else {
             port = sslConfig != null ? Constants.DEFAULT_HTTPS_PORT : Constants.DEFAULT_HTTP_PORT;
             httpCarbonMessage.setProperty(Constants.HTTP_PORT, port);
-            log.debug("Cannot find property PORT of type integer, hence using {}", port);
+            LOG.debug("Cannot find property PORT of type integer, hence using {}", port);
         }
         return port;
     }
@@ -286,7 +285,7 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
         } else {
             host = Constants.LOCALHOST;
             httpCarbonMessage.setProperty(Constants.HTTP_HOST, Constants.LOCALHOST);
-            log.debug("Cannot find property HOST of type string, hence using localhost as the host");
+            LOG.debug("Cannot find property HOST of type string, hence using localhost as the host");
         }
         return host;
     }
@@ -295,7 +294,7 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
         this.httpVersion = senderConfiguration.getHttpVersion();
         this.chunkConfig = senderConfiguration.getChunkingConfig();
         this.socketIdleTimeout = senderConfiguration.getSocketIdleTimeout(Constants.ENDPOINT_TIMEOUT);
-        this.sslConfig = senderConfiguration.generateSSLConfig();
+        this.sslConfig = senderConfiguration.getClientSSLConfig();
         this.keepAliveConfig = senderConfiguration.getKeepAliveConfig();
         this.forwardedExtensionConfig = senderConfiguration.getForwardedExtensionConfig();
     }

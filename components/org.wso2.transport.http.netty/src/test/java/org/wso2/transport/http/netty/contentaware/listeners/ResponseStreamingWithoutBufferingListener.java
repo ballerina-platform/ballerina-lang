@@ -39,14 +39,14 @@ import static io.netty.handler.codec.http.HttpHeaderValues.KEEP_ALIVE;
 import static io.netty.handler.codec.http.HttpHeaderValues.TEXT_PLAIN;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
-import static org.wso2.transport.http.netty.common.Constants.HTTP_STATUS_CODE;
+import static org.wso2.transport.http.netty.contract.Constants.HTTP_STATUS_CODE;
 
 /**
  * A Message Processor which respond in streaming manner without buffering.
  */
 public class ResponseStreamingWithoutBufferingListener implements HttpConnectorListener {
 
-    private static final Logger logger = LoggerFactory.getLogger(RequestResponseTransformStreamingListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RequestResponseTransformStreamingListener.class);
     private ExecutorService executor = Executors.newCachedThreadPool();
 
     @Override
@@ -61,7 +61,7 @@ public class ResponseStreamingWithoutBufferingListener implements HttpConnectorL
             try {
                 inboundRequest.respond(outboundResponse);
             } catch (ServerConnectorException e) {
-                logger.error("Error occurred during message notification: " + e.getMessage());
+                LOG.error("Error occurred during message notification: " + e.getMessage());
             }
             while (true) {
                 HttpContent httpContent = inboundRequest.getHttpContent();

@@ -21,7 +21,7 @@ package org.wso2.transport.http.netty.http2.listeners;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
@@ -39,7 +39,7 @@ import java.util.concurrent.Executors;
  */
 public class Http2ServerConnectorListener implements HttpConnectorListener {
 
-    private static final Logger logger = LoggerFactory.getLogger(Http2ServerConnectorListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Http2ServerConnectorListener.class);
 
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -63,14 +63,13 @@ public class Http2ServerConnectorListener implements HttpConnectorListener {
                 List<Http2PushPromise> promises = new ArrayList<>();
                 if (promisedResources != null) {
                     for (String promisedResource : promisedResources) {
-                        Http2PushPromise promise =
-                                new Http2PushPromise(Constants.HTTP_GET_METHOD, promisedResource);
+                        Http2PushPromise promise = new Http2PushPromise(Constants.HTTP_GET_METHOD, promisedResource);
                         HttpResponseFuture responseFuture = httpRequest.pushPromise(promise);
                         responseFuture.sync();
                         Throwable error = responseFuture.getStatus().getCause();
                         if (error != null) {
                             responseFuture.resetStatus();
-                            logger.error("Error occurred while sending push promises " + error.getMessage());
+                            LOG.error("Error occurred while sending push promises " + error.getMessage());
                         } else {
                             promises.add(promise);
                         }
@@ -84,7 +83,7 @@ public class Http2ServerConnectorListener implements HttpConnectorListener {
                 Throwable error = responseFuture.getStatus().getCause();
                 if (error != null) {
                     responseFuture.resetStatus();
-                    logger.error("Error occurred while sending the response " + error.getMessage());
+                    LOG.error("Error occurred while sending the response " + error.getMessage());
                 }
 
                 // Send Promised response message
@@ -95,11 +94,11 @@ public class Http2ServerConnectorListener implements HttpConnectorListener {
                     error = responseFuture.getStatus().getCause();
                     if (error != null) {
                         responseFuture.resetStatus();
-                        logger.error("Error occurred while sending promised response " + error.getMessage());
+                        LOG.error("Error occurred while sending promised response " + error.getMessage());
                     }
                 }
             } catch (Exception e) {
-                logger.error("Error occurred while processing message: " + e.getMessage());
+                LOG.error("Error occurred while processing message: " + e.getMessage());
             }
         });
     }

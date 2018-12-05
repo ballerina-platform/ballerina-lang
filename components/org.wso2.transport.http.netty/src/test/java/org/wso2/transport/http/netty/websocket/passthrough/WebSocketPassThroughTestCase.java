@@ -24,9 +24,9 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
+import org.wso2.transport.http.netty.contract.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.client.websocket.WebSocketTestClient;
@@ -44,7 +44,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  */
 public class WebSocketPassThroughTestCase {
 
-    private static final Logger log = LoggerFactory.getLogger(WebSocketPassThroughTestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WebSocketPassThroughTestCase.class);
 
     private DefaultHttpWsConnectorFactory httpConnectorFactory;
     private WebSocketRemoteServer remoteServer;

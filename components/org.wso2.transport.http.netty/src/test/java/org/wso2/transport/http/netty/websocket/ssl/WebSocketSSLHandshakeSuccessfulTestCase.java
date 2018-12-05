@@ -22,10 +22,10 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
+import org.wso2.transport.http.netty.contract.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.contract.websocket.ClientHandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.ClientHandshakeListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
@@ -74,7 +74,6 @@ public class WebSocketSSLHandshakeSuccessfulTestCase {
         listenerConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(keyStoreFile));
         listenerConfiguration.setScheme("https");
         listenerConfiguration.setKeyStorePass(password);
-        listenerConfiguration.setCertPass(password);
         listenerConfiguration.setTLSStoreType(tlsStoreType);
         return listenerConfiguration;
     }

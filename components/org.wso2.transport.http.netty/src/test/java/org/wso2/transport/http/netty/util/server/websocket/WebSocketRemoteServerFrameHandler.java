@@ -30,27 +30,28 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.transport.http.netty.contract.Constants;
 
 /**
  * Simple WebSocket frame handler for testing
  */
 public class WebSocketRemoteServerFrameHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
 
-    private static final Logger log = LoggerFactory.getLogger(WebSocketRemoteServerFrameHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WebSocketRemoteServerFrameHandler.class);
     private static final String PING = "ping";
     private static final String CLOSE = "close";
+    private static final String CLOSE_WITHOUT_STATUS_CODE = "close-without-status-code";
     private static final String CLOSE_WITHOUT_FRAME = "close-without-frame";
     private static final String SEND_CORRUPTED_FRAME = "send-corrupted-frame";
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
-        log.debug("channel is active");
+        LOG.debug("channel is active");
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
-        log.debug("channel is inactive");
+        LOG.debug("channel is inactive");
     }
 
     @Override
@@ -64,6 +65,9 @@ public class WebSocketRemoteServerFrameHandler extends SimpleChannelInboundHandl
                 case CLOSE:
                     ctx.writeAndFlush(new CloseWebSocketFrame(Constants.WEBSOCKET_STATUS_CODE_NORMAL_CLOSURE,
                                                               "Close on request"));
+                    break;
+                case CLOSE_WITHOUT_STATUS_CODE:
+                    ctx.writeAndFlush(new CloseWebSocketFrame());
                     break;
                 case CLOSE_WITHOUT_FRAME:
                     ctx.close();
@@ -90,7 +94,7 @@ public class WebSocketRemoteServerFrameHandler extends SimpleChannelInboundHandl
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        log.error("Exception Caught: " + cause.getMessage());
+        LOG.error("Exception Caught: " + cause.getMessage());
         ctx.close();
     }
 }

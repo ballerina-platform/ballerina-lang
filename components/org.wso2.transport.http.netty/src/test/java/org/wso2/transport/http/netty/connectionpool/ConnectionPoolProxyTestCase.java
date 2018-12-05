@@ -24,14 +24,14 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
+import org.wso2.transport.http.netty.contract.config.ListenerConfiguration;
+import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
+import org.wso2.transport.http.netty.contract.config.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
-import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.passthrough.PassthroughMessageProcessorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.server.HttpServer;
@@ -54,7 +54,7 @@ import static org.testng.AssertJUnit.assertNotNull;
  */
 public class ConnectionPoolProxyTestCase {
 
-    private static Logger logger = LoggerFactory.getLogger(ConnectionPoolProxyTestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ConnectionPoolProxyTestCase.class);
 
     private Future<String> requestTwoResponse;
     private ExecutorService executor = Executors.newFixedThreadPool(2);
@@ -79,7 +79,7 @@ public class ConnectionPoolProxyTestCase {
         try {
             serverConnectorFuture.sync();
         } catch (InterruptedException e) {
-            logger.warn("Interrupted while waiting for server connector to start");
+            LOG.warn("Interrupted while waiting for server connector to start");
         }
     }
 
@@ -118,7 +118,7 @@ public class ConnectionPoolProxyTestCase {
             httpServer.shutdown();
             httpWsConnectorFactory.shutdown();
         } catch (Exception e) {
-            logger.warn("Interrupted while waiting for response two", e);
+            LOG.warn("Interrupted while waiting for response two", e);
         }
     }
 
@@ -135,7 +135,7 @@ public class ConnectionPoolProxyTestCase {
                 urlConn.getOutputStream().write(TestUtil.smallEntity.getBytes());
                 response = TestUtil.getContent(urlConn);
             } catch (IOException e) {
-                logger.error("Couldn't get the response", e);
+                LOG.error("Couldn't get the response", e);
             }
 
             return response;

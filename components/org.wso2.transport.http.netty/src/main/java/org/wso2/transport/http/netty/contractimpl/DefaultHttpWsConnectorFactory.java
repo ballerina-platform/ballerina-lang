@@ -23,23 +23,31 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.util.concurrent.DefaultEventExecutorGroup;
+import io.netty.util.concurrent.DefaultThreadFactory;
+import io.netty.util.concurrent.EventExecutorGroup;
 import io.netty.util.concurrent.GlobalEventExecutor;
-import org.wso2.transport.http.netty.common.Constants;
-import org.wso2.transport.http.netty.common.ssl.SSLHandlerFactory;
-import org.wso2.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.transport.http.netty.config.SenderConfiguration;
+import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
+import org.wso2.transport.http.netty.contract.config.ListenerConfiguration;
+import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
+import org.wso2.transport.http.netty.contract.config.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnectorConfig;
+import org.wso2.transport.http.netty.contractimpl.common.ssl.SSLConfig;
+import org.wso2.transport.http.netty.contractimpl.common.ssl.SSLHandlerFactory;
+import org.wso2.transport.http.netty.contractimpl.listener.ServerConnectorBootstrap;
+import org.wso2.transport.http.netty.contractimpl.sender.channel.BootstrapConfiguration;
+import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.ConnectionManager;
 import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketClientConnector;
-import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
-import org.wso2.transport.http.netty.listener.ServerConnectorBootstrap;
-import org.wso2.transport.http.netty.sender.channel.BootstrapConfiguration;
-import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
 
 import java.util.Map;
+import javax.net.ssl.SSLException;
+
+import static org.wso2.transport.http.netty.contract.Constants.PIPELINING_THREAD_COUNT;
+import static org.wso2.transport.http.netty.contract.Constants.PIPELINING_THREAD_POOL_NAME;
 
 /**
  * Implementation of HttpWsConnectorFactory interface.
@@ -49,6 +57,8 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
     private final EventLoopGroup bossGroup;
     private final EventLoopGroup workerGroup;
     private final EventLoopGroup clientGroup;
+    private EventExecutorGroup pipeliningGroup;
+
     private final ChannelGroup allChannels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
 
     public DefaultHttpWsConnectorFactory() {
@@ -68,17 +78,14 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
             ListenerConfiguration listenerConfig) {
         ServerConnectorBootstrap serverConnectorBootstrap = new ServerConnectorBootstrap(allChannels);
         serverConnectorBootstrap.addSocketConfiguration(serverBootstrapConfiguration);
-        serverConnectorBootstrap.addSecurity(listenerConfig.getSSLConfig());
-        serverConnectorBootstrap.addcertificateRevocationVerifier(listenerConfig.validateCertEnabled());
-        serverConnectorBootstrap.addCacheDelay(listenerConfig.getCacheValidityPeriod());
-        serverConnectorBootstrap.addCacheSize(listenerConfig.getCacheSize());
-        serverConnectorBootstrap.addOcspStapling(listenerConfig.isOcspStaplingEnabled());
+        SSLConfig sslConfig = listenerConfig.getListenerSSLConfig();
+        serverConnectorBootstrap.addSecurity(sslConfig);
+        if (sslConfig != null) {
+            setSslContext(serverConnectorBootstrap, sslConfig);
+        }
         serverConnectorBootstrap.addIdleTimeout(listenerConfig.getSocketIdleTimeout());
         if (Constants.HTTP_2_0 == Float.valueOf(listenerConfig.getVersion())) {
             serverConnectorBootstrap.setHttp2Enabled(true);
-        }
-        if (listenerConfig.getSSLConfig() != null) {
-            serverConnectorBootstrap.addSslHandlerFactory(new SSLHandlerFactory(listenerConfig.getSSLConfig()));
         }
         serverConnectorBootstrap.addHttpTraceLogHandler(listenerConfig.isHttpTraceLogEnabled());
         serverConnectorBootstrap.addHttpAccessLogHandler(listenerConfig.isHttpAccessLogEnabled());
@@ -88,7 +95,34 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
         serverConnectorBootstrap.addKeepAliveBehaviour(listenerConfig.getKeepAliveConfig());
         serverConnectorBootstrap.addServerHeader(listenerConfig.getServerHeader());
 
+        serverConnectorBootstrap.setPipeliningEnabled(listenerConfig.isPipeliningEnabled());
+        serverConnectorBootstrap.setPipeliningLimit(listenerConfig.getPipeliningLimit());
+
+        if (listenerConfig.isPipeliningEnabled()) {
+            pipeliningGroup = new DefaultEventExecutorGroup(PIPELINING_THREAD_COUNT, new DefaultThreadFactory(
+                    PIPELINING_THREAD_POOL_NAME));
+            serverConnectorBootstrap.setPipeliningThreadGroup(pipeliningGroup);
+        }
+
         return serverConnectorBootstrap.getServerConnector(listenerConfig.getHost(), listenerConfig.getPort());
+    }
+
+    private void setSslContext(ServerConnectorBootstrap serverConnectorBootstrap, SSLConfig sslConfig) {
+        try {
+            SSLHandlerFactory sslHandlerFactory = new SSLHandlerFactory(sslConfig);
+            serverConnectorBootstrap.addcertificateRevocationVerifier(sslConfig.isValidateCertEnabled());
+            serverConnectorBootstrap.addCacheDelay(sslConfig.getCacheValidityPeriod());
+            serverConnectorBootstrap.addCacheSize(sslConfig.getCacheSize());
+            serverConnectorBootstrap.addOcspStapling(sslConfig.isOcspStaplingEnabled());
+            serverConnectorBootstrap.addSslHandlerFactory(sslHandlerFactory);
+            if (sslConfig.getKeyStore() != null) {
+                serverConnectorBootstrap.addKeystoreSslContext(sslHandlerFactory.createSSLContextFromKeystores());
+            } else {
+                serverConnectorBootstrap.addCertAndKeySslContext(sslHandlerFactory.createHttpTLSContextForServer());
+            }
+        } catch (SSLException e) {
+            throw new RuntimeException("Failed to create ssl context from given certs and key", e);
+        }
     }
 
     @Override
@@ -106,9 +140,12 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
 
     @Override
     public void shutdown() throws InterruptedException {
-        this.allChannels.close().sync();
-        this.workerGroup.shutdownGracefully().sync();
-        this.bossGroup.shutdownGracefully().sync();
-        this.clientGroup.shutdownGracefully().sync();
+        allChannels.close().sync();
+        workerGroup.shutdownGracefully().sync();
+        bossGroup.shutdownGracefully().sync();
+        clientGroup.shutdownGracefully().sync();
+        if (pipeliningGroup != null) {
+            pipeliningGroup.shutdownGracefully().sync();
+        }
     }
 }

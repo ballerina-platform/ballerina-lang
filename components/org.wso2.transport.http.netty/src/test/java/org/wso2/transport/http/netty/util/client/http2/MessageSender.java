@@ -135,7 +135,6 @@ public class MessageSender {
             responseFuture.setPushPromiseListener(listener);
             latch.await(TestUtil.HTTP2_RESPONSE_TIME_OUT, TimeUnit.SECONDS);
             return listener.getPushPromise();
-
         } catch (Exception e) {
             TestUtil.handleException("Exception occurred while fetching a push promise", e);
         }

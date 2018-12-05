@@ -40,7 +40,7 @@ import java.util.concurrent.Executors;
  */
 public class ContentReadingListener implements HttpConnectorListener {
 
-    private static final Logger logger = LoggerFactory.getLogger(ContentReadingListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ContentReadingListener.class);
 
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -59,7 +59,7 @@ public class ContentReadingListener implements HttpConnectorListener {
 
                 httpMessage.respond(newMsg);
             } catch (IOException | ServerConnectorException e) {
-                logger.error("Error occurred during message processing ", e);
+                LOG.error("Error occurred during message processing ", e);
             }
 
         });

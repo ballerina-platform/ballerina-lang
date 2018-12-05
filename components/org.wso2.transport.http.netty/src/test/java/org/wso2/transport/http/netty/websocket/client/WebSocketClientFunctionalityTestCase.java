@@ -56,7 +56,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  */
 public class WebSocketClientFunctionalityTestCase {
 
-    private static final Logger log = LoggerFactory.getLogger(WebSocketClientFunctionalityTestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WebSocketClientFunctionalityTestCase.class);
 
     private DefaultHttpWsConnectorFactory httpConnectorFactory = new DefaultHttpWsConnectorFactory();
     private WebSocketClientConnector clientConnector;
@@ -311,7 +311,7 @@ public class WebSocketClientFunctionalityTestCase {
 
             @Override
             public void onError(Throwable t, HttpCarbonResponse response) {
-                log.error(t.getMessage());
+                LOG.error(t.getMessage());
                 Assert.fail(t.getMessage());
             }
         });
@@ -331,6 +331,21 @@ public class WebSocketClientFunctionalityTestCase {
         Assert.assertEquals(closeMessage.getCloseReason(), "Close on request");
 
         webSocketConnection.finishConnectionClosure(closeMessage.getCloseCode(), null).sync();
+        Assert.assertFalse(webSocketConnection.isOpen());
+    }
+
+    @Test
+    public void testConnectionClosureWithoutCloseCodeFromServerSide() throws Throwable {
+        WebSocketTestClientConnectorListener connectorListener = new WebSocketTestClientConnectorListener();
+        WebSocketConnection webSocketConnection = getWebSocketConnection(connectorListener);
+        sendTextMessageAndReceiveResponse("close-without-status-code", connectorListener, webSocketConnection);
+        WebSocketCloseMessage closeMessage = connectorListener.getCloseMessage();
+
+        Assert.assertTrue(connectorListener.isClosed());
+        Assert.assertEquals(closeMessage.getCloseCode(), 1005);
+        Assert.assertEquals(closeMessage.getCloseReason(), "");
+
+        webSocketConnection.finishConnectionClosure().sync();
         Assert.assertFalse(webSocketConnection.isOpen());
     }
 
@@ -392,11 +407,11 @@ public class WebSocketClientFunctionalityTestCase {
     }
 
     @Test
-    public void testFinishClosure() throws Throwable {
+    public void testClientInitiatedClosureWithoutCloseCode() throws Throwable {
         WebSocketConnection webSocketConnection =
                 getWebSocketConnection(new WebSocketTestClientConnectorListener());
         CountDownLatch countDownLatch = new CountDownLatch(1);
-        ChannelFuture closeFuture = webSocketConnection.initiateConnectionClosure(1001, "Going away").addListener(
+        ChannelFuture closeFuture = webSocketConnection.initiateConnectionClosure().addListener(
                 future -> countDownLatch.countDown());
         countDownLatch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, SECONDS);
 

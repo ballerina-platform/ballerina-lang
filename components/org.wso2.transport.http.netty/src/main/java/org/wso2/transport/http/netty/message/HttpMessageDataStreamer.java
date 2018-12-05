@@ -30,14 +30,12 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.transport.http.netty.contract.Constants;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.InflaterInputStream;
 
@@ -46,7 +44,7 @@ import java.util.zip.InflaterInputStream;
  */
 public class HttpMessageDataStreamer {
 
-    private static final Logger log = LoggerFactory.getLogger(HttpMessageDataStreamer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HttpMessageDataStreamer.class);
 
     private HttpCarbonMessage httpCarbonMessage;
 
@@ -54,10 +52,6 @@ public class HttpMessageDataStreamer {
     private ByteBufAllocator pooledByteBufAllocator;
     private HttpMessageDataStreamer.ByteBufferInputStream byteBufferInputStream;
     private HttpMessageDataStreamer.ByteBufferOutputStream byteBufferOutputStream;
-    private IOException ioException;
-
-    // Lock to synchronize  byte stream write operation
-    private Lock byteStreamWriteLock = new ReentrantLock();
 
     public HttpMessageDataStreamer(HttpCarbonMessage httpCarbonMessage) {
         this.httpCarbonMessage = httpCarbonMessage;
@@ -161,14 +155,14 @@ public class HttpMessageDataStreamer {
             } catch (RuntimeException ex) {
                 throw new EncoderException(httpCarbonMessage.getIoException());
             } catch (Exception e) {
-                log.error("Error while closing output stream but underlying resources are reset", e);
+                LOG.error("Error while closing output stream but underlying resources are reset", e);
             } finally {
                 byteBufferOutputStream = null;
             }
         }
 
         private ByteBuf getBuffer() {
-            if (pooledByteBufAllocator ==  null) {
+            if (pooledByteBufAllocator == null) {
                 return Unpooled.buffer(CONTENT_BUFFER_SIZE);
             } else {
                 return pooledByteBufAllocator.directBuffer(CONTENT_BUFFER_SIZE);
@@ -203,21 +197,12 @@ public class HttpMessageDataStreamer {
                 } else if (contentEncodingHeader.equalsIgnoreCase(Constants.ENCODING_DEFLATE)) {
                     return new InflaterInputStream(createInputStreamIfNull());
                 } else if (!contentEncodingHeader.equalsIgnoreCase(Constants.HTTP_TRANSFER_ENCODING_IDENTITY)) {
-                    log.warn("Unknown Content-Encoding: {}", contentEncodingHeader);
+                    LOG.warn("Unknown Content-Encoding: {}", contentEncodingHeader);
                 }
             } catch (IOException e) {
-                log.error("Error while creating inputStream for content-encoding: " + contentEncodingHeader, e);
+                LOG.error("Error while creating inputStream for content-encoding: " + contentEncodingHeader, e);
             }
         }
         return createInputStreamIfNull();
-    }
-
-    public void setIoException(IOException ioException) {
-        byteStreamWriteLock.lock();
-        try {
-            this.ioException = ioException;
-        } finally {
-            byteStreamWriteLock.unlock();
-        }
     }
 }

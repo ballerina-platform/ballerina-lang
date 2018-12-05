@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MessageFuture {
 
-    private static final Logger log = LoggerFactory.getLogger(MessageFuture.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MessageFuture.class);
     private MessageListener messageListener;
     private final HttpCarbonMessage httpCarbonMessage;
 
@@ -47,6 +47,12 @@ public class MessageFuture {
                     return;
                 }
             }
+
+            // Removes Inbound throttling listener during passthrough so that only backpressure handling would be
+            // present.
+            if (httpCarbonMessage.isPassthrough()) {
+                httpCarbonMessage.removeInboundContentListener();
+            }
         }
     }
 
@@ -54,7 +60,7 @@ public class MessageFuture {
         if (this.messageListener != null) {
             this.messageListener.onMessage(httpContent);
         } else {
-            log.error("The message chunk will be lost because the MessageListener is not set.");
+            LOG.error("The message chunk will be lost because the MessageListener is not set.");
         }
     }
 

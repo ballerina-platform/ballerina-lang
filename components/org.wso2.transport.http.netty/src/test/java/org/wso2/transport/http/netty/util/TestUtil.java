@@ -29,14 +29,14 @@ import io.netty.handler.codec.http.HttpVersion;
 import org.apache.commons.io.Charsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.Constants;
-import org.wso2.transport.http.netty.config.TransportsConfiguration;
+import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
+import org.wso2.transport.http.netty.contract.config.ServerBootstrapConfiguration;
+import org.wso2.transport.http.netty.contract.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
-import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.util.server.HttpServer;
@@ -68,6 +68,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import javax.net.ssl.HttpsURLConnection;
 
+import static org.testng.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.fail;
 
 /**
@@ -75,7 +77,7 @@ import static org.testng.AssertJUnit.fail;
  */
 public class TestUtil {
 
-    private static final Logger log = LoggerFactory.getLogger(TestUtil.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TestUtil.class);
 
     public static final int HTTP_SERVER_PORT = 9000;
     public static final int HTTPS_SERVER_PORT = 9004;
@@ -96,6 +98,9 @@ public class TestUtil {
             String.format("ws://%s:%d/%s", TEST_HOST, WEBSOCKET_REMOTE_SERVER_PORT, "websocket");
     public static final String WEBSOCKET_SECURE_REMOTE_SERVER_URL =
             String.format("wss://%s:%d/%s", TEST_HOST, WEBSOCKET_REMOTE_SERVER_PORT, "websocket");
+    public static final String KEY_FILE = "/simple-test-config/certsAndKeys/private.key";
+    public static final String CERT_FILE = "/simple-test-config/certsAndKeys/public.crt";
+    public static final String TRUST_CERT_CHAIN = "/simple-test-config/certsAndKeys/public.crt";
     private static final DefaultHttpWsConnectorFactory httpConnectorFactory = new DefaultHttpWsConnectorFactory();
 
     public static HttpServer startHTTPServer(int port, ChannelInitializer channelInitializer) {
@@ -107,7 +112,7 @@ public class TestUtil {
             serverThread.start();
             latch.await();
         } catch (InterruptedException e) {
-            log.error("Thread Interrupted while sleeping ", e);
+            LOG.error("Thread Interrupted while sleeping ", e);
         }
         return httpServer;
     }
@@ -120,7 +125,7 @@ public class TestUtil {
             serverThread.start();
             latch.await();
         } catch (Exception e) {
-            log.error("Thread Interrupted while sleeping ", e);
+            LOG.error("Thread Interrupted while sleeping ", e);
         }
         return httpServer;
     }
@@ -173,7 +178,7 @@ public class TestUtil {
     }
 
     public static void handleException(String msg, Exception ex) {
-        log.error(msg, ex);
+        LOG.error(msg, ex);
         fail(msg);
     }
 
@@ -193,7 +198,7 @@ public class TestUtil {
                         "Error while loading " + configFileLocation + " configuration file", e);
             }
         } else { // return a default config
-            log.warn("Netty transport configuration file not found in: " + configFileLocation +
+            LOG.warn("Netty transport configuration file not found in: " + configFileLocation +
                              " ,hence using default configuration");
             transportsConfiguration = TransportsConfiguration.getDefault();
         }
@@ -247,7 +252,7 @@ public class TestUtil {
     public static void cleanUp(List<ServerConnector> serverConnectors, HttpServer httpServer) {
         for (ServerConnector httpServerConnector : serverConnectors) {
             if (!httpServerConnector.stop()) {
-                log.warn("Couldn't stop server connectors successfully");
+                LOG.warn("Couldn't stop server connectors successfully");
             }
         }
 
@@ -255,7 +260,7 @@ public class TestUtil {
             httpConnectorFactory.shutdown();
             httpServer.shutdown();
         } catch (InterruptedException e) {
-            log.error("Thread Interrupted while sleeping ", e);
+            LOG.error("Thread Interrupted while sleeping ", e);
         }
     }
 
@@ -263,7 +268,7 @@ public class TestUtil {
             HttpWsConnectorFactory factory) {
         for (ServerConnector httpServerConnector : serverConnectors) {
             if (!httpServerConnector.stop()) {
-                log.warn("Couldn't stop server connectors successfully");
+                LOG.warn("Couldn't stop server connectors successfully");
             }
         }
 
@@ -271,7 +276,30 @@ public class TestUtil {
             factory.shutdown();
             httpServer.shutdown();
         } catch (InterruptedException e) {
-            log.error("Thread Interrupted while sleeping ", e);
+            LOG.error("Thread Interrupted while sleeping ", e);
+        }
+    }
+
+    public static void testHttpsPost(HttpClientConnector httpClientConnector, int port) {
+        try {
+            String testValue = "Test Message";
+            HttpCarbonMessage msg = TestUtil.createHttpsPostReq(port, testValue, "");
+
+            CountDownLatch latch = new CountDownLatch(1);
+            DefaultHttpConnectorListener listener = new DefaultHttpConnectorListener(latch);
+            HttpResponseFuture responseFuture = httpClientConnector.send(msg);
+            responseFuture.setHttpConnectorListener(listener);
+
+            latch.await(30, TimeUnit.SECONDS);
+
+            HttpCarbonMessage response = listener.getHttpResponseMessage();
+            assertNotNull(response);
+            String result = new BufferedReader(
+                    new InputStreamReader(new HttpMessageDataStreamer(response).getInputStream())).lines()
+                    .collect(Collectors.joining("\n"));
+            assertEquals(result, testValue);
+        } catch (Exception e) {
+            TestUtil.handleException("Exception occurred while running Test", e);
         }
     }
 
@@ -291,7 +319,7 @@ public class TestUtil {
             }
             result = bos.toString();
         } catch (IOException ioe) {
-            log.error("Couldn't read the complete input stream");
+            LOG.error("Couldn't read the complete input stream");
             return "";
         }
         return result;

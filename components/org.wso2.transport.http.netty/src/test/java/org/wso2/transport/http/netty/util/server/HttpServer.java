@@ -36,7 +36,7 @@ import java.net.InetSocketAddress;
  */
 public class HttpServer implements TestServer {
 
-    private static final Logger logger = LoggerFactory.getLogger(HttpServer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HttpServer.class);
 
     private int port = TestUtil.HTTP_SERVER_PORT;
     private int bossGroupSize = Runtime.getRuntime().availableProcessors();
@@ -66,9 +66,9 @@ public class HttpServer implements TestServer {
                     .channel(NioServerSocketChannel.class).childHandler(channelInitializer);
             ChannelFuture ch = serverBootstrap.bind(new InetSocketAddress(TestUtil.TEST_HOST, port));
             ch.sync();
-            logger.info("HttpServer started on port " + port);
+            LOG.info("HttpServer started on port " + port);
         } catch (InterruptedException e) {
-            logger.error("HTTP Server cannot start on port " + port);
+            LOG.error("HTTP Server cannot start on port " + port);
         }
     }
 
@@ -78,7 +78,7 @@ public class HttpServer implements TestServer {
     public void shutdown() throws InterruptedException {
         bossGroup.shutdownGracefully().sync();
         workerGroup.shutdownGracefully().sync();
-        logger.info("HttpServer shutdown");
+        LOG.info("HttpServer shutdown");
     }
 
     public void setMessage(String message, String contentType) {}

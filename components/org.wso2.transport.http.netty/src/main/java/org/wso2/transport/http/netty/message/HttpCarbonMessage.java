@@ -19,6 +19,7 @@
 package org.wso2.transport.http.netty.message;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.DefaultHttpRequest;
@@ -29,12 +30,14 @@ import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.LastHttpContent;
-import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpResponseFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpWsServerConnectorFuture;
+import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
+import org.wso2.transport.http.netty.contractimpl.common.states.MessageStateContext;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -56,6 +59,16 @@ public class HttpCarbonMessage {
     private final DefaultHttpResponseFuture httpOutboundRespStatusFuture = new DefaultHttpResponseFuture();
     private final Observable contentObservable = new DefaultObservable();
     private IOException ioException;
+    private MessageStateContext httpMessageStateContext;
+    private Http2MessageStateContext http2MessageStateContext;
+
+    private long sequenceId; //Keep track of request/response order
+    private ChannelHandlerContext sourceContext;
+    private ChannelHandlerContext targetContext;
+    private HttpPipeliningFuture pipeliningFuture;
+    private boolean keepAlive;
+    private boolean pipeliningEnabled;
+    private boolean passthrough = false;
 
     public HttpCarbonMessage(HttpMessage httpMessage, Listener contentListener) {
         this.httpMessage = httpMessage;
@@ -242,6 +255,8 @@ public class HttpCarbonMessage {
 
     public synchronized void removeMessageFuture() {
         this.messageFuture = null;
+        // To ensure that the carbon message is resuable.
+        passthrough = false;
     }
 
     public Map<String, Object> getProperties() {
@@ -386,5 +401,107 @@ public class HttpCarbonMessage {
 
     public synchronized void setIoException(IOException ioException) {
         this.ioException = ioException;
+    }
+
+    public MessageStateContext getMessageStateContext() {
+        return httpMessageStateContext;
+    }
+
+    public void setMessageStateContext(MessageStateContext messageStateContext) {
+        this.httpMessageStateContext = messageStateContext;
+    }
+
+    public Http2MessageStateContext getHttp2MessageStateContext() {
+        return http2MessageStateContext;
+    }
+
+    public void setHttp2MessageStateContext(Http2MessageStateContext http2MessageStateContext) {
+        this.http2MessageStateContext = http2MessageStateContext;
+    }
+
+    public long getSequenceId() {
+        return sequenceId;
+    }
+
+    public void setSequenceId(long sequenceId) {
+        this.sequenceId = sequenceId;
+    }
+
+    public ChannelHandlerContext getSourceContext() {
+        return sourceContext;
+    }
+
+    public void setSourceContext(ChannelHandlerContext sourceContext) {
+        this.sourceContext = sourceContext;
+    }
+
+    public boolean isKeepAlive() {
+        return keepAlive;
+    }
+
+    public void setKeepAlive(boolean keepAlive) {
+        this.keepAlive = keepAlive;
+    }
+
+    public boolean isPipeliningEnabled() {
+        return pipeliningEnabled;
+    }
+
+    public void setPipeliningEnabled(boolean pipeliningEnabled) {
+        this.pipeliningEnabled = pipeliningEnabled;
+    }
+
+    public HttpPipeliningFuture getPipeliningFuture() {
+        return pipeliningFuture;
+    }
+
+    /**
+     * Sets the pipelining future to the outbound response. This method's only usage is in ballerina side, hence it
+     * should not be removed.
+     *
+     * @param pipeliningFuture Represents pipelining future which is used for binding pipelining listener
+     */
+    public void setPipeliningFuture(HttpPipeliningFuture pipeliningFuture) {
+        this.pipeliningFuture = pipeliningFuture;
+    }
+
+    /**
+     * Removes the content listener that is set for handling Inbound throttling.
+     */
+    public void removeInboundContentListener() {
+        this.contentObservable.removeListener();
+    }
+
+    /**
+     * The passthrough(when message body is not built) status of the message.
+     *
+     * @return true if it is a passthrough.
+     */
+    public boolean isPassthrough() {
+        return passthrough;
+    }
+
+    /**
+     * This value is to be set when sending the message to the consumer without building/processing it in the
+     * application layer.
+     *
+     * @param passthrough if the message is a passthrough.
+     */
+    public void setPassthrough(boolean passthrough) {
+        this.passthrough = passthrough;
+    }
+
+    /**
+     * @param targetContext The target handler context.
+     */
+    public void setTargetContext(ChannelHandlerContext targetContext) {
+        this.targetContext = targetContext;
+    }
+
+    /**
+     * @return the target handler context for this message.
+     */
+    public ChannelHandlerContext getTargetContext() {
+        return targetContext;
     }
 }

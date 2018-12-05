@@ -25,17 +25,17 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.common.Constants;
-import org.wso2.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.transport.http.netty.config.SenderConfiguration;
-import org.wso2.transport.http.netty.config.TransportsConfiguration;
+import org.wso2.transport.http.netty.contract.Constants;
+import org.wso2.transport.http.netty.contract.EndpointTimeOutException;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
+import org.wso2.transport.http.netty.contract.config.ListenerConfiguration;
+import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
+import org.wso2.transport.http.netty.contract.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
-import org.wso2.transport.http.netty.exception.EndpointTimeOutException;
 import org.wso2.transport.http.netty.http2.listeners.Http2NoResponseListener;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpConnectorUtil;
@@ -54,7 +54,7 @@ import static org.testng.Assert.assertTrue;
  */
 public class Http2ClientTimeoutTestCase {
 
-    private static Logger log = LoggerFactory.getLogger(Http2ClientTimeoutTestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Http2ClientTimeoutTestCase.class);
 
     private HttpClientConnector httpClientConnector;
     private ServerConnector serverConnector;
@@ -76,8 +76,7 @@ public class Http2ClientTimeoutTestCase {
         future.sync();
 
         TransportsConfiguration transportsConfiguration = new TransportsConfiguration();
-        senderConfiguration =
-                HttpConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME);
+        senderConfiguration = HttpConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME);
         senderConfiguration.setSocketIdleTimeout(3000);
         senderConfiguration.setHttpVersion(String.valueOf(Constants.HTTP_2_0));
 
@@ -97,10 +96,10 @@ public class Http2ClientTimeoutTestCase {
             Throwable error = listener.getHttpErrorMessage();
             AssertJUnit.assertNotNull(error);
             assertTrue(error instanceof EndpointTimeOutException,
-                       "Exception is not an instance of EndpointTimeOutException");
+                    "Exception is not an instance of EndpointTimeOutException");
             String result = error.getMessage();
             assertEquals(result, Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE,
-                         "Expected error message not received");
+                    "Expected error message not received");
         } catch (Exception e) {
             TestUtil.handleException("Exception occurred while running testHttp2ClientTimeout test case", e);
         }
@@ -114,7 +113,7 @@ public class Http2ClientTimeoutTestCase {
         try {
             connectorFactory.shutdown();
         } catch (InterruptedException e) {
-            log.warn("Interrupted while waiting for HttpWsFactory to close");
+            LOG.warn("Interrupted while waiting for HttpWsFactory to close");
         }
     }
 }

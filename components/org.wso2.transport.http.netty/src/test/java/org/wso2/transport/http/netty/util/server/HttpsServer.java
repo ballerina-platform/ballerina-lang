@@ -36,12 +36,15 @@ import java.security.KeyStore;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 
+import static org.wso2.transport.http.netty.contract.Constants.JKS;
+import static org.wso2.transport.http.netty.contract.Constants.TLS_PROTOCOL;
+
 /**
  * A Simple HTTPS Server
  */
 public class HttpsServer implements TestServer {
 
-    private static final Logger logger = LoggerFactory.getLogger(HttpsServer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HttpsServer.class);
 
     private int port;
     private int bossGroupSize = Runtime.getRuntime().availableProcessors();
@@ -71,21 +74,21 @@ public class HttpsServer implements TestServer {
             b.childOption(ChannelOption.TCP_NODELAY, true);
             b.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 15000);
 
-            KeyStore ks = KeyStore.getInstance("JKS");
+            KeyStore ks = KeyStore.getInstance(JKS);
             ks.load(new FileInputStream(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH)), ksPass);
             KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
             kmf.init(ks, ctPass);
 
-            sslContext = SSLContext.getInstance("TLS");
+            sslContext = SSLContext.getInstance(TLS_PROTOCOL);
             sslContext.init(kmf.getKeyManagers(), null, null);
             ((HttpServerInitializer) channelInitializer).setSslContext(sslContext);
 
             b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class).childHandler(channelInitializer);
             ChannelFuture ch = b.bind(new InetSocketAddress(TestUtil.TEST_HOST, port));
             ch.sync();
-            logger.info("HttpServer started on port " + port);
+            LOG.info("HttpServer started on port " + port);
         } catch (Exception e) {
-            logger.error("HTTP Server cannot start on port " + port);
+            LOG.error("HTTP Server cannot start on port " + port);
         }
     }
 
@@ -95,7 +98,7 @@ public class HttpsServer implements TestServer {
     public void shutdown() throws InterruptedException {
         bossGroup.shutdownGracefully().sync();
         workerGroup.shutdownGracefully().sync();
-        logger.info("HttpsServer shutdown ");
+        LOG.info("HttpsServer shutdown ");
     }
 
     public void setMessage(String message, String contentType) {

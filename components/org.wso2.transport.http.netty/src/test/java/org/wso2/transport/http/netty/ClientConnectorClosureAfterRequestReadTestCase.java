@@ -23,14 +23,14 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.common.Constants;
-import org.wso2.transport.http.netty.config.ChunkConfig;
-import org.wso2.transport.http.netty.config.SenderConfiguration;
-import org.wso2.transport.http.netty.config.TransportsConfiguration;
+import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
+import org.wso2.transport.http.netty.contract.config.ChunkConfig;
+import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
+import org.wso2.transport.http.netty.contract.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpConnectorUtil;
@@ -50,7 +50,7 @@ import static org.testng.AssertJUnit.assertNotNull;
  */
 public class ClientConnectorClosureAfterRequestReadTestCase {
 
-    private static Logger logger = LoggerFactory.getLogger(ClientConnectorClosureAfterRequestReadTestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ClientConnectorClosureAfterRequestReadTestCase.class);
 
     private HttpServer httpServer;
     private HttpClientConnector httpClientConnector;
@@ -97,7 +97,7 @@ public class ClientConnectorClosureAfterRequestReadTestCase {
             httpServer.shutdown();
             connectorFactory.shutdown();
         } catch (InterruptedException e) {
-            logger.error("Failed to shutdown the test server");
+            LOG.error("Failed to shutdown the test server");
         }
     }
 }

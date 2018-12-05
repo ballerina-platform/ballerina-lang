@@ -34,7 +34,7 @@ import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.timeout.IdleStateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorException;
@@ -43,16 +43,16 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlSignal;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketFrameType;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
+import org.wso2.transport.http.netty.contractimpl.listener.MessageQueueHandler;
 import org.wso2.transport.http.netty.contractimpl.websocket.message.DefaultWebSocketCloseMessage;
 import org.wso2.transport.http.netty.contractimpl.websocket.message.DefaultWebSocketControlMessage;
-import org.wso2.transport.http.netty.listener.MessageQueueHandler;
 
 /**
  * Abstract WebSocket frame handler for WebSocket server and client.
  */
 public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
 
-    private Logger log = LoggerFactory.getLogger(WebSocketInboundFrameHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WebSocketInboundFrameHandler.class);
 
     private final boolean isServer;
     private final boolean secureConnection;
@@ -122,16 +122,13 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws WebSocketConnectorException {
         if (evt instanceof IdleStateEvent) {
-            IdleStateEvent idleStateEvent = (IdleStateEvent) evt;
-            if (idleStateEvent.state() == IdleStateEvent.ALL_IDLE_STATE_EVENT.state()) {
-                notifyIdleTimeout();
-            }
+            notifyIdleTimeout();
         }
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws WebSocketConnectorException {
-        if (!caughtException && webSocketConnection != null && !this.isCloseFrameReceived() && closePromise == null &&
+        if (!caughtException && webSocketConnection != null && !closeFrameReceived && closePromise == null &&
                 !closeInitialized) {
             // Notify abnormal closure.
             DefaultWebSocketMessage webSocketCloseMessage =
@@ -145,6 +142,7 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
             String errMsg = "Connection is closed by remote endpoint without echoing a close frame";
             ctx.close().addListener(closeFuture -> closePromise.setFailure(new IllegalStateException(errMsg)));
         }
+        connectorFuture.notifyWebSocketListener(webSocketConnection);
     }
 
     @Override
@@ -211,16 +209,19 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
     private void notifyCloseMessage(CloseWebSocketFrame closeWebSocketFrame) throws WebSocketConnectorException {
         String reasonText = closeWebSocketFrame.reasonText();
         int statusCode = closeWebSocketFrame.statusCode();
+        if (statusCode == -1) {
+            statusCode = 1005;
+        }
         // closePromise == null means that WebSocketConnection has not yet initiated a connection closure.
         if (closePromise == null) {
             DefaultWebSocketMessage webSocketCloseMessage = new DefaultWebSocketCloseMessage(statusCode, reasonText);
             setupCommonProperties(webSocketCloseMessage);
             connectorFuture.notifyWebSocketListener((WebSocketCloseMessage) webSocketCloseMessage);
         } else {
-            if (webSocketConnection.getCloseInitiatedStatusCode() != closeWebSocketFrame.statusCode()) {
+            if (webSocketConnection.getCloseInitiatedStatusCode() != statusCode) {
                 String errMsg = String.format(
                         "Expected status code %d but found %d in echoed close frame from remote endpoint",
-                        webSocketConnection.getCloseInitiatedStatusCode(), closeWebSocketFrame.statusCode());
+                        webSocketConnection.getCloseInitiatedStatusCode(), statusCode);
                 closePromise.setFailure(new IllegalStateException(errMsg));
                 return;
             }

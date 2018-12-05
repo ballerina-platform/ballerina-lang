@@ -52,7 +52,7 @@ import static org.wso2.transport.http.netty.util.TestUtil.WEBSOCKET_TEST_IDLE_TI
  */
 public class WebSocketClientHandshakeFunctionalityTestCase {
 
-    private static final Logger log = LoggerFactory.getLogger(WebSocketClientHandshakeFunctionalityTestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WebSocketClientHandshakeFunctionalityTestCase.class);
 
     private DefaultHttpWsConnectorFactory httpConnectorFactory;
     private WebSocketRemoteServer remoteServer;
@@ -230,7 +230,7 @@ public class WebSocketClientHandshakeFunctionalityTestCase {
         Assert.assertNotNull(throwable);
         Assert.assertTrue(throwable instanceof IllegalArgumentException);
         Assert.assertEquals(throwable.getMessage(),
-                "TrustStoreFile or trustStorePassword not defined for HTTPS/WSS scheme");
+                "TrustStoreFile or TrustStorePassword not defined for HTTPS/WS scheme");
     }
 
     private String readNextTextMsg(WebSocketTestClientConnectorListener connectorListener,
@@ -273,7 +273,7 @@ public class WebSocketClientHandshakeFunctionalityTestCase {
 
             @Override
             public void onError(Throwable t, HttpCarbonResponse response) {
-                log.error(t.getMessage());
+                LOG.error(t.getMessage());
                 throwableAtomicReference.set(t);
                 handshakeFutureLatch.countDown();
             }

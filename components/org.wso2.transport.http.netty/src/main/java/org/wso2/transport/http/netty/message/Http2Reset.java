@@ -31,7 +31,7 @@ public class Http2Reset extends Http2Frame {
      * Constructor to create a {@code Http2Reset} with stream id need to reset and the error.
      *
      * @param streamId id of the stream need to be reset
-     * @param error error to be written as the cause for reset
+     * @param error    error to be written as the cause for reset
      */
     public Http2Reset(int streamId, Http2Error error) {
         setStreamId(streamId);

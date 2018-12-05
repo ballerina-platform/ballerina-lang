@@ -28,10 +28,10 @@ import org.bouncycastle.jce.PrincipalUtil;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.common.certificatevalidation.Constants;
-import org.wso2.transport.http.netty.common.certificatevalidation.RevocationStatus;
-import org.wso2.transport.http.netty.common.certificatevalidation.crl.CRLCache;
-import org.wso2.transport.http.netty.common.certificatevalidation.crl.CRLVerifier;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.Constants;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.RevocationStatus;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.crl.CRLCache;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.crl.CRLVerifier;
 
 import java.lang.reflect.Method;
 import java.math.BigInteger;

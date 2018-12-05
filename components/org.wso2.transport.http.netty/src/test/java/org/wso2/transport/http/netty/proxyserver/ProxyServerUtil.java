@@ -20,16 +20,16 @@ package org.wso2.transport.http.netty.proxyserver;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.ProxyServerConfiguration;
-import org.wso2.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.transport.http.netty.config.SenderConfiguration;
-import org.wso2.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contentaware.listeners.EchoMessageListener;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
+import org.wso2.transport.http.netty.contract.config.ListenerConfiguration;
+import org.wso2.transport.http.netty.contract.config.ProxyServerConfiguration;
+import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
+import org.wso2.transport.http.netty.contract.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpConnectorUtil;
@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
-import static org.wso2.transport.http.netty.common.Constants.HTTPS_SCHEME;
+import static org.wso2.transport.http.netty.contract.Constants.HTTPS_SCHEME;
 
 /**
  * A util class to use in both http and https proxy scenarios.
@@ -57,7 +57,7 @@ public class ProxyServerUtil {
     private static HttpClientConnector httpClientConnector;
     private static ServerConnector serverConnector;
     private static HttpWsConnectorFactory httpWsConnectorFactory;
-    private static Logger log = LoggerFactory.getLogger(ProxyServerUtil.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ProxyServerUtil.class);
     private static SenderConfiguration senderConfiguration;
 
     protected static void sendRequest(HttpCarbonMessage msg, String testValue) {
@@ -113,12 +113,12 @@ public class ProxyServerUtil {
         try {
             httpWsConnectorFactory.shutdown();
         } catch (InterruptedException e) {
-            log.warn("Interrupted while waiting for HttpWsFactory to close");
+            LOG.warn("Interrupted while waiting for HttpWsFactory to close");
         }
     }
 
     private static void setSenderConfigs(Set<SenderConfiguration> senderConfig,
-            ProxyServerConfiguration finalProxyServerConfiguration, String scheme) {
+                                         ProxyServerConfiguration finalProxyServerConfiguration, String scheme) {
         senderConfig.forEach(config -> {
             if (scheme.equals(HTTPS_SCHEME)) {
                 config.setTrustStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));

@@ -23,37 +23,26 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
-import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
+import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
-import org.wso2.transport.http.netty.message.HttpCarbonMessage;
-import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
-import org.wso2.transport.http.netty.util.DefaultHttpConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.server.HttpsServer;
 import org.wso2.transport.http.netty.util.server.initializers.MockServerInitializer;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.util.HashMap;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
-import static org.wso2.transport.http.netty.common.Constants.HTTPS_SCHEME;
-import static org.wso2.transport.http.netty.common.Constants.TEXT_PLAIN;
+import static org.wso2.transport.http.netty.contract.Constants.HTTPS_SCHEME;
+import static org.wso2.transport.http.netty.contract.Constants.TEXT_PLAIN;
 
 /**
  * Tests for HTTPS client connector
  */
 public class HttpSClientTestCase {
 
-    private static Logger logger = LoggerFactory.getLogger(HttpSClientTestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HttpSClientTestCase.class);
 
     private HttpsServer httpsServer;
     private HttpClientConnector httpClientConnector;
@@ -75,26 +64,7 @@ public class HttpSClientTestCase {
 
     @Test
     public void testHttpsGet() {
-        try {
-            HttpCarbonMessage msg = TestUtil.createHttpsPostReq(TestUtil.HTTPS_SERVER_PORT, "", "");
-
-            CountDownLatch latch = new CountDownLatch(1);
-            DefaultHttpConnectorListener listener = new DefaultHttpConnectorListener(latch);
-            HttpResponseFuture responseFuture = httpClientConnector.send(msg);
-            responseFuture.setHttpConnectorListener(listener);
-
-            latch.await(5, TimeUnit.SECONDS);
-
-            HttpCarbonMessage response = listener.getHttpResponseMessage();
-            assertNotNull(response);
-            String result = new BufferedReader(new InputStreamReader(new HttpMessageDataStreamer(response)
-                    .getInputStream()))
-                    .lines().collect(Collectors.joining("\n"));
-
-            assertEquals(testValue, result);
-        } catch (Exception e) {
-            TestUtil.handleException("Exception occurred while running httpsGetTest", e);
-        }
+        TestUtil.testHttpsPost(httpClientConnector, TestUtil.HTTPS_SERVER_PORT);
     }
 
     @AfterClass
@@ -103,7 +73,7 @@ public class HttpSClientTestCase {
             httpsServer.shutdown();
             connectorFactory.shutdown();
         } catch (InterruptedException e) {
-            logger.error("Failed to shutdown the test server");
+            LOG.error("Failed to shutdown the test server");
         }
     }
 }

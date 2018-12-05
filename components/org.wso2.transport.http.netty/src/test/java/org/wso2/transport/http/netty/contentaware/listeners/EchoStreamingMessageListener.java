@@ -25,7 +25,7 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
@@ -39,7 +39,7 @@ import java.util.concurrent.Executors;
  * A Message processor which echos the incoming message
  */
 public class EchoStreamingMessageListener implements HttpConnectorListener {
-    private static final Logger logger = LoggerFactory.getLogger(EchoStreamingMessageListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EchoStreamingMessageListener.class);
 
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -59,7 +59,7 @@ public class EchoStreamingMessageListener implements HttpConnectorListener {
                 httpMessageDataStreamer.getOutputStream().write(inboundPayload.getBytes());
                 httpMessageDataStreamer.getOutputStream().close();
             } catch (Exception e) {
-                logger.error("Error occurred during message notification: " + e.getMessage());
+                LOG.error("Error occurred during message notification: " + e.getMessage());
             }
         });
     }

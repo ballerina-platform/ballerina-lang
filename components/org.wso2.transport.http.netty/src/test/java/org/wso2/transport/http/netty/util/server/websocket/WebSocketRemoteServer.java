@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  */
 public final class WebSocketRemoteServer {
 
-    private static final Logger logger = LoggerFactory.getLogger(WebSocketRemoteServer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WebSocketRemoteServer.class);
 
     private final int port;
     private final String subProtocols;
@@ -59,12 +59,12 @@ public final class WebSocketRemoteServer {
          .childHandler(new WebSocketRemoteServerInitializer(sslCtx, subProtocols));
 
         serverBootstrap.bind(port).sync();
-        logger.info("WebSocket remote server started listening on port " + port);
+        LOG.info("WebSocket remote server started listening on port " + port);
     }
 
     public void stop() {
         bossGroup.shutdownGracefully();
         workerGroup.shutdownGracefully();
-        logger.info("WebSocket remote server stopped listening  on port " + port);
+        LOG.info("WebSocket remote server stopped listening  on port " + port);
     }
 }

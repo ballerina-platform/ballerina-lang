@@ -23,7 +23,7 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -38,7 +38,7 @@ import java.util.concurrent.Executors;
  */
 public class Http2RedirectListener implements HttpConnectorListener {
 
-    private static final Logger logger = LoggerFactory.getLogger(Http2RedirectListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Http2RedirectListener.class);
 
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -71,7 +71,7 @@ public class Http2RedirectListener implements HttpConnectorListener {
                     HttpCarbonMessage response =
                             MessageGenerator.generateResponse(null, HttpResponseStatus.MOVED_PERMANENTLY);
                     response.setHeader(HttpHeaderNames.LOCATION.toString(),
-                                       baseLocation.concat(String.valueOf(redirectCount)));
+                            baseLocation.concat(String.valueOf(redirectCount)));
                     HttpResponseFuture responseFuture = httpRequest.respond(response);
                     responseFuture.sync();
                 } else {
@@ -82,11 +82,11 @@ public class Http2RedirectListener implements HttpConnectorListener {
                     Throwable error = responseFuture.getStatus().getCause();
                     if (error != null) {
                         responseFuture.resetStatus();
-                        logger.error("Error occurred while sending the response " + error.getMessage());
+                        LOG.error("Error occurred while sending the response " + error.getMessage());
                     }
                 }
             } catch (Exception e) {
-                logger.error("Error occurred while processing message: " + e.getMessage());
+                LOG.error("Error occurred while processing message: " + e.getMessage());
             }
         });
     }

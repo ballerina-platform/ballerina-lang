@@ -30,13 +30,13 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
+import org.wso2.transport.http.netty.contract.config.ListenerConfiguration;
+import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
+import org.wso2.transport.http.netty.contract.config.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
-import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.passthrough.PassthroughMessageProcessorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.client.http.HttpClient;
@@ -53,7 +53,7 @@ import static org.testng.Assert.assertEquals;
  */
 public class PipelineProxyTestCase {
 
-    private static Logger log = LoggerFactory.getLogger(PipelineProxyTestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PipelineProxyTestCase.class);
 
     private HttpServer httpServer;
     private ServerConnector serverConnector;
@@ -75,7 +75,7 @@ public class PipelineProxyTestCase {
         try {
             serverConnectorFuture.sync();
         } catch (InterruptedException e) {
-            log.warn("Interrupted while waiting for server connector to start");
+            LOG.warn("Interrupted while waiting for server connector to start");
         }
     }
 
@@ -100,7 +100,7 @@ public class PipelineProxyTestCase {
         try {
             httpConnectorFactory.shutdown();
         } catch (InterruptedException e) {
-            log.warn("Interrupted while waiting for HttpWsFactory to close");
+            LOG.warn("Interrupted while waiting for HttpWsFactory to close");
         }
         TestUtil.cleanUp(new LinkedList<>(), httpServer);
     }

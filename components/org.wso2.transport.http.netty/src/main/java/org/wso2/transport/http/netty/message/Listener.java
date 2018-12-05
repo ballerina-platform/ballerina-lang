@@ -36,4 +36,9 @@ public interface Listener {
      * @param httpContent of the message
      */
     void onRemove(HttpContent httpContent);
+
+    /**
+     * Since the listener removes readInterest this method resumes it if required.
+     */
+    void resumeReadInterest();
 }

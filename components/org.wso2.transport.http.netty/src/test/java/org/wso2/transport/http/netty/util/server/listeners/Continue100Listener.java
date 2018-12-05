@@ -28,7 +28,7 @@ import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -39,7 +39,7 @@ import java.util.concurrent.Executors;
 
 public class Continue100Listener implements HttpConnectorListener {
 
-    private static final Logger logger = LoggerFactory.getLogger(Continue100Listener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Continue100Listener.class);
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 
     @Override
@@ -76,7 +76,7 @@ public class Continue100Listener implements HttpConnectorListener {
                 httpResponse.addHttpContent(new DefaultLastHttpContent());
                 httpRequest.respond(httpResponse);
             } catch (ServerConnectorException e) {
-                logger.error("Error occurred during message notification: " + e.getMessage());
+                LOG.error("Error occurred during message notification: " + e.getMessage());
             }
         });
     }

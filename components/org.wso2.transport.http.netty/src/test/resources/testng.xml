@@ -112,6 +112,11 @@
             <class name="org.wso2.transport.http.netty.pkcs.PKCSTest"/>
             <class name="org.wso2.transport.http.netty.certificatevalidation.OCSPStaplingTest"/>
             <class name="org.wso2.transport.http.netty.certificatevalidation.OCSPValidationTest"/>
+            <class name="org.wso2.transport.http.netty.certificatevalidation.ListCertificateListFromCertChain"/>
+            <class name="org.wso2.transport.http.netty.https.MutualSSLwithCertsTest"/>
+            <class name="org.wso2.transport.http.netty.https.CipherSuiteswithCertsTest"/>
+            <class name="org.wso2.transport.http.netty.https.SSLProtocolsWithCertsTest"/>
+            <class name="org.wso2.transport.http.netty.http2.Http2ALPNwithCertsTest"/>
         </classes>
     </test>
 </suite>

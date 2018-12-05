@@ -27,15 +27,15 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.common.Constants;
-import org.wso2.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.transport.http.netty.config.SenderConfiguration;
+import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
+import org.wso2.transport.http.netty.contract.config.ListenerConfiguration;
+import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
+import org.wso2.transport.http.netty.contract.config.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
-import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.server.HttpServer;
 import org.wso2.transport.http.netty.util.server.initializers.MockServerInitializer;
@@ -51,7 +51,7 @@ import static org.testng.AssertJUnit.assertEquals;
  */
 public class PassThroughHttpTestCase {
 
-    private static final Logger logger = LoggerFactory.getLogger(PassThroughHttpTestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PassThroughHttpTestCase.class);
 
     private static final String testValue = "Test Message";
     private HttpServer httpServer;
@@ -74,7 +74,7 @@ public class PassThroughHttpTestCase {
         try {
             serverConnectorFuture.sync();
         } catch (InterruptedException e) {
-            logger.warn("Interrupted while waiting for server connector to start");
+            LOG.warn("Interrupted while waiting for server connector to start");
         }
 
         httpServer = TestUtil.startHTTPServer(TestUtil.HTTP_SERVER_PORT,
@@ -110,9 +110,9 @@ public class PassThroughHttpTestCase {
             httpServer.shutdown();
             httpWsConnectorFactory.shutdown();
         } catch (InterruptedException e) {
-            logger.warn("Interrupted while waiting for clean up");
+            LOG.warn("Interrupted while waiting for clean up");
         } catch (IOException e) {
-            logger.warn("IOException occurred while waiting for Unirest connection to shutdown", e);
+            LOG.warn("IOException occurred while waiting for Unirest connection to shutdown", e);
         }
     }
 }

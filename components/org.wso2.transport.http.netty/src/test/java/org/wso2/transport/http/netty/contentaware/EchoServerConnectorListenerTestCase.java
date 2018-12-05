@@ -27,13 +27,13 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
+import org.wso2.transport.http.netty.contract.config.ListenerConfiguration;
+import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
+import org.wso2.transport.http.netty.contract.config.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
-import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.passthrough.PassthroughMessageProcessorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.server.HttpServer;
@@ -52,7 +52,7 @@ import static org.testng.AssertJUnit.assertEquals;
  */
 public class EchoServerConnectorListenerTestCase {
 
-    private static final Logger log = LoggerFactory.getLogger(EchoServerConnectorListenerTestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EchoServerConnectorListenerTestCase.class);
 
     private ServerConnector serverConnector;
     private HttpServer httpServer;
@@ -70,7 +70,7 @@ public class EchoServerConnectorListenerTestCase {
         try {
             serverConnectorFuture.sync();
         } catch (InterruptedException e) {
-            log.error("Thread Interrupted while sleeping ", e);
+            LOG.error("Thread Interrupted while sleeping ", e);
         }
         httpServer = TestUtil.startHTTPServer(TestUtil.HTTP_SERVER_PORT, new EchoServerInitializer());
     }
@@ -100,9 +100,9 @@ public class EchoServerConnectorListenerTestCase {
 
             httpConnectorFactory.shutdown();
         }  catch (IOException e) {
-            log.warn("IOException occurred while waiting for Unirest connection to shutdown", e);
+            LOG.warn("IOException occurred while waiting for Unirest connection to shutdown", e);
         } catch (InterruptedException e) {
-            log.warn("Interrupted while waiting for HttpWsFactory to shutdown", e);
+            LOG.warn("Interrupted while waiting for HttpWsFactory to shutdown", e);
         }
     }
 }

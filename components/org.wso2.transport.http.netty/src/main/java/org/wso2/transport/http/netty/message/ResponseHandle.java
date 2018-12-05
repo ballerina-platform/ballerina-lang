@@ -18,7 +18,7 @@
 
 package org.wso2.transport.http.netty.message;
 
-import org.wso2.transport.http.netty.sender.http2.OutboundMsgHolder;
+import org.wso2.transport.http.netty.contractimpl.sender.http2.OutboundMsgHolder;
 
 /**
  * {@code ResponseHandle} represents an handler which return as a reference to an asynchronous invocation.

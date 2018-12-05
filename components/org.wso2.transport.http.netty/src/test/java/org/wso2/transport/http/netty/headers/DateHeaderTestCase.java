@@ -29,14 +29,14 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.contentaware.listeners.EchoStreamingMessageListener;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
+import org.wso2.transport.http.netty.contract.config.ListenerConfiguration;
+import org.wso2.transport.http.netty.contract.config.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
-import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.util.TestUtil;
 
 import java.io.IOException;
@@ -53,7 +53,7 @@ import static io.netty.handler.codec.http.HttpHeaders.Names.CONNECTION;
  */
 public class DateHeaderTestCase {
 
-    private static final Logger log = LoggerFactory.getLogger(DateHeaderTestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DateHeaderTestCase.class);
 
     private ServerConnector serverConnector;
     private HttpWsConnectorFactory httpWsConnectorFactory;
@@ -95,9 +95,9 @@ public class DateHeaderTestCase {
             Options.refresh();
             httpWsConnectorFactory.shutdown();
         } catch (InterruptedException e) {
-            log.warn("Interrupted while waiting for HttpWsFactory to shutdown", e);
+            LOG.warn("Interrupted while waiting for HttpWsFactory to shutdown", e);
         } catch (IOException e) {
-            log.warn("IOException occurred while waiting for Unirest connection to shutdown", e);
+            LOG.warn("IOException occurred while waiting for Unirest connection to shutdown", e);
         }
     }
 }
