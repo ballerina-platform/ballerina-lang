@@ -83,6 +83,7 @@ export const visitor: Visitor = {
 
         // Size the other workers
         let workerX = defaultWorker.bBox.x + defaultWorker.bBox.w + config.lifeLine.gutter.h;
+        let workerWidth = 0;
         node.body!.statements.filter((element) => ASTUtil.isWorker(element)).forEach((worker) => {
             const workerViewState: WorkerViewState = worker.viewState;
             const variable: Variable = ((worker as VariableDef).variable as Variable);
@@ -97,6 +98,7 @@ export const visitor: Visitor = {
             functionNode.body!.viewState.bBox.x = workerX + leftMargin;
             workerX = workerX + functionNode.body!.viewState.bBox.w + leftMargin;
             functionNode.body!.viewState.bBox.y = defaultWorker.bBox.y + config.lifeLine.header.height;
+            workerWidth += functionNode.body!.viewState.bBox.w + leftMargin;
         });
 
         // Position the body block node
@@ -108,7 +110,8 @@ export const visitor: Visitor = {
         }
 
         let epX = defaultWorker.bBox.x + defaultWorker.bBox.w
-            + config.lifeLine.gutter.h;
+            + config.lifeLine.gutter.h
+            + workerWidth + config.lifeLine.gutter.h;
         // Position endpoints
         if (node.VisibleEndpoints) {
             node.VisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
