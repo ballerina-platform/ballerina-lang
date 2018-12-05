@@ -1565,12 +1565,12 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangHaving having) {
         isInHaving = true;
-        visitFilter(having.pos, (BLangBinaryExpr) having.getExpression());
+        visitFilter(having.pos, (BLangExpression) having.getExpression());
         isInHaving = false;
     }
 
     //------------------------------------- Methods required for filter / having -----------------------------------
-    private void visitFilter(DiagnosticPos pos, BLangBinaryExpr expression) {
+    private void visitFilter(DiagnosticPos pos, BLangExpression expression) {
         //Create lambda function Variable
         BLangSimpleVariable lambdaFunctionVariable =
                 this.createMapTypeVariable(getVariableName(FILTER_LAMBDA_PARAM_REFERENCE), pos, env);
@@ -1590,7 +1590,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         BLangReturn returnStmt = (BLangReturn) TreeBuilder.createReturnNode();
         returnStmt.pos = pos;
         mapVarArgs.add(lambdaFunctionVariable);
-        returnStmt.expr = getBinaryExprWithMapAccessFields(pos, expression);
+        expression.accept(this);
+        returnStmt.expr = exprStack.pop();
         lambdaBody.stmts.add(returnStmt);
 
         //Create having (filter) definition
@@ -1626,19 +1627,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         mapVarArgs.remove(mapVarArgs.size() - 1);
     }
 
-    private BLangBinaryExpr getBinaryExprWithMapAccessFields(DiagnosticPos pos, BLangBinaryExpr expression) {
-        final BLangBinaryExpr binaryExpr = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
-        binaryExpr.pos = pos;
-        binaryExpr.type = symTable.booleanType;
-        binaryExpr.opKind = expression.getOperatorKind();
-        expression.getLeftExpression().accept(this);
-        binaryExpr.lhsExpr = exprStack.pop();
-        expression.getRightExpression().accept(this);
-        binaryExpr.rhsExpr = exprStack.pop();
-        binaryExpr.opSymbol = expression.opSymbol;
-        return binaryExpr;
-    }
-
     @Override
     public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
         for (int i = 0; i < bracedOrTupleExpr.expressions.size(); i++) {
@@ -1650,7 +1638,11 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBinaryExpr binaryExpr) {
-        exprStack.push(getBinaryExprWithMapAccessFields(binaryExpr.pos, binaryExpr));
+        binaryExpr.getLeftExpression().accept(this);
+        binaryExpr.lhsExpr = exprStack.pop();
+        binaryExpr.getRightExpression().accept(this);
+        binaryExpr.rhsExpr = exprStack.pop();
+        exprStack.push(binaryExpr);
     }
 
     @Override
