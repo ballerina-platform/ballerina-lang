@@ -1,0 +1,3 @@
+// Record type binding patterns are used to de-structure and create individual variables for each field in the destructed record
+// The record typed binding patterns will be used declaring and defining new record variables.
+// The record type variable definition must have an assignment expression on the right hand side.

@@ -79,8 +79,12 @@
                 "url": "match"
             },
             {
-                "name": "Match Expression",
-                "url": "match-expression"
+                "name": "Tuple Match",
+                "url": "tuple-match-statement"
+            },
+            {
+                "name": "Record Match",
+                "url": "record-match-statement"
             },
             {
                 "name": "Type Guard",
@@ -130,6 +134,10 @@
             {
                 "name": "Optional Fields",
                 "url": "record-optional-fields"
+            },
+            {
+                "name": "Record Type Reference",
+                "url": "record-type-reference"
             }
         ]
     },
@@ -194,6 +202,14 @@
                 "url": "any-data-type"
             },
             {
+                "name": "Explicitly Typed Expressions",
+                "url": "explicitly_typed_expressions"
+            },
+            {
+                "name": "Type Assertion",
+                "url": "type-assertion"
+            },
+            {
                 "name": "Type Conversion",
                 "url": "type-conversion"
             },
@@ -212,6 +228,33 @@
             {
                 "name": "Immutable Values",
                 "url": "immutable-values"
+            },
+            {
+                "name": "Constants",
+                "url": "constants"
+            }
+        ]
+    },
+    {
+        "title": "Binding Patterns",
+        "column": 1,
+        "category": "Language concepts",
+        "samples": [
+            {
+                "name": "Tuple Type Binding Pattern",
+                "url": "tuple-type-binding-pattern"
+            },
+            {
+                "name": "Record Type Binding Pattern",
+                "url": "record-type-binding-pattern"
+            },
+            {
+                "name": "Tuple Destructure Binding Pattern",
+                "url": "tuple-destructure-binding-pattern"
+            },
+            {
+                "name": "Record Destructure Binding Pattern",
+                "url": "record-destructure-binding-pattern"
             }
         ]
     },
@@ -499,6 +542,10 @@
                 "url": "local-transactions"
             },
             {
+                "name": "Local Transactions with participants",
+                "url": "local-transactions-with-participants"
+            },
+            {
                 "name": "XA Transactions",
                 "url": "xa-transactions"
             },
@@ -674,6 +721,10 @@
             {
                 "name": "HTTP Compression",
                 "url": "http-compression"
+            },
+            {
+                "name": "HTTP Interceptors/Filters",
+                "url": "http-filters"
             }
         ]
     },

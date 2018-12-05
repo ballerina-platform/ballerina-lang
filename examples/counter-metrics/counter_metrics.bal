@@ -3,17 +3,17 @@ import ballerina/io;
 import ballerina/log;
 import ballerina/observe;
 
+//Create a counter as a global variable in the service with optional field description.
+observe:Counter globalCounter = new("total_orders", desc = "Total quantity required");
+
 // Make sure you start the service with `--observe`, or metrics enabled.
 @http:ServiceConfig { basePath: "/online-store-service" }
-service<http:Service> onlineStoreService bind { port: 9090 } {
-
-    //Create a counter as a global varaible in the service with optional field description.
-    observe:Counter globalCounter = new("total_orders", desc = "Total quantity required");
+service onlineStoreService on new http:Listener(9090) {
 
     @http:ResourceConfig {
         path: "/make-order"
     }
-    makeOrder(endpoint caller, http:Request req) {
+    resource function makeOrder(http:Caller caller, http:Request req) {
         //Incrementing the global counter defined with the default value 1.
         globalCounter.increment();
 

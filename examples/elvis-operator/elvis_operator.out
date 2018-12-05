@@ -1,3 +1,4 @@
 $ ballerina run elvis-operator.bal
 value is:
+The output from is check expression: value is nil
 The output from elvis operator: value is nil

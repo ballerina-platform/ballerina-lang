@@ -62,6 +62,16 @@ public class BLangRecordVariable extends BLangVariable implements RecordVariable
     }
 
     @Override
+    public VariableNode getRestParam() {
+        return restParam;
+    }
+
+    @Override
+    public boolean isClosed() {
+        return isClosed;
+    }
+
+    @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
     }

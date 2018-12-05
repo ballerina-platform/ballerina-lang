@@ -1,9 +1,11 @@
 import {
-    Assignment, ASTNode, ExpressionStatement,
-    Function, Return, VariableDef, VisibleEndpoint, Visitor
+    Assignment, ASTNode, ASTUtil, Block,
+    ExpressionStatement, Function, Return, VariableDef, VisibleEndpoint, Visitor
 } from "@ballerina/ast-model";
 import { EndpointViewState, FunctionViewState, StmntViewState, ViewState } from "../view-model";
+import { BlockViewState } from "../view-model/block";
 import { ReturnViewState } from "../view-model/return";
+import { WorkerViewState } from "../view-model/worker";
 
 function initStatement(node: ASTNode) {
     if (!node.viewState) {
@@ -19,10 +21,31 @@ export const visitor: Visitor = {
         }
     },
 
+    beginVisitBlock(node: Block) {
+        if (!node.viewState) {
+            node.viewState = new BlockViewState();
+        }
+    },
+
     // tslint:disable-next-line:ban-types
     beginVisitFunction(node: Function) {
         if (!node.viewState) {
             node.viewState = new FunctionViewState();
+            if (node.body) {
+                node.body.statements.forEach((statement, index) => {
+                    // Hide All worker nodes.
+                    if (ASTUtil.isWorker(statement)) {
+                        if (!statement.viewState) {
+                            statement.viewState = new WorkerViewState();
+                        }
+                        statement.viewState.hidden = true;
+                        if (!node.body!.statements[index + 1].viewState) {
+                            node.body!.statements[index + 1].viewState = new ViewState();
+                        }
+                        node.body!.statements[index + 1].viewState.hidden = true;
+                    }
+                });
+            }
         }
     },
 
