@@ -62,7 +62,7 @@ export const visitor: Visitor = {
 
     // tslint:disable-next-line:ban-types
     beginVisitFunction(node: Function) {
-        if (node.lambda) { return; }
+        if (node.lambda || !node.body) {return; }
         const viewState: FunctionViewState = node.viewState;
         const defaultWorker: WorkerViewState = node.viewState.defaultWorker;
 

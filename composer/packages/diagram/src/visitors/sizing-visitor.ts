@@ -93,7 +93,7 @@ export const visitor: Visitor = {
 
     // tslint:disable-next-line:ban-types
     endVisitFunction(node: Function) {
-        if (node.lambda) {return; }
+        if (node.lambda || !node.body) {return; }
         const viewState: FunctionViewState = node.viewState;
         const body = viewState.body;
         const header = viewState.header;
