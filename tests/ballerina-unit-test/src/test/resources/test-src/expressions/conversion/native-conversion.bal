@@ -661,23 +661,6 @@ function testStructToMapWithRefTypeArray () returns (map<any>, int)|error {
     }
 }
 
-type StructWithDefaults record {
-    string s = "string value";
-    int a = 45;
-    float f = 5.3;
-    boolean b = true;
-    json j = ();
-    byte[] blb = [];
-    !...
-};
-
-function testEmptyJSONtoStructWithDefaults () returns (StructWithDefaults | error) {
-    json j = {};
-    var testStruct = check StructWithDefaults.convert(j);
-
-    return testStruct;
-}
-
 function testSameTypeConversion() returns (int) {
     float f = 10.05;
     var i =  int.convert(f);

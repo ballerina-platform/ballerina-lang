@@ -472,19 +472,6 @@ public class NativeConversionTest {
         Assert.assertEquals(returns[0].stringValue(), "{\"names\":[\"John\", \"Doe\"]}");
     }
 
-    @Test(enabled = false)
-    public void testEmptyJSONtoStructWithDefaults() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testEmptyJSONtoStructWithDefaults");
-        Assert.assertTrue(returns[0] instanceof BMap);
-        BMap<String, BValue> bValue = (BMap<String, BValue>) returns[0];
-        Assert.assertEquals(bValue.get("s").stringValue(), "string value");
-        Assert.assertEquals(((BInteger) bValue.get("a")).intValue(), 45);
-        Assert.assertEquals(((BFloat) bValue.get("f")).floatValue(), 5.3);
-        Assert.assertTrue(((BBoolean) bValue.get("b")).booleanValue());
-        Assert.assertNull(bValue.get("j"));
-        Assert.assertNull(bValue.get("blb"));
-    }
-
     @Test
     public void testSameTypeConversion() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testSameTypeConversion");
