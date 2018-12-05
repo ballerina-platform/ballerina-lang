@@ -141,6 +141,8 @@ export const visitor: Visitor = {
             x: viewState.bBox.x,
             y: viewState.bBox.y + viewState.bBox.h - config.block.menuTriggerMargin
         };
+        viewState.hoverRect.x = viewState.bBox.x - viewState.hoverRect.leftMargin;
+        viewState.hoverRect.y = viewState.bBox.y;
     },
 
     beginVisitWhile(node: While) {

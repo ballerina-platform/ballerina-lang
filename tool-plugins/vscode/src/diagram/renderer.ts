@@ -16,6 +16,8 @@ function renderDiagram(context: ExtensionContext, docUri: Uri): string {
         </div>
     `;
 
+    const bodyCss = "diagram";
+
     const styles = `
         body {
             background: #f1f1f1;
@@ -99,7 +101,7 @@ function renderDiagram(context: ExtensionContext, docUri: Uri): string {
         }
     `;
 
-    return getLibraryWebViewContent(context, body, script, styles);
+    return getLibraryWebViewContent(context, body, script, styles, bodyCss);
 }
 
 export function renderError() {

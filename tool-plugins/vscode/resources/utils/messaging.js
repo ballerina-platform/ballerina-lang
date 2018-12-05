@@ -96,13 +96,12 @@ function getLangClient() {
                 });
             })
         },
-        revealRange: (model) => {
-            const pos = model.position;
-            if (pos) {
+        revealRange: (params) => {
+            if (params) {
                 return new Promise((resolve, reject) => {
                     webViewRPCHandler.invokeRemoteMethod(
                         'revealRange', 
-                        [pos.startLine, pos.startColumn, pos.endLine, pos.endColumn], 
+                        [JSON.stringify(params)], 
                         (resp) => {
                             resolve(resp);
                         }
@@ -110,11 +109,11 @@ function getLangClient() {
                 })
             }
         },
-        goToSource: (line, column) => {
+        goToSource: (params) => {
             return new Promise((resolve, reject) => {
                 webViewRPCHandler.invokeRemoteMethod(
                     'goToSource', 
-                    [line, column], 
+                    [JSON.stringify(params)], 
                     (resp) => {
                         resolve(resp);
                     }

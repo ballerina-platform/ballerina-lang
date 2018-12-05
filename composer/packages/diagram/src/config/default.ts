@@ -122,7 +122,10 @@ export class DiagramConfig {
 
     public block = {
         bottomMargin: STATEMENT_HEIGHT,
-        menuTriggerMargin: 12,
+        hoverRect: {
+            leftMargin: 30
+        },
+        menuTriggerMargin: 12
     };
 }
 

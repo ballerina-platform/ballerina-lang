@@ -233,7 +233,8 @@ public class SafeNavigationTest {
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: cannot find key 'a'.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}KeyNotFound \\{\"message\":\"cannot find key " +
+                    "'a'\"\\}.*")
     public void testNonExistingMapKeyWithFieldAccess() {
         BValue[] returns = BRunUtil.invoke(result, "testNonExistingMapKeyWithFieldAccess");
         Assert.assertEquals(returns[0].stringValue(), "Bob");

@@ -17,7 +17,7 @@ export function render(context: ExtensionContext): string {
         <head>
             <meta charset="utf-8">
         </head>
-        <body>
+        <body class="documentation">
             <div id="ballerina-documentation"/>
             <script>
                 let astJson;

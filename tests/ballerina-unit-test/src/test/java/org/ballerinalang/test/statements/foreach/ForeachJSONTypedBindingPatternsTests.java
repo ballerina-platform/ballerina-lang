@@ -91,14 +91,16 @@ public class ForeachJSONTypedBindingPatternsTests {
     public void testDirectAccessInvalidElementWithoutType() {
         BValue[] returns = BRunUtil.invoke(program, "testDirectAccessInvalidElementWithoutType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "cannot stamp 'null' value to type 'map<json>' {}");
+        Assert.assertEquals(returns[0].stringValue(), "{ballerina}StampError {\"message\":\"cannot stamp 'null' " +
+                "value to type 'map<json>'\"}");
     }
 
     @Test
     public void testDirectAccessInvalidElementWithType() {
         BValue[] returns = BRunUtil.invoke(program, "testDirectAccessInvalidElementWithType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "cannot stamp 'null' value to type 'map<json>' {}");
+        Assert.assertEquals(returns[0].stringValue(), "{ballerina}StampError {\"message\":\"cannot stamp 'null' " +
+                "value to type 'map<json>'\"}");
     }
 
     @Test
