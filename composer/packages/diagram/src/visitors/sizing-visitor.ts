@@ -173,6 +173,7 @@ export const visitor: Visitor = {
         let height = 0;
         viewState.bBox.w = config.statement.width;
         node.statements.forEach((element) => {
+            if (ASTUtil.isWorker(element)) {return; }
             viewState.bBox.w = (viewState.bBox.w < element.viewState.bBox.w)
                 ? element.viewState.bBox.w : viewState.bBox.w;
             viewState.bBox.leftMargin = (viewState.bBox.leftMargin < element.viewState.bBox.leftMargin)
