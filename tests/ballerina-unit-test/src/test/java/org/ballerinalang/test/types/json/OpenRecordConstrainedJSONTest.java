@@ -214,7 +214,8 @@ public class OpenRecordConstrainedJSONTest {
                             "{\"name\":\"John Doe\", \"age\":30, \"address\":\"Colombo\", \"class\":\"5\"}");
     }
 
-    @Test(description = "Test Constaint JSON to Constaint JSON unsafe cast negative scenario.")
+    // This will be a compilation error.
+    @Test(groups = { "broken" }, description = "Test Constaint JSON to Constaint JSON unsafe cast negative scenario.")
     public void testConstraintJSONToConstraintJsonUnsafeNegativeCast() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testConstraintJSONToConstraintJsonUnsafeNegativeCast");
         Assert.assertNotNull(returns[0]);

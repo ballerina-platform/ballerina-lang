@@ -381,7 +381,8 @@ public class ConstrainedMapTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 63);
     }
 
-    @Test(description = "Test struct to map conversion for constrained map negative.")
+    // This will be a compilation error.
+    @Test(groups = { "broken" }, description = "Test struct to map conversion for constrained map negative.")
     public void testMapToStructConversionNegative() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testMapToStructConversionNegative");
         Assert.assertTrue(returns[0] instanceof BError);

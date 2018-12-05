@@ -370,12 +370,13 @@ function testMapToStructConversion () returns ((int, int)|error) {
     return (k.index, k.age);
 }
 
-function testMapToStructConversionNegative () returns (Student|error) {
-    map<string> testMap = {};
-    testMap["index"] = "100";
-    testMap["age"] = "63";
-    return check Student.convert(testMap);
-}
+// This will be a compilation error.
+//function testMapToStructConversionNegative () returns (Student|error) {
+//    map<string> testMap = {};
+//    testMap["index"] = "100";
+//    testMap["age"] = "63";
+//    return check Student.convert(testMap);
+//}
 
 function testMapFunctionsOnConstrainedMaps () returns (string[]) {
     map<string> testMap = {};
