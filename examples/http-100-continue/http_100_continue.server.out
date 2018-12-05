@@ -1,4 +1,4 @@
-# To run the program, navigate to the directory that contains the
+# To start the service, navigate to the directory that contains the
 # `.bal` file and use the `ballerina run` command.
 $ ballerina run http_expect_header.bal
 Initiating service(s) in 'http_100_continue.bal'
