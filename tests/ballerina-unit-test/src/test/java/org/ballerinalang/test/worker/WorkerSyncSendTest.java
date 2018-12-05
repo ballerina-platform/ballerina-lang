@@ -77,7 +77,7 @@ public class WorkerSyncSendTest {
                 "Returned wrong value:" + returns[0].stringValue());
     }
 
-    @Test (groups = "broken")
+    @Test
     public void errorAfterSendTest() {
 
         BValue[] returns = BRunUtil.invoke(result, "errorResult");
