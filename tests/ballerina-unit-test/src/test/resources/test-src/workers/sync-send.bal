@@ -13,6 +13,7 @@ function process() returns string {
      a -> w2;
      error? result;
      result = a ->> w2;
+     a -> w2;
      foreach var i in 1 ... 5 {
                            append = append + "w1";
                    }
@@ -26,10 +27,11 @@ function process() returns string {
              }
      b = <- w1;
      b = <- w1;
+     b = <- w1;
    }
 
    wait w1;
-   runtime:sleep(50);
+   //runtime:sleep(50);
    return "done";
 }
 
