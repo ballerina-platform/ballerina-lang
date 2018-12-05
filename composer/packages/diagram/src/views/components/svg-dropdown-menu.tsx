@@ -48,6 +48,7 @@ export class SVGDropDownMenu extends React.Component<SVGDropDownMenuProps, SVGDr
     public render() {
         const { triggerIcon, triggerPosition, triggerPosition: { x, y },
                 items, className, onMouseOut, onMouseOver } = this.props;
+        const { active } = this.state;
         const btnRadius = 8;
         const itemHeight = 25;
         const itemWidth = 150;
@@ -100,14 +101,14 @@ export class SVGDropDownMenu extends React.Component<SVGDropDownMenuProps, SVGDr
                 radius={btnRadius}
                 onClick={() => {
                     this.setState({
-                        active: !this.state.active
+                        active: !active
                     });
                 }}
-                className={cn("svg-dropdown-menu", "noselect", className)}
+                className={cn("svg-dropdown-menu", "noselect", className, { active })}
                 onMouseOut={onMouseOut}
                 onMouseOver={onMouseOver}
             >
-                {this.state.active &&
+                {active &&
                     <g className="content" ref={this.wrapperRef}>
                         {menuItems}
                     </g>

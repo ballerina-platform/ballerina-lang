@@ -1,4 +1,4 @@
-import { InitializeParams, InitializeResult } from "vscode-languageserver-protocol";
+import { InitializeParams, InitializeResult, Position, Range } from "vscode-languageserver-protocol";
 import { BallerinaAST, BallerinaASTNode, BallerinaEndpoint,
     BallerinaSourceFragment } from "./ast-models";
 
@@ -22,6 +22,20 @@ export interface ASTDidChangeParams {
         uri: string;
     };
     ast: BallerinaAST;
+}
+
+export interface GoToSourceParams {
+    textDocumentIdentifier: {
+        uri: string;
+    };
+    position: Position;
+}
+
+export interface RevealRangeParams {
+    textDocumentIdentifier: {
+        uri: string;
+    };
+    range: Range;
 }
 
 export interface BallerinaExample {
@@ -73,7 +87,9 @@ export interface IBallerinaLangClient {
 
     getBallerinaProject: (params: GetBallerinaProjectParams) => Thenable<BallerinaProject>;
 
-    goToSource: (line: number, column: number) => void;
+    goToSource: (params: GoToSourceParams) => void;
+
+    revealRange: (params: RevealRangeParams) => void;
 
     close: () => void;
 }

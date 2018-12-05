@@ -40,7 +40,7 @@ service channelService on new http:Listener(9090) {
         if (message is json) {
             jsonMessage = message;
         } else {
-            log:printError("Invalid message content");
+            log:printError("Invalid message content", err = message);
         }
 
         jsonMessage -> jsonChannel, key;

@@ -32,7 +32,4 @@ public interface BallerinaBindingRefPattern extends BallerinaCompositeElement {
   @Nullable
   BallerinaVariableReference getVariableReference();
 
-  @Nullable
-  PsiElement getUnderscore();
-
 }

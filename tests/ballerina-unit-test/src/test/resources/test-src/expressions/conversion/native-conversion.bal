@@ -661,19 +661,19 @@ function testStructToMapWithRefTypeArray () returns (map<any>, int)|error {
     }
 }
 
-type StructWithDefaults record {
-    string s = "string value";
-    int a = 45;
-    float f = 5.3;
-    boolean b = true;
-    json j = ();
-    byte[] blb = [];
+type StructWithOptionals record {
+    string s?;
+    int a?;
+    float f?;
+    boolean b?;
+    json j?;
+    byte[] blb?;
     !...
 };
 
-function testEmptyJSONtoStructWithDefaults () returns (StructWithDefaults | error) {
+function testEmptyJSONtoStructWithOptionals () returns (StructWithOptionals | error) {
     json j = {};
-    var testStruct = check StructWithDefaults.convert(j);
+    var testStruct = check StructWithOptionals.convert(j);
 
     return testStruct;
 }

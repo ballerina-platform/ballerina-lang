@@ -404,7 +404,7 @@ function testInvalidComplexMapFreeze() returns (string, boolean) {
     m1.two = p;
 
     map<string|PersonObj>|error res = m1.freeze();
-    string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + res.reason() : FREEZE_SUCCESSFUL;
+    string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + <string>res.detail().message : FREEZE_SUCCESSFUL;
     return (errorOrSuccessMsg, m1.isFrozen());
 }
 
@@ -417,7 +417,7 @@ function testInvalidComplexArrayFreeze() returns (string, boolean) {
     a1[2] = p;
 
     (string|typedesc|float)[]|error res = a1.freeze();
-    string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + res.reason() : FREEZE_SUCCESSFUL;
+    string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + <string>res.detail().message : FREEZE_SUCCESSFUL;
     return (errorOrSuccessMsg, a1.isFrozen());
 }
 
@@ -428,7 +428,7 @@ function testInvalidComplexRecordFreeze() returns (string, boolean) {
     FreezeAllowedDepartment fd = { head: p, e1: p1, e2: 10 };
 
     FreezeAllowedDepartment|error res = fd.freeze();
-    string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + res.reason() : FREEZE_SUCCESSFUL;
+    string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + <string>res.detail().message : FREEZE_SUCCESSFUL;
     return (errorOrSuccessMsg, fd.isFrozen());
 }
 
@@ -437,7 +437,7 @@ function testInvalidComplexTupleFreeze() returns (string, boolean) {
     (int, string|PersonObj|float, boolean) t1 = (1, p, true);
 
     any|error res = t1.freeze();
-    string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + res.reason() : FREEZE_SUCCESSFUL;
+    string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + <string>res.detail().message : FREEZE_SUCCESSFUL;
     return (errorOrSuccessMsg, t1.isFrozen());
 }
 
@@ -446,7 +446,7 @@ function testInvalidComplexUnionFreeze() returns (string, boolean) {
     int|Dept|PersonObj u1 = p;
 
     int|Dept|PersonObj|error res = u1.freeze();
-    string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + res.reason() : FREEZE_SUCCESSFUL;
+    string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + <string>res.detail().message : FREEZE_SUCCESSFUL;
     return (errorOrSuccessMsg, u1.isFrozen());
 }
 
@@ -460,7 +460,7 @@ function testInvalidSelfReferencingValueFreeze() returns (string, boolean) {
     m2.p = p;
 
     map<any>|error res = m.freeze();
-    string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + res.reason() : FREEZE_SUCCESSFUL;
+    string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + <string>res.detail().message : FREEZE_SUCCESSFUL;
     return (errorOrSuccessMsg, m.isFrozen() || m2.isFrozen());
 }
 
@@ -471,7 +471,7 @@ function testValidComplexMapFreeze() returns (string, boolean) {
     m1.two = "2";
 
     map<string|PersonObj>|error res = m1.freeze();
-    string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + res.reason() : FREEZE_SUCCESSFUL;
+    string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + <string>res.detail().message : FREEZE_SUCCESSFUL;
     return (errorOrSuccessMsg, m1.isFrozen());
 }
 
@@ -482,7 +482,7 @@ function testValidComplexArrayFreeze() returns (string, boolean) {
     a1[1] = "hello world";
 
     (string|PersonObj|float)[]|error res = a1.freeze();
-    string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + res.reason() : FREEZE_SUCCESSFUL;
+    string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + <string>res.detail().message : FREEZE_SUCCESSFUL;
     return (errorOrSuccessMsg, a1.isFrozen());
 }
 
@@ -490,7 +490,7 @@ function testValidComplexRecordFreeze() returns (string, boolean) {
     FreezeAllowedDepartment fd = { head: "John", e1: 234, e2: 10 };
 
     any|error res = fd.freeze();
-    string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + res.reason() : FREEZE_SUCCESSFUL;
+    string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + <string>res.detail().message : FREEZE_SUCCESSFUL;
     return (errorOrSuccessMsg, fd.isFrozen());
 }
 
@@ -498,7 +498,7 @@ function testValidComplexTupleFreeze() returns (string, boolean) {
     (int, string|PersonObj|float, boolean) t1 = (1, 3.0, true);
 
     (int, string|PersonObj|float, boolean)|error res = t1.freeze();
-    string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + res.reason() : FREEZE_SUCCESSFUL;
+    string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + <string>res.detail().message : FREEZE_SUCCESSFUL;
     return (errorOrSuccessMsg, t1.isFrozen());
 }
 
@@ -507,7 +507,7 @@ function testValidComplexUnionFreeze() returns (string, boolean) {
     int|Dept|PersonObj u1 = d;
 
     int|Dept|PersonObj|error res = u1.freeze();
-    string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + res.reason() : FREEZE_SUCCESSFUL;
+    string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + <string>res.detail().message : FREEZE_SUCCESSFUL;
     return (errorOrSuccessMsg, u1.isFrozen());
 }
 
@@ -518,7 +518,7 @@ function testValidSelfReferencingValueFreeze() returns (string, boolean) {
     m2.m = m;
 
     map<any>|error res = m.freeze();
-    string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + res.reason() : FREEZE_SUCCESSFUL;
+    string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + <string>res.detail().message : FREEZE_SUCCESSFUL;
     return (errorOrSuccessMsg, m.isFrozen() || m2.isFrozen());
 }
 
@@ -532,7 +532,7 @@ function testPreservingInnerMapFrozenStatusOnFailedOuterFreeze() returns (string
     m2.p = p;
 
     map<any>|error res = m2.freeze();
-    string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + res.reason() : FREEZE_SUCCESSFUL;
+    string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + <string>res.detail().message : FREEZE_SUCCESSFUL;
     return (errorOrSuccessMsg, m2.isFrozen(), m.isFrozen());
 }
 
@@ -546,7 +546,7 @@ function testPreservingInnerArrayFrozenStatusOnFailedOuterFreeze() returns (stri
     a2[4] = p;
 
     any[]|error res = a2.freeze();
-    string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + res.reason() : FREEZE_SUCCESSFUL;
+    string errorOrSuccessMsg = (res is error) ? FREEZE_ERROR_OCCURRED + <string>res.detail().message : FREEZE_SUCCESSFUL;
     return (errorOrSuccessMsg, a2.isFrozen(), a.isFrozen());
 }
 
@@ -555,7 +555,7 @@ function testErrorValueFreeze() returns string {
     any|error val = e;
 
     any|error res = val.freeze();
-    return (res is error) ? FREEZE_ERROR_OCCURRED + res.reason() : FREEZE_SUCCESSFUL;
+    return (res is error) ? FREEZE_ERROR_OCCURRED + <string>res.detail().message : FREEZE_SUCCESSFUL;
 }
 
 function testFrozenValueUpdatePanicWithCheckTrap() returns boolean|error {
