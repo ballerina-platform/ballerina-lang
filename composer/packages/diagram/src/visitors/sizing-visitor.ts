@@ -6,9 +6,9 @@ import {
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
 import { EndpointViewState, FunctionViewState, SimpleBBox, StmntViewState, ViewState } from "../view-model";
+import { BlockViewState } from "../view-model/block";
 import { ReturnViewState } from "../view-model/return";
 import { WorkerViewState } from "../view-model/worker";
-import { BlockViewState } from "../view-model/block";
 
 const config: DiagramConfig = DiagramUtils.getConfig();
 
