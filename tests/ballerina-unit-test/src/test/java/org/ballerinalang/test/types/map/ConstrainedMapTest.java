@@ -388,7 +388,7 @@ public class ConstrainedMapTest {
     public void testMapToStructConversionNegative() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testMapToStructConversionNegative");
         Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BError) returns[0]).getReason();
+        String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).details).get("message").stringValue();
         Assert.assertEquals(errorMsg, "cannot convert 'map<string>' to type 'Student: error while mapping 'index': " +
                 "incompatible types: expected 'int', found 'string'");
     }

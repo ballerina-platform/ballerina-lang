@@ -34,6 +34,7 @@ import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
+import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -115,7 +116,7 @@ public class BLangVMErrors {
     }
 
     public static BError createTypeConversionError(Strand context, String errorMessage) {
-        return createError(context, errorMessage);
+        return createError(context, BallerinaErrorReasons.CONVERSION_ERROR, errorMessage);
     }
 
     /* Type Specific Errors */
