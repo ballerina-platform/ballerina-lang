@@ -34,7 +34,7 @@ import java.util.ArrayList;
 import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_JSON;
 
 /**
- * This contains methods to test filter query behaviour in Ballerina Streaming V2.
+ * This contains methods to test alert generation in services Ballerina Streaming V2.
  *
  * @since 0.990.0
  */
