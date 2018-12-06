@@ -27,6 +27,7 @@
         <classes>
             <class name="org.ballerinalang.test.packaging.ConfigTestCase"/>
             <class name="org.ballerinalang.test.packaging.DocGenTestCase"/>
+            <class name="org.ballerinalang.test.packaging.ImportFromTestsCase"/>
             <class name="org.ballerinalang.test.packaging.ImportModuleTestCase"/>
             <class name="org.ballerinalang.test.packaging.ListDependencyTestCase"/>
             <class name="org.ballerinalang.test.packaging.RepoHierarchyTestCase"/>
