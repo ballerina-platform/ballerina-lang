@@ -28,32 +28,25 @@ import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.WebSocketClientConnectorListener;
+import org.ballerinalang.net.http.WebSocketClientHandshakeListener;
 import org.ballerinalang.net.http.WebSocketConstants;
-import org.ballerinalang.net.http.WebSocketOpenConnectionInfo;
 import org.ballerinalang.net.http.WebSocketService;
-import org.ballerinalang.net.http.WebSocketUtil;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.websocket.ClientHandshakeFuture;
-import org.wso2.transport.http.netty.contract.websocket.ClientHandshakeListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnectorConfig;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
-import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-
-import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 
 /**
  * Initialize the WebSocket Client.
@@ -150,56 +143,5 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
                 key -> customHeaders.put(key, headers.get(key).getStringValue())
         );
         return customHeaders;
-    }
-
-    static class WebSocketClientHandshakeListener implements ClientHandshakeListener {
-
-        private final Context context;
-        private final WebSocketService wsService;
-        private final WebSocketClientConnectorListener clientConnectorListener;
-        private final boolean readyOnConnect;
-        CountDownLatch countDownLatch;
-
-        WebSocketClientHandshakeListener(Context context, WebSocketService wsService,
-                                         WebSocketClientConnectorListener clientConnectorListener,
-                                         boolean readyOnConnect, CountDownLatch countDownLatch) {
-            this.context = context;
-            this.wsService = wsService;
-            this.clientConnectorListener = clientConnectorListener;
-            this.readyOnConnect = readyOnConnect;
-            this.countDownLatch = countDownLatch;
-        }
-
-        @Override
-        public void onSuccess(WebSocketConnection webSocketConnection, HttpCarbonResponse carbonResponse) {
-            //using only one service endpoint in the client as there can be only one connection.
-            BMap<String, BValue> webSocketClientEndpoint = ((BMap<String, BValue>) context.getRefArgument(0));
-            webSocketClientEndpoint.put(WebSocketConstants.CLIENT_RESPONSE_FIELD,
-                                        HttpUtil.createResponseStruct(context, carbonResponse));
-            BMap<String, BValue> webSocketConnector = BLangConnectorSPIUtil.createObject(
-                    context, PROTOCOL_PACKAGE_HTTP, WebSocketConstants.WEBSOCKET_CONNECTOR);
-            WebSocketOpenConnectionInfo connectionInfo = new WebSocketOpenConnectionInfo(
-                    wsService, webSocketConnection, webSocketClientEndpoint, context);
-            webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO, connectionInfo);
-            WebSocketUtil.populateEndpoint(webSocketConnection, webSocketClientEndpoint);
-            clientConnectorListener.setConnectionInfo(connectionInfo);
-            webSocketClientEndpoint.put(WebSocketConstants.CLIENT_CONNECTOR_FIELD, webSocketConnector);
-            context.setReturnValues();
-            if (readyOnConnect) {
-                webSocketConnection.readNextFrame();
-            }
-            countDownLatch.countDown();
-        }
-
-        @Override
-        public void onError(Throwable throwable, HttpCarbonResponse response) {
-            if (response != null) {
-                BMap<String, BValue> webSocketClientEndpoint = ((BMap<String, BValue>) context.getRefArgument(0));
-                webSocketClientEndpoint.put(WebSocketConstants.CLIENT_RESPONSE_FIELD,
-                                            HttpUtil.createResponseStruct(context, response));
-            }
-            countDownLatch.countDown();
-            throw new BallerinaConnectorException("Error occurred: " + throwable.getMessage());
-        }
     }
 }
