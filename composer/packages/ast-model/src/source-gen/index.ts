@@ -1,4 +1,4 @@
-import { ASTNode, Block } from "../ast-interfaces";
+import { ASTNode, Block, UserDefinedType } from "../ast-interfaces";
 import { Visitor } from "../base-visitor";
 import { ASTKindChecker } from "../check-kind-util";
 import * as defaults from "../default-nodes";
@@ -147,8 +147,26 @@ export function addForeachToBlock(block: Block, ast: ASTNode, insertAt?: number)
     attachNode(foreachNode, ast, block, "statements", insertAt);
 }
 
-export function addEndpointToBlock(block: Block, ast: ASTNode, insertAt?: number) {
+export function addEndpointToBlock(block: Block, ast: ASTNode, endpointDef: string, insertAt?: number) {
     const endpointNode = defaults.createEndpointNode();
+
+    // Update type to match def
+    const endpointType = endpointNode.variable.typeNode as UserDefinedType;
+    const endpointDefParts = endpointDef.split(":");
+    endpointType.typeName.value = endpointDefParts[0];
+    endpointType.packageAlias.value = endpointDefParts[1];
+
+    const epWS = getWS(endpointNode);
+    epWS.forEach((ws) => {
+        if (ws.text === "http") {
+            ws.text = endpointDefParts[0];
+            return;
+        }
+        if (ws.text === "Client") {
+            ws.text = endpointDefParts[1];
+        }
+    });
+
     if (insertAt === undefined) {
         insertAt = block.statements.length;
     }

@@ -54,11 +54,8 @@ export const Function = (props: { model: FunctionNode }, context: IDiagramContex
                     <AddWorkerOrEndpointMenu
                     triggerPosition={viewState.menuTrigger}
                     onAddEndpoint={(epDef: any) => {
-                        // todo
-                        // tslint:disable-next-line:no-console
-                        console.log("Selected EP: " + JSON.stringify(epDef));
                         if (model.body && ast) {
-                            ASTUtil.addEndpointToBlock(model.body, ast);
+                            ASTUtil.addEndpointToBlock(model.body, ast, epDef);
                         }
                     }}
                     onAddWorker={() => {
