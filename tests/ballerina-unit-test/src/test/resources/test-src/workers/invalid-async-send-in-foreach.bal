@@ -11,4 +11,3 @@ public function main() {
         int j = <- w1;
     }
 }
-
