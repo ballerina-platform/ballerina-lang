@@ -354,7 +354,8 @@ public class SnippetGenerator {
     public static SnippetBlock getServiceDefSnippet() {
         String snippet = "service ${1:serviceName} on new http:Listener(8080) {"
                 + CommonUtil.LINE_SEPARATOR + "\tresource function ${2:newResource}(http:Caller ${3:caller}, "
-                + "http:Request ${5:request}) {" + CommonUtil.LINE_SEPARATOR + "\t}" + CommonUtil.LINE_SEPARATOR + "}";
+                + "http:Request ${5:request}) {" + CommonUtil.LINE_SEPARATOR + "\t\t" + CommonUtil.LINE_SEPARATOR +
+                "\t}" + CommonUtil.LINE_SEPARATOR + "}";
 
         return new SnippetBlock(ItemResolverConstants.SERVICE, snippet, ItemResolverConstants.SNIPPET_TYPE,
                                 SnippetType.SNIPPET);
@@ -366,13 +367,14 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getWebSocketServiceDefSnippet() {
-        String snippet = "service<http:WebSocketService> ${1:serviceName} bind { port: 9090 } {"
-                + CommonUtil.LINE_SEPARATOR + "\tonOpen(endpoint caller) {"
-                + CommonUtil.LINE_SEPARATOR + "\t\t" + CommonUtil.LINE_SEPARATOR + "\t}" + CommonUtil.LINE_SEPARATOR
-                + "\tonText(endpoint caller, string text, boolean final) {" + CommonUtil.LINE_SEPARATOR + "\t\t"
-                + CommonUtil.LINE_SEPARATOR + "\t}" + CommonUtil.LINE_SEPARATOR
-                + "\tonClose(endpoint caller, int statusCode, string reason) {" + CommonUtil.LINE_SEPARATOR
-                + "\t\t" + CommonUtil.LINE_SEPARATOR + "\t}" + CommonUtil.LINE_SEPARATOR + "}";
+        String snippet = "service ${1:serviceName} on new http:WebSocketListener(9090) {" + CommonUtil.LINE_SEPARATOR +
+                "\tresource function onOpen(http:WebSocketCaller caller) {"
+                + CommonUtil.LINE_SEPARATOR + "\t\t" + CommonUtil.LINE_SEPARATOR + "\t}" + CommonUtil.LINE_SEPARATOR +
+                "\tresource function onText(http:WebSocketCaller caller, string data, boolean finalFrame) {"
+                + CommonUtil.LINE_SEPARATOR + "\t\t" + CommonUtil.LINE_SEPARATOR + "\t}" + CommonUtil.LINE_SEPARATOR +
+                "\tresource function onClose(http:WebSocketCaller caller, int statusCode, string reason) {"
+                + CommonUtil.LINE_SEPARATOR + "\t\t" + CommonUtil.LINE_SEPARATOR + "\t}"
+                + CommonUtil.LINE_SEPARATOR + "}";
 
         return new SnippetBlock(ItemResolverConstants.SERVICE_WEBSOCKET, snippet, ItemResolverConstants.SNIPPET_TYPE,
                                 SnippetType.SNIPPET);
@@ -384,12 +386,12 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getWebSubServiceDefSnippet() {
-        String snippet = "service<websub:Service> ${1:websubSubscriber} bind {port: 9090} {" + CommonUtil.LINE_SEPARATOR
-                + "\tonIntentVerification(endpoint caller, websub:IntentVerificationRequest request) {"
-                + CommonUtil.LINE_SEPARATOR + "\t\t" + CommonUtil.LINE_SEPARATOR + "\t}" + CommonUtil.LINE_SEPARATOR
-                + "\tonNotification(websub:Notification notification) {" + CommonUtil.LINE_SEPARATOR + "\t\t"
-                + CommonUtil.LINE_SEPARATOR + "\t}" + CommonUtil.LINE_SEPARATOR + "}";
-
+        String snippet = "service ${1:websubSubscriber} on new websub:Listener(9092) {" + CommonUtil.LINE_SEPARATOR +
+                "\tresource function onIntentVerification(websub:Caller caller, websub:IntentVerificationRequest " +
+                "request) {" + CommonUtil.LINE_SEPARATOR + "\t\t" + CommonUtil.LINE_SEPARATOR + "\t}" +
+                CommonUtil.LINE_SEPARATOR + "\tresource function onNotification(websub:Notification notification) {" +
+                CommonUtil.LINE_SEPARATOR + "\t\t" + CommonUtil.LINE_SEPARATOR + "\t}" +
+                CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.SERVICE_WEBSUB, snippet, ItemResolverConstants.SNIPPET_TYPE,
                                 SnippetType.SNIPPET);
     }
@@ -430,9 +432,8 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getTransactionStatementSnippet() {
-        String snippet = "transaction with retries = ${1:1}, oncommit = ${2:onCommitFunction}, "
-                + "onabort = ${3:onAbortFunction} " + "{" + CommonUtil.LINE_SEPARATOR
-                + "\t${4}" + CommonUtil.LINE_SEPARATOR + "} onretry {" + CommonUtil.LINE_SEPARATOR + "\t${5}"
+        String snippet = "transaction with retries ${1:0} {" + CommonUtil.LINE_SEPARATOR
+                + "\t${2}" + CommonUtil.LINE_SEPARATOR + "} onretry {" + CommonUtil.LINE_SEPARATOR + "\t${3}"
                 + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.TRANSACTION, snippet, ItemResolverConstants.STATEMENT_TYPE,
                                 SnippetType.STATEMENT);
@@ -469,28 +470,6 @@ public class SnippetGenerator {
         return new SnippetBlock(ItemResolverConstants.WHILE,
                                 snippet,
                                 ItemResolverConstants.STATEMENT_TYPE,
-                                SnippetType.STATEMENT);
-    }
-
-    /**
-     * Get Worker Trigger Statement Snippet Block.
-     *
-     * @return {@link SnippetBlock}     Generated Snippet Block
-     */
-    public static SnippetBlock getWorkerTriggerStatementSnippet() {
-        String snippet = "${1:var1} -> ${2:w1};";
-        return new SnippetBlock(ItemResolverConstants.TRIGGER_WORKER, snippet, ItemResolverConstants.STATEMENT_TYPE,
-                                SnippetType.STATEMENT);
-    }
-
-    /**
-     * Get Worker Reply Statement Snippet Block.
-     *
-     * @return {@link SnippetBlock}     Generated Snippet Block
-     */
-    public static SnippetBlock getWorkerReplyStatementSnippet() {
-        String snippet = "${1:var1} <- ${2:w1};";
-        return new SnippetBlock(ItemResolverConstants.WORKER_REPLY, snippet, ItemResolverConstants.STATEMENT_TYPE,
                                 SnippetType.STATEMENT);
     }
 
