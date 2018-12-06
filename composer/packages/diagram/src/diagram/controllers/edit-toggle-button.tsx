@@ -19,9 +19,11 @@ export const EditToggleButton: StatelessComponent<{}> = (
                     : "Edit";
                 return (
                     <Menu.Item onClick={diagContext.toggleEditing}>
-                        <Button className={`icon ${className}`}>
-                            <Icon className={`fw ${icon}`} /> {text}
-                        </Button>
+                        <Button.Group size="tiny">
+                            <Button className={`icon ${className}`}>
+                                <Icon className={`fw ${icon}`} /> {text}
+                            </Button>
+                        </Button.Group>
                     </Menu.Item>
                 );
             }}

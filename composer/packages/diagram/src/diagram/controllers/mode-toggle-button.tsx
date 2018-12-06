@@ -17,7 +17,7 @@ export const ModeToggleButton: StatelessComponent<{}> = (
                     : "Collapse Code";
                 return (
                     <Menu.Item>
-                        <Button.Group>
+                        <Button.Group size="tiny">
                             <Button
                                 icon
                                 onClick={() => {

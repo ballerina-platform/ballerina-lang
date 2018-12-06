@@ -13,6 +13,7 @@ export interface IDiagramContext {
     toggleEditing: () => void;
     diagramHeight: number;
     diagramWidth: number;
+    zoomLevel: number;
     zoomIn: () => void;
     zoomOut: () => void;
     zoomFit: () => void;
