@@ -1,3 +1,4 @@
+import classNames from "classnames";
 import React from "react";
 import { DiagramContext, IDiagramContext } from "../../diagram/diagram-context";
 import { SimpleBBox } from "../../view-model/index";
@@ -53,8 +54,7 @@ export class EditableSVGText extends React.Component<EditableSVGTextProps, Edita
                 <text
                     x={x}
                     y={y + (h / 2)}
-                    className={className + " noselect"
-                        + (editingEnabled ? " editable-text" : " non-editable-text")}
+                    className={classNames(className, { editable: editingEnabled })}
                     onClick={() => {
                         if (editingEnabled && !textEditingEnabled) {
                             this.setState({

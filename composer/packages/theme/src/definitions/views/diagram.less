@@ -7,6 +7,16 @@
         text {
             fill: ~"@{@{color}-diagram-base-text-color}";
             dominant-baseline: central;
+            cursor: default;
+            &.editable {
+                cursor: text;
+            }
+            -webkit-touch-callout: none; /* iOS Safari */
+            -webkit-user-select: none; /* Safari */
+            -khtml-user-select: none; /* Konqueror HTML */
+            -moz-user-select: none; /* Firefox */
+            -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
         }
         .diagram-canvas {
             font-family: @diagram-font;
@@ -203,20 +213,6 @@
                     z-index: 1;
                 }
             }
-        }
-        .non-editable-text {
-            cursor: default;
-        }
-        .editable-text {
-            cursor: text;
-        }
-        .noselect {
-            -webkit-touch-callout: none; /* iOS Safari */
-            -webkit-user-select: none; /* Safari */
-            -khtml-user-select: none; /* Konqueror HTML */
-            -moz-user-select: none; /* Firefox */
-            -ms-user-select: none; /* Internet Explorer/Edge */
-            user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
         }
     }
     .endpoint-search-dialog {
