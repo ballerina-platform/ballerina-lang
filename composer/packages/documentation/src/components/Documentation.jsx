@@ -19,7 +19,6 @@
 import React from 'react';
 import Description from './Description';
 import { Table } from 'semantic-ui-react';
-import './Documentation.css';
 
 const Documentation = ({ docDetails }) => {
     const { title, kind, description, parameters, typeNodeKind, returnParameter } = docDetails;
@@ -34,7 +33,7 @@ const Documentation = ({ docDetails }) => {
     }[type];
 
     return (
-        <div className='documentation'>
+        <div className='documentation-block'>
             <div className='title'>
                 { icon && (<i className={`fw fw-fw icon ${icon}`}></i>) }{title}{ type === 'Function' && '()' } 
                 { type === 'ObjectType' && (<span className='object-type'>{'{'}<span className='type'>object</span>{'}'}</span>)}
