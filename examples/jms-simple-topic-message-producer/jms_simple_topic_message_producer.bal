@@ -3,12 +3,12 @@ import ballerina/log;
 
 // This creates a topic publisher.
 jms:SimpleTopicPublisher topicPublisher = new({
-    initialContextFactory:"bmbInitialContextFactory",
-    providerUrl:"amqp://admin:admin@carbon/carbon"
-                + "?brokerlist='tcp://localhost:5672'",
-    acknowledgementMode:"AUTO_ACKNOWLEDGE",
-    topicPattern:"BallerinaTopic"
-});
+        initialContextFactory: "bmbInitialContextFactory",
+        providerUrl: "amqp://admin:admin@carbon/carbon"
+            + "?brokerlist='tcp://localhost:5672'",
+        acknowledgementMode: "AUTO_ACKNOWLEDGE",
+        topicPattern: "BallerinaTopic"
+    });
 
 public function main() {
     // This creates a Text message.

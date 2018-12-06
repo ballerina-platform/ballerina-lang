@@ -40,7 +40,7 @@ public function main() {
         } else {
             io:println("Error in table to json conversion");
         }
-    } else if (selectRet is error) {
+    } else {
         io:println("Select data from student table failed: "
                 + <string>selectRet.detail().message);
     }
@@ -55,7 +55,7 @@ public function main() {
 function handleUpdate(int|error returned, string message) {
     if (returned is int) {
         io:println(message + " status: " + returned);
-    } else if (returned is error) {
+    } else {
         io:println(message + " failed: " + <string>returned.detail().message);
     }
 }

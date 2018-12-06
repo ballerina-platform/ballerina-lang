@@ -3,7 +3,7 @@
 $ ballerina run record-destructure-binding-pattern.bal
 Name: Peter
 Age: 28
-Country: {"country":"Sri Lanka", "occupation":"Software Engineer"}
+Other Details: {"country":"Sri Lanka", "occupation":"Software Engineer"}
 Name: Peter
 Age: 28
 Name: John

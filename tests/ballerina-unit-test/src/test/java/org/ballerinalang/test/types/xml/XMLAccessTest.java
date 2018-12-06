@@ -73,7 +73,8 @@ public class XMLAccessTest {
     }
     
     @Test(expectedExceptions = {BLangRuntimeException.class}, 
-            expectedExceptionsMessageRegExp = ".*array index out of range: index: 5, size: 3.*", groups = "broken")
+            expectedExceptionsMessageRegExp = ".*error: \\{ballerina\\}XMLOperationError \\{\"message\"" +
+                    ":\"\\{ballerina\\}IndexOutOfRange\"\\}.*")
     public void testXMLSequenceAccessWithOutOfIndex() {
         BRunUtil.invoke(result, "testXMLSequenceAccessWithOutOfIndex");
     }

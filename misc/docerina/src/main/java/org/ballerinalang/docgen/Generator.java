@@ -259,7 +259,11 @@ public class Generator {
             union.add(new EnumDoc(typeName, description(typeDefinition), new ArrayList<>(), values));
             added = true;
         } else if (kind == NodeKind.RECORD_TYPE) {
-            records.add(createDocForType(typeDefinition, (BLangRecordTypeNode) typeNode, typeName));
+            BLangRecordTypeNode recordNode = (BLangRecordTypeNode) typeNode;
+            if (recordNode.isAnonymous) {
+                return;
+            }
+            records.add(createDocForType(typeDefinition, recordNode, typeName));
             added = true;
         } else if (kind == NodeKind.UNION_TYPE_NODE) {
             List<BLangType> memberTypeNodes = ((BLangUnionTypeNode) typeNode).memberTypeNodes;

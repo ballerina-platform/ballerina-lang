@@ -20,7 +20,8 @@ service helloWorld on new http:Listener(9090) {
                     log:printError("Error sending response", err = result);
                 }
             } else {
-                // Send a 417 response to ignore the payload since content type is mismatched.
+                // Send a 417 response to ignore the payload since content type is mismatched
+                // with the expected content type.
                 http:Response res = new;
                 res.statusCode = 417;
                 res.setTextPayload("Unprocessable Entity");
