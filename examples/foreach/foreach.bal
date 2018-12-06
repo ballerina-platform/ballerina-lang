@@ -4,7 +4,7 @@ public function main() {
     io:println("Iterating over a string array:-");
     string[] fruits = ["apple", "banana", "cherry"];
 
-    // Foreach statement can be used to iterate over an array. Each iteration will return an element in the array. Note
+    // Foreach statement can be used to iterate over an array. Each iteration returns an element in the array. Note
     // that the index of the corresponding element is not returned.
     foreach var v in fruits {
         io:println("fruit: " + v);
