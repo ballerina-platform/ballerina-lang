@@ -29,6 +29,7 @@ import org.ballerinalang.model.types.BStringType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -529,7 +530,8 @@ public class MapStampInbuiltFunctionTest {
         BValue error = results[0];
 
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BError) error).getReason(), "incompatible stamp operation: 'map<string>' value " +
-                "cannot be stamped as 'EmployeeClosedRecord'");
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).details).get("message").stringValue(),
+                            "incompatible stamp operation: 'map<string>' value cannot be stamped as " +
+                                    "'EmployeeClosedRecord'");
     }
 }

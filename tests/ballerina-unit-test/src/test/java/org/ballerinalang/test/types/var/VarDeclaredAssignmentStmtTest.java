@@ -215,8 +215,8 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(((BError) returns[0]).reason, "incompatible stamp operation: 'json' " +
-                "value cannot be stamped as 'Person'");
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
+                            "incompatible stamp operation: 'json' value cannot be stamped as 'Person'");
     }
 
     @Test(description = "Test incompatible json to struct with errors.")
@@ -227,8 +227,8 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(((BError) returns[0]).reason, "incompatible stamp operation: 'json' " +
-                "value cannot be stamped as 'PersonA'");
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
+                            "incompatible stamp operation: 'json' value cannot be stamped as 'PersonA'");
     }
 
     @Test(description = "Test compatible struct with force casting.")
@@ -251,7 +251,8 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(((BError) returns[0]).reason, "assertion error: expected 'A', found 'B'");
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
+                            "assertion error: expected 'A', found 'B'");
     }
 
     @Test(description = "Test any to string with errors.")
@@ -269,7 +270,8 @@ public class VarDeclaredAssignmentStmtTest {
 
         Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(((BError) returns[0]).reason, "assertion error: expected 'string', found '()'");
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
+                            "assertion error: expected 'string', found '()'");
     }
 
     @Test(description = "Test any to boolean with errors.")
@@ -289,7 +291,8 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(((BError) returns[0]).reason, "assertion error: expected 'boolean', found '()'");
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
+                            "assertion error: expected 'boolean', found '()'");
     }
 
     @Test(description = "Test any to int with errors.")
@@ -299,7 +302,8 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(((BError) returns[0]).reason, "assertion error: expected 'int', found 'string'");
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
+                            "assertion error: expected 'int', found 'string'");
     }
 
     @Test(description = "Test any null to int with errors.")
@@ -309,7 +313,8 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(((BError) returns[0]).reason, "assertion error: expected 'int', found '()'");
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
+                            "assertion error: expected 'int', found '()'");
     }
 
     @Test(description = "Test any to float with errors.")
@@ -319,7 +324,8 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(((BError) returns[0]).reason, "assertion error: expected 'float', found 'string'");
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
+                            "assertion error: expected 'float', found 'string'");
     }
 
     @Test(description = "Test any null to float with errors.")
@@ -329,7 +335,8 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(((BError) returns[0]).reason, "assertion error: expected 'float', found '()'");
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
+                            "assertion error: expected 'float', found '()'");
     }
 
     @Test(description = "Test any to map with errors.")
@@ -339,7 +346,8 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(((BError) returns[0]).reason, "assertion error: expected 'map', found 'string'");
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
+                            "assertion error: expected 'map', found 'string'");
     }
 
 }

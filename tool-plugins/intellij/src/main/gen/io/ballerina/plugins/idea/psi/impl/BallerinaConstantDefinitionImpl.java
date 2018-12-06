@@ -42,9 +42,9 @@ public class BallerinaConstantDefinitionImpl extends BallerinaCompositeElementIm
   }
 
   @Override
-  @Nullable
+  @NotNull
   public BallerinaExpression getExpression() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaExpression.class);
+    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaExpression.class));
   }
 
   @Override
@@ -54,9 +54,9 @@ public class BallerinaConstantDefinitionImpl extends BallerinaCompositeElementIm
   }
 
   @Override
-  @Nullable
+  @NotNull
   public PsiElement getAssign() {
-    return findChildByType(ASSIGN);
+    return notNullChild(findChildByType(ASSIGN));
   }
 
   @Override
@@ -72,15 +72,15 @@ public class BallerinaConstantDefinitionImpl extends BallerinaCompositeElementIm
   }
 
   @Override
-  @Nullable
+  @NotNull
   public PsiElement getSemicolon() {
-    return findChildByType(SEMICOLON);
+    return notNullChild(findChildByType(SEMICOLON));
   }
 
   @Override
-  @Nullable
+  @NotNull
   public PsiElement getIdentifier() {
-    return findChildByType(IDENTIFIER);
+    return notNullChild(findChildByType(IDENTIFIER));
   }
 
 }

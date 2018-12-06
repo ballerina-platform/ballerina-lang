@@ -34,18 +34,37 @@ module.exports = {
             },
             {
                 use: ExtractDefaultThemeCSS.extract({
-                    use: ['css-loader', 'less-loader']
+                    use: [
+                        {
+                            loader: 'css-loader', options: {
+                            sourceMap: true
+                            }
+                        },
+                        {
+                            loader: 'less-loader', options: {
+                            sourceMap: true
+                            }
+                        }
+                    ]
                 }),
                 test: /(themes).default.*\.less$/,
             },
             {
                 exclude: /(themes).*\.less/,
                 test: /\.less$/,
-                use: ['style-loader', 'css-loader', 'less-loader']
-            },
-            {
-                test: /\.scss$/,
-                use: ['style-loader', 'css-loader', 'sass-loader']
+                use: [
+                        'style-loader', 
+                        {
+                            loader: 'css-loader', options: {
+                            sourceMap: true
+                            }
+                        },
+                        {
+                            loader: 'less-loader', options: {
+                            sourceMap: true
+                            }
+                        }
+                    ]
             },
             {
                 test: /\.(png|jpg|svg|cur|gif|eot|svg|ttf|woff|woff2)$/,
