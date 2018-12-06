@@ -21,7 +21,7 @@ public function main() {
 
     io:println("\nIterating over a json object:-");
     json apple = { name: "apple", colors: ["red", "green"], price: 5 };
-    map<anydata> mapValue = <map<anydata>> map<anydata>.convert(apple);
+    map<json> mapValue = <map<json>> map<json>.convert(apple);
     // Iterating over a JSON is not supported. To iterate over a JSON, first convert the JSON to a map and then iterate
     // over the newly created map.
     foreach var (i, j) in mapValue {
@@ -29,7 +29,7 @@ public function main() {
             io:println("string value: ", j);
         } else if (j is int) {
             io:println("int value: ", j);
-        } else if (j is anydata[]) {
+        } else if (j is json[]) {
             io:println("json array value: ", j);
         } else {
             // JSON is a union type for () or null | int | float | decimal | string | json[] | map<json>,
