@@ -7,6 +7,7 @@ export enum DiagramMode { ACTION, DEFAULT }
 
 export interface IDiagramContext {
     ast: ASTNode | undefined;
+    hasSyntaxErrors: boolean;
     changeMode: (newMode: DiagramMode) => void;
     editingEnabled: boolean;
     mode: DiagramMode;
@@ -31,6 +32,7 @@ const defaultDiagramContext: IDiagramContext = {
     diagramHeight: DefaultConfig.canvas.height,
     diagramWidth: DefaultConfig.canvas.width,
     editingEnabled: false,
+    hasSyntaxErrors: false,
     mode: DiagramMode.ACTION,
     toggleEditing: () => {
         // do nothing
