@@ -79,8 +79,9 @@ public enum Snippet {
     KW_TYPE(SnippetGenerator.getTypeKeywordSnippet()),
 
     KW_VAR(SnippetGenerator.getVarKeywordSnippet()),
-    
-    
+
+    KW_LISTENER(SnippetGenerator.getListenerKeywordSnippet()),
+
     // Statement Snippets
     STMT_ABORT(SnippetGenerator.getAbortSnippet()),
 
