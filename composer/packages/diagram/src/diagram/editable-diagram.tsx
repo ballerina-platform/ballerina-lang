@@ -17,6 +17,7 @@ export interface EdiatableDiagramProps extends CommonDiagramProps {
 
 export interface EditableDiagramState {
     ast?: CompilationUnit;
+    docUri: string;
     editingEnabled: boolean;
     error?: Error;
     width?: number;
@@ -30,6 +31,7 @@ export class EditableDiagram extends React.Component<EdiatableDiagramProps, Edit
 
     public state: EditableDiagramState = {
         ast: undefined,
+        docUri: this.props.docUri,
         editingEnabled: false,
         height: this.props.height,
         width: this.props.width
@@ -100,11 +102,11 @@ export class EditableDiagram extends React.Component<EdiatableDiagramProps, Edit
         }
         const disposable = ASTUtil.onTreeModified((tree) => {
             this.forceUpdate();
-            const { langClient, docUri } = this.props;
+            const { langClient } = this.props;
             langClient.astDidChange({
                 ast: tree as BallerinaAST,
                 textDocumentIdentifier: {
-                    uri: docUri
+                    uri: this.state.docUri
                 },
             });
         });
@@ -117,7 +119,7 @@ export class EditableDiagram extends React.Component<EdiatableDiagramProps, Edit
         });
     }
 
-    public updateAST(uri: string = this.props.docUri) {
+    public updateAST(uri: string = this.state.docUri) {
         // invoke the parser and get the AST
         this.props.langClient.getAST({
             documentIdentifier: {
@@ -127,22 +129,27 @@ export class EditableDiagram extends React.Component<EdiatableDiagramProps, Edit
             if (resp.ast) {
                 this.setState({
                     ast: resp.ast as CompilationUnit,
+                    docUri: uri,
                     error: undefined
                 });
             } else {
                 this.setState({
+                    docUri: uri,
                     error: new Error("Unable to parse " + this.props.docUri)
                 });
             }
         }, (error) => {
-           this.setState({ error });
+            this.setState({
+                docUri: uri,
+                error
+            });
         });
     }
 
     private createContext(): IDiagramContext {
         // create context contributions for the children
         const contextContributions: Partial<IDiagramContext> = {
-            docUri: this.props.docUri,
+            docUri: this.state.docUri,
             editingEnabled: this.state.editingEnabled,
             langClient: this.props.langClient,
             toggleEditing: () => {
