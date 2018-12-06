@@ -18,7 +18,8 @@ function assertTypes(anydata emp) {
 
     // This will panic since emp is inherently an Employee. `trap` is used to handle the error.
     Person|error person = trap <Person>emp;
-    io:println("Type asserted person name or error: ", (person is Person) ? person.name : person.reason());
+    io:println("Type asserted person name or error: ",
+                    (person is Person) ? person.name : person.reason());
 }
 
 public function main() {

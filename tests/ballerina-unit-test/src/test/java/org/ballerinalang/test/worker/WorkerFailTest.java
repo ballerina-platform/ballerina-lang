@@ -91,6 +91,15 @@ public class WorkerFailTest {
     }
 
     @Test
+    public void invalidReciveWithErrorReturnTest() {
+        CompileResult result =
+                BCompileUtil.compile("test-src/workers/invalid-receive-with-error-return.bal");
+        String message = Arrays.toString(result.getDiagnostics());
+        Assert.assertEquals(result.getErrorCount(), 1, message);
+        Assert.assertTrue(message.contains("incompatible types"), message);
+    }
+
+    @Test
     public void invalidSendWithErrorCheckTest() {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-send-with-error-check.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
@@ -120,6 +129,14 @@ public class WorkerFailTest {
         String message = Arrays.toString(result.getDiagnostics());
         Assert.assertEquals(result.getErrorCount(), 1, message);
         Assert.assertTrue(message.contains("invalid worker receive statement position"), message);
+    }
+
+    @Test
+    public void invalidActionsInFork() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-actions-in-fork.bal");
+        Assert.assertEquals(result.getErrorCount(), 2);
+        BAssertUtil.validateError(result, 0, "undefined worker 'w3'", 5, 13);
+        BAssertUtil.validateError(result, 1, "undefined worker 'w1'", 8, 29);
     }
 
 }

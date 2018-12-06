@@ -289,24 +289,24 @@ public class NativeConversionTest {
 
     @Test(description = "Test converting a incompatible JSON to a struct",
           expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*error: incompatible stamp operation: 'json' value cannot be stamped as"
-                  + " 'Person.*")
+          expectedExceptionsMessageRegExp = "error: \\{ballerina\\}StampError \\{\"message\":\"incompatible stamp " +
+                  "operation: 'json' value cannot be stamped as 'Person'\"\\}.*")
     public void testJsonToStructWithMissingRequiredFields() {
         BRunUtil.invoke(compileResult, "testJsonToStructWithMissingRequiredFields");
     }
 
     @Test(description = "Test converting a JSON with incompatible inner map to a struct",
           expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*error: incompatible stamp operation: 'json' value cannot be stamped as"
-                  + " 'Person.*")
+          expectedExceptionsMessageRegExp = "error: \\{ballerina\\}StampError \\{\"message\":\"incompatible stamp " +
+                  "operation: 'json' value cannot be stamped as 'Person'\"\\}.*")
     public void testJsonWithIncompatibleMapToStruct() {
         BRunUtil.invoke(compileResult, "testJsonWithIncompatibleMapToStruct");
     }
 
     @Test(description = "Test converting a JSON with incompatible inner struct to a struct",
           expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*error: incompatible stamp operation: 'json' value cannot be stamped as"
-                  + " 'Person.*")
+          expectedExceptionsMessageRegExp = "error: \\{ballerina\\}StampError \\{\"message\":\"incompatible stamp " +
+                  "operation: 'json' value cannot be stamped as 'Person'\"\\}.*")
     public void testJsonWithIncompatibleStructToStruct() {
         BRunUtil.invoke(compileResult, "testJsonWithIncompatibleStructToStruct");
     }
@@ -401,7 +401,8 @@ public class NativeConversionTest {
 
     @Test(description = "Test converting a JSON integer array to string array",
             expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: cannot stamp 'null' value to type 'StringArray'.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}StampError \\{\"message\":\"cannot stamp 'null' " +
+                    "value to type 'StringArray'\"\\}.*")
     public void testNullJsonToArray() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testNullJsonToArray");
         Assert.assertNull(returns[0]);
@@ -409,8 +410,8 @@ public class NativeConversionTest {
 
     @Test(description = "Test converting a JSON null to string array",
           expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".* incompatible stamp operation: 'json' value cannot be stamped as " 
-                  + "'StringArray'.*")
+          expectedExceptionsMessageRegExp = "error: \\{ballerina\\}StampError \\{\"message\":\"incompatible stamp " +
+                  "operation: 'json' value cannot be stamped as 'StringArray'\"\\}.*")
     public void testNullJsonArrayToArray() {
         BRunUtil.invoke(compileResult, "testNullJsonArrayToArray");
     }
@@ -425,7 +426,8 @@ public class NativeConversionTest {
 
     @Test(description = "Test converting a null JSON to struct",
           expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = "error: cannot stamp 'null' value to type 'Person'.*")
+          expectedExceptionsMessageRegExp = "error: \\{ballerina\\}StampError \\{\"message\":\"cannot stamp 'null' " +
+                  "value to type 'Person'\"\\}.*")
     public void testNullJsonToStruct() {
         BRunUtil.invoke(compileResult, "testNullJsonToStruct");
     }
@@ -472,17 +474,12 @@ public class NativeConversionTest {
         Assert.assertEquals(returns[0].stringValue(), "{\"names\":[\"John\", \"Doe\"]}");
     }
 
-    @Test(enabled = false)
-    public void testEmptyJSONtoStructWithDefaults() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testEmptyJSONtoStructWithDefaults");
+    @Test
+    public void testEmptyJSONtoStructWithOptionals() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testEmptyJSONtoStructWithOptionals");
         Assert.assertTrue(returns[0] instanceof BMap);
         BMap<String, BValue> bValue = (BMap<String, BValue>) returns[0];
-        Assert.assertEquals(bValue.get("s").stringValue(), "string value");
-        Assert.assertEquals(((BInteger) bValue.get("a")).intValue(), 45);
-        Assert.assertEquals(((BFloat) bValue.get("f")).floatValue(), 5.3);
-        Assert.assertTrue(((BBoolean) bValue.get("b")).booleanValue());
-        Assert.assertNull(bValue.get("j"));
-        Assert.assertNull(bValue.get("blb"));
+        Assert.assertEquals(bValue.size(), 0);
     }
 
     @Test
@@ -684,5 +681,12 @@ public class NativeConversionTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testRecordToJsonWithIsJson");
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testConvertWithFuncCall() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConvertWithFuncCall");
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
     }
 }

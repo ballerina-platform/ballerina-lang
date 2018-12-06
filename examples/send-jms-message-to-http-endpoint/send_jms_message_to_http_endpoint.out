@@ -3,8 +3,8 @@
 # Start Ballerina message broker by executing either the `broker` or the `broker.bat` command.
 $ ./broker
 
-# Navigate to the directory that contains the
-#`.bal` file and run the `ballerina run` command. 
+# To start the service, navigate to the directory that contains the
+# `.bal` file and use the `ballerina run` command.
 $ ballerina run send_jms_message_to_http_endpoint.bal
 Initiating service(s) in 'send_jms_message_to_http_endpoint.bal'
 2018-06-14 15:43:04,283 INFO  [ballerina/jms] - Message receiver created for queue MyQueue

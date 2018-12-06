@@ -64,7 +64,8 @@ public function main() {
 }
 
 function getPerson() returns Person {
-    Person person = { name: "Peter", age: 28, country: "Sri Lanka", occupation: "Software Engineer" };
+    Person person = { name: "Peter", age: 28, country: "Sri Lanka",
+                      occupation: "Software Engineer" };
     return person;
 }
 
