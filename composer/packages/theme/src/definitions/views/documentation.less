@@ -4,13 +4,12 @@
 .documentation(@color) {
     background: ~"@{@{color}-documentation-background-color}";
     color: ~"@{@{color}-documentation-base-text-color}";
-    margin: 15px 0;
 
     .documentation-container {
-        padding: 15px;
+        padding: 15px 30px;
 
         .documentation-block {
-            margin-bottom: 15px;
+            margin-bottom: 35px;
 
             .title {
                 font-size: @documentation-title-font-size;
@@ -20,7 +19,8 @@
                     margin-right: 5px;
                 }
         
-                .object-type {
+                .object-type,
+                .service-type {
                     font-size: 17px;
                     font-style: italic;
                     margin-left: 10px;
