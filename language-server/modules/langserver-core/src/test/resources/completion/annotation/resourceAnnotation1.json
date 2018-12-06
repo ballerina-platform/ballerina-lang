@@ -15,12 +15,12 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             }
           },
           "newText":"import ballerina/swagger;\n"
@@ -37,12 +37,12 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             }
           },
           "newText":"import ballerina/swagger;\n"
@@ -59,12 +59,12 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             }
           },
           "newText":"import ballerina/grpc;\n"
@@ -81,12 +81,12 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             }
           },
           "newText":"import ballerina/transactions;\n"

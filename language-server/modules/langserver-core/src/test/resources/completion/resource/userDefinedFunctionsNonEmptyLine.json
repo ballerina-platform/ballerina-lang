@@ -242,12 +242,12 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             }
           },
           "newText":"import ballerina/transactions;\n"
@@ -264,12 +264,12 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             }
           },
           "newText":"import ballerina/websub;\n"
@@ -286,12 +286,12 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             }
           },
           "newText":"import ballerina/grpc;\n"
@@ -308,12 +308,12 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             }
           },
           "newText":"import ballerina/reflect;\n"
@@ -330,12 +330,12 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             }
           },
           "newText":"import ballerina/log;\n"
@@ -352,12 +352,12 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             }
           },
           "newText":"import ballerina/time;\n"
@@ -374,12 +374,12 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             }
           },
           "newText":"import ballerina/test;\n"
@@ -396,12 +396,12 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             }
           },
           "newText":"import ballerina/runtime;\n"
@@ -418,12 +418,12 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             }
           },
           "newText":"import ballerina/swagger;\n"
@@ -440,12 +440,12 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             }
           },
           "newText":"import ballerina/file;\n"
@@ -462,12 +462,12 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             }
           },
           "newText":"import ballerina/sql;\n"
@@ -484,12 +484,12 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             }
           },
           "newText":"import ballerina/internal;\n"
@@ -506,12 +506,12 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             }
           },
           "newText":"import ballerina/mysql;\n"
@@ -528,12 +528,12 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             }
           },
           "newText":"import ballerina/mime;\n"
@@ -550,12 +550,12 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             }
           },
           "newText":"import ballerina/task;\n"
@@ -572,12 +572,12 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             }
           },
           "newText":"import ballerina/crypto;\n"
@@ -594,12 +594,12 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             }
           },
           "newText":"import ballerina/io;\n"
@@ -616,12 +616,12 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             }
           },
           "newText":"import ballerina/cache;\n"
@@ -638,12 +638,12 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             }
           },
           "newText":"import ballerina/auth;\n"
@@ -660,12 +660,12 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             }
           },
           "newText":"import ballerina/jms;\n"
@@ -682,12 +682,12 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             }
           },
           "newText":"import ballerina/system;\n"
@@ -704,12 +704,12 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             }
           },
           "newText":"import ballerina/h2;\n"
@@ -733,12 +733,12 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             }
           },
           "newText":"import ballerina/math;\n"
@@ -755,12 +755,12 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":23
+              "line":1,
+              "character":0
             }
           },
           "newText":"import ballerina/config;\n"
