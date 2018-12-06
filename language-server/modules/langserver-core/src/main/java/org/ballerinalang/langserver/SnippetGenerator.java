@@ -589,12 +589,12 @@ public class SnippetGenerator {
     }
 
     /**
-     * Get create Builtin Function Snippet Block.
+     * Get convert Builtin Function Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
-    public static SnippetBlock getBuiltinCreateSnippet() {
-        return new SnippetBlock(ItemResolverConstants.BUILTIN_CREATE_LABEL, "create(${1});", "", SnippetType.SNIPPET);
+    public static SnippetBlock getBuiltinConvertSnippet() {
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_CONVERT_LABEL, "convert(${1});", "", SnippetType.SNIPPET);
     }
 
     /**
