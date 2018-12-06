@@ -24,4 +24,8 @@ function blockLevelNodes() {
     foreach var item in itemList {
         
     }
+    http:Client endpointName = new();
+    worker workerName {
+        
+    }
 }

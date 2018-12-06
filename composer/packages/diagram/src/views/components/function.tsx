@@ -1,10 +1,11 @@
 import {
-    ASTUtil, Function as FunctionNode, Lambda, Variable,
-    VariableDef, VisibleEndpoint
+    ASTUtil, Function as FunctionNode, Lambda,
+    Variable, VariableDef, VisibleEndpoint
 } from "@ballerina/ast-model";
 import * as React from "react";
 import { DiagramConfig } from "../../config/default";
 import { DiagramUtils } from "../../diagram/diagram-utils";
+import { DiagramContext, IDiagramContext } from "../../diagram/index";
 import { FunctionViewState } from "../../view-model/index";
 import { WorkerViewState } from "../../view-model/worker";
 import { AddWorkerOrEndpointMenu } from "./add-worker-or-endpoint-menu";
@@ -15,7 +16,7 @@ import { StartInvocation } from "./start-invocation";
 
 const config: DiagramConfig = DiagramUtils.getConfig();
 
-export const Function = (props: { model: FunctionNode }) => {
+export const Function = (props: { model: FunctionNode }, context: IDiagramContext) => {
     const { model } = props;
     const viewState: FunctionViewState = model.viewState;
     if (model.lambda || model.body === undefined) {return <g/>; }
@@ -48,16 +49,25 @@ export const Function = (props: { model: FunctionNode }) => {
                                 model={element.viewState.bBox} astModel={element} />;
                 })
             }
-            <AddWorkerOrEndpointMenu
-                triggerPosition={viewState.menuTrigger}
-                onAddEndpoint={(epDef: any) => {
-                    // todo
-                    // tslint:disable-next-line:no-console
-                    console.log("Selected EP: " + JSON.stringify(epDef));
-                }}
-                onAddWorker={() => {
-                    // todo
-                }}
-            />
+            <DiagramContext.Consumer>
+                {({ ast }) => (
+                    <AddWorkerOrEndpointMenu
+                    triggerPosition={viewState.menuTrigger}
+                    onAddEndpoint={(epDef: any) => {
+                        // todo
+                        // tslint:disable-next-line:no-console
+                        console.log("Selected EP: " + JSON.stringify(epDef));
+                        if (model.body && ast) {
+                            ASTUtil.addEndpointToBlock(model.body, ast);
+                        }
+                    }}
+                    onAddWorker={() => {
+                        if (model.body && ast) {
+                            ASTUtil.addWorkerToBlock(model.body, ast);
+                        }
+                    }}
+                />
+                )}
+            </DiagramContext.Consumer>
         </Panel>);
 };

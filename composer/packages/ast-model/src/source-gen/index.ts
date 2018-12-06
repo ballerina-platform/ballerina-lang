@@ -1,7 +1,7 @@
 import { ASTNode, Block } from "../ast-interfaces";
 import { Visitor } from "../base-visitor";
 import { ASTKindChecker } from "../check-kind-util";
-import { createForeachNode, createIfNode, createWhileNode } from "../default-nodes";
+import * as defaults from "../default-nodes";
 import { emitTreeModified } from "../events";
 import { traversNode } from "../model-utils";
 
@@ -124,7 +124,7 @@ export function attachNode(
 }
 
 export function addIfToBlock(block: Block, ast: ASTNode, insertAt?: number) {
-    const ifNode = createIfNode();
+    const ifNode = defaults.createIfNode();
     if (insertAt === undefined) {
         insertAt = block.statements.length;
     }
@@ -132,7 +132,7 @@ export function addIfToBlock(block: Block, ast: ASTNode, insertAt?: number) {
 }
 
 export function addWhileToBlock(block: Block, ast: ASTNode, insertAt?: number) {
-    const whileNode = createWhileNode();
+    const whileNode = defaults.createWhileNode();
     if (insertAt === undefined) {
         insertAt = block.statements.length;
     }
@@ -140,9 +140,25 @@ export function addWhileToBlock(block: Block, ast: ASTNode, insertAt?: number) {
 }
 
 export function addForeachToBlock(block: Block, ast: ASTNode, insertAt?: number) {
-    const foreachNode = createForeachNode();
+    const foreachNode = defaults.createForeachNode();
     if (insertAt === undefined) {
         insertAt = block.statements.length;
     }
     attachNode(foreachNode, ast, block, "statements", insertAt);
+}
+
+export function addEndpointToBlock(block: Block, ast: ASTNode, insertAt?: number) {
+    const endpointNode = defaults.createEndpointNode();
+    if (insertAt === undefined) {
+        insertAt = block.statements.length;
+    }
+    attachNode(endpointNode, ast, block, "statements", insertAt);
+}
+
+export function addWorkerToBlock(block: Block, ast: ASTNode, insertAt?: number) {
+    const workerNode = defaults.createWorkerNode();
+    if (insertAt === undefined) {
+        insertAt = block.statements.length;
+    }
+    attachNode(workerNode, ast, block, "statements", insertAt);
 }
