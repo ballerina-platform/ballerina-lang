@@ -23,14 +23,16 @@ export const Function = (props: { model: FunctionNode }) => {
         <Panel model={viewState} title={model.name.value} icon={viewState.icon}>
             {!model.resource &&
                 <LifeLine title="Client" icon="client" model={viewState.client.bBox} />}
-            <LifeLine title="Default" icon="worker" model={viewState.defaultWorker.lifeline.bBox} />
+            <LifeLine title="Default" icon="worker" model={viewState.defaultWorker.lifeline.bBox}
+                astModel={model} />
             {model.body!.statements.filter((statement) => ASTUtil.isWorker(statement)).map((worker) => {
                 const workerViewState: WorkerViewState = worker.viewState;
                 const variable: Variable = ((worker as VariableDef).variable as Variable);
                 const lambda: Lambda = (variable.initialExpression as Lambda);
                 const functionNode = lambda.functionNode;
                 return <g>
-                    <LifeLine title={workerViewState.name} icon="worker" model={workerViewState.lifeline.bBox} />
+                    <LifeLine title={workerViewState.name} icon="worker"
+                        model={workerViewState.lifeline.bBox} astModel={worker} />
                     {functionNode.body && <Block model={functionNode.body} />}
                 </g>;
             })}
@@ -40,7 +42,8 @@ export const Function = (props: { model: FunctionNode }) => {
             {model.VisibleEndpoints && model.VisibleEndpoints
                 .filter((element) => element.viewState.visible)
                 .map((element: VisibleEndpoint) => {
-                    return <LifeLine title={element.name} icon="endpoint" model={element.viewState.bBox} />;
+                    return <LifeLine title={element.name} icon="endpoint"
+                                model={element.viewState.bBox} astModel={element} />;
                 })
             }
             <AddWorkerOrEndpointMenu
