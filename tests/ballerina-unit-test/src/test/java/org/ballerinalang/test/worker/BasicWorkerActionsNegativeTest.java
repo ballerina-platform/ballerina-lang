@@ -51,24 +51,24 @@ public class BasicWorkerActionsNegativeTest {
                 "no worker send statements to 'w4' from 'w1'", 46, 17);
         index++;
         BAssertUtil.validateError(result, index, "variable assignment is required",
-                                  56, 9);
+                                  61, 9);
         index++;
         BAssertUtil.validateError(result, index, "invalid worker flush expression for 'w1', there are no " +
-                "worker send statements to 'w1' from 'w3'", 56, 9);
+                "worker send statements to 'w1' from 'w3'", 61, 9);
         index++;
         BAssertUtil.validateError(result, index, "invalid worker send statement position, must be a top " +
-                "level statement in a worker", 69, 13);
+                "level statement in a worker", 74, 13);
         index++;
         BAssertUtil.validateError(result, index, "action invocation as an expression not allowed here",
-                                  73, 15);
+                                  78, 15);
         index++;
         BAssertUtil.validateError(result, index, "invalid worker receive statement position, must be a " +
-                "top level statement in a worker", 76, 19);
+                "top level statement in a worker", 81, 19);
         index++;
         BAssertUtil.validateError(result, index, "invalid worker flush expression for 'w2', there are no " +
-                "worker send statements to 'w2' from 'w1'", 86, 22);
+                "worker send statements to 'w2' from 'w1'", 91, 22);
         index++;
         BAssertUtil.validateError(result, index, "invalid usage of receive expression, var not allowed",
-                                  102, 21);
+                                  112, 21);
     }
 }

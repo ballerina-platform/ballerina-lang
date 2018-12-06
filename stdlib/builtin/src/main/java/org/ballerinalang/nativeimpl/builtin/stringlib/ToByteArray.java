@@ -24,6 +24,7 @@ import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.UnsupportedEncodingException;
@@ -49,7 +50,8 @@ public class ToByteArray extends BlockingNativeCallableUnit {
             BValueArray byteArray = new BValueArray(bytes);
             ctx.setReturnValues(byteArray);
         } catch (UnsupportedEncodingException e) {
-            throw new BallerinaException("Unsupported Encoding", e);
+            throw new BallerinaException(BallerinaErrorReasons.STRING_OPERATION_ERROR,
+                                         "Unsupported Encoding " + e.getMessage());
         }
     }
 }

@@ -307,7 +307,8 @@ public class XMLLiteralTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = "error: start and end tag names mismatch: 'foo' and 'bar'.*")
+          expectedExceptionsMessageRegExp = "error: \\{ballerina\\}XMLCreationError \\{\"message\":\"start and end " +
+                  "tag names mismatch: 'foo' and 'bar'\"\\}.*")
     public void testMismatchTagNameVar() {
         BRunUtil.invoke(result, "testMismatchTagNameVar");
     }
@@ -392,14 +393,15 @@ public class XMLLiteralTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = "error: invalid xml qualified name: unsupported characters in '11'.*")
+          expectedExceptionsMessageRegExp = "error: \\{ballerina\\}XMLCreationError \\{\"message\":\"invalid xml " +
+                  "qualified name: unsupported characters in '11'\"\\}.*")
     public void testInvalidElementName_1() {
         BRunUtil.invoke(result, "testInvalidElementName_1");
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = "error: invalid xml qualified name: unsupported characters in 'foo&gt;" +
-                  "bar'.*")
+          expectedExceptionsMessageRegExp = "error: \\{ballerina\\}XMLCreationError \\{\"message\":\"invalid xml " +
+                  "qualified name: unsupported characters in 'foo&gt;bar'\"\\}.*")
     public void testInvalidElementName_2() {
         BRunUtil.invoke(result, "testInvalidElementName_2");
     }

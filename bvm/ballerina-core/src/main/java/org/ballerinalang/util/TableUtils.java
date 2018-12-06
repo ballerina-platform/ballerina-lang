@@ -33,6 +33,7 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.ByteArrayInputStream;
@@ -47,7 +48,6 @@ import java.util.Collection;
  * @since 0.970.0
  */
 public class TableUtils {
-    private static final String TABLE_OPERATION_ERROR = "TableError";
     private static final String DEFAULT_ERROR_DETAIL_MESSAGE = "Error occurred during table manipulation";
 
     public static String generateInsertDataStatment(String tableName, BMap<?, ?> constrainedType) {
@@ -181,6 +181,7 @@ public class TableUtils {
         String detail = throwable.getMessage() != null ? throwable.getMessage() : DEFAULT_ERROR_DETAIL_MESSAGE;
         BMap<String, BValue> tableErrorDetail = new BMap<>();
         tableErrorDetail.put("message", new BString(detail));
-        return BLangVMErrors.createError(context, true, BTypes.typeError, TABLE_OPERATION_ERROR, tableErrorDetail);
+        return BLangVMErrors.createError(context, true, BTypes.typeError,
+                                         BallerinaErrorReasons.TABLE_OPERATION_ERROR, tableErrorDetail);
     }
 }

@@ -6,6 +6,7 @@ import { DiagramUtils } from "../../diagram/diagram-utils";
 import { StmntViewState } from "../../view-model";
 import { ActionInvocation } from "./action-invocation";
 import { ReturnActionInvocation } from "./return-action-invocation";
+import { SourceLinkedLabel } from "./source-linked-label";
 
 const config: DiagramConfig = DiagramUtils.getConfig();
 
@@ -18,6 +19,8 @@ export const Statement: React.StatelessComponent<{
 
         const statementProps = {
             className: "statement",
+            target: model,
+            text: viewState.bBox.label,
             x: viewState.bBox.x + config.statement.padding.left,
             y: viewState.bBox.y + (viewState.bBox.h / 2)
         };
@@ -28,6 +31,8 @@ export const Statement: React.StatelessComponent<{
                     && <ActionInvocation model={viewState} action={viewState.bBox.label} />}
                 {viewState.isAction && viewState.isReturn
                     && <ReturnActionInvocation model={viewState} action={viewState.bBox.label} />}
-                {!viewState.isAction && <text {...statementProps}>{viewState.bBox.label}</text>}
+                {!viewState.isAction &&
+                    <SourceLinkedLabel {...statementProps}  />
+                }
             </g>);
     };
