@@ -59,9 +59,9 @@
         "column": 0,
         "category": "Language concepts",
         "samples": [{
-            "name": "Function Pointers",
-            "url": "function-pointers"
-        },
+                "name": "Function Pointers",
+                "url": "function-pointers"
+            },
             {
                 "name": "Anonymous Functions",
                 "url": "anonymous-functions"
