@@ -728,8 +728,8 @@ public class NativeConversionTest {
         BMap<String, ?> map = (BMap<String, ?>) returns[0];
         Assert.assertEquals(((BByte) map.get("fromFloat")).byteValue(), 4);
         Assert.assertEquals(((BByte) map.get("fromString")).byteValue(), 10);
-        Assert.assertEquals(((BByte) map.get("fromInt")).byteValue(), 22);
-        Assert.assertEquals(((BByte) map.get("fromDecimal")).byteValue(), 23);
+        Assert.assertEquals(((BByte) map.get("fromInt")).byteValue(), 2);
+        Assert.assertEquals(((BByte) map.get("fromDecimal")).byteValue(), 3);
         Assert.assertEquals(((BByte) map.get("fromByte")).byteValue(), 5);
         Assert.assertEquals(((BByte) map.get("fromBoolean")).byteValue(), 1);
     }
