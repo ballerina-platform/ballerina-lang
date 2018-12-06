@@ -248,8 +248,8 @@ export class BallerinaDebugSession extends LoggingDebugSession {
 
             let executableArgs: Array<string> = [this._debugTests ? "test" : "run"];
             executableArgs.push('--debug');
-            executableArgs.push('--experimental');
             executableArgs.push(<string>this._debugPort);
+            executableArgs.push('--experimental');
 
             if (Array.isArray(commandOptions) && commandOptions.length) {
                 executableArgs = executableArgs.concat(commandOptions);
