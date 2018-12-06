@@ -41,6 +41,7 @@ const defaultDiagramContext: IDiagramContext = {
     zoomIn: () => {
         // do nothing
     },
+    zoomLevel: 1,
     zoomOut: () => {
         // do nothing
     },
