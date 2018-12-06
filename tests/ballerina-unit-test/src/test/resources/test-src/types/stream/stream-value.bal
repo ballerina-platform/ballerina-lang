@@ -1,5 +1,6 @@
 import ballerina/log;
 import ballerina/time;
+import ballerina/runtime;
 
 stream<Employee> globalEmployeeStream = new;
 
@@ -102,8 +103,10 @@ function testGlobalStream() returns (Employee, Employee, Employee) {
     Employee publishedEmployee = { id:5678, name:"Maryam" };
     globalEmployeeStream.publish(publishedEmployee);
     int startTime = time:currentTime().time;
+
+    //allow for value update
     while (globalEmployee.id == 0 && time:currentTime().time - startTime < 1000) {
-        //allow for value update
+        runtime:sleep(100);
     }
     return (origEmployee, publishedEmployee, globalEmployee);
 }
@@ -115,8 +118,10 @@ function testStreamPublishingAndSubscriptionForRecord() returns (Employee, Emplo
     Employee publishedEmployee = { id:1234, name:"Maryam" };
     s1.publish(publishedEmployee);
     int startTime = time:currentTime().time;
+
+    //allow for value update
     while (globalEmployee.id == 0 && time:currentTime().time - startTime < 1000) {
-        //allow for value update
+        runtime:sleep(100);
     }
     return (origEmployee, publishedEmployee, globalEmployee);
 }
@@ -135,8 +140,10 @@ function testStreamPublishingAndSubscriptionForMultipleRecordEvents() returns (E
     s1.publish(e2);
     s1.publish(e3);
     int startTime = time:currentTime().time;
+
+    //allow for value update
     while (globalEmployeeArray.length() < 3 && time:currentTime().time - startTime < 5000) {
-        //allow for value update
+        runtime:sleep(100);
     }
     return (publishedEmployees, globalEmployeeArray);
 }
@@ -152,8 +159,10 @@ function testStreamPublishingAndSubscriptionForIntegerStream() returns (int[], i
         intStream.publish(intEvent);
     }
     int startTime = time:currentTime().time;
+
+    //allow for value update
     while (globalIntegerArray.length() < publishedIntegerEvents.length() && time:currentTime().time - startTime < 5000) {
-        //allow for value update
+        runtime:sleep(100);
     }
     return (publishedIntegerEvents, globalIntegerArray);
 }
@@ -169,8 +178,10 @@ function testStreamPublishingAndSubscriptionForBooleanStream() returns (boolean[
         booleanStream.publish(booleanEvent);
     }
     int startTime = time:currentTime().time;
+
+    //allow for value update
     while (globalBooleanArray.length() < publishedBooleanEvents.length() && time:currentTime().time - startTime < 5000) {
-        //allow for value update
+        runtime:sleep(100);
     }
     return (publishedBooleanEvents, globalBooleanArray);
 }
@@ -188,8 +199,10 @@ function testStreamPublishingAndSubscriptionForUnionTypeStream() returns (any[],
         unionStream.publish(event);
     }
     int startTime = time:currentTime().time;
+
+    //allow for value update
     while (globalAnyArray.length() < publishedEvents.length() && time:currentTime().time - startTime < 5000) {
-        //allow for value update
+        runtime:sleep(100);
     }
     return (publishedEvents, globalAnyArray);
 }
@@ -205,8 +218,10 @@ function testStreamPublishingAndSubscriptionForAssignableUnionTypeStream(int int
         unionStream.publish(event);
     }
     int startTime = time:currentTime().time;
+
+    //allow for value update
     while (globalAnyArray.length() < publishedEvents.length() && time:currentTime().time - startTime < 5000) {
-        //allow for value update
+        runtime:sleep(100);
     }
     return (publishedEvents, globalAnyArray);
 }
@@ -223,14 +238,16 @@ function testStreamPublishingAndSubscriptionForTupleTypeStream() returns (any[],
         tupleStream.publish(event);
     }
     int startTime = time:currentTime().time;
+
+    //allow for value update
     while (globalAnyArray.length() < publishedEvents.length() && time:currentTime().time - startTime < 5000) {
-        //allow for value update
+        runtime:sleep(100);
     }
     return (publishedEvents, globalAnyArray);
 }
 
 function testStreamPublishingAndSubscriptionForAssignableTupleTypeStream(string s1, int i1, string s2, int i2) returns
-any[] {
+                                                                                                               any[] {
     globalAnyArray = [];
     arrayIndex = 0;
     stream<(string, int)> tupleStream = new;
@@ -240,8 +257,10 @@ any[] {
         tupleStream.publish(event);
     }
     int startTime = time:currentTime().time;
+
+    //allow for value update
     while (globalAnyArray.length() / 2 < publishedEvents.length() && time:currentTime().time - startTime < 5000) {
-        //allow for value update
+        runtime:sleep(100);
     }
     return globalAnyArray;
 }
@@ -257,8 +276,10 @@ function testStreamPublishingAndSubscriptionForAnyTypeStream() returns (any[], a
         anyStream.publish(event);
     }
     int startTime = time:currentTime().time;
+
+    //allow for value update
     while (globalAnyArray.length() < publishedEvents.length() && time:currentTime().time - startTime < 5000) {
-        //allow for value update
+        runtime:sleep(100);
     }
     return (publishedEvents, globalAnyArray);
 }
@@ -275,8 +296,10 @@ function testStreamsPublishingForStructurallyEquivalentRecords() returns (any[],
         employeeStream.publish(event);
     }
     int startTime = time:currentTime().time;
+
+    //allow for value update
     while (globalEmployeeArray.length() < publishedEvents.length() && time:currentTime().time - startTime < 5000) {
-        //allow for value update
+        runtime:sleep(100);
     }
     return (publishedEvents, globalEmployeeArray);
 }
@@ -295,8 +318,10 @@ function testStreamsPublishingForStructurallyEquivalentObjects() returns (any[],
         memberStream.publish(event);
     }
     int startTime = time:currentTime().time;
+
+    //allow for value update
     while (globalMemberArray.length() < publishedCaptains.length() && time:currentTime().time - startTime < 5000) {
-        //allow for value update
+        runtime:sleep(100);
     }
     return (publishedCaptains, globalMemberArray);
 }

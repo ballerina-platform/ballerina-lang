@@ -47,7 +47,7 @@ export class DiagramUtils {
         paddingLeft = DefaultConfig.statement.padding.left,
         paddingRight = DefaultConfig.statement.padding.right) {
         text = text.trim();
-        text = text.replace(/(\/\/.*)\w+/g, "");
+        text = text.replace(/\/\/.*$/gm, "");
         text = text.trim();
         textElement.innerHTML = _.escape(text);
 

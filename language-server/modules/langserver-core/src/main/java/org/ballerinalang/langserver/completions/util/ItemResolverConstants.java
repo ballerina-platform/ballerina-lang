@@ -87,6 +87,7 @@ public class ItemResolverConstants {
     public static final String CHECK_KEYWORD = "check";
     public static final String WAIT_KEYWORD = "wait";
     public static final String EXTERN_KEYWORD = "extern";
+    public static final String LISTENER_KEYWORD = "listener";
     public static final String TRUE_KEYWORD = "true";
     public static final String FALSE_KEYWORD = "false";
     public static final String PUBLIC_KEYWORD = "public";
@@ -112,5 +113,5 @@ public class ItemResolverConstants {
     public static final String BUILTIN_FREEZE_LABEL = "freeze()";
     public static final String BUILTIN_IS_FROZEN_LABEL = "isFrozen()";
     public static final String BUILTIN_STAMP_LABEL = "stamp(anydata a)";
-    public static final String BUILTIN_CREATE_LABEL = "create(anydata a)";
+    public static final String BUILTIN_CONVERT_LABEL = "convert(anydata a)";
 }

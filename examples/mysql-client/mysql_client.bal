@@ -40,7 +40,7 @@ public function main() {
         } else {
             io:println("Error in table to json conversion");
         }
-    } else if (selectRet is error) {
+    } else {
         io:println("Select data from student table failed: "
                 + <string>selectRet.detail().message);
     }

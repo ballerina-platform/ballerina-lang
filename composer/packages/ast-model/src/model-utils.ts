@@ -1,17 +1,20 @@
-import { ASTNode, Invocation, SimpleVariableRef, Variable, VariableDef } from "./ast-interfaces";
+import {
+    ASTNode, Invocation, ObjectType, SimpleVariableRef,
+    TypeDefinition, Variable, VariableDef
+} from "./ast-interfaces";
 import { Visitor } from "./base-visitor";
 import { ASTKindChecker } from "./check-kind-util";
 
-const metaNodes = ["viewState", "ws", "position"];
+const metaNodes = ["viewState", "ws", "position", "parent"];
 
-export function traversNode(node: ASTNode, visitor: Visitor) {
+export function traversNode(node: ASTNode, visitor: Visitor, parent?: ASTNode) {
     let beginVisitFn: any = (visitor as any)[`beginVisit${node.kind}`];
     if (!beginVisitFn) {
         beginVisitFn = visitor.beginVisitASTNode && visitor.beginVisitASTNode;
     }
 
     if (beginVisitFn) {
-        beginVisitFn.bind(visitor)(node);
+        beginVisitFn.bind(visitor)(node, parent);
     }
 
     const keys = Object.keys(node);
@@ -28,7 +31,7 @@ export function traversNode(node: ASTNode, visitor: Visitor) {
                     return;
                 }
 
-                traversNode(elementNode, visitor);
+                traversNode(elementNode, visitor, node);
             });
             return;
         }
@@ -37,7 +40,7 @@ export function traversNode(node: ASTNode, visitor: Visitor) {
             return;
         }
 
-        traversNode(childNode, visitor);
+        traversNode(childNode, visitor, node);
     });
 
     let endVisitFn: any = (visitor as any)[`endVisit${node.kind}`];
@@ -45,7 +48,7 @@ export function traversNode(node: ASTNode, visitor: Visitor) {
         endVisitFn = visitor.endVisitASTNode && visitor.endVisitASTNode;
     }
     if (endVisitFn) {
-        endVisitFn.bind(visitor)(node);
+        endVisitFn.bind(visitor)(node, parent);
     }
 }
 
@@ -78,6 +81,23 @@ export function isWorker(node: ASTNode) {
         if (ASTKindChecker.isVariable((node as VariableDef).variable)) {
             const name: string = ((node as VariableDef).variable as Variable).name.value;
             if (/^0.*/.test(name)) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+export function isValidObjectType(node: ASTNode): boolean {
+    if (ASTKindChecker.isTypeDefinition(node)) {
+        const typeDefinition = node as TypeDefinition;
+        if (ASTKindChecker.isObjectType(typeDefinition.typeNode)) {
+            const objectType = typeDefinition.typeNode as ObjectType;
+            // Check if it has nun interface functions.
+            const functions = objectType.functions.filter((element) => {
+                return !element.interface;
+            });
+            if (functions.length > 0) {
                 return true;
             }
         }

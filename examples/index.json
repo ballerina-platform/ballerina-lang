@@ -17,10 +17,6 @@
             {
                 "name": "Hello World Client",
                 "url": "hello-world-client"
-            },
-            {
-                "name": "Hello World Streams",
-                "url": "hello-world-streams"
             }
         ]
     },
@@ -58,7 +54,33 @@
             }
         ]
     },
- 	{
+    {
+        "title": "Functions",
+        "column": 0,
+        "category": "Language concepts",
+        "samples": [{
+                "name": "Function Pointers",
+                "url": "function-pointers"
+            },
+            {
+                "name": "Anonymous Functions",
+                "url": "anonymous-functions"
+            },
+            {
+                "name": "Closures",
+                "url": "closures"
+            },
+            {
+                "name": "Functional Iteration",
+                "url": "functional-iteration"
+            },
+            {
+                "name": "Functions as Entry Points",
+                "url": "functions-as-entry-points"
+            }
+        ]
+    },
+    {
         "title": "Flow Control",
         "column": 0,
         "category": "Language concepts",
@@ -96,29 +118,65 @@
             }
         ]
     },
- 	{
-        "title": "Functions",
-        "column": 0,
+    {
+        "title": "Values and Types",
+        "column": 1,
         "category": "Language concepts",
         "samples": [{
-                "name": "Function Pointers",
-                "url": "function-pointers"
+                "name": "Values",
+                "url": "values"
             },
             {
-                "name": "Anonymous Functions",
-                "url": "anonymous-functions"
+                "name": "Arrays",
+                "url": "arrays"
             },
             {
-                "name": "Closures",
-                "url": "closures"
+                "name": "Tuples",
+                "url": "tuple-type"
             },
             {
-                "name": "Functional Iteration",
-                "url": "functional-iteration"
+                "name": "Maps",
+                "url": "maps"
             },
             {
-                "name": "Functions as Entry Points",
-                "url": "functions-as-entry-points"
+                "name": "Table",
+                "url": "table"
+            },
+            {
+                "name": "Union Types",
+                "url": "union-type"
+            },
+            {
+                "name": "Byte Type",
+                "url": "byte-type"
+            },
+            {
+                "name": "Optional Type",
+                "url": "optional-type"
+            },
+            {
+                "name": "Anydata Type",
+                "url": "anydata-type"
+            },
+            {
+                "name": "Any Type",
+                "url": "any-type"
+            },
+            {
+                "name": "Constants",
+                "url": "constants"
+            },
+            {
+                "name": "Integer Ranges",
+                "url": "integer-ranges"
+            },
+            {
+                "name": "String Template Literal",
+                "url": "string-template"
+            },
+            {
+                "name": "Symbolic String Literal",
+                "url": "symbolic-string-literal"
             }
         ]
     },
@@ -126,8 +184,7 @@
         "title": "Record",
         "column": 1,
         "category": "Language concepts",
-        "samples": [
-            {
+        "samples": [{
                 "name": "Record",
                 "url": "records"
             },
@@ -141,126 +198,81 @@
             }
         ]
     },
- 	{
-        "title": "Values and Types",
+    {
+        "title": "Object",
         "column": 1,
         "category": "Language concepts",
         "samples": [{
-                "name": "Values",
-                "url": "values"
+                "name": "Object",
+                "url": "objects"
             },
             {
-                "name": "String Template Literal",
-                "url": "string-template"
+                "name": "Object Initializer",
+                "url": "object-initializer"
             },
             {
-                "name": "Symbolic String Literal",
-                "url": "symbolic-string-literal"
+                "name": "Member Functions",
+                "url": "object-member-functions"
             },
             {
-                "name": "Arrays",
-                "url": "arrays"
+                "name": "Object Assignability",
+                "url": "object-assignability"
             },
             {
-                "name": "Record",
-                "url": "records"
+                "name": "Abstract Objects",
+                "url": "abstract-objects"
             },
             {
-                "name": "Maps",
-                "url": "maps"
-            },
-            {
-                "name": "Table",
-                "url": "table"
-            },
-            {
-                "name": "Table Queries",
-                "url": "table-queries"
-            },
-            {
-                "name": "Union Types",
-                "url": "union-type"
-            },
-            {
-                "name": "Optional Type",
-                "url": "optional-type"
-            },
-            {
-                "name": "Nil Lifting",
-                "url": "nil-lifting"
-            },
-            {
-                "name": "Tuples",
-                "url": "tuple-type"
-            },
-            {
-                "name": "Any Type",
-                "url": "any-type"
-            },
-            {
-                "name": "Any Data Type",
-                "url": "any-data-type"
-            },
-            {
-                "name": "Explicitly Typed Expressions",
-                "url": "explicitly_typed_expressions"
-            },
-            {
-                "name": "Type Assertion",
-                "url": "type-assertion"
-            },
-            {
-                "name": "Type Conversion",
-                "url": "type-conversion"
+                "name": "Object Type Reference",
+                "url": "object-type-reference"
+            }
+        ]
+    },
+    {
+        "title": "Value/Type Operations",
+        "column": 1,
+        "category": "Language concepts",
+        "samples": [{
+                "name": "Equality",
+                "url": "equality"
             },
             {
                 "name": "Length",
                 "url": "length"
             },
             {
-                "name": "Integer Ranges",
-                "url": "integer-ranges"
+                "name": "Type Conversion",
+                "url": "type-conversion"
             },
             {
-                "name": "Equality",
-                "url": "equality"
+                "name": "Explicitly Typed Expressions",
+                "url": "explicitly-typed-expressions"
+            },
+            {
+                "name": "Type Assertion",
+                "url": "type-assertion"
+            },
+            {
+                "name": "Nil Lifting",
+                "url": "nil-lifting"
             },
             {
                 "name": "Immutable Values",
                 "url": "immutable-values"
             },
             {
-                "name": "Constants",
-                "url": "constants"
+                "name": "Cloning Values",
+                "url": "clone"
+            },
+            {
+                "name": "Stamping Values",
+                "url": "stamp"
             }
         ]
     },
     {
-        "title": "Binding Patterns",
-        "column": 1,
-        "category": "Language concepts",
-        "samples": [
-            {
-                "name": "Tuple Type Binding Pattern",
-                "url": "tuple-type-binding-pattern"
-            },
-            {
-                "name": "Record Type Binding Pattern",
-                "url": "record-type-binding-pattern"
-            },
-            {
-                "name": "Tuple Destructure Binding Pattern",
-                "url": "tuple-destructure-binding-pattern"
-            },
-            {
-                "name": "Record Destructure Binding Pattern",
-                "url": "record-destructure-binding-pattern"
-            }
-        ]
-    },
- 	{
         "title": "JSON / XML",
-        "column": 1,
+        "column": 2,
         "category": "Language concepts",
         "samples": [{
                 "name": "JSON",
@@ -273,6 +285,10 @@
             {
                 "name": "Constrained JSON",
                 "url": "constrained-json"
+            },
+            {
+                "name": "JSON/Record/Map Conversion",
+                "url": "json-record-map-conversion"
             },
             {
                 "name": "XML",
@@ -295,42 +311,60 @@
                 "url": "xml-functions"
             },
             {
-                "name": "JSON/Record/Map Conversion",
-                "url": "json-record-map-conversion"
-            },
-            {
                 "name": "XML Access",
                 "url": "xml-access"
+            },
+            {
+                "name": "XML/JSON Conversion",
+                "url": "xml-to-json-conversion"
             }
         ]
     },
- 	{
-        "title": "I/O",
+    {
+        "title": "Binding Patterns",
+        "column": 2,
+        "category": "Language concepts",
+        "samples": [ {
+                "name": "Tuple Type Binding Pattern",
+                "url": "tuple-type-binding-pattern"
+            },
+            {
+                "name": "Record Type Binding Pattern",
+                "url": "record-type-binding-pattern"
+            },
+            {
+                "name": "Tuple Destructure Binding Pattern",
+                "url": "tuple-destructure-binding-pattern"
+            },
+            {
+                "name": "Record Destructure Binding Pattern",
+                "url": "record-destructure-binding-pattern"
+            }
+        ]
+    },
+    {
+        "title": "Errors",
         "column": 2,
         "category": "Language concepts",
         "samples": [{
-                "name": "Byte I/O",
-                "url": "byte-io"
+                "name": "Error Handling",
+                "url": "error-handling"
             },
             {
-                "name": "Character I/O",
-                "url": "character-io"
+                "name": "Error Lifting",
+                "url": "error-lifting"
             },
             {
-                "name": "Record I/O",
-                "url": "record-io"
+                "name": "Check",
+                "url": "check"
             },
             {
-                "name": "CSV I/O",
-                "url": "csv-io"
+                "name": "Panic ",
+                "url": "panic"
             },
             {
-                "name": "JSON I/O",
-                "url": "json-io"
-            },
-            {
-                "name": "XML I/O",
-                "url": "xml-io"
+                "name": "Trap Error",
+                "url": "trap-error"
             }
         ]
     },
@@ -361,116 +395,42 @@
             {
                 "name": "Lock",
                 "url": "locks"
-            },
-            {
-                "name": "Message Correlation with Channels",
-                "url": "channels-correlation"
-            },
-            {
-                "name": "Worker Interactions with Channels",
-                "url": "channels-workers"
-            }
-        ]
-    },
- 	{
-        "title": "Object",
-        "column": 0,
-        "category": "Language concepts",
-        "samples": [{
-                "name": "Object",
-                "url": "objects"
-            },
-            {
-                "name": "Object Initializer",
-                "url": "object-initializer"
-            },
-            {
-                "name": "Member Functions",
-                "url": "object-member-functions"
-            },
-            {
-                "name": "Object Assignability",
-                "url": "object-assignability"
-            },
-            {
-                "name": "Abstract Objects",
-                "url": "abstract-objects"
-            },
-            {
-                "name": "Object Type Reference",
-                "url": "object-type-reference"
-            }
-        ]
-    },
- 	{
-        "title": "Errors",
-        "column": 2,
-        "category": "Language concepts",
-        "samples": [{
-                "name": "Error Handling",
-                "url": "error-handling"
-            },
-            {
-                "name": "Error Lifting",
-                "url": "error-lifting"
-            },
-            {
-                "name": "Check",
-                "url": "check"
-            },
-            {
-                "name": "Panic ",
-                "url": "panic"
-            },
-            {
-                "name": "Trap Error",
-                "url": "trap-error"
-            }
-        ]
-    },
- 	{
-        "title": "Task",
-        "column": 2,
-        "category": "Language concepts",
-        "samples": [{
-                "name": "Task Timer",
-                "url": "task-timer"
-            },
-            {
-                "name": "Task Appointment",
-                "url": "task-appointment"
             }
         ]
     },
     {
-        "title": "Streams",
-        "column": 1,
+        "title": "I/O",
+        "column": 3,
         "category": "Language concepts",
         "samples": [{
-                "name": "Streams",
-                "url": "streams"
+                "name": "Byte I/O",
+                "url": "byte-io"
             },
             {
-                "name": "Join Mutiple Streams",
-                "url": "join-multiple-streams"
+                "name": "Character I/O",
+                "url": "character-io"
             },
             {
-                "name": "Temporal Aggregations",
-                "url": "temporal-aggregations-and-windows"
+                "name": "Record I/O",
+                "url": "record-io"
             },
             {
-                "name": "Identify Patterns",
-                "url": "identify-patterns"
+                "name": "CSV I/O",
+                "url": "csv-io"
             },
             {
-                "name": "Identify Trends",
-                "url": "identify-trends"
+                "name": "JSON I/O",
+                "url": "json-io"
+            },
+            {
+                "name": "XML I/O",
+                "url": "xml-io"
             }
         ]
     },
  	{
         "title": "Common Libraries",
-        "column": 2,
+        "column": 3,
         "category": "Language concepts",
         "samples": [{
                 "name": "Date Time",
@@ -497,61 +457,12 @@
                 "url": "strings"
             },
             {
-                "name": "XML/JSON Conversion",
-                "url": "xml-to-json-conversion"
-            }
-        ]
-    },
- 	{
-        "title": "Database",
-        "column": 3,
-        "category": "Language concepts",
-        "samples": [
-            {
-                "name": "H2 Client",
-                "url": "h2-client"
+                "name": "Task Timer",
+                "url": "task-timer"
             },
             {
-                "name": "MySQL Client",
-                "url": "mysql-client"
-            },
-            {
-                "name": "JDBC Client CRUD Operations",
-                "url": "jdbc-client-crud-operations"
-            },
-            {
-                "name": "JDBC Client Batch Update",
-                "url": "jdbc-client-batch-update"
-            },
-            {
-                "name": "JDBC Client Call Procedures",
-                "url": "jdbc-client-call-procedures"
-            },
-            {
-                "name": "Streaming a Big Dataset",
-                "url": "streaming-big-dataset"
-            }
-        ]
-    },
- 	{
-        "title": "Transactions",
-        "column": 3,
-        "category": "Language concepts",
-        "samples": [{
-                "name": "Local Transactions",
-                "url": "local-transactions"
-            },
-            {
-                "name": "Local Transactions with participants",
-                "url": "local-transactions-with-participants"
-            },
-            {
-                "name": "XA Transactions",
-                "url": "xa-transactions"
-            },
-            {
-                "name": "Distributed Transactions",
-                "url": "transactions-distributed"
+                "name": "Task Appointment",
+                "url": "task-appointment"
             }
         ]
     },
@@ -627,8 +538,7 @@
         "title": "Deployment",
         "column": 3,
         "category": "Language concepts",
-        "samples": [
-            {
+        "samples": [{
                 "name": "Docker Deployment",
                 "url": "docker-deployment"
             },
@@ -840,6 +750,36 @@
         }]
     },
     {
+        "title": "Database",
+        "column": 2,
+        "category": "Working over the network",
+        "samples": [{
+                "name": "H2 Client",
+                "url": "h2-client"
+            },
+            {
+                "name": "MySQL Client",
+                "url": "mysql-client"
+            },
+            {
+                "name": "JDBC Client CRUD Operations",
+                "url": "jdbc-client-crud-operations"
+            },
+            {
+                "name": "JDBC Client Batch Update",
+                "url": "jdbc-client-batch-update"
+            },
+            {
+                "name": "JDBC Client Call Procedures",
+                "url": "jdbc-client-call-procedures"
+            },
+            {
+                "name": "Streaming a Big Dataset",
+                "url": "streaming-big-dataset"
+            }
+        ]
+    },
+    {
         "title": "gRPC",
         "column": 2,
         "category": "Working over the network",
@@ -972,6 +912,78 @@
             {
                 "name": "Send JMS Message to HTTP Endpoint",
                 "url": "send-jms-message-to-http-endpoint"
+            }
+        ]
+    },
+    {
+        "title": "Streams",
+        "column": 0,
+        "category": "Experimental features",
+        "samples": [{
+                "name": "Streams",
+                "url": "streams"
+            },
+            {
+                "name": "Join Mutiple Streams",
+                "url": "join-multiple-streams"
+            },
+            {
+                "name": "Temporal Aggregations",
+                "url": "temporal-aggregations-and-windows"
+            },
+            {
+                "name": "Identify Patterns",
+                "url": "identify-patterns"
+            },
+            {
+                "name": "Identify Trends",
+                "url": "identify-trends"
+            }
+        ]
+    },
+    {
+        "title": "Transactions",
+        "column": 1,
+        "category": "Experimental features",
+        "samples": [{
+                "name": "Local Transactions",
+                "url": "local-transactions"
+            },
+            {
+                "name": "Local Transactions with participants",
+                "url": "local-transactions-with-participants"
+            },
+            {
+                "name": "XA Transactions",
+                "url": "xa-transactions"
+            },
+            {
+                "name": "Distributed Transactions",
+                "url": "transactions-distributed"
+            }
+        ]
+    },
+    {
+        "title": "Channels",
+        "column": 2,
+        "category": "Experimental features",
+        "samples": [{
+                "name": "Message Correlation with Channels",
+                "url": "channels-correlation"
+            },
+            {
+                "name": "Worker Interactions with Channels",
+                "url": "channels-workers"
+            }
+        ]
+    },
+    {
+        "title": "Table Queries",
+        "column": 3,
+        "category": "Experimental features",
+        "samples": [{
+                "name": "Table Queries",
+                "url": "table-queries"
             }
         ]
     }

@@ -1,3 +1,4 @@
+import classNames from "classnames";
 import React from "react";
 import { DiagramContext, IDiagramContext } from "../../diagram/diagram-context";
 import { SimpleBBox } from "../../view-model/index";
@@ -41,7 +42,7 @@ export class EditableSVGText extends React.Component<EditableSVGTextProps, Edita
         const { bBox, className, onChange } = this.props;
         const { x, y, w, h } = bBox;
         const { textEditingEnabled, currentValue } = this.state;
-        const { editingEnabled } = this.context as IDiagramContext;
+        const { editingEnabled, hasSyntaxErrors } = this.context as IDiagramContext;
         const foreignObjectBBox = {
             height: h,
             width: w,
@@ -49,12 +50,11 @@ export class EditableSVGText extends React.Component<EditableSVGTextProps, Edita
             y: y + (h / 4)
         };
         return <g className="editable-text">
-            {!textEditingEnabled &&
+            {(hasSyntaxErrors || !textEditingEnabled) &&
                 <text
                     x={x}
                     y={y + (h / 2)}
-                    className={className + " noselect"
-                        + (editingEnabled ? " editable-text" : " non-editable-text")}
+                    className={classNames(className, { editable: editingEnabled })}
                     onClick={() => {
                         if (editingEnabled && !textEditingEnabled) {
                             this.setState({
@@ -66,7 +66,7 @@ export class EditableSVGText extends React.Component<EditableSVGTextProps, Edita
                     {currentValue}
                 </text>
             }
-            {textEditingEnabled &&
+            {(!hasSyntaxErrors && textEditingEnabled) &&
                 <foreignObject
                     {...foreignObjectBBox}
                     className={className}

@@ -312,6 +312,7 @@ public interface BallerinaTypes {
   IElementType WORKER_RECEIVE_EXPRESSION = new BallerinaCompositeElementType("WORKER_RECEIVE_EXPRESSION");
   IElementType WORKER_SEND_ASYNC_EXPRESSION = new BallerinaCompositeElementType("WORKER_SEND_ASYNC_EXPRESSION");
   IElementType WORKER_SEND_ASYNC_STATEMENT = new BallerinaCompositeElementType("WORKER_SEND_ASYNC_STATEMENT");
+  IElementType WORKER_WITH_STATEMENTS_BLOCK = new BallerinaCompositeElementType("WORKER_WITH_STATEMENTS_BLOCK");
   IElementType XML_ATTRIB = new BallerinaCompositeElementType("XML_ATTRIB");
   IElementType XML_ATTRIB_VARIABLE_REFERENCE = new BallerinaCompositeElementType("XML_ATTRIB_VARIABLE_REFERENCE");
   IElementType XML_DOUBLE_QUOTED_STRING = new BallerinaCompositeElementType("XML_DOUBLE_QUOTED_STRING");
@@ -545,7 +546,6 @@ public interface BallerinaTypes {
   IElementType TYPE = new BallerinaTokenType("type");
   IElementType TYPEDESC = new BallerinaTokenType("typedesc");
   IElementType TYPE_PARAMETER = new BallerinaTokenType("TYPE_PARAMETER");
-  IElementType UNDERSCORE = new BallerinaTokenType("UNDERSCORE");
   IElementType UNIDIRECTIONAL = new BallerinaTokenType("unidirectional");
   IElementType UNTAINT = new BallerinaTokenType("untaint");
   IElementType VAR = new BallerinaTokenType("var");
@@ -1436,6 +1436,9 @@ public interface BallerinaTypes {
       }
       else if (type == WORKER_SEND_ASYNC_STATEMENT) {
         return new BallerinaWorkerSendAsyncStatementImpl(node);
+      }
+      else if (type == WORKER_WITH_STATEMENTS_BLOCK) {
+        return new BallerinaWorkerWithStatementsBlockImpl(node);
       }
       else if (type == XML_ATTRIB) {
         return new BallerinaXmlAttribImpl(node);

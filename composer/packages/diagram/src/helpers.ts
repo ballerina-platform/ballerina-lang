@@ -2,12 +2,12 @@ import { createElement } from "react";
 import ReactDOM from "react-dom";
 // tslint:disable-next-line:no-submodule-imports
 import { renderToStaticMarkup } from "react-dom/server";
-import { Diagram, DiagramProps, EdiatableDiagramProps,
-    EditableDiagram } from "./diagram";
+import { Diagram, DiagramProps, EditableDiagram,
+    EditableDiagramProps } from "./diagram";
 
 export interface EditableDiagramArgs {
     target: HTMLElement;
-    editorProps: EdiatableDiagramProps;
+    editorProps: EditableDiagramProps;
 }
 
 export interface StaticDiagramArgs {

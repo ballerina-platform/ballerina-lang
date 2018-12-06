@@ -337,3 +337,16 @@ function testUpdatingNullableObjectField_2() returns any {
     p.info2.address2.city = "Kandy";
     return p;
 }
+
+function getJsonValue() returns json|error {
+    return 10;
+}
+
+function testSafeNavigationOnFieldAccess() returns json|error {
+    return getJsonValue()!foo;
+}
+
+function testSafeNavigationOnIndexBasedAccess() returns json|error {
+    (json|error)[] data = [getJsonValue()];
+    return data[0]!foo;
+}

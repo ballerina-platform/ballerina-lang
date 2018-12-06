@@ -33,7 +33,10 @@ export const Return: React.StatelessComponent<{
 
         return (
             <g className="action-invocation">
-                {viewState.isAction && <ActionInvocation model={viewState} action={viewState.bBox.label} />}
+                {viewState.isAction && <ActionInvocation
+                    model={viewState}
+                    action={viewState.bBox.label}
+                    astModel={model} />}
                 <ArrowHead direction="left" x={returnLine.x2} y={returnLine.y2} />
                 <line {...returnLine} />
                 {!viewState.isAction && <text {...statementProps}>{viewState.bBox.label}</text>}
