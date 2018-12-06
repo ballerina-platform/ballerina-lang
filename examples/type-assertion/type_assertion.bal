@@ -12,14 +12,16 @@ type Employee record {
 };
 
 function assertTypes(anydata emp) {
-    // The `emp` is asserted to be of type `Employee` and if successful the value is assigned to variable `employee`.
+    // The `emp` variable is asserted to be of type `Employee`, and if successful the value is assigned to the variable
+    // `employee`.
     Employee employee = <Employee>emp;
     io:println("Type asserted employee name: ", employee.name);
 
-    // This will panic since emp is inherently an Employee. `trap` is used to handle the error.
+    // Asserting `emp` to be of type `Person` will result in a panic, since `emp` is inherently an `Employee`. `trap` is used to
+    // handle the error.
     Person|error person = trap <Person>emp;
     io:println("Type asserted person name or error: ",
-                    (person is Person) ? person.name : person.reason());
+               (person is Person) ? person.name : person.detail().message);
 }
 
 public function main() {
