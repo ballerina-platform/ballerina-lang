@@ -41,8 +41,6 @@ public class ItemResolverConstants {
     public static final String ENDPOINT = "endpoint";
     public static final String CONTINUE = "continue";
     public static final String BREAK = "break";
-    public static final String TRIGGER_WORKER = "wtrg   Worker Trigger Statement";
-    public static final String WORKER_REPLY = "wrply   Worker Reply Statement";
     public static final String FOREACH = "foreach";
     public static final String MATCH = "match";
     public static final String PANIC = "panic";
@@ -51,7 +49,7 @@ public class ItemResolverConstants {
     public static final String FUNCTION = "function";
     public static final String FUNCTION_SIGNATURE = "function signature";
     public static final String MAIN_FUNCTION = "public main function";
-    public static final String SERVICE = "service";
+    public static final String SERVICE = "service/http";
     public static final String SERVICE_WEBSOCKET = "service/webSocket";
     public static final String SERVICE_WEBSUB = "service/webSub";
     public static final String ANNOTATION = "annotation";

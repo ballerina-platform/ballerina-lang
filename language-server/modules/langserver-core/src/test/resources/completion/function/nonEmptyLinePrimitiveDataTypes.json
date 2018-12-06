@@ -206,7 +206,7 @@
               "character":0
             }
           },
-          "newText":"\nimport ballerina/transactions;\n"
+          "newText":"import ballerina/transactions;\n"
         }
       ]
     },
@@ -228,7 +228,7 @@
               "character":0
             }
           },
-          "newText":"\nimport ballerina/websub;\n"
+          "newText":"import ballerina/websub;\n"
         }
       ]
     },
@@ -250,7 +250,7 @@
               "character":0
             }
           },
-          "newText":"\nimport ballerina/grpc;\n"
+          "newText":"import ballerina/grpc;\n"
         }
       ]
     },
@@ -272,7 +272,7 @@
               "character":0
             }
           },
-          "newText":"\nimport ballerina/reflect;\n"
+          "newText":"import ballerina/reflect;\n"
         }
       ]
     },
@@ -294,7 +294,7 @@
               "character":0
             }
           },
-          "newText":"\nimport ballerina/log;\n"
+          "newText":"import ballerina/log;\n"
         }
       ]
     },
@@ -316,7 +316,7 @@
               "character":0
             }
           },
-          "newText":"\nimport ballerina/time;\n"
+          "newText":"import ballerina/time;\n"
         }
       ]
     },
@@ -338,7 +338,7 @@
               "character":0
             }
           },
-          "newText":"\nimport ballerina/test;\n"
+          "newText":"import ballerina/test;\n"
         }
       ]
     },
@@ -360,7 +360,7 @@
               "character":0
             }
           },
-          "newText":"\nimport ballerina/runtime;\n"
+          "newText":"import ballerina/runtime;\n"
         }
       ]
     },
@@ -382,7 +382,7 @@
               "character":0
             }
           },
-          "newText":"\nimport ballerina/swagger;\n"
+          "newText":"import ballerina/swagger;\n"
         }
       ]
     },
@@ -404,7 +404,7 @@
               "character":0
             }
           },
-          "newText":"\nimport ballerina/file;\n"
+          "newText":"import ballerina/file;\n"
         }
       ]
     },
@@ -426,7 +426,7 @@
               "character":0
             }
           },
-          "newText":"\nimport ballerina/sql;\n"
+          "newText":"import ballerina/sql;\n"
         }
       ]
     },
@@ -448,7 +448,7 @@
               "character":0
             }
           },
-          "newText":"\nimport ballerina/internal;\n"
+          "newText":"import ballerina/internal;\n"
         }
       ]
     },
@@ -470,7 +470,7 @@
               "character":0
             }
           },
-          "newText":"\nimport ballerina/http;\n"
+          "newText":"import ballerina/http;\n"
         }
       ]
     },
@@ -492,7 +492,7 @@
               "character":0
             }
           },
-          "newText":"\nimport ballerina/mysql;\n"
+          "newText":"import ballerina/mysql;\n"
         }
       ]
     },
@@ -514,7 +514,7 @@
               "character":0
             }
           },
-          "newText":"\nimport ballerina/mime;\n"
+          "newText":"import ballerina/mime;\n"
         }
       ]
     },
@@ -536,7 +536,7 @@
               "character":0
             }
           },
-          "newText":"\nimport ballerina/task;\n"
+          "newText":"import ballerina/task;\n"
         }
       ]
     },
@@ -558,7 +558,7 @@
               "character":0
             }
           },
-          "newText":"\nimport ballerina/crypto;\n"
+          "newText":"import ballerina/crypto;\n"
         }
       ]
     },
@@ -580,7 +580,7 @@
               "character":0
             }
           },
-          "newText":"\nimport ballerina/io;\n"
+          "newText":"import ballerina/io;\n"
         }
       ]
     },
@@ -602,7 +602,7 @@
               "character":0
             }
           },
-          "newText":"\nimport ballerina/cache;\n"
+          "newText":"import ballerina/cache;\n"
         }
       ]
     },
@@ -624,7 +624,7 @@
               "character":0
             }
           },
-          "newText":"\nimport ballerina/auth;\n"
+          "newText":"import ballerina/auth;\n"
         }
       ]
     },
@@ -646,7 +646,7 @@
               "character":0
             }
           },
-          "newText":"\nimport ballerina/jms;\n"
+          "newText":"import ballerina/jms;\n"
         }
       ]
     },
@@ -668,7 +668,7 @@
               "character":0
             }
           },
-          "newText":"\nimport ballerina/system;\n"
+          "newText":"import ballerina/system;\n"
         }
       ]
     },
@@ -690,7 +690,7 @@
               "character":0
             }
           },
-          "newText":"\nimport ballerina/h2;\n"
+          "newText":"import ballerina/h2;\n"
         }
       ]
     },
@@ -719,7 +719,7 @@
               "character":0
             }
           },
-          "newText":"\nimport ballerina/math;\n"
+          "newText":"import ballerina/math;\n"
         }
       ]
     },
@@ -741,7 +741,7 @@
               "character":0
             }
           },
-          "newText":"\nimport ballerina/config;\n"
+          "newText":"import ballerina/config;\n"
         }
       ]
     },
@@ -830,7 +830,7 @@
       "kind":"Snippet",
       "detail":"Statement",
       "sortText":"200",
-      "insertText":"transaction with retries \u003d ${1:1}, oncommit \u003d ${2:onCommitFunction}, onabort \u003d ${3:onAbortFunction} {\n\t${4}\n} onretry {\n\t${5}\n}",
+      "insertText":"transaction with retries ${1:0} {\n\t${2}\n} onretry {\n\t${3}\n}",
       "insertTextFormat":"Snippet"
     },
     {
@@ -839,22 +839,6 @@
       "detail":"Statement",
       "sortText":"200",
       "insertText":"while (${1:true}) {\n\t${2}\n}",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"wrply   Worker Reply Statement",
-      "kind":"Snippet",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"${1:var1} \u003c- ${2:w1};",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"wtrg   Worker Trigger Statement",
-      "kind":"Snippet",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"${1:var1} -\u003e ${2:w1};",
       "insertTextFormat":"Snippet"
     },
     {

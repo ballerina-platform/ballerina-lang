@@ -42,13 +42,18 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
     {
         methodName: 'revealRange',
         handler: (args: any[]) => {
-            const activeEditor = window.activeTextEditor;
-            if (activeEditor) {
-                const start = new Position(args[0] - 1, args[1] - 1);
-                const end = new Position(args[2] - 1, args[3]);
-                activeEditor.revealRange(new Range(start, end));
-                activeEditor.selection = new Selection(start, end);
-            }
+            const params = JSON.parse(args[0]);
+            const visibleEditors = window.visibleTextEditors;
+            visibleEditors.forEach((visibleEditor) => {
+                if (visibleEditor.document.uri.toString() 
+                            === params.textDocumentIdentifier.uri) {
+                    const { start, end } = params.range;
+                    const startPosition = new Position(start.line - 1, start.character - 1);
+                    const endPosition = new Position(end.line - 1, end.character - 1);
+                    visibleEditor.revealRange(new Range(startPosition, endPosition));
+                    visibleEditor.selection = new Selection(startPosition, endPosition);
+                }
+            });
             return Promise.resolve();
         }
     },

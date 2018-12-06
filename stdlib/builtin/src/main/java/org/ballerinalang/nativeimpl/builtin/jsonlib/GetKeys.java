@@ -29,6 +29,7 @@ import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 
 /**
  * Extern function ballerina.model.json:getKeys. Returns an array of keys contained in the specified JSON.
@@ -57,7 +58,7 @@ public class GetKeys extends BlockingNativeCallableUnit {
                 keys = JSONUtils.getKeys(json);
             }
         } catch (Throwable e) {
-            ErrorHandler.handleJsonException("get keys from json", e);
+            ErrorHandler.handleJsonException(BallerinaErrorReasons.JSON_OPERATION_ERROR, "get keys from json", e);
         }
 
         ctx.setReturnValues(keys);

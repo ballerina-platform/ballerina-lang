@@ -55,6 +55,11 @@
                     "default": "",
                     "description": "Specifies the path to the ballerina home directory"
                 },
+                "ballerina.allowExperimental": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "If set to true experimental ballerina features will be allowed"
+                },
                 "ballerina.debugLog": {
                     "type": "boolean",
                     "default": false,

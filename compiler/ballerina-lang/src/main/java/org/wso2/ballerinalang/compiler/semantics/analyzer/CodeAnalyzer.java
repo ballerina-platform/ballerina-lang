@@ -1159,12 +1159,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             was.hasErrors = true;
         }
 
-        workerSendNode.type = createAccumulatedErrorTypeFor(workerSendNode);
+        workerSendNode.type = createAccumulatedErrorTypeForMatchingRecive(workerSendNode);
         was.addWorkerAction(workerSendNode);
         analyzeExpr(workerSendNode.expr);
     }
 
-    private BType createAccumulatedErrorTypeFor(BLangWorkerSend workerSendNode) {
+    private BType createAccumulatedErrorTypeForMatchingRecive(BLangWorkerSend workerSendNode) {
         Set<BType> returnTypesUpToNow = this.returnTypes.peek();
         LinkedHashSet<BType> returnTypeAndSendType = new LinkedHashSet<BType>() {
             {
@@ -1175,7 +1175,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             if (returnType.tag == TypeTags.ERROR) {
                 returnTypeAndSendType.add(returnType);
             } else {
-                this.dlog.error(workerSendNode.pos, DiagnosticCode.WORKER_AFTER_RETURN);
+                this.dlog.error(workerSendNode.pos, DiagnosticCode.WORKER_SEND_AFTER_RETURN);
             }
         }
         returnTypeAndSendType.add(workerSendNode.expr.type);
@@ -1231,8 +1231,28 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             was.hasErrors = true;
         }
 
-        this.workerActionSystemStack.peek().addWorkerAction(workerReceiveNode);
+        workerReceiveNode.matchingSendsError = createAccumulatedErrorTypeForMatchingSyncSend(workerReceiveNode);
 
+        was.addWorkerAction(workerReceiveNode);
+
+    }
+
+    public BType createAccumulatedErrorTypeForMatchingSyncSend(BLangWorkerReceive workerReceiveNode) {
+        Set<BType> returnTypesUpToNow = this.returnTypes.peek();
+        LinkedHashSet<BType> returnTypeAndSendType = new LinkedHashSet<>();
+        for (BType returnType : returnTypesUpToNow) {
+            if (returnType.tag == TypeTags.ERROR) {
+                returnTypeAndSendType.add(returnType);
+            } else {
+                this.dlog.error(workerReceiveNode.pos, DiagnosticCode.WORKER_RECEIVE_AFTER_RETURN);
+            }
+        }
+        returnTypeAndSendType.add(symTable.nilType);
+        if (returnTypeAndSendType.size() > 1) {
+            return new BUnionType(null, returnTypeAndSendType, true);
+        } else {
+            return symTable.nilType;
+        }
     }
 
     public void visit(BLangLiteral literalExpr) {
@@ -1783,7 +1803,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
     }
-    
+
     @Override
     public void visit(BLangTypeTestExpr typeTestExpr) {
         analyzeNode(typeTestExpr.expr, env);
@@ -1914,9 +1934,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                         worker.next();
 
                         systemRunning = true;
+                        otherSM.node.sendsToThis.add(WorkerDataChannelInfo.generateChannelName(worker.workerId,
+                                                                                               otherSM.workerId));
                     }
-                    otherSM.node.sendsToThis.add(WorkerDataChannelInfo.generateChannelName(worker.workerId,
-                            otherSM.workerId));
                 }
             }
         } while (systemRunning);
@@ -1937,6 +1957,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private void validateWorkerActionParameters(BLangWorkerSyncSendExpr send, BLangWorkerReceive receive) {
         this.typeChecker.checkExpr(send.expr, send.env, receive.type);
+        types.checkType(send, send.type, receive.matchingSendsError);
         addImplicitCast(send.expr.type, receive);
     }
 
