@@ -146,7 +146,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
@@ -1856,7 +1855,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (exprType.tag != TypeTags.UNION) {
             if (types.isAssignable(exprType, symTable.errorType)) {
                 dlog.error(checkedExpr.expr.pos, DiagnosticCode.CHECKED_EXPR_INVALID_USAGE_ALL_ERROR_TYPES_IN_RHS);
-            } else {
+            } else if (exprType != symTable.semanticError) {
                 dlog.error(checkedExpr.expr.pos, DiagnosticCode.CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS);
             }
             checkedExpr.type = symTable.semanticError;
