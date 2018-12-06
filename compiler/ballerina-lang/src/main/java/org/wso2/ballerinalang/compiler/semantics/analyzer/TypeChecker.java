@@ -146,6 +146,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
@@ -863,7 +864,10 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        varRefType = getSafeType(varRefType, fieldAccessExpr);
+        if (isSafeNavigable(fieldAccessExpr, varRefType)) {
+            varRefType = getSafeType(varRefType, fieldAccessExpr);
+        }
+
         Name fieldName = names.fromIdNode(fieldAccessExpr.field);
         BType actualType = checkFieldAccessExpr(fieldAccessExpr, varRefType, fieldName);
 
@@ -888,7 +892,11 @@ public class TypeChecker extends BLangNodeVisitor {
         checkExpr(indexBasedAccessExpr.expr, this.env, symTable.noType);
 
         BType varRefType = indexBasedAccessExpr.expr.type;
-        varRefType = getSafeType(varRefType, indexBasedAccessExpr);
+
+        if (isSafeNavigable(indexBasedAccessExpr, varRefType)) {
+            varRefType = getSafeType(varRefType, indexBasedAccessExpr);
+        }
+
         BType actualType = checkIndexAccessExpr(indexBasedAccessExpr, varRefType);
 
         // If this is on lhs, no need to do type checking further. And null/error
@@ -936,7 +944,10 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         BType varRefType = iExpr.expr.type;
-        varRefType = getSafeType(varRefType, iExpr);
+
+        if (isSafeNavigable(iExpr, varRefType)) {
+            varRefType = getSafeType(varRefType, iExpr);
+        }
 
         BLangBuiltInMethod builtInFunction = BLangBuiltInMethod.getFromString(iExpr.name.value);
         // Returns if the function is a builtin function
@@ -2719,11 +2730,6 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType getSafeType(BType type, BLangAccessExpression accessExpr) {
-        if (accessExpr.safeNavigate && type == symTable.errorType) {
-            dlog.error(accessExpr.pos, DiagnosticCode.SAFE_NAVIGATION_NOT_REQUIRED, type);
-            return symTable.semanticError;
-        }
-
         if (type.tag != TypeTags.UNION) {
             return type;
         }
@@ -2957,5 +2963,15 @@ public class TypeChecker extends BLangNodeVisitor {
             // Cache the type guards, to be reused at the desugar.
             ternaryExpr.elseTypeGuards.put(originalVarSymbol, varSymbol);
         }
+    }
+
+    private boolean isSafeNavigable(BLangAccessExpression fieldAccessExpr, BType varRefType) {
+        // If the expression is safe navigable, then the type should be an union. Otherwise safe navigation is not
+        // required.
+        if (fieldAccessExpr.safeNavigate && varRefType.tag != TypeTags.UNION && varRefType != symTable.semanticError) {
+            dlog.error(fieldAccessExpr.pos, DiagnosticCode.SAFE_NAVIGATION_NOT_REQUIRED, varRefType);
+            return false;
+        }
+        return true;
     }
 }
