@@ -26,6 +26,7 @@ import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
@@ -48,8 +49,9 @@ public class BallerinaStreamsV2AlertsWithServices {
         result = BServiceUtil.setupProgramFile(this, "test-src/streaming/streamingv2-alerts-with-services.bal");
     }
 
-    @org.testng.annotations.Test
+    @Test
     public void testAlerts() {
+        System.setProperty("enable.siddhiRuntime", "true");
         java.util.List<org.wso2.carbon.messaging.Header> headers = new ArrayList<>();
         headers.add(new org.wso2.carbon.messaging.Header("Content-Type", APPLICATION_JSON));
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/rawmaterial", "POST", headers,
