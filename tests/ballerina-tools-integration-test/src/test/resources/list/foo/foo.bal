@@ -13,5 +13,3 @@ public function main() {
     float cubeRoot = math:cbrt(-27.0);
     io:println("Cube root of 0.027415567780803774   : " + cubeRoot);
 }
-
-

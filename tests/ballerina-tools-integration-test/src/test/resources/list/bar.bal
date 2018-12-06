@@ -22,5 +22,3 @@ public function main() {
         log:printError(<string>response.detail().message, err = response);
     }
 }
-
-
