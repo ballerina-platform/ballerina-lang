@@ -157,11 +157,11 @@ public class SnippetGenerator {
     }
 
     /**
-     * Get ForkJoin Snippet Block.
+     * Get Fork Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
-    public static SnippetBlock getForkJoinStatementSnippet() {
+    public static SnippetBlock getForkStatementSnippet() {
         String snippet = "fork {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.FORK, snippet, ItemResolverConstants.STATEMENT_TYPE,
                                 SnippetType.STATEMENT);

@@ -187,10 +187,6 @@ public abstract class AbstractItemResolver {
         CompletionItem butKeyword = Snippet.EXPR_MATCH.get().build(new CompletionItem(), snippetCapability);
         completionItems.add(butKeyword);
 
-        // Add lengthof keyword item
-        CompletionItem lengthofKeyword = Snippet.KW_LENGTHOF.get().build(new CompletionItem(), snippetCapability);
-        completionItems.add(lengthofKeyword);
-
         // Add the trap expression keyword
         CompletionItem trapExpression = Snippet.STMT_TRAP.get().build(new CompletionItem(), snippetCapability);
         completionItems.add(trapExpression);
