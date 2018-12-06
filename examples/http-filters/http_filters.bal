@@ -14,7 +14,7 @@ public type RequestFilter object {
     }
 
     public function filterResponse(http:Response response,
-                                    http:FilterContext context)
+                                   http:FilterContext context)
                                     returns boolean {
         return true;
     }

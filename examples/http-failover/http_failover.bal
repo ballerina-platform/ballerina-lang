@@ -91,7 +91,7 @@ service mock on backendEP {
         var result = caller->respond("Mock Resource is Invoked.");
         if (result is error) {
            log:printError("Error sending response from mock service",
-                            err = result);
+                          err = result);
         }
     }
 }
