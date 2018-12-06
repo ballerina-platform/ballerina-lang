@@ -1,11 +1,7 @@
 
 import { ASTNode } from "@ballerina/ast-model";
 import * as React from "react";
-import { DiagramConfig } from "../../config/default";
-import { DiagramUtils } from "../../diagram/diagram-utils";
 import { StmntViewState } from "../../view-model";
-
-const config: DiagramConfig = DiagramUtils.getConfig();
 
 const boxWidth = 25;
 
