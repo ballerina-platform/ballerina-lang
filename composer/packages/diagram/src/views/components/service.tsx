@@ -5,6 +5,7 @@ import * as React from "react";
 import { DiagramConfig } from "../../config/default";
 import { DiagramUtils } from "../../diagram/diagram-utils";
 import { ViewState } from "../../view-model/index";
+import { SourceLinkedLabel } from "./source-linked-label";
 
 const config: DiagramConfig = DiagramUtils.getConfig();
 
@@ -27,7 +28,7 @@ export const Service: React.StatelessComponent<{
         return (
             <g className="service">
                 <g className="panel-group-header" >
-                    <text {...serviceTitle}>{model.name.value}</text>
+                    <SourceLinkedLabel {...serviceTitle} text={model.name.value} target={model} />
                     <text {...serviceIcon}>{getCodePoint("service")}</text>
                 </g>
                 {resources}
