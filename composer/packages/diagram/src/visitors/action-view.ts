@@ -14,14 +14,18 @@ function isOrdinaryStatement(node: ASTNode): boolean {
 export const visitor: Visitor = {
 
     beginVisitBlock(node: Block) {
+        let hiddenSet = false;
         node.statements.forEach((element) => {
             if (isOrdinaryStatement(element)) {
                 if (element.viewState) {
-                    element.viewState.hidden = actionView;
+                    element.viewState.hidden = actionView && hiddenSet;
+                    element.viewState.hiddenBlock = !hiddenSet && actionView;
+                    hiddenSet = true;
                 }
+            } else {
+                hiddenSet = false;
             }
         });
-
     }
 
 };
