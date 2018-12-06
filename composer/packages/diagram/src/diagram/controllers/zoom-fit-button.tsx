@@ -9,7 +9,7 @@ export const ZoomFitButton: StatelessComponent<{}> = (
         <DiagramContext.Consumer>
             {(diagContext) => {
                 return (
-                    <Button icon onClick={diagContext.zoomFit}>
+                    <Button icon onClick={diagContext.zoomFit} disabled={(diagContext.zoomLevel <= 1)}>
                         <Icon className="fw fw-fit" title="Zoom Fit" />
                     </Button>
                 );

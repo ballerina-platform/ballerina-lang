@@ -9,7 +9,7 @@ export const ZoomOutButton: StatelessComponent<{}> = (
         <DiagramContext.Consumer>
             {(diagContext) => {
                 return (
-                    <Button icon onClick={diagContext.zoomOut}>
+                    <Button icon onClick={diagContext.zoomOut} disabled={(diagContext.zoomLevel <= 1)}>
                         <Icon className="fw fw-zoom-out" title="Zoom Out" />
                     </Button>
                 );
