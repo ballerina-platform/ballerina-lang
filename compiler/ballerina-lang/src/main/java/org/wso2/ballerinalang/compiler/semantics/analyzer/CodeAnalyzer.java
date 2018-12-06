@@ -1922,24 +1922,28 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     continue;
                 }
                 currentAction = worker.currentAction();
-                if (isWorkerSend(currentAction) || isWorkerSyncSend(currentAction)) {
-                    WorkerActionStateMachine otherSM = workerActionSystem.find(this.extractWorkerId(currentAction));
-                    if (otherSM != null && otherSM.currentIsReceive(worker.workerId)) {
-                        if (isWorkerSyncSend(currentAction)) {
-                            this.validateWorkerActionParameters((BLangWorkerSyncSendExpr) currentAction,
-                                                                (BLangWorkerReceive) otherSM.currentAction());
-                        } else {
-                            this.validateWorkerActionParameters((BLangWorkerSend) currentAction,
-                                                                (BLangWorkerReceive) otherSM.currentAction());
-                        }
-                        otherSM.next();
-                        worker.next();
-
-                        systemRunning = true;
-                        otherSM.node.sendsToThis.add(WorkerDataChannelInfo.generateChannelName(worker.workerId,
-                                                                                               otherSM.workerId));
-                    }
+                if (!isWorkerSend(currentAction) && !isWorkerSyncSend(currentAction)) {
+                    continue;
                 }
+                WorkerActionStateMachine otherSM = workerActionSystem.find(this.extractWorkerId(currentAction));
+                if (otherSM == null || !otherSM.currentIsReceive(worker.workerId)) {
+                    continue;
+                }
+                BLangWorkerReceive receive = (BLangWorkerReceive) otherSM.currentAction();
+                if (isWorkerSyncSend(currentAction)) {
+                    this.validateWorkerActionParameters((BLangWorkerSyncSendExpr) currentAction, receive);
+                } else {
+                    this.validateWorkerActionParameters((BLangWorkerSend) currentAction, receive);
+                }
+                otherSM.next();
+                worker.next();
+
+                systemRunning = true;
+                String channelName = WorkerDataChannelInfo.generateChannelName(worker.workerId, otherSM.workerId);
+                otherSM.node.sendsToThis.add(channelName);
+
+                channelName = WorkerDataChannelInfo.generateChannelName(otherSM.workerId, worker.workerId);
+                worker.node.sendsToThis.add(channelName);
             }
         } while (systemRunning);
         if (!workerActionSystem.everyoneDone()) {
