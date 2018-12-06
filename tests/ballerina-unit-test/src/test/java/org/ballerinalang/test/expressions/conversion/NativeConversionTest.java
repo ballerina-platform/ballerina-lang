@@ -703,7 +703,6 @@ public class NativeConversionTest {
         Assert.assertEquals(((BDecimal) map.get("toDecimal")).floatValue(), 23.456);
         Assert.assertEquals(((BByte) map.get("ToByte")).intValue(), 4);
         Assert.assertTrue(((BBoolean) map.get("ToBoolean")).booleanValue());
-        
     }
     
     @Test
