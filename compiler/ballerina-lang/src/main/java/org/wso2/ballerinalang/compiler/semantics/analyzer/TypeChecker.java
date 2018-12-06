@@ -885,9 +885,10 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        checkSafeNavigation(fieldAccessExpr, varRefType);
+        if (isSafeNavigable(fieldAccessExpr, varRefType)) {
+            varRefType = getSafeType(varRefType, fieldAccessExpr);
+        }
 
-        varRefType = getSafeType(varRefType, fieldAccessExpr);
         Name fieldName = names.fromIdNode(fieldAccessExpr.field);
         BType actualType = checkFieldAccessExpr(fieldAccessExpr, varRefType, fieldName);
 
@@ -913,9 +914,10 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BType varRefType = indexBasedAccessExpr.expr.type;
 
-        checkSafeNavigation(indexBasedAccessExpr, varRefType);
+        if (isSafeNavigable(indexBasedAccessExpr, varRefType)) {
+            varRefType = getSafeType(varRefType, indexBasedAccessExpr);
+        }
 
-        varRefType = getSafeType(varRefType, indexBasedAccessExpr);
         BType actualType = checkIndexAccessExpr(indexBasedAccessExpr, varRefType);
 
         // If this is on lhs, no need to do type checking further. And null/error
@@ -964,9 +966,9 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BType varRefType = iExpr.expr.type;
 
-        checkSafeNavigation(iExpr, varRefType);
-
-        varRefType = getSafeType(varRefType, iExpr);
+        if (isSafeNavigable(iExpr, varRefType)) {
+            varRefType = getSafeType(varRefType, iExpr);
+        }
 
         BLangBuiltInMethod builtInFunction = BLangBuiltInMethod.getFromString(iExpr.name.value);
         // Returns if the function is a builtin function
@@ -2984,11 +2986,13 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private void checkSafeNavigation(BLangAccessExpression fieldAccessExpr, BType varRefType) {
+    private boolean isSafeNavigable(BLangAccessExpression fieldAccessExpr, BType varRefType) {
         // If the expression is safe navigable, then the type should be an union. Otherwise safe navigation is not
         // required.
         if (fieldAccessExpr.safeNavigate && varRefType.tag != TypeTags.UNION && varRefType != symTable.semanticError) {
             dlog.error(fieldAccessExpr.pos, DiagnosticCode.SAFE_NAVIGATION_NOT_REQUIRED, varRefType);
+            return false;
         }
+        return true;
     }
 }
