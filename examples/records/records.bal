@@ -17,7 +17,8 @@ type Grades record {
 public function main() {
     // This creates an instance of the `Student` record with a non-empty record literal. All the required non-defaultable
     // fields must be set when initializing a Student record.
-    Student s1 = { name: "John Doe", age: 17, grades: {maths: 80, physics: 75, chemistry: 65}};
+    Student s1 = { name: "John Doe", age: 17,
+                   grades: {maths: 80, physics: 75, chemistry: 65}};
     io:println(s1);
 
     // This fetches the value of a specific field in this record. To access fields, use the dot (.) or the index operator.
@@ -28,7 +29,8 @@ public function main() {
     io:println(s1.grades.maths);
 
     // This sets the value of a field.
-    Student s2 = { name: "Peter", age: 19, grades: {maths: 40, physics: 35, chemistry: 35}};
+    Student s2 = { name: "Peter", age: 19,
+                   grades: {maths: 40, physics: 35, chemistry: 35}};
     s2.name = "Pan";
     s2.age = 16;
     io:println(s2);
@@ -56,13 +58,15 @@ public function main() {
     // Since records are iterable, the iterable operations `foreach()`, `map()`, `filter()`, `count()` can also be performed on records.
     // In addition to these, if all the fields (including the rest descriptor, if it is an open record) are either of type `int` or `float`,
     // the iterable operations `sum()`, `average()`, `max()` and `min()` are allowed as well.
-    map<string> letterGrades = s1.grades.map(mapToLetterGrade)
-                                        .filter(function ((string, string) entry) returns boolean {
-                                            if (entry[1] == "A" || entry[1] == "B") {
-                                                return true;
-                                            }
-                                            return false;
-                                        });
+    map<string> letterGrades = s1.grades
+                                .map(mapToLetterGrade)
+                                .filter(function ((string, string) entry)
+                                         returns boolean {
+                                    if (entry[1] == "A" || entry[1] == "B") {
+                                        return true;
+                                    }
+                                    return false;
+                                });
 
     io:println(letterGrades);
     io:println("Average grade using iterable ops: " + s1.grades.average());

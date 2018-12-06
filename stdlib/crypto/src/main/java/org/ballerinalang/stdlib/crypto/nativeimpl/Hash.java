@@ -18,6 +18,7 @@
 
 package org.ballerinalang.stdlib.crypto.nativeimpl;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
@@ -50,7 +51,7 @@ public class Hash extends BlockingNativeCallableUnit {
      */
     @Override
     public void execute(Context context) {
-        String baseString = context.getStringArgument(0);
+        String baseString = StringEscapeUtils.escapeJava(context.getStringArgument(0));
         BString algorithm = (BString) context.getNullableRefArgument(0);
         String hashAlgorithm;
 

@@ -7,11 +7,8 @@ string errorMsgW1 = "";
 task:Appointment? app = ();
 
 function scheduleAppointment(string cronExpression, string errMsgW1) {
-    worker default {
-        errorMsgW1 = errMsgW1;
-        app =<- w1;
-    }
-    worker w1 {
+
+    worker w1 returns task:Appointment? {
         (function() returns error?) onTriggerFunction = onTriggerW1;
         task:Appointment? appW1;
         if (errMsgW1 == "") {
@@ -22,8 +19,11 @@ function scheduleAppointment(string cronExpression, string errMsgW1) {
             appW1 = new task:Appointment(onTriggerFunction, onErrorFunction, cronExpression);
             _ = appW1.schedule();
         }
-        appW1 -> default;
+        return appW1;
     }
+
+    errorMsgW1 = errMsgW1;
+    app = wait w1;
 }
 
 function onTriggerW1() returns error? {

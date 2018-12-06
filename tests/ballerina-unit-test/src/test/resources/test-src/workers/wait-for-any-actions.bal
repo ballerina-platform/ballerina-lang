@@ -252,10 +252,17 @@ function waitTest22() returns int|string|error {
 }
 
 function waitTest23() returns int|string|() {
-    future<()> f1 = runtime:timeout(2000);
+    future<()> f1 = runtime:timeout(50);
     future<int> f2 = start add_1(5, 2);
     future<string> f3 = start greet();
     int|string|() result = wait f1 | f2 | f3;
+    return result;
+}
+
+function waitTest24() returns int|error {
+    future<int|error> f1 = start fError();
+    future<int|error> f2 = start sError();
+    int|error result = wait f1 | f2;
     return result;
 }
 
@@ -351,4 +358,15 @@ function addOrError(int i, int j) returns int|error {
         return err;
     }
     return k;
+}
+
+function fError() returns int|error {
+    error err = error("first error returned" );
+    return err;
+}
+
+function sError() returns error {
+    error err = error("A hazardous error occured!!! Abort immediately!!" );
+    runtime:sleep(2000);
+    return err;
 }

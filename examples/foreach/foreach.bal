@@ -73,5 +73,6 @@ public function main() {
     foreach var i in 1 ..< endValue {
         sum = sum + i;
     }
-    io:println("summation from 1 to " + endValue + " excluding " + endValue + " is " + sum);
+    io:println("summation from 1 to " + endValue + " excluding "
+                    + endValue + " is " + sum);
 }

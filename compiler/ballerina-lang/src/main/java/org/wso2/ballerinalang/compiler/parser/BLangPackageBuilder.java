@@ -2608,6 +2608,9 @@ public class BLangPackageBuilder {
         serviceNode.setName(serviceVar);
         if (!isAnonServiceValue) {
             this.exprNodeListStack.pop().forEach(expr -> serviceNode.attachedExprs.add((BLangExpression) expr));
+            if (this.commaWsStack.size() > 0) {
+                serviceNode.addWS(this.commaWsStack.pop());
+            }
         }
         // We add all service nodes to top level, only for future reference.
         this.compUnit.addTopLevelNode(serviceNode);

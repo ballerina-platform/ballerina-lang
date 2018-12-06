@@ -37,7 +37,8 @@ public function main() {
     address? addr = p.addr;
     io:println(addr);
 
-    address myAddr = {line01: "No. 61", line02: "Brandon street", city: "Santa Clara", state: "CA", zipcode: "95134"};
+    address myAddr = {line01: "No. 61", line02: "Brandon street",
+                      city: "Santa Clara", state: "CA", zipcode: "95134"};
     p.addr = myAddr;
 
     addr = p.addr;

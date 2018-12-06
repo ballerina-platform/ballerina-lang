@@ -2,6 +2,7 @@ import ballerina/h2;
 import ballerina/io;
 
 // Create a client for h2 database. Change the path before running the sample.
+// This will create a new database in the given path if not exists already.
 h2:Client testDB = new({
         path: "./h2-client",
         name: "testdb",
@@ -11,19 +12,19 @@ h2:Client testDB = new({
     });
 
 public function main() {
-    // Creates a table using the update operation.
+    // Creates a table using the update remote function.
     io:println("The update operation - Creating a table:");
     var ret = testDB->update("CREATE TABLE STUDENT(ID INTEGER,
                     AGE INTEGER, NAME VARCHAR(255), PRIMARY KEY (ID))");
     handleUpdate(ret, "Create student table");
 
-    // Inserts data to the table using the update operation.
+    // Inserts data to the table using the update remote functon.
     io:println("\nThe update operation - Inserting data to a table");
     ret = testDB->update("INSERT INTO student(id, age, name)
                           values (1, 23, 'john')");
     handleUpdate(ret, "Insert to student table with no parameters");
 
-    // Select data using the `select` operation.
+    // Select data using the `select` remote functon.
     io:println("\nThe select operation - Select data from a table");
     var selectRet = testDB->select("SELECT * FROM student", ());
     if (selectRet is table<record {}>) {
@@ -38,7 +39,7 @@ public function main() {
         }
     } else if (selectRet is error) {
         io:println("Select data from student table failed: "
-                + <string>selectRet.detail().message);
+                     + <string>selectRet.detail().message);
     }
 
     // Drop the STUDENT table.
@@ -51,7 +52,7 @@ public function main() {
 function handleUpdate(int|error returned, string message) {
     if (returned is int) {
         io:println(message + " status: " + returned);
-    } else if (returned is error) {
+    } else {
         io:println(message + " failed: " + <string>returned.detail().message);
     }
 }
