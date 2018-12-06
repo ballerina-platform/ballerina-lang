@@ -1203,7 +1203,7 @@ public class BVM {
                 default:
                     handleTypeConversionError(strand, sf, j, bRefTypeValue.getType(), typeRefCPEntry.getType());
             }
-        } catch (NumberFormatException e) {
+        } catch (Exception e) {
             handleTypeConversionError(strand, sf, j, bRefTypeValue.getType(), typeRefCPEntry.getType());
         }
     }
