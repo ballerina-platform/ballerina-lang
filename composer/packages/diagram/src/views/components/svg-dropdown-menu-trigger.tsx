@@ -24,10 +24,10 @@ export const SVGDropDownMenuTrigger: StatelessComponent<SVGDropDownMenuTriggerPr
             return editingEnabled &&
                 <SVGOverlayComponent>
                     <g className={className} onMouseOut={onMouseOut} onMouseOver={onMouseOver} >
+                        {children}
                         <g className="trigger">
                             <SVGCircleButton {...btnProps} />
                         </g>
-                        {children}
                    </g>
                 </SVGOverlayComponent>;
         }}
