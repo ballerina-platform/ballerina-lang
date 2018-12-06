@@ -1487,7 +1487,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (targetType.tag == TypeTags.ERROR || targetType.tag == TypeTags.FUTURE) {
             dlog.error(conversionExpr.pos, DiagnosticCode.TYPE_ASSERTION_NOT_YET_SUPPORTED, targetType);
         } else {
-            BSymbol symbol = symResolver.resolveTypeConversionOrAssertionOperator(sourceType, targetType);
+            BSymbol symbol = symResolver.resolveTypeCastOrAssertionOperator(sourceType, targetType);
 
             if (symbol == symTable.notFoundSymbol) {
                 dlog.error(conversionExpr.pos, DiagnosticCode.INVALID_EXPLICIT_TYPE_FOR_EXPRESSION, sourceType,

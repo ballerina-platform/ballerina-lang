@@ -56,7 +56,7 @@ service HelloWorld98 on ep5 {
 
     resource function testFloat(grpc:Caller caller, float salary) {
         log:printInfo("gross salary: " + salary);
-        string netSalary = <string>(salary * 0.88);
+        string netSalary = "salary";
         error? err = caller->send(netSalary);
         if (err is error) {
             log:printError(err.reason(), err = err);

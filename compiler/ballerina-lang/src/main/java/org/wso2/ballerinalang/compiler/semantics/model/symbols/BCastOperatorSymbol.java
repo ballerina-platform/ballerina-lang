@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -26,19 +26,24 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.Lists;
 
 /**
- * {@code BConversionOperatorSymbol} represents symbol for type conversion.
- *
- * @since 0.94
+ * {@code BCastOperatorSymbol} represents symbol for type casting.
+ *  
+ * @since 0.990.0
  */
-public class BConversionOperatorSymbol extends BOperatorSymbol {
-    
-    public BConversionOperatorSymbol(PackageID pkgID,
-                                     BType type,
-                                     BType sourceType,
-                                     BSymbol owner,
-                                     int opcode) {
-        super(Names.CONVERSION_OP, pkgID, type, owner, opcode);
-        this.kind = SymbolKind.CONVERSION_OPERATOR;
+public class BCastOperatorSymbol extends BOperatorSymbol {
+
+    public boolean implicit;
+
+    public BCastOperatorSymbol(PackageID pkgID,
+                               BType type,
+                               BType sourceType,
+                               BSymbol owner,
+                               boolean implicit,
+                               boolean safe,
+                               int opcode) {
+        super(Names.CAST_OP, pkgID, type, owner, opcode);
+        this.kind = SymbolKind.CAST_OPERATOR;
         this.params = Lists.of(new BVarSymbol(0, new Name("_"), pkgID, sourceType, this));
+        this.implicit = implicit;
     }
 }
