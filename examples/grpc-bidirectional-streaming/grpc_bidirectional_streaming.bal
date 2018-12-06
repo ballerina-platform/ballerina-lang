@@ -26,15 +26,15 @@ service Chat on new grpc:Listener(9090) {
             error? err = ep->send(msg);
             if (err is error) {
                 io:println("Error from Connector: " + err.reason() + " - "
-                                                    + <string>err.detail().message);
+                                                + <string>err.detail().message);
             }
         }
     }
 
     //This resource is triggered when the server receives an error message from the caller.
     resource function onError(grpc:Caller caller, error err) {
-            io:println("Unexpected Error at client side: " + err.reason() + " - "
-                                                    + <string>err.detail().message);
+        io:println("Unexpected Error at client side: " + err.reason() + " - "
+                                                + <string>err.detail().message);
     }
 
     //This resource is triggered when the caller sends a notification to the server to indicate that it has finished sending messages.
@@ -48,7 +48,7 @@ service Chat on new grpc:Listener(9090) {
             error? err = ep->send(msg);
             if (err is error) {
                 io:println("Error from Connector: " + err.reason() + " - "
-                                                    + <string>err.detail().message);
+                                                + <string>err.detail().message);
             }
         }
     }

@@ -51,7 +51,7 @@ service HelloWorldMessageListener = service {
     // Resource registered to receive server error messages.
     resource function onError(error err) {
         io:println("Error reported from server: " + err.reason() + " - "
-                                                    + <string>err.detail().message);
+                                                + <string>err.detail().message);
     }
 
     // Resource registered to receive server completed messages.
