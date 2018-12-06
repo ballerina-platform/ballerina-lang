@@ -1,4 +1,4 @@
-import { ASTNode, Block, UserDefinedType } from "../ast-interfaces";
+import { ASTNode, Block, Function as BalFunction, Service, UserDefinedType } from "../ast-interfaces";
 import { Visitor } from "../base-visitor";
 import { ASTKindChecker } from "../check-kind-util";
 import * as defaults from "../default-nodes";
@@ -179,4 +179,14 @@ export function addWorkerToBlock(block: Block, ast: ASTNode, insertAt?: number) 
         insertAt = block.statements.length;
     }
     attachNode(workerNode, ast, block, "statements", insertAt);
+}
+
+export function renameNode(node: BalFunction | Service, newName: string) {
+    node.ws.forEach((ws) => {
+        if (ws.text === node.name.value) {
+            ws.text = newName;
+        }
+    });
+    node.name.value = newName;
+    emitTreeModified(node, node);
 }

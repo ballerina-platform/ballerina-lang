@@ -104,7 +104,7 @@ export class EditableDiagram extends React.Component<EdiatableDiagramProps, Edit
             this.forceUpdate();
             const { langClient } = this.props;
             langClient.astDidChange({
-                ast: tree as BallerinaAST,
+                ast: this.state.ast as BallerinaAST,
                 textDocumentIdentifier: {
                     uri: this.state.docUri
                 },

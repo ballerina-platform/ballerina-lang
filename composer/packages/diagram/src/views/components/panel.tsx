@@ -1,5 +1,5 @@
 
-import { ASTNode } from "@ballerina/ast-model";
+import { ASTUtil, Function as BalFunction } from "@ballerina/ast-model";
 import { getCodePoint } from "@ballerina/font";
 import * as React from "react";
 import { DiagramConfig } from "../../config/default";
@@ -15,7 +15,7 @@ export const Panel: React.StatelessComponent<{
         model: FunctionViewState,
         title: string,
         icon: string,
-        astModel?: ASTNode,
+        astModel?: BalFunction,
     }> = ({
         model,
         title,
@@ -59,9 +59,9 @@ export const Panel: React.StatelessComponent<{
                                             value={title}
                                             className="panel-title"
                                             onChange={(newValue) => {
-                                                // tslint:disable-next-line:no-console
-                                                console.log("New value for title is", newValue);
-                                                // TODO update model's identifier
+                                                if (astModel) {
+                                                    ASTUtil.renameNode(astModel, newValue);
+                                                }
                                             }}
                                 />}
                                 {(!editingEnabled && astModel) && <SourceLinkedLabel
