@@ -2,13 +2,10 @@ import React, { StatelessComponent } from "react";
 import { Button, Icon, Menu } from "semantic-ui-react";
 import { DiagramContext, DiagramMode } from "../diagram-context";
 
-export const ModeToggleButton: StatelessComponent<{}> = (
-        { children }
-    ) => {
+export const ModeToggleButton: StatelessComponent<{}> = () => {
     return  (
         <DiagramContext.Consumer>
-            {(diagContext) => {
-                const currentMode = diagContext.mode;
+            {({ mode: currentMode, changeMode, hasSyntaxErrors }) => {
                 const icon = currentMode === DiagramMode.ACTION
                     ? "fw-expand"
                     : "fw-collapse";
@@ -19,12 +16,13 @@ export const ModeToggleButton: StatelessComponent<{}> = (
                     <Menu.Item>
                         <Button.Group size="tiny">
                             <Button
+                                disabled={hasSyntaxErrors}
                                 icon
                                 onClick={() => {
                                     if (currentMode === DiagramMode.ACTION) {
-                                        diagContext.changeMode(DiagramMode.DEFAULT);
+                                        changeMode(DiagramMode.DEFAULT);
                                     } else {
-                                        diagContext.changeMode(DiagramMode.ACTION);
+                                        changeMode(DiagramMode.ACTION);
                                     }
                                 }}
                             >

@@ -42,7 +42,7 @@ export class EditableSVGText extends React.Component<EditableSVGTextProps, Edita
         const { bBox, className, onChange } = this.props;
         const { x, y, w, h } = bBox;
         const { textEditingEnabled, currentValue } = this.state;
-        const { editingEnabled } = this.context as IDiagramContext;
+        const { editingEnabled, hasSyntaxErrors } = this.context as IDiagramContext;
         const foreignObjectBBox = {
             height: h,
             width: w,
@@ -50,7 +50,7 @@ export class EditableSVGText extends React.Component<EditableSVGTextProps, Edita
             y: y + (h / 4)
         };
         return <g className="editable-text">
-            {!textEditingEnabled &&
+            {(hasSyntaxErrors || !textEditingEnabled) &&
                 <text
                     x={x}
                     y={y + (h / 2)}
@@ -66,7 +66,7 @@ export class EditableSVGText extends React.Component<EditableSVGTextProps, Edita
                     {currentValue}
                 </text>
             }
-            {textEditingEnabled &&
+            {(!hasSyntaxErrors && textEditingEnabled) &&
                 <foreignObject
                     {...foreignObjectBBox}
                     className={className}

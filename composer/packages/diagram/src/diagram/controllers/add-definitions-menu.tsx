@@ -20,16 +20,15 @@ const definitions: any[] = [{
 }
 ];
 
-export const AddDefinitionsMenu: StatelessComponent<{}> = (
-            { children }
-        ) => {
+export const AddDefinitionsMenu: StatelessComponent<{}> = () => {
     return  (
         <DiagramContext.Consumer>
-            {(diagContext) => {
-                return (diagContext.editingEnabled &&
+            {({ editingEnabled, hasSyntaxErrors, ast }) => {
+                return (editingEnabled &&
                     <Menu.Item>
                         <Button.Group size="tiny">
                             <Dropdown
+                                disabled={hasSyntaxErrors}
                                 button
                                 className="icon primary add-definitions"
                                 floating
@@ -45,7 +44,6 @@ export const AddDefinitionsMenu: StatelessComponent<{}> = (
                                             }
                                             return (<Dropdown.Item
                                                 onClick={(event, item) => {
-                                                    const {ast} = diagContext;
                                                     if (ast) {
                                                         addDefinition(item.data.name, ast as CompilationUnit);
                                                     }
