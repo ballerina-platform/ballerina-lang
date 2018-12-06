@@ -1,16 +1,18 @@
 
+import { ASTNode } from "@ballerina/ast-model";
 import * as React from "react";
 import { DiagramConfig } from "../../config/default";
 import { DiagramUtils } from "../../diagram/diagram-utils";
 import { StmntViewState } from "../../view-model/index";
 import { ArrowHead } from "./arrow-head";
+import { SourceLinkedLabel } from "./source-linked-label";
 
 const config: DiagramConfig = DiagramUtils.getConfig();
 
 export const ReturnActionInvocation: React.StatelessComponent<{
-    model: StmntViewState, action: string
+    model: StmntViewState, action: string, astModel?: ASTNode
 }> = ({
-    model, action
+    model, action, astModel
 }) => {
         const returnLine = { x1: 0, y1: 0, x2: 0, y2: 0 };
         const actionProps = { x: 0, y: 0 };
@@ -25,7 +27,8 @@ export const ReturnActionInvocation: React.StatelessComponent<{
             <g className="action-invocation">
                 <line {...returnLine} />
                 <ArrowHead direction="left" x={returnLine.x2} y={returnLine.y2} />
-                <text {...actionProps}>{action}</text>
+                {!astModel && <text {...actionProps}>{action}</text>}
+                {astModel && <SourceLinkedLabel {...actionProps} text={action} target={astModel} />}
             </g>
         );
     };

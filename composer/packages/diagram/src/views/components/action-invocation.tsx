@@ -1,16 +1,18 @@
 
+import { ASTNode } from "@ballerina/ast-model";
 import * as React from "react";
 import { DiagramConfig } from "../../config/default";
 import { DiagramUtils } from "../../diagram/diagram-utils";
 import { StmntViewState } from "../../view-model/index";
 import { ArrowHead } from "./arrow-head";
+import { SourceLinkedLabel } from "./source-linked-label";
 
 const config: DiagramConfig = DiagramUtils.getConfig();
 
 export const ActionInvocation: React.StatelessComponent<{
-    model: StmntViewState, action: string
+    model: StmntViewState, action: string, astModel?: ASTNode
 }> = ({
-    model, action
+    model, action, astModel
 }) => {
         const sendLine = { x1: 0, y1: 0, x2: 0, y2: 0 };
         const receiveLine = { x1: 0, y1: 0, x2: 0, y2: 0 };
@@ -34,7 +36,8 @@ export const ActionInvocation: React.StatelessComponent<{
                 <ArrowHead direction="left" x={receiveLine.x1} y={receiveLine.y1} />
                 <rect x={sendLine.x2} y={sendLine.y2} width="6" height={(config.statement.height / 2)}
                     className="life-line-endpoint-activity" />
-                <text {...actionProps}>{action}</text>
+                {!astModel && <text {...actionProps}>{action}</text>}
+                {astModel && <SourceLinkedLabel {...actionProps} text={action} target={astModel} />}
             </g>
         );
     };
