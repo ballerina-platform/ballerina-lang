@@ -1180,6 +1180,7 @@ public class BVM {
                         sf.refRegs[j] = new BBoolean(((Long) bRefTypeValue.value()) != 0);
                         break;
                     }
+                    handleTypeConversionError(strand, sf, j, bRefTypeValue.getType(), typeRefCPEntry.getType());
                     break;
                 case TypeTags.BYTE_TAG:
                     if (bRefTypeValue.value() instanceof Byte) {
