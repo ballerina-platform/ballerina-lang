@@ -22,6 +22,7 @@ import { render } from './renderer';
 import { ExtendedLangClient } from '../core/extended-language-client';
 import { BallerinaExtension } from '../core';
 import { WebViewRPCHandler } from '../utils';
+import { join } from "path";
 
 const DEBOUNCE_WAIT = 500;
 
@@ -72,6 +73,12 @@ function showDiagramEditor(context: ExtensionContext, langClient: ExtendedLangCl
 			retainContextWhenHidden: true,
 		}
 	);
+
+	diagramViewPanel.iconPath = {
+		light: Uri.file(join(context.extensionPath, 'resources/images/icons/design-view.svg')),
+		dark: Uri.file(join(context.extensionPath, 'resources/images/icons/design-view-inverse.svg'))
+	};
+
 	const editor = window.activeTextEditor;
 	if(!editor) {
 		return;

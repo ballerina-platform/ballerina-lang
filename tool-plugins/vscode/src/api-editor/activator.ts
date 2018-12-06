@@ -23,6 +23,7 @@ import { apiEditorRender } from './renderer';
 import { BallerinaExtension } from '../core';
 import { API_DESIGNER_NO_SERVICE } from '../core/messages';
 import { WebViewRPCHandler, WebViewMethod } from '../utils';
+import { join } from "path";
 
 const DEBOUNCE_WAIT = 500;
 
@@ -159,6 +160,11 @@ function createAPIEditorPanel(selectedService: string, renderHtml: string,
         }
     ];
     WebViewRPCHandler.create(oasEditorPanel.webview, langClient, remoteMethods);
+
+    oasEditorPanel.iconPath = {
+		light: Uri.file(join(context.extensionPath, 'resources/images/icons/api-design.svg')),
+		dark: Uri.file(join(context.extensionPath, 'resources/images/icons/api-design-inverse.svg'))
+	};
 
     oasEditorPanel.webview.onDidReceiveMessage(message => {
         switch (message.command) {
