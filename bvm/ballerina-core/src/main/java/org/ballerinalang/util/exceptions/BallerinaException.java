@@ -28,22 +28,31 @@ public class BallerinaException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
     private transient Context context;
+    private String detail = null;
 
     public BallerinaException() {
         super();
     }
 
     /**
-     * Constructs a new {@link BallerinaException} with the specified detail message.
+     * Constructs a new {@link BallerinaException} with the specified error reason message.
      *
-     * @param message Error Message
+     * @param reason Error Reason
      */
-    public BallerinaException(String message) {
-        super(message);
+    public BallerinaException(String reason) {
+        super(reason);
     }
 
-
-
+    /**
+     * Constructs a new {@link BallerinaException} with the specified error reason and detail message.
+     *
+     * @param reason Error Reason
+     * @param detail Error Detail Entry
+     */
+    public BallerinaException(String reason, String detail) {
+        super(reason);
+        this.detail = detail;
+    }
 
     /**
      * Constructs a new {@link BallerinaException} with ballerina context.
@@ -96,5 +105,9 @@ public class BallerinaException extends RuntimeException {
 
     public Context getContext() {
         return this.context;
+    }
+
+    public String getDetail() {
+        return detail;
     }
 }

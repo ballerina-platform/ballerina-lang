@@ -46,7 +46,7 @@ public class Clear extends BlockingNativeCallableUnit {
             map.clear();
             ctx.setReturnValues();
         } catch (BLangFreezeException e) {
-            throw new BallerinaException("Failed to clear map: " + e.getMessage());
+            throw new BallerinaException(e.getMessage(), "Failed to clear map: " + e.getDetail());
         }
     }
 }

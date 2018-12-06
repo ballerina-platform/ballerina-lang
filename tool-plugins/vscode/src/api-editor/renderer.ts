@@ -31,6 +31,8 @@ export function apiEditorRender(context: ExtensionContext, langClient: ExtendedL
         </div>
     `;
 
+    const bodyCss = "api-designer";
+
     const styles = `
         body {
             background-color: #1e1e1e !important;
@@ -93,5 +95,5 @@ export function apiEditorRender(context: ExtensionContext, langClient: ExtendedL
         }
     `;
 
-    return getLibraryWebViewContent(context, body, script, styles, true);
+    return getLibraryWebViewContent(context, body, script, styles, bodyCss, true);
 }

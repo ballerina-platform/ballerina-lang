@@ -55,6 +55,11 @@
                     "default": "",
                     "description": "Specifies the path to the ballerina home directory"
                 },
+                "ballerina.allowExperimental": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "If set to true experimental ballerina features will be allowed"
+                },
                 "ballerina.debugLog": {
                     "type": "boolean",
                     "default": false,
@@ -162,7 +167,7 @@
                 "command": "ballerina.showDiagram",
                 "title": "Show Diagram",
                 "icon": {
-                    "dark": "./resources/images/icons/design-view-white.svg",
+                    "dark": "./resources/images/icons/design-view-inverse.svg",
                     "light": "./resources/images/icons/design-view.svg"
                 },
                 "category": "Ballerina"

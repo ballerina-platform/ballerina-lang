@@ -96,7 +96,7 @@ function writeDataToCSVChannel(io:WritableCSVChannel csvChannel,
     foreach var rec in data {
         var returnedVal = csvChannel.write(rec);
         if (returnedVal is error) {
-            log:printError("Record was successfully written to target file: ",
+            log:printError("Error occurred while writing to target file: ",
                             err = returnedVal);
         }
     }

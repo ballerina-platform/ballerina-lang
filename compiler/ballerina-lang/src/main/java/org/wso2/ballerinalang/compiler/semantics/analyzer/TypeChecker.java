@@ -224,6 +224,10 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public BType checkExpr(BLangExpression expr, SymbolEnv env, BType expType, DiagnosticCode diagCode) {
+        if (expr.typeChecked) {
+            return expr.type;
+        }
+
         // TODO Check the possibility of using a try/finally here
         SymbolEnv prevEnv = this.env;
         BType preExpType = this.expType;
@@ -238,6 +242,7 @@ public class TypeChecker extends BLangNodeVisitor {
         this.env = prevEnv;
         this.expType = preExpType;
         this.diagCode = preDiagCode;
+        expr.typeChecked = true;
         return resultType;
     }
 
@@ -580,10 +585,14 @@ public class TypeChecker extends BLangNodeVisitor {
             this.dlog.error(syncSendExpr.pos, DiagnosticCode.UNDEFINED_WORKER, workerName);
         }
 
-        // Return a subtype of error?
-        BType actualType = new BUnionType(null, new LinkedHashSet<BType>() {
-            { add(symTable.errorType); add(symTable.nilType); }}, false);
-        resultType = types.checkType(syncSendExpr, actualType, expType);
+        if (expType == symTable.noType) {
+            LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
+            memberTypes.add(symTable.errorType);
+            memberTypes.add(symTable.nilType);
+            resultType = new BUnionType(null, memberTypes, true);
+        } else {
+            resultType = expType;
+        }
     }
 
     @Override

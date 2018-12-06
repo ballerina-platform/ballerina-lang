@@ -41,7 +41,7 @@ import org.testng.annotations.Test;
 public class XMLNativeFunctionTest {
 
     private static final String ERROR_FAILED_TO_SLICE_XML_INDEX_OUT_OF_RANGE =
-            ".*error: Failed to slice xml: index out of range:";
+            "error: \\{ballerina\\}XMLOperationError \\{\"message\":\"Failed to slice xml: index out of range:";
     private CompileResult result;
 
     @BeforeClass
@@ -854,27 +854,28 @@ public class XMLNativeFunctionTest {
     }
     
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*error: Failed to slice xml: invalid indices: 4 < 1.*")
+          expectedExceptionsMessageRegExp = "error: \\{ballerina\\}XMLOperationError \\{\"message\":\"Failed to slice" +
+                  " xml: invalid indices: 4 < 1\"\\}.*")
     public void testSliceInvalidIndex() {
         BRunUtil.invoke(result, "testSliceInvalidIndex");
     }
     
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ERROR_FAILED_TO_SLICE_XML_INDEX_OUT_OF_RANGE + " \\[4,10\\].*")
+          expectedExceptionsMessageRegExp = ERROR_FAILED_TO_SLICE_XML_INDEX_OUT_OF_RANGE + " \\[4,10\\]\"\\}.*")
     public void testSliceOutOfRangeIndex() {
         BValue[] params = new BValue[] { new BInteger(4), new BInteger(10) };
         BRunUtil.invoke(result, "testSliceOutOfRangeIndex", params);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ERROR_FAILED_TO_SLICE_XML_INDEX_OUT_OF_RANGE + " \\[-4,10\\].*")
+          expectedExceptionsMessageRegExp = ERROR_FAILED_TO_SLICE_XML_INDEX_OUT_OF_RANGE + " \\[-4,10\\]\"\\}.*")
     public void testSliceOutOfRangeNegativeStartIndex() {
         BValue[] params = new BValue[] { new BInteger(-4), new BInteger(10) };
         BRunUtil.invoke(result, "testSliceOutOfRangeIndex", params);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ERROR_FAILED_TO_SLICE_XML_INDEX_OUT_OF_RANGE + " \\[4,-10\\].*")
+          expectedExceptionsMessageRegExp = ERROR_FAILED_TO_SLICE_XML_INDEX_OUT_OF_RANGE + " \\[4,-10\\]\"\\}.*")
     public void testSliceOutOfRangeNegativeEndIndex() {
         BValue[] params = new BValue[] { new BInteger(4), new BInteger(-10) };
         BRunUtil.invoke(result, "testSliceOutOfRangeIndex", params);
