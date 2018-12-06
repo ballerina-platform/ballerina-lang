@@ -114,11 +114,6 @@ public enum Snippet {
 
     STMT_WHILE(SnippetGenerator.getWhileStatementSnippet()),
 
-    STMT_WORKER_REPLY(SnippetGenerator.getWorkerReplyStatementSnippet()),
-
-    STMT_WORKER_TRIGGER(SnippetGenerator.getWorkerTriggerStatementSnippet()),
-
-
     // Iterable Operation snippets
     ITR_FOREACH(SnippetGenerator.getIterableForeachSnippet()),
 

@@ -1,5 +1,5 @@
 import { WebViewMethod, WebViewRPCMessage } from './model';
-import { Webview, Position, Range, Selection, window, workspace } from 'vscode';
+import { Webview, Position, Range, Selection, window } from 'vscode';
 import { ExtendedLangClient } from 'src/core/extended-language-client';
 
 const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] => {
