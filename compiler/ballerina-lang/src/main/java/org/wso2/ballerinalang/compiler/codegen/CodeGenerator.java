@@ -35,7 +35,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
@@ -237,7 +236,6 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableIndex.Kind.FIELD;
@@ -432,7 +430,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     /**
      * Add current package info.
      *
-     * @param pkgNode package node
+     * @param pkgNode package nod
      */
     private void addPkgDetailsToPkgInfoObj(BLangPackage pkgNode) {
         // Add the current package to the program file
@@ -1303,10 +1301,17 @@ public class CodeGenerator extends BLangNodeVisitor {
                 emit(InstructionCodes.STAMP, iExpr.requiredArgs.get(0).regIndex, getTypeCPIndex(iExpr.type), regIndex);
                 break;
             case CONVERT:
-                if (iExpr.symbol.kind == SymbolKind.CONVERSION_OPERATOR) {
-                    BConversionOperatorSymbol symbol = (BConversionOperatorSymbol) iExpr.symbol;
-                    emitConversionInstruction(iExpr, iExpr.requiredArgs.get(0), symbol,
-                                              ((BInvokableType) symbol.type).paramTypes.get(1));
+                int opcode = ((BOperatorSymbol) iExpr.symbol).opcode;
+                BLangExpression expr = iExpr.requiredArgs.get(0);
+                BType castExprType = iExpr.type;
+                RegIndex convExprRegIndex = calcAndGetExprRegIndex(iExpr.regIndex, castExprType.tag);
+                iExpr.regIndex = convExprRegIndex;
+                genNode(expr, this.env);
+                if (opcode == InstructionCodes.CONVERT) {
+                    typeCPIndex = getTypeCPIndex(((BInvokableType) iExpr.symbol.type).paramTypes.get(1));
+                    emit(opcode, expr.regIndex, typeCPIndex, convExprRegIndex);
+                } else {
+                    emit(opcode, expr.regIndex, convExprRegIndex);
                 }
                 break;
             case ITERATE:
@@ -1373,7 +1378,39 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangTypeConversionExpr convExpr) {
-        emitConversionInstruction(convExpr, convExpr.expr, convExpr.conversionSymbol, convExpr.targetType);
+        int opcode = convExpr.conversionSymbol.opcode;
+
+        // Figure out the reg index of the result value
+        BType castExprType = convExpr.type;
+        RegIndex convExprRegIndex = calcAndGetExprRegIndex(convExpr.regIndex, castExprType.tag);
+        convExpr.regIndex = convExprRegIndex;
+        if (opcode == InstructionCodes.NOP) {
+            convExpr.expr.regIndex = createLHSRegIndex(convExprRegIndex);
+            genNode(convExpr.expr, this.env);
+            return;
+        }
+
+        genNode(convExpr.expr, this.env);
+        switch (opcode) {
+            case InstructionCodes.MAP2T:
+            case InstructionCodes.JSON2T:
+            case InstructionCodes.ANY2T:
+            case InstructionCodes.ANY2C:
+            case InstructionCodes.ANY2E:
+            case InstructionCodes.T2JSON:
+            case InstructionCodes.MAP2JSON:
+            case InstructionCodes.JSON2MAP:
+            case InstructionCodes.JSON2ARRAY:
+            case InstructionCodes.O2JSON:
+            case InstructionCodes.CHECKCAST:
+            case InstructionCodes.TYPE_ASSERTION:
+                Operand typeCPIndex = getTypeCPIndex(convExpr.targetType);
+                emit(opcode, convExpr.expr.regIndex, typeCPIndex, convExprRegIndex);
+                break;
+            default:
+                emit(opcode, convExpr.expr.regIndex, convExprRegIndex);
+                break;
+        }
     }
 
     public void visit(BLangRecordLiteral recordLiteral) {
@@ -1930,41 +1967,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         return currentPkgInfo.instructionList.size();
     }
 
-    private void emitConversionInstruction(BLangExpression convExpr, BLangExpression expr,
-                                           BOperatorSymbol symbol, BType targetType) {
-        int opcode = symbol.opcode;
-        // Figure out the reg index of the result value
-        BType castExprType = convExpr.type;
-        RegIndex convExprRegIndex = calcAndGetExprRegIndex(convExpr.regIndex, castExprType.tag);
-        convExpr.regIndex = convExprRegIndex;
-        if (opcode == InstructionCodes.NOP) {
-            expr.regIndex = createLHSRegIndex(convExprRegIndex);
-            genNode(expr, this.env);
-            return;
-        }
-        genNode(expr, this.env);
-        switch (opcode) {
-            case InstructionCodes.MAP2T:
-            case InstructionCodes.JSON2T:
-            case InstructionCodes.ANY2T:
-            case InstructionCodes.ANY2C:
-            case InstructionCodes.ANY2E:
-            case InstructionCodes.T2JSON:
-            case InstructionCodes.MAP2JSON:
-            case InstructionCodes.JSON2MAP:
-            case InstructionCodes.JSON2ARRAY:
-            case InstructionCodes.O2JSON:
-            case InstructionCodes.CHECKCAST:
-            case InstructionCodes.TYPE_ASSERTION:
-                Operand typeCPIndex = getTypeCPIndex(targetType);
-                emit(opcode, expr.regIndex, typeCPIndex, convExprRegIndex);
-                break;
-            default:
-                emit(opcode, expr.regIndex, convExprRegIndex);
-                break;
-        }
-    }
-
     private void addVarCountAttrInfo(ConstantPool constantPool,
                                      AttributeInfoPool attributeInfoPool,
                                      VariableIndex fieldCount) {
@@ -2302,6 +2304,9 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // Add documentation attributes
         addDocAttachmentAttrInfo(funcSymbol.markdownDocumentation, funcInfo);
+
+        // Add worker send ins
+        addWorkerSendInsAttributeInfo(new LinkedHashSet<>(), funcInfo);
 
         this.currentPkgInfo.functionInfoMap.put(funcSymbol.name.value, funcInfo);
     }
@@ -3541,9 +3546,12 @@ public class CodeGenerator extends BLangNodeVisitor {
             return createStringLiteral(null, null, env);
         }
 
-        // If the namespace is defined within a callable unit or service, get the URI index in the 
-        // local var registry. Otherwise get the URI index in the global var registry.
-        if ((namespaceSymbol.owner.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
+        // If the namespace is defined within a callable unit, object or a record, get the URI index
+        // in the local var registry. Otherwise get the URI index in the global var registry.
+        int ownerTag = namespaceSymbol.owner.tag;
+        if ((ownerTag & SymTag.INVOKABLE) == SymTag.INVOKABLE ||
+                (ownerTag & SymTag.OBJECT) == SymTag.OBJECT ||
+                (ownerTag & SymTag.RECORD) == SymTag.RECORD) {
             return (RegIndex) namespaceSymbol.nsURIIndex;
         }
 

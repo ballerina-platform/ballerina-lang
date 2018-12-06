@@ -1,197 +1,178 @@
 {
+  "ws": [
+    {
+      "ws": "\n\n",
+      "i": 62,
+      "text": "public",
+      "static": true
+    },
+    {
+      "ws": " ",
+      "i": 64,
+      "text": "function",
+      "static": true
+    },
+    {
+      "ws": " ",
+      "i": 66,
+      "text": "main",
+      "static": false
+    },
+    {
+      "ws": "",
+      "i": 67,
+      "text": "(",
+      "static": true
+    },
+    {
+      "ws": "",
+      "i": 72,
+      "text": ")",
+      "static": true
+    },
+    {
+      "ws": " ",
+      "i": 74,
+      "text": "{",
+      "static": true
+    },
+    {
+      "ws": "\n    \n",
+      "i": 78,
+      "text": "}",
+      "static": true
+    }
+  ],
+  "position": {
+    "startColumn": 1,
+    "startLine": 12,
+    "endColumn": 2,
+    "endLine": 14
+  },
+  "id": "872a9a7a-7506-4e43-9f28-941390b7efed",
+  "VisibleEndpoints": [],
+  "workers": [],
+  "returnTypeAnnotationAttachments": [],
+  "name": {
+    "position": {
+      "startColumn": 17,
+      "startLine": 12,
+      "endColumn": 21,
+      "endLine": 12
+    },
+    "id": "64aa9823-68ea-4df7-a90c-2bf61b5b133d",
+    "literal": false,
+    "value": "main",
+    "kind": "Identifier",
+    "valueWithBar": "main"
+  },
+  "annotationAttachments": [],
+  "returnTypeNode": {
+    "position": {
+      "startColumn": 17,
+      "startLine": 12,
+      "endColumn": 37,
+      "endLine": 12
+    },
+    "id": "30d4f8a5-0c1c-44b8-9ebe-9d7306522cf8",
+    "symbolType": [
+      "null"
+    ],
+    "typeKind": "nil",
+    "grouped": false,
+    "nullable": false,
+    "kind": "ValueType"
+  },
+  "defaultableParameters": [],
+  "deprecatedAttachments": [],
+  "endpointNodes": [],
+  "body": {
+    "id": "a3a9a6ee-3af4-4567-9bcc-518101f56a07",
+    "statements": [],
+    "kind": "Block"
+  },
+  "parameters": [],
+  "restParameters": {
     "ws": [
-        {
-            "ws": "\n\n",
-            "i": 206,
-            "text": "public",
-            "static": true
-        },
-        {
-            "ws": " ",
-            "i": 208,
-            "text": "function",
-            "static": true
-        },
-        {
-            "ws": " ",
-            "i": 210,
-            "text": "main",
-            "static": false
-        },
-        {
-            "ws": "",
-            "i": 211,
-            "text": "(",
-            "static": true
-        },
-        {
-            "ws": "",
-            "i": 216,
-            "text": ")",
-            "static": true
-        },
-        {
-            "ws": " ",
-            "i": 218,
-            "text": "{",
-            "static": true
-        },
-        {
-            "ws": "\n\n",
-            "i": 220,
-            "text": "}",
-            "static": true
-        }
+      {
+        "ws": "",
+        "i": 69,
+        "text": "...",
+        "static": true
+      },
+      {
+        "ws": " ",
+        "i": 71,
+        "text": "args",
+        "static": false
+      }
     ],
     "position": {
-        "startColumn": 1,
-        "startLine": 32,
-        "endColumn": 1,
-        "endLine": 34
+      "startColumn": 22,
+      "startLine": 12,
+      "endColumn": 36,
+      "endLine": 12
     },
-    "id": "30fbfcbf-e14b-4eac-8ed2-840517040121",
-    "workers": [],
-    "returnTypeAnnotationAttachments": [],
+    "id": "5c290282-de37-4863-b30f-fefc016f15cf",
+    "symbolType": [
+      "[]"
+    ],
     "name": {
-        "position": {
-            "startColumn": 17,
-            "startLine": 32,
-            "endColumn": 17,
-            "endLine": 32
-        },
-        "id": "1bd35d80-a8f1-43fd-94ff-47435d0f9de8",
-        "literal": false,
-        "value": "main",
-        "kind": "Identifier",
-        "valueWithBar": "main"
+      "id": "441c3e4e-d586-4308-9255-607e51fff45e",
+      "literal": false,
+      "value": "args",
+      "kind": "Identifier",
+      "valueWithBar": "args"
     },
-    "annotationAttachments": [],
-    "returnTypeNode": {
-        "position": {
-            "startColumn": 17,
-            "startLine": 32,
-            "endColumn": 36,
-            "endLine": 32
-        },
-        "id": "5fdffecc-697a-4103-96ec-0d30fe8a5ddc",
-        "symbolType": [
-            "null"
+    "typeNode": {
+      "id": "01fa761c-d04e-40d7-8b05-4de2d8cd64c4",
+      "symbolType": [
+        "[]"
+      ],
+      "dimensions": 1,
+      "elementType": {
+        "ws": [
+          {
+            "ws": "",
+            "i": 68,
+            "text": "string",
+            "static": true
+          }
         ],
-        "typeKind": "nil",
+        "position": {
+          "startColumn": 22,
+          "startLine": 12,
+          "endColumn": 28,
+          "endLine": 12
+        },
+        "id": "e255a49c-c1d5-4eef-96f8-ff1c8a03300c",
+        "symbolType": [
+          "string"
+        ],
+        "typeKind": "string",
         "grouped": false,
         "nullable": false,
         "kind": "ValueType"
+      },
+      "grouped": false,
+      "sizes": [],
+      "nullable": false,
+      "kind": "ArrayType",
+      "isRestParam": true
     },
-    "defaultableParameters": [],
     "deprecatedAttachments": [],
-    "endpointNodes": [],
-    "body": {
-        "id": "a208c9c3-10ba-4ee3-aeaf-4cd4e2a92351",
-        "statements": [],
-        "kind": "Block"
-    },
-    "parameters": [],
-    "restParameters": {
-        "ws": [
-            {
-                "ws": "",
-                "i": 213,
-                "text": "...",
-                "static": true
-            },
-            {
-                "ws": " ",
-                "i": 215,
-                "text": "args",
-                "static": false
-            }
-        ],
-        "position": {
-            "startColumn": 22,
-            "startLine": 32,
-            "endColumn": 32,
-            "endLine": 32
-        },
-        "id": "caf3ced1-dabb-4fde-8292-d66d55404138",
-        "symbolType": [
-            "[]"
-        ],
-        "name": {
-            "id": "e476569b-d14e-49a7-abac-4886e5717737",
-            "literal": false,
-            "value": "args",
-            "kind": "Identifier",
-            "valueWithBar": "args"
-        },
-        "typeNode": {
-            "id": "301032c4-44f1-40a0-b184-747ba211bc16",
-            "symbolType": [
-                "[]"
-            ],
-            "dimensions": 1,
-            "elementType": {
-                "ws": [
-                    {
-                        "ws": "",
-                        "i": 212,
-                        "text": "string",
-                        "static": true
-                    }
-                ],
-                "position": {
-                    "startColumn": 22,
-                    "startLine": 32,
-                    "endColumn": 22,
-                    "endLine": 32
-                },
-                "id": "87029320-5be5-4f60-8124-08db7faf46c0",
-                "symbolType": [
-                    "string"
-                ],
-                "typeKind": "string",
-                "grouped": false,
-                "nullable": false,
-                "kind": "ValueType"
-            },
-            "grouped": false,
-            "sizes": [],
-            "nullable": false,
-            "kind": "ArrayType",
-            "isRestParam": true
-        },
-        "deprecatedAttachments": [],
-        "annotationAttachments": [],
-        "kind": "Variable",
-        "public": false,
-        "private": false,
-        "native": false,
-        "final": false,
-        "attached": false,
-        "lambda": false,
-        "parallel": false,
-        "connector": false,
-        "deprecated": false,
-        "readonly": false,
-        "function_final": false,
-        "interface": false,
-        "required": false,
-        "record": false,
-        "compensate": false,
-        "abstract": false,
-        "optional": false,
-        "testable": false,
-        "constant": false,
-        "rest": true
-    },
-    "kind": "Function",
-    "public": true,
+    "annotationAttachments": [],
+    "kind": "Variable",
+    "public": false,
     "private": false,
+    "remote": false,
     "native": false,
     "final": false,
     "attached": false,
     "lambda": false,
+    "worker": false,
     "parallel": false,
-    "connector": false,
+    "listener": false,
     "deprecated": false,
     "readonly": false,
     "function_final": false,
@@ -202,6 +183,36 @@
     "abstract": false,
     "optional": false,
     "testable": false,
+    "client": false,
+    "resource": false,
+    "service": false,
     "constant": false,
-    "allParams": []
+    "rest": true
+  },
+  "kind": "Function",
+  "public": true,
+  "private": false,
+  "remote": false,
+  "native": false,
+  "final": false,
+  "attached": false,
+  "lambda": false,
+  "worker": false,
+  "parallel": false,
+  "listener": false,
+  "deprecated": false,
+  "readonly": false,
+  "function_final": false,
+  "interface": false,
+  "required": false,
+  "record": false,
+  "compensate": false,
+  "abstract": false,
+  "optional": false,
+  "testable": false,
+  "client": false,
+  "resource": false,
+  "service": false,
+  "constant": false,
+  "allParams": []
 }

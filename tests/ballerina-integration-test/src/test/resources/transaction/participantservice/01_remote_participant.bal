@@ -18,6 +18,7 @@ import ballerina/http;
 import ballerina/log;
 import ballerina/transactions;
 
+http:Client separateRMParticipant01 = new("http://localhost:8890");
 
 @http:ServiceConfig {
     basePath: "/"
@@ -90,7 +91,7 @@ service hello on new http:Listener(8889) {
             if (participant is string) {
                 s += participant;
             } else {
-                s += "remote-local-error:[" + participant.reason() + "]";
+                s += "remote-local-error:[" + <string>participant.detail().message + "]";
             }
         } else if (nestedTrxInNonParticipantLocalFunc) {
             log:printInfo("In nested trx in remote's local non participant");
@@ -98,7 +99,7 @@ service hello on new http:Listener(8889) {
             if (participant is string) {
                 s += participant;
             } else {
-                s += "remote-local-error-trapped:[" + participant.reason() + "]";
+                s += "remote-local-error-trapped:[" + <string>participant.detail().message + "]";
             }
         }
 
@@ -131,6 +132,11 @@ function localNonParticipantWithNestedTransaction() returns string {
         s += "in nested transaction";
     }
     return s;
+}
+
+@transactions:Participant {}
+function localParticipant() returns string {
+    return " from-init-local-participant";
 }
 
 
@@ -417,5 +423,44 @@ service initiatorService on new http:Listener(8888) {
         if (r is error) {
             log:printError("Error sending response: " + result, err = r);
         }
+    }
+
+    @http:ResourceConfig {
+        methods: ["POST"]
+    }
+    resource function testInfectSeparateRM(http:Caller ep, http:Request req) {
+        http:Response res = new;  res.statusCode = 200;
+        string s = "in-remote-init";
+        transaction {
+            s += " in-trx";
+            var reqText = req.getTextPayload();
+            if (reqText is string) {
+                log:printInfo("req to remote: " + reqText);
+            }
+            var result = separateRMParticipant01 -> post("/success", req);
+            if (result is http:Response) {
+                s += " [remote-status:" + result.statusCode + "] ";
+                var p = result.getTextPayload();
+                if (p is string) {
+                    s += p;
+                } else {
+                    s += " error-getTextPayload";
+                }
+            } else {
+                s += " error-from-remote: " + result.reason() + "desc: " + string.convert(result.detail().message);
+            }
+            s += localParticipant();
+        } onretry {
+            s += " initiator-retry";
+        } committed {
+            log:printInfo("testLocalParticipantSuccess-committed block");
+            s += " initiator-committed-block";
+        } aborted {
+            log:printInfo("testLocalParticipantSuccess-aborted block");
+            s += " initiator-abort-block";
+        }
+
+        var stt = res.setTextPayload(untaint s);
+        _ = ep -> respond(res);
     }
 }

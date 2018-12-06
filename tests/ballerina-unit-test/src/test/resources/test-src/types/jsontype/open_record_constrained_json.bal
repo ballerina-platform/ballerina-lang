@@ -138,12 +138,6 @@ function testConstraintJSONToConstraintJsonUnsafePositiveCast() returns json|err
     return js;
 }
 
-function testConstraintJSONToConstraintJsonUnsafeNegativeCast() returns (json | error) {
-    json<Employee> je = {first_name:"John", last_name:"Doe", age:30, address:{phoneNumber:{number:"1234"}, street:"York St"}};
-    var js = json<Student>.convert(je);
-    return js;
-}
-
 function testJSONArrayToConstraintJsonArrayCastPositive() returns (json<Student>[] | error) {
     json j1 = [getStudent()];
     var j2 = json<Student>[].stamp(j1);

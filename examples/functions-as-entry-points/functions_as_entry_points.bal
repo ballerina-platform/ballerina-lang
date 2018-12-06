@@ -27,12 +27,12 @@ public function performMathOp(string op = "add", int... values) returns int {
 
     int value = values[0];
     if (op == "add") {
-        foreach i in 1 ..< values.length() {
+        foreach var i in 1 ..< values.length() {
             value = add(value, values[i]);
         }
         return value;
     } else if (op == "subtract") {
-        foreach i in 1 ..< values.length() {
+        foreach var i in 1 ..< values.length() {
             value = subtract(value, values[i]);
         }
         return value;

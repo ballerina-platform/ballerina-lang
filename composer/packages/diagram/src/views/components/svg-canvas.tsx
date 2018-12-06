@@ -10,13 +10,15 @@ export const SvgCanvas: React.StatelessComponent<{
     }>
     = ({ model, children, zoom }) => {
     const bBox = model.bBox;
+
     return (
         <DiagramContext.Consumer>
             {(diagContext) => {
                 const svgSize = {
-                    h: bBox.h,
-                    w: bBox.w
+                    h: diagContext.diagramHeight,
+                    w: diagContext.diagramWidth
                 };
+
                 const viewBox =  `0 0 ${bBox.w} ${bBox.h}`;
                 return (
                     <DiagramContext.Provider value={{ ...diagContext, overlayGroupRef }} >

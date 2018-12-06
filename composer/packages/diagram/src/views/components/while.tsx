@@ -5,6 +5,7 @@ import { DiagramConfig } from "../../config/default";
 import { DiagramUtils } from "../../diagram/diagram-utils";
 import { ViewState } from "../../view-model";
 import { ArrowHead } from "./arrow-head";
+import { Block } from "./block";
 import { Condition } from "./condition";
 
 const config: DiagramConfig = DiagramUtils.getConfig();
@@ -15,11 +16,10 @@ export const While: React.StatelessComponent<{
         model
     }) => {
         const viewState: ViewState = model.viewState;
-        const body = [];
 
         const conditionProps = {
             expression: ASTUtil.genSource(model.condition),
-            label: "while",
+            label: "While",
             x: viewState.bBox.x,
             y: viewState.bBox.y + (config.flowCtrl.condition.height / 2),
         };
@@ -42,8 +42,6 @@ export const While: React.StatelessComponent<{
         p4.x = p1.x - (config.flowCtrl.condition.height / 2);
         p4.y = conditionProps.y;
 
-        body.push(DiagramUtils.getComponents(model.body));
-
         // Return Line
         const r1 = { x: 0, y: 0};
         const r2 = { x: 0, y: 0};
@@ -63,16 +61,18 @@ export const While: React.StatelessComponent<{
         r4.y = r3.y;
 
         return (
-            <g className="panel">
-                <Condition {...conditionProps}/>
-                {body}
-                <polyline className="condition-line"
-                    points={`${p1.x},${p1.y} ${p2.x},${p2.y} ${p3.x},${p3.y} ${p4.x},${p4.y}`}
-                />
-                <polyline className="condition-line"
-                    points={`${r1.x},${r1.y} ${r2.x},${r2.y} ${r3.x},${r3.y} ${r4.x},${r4.y}`}
-                />
-                <line className="hide-line" x1={p1.x} y1={p1.y + 1} x2={r4.x} y2={r4.y - 1} strokeLinecap="round" />
-                <ArrowHead direction={"right"} {...p4} />
+            <g className="worker-block">
+                <g className="condition-block">
+                    <polyline className="condition-line"
+                        points={`${p1.x},${p1.y} ${p2.x},${p2.y} ${p3.x},${p3.y} ${p4.x},${p4.y}`}
+                    />
+                    <polyline className="condition-line"
+                        points={`${r1.x},${r1.y} ${r2.x},${r2.y} ${r3.x},${r3.y} ${r4.x},${r4.y}`}
+                    />
+                    <line className="hide-line" x1={p1.x} y1={p1.y + 1} x2={r4.x} y2={r4.y - 1} strokeLinecap="round" />
+                    <ArrowHead direction={"right"} {...p4} />
+                    <Condition {...conditionProps} astModel={model} />
+                    {model.body && <Block model={model.body} />}
+                </g>
             </g>);
     };

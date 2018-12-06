@@ -17,7 +17,7 @@ public function main() {
     var unionResp = helloWorldBlockingEp->hello("WSO2");
     if (unionResp is error) {
         io:println("Error from Connector: " + unionResp.reason() + " - "
-                                            + <string>unionResp.detail().message);
+                                         + <string>unionResp.detail().message);
     } else {
         string result;
         (result, _) = unionResp;

@@ -22,7 +22,7 @@ public function main() {
     // Send multiple messages to the server.
     string[] greets = ["Hi", "Hey", "GM"];
     var name = "John";
-    foreach greet in greets {
+    foreach string greet in greets {
         error? connErr = ep->send(greet + " " + name);
         if (connErr is error) {
             io:println("Error from Connector: " + connErr.reason() + " - "

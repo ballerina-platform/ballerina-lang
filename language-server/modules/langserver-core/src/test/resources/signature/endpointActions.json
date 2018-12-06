@@ -1,18 +1,18 @@
 {
   "position": {
-    "line": 7,
-    "character": 22
+    "line": 5,
+    "character": 20
   },
   "expected": {
     "result":{
       "signatures":[
         {
-          "label":"respond(ballerina/http:Response|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[]? message)",
-          "documentation":"Sends the outbound response to the caller.",
+          "label":"get(string path)",
+          "documentation":"The `get()` function can be used to send HTTP GET requests to HTTP endpoints.",
           "parameters":[
             {
-              "label":"message",
-              "documentation":"The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`\n            or `mime:Entity[]`"
+              "label":"path",
+              "documentation":"Request path"
             }
           ]
         }

@@ -1,5 +1,5 @@
 import { getCodePoint } from "@ballerina/font";
-import cn from "classnames";
+import classNames from "classnames";
 import React from "react";
 import { SimplePoint } from "../../view-model/simple-point";
 import { SVGDropDownMenuTrigger } from "./svg-dropdown-menu-trigger";
@@ -10,6 +10,8 @@ export interface SVGDropDownMenuProps {
     className?: string;
     items: SVGDropDownItem[];
     triggerIcon: string;
+    onMouseOut?: () => void;
+    onMouseOver?: () => void;
 }
 
 export interface SVGDropDownMenuState {
@@ -44,8 +46,10 @@ export class SVGDropDownMenu extends React.Component<SVGDropDownMenuProps, SVGDr
     }
 
     public render() {
-        const { triggerIcon, triggerPosition, triggerPosition: { x, y }, items } = this.props;
-        const btnRadius = 10;
+        const { triggerIcon, triggerPosition, triggerPosition: { x, y },
+                items, className, onMouseOut, onMouseOver } = this.props;
+        const { active } = this.state;
+        const btnRadius = 8;
         const itemHeight = 25;
         const itemWidth = 150;
         const iconOffsetLeft = 5;
@@ -97,12 +101,14 @@ export class SVGDropDownMenu extends React.Component<SVGDropDownMenuProps, SVGDr
                 radius={btnRadius}
                 onClick={() => {
                     this.setState({
-                        active: !this.state.active
+                        active: !active
                     });
                 }}
-                className={cn("svg-dropdown-menu", "noselect")}
+                className={classNames("svg-dropdown-menu", className, { active })}
+                onMouseOut={onMouseOut}
+                onMouseOver={onMouseOver}
             >
-                {this.state.active &&
+                {active &&
                     <g className="content" ref={this.wrapperRef}>
                         {menuItems}
                     </g>

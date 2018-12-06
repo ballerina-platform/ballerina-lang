@@ -69,6 +69,8 @@ public interface MatchNode {
     interface MatchStructuredBindingPatternNode extends MatchBindingPatternNode {
 
         VariableNode getVariableNode();
+
+        BLangExpression getTypeGuardExpr();
     }
 
     ExpressionNode getExpression();

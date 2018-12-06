@@ -13,7 +13,8 @@ service HTTPStreamingService on new http:Listener(9090) {
         methods: ["GET"],
         path: "/fileupload"
     }
-    resource function handleOutputStream(http:Caller caller, http:Request clientRequest) {
+    resource function handleOutputStream(http:Caller caller,
+                                         http:Request clientRequest) {
         http:Request request = new;
 
         //Sets the file as request payload.
@@ -47,7 +48,8 @@ service HTTPStreamingService on new http:Listener(9090) {
         methods: ["POST"],
         path: "/receiver"
     }
-    resource function handleInputStream(http:Caller caller, http:Request clientRequest) {
+    resource function handleInputStream(http:Caller caller,
+                                        http:Request clientRequest) {
         http:Response res = new;
         var payload = clientRequest.getByteChannel();
         if (payload is io:ReadableByteChannel) {
@@ -58,7 +60,8 @@ service HTTPStreamingService on new http:Listener(9090) {
                 io:openWritableFile("./files/ReceivedFile.pdf");
             var result = copy(payload, destinationChannel);
             if (result is error) {
-                log:printError("error occurred while performing copy ", err = result);
+                log:printError("error occurred while performing copy ",
+                                err = result);
             }
             close(payload);
             close(destinationChannel);
@@ -69,7 +72,8 @@ service HTTPStreamingService on new http:Listener(9090) {
         }
         var result = caller->respond(res);
         if (result is error) {
-           log:printError("Error occurred while sending response", err = result);
+           log:printError("Error occurred while sending response",
+                           err = result);
         }
     }
 }
@@ -81,7 +85,8 @@ function setError(http:Response res, error err) {
 }
 
 // Copies the content from the source channel to the destination channel.
-function copy(io:ReadableByteChannel src, io:WritableByteChannel dst) returns error? {
+function copy(io:ReadableByteChannel src, io:WritableByteChannel dst)
+             returns error? {
     int readCount = 1;
     byte[] readContent;
     while (readCount > 0) {

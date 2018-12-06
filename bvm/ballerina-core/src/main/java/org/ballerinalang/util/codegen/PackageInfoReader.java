@@ -696,6 +696,11 @@ public class PackageInfoReader {
 
         // Read attributes
         readAttributeInfoEntries(packageInfo, packageInfo, functionInfo);
+
+        // Set worker send in channels
+        WorkerSendInsAttributeInfo attributeInfo =
+                (WorkerSendInsAttributeInfo) functionInfo.getAttributeInfo(AttributeInfo.Kind.WORKER_SEND_INS);
+        functionInfo.workerSendInChannels = attributeInfo.sendIns;
     }
 
     private void readWorkerData(PackageInfo packageInfo, CallableUnitInfo callableUnitInfo) throws IOException {
@@ -1298,6 +1303,7 @@ public class PackageInfoReader {
                 case InstructionCodes.XMLLOAD:
                 case InstructionCodes.LENGTHOF:
                 case InstructionCodes.STAMP:
+                case InstructionCodes.CONVERT:
                 case InstructionCodes.NEWSTREAM:
                 case InstructionCodes.CHECKCAST:
                 case InstructionCodes.TYPE_ASSERTION:

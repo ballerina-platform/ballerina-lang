@@ -34,7 +34,7 @@
       "kind":"Snippet",
       "detail":"Statement",
       "sortText":"200",
-      "insertText":"foreach ${1:item} in ${2:itemList} {\n\t${3}\n}",
+      "insertText":"foreach ${1:var} ${2:item} in ${3:itemList} {\n\t${4}\n}",
       "insertTextFormat":"Snippet"
     },
     {
@@ -90,7 +90,7 @@
       "kind":"Snippet",
       "detail":"Statement",
       "sortText":"200",
-      "insertText":"transaction with retries \u003d ${1:1}, oncommit \u003d ${2:onCommitFunction}, onabort \u003d ${3:onAbortFunction} {\n\t${4}\n} onretry {\n\t${5}\n}",
+      "insertText":"transaction with retries ${1:0} {\n\t${2}\n} onretry {\n\t${3}\n}",
       "insertTextFormat":"Snippet"
     },
     {
@@ -99,22 +99,6 @@
       "detail":"Statement",
       "sortText":"200",
       "insertText":"while (${1:true}) {\n\t${2}\n}",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"wrply   Worker Reply Statement",
-      "kind":"Snippet",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"${1:var1} \u003c- ${2:w1};",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"wtrg   Worker Trigger Statement",
-      "kind":"Snippet",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"${1:var1} -\u003e ${2:w1};",
       "insertTextFormat":"Snippet"
     },
     {
@@ -279,6 +263,22 @@
       "insertText":"string"
     },
     {
+      "label":"0w1()",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"0w1()",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"0w2()",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"0w2()",
+      "insertTextFormat":"Snippet"
+    },
+    {
       "label":"error",
       "kind":"Keyword",
       "detail":"BType",
@@ -344,15 +344,15 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/transactions;\n"
+          "newText":"import ballerina/transactions;\n"
         }
       ]
     },
@@ -366,15 +366,15 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/websub;\n"
+          "newText":"import ballerina/websub;\n"
         }
       ]
     },
@@ -388,15 +388,15 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/grpc;\n"
+          "newText":"import ballerina/grpc;\n"
         }
       ]
     },
@@ -410,15 +410,15 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/reflect;\n"
+          "newText":"import ballerina/reflect;\n"
         }
       ]
     },
@@ -432,15 +432,15 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/log;\n"
+          "newText":"import ballerina/log;\n"
         }
       ]
     },
@@ -454,15 +454,15 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/time;\n"
+          "newText":"import ballerina/time;\n"
         }
       ]
     },
@@ -476,15 +476,15 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/test;\n"
+          "newText":"import ballerina/test;\n"
         }
       ]
     },
@@ -498,15 +498,15 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/runtime;\n"
+          "newText":"import ballerina/runtime;\n"
         }
       ]
     },
@@ -520,15 +520,15 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/swagger;\n"
+          "newText":"import ballerina/swagger;\n"
         }
       ]
     },
@@ -542,15 +542,15 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/file;\n"
+          "newText":"import ballerina/file;\n"
         }
       ]
     },
@@ -564,15 +564,15 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/sql;\n"
+          "newText":"import ballerina/sql;\n"
         }
       ]
     },
@@ -586,15 +586,15 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/internal;\n"
+          "newText":"import ballerina/internal;\n"
         }
       ]
     },
@@ -608,15 +608,15 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/http;\n"
+          "newText":"import ballerina/http;\n"
         }
       ]
     },
@@ -630,15 +630,15 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/mysql;\n"
+          "newText":"import ballerina/mysql;\n"
         }
       ]
     },
@@ -652,15 +652,15 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/mime;\n"
+          "newText":"import ballerina/mime;\n"
         }
       ]
     },
@@ -674,15 +674,15 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/task;\n"
+          "newText":"import ballerina/task;\n"
         }
       ]
     },
@@ -696,15 +696,15 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/crypto;\n"
+          "newText":"import ballerina/crypto;\n"
         }
       ]
     },
@@ -718,15 +718,15 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/cache;\n"
+          "newText":"import ballerina/cache;\n"
         }
       ]
     },
@@ -740,15 +740,15 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/auth;\n"
+          "newText":"import ballerina/auth;\n"
         }
       ]
     },
@@ -762,15 +762,15 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/jms;\n"
+          "newText":"import ballerina/jms;\n"
         }
       ]
     },
@@ -784,15 +784,15 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/system;\n"
+          "newText":"import ballerina/system;\n"
         }
       ]
     },
@@ -806,15 +806,15 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/h2;\n"
+          "newText":"import ballerina/h2;\n"
         }
       ]
     },
@@ -835,15 +835,15 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/math;\n"
+          "newText":"import ballerina/math;\n"
         }
       ]
     },
@@ -857,15 +857,15 @@
         {
           "range":{
             "start":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             },
             "end":{
-              "line":0,
-              "character":21
+              "line":1,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/config;\n"
+          "newText":"import ballerina/config;\n"
         }
       ]
     }

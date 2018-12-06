@@ -820,6 +820,7 @@ public class BLangPackageBuilder {
             addBindingPatternMemberVariable(pos, ws, identifier);
         }
         recordKeyValue.valueBindingPattern = this.varStack.pop();
+        recordKeyValue.valueBindingPattern.addWS(ws);
         this.recordVarListStack.peek().add(recordKeyValue);
     }
 
@@ -1007,13 +1008,12 @@ public class BLangPackageBuilder {
             markVariableAsFinal(var);
         }
         BLangTupleVariableDef varDefNode = (BLangTupleVariableDef) TreeBuilder.createTupleVariableDefinitionNode();
-        Set<Whitespace> wsOfSemiColon = removeNthFromLast(ws, 0);
         if (isExpressionAvailable) {
             var.setInitialExpression(this.exprNodeStack.pop());
         }
         varDefNode.pos = pos;
         varDefNode.setVariable(var);
-        varDefNode.addWS(wsOfSemiColon);
+        varDefNode.addWS(ws);
         var.isDeclaredWithVar = isDeclaredWithVar;
         if (!isDeclaredWithVar) {
             var.setTypeNode(this.typeNodeStack.pop());
@@ -2197,7 +2197,7 @@ public class BLangPackageBuilder {
         stmt.addWS(ws);
         stmt.expr = (BLangExpression) exprNodeStack.pop();
         stmt.varRef = (BLangTupleVarRef) exprNodeStack.pop();
-        stmt.addWS(ws);
+        stmt.addWS(stmt.varRef.getWS());
         addStmtToCurrentBlock(stmt);
     }
 
@@ -2608,6 +2608,9 @@ public class BLangPackageBuilder {
         serviceNode.setName(serviceVar);
         if (!isAnonServiceValue) {
             this.exprNodeListStack.pop().forEach(expr -> serviceNode.attachedExprs.add((BLangExpression) expr));
+            if (this.commaWsStack.size() > 0) {
+                serviceNode.addWS(this.commaWsStack.pop());
+            }
         }
         // We add all service nodes to top level, only for future reference.
         this.compUnit.addTopLevelNode(serviceNode);

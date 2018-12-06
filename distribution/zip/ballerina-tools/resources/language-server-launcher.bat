@@ -42,12 +42,12 @@ rem -------------------------- set BALLERINA_HOME -----------------------------
 rem TODO: Validate BALLERINA_HOME
 rem %~sdp0 is expanded pathname of the current script under NT with spaces in the path removed
 set BALLERINA_HOME=%~sdp0..\..\..\..
-goto setJava
+if exist "%BALLERINA_HOME%\bre\lib\jre1.8.0_172" goto setJava
+goto checkJava
 
 :setJava
 set JAVA_HOME="%BALLERINA_HOME%\bre\lib\jre1.8.0_172"
-if not exist "%JAVA_HOME%\bin\java.exe" goto checkJava
-goto updateClasspath
+goto checkJava
 
 :checkJava
 if "%JAVA_HOME%" == "" goto noJavaHome
@@ -66,11 +66,14 @@ set BALLERINA_CLASSPATH=
 set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;"%BALLERINA_HOME%\bre\lib\*"
 set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;"%BALLERINA_HOME%\lib\tools\lang-server\lib\*"
 
+set ALLOW_EXPERIMENTAL=false
 :loop
 if not "%~1" == "" (
     if "%~1" == "--debug" (
         set DEBUG=true
-        SHIFT
+    )
+    if "%~1" == "--experimental" (
+        set ALLOW_EXPERIMENTAL=true
     )
     SHIFT
     goto :loop
@@ -116,7 +119,7 @@ set CMD=%*
 
 rem ---------- Add jars to classpath ----------------
 
-set CMD_LINE_ARGS=-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath="%BALLERINA_HOME%\language-server-heap-dump.hprof"  -Dcom.sun.management.jmxremote -classpath %BALLERINA_CLASSPATH% -Dballerina.home="%BALLERINA_HOME%"  -Djava.command="%JAVA_HOME%\bin\java" %JAVA_OPTS% -Dballerina.version=0.981.2-SNAPSHOT
+set CMD_LINE_ARGS=-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath="%BALLERINA_HOME%\language-server-heap-dump.hprof"  -Dcom.sun.management.jmxremote -classpath %BALLERINA_CLASSPATH% -Dballerina.home="%BALLERINA_HOME%" -Dexperimental="%ALLOW_EXPERIMENTAL%" -Djava.command="%JAVA_HOME%\bin\java" %JAVA_OPTS% -Dballerina.version=0.981.2-SNAPSHOT
 
 :runJava
 "%JAVA_HOME%\bin\java" %CMD_LINE_ARGS% org.ballerinalang.langserver.launchers.stdio.Main %CMD%

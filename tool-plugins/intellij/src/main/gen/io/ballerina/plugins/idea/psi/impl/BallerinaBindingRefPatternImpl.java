@@ -59,10 +59,4 @@ public class BallerinaBindingRefPatternImpl extends BallerinaCompositeElementImp
     return PsiTreeUtil.getChildOfType(this, BallerinaVariableReference.class);
   }
 
-  @Override
-  @Nullable
-  public PsiElement getUnderscore() {
-    return findChildByType(UNDERSCORE);
-  }
-
 }

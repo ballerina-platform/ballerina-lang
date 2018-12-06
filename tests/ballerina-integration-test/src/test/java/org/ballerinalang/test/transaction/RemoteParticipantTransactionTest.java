@@ -19,6 +19,7 @@ package org.ballerinalang.test.transaction;
 
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BServerInstance;
+import org.ballerinalang.test.context.BalServer;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
@@ -40,20 +41,29 @@ import static org.testng.Assert.assertEquals;
 @Test(groups = "transactions-test")
 public class RemoteParticipantTransactionTest extends BaseTest {
     private static BServerInstance serverInstance;
+    private static BServerInstance separateInstance;
     private final int initiatorServicePort = 8888;
     private final int participant1ServicePort = 8889;
+    private final int separateProcServicePort = 8890;
+    private BalServer sepBalserverInstance;
 
     @BeforeClass(groups = "transactions-test", alwaysRun = true)
     public void start() throws BallerinaTestException, IOException {
-        int[] requiredPorts = new int[]{initiatorServicePort, participant1ServicePort /*, participant2ServicePort*/};
+        int[] requiredPorts = new int[]{initiatorServicePort, participant1ServicePort};
         String basePath = new File("src" + File.separator + "test" + File.separator + "resources" +
                 File.separator + "transaction").getAbsolutePath();
-        String[] args = new String[]{"-e", "http.coordinator.host=127.0.0.1"};
+        String[] args = new String[]{"-e", "http.coordinator.host=127.0.0.1", "--experimental"};
 
         serverInstance = new BServerInstance(balServer);
         HashMap<String, String> envProperties = new HashMap<>();
-//        envProperties.put("BAL_JAVA_DEBUG", "5005");
         serverInstance.startServer(basePath, "participantservice", args, envProperties, requiredPorts);
+
+        sepBalserverInstance = new BalServer();
+        separateInstance = new BServerInstance(sepBalserverInstance);
+        HashMap<String, String> env2Properties = new HashMap<>();
+        int[] requiredPortsSepProc = new int[]{separateProcServicePort};
+        separateInstance.startServer(basePath, "participantSepProc", args, env2Properties,
+                requiredPortsSepProc);
     }
 
 
@@ -61,6 +71,10 @@ public class RemoteParticipantTransactionTest extends BaseTest {
     public void stop() throws Exception {
         serverInstance.removeAllLeechers();
         serverInstance.shutdownServer();
+        separateInstance.removeAllLeechers();
+        separateInstance.shutdownServer();
+        // cleanup separately created BalServer
+        sepBalserverInstance.cleanup();
     }
 
     @Test
@@ -128,9 +142,11 @@ public class RemoteParticipantTransactionTest extends BaseTest {
                 "remoteParticipantStartNestedTransaction");
         HttpResponse response = HttpClientRequest.doPost(url, "", new HashMap<>());
         assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        String target = " in initiator-trx remote1-excepted:[dynamically nested transactions are not allowed] " +
-                "onretry in initiator-trx remote1-excepted:[dynamically nested transactions are not allowed] " +
-                "onretry in initiator-trx remote1-excepted:[dynamically nested transactions are not allowed] aborted";
+        String target = " in initiator-trx remote1-excepted:[{ballerina}TransactionError:dynamically nested " +
+                "transactions are not allowed] onretry in initiator-trx " +
+                "remote1-excepted:[{ballerina}TransactionError:dynamically nested transactions are not allowed] " +
+                "onretry in initiator-trx remote1-excepted:[{ballerina}TransactionError:dynamically nested " +
+                "transactions are not allowed] aborted";
         assertEquals(response.getData(), target, "payload mismatched");
     }
 
@@ -155,6 +171,30 @@ public class RemoteParticipantTransactionTest extends BaseTest {
         assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         String target = " in initiator-trx <remote-local-error-trapped:[dynamically nested transactions " +
                 "are not allowed]> committed";
+        assertEquals(response.getData(), target, "payload mismatched");
+    }
+
+    @Test
+    public void remoteParticipantSeperateResourceManagerSuccess() throws IOException {
+        String url = serverInstance.getServiceURLHttp(initiatorServicePort,
+                "testInfectSeparateRM");
+        HttpResponse response = HttpClientRequest.doPost(url, "", new HashMap<>());
+        assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        String target = "in-remote-init in-trx [remote-status:200]  in-remote payload-from-remote " +
+                "from-init-local-participant initiator-committed-block";
+        assertEquals(response.getData(), target, "payload mismatched");
+    }
+
+    @Test
+    public void remoteParticipantSeperateResourceManagerRemoteFail() throws IOException {
+        String url = serverInstance.getServiceURLHttp(initiatorServicePort,
+                "testInfectSeparateRM");
+        HttpResponse response = HttpClientRequest.doPost(url, "blowUp", new HashMap<>());
+        assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        String target = "in-remote-init in-trx [remote-status:500] transactionError from-init-local-participant " +
+                "initiator-retry in-trx [remote-status:500] transactionError from-init-local-participant " +
+                "initiator-retry in-trx [remote-status:500] transactionError from-init-local-participant " +
+                "initiator-abort-block";
         assertEquals(response.getData(), target, "payload mismatched");
     }
 }

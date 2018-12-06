@@ -129,7 +129,7 @@ public class DirectoryListenerConnectorTest {
         }
     }
 
-    @Test(description = "Check the negative test for invalid resource param type.", enabled = false)
+    @Test(description = "Check the negative test for invalid resource param type.")
     public void testNegativeWithoutInvalidParamType() {
         try {
             final CompileResult compileResult = BCompileUtil
@@ -144,7 +144,7 @@ public class DirectoryListenerConnectorTest {
         }
     }
 
-    @Test(description = "Check the negative test for invalid resource name.", enabled = false)
+    @Test(description = "Check the negative test for invalid resource name.")
     public void testNegativeWithoutInvalidResourceName() {
         try {
             final CompileResult compileResult = BCompileUtil

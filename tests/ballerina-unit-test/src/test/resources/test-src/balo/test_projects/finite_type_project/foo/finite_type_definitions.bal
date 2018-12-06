@@ -46,3 +46,7 @@ public type ByteType byte;
 public type ByteArrayType byte[];
 
 public type BFType byte|float;
+
+public type BFuncType function (string) returns int;
+
+public type BFuncType2 (function (string) returns int)|string;

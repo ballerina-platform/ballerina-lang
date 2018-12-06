@@ -152,6 +152,22 @@ public class TypeGuardTest {
     }
 
     @Test
+    public void testTypeGuardInElse_6() {
+        BValue[] returns = BRunUtil.invoke(result, "testTypeGuardInElse_6");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "int: 5");
+    }
+
+    @Test
+    public void testTypeGuardInElse_7() {
+        BValue[] returns = BRunUtil.invoke(result, "testTypeGuardInElse_6");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "int: 5");
+    }
+
+    @Test
     public void testComplexTernary_1() {
         BValue[] returns = BRunUtil.invoke(result, "testComplexTernary_1");
         Assert.assertEquals(returns.length, 1);

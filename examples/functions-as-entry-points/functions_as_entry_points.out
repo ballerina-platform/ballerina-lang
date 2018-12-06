@@ -1,6 +1,6 @@
-# At the command line, navigate to the directory that contains the `.bal` file and
-# use the ballerina `run` command with the `--printreturn` option set to print the
-# return value to the standard out stream.
+# To run this sample, navigate to the directory that contains the
+# `.bal` file and issue the `ballerina run` command with the `--printreturn`
+# option set to print the return value to the standard out stream.
 
 # Use the ballerina `run` command to invoke the `main` function, specifying `4` and
 # `8` as the integer arguments on which the operation is to be performed, and `add`

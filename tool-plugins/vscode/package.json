@@ -55,6 +55,11 @@
                     "default": "",
                     "description": "Specifies the path to the ballerina home directory"
                 },
+                "ballerina.allowExperimental": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "If set to true experimental ballerina features will be allowed"
+                },
                 "ballerina.debugLog": {
                     "type": "boolean",
                     "default": false,
@@ -162,7 +167,7 @@
                 "command": "ballerina.showDiagram",
                 "title": "Show Diagram",
                 "icon": {
-                    "dark": "./resources/images/icons/design-view-white.svg",
+                    "dark": "./resources/images/icons/design-view-inverse.svg",
                     "light": "./resources/images/icons/design-view.svg"
                 },
                 "category": "Ballerina"
@@ -185,20 +190,24 @@
             {
                 "command": "ballerina.showAPIEditor",
                 "title": "Show API Designer",
+                "icon": {
+                    "dark": "./resources/images/icons/api-design-inverse.svg",
+                    "light": "./resources/images/icons/api-design.svg"
+                },
                 "category": "Ballerina"
             },
             {
                 "command": "ballerina.showTraces",
                 "title": "Ballerina: Show Network logs"
-            },
-            {
-                "command": "ballerina.showAPIEditor",
-                "title": "Show API Designer",
-                "category": "Ballerina"
             }
         ],
         "menus": {
             "editor/title": [
+                {
+                    "when": "resourceLangId == ballerina",
+                    "command": "ballerina.showAPIEditor",
+                    "group": "navigation"
+                },
                 {
                     "when": "resourceLangId == ballerina",
                     "command": "ballerina.showDiagram",
@@ -206,6 +215,11 @@
                 }
             ],
             "editor/context": [
+                {
+                    "when": "resourceLangId == ballerina",
+                    "command": "ballerina.showDiagram",
+                    "group": "navigation"
+                },
                 {
                     "when": "resourceLangId == ballerina",
                     "command": "ballerina.showAPIEditor",

@@ -1,0 +1,52 @@
+@type    : "view";
+@element : "examples";
+
+.examples(@color) {
+    background: ~"@{@{color}-examples-background-color}";
+    padding: 30px;
+    color: ~"@{@{color}-examples-text-color}";
+
+    .search-control {
+        min-width: 300px;
+    }
+
+    .ui.header {
+        font-weight: 400;
+        font-size: 26px;
+        color: ~"@{@{color}-examples-text-color}";
+    }
+
+    .examples-block {
+        background: ~"@{@{color}-examples-block-background-color}";
+        color: ~"@{@{color}-examples-text-color}";
+
+        .header {
+            padding: 11px 10px;
+            font-weight: 500 !important;
+            font-size: 16px;
+            color: ~"@{@{color}-examples-text-color}" !important;
+        }
+
+        .ui.list {
+            padding: 0;
+
+            .item.example {
+                background: ~"@{@{color}-example-background-color}";
+                border-bottom: 1px solid ~"@{@{color}-example-border-color}";
+                padding: 5px 10px;
+    
+                a {
+                    color: ~"@{@{color}-example-text-color}";
+                }
+            }
+        }
+    }
+}
+
+body.examples {
+    .examples("light");
+    
+    &.vscode-dark {
+        .examples("dark");
+    }
+}
