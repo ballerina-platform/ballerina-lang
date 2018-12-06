@@ -19,7 +19,7 @@ function convertType(Employee emp) returns () {
 
 function convertSimpleTypes() {
 
-    // The `convert()` can be used to conversion of simple values as below.
+    // The `convert()` can be used to explicity convert simple values as below.
     string s1 = "45";
     string s2 = "abc";
     string s3 = "true";
