@@ -140,7 +140,7 @@ public enum Snippet {
 
     BUILTIN_STAMP(SnippetGenerator.getBuiltinStampSnippet()),
 
-    BUILTIN_CREATE(SnippetGenerator.getBuiltinCreateSnippet()),
+    BUILTIN_CONVERT(SnippetGenerator.getBuiltinConvertSnippet()),
 
     BUILTIN_IS_NAN(SnippetGenerator.getBuiltinIsNaNSnippet()),
 

@@ -817,9 +817,9 @@ public class CommonUtil {
                                                        ItemResolverConstants.BUILTIN_STAMP_LABEL, context);
             SymbolInfo clone = getIterableOpSymbolInfo(Snippet.BUILTIN_CLONE.get(), bType,
                                                        ItemResolverConstants.BUILTIN_CLONE_LABEL, context);
-            SymbolInfo create = getIterableOpSymbolInfo(Snippet.BUILTIN_CREATE.get(), bType,
-                                                        ItemResolverConstants.BUILTIN_CREATE_LABEL, context);
-            symbolInfoList.addAll(Arrays.asList(stamp, clone, create));
+            SymbolInfo convert = getIterableOpSymbolInfo(Snippet.BUILTIN_CONVERT.get(), bType,
+                                                        ItemResolverConstants.BUILTIN_CONVERT_LABEL, context);
+            symbolInfoList.addAll(Arrays.asList(stamp, clone, convert));
         }
 
         // Populate the Builtin Functions
