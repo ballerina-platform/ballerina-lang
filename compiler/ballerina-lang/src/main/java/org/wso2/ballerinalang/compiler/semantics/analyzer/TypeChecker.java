@@ -885,11 +885,7 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        // If the expression is safe navigable, then the type should be an union. Otherwise safe navigation is not
-        // required.
-        if (fieldAccessExpr.safeNavigate && varRefType.tag != TypeTags.UNION && varRefType != symTable.semanticError) {
-            dlog.error(fieldAccessExpr.pos, DiagnosticCode.SAFE_NAVIGATION_NOT_REQUIRED, varRefType);
-        }
+        checkSafeNavigation(fieldAccessExpr, varRefType);
 
         varRefType = getSafeType(varRefType, fieldAccessExpr);
         Name fieldName = names.fromIdNode(fieldAccessExpr.field);
@@ -917,12 +913,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BType varRefType = indexBasedAccessExpr.expr.type;
 
-        // If the expression is safe navigable, then the type should be an union. Otherwise safe navigation is not
-        // required.
-        if (indexBasedAccessExpr.safeNavigate && varRefType.tag != TypeTags.UNION &&
-                varRefType != symTable.semanticError) {
-            dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.SAFE_NAVIGATION_NOT_REQUIRED, varRefType);
-        }
+        checkSafeNavigation(indexBasedAccessExpr, varRefType);
 
         varRefType = getSafeType(varRefType, indexBasedAccessExpr);
         BType actualType = checkIndexAccessExpr(indexBasedAccessExpr, varRefType);
@@ -971,13 +962,10 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        // If the expression is safe navigable, then the type should be an union. Otherwise safe navigation is not
-        // required.
-        if (iExpr.safeNavigate && exprType.tag != TypeTags.UNION && exprType != symTable.semanticError) {
-            dlog.error(iExpr.pos, DiagnosticCode.SAFE_NAVIGATION_NOT_REQUIRED, iExpr.expr.type);
-        }
-
         BType varRefType = iExpr.expr.type;
+
+        checkSafeNavigation(iExpr, varRefType);
+
         varRefType = getSafeType(varRefType, iExpr);
 
         BLangBuiltInMethod builtInFunction = BLangBuiltInMethod.getFromString(iExpr.name.value);
@@ -2993,6 +2981,14 @@ public class TypeChecker extends BLangNodeVisitor {
 
             // Cache the type guards, to be reused at the desugar.
             ternaryExpr.elseTypeGuards.put(originalVarSymbol, varSymbol);
+        }
+    }
+
+    private void checkSafeNavigation(BLangAccessExpression fieldAccessExpr, BType varRefType) {
+        // If the expression is safe navigable, then the type should be an union. Otherwise safe navigation is not
+        // required.
+        if (fieldAccessExpr.safeNavigate && varRefType.tag != TypeTags.UNION && varRefType != symTable.semanticError) {
+            dlog.error(fieldAccessExpr.pos, DiagnosticCode.SAFE_NAVIGATION_NOT_REQUIRED, varRefType);
         }
     }
 }
