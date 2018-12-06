@@ -885,6 +885,12 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
+        // If the expression is safe navigable, then the type should be an union. Otherwise safe navigation is not
+        // required.
+        if (fieldAccessExpr.safeNavigate && varRefType.tag != TypeTags.UNION && varRefType != symTable.semanticError) {
+            dlog.error(fieldAccessExpr.pos, DiagnosticCode.SAFE_NAVIGATION_NOT_REQUIRED, varRefType);
+        }
+
         varRefType = getSafeType(varRefType, fieldAccessExpr);
         Name fieldName = names.fromIdNode(fieldAccessExpr.field);
         BType actualType = checkFieldAccessExpr(fieldAccessExpr, varRefType, fieldName);
@@ -910,6 +916,14 @@ public class TypeChecker extends BLangNodeVisitor {
         checkExpr(indexBasedAccessExpr.expr, this.env, symTable.noType);
 
         BType varRefType = indexBasedAccessExpr.expr.type;
+
+        // If the expression is safe navigable, then the type should be an union. Otherwise safe navigation is not
+        // required.
+        if (indexBasedAccessExpr.safeNavigate && varRefType.tag != TypeTags.UNION &&
+                varRefType != symTable.semanticError) {
+            dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.SAFE_NAVIGATION_NOT_REQUIRED, varRefType);
+        }
+
         varRefType = getSafeType(varRefType, indexBasedAccessExpr);
         BType actualType = checkIndexAccessExpr(indexBasedAccessExpr, varRefType);
 
@@ -959,8 +973,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
         // If the expression is safe navigable, then the type should be an union. Otherwise safe navigation is not
         // required.
-        if (iExpr.safeNavigate && exprType.tag != TypeTags.UNION) {
-            dlog.error(iExpr.pos, DiagnosticCode.SAFE_NAVIGATION_NOT_REQUIRED,  iExpr.expr.type);
+        if (iExpr.safeNavigate && exprType.tag != TypeTags.UNION && exprType != symTable.semanticError) {
+            dlog.error(iExpr.pos, DiagnosticCode.SAFE_NAVIGATION_NOT_REQUIRED, iExpr.expr.type);
         }
 
         BType varRefType = iExpr.expr.type;
@@ -2747,11 +2761,6 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType getSafeType(BType type, BLangAccessExpression accessExpr) {
-        if (accessExpr.safeNavigate && type == symTable.errorType) {
-            dlog.error(accessExpr.pos, DiagnosticCode.SAFE_NAVIGATION_NOT_REQUIRED, type);
-            return symTable.semanticError;
-        }
-
         if (type.tag != TypeTags.UNION) {
             return type;
         }
