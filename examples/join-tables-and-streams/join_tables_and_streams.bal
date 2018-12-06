@@ -6,18 +6,21 @@ type Item record {
     string name;
     float price;
     int stockAmount;
+    !...
 };
 
 //This is the record that holds order events from customer.
 type Order record {
     string itemName;
     int orderingAmount;
+    !...
 };
 
 //This is the record that holds alert events.
 type OutOfStockAlert record {
     string itemName;
     int stockAmount;
+    !...
 };
 
 // This is the input stream that uses `Order` as the constraint type.
@@ -36,8 +39,8 @@ table<Item> itemStockTable = table {
 stream<OutOfStockAlert> oredrAlertStream = new;
 
 function initOutOfStockAlert() {
-    //whenever an order event is published to `orderStream` it is matched against the `itemStockTable` through
-    //the `queryItemTable` function. If there is a match then an alert event is published to `oredrAlertStream`.
+    // Whenever an order event is published to `orderStream`, it is matched against the `itemStockTable` through
+    //the `queryItemTable` function. If there is a match, an alert event is published to `oredrAlertStream`.
     forever {
         from orderStream window lengthWindow(1) as itemOrder
         join queryItemTable(itemOrder.itemName, itemOrder.orderingAmount) as item
@@ -78,11 +81,9 @@ public function main() {
     runtime:sleep(500);
     orderStream.publish(order2);
     runtime:sleep(500);
-
 }
 
 function printOutOfStocksAlert(OutOfStockAlert a) {
     io:println("Alert! : " + a.itemName +
             " stock is not enough to satisfy the order.");
 }
-
