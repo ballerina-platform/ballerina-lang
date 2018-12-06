@@ -4,13 +4,12 @@ let actionView = false;
 
 function isOrdinaryStatement(node: ASTNode): boolean {
     return !ASTKindChecker.isIf(node)
-     && !ASTKindChecker.isMatch(node)
-     && !ASTKindChecker.isReturn(node)
-     && !ASTKindChecker.isWhile(node)
-     && !ASTKindChecker.isForeach(node)
-     && !ASTUtil.isWorker(node)
-     && !ASTUtil.isActionInvocation(node);
-    return true;
+        && !ASTKindChecker.isMatch(node)
+        && !ASTKindChecker.isReturn(node)
+        && !ASTKindChecker.isWhile(node)
+        && !ASTKindChecker.isForeach(node)
+        && !ASTUtil.isWorker(node)
+        && !ASTUtil.isActionInvocation(node);
 }
 
 export const visitor: Visitor = {
@@ -25,11 +24,12 @@ export const visitor: Visitor = {
                     hiddenSet = true;
                 }
             } else {
-                hiddenSet = false;
+                if (!ASTUtil.isWorker(element)) {
+                    hiddenSet = false;
+                }
             }
         });
     }
-
 };
 
 export function setActionViewStatus(enabled = false) {
