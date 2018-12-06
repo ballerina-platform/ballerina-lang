@@ -516,7 +516,6 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     ">>>="                                      { return COMPOUND_LOGICAL_SHIFT; }
 
     "..<"                                       { return HALF_OPEN_RANGE; }
-    "_"                                         { return UNDERSCORE; }
 
     "from"                                      { inTableSqlQuery = true; inSiddhiInsertQuery = true; inSiddhiOutputRateLimit = true; return FROM; }
     "on"                                        { return ON; }

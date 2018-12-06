@@ -2,7 +2,7 @@ import { InitializeParams, InitializeResult } from "vscode-languageserver-protoc
 import { BallerinaASTNode, BallerinaEndpoint, BallerinaSourceFragment } from "./ast-models";
 import { ASTDidChangeParams, ASTDidChangeResponse, BallerinaExampleListParams,
     BallerinaExampleListResponse, BallerinaProject, GetASTParams, GetASTResponse,
-    GetBallerinaProjectParams, IBallerinaLangClient } from "./model";
+    GetBallerinaProjectParams, GoToSourceParams, IBallerinaLangClient, RevealRangeParams } from "./model";
 
 // tslint:disable:no-object-literal-type-assertion
 export class EmptyLanguageClient implements IBallerinaLangClient {
@@ -37,7 +37,11 @@ export class EmptyLanguageClient implements IBallerinaLangClient {
         return Promise.reject();
     }
 
-    public goToSource(line: number, column: number): void {
+    public goToSource(params: GoToSourceParams): void {
+        // EMPTY
+    }
+
+    public revealRange(params: RevealRangeParams): void {
         // EMPTY
     }
 

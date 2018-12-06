@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaUnderscoreVariableReferenceImpl extends BallerinaVariableReferenceImpl implements BallerinaUnderscoreVariableReference {
+public class BallerinaStaticMatchIdentifierLiteralImpl extends BallerinaStaticMatchLiteralsImpl implements BallerinaStaticMatchIdentifierLiteral {
 
-  public BallerinaUnderscoreVariableReferenceImpl(@NotNull ASTNode node) {
+  public BallerinaStaticMatchIdentifierLiteralImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitUnderscoreVariableReference(this);
+    visitor.visitStaticMatchIdentifierLiteral(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -43,8 +43,8 @@ public class BallerinaUnderscoreVariableReferenceImpl extends BallerinaVariableR
 
   @Override
   @NotNull
-  public PsiElement getUnderscore() {
-    return notNullChild(findChildByType(UNDERSCORE));
+  public PsiElement getIdentifier() {
+    return notNullChild(findChildByType(IDENTIFIER));
   }
 
 }

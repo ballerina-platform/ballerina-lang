@@ -4,7 +4,7 @@ import { InitializeParams, InitializeResult } from "vscode-languageserver-protoc
 import { BallerinaASTNode, BallerinaEndpoint, BallerinaSourceFragment } from "./ast-models";
 import { ASTDidChangeParams, ASTDidChangeResponse, BallerinaExampleListParams,
     BallerinaExampleListResponse, BallerinaProject, GetASTParams, GetASTResponse,
-    GetBallerinaProjectParams, IBallerinaLangClient } from "./model";
+    GetBallerinaProjectParams, GoToSourceParams, IBallerinaLangClient, RevealRangeParams } from "./model";
 
 export class BallerinaLangClient implements IBallerinaLangClient {
 
@@ -48,7 +48,11 @@ export class BallerinaLangClient implements IBallerinaLangClient {
         return this.lsConnection.sendRequest("ballerinaDocument/project", params);
     }
 
-    public goToSource(line: number, column: number): void {
+    public goToSource(params: GoToSourceParams): void {
+       // TODO
+    }
+
+    public revealRange(params: RevealRangeParams): void {
         // TODO
     }
 

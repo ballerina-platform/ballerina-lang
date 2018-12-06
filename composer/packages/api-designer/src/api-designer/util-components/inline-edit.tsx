@@ -30,6 +30,7 @@ export interface InlineEditProps {
     changeModel: any;
     changeAttribute: AttributeObject;
     isMarkdown?: boolean;
+    characterLimit?: number;
     onInlineValueChange: (openApiJson: any) => void;
 }
 
@@ -201,7 +202,7 @@ class InlineEdit extends React.Component<InlineEditProps, InlineEditState> {
     }
 
     private handleOnTextChange(e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) {
-        const { isURL } = this.props;
+        const { isURL, isParagraph, characterLimit } = this.props;
 
         if (isURL) {
             switch (e.target.id) {
@@ -217,9 +218,17 @@ class InlineEdit extends React.Component<InlineEditProps, InlineEditState> {
                     break;
             }
         } else {
-            this.setState({
-                stateText: e.target.value
-            });
+            if (characterLimit) {
+                if (!isParagraph && e.target.value.length <= characterLimit) {
+                    this.setState({
+                        stateText: e.target.value
+                    });
+                }
+            } else {
+                this.setState({
+                    stateText: e.target.value
+                });
+            }
         }
 
     }
@@ -238,7 +247,7 @@ class InlineEdit extends React.Component<InlineEditProps, InlineEditState> {
 
         switch (attribute.key) {
             case "info.description":
-                model.info.descrption = stateText;
+                model.info.description = stateText;
                 break;
             case "info.termsOfService":
                 model.info.termsOfService = stateText;
