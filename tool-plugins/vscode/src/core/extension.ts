@@ -104,7 +104,7 @@ export class BallerinaExtension {
                 // Following was put in to handle server startup failiers.
                 const disposeDidChange = this.langClient.onDidChangeState(stateChangeEvent => {
                     if (stateChangeEvent.newState === LS_STATE.Stopped) {
-                        log("Coudn't establish language server connection.");
+                        log("Couldn't establish language server connection.");
                         this.showPluginActivationError();
                     }
                 });
