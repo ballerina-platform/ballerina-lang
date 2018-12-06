@@ -41,6 +41,7 @@ import org.wso2.transport.http.netty.contractimpl.listener.SourceHandler;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static io.netty.buffer.Unpooled.copiedBuffer;
+import static org.wso2.transport.http.netty.contract.Constants.HTTP_STATUS_CODE;
 import static org.wso2.transport.http.netty.contract.Constants
         .IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_100_CONTINUE_RESPONSE;
 import static org.wso2.transport.http.netty.contract.Constants
@@ -89,10 +90,7 @@ public class Expect100ContinueHeaderReceived implements ListenerState {
     @Override
     public void writeOutboundResponseBody(HttpOutboundRespListener outboundResponseListener,
                                           HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
-        // During the state, writeOutboundResponseBody can get called with 100-continue response or with
-        // a different code(417 Expectation Failed). Later scenario should follow the usual outbound response
-        // path. So far inbound request body has not been read, therefore no need to handle it.
-        if (outboundResponseMsg.getProperty("HTTP_STATUS_CODE").equals(100)) {
+        if (outboundResponseMsg.getProperty(HTTP_STATUS_CODE).equals(HttpResponseStatus.CONTINUE.code())) {
             messageStateContext.setListenerState(
                     new Response100ContinueSent(outboundResponseListener, sourceHandler, messageStateContext));
         } else {

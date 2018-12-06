@@ -116,12 +116,12 @@ public class Continue100TestCase {
         Assert.assertEquals(responses.get(0).status(), HttpResponseStatus.EXPECTATION_FAILED);
         int length = Integer.valueOf(responses.get(0).headers().get(HttpHeaderNames.CONTENT_LENGTH));
         Assert.assertEquals(length, 26);
-
         Assert.assertEquals(responses.get(0).content()
                                     .readCharSequence(length, Charset.defaultCharset()).toString(),
                             "Do not send me any payload");
         // Actual response
-        Assert.assertEquals(responses.size(), 1); // implies that only 417 response was received
+        Assert.assertEquals(responses.size(), 1,
+                            "Multiple responses received when only a 417 response was expected");
     }
 
     @AfterClass
