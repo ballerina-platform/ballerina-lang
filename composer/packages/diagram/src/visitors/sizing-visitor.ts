@@ -1,5 +1,5 @@
 import {
-    Assignment, ASTKindChecker, ASTNode,
+    Assignment, ASTNode,
     ASTUtil, Block, ExpressionStatement, Foreach, Function, If,
     Invocation, Lambda, ObjectType, Return, Service, TypeDefinition, Variable,
     VariableDef, VisibleEndpoint, Visitor, While
