@@ -1,5 +1,5 @@
-# At the command line, navigate to the directory that contains the
-# `temporal_aggregations_and_windows.bal` file and run the `ballerina run` command.
+# To run this sample, navigate to the directory that contains the
+# `.bal` file and issue the `ballerina run` command.
 $ ballerina run --experimental temporal_aggregations_and_windows.bal
 Initiating service(s) in 'temporal_aggregations_and_windows.bal'
 ballerina: started HTTP/WS endpoint 0.0.0.0:9090

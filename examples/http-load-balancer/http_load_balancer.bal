@@ -37,7 +37,8 @@ service loadBalancerDemoService on new http:Listener (9090) {
         if (response is http:Response) {
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+                log:printError("Error sending response",
+                                err = responseToCaller);
             }
         } else if (response is error) {
             http:Response outResponse = new;

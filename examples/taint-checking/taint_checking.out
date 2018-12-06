@@ -1,5 +1,5 @@
-# At the command line, navigate to the directory that contains
-# the `.bal` file and run the `ballerina run` command.
+# To run this sample, navigate to the directory that contains the
+# `.bal` file and issue the `ballerina run` command.
 $ ballerina run taint_checking.bal
 error: .::taint_checking.bal:32:12: tainted value passed to sensitive parameter 'sqlQuery'
 error: .::taint_checking.bal:43:32: tainted value passed to sensitive parameter 'secureParameter'

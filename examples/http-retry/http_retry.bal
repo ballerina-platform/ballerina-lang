@@ -52,7 +52,8 @@ service retryDemoService on new http:Listener(9090) {
 
             var responseToCaller = caller->respond(backendResponse);
             if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+                log:printError("Error sending response",
+                                err = responseToCaller);
             }
 
         } else if (backendResponse is error) {
@@ -62,7 +63,8 @@ service retryDemoService on new http:Listener(9090) {
             response.setPayload(errCause);
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+                log:printError("Error sending response",
+                                err = responseToCaller);
             }
         }
     }

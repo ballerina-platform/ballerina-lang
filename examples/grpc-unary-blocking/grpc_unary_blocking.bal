@@ -4,7 +4,8 @@ import ballerina/io;
 
 service HelloWorld on new grpc:Listener(9090) {
 
-    resource function hello (grpc:Caller caller, string name, grpc:Headers headers) {
+    resource function hello (grpc:Caller caller, string name,
+                             grpc:Headers headers) {
         io:println("name: " + name);
         string message = "Hello " + name;
         // Reads custom headers in request message.
@@ -18,7 +19,7 @@ service HelloWorld on new grpc:Listener(9090) {
         error? err = caller->send(message, headers = resHeader);
         if (err is error) {
             io:println("Error from Connector: " + err.reason() + " - "
-                                                + <string>err.detail().message);
+                                             + <string>err.detail().message);
         }
 
         // Sends `completed` notification to caller.

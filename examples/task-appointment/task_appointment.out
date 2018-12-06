@@ -1,3 +1,5 @@
+# To run this sample, navigate to the directory that contains the
+# `.bal` file and issue the `ballerina run` command.
 $ ballerina run task_appointment.bal
 
 Appointment#6 cleanup running...
