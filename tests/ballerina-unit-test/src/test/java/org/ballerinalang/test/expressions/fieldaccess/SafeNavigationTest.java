@@ -51,7 +51,7 @@ public class SafeNavigationTest {
 
     @Test
     public void testNegativeCases() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 16);
+        Assert.assertEquals(negativeResult.getErrorCount(), 19);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string?', found 'string|error'",
                 25, 19);
@@ -75,6 +75,8 @@ public class SafeNavigationTest {
                 50, 12);
         BAssertUtil.validateError(negativeResult, i++, "safe navigation operator not required for type 'error'", 55,
                 12);
+        BAssertUtil.validateError(negativeResult, i++, "invalid operation: type 'error' does not support field " +
+                        "access", 55, 12);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'string?'", 64,
                 16);
         BAssertUtil.validateError(negativeResult, i++, "safe navigation operator not required for type 'xml'", 68,
@@ -83,6 +85,10 @@ public class SafeNavigationTest {
                 9);
         BAssertUtil.validateError(negativeResult, i++, "safe navigation operator not required for type 'json|string'",
                 80, 9);
+        BAssertUtil.validateError(negativeResult, i++, "safe navigation operator not required for type 'json'",
+                88, 12);
+        BAssertUtil.validateError(negativeResult, i++, "safe navigation operator not required for type 'json'",
+                93, 12);
     }
 
     @Test
@@ -342,5 +348,17 @@ public class SafeNavigationTest {
             expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testUpdatingNullableObjectField_2() {
         BRunUtil.invoke(result, "testUpdatingNullableObjectField_2");
+    }
+
+    @Test
+    public void testSafeNavigationOnFieldAccess() {
+        BValue[] returns = BRunUtil.invoke(result, "testSafeNavigationOnFieldAccess");
+        Assert.assertNull(returns[0]);
+    }
+
+    @Test
+    public void testSafeNavigationOnIndexBasedAccess() {
+        BValue[] returns = BRunUtil.invoke(result, "testSafeNavigationOnIndexBasedAccess");
+        Assert.assertNull(returns[0]);
     }
 }

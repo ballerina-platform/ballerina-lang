@@ -79,3 +79,16 @@ function getValue() returns json|string {
 function testRedundatSafeNavigate(xml x) {
     _ = getValue()!toString();
 }
+
+function getJsonValue() returns json {
+    return 10;
+}
+
+function testFieldAccess() returns json|error {
+    return getJsonValue()!foo;
+}
+
+function testSafeNavigationOnIndexBasedAccess() returns json|error {
+    json[] data = [getJsonValue()];
+    return data[0]!foo;
+}
