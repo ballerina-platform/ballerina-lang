@@ -75,7 +75,7 @@ public class WorkerSyncSendTest {
                 "Returned wrong value:" + returns[0].stringValue());
     }
 
-    @Test (groups = "broken")
+    @Test
     public void errorAfterSendTest() {
 
         BValue[] returns = BRunUtil.invoke(result, "errorResult");
@@ -93,7 +93,7 @@ public class WorkerSyncSendTest {
             expectedException = e;
         }
         Assert.assertNotNull(expectedException);
-        String result = "error: error3 {\"message\":\"msg3\"}\n" + "\tat $lambda$14(sync-send.bal:271)";
+        String result = "error: error3 {\"message\":\"msg3\"}\n" + "\tat $lambda$14(sync-send.bal:273)";
         Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
     }
 }

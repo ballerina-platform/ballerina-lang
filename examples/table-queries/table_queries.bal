@@ -153,7 +153,7 @@ public function main() {
     printTable(queryStmt, "orderDetailsWithFilter: ", orderDetailsWithFilter);
 }
 
-function printTable(string stmt, string tableName, table<anydata> returnedTable) returns () {
+function printTable(string stmt, string tableName, table<anydata> returnedTable) {
     var retData = json.convert(returnedTable);
     io:println(stmt);
     io:print(tableName);

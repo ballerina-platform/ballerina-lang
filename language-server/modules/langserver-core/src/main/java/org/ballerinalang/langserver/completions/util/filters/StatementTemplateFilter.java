@@ -55,7 +55,7 @@ public class StatementTemplateFilter extends AbstractSymbolFilter {
         completionItems.add(forEachItem);
 
         // Populate Fork Statement template
-        CompletionItem forkItem = Snippet.STMT_FORK_JOIN.get().build(new CompletionItem(), isSnippet);
+        CompletionItem forkItem = Snippet.STMT_FORK.get().build(new CompletionItem(), isSnippet);
         completionItems.add(forkItem);
 
         // Populate Transaction Statement template

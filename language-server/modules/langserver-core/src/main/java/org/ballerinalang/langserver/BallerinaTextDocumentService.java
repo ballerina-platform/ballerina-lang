@@ -38,7 +38,6 @@ import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.definition.util.DefinitionUtil;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.formatting.FormattingSourceGen;
-//import org.ballerinalang.langserver.formatting.FormattingVisitorEntry;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
 import org.ballerinalang.langserver.index.LSIndexImpl;
 import org.ballerinalang.langserver.references.util.ReferenceUtil;
@@ -67,8 +66,6 @@ import org.eclipse.lsp4j.DocumentSymbolParams;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.MarkedString;
-//import org.eclipse.lsp4j.Position;
-//import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.ReferenceParams;
 import org.eclipse.lsp4j.RenameParams;
 import org.eclipse.lsp4j.SignatureHelp;
@@ -95,8 +92,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.Lock;
-//import java.util.regex.Matcher;
-//import java.util.regex.Pattern;
+import java.util.regex.Pattern;
 import java.util.zip.ZipError;
 
 import static org.ballerinalang.langserver.command.CommandUtil.getCommandForNodeType;
@@ -397,7 +393,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 // Add create test commands
                 String innerDirName = LSCompilerUtil.getCurrentModulePath(document.getPath())
                         .relativize(document.getPath())
-                        .toString().split(File.separator)[0];
+                        .toString().split(Pattern.quote(File.separator))[0];
                 if (topLevelNodeType != null && diagnostics.isEmpty() && document.hasProjectRepo() &&
                         !TEST_DIR_NAME.equals(innerDirName)) {
                     commands.addAll(CommandUtil.getTestGenerationCommand(topLevelNodeType, fileUri, params,
@@ -453,7 +449,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 formatContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
 
                 // Build the given ast.
-                JsonObject ast = TextDocumentFormatUtil.getAST(fileUri, lsCompiler, documentManager, formatContext);
+                JsonObject ast = TextDocumentFormatUtil.getAST(formattingFilePath, lsCompiler, documentManager,
+                        formatContext);
                 FormattingSourceGen.build(ast.getAsJsonObject("model"), "CompilationUnit");
 
                 // Format the given ast.

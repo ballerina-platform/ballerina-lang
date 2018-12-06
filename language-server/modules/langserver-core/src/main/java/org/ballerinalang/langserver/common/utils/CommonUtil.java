@@ -889,6 +889,7 @@ public class CommonUtil {
      */
     public static boolean isWorkerDereivative(BLangNode node) {
         return (node instanceof BLangSimpleVariableDef)
+                && ((BLangSimpleVariableDef) node).var.expr != null
                 && ((BLangSimpleVariableDef) node).var.expr.type instanceof BFutureType
                 && ((BFutureType) ((BLangSimpleVariableDef) node).var.expr.type).workerDerivative;
     }

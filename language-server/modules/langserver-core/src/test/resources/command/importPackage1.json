@@ -16,11 +16,11 @@
                     "character":0
                   },
                   "end":{
-                    "line":4,
+                    "line":0,
                     "character":0
                   }
                 },
-                "newText":"import ballerina/io;\nfunction testImportCommand() {\n    io:println(\"Hello World\");\n}\n"
+                "newText":"import ballerina/io;\n"
               }
             ]
           }

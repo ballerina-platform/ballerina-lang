@@ -430,7 +430,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     /**
      * Add current package info.
      *
-     * @param pkgNode package node
+     * @param pkgNode package nod
      */
     private void addPkgDetailsToPkgInfoObj(BLangPackage pkgNode) {
         // Add the current package to the program file
@@ -2305,6 +2305,9 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Add documentation attributes
         addDocAttachmentAttrInfo(funcSymbol.markdownDocumentation, funcInfo);
 
+        // Add worker send ins
+        addWorkerSendInsAttributeInfo(new LinkedHashSet<>(), funcInfo);
+
         this.currentPkgInfo.functionInfoMap.put(funcSymbol.name.value, funcInfo);
     }
 
@@ -3543,9 +3546,12 @@ public class CodeGenerator extends BLangNodeVisitor {
             return createStringLiteral(null, null, env);
         }
 
-        // If the namespace is defined within a callable unit or service, get the URI index in the 
-        // local var registry. Otherwise get the URI index in the global var registry.
-        if ((namespaceSymbol.owner.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
+        // If the namespace is defined within a callable unit, object or a record, get the URI index
+        // in the local var registry. Otherwise get the URI index in the global var registry.
+        int ownerTag = namespaceSymbol.owner.tag;
+        if ((ownerTag & SymTag.INVOKABLE) == SymTag.INVOKABLE ||
+                (ownerTag & SymTag.OBJECT) == SymTag.OBJECT ||
+                (ownerTag & SymTag.RECORD) == SymTag.RECORD) {
             return (RegIndex) namespaceSymbol.nsURIIndex;
         }
 

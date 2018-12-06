@@ -425,7 +425,7 @@ public class XMLLiteralTest {
                 "<ns1:student xmlns:ns1=\"http://ballerina.com/b\">hello</ns1:student>");
     }
 
-    @Test(groups = {"broken"})
+    @Test
     public void testServiceLevelXML() {
         CompileResult result = BServiceUtil.setupProgramFile(this, "test-src/types/xml/xml_literals_in_service.bal");
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/test/getXML", "GET");
@@ -434,6 +434,14 @@ public class XMLLiteralTest {
 
         BXML<?> xml = new BXMLItem(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(xml.stringValue(), "<p:person xmlns:p=\"foo\" xmlns:q=\"bar\" " +
-                "xmlns:ns1=\"http://ballerina.com/b\" xmlns:ns0=\"http://ballerina.com/a\">hello</p:person>");
+                "xmlns:ns0=\"http://ballerina.com/a\" xmlns:ns1=\"http://ballerina.com/b\">hello</p:person>");
+    }
+
+    @Test
+    public void testObjectLevelXML() {
+        BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testObjectLevelXML");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(),
+                "<p:person xmlns:p=\"foo\" xmlns:q=\"bar\" xmlns:ns1=\"http://ballerina.com/b\">hello</p:person>");
     }
 }

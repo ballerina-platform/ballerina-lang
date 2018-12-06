@@ -607,14 +607,6 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"lengthof",
-      "kind":"Keyword",
-      "detail":"Keyword",
-      "sortText":"210",
-      "insertText":"lengthof ",
-      "insertTextFormat":"Snippet"
-    },
-    {
       "label":"trap",
       "kind":"Snippet",
       "detail":"Snippet",

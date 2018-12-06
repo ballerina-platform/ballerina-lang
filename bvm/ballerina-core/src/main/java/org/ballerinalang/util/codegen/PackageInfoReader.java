@@ -696,6 +696,11 @@ public class PackageInfoReader {
 
         // Read attributes
         readAttributeInfoEntries(packageInfo, packageInfo, functionInfo);
+
+        // Set worker send in channels
+        WorkerSendInsAttributeInfo attributeInfo =
+                (WorkerSendInsAttributeInfo) functionInfo.getAttributeInfo(AttributeInfo.Kind.WORKER_SEND_INS);
+        functionInfo.workerSendInChannels = attributeInfo.sendIns;
     }
 
     private void readWorkerData(PackageInfo packageInfo, CallableUnitInfo callableUnitInfo) throws IOException {

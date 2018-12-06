@@ -75,7 +75,7 @@ public class SourceGenTest {
             String expected = new String(encoded1, StandardCharsets.UTF_8);
             TestUtil.openDocument(serviceEndpoint, filePath);
             LSCompiler lsCompiler = new LSCompiler(documentManager);
-            JsonObject ast = TextDocumentFormatUtil.getAST(filePath.toUri().toString(), lsCompiler, documentManager,
+            JsonObject ast = TextDocumentFormatUtil.getAST(filePath, lsCompiler, documentManager,
                     formatContext);
             FormattingSourceGen.build(ast.getAsJsonObject("model"), "CompilationUnit");
             String actual = FormattingSourceGen.getSourceOf(ast.getAsJsonObject("model"));
@@ -125,7 +125,8 @@ public class SourceGenTest {
                 "lang/annotations/lang.annotations.doc1/doc-annotation.bal", "structs/eq2/eq2.bal",
                 "workers/fork-join-some-map.bal", "services/session/http-session-test.bal",
                 "streamingv2-aggregation-groupby-test.bal", "streamingv2-aggregation-test.bal",
-                "streamingv2-external-window-test.bal", "streamingv2-aggregation-with-groupby-test.bal"};
+                "streamingv2-external-window-test.bal", "streamingv2-aggregation-with-groupby-test.bal",
+                "not-enough-args-to-return-3.bal", "too-many-args-to-return-1.bal"};
 
         FileVisitor(List<File> ballerinaFiles) {
             this.files = ballerinaFiles;
