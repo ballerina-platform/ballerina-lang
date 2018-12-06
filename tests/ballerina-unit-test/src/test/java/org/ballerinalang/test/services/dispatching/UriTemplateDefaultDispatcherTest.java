@@ -117,7 +117,7 @@ public class UriTemplateDefaultDispatcherTest {
         Assert.assertNotNull(response, "Response message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(((BMap<String, BValue>) bJson).get("echo").stringValue(),
-                "dispatched to service that neither has an explicitly defined basepath nor a name");
+                "dispatched to the service that neither has an explicitly defined basepath nor a name");
     }
 
     @Test(description = "Test dispatching to a service with no name and no basepath in config")
@@ -126,7 +126,7 @@ public class UriTemplateDefaultDispatcherTest {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         HttpCarbonMessage response = Services.invokeNew(application, MOCK_EP2, cMsg);
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(ResponseReader.getReturnValue(response), "dispatched to service that doesn't " +
+        Assert.assertEquals(ResponseReader.getReturnValue(response), "dispatched to the service that doesn't " +
                 "have a name but has a config without a basepath");
     }
 }

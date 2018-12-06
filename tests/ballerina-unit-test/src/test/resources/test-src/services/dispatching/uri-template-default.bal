@@ -58,7 +58,7 @@ service serviceWithNoAnnotation on testEP {
 
 service on mockEP1 {
     resource function testResource(http:Caller caller, http:Request req) {
-        _ = caller->respond({"echo":"dispatched to service that neither has an explicitly defined basepath nor a name"});
+        _ = caller->respond({"echo":"dispatched to the service that neither has an explicitly defined basepath nor a name"});
     }
 }
 
@@ -67,6 +67,6 @@ service on mockEP1 {
 }
 service on mockEP2 {
     resource function testResource(http:Caller caller, http:Request req) {
-        _ = caller->respond("dispatched to service that doesn't have a name but has a config without a basepath");
+        _ = caller->respond("dispatched to the service that doesn't have a name but has a config without a basepath");
     }
 }
