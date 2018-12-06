@@ -6,11 +6,10 @@ This module provides a set of default authentication store providers that can be
 
 An authentication store provider defines an authentication scheme that could be used to protect endpoints. The `auth:AuthStoreProvider` type acts as the interface for all the authentication providers. Any type of implementation, such as LDAP, JDBC, and file based, should be object-wise similar. 
 
-By default, there are three implementations of the `auth:AuthStoreProvider`. They are, the `auth:ConfigAuthStoreProvider`,
-which authenticates based on usernames and passwords stored in a configuration file, and the `auth:JWTAuthProvider`,
-authenticates by validating a JWT, finally the `auth:LdapAuthStoreProvider`, authenticates based on the
-user credentials stored in an active directory or an LDAP. It is possible to implement more such authentication
-mechanisms.
+By default, there are three implementations of the `auth:AuthStoreProvider`. They are; the auth:ConfigAuthStoreProvider,
+ which authenticates based on usernames and passwords stored in a configuration file, the auth:JWTAuthProvider, which
+ authenticates by validating a JWT, and finally the auth:LdapAuthStoreProvider, which authenticates based on the user
+ credentials stored in an active directory or an LDAP.
 
 When creating a new authentication provider, there are two functions that need to be implemented. 
 - `authenticate` : Authenticates the user based on a credential, which can be username/password, or a token such as JWT.
@@ -33,4 +32,4 @@ A user is denoted by a section in the configuration file. The password and the s
  ### LDAP Auth Store Provider
 
 `LdapAuthStoreProvider` is another implementation of the `AuthStoreProvider` interface, which connects to an active
-directory or an LDAP to retrieve the necessary user information to perform authentications and authorizations.
+directory or an LDAP to retrieve the necessary user information to perform authentication and authorization.
