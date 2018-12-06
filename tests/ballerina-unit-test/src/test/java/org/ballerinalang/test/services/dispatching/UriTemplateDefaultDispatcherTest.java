@@ -37,6 +37,7 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 public class UriTemplateDefaultDispatcherTest {
 
     private static final String TEST_EP = "testEP";
+    private static final String MOCK_EP = "mockEP";
     private CompileResult application;
 
     @BeforeClass()
@@ -103,5 +104,17 @@ public class UriTemplateDefaultDispatcherTest {
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(((BMap<String, BValue>) bJson).get("echo").stringValue(), "dispatched to a proxy service"
                 , "Resource dispatched to wrong template");
+    }
+
+    @Test(description = "Test dispatching to a service that doesn't have a name")
+    public void testServiceWithNoName() {
+        String path = "/testResource";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET", 9091);
+        HttpCarbonMessage response = Services.invokeNew(application, MOCK_EP, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("echo").stringValue(),
+                "dispatched to service that doesn't have a name");
     }
 }

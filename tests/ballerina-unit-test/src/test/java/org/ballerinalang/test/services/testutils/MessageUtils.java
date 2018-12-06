@@ -31,6 +31,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
+import static org.ballerinalang.net.http.HttpConstants.COLON;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_DEFAULT_HOST;
+import static org.ballerinalang.net.http.HttpConstants.LOCAL_ADDRESS;
+
 /**
  * RequestResponseUtil Class contains method for generating a message.
  *
@@ -38,21 +42,32 @@ import java.util.Locale;
  */
 public class MessageUtils {
 
+    public static final int DEFAULT_PORT = 9090;
+
     public static CarbonMessage generateRawMessage() {
         return new DefaultCarbonMessage();
     }
 
+    public static HTTPTestRequest generateHTTPMessage(String path, String method, int port) {
+        return generateHTTPMessage(path, method, null, null, port);
+    }
+
     public static HTTPTestRequest generateHTTPMessage(String path, String method) {
-        return generateHTTPMessage(path, method, null, null);
+        return generateHTTPMessage(path, method, null, null, DEFAULT_PORT);
     }
 
     public static HTTPTestRequest generateHTTPMessage(String path, String method, String payload) {
-        return generateHTTPMessage(path, method, null, payload);
+        return generateHTTPMessage(path, method, null, payload, DEFAULT_PORT);
     }
 
     public static HTTPTestRequest generateHTTPMessage(String path, String method, List<Header> headers,
-            String payload) {
-        HTTPTestRequest carbonMessage = getHttpTestRequest(path, method);
+                                                      String payload) {
+        return generateHTTPMessage(path, method, null, payload, DEFAULT_PORT);
+    }
+
+    public static HTTPTestRequest generateHTTPMessage(String path, String method, List<Header> headers,
+                                                      String payload, int port) {
+        HTTPTestRequest carbonMessage = getHttpTestRequest(path, method, port);
         HttpHeaders httpHeaders = carbonMessage.getHeaders();
         if (headers != null) {
             for (Header header : headers) {
@@ -68,22 +83,22 @@ public class MessageUtils {
     }
 
     public static HTTPTestRequest generateHTTPMessageForMultiparts(String path, String method) {
-        return getHttpTestRequest(path, method);
+        return getHttpTestRequest(path, method, DEFAULT_PORT);
     }
 
-    private static HTTPTestRequest getHttpTestRequest(String path, String method) {
+    private static HTTPTestRequest getHttpTestRequest(String path, String method, int port) {
         HTTPTestRequest carbonMessage = new HTTPTestRequest();
         carbonMessage.setProperty(HttpConstants.PROTOCOL,
                 HttpConstants.PROTOCOL_HTTP);
         carbonMessage.setProperty(HttpConstants.LISTENER_INTERFACE_ID,
-                HttpConstants.DEFAULT_INTERFACE);
+                HTTP_DEFAULT_HOST + COLON + port);
         // Set url
         carbonMessage.setProperty(HttpConstants.TO, path);
         carbonMessage.setProperty(HttpConstants.REQUEST_URL, path);
         carbonMessage.setProperty(HttpConstants.HTTP_METHOD, method.trim().toUpperCase(Locale.getDefault()));
-        carbonMessage.setProperty(HttpConstants.LOCAL_ADDRESS,
-                new InetSocketAddress(HttpConstants.HTTP_DEFAULT_HOST, 9090));
-        carbonMessage.setProperty(HttpConstants.LISTENER_PORT, 9090);
+        carbonMessage.setProperty(LOCAL_ADDRESS,
+                new InetSocketAddress(HTTP_DEFAULT_HOST, port));
+        carbonMessage.setProperty(HttpConstants.LISTENER_PORT, port);
         carbonMessage.setProperty(HttpConstants.RESOURCE_ARGS, new HashMap<String, String>());
         return carbonMessage;
     }

@@ -1,6 +1,7 @@
 import ballerina/http;
 
 listener http:MockListener testEP = new(9090);
+listener http:MockListener mockEP = new(9091);
 
 @http:ServiceConfig {
     cors: {
@@ -51,5 +52,12 @@ service serviceWithNoAnnotation on testEP {
         json responseJson = {"echo":"dispatched to a service without an annotation"};
         res.setJsonPayload(responseJson);
         _ = caller->respond(res);
+    }
+}
+
+service on mockEP {
+
+    resource function testResource(http:Caller caller, http:Request req) {
+        _ = caller->respond({"echo":"dispatched to service that doesn't have a name"});
     }
 }
