@@ -7,8 +7,11 @@ public function main() {
     }
 
     worker w2 {
-      if(false){
-          int j = <- w1;
+      int j = 25;
+      int sum = 0;
+      foreach var i in 1...10 {
+          sum = sum + i;
+          j = <- w1;
       }
     }
 }
