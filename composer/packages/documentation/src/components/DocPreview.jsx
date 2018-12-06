@@ -47,17 +47,16 @@ export default class DocPreview extends React.Component {
             }
         }
 
-        let typeNodeKind;
+        let kind = node.kind;
         if (node.typeNode) {
-            typeNodeKind = node.typeNode.kind;
+            kind = node.typeNode.kind;
         }
 
         const documentationDetails = {
-            kind: node.kind,
+            kind: kind,
             title: node.name.value,
             description,
             parameters,
-            typeNodeKind,
             returnParameter
         };
 
@@ -121,7 +120,7 @@ export default class DocPreview extends React.Component {
             try {
                 const docDetails = this.getDocumentationDetails(node);
                 docElements.push(
-                    <Documentation docDetails={docDetails}/>
+                    <Documentation docDetails={docDetails} />
                 );
             } catch {
                 console.log(`error when getting doc details for ${node.id}`);
