@@ -57,9 +57,14 @@ function startTimeWindowTest2() returns (Teacher[]) {
     testTimeWindow();
 
     outputStreamTimeWindowTest2.subscribe(function(Person e) {printTeachers(e);});
+
+    int i = 0;
     foreach var t in teachers {
         inputStreamTimeWindowTest2.publish(t);
-        runtime:sleep(1200);
+        if (i % 2 == 0) {
+            runtime:sleep(1500);
+        }
+        i += 1;
     }
 
     int count = 0;
@@ -77,7 +82,7 @@ function startTimeWindowTest2() returns (Teacher[]) {
 function testTimeWindow() {
 
     forever {
-        from inputStreamTimeWindowTest2 window timeWindow(2000)
+        from inputStreamTimeWindowTest2 window timeWindow(1000)
         select inputStreamTimeWindowTest2.name, inputStreamTimeWindowTest2.age, inputStreamTimeWindowTest2.status, inputStreamTimeWindowTest2
         .school, count() as count
         group by inputStreamTimeWindowTest2.school
