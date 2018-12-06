@@ -19,6 +19,7 @@ export interface IDiagramContext {
     langClient?: IBallerinaLangClient;
     overlayGroupRef?: React.RefObject<SVGGElement>;
     containerRef?: React.RefObject<HTMLDivElement>;
+    docUri?: string;
 }
 
 const defaultDiagramContext: IDiagramContext = {

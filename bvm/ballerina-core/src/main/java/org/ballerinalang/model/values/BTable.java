@@ -29,6 +29,7 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.util.TableIterator;
 import org.ballerinalang.util.TableProvider;
 import org.ballerinalang.util.TableUtils;
+import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.List;
@@ -79,11 +80,13 @@ public class BTable implements BRefType<Object>, BCollection {
                   BStructureType constraintType, BValueArray params) {
         this.tableProvider = TableProvider.getInstance();
         if (!fromTable.isInMemoryTable()) {
-            throw new BallerinaException("Table query over a cursor table not supported");
+            throw new BallerinaException(BallerinaErrorReasons.TABLE_OPERATION_ERROR,
+                                         "Table query over a cursor table not supported");
         }
         if (joinTable != null) {
             if (!joinTable.isInMemoryTable()) {
-                throw new BallerinaException("Table query over a cursor table not supported");
+                throw new BallerinaException(BallerinaErrorReasons.TABLE_OPERATION_ERROR,
+                                             "Table query over a cursor table not supported");
             }
             this.tableName = tableProvider.createTable(fromTable.tableName, joinTable.tableName, query,
                     constraintType, params);
@@ -176,7 +179,8 @@ public class BTable implements BRefType<Object>, BCollection {
 
     public void moveToNext() {
         if (tableClosed) {
-            throw new BallerinaException("Trying to perform an operation over a closed table");
+            throw new BallerinaException(BallerinaErrorReasons.TABLE_CLOSED_ERROR,
+                                         "Trying to perform an operation over a closed table");
         }
         if (isIteratorGenerationConditionMet()) {
             generateIterator();

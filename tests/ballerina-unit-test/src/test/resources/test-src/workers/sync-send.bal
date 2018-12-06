@@ -11,8 +11,7 @@ function process() returns string {
    worker w1 {
      int a = 10;
      a -> w2;
-     error? result;
-     result = a ->> w2;
+     () result = a ->> w2;
      foreach var i in 1 ... 5 {
                            append = append + "w1";
                    }
@@ -47,17 +46,22 @@ function multipleSyncSend() returns string{
         }
         }
 
-       worker w2 {
+       worker w2 returns error? {
          int b = 15;
          runtime:sleep(10);
           foreach var i in 1 ... 5 {
                 append2 = append2 + "w2";
-                 }
+         }
+         if(false){
+              error err = error("err", { message: "err msg" });
+              return err;
+         }
          b = <- w1;
          foreach var i in 1 ... 5 {
                          append2 = append2 + "w22";
                           }
          b = <- w1;
+         return;
        }
        wait w1;
        return append2;
@@ -78,7 +82,11 @@ function returnNil() returns any {
       return result;
     }
 
-   worker w2 {
+   worker w2 returns error?{
+     if(false){
+          error err = error("err", { message: "err msg" });
+          return err;
+     }
      int b = 15;
      runtime:sleep(10);
       foreach var i in 1 ... 5 {
@@ -86,6 +94,7 @@ function returnNil() returns any {
              }
      b = <- w1;
      b = <- w1;
+     return;
    }
 
    var result = wait w1;
@@ -97,18 +106,27 @@ function multiWorkerSend() returns string{
     worker w1 {
          int a = 10;
          var result = a ->> w2;
-         result = a ->> w3;
+         a -> w3;
          foreach var i in 1 ... 5 {
                                append3 = append3 + "w1";
                        }
          result = a ->> w2;
-          result = a ->> w3;
+         a -> w3;
          foreach var i in 1 ... 5 {
                  append3 = append3 + "w11";
         }
         }
 
-       worker w2 {
+       worker w2 returns error? {
+         if(false){
+              error err = error("err", { message: "err msg" });
+              return err;
+         }
+
+         if(false){
+              error err = error("err", { message: "err msg" });
+              return err;
+         }
          int b = 15;
          runtime:sleep(10);
           foreach var i in 1 ... 5 {
@@ -116,25 +134,28 @@ function multiWorkerSend() returns string{
                  }
          b -> w3;
          b = <- w1;
-         var result = b ->> w3;
+         b -> w3;
          foreach var i in 1 ... 5 {
                          append3 = append3 + "w22";
                           }
          b = <- w1;
+         return;
        }
 
-       worker w3 {
+
+       worker w3 returns error? {
+                int|error x =  <- w2;
                 int b;
-                b = <- w2;
-                 foreach var i in 1 ... 5 {
+                foreach var i in 1 ... 5 {
                        append3 = append3 + "w3";
                         }
                 b = <- w1;
-                b = <- w2;
+                x = <- w2;
                 foreach var i in 1 ... 5 {
                                 append3 = append3 + "w33";
                                  }
                 b = <- w1;
+                return;
               }
 
        wait w1;
@@ -159,7 +180,11 @@ function errorResult() returns error? {
         return result;
         }
 
-       worker w2 {
+       worker w2 returns error? {
+         if(false){
+              error err = error("err", { message: "err msg" });
+              return err;
+         }
          int b = 15;
          runtime:sleep(10);
           foreach var i in 1 ... 5 {
@@ -172,11 +197,17 @@ function errorResult() returns error? {
                          append4 = append4 + "w22";
                           }
          b = <- w1;
+         return;
        }
 
        worker w3 returns error|string {
+                if(false){
+                     error err = error("err", { message: "err msg" });
+                     return err;
+                }
                 int b;
-                b = <- w2;
+                int|error be;
+                be = <- w2;
                  foreach var i in 1 ... 5 {
                        append4 = append4 + "w3";
                         }
@@ -203,17 +234,17 @@ function errorResult() returns error? {
 function panicTest() returns error? {
     worker w1 returns error? {
          int a = 10;
-         var result = a ->> w2;
-         result = a ->> w3;
+         a -> w2;
+         var result = a ->> w3;
 
-         result = a ->> w2;
+         a -> w2;
           result = a ->> w3;
 
 
         return result;
         }
 
-       worker w2 {
+       worker w2{
          int b = 15;
          runtime:sleep(10);
 
@@ -224,7 +255,11 @@ function panicTest() returns error? {
          b = <- w1;
        }
 
-       worker w3 returns string {
+       worker w3 returns string|error {
+                if(false){
+                     error err = error("err", { message: "err msg" });
+                     return err;
+                }
                 int b;
                 b = <- w2;
 
