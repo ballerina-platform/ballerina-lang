@@ -866,7 +866,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.loopWithintransactionCheckStack.push(true);
         this.checkStatementExecutionValidity(foreach);
         this.loopCount++;
-        foreach.body.stmts.forEach(e -> analyzeNode(e, env));
+        analyzeNode(foreach.body, env);
         this.loopCount--;
         this.resetLastStatement();
         this.loopWithintransactionCheckStack.pop();
@@ -878,7 +878,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.loopWithintransactionCheckStack.push(true);
         this.checkStatementExecutionValidity(whileNode);
         this.loopCount++;
-        whileNode.body.stmts.forEach(e -> analyzeNode(e, env));
+        analyzeNode(whileNode.body, env);
         this.loopCount--;
         this.resetLastStatement();
         this.loopWithintransactionCheckStack.pop();
@@ -1098,7 +1098,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         /* ignore */
     }
 
-    private boolean isTopLevel(SymbolEnv env) {
+    private boolean isTopLevel() {
+        SymbolEnv env = this.env;
         return env.enclInvokable.body == env.node;
     }
 
@@ -1106,8 +1107,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         return env.enclInvokable.flagSet.contains(Flag.WORKER);
     }
 
-    private boolean isCommunicationAllowedLocation(String workerIdentifier, SymbolEnv env) {
-        return (isDefaultWorkerCommunication(workerIdentifier) && isInWorker()) || isTopLevel(env);
+    private boolean isCommunicationAllowedLocation(String workerIdentifier) {
+        return (isDefaultWorkerCommunication(workerIdentifier) && isInWorker()) || isTopLevel();
     }
 
     private boolean isDefaultWorkerCommunication(String workerIdentifier) {
@@ -1147,7 +1148,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         String workerName = workerSendNode.workerIdentifier.getValue();
-        boolean allowedLocation = isCommunicationAllowedLocation(workerName, workerSendNode.env);
+        boolean allowedLocation = isCommunicationAllowedLocation(workerName);
         if (!allowedLocation) {
             this.dlog.error(workerSendNode.pos, DiagnosticCode.INVALID_WORKER_SEND_POSITION);
             was.hasErrors = true;
@@ -1192,8 +1193,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         String workerName = syncSendExpr.workerIdentifier.getValue();
         WorkerActionSystem was = this.workerActionSystemStack.peek();
 
-        SymbolEnv envToValidate = getActionExprEnv(syncSendExpr.env);
-        boolean allowedLocation = isCommunicationAllowedLocation(workerName, envToValidate);
+        boolean allowedLocation = isCommunicationAllowedLocation(workerName);
         if (!allowedLocation) {
             this.dlog.error(syncSendExpr.pos, DiagnosticCode.INVALID_WORKER_SEND_POSITION);
             was.hasErrors = true;
@@ -1221,8 +1221,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         WorkerActionSystem was = this.workerActionSystemStack.peek();
 
         String workerName = workerReceiveNode.workerIdentifier.getValue();
-        SymbolEnv envToValidate = getActionExprEnv(workerReceiveNode.env);
-        boolean allowedLocation = isCommunicationAllowedLocation(workerName, envToValidate);
+        boolean allowedLocation = isCommunicationAllowedLocation(workerName);
         if (!allowedLocation) {
             this.dlog.error(workerReceiveNode.pos, DiagnosticCode.INVALID_WORKER_RECEIVE_POSITION);
             was.hasErrors = true;
@@ -1255,15 +1254,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         } else {
             return symTable.nilType;
         }
-    }
-
-    private SymbolEnv getActionExprEnv(SymbolEnv env) {
-        NodeKind nodeKind = env.node.getKind();
-        if (nodeKind == NodeKind.VARIABLE || nodeKind == NodeKind.EXPRESSION_STATEMENT) {
-            return env.enclEnv;
-        }
-        // Node kind is a block statement
-        return env;
     }
 
     public void visit(BLangLiteral literalExpr) {

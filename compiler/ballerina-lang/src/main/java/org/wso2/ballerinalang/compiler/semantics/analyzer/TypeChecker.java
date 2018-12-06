@@ -568,6 +568,7 @@ public class TypeChecker extends BLangNodeVisitor {
             syncSendExpr.workerType = symbol.type;
         }
 
+        // TODO Need to remove this cached env
         syncSendExpr.env = this.env;
         checkExpr(syncSendExpr.expr, this.env);
 
@@ -593,7 +594,6 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveExpr) {
-        workerReceiveExpr.env = this.env;
         BSymbol symbol = symResolver.lookupSymbol(env, names.fromIdNode(workerReceiveExpr.workerIdentifier),
                                                   SymTag.VARIABLE);
 
@@ -619,6 +619,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private void visitChannelReceive(BLangWorkerReceive workerReceiveNode, BSymbol symbol) {
         workerReceiveNode.isChannel = true;
+        // TODO Need to remove this cached env
+        workerReceiveNode.env = this.env;
 
         if (symbol == null) {
             symbol = symResolver.lookupSymbol(env, names.fromString(workerReceiveNode.getWorkerName().getValue()),
