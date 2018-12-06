@@ -26,7 +26,7 @@
             
             .panel {
                 .statement {
-                    pointer-events: none;
+                    pointer-events: all;
                 }
                 .panel-header {
                     fill: ~"@{@{color}-diagram-panel-header-background-color}";
@@ -140,7 +140,7 @@
             .svg-dropdown-menu {
                 &.block-dropdown {
                     display: none;
-                    &.active {
+                    &.hover, &.active {
                         display: block;
                     }
                 }
@@ -184,6 +184,12 @@
                     dominant-baseline: middle;
                 }
             }
+            .source-linked-label {
+                &:hover {
+                    text-decoration: underline;
+                    cursor: pointer;
+                }
+            }
         }
         
         .diagram-controllers {
@@ -219,6 +225,6 @@
     }
 }
 
-body {
+body.diagram {
     .diagram("light");
 }

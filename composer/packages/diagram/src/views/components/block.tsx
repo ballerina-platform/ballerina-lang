@@ -16,18 +16,21 @@ export class Block extends React.Component<{ model: BlockNode }, { isHovered: bo
         const { isHovered } = this.state;
         const statements: React.ReactNode[] = [];
         const viewState: BlockViewState = model.viewState;
-        const { x, y, w, h, leftMargin } = viewState.bBox;
         const triggerPosition = viewState.menuTrigger;
-        const hoverRectBBox = {
-            height: h, width : w + leftMargin, x: x - leftMargin,  y
+        const { x, y, w: width, h: height } = viewState.hoverRect;
+        const hoverRectProps = {
+            height,
+            width,
+            x,
+            y
         };
         statements.push(DiagramUtils.getComponents(model.statements));
-
+        const dropDownProps = { model, isHovered, triggerPosition };
         return (
             <g className="worker-block-container">
                 <rect
                     className="hover-rect"
-                    {...hoverRectBBox}
+                    {...hoverRectProps}
                     onMouseOver={() => {
                         this.setState({
                             isHovered: true
@@ -41,7 +44,7 @@ export class Block extends React.Component<{ model: BlockNode }, { isHovered: bo
                     visibility="hidden"
                 />
                 {statements}
-                {<BlockDropdown active={isHovered} triggerPosition={triggerPosition} model={model} />}
+                {<BlockDropdown {...dropDownProps} />}
             </g>);
     }
 }

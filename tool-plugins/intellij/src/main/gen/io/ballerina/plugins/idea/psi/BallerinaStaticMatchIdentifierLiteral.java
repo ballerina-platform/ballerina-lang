@@ -21,9 +21,9 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaUnderscoreVariableReference extends BallerinaVariableReference {
+public interface BallerinaStaticMatchIdentifierLiteral extends BallerinaStaticMatchLiterals {
 
   @NotNull
-  PsiElement getUnderscore();
+  PsiElement getIdentifier();
 
 }

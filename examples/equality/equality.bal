@@ -9,7 +9,7 @@ type Person record {
     string name;
 };
 
-@final Employee globalEmployee = { name: "John", id: 2102 };
+final Employee globalEmployee = { name: "John", id: 2102 };
 
 public function main() {
     // `==` could be used with values of compatible `anydata` types, and serves as a deep value equality check

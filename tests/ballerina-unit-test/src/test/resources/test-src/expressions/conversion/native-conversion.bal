@@ -661,19 +661,19 @@ function testStructToMapWithRefTypeArray () returns (map<any>, int)|error {
     }
 }
 
-type StructWithDefaults record {
-    string s = "string value";
-    int a = 45;
-    float f = 5.3;
-    boolean b = true;
-    json j = ();
-    byte[] blb = [];
+type StructWithOptionals record {
+    string s?;
+    int a?;
+    float f?;
+    boolean b?;
+    json j?;
+    byte[] blb?;
     !...
 };
 
-function testEmptyJSONtoStructWithDefaults () returns (StructWithDefaults | error) {
+function testEmptyJSONtoStructWithOptionals () returns (StructWithOptionals | error) {
     json j = {};
-    var testStruct = check StructWithDefaults.convert(j);
+    var testStruct = check StructWithOptionals.convert(j);
 
     return testStruct;
 }
@@ -967,4 +967,17 @@ function testRecordToJsonWithIsJson() returns boolean {
     Person2 p = {name:"Waruna", age:10};
     var personData = json.convert(p);
     return personData is json;
+}
+
+function testConvertWithFuncCall() returns int {
+    var val = int.convert(getString("66"));
+    if (val is int) {
+        return val;
+    } else {
+        return -1;
+    }
+}
+
+function getString(any s) returns string {
+    return "5";
 }
