@@ -162,8 +162,8 @@ function createAPIEditorPanel(selectedService: string, renderHtml: string,
     WebViewRPCHandler.create(oasEditorPanel.webview, langClient, remoteMethods);
 
     oasEditorPanel.iconPath = {
-		light: Uri.file(join(context.extensionPath, 'resources/images/icons/apidesign.svg')),
-		dark: Uri.file(join(context.extensionPath, 'resources/images/icons/apidesign-inverse.svg'))
+		light: Uri.file(join(context.extensionPath, 'resources/images/icons/api-design.svg')),
+		dark: Uri.file(join(context.extensionPath, 'resources/images/icons/api-design-inverse.svg'))
 	};
 
     oasEditorPanel.webview.onDidReceiveMessage(message => {

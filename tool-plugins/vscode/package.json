@@ -191,8 +191,8 @@
                 "command": "ballerina.showAPIEditor",
                 "title": "Show API Designer",
                 "icon": {
-                    "dark": "./resources/images/icons/apidesign-inverse.svg",
-                    "light": "./resources/images/icons/apidesign.svg"
+                    "dark": "./resources/images/icons/api-design-inverse.svg",
+                    "light": "./resources/images/icons/api-design.svg"
                 },
                 "category": "Ballerina"
             },
