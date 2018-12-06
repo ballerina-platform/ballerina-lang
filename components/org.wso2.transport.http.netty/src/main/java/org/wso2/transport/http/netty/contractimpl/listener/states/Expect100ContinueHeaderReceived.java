@@ -49,7 +49,7 @@ import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil
 import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil.ILLEGAL_STATE_ERROR;
 
 /**
- * Special state of receiving request with expect:100-continue header.buildResponse
+ * Special state of receiving request with expect:100-continue header.
  */
 public class Expect100ContinueHeaderReceived implements ListenerState {
 
@@ -89,8 +89,16 @@ public class Expect100ContinueHeaderReceived implements ListenerState {
     @Override
     public void writeOutboundResponseBody(HttpOutboundRespListener outboundResponseListener,
                                           HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
-        messageStateContext.setListenerState(
-                new Response100ContinueSent(outboundResponseListener, sourceHandler, messageStateContext));
+        // During the state, writeOutboundResponseBody can get called with 100-continue response or with
+        // a different code(417 Expectation Failed). Later scenario should follow the usual outbound response
+        // path. So far inbound request body has not been read, therefore no need to handle it.
+        if (outboundResponseMsg.getProperty("HTTP_STATUS_CODE").equals(100)) {
+            messageStateContext.setListenerState(
+                    new Response100ContinueSent(outboundResponseListener, sourceHandler, messageStateContext));
+        } else {
+            messageStateContext.setListenerState(
+                    new EntityBodyReceived(messageStateContext, sourceHandler, httpVersion));
+        }
         messageStateContext.getListenerState().writeOutboundResponseBody(outboundResponseListener, outboundResponseMsg,
                                                                          httpContent);
     }
