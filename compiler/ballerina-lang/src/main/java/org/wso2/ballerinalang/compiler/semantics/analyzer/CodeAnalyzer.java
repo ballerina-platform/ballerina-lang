@@ -1942,7 +1942,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 String channelName = WorkerDataChannelInfo.generateChannelName(worker.workerId, otherSM.workerId);
                 otherSM.node.sendsToThis.add(channelName);
 
-                channelName = WorkerDataChannelInfo.generateChannelName(otherSM.workerId, worker.workerId);
                 worker.node.sendsToThis.add(channelName);
             }
         } while (systemRunning);
