@@ -23,13 +23,13 @@ import com.intellij.psi.PsiElement;
 
 public interface BallerinaWhileStatementBody extends BallerinaCompositeElement {
 
-  @Nullable
+  @NotNull
   BallerinaBlock getBlock();
 
   @NotNull
   PsiElement getLeftBrace();
 
-  @Nullable
+  @NotNull
   PsiElement getRightBrace();
 
 }
