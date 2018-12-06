@@ -32,21 +32,24 @@ export const visitor: Visitor = {
     beginVisitFunction(node: Function) {
         if (!node.viewState) {
             node.viewState = new FunctionViewState();
-            if (node.body) {
-                node.body.statements.forEach((statement, index) => {
-                    // Hide All worker nodes.
-                    if (ASTUtil.isWorker(statement)) {
-                        if (!statement.viewState) {
-                            statement.viewState = new WorkerViewState();
-                        }
-                        statement.viewState.hidden = true;
-                        if (!node.body!.statements[index + 1].viewState) {
-                            node.body!.statements[index + 1].viewState = new ViewState();
-                        }
-                        node.body!.statements[index + 1].viewState.hidden = true;
+        }
+        if (node.body) {
+            node.body.statements.forEach((statement, index) => {
+                // Hide All worker nodes.
+                if (ASTUtil.isWorker(statement)) {
+                    if (!statement.viewState) {
+                        statement.viewState = new WorkerViewState();
                     }
-                });
-            }
+                    statement.viewState.hidden = true;
+                    const nextStmt = node.body!.statements[index + 1];
+                    if (nextStmt) {
+                        if (!nextStmt.viewState) {
+                            nextStmt.viewState = new ViewState();
+                        }
+                        nextStmt.viewState.hidden = true;
+                    }
+                }
+            });
         }
     },
 
