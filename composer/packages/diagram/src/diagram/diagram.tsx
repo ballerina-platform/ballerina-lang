@@ -3,6 +3,7 @@ import React from "react";
 import { DefaultConfig } from "../config/default";
 import { CompilationUnitViewState } from "../view-model/index";
 import { SvgCanvas } from "../views";
+import { setActionViewStatus, visitor as actionViewVisitor } from "../visitors/action-view";
 import { visitor as initVisitor } from "../visitors/init-visitor";
 import { visitor as positioningVisitor } from "../visitors/positioning-visitor";
 import { visitor as sizingVisitor } from "../visitors/sizing-visitor";
@@ -54,6 +55,9 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
         if (ast) {
             // Initialize AST node view state
             ASTUtil.traversNode(ast, initVisitor);
+            // Action view visitor
+            setActionViewStatus(this.state.currentMode === DiagramMode.ACTION);
+            ASTUtil.traversNode(ast, actionViewVisitor);
             // Set width and height to toplevel node.
             ast.viewState = cuViewState;
             // Calculate dimention of AST Nodes.

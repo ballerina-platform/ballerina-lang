@@ -16,7 +16,11 @@ const config: DiagramConfig = DiagramUtils.getConfig();
 function sizeStatement(node: ASTNode) {
     const viewState: StmntViewState = node.viewState;
     // If hidden do nothing.
-    if (node.viewState.hidden) { return; }
+    if (node.viewState.hidden) {
+        viewState.bBox.h = 0;
+        viewState.bBox.w = 0;
+        return ;
+    }
 
     const label = DiagramUtils.getTextWidth(ASTUtil.genSource(node));
     viewState.bBox.h = config.statement.height;
