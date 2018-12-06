@@ -1,6 +1,8 @@
 // An error is randomly returned to demonstrate how the error is propagated
 // to the 'onError' function when an error occurs in the 'onTrigger'
 // function. Therefore position of the error might differ and can be appeared in random order.
+# To run this sample, navigate to the directory that contains the
+# `.bal` file and issue the `ballerina run` command.
 $ ballerina run task_timer.bal
 Timer task demo
 Cleaning up...

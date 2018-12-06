@@ -31,10 +31,10 @@ public function main() {
     Person { name: firstName, age: personAge, ...otherDetails } = getPerson();
     io:println("Name: " + firstName);
     io:println("Age: " + personAge);
-    io:println("Country: " + io:sprintf("%s", otherDetails));
+    io:println("Other Details: " + io:sprintf("%s", otherDetails));
 
     // If no variable name is given for a field, a variable will be created with the same name as the field.
-    // i.e. Person {name, age} is same as Person {name: name, age: age}.
+    // i.e. `Person {name, age}` is same as Person `{name: name, age: age}`.
     // Since a rest parameter is not given, all remaining fields are ignored.
     Person { name, age } = getPerson();
     io:println("Name: " + name);
@@ -49,7 +49,7 @@ public function main() {
     // Type of `vPersonAge` is inferred as `int`.
     io:println("Age: " + vPersonAge);
     // Type of `vOtherDetails` will be `map<anydata>`.
-    io:println("Country: " + io:sprintf("%s", vOtherDetails));
+    io:println("Other Details: " + io:sprintf("%s", vOtherDetails));
 
     // The `!...` symbol will specify that there should not be any other fields other than `name` and `age`, hence
     // `Employee` should be a closed record.
@@ -57,13 +57,15 @@ public function main() {
     io:println("Name: " + empName);
     io:println("Age: " + empAge);
 
-    var { name: countryName, capital: {name: capitalName, !... }} = getCountry();
+    // Binding patterns are recursive in nature. `Capital`, which is a field type of `Country` can also be destructured as follows:
+    var { name: countryName, capital: { name: capitalName, !... } } = getCountry();
     io:println("Country Name: " + countryName);
     io:println("Capital Name: " + capitalName);
 }
 
 function getPerson() returns Person {
-    Person person = { name: "Peter", age: 28, country: "Sri Lanka", occupation: "Software Engineer" };
+    Person person = { name: "Peter", age: 28, country: "Sri Lanka",
+                      occupation: "Software Engineer" };
     return person;
 }
 

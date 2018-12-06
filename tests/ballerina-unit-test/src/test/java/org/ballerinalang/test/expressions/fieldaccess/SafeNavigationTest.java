@@ -1,20 +1,20 @@
 /*
-*   Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ *   Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.ballerinalang.test.expressions.fieldaccess;
 
 import org.ballerinalang.launcher.util.BAssertUtil;
@@ -35,13 +35,13 @@ import org.testng.annotations.Test;
 
 /**
  * Test cases for safe navigation.
- * 
+ *
  * @since 0.970.0
  */
 public class SafeNavigationTest {
 
-    CompileResult result;
-    CompileResult negativeResult;
+    private CompileResult result;
+    private CompileResult negativeResult;
 
     @BeforeClass
     public void setup() {
@@ -51,7 +51,7 @@ public class SafeNavigationTest {
 
     @Test
     public void testNegativeCases() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 13);
+        Assert.assertEquals(negativeResult.getErrorCount(), 19);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string?', found 'string|error'",
                 25, 19);
@@ -75,8 +75,20 @@ public class SafeNavigationTest {
                 50, 12);
         BAssertUtil.validateError(negativeResult, i++, "safe navigation operator not required for type 'error'", 55,
                 12);
+        BAssertUtil.validateError(negativeResult, i++, "invalid operation: type 'error' does not support field " +
+                        "access", 55, 12);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'string?'", 64,
                 16);
+        BAssertUtil.validateError(negativeResult, i++, "safe navigation operator not required for type 'xml'", 68,
+                9);
+        BAssertUtil.validateError(negativeResult, i++, "safe navigation operator not required for type 'json'", 72,
+                9);
+        BAssertUtil.validateError(negativeResult, i++, "safe navigation operator not required for type 'json|string'",
+                80, 9);
+        BAssertUtil.validateError(negativeResult, i++, "safe navigation operator not required for type 'json'",
+                88, 12);
+        BAssertUtil.validateError(negativeResult, i++, "safe navigation operator not required for type 'json'",
+                93, 12);
     }
 
     @Test
@@ -219,7 +231,7 @@ public class SafeNavigationTest {
         Assert.assertEquals(returns[3].stringValue(), "{\"info\":{\"address4\":{\"city\":\"Jaffna\"}}}");
     }
 
-    @Test(expectedExceptions = { BLangRuntimeException.class },
+    @Test(expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: failed to get element from json: array index " +
                     "out of range: index: 2, size: 0.*")
     public void testJSONNilLiftingOnLHS_2() {
@@ -232,7 +244,7 @@ public class SafeNavigationTest {
         Assert.assertNull(returns[0]);
     }
 
-    @Test(expectedExceptions = { BLangRuntimeException.class },
+    @Test(expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}KeyNotFound \\{\"message\":\"cannot find key " +
                     "'a'\"\\}.*")
     public void testNonExistingMapKeyWithFieldAccess() {
@@ -268,7 +280,7 @@ public class SafeNavigationTest {
         Assert.assertEquals(returns[0].stringValue(), "{\"name\":{foo:null, fname:\"John\"}}");
     }
 
-    @Test(expectedExceptions = { BLangRuntimeException.class },
+    @Test(expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testMapNilLiftingOnLHS_5() {
         BRunUtil.invoke(result, "testMapNilLiftingOnLHS_5");
@@ -281,7 +293,7 @@ public class SafeNavigationTest {
         Assert.assertEquals(returns[0].stringValue(), "{foo:{\"name\":\"Doe\"}}");
     }
 
-    @Test(expectedExceptions = { BLangRuntimeException.class },
+    @Test(expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testMapInRecordNilLiftingOnLHS_2() {
         BRunUtil.invoke(result, "testMapInRecordNilLiftingOnLHS_2");
@@ -289,7 +301,7 @@ public class SafeNavigationTest {
 
     @Test
     public void testFunctionInvocOnJsonNonExistingField() {
-        BValue[] vals = { JsonParser.parse("\"hello\"") };
+        BValue[] vals = {JsonParser.parse("\"hello\"")};
         BValue[] returns = BRunUtil.invoke(result, "testFunctionInvocOnJsonNonExistingField", vals);
         Assert.assertTrue(returns[0] instanceof BMap);
         Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"John\"}");
@@ -332,9 +344,21 @@ public class SafeNavigationTest {
                 "info2:{address1:null, address2:{street:\"Palm Grove\", city:\"Kandy\", country:\"Sri Lanka\"}}}");
     }
 
-    @Test(expectedExceptions = { BLangRuntimeException.class },
+    @Test(expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: NullReferenceException.*")
     public void testUpdatingNullableObjectField_2() {
         BRunUtil.invoke(result, "testUpdatingNullableObjectField_2");
+    }
+
+    @Test
+    public void testSafeNavigationOnFieldAccess() {
+        BValue[] returns = BRunUtil.invoke(result, "testSafeNavigationOnFieldAccess");
+        Assert.assertNull(returns[0]);
+    }
+
+    @Test
+    public void testSafeNavigationOnIndexBasedAccess() {
+        BValue[] returns = BRunUtil.invoke(result, "testSafeNavigationOnIndexBasedAccess");
+        Assert.assertNull(returns[0]);
     }
 }

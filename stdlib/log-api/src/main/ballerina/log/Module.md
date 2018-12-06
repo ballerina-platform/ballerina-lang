@@ -61,15 +61,15 @@ log:printTrace("trace log");
 
 Suppose that the above code snippet resides in a module named `foo`. We can set the log level of `foo` to `DEBUG` in a configuration file by placing the following entry in it:
 ```toml
-[foo]
+["<org-name>/foo"]
 loglevel="DEBUG"
 
 OR
 
-foo.loglevel="DEBUG"
+"<org-name>/foo.loglevel"="DEBUG"
 ```
 
 The log level of `foo` can also be configured through the CLI as follows:
 ```bash
-$ ballerina run foo -e foo.loglevel=DEBUG
+$ ballerina run -e \"<org-name>/foo.loglevel\"=DEBUG foo
 ```

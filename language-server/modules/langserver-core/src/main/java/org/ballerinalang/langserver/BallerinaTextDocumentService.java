@@ -397,10 +397,11 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 // Add create test commands
                 String innerDirName = LSCompilerUtil.getCurrentModulePath(document.getPath())
                         .relativize(document.getPath())
-                        .toString().split(File.separator)[0];
+                        .toString().split(Pattern.quote(File.separator))[0];
                 if (topLevelNodeType != null && diagnostics.isEmpty() && document.hasProjectRepo() &&
                         !TEST_DIR_NAME.equals(innerDirName)) {
-                    commands.addAll(CommandUtil.getTestGenerationCommand(topLevelNodeType, fileUri, params));
+                    commands.addAll(CommandUtil.getTestGenerationCommand(topLevelNodeType, fileUri, params,
+                                                                         documentManager, lsCompiler));
                 }
 
                 // Add commands base on node diagnostics

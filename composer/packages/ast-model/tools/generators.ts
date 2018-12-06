@@ -20,6 +20,7 @@ export function genInterfacesFileCode(modelInfo: any) {
             viewState?: any;
             ws?: any[];
             position?: NodePosition;
+            parent?: ASTNode;
         }
 
         ${interfaces.join("\n")}
@@ -38,8 +39,8 @@ export function genBaseVisitorFileCode(modelNames: string[]) {
         import * as Ballerina from "./ast-interfaces";
 
         export interface Visitor {
-            beginVisitASTNode?(node: Ballerina.ASTNode): void;
-            endVisitASTNode?(node: Ballerina.ASTNode): void;
+            beginVisitASTNode?(node: Ballerina.ASTNode, parent?: Ballerina.ASTNode): void;
+            endVisitASTNode?(node: Ballerina.ASTNode, parent?: Ballerina.ASTNode): void;
 
             ${visitFunctions.join("\n")}
         }
@@ -169,8 +170,8 @@ function getPropertyCode(model: any) {
 
 function genVisitFunctionCode(nodeKind: string) {
     return `
-        beginVisit${nodeKind}?(node: Ballerina.${nodeKind}): void;
-        endVisit${nodeKind}?(node: Ballerina.${nodeKind}): void;
+        beginVisit${nodeKind}?(node: Ballerina.${nodeKind}, parent?: Ballerina.ASTNode): void;
+        endVisit${nodeKind}?(node: Ballerina.${nodeKind}, parent?: Ballerina.ASTNode): void;
     `;
 }
 

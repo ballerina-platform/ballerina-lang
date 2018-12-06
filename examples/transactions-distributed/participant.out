@@ -1,5 +1,5 @@
-#To run this sample, navigate to the directory that contains the
-#'.bal' file and issue the 'ballerina run' command.
+# To start the `participant` service, navigate to the directory that contains the
+# `.bal` file and use the `ballerina run` command.
 #Run this command to start the `participant` service.
 $ ballerina run  --experimental participant.bal
 Initiating service(s) in 'participant.bal'

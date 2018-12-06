@@ -3,21 +3,21 @@ import ballerina/log;
 
 // This initializes a JMS connection with the provider.
 jms:Connection jmsConnection = new({
-    initialContextFactory:"bmbInitialContextFactory",
-    providerUrl:"amqp://admin:admin@carbon/carbon"
-                + "?brokerlist='tcp://localhost:5672'"
-});
+        initialContextFactory: "bmbInitialContextFactory",
+        providerUrl: "amqp://admin:admin@carbon/carbon"
+            + "?brokerlist='tcp://localhost:5672'"
+    });
 
 // This initializes a JMS session on top of the created connection.
 jms:Session jmsSession = new(jmsConnection, {
-    acknowledgementMode:"AUTO_ACKNOWLEDGE"
-});
+        acknowledgementMode: "AUTO_ACKNOWLEDGE"
+    });
 
 // This initializes a queue receiver on top of the created sessions.
 listener jms:QueueReceiver queueReceiver = new({
-    session:jmsSession,
-    queueName:"MyQueue"
-});
+        session: jmsSession,
+        queueName: "MyQueue"
+    });
 
 public function main() {
     jms:QueueReceiverCaller caller = queueReceiver.getCallerActions();

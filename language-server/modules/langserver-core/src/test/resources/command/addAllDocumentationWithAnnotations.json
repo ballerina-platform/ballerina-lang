@@ -48,19 +48,6 @@
               {
                 "range": {
                   "start": {
-                    "line": 10,
-                    "character": 0
-                  },
-                  "end": {
-                    "line": 10,
-                    "character": 0
-                  }
-                },
-                "newText": "# Description\n"
-              },
-              {
-                "range": {
-                  "start": {
                     "line": 20,
                     "character": 0
                   },

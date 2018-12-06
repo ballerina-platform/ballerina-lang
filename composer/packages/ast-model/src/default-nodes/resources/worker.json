@@ -1,0 +1,225 @@
+{
+  "ws": [
+    {
+      "ws": "\n    ",
+      "i": 158,
+      "text": "worker",
+      "static": true
+    },
+    {
+      "ws": " ",
+      "i": 160,
+      "text": "workerName",
+      "static": false
+    },
+    {
+      "ws": " ",
+      "i": 162,
+      "text": "{",
+      "static": true
+    },
+    {
+      "ws": "\n        \n    ",
+      "i": 167,
+      "text": "}",
+      "static": true
+    }
+  ],
+  "position": {
+    "startColumn": 5,
+    "startLine": 28,
+    "endColumn": 6,
+    "endLine": 30
+  },
+  "id": "cb207291-0750-4cb1-92b7-47a27b78094c",
+  "variable": {
+    "ws": [
+      {
+        "ws": "\n    ",
+        "i": 158,
+        "text": "worker",
+        "static": true
+      },
+      {
+        "ws": " ",
+        "i": 160,
+        "text": "workerName",
+        "static": false
+      },
+      {
+        "ws": " ",
+        "i": 162,
+        "text": "{",
+        "static": true
+      },
+      {
+        "ws": "\n        \n    ",
+        "i": 167,
+        "text": "}",
+        "static": true
+      }
+    ],
+    "position": {
+      "startColumn": 5,
+      "startLine": 28,
+      "endColumn": 6,
+      "endLine": 30
+    },
+    "id": "e1cf549c-77b3-4903-b5d3-ef4824d0e3ea",
+    "symbolType": [
+      "other"
+    ],
+    "name": {
+      "id": "56b776ec-a69b-4e04-9031-3d23a8e9ebfc",
+      "literal": false,
+      "value": "0workerName",
+      "kind": "Identifier",
+      "valueWithBar": "0workerName"
+    },
+    "deprecatedAttachments": [],
+    "annotationAttachments": [],
+    "initialExpression": {
+      "position": {
+        "startColumn": 5,
+        "startLine": 28,
+        "endColumn": 6,
+        "endLine": 30
+      },
+      "id": "07afbfc9-c52a-477c-9dca-86d1ff84a796",
+      "symbolType": [
+        "other"
+      ],
+      "functionNode": {
+        "ws": [
+          {
+            "ws": "\n    ",
+            "i": 158,
+            "text": "worker",
+            "static": true
+          },
+          {
+            "ws": " ",
+            "i": 160,
+            "text": "workerName",
+            "static": false
+          },
+          {
+            "ws": " ",
+            "i": 162,
+            "text": "{",
+            "static": true
+          },
+          {
+            "ws": "\n        \n    ",
+            "i": 167,
+            "text": "}",
+            "static": true
+          }
+        ],
+        "position": {
+          "startColumn": 5,
+          "startLine": 28,
+          "endColumn": 6,
+          "endLine": 30
+        },
+        "id": "6413527b-4e6c-48ba-905f-931b7b80ad02",
+        "VisibleEndpoints": [],
+        "workers": [],
+        "returnTypeAnnotationAttachments": [],
+        "name": {
+          "position": {
+            "startColumn": 5,
+            "startLine": 28,
+            "endColumn": 6,
+            "endLine": 30
+          },
+          "id": "02b3700c-a1e5-4ba7-a5a7-9c427c48c21e",
+          "literal": false,
+          "value": "$lambda$0",
+          "kind": "Identifier",
+          "valueWithBar": "$lambda$0"
+        },
+        "annotationAttachments": [],
+        "returnTypeNode": {
+          "position": {
+            "startColumn": 5,
+            "startLine": 28,
+            "endColumn": 6,
+            "endLine": 30
+          },
+          "id": "33bb7e46-6e99-4461-a3b9-c0589afc5eea",
+          "symbolType": [
+            "null"
+          ],
+          "typeKind": "nil",
+          "grouped": false,
+          "nullable": false,
+          "kind": "ValueType"
+        },
+        "defaultableParameters": [],
+        "deprecatedAttachments": [],
+        "endpointNodes": [],
+        "body": {
+          "id": "4ee5ae82-d0ae-4d03-a69b-a810325e6ce3",
+          "statements": [],
+          "kind": "Block"
+        },
+        "parameters": [],
+        "kind": "Function",
+        "public": false,
+        "private": false,
+        "remote": false,
+        "native": false,
+        "final": false,
+        "attached": false,
+        "lambda": true,
+        "worker": true,
+        "parallel": false,
+        "listener": false,
+        "deprecated": false,
+        "readonly": false,
+        "function_final": false,
+        "interface": false,
+        "required": false,
+        "record": false,
+        "compensate": false,
+        "abstract": false,
+        "optional": false,
+        "testable": false,
+        "client": false,
+        "resource": false,
+        "service": false,
+        "constant": false,
+        "allParams": []
+      },
+      "kind": "Lambda",
+      "isExpression": true
+    },
+    "kind": "Variable",
+    "public": false,
+    "private": false,
+    "remote": false,
+    "native": false,
+    "final": true,
+    "attached": false,
+    "lambda": false,
+    "worker": false,
+    "parallel": false,
+    "listener": false,
+    "deprecated": false,
+    "readonly": false,
+    "function_final": false,
+    "interface": false,
+    "required": false,
+    "record": false,
+    "compensate": false,
+    "abstract": false,
+    "optional": false,
+    "testable": false,
+    "client": false,
+    "resource": false,
+    "service": false,
+    "constant": false
+  },
+  "kind": "VariableDef"
+}

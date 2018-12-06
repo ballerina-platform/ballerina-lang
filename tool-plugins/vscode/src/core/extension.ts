@@ -104,7 +104,7 @@ export class BallerinaExtension {
                 // Following was put in to handle server startup failiers.
                 const disposeDidChange = this.langClient.onDidChangeState(stateChangeEvent => {
                     if (stateChangeEvent.newState === LS_STATE.Stopped) {
-                        log("Coudn't establish language server connection.");
+                        log("Couldn't establish language server connection.");
                         this.showPluginActivationError();
                     }
                 });
@@ -264,7 +264,7 @@ export class BallerinaExtension {
 
 
     isValidBallerinaHome(homePath: string = this.ballerinaHome): boolean {
-        const ballerinaCmd = process.platform === 'win32' ? 'ballerina.bat' : 'ballerina'
+        const ballerinaCmd = process.platform === 'win32' ? 'ballerina.bat' : 'ballerina';
         if (fs.existsSync(path.join(homePath, 'bin', ballerinaCmd))) {
             return true;
         }
