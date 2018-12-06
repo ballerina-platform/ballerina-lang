@@ -30,10 +30,10 @@ import com.intellij.openapi.roots.ModuleRootModificationUtil;
 import com.intellij.openapi.roots.ProjectExtension;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.AsyncResult;
+import io.ballerina.plugins.idea.BallerinaConstants;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkService;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
-import io.ballerina.plugins.idea.BallerinaConstants;
 import org.jetbrains.annotations.Nullable;
 
 /**
