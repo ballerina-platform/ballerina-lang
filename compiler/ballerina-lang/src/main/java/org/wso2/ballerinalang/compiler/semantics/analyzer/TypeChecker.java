@@ -576,10 +576,6 @@ public class TypeChecker extends BLangNodeVisitor {
             this.dlog.error(syncSendExpr.pos, DiagnosticCode.INVALID_TYPE_FOR_SEND, syncSendExpr.expr.type);
         }
 
-        if (!isInTopLevelWorkerEnv()) {
-            this.dlog.error(syncSendExpr.pos, DiagnosticCode.INVALID_WORKER_SEND_POSITION);
-        }
-
         String workerName = syncSendExpr.workerIdentifier.getValue();
         if (!this.workerExists(this.env, workerName)) {
             this.dlog.error(syncSendExpr.pos, DiagnosticCode.UNDEFINED_WORKER, workerName);
@@ -597,15 +593,13 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveExpr) {
+        workerReceiveExpr.env = this.env;
         BSymbol symbol = symResolver.lookupSymbol(env, names.fromIdNode(workerReceiveExpr.workerIdentifier),
                                                   SymTag.VARIABLE);
 
         if (workerReceiveExpr.isChannel || symbol.getType().tag == TypeTags.CHANNEL) {
             visitChannelReceive(workerReceiveExpr, symbol);
             return;
-        }
-        if (!isInTopLevelWorkerEnv()) {
-            this.dlog.error(workerReceiveExpr.pos, DiagnosticCode.INVALID_WORKER_RECEIVE_POSITION);
         }
 
         if (symTable.notFoundSymbol.equals(symbol)) {
@@ -625,7 +619,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private void visitChannelReceive(BLangWorkerReceive workerReceiveNode, BSymbol symbol) {
         workerReceiveNode.isChannel = true;
-        workerReceiveNode.env = this.env;
+
         if (symbol == null) {
             symbol = symResolver.lookupSymbol(env, names.fromString(workerReceiveNode.getWorkerName().getValue()),
                                               SymTag.VARIABLE);
@@ -654,23 +648,6 @@ public class TypeChecker extends BLangNodeVisitor {
         // We cannot predict the type of the receive expression as it depends on the type of the data sent by the other
         // worker/channel. Since receive is an expression now we infer the type of it from the lhs of the statement.
         resultType = this.expType;
-    }
-
-    private boolean isInTopLevelWorkerEnv() {
-        // Two scenarios are handled here when a variable comes as an assignment and when it is defined as a variable
-        //TODO: move this method to CodeAnalyzer
-        boolean isTopLevel = false;
-        switch (this.env.node.getKind()) {
-            case BLOCK:
-                isTopLevel = true;
-                //handled in code analyzer
-                break;
-            case VARIABLE:
-            case EXPRESSION_STATEMENT:
-                isTopLevel = env.enclEnv.node == env.enclInvokable.body;
-                break;
-        }
-        return isTopLevel;
     }
 
     private boolean workerExists(SymbolEnv env, String workerName) {

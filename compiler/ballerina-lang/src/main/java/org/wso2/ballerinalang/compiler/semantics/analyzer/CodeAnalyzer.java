@@ -1098,8 +1098,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         /* ignore */
     }
 
-    private boolean isTopLevel() {
-        SymbolEnv env = this.env;
+    private boolean isTopLevel(SymbolEnv env) {
         return env.enclInvokable.body == env.node;
     }
 
@@ -1107,8 +1106,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         return env.enclInvokable.flagSet.contains(Flag.WORKER);
     }
 
-    private boolean isCommunicationAllowedLocation(String workerIdentifier) {
-        return (isDefaultWorkerCommunication(workerIdentifier) && isInWorker()) || isTopLevel();
+    private boolean isCommunicationAllowedLocation(String workerIdentifier, SymbolEnv env) {
+        return (isDefaultWorkerCommunication(workerIdentifier) && isInWorker()) || isTopLevel(env);
     }
 
     private boolean isDefaultWorkerCommunication(String workerIdentifier) {
@@ -1148,7 +1147,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         String workerName = workerSendNode.workerIdentifier.getValue();
-        boolean allowedLocation = isCommunicationAllowedLocation(workerName);
+        boolean allowedLocation = isCommunicationAllowedLocation(workerName, workerSendNode.env);
         if (!allowedLocation) {
             this.dlog.error(workerSendNode.pos, DiagnosticCode.INVALID_WORKER_SEND_POSITION);
             was.hasErrors = true;
@@ -1193,7 +1192,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         String workerName = syncSendExpr.workerIdentifier.getValue();
         WorkerActionSystem was = this.workerActionSystemStack.peek();
 
-        if (!isCommunicationAllowedLocation(workerName)) {
+        SymbolEnv envToValidate = getActionExprEnv(syncSendExpr.env);
+        boolean allowedLocation = isCommunicationAllowedLocation(workerName, envToValidate);
+        if (!allowedLocation) {
             this.dlog.error(syncSendExpr.pos, DiagnosticCode.INVALID_WORKER_SEND_POSITION);
             was.hasErrors = true;
         }
@@ -1220,7 +1221,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         WorkerActionSystem was = this.workerActionSystemStack.peek();
 
         String workerName = workerReceiveNode.workerIdentifier.getValue();
-        boolean allowedLocation = isCommunicationAllowedLocation(workerName);
+        SymbolEnv envToValidate = getActionExprEnv(workerReceiveNode.env);
+        boolean allowedLocation = isCommunicationAllowedLocation(workerName, envToValidate);
         if (!allowedLocation) {
             this.dlog.error(workerReceiveNode.pos, DiagnosticCode.INVALID_WORKER_RECEIVE_POSITION);
             was.hasErrors = true;
@@ -1253,6 +1255,15 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         } else {
             return symTable.nilType;
         }
+    }
+
+    private SymbolEnv getActionExprEnv(SymbolEnv env) {
+        NodeKind nodeKind = env.node.getKind();
+        if (nodeKind == NodeKind.VARIABLE || nodeKind == NodeKind.EXPRESSION_STATEMENT) {
+            return env.enclEnv;
+        }
+        // Node kind is a block statement
+        return env;
     }
 
     public void visit(BLangLiteral literalExpr) {
