@@ -21,7 +21,6 @@ export const ControllerPanel: StatelessComponent<{
             <Sticky
                 className="diagram-controllers"
                 context={stickTo.current || undefined}
-                style={{ width }}
             >
                 <Menu
                     className={

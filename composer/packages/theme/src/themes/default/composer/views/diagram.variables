@@ -97,19 +97,6 @@
 
 
 /*-------------------
-       Button 
---------------------*/
-
-@diagram-svg-button-background-color: @primaryColor;
-@diagram-svg-button-text-color: @white;
-
-@dark-diagram-svg-button-background-color: @diagram-svg-button-background-color;
-@dark-diagram-svg-button-text-color: @diagram-svg-button-text-color;
-
-@light-diagram-svg-button-background-color: @diagram-svg-button-background-color;
-@light-diagram-svg-button-text-color: @diagram-svg-button-text-color;
-
-/*-------------------
        Menu 
 --------------------*/
 
