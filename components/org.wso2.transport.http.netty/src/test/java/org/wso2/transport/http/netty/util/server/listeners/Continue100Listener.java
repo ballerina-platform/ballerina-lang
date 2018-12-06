@@ -18,6 +18,7 @@
 
 package org.wso2.transport.http.netty.util.server.listeners;
 
+import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
@@ -49,13 +50,13 @@ public class Continue100Listener implements HttpConnectorListener {
                 String expectHeader = httpRequest.getHeader(HttpHeaderNames.EXPECT.toString());
 
                 if (expectHeader != null && expectHeader.equalsIgnoreCase("100-continue")) {
-                    HttpCarbonMessage httpResponse =
-                            new HttpCarbonResponse(
-                                    new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.CONTINUE));
-                    httpResponse.setHeader(HttpHeaderNames.CONNECTION.toString(),
-                                           HttpHeaderValues.KEEP_ALIVE.toString());
-                    httpResponse.setProperty(Constants.HTTP_STATUS_CODE, HttpResponseStatus.CONTINUE.code());
-                    httpResponse.addHttpContent(new DefaultLastHttpContent());
+                    HttpCarbonMessage httpResponse;
+                    String statusHeader = httpRequest.getHeader("X-Status");
+                    if (statusHeader != null && statusHeader.equalsIgnoreCase("Positive")) {
+                        httpResponse = createPositiveContinueResponse();
+                    } else {
+                        httpResponse = createNegativeContinueResponse();
+                    }
                     httpRequest.respond(httpResponse);
                 }
 
@@ -79,6 +80,29 @@ public class Continue100Listener implements HttpConnectorListener {
                 LOG.error("Error occurred during message notification: " + e.getMessage());
             }
         });
+    }
+
+    private HttpCarbonMessage createPositiveContinueResponse() {
+        HttpCarbonMessage httpResponse =
+                new HttpCarbonResponse(
+                        new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.CONTINUE));
+        httpResponse.setHeader(HttpHeaderNames.CONNECTION.toString(),
+                               HttpHeaderValues.KEEP_ALIVE.toString());
+        httpResponse.setProperty(Constants.HTTP_STATUS_CODE, HttpResponseStatus.CONTINUE.code());
+        httpResponse.addHttpContent(new DefaultLastHttpContent());
+        return httpResponse;
+    }
+
+    private HttpCarbonMessage createNegativeContinueResponse() {
+        String payload = "Do not send me any payload";
+        HttpCarbonMessage httpResponse =
+                new HttpCarbonResponse(
+                        new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.EXPECTATION_FAILED));
+        httpResponse.setHeader(HttpHeaderNames.CONNECTION.toString(),
+                               HttpHeaderValues.KEEP_ALIVE.toString());
+        httpResponse.setProperty(Constants.HTTP_STATUS_CODE, HttpResponseStatus.EXPECTATION_FAILED.code());
+        httpResponse.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(payload.getBytes())));
+        return httpResponse;
     }
 
     @Override
