@@ -45,6 +45,7 @@ const Documentation = ({ docDetails }) => {
             <Description source={description} className='description' />
             {returnParameter && returnParameter.type !== 'nil' && (
                 <div className='return-details'>
+                    <div>----------------------------------</div>
                     {returnParameter.type && <div><strong>return:</strong> <span className='type'>{returnParameter.type}</span></div>}
                     <div className='return-description'>{<Description source={returnParameter.description || ''} />}</div>
                 </div>
