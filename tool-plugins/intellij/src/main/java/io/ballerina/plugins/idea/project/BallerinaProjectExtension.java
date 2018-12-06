@@ -34,7 +34,6 @@ import io.ballerina.plugins.idea.BallerinaConstants;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkService;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
-import io.ballerina.plugins.idea.BallerinaConstants;
 import org.jetbrains.annotations.Nullable;
 
 /**
