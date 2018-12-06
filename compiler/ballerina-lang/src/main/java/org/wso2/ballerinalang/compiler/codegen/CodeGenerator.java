@@ -3804,7 +3804,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             return;
         }
 
-        pkgNode.imports.forEach(importPkdNode -> addPackageInfo(importPkdNode.symbol, programFile));
+        packageSymbol.imports.forEach(importPkdNode -> addPackageInfo(importPkdNode, programFile));
         if (!programFile.packageFileMap.containsKey(packageSymbol.pkgID.toString())
                 && !packageSymbol.pkgID.orgName.equals(Names.BUILTIN_ORG)) {
             programFile.packageFileMap.put(packageSymbol.pkgID.toString(), packageSymbol.packageFile);
