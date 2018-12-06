@@ -23,7 +23,7 @@ service helloContinue on new http:Listener(9090) {
                 log:printInfo("Ignore payload by sending 417 response");
                 http:Response res = new;
                 res.statusCode = 417;
-                res.setTextPayload("Do not send me any payload");
+                res.setPayload("Do not send me any payload");
                 var responseError = caller->respond(res);
                 if (responseError is error) {
                     log:printError("Error sending response", err = responseError);

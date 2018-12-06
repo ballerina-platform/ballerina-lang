@@ -94,12 +94,11 @@ public class ExpectContinueTestCase extends HttpBaseTest {
         Assert.assertFalse(httpClient.waitForChannelClose());
 
         // 417 Expectation Failed response
-        Assert.assertEquals(responses.get(0).status(), HttpResponseStatus.EXPECTATION_FAILED);
+        Assert.assertEquals(responses.get(0).status(), HttpResponseStatus.EXPECTATION_FAILED, "Response code mismatch");
         int length = Integer.parseInt(responses.get(0).headers().get(HttpHeaderNames.CONTENT_LENGTH));
-        Assert.assertEquals(length, 26);
-        Assert.assertEquals(responses.get(0).content()
-                                    .readCharSequence(length, Charset.defaultCharset()).toString(),
-                            "Do not send me any payload");
+        Assert.assertEquals(length, 26, "Content length mismatched");
+        String payload = responses.get(0).content().readCharSequence(length, Charset.defaultCharset()).toString();
+        Assert.assertEquals(payload, "Do not send me any payload", "Entity body mismatched");
         // Actual response
         Assert.assertEquals(responses.size(), 1,
                             "Multiple responses received when only a 417 response was expected");

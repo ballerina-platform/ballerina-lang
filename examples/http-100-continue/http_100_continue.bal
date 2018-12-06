@@ -24,7 +24,7 @@ service helloWorld on new http:Listener(9090) {
                 // with the expected content type.
                 http:Response res = new;
                 res.statusCode = 417;
-                res.setTextPayload("Unprocessable Entity");
+                res.setPayload("Unprocessable Entity");
                 var result = caller->respond(res);
                 if (result is error) {
                     log:printError("Error sending response", err = result);
