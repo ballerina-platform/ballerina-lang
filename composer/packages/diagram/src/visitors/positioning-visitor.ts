@@ -25,7 +25,7 @@ export const visitor: Visitor = {
         const visibleChildren = node.topLevelNodes.filter((child) => {
             return ASTKindChecker.isFunction(child)
                 || ASTKindChecker.isService(child)
-                || ASTKindChecker.isTypeDefinition(child);
+                || ASTUtil.isValidObjectType(child);
         });
 
         let width = 0;
@@ -191,7 +191,7 @@ export const visitor: Visitor = {
 
     beginVisitTypeDefinition(node: TypeDefinition) {
         // If it is a service do nothing.
-        if (node.service || !ASTKindChecker.isObjectType(node.typeNode)) { return; }
+        if (node.service || !ASTUtil.isValidObjectType(node)) { return; }
         const viewState: ViewState = node.viewState;
         let y = viewState.bBox.y + config.panelGroup.header.height;
         // tslint:disable-next-line:ban-types

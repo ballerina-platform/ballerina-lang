@@ -279,7 +279,7 @@ export const visitor: Visitor = {
 
     endVisitTypeDefinition(node: TypeDefinition) {
         // If it is a service do nothing.
-        if (node.service || !ASTKindChecker.isObjectType(node.typeNode)) {return; }
+        if (node.service || !ASTUtil.isValidObjectType(node)) {return; }
         const viewState: ViewState = node.viewState;
         let height = config.panelGroup.header.height;
         // tslint:disable-next-line:ban-types

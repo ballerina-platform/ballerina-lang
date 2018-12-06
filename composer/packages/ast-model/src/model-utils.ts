@@ -1,4 +1,7 @@
-import { ASTNode, Invocation, SimpleVariableRef, Variable, VariableDef } from "./ast-interfaces";
+import {
+    ASTNode, Invocation, ObjectType, SimpleVariableRef,
+    TypeDefinition, Variable, VariableDef
+} from "./ast-interfaces";
 import { Visitor } from "./base-visitor";
 import { ASTKindChecker } from "./check-kind-util";
 
@@ -78,6 +81,23 @@ export function isWorker(node: ASTNode) {
         if (ASTKindChecker.isVariable((node as VariableDef).variable)) {
             const name: string = ((node as VariableDef).variable as Variable).name.value;
             if (/^0.*/.test(name)) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+export function isValidObjectType(node: ASTNode): boolean {
+    if (ASTKindChecker.isTypeDefinition(node)) {
+        const typeDefinition = node as TypeDefinition;
+        if (ASTKindChecker.isObjectType(typeDefinition.typeNode)) {
+            const objectType = typeDefinition.typeNode as ObjectType;
+            // Check if it has nun interface functions.
+            const functions = objectType.functions.filter((element) => {
+                return !element.interface;
+            });
+            if (functions.length > 0) {
                 return true;
             }
         }

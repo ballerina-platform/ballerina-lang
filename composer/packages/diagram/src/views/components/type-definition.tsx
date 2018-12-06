@@ -1,5 +1,5 @@
 
-import { ASTKindChecker, ObjectType, TypeDefinition as TypeDefinitionNode } from "@ballerina/ast-model";
+import { ASTUtil, ObjectType, TypeDefinition as TypeDefinitionNode } from "@ballerina/ast-model";
 import { getCodePoint } from "@ballerina/font";
 import * as React from "react";
 import { DiagramConfig } from "../../config/default";
@@ -13,7 +13,7 @@ export const TypeDefinition: React.StatelessComponent<{
 }> = ({
     model
 }) => {
-        if (model.service || !ASTKindChecker.isObjectType(model.typeNode)) { return <g />; }
+        if (model.service || !ASTUtil.isValidObjectType(model)) { return <g />; }
         const objectType = model.typeNode as ObjectType;
         const resources: React.ReactNode[] = [];
         const serviceTitle = { x: 0, y: 0, className: "panel-group-title" };
