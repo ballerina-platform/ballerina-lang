@@ -618,7 +618,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
         // The receive expression cannot be assigned to var, since we cannot infer the type.
         if (symTable.noType == this.expType) {
-            //            this.dlog.error(workerReceiveExpr.pos, DiagnosticCode.INVALID_USAGE_OF_RECEIVE_EXPRESSION);
+            this.dlog.error(workerReceiveExpr.pos, DiagnosticCode.INVALID_USAGE_OF_RECEIVE_EXPRESSION);
         }
         // We cannot predict the type of the receive expression as it depends on the type of the data sent by the other
         // worker/channel. Since receive is an expression now we infer the type of it from the lhs of the statement.
@@ -1274,7 +1274,8 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangTrapExpr trapExpr) {
         boolean firstVisit = trapExpr.expr.type == null;
         BType actualType;
-        BType exprType = checkExpr(trapExpr.expr, env, this.symTable.noType);
+        BType exprType = checkExpr(trapExpr.expr, env, expType);
+        boolean definedWithVar = expType == symTable.noType;
 
         if (trapExpr.expr.getKind() == NodeKind.WORKER_RECEIVE) {
             if (firstVisit) {
@@ -1301,7 +1302,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         resultType = types.checkType(trapExpr, actualType, expType);
-        if (resultType != null && resultType != symTable.semanticError) {
+        if (definedWithVar && resultType != null && resultType != symTable.semanticError) {
             types.setImplicitCastExpr(trapExpr.expr, trapExpr.expr.type, resultType);
         }
     }
@@ -1841,7 +1842,17 @@ public class TypeChecker extends BLangNodeVisitor {
     @Override
     public void visit(BLangCheckedExpr checkedExpr) {
         boolean firstVisit = checkedExpr.expr.type == null;
-        BType exprType = checkExpr(checkedExpr.expr, env, symTable.noType);
+        BType exprExpType;
+        if (expType == symTable.noType) {
+            exprExpType = symTable.noType;
+        } else {
+            LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
+            memberTypes.add(expType);
+            memberTypes.add(symTable.errorType);
+            exprExpType = new BUnionType(null, memberTypes, false);
+        }
+
+        BType exprType = checkExpr(checkedExpr.expr, env, exprExpType);
         if (checkedExpr.expr.getKind() == NodeKind.WORKER_RECEIVE) {
             if (firstVisit) {
                 isTypeChecked = false;
