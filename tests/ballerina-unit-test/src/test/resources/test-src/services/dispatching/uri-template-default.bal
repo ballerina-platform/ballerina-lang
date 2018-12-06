@@ -56,7 +56,6 @@ service serviceWithNoAnnotation on testEP {
 }
 
 service on mockEP {
-
     resource function testResource(http:Caller caller, http:Request req) {
         _ = caller->respond({"echo":"dispatched to service that doesn't have a name"});
     }

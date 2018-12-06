@@ -90,8 +90,7 @@ public class MessageUtils {
         HTTPTestRequest carbonMessage = new HTTPTestRequest();
         carbonMessage.setProperty(HttpConstants.PROTOCOL,
                 HttpConstants.PROTOCOL_HTTP);
-        carbonMessage.setProperty(HttpConstants.LISTENER_INTERFACE_ID,
-                HTTP_DEFAULT_HOST + COLON + port);
+        carbonMessage.setProperty(HttpConstants.LISTENER_INTERFACE_ID, HTTP_DEFAULT_HOST + COLON + port);
         // Set url
         carbonMessage.setProperty(HttpConstants.TO, path);
         carbonMessage.setProperty(HttpConstants.REQUEST_URL, path);
