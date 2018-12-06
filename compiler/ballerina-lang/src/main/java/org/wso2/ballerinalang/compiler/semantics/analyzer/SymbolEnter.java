@@ -512,6 +512,13 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         }
 
+        if (typeDefinition.typeNode.getKind() == NodeKind.FUNCTION_TYPE && definedType.tsymbol == null) {
+            BTypeSymbol tsymbol = Symbols.createTypeSymbol(SymTag.FUNCTION_TYPE, Flags.asMask(typeDefinition.flagSet),
+                                                           Names.EMPTY, env.enclPkg.symbol.pkgID, definedType,
+                                                           env.scope.owner);
+            definedType.tsymbol = tsymbol;
+        }
+
         typeDefinition.precedence = this.typePrecedence++;
         BTypeSymbol typeDefSymbol;
         if (definedType.tsymbol.name != Names.EMPTY) {
