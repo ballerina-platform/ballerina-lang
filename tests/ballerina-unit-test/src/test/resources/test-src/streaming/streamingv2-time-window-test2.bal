@@ -66,7 +66,6 @@ function startTimeWindowTest2() returns (Teacher[]) {
         i += 1;
     }
 
-
     int count = 0;
     while(true) {
         runtime:sleep(500);
