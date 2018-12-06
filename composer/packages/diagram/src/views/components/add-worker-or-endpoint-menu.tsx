@@ -8,11 +8,11 @@ export class AddWorkerOrEndpointMenu extends React.Component<{
         onAddEndpoint?: (endpointDef: any) => void;
         onAddWorker?: () => void;
     }, {
-        showEndpoitDialog: boolean
+        showEndpointDialog: boolean
     }> {
 
     public state = {
-        showEndpoitDialog: false
+        showEndpointDialog: false
     };
 
     public render() {
@@ -36,13 +36,13 @@ export class AddWorkerOrEndpointMenu extends React.Component<{
                     ]}
                 />
             <EndpointSearchDialog
-                show={this.state.showEndpoitDialog}
+                show={this.state.showEndpointDialog}
                 onClose={this.closeEpSearchDialog}
                 onEndpointSelect={onAddEndpoint}
             />
         </Fragment>;
     }
 
-    private openEpSearchDialog = () => this.setState({ showEndpoitDialog: true });
-    private closeEpSearchDialog = () => this.setState({ showEndpoitDialog: false });
+    private openEpSearchDialog = () => this.setState({ showEndpointDialog: true });
+    private closeEpSearchDialog = () => this.setState({ showEndpointDialog: false });
 }

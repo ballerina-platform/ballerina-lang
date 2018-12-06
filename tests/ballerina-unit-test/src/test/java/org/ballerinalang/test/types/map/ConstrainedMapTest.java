@@ -26,6 +26,7 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
@@ -75,7 +76,8 @@ public class ConstrainedMapTest {
 
     @Test(description = "Test Map constrained with value type value retrieval negative case.",
           expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*error: cannot find key 'names'.*")
+          expectedExceptionsMessageRegExp = "error: \\{ballerina\\}KeyNotFound \\{\"message\":\"cannot find key " +
+                  "'names'\"\\}.*")
     public void testConstrainedMapValueTypeNegative() {
         BRunUtil.invoke(compileResult, "testConstrainedMapValueTypeNegative");
     }
@@ -105,7 +107,8 @@ public class ConstrainedMapTest {
 
     @Test(description = "Test Map constrained with user defined type value retrieval negative case.",
           expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*error: cannot find key 'item-not'.*")
+          expectedExceptionsMessageRegExp = "error: \\{ballerina\\}KeyNotFound \\{\"message\":\"cannot find key " +
+                  "'item-not'\"\\}.*")
     public void testConstrainedMapStructTypeNegative() {
         BRunUtil.invoke(compileResult, "testConstrainedMapStructTypeNegative");
     }
@@ -262,7 +265,7 @@ public class ConstrainedMapTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testConstrainedMapValueTypeCastNegative");
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BError) returns[0]).getReason();
+        String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).details).get("message").stringValue();
         Assert.assertTrue(errorMsg.startsWith("assertion error: expected 'map<int>', found 'map<string>'"));
     }
 
@@ -280,7 +283,7 @@ public class ConstrainedMapTest {
     public void testConstrainedMapRefTypeCastNegative() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testConstrainedMapRefTypeCastNegative");
         Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BError) returns[0]).getReason();
+        String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).details).get("message").stringValue();
         Assert.assertTrue(errorMsg.startsWith("assertion error: expected 'map<int>', found 'map<Person>'"));
     }
 
@@ -293,8 +296,8 @@ public class ConstrainedMapTest {
 
     @Test(description = "Test map constrained with string update with invalid type negative.",
           expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = "error: invalid map insertion: expected value of type 'string', found " +
-                  "'int'.*")
+          expectedExceptionsMessageRegExp = "error: \\{ballerina\\}InherentTypeViolation \\{\"message\":\"invalid map" +
+                  " insertion: expected value of type 'string', found 'int'\"\\}.*")
     public void testStringMapUpdateWithInvalidTypeNegativeCase() {
         BRunUtil.invoke(compileResult, "testStringMapUpdateWithInvalidTypeNegativeCase");
     }
@@ -353,7 +356,7 @@ public class ConstrainedMapTest {
     public void testStructNotEquivalentRuntimeCast() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testStructNotEquivalentRuntimeCast");
         Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BError) returns[0]).getReason();
+        String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).details).get("message").stringValue();
         Assert.assertTrue(errorMsg.startsWith("assertion error: expected 'map<Person>', found 'map<Employee>"));
     }
 
@@ -361,7 +364,7 @@ public class ConstrainedMapTest {
     public void testAnyMapToValueTypeRuntimeCast() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAnyMapToValueTypeRuntimeCast");
         Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BError) returns[0]).getReason();
+        String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).details).get("message").stringValue();
         Assert.assertTrue(errorMsg.startsWith("assertion error: expected 'map<int>', found 'map'"));
     }
 
@@ -369,7 +372,7 @@ public class ConstrainedMapTest {
     public void testAnyMapToRefTypeRuntimeCast() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAnyMapToRefTypeRuntimeCast");
         Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BError) returns[0]).getReason();
+        String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).details).get("message").stringValue();
         Assert.assertTrue(errorMsg.startsWith("assertion error: expected 'map<Employee>', found 'map'"));
     }
 
@@ -385,7 +388,7 @@ public class ConstrainedMapTest {
     public void testMapToStructConversionNegative() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testMapToStructConversionNegative");
         Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BError) returns[0]).getReason();
+        String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).details).get("message").stringValue();
         Assert.assertEquals(errorMsg, "cannot convert 'map<string>' to type 'Student: error while mapping 'index': " +
                 "incompatible types: expected 'int', found 'string'");
     }
@@ -445,7 +448,7 @@ public class ConstrainedMapTest {
         BValue[] returns = BRunUtil.invoke(compileResult,
                 "testJsonToStructConversionStructWithConstrainedMapNegative");
         Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BError) returns[0]).getReason();
+        String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).details).get("message").stringValue();
         Assert.assertEquals(errorMsg,
                             "incompatible stamp operation: 'json' value cannot be stamped as 'PersonComplexTwo'");
     }
@@ -535,7 +538,8 @@ public class ConstrainedMapTest {
 
     @Test(description = "Test basic map constrained to union case three.",
           expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = "error: cannot find key 'non-existing-key'.*")
+          expectedExceptionsMessageRegExp = "error: \\{ballerina\\}KeyNotFound \\{\"message\":\"cannot find key " +
+                  "'non-existing-key'\"\\}.*")
     public void testMapConstrainedToUnionCaseThree() {
         BRunUtil.invoke(compileResult,
                 "testMapConstrainedToUnionCaseThree");
@@ -553,7 +557,8 @@ public class ConstrainedMapTest {
 
     @Test(description = "Test basic map constrained to nullable union retrieve non existing key.",
           expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = "error: cannot find key 'nonexist'.*")
+          expectedExceptionsMessageRegExp = "error: \\{ballerina\\}KeyNotFound \\{\"message\":\"cannot find key " +
+                  "'nonexist'\"\\}.*")
     public void testMapConstrainedToNullableUnionNonExistingKey() {
         BRunUtil.invoke(compileResult,
                 "testMapConstrainedToNullableUnionNonExistingKey");
@@ -569,7 +574,8 @@ public class ConstrainedMapTest {
 
     @Test(description = "Test basic map constrained to string non existing key retrieve.",
           expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = "error: cannot find key 'nonexist-key'.*")
+          expectedExceptionsMessageRegExp = "error: \\{ballerina\\}KeyNotFound \\{\"message\":\"cannot find key " +
+                  "'nonexist-key'\"\\}.*")
     public void testMapConstrainedStringNonExistingKeyRetrieve() {
         BRunUtil.invoke(compileResult,
                 "testMapConstrainedStringNonExistingKeyRetrieve");

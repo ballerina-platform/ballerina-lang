@@ -19,6 +19,7 @@ package org.ballerinalang.model.util;
 
 import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.util.exceptions.BLangFreezeException;
+import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
@@ -44,7 +45,8 @@ public class FreezeUtils {
                 if (currentFreezeStatus == receivedFreezeStatus) {
                     return false;
                 }
-                throw new BallerinaException("concurrent 'freeze()' attempts not allowed");
+                throw new BallerinaException(BallerinaErrorReasons.CONCURRENT_MODIFICATION_ERROR,
+                                             "concurrent 'freeze()' attempts not allowed");
         }
         return true;
     }
@@ -60,9 +62,11 @@ public class FreezeUtils {
     public static void handleInvalidUpdate(BVM.FreezeStatus.State currentState) {
         switch (currentState) {
             case FROZEN:
-                throw new BLangFreezeException("modification not allowed on frozen value");
+                throw new BLangFreezeException(BallerinaErrorReasons.INVALID_UPDATE_ERROR,
+                                               "modification not allowed on frozen value");
             case MID_FREEZE:
-                throw new BLangFreezeException("modification not allowed during freeze");
+                throw new BLangFreezeException(BallerinaErrorReasons.INVALID_UPDATE_ERROR,
+                                               "modification not allowed during freeze");
         }
     }
 }

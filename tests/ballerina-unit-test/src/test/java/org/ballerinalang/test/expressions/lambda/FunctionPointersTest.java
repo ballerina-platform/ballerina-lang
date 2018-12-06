@@ -186,7 +186,7 @@ public class FunctionPointersTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class, expectedExceptionsMessageRegExp = "" +
-            ".*NullReferenceException.*", enabled = false)
+            ".*cannot find key 'getName'.*")
     public void testStructFPNullReference() {
         BRunUtil.invoke(structProgram, "test2");
     }
@@ -251,8 +251,9 @@ public class FunctionPointersTest {
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = ".*error: assertion error: expected 'function \\(Person\\) returns " +
-                    "\\(int\\)', found 'function \\(Student\\) returns \\(int\\).*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeAssertionError \\{\"message\":\"assertion " +
+                    "error: expected 'function \\(Person\\) returns \\(int\\)', found 'function \\(Student\\) returns" +
+                    " \\(int\\)'\"\\}.*")
     public void testAnyToFuncPointerConversion_2() {
         BRunUtil.invoke(fpProgram, "testAnyToFuncPointerConversion_2");
     }
