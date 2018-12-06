@@ -25,6 +25,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
+import org.ballerinalang.test.utils.ResponseReader;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -37,7 +38,8 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 public class UriTemplateDefaultDispatcherTest {
 
     private static final String TEST_EP = "testEP";
-    private static final String MOCK_EP = "mockEP";
+    private static final String MOCK_EP1 = "mockEP1";
+    private static final String MOCK_EP2 = "mockEP2";
     private CompileResult application;
 
     @BeforeClass()
@@ -106,15 +108,25 @@ public class UriTemplateDefaultDispatcherTest {
                 , "Resource dispatched to wrong template");
     }
 
-    @Test(description = "Test dispatching to a service that doesn't have a name")
-    public void testServiceWithNoName() {
+    @Test(description = "Test dispatching to a service with no name and config")
+    public void testServiceWithNoNameAndNoConfig() {
         String path = "/testResource";
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET", 9091);
-        HttpCarbonMessage response = Services.invokeNew(application, MOCK_EP, cMsg);
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HttpCarbonMessage response = Services.invokeNew(application, MOCK_EP1, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(((BMap<String, BValue>) bJson).get("echo").stringValue(),
-                "dispatched to service that doesn't have a name");
+                "dispatched to service that neither has an explicitly defined basepath nor a name");
+    }
+
+    @Test(description = "Test dispatching to a service with no name and no basepath in config")
+    public void testServiceWithNoName() {
+        String path = "/testResource";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HttpCarbonMessage response = Services.invokeNew(application, MOCK_EP2, cMsg);
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertEquals(ResponseReader.getReturnValue(response), "dispatched to service that doesn't " +
+                "have a name but has a config without a basepath");
     }
 }
