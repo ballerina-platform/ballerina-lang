@@ -21,7 +21,6 @@ import Documentation from './Documentation';
 
 export default class DocPreview extends React.Component {
     getDocumentationDetails(node) {
-
         let parameters = {};
         if(this[`_get${node.kind}Parameters`]) {
             parameters = this[`_get${node.kind}Parameters`](node);
@@ -108,6 +107,14 @@ export default class DocPreview extends React.Component {
         this.props.ast.topLevelNodes.forEach(node => {
             const documentables = ['Function', 'Service', 'TypeDefinition', 'Variable', 'Endpoint'];
             if (!documentables.includes(node.kind)) {
+                return;
+            }
+
+            // Skip anon nodes related to service definitions
+            if (node.kind === "TypeDefinition" && node.service) {
+                return;
+            }
+            if (node.kind === "Variable" && node.service) {
                 return;
             }
 
