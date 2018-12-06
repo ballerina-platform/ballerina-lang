@@ -1,26 +1,29 @@
-import ballerina/runtime;
 import ballerina/io;
+import ballerina/runtime;
 
+//This is the record that holds item details in the stockTable.
 type Item record {
     string name;
     float price;
     int stockAmount;
 };
 
+//This is the record that holds order events from customer.
 type Order record {
     string itemName;
     int orderingAmount;
 };
 
+//This is the record that holds alert events.
 type OutOfStockAlert record {
     string itemName;
     int stockAmount;
 };
 
-// This is the input stream that use `Order` as the constraint type.
+// This is the input stream that uses `Order` as the constraint type.
 stream<Order> orderStream = new;
 
-// This is the table which holds the Item stock data
+// This is the table that holds the item stock data.
 table<Item> itemStockTable = table {
     { name, price, stockAmount },
     [
@@ -36,9 +39,9 @@ function initOutOfStockAlert() {
     //whenever an order event is published to `orderStream` it is matched against the `itemStockTable` through
     //the `queryItemTable` function. If there is a match then an alert event is published to `oredrAlertStream`.
     forever {
-        from orderStream window lengthWindow(1) as o
-        join queryItemTable(o.itemName, o.orderingAmount) as i
-        select i.name as itemName, i.stockAmount
+        from orderStream window lengthWindow(1) as itemOrder
+        join queryItemTable(itemOrder.itemName, itemOrder.orderingAmount) as item
+        select item.name as itemName, item.stockAmount
         => (OutOfStockAlert[] alerts) {
             foreach var alert in alerts {
                 oredrAlertStream.publish(alert);
