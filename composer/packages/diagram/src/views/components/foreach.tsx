@@ -5,6 +5,7 @@ import { DiagramConfig } from "../../config/default";
 import { DiagramUtils } from "../../diagram/diagram-utils";
 import { ViewState } from "../../view-model/index";
 import { ArrowHead } from "./arrow-head";
+import { Block } from "./block";
 import { ForeachBox } from "./foreach-box";
 
 const config: DiagramConfig = DiagramUtils.getConfig();
@@ -15,7 +16,6 @@ export const Foreach: React.StatelessComponent<{
         model
     }) => {
         const viewState: ViewState = model.viewState;
-        const body = [];
 
         const conditionProps = {
             expression: ASTUtil.genSource(model.collection),
@@ -42,8 +42,6 @@ export const Foreach: React.StatelessComponent<{
         p4.x = p1.x - (config.flowCtrl.foreach.width / 2);
         p4.y = conditionProps.y;
 
-        body.push(DiagramUtils.getComponents(model.body));
-
         // Return Line
         const r1 = { x: 0, y: 0};
         const r2 = { x: 0, y: 0};
@@ -65,7 +63,6 @@ export const Foreach: React.StatelessComponent<{
         return (
             <g className="worker-block">
                 <g className="condition-block">
-                    {body}
                     <polyline className="condition-line"
                         points={`${p1.x},${p1.y} ${p2.x},${p2.y} ${p3.x},${p3.y} ${p4.x},${p4.y}`}
                     />
@@ -75,6 +72,7 @@ export const Foreach: React.StatelessComponent<{
                     <line className="hide-line" x1={p1.x} y1={p1.y + 1} x2={r4.x} y2={r4.y - 1} strokeLinecap="round" />
                     <ArrowHead direction={"right"} {...p4} />
                     <ForeachBox {...conditionProps}/>
+                    {model.body && <Block model={model.body} />}
                 </g>
             </g>);
     };
