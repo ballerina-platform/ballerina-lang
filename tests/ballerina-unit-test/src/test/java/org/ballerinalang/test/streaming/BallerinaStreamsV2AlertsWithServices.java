@@ -39,6 +39,7 @@ import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_JSON;
  *
  * @since 0.990.0
  */
+@Test(enabled = false)
 public class BallerinaStreamsV2AlertsWithServices {
 
     private CompileResult result;
