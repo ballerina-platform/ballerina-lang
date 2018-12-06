@@ -1,7 +1,8 @@
 import {
-    Assignment, ASTNode, ASTUtil,
-    Block, ExpressionStatement, Foreach, Function, If, Invocation,
-    Lambda, Return, Service, Variable, VariableDef, VisibleEndpoint, Visitor, While
+    Assignment, ASTKindChecker, ASTNode,
+    ASTUtil, Block, ExpressionStatement, Foreach, Function, If,
+    Invocation, Lambda, ObjectType, Return, Service, TypeDefinition, Variable,
+    VariableDef, VisibleEndpoint, Visitor, While
 } from "@ballerina/ast-model";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
@@ -272,6 +273,21 @@ export const visitor: Visitor = {
                 ? viewState.bBox.w : element.viewState.bBox.w;
             height +=  element.viewState.bBox.h;
             element.viewState.icon = "resource";
+        });
+        viewState.bBox.h = height;
+    },
+
+    endVisitTypeDefinition(node: TypeDefinition) {
+        // If it is a service do nothing.
+        if (node.service || !ASTKindChecker.isObjectType(node.typeNode)) {return; }
+        const viewState: ViewState = node.viewState;
+        let height = config.panelGroup.header.height;
+        // tslint:disable-next-line:ban-types
+        (node.typeNode as ObjectType).functions.forEach((element: Function) => {
+            viewState.bBox.w = (viewState.bBox.w > element.viewState.bBox.w)
+                ? viewState.bBox.w : element.viewState.bBox.w;
+            height +=  element.viewState.bBox.h;
+            element.viewState.icon = "function";
         });
         viewState.bBox.h = height;
     }

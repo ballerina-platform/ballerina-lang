@@ -1,6 +1,7 @@
 import {
     ASTKindChecker, ASTUtil, Block, CompilationUnit, Foreach,
-    Function, If, Lambda, Service, Variable, VariableDef, VisibleEndpoint, Visitor, While
+    Function, If, Lambda, ObjectType, Service, TypeDefinition, Variable,
+    VariableDef, VisibleEndpoint, Visitor, While
 } from "@ballerina/ast-model";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
@@ -22,7 +23,9 @@ export const visitor: Visitor = {
 
         // filter out visible children from top level nodes.
         const visibleChildren = node.topLevelNodes.filter((child) => {
-            return ASTKindChecker.isFunction(child) || ASTKindChecker.isService(child);
+            return ASTKindChecker.isFunction(child)
+                || ASTKindChecker.isService(child)
+                || ASTKindChecker.isTypeDefinition(child);
         });
 
         let width = 0;
@@ -62,7 +65,7 @@ export const visitor: Visitor = {
 
     // tslint:disable-next-line:ban-types
     beginVisitFunction(node: Function) {
-        if (node.lambda || !node.body) {return; }
+        if (node.lambda || !node.body) { return; }
         const viewState: FunctionViewState = node.viewState;
         const defaultWorker: WorkerViewState = node.viewState.defaultWorker;
 
@@ -136,7 +139,7 @@ export const visitor: Visitor = {
         const viewState: BlockViewState = node.viewState;
         let height = 0;
         node.statements.forEach((element) => {
-            if (ASTUtil.isWorker(element)) {return; }
+            if (ASTUtil.isWorker(element)) { return; }
             element.viewState.bBox.x = viewState.bBox.x;
             element.viewState.bBox.y = viewState.bBox.y + height;
             height += element.viewState.bBox.h;
@@ -184,5 +187,18 @@ export const visitor: Visitor = {
             element.viewState.bBox.y = y;
             y += element.viewState.bBox.h;
         });
-    }
+    },
+
+    beginVisitTypeDefinition(node: TypeDefinition) {
+        // If it is a service do nothing.
+        if (node.service || !ASTKindChecker.isObjectType(node.typeNode)) { return; }
+        const viewState: ViewState = node.viewState;
+        let y = viewState.bBox.y + config.panelGroup.header.height;
+        // tslint:disable-next-line:ban-types
+        (node.typeNode as ObjectType).functions.forEach((element: Function) => {
+            element.viewState.bBox.x = viewState.bBox.x;
+            element.viewState.bBox.y = y;
+            y += element.viewState.bBox.h;
+        });
+    },
 };
