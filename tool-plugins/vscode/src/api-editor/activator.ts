@@ -21,13 +21,14 @@ import { ExtendedLangClient } from '../core/extended-language-client';
 import * as _ from 'lodash';
 import { apiEditorRender } from './renderer';
 import { BallerinaExtension } from '../core';
+import { API_DESIGNER_NO_SERVICE } from '../core/messages';
 import { WebViewRPCHandler, WebViewMethod } from '../utils';
 
 const DEBOUNCE_WAIT = 500;
 
 let oasEditorPanel: WebviewPanel | undefined;
 let activeEditor: TextEditor | undefined;
-let preventAPIDesignerUpdate = false
+let preventAPIDesignerUpdate = false;
 
 function updateOASWebView(docUri: Uri, resp: string, stale: boolean): void {
 	if (oasEditorPanel) {
@@ -54,11 +55,11 @@ function showAPIEditorPanel(context: ExtensionContext, langClient: ExtendedLangC
                 const docUri = e.document.uri;
                 if(oasEditorPanel){
                     langClient.getBallerinaOASDef(docUri, oasEditorPanel.title.split('-')[1].trim()).then((resp)=>{
-                        if(resp.ballerinaOASJson != undefined) {
+                        if(resp.ballerinaOASJson !== undefined) {
                             updateOASWebView(docUri, JSON.stringify(resp.ballerinaOASJson), false);
                             preventAPIDesignerUpdate = true;
                         }
-                    })
+                    });
                 }
             }
     }, DEBOUNCE_WAIT));
@@ -92,7 +93,7 @@ function showAPIEditorPanel(context: ExtensionContext, langClient: ExtendedLangC
                                     }
                                 }
                             }
-                        })
+                        });
                     }
             }
     });
@@ -107,10 +108,12 @@ function showAPIEditorPanel(context: ExtensionContext, langClient: ExtendedLangC
     activeEditor = editor;
 
     langClient.getServiceListForActiveFile(activeEditor.document.uri).then(resp => {
-        if (resp.services && resp.services.length > 1) {
+        if (resp.services.length === 0) { 
+            window.showInformationMessage(API_DESIGNER_NO_SERVICE);
+        } else if (resp.services && resp.services.length > 1) {
             window.showQuickPick(resp.services).then(service => {
                 if (service && activeEditor ) {
-                    selectedService = service
+                    selectedService = service;
                     let renderHtml = apiEditorRender(context, 
                         langClient, editor.document.uri, service);
                     createAPIEditorPanel(selectedService, renderHtml, langClient, context);
@@ -137,7 +140,7 @@ function createAPIEditorPanel(selectedService: string, renderHtml: string,
                 enableScripts: true,
                 retainContextWhenHidden: true,
             }
-        )
+        );
     }
 
     oasEditorPanel.webview.html = renderHtml;
@@ -186,7 +189,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
                 return;
             }
 
-            showAPIEditorPanel(context, langClient)
+            showAPIEditorPanel(context, langClient);
         })
 		.catch((e) => {
 			if (!ballerinaExtInstance.isValidBallerinaHome()) {
