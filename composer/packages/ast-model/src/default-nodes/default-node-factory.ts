@@ -7,6 +7,7 @@ const defaultMainFunction = JSON.stringify(require("./resources/function.json"))
 const defaultService = JSON.stringify(require("./resources/service.json"));
 const defaultIf = JSON.stringify(require("./resources/if.json"));
 const defaultWhile = JSON.stringify(require("./resources/while.json"));
+const defaultForeach = JSON.stringify(require("./resources/foreach.json"));
 // tslint:enable:no-var-requires
 
 export function createImportNode(): Ballerina.Import {
@@ -31,4 +32,8 @@ export function createIfNode(): Ballerina.If {
 
 export function createWhileNode(): Ballerina.While {
     return JSON.parse(defaultWhile);
+}
+
+export function createForeachNode(): Ballerina.Foreach {
+    return JSON.parse(defaultForeach);
 }

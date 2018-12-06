@@ -38,11 +38,9 @@ export class BlockDropdown extends React.Component<BlockDropdownProps, { isHover
                             icon: "if-else",
                             name: "If",
                             onClick: () => {
-                                const ifNode = ASTUtil.createIfNode();
                                 const { ast } = context;
                                 if (ast) {
-                                    ASTUtil.attachNode(ifNode, ast, this.props.model,
-                                        "statements", this.props.model.statements.length);
+                                    ASTUtil.addIfToBlock(this.props.model, ast);
                                 }
                             }
                         },
@@ -50,11 +48,9 @@ export class BlockDropdown extends React.Component<BlockDropdownProps, { isHover
                             icon: "while",
                             name: "While",
                             onClick: () => {
-                                const whileNode = ASTUtil.createWhileNode();
                                 const { ast } = context;
                                 if (ast) {
-                                    ASTUtil.attachNode(whileNode, ast, this.props.model,
-                                        "statements", this.props.model.statements.length);
+                                    ASTUtil.addWhileToBlock(this.props.model, ast);
                                 }
                             }
                         },
@@ -62,7 +58,10 @@ export class BlockDropdown extends React.Component<BlockDropdownProps, { isHover
                             icon: "foreach",
                             name: "For-Each",
                             onClick: () => {
-                                // todo
+                                const { ast } = context;
+                                if (ast) {
+                                    ASTUtil.addForeachToBlock(this.props.model, ast);
+                                }
                             }
                         },
                         {

@@ -1,6 +1,7 @@
-import { ASTNode } from "../ast-interfaces";
+import { ASTNode, Block } from "../ast-interfaces";
 import { Visitor } from "../base-visitor";
 import { ASTKindChecker } from "../check-kind-util";
+import { createForeachNode, createIfNode, createWhileNode } from "../default-nodes";
 import { emitTreeModified } from "../events";
 import { traversNode } from "../model-utils";
 
@@ -52,6 +53,27 @@ class SourceGenVisitor implements Visitor {
 
 const sourceGenVisitor = new SourceGenVisitor();
 
+function getStartIndex(attachingNode: ASTNode, attachPointNodes: ASTNode[], insertAt: number): number {
+    if (attachPointNodes[insertAt - 1]) {
+        const attachPointWS = getWS(attachPointNodes[insertAt - 1]);
+        return attachPointWS[attachPointWS.length - 1].i + 1;
+    }
+
+    // compilationUnits does not have braces arround them, so use 1 as starting index
+    if (ASTKindChecker.isCompilationUnit(attachingNode)) {
+        return 1;
+    }
+
+    if (!attachingNode.parent) {
+        return 1;
+    }
+
+    const attachingNodeWS = getWS(attachingNode.parent);
+    const indexWS = attachingNodeWS.find((ws) => (ws.text === "{"));
+
+    return indexWS === undefined ? 1 : indexWS.i + 1;
+}
+
 export function genSource(node: ASTNode): string {
     sourceGenVisitor.reset();
     traversNode(node, sourceGenVisitor);
@@ -101,23 +123,26 @@ export function attachNode(
     emitTreeModified(tree, newNode);
 }
 
-function getStartIndex(attachingNode: ASTNode, attachPointNodes: ASTNode[], insertAt: number): number {
-    if (attachPointNodes[insertAt - 1]) {
-        const attachPointWS = getWS(attachPointNodes[insertAt - 1]);
-        return attachPointWS[attachPointWS.length - 1].i + 1;
+export function addIfToBlock(block: Block, ast: ASTNode, insertAt?: number) {
+    const ifNode = createIfNode();
+    if (insertAt === undefined) {
+        insertAt = block.statements.length;
     }
+    attachNode(ifNode, ast, block, "statements", insertAt);
+}
 
-    // compilationUnits does not have braces arround them, so use 1 as starting index
-    if (ASTKindChecker.isCompilationUnit(attachingNode)) {
-        return 1;
+export function addWhileToBlock(block: Block, ast: ASTNode, insertAt?: number) {
+    const whileNode = createWhileNode();
+    if (insertAt === undefined) {
+        insertAt = block.statements.length;
     }
+    attachNode(whileNode, ast, block, "statements", insertAt);
+}
 
-    if (!attachingNode.parent) {
-        return 1;
+export function addForeachToBlock(block: Block, ast: ASTNode, insertAt?: number) {
+    const foreachNode = createForeachNode();
+    if (insertAt === undefined) {
+        insertAt = block.statements.length;
     }
-
-    const attachingNodeWS = getWS(attachingNode.parent);
-    const indexWS = attachingNodeWS.find((ws) => (ws.text === "{"));
-
-    return indexWS === undefined ? 1 : indexWS.i + 1;
+    attachNode(foreachNode, ast, block, "statements", insertAt);
 }

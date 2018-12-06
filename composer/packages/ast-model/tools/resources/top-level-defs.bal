@@ -17,8 +17,11 @@ function blockLevelNodes() {
     if (true) {
 
     }
-
     while (true) {
 
+    }
+    int[] itemList = [];
+    foreach var item in itemList {
+        
     }
 }

@@ -1,7 +1,7 @@
 {
   "ws": [
     {
-      "ws": "\n\n    ",
+      "ws": "\n    ",
       "i": 101,
       "text": "while",
       "static": true
@@ -21,11 +21,11 @@
   ],
   "position": {
     "startColumn": 5,
-    "startLine": 21,
+    "startLine": 20,
     "endColumn": 6,
-    "endLine": 23
+    "endLine": 22
   },
-  "id": "46770f6e-db78-4ac8-9f97-85283a21c693",
+  "id": "96f29123-6113-4d7c-bb1d-0338a52c9934",
   "condition": {
     "ws": [
       {
@@ -43,11 +43,11 @@
     ],
     "position": {
       "startColumn": 11,
-      "startLine": 21,
+      "startLine": 20,
       "endColumn": 17,
-      "endLine": 21
+      "endLine": 20
     },
-    "id": "2d61adff-f4ef-42ce-95b7-2eac6dcfd96f",
+    "id": "0150dae2-e66d-41eb-8502-a291417ced08",
     "symbolType": [
       "boolean"
     ],
@@ -63,11 +63,11 @@
         ],
         "position": {
           "startColumn": 12,
-          "startLine": 21,
+          "startLine": 20,
           "endColumn": 16,
-          "endLine": 21
+          "endLine": 20
         },
-        "id": "4a052c18-70db-41cb-ab6c-3e3759c1553b",
+        "id": "5b213820-02bd-4c12-a048-e75a96de8e36",
         "symbolType": [
           "boolean"
         ],
@@ -82,11 +82,11 @@
   "body": {
     "position": {
       "startColumn": 5,
-      "startLine": 21,
+      "startLine": 20,
       "endColumn": 6,
-      "endLine": 23
+      "endLine": 22
     },
-    "id": "59f510bd-ac40-4d36-9597-9769837cd684",
+    "id": "cec2d177-e690-45a0-8b2c-83f3ac6f44a4",
     "statements": [],
     "kind": "Block"
   }

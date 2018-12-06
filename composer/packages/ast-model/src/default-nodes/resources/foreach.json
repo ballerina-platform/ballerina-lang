@@ -1,0 +1,215 @@
+{
+  "ws": [
+    {
+      "ws": "\n    ",
+      "i": 126,
+      "text": "foreach",
+      "static": true
+    },
+    {
+      "ws": " ",
+      "i": 128,
+      "text": "var",
+      "static": true
+    },
+    {
+      "ws": " ",
+      "i": 132,
+      "text": "in",
+      "static": true
+    },
+    {
+      "ws": " ",
+      "i": 136,
+      "text": "{",
+      "static": true
+    },
+    {
+      "ws": "\n        \n    ",
+      "i": 141,
+      "text": "}",
+      "static": true
+    }
+  ],
+  "position": {
+    "startColumn": 5,
+    "startLine": 24,
+    "endColumn": 6,
+    "endLine": 26
+  },
+  "id": "50d5b3c7-cf9d-4a9f-a715-8fd2eee2a1c8",
+  "collection": {
+    "ws": [
+      {
+        "ws": " ",
+        "i": 130,
+        "text": "item",
+        "static": false
+      },
+      {
+        "ws": " ",
+        "i": 134,
+        "text": "itemList",
+        "static": false
+      }
+    ],
+    "position": {
+      "startColumn": 25,
+      "startLine": 24,
+      "endColumn": 33,
+      "endLine": 24
+    },
+    "id": "ea1d31b2-3974-49e1-9833-eca3b7fa3f1e",
+    "symbolType": [
+      "[]"
+    ],
+    "variableName": {
+      "id": "566ea1fa-5879-4a24-8138-ae4d1d74eb10",
+      "literal": false,
+      "value": "itemList",
+      "kind": "Identifier",
+      "valueWithBar": "itemList"
+    },
+    "packageAlias": {
+      "id": "0632f552-d0f4-48f6-aaa1-e9e72d01e88f",
+      "literal": false,
+      "value": "",
+      "kind": "Identifier",
+      "valueWithBar": ""
+    },
+    "kind": "SimpleVariableRef"
+  },
+  "variableDefinitionNode": {
+    "ws": [
+      {
+        "ws": "\n    ",
+        "i": 126,
+        "text": "foreach",
+        "static": true
+      },
+      {
+        "ws": " ",
+        "i": 128,
+        "text": "var",
+        "static": true
+      },
+      {
+        "ws": " ",
+        "i": 132,
+        "text": "in",
+        "static": true
+      },
+      {
+        "ws": " ",
+        "i": 136,
+        "text": "{",
+        "static": true
+      },
+      {
+        "ws": "\n        \n    ",
+        "i": 141,
+        "text": "}",
+        "static": true
+      }
+    ],
+    "position": {
+      "startColumn": 5,
+      "startLine": 24,
+      "endColumn": 6,
+      "endLine": 26
+    },
+    "id": "d2b08272-fc4b-4e18-9488-bc5224277f7e",
+    "variable": {
+      "ws": [
+        {
+          "ws": "\n    ",
+          "i": 126,
+          "text": "foreach",
+          "static": true
+        },
+        {
+          "ws": " ",
+          "i": 128,
+          "text": "var",
+          "static": true
+        },
+        {
+          "ws": " ",
+          "i": 132,
+          "text": "in",
+          "static": true
+        },
+        {
+          "ws": " ",
+          "i": 136,
+          "text": "{",
+          "static": true
+        },
+        {
+          "ws": "\n        \n    ",
+          "i": 141,
+          "text": "}",
+          "static": true
+        }
+      ],
+      "position": {
+        "startColumn": 5,
+        "startLine": 24,
+        "endColumn": 6,
+        "endLine": 26
+      },
+      "id": "71d1f59f-9736-4163-b679-b8f402f15085",
+      "symbolType": [
+        "int"
+      ],
+      "name": {
+        "id": "ad4b02ad-0b49-413a-9c8c-882cb2f13d60",
+        "literal": false,
+        "value": "item",
+        "kind": "Identifier",
+        "valueWithBar": "item"
+      },
+      "deprecatedAttachments": [],
+      "annotationAttachments": [],
+      "kind": "Variable",
+      "public": false,
+      "private": false,
+      "remote": false,
+      "native": false,
+      "final": false,
+      "attached": false,
+      "lambda": false,
+      "worker": false,
+      "parallel": false,
+      "listener": false,
+      "deprecated": false,
+      "readonly": false,
+      "function_final": false,
+      "interface": false,
+      "required": false,
+      "record": false,
+      "compensate": false,
+      "abstract": false,
+      "optional": false,
+      "testable": false,
+      "client": false,
+      "resource": false,
+      "service": false,
+      "constant": false
+    },
+    "kind": "VariableDef"
+  },
+  "kind": "Foreach",
+  "declaredWithVar": true,
+  "body": {
+    "position": {
+      "startColumn": 5,
+      "startLine": 24,
+      "endColumn": 6,
+      "endLine": 26
+    },
+    "id": "0354ce77-22be-4c69-81cc-35490347f37d",
+    "statements": [],
+    "kind": "Block"
+  }
+}

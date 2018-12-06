@@ -31,17 +31,21 @@ function genDefaultNodes() {
 
         const defaultIfPath = path.join(DEFAULT_NODES_PATH, "if.json");
         const defaultWhilePath = path.join(DEFAULT_NODES_PATH, "while.json");
+        const defaultForeachPath = path.join(DEFAULT_NODES_PATH, "foreach.json");
 
         let ifAST = {};
         let whileAST = {};
+        let foreachAST = {};
         const fBody = (ast.topLevelNodes[6] as BallerinaFunction).body;
         if (fBody) {
             ifAST = fBody.statements[0];
             whileAST = fBody.statements[1];
+            foreachAST = fBody.statements[3];
         }
 
         fs.writeFileSync(defaultIfPath, JSON.stringify(ifAST, null, 2) + "\n");
         fs.writeFileSync(defaultWhilePath, JSON.stringify(whileAST, null, 2) + "\n");
+        fs.writeFileSync(defaultForeachPath, JSON.stringify(foreachAST, null, 2) + "\n");
 
         shutdown();
     });
