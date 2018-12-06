@@ -44,6 +44,7 @@ import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.client.http.HttpClient;
 import org.wso2.transport.http.netty.util.server.listeners.Continue100Listener;
 
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 
@@ -73,13 +74,14 @@ public class Continue100TestCase {
     public void test100Continue() {
         HttpClient httpClient = new HttpClient(TestUtil.TEST_HOST, TestUtil.SERVER_CONNECTOR_PORT);
 
-        DefaultHttpRequest reqHeaders = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "/");
+        DefaultHttpRequest httpRequest = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "/");
         DefaultLastHttpContent reqPayload = new DefaultLastHttpContent(
                 Unpooled.wrappedBuffer(TestUtil.largeEntity.getBytes()));
 
-        reqHeaders.headers().set(HttpHeaderNames.CONTENT_LENGTH, TestUtil.largeEntity.getBytes().length);
+        httpRequest.headers().set(HttpHeaderNames.CONTENT_LENGTH, TestUtil.largeEntity.getBytes().length);
+        httpRequest.headers().set("X-Status", "Positive");
 
-        List<FullHttpResponse> responses = httpClient.sendExpectContinueRequest(reqHeaders, reqPayload);
+        List<FullHttpResponse> responses = httpClient.sendExpectContinueRequest(httpRequest, reqPayload);
 
         Assert.assertFalse(httpClient.waitForChannelClose());
 
@@ -93,6 +95,33 @@ public class Continue100TestCase {
         Assert.assertEquals(responsePayload.getBytes().length, TestUtil.largeEntity.getBytes().length);
         Assert.assertEquals((responses.get(1).headers().get(HttpHeaderNames.TRANSFER_ENCODING)),
                 Constants.CHUNKED);
+    }
+
+    @Test
+    public void test100ContinueNegative() {
+        HttpClient httpClient = new HttpClient(TestUtil.TEST_HOST, TestUtil.SERVER_CONNECTOR_PORT);
+
+        DefaultHttpRequest httpRequest = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "/");
+        DefaultLastHttpContent reqPayload = new DefaultLastHttpContent(
+                Unpooled.wrappedBuffer(TestUtil.largeEntity.getBytes()));
+
+        httpRequest.headers().set(HttpHeaderNames.CONTENT_LENGTH, TestUtil.largeEntity.getBytes().length);
+        httpRequest.headers().set("X-Status", "Negative");
+
+        List<FullHttpResponse> responses = httpClient.sendExpectContinueRequest(httpRequest, reqPayload);
+
+        Assert.assertFalse(httpClient.waitForChannelClose());
+
+        // 417 Expectation Failed response
+        Assert.assertEquals(responses.get(0).status(), HttpResponseStatus.EXPECTATION_FAILED);
+        int length = Integer.valueOf(responses.get(0).headers().get(HttpHeaderNames.CONTENT_LENGTH));
+        Assert.assertEquals(length, 26);
+        Assert.assertEquals(responses.get(0).content()
+                                    .readCharSequence(length, Charset.defaultCharset()).toString(),
+                            "Do not send me any payload");
+        // Actual response
+        Assert.assertEquals(responses.size(), 1,
+                            "Multiple responses received when only a 417 response was expected");
     }
 
     @AfterClass
