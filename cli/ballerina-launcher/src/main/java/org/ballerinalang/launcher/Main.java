@@ -259,8 +259,10 @@ public class Main {
             Path sourcePath;
 
             String potentialPath = new File(programArg).getPath();
-            if (new File(potentialPath).exists() ||
-                    new File(sourceRootPath.toString().concat(File.separator).concat(potentialPath)).exists()) {
+            String resolvedPotentialFilePath =
+                    sourceRootPath.toString().concat(potentialPath.startsWith(File.separator) ? potentialPath :
+                                                  File.separator.concat(potentialPath));
+            if (new File(potentialPath).exists() || new File(resolvedPotentialFilePath).exists()) {
                 sourcePath = Paths.get(programArg);
             } else if (programArg.contains(COLON)) {
                 // could be <SOURCE>:<FUNCTION_NAME>
