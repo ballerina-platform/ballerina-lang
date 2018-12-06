@@ -55,7 +55,7 @@ export class DiagramConfig {
         },
         title: {
             margin: {
-                left: 25
+                left: 20
             }
         }
     };

@@ -1,7 +1,9 @@
 
+import { ASTNode } from "@ballerina/ast-model";
 import * as React from "react";
 import { DiagramConfig } from "../../config/default";
 import { DiagramUtils } from "../../diagram/diagram-utils";
+import { SourceLinkedLabel } from "./source-linked-label";
 
 const config: DiagramConfig = DiagramUtils.getConfig();
 
@@ -10,8 +12,9 @@ export const ForeachBox: React.StatelessComponent<{
         y: number,
         label: string,
         expression: string,
+        astModel?: ASTNode
     }> = ({
-        x, y, label, expression
+        x, y, label, expression, astModel
     }) => {
         const hHeight = (config.flowCtrl.foreach.height / 2) - 5;
         const hWidth = (config.flowCtrl.foreach.width / 2);
@@ -47,6 +50,11 @@ export const ForeachBox: React.StatelessComponent<{
                 <polyline
                     points={`${p1.x},${p1.y} ${p2.x},${p2.y} ${p3.x},${p3.y} ${p4.x},${p4.y} ${p1.x},${p1.y}`}
                 />
-                <text {...labelProps} className="label">{label}</text>
+                {!astModel && <text {...labelProps} className="label">{label}</text>}
+                {astModel && <SourceLinkedLabel
+                                    {...labelProps} target={astModel}
+                                    text={label} className="label"
+                                />
+                }
             </g>);
     };

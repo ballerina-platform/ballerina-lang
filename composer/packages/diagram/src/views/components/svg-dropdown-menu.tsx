@@ -1,5 +1,5 @@
 import { getCodePoint } from "@ballerina/font";
-import cn from "classnames";
+import classNames from "classnames";
 import React from "react";
 import { SimplePoint } from "../../view-model/simple-point";
 import { SVGDropDownMenuTrigger } from "./svg-dropdown-menu-trigger";
@@ -104,7 +104,7 @@ export class SVGDropDownMenu extends React.Component<SVGDropDownMenuProps, SVGDr
                         active: !active
                     });
                 }}
-                className={cn("svg-dropdown-menu", "noselect", className, { active })}
+                className={classNames("svg-dropdown-menu", className, { active })}
                 onMouseOut={onMouseOut}
                 onMouseOver={onMouseOver}
             >
