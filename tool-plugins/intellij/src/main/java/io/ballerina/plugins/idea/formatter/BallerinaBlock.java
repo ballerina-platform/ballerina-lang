@@ -236,7 +236,8 @@ public class BallerinaBlock extends AbstractBlock {
                         || parentElementType == BallerinaTypes.ARRAY_LITERAL
                         || parentElementType == BallerinaTypes.TRANSACTION_CLAUSE
                         || parentElementType == BallerinaTypes.ABORTED_CLAUSE
-                        || parentElementType == BallerinaTypes.COMMITTED_CLAUSE)) {
+                        || parentElementType == BallerinaTypes.COMMITTED_CLAUSE
+                        || parentElementType == BallerinaTypes.RECORD_TYPE_NAME)) {
             return Indent.getNormalIndent();
         } else if (parentElementType == BallerinaTypes.CALLABLE_UNIT_SIGNATURE) {
             return Indent.getIndent(Indent.Type.NORMAL, true, true);
@@ -255,6 +256,12 @@ public class BallerinaBlock extends AbstractBlock {
             return Indent.getNormalIndent();
         } else if (childElementType == BallerinaTypes.SERVICE_BODY_MEMBER
                 && parentElementType == BallerinaTypes.SERVICE_BODY) {
+            return Indent.getNormalIndent();
+        } else if (childElementType == BallerinaTypes.TYPE_REFERENCE
+                && parentElementType == BallerinaTypes.RECORD_FIELD_DEFINITION_LIST) {
+            return Indent.getNormalIndent();
+        } else if (childElementType == BallerinaTypes.WORKER_DEFINITION
+                && parentElementType == BallerinaTypes.FORK_JOIN_STATEMENT) {
             return Indent.getNormalIndent();
         } else if (childElementType == BallerinaTypes.WORKER_DEFINITION
                 && parentElementType == BallerinaTypes.WORKER_WITH_STATEMENTS_BLOCK) {
