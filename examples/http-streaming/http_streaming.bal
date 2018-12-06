@@ -72,7 +72,8 @@ service HTTPStreamingService on new http:Listener(9090) {
         }
         var result = caller->respond(res);
         if (result is error) {
-           log:printError("Error occurred while sending response", err = result);
+           log:printError("Error occurred while sending response",
+                           err = result);
         }
     }
 }

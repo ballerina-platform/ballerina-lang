@@ -16,12 +16,15 @@ public function main() {
     ((string, int), float) ((b1, b2), b3) = (("Ballerina", 4), 6.7);
     io:println("Tuple variable : ", b1, b2, b3);
 
-    ((string, int), (boolean, float)) ((c1, c2),(c3, c4)) = (("Ballerina", 34), (true, 6.7));
+    ((string, int), (boolean, float)) ((c1, c2),(c3, c4)) =
+                                              (("Ballerina", 34), (true, 6.7));
     io:println("Tuple variable : ", c1, c2, c3, c4);
 
     //Tuple variables can also be defined using tuple type expressions as below.
-    ((string, (int, (boolean, byte))), (float, int)) v1 = (("Ballerina", (3, (true, 34))), (5.6, 45));
-    ((string, (int, (boolean, byte))), (float, int)) ((d1, (d2, (d3, d4))), (d5, d6)) = v1;
+    ((string, (int, (boolean, byte))), (float, int)) v1 =
+                                   (("Ballerina", (3, (true, 34))), (5.6, 45));
+    ((string, (int, (boolean, byte))),
+                           (float, int)) ((d1, (d2, (d3, d4))), (d5, d6)) = v1;
     io:println("Tuple variable : ", d1, d2, d3, d4, d5, d6);
 
     //Tuple type can also take "var" as the type label, which in that case, the type will be inferred from the RHS.
@@ -29,7 +32,8 @@ public function main() {
     io:println("Tuple variable : ", e1, e2, e3);
 
     var v2 = (("Ballerina", (3, (true, 34))), (5.6, 45));
-    ((string, (int, (boolean, int))), (float, int)) ((f1, (f2, (f3, f4))), (f5, f6)) = v2;
+    ((string, (int, (boolean, int))),
+                            (float, int)) ((f1, (f2, (f3, f4))), (f5, f6)) = v2;
     io:println("Tuple variable : ", f1, f2, f3, f4, f5, f6);
 
     //Tuple variable definitions can also take union types as below.

@@ -1,5 +1,5 @@
-# At the command line, navigate to the directory that contains the
-# `.bal` file and run the `ballerina run` command to start the server.
+# To start the service, navigate to the directory that contains the
+# `.bal` file and use the `ballerina run` command.
 $ ballerina run restrict_by_media_type.bal
 # Service deployment:
 Initiating service(s) in 'restrict_by_media_type.bal'
