@@ -8,6 +8,7 @@ function isOrdinaryStatement(node: ASTNode): boolean {
      && !ASTKindChecker.isReturn(node)
      && !ASTKindChecker.isWhile(node)
      && !ASTKindChecker.isForeach(node)
+     && !ASTUtil.isWorker(node)
      && !ASTUtil.isActionInvocation(node);
     return true;
 }
