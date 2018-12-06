@@ -35,10 +35,9 @@ function testSelect() returns (int[]) {
                 i += 1;
             }
         }
-        return customerIds;
-    } else {
-        return [];
     }
+    testDB.stop();
+    return customerIds;
 }
 
 function testUpdate() returns (int) {
