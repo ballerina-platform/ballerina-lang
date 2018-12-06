@@ -18,10 +18,11 @@ export const Foreach: React.StatelessComponent<{
         const viewState: ViewState = model.viewState;
 
         const conditionProps = {
+            astModel: model,
             expression: ASTUtil.genSource(model.collection),
             label: "foreach",
             x: viewState.bBox.x,
-            y: viewState.bBox.y + (config.flowCtrl.foreach.height / 2),
+            y: viewState.bBox.y + (config.flowCtrl.foreach.height / 2)
         };
 
         // Continue Line
