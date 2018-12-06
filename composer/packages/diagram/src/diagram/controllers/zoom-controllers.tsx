@@ -13,7 +13,7 @@ export const ZoomControllers: StatelessComponent<{}> = (
             {(diagContext) => {
                 return (
                     <Menu.Item>
-                        <Button.Group className="zoom-controllers">
+                        <Button.Group className="zoom-controllers" size="tiny">
                             <ZoomInButton />
                             <ZoomOutButton />
                             <ZoomFitButton />
