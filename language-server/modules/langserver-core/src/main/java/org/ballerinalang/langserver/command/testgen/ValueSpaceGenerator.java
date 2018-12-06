@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.command.testgen;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.ballerinalang.langserver.command.testgen.TestGenerator.TestFunctionGenerator;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -184,13 +185,7 @@ public class ValueSpaceGenerator {
             });
 
             IntStream.range(0, template.length).forEach(index -> {
-                String pkgPrefix = "";
-                if (!bStructSymbol.pkgID.equals(currentPkgId)) {
-                    pkgPrefix = bStructSymbol.pkgID.name.value + ":";
-                    if (importsAcceptor != null) {
-                        importsAcceptor.accept(bStructSymbol.pkgID.orgName.value, bStructSymbol.pkgID.name.value);
-                    }
-                }
+                String pkgPrefix = CommonUtil.getPackagePrefix(importsAcceptor, currentPkgId, bStructSymbol.pkgID);
                 String paramsStr = String.join(", ", list[index]);
                 String newObjStr = "new " + pkgPrefix + bStructSymbol.name.getValue() + "(" + paramsStr + ")";
                 template[index] = template[index].replace(PLACE_HOLDER, newObjStr);
