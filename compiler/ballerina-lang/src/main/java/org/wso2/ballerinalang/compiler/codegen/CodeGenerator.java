@@ -432,7 +432,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     /**
      * Add current package info.
      *
-     * @param pkgNode package node
+     * @param pkgNode package nod
      */
     private void addPkgDetailsToPkgInfoObj(BLangPackage pkgNode) {
         // Add the current package to the program file
@@ -2302,6 +2302,9 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // Add documentation attributes
         addDocAttachmentAttrInfo(funcSymbol.markdownDocumentation, funcInfo);
+
+        // Add worker send ins
+        addWorkerSendInsAttributeInfo(new LinkedHashSet<>(), funcInfo);
 
         this.currentPkgInfo.functionInfoMap.put(funcSymbol.name.value, funcInfo);
     }

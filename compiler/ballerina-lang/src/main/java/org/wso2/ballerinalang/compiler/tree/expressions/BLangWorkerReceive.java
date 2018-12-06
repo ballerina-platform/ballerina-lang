@@ -37,6 +37,7 @@ public class BLangWorkerReceive extends BLangExpression implements WorkerReceive
     public boolean isChannel = false;
     public SymbolEnv env;
     public BType workerType;
+    public BType matchingSendsError;
 
     @Override
     public BLangExpression getKeyExpression() {

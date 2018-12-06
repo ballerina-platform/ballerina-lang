@@ -48,7 +48,7 @@ public class Remove extends BlockingNativeCallableUnit {
         try {
             table.performRemoveOperation(context, lambdaFunction);
         } catch (BLangFreezeException e) {
-            throw new BallerinaException("Failed to remove data from the table: " + e.getMessage());
+            throw new BallerinaException(e.getMessage(), "Failed to remove data from the table: " + e.getDetail());
         }
     }
 }

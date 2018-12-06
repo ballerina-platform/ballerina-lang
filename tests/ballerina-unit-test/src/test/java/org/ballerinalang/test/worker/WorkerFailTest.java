@@ -91,6 +91,15 @@ public class WorkerFailTest {
     }
 
     @Test
+    public void invalidReciveWithErrorReturnTest() {
+        CompileResult result =
+                BCompileUtil.compile("test-src/workers/invalid-receive-with-error-return.bal");
+        String message = Arrays.toString(result.getDiagnostics());
+        Assert.assertEquals(result.getErrorCount(), 1, message);
+        Assert.assertTrue(message.contains("incompatible types"), message);
+    }
+
+    @Test
     public void invalidSendWithErrorCheckTest() {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-send-with-error-check.bal");
         Assert.assertEquals(result.getErrorCount(), 1);

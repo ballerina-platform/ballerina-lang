@@ -43,6 +43,12 @@ public class BallerinaForeachStatementImpl extends BallerinaCompositeElementImpl
 
   @Override
   @Nullable
+  public BallerinaBindingPattern getBindingPattern() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaBindingPattern.class);
+  }
+
+  @Override
+  @Nullable
   public BallerinaBlock getBlock() {
     return PsiTreeUtil.getChildOfType(this, BallerinaBlock.class);
   }
@@ -55,8 +61,8 @@ public class BallerinaForeachStatementImpl extends BallerinaCompositeElementImpl
 
   @Override
   @Nullable
-  public BallerinaVariableReferenceList getVariableReferenceList() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaVariableReferenceList.class);
+  public BallerinaTypeName getTypeName() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaTypeName.class);
   }
 
   @Override
@@ -93,6 +99,12 @@ public class BallerinaForeachStatementImpl extends BallerinaCompositeElementImpl
   @Nullable
   public PsiElement getIn() {
     return findChildByType(IN);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getVar() {
+    return findChildByType(VAR);
   }
 
 }

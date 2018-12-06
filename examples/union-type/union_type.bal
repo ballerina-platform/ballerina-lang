@@ -5,11 +5,13 @@ function println(string|int value) {
     io:println(value);
 }
 
-// This is a custom error record's data.
-type KeyNotFoundErrorKey record {string key;};
+// This is a custom error's detail record.
+type KeyNotFoundErrorRecord record {
+    string key;
+};
 
-// This is a custom error record.
-type KeyNotFoundError error<string, KeyNotFoundErrorKey>;
+// This is a custom error.
+type KeyNotFoundError error<string, KeyNotFoundErrorRecord>;
 
 // This function returns either a `string` or a `KeyNotFoundError`.
 function getValue(string key) returns string|KeyNotFoundError {

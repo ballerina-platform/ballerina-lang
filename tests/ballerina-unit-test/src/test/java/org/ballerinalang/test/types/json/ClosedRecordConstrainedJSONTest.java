@@ -182,7 +182,7 @@ public class ClosedRecordConstrainedJSONTest {
     public void testJSONToConstraintJsonUnsafeCast() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJSONToConstraintJsonUnsafeCast");
         Assert.assertNotNull(returns[0]);
-        String errorMsg = ((BError) returns[0]).getReason();
+        String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).details).get("message").stringValue();
         Assert.assertEquals(errorMsg, "incompatible stamp operation: 'json' value cannot be stamped as 'json<Person>'");
     }
 
@@ -236,7 +236,7 @@ public class ClosedRecordConstrainedJSONTest {
     public void testJSONArrayToConstraintJsonArrayCastNegative() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJSONArrayToConstraintJsonArrayCastNegative");
         Assert.assertNotNull(returns[0]);
-        String errorMsg = ((BError) returns[0]).getReason();
+        String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).details).get("message").stringValue();
         Assert.assertEquals(errorMsg,
                 "incompatible stamp operation: 'json[]' value cannot be stamped as 'json<Student>[]'");
     }
@@ -253,7 +253,7 @@ public class ClosedRecordConstrainedJSONTest {
     public void testJSONArrayToCJsonArrayCastNegative() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJSONArrayToCJsonArrayCastNegative");
         Assert.assertNotNull(returns[0]);
-        String errorMsg = ((BError) returns[0]).getReason();
+        String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).details).get("message").stringValue();
         Assert.assertEquals(errorMsg,
                 "incompatible stamp operation: 'json[]' value cannot be stamped as 'json<Student>[]'");
     }
@@ -270,7 +270,7 @@ public class ClosedRecordConstrainedJSONTest {
     public void testMixedTypeJSONArrayToCJsonArrayCastNegative() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testMixedTypeJSONArrayToCJsonArrayCastNegative");
         Assert.assertNotNull(returns[0]);
-        String errorMsg = ((BError) returns[0]).getReason();
+        String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).details).get("message").stringValue();
         Assert.assertEquals(errorMsg,
                 "incompatible stamp operation: 'json[]' value cannot be stamped as 'json<Student>[]'");
     }

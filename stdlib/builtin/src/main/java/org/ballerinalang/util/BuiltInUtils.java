@@ -26,6 +26,7 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
+import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
@@ -61,11 +62,12 @@ public class BuiltInUtils {
      * Get builtin conversion error.
      *
      * @param context Represent ballerina context
-     * @param errMsg  Error description
+     * @param errMsg  Error description (detail)
+     * @param reason  Error reason
      * @return conversion error
      */
-    public static BError createConversionError(Context context, String errMsg) {
-        return createError(context, errMsg, "{ballerina/builtin}ConversionError");
+    public static BError createConversionError(Context context, String errMsg, String reason) {
+        return createError(context, errMsg, reason);
     }
 
     /**
@@ -76,7 +78,7 @@ public class BuiltInUtils {
      * @return conversion error
      */
     public static BError createStringError(Context context, String errMsg) {
-        return createError(context, errMsg, "{ballerina/builtin}StringError");
+        return createError(context, errMsg, BallerinaErrorReasons.STRING_OPERATION_ERROR);
     }
 
     /**

@@ -30,11 +30,11 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"service",
+      "label":"service/http",
       "kind":"Snippet",
       "detail":"Snippet",
       "sortText":"190",
-      "insertText":"service ${1:serviceName} on new http:Listener(8080) {\n\tresource function ${2:newResource}(http:Caller ${3:caller}, http:Request ${5:request}) {\n\t}\n}",
+      "insertText":"service ${1:serviceName} on new http:Listener(8080) {\n\tresource function ${2:newResource}(http:Caller ${3:caller}, http:Request ${5:request}) {\n\t\t\n\t}\n}",
       "insertTextFormat":"Snippet"
     },
     {
@@ -42,7 +42,7 @@
       "kind":"Snippet",
       "detail":"Snippet",
       "sortText":"190",
-      "insertText":"service\u003chttp:WebSocketService\u003e ${1:serviceName} bind { port: 9090 } {\n\tonOpen(endpoint caller) {\n\t\t\n\t}\n\tonText(endpoint caller, string text, boolean final) {\n\t\t\n\t}\n\tonClose(endpoint caller, int statusCode, string reason) {\n\t\t\n\t}\n}",
+      "insertText":"service ${1:serviceName} on new http:WebSocketListener(9090) {\n\tresource function onOpen(http:WebSocketCaller caller) {\n\t\t\n\t}\n\tresource function onText(http:WebSocketCaller caller, string data, boolean finalFrame) {\n\t\t\n\t}\n\tresource function onClose(http:WebSocketCaller caller, int statusCode, string reason) {\n\t\t\n\t}\n}",
       "insertTextFormat":"Snippet"
     },
     {
@@ -50,7 +50,7 @@
       "kind":"Snippet",
       "detail":"Snippet",
       "sortText":"190",
-      "insertText":"service\u003cwebsub:Service\u003e ${1:websubSubscriber} bind {port: 9090} {\n\tonIntentVerification(endpoint caller, websub:IntentVerificationRequest request) {\n\t\t\n\t}\n\tonNotification(websub:Notification notification) {\n\t\t\n\t}\n}",
+      "insertText":"service ${1:websubSubscriber} on new websub:Listener(9092) {\n\tresource function onIntentVerification(websub:Caller caller, websub:IntentVerificationRequest request) {\n\t\t\n\t}\n\tresource function onNotification(websub:Notification notification) {\n\t\t\n\t}\n}",
       "insertTextFormat":"Snippet"
     },
     {

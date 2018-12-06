@@ -12,9 +12,21 @@
             font-family: @diagram-font;
             font-size: @diagram-font-size;
 
+            .panel-group-header {
+                fill: ~"@{@{color}-diagram-panel-header-background-color}";
+
+                .panel-icon {
+                    font-family: @diagram-icon-font;
+                }
+                text {
+                    fill: ~"@{@{color}-diagram-panel-header-text-color}";
+                    font-size: 18px;
+                }
+            }
+            
             .panel {
                 .statement {
-                    pointer-events: none;
+                    pointer-events: all;
                 }
                 .panel-header {
                     fill: ~"@{@{color}-diagram-panel-header-background-color}";
@@ -45,51 +57,31 @@
                             text-anchor: middle;
                         }
 
-                        &.life-line-worker{
-                            stroke: #257AA8;
-                            color: #257AA8;
+                        &.life-line-worker {
+                            stroke:  ~"@{@{color}-diagram-life-line-worker-stroke-color}";
+                            color: ~"@{@{color}-diagram-life-line-worker-stroke-color}";
 
                             rect {
-                                fill: #257AA8;
+                                fill: ~"@{@{color}-diagram-life-line-worker-stroke-color}";
                             }
-                            text{
-                                fill: #257AA8;
+                            text {
+                                fill: ~"@{@{color}-diagram-life-line-worker-stroke-color}";
                             }
                         }
-                        &.life-line-endpoint{
-                            stroke: @teal;
-                            color:@teal;
+                        &.life-line-endpoint {
+                            stroke: ~"@{@{color}-diagram-life-line-endpoint-stroke-color}";
+                            color: ~"@{@{color}-diagram-life-line-endpoint-stroke-color}";
 
                             rect {
-                                fill: @teal;
+                                fill: ~"@{@{color}-diagram-life-line-endpoint-stroke-color}";
                             }
-                            text{
-                                fill: @teal;
+                            text {
+                                fill: ~"@{@{color}-diagram-life-line-endpoint-stroke-color}";
                             }
                         }
                     }
-                    .endpoint-activity {
-                        fill: @teal;
-                    }
-
-                    .condition {
-                        .label {
-                            text-anchor: middle;
-                        }
-                        polyline {
-                            fill: ~"@{@{color}-diagram-condition-background-color}";
-                            stroke: ~"@{@{color}-diagram-condition-stroke-color}";
-                            stroke-width: @diagram-condition-stroke-width;
-                        }
-                    }
-                    .condition-line {
-                        fill: transparent;
-                        stroke: ~"@{@{color}-diagram-condition-line-stroke-color}";
-                        stroke-width: @diagram-condition-line-stroke-width;
-                    }
-                    .hide-line {
-                        stroke: ~"@{@{color}-diagram-panel-body-background-color}";
-                        stroke-width: 2px;
+                    .life-line-endpoint-activity {
+                        fill: ~"@{@{color}-diagram-life-line-endpoint-stroke-activity-color}";
                     }
                     .arrow-head {
                         fill: ~"@{@{color}-diagram-arrow-head-color}";
@@ -110,8 +102,35 @@
                             stroke-width: 1px;
                         }
                     }
+                    .condition {
+                        .condition-case-background {
+                            fill: ~"@{@{color}-diagram-condition-case-background-color}";
+                        }
+                        .label {
+                            text-anchor: middle;
+                        }
+                        polyline {
+                            fill: ~"@{@{color}-diagram-condition-background-color}";
+                            stroke: ~"@{@{color}-diagram-condition-stroke-color}";
+                            stroke-width: @diagram-condition-stroke-width;
+                        }
+                    }
+                    .condition-line {
+                        fill: transparent;
+                        stroke: ~"@{@{color}-diagram-condition-line-stroke-color}";
+                        stroke-width: @diagram-condition-line-stroke-width;
+                    }
+                    .condition-block {
+                        .arrow-head {
+                            fill: ~"@{@{color}-diagram-condition-line-worker-arrow-head-color}";
+                        }
+                    }
+                    .hide-line {
+                        stroke: ~"@{@{color}-diagram-panel-body-background-color}";
+                        stroke-width: 2px;
+                    }
                 }
-                &.block {
+                .worker-block-container {
                     .hover-rect {
                         pointer-events: painted;
                     }
@@ -121,7 +140,7 @@
             .svg-dropdown-menu {
                 &.block-dropdown {
                     display: none;
-                    &.active {
+                    &.hover, &.active {
                         display: block;
                     }
                 }
@@ -154,6 +173,8 @@
                 fill: ~"@{@{color}-diagram-svg-button-background-color}";
                 text {
                     fill: ~"@{@{color}-diagram-svg-button-text-color}";
+                    text-anchor: middle;
+                    font-size: 8px;
                 }
                 &:hover {
                     fill-opacity: 0.8;
@@ -161,6 +182,12 @@
                 .btn-icon {
                     text-anchor: middle;
                     dominant-baseline: middle;
+                }
+            }
+            .source-linked-label {
+                &:hover {
+                    text-decoration: underline;
+                    cursor: pointer;
                 }
             }
         }
@@ -198,10 +225,6 @@
     }
 }
 
-body {
+body.diagram {
     .diagram("light");
-    
-    &.dark {
-        .diagram("dark");
-    }
 }

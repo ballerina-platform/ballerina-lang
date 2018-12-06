@@ -102,8 +102,8 @@ public class ErrorTest {
         }
         Assert.assertNotNull(expectedException);
         String result = "error: largeNumber {\"message\":\"large number\"}\n" +
-                "\tat errorPanicCallee(basicErrorTest.bal:34)\n" +
-                "\t   errorPanicTest(basicErrorTest.bal:28)";
+                "\tat errorPanicCallee(basicErrorTest.bal:36)\n" +
+                "\t   errorPanicTest(basicErrorTest.bal:30)";
         Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
     }
 
@@ -139,5 +139,12 @@ public class ErrorTest {
     public void testErrorWithErrorConstructor() {
         BValue[] returns = BRunUtil.invoke(basicErrorTest, "testErrorWithErrorConstructor");
         Assert.assertEquals(returns[0].stringValue(), "test");
+    }
+
+    @Test
+    public void testGetCallStack() {
+        BValue[] returns = BRunUtil.invoke(basicErrorTest, "getCallStackTest");
+        Assert.assertEquals(returns[0].stringValue(), "{callableName:\"getCallStack\", " +
+                "moduleName:\"ballerina/runtime\", fileName:\"<native>\", lineNumber:0}");
     }
 }

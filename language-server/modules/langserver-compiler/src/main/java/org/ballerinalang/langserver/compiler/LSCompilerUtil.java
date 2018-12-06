@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.compiler;
 
 import org.antlr.v4.runtime.DefaultErrorStrategy;
+import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.compiler.common.CustomErrorStrategyFactory;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
@@ -48,6 +49,7 @@ import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
+import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
@@ -60,6 +62,8 @@ public class LSCompilerUtil {
     private static final Logger logger = LoggerFactory.getLogger(LSCompilerUtil.class);
 
     public static final String UNTITLED_BAL = "untitled.bal";
+    
+    public static final boolean EXPERIMENTAL_FEATURES_ENABLED;
 
     private static Path untitledProjectPath;
 
@@ -67,6 +71,8 @@ public class LSCompilerUtil {
             Pattern.compile(".*[/\\\\]temp[/\\\\](.*)[/\\\\]untitled.bal");
 
     static {
+        String experimental = System.getProperty("experimental");
+        EXPERIMENTAL_FEATURES_ENABLED = experimental != null && Boolean.parseBoolean(experimental);
         // Here we will create a tmp directory as the untitled project repo.
         File untitledDir = com.google.common.io.Files.createTempDir();
         untitledProjectPath = untitledDir.toPath();
@@ -121,6 +127,7 @@ public class LSCompilerUtil {
         context.put(PackageRepository.class, packageRepository);
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, document.getSourceRoot());
+        options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(EXPERIMENTAL_FEATURES_ENABLED));
 
         if (null == compilerPhase) {
             throw new AssertionError("Compiler Phase can not be null.");

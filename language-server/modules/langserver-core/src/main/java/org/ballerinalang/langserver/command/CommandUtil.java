@@ -27,6 +27,7 @@ import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
+import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
@@ -100,10 +101,15 @@ public class CommandUtil {
      * @param topLevelNodeType top level node
      * @param docUri           Document Uri
      * @param params           Code action parameters
+     * @param documentManager  Document manager
+     * @param lsCompiler       LS Compiler
      * @return {@link Command}  Test Generation command
      */
     public static List<Command> getTestGenerationCommand(String topLevelNodeType, String docUri,
-                                                         CodeActionParams params) {
+                                                         CodeActionParams params,
+                                                         WorkspaceDocumentManager documentManager,
+                                                         LSCompiler lsCompiler) {
+        LSServiceOperationContext context = new LSServiceOperationContext();
         List<Command> commands = new ArrayList<>();
         List<Object> args = new ArrayList<>();
         args.add(new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, docUri));
@@ -111,13 +117,27 @@ public class CommandUtil {
         args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, "" + position.getLine()));
         args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_COLUMN, "" + position.getCharacter()));
 
-        if (UtilSymbolKeys.SERVICE_KEYWORD_KEY.equals(topLevelNodeType)) {
+        boolean isService = UtilSymbolKeys.SERVICE_KEYWORD_KEY.equals(topLevelNodeType);
+        boolean isFunction = UtilSymbolKeys.FUNCTION_KEYWORD_KEY.equals(topLevelNodeType);
+        if ((isService || isFunction) && isTopLevelNode(docUri, documentManager, lsCompiler, context, position)) {
+            return commands;
+        }
+
+        if (isService) {
             commands.add(new Command(CommandConstants.CREATE_TEST_SERVICE_TITLE,
                                      CommandConstants.CMD_CREATE_TEST, args));
-        } else if (UtilSymbolKeys.FUNCTION_KEYWORD_KEY.equals(topLevelNodeType)) {
+        } else if (isFunction) {
             commands.add(new Command(CommandConstants.CREATE_TEST_FUNC_TITLE, CommandConstants.CMD_CREATE_TEST, args));
         }
         return commands;
+    }
+
+    private static boolean isTopLevelNode(String docUri, WorkspaceDocumentManager documentManager,
+                                          LSCompiler lsCompiler, LSServiceOperationContext context, Position position) {
+        Pair<BLangNode, Object> bLangNode = getBLangNode(position.getLine(), position.getCharacter(), docUri,
+                                                         documentManager, lsCompiler, context);
+        // Only supported for top-level nodes
+        return !(bLangNode.getLeft().parent instanceof BLangPackage);
     }
 
     /**
