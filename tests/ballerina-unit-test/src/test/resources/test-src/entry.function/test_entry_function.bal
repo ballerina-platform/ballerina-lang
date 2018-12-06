@@ -62,8 +62,8 @@ public function defaultableParamEntry(int i = 1, boolean b, string s = "default 
 
 public function combinedTypeEntry(int i, float f, string s, byte b, boolean bool, json j, xml x, Employee e,
                                   string... args) returns string {
-    string restArgs;
-    foreach str in args {
+    string restArgs = "";
+    foreach var str in args {
         restArgs += str + " ";
     }
 

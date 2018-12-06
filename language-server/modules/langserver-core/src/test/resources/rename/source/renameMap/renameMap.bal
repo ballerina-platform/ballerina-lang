@@ -1,12 +1,12 @@
 import ballerina/io;
 public function main(string... args) {
-    map a;
-    foreach item in a {
+    map<string> a = {};
+    foreach var item in a {
         io:println(a);
     }
     iterate(a);
 }
 
-function iterate(map m) {
+function iterate(map<string> m) {
     io:println("");
 }

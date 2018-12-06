@@ -3,9 +3,11 @@
 This module provides the necessary utilities that are required to hash content using different hashing mechanisms and algorithms. 
 
 #### Hashing string content
+
 The `hash` function uses an algorithm to hash content of type `string`. 
 
-#### Calculating HMAC 
+#### Calculating HMAC
+
 The `hmac` function uses an algorithm to calculate HMAC of a given string, using a given key. 
 
 ### Calculating CRC
@@ -18,7 +20,7 @@ The `crc32` function can be used to calculate CRC on input types such as string,
 import ballerina/io;
 import ballerina/crypto;
 
-public function main(string... args) {
+public function main() {
      // The string content to be hashed.
      string input = "Hello Ballerina";
      // The key used for hashing when required.
@@ -37,5 +39,4 @@ public function main(string... args) {
      io:println("Hash with CRC32 for text: " + crypto:crc32(input));
      io:println("Hash with CRC32 for xml content: " + crypto:crc32(xmlContent));
 }
-
 ```

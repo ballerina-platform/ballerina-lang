@@ -1,25 +1,30 @@
 
-function testForkJoinReturnAnyType() returns (int, string) {
-    int p;
-    string q;
+function testForkReturnAnyType() returns (int, string)|error {
+    int p = 0;
+    string q = "";
     string r;
     float t;
+
     fork {
-        worker W1 {
+        worker W1 returns (int, string) {
             int x = 23;
             string a = "aaaaa";
-            (x, a) -> fork;
+            return (x, a);
         }
-        worker W2 {
+        worker W2 returns (string, float) {
             string s = "test";
             float u = 10.23;
-            (s, u) -> fork;
+            return (s, u);
         }
-    } join (all) (map results) {
-        any t1 = <any> results["W1"];
-        (p, q) = check <(int,string)> t1;
-        any t2 = <any> results["W2"];
-        (r, t) = check <(string,float)> t2;
+    }
+    map<any> results = wait {W1, W2};
+    any t1 = results["W1"];
+    if t1 is (int,string) {
+        (p, q) = t1;
+    }
+    any t2 = results["W2"];
+    if t2 is (string,float) {
+        (r, t) = t2;
     }
     return (p, q);
 }

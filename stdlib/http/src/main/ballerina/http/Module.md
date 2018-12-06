@@ -47,7 +47,7 @@ There are also two types of services for WebSocket: `WebSocketService` and `WebS
             upgradeService: chatApp
         }
     }
-    upgrader(endpoint caller, http:Request req, string name) {
+    resource function upgrader(http:Caller caller, http:Request req, string name) {
     }
 }
 ```
@@ -93,9 +93,7 @@ See [HTTP Access Logs Example](https://ballerina.io/learn/by-example/http-access
 A `Client` endpoint can be defined using the URL of the remote service that the client needs to connect with, as shown below:
 
 ``` ballerina
-endpoint http:Client clientEndpoint {
-      url: "https://my-simple-backend.com"
-   };
+http:Client clientEndpoint = new("https://my-simple-backend.com");
 ```
 The defined `Client` endpoint can be used to call a remote service as follows:
 
@@ -108,31 +106,31 @@ A `Listener` endpoint can be defined as follows:
 
 ```ballerina
 // Attributes associated with the `Listener` endpoint are defined here.
-endpoint http:Listener helloWorldEP {
-   port:9090
-};
+listener http:Listener helloWorldEP = new(9090);
 ```
 
-Then a `Service` can be defined and bound to the above `Listener` endpoint as shown below:
+Then a `Service` can be defined and attached to the above `Listener` endpoint as shown below:
 
 ```ballerina
 // By default, Ballerina assumes that the service is to be exposed via HTTP/1.1.
 @http:ServiceConfig { basePath:"/helloWorld" }
-service helloWorld bind helloWorldEP {
+service helloWorld on helloWorldEP {
 
-   // All resources are invoked with arguments of server connector and request.
+   // All resource functions are invoked with arguments of server connector and request.
    @http:ResourceConfig {
         methods:["POST"],
         path:"/{name}",
         body:"message"
     }
-   sayHello (endpoint caller, http:Request req, string name, string message) {
+   resource function sayHello(http:Caller caller, http:Request req, string name, string message) {
        http:Response res = new;
        // A util method that can be used to set string payload.
        res.setPayload("Hello, World! I’m " + untaint name + ". " + untaint message);
        // Sends the response back to the client.
-       caller->respond(res) but { error e => 
-                            log:printError("Error sending response", err = e) };
+       var result = caller->respond(res);
+       if (result is error) {
+            log:printError("Error sending response", err = result);
+       }
    }
 }
 ```

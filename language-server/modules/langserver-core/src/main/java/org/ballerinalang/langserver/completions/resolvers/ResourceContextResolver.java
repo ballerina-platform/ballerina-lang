@@ -41,13 +41,11 @@ public class ResourceContextResolver extends AbstractItemResolver {
             boolean snippetCapability = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem()
                     .getSnippetSupport();
             CompletionItem worker = Snippet.DEF_WORKER.get().build(new CompletionItem(), snippetCapability);
-            CompletionItem endpoint = Snippet.DEF_ENDPOINT.get().build(new CompletionItem(), snippetCapability);
             completionItems.add(worker);
-            completionItems.add(endpoint);
 
             return completionItems;
         }
-        AbstractItemResolver resolver = CompletionItemResolver.getResolverByClass(parserRuleContext.getClass());
+        AbstractItemResolver resolver = CompletionItemResolver.get(parserRuleContext.getClass());
 
         if (resolver != null) {
             completionItems.addAll(resolver.resolveItems(context));

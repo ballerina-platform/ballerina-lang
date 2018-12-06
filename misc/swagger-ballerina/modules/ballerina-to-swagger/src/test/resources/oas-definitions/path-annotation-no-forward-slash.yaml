@@ -5,18 +5,18 @@ info:
 servers:
 - url: /say
 paths:
-  /sayHelloBBB:
+  /sayHelloAA:
     get:
-      operationId: sayHello
+      operationId: operation1-sayHelloAA
       responses:
         200:
           description: Successful
           content:
             application/json:
               example: Ok
-  /sayHelloAA:
+  /sayHelloBBB:
     get:
-      operationId: sayHelloAA
+      operationId: operation1-sayHello
       responses:
         200:
           description: Successful

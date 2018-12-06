@@ -18,9 +18,9 @@ package org.ballerinalang.stdlib.internal.compression;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -145,7 +145,7 @@ public class DecompressFromByteArray extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        byte[] content = ((BByteArray) context.getRefArgument(SRC_AS_BYTEARRAY_FIELD_INDEX)).getBytes();
+        byte[] content = ((BValueArray) context.getRefArgument(SRC_AS_BYTEARRAY_FIELD_INDEX)).getBytes();
         if (content.length == 0) {
             context.setReturnValues(CompressionUtils.createCompressionError(context, "Length of the byte " +
                     "array is empty"));
@@ -161,9 +161,9 @@ public class DecompressFromByteArray extends BlockingNativeCallableUnit {
             } else {
                 try {
                     decompress(inputStream, destPath, context);
-                    if (context.getReturnValues() == null) {
-                        context.setReturnValues();
-                    }
+//                    if (context.getReturnValues() == null) {
+//                        context.setReturnValues();
+//                    }
                 } catch (IOException e) {
                     context.setReturnValues(CompressionUtils.createCompressionError(context,
                             "Error occurred when decompressing " + e.getMessage()));

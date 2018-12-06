@@ -42,15 +42,21 @@ public class BallerinaObjectBodyImpl extends BallerinaCompositeElementImpl imple
   }
 
   @Override
-  @Nullable
-  public BallerinaObjectInitializer getObjectInitializer() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaObjectInitializer.class);
+  @NotNull
+  public List<BallerinaObjectFieldDefinition> getObjectFieldDefinitionList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaObjectFieldDefinition.class);
   }
 
   @Override
   @NotNull
-  public List<BallerinaObjectMember> getObjectMemberList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaObjectMember.class);
+  public List<BallerinaObjectFunctionDefinition> getObjectFunctionDefinitionList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaObjectFunctionDefinition.class);
+  }
+
+  @Override
+  @NotNull
+  public List<BallerinaTypeReference> getTypeReferenceList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaTypeReference.class);
   }
 
 }

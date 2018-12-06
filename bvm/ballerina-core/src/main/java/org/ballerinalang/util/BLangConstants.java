@@ -17,6 +17,9 @@
 */
 package org.ballerinalang.util;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+
 /**
  * This file contains a list of constant values used by Ballerina Compiler and the Bytecode interpreter.
  *
@@ -25,11 +28,11 @@ package org.ballerinalang.util;
 public class BLangConstants {
 
     public static final int MAGIC_NUMBER = 0xBA1DA4CE;
-    public static final short VERSION_NUMBER = 23;
+    public static final short VERSION_NUMBER = 25;
 
     public static final String MAIN_FUNCTION_NAME = "main";
     public static final String INIT_FUNCTION_SUFFIX = ".<init>";
-    public static final String CONSTRUCTOR_FUNCTION_SUFFIX = "new";
+    public static final String CONSTRUCTOR_FUNCTION_SUFFIX = "__init";
     public static final String START_FUNCTION_SUFFIX = ".<start>";
     public static final String STOP_FUNCTION_SUFFIX = ".<stop>";
     public static final String TEST_INIT_FUNCTION_SUFFIX = ".<testinit>";
@@ -45,7 +48,7 @@ public class BLangConstants {
     public static final String BLANG_COMPILED_PACKAGE_FILE_EXT = "balo";
     public static final String BLANG_COMPILED_PACKAGE_FILE_SUFFIX = "." + BLANG_COMPILED_PACKAGE_FILE_EXT;
 
-    // int, float, string, boolean, reference type
+    // int, float, string, boolean, decimal, reference type
     public static final int NO_OF_VAR_TYPE_CATEGORIES = 5;
     public static final int INT_OFFSET = 0;
     public static final int FLOAT_OFFSET = 1;
@@ -77,6 +80,14 @@ public class BLangConstants {
 
     public static final Integer BBYTE_MIN_VALUE = 0;
     public static final Integer BBYTE_MAX_VALUE = 255;
+    public static final double BINT_MAX_VALUE_DOUBLE_RANGE_MAX = 9223372036854775807.5;
+    public static final double BINT_MIN_VALUE_DOUBLE_RANGE_MIN = -9223372036854775807.6;
+    public static final BigDecimal BINT_MAX_VALUE_BIG_DECIMAL_RANGE_MAX = new BigDecimal("9223372036854775807.5",
+                                                                                         MathContext.DECIMAL128);
+    public static final BigDecimal BINT_MIN_VALUE_BIG_DECIMAL_RANGE_MIN = new BigDecimal("-9223372036854775807.6",
+                                                                                         MathContext.DECIMAL128);
 
     public static final String COLON = ":";
+
+    public static final String DEFAULT_WORKER_NAME = "default";
 }

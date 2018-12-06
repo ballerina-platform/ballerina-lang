@@ -11,10 +11,10 @@ public function testPrivateFieldAccess() {
 }
 
 public type personFoo record {
-    int age;
-    string name;
-    string ssn;
-    int id;
+    int age = 0;
+    string name = "";
+    string ssn = "";
+    int id = 0;
 };
 
 public function testCompileTimeStructEq() {

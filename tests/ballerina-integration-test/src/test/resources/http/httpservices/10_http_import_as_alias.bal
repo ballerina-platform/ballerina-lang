@@ -17,29 +17,29 @@
 import ballerina/http as network;
 import ballerina/io;
 
-endpoint network:Listener echoEP5 {
-    port:9101
-};
+listener network:Listener echoEP5 = new(9101);
 
 @network:ServiceConfig {
     basePath:"/echo"
 }
-service<network:Service> echo4 bind echoEP5 {
+service echo4 on echoEP5 {
 
     @network:ResourceConfig {
         methods:["POST"],
         path:"/"
     }
-    echo4 (endpoint caller, network:Request req) {
+    resource function echo4(network:Caller caller, network:Request req) {
         var payload = req.getTextPayload();
-        match payload {
-            string payloadValue => {
-                network:Response resp = new;
-                resp.setTextPayload(untaint payloadValue);
-                _ = caller -> respond(resp);
-            }
-            any | () => {
-                io:println("Error while fetching string payload");
+        network:Response resp = new;
+        if (payload is string) {
+            _ = caller -> respond(untaint payload);
+        } else if (payload is error) {
+            resp.statusCode = 500;
+            resp.setPayload(untaint payload.reason());
+            log:printError("Failed to retrieve payload from request: " + payload.reason());
+            var responseError = caller->respond(resp);
+            if (responseError is error) {
+                log:printError("Error sending response", err = responseError);
             }
         }
     }

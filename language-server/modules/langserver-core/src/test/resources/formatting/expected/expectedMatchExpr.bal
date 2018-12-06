@@ -14,22 +14,31 @@ function getAgeCategory(int age) returns string | error {
 }
 
 function main(string... args) {
-    string ageCategory = getAgeCategory(25) but {
-        string s => s,
-        error e => e.message
-    };
 
-    ageCategory = getAgeCategory(-5) but {
-        string s => s,
-        error e => e.message
-    };
+    var result = getAgeCategory(25);
+    if (result is error) {
+        ageCategory = result.message;
+    } else {
+        ageCategory = result;
+    }
 
-    ageCategory = getAgeCategory(25) but {
-        error e => e.message,
-        string s => getAgeCategory(-5) but {
-            string s1 => s1,
-            error e1 => e1.message
+    result = getAgeCategory(-5);
+    if (result is error) {
+        ageCategory = result.message;
+    } else {
+        ageCategory = result;
+    }
+
+    var result = getAgeCategory(25);
+    if (result is error) {
+        ageCategory = result.message;
+    } else {
+        result = getAgeCategory(-5);
+        if (result is string) {
+            ageCategory = result;
+        } else {
+            ageCategory = result.message;
         }
-    };
+    }
 }
 

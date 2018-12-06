@@ -18,6 +18,7 @@
 
 package org.ballerinalang.stdlib.crypto.nativeimpl;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.BArrayType;
@@ -25,9 +26,9 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -58,12 +59,14 @@ public class Crc32 extends BlockingNativeCallableUnit {
         long checksumVal;
 
         BType argType = entityBody.getType();
-        if (argType == BTypes.typeJSON || argType == BTypes.typeXML || argType == BTypes.typeString) {
+        if (argType == BTypes.typeString) {
+            bytes = StringEscapeUtils.escapeJava(entityBody.stringValue()).getBytes(StandardCharsets.UTF_8);
+        } else if (argType == BTypes.typeJSON || argType == BTypes.typeXML) {
             // TODO: Look at the possibility of making the encoding configurable
             bytes = entityBody.stringValue().getBytes(StandardCharsets.UTF_8);
         } else if (argType.getTag() == TypeTags.ARRAY_TAG &&
                 ((BArrayType) argType).getElementType().getTag() == TypeTags.BYTE_TAG) {
-            bytes = ((BByteArray) entityBody).getBytes();
+            bytes = ((BValueArray) entityBody).getBytes();
         } else {
             throw new BallerinaException(
                     "failed to generate hash: unsupported data type: " + entityBody.getType().getName());

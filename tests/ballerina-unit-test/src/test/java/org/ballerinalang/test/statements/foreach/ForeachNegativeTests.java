@@ -33,16 +33,29 @@ public class ForeachNegativeTests {
     @Test
     public void testSemanticErrors() {
         CompileResult compile = BCompileUtil.compile("test-src/statements/foreach/foreach-negative.bal");
-        Assert.assertEquals(compile.getErrorCount(), 10);
-        BAssertUtil.validateError(compile, 0, "too many variables are defined for iterable type 'string[]'", 4, 24);
-        BAssertUtil.validateError(compile, 1, "redeclared symbol 'i'", 13, 13);
-        BAssertUtil.validateError(compile, 2, "redeclared symbol 's'", 13, 16);
-        BAssertUtil.validateError(compile, 3, "undefined symbol 'i'", 23, 16);
-        BAssertUtil.validateError(compile, 4, "incompatible types: 'string' is not an iterable collection", 28, 18);
-        BAssertUtil.validateError(compile, 5, "invalid assignment in variable 'p.id'", 41, 13);
-        BAssertUtil.validateError(compile, 6, "too many variables are defined for iterable type 'string[]'", 49, 24);
-        BAssertUtil.validateError(compile, 7, "unreachable code", 68, 9);
-        BAssertUtil.validateError(compile, 8, "unreachable code", 73, 9);
-        BAssertUtil.validateError(compile, 9, "continue cannot be used outside of a loop", 75, 5);
+        Assert.assertEquals(compile.getErrorCount(), 14);
+        int index = 0;
+        BAssertUtil.validateError(compile, index++, "invalid tuple variable; expecting a tuple type but found " +
+                "'string' in type definition", 4, 17);
+        BAssertUtil.validateError(compile, index++, "invalid tuple variable; expecting a tuple type but found " +
+                "'string' in type definition", 13, 17);
+        BAssertUtil.validateError(compile, index++, "redeclared symbol 's'", 13, 21);
+        BAssertUtil.validateError(compile, index++, "redeclared symbol 'i'", 13, 18);
+        BAssertUtil.validateError(compile, index++, "invalid tuple variable; expecting a tuple type but found " +
+                "'string' in type definition", 20, 17);
+        BAssertUtil.validateError(compile, index++, "undefined symbol 'i'", 23, 16);
+        BAssertUtil.validateError(compile, index++, "incompatible types: 'int' is not an iterable collection", 28,
+                22);
+        BAssertUtil.validateError(compile, index++, "invalid tuple variable; expecting a tuple type but found " +
+                "'string' in type definition", 41, 17);
+        BAssertUtil.validateError(compile, index++, "invalid tuple variable; expecting a tuple type but found " +
+                "'string' in type definition", 49, 17);
+        BAssertUtil.validateError(compile, index++, "invalid tuple variable; expecting a tuple type but found " +
+                "'json' in type definition", 58, 17);
+        BAssertUtil.validateError(compile, index++, "unreachable code", 71, 9);
+        BAssertUtil.validateError(compile, index++, "unreachable code", 76, 9);
+        BAssertUtil.validateError(compile, index++, "continue cannot be used outside of a loop", 78, 5);
+        BAssertUtil.validateError(compile, index, "invalid tuple variable; expecting a tuple type but found " +
+                "'string' in type definition", 84, 17);
     }
 }

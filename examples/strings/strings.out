@@ -1,3 +1,5 @@
+# To run this sample, navigate to the directory that contains the
+# `.bal` file and issue the `ballerina run` command.
 $ ballerina run strings.bal
 ToUpper: LION IN TOWN. CATCH THE LION
 ToLower: lion in town. catch the lion
@@ -10,7 +12,7 @@ ValueOf: 5.8
 ReplaceFirst: Tiger in Town. Catch the Lion
 Replace: Tiger in Town. Catch the Tiger
 ReplaceAll: Li0n in T0wn. Catch the Li0n
-Length: 29
+Length: 28
 Trim: Lion in Town. Catch the Lion
 HasSuffix: true
 HasPrefix: true

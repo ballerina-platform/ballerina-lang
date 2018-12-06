@@ -23,6 +23,7 @@ import org.eclipse.lsp4j.CompletionItemKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 /**
@@ -63,10 +64,11 @@ public class BTypeCompletionItemBuilder {
         } else if (bSymbol.kind != null) {
             // class / objects
             item.setKind(CompletionItemKind.Class);
-        } else if (bSymbol.type instanceof BFiniteType) {
+        } else if (bSymbol.type instanceof BFiniteType || bSymbol.type instanceof BUnionType) {
             // enums
             item.setKind(CompletionItemKind.Enum);
-        } else if (bSymbol.pkgID.orgName.equals(Names.BUILTIN_ORG)) {
+        } else if (bSymbol.pkgID.orgName.equals(Names.BUILTIN_ORG) &&
+                bSymbol.pkgID.name.equals(Names.BUILTIN_PACKAGE)) {
             // keyword
             item.setKind(CompletionItemKind.Keyword);
         } else {

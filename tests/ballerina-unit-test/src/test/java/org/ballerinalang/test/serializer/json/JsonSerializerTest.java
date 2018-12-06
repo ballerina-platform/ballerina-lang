@@ -17,20 +17,14 @@
  */
 package org.ballerinalang.test.serializer.json;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.serializer.JsonSerializer;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.persistence.store.PersistenceStore;
-import org.ballerinalang.test.checkpointing.TestStorageProvider;
-import org.ballerinalang.test.utils.debug.TestDebugger;
+import org.ballerinalang.model.values.BValueArray;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.util.ArrayList;
@@ -45,16 +39,6 @@ public class JsonSerializerTest {
     private static final String STRING_1 = "String1";
     private static final String STRING_2 = "String2";
 
-    @BeforeClass
-    public void setup() {
-        TestStorageProvider storageProvider = new TestStorageProvider();
-        PersistenceStore.setStorageProvider(storageProvider);
-        CompileResult compileResult = BCompileUtil.compile("test-src/checkpointing/checkpoint.bal");
-        TestDebugger debugger = new TestDebugger(compileResult.getProgFile());
-        compileResult.getProgFile().setDebugger(debugger);
-
-    }
-
     @Test(description = "Test serializing any ArrayList")
     public void testObjectSerializationToJson() {
         JsonSerializer jsonSerializer = new JsonSerializer();
@@ -66,9 +50,9 @@ public class JsonSerializerTest {
         Assert.assertTrue(numJson.contains("3, 3, 3, 3, 3"));
     }
 
-    @Test(description = "Test deserialization of BRefValueArray")
+    @Test(description = "Test deserialization of BValueArray")
     public void testJsonDeserializeBRefValueArrayReconstruction() {
-        BRefValueArray array = new BRefValueArray(new BArrayType(BTypes.typeAny));
+        BValueArray array = new BValueArray(new BArrayType(BTypes.typeAny));
         BString str1 = new BString(STRING_1);
         BString str2 = new BString(STRING_2);
         BInteger bint = new BInteger(4343);
@@ -78,20 +62,20 @@ public class JsonSerializerTest {
         array.append(bint);
 
         String serialize = new JsonSerializer().serialize(array);
-        BRefValueArray deArray = new JsonSerializer().deserialize(serialize, BRefValueArray.class);
+        BValueArray deArray = new JsonSerializer().deserialize(serialize, BValueArray.class);
 
-        BString string1 = (BString) deArray.get(0);
+        BString string1 = (BString) deArray.getRefValue(0);
         Assert.assertEquals(string1.value(), STRING_1);
         // reference sharing test
-        Assert.assertSame(deArray.get(0), deArray.get(2));
+        Assert.assertSame(deArray.getRefValue(0), deArray.getRefValue(2));
 
-        Assert.assertEquals(4343, ((BInteger) deArray.get(3)).intValue());
+        Assert.assertEquals(4343, ((BInteger) deArray.getRefValue(3)).intValue());
     }
 
     @SuppressWarnings("unchecked")
-    @Test(description = "Test deserialization of BRefValueArray when elements are maps")
+    @Test(description = "Test deserialization of BValueArray when elements are maps")
     public void testJsonDeserializeBRefValueArrayReconstructionWithMapElements() {
-        BRefValueArray array = new BRefValueArray(new BArrayType(BTypes.typeMap));
+        BValueArray array = new BValueArray(new BArrayType(BTypes.typeMap));
         BString str1 = new BString(STRING_1);
         BString str2 = new BString(STRING_2);
         BMap<String, BString> map1 = new BMap<>();
@@ -107,13 +91,13 @@ public class JsonSerializerTest {
         array.append(map3);
 
         String serialize = new JsonSerializer().serialize(array);
-        BRefValueArray deArray = new JsonSerializer().deserialize(serialize, BRefValueArray.class);
+        BValueArray deArray = new JsonSerializer().deserialize(serialize, BValueArray.class);
 
-        BMap map = (BMap) deArray.get(0);
+        BMap map = (BMap) deArray.getRefValue(0);
         Assert.assertEquals(((BString) map.get("A")).value(), STRING_1);
         // reference sharing test
         //noinspection SimplifiedTestNGAssertion
-        Assert.assertTrue(deArray.get(2) == deArray.get(3));
+        Assert.assertTrue(deArray.getRefValue(2) == deArray.getRefValue(3));
     }
 
     @Test(description = "Test deserialization of StringFieldA[]")

@@ -21,6 +21,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.completion.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.Position;
@@ -42,6 +43,8 @@ public class ReferencesTest {
     private Path balPath1 = FileUtils.RES_DIR.resolve("references").resolve("project").resolve("references1.bal");
     private Path balPath2 = FileUtils.RES_DIR.resolve("references").resolve("project").resolve("pkg1")
             .resolve("references2.bal");
+    private Path balPath3 = FileUtils.RES_DIR.resolve("references").resolve("project").resolve("pkg1").resolve("tests")
+            .resolve("test1.bal");
     private Endpoint serviceEndpoint;
 
     @BeforeClass
@@ -51,52 +54,15 @@ public class ReferencesTest {
         TestUtil.openDocument(serviceEndpoint, balPath2);
     }
 
-    @Test(description = "Test references for function in the same file",
-            dataProvider = "referencesForFunctionInSameFile")
-    public void referencesForFunctionInSameFile(ReferencesTestDTO referencesTestDTO, Position position)
-            throws InterruptedException, IOException {
+    @Test(description = "Test Find references", dataProvider = "referencesDataProvider")
+    public void testReferences(ReferencesTestDTO referencesTestDTO, Position position) throws IOException {
         String expected = getExpectedValue(referencesTestDTO.getExpectedFileName());
         String actual = TestUtil.getReferencesResponse(referencesTestDTO.getBallerinaFilePath(), position,
                 serviceEndpoint);
-        Assert.assertEquals(actual, expected,
-                "Did not match the definition content for " + referencesTestDTO.getExpectedFileName()
-                        + " and position line:" + position.getLine() + " character:" + position.getCharacter());
-    }
-
-    @Test(description = "Test references for function in the same file",
-            dataProvider = "referencesForFunctionInDifferentPkg", enabled = false)
-    public void referencesForFunctionInDifferentPkg(ReferencesTestDTO referencesTestDTO, Position position)
-            throws InterruptedException, IOException {
-        String expected = getExpectedValue(referencesTestDTO.getExpectedFileName());
-        String actual = TestUtil.getReferencesResponse(referencesTestDTO.getBallerinaFilePath(), position,
-                serviceEndpoint);
-        Assert.assertEquals(actual, expected,
-                "Did not match the definition content for " + referencesTestDTO.getExpectedFileName()
-                        + " and position line:" + position.getLine() + " character:" + position.getCharacter());
-    }
-
-    @Test(description = "Test references for record in the same file",
-            dataProvider = "referencesForRecordInSameFile")
-    public void referencesForRecordInSameFile(ReferencesTestDTO referencesTestDTO, Position position)
-            throws InterruptedException, IOException {
-        String expected = getExpectedValue(referencesTestDTO.getExpectedFileName());
-        String actual = TestUtil.getReferencesResponse(referencesTestDTO.getBallerinaFilePath(), position,
-                serviceEndpoint);
-        Assert.assertEquals(actual, expected,
-                "Did not match the definition content for " + referencesTestDTO.getExpectedFileName()
-                        + " and position line:" + position.getLine() + " character:" + position.getCharacter());
-    }
-
-    @Test(description = "Test references for readonly var in the same file",
-            dataProvider = "referencesForReadOnlyVarInSameFile")
-    public void referencesForReadOnlyVarInSameFile(ReferencesTestDTO referencesTestDTO, Position position)
-            throws InterruptedException, IOException {
-        String expected = getExpectedValue(referencesTestDTO.getExpectedFileName());
-        String actual = TestUtil.getReferencesResponse(referencesTestDTO.getBallerinaFilePath(), position,
-                serviceEndpoint);
-        Assert.assertEquals(actual, expected,
-                "Did not match the definition content for " + referencesTestDTO.getExpectedFileName()
-                        + " and position line:" + position.getLine() + " character:" + position.getCharacter());
+        Assert.assertEquals(matchReferences(expected, actual), true, 
+                "Did not match the references content for " + referencesTestDTO.getExpectedFileName() 
+                        + " and position line:" + position.getLine() + " character:" + position.getCharacter()
+                        + "[expected: " + expected + "]" + CommonUtil.LINE_SEPARATOR + "[actual: " + actual + "]");
     }
 
     @AfterClass
@@ -107,34 +73,35 @@ public class ReferencesTest {
     }
 
     @DataProvider
-    public Object[][] referencesForFunctionInSameFile() throws IOException {
+    public Object[][] referencesDataProvider() throws IOException {
         return new Object[][]{
-                {new ReferencesTestDTO("functionReferencesInSameFile.json", balPath1), new Position(15, 12)}
-        };
-    }
-
-    @DataProvider
-    public Object[][] referencesForFunctionInDifferentPkg() throws IOException {
-        return new Object[][]{
-                {new ReferencesTestDTO("functionReferencesInDifferentPkg.json", balPath1), new Position(16, 33)}
-        };
-    }
-
-    @DataProvider
-    public Object[][] referencesForRecordInSameFile() throws IOException {
-        return new Object[][]{
+                {new ReferencesTestDTO("functionReferencesInSameFile.json", balPath1), new Position(15, 12)},
+                {new ReferencesTestDTO("functionReferencesInDifferentPkg.json", balPath1), new Position(16, 33)},
                 {new ReferencesTestDTO("recordReferencesInSameFile.json", balPath1), new Position(14, 33)},
                 {new ReferencesTestDTO("recordReferencesInSameFile.json", balPath1), new Position(18, 8)},
                 {new ReferencesTestDTO("recordVarReferencesInSameFile.json", balPath1), new Position(23, 26)},
-                {new ReferencesTestDTO("recordVarReferencesInSameFile.json", balPath1), new Position(24, 15)}
+                {new ReferencesTestDTO("recordVarReferencesInSameFile.json", balPath1), new Position(24, 15)},
+                {new ReferencesTestDTO("readOnlyVarInSameFile.json", balPath2), new Position(3, 15)},
+                {new ReferencesTestDTO("referencesInTests.json", balPath2), new Position(6, 22)}
         };
     }
 
-    @DataProvider
-    public Object[][] referencesForReadOnlyVarInSameFile() throws IOException {
-        return new Object[][]{
-                {new ReferencesTestDTO("readOnlyVarInSameFile.json", balPath2), new Position(3, 15)}
-        };
+    private boolean matchReferences(String expected, String actual) {
+        JsonParser parser = new JsonParser();
+        JsonArray expectedResult = parser.parse(expected).getAsJsonObject().get("result").getAsJsonArray();
+        JsonArray actualResult = parser.parse(actual).getAsJsonObject().get("result").getAsJsonArray();
+        
+        if (expectedResult.size() != actualResult.size()) {
+            return false;
+        }
+
+        for (int i = 0; i < expectedResult.size(); i++) {
+            if (!actualResult.contains(expectedResult.get(i))) {
+                return false;
+            }
+        }
+        
+        return true;
     }
 
     /**
@@ -148,6 +115,7 @@ public class ReferencesTest {
         byte[] expectedByte = Files.readAllBytes(expectedFilePath);
         String balPath1URI = balPath1.toUri().toString();
         String balPath2URI = balPath2.toUri().toString();
+        String balPath3URI = balPath3.toUri().toString();
         String expectedContent = new String(expectedByte);
         JsonParser parser = new JsonParser();
         JsonObject jsonObject = parser.parse(expectedContent).getAsJsonObject();
@@ -158,6 +126,8 @@ public class ReferencesTest {
             String uri = location.get("uri").toString();
             if (uri.contains("references1.bal")) {
                 location.addProperty("uri", balPath1URI);
+            } else if (uri.contains("test1.bal")) {
+                location.addProperty("uri", balPath3URI);
             } else {
                 location.addProperty("uri", balPath2URI);
             }

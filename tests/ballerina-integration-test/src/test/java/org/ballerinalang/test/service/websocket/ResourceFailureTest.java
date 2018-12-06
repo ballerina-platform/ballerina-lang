@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Test whether resource failure causes a close frame to be sent.
  */
-@Test(groups = "websocket-test")
+@Test(groups = {"websocket-test"})
 public class ResourceFailureTest extends WebSocketTestCommons {
 
     private WebSocketTestClient client;

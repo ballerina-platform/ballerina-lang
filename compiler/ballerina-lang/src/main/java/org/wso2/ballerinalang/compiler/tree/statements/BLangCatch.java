@@ -21,25 +21,27 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.CatchNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 
 /**
  * @since 0.94
+ *
+ * @deprecated since 0.983.0, use trap instead.
  */
 public class BLangCatch extends BLangNode implements CatchNode {
-    public BLangVariable param;
+    public BLangSimpleVariable param;
     public BLangBlockStmt body;
 
     public BLangCatch() {
     }
 
-    public BLangCatch(BLangVariable param, BLangBlockStmt body) {
+    public BLangCatch(BLangSimpleVariable param, BLangBlockStmt body) {
         this.param = param;
         this.body = body;
     }
 
     @Override
-    public BLangVariable getParameter() {
+    public BLangSimpleVariable getParameter() {
         return param;
     }
 

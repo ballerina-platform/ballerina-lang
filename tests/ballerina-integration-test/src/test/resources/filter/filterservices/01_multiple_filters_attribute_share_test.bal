@@ -22,7 +22,8 @@ import ballerina/log;
 FilterDto dto = { authenticated: true, username: "abcde" };
 
 public type Filter1 object {
-    public function filterRequest(http:Listener listener, http:Request request, http:FilterContext context) returns boolean {
+    public function filterRequest(http:Caller caller, http:Request request, http:FilterContext context)
+                        returns boolean {
         log:printInfo("Intercepting request for filter 1");
         context.attributes["attribute1"] = "attribute1";
         context.attributes["attribute2"] = dto;
@@ -34,17 +35,16 @@ public type Filter1 object {
     }
 };
 
-Filter1 filter1;
+Filter1 filter1 = new;
 
 // Filter2
 
 public type Filter2 object {
-    public function filterRequest(http:Listener listener, http:Request request, http:FilterContext context) returns boolean {
-        endpoint http:Listener caller = listener;
+    public function filterRequest(http:Caller caller, http:Request request, http:FilterContext context) returns boolean {
         log:printInfo("Intercepting request for filter 2");
         boolean status = true;
         if (context.attributes.hasKey("attribute1")){
-            if (context.attributes["attribute1"] == "attribute1"){
+            if (<string>context.attributes["attribute1"] == "attribute1"){
                 status = status && true;
             } else {
                 status = status && false;
@@ -53,7 +53,7 @@ public type Filter2 object {
             status = status && false;
         }
         if (context.attributes.hasKey("attribute2")){
-            FilterDto returnedDto = check <FilterDto>context.attributes["attribute2"];
+            FilterDto returnedDto = <FilterDto>context.attributes["attribute2"];
             if (returnedDto.authenticated == dto.authenticated && returnedDto.username == dto.username){
                 status = status && true;
             } else {
@@ -65,7 +65,7 @@ public type Filter2 object {
         if (status){
             return true;
         } else {
-            http:Response response;
+            http:Response response = new;
             response.statusCode = 401;
             response.setTextPayload("attribute missing in context");
             _ = caller->respond(response);
@@ -78,22 +78,19 @@ public type Filter2 object {
     }
 };
 
-Filter2 filter2;
+Filter2 filter2 = new;
 
-endpoint http:Listener echoEP {
-    port: 9090,
-    filters: [filter1, filter2]
-};
+listener http:Listener echoEP = new(9090, config = { filters: [filter1, filter2] });
 
 @http:ServiceConfig {
     basePath: "/echo"
 }
-service<http:Service> echo bind echoEP {
+service echo on echoEP {
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/test"
     }
-    echo(endpoint caller, http:Request req) {
+    resource function echo(http:Caller caller, http:Request req) {
         http:Response res = new;
         _ = caller->respond(res);
     }

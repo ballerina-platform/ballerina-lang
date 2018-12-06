@@ -58,59 +58,70 @@ export class BallerinaExtension {
         this.context = context;
     }
 
-    init(): void {
+    init(onBeforeInit: Function): Promise<any> {
         try {
             // Register pre init handlers.
             this.registerPreInitHandlers();
 
             // Check if ballerina home is set.
             if (this.hasBallerinaHomeSetting()) {
+                log("Ballerina home is configured in settings.");
                 this.ballerinaHome = this.getBallerinaHome();
                 // Lets check if ballerina home is valid.
                 if (!this.isValidBallerinaHome(this.ballerinaHome)) {
+                    log("Configured Ballerina home is not valid.");
                     // Ballerina home in setting is invalid show message and quit.
                     // Prompt to correct the home. // TODO add auto ditection.
                     this.showMessageInvalidBallerinaHome();
-                    return;
+                    return Promise.resolve();
                 }
             } else {
+                log("Auto detecting Ballerina home.");
                 // If ballerina home is not set try to auto ditect ballerina home.
                 // TODO If possible try to update the setting page.
                 this.ballerinaHome = this.autoDitectBallerinaHome();
                 if (!this.ballerinaHome) {
                     this.showMessageInstallBallerina();
-                    log("Unable to auto ditect ballerina home.");
-                    return;
+                    log("Unable to auto detect Ballerina home.");
+                    return Promise.resolve();
                 }
             }
-
+            log("Using " + this.ballerinaHome + " as the Ballerina home.");
             // Validate the ballerina version.
             const pluginVersion = this.extention.packageJSON.version.split('-')[0];
-            this.getBallerinaVersion(this.ballerinaHome).then(ballerinaVersion => {
+            return this.getBallerinaVersion(this.ballerinaHome).then(ballerinaVersion => {
                 ballerinaVersion = ballerinaVersion.split('-')[0];
                 this.checkCompatibleVersion(pluginVersion, ballerinaVersion);
-            });
+                // if Home is found load Language Server.
+                this.langClient = new ExtendedLangClient('ballerina-vscode', 'Ballerina LS Client',
+                    getServerOptions(this.getBallerinaHome(), this.isExperimental()), this.clientOptions, false);
 
-            // if Home is found load Language Server.
-            this.langClient = new ExtendedLangClient('ballerina-vscode', 'Ballerina LS Client',
-                getServerOptions(this.getBallerinaHome()), this.clientOptions, false);
-
-            // Following was put in to handle server startup failiers.
-            const disposeDidChange = this.langClient.onDidChangeState(stateChangeEvent => {
-                if (stateChangeEvent.newState === LS_STATE.Stopped) {
-                    this.showPluginActivationError();
+                // 0.983.0 and 0.982.0 versions are incable of handling client capabilies 
+                if (ballerinaVersion !== "0.983.0" && ballerinaVersion !== "0.982.0") {
+                    onBeforeInit(this.langClient);
                 }
+
+                // Following was put in to handle server startup failiers.
+                const disposeDidChange = this.langClient.onDidChangeState(stateChangeEvent => {
+                    if (stateChangeEvent.newState === LS_STATE.Stopped) {
+                        log("Couldn't establish language server connection.");
+                        this.showPluginActivationError();
+                    }
+                });
+
+                let disposable = this.langClient.start();
+
+                this.langClient.onReady().then(fullfilled => {
+                    disposeDidChange.dispose();
+                    this.context!.subscriptions.push(disposable);
+                });
             });
 
-            let disposable = this.langClient.start();
-
-            this.langClient.onReady().then(fullfilled => {
-                disposeDidChange.dispose();
-                this.context!.subscriptions.push(disposable);
-            });
-        } catch {
+        } catch (ex) {
+            log("Error while activating plugin: " + (ex.message ? ex.message : ex));
             // If any failure occurs while intializing show an error messege
             this.showPluginActivationError();
+            return Promise.resolve();
         }
     }
 
@@ -134,6 +145,7 @@ export class BallerinaExtension {
         // We need to restart VSCode if we change plugin configurations.
         workspace.onDidChangeConfiguration((params: ConfigurationChangeEvent) => {
             if (params.affectsConfiguration('ballerina.home') ||
+                params.affectsConfiguration('ballerina.allowExperimental') ||
                 params.affectsConfiguration('ballerina.debugLog')) {
                 this.showMsgAndRestart(CONFIG_CHANGED);
             }
@@ -162,7 +174,10 @@ export class BallerinaExtension {
     }
 
     checkCompatibleVersion(pluginVersion: string, ballerinaVersion: string): void {
-        const versionCheck = compareVersions(pluginVersion, ballerinaVersion);
+        const pluginVersionParts = pluginVersion.split(".");
+        pluginVersionParts[2] = "*"; // Match with any patch version
+        const pluginMinorVersion = pluginVersionParts.join(".");
+        const versionCheck = compareVersions(pluginMinorVersion, ballerinaVersion);
 
         if (versionCheck > 0) {
             // Plugin version is greater
@@ -249,7 +264,7 @@ export class BallerinaExtension {
 
 
     isValidBallerinaHome(homePath: string = this.ballerinaHome): boolean {
-        const ballerinaCmd = process.platform === 'win32' ? 'ballerina.bat' : 'ballerina'
+        const ballerinaCmd = process.platform === 'win32' ? 'ballerina.bat' : 'ballerina';
         if (fs.existsSync(path.join(homePath, 'bin', ballerinaCmd))) {
             return true;
         }
@@ -270,42 +285,62 @@ export class BallerinaExtension {
         }
     }
 
+    isExperimental(): boolean {
+        return <boolean>workspace.getConfiguration().get('ballerina.allowExperimental');
+    }
+
     autoDitectBallerinaHome(): string {
         // try to ditect the environment.
         const platform: string = process.platform;
-        let path = '';
+        let ballerinaPath = '';
         switch (platform) {
             case 'win32': // Windows
                 if (process.env.BALLERINA_HOME) {
                     return process.env.BALLERINA_HOME;
                 }
                 try {
-                    path = execSync('where ballerina').toString().trim();
+                    ballerinaPath = execSync('where ballerina').toString().trim();
                 } catch (error) {
-                    return path;
+                    return ballerinaPath;
                 }
-                if (path) {
-                    path = path.replace(/bin\\ballerina.bat$/, '');
+                if (ballerinaPath) {
+                    ballerinaPath = ballerinaPath.replace(/bin\\ballerina.bat$/, '');
                 }
                 break;
             case 'darwin': // Mac OS
+                try {
+                    const output = execSync('which ballerina');
+                    ballerinaPath = fs.realpathSync(output.toString().trim());
+                    // remove ballerina bin from ballerinaPath
+                    if (ballerinaPath) {
+                        ballerinaPath = ballerinaPath.replace(/bin\/ballerina$/, '');
+                        // For homebrew installations ballerina executables are in libexcec
+                        const homebrewBallerinaPath = path.join(ballerinaPath, 'libexec');
+                        if (fs.existsSync(homebrewBallerinaPath)) {
+                            ballerinaPath = homebrewBallerinaPath;
+                        }
+                    }
+                } catch {
+                    return ballerinaPath;
+                }
+                break;
             case 'linux': // Linux
                 // lets see where the ballerina command is.
                 try {
                     const output = execSync('which ballerina');
-                    path = fs.realpathSync(output.toString().trim());
+                    ballerinaPath = fs.realpathSync(output.toString().trim());
                     // remove ballerina bin from path
-                    if (path) {
-                        path = path.replace(/bin\/ballerina$/, '');
+                    if (ballerinaPath) {
+                        ballerinaPath = ballerinaPath.replace(/bin\/ballerina$/, '');
                     }
-                    break;
                 } catch {
-                    return path;
+                    return ballerinaPath;
                 }
+                break;
         }
 
         // If we cannot find ballerina home return empty.
-        return path;
+        return ballerinaPath;
     }
 
     private hasBallerinaHomeSetting(): boolean {

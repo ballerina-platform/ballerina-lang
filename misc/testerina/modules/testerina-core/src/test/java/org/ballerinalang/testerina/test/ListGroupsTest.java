@@ -43,7 +43,7 @@ public class ListGroupsTest {
         Path[] filePaths = {Paths.get("groups-test.bal")};
         BTestRunner testRunner = new BTestRunner();
         List<String> resultList = new ArrayList<>(Arrays.asList("g1", "g2", "g3", "g4", "g5"));
-        testRunner.listGroups(sourceRoot, filePaths);
+        testRunner.listGroups(sourceRoot, filePaths, true);
         List<String> groupList = testRunner.getGroupList();
         Assert.assertTrue(resultList.containsAll(groupList));
     }

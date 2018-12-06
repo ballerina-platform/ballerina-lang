@@ -23,6 +23,7 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.JsonParser;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BValue;
@@ -58,7 +59,7 @@ public class ReadJson implements NativeCallableUnit {
         try {
             json = JsonParser.parse(reader);
         } catch (BallerinaException e) {
-            BMap<String, BValue> errorStruct = IOUtils.createError(context, e.getMessage());
+            BError errorStruct = IOUtils.createError(context, IOConstants.IO_ERROR_CODE, e.getMessage());
             context.setReturnValues(errorStruct);
             callback.notifySuccess();
             return;

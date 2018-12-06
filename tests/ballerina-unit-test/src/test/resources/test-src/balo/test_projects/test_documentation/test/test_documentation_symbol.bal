@@ -26,6 +26,6 @@ public type Person object {
 
 # male implementation
 # + return - true allways
-function Person::isMale() returns boolean {
+function Person.isMale() returns boolean {
     return true;
 }

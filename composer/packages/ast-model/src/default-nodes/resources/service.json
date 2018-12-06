@@ -1,0 +1,1151 @@
+{
+  "ws": [
+    {
+      "ws": "\n\n",
+      "i": 17,
+      "text": "service",
+      "static": true
+    },
+    {
+      "ws": " ",
+      "i": 19,
+      "text": "serviceName",
+      "static": false
+    },
+    {
+      "ws": " ",
+      "i": 21,
+      "text": "on",
+      "static": true
+    }
+  ],
+  "position": {
+    "startColumn": 1,
+    "startLine": 7,
+    "endColumn": 2,
+    "endLine": 10
+  },
+  "id": "6865d220-f760-43fa-9bf3-ab5b6de53601",
+  "typeDefinition": {
+    "position": {
+      "startColumn": 1,
+      "startLine": 7,
+      "endColumn": 2,
+      "endLine": 10
+    },
+    "id": "36b4ab81-e4db-4487-8466-bbaf78b68cb2",
+    "name": {
+      "position": {
+        "startColumn": 1,
+        "startLine": 7,
+        "endColumn": 2,
+        "endLine": 10
+      },
+      "id": "8355d2e3-47eb-4e26-ae3e-94f6509283dd",
+      "literal": false,
+      "value": "serviceName$$service$0",
+      "kind": "Identifier",
+      "valueWithBar": "serviceName$$service$0"
+    },
+    "deprecatedAttachments": [],
+    "annotationAttachments": [],
+    "typeNode": {
+      "ws": [
+        {
+          "ws": " ",
+          "i": 32,
+          "text": "{",
+          "static": true
+        },
+        {
+          "ws": "\n",
+          "i": 60,
+          "text": "}",
+          "static": true
+        }
+      ],
+      "position": {
+        "startColumn": 48,
+        "startLine": 7,
+        "endColumn": 2,
+        "endLine": 10
+      },
+      "id": "641d52cc-8077-477e-a100-d94203b77c23",
+      "symbolType": [
+        "service"
+      ],
+      "functions": [
+        {
+          "ws": [
+            {
+              "ws": "\n    ",
+              "i": 35,
+              "text": "resource",
+              "static": true
+            },
+            {
+              "ws": " ",
+              "i": 37,
+              "text": "function",
+              "static": true
+            },
+            {
+              "ws": " ",
+              "i": 39,
+              "text": "newResource",
+              "static": false
+            },
+            {
+              "ws": "",
+              "i": 40,
+              "text": "(",
+              "static": true
+            },
+            {
+              "ws": "",
+              "i": 46,
+              "text": ",",
+              "static": true
+            },
+            {
+              "ws": "",
+              "i": 53,
+              "text": ")",
+              "static": true
+            },
+            {
+              "ws": " ",
+              "i": 55,
+              "text": "{",
+              "static": true
+            },
+            {
+              "ws": "\n    ",
+              "i": 58,
+              "text": "}",
+              "static": true
+            }
+          ],
+          "position": {
+            "startColumn": 5,
+            "startLine": 8,
+            "endColumn": 6,
+            "endLine": 9
+          },
+          "id": "22afae4d-90a7-4018-8dc7-25e89efa2898",
+          "VisibleEndpoints": [
+            {
+              "name": "caller",
+              "pkgOrgName": "$anon",
+              "pkgName": ".",
+              "pkgAlias": "http",
+              "caller": true,
+              "kind": "VisibleEndpoint",
+              "typeName": "Caller"
+            }
+          ],
+          "workers": [],
+          "returnTypeAnnotationAttachments": [],
+          "name": {
+            "position": {
+              "startColumn": 23,
+              "startLine": 8,
+              "endColumn": 34,
+              "endLine": 8
+            },
+            "id": "e0cfc996-1f48-471c-b027-0539a4d11eb9",
+            "literal": false,
+            "value": "newResource",
+            "kind": "Identifier",
+            "valueWithBar": "newResource"
+          },
+          "annotationAttachments": [],
+          "returnTypeNode": {
+            "position": {
+              "startColumn": 23,
+              "startLine": 8,
+              "endColumn": 76,
+              "endLine": 8
+            },
+            "id": "1a801c72-5d27-433e-b8ac-24ef4c54e40d",
+            "symbolType": [
+              "null"
+            ],
+            "typeKind": "nil",
+            "grouped": false,
+            "nullable": false,
+            "kind": "ValueType"
+          },
+          "receiver": {
+            "position": {
+              "startColumn": 1,
+              "startLine": 7,
+              "endColumn": 2,
+              "endLine": 10
+            },
+            "id": "e42b4045-66d8-4975-ae1c-cf82a3ba4aed",
+            "symbolType": [
+              "service"
+            ],
+            "name": {
+              "id": "f752328c-5d60-4c54-8416-6a6ea9ebb976",
+              "literal": false,
+              "value": "self",
+              "kind": "Identifier",
+              "valueWithBar": "self"
+            },
+            "deprecatedAttachments": [],
+            "annotationAttachments": [],
+            "kind": "Variable",
+            "public": false,
+            "private": false,
+            "remote": false,
+            "native": false,
+            "final": false,
+            "attached": false,
+            "lambda": false,
+            "worker": false,
+            "parallel": false,
+            "listener": false,
+            "deprecated": false,
+            "readonly": false,
+            "function_final": false,
+            "interface": false,
+            "required": false,
+            "record": false,
+            "compensate": false,
+            "abstract": false,
+            "optional": false,
+            "testable": false,
+            "client": false,
+            "resource": false,
+            "service": false,
+            "constant": false
+          },
+          "defaultableParameters": [],
+          "deprecatedAttachments": [],
+          "endpointNodes": [],
+          "body": {
+            "id": "503d45b9-3117-4a72-b844-0db0f92d318e",
+            "statements": [],
+            "kind": "Block"
+          },
+          "parameters": [
+            {
+              "ws": [
+                {
+                  "ws": " ",
+                  "i": 45,
+                  "text": "caller",
+                  "static": false
+                }
+              ],
+              "position": {
+                "startColumn": 35,
+                "startLine": 8,
+                "endColumn": 53,
+                "endLine": 8
+              },
+              "id": "6070a1fe-926e-4932-8b39-1b0dad0903ac",
+              "symbolType": [
+                "object"
+              ],
+              "name": {
+                "id": "bbbeeafd-9049-4d0f-834a-75a3a6e7dd91",
+                "literal": false,
+                "value": "caller",
+                "kind": "Identifier",
+                "valueWithBar": "caller"
+              },
+              "typeNode": {
+                "ws": [
+                  {
+                    "ws": "",
+                    "i": 41,
+                    "text": "http",
+                    "static": false
+                  },
+                  {
+                    "ws": "",
+                    "i": 42,
+                    "text": ":",
+                    "static": true
+                  },
+                  {
+                    "ws": "",
+                    "i": 43,
+                    "text": "Caller",
+                    "static": false
+                  }
+                ],
+                "position": {
+                  "startColumn": 35,
+                  "startLine": 8,
+                  "endColumn": 46,
+                  "endLine": 8
+                },
+                "id": "49576a8f-c0f4-46a7-bea0-69ab67166afa",
+                "symbolType": [
+                  "object"
+                ],
+                "packageAlias": {
+                  "id": "93b7d5d5-6c73-462d-820d-fe238c7648b4",
+                  "literal": false,
+                  "value": "http",
+                  "kind": "Identifier",
+                  "valueWithBar": "http"
+                },
+                "grouped": false,
+                "public": false,
+                "private": false,
+                "remote": false,
+                "native": false,
+                "final": false,
+                "attached": false,
+                "lambda": false,
+                "worker": false,
+                "parallel": false,
+                "listener": false,
+                "deprecated": false,
+                "readonly": false,
+                "function_final": false,
+                "interface": false,
+                "required": false,
+                "record": false,
+                "compensate": false,
+                "abstract": false,
+                "optional": false,
+                "testable": false,
+                "client": false,
+                "resource": false,
+                "service": false,
+                "constant": false,
+                "typeName": {
+                  "id": "c136c3d8-c329-44fa-8987-7893717997bc",
+                  "literal": false,
+                  "value": "Caller",
+                  "kind": "Identifier",
+                  "valueWithBar": "Caller"
+                },
+                "nullable": false,
+                "kind": "UserDefinedType"
+              },
+              "deprecatedAttachments": [],
+              "annotationAttachments": [],
+              "kind": "Variable",
+              "public": false,
+              "private": false,
+              "remote": false,
+              "native": false,
+              "final": false,
+              "attached": false,
+              "lambda": false,
+              "worker": false,
+              "parallel": false,
+              "listener": false,
+              "deprecated": false,
+              "readonly": false,
+              "function_final": false,
+              "interface": false,
+              "required": false,
+              "record": false,
+              "compensate": false,
+              "abstract": false,
+              "optional": false,
+              "testable": false,
+              "client": false,
+              "resource": false,
+              "service": false,
+              "constant": false
+            },
+            {
+              "ws": [
+                {
+                  "ws": " ",
+                  "i": 52,
+                  "text": "request",
+                  "static": false
+                }
+              ],
+              "position": {
+                "startColumn": 55,
+                "startLine": 8,
+                "endColumn": 75,
+                "endLine": 8
+              },
+              "id": "2b9abf94-1249-48b8-8bad-4b760326dbec",
+              "symbolType": [
+                "object"
+              ],
+              "name": {
+                "id": "d2ea824d-00e6-4f11-88d6-e2cc1898d21a",
+                "literal": false,
+                "value": "request",
+                "kind": "Identifier",
+                "valueWithBar": "request"
+              },
+              "typeNode": {
+                "ws": [
+                  {
+                    "ws": " ",
+                    "i": 48,
+                    "text": "http",
+                    "static": false
+                  },
+                  {
+                    "ws": "",
+                    "i": 49,
+                    "text": ":",
+                    "static": true
+                  },
+                  {
+                    "ws": "",
+                    "i": 50,
+                    "text": "Request",
+                    "static": false
+                  }
+                ],
+                "position": {
+                  "startColumn": 55,
+                  "startLine": 8,
+                  "endColumn": 67,
+                  "endLine": 8
+                },
+                "id": "e759f81d-7c45-4cf1-b138-9d2c3051e19b",
+                "symbolType": [
+                  "object"
+                ],
+                "packageAlias": {
+                  "id": "654b6e08-3698-4360-82fd-dc70d7cb4a13",
+                  "literal": false,
+                  "value": "http",
+                  "kind": "Identifier",
+                  "valueWithBar": "http"
+                },
+                "grouped": false,
+                "public": false,
+                "private": false,
+                "remote": false,
+                "native": false,
+                "final": false,
+                "attached": false,
+                "lambda": false,
+                "worker": false,
+                "parallel": false,
+                "listener": false,
+                "deprecated": false,
+                "readonly": false,
+                "function_final": false,
+                "interface": false,
+                "required": false,
+                "record": false,
+                "compensate": false,
+                "abstract": false,
+                "optional": false,
+                "testable": false,
+                "client": false,
+                "resource": false,
+                "service": false,
+                "constant": false,
+                "typeName": {
+                  "id": "5fdcb0c1-e23b-4fac-9076-ac959ebbf60d",
+                  "literal": false,
+                  "value": "Request",
+                  "kind": "Identifier",
+                  "valueWithBar": "Request"
+                },
+                "nullable": false,
+                "kind": "UserDefinedType"
+              },
+              "deprecatedAttachments": [],
+              "annotationAttachments": [],
+              "kind": "Variable",
+              "public": false,
+              "private": false,
+              "remote": false,
+              "native": false,
+              "final": false,
+              "attached": false,
+              "lambda": false,
+              "worker": false,
+              "parallel": false,
+              "listener": false,
+              "deprecated": false,
+              "readonly": false,
+              "function_final": false,
+              "interface": false,
+              "required": false,
+              "record": false,
+              "compensate": false,
+              "abstract": false,
+              "optional": false,
+              "testable": false,
+              "client": false,
+              "resource": false,
+              "service": false,
+              "constant": false
+            }
+          ],
+          "kind": "Function",
+          "public": false,
+          "private": false,
+          "remote": false,
+          "native": false,
+          "final": false,
+          "attached": true,
+          "lambda": false,
+          "worker": false,
+          "parallel": false,
+          "listener": false,
+          "deprecated": false,
+          "readonly": false,
+          "function_final": false,
+          "interface": false,
+          "required": false,
+          "record": false,
+          "compensate": false,
+          "abstract": false,
+          "optional": false,
+          "testable": false,
+          "client": false,
+          "resource": true,
+          "service": false,
+          "constant": false,
+          "noVisibleReceiver": true,
+          "skip": true
+        }
+      ],
+      "fields": [],
+      "grouped": false,
+      "nullable": false,
+      "kind": "ObjectType",
+      "typeReferences": []
+    },
+    "kind": "TypeDefinition",
+    "public": false,
+    "private": false,
+    "remote": false,
+    "native": false,
+    "final": false,
+    "attached": false,
+    "lambda": false,
+    "worker": false,
+    "parallel": false,
+    "listener": false,
+    "deprecated": false,
+    "readonly": false,
+    "function_final": false,
+    "interface": false,
+    "required": false,
+    "record": false,
+    "compensate": false,
+    "abstract": false,
+    "optional": false,
+    "testable": false,
+    "client": false,
+    "resource": false,
+    "service": true,
+    "constant": false,
+    "notVisible": true,
+    "isObjectType": true
+  },
+  "anonymousService": false,
+  "resources": [
+    {
+      "ws": [
+        {
+          "ws": "\n    ",
+          "i": 35,
+          "text": "resource",
+          "static": true
+        },
+        {
+          "ws": " ",
+          "i": 37,
+          "text": "function",
+          "static": true
+        },
+        {
+          "ws": " ",
+          "i": 39,
+          "text": "newResource",
+          "static": false
+        },
+        {
+          "ws": "",
+          "i": 40,
+          "text": "(",
+          "static": true
+        },
+        {
+          "ws": "",
+          "i": 46,
+          "text": ",",
+          "static": true
+        },
+        {
+          "ws": "",
+          "i": 53,
+          "text": ")",
+          "static": true
+        },
+        {
+          "ws": " ",
+          "i": 55,
+          "text": "{",
+          "static": true
+        },
+        {
+          "ws": "\n    ",
+          "i": 58,
+          "text": "}",
+          "static": true
+        }
+      ],
+      "position": {
+        "startColumn": 5,
+        "startLine": 8,
+        "endColumn": 6,
+        "endLine": 9
+      },
+      "id": "845a7951-90c3-4a0f-8759-e88f22df9839",
+      "VisibleEndpoints": [
+        {
+          "name": "caller",
+          "pkgOrgName": "$anon",
+          "pkgName": ".",
+          "pkgAlias": "http",
+          "caller": true,
+          "kind": "VisibleEndpoint",
+          "typeName": "Caller"
+        }
+      ],
+      "workers": [],
+      "returnTypeAnnotationAttachments": [],
+      "name": {
+        "position": {
+          "startColumn": 23,
+          "startLine": 8,
+          "endColumn": 34,
+          "endLine": 8
+        },
+        "id": "cc5d19ce-fd95-408f-ba24-8b4b48bf7316",
+        "literal": false,
+        "value": "newResource",
+        "kind": "Identifier",
+        "valueWithBar": "newResource"
+      },
+      "annotationAttachments": [],
+      "returnTypeNode": {
+        "position": {
+          "startColumn": 23,
+          "startLine": 8,
+          "endColumn": 76,
+          "endLine": 8
+        },
+        "id": "01541b6a-8388-4c20-996e-368bf73b644c",
+        "symbolType": [
+          "null"
+        ],
+        "typeKind": "nil",
+        "grouped": false,
+        "nullable": false,
+        "kind": "ValueType"
+      },
+      "receiver": {
+        "position": {
+          "startColumn": 1,
+          "startLine": 7,
+          "endColumn": 2,
+          "endLine": 10
+        },
+        "id": "ab608910-3623-4565-ab9d-9a3f5bbacff8",
+        "symbolType": [
+          "service"
+        ],
+        "name": {
+          "id": "15938ab2-d5d2-4fd7-bbd0-327538e34d20",
+          "literal": false,
+          "value": "self",
+          "kind": "Identifier",
+          "valueWithBar": "self"
+        },
+        "deprecatedAttachments": [],
+        "annotationAttachments": [],
+        "kind": "Variable",
+        "public": false,
+        "private": false,
+        "remote": false,
+        "native": false,
+        "final": false,
+        "attached": false,
+        "lambda": false,
+        "worker": false,
+        "parallel": false,
+        "listener": false,
+        "deprecated": false,
+        "readonly": false,
+        "function_final": false,
+        "interface": false,
+        "required": false,
+        "record": false,
+        "compensate": false,
+        "abstract": false,
+        "optional": false,
+        "testable": false,
+        "client": false,
+        "resource": false,
+        "service": false,
+        "constant": false
+      },
+      "defaultableParameters": [],
+      "deprecatedAttachments": [],
+      "endpointNodes": [],
+      "body": {
+        "id": "e09298f2-1ace-463c-99be-553fc8dd820b",
+        "statements": [],
+        "kind": "Block"
+      },
+      "parameters": [
+        {
+          "ws": [
+            {
+              "ws": " ",
+              "i": 45,
+              "text": "caller",
+              "static": false
+            }
+          ],
+          "position": {
+            "startColumn": 35,
+            "startLine": 8,
+            "endColumn": 53,
+            "endLine": 8
+          },
+          "id": "ddfc1e6e-7871-4c76-8d34-fc9fbc225496",
+          "symbolType": [
+            "object"
+          ],
+          "name": {
+            "id": "30bac343-c826-4226-81bf-a4029ff652bf",
+            "literal": false,
+            "value": "caller",
+            "kind": "Identifier",
+            "valueWithBar": "caller"
+          },
+          "typeNode": {
+            "ws": [
+              {
+                "ws": "",
+                "i": 41,
+                "text": "http",
+                "static": false
+              },
+              {
+                "ws": "",
+                "i": 42,
+                "text": ":",
+                "static": true
+              },
+              {
+                "ws": "",
+                "i": 43,
+                "text": "Caller",
+                "static": false
+              }
+            ],
+            "position": {
+              "startColumn": 35,
+              "startLine": 8,
+              "endColumn": 46,
+              "endLine": 8
+            },
+            "id": "36af8bb8-13d4-4cf4-852a-32b58286ad88",
+            "symbolType": [
+              "object"
+            ],
+            "packageAlias": {
+              "id": "f073d7fc-b881-4131-8e1c-6b46989adf47",
+              "literal": false,
+              "value": "http",
+              "kind": "Identifier",
+              "valueWithBar": "http"
+            },
+            "grouped": false,
+            "public": false,
+            "private": false,
+            "remote": false,
+            "native": false,
+            "final": false,
+            "attached": false,
+            "lambda": false,
+            "worker": false,
+            "parallel": false,
+            "listener": false,
+            "deprecated": false,
+            "readonly": false,
+            "function_final": false,
+            "interface": false,
+            "required": false,
+            "record": false,
+            "compensate": false,
+            "abstract": false,
+            "optional": false,
+            "testable": false,
+            "client": false,
+            "resource": false,
+            "service": false,
+            "constant": false,
+            "typeName": {
+              "id": "ca73171e-7d0a-4a03-a36c-1cc296e7c8e0",
+              "literal": false,
+              "value": "Caller",
+              "kind": "Identifier",
+              "valueWithBar": "Caller"
+            },
+            "nullable": false,
+            "kind": "UserDefinedType"
+          },
+          "deprecatedAttachments": [],
+          "annotationAttachments": [],
+          "kind": "Variable",
+          "public": false,
+          "private": false,
+          "remote": false,
+          "native": false,
+          "final": false,
+          "attached": false,
+          "lambda": false,
+          "worker": false,
+          "parallel": false,
+          "listener": false,
+          "deprecated": false,
+          "readonly": false,
+          "function_final": false,
+          "interface": false,
+          "required": false,
+          "record": false,
+          "compensate": false,
+          "abstract": false,
+          "optional": false,
+          "testable": false,
+          "client": false,
+          "resource": false,
+          "service": false,
+          "constant": false
+        },
+        {
+          "ws": [
+            {
+              "ws": " ",
+              "i": 52,
+              "text": "request",
+              "static": false
+            }
+          ],
+          "position": {
+            "startColumn": 55,
+            "startLine": 8,
+            "endColumn": 75,
+            "endLine": 8
+          },
+          "id": "b19304e7-e112-49aa-88e8-ffea9319a35f",
+          "symbolType": [
+            "object"
+          ],
+          "name": {
+            "id": "420616fb-92c5-446f-814b-0eb95e7b99ca",
+            "literal": false,
+            "value": "request",
+            "kind": "Identifier",
+            "valueWithBar": "request"
+          },
+          "typeNode": {
+            "ws": [
+              {
+                "ws": " ",
+                "i": 48,
+                "text": "http",
+                "static": false
+              },
+              {
+                "ws": "",
+                "i": 49,
+                "text": ":",
+                "static": true
+              },
+              {
+                "ws": "",
+                "i": 50,
+                "text": "Request",
+                "static": false
+              }
+            ],
+            "position": {
+              "startColumn": 55,
+              "startLine": 8,
+              "endColumn": 67,
+              "endLine": 8
+            },
+            "id": "7f3953ce-311c-44a5-b2b7-cdb0556df54a",
+            "symbolType": [
+              "object"
+            ],
+            "packageAlias": {
+              "id": "1ad0b162-4ed5-4e82-95cf-cebde51205e2",
+              "literal": false,
+              "value": "http",
+              "kind": "Identifier",
+              "valueWithBar": "http"
+            },
+            "grouped": false,
+            "public": false,
+            "private": false,
+            "remote": false,
+            "native": false,
+            "final": false,
+            "attached": false,
+            "lambda": false,
+            "worker": false,
+            "parallel": false,
+            "listener": false,
+            "deprecated": false,
+            "readonly": false,
+            "function_final": false,
+            "interface": false,
+            "required": false,
+            "record": false,
+            "compensate": false,
+            "abstract": false,
+            "optional": false,
+            "testable": false,
+            "client": false,
+            "resource": false,
+            "service": false,
+            "constant": false,
+            "typeName": {
+              "id": "a0136826-3d18-430d-bba9-d1df92d021c0",
+              "literal": false,
+              "value": "Request",
+              "kind": "Identifier",
+              "valueWithBar": "Request"
+            },
+            "nullable": false,
+            "kind": "UserDefinedType"
+          },
+          "deprecatedAttachments": [],
+          "annotationAttachments": [],
+          "kind": "Variable",
+          "public": false,
+          "private": false,
+          "remote": false,
+          "native": false,
+          "final": false,
+          "attached": false,
+          "lambda": false,
+          "worker": false,
+          "parallel": false,
+          "listener": false,
+          "deprecated": false,
+          "readonly": false,
+          "function_final": false,
+          "interface": false,
+          "required": false,
+          "record": false,
+          "compensate": false,
+          "abstract": false,
+          "optional": false,
+          "testable": false,
+          "client": false,
+          "resource": false,
+          "service": false,
+          "constant": false
+        }
+      ],
+      "kind": "Function",
+      "public": false,
+      "private": false,
+      "remote": false,
+      "native": false,
+      "final": false,
+      "attached": true,
+      "lambda": false,
+      "worker": false,
+      "parallel": false,
+      "listener": false,
+      "deprecated": false,
+      "readonly": false,
+      "function_final": false,
+      "interface": false,
+      "required": false,
+      "record": false,
+      "compensate": false,
+      "abstract": false,
+      "optional": false,
+      "testable": false,
+      "client": false,
+      "resource": true,
+      "service": false,
+      "constant": false,
+      "noVisibleReceiver": true
+    }
+  ],
+  "deprecatedAttachments": [],
+  "annotationAttachments": [],
+  "name": {
+    "position": {
+      "startColumn": 9,
+      "startLine": 7,
+      "endColumn": 20,
+      "endLine": 7
+    },
+    "id": "ca08c564-77b3-40df-90ab-853dae3517c1",
+    "literal": false,
+    "value": "serviceName",
+    "kind": "Identifier",
+    "valueWithBar": "serviceName"
+  },
+  "attachedExprs": [
+    {
+      "ws": [
+        {
+          "ws": " ",
+          "i": 23,
+          "text": "new",
+          "static": true
+        },
+        {
+          "ws": "",
+          "i": 28,
+          "text": "(",
+          "static": true
+        },
+        {
+          "ws": "",
+          "i": 30,
+          "text": ")",
+          "static": true
+        }
+      ],
+      "position": {
+        "startColumn": 24,
+        "startLine": 7,
+        "endColumn": 47,
+        "endLine": 7
+      },
+      "id": "a6222a97-48ad-43b3-9136-314639ac088c",
+      "symbolType": [
+        "object"
+      ],
+      "expressions": [
+        {
+          "ws": [
+            {
+              "ws": "",
+              "i": 29,
+              "text": "8080",
+              "static": false
+            }
+          ],
+          "position": {
+            "startColumn": 42,
+            "startLine": 7,
+            "endColumn": 46,
+            "endLine": 7
+          },
+          "id": "323a40a6-6616-47c2-941f-aa7b21e36c19",
+          "symbolType": [
+            "int"
+          ],
+          "value": "8080",
+          "originalValue": "8080",
+          "kind": "Literal"
+        }
+      ],
+      "type": {
+        "ws": [
+          {
+            "ws": " ",
+            "i": 25,
+            "text": "http",
+            "static": false
+          },
+          {
+            "ws": "",
+            "i": 26,
+            "text": ":",
+            "static": true
+          },
+          {
+            "ws": "",
+            "i": 27,
+            "text": "Listener",
+            "static": false
+          }
+        ],
+        "position": {
+          "startColumn": 28,
+          "startLine": 7,
+          "endColumn": 41,
+          "endLine": 7
+        },
+        "id": "72b2bbe5-7bca-427c-ac5f-263b1da49a00",
+        "symbolType": [
+          "object"
+        ],
+        "packageAlias": {
+          "id": "9b90f3fb-7a78-4275-b659-13ac91d30b71",
+          "literal": false,
+          "value": "http",
+          "kind": "Identifier",
+          "valueWithBar": "http"
+        },
+        "grouped": false,
+        "public": false,
+        "private": false,
+        "remote": false,
+        "native": false,
+        "final": false,
+        "attached": false,
+        "lambda": false,
+        "worker": false,
+        "parallel": false,
+        "listener": false,
+        "deprecated": false,
+        "readonly": false,
+        "function_final": false,
+        "interface": false,
+        "required": false,
+        "record": false,
+        "compensate": false,
+        "abstract": false,
+        "optional": false,
+        "testable": false,
+        "client": false,
+        "resource": false,
+        "service": false,
+        "constant": false,
+        "typeName": {
+          "id": "42ac233f-a169-4928-b785-ea5bd0802af9",
+          "literal": false,
+          "value": "Listener",
+          "kind": "Identifier",
+          "valueWithBar": "Listener"
+        },
+        "nullable": false,
+        "kind": "UserDefinedType"
+      },
+      "kind": "TypeInitExpr",
+      "hasParantheses": true,
+      "typeName": {
+        "id": "42ac233f-a169-4928-b785-ea5bd0802af9",
+        "literal": false,
+        "value": "Listener",
+        "kind": "Identifier",
+        "valueWithBar": "Listener"
+      }
+    }
+  ],
+  "kind": "Service",
+  "isServiceTypeUnavailable": true
+}

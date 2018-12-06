@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.util.cli;
 
-import org.ballerinalang.bre.bvm.CPU;
+import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BStructureType;
@@ -30,20 +30,17 @@ import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BByte;
-import org.ballerinalang.model.values.BByteArray;
+import org.ballerinalang.model.values.BDecimal;
+import org.ballerinalang.model.values.BDecimalArray;
 import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BFloatArray;
-import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.codegen.DefaultValue;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.LocalVariableInfo;
@@ -54,6 +51,8 @@ import org.ballerinalang.util.codegen.attributes.TaintTableAttributeInfo;
 import org.ballerinalang.util.exceptions.BLangUsageException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -228,6 +227,8 @@ public class ArgumentParser {
                 return new BString(value.getStringValue());
             case TypeTags.FLOAT_TAG:
                 return new BFloat(value.getFloatValue());
+            case TypeTags.DECIMAL_TAG:
+                return new BDecimal(value.getDecimalValue());
             case TypeTags.BOOLEAN_TAG:
                 return new BBoolean(value.getBooleanValue());
             case TypeTags.BYTE_TAG:
@@ -246,6 +247,8 @@ public class ArgumentParser {
                 return new BInteger(getIntegerValue(value));
             case TypeTags.FLOAT_TAG:
                 return new BFloat(getFloatValue(value));
+            case TypeTags.DECIMAL_TAG:
+                return new BDecimal(getDecimalValue(value));
             case TypeTags.BOOLEAN_TAG:
                 return new BBoolean(getBooleanValue(value));
             case TypeTags.BYTE_TAG:
@@ -324,6 +327,14 @@ public class ArgumentParser {
         }
     }
 
+    private static BigDecimal getDecimalValue(String argument) {
+        try {
+            return new BigDecimal(argument, MathContext.DECIMAL128);
+        } catch (NumberFormatException e) {
+            throw new BLangUsageException("invalid argument '" + argument + "', expected decimal value");
+        }
+    }
+
     private static boolean getBooleanValue(String argument) {
         if (!TRUE.equalsIgnoreCase(argument) && !FALSE.equalsIgnoreCase(argument)) {
             throw new BLangUsageException("invalid argument '" + argument + "', expected boolean value 'true' or "
@@ -339,7 +350,7 @@ public class ArgumentParser {
         } catch (NumberFormatException e) {
             throw new BLangUsageException("invalid argument '" + argument + "', expected byte value");
         }
-        if (!CPU.isByteLiteral(longValue)) {
+        if (!BVM.isByteLiteral(longValue)) {
             throw new BLangUsageException("invalid argument '" + argument + "', expected byte value, found int");
         }
         return (byte) longValue;
@@ -351,37 +362,43 @@ public class ArgumentParser {
             switch (elementType.getTag()) {
                 case TypeTags.ANY_TAG:
                 case TypeTags.STRING_TAG:
-                    BStringArray stringArrayArgs = new BStringArray();
+                    BValueArray stringArrayArgs = new BValueArray(BTypes.typeString);
                     for (int i = index; i < args.length; i++) {
                         stringArrayArgs.add(i - index, args[i]);
                     }
                     return stringArrayArgs;
                 case TypeTags.INT_TAG:
-                    BIntArray intArrayArgs = new BIntArray();
+                    BValueArray intArrayArgs = new BValueArray(BTypes.typeInt);
                     for (int i = index; i < args.length; i++) {
                         intArrayArgs.add(i - index, getIntegerValue(args[i]));
                     }
                     return intArrayArgs;
                 case TypeTags.FLOAT_TAG:
-                    BFloatArray floatArrayArgs = new BFloatArray();
+                    BValueArray floatArrayArgs = new BValueArray(BTypes.typeFloat);
                     for (int i = index; i < args.length; i++) {
                         floatArrayArgs.add(i - index, getFloatValue(args[i]));
                     }
                     return floatArrayArgs;
+                case TypeTags.DECIMAL_TAG:
+                    BDecimalArray decimalArrayArgs = new BDecimalArray();
+                    for (int i = index; i < args.length; i++) {
+                        decimalArrayArgs.add(i - index, getDecimalValue(args[i]));
+                    }
+                    return decimalArrayArgs;
                 case TypeTags.BOOLEAN_TAG:
-                    BBooleanArray booleanArrayArgs = new BBooleanArray();
+                    BValueArray booleanArrayArgs = new BValueArray(BTypes.typeBoolean);
                     for (int i = index; i < args.length; i++) {
                         booleanArrayArgs.add(i - index, getBooleanValue(args[i]) ? 1 : 0);
                     }
                     return booleanArrayArgs;
                 case TypeTags.BYTE_TAG:
-                    BByteArray byteArrayArgs = new BByteArray();
+                    BValueArray byteArrayArgs = new BValueArray(BTypes.typeByte);
                     for (int i = index; i < args.length; i++) {
                         byteArrayArgs.add(i - index, getByteValue(args[i]));
                     }
                     return byteArrayArgs;
                 default:
-                    BRefValueArray refValueArray = new BRefValueArray();
+                    BValueArray refValueArray = new BValueArray();
                     for (int i = index; i < args.length; i++) {
                         refValueArray.add(i - index, (BRefType<?>) getBValue(elementType, args[i]));
                     }
@@ -395,7 +412,7 @@ public class ArgumentParser {
         }
     }
 
-    private static BRefValueArray parseTupleArg(BTupleType type, String tupleArg) {
+    private static BValueArray parseTupleArg(BTupleType type, String tupleArg) {
         String stringSpecificationErrorSuffix = "', expected argument in the format \\\"str\\\" for tuple element of "
                 + "type 'string'";
         String[] tupleElements = tupleArg.split(COMMA);
@@ -405,7 +422,7 @@ public class ArgumentParser {
                                                   + "type: '" + type + "'");
         }
 
-        BRefValueArray tupleValues = new BRefValueArray(type);
+        BValueArray tupleValues = new BValueArray(type);
         int index = 0;
         for (BType elementType : type.getTupleTypes()) {
             String tupleElement = tupleElements[index].trim();

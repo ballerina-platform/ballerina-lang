@@ -93,9 +93,9 @@ public class Decompress extends BlockingNativeCallableUnit {
                     "Path to place the decompressed file is not available: " + destPath));
         } else {
             decompress(srcPath, destPath, context);
-            if (context.getReturnValues() == null) {
-                context.setReturnValues();
-            }
+//            if (context.getReturnValues() == null) {
+//                context.setReturnValues();
+//            }
         }
     }
 }

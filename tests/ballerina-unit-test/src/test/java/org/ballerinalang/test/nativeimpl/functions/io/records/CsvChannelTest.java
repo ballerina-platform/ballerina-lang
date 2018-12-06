@@ -23,11 +23,12 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -64,7 +65,7 @@ public class CsvChannelTest {
     @Test(description = "Test 'readDefaultCSVRecords'")
     public void readCsvTest() throws URISyntaxException {
         String resourceToRead = "datafiles/io/records/sample.csv";
-        BStringArray records;
+        BValueArray records;
         BBoolean hasNextRecord;
         int expectedRecordLength = 3;
 
@@ -74,27 +75,27 @@ public class CsvChannelTest {
         BRunUtil.invokeStateful(csvInputOutputProgramFile, "initReadableCsvChannel", args);
 
         BValue[] returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
-        records = (BStringArray) returns[0];
+        records = (BValueArray) returns[0];
         Assert.assertEquals(records.size(), expectedRecordLength);
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];
         Assert.assertTrue(hasNextRecord.booleanValue(), "Expecting more records");
 
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
-        records = (BStringArray) returns[0];
+        records = (BValueArray) returns[0];
         Assert.assertEquals(records.size(), expectedRecordLength);
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];
         Assert.assertTrue(hasNextRecord.booleanValue(), "Expecting more records");
 
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
-        records = (BStringArray) returns[0];
+        records = (BValueArray) returns[0];
 
         Assert.assertEquals(records.size(), expectedRecordLength);
 
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
-        BMap error = (BMap) returns[0];
-        Assert.assertTrue(IOConstants.IO_EOF.equals(error.getMap().get("message").toString()));
+        BMap error = (BMap) ((BError) returns[0]).getDetails();
+        Assert.assertEquals(IOConstants.IO_EOF, error.getMap().get("message").toString());
 
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];
@@ -106,7 +107,7 @@ public class CsvChannelTest {
     @Test(description = "Test 'readDefaultCSVRecords'")
     public void openAndReadCsvTest() throws URISyntaxException {
         String resourceToRead = "datafiles/io/records/sample.csv";
-        BStringArray records;
+        BValueArray records;
         BBoolean hasNextRecord;
         int expectedRecordLength = 3;
 
@@ -116,27 +117,27 @@ public class CsvChannelTest {
         BRunUtil.invokeStateful(csvInputOutputProgramFile, "initOpenCsvChannel", args);
 
         BValue[] returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
-        records = (BStringArray) returns[0];
+        records = (BValueArray) returns[0];
         Assert.assertEquals(records.size(), expectedRecordLength);
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];
         Assert.assertTrue(hasNextRecord.booleanValue(), "Expecting more records");
 
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
-        records = (BStringArray) returns[0];
+        records = (BValueArray) returns[0];
         Assert.assertEquals(records.size(), expectedRecordLength);
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];
         Assert.assertTrue(hasNextRecord.booleanValue(), "Expecting more records");
 
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
-        records = (BStringArray) returns[0];
+        records = (BValueArray) returns[0];
 
         Assert.assertEquals(records.size(), expectedRecordLength);
 
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
-        BMap error = (BMap) returns[0];
-        Assert.assertTrue(IOConstants.IO_EOF.equals(error.getMap().get("message").toString()));
+        BMap error = (BMap) ((BError) returns[0]).getDetails();
+        Assert.assertEquals(IOConstants.IO_EOF, error.getMap().get("message").toString());
 
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];
@@ -148,7 +149,7 @@ public class CsvChannelTest {
     @Test(description = "Test 'readColonDelimitedRecords'")
     public void openAndReadColonDelimitedFileTest() throws URISyntaxException {
         String resourceToRead = "datafiles/io/records/sampleWithColon.txt";
-        BStringArray records;
+        BValueArray records;
         BBoolean hasNextRecord;
         int expectedRecordLength = 3;
 
@@ -158,26 +159,26 @@ public class CsvChannelTest {
         BRunUtil.invokeStateful(csvInputOutputProgramFile, "initOpenCsvChannel", args);
 
         BValue[] returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
-        records = (BStringArray) returns[0];
+        records = (BValueArray) returns[0];
         Assert.assertEquals(records.size(), expectedRecordLength);
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];
         Assert.assertTrue(hasNextRecord.booleanValue(), "Expecting more records");
 
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
-        records = (BStringArray) returns[0];
+        records = (BValueArray) returns[0];
         Assert.assertEquals(records.size(), expectedRecordLength);
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];
         Assert.assertTrue(hasNextRecord.booleanValue(), "Expecting more records");
 
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
-        records = (BStringArray) returns[0];
+        records = (BValueArray) returns[0];
 
         Assert.assertEquals(records.size(), expectedRecordLength);
 
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
-        records = (BStringArray) returns[0];
+        records = (BValueArray) returns[0];
         Assert.assertEquals(records.size(), 0);
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];
@@ -189,7 +190,7 @@ public class CsvChannelTest {
     @Test(description = "Test 'readCSVWithHeaders'")
     public void openAndReadCsvWithHeadersTest() throws URISyntaxException {
         String resourceToRead = "datafiles/io/records/sampleWithHeader.csv";
-        BStringArray records;
+        BValueArray records;
         BBoolean hasNextRecord;
         int expectedRecordLength = 3;
 
@@ -199,14 +200,14 @@ public class CsvChannelTest {
         BRunUtil.invokeStateful(csvInputOutputProgramFile, "initOpenCsvChannel", args);
 
         BValue[] returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
-        records = (BStringArray) returns[0];
+        records = (BValueArray) returns[0];
         Assert.assertEquals(records.size(), expectedRecordLength);
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];
         Assert.assertTrue(hasNextRecord.booleanValue(), "Expecting more records");
 
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
-        records = (BStringArray) returns[0];
+        records = (BValueArray) returns[0];
         Assert.assertEquals(records.size(), expectedRecordLength);
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];
@@ -219,7 +220,7 @@ public class CsvChannelTest {
     @Test(description = "Test 'readRfcCSVRecords'")
     public void readRfcTest() throws URISyntaxException {
         String resourceToRead = "datafiles/io/records/sampleRfc.csv";
-        BStringArray records;
+        BValueArray records;
         BBoolean hasNextRecord;
         int expectedRecordLength = 3;
 
@@ -229,7 +230,7 @@ public class CsvChannelTest {
         BRunUtil.invokeStateful(csvInputOutputProgramFile, "initReadableCsvChannel", args);
 
         BValue[] returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
-        records = (BStringArray) returns[0];
+        records = (BValueArray) returns[0];
         Assert.assertEquals(records.size(), expectedRecordLength);
         Assert.assertEquals(records.stringValue(), "[\"User1,12\", \" WSO2\", \" 07xxxxxx\"]");
 
@@ -238,20 +239,20 @@ public class CsvChannelTest {
         Assert.assertTrue(hasNextRecord.booleanValue(), "Expecting more records");
 
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
-        records = (BStringArray) returns[0];
+        records = (BValueArray) returns[0];
         Assert.assertEquals(records.size(), expectedRecordLength);
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];
         Assert.assertTrue(hasNextRecord.booleanValue(), "Expecting more records");
 
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
-        records = (BStringArray) returns[0];
+        records = (BValueArray) returns[0];
 
         Assert.assertEquals(records.size(), expectedRecordLength);
 
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
-        BMap error = (BMap) returns[0];
-        Assert.assertTrue(IOConstants.IO_EOF.equals(error.getMap().get("message").toString()));
+        BMap error = (BMap) ((BError) returns[0]).getDetails();
+        Assert.assertEquals(IOConstants.IO_EOF, error.getMap().get("message").toString());
 
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];
@@ -263,7 +264,7 @@ public class CsvChannelTest {
     @Test(description = "Test 'readTdfCSVRecords'")
     public void readTdfTest() throws URISyntaxException {
         String resourceToRead = "datafiles/io/records/sampleTdf.tsv";
-        BStringArray records;
+        BValueArray records;
         BBoolean hasNextRecord;
         int expectedRecordLength = 3;
 
@@ -273,27 +274,27 @@ public class CsvChannelTest {
         BRunUtil.invokeStateful(csvInputOutputProgramFile, "initReadableCsvChannel", args);
 
         BValue[] returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
-        records = (BStringArray) returns[0];
+        records = (BValueArray) returns[0];
         Assert.assertEquals(records.size(), expectedRecordLength);
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];
         Assert.assertTrue(hasNextRecord.booleanValue(), "Expecting more records");
 
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
-        records = (BStringArray) returns[0];
+        records = (BValueArray) returns[0];
         Assert.assertEquals(records.size(), expectedRecordLength);
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];
         Assert.assertTrue(hasNextRecord.booleanValue(), "Expecting more records");
 
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
-        records = (BStringArray) returns[0];
+        records = (BValueArray) returns[0];
 
         Assert.assertEquals(records.size(), expectedRecordLength);
 
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
-        BMap error = (BMap) returns[0];
-        Assert.assertTrue(IOConstants.IO_EOF.equals(error.getMap().get("message").toString()));
+        BMap error = (BMap) ((BError) returns[0]).getDetails();
+        Assert.assertEquals(IOConstants.IO_EOF, error.getMap().get("message").toString());
 
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];
@@ -305,7 +306,7 @@ public class CsvChannelTest {
     @Test(description = "Test 'writeDefaultCSVRecords'")
     public void testWriteDefaultCsv() {
         String[] content = {"Name", "Email", "Telephone"};
-        BStringArray record = new BStringArray(content);
+        BValueArray record = new BValueArray(content);
         String sourceToWrite = currentDirectoryPath + "/recordsDefault.csv";
 
         //Will initialize the channel
@@ -317,7 +318,7 @@ public class CsvChannelTest {
         BRunUtil.invokeStateful(csvInputOutputProgramFile, "writeRecord", args);
 
         String[] data = {"Foo,12", "foo@ballerina/io", "332424242"};
-        record = new BStringArray(data);
+        record = new BValueArray(data);
 
         args = new BValue[]{record};
         BRunUtil.invokeStateful(csvInputOutputProgramFile, "writeRecord", args);
@@ -328,7 +329,7 @@ public class CsvChannelTest {
     @Test(description = "Test 'writeTdfCSVRecords'")
     public void testWriteTdf() {
         String[] content = {"Name", "Email", "Telephone"};
-        BStringArray record = new BStringArray(content);
+        BValueArray record = new BValueArray(content);
         String sourceToWrite = currentDirectoryPath + "/recordsTdf.csv";
 
         //Will initialize the channel

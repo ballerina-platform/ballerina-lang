@@ -17,4 +17,3 @@ message ByeRequest {
 message ByeResponse {
 	string say = 1;
 }
-

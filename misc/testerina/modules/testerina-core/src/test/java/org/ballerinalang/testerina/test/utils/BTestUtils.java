@@ -16,18 +16,19 @@
  */
 package org.ballerinalang.testerina.test.utils;
 
+import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.diagnostic.Diagnostic;
-import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 
 import java.io.BufferedReader;
@@ -184,7 +185,15 @@ public class BTestUtils {
         ProgramFile programFile = compileResult.getProgFile();
         Debugger debugger = new Debugger(programFile);
         programFile.setDebugger(debugger);
-        return BLangFunctions.invokeEntrypointCallable(programFile, packageName, functionName, args);
+
+
+        PackageInfo packageInfo = programFile.getPackageInfo(packageName);
+        FunctionInfo functionInfo = packageInfo.getFunctionInfo(functionName);
+        if (functionInfo == null) {
+            throw new RuntimeException("Function '" + functionName + "' is not defined");
+        }
+
+        return BVMExecutor.executeEntryFunction(programFile, functionInfo, args);
     }
 
     /**
@@ -219,7 +228,14 @@ public class BTestUtils {
         ProgramFile programFile = compileResult.getProgFile();
         Debugger debugger = new Debugger(programFile);
         programFile.setDebugger(debugger);
-        return BLangFunctions.invokeEntrypointCallable(programFile, programFile.getEntryPkgName(), functionName, args);
+
+        PackageInfo packageInfo = programFile.getPackageInfo(programFile.getEntryPkgName());
+        FunctionInfo functionInfo = packageInfo.getFunctionInfo(functionName);
+        if (functionInfo == null) {
+            throw new RuntimeException("Function '" + functionName + "' is not defined");
+        }
+
+        return BVMExecutor.executeEntryFunction(programFile, functionInfo, args);
     }
 
     /**

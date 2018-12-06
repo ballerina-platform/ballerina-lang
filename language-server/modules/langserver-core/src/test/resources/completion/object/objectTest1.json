@@ -6,99 +6,164 @@
   "source": "object/source/objectTest1.bal",
   "items": [
     {
+      "label":"channel",
+      "kind":"Keyword",
+      "detail":"BType",
+      "insertText":"channel"
+    },
+    {
       "label":"xml",
+      "kind":"Keyword",
       "detail":"BType",
       "insertText":"xml"
     },
     {
       "label":"TableConfig",
+      "kind":"Class",
       "detail":"BType",
+      "documentation":"TableConfig represents properties used during table initialization.\n",
       "insertText":"TableConfig"
     },
     {
       "label":"byte",
+      "kind":"Keyword",
       "detail":"BType",
       "insertText":"byte"
     },
     {
       "label":"stream",
+      "kind":"Keyword",
       "detail":"BType",
       "insertText":"stream"
     },
     {
       "label":"testObject",
+      "kind":"Class",
       "detail":"BType",
       "insertText":"testObject"
     },
     {
+      "label":"AbstractListener",
+      "kind":"Class",
+      "detail":"BType",
+      "insertText":"AbstractListener"
+    },
+    {
       "label":"map",
+      "kind":"Keyword",
       "detail":"BType",
       "insertText":"map"
     },
     {
       "label":"table",
+      "kind":"Keyword",
       "detail":"BType",
       "insertText":"table"
     },
     {
+      "label":"anydata",
+      "kind":"Keyword",
+      "detail":"BType",
+      "insertText":"anydata"
+    },
+    {
       "label":"future",
+      "kind":"Keyword",
       "detail":"BType",
       "insertText":"future"
     },
     {
       "label":"typedesc",
+      "kind":"Keyword",
       "detail":"BType",
       "insertText":"typedesc"
     },
     {
       "label":"float",
+      "kind":"Keyword",
       "detail":"BType",
       "insertText":"float"
     },
     {
       "label":"testEmptyObject",
+      "kind":"Class",
       "detail":"BType",
       "insertText":"testEmptyObject"
     },
     {
       "label":"null",
+      "kind":"Keyword",
       "detail":"BType",
       "insertText":"null"
     },
     {
+      "label":"decimal",
+      "kind":"Keyword",
+      "detail":"BType",
+      "insertText":"decimal"
+    },
+    {
       "label":"string",
+      "kind":"Keyword",
       "detail":"BType",
       "insertText":"string"
     },
     {
       "label":"error",
+      "kind":"Keyword",
       "detail":"BType",
       "insertText":"error"
     },
     {
       "label":"json",
+      "kind":"Keyword",
       "detail":"BType",
       "insertText":"json"
     },
     {
       "label":"any",
+      "kind":"Keyword",
       "detail":"BType",
       "insertText":"any"
     },
     {
       "label":"int",
+      "kind":"Keyword",
       "detail":"BType",
       "insertText":"int"
     },
     {
-      "label":"docData",
-      "detail":"BType",
-      "insertText":"docData"
-    },
-    {
       "label":"boolean",
+      "kind":"Keyword",
       "detail":"BType",
       "insertText":"boolean"
+    },
+    {
+      "label":"service",
+      "kind":"Keyword",
+      "detail":"BType",
+      "insertText":"service"
+    },
+    {
+      "label":"new object initializer",
+      "kind":"Snippet",
+      "detail":"Snippet",
+      "insertText":"public function __init(${1:any arg}) {\n\t${2}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"function signature",
+      "kind":"Snippet",
+      "detail":"Snippet",
+      "insertText":"function ${1:name}(${2});",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"function",
+      "kind":"Snippet",
+      "detail":"Snippet",
+      "insertText":"function ${1:name}(${2}) {\n\t${3}\n}",
+      "insertTextFormat":"Snippet"
     }
   ]
 }

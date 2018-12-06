@@ -37,11 +37,12 @@ public class ConnectorSPIModelHelper {
 
     private static final String ANNOTATION_DATA = "$annotation_data";
 
-    public static ServiceImpl createService(ProgramFile programFile, ServiceInfo serviceInfo) {
-        ServiceImpl service = new ServiceImpl(serviceInfo);
+    public static ServiceImpl createService(ProgramFile programFile, ServiceInfo serviceInfo, BMap serviceValue) {
+        ServiceImpl service = new ServiceImpl(serviceInfo, serviceValue);
         processAnnotations(serviceInfo.getPackagePath(), programFile, service);
         Arrays.stream(serviceInfo.getResourceInfoEntries()).forEach(resourceInfo -> {
-            ResourceImpl resource = new ResourceImpl(resourceInfo.getName(), resourceInfo);
+            ResourceImpl resource = new ResourceImpl(resourceInfo.getName(), service, resourceInfo);
+            resource.setService(service);
             processAnnotations(resourceInfo.getPkgPath(), programFile, resource);
             service.addResource(resource.getName(), resource);
         });

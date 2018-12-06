@@ -32,12 +32,14 @@ import java.net.URISyntaxException;
  *
  * @since 0.982.0
  */
-@Test(groups = "websocket-test")
+// Todo: Fix this test -- some issue with error not being returned always
+@Test(groups = {"websocket-test"})
 public class PushTextFailureTest extends WebSocketTestCommons {
 
     private static final String URL = "ws://localhost:9089/pushTextFailure";
     private LogLeecher logLeecher;
 
+    // Related file 07_pushText_failure.bal
     @BeforeClass(description = "Initializes the Ballerina server and client")
     public void setup() {
         String expectingErrorLog = "Close frame already sent. Cannot push text data!";

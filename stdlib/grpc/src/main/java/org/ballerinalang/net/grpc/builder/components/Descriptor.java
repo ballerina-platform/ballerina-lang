@@ -24,7 +24,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.PACKAGE_SEPARATOR;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.bytesToHex;
 
 /**
@@ -67,13 +66,8 @@ public class Descriptor {
             try (InputStream targetStream = new ByteArrayInputStream(descriptorData)) {
                 DescriptorProtos.FileDescriptorProto fileDescriptorSet = DescriptorProtos.FileDescriptorProto
                         .parseFrom(targetStream);
-                String descriptorKey;
-                if (fileDescriptorSet.getPackage() != null && !fileDescriptorSet.getPackage().isEmpty()) {
-                    descriptorKey = fileDescriptorSet.getPackage() + PACKAGE_SEPARATOR + fileDescriptorSet.getName();
-                } else {
-                    descriptorKey = fileDescriptorSet.getName();
-                }
-                return new Descriptor(descriptorKey, new BString(bytesToHex(descriptorData)).stringValue());
+                return new Descriptor(fileDescriptorSet.getName(), new BString(bytesToHex(descriptorData))
+                        .stringValue());
             }
         }
     }

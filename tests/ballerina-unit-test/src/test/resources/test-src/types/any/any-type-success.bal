@@ -13,20 +13,19 @@ function tableReturnTestAsAny() returns (any) {
     return abc;
 }
 
-function inputAnyAsTableTest() returns (json) | error {
-    table t = check anyToTableCastFunction(tableReturnFunction());
-    return <json> t;
+function inputAnyAsTableTest() returns (table<any>?) {
+    table<any>? t = anyToTableFunction(tableReturnFunction());
+    return t;
 }
 
-function anyToTableCastFunction (any aTable) returns (table) | error {
-    var result = <table> aTable;
-    match result {
-        table casted => return casted;
-        error e => return e;
+function anyToTableFunction (any aTable) returns (table<any>?) {
+    if (aTable is table<any>) {
+        return aTable;
     }
+    return ();
 }
 
-function tableReturnFunction () returns (table) {
+function tableReturnFunction () returns (table<any>) {
     table <Employee> tb = table{};
     Employee e1 = {id:1, name:"Jane"};
     Employee e2 = {id:2, name:"Anne"};
@@ -47,9 +46,8 @@ function anyMethodParameter() returns (any) {
   return anyParam(i);
 }
 
-function anyParam(any val) returns (int) {
-  int m;
-  m = check <int>val;
+function anyParam(any val) returns int|error {
+  int m = check int.convert(val);
   return m;
 }
 
@@ -66,18 +64,17 @@ type Sample record {
 };
 
 
-function successfulIntCasting() returns (int) {
+function successfulIntCasting() returns int|error {
   any abc = floatReturn();
-  float floatVal;
-  floatVal = check <float>abc;
-  //Int to float is a conversion now
+  float floatVal = check float.convert(abc);
+  // Float to int type conversion
   int intVal;
   intVal = <int>floatVal;
   return intVal;
 }
 
 function floatReturn() returns (float) {
-  float val = 5.6;
+  float val = 5.4;
   return val;
 }
 
@@ -117,7 +114,7 @@ function assignmentTest() returns (any) {
 }
 
 function anyArrayWithMapArray() returns (any[]) {
-    map[] ma = [];
+    map<any>[] ma = [];
     any[] a = ma;
     return a;
 }

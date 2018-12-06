@@ -17,8 +17,7 @@
 import ballerina/io;
 import ballerina/http;
 
-endpoint http:Listener strongCipher {
-    port: 9226,
+http:ServiceEndpointConfiguration strongCipherConfig = {
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
@@ -32,24 +31,26 @@ endpoint http:Listener strongCipher {
     }
 };
 
+listener http:Listener strongCipher = new(9226, config = strongCipherConfig);
+
 @http:ServiceConfig {
     basePath: "/echo"
 }
-service<http:Service> strongService bind strongCipher {
+service strongService on strongCipher {
 
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/"
     }
-    sayHello(endpoint conn, http:Request req) {
+    resource function sayHello(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload("hello world");
-        _ = conn->respond(res);
+        _ = caller->respond(res);
         io:println("successful");
     }
 }
-endpoint http:Listener weakCipher {
-    port: 9227,
+
+http:ServiceEndpointConfiguration weakCipherConfig = {
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
@@ -59,23 +60,25 @@ endpoint http:Listener weakCipher {
             path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
             password: "ballerina"
         },
-        ciphers: ["TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA"]
+        ciphers: ["TLS_RSA_WITH_AES_128_CBC_SHA"]
     }
 };
+
+listener http:Listener weakCipher = new(9227, config = weakCipherConfig);
 
 @http:ServiceConfig {
     basePath: "/echo"
 }
-service<http:Service> weakService bind weakCipher {
+service weakService on weakCipher {
 
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/"
     }
-    sayHello(endpoint conn, http:Request req) {
+    resource function sayHello(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload("hello world");
-        _ = conn->respond(res);
+        _ = caller->respond(res);
         io:println("successful");
     }
 }

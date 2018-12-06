@@ -213,8 +213,8 @@ public class LengthOfOperatorTest {
     }
 
     @Test(description = "Test lengthof unary expression when reference point to json null.",
-            expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: ballerina/runtime:NullReferenceException.*")
+          expectedExceptions = { BLangRuntimeException.class },
+          expectedExceptionsMessageRegExp = "error: NullReferenceException \\{\\}.*")
     public void testArrayLengthAccessTestJSONArrayNegativeNullCase() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
         BRunUtil.invoke(resNegative, "arrayLengthAccessTestJSONArrayNegativeNullCase", args);

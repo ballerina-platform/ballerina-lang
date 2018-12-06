@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * {@code GlobalVarInfo} represents a global variable or a constant in a compiled package.
+ * {@code GlobalVarInfo} represents a global variable in a compiled package.
  *
  * @since 0.90
  */

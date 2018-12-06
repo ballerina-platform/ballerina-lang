@@ -30,12 +30,10 @@ import org.ballerinalang.mime.util.MimeConstants;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.util.StringUtils;
-import org.ballerinalang.model.values.BByteArray;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.net.http.HttpConstants;
@@ -165,10 +163,10 @@ public class RequestNativeFunctionSuccessTest {
         BValue[] returnVals = BRunUtil.invokeStateful(result, "testGetBinaryPayload", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertEquals(new String(((BByteArray) returnVals[0]).getBytes()), payload);
+        Assert.assertEquals(new String(((BValueArray) returnVals[0]).getBytes()), payload);
     }
 
-    @Test(description = "Enable this once the getContentLength() is added back in http package", enabled = false)
+    @Test(description = "Enable this once the getContentLength() is added back in http package")
     public void testGetContentLength() {
         BMap<String, BValue> inRequest =
                 BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
@@ -184,7 +182,7 @@ public class RequestNativeFunctionSuccessTest {
         BValue[] returnVals = BRunUtil.invokeStateful(result, "testGetContentLength", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertEquals(payload.length(), ((BInteger) returnVals[0]).intValue());
+        Assert.assertEquals(payload.length(), ((BString) returnVals[0]).intValue());
     }
 
     @Test(description = "Test GetContentLength function within a service. Enable this once this method is back in " +
@@ -265,8 +263,8 @@ public class RequestNativeFunctionSuccessTest {
         BValue[] returnVals = BRunUtil.invokeStateful(result, "testGetHeaders", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertEquals(((BStringArray) returnVals[0]).get(0), APPLICATION_FORM);
-        Assert.assertEquals(((BStringArray) returnVals[0]).get(1), TEXT_PLAIN);
+        Assert.assertEquals(((BValueArray) returnVals[0]).getString(0), APPLICATION_FORM);
+        Assert.assertEquals(((BValueArray) returnVals[0]).getString(1), TEXT_PLAIN);
     }
 
     @Test
@@ -589,7 +587,7 @@ public class RequestNativeFunctionSuccessTest {
 
     @Test(description = "Test setBinaryPayload() function")
     public void testSetBinaryPayload() {
-        BByteArray value = new BByteArray("Ballerina".getBytes());
+        BValueArray value = new BValueArray("Ballerina".getBytes());
         BValue[] inputArg = { value };
         BValue[] returnVals = BRunUtil.invokeStateful(result, "testSetBinaryPayload", inputArg);
 

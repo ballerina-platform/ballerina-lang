@@ -41,12 +41,9 @@ public class FunctionContextResolver extends AbstractItemResolver {
             CompletionItem workerItem = Snippet.DEF_WORKER.get().build(new CompletionItem(), isSnippet);
             completionItems.add(workerItem);
 
-            CompletionItem endpointItem = Snippet.DEF_ENDPOINT.get().build(new CompletionItem(), isSnippet);
-            completionItems.add(endpointItem);
-
             return completionItems;
         }
-        AbstractItemResolver contextResolver = CompletionItemResolver.getResolverByClass(parserRuleContext.getClass());
+        AbstractItemResolver contextResolver = CompletionItemResolver.get(parserRuleContext.getClass());
 
         if (contextResolver == null) {
             return new ArrayList<>();

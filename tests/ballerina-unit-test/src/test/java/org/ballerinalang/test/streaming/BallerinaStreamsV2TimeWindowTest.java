@@ -46,7 +46,7 @@ public class BallerinaStreamsV2TimeWindowTest {
     }
 
     @Test(description = "Test Time window query")
-    public void testExternalTimeQuery1() {
+    public void testTimeQuery1() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result1, "startTimeWindowTest");
         System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputEmployeeEvents);
@@ -61,7 +61,7 @@ public class BallerinaStreamsV2TimeWindowTest {
     }
 
     @Test(description = "Test Time window query")
-    public void testExternalTimeQuery2() {
+    public void testTimeQuery2() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result2, "startTimeWindowTest2");
         System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputEmployeeEvents);

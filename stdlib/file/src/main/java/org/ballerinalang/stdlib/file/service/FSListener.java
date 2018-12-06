@@ -31,8 +31,8 @@ import org.wso2.transport.localfilesystem.server.connector.contract.LocalFileSys
 
 import java.util.Map;
 
-import static org.ballerinalang.stdlib.file.utils.Constants.FILE_EVENT_NAME;
-import static org.ballerinalang.stdlib.file.utils.Constants.FILE_EVENT_OPERATION;
+import static org.ballerinalang.stdlib.file.utils.FileConstants.FILE_EVENT_NAME;
+import static org.ballerinalang.stdlib.file.utils.FileConstants.FILE_EVENT_OPERATION;
 
 /**
  * File System connector listener for Ballerina.

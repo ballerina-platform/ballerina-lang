@@ -1,6 +1,6 @@
 {
   "position": {
-    "line": 12,
+    "line": 15,
     "character": 9
   },
   "source": "function/source/objectAttachFunctionImpl1.bal",
@@ -9,7 +9,7 @@
       "label":"Person",
       "detail":"BType",
       "sortText":"170",
-      "insertText":"Person::"
+      "insertText":"Person."
     }
   ]
 }

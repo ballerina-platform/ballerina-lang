@@ -17,7 +17,7 @@
 package org.ballerinalang.langserver.completions.resolvers;
 
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.Token;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
@@ -32,7 +32,6 @@ import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Resolves all items that can appear as a top level element in the file.
@@ -42,22 +41,28 @@ public class TopLevelResolver extends AbstractItemResolver {
     @Override
     public List<CompletionItem> resolveItems(LSServiceOperationContext ctx) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        ParserRuleContext parserRuleContext = ctx.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
-        AbstractItemResolver itemResolver = parserRuleContext == null ? null :
-                CompletionItemResolver.getResolverByClass(parserRuleContext.getClass());
-        List<String> poppedTokens = ctx.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY).stream()
-                .map(Token::getText)
-                .collect(Collectors.toList());
+        ParserRuleContext prContext = ctx.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
+        boolean snippetSupport = ctx.get(CompletionKeys.CLIENT_CAPABILITIES_KEY)
+                .getCompletionItem()
+                .getSnippetSupport();
+
+        AbstractItemResolver resolver = prContext == null ? null : CompletionItemResolver.get(prContext.getClass());
+
+        List<String> poppedTokens = CommonUtil.getPoppedTokenStrings(ctx);
         if (this.isAnnotationStart(ctx)) {
-            completionItems.addAll(CompletionItemResolver
-                    .getResolverByClass(ParserRuleAnnotationAttachmentResolver.class).resolveItems(ctx));
-        } else if (poppedTokens.size() >= 1 && poppedTokens.get(0).equals(ItemResolverConstants.PUBLIC_KEYWORD)) {
-            completionItems.addAll(addTopLevelItems(ctx));
+            resolver = CompletionItemResolver.get(ParserRuleAnnotationAttachmentResolver.class);
+            completionItems.addAll(resolver.resolveItems(ctx));
+        } else if (poppedTokens.size() >= 1 && this.isAccessModifierToken(poppedTokens.get(0))) {
+            // Provides completions after public keyword
+            completionItems.addAll(this.addTopLevelItems(ctx));
             completionItems.addAll(this.populateBasicTypes(ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
-        } else if (itemResolver == null || itemResolver instanceof ParserRuleGlobalVariableDefinitionContextResolver) {
-            completionItems.addAll(getGlobalVarDefCompletions(ctx, poppedTokens, itemResolver));
+        } else if (poppedTokens.size() >= 1 && poppedTokens.get(0).equals(ItemResolverConstants.EXTERN_KEYWORD)) {
+            // Completion after the extern keyword. Only the signature of function should suggest
+            completionItems.add(Snippet.DEF_FUNCTION_SIGNATURE.get().build(new CompletionItem(), snippetSupport));
+        } else if (resolver == null || resolver instanceof ParserRuleGlobalVariableDefinitionContextResolver) {
+            completionItems.addAll(getGlobalVarDefCompletions(ctx, poppedTokens, resolver));
         } else {
-            completionItems.addAll(itemResolver.resolveItems(ctx));
+            completionItems.addAll(resolver.resolveItems(ctx));
         }
 
         ItemSorters.get(DefaultItemSorter.class).sortItems(ctx, completionItems);
@@ -87,11 +92,20 @@ public class TopLevelResolver extends AbstractItemResolver {
         completionItems.add(getStaticItem(Snippet.STMT_NAMESPACE_DECLARATION, snippetCapability));
         completionItems.add(getStaticItem(Snippet.DEF_OBJECT_SNIPPET, snippetCapability));
         completionItems.add(getStaticItem(Snippet.DEF_RECORD, snippetCapability));
-        completionItems.add(getStaticItem(Snippet.DEF_ENDPOINT, snippetCapability));
         completionItems.add(getStaticItem(Snippet.KW_TYPE, snippetCapability));
         completionItems.add(getStaticItem(Snippet.KW_PUBLIC, snippetCapability));
+        completionItems.add(getStaticItem(Snippet.KW_FINAL, snippetCapability));
+        completionItems.add(getStaticItem(Snippet.KW_CONST, snippetCapability));
+        completionItems.add(getStaticItem(Snippet.KW_EXTERN, snippetCapability));
         completionItems.add(getStaticItem(Snippet.DEF_ERROR, snippetCapability));
+        completionItems.add(getStaticItem(Snippet.KW_LISTENER, snippetCapability));
         return completionItems;
+    }
+
+    private boolean isAccessModifierToken(String token) {
+        return token.equals(ItemResolverConstants.PUBLIC_KEYWORD)
+                || token.equals(ItemResolverConstants.CONST_KEYWORD)
+                || token.equals(ItemResolverConstants.FINAL_KEYWORD);
     }
 
     private ArrayList<CompletionItem> getGlobalVarDefCompletions(LSServiceOperationContext context,
@@ -100,7 +114,7 @@ public class TopLevelResolver extends AbstractItemResolver {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
         if (poppedTokens.size() < 2) {
-            completionItems.addAll(addTopLevelItems(context));
+            completionItems.addAll(this.addTopLevelItems(context));
             completionItems.addAll(this.populateBasicTypes(context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
         } else if (itemResolver instanceof ParserRuleGlobalVariableDefinitionContextResolver) {
             completionItems.addAll(itemResolver.resolveItems(context));

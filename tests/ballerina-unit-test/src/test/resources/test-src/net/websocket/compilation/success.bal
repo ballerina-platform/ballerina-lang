@@ -17,56 +17,54 @@
 import ballerina/http;
 import ballerina/io;
 
-endpoint http:WebSocketListener wsCaller {
-    host: "0.0.0.0",
-    port: 9090
-};
+listener http:WebSocketListener wsListener = new http:WebSocketListener(9090, config = { host: "0.0.0.0"});
 
 @http:WebSocketServiceConfig {
     path: "/"
 }
-service<http:WebSocketService> wsService bind wsCaller {
-    onOpen(endpoint caller) {
+service wsService on wsListener {
+
+    resource function onOpen(http:WebSocketCaller caller) {
     }
 
-    onText(endpoint caller, string text, boolean final) {
+    resource function onText(http:WebSocketCaller caller, string text, boolean isFinal) {
     }
 
-    onBinary(endpoint caller, byte[] data, boolean final) {
+    resource function onBinary(http:WebSocketCaller caller, byte[] data, boolean isFinal) {
     }
 
-    onClose(endpoint caller, int val, string text) {
+    resource function onClose(http:WebSocketCaller caller, int val, string text) {
     }
 
-    onIdleTimeout(endpoint caller) {
+    resource function onIdleTimeout(http:WebSocketCaller caller) {
     }
 
-    onPing(endpoint caller, byte[] data) {
+    resource function onPing(http:WebSocketCaller caller, byte[] data) {
     }
 
-    onPong(endpoint caller, byte[] data) {
+    resource function onPong(http:WebSocketCaller caller, byte[] data) {
     }
 
-    onError(endpoint caller, error err) {
-    }
-}
-
-
-service<http:WebSocketService> onTextJSON bind wsCaller {
-
-    onText(endpoint caller, json data) {
+    resource function onError(http:WebSocketCaller caller, error err) {
     }
 }
 
-service<http:WebSocketService> onTextXML bind wsCaller {
 
-    onText(endpoint caller, xml data) {
+service onTextJSON on wsListener {
+
+    resource function onText(http:WebSocketCaller caller, json data) {
     }
 }
 
-service<http:WebSocketService> onTextbyteArray bind wsCaller {
+service onTextXML on wsListener {
 
-    onText(endpoint caller, byte[] data) {
+    resource function onText(http:WebSocketCaller caller, xml data) {
+    }
+}
+
+service onTextbyteArray on wsListener {
+
+    resource function onText(http:WebSocketCaller caller, byte[] data) {
     }
 }
 
@@ -76,8 +74,8 @@ type Person record {
     !...
 };
 
-service<http:WebSocketService> onTextRecord bind wsCaller {
+service onTextRecord on wsListener {
 
-    onText(endpoint caller, Person data) {
+    resource function onText(http:WebSocketCaller caller, Person data) {
     }
 }

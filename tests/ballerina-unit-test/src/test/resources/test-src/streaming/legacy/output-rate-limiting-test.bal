@@ -33,8 +33,8 @@ type Teacher record {
 Employee[] globalEmployeeArray = [];
 int employeeIndex = 0;
 
-stream<Employee> employeeStream1;
-stream<Teacher> teacherStream2;
+stream<Employee> employeeStream1 = new;
+stream<Teacher> teacherStream2 = new;
 
 function testOutputRateLimitQuery() {
 
@@ -43,7 +43,7 @@ function testOutputRateLimitQuery() {
         select name, age, status
         output first every 3 events
         => (Employee[] emp) {
-            foreach e in emp {
+            foreach var e in emp {
                 employeeStream1.publish(e);
             }
         }

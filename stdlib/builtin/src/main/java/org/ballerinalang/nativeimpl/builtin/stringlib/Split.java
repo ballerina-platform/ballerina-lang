@@ -21,7 +21,7 @@ package org.ballerinalang.nativeimpl.builtin.stringlib;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStringArray;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -45,7 +45,7 @@ public class Split extends BlockingNativeCallableUnit {
         String regex = context.getStringArgument(1);
 
         String[] splitArray = initialString.split(regex);
-        BStringArray bSplitArray = new BStringArray(splitArray);
+        BValueArray bSplitArray = new BValueArray(splitArray);
         context.setReturnValues(bSplitArray);
     }
 }

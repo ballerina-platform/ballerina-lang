@@ -22,7 +22,7 @@ public class VariableShadowingNegativeTest {
 
         int index = 0;
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'name'", 7, 20);
-        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'name'", 10, 9);
+        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'name'", 10, 5);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'name'", 15, 13);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'ns'", 21, 5);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'name'", 31, 5);
@@ -30,8 +30,8 @@ public class VariableShadowingNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'name'", 36, 9);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'ns'", 37, 9);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'name'", 43, 5);
-        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'name'", 46, 9);
-        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'name'", 48, 9);
-        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'ns'", 49, 9);
+        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'name'", 45, 27);
+        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'name'", 47, 9);
+        BAssertUtil.validateError(compileResult, index, "redeclared symbol 'ns'", 48, 9);
     }
 }

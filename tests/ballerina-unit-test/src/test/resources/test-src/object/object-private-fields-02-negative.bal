@@ -9,12 +9,12 @@ public function testPrivateFieldAccess() {
 }
 
 public type personFoo object {
-    public int age;
-    public string name;
-    public string ssn;
-    public int id;
+    public int age = 0;
+    public string name = "";
+    public string ssn = "";
+    public int id = 0;
 
-    public new(age, name, ssn, id) {
+    public function __init(int age, string name, string ssn, int id) {
         self.age = age;
         self.name = name;
         self.ssn = ssn;

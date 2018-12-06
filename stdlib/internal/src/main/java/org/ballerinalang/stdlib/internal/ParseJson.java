@@ -22,7 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.JsonParser;
-import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -48,9 +48,8 @@ public class ParseJson extends BlockingNativeCallableUnit {
             String value = context.getStringArgument(0);
             BValue json = JsonParser.parse(value);
             context.setReturnValues(json);
-        } catch (Throwable e) {
-            BMap<String, BValue> error =
-                    Utils.createConversionError(context, "Failed to parse json string: " + e.getMessage());
+        } catch (Exception e) {
+            BError error = Utils.createConversionError(context, "Failed to parse json string: " + e.getMessage());
             context.setReturnValues(error);
         }
     }

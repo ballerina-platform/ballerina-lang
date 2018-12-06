@@ -34,6 +34,8 @@ import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_HTTP_ENDPOINT;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERVICE_LISTENER;
 
 /**
  * Set WebSub connection listener on startup.
@@ -44,8 +46,8 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_HTTP
 @BallerinaFunction(
         orgName = "ballerina", packageName = "websub",
         functionName = "startWebSubSubscriberServiceEndpoint",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener",
-                structPackage = WebSubSubscriberConstants.WEBSUB_PACKAGE),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = WEBSUB_SERVICE_LISTENER,
+                structPackage = WEBSUB_PACKAGE),
         isPublic = true
 )
 public class StartWebSubSubscriberServiceEndpoint extends AbstractHttpNativeFunction {

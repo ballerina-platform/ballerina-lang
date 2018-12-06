@@ -24,12 +24,12 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BByteArray;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.utils.Base64ByteChannel;
@@ -91,7 +91,7 @@ public class IOTest {
     public void testReadBytes() throws URISyntaxException {
         int numberOfBytesToRead = 3;
         String resourceToRead = "datafiles/io/text/6charfile.txt";
-        BByteArray readBytes;
+        BValueArray readBytes;
 
         //Will initialize the channel
         BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead))};
@@ -101,21 +101,21 @@ public class IOTest {
         byte[] expectedBytes = "123".getBytes();
         args = new BValue[]{new BInteger(numberOfBytesToRead)};
         BValue[] returns = BRunUtil.invokeStateful(bytesInputOutputProgramFile, "readBytes", args);
-        readBytes = (BByteArray) returns[0];
+        readBytes = (BValueArray) returns[0];
         Assert.assertEquals(expectedBytes, readBytes.getBytes());
 
         //Reads the next three bytes "456"
         expectedBytes = "456".getBytes();
         args = new BValue[]{new BInteger(numberOfBytesToRead)};
         returns = BRunUtil.invokeStateful(bytesInputOutputProgramFile, "readBytes", args);
-        readBytes = (BByteArray) returns[0];
+        readBytes = (BValueArray) returns[0];
         Assert.assertEquals(expectedBytes, readBytes.getBytes());
 
         //Request for a get, the bytes will be empty
         expectedBytes = new byte[0];
         args = new BValue[]{new BInteger(numberOfBytesToRead)};
         returns = BRunUtil.invokeStateful(bytesInputOutputProgramFile, "readBytes", args);
-        readBytes = (BByteArray) returns[0];
+        readBytes = (BValueArray) returns[0];
         Assert.assertEquals(expectedBytes, readBytes.getBytes());
 
         BRunUtil.invokeStateful(bytesInputOutputProgramFile, "closeReadableChannel");
@@ -153,7 +153,6 @@ public class IOTest {
         Assert.assertEquals(readCharacters.stringValue(), expectedCharacters);
 
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "closeReadableChannel");
-
     }
 
     @Test(description = "Test 'readCharacters' function in ballerina/io package")
@@ -194,7 +193,7 @@ public class IOTest {
     @Test(description = "Test 'readRecords' function in ballerina/io package")
     public void testReadRecords() throws URISyntaxException {
         String resourceToRead = "datafiles/io/records/sample.csv";
-        BStringArray records;
+        BValueArray records;
         BBoolean hasNextRecord;
         int expectedRecordLength = 3;
 
@@ -204,27 +203,27 @@ public class IOTest {
         BRunUtil.invokeStateful(recordsInputOutputProgramFile, "initReadableChannel", args);
 
         BValue[] returns = BRunUtil.invokeStateful(recordsInputOutputProgramFile, "nextRecord");
-        records = (BStringArray) returns[0];
+        records = (BValueArray) returns[0];
         Assert.assertEquals(records.size(), expectedRecordLength);
         returns = BRunUtil.invokeStateful(recordsInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];
         Assert.assertTrue(hasNextRecord.booleanValue(), "Expecting more records");
 
         returns = BRunUtil.invokeStateful(recordsInputOutputProgramFile, "nextRecord");
-        records = (BStringArray) returns[0];
+        records = (BValueArray) returns[0];
         Assert.assertEquals(records.size(), expectedRecordLength);
         returns = BRunUtil.invokeStateful(recordsInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];
         Assert.assertTrue(hasNextRecord.booleanValue(), "Expecting more records");
 
         returns = BRunUtil.invokeStateful(recordsInputOutputProgramFile, "nextRecord");
-        records = (BStringArray) returns[0];
+        records = (BValueArray) returns[0];
 
         Assert.assertEquals(records.size(), expectedRecordLength);
 
         returns = BRunUtil.invokeStateful(recordsInputOutputProgramFile, "nextRecord");
-        BMap error = (BMap) returns[0];
-        Assert.assertTrue(IOConstants.IO_EOF.equals(error.getMap().get("message").toString()));
+        BError error = (BError) returns[0];
+        Assert.assertTrue(IOConstants.IO_EOF.equals(((BMap) error.getDetails()).getMap().get("message").toString()));
         returns = BRunUtil.invokeStateful(recordsInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];
         Assert.assertFalse(hasNextRecord.booleanValue(), "Not expecting anymore records");
@@ -242,7 +241,7 @@ public class IOTest {
         BValue[] args = {new BString(sourceToWrite)};
         BRunUtil.invokeStateful(bytesInputOutputProgramFile, "initWritableChannel", args);
 
-        args = new BValue[]{new BByteArray(content), new BInteger(0)};
+        args = new BValue[]{new BValueArray(content), new BInteger(0)};
         BRunUtil.invokeStateful(bytesInputOutputProgramFile, "writeBytes", args);
 
         BRunUtil.invokeStateful(bytesInputOutputProgramFile, "closeWritableChannel");
@@ -266,7 +265,7 @@ public class IOTest {
     @Test(description = "Test 'writeRecords' function in ballerina/io package")
     public void testWriteRecords() {
         String[] content = {"Name", "Email", "Telephone"};
-        BStringArray record = new BStringArray(content);
+        BValueArray record = new BValueArray(content);
         String sourceToWrite = currentDirectoryPath + "/recordsFile.csv";
 
         //Will initialize the channel

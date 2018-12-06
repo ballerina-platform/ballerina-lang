@@ -1,0 +1,14 @@
+@type    : "view";
+@element : "network-logs";
+
+.network-logs(@color) {
+
+}
+
+body.network-logs {
+    .network-logs("light");
+    
+    &.dark {
+        .network-logs("dark");
+    }
+}

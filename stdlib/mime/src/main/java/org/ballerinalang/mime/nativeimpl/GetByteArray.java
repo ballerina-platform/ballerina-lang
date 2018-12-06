@@ -19,16 +19,15 @@
 package org.ballerinalang.mime.nativeimpl;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -56,22 +55,22 @@ public class GetByteArray extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BByteArray result = null;
+        BValueArray result = null;
         try {
             BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
             BValue messageDataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
             if (messageDataSource != null) {
-                if (messageDataSource instanceof BByteArray) {
-                    result = (BByteArray) messageDataSource;
+                if (messageDataSource instanceof BValueArray) {
+                    result = (BValueArray) messageDataSource;
                 } else {
                     String contentTypeValue = HeaderUtil.getHeaderValue(entityStruct,
                             HttpHeaderNames.CONTENT_TYPE.toString());
                     if (contentTypeValue != null && !contentTypeValue.isEmpty()) {
                         String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
                         if (charsetValue != null && !charsetValue.isEmpty()) {
-                            result = new BByteArray(messageDataSource.stringValue().getBytes(charsetValue));
+                            result = new BValueArray(messageDataSource.stringValue().getBytes(charsetValue));
                         } else {
-                            result = new BByteArray(messageDataSource.stringValue().getBytes(
+                            result = new BValueArray(messageDataSource.stringValue().getBytes(
                                     Charset.defaultCharset()));
                         }
                     }
@@ -82,10 +81,10 @@ public class GetByteArray extends BlockingNativeCallableUnit {
                 //Set byte channel to null, once the message data source has been constructed
                 entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
             }
-            context.setReturnValues(result != null ? result : new BByteArray(new byte[0]));
+            context.setReturnValues(result != null ? result : new BValueArray(new byte[0]));
         } catch (Throwable e) {
-            context.setReturnValues(MimeUtil.createError
-                    (context, "Error occurred while extracting blob data from entity : " + e.getMessage()));
+            context.setReturnValues(MimeUtil.createError(context, "Error occurred while extracting blob data " +
+                    "from entity : " + e.getMessage()));
         }
     }
 }

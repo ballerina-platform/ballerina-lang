@@ -4,6 +4,6 @@ type Person record {
     string name = "default first name";
 };
 
-function Person::getName() returns string {
+function Person.getName() returns string {
     return self.name;
 }

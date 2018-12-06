@@ -22,6 +22,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -149,7 +150,7 @@ public class VarDeclaredAssignmentStmtTest {
         //var type is not not allowed in variable def statements
         CompileResult res = BCompileUtil.compile("test-src/types/var/var-type-variable-def-negative.bal");
         Assert.assertEquals(res.getErrorCount(), 1);
-        BAssertUtil.validateError(res, 0, "mismatched input ';'. expecting {'.', '[', '=', '!', '@'}", 2, 12);
+        BAssertUtil.validateError(res, 0, "mismatched input ';'. expecting '='", 2, 12);
     }
 
     @Test(description = "Test var in global variable def.")
@@ -166,14 +167,14 @@ public class VarDeclaredAssignmentStmtTest {
     public void testVarTypeInServiceLevelVariableDefStatement() {
         //var type is not not allowed in service level variable def statements
         CompileResult res = BCompileUtil.compile("test-src/types/var/service-level-variable-def-with-var-negative.bal");
-        BAssertUtil.validateError(res, 0, "extraneous input 'var'", 9, 5);
+        BAssertUtil.validateError(res, 0, "extraneous input 'var'", 5, 5);
     }
 
     @Test
     public void testVarDeclarationWithStructFieldAssignmentLHSExpr() {
         CompileResult res = BCompileUtil.compile("test-src/types/var/var-invalid-usage-struct-field-negative.bal");
         Assert.assertEquals(res.getErrorCount(), 1);
-        BAssertUtil.validateError(res, 0, "invalid assignment in variable 'human.name'", 9, 8);
+        BAssertUtil.validateError(res, 0, "mismatched input '.'. expecting '='", 9, 13);
     }
 
     @Test
@@ -201,9 +202,9 @@ public class VarDeclaredAssignmentStmtTest {
 
     @Test
     public void testVarDeclarationWithAllIgnoredSymbols() {
-        CompileResult res = BCompileUtil.compile("test-src/types/var/var-all-ignored-symbols-negative.bal");
-        Assert.assertEquals(res.getErrorCount(), 1);
-        BAssertUtil.validateError(res, 0, "no new variables on left side", 3, 5);
+        CompileResult res = BCompileUtil.compile("test-src/types/var/var-all-ignored-symbols.bal");
+        BValue[] returns = BRunUtil.invoke(res, "testVarDeclarationWithAllIgnoredSymbols");
+        Assert.assertEquals(returns[0].stringValue(), "success");
     }
 
     @Test(description = "Test incompatible json to struct with errors.")
@@ -212,11 +213,10 @@ public class VarDeclaredAssignmentStmtTest {
                 new BValue[]{});
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BMap.class);
+        Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(returns[0].stringValue(),
-                "{message:\"cannot convert 'json' to type 'Person': error while mapping"
-                        + " 'parent': incompatible types: expected 'json-object', found 'string'\", cause:null}");
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
+                            "incompatible stamp operation: 'json' value cannot be stamped as 'Person'");
     }
 
     @Test(description = "Test incompatible json to struct with errors.")
@@ -225,11 +225,10 @@ public class VarDeclaredAssignmentStmtTest {
                 new BValue[]{});
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BMap.class);
+        Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(returns[0].stringValue(),
-                "{message:\"cannot convert 'json' to type 'PersonA': error while mapping 'age': "
-                        + "incompatible types: expected 'int', found 'string' in json\", cause:null}");
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
+                            "incompatible stamp operation: 'json' value cannot be stamped as 'PersonA'");
     }
 
     @Test(description = "Test compatible struct with force casting.")
@@ -240,7 +239,7 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertSame(returns[0].getClass(), BMap.class);
         BMap<String, BValue> structC = (BMap<String, BValue>) returns[0];
 
-        Assert.assertEquals(structC.get("x").stringValue(), "updated-x-valueof-a");
+        Assert.assertEquals(structC.get("x").stringValue(), "x-valueof-a");
 
         Assert.assertEquals(((BInteger) structC.get("y")).intValue(), 4);
     }
@@ -250,9 +249,10 @@ public class VarDeclaredAssignmentStmtTest {
         BValue[] returns = BRunUtil.invoke(result, "testInCompatibleStructForceCasting", new BValue[]{});
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BMap.class);
+        Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(returns[0].stringValue(), "{message:\"'B' cannot be cast to 'A'\", cause:null}");
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
+                            "assertion error: expected 'A', found 'B'");
     }
 
     @Test(description = "Test any to string with errors.")
@@ -268,9 +268,10 @@ public class VarDeclaredAssignmentStmtTest {
     public void testAnyNullToStringWithErrors() {
         BValue[] returns = BRunUtil.invoke(result, "testAnyNullToStringWithErrors", new BValue[]{});
 
-        // check whether string is null
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), null);
+        Assert.assertSame(returns[0].getClass(), BError.class);
+
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
+                            "assertion error: expected 'string', found '()'");
     }
 
     @Test(description = "Test any to boolean with errors.")
@@ -278,9 +279,9 @@ public class VarDeclaredAssignmentStmtTest {
         BValue[] returns = BRunUtil.invoke(result, "testAnyToBooleanWithErrors", new BValue[]{});
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BMap.class);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
 
-        Assert.assertEquals(returns[0].stringValue(), "{message:\"'int' cannot be cast to 'boolean'\", cause:null}");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test(description = "Test any null to boolean with errors.")
@@ -288,9 +289,10 @@ public class VarDeclaredAssignmentStmtTest {
         BValue[] returns = BRunUtil.invoke(result, "testAnyNullToBooleanWithErrors", new BValue[]{});
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BMap.class);
+        Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(returns[0].stringValue(), "{message:\"'null' cannot be cast to 'boolean'\", cause:null}");
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
+                            "assertion error: expected 'boolean', found '()'");
     }
 
     @Test(description = "Test any to int with errors.")
@@ -298,9 +300,10 @@ public class VarDeclaredAssignmentStmtTest {
         BValue[] returns = BRunUtil.invoke(result, "testAnyToIntWithErrors", new BValue[]{});
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BMap.class);
+        Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(returns[0].stringValue(), "{message:\"'string' cannot be cast to 'int'\", cause:null}");
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
+                            "assertion error: expected 'int', found 'string'");
     }
 
     @Test(description = "Test any null to int with errors.")
@@ -308,9 +311,10 @@ public class VarDeclaredAssignmentStmtTest {
         BValue[] returns = BRunUtil.invoke(result, "testAnyNullToIntWithErrors", new BValue[]{});
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BMap.class);
+        Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(returns[0].stringValue(), "{message:\"'null' cannot be cast to 'int'\", cause:null}");
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
+                            "assertion error: expected 'int', found '()'");
     }
 
     @Test(description = "Test any to float with errors.")
@@ -318,9 +322,10 @@ public class VarDeclaredAssignmentStmtTest {
         BValue[] returns = BRunUtil.invoke(result, "testAnyToFloatWithErrors", new BValue[]{});
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BMap.class);
+        Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(returns[0].stringValue(), "{message:\"'string' cannot be cast to 'float'\", cause:null}");
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
+                            "assertion error: expected 'float', found 'string'");
     }
 
     @Test(description = "Test any null to float with errors.")
@@ -328,9 +333,10 @@ public class VarDeclaredAssignmentStmtTest {
         BValue[] returns = BRunUtil.invoke(result, "testAnyNullToFloatWithErrors", new BValue[]{});
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BMap.class);
+        Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(returns[0].stringValue(), "{message:\"'null' cannot be cast to 'float'\", cause:null}");
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
+                            "assertion error: expected 'float', found '()'");
     }
 
     @Test(description = "Test any to map with errors.")
@@ -338,9 +344,10 @@ public class VarDeclaredAssignmentStmtTest {
         BValue[] returns = BRunUtil.invoke(result, "testAnyToMapWithErrors", new BValue[]{});
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BMap.class);
+        Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(returns[0].stringValue(), "{message:\"'string' cannot be cast to 'map'\", cause:null}");
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).details).get("message").stringValue(),
+                            "assertion error: expected 'map', found 'string'");
     }
 
 }

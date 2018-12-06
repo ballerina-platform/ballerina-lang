@@ -11,52 +11,50 @@ import ballerina/log;
 // header. The user can control this behaviour by setting the `policy` field of
 // the `cacheConfig`. Currently, there are only 2 policies:
 // `CACHE_CONTROL_AND_VALIDATORS` (the default policy) and `RFC_7234`.
-endpoint http:Client cachingEP {
-    url: "http://localhost:8080",
-    cache: { isShared: true }
-};
+
+http:Client cachingEP = new("http://localhost:8080",
+                            config = { cache: { isShared: true } });
 
 @http:ServiceConfig { basePath: "/cache" }
-service<http:Service> cachingProxy bind { port: 9090 } {
+service cachingProxy on new http:Listener(9090) {
 
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/"
     }
-    cacheableResource(endpoint caller, http:Request req) {
+    resource function cacheableResource(http:Caller caller, http:Request req) {
         var response = cachingEP->forward("/hello", req);
 
-        match response {
-            http:Response res => {
-                // If the request was successful, an HTTP response will be
-                // returned. In this example, the received response is
-                // forwarded to the client through the outbound endpoint.
-                caller->respond(res) but {
-                                error e => log:printError(
-                                   "Failed to respond to the caller", err = e) };
+        if (response is http:Response) {
+            // If the request was successful, an HTTP response will be
+            // returned. In this example, the received response is
+            // forwarded to the client through the outbound endpoint.
+            var result = caller->respond(response);
+            if (result is error) {
+                log:printError("Failed to respond to the caller", err = result);
             }
-            error err => {
-                // For failed requests, a `500` response is sent back to the
-                // caller.
-                http:Response res = new;
-                res.statusCode = 500;
-                res.setPayload(err.message);
-                caller->respond(res) but {
-                                error e => log:printError(
-                                   "Failed to respond to the caller", err = e) };
+        } else {
+            // For failed requests, a `500` response is sent back to the
+            // caller.
+            http:Response res = new;
+            res.statusCode = 500;
+            res.setPayload(response.reason());
+            var result = caller->respond(res);
+            if (result is error) {
+                log:printError("Failed to respond to the caller", err = result);
             }
         }
     }
 }
 
+json payload = { "message": "Hello, World!" };
+
 // Sample backend service which serves cacheable responses.
 @http:ServiceConfig { basePath: "/hello" }
-service<http:Service> helloWorld bind { port: 8080 } {
-
-    json payload = { "message": "Hello, World!" };
+service helloWorld on new http:Listener(8080) {
 
     @http:ResourceConfig { path: "/" }
-    sayHello(endpoint caller, http:Request req) {
+    resource function sayHello(http:Caller caller, http:Request req) {
         http:Response res = new;
 
         // The `ResponseCacheControl` object in the `Response` object can be
@@ -89,8 +87,10 @@ service<http:Service> helloWorld bind { port: 8080 } {
         // response is set, and the user has not already set a `cache-control`
         // header, a `cache-control` header will be set using the directives set
         // in the `cacheControl` object.
-        caller->respond(res) but {
-                        error e => log:printError(
-                           "Failed to respond to the caller", err = e) };
+
+        var result = caller->respond(res);
+        if (result is error) {
+            log:printError("Failed to respond to the caller", err = result);
+        }
     }
 }

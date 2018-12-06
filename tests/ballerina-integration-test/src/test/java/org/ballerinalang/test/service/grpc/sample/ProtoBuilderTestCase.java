@@ -34,7 +34,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static org.ballerinalang.net.grpc.proto.ServiceProtoUtils.hexStringToByteArray;
+import static org.ballerinalang.net.grpc.ServicesBuilderUtils.hexStringToByteArray;
 
 /**
  * Test class for proto file builder compiler plugin.

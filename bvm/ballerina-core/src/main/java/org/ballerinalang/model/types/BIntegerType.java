@@ -47,11 +47,6 @@ class BIntegerType extends BType {
     }
 
     @Override
-    public TypeSignature getSig() {
-        return new TypeSignature(TypeSignature.SIG_INT);
-    }
-
-    @Override
     public int getTag() {
         return TypeTags.INT_TAG;
     }
