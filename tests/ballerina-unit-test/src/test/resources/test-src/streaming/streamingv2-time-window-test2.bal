@@ -56,7 +56,8 @@ function startTimeWindowTest2() returns (Teacher[]) {
 
     testTimeWindow();
 
-    outputStreamTimeWindowTest2.subscribe(function(Person e) {printTeachers(e);});
+    outputStreamTimeWindowTest2.subscribe(printTeachers);
+    int i = 0;
     foreach var t in teachers {
         inputStreamTimeWindowTest2.publish(t);
         if (i % 2 == 0) {
