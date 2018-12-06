@@ -195,9 +195,11 @@ ServiceBody ::= LEFT_BRACE ServiceBodyMember* RIGHT_BRACE
 ServiceBodyMember ::= ObjectFieldDefinition | ObjectFunctionDefinition
 
 // Pin to make sure callable unit is identified correctly
-CallableUnitBody ::= LEFT_BRACE (RIGHT_BRACE | Block WorkerDefinition+ Block RIGHT_BRACE | Block RIGHT_BRACE) {pin=1}
+CallableUnitBody ::= LEFT_BRACE (RIGHT_BRACE | Statement* WorkerWithStatementsBlock+ RIGHT_BRACE | Statement+ RIGHT_BRACE ) {pin=1}
 
-Block ::= Statement* {methods=[processDeclarations]} /*{recoverWhile=StatementRecover}*/
+WorkerWithStatementsBlock ::= WorkerDefinition+ Statement*
+
+Block ::= Statement* {methods=[processDeclarations]}
 
 // Todo - Need getIdentifier?
 FunctionDefinition ::= (public)? (remote)? (extern)? function (FunctionWithoutReceiver | FunctionWithReceiver) {
@@ -274,7 +276,7 @@ WorkerDefinition ::= worker identifier ReturnParameter? WorkerBody {
 
 private WorkerDefinitionRecover ::= StatementRecover
 
-WorkerBody ::= LEFT_BRACE Block RIGHT_BRACE {pin=1}
+WorkerBody ::= LEFT_BRACE Block RIGHT_BRACE
 
 FiniteType ::= FiniteTypeUnit (PIPE FiniteTypeUnit)*
 
@@ -388,7 +390,7 @@ Statement ::=
 // Todo - Add more tokens (for record destructuring and panic)
 // Note - Literals are added for worker interactions - 10 -> w2;
 // NULL_LITERAL is added for match pattern -  null => return "error";
-private StatementRecover ::= !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|SYMBOLIC_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|int|string|float|decimal|boolean|byte|any|anydata|json|xml|xmlns|map|table|function|stream|'('|'}'|';'|typedesc|future|var|while|match|foreach|continue|break|fork|try|throw|return|abort|aborted|committed|retry|fail|lock|transaction|if|forever|object|check|error|panic|from|worker|record|identifier|UNDERSCORE)
+private StatementRecover ::= !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|SYMBOLIC_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|int|string|float|decimal|boolean|byte|any|anydata|json|xml|xmlns|map|table|function|stream|'('|'}'|';'|typedesc|future|var|while|match|foreach|continue|break|fork|try|throw|return|abort|aborted|committed|retry|fail|lock|transaction|if|forever|object|check|error|panic|from|worker|record|identifier|wait)
 
 // Note - VariableDefinitionStatementInService
 //TODO - change pin
@@ -451,7 +453,7 @@ private pinnedElseClause ::= if Expression (LEFT_BRACE Block RIGHT_BRACE) {pin("
 ElseClause ::= else (LEFT_BRACE Block RIGHT_BRACE) {pin(".*")=1}
 
 matchStatement ::= match Expression matchStatementBody {pin=1}
-matchStatementBody ::= LEFT_BRACE matchPatternClause+ RIGHT_BRACE {pin=1}
+matchStatementBody ::= LEFT_BRACE matchPatternClause+ RIGHT_BRACE
 
 // Todo - Add fake rule
 matchPatternClause ::= varMatchPattern | staticMatchPattern
@@ -516,7 +518,7 @@ private closedRange ::= (LEFT_BRACKET|LEFT_PARENTHESIS) Expression RANGE Express
 // Todo - pin 1?
 WhileStatement ::= while Expression WhileStatementBody {pin(".*")=1}
 
-WhileStatementBody ::= LEFT_BRACE Block RIGHT_BRACE {pin=1}
+WhileStatementBody ::= LEFT_BRACE Block RIGHT_BRACE
 
 ContinueStatement ::= continue SEMICOLON {pin=1}
 
