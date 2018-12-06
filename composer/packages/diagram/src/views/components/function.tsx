@@ -20,7 +20,8 @@ export const Function = (props: { model: FunctionNode }) => {
     const viewState: FunctionViewState = model.viewState;
 
     return (
-        <Panel model={viewState} title={model.name.value} icon={viewState.icon}>
+        <Panel model={viewState} title={model.name.value}
+            icon={viewState.icon} astModel={model}>
             {!model.resource &&
                 <LifeLine title="Client" icon="client" model={viewState.client.bBox} />}
             <LifeLine title="Default" icon="worker" model={viewState.defaultWorker.lifeline.bBox}
