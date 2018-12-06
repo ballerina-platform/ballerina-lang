@@ -1,5 +1,5 @@
 import { ASTNode } from "@ballerina/ast-model";
-import cn from "classnames";
+import classNames from "classnames";
 import * as React from "react";
 import { DiagramContext } from "../../diagram/index";
 
@@ -21,7 +21,7 @@ export const SourceLinkedLabel: React.StatelessComponent<{
             <DiagramContext.Consumer>{({ langClient, docUri }) => (
                 <text
                     {...{ x, y}}
-                    className={cn(className, "source-linked-label")}
+                    className={classNames(className, "source-linked-label")}
                     onClick={() => {
                         if (langClient) {
                             const position = target.position;

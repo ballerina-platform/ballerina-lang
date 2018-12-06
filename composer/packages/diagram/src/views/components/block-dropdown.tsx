@@ -1,5 +1,5 @@
 import { ASTUtil, Block } from "@ballerina/ast-model";
-import cn from "classnames";
+import classNames from "classnames";
 import React from "react";
 import { DiagramContext, IDiagramContext } from "../../diagram/diagram-context";
 import { SimplePoint } from "../../view-model/simple-point";
@@ -30,7 +30,7 @@ export class BlockDropdown extends React.Component<BlockDropdownProps, { isHover
         const { isHovered } = this.state;
         const context = this.context as IDiagramContext;
         return <SVGDropDownMenu
-                    className={cn("block-dropdown", { hover: isHovered })}
+                    className={classNames("block-dropdown", { hover: isHovered })}
                     triggerPosition={triggerPosition}
                     triggerIcon="add"
                     items={[
