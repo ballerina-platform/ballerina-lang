@@ -1840,7 +1840,19 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangCheckedExpr checkedExpr) {
+        boolean firstVisit = checkedExpr.expr.type == null;
         BType exprType = checkExpr(checkedExpr.expr, env, symTable.noType);
+        if (checkedExpr.expr.getKind() == NodeKind.WORKER_RECEIVE) {
+            if (firstVisit) {
+                isTypeChecked = false;
+                resultType = expType;
+                return;
+            } else {
+                expType = checkedExpr.type;
+                exprType = checkedExpr.expr.type;
+            }
+        }
+
         if (exprType.tag != TypeTags.UNION) {
             if (types.isAssignable(exprType, symTable.errorType)) {
                 dlog.error(checkedExpr.expr.pos, DiagnosticCode.CHECKED_EXPR_INVALID_USAGE_ALL_ERROR_TYPES_IN_RHS);

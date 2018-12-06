@@ -1778,6 +1778,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangCheckedExpr checkedExpr) {
+        analyzeExpr(checkedExpr.expr);
         boolean enclInvokableHasErrorReturn = false;
         BType exprType = env.enclInvokable.getReturnTypeNode().type;
         if (exprType.tag == TypeTags.UNION) {
@@ -1953,8 +1954,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private void validateWorkerActionParameters(BLangWorkerSend send, BLangWorkerReceive receive) {
         types.checkType(receive, send.type, receive.type);
         addImplicitCast(send.type, receive);
-        if (receive.parent.getKind() == NodeKind.TRAP_EXPR) {
-            typeChecker.checkExpr((BLangTrapExpr) receive.parent, receive.env);
+        NodeKind kind = receive.parent.getKind();
+        if (kind == NodeKind.TRAP_EXPR || kind == NodeKind.CHECK_EXPR) {
+            typeChecker.checkExpr((BLangExpression) receive.parent, receive.env);
         }
     }
 
