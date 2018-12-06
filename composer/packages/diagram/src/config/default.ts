@@ -127,6 +127,16 @@ export class DiagramConfig {
         },
         menuTriggerMargin: 12
     };
+
+    public frame = {
+        header: {
+            height: STATEMENT_HEIGHT,
+            width: 70
+        },
+        leftMarginDefault: 60,
+        rightMargin: STATEMENT_HEIGHT,
+        topMargin: 5,
+    };
 }
 
 export const DefaultConfig = new DiagramConfig();

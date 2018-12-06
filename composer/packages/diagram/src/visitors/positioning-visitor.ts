@@ -1,7 +1,7 @@
 import {
     ASTKindChecker, ASTUtil, Block, CompilationUnit, Foreach,
-    Function, If, Lambda, ObjectType, Service, TypeDefinition, Variable,
-    VariableDef, VisibleEndpoint, Visitor, While
+    Function, If, Lambda, Match, MatchStaticPatternClause, ObjectType, Service,
+    TypeDefinition, Variable, VariableDef, VisibleEndpoint, Visitor, While
 } from "@ballerina/ast-model";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
@@ -201,4 +201,21 @@ export const visitor: Visitor = {
             y += element.viewState.bBox.h;
         });
     },
+
+    beginVisitMatchStaticPatternClause(node: MatchStaticPatternClause) {
+        const viewState: ViewState = node.viewState;
+        node.statement.viewState.bBox.x = viewState.bBox.x;
+        node.statement.viewState.bBox.y = viewState.bBox.y
+        + config.statement.height; // To print literal;
+    },
+
+    beginVisitMatch(node: Match) {
+        const viewState: ViewState = node.viewState;
+        let height = config.frame.topMargin + config.frame.header.height;
+        node.patternClauses.forEach((element) => {
+            element.viewState.bBox.x = viewState.bBox.x;
+            element.viewState.bBox.y = viewState.bBox.y + height;
+            height += element.viewState.bBox.h;
+        });
+    }
 };
