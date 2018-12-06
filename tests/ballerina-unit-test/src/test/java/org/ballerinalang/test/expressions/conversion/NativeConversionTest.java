@@ -35,6 +35,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+
 /**
  * Test Cases for type conversion.
  */
@@ -692,19 +695,86 @@ public class NativeConversionTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test(description = "Test convert values which can be implicitly cast")
-    public void testImplicitConversion() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testImplicitConversion");
+    @Test(description = "Test convert any, anydata and json values to int")
+    public void testImplicitConversionToInt() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testImplicitConversionToInt");
         Assert.assertTrue(returns[0] instanceof BMap);
         BMap<String, ?> map = (BMap<String, ?>) returns[0];
-        Assert.assertEquals(((BFloat) map.get("toFloat")).floatValue(), 10.0);
-        Assert.assertEquals(map.get("toString").stringValue(), "78.9");
-        Assert.assertEquals(((BInteger) map.get("toInt")).intValue(), 200);
-        Assert.assertEquals(((BDecimal) map.get("toDecimal")).floatValue(), 23.456);
-        Assert.assertEquals(((BByte) map.get("ToByte")).intValue(), 4);
-        Assert.assertTrue(((BBoolean) map.get("ToBoolean")).booleanValue());
+        Assert.assertEquals(((BInteger) map.get("fromFloat")).intValue(), 234);
+        Assert.assertEquals(((BInteger) map.get("fromString")).intValue(), 10);
+        Assert.assertEquals(((BInteger) map.get("fromInt")).intValue(), 200);
+        Assert.assertEquals(((BInteger) map.get("fromDecimal")).intValue(), 23);
+        Assert.assertEquals(((BInteger) map.get("fromByte")).intValue(), 5);
+        Assert.assertEquals(((BInteger) map.get("fromBoolean")).intValue(), 1);
     }
-    
+
+    @Test(description = "Test convert any, anydata and json values to float")
+    public void testImplicitConversionToFloat() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testImplicitConversionToFloat");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        BMap<String, ?> map = (BMap<String, ?>) returns[0];
+        Assert.assertEquals(((BFloat) map.get("fromFloat")).floatValue(), 234.45);
+        Assert.assertEquals(((BFloat) map.get("fromString")).floatValue(), 10.2);
+        Assert.assertEquals(((BFloat) map.get("fromInt")).floatValue(), 200.0);
+        Assert.assertEquals(((BFloat) map.get("fromDecimal")).floatValue(), 23.456);
+        Assert.assertEquals(((BFloat) map.get("fromByte")).floatValue(), 5.0);
+        Assert.assertEquals(((BFloat) map.get("fromBoolean")).floatValue(), 1.0);
+    }
+
+    @Test(description = "Test convert any, anydata and json values to byte")
+    public void testImplicitConversionToByte() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testImplicitConversionToByte");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        BMap<String, ?> map = (BMap<String, ?>) returns[0];
+        Assert.assertEquals(((BByte) map.get("fromFloat")).byteValue(), 4);
+        Assert.assertEquals(((BByte) map.get("fromString")).byteValue(), 10);
+        Assert.assertEquals(((BByte) map.get("fromInt")).byteValue(), 22);
+        Assert.assertEquals(((BByte) map.get("fromDecimal")).byteValue(), 23);
+        Assert.assertEquals(((BByte) map.get("fromByte")).byteValue(), 5);
+        Assert.assertEquals(((BByte) map.get("fromBoolean")).byteValue(), 1);
+    }
+
+    @Test(description = "Test convert any, anydata and json values to string")
+    public void testImplicitConversionToString() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testImplicitConversionToString");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        BMap<String, ?> map = (BMap<String, ?>) returns[0];
+        Assert.assertEquals(map.get("fromFloat").stringValue(), "234.45");
+        Assert.assertEquals(map.get("fromString").stringValue(), "hello");
+        Assert.assertEquals(map.get("fromInt").stringValue(), "200");
+        Assert.assertEquals(map.get("fromDecimal").stringValue(), "23.45599999999999951683093968313187");
+        Assert.assertEquals(map.get("fromByte").stringValue(), "5");
+        Assert.assertEquals(map.get("fromBoolean").stringValue(), "true");
+    }
+
+    @Test(description = "Test convert any, anydata and json values to decimal")
+    public void testImplicitConversionToDecimal() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testImplicitConversionToDecimal");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        BMap<String, ?> map = (BMap<String, ?>) returns[0];
+        Assert.assertEquals(((BDecimal) map.get("fromFloat")).decimalValue(), new BigDecimal(234.45,
+                                                                                             MathContext.DECIMAL128));
+        Assert.assertEquals((map.get("fromString")).stringValue(), "10.33");
+        Assert.assertEquals(map.get("fromInt").stringValue(), "200.0");
+        Assert.assertEquals(((BDecimal) map.get("fromDecimal")).decimalValue(), new BigDecimal(23.456,
+                                                                                               MathContext.DECIMAL128));
+        Assert.assertEquals(map.get("fromByte").stringValue(), "5");
+        Assert.assertEquals(map.get("fromBoolean").stringValue(), "1.0");
+    }
+
+    @Test(description = "Test convert any, anydata and json values to boolean")
+    public void testImplicitConversionToBoolean() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testImplicitConversionToBoolean");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        BMap<String, ?> map = (BMap<String, ?>) returns[0];
+        Assert.assertFalse(((BBoolean) map.get("fromFloat")).booleanValue());
+        Assert.assertTrue(((BBoolean) map.get("fromString")).booleanValue());
+        Assert.assertFalse(((BBoolean) map.get("fromInt")).booleanValue());
+        Assert.assertTrue(((BBoolean) map.get("fromDecimal")).booleanValue());
+        Assert.assertFalse(((BBoolean) map.get("fromByte")).booleanValue());
+        Assert.assertFalse(((BBoolean) map.get("fromBoolean")).booleanValue());
+    }
+
     @Test
     public void testConvertWithFuncCall() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testConvertWithFuncCall");
