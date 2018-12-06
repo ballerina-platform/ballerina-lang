@@ -6,7 +6,6 @@ import { DiagramUtils } from "../../diagram/diagram-utils";
 import { ViewState } from "../../view-model";
 import { ArrowHead } from "./arrow-head";
 import { Condition } from "./condition";
-import { SourceLinkedLabel } from "./source-linked-label";
 
 const config: DiagramConfig = DiagramUtils.getConfig();
 
@@ -18,23 +17,11 @@ export const While: React.StatelessComponent<{
         const viewState: ViewState = model.viewState;
         const body = [];
 
-        const conditionPosition = {
-            x: viewState.bBox.x,
-            y: viewState.bBox.y + (config.flowCtrl.condition.height / 2),
-        };
-        const label = (
-            <SourceLinkedLabel
-                {...conditionPosition}
-                target={model}
-                text="While"
-                className="label"
-            />
-        );
         const conditionProps = {
             expression: ASTUtil.genSource(model.condition),
-            label,
-            x: conditionPosition.x,
-            y: conditionPosition.y
+            label: "While",
+            x: viewState.bBox.x,
+            y: viewState.bBox.y + (config.flowCtrl.condition.height / 2),
         };
 
         // Continue Line
@@ -87,7 +74,7 @@ export const While: React.StatelessComponent<{
                     />
                     <line className="hide-line" x1={p1.x} y1={p1.y + 1} x2={r4.x} y2={r4.y - 1} strokeLinecap="round" />
                     <ArrowHead direction={"right"} {...p4} />
-                    <Condition {...conditionProps}/>
+                    <Condition {...conditionProps} astModel={model} />
                 </g>
             </g>);
     };

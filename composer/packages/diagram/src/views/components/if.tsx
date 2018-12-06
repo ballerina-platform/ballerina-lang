@@ -6,7 +6,6 @@ import { DiagramUtils } from "../../diagram/diagram-utils";
 import { ViewState } from "../../view-model";
 import { ArrowHead } from "./arrow-head";
 import { Condition } from "./condition";
-import { SourceLinkedLabel } from "./source-linked-label";
 
 const config: DiagramConfig = DiagramUtils.getConfig();
 
@@ -18,25 +17,12 @@ export const If: React.StatelessComponent<{
         const viewState: ViewState = model.viewState;
         const children = [];
 
-        const conditionPosition = {
-            x: viewState.bBox.x,
-            y: viewState.bBox.y + (config.flowCtrl.condition.height / 2),
-        };
-        const label = (
-            <SourceLinkedLabel
-                {...conditionPosition}
-                target={model}
-                text="If"
-                className="label"
-            />
-        );
-
         const conditionProps = {
             expression: ASTUtil.genSource(model.condition),
-            label,
+            label: "If",
             width: model.body.viewState.bBox.w,
-            x: conditionPosition.x,
-            y: conditionPosition.y
+            x: viewState.bBox.x,
+            y: viewState.bBox.y + (config.flowCtrl.condition.height / 2),
         };
 
         // Continue Line
@@ -90,7 +76,7 @@ export const If: React.StatelessComponent<{
                         points={`${r1.x},${r1.y} ${r2.x},${r2.y} ${r3.x},${r3.y} ${r4.x},${r4.y}`}
                     />
                     <ArrowHead direction={"left"} {...r4} />
-                    <Condition {...conditionProps} />
+                    <Condition {...conditionProps} astModel={model} />
                     {children}
                 </g>
             </g>);

@@ -28,9 +28,17 @@ export const Statement: React.StatelessComponent<{
         return (
             <g className="statement">
                 {viewState.isAction && !viewState.isReturn
-                    && <ActionInvocation model={viewState} action={viewState.bBox.label} />}
+                    && <ActionInvocation
+                            model={viewState}
+                            action={viewState.bBox.label}
+                            astModel={model}
+                        />}
                 {viewState.isAction && viewState.isReturn
-                    && <ReturnActionInvocation model={viewState} action={viewState.bBox.label} />}
+                    && <ReturnActionInvocation
+                            model={viewState}
+                            action={viewState.bBox.label}
+                            astModel={model}
+                        />}
                 {!viewState.isAction &&
                     <SourceLinkedLabel {...statementProps}  />
                 }
