@@ -50,10 +50,15 @@ function startTimeWindowTest2() returns (Teacher[]) {
     testTimeWindow();
 
     outputStreamTimeWindowTest2.subscribe(printTeachers);
-    foreach t in teachers {
+    int i = 0;
+    foreach var t in teachers {
         inputStreamTimeWindowTest2.publish(t);
-        runtime:sleep(1200);
+        if (i % 2 == 0) {
+            runtime:sleep(1500);
+        }
+        i += 1;
     }
+
 
     int count = 0;
     while(true) {
@@ -70,9 +75,9 @@ function startTimeWindowTest2() returns (Teacher[]) {
 function testTimeWindow() {
 
     forever {
-        from inputStreamTimeWindowTest2 window timeWindow(2000)
-        select inputStreamTimeWindowTest2.name, inputStreamTimeWindowTest2.age, inputStreamTimeWindowTest2.status, inputStreamTimeWindowTest2
-        .school, count() as count
+        from inputStreamTimeWindowTest2 window timeWindow(1000)
+        select inputStreamTimeWindowTest2.name, inputStreamTimeWindowTest2.age, inputStreamTimeWindowTest2.status,
+                inputStreamTimeWindowTest2.school, count() as count
         group by inputStreamTimeWindowTest2.school
         => (Teacher [] emp) {
             foreach e in emp {
