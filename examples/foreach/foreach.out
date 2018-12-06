@@ -12,7 +12,7 @@ letter: c, word: cherry
 
 Iterating over a json object:-
 string value: apple
-string array value: ["red", "green"]
+json array value: ["red", "green"]
 int value: 5
 
 Iterating over a json array:-
