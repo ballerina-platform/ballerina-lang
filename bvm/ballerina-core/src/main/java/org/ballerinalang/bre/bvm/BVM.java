@@ -1092,119 +1092,158 @@ public class BVM {
         try {
             switch (typeRefCPEntry.getType().getTag()) {
                 case TypeTags.INT_TAG:
-                    if (bRefTypeValue.value() instanceof Long) {
-                        sf.refRegs[j] = new BInteger(((Long) bRefTypeValue.value()));
-                        break;
-                    }
-                    if (bRefTypeValue.value() instanceof Byte) {
-                        sf.refRegs[j] = new BInteger(((Byte) bRefTypeValue.value()));
-                        break;
-                    }
-                    if (bRefTypeValue.value() instanceof Double) {
-                        double value = (Double) bRefTypeValue.value();
-                        if (Double.isNaN(value) || Double.isInfinite(value)) {
-                            strand.setError(BLangVMErrors
-                                                    .createError(strand, BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
-                                                                 "'float' value '" + value + "' cannot be " +
-                                                                         "converted to 'int'"));
-                            handleError(strand);
-                            break;
-                        }
-                        if (!isFloatWithinIntRange(value)) {
-                            strand.setError(BLangVMErrors
-                                                    .createError(strand, BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
-                                                                 "out of range 'float' value '" + value +
-                                                                         "' cannot be converted to 'int'"));
-                            handleError(strand);
-                            break;
-                        }
-                        sf.refRegs[j] = new BInteger(Math.round(value));
-                        break;
-                    }
-                    if (bRefTypeValue.value() instanceof String) {
-                        sf.refRegs[j] = new BInteger(Long.parseLong((String) bRefTypeValue.value()));
-                        break;
-                    }
-                    handleTypeConversionError(strand, sf, j, bRefTypeValue.getType(), typeRefCPEntry.getType());
+                    convertToInt(strand, sf, j, typeRefCPEntry, bRefTypeValue);
                     break;
                 case TypeTags.FLOAT_TAG:
-                    if (bRefTypeValue.value() instanceof Double) {
-                        sf.refRegs[j] = new BFloat((Double) bRefTypeValue.value());
-                        break;
-                    }
-                    if (bRefTypeValue.value() instanceof Long) {
-                        sf.refRegs[j] = new BFloat((Long) bRefTypeValue.value());
-                        break;
-                    }
-                    if (bRefTypeValue.value() instanceof String) {
-                        sf.refRegs[j] = new BFloat(Double.parseDouble((String) bRefTypeValue.value()));
-                        break;
-                    }
-                    handleTypeConversionError(strand, sf, j, bRefTypeValue.getType(), typeRefCPEntry.getType());
+                    convertToFloat(strand, sf, j, typeRefCPEntry, bRefTypeValue);
                     break;
                 case TypeTags.DECIMAL_TAG:
-                    if (bRefTypeValue.value() instanceof BigDecimal) {
-                        sf.refRegs[j] = new BDecimal((BigDecimal) bRefTypeValue.value());
-                        break;
-                    }
-                    if (bRefTypeValue.value() instanceof Double) {
-                        sf.refRegs[j] = new BDecimal((new BigDecimal((Double) bRefTypeValue.value(),
-                                                                     MathContext.DECIMAL128)));
-                        break;
-                    }
-                    if (bRefTypeValue.value() instanceof Long) {
-                        sf.refRegs[j] = new BDecimal(new BigDecimal((Long) bRefTypeValue.value(),
-                                                                    MathContext.DECIMAL128));
-                        break;
-                    }
-                    if (bRefTypeValue.value() instanceof String) {
-                        sf.refRegs[j] = new BDecimal(new BigDecimal((String) bRefTypeValue.value(),
-                                                                    MathContext.DECIMAL128));
-                        break;
-                    }
-                    handleTypeConversionError(strand, sf, j, bRefTypeValue.getType(), typeRefCPEntry.getType());
+                    convertToDecimal(strand, sf, j, typeRefCPEntry, bRefTypeValue);
                     break;
                 case TypeTags.STRING_TAG:
                     sf.refRegs[j] = new BString(bRefTypeValue.toString());
                     break;
                 case TypeTags.BOOLEAN_TAG:
-                    if (bRefTypeValue.value() instanceof Boolean) {
-                        sf.refRegs[j] = new BBoolean(((Boolean) bRefTypeValue.value()));
-                        break;
-                    }
-                    if (bRefTypeValue.value() instanceof String) {
-                        sf.refRegs[j] = new BBoolean(Boolean.parseBoolean((String) bRefTypeValue.value()));
-                        break;
-                    }
-                    if (bRefTypeValue.value() instanceof Long) {
-                        sf.refRegs[j] = new BBoolean(((Long) bRefTypeValue.value()) != 0);
-                        break;
-                    }
-                    handleTypeConversionError(strand, sf, j, bRefTypeValue.getType(), typeRefCPEntry.getType());
+                    convertToBoolean(strand, sf, j, typeRefCPEntry, bRefTypeValue);
                     break;
                 case TypeTags.BYTE_TAG:
-                    if (bRefTypeValue.value() instanceof Byte) {
-                        sf.refRegs[j] = new BByte((Byte) bRefTypeValue.value());
-                        break;
-                    }
-                    if (bRefTypeValue.value() instanceof Long) {
-                        Long value = (Long) bRefTypeValue.value();
-                        if (isByteLiteral(value)) {
-                            sf.refRegs[j] = new BByte(((Long) bRefTypeValue.value()).byteValue());
-                            break;
-                        }
-                    }
-                    if (bRefTypeValue.value() instanceof String) {
-                        sf.refRegs[j] = new BByte(Byte.parseByte((String) bRefTypeValue.value()));
-                        break;
-                    }
-                    handleTypeConversionError(strand, sf, j, bRefTypeValue.getType(), typeRefCPEntry.getType());
+                    convertToByte(strand, sf, j, typeRefCPEntry, bRefTypeValue);
                     break;
                 default:
                     handleTypeConversionError(strand, sf, j, bRefTypeValue.getType(), typeRefCPEntry.getType());
             }
         } catch (Exception e) {
             handleTypeConversionError(strand, sf, j, bRefTypeValue.getType(), typeRefCPEntry.getType());
+        }
+    }
+
+    private static void convertToInt(Strand strand, StackFrame sf, int j, TypeRefCPEntry typeRefCPEntry,
+                                     BRefType bRefTypeValue) {
+        switch (bRefTypeValue.getType().getTag()) {
+            case TypeTags.INT_TAG:
+                sf.refRegs[j] = new BInteger(((BInteger) bRefTypeValue).intValue());
+                break;
+            case TypeTags.FLOAT_TAG:
+                sf.refRegs[j] = new BInteger(((BFloat) bRefTypeValue).intValue());
+                break;
+            case TypeTags.STRING_TAG:
+                sf.refRegs[j] = new BInteger(((BString) bRefTypeValue).intValue());
+                break;
+            case TypeTags.DECIMAL_TAG:
+                sf.refRegs[j] = new BInteger(((BDecimal) bRefTypeValue).intValue());
+                break;
+            case TypeTags.BYTE_TAG:
+                sf.refRegs[j] = new BInteger(((BByte) bRefTypeValue).intValue());
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                sf.refRegs[j] = new BInteger(((BBoolean) bRefTypeValue).intValue());
+                break;
+            default:
+                handleTypeConversionError(strand, sf, j, bRefTypeValue.getType(), typeRefCPEntry.getType());
+        }
+    }
+
+    private static void convertToFloat(Strand strand, StackFrame sf, int j, TypeRefCPEntry typeRefCPEntry,
+                                       BRefType bRefTypeValue) {
+        switch (bRefTypeValue.getType().getTag()) {
+            case TypeTags.INT_TAG:
+                sf.refRegs[j] = new BFloat(((BInteger) bRefTypeValue).floatValue());
+                break;
+            case TypeTags.FLOAT_TAG:
+                sf.refRegs[j] = new BFloat(((BFloat) bRefTypeValue).floatValue());
+                break;
+            case TypeTags.STRING_TAG:
+                sf.refRegs[j] = new BFloat(((BString) bRefTypeValue).floatValue());
+                break;
+            case TypeTags.DECIMAL_TAG:
+                sf.refRegs[j] = new BFloat(((BDecimal) bRefTypeValue).floatValue());
+                break;
+            case TypeTags.BYTE_TAG:
+                sf.refRegs[j] = new BFloat(((BByte) bRefTypeValue).floatValue());
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                sf.refRegs[j] = new BFloat(((BBoolean) bRefTypeValue).floatValue());
+                break;
+            default:
+                handleTypeConversionError(strand, sf, j, bRefTypeValue.getType(), typeRefCPEntry.getType());
+        }
+    }
+
+    private static void convertToDecimal(Strand strand, StackFrame sf, int j, TypeRefCPEntry typeRefCPEntry,
+                                         BRefType bRefTypeValue) {
+        switch (bRefTypeValue.getType().getTag()) {
+            case TypeTags.INT_TAG:
+                sf.refRegs[j] = new BDecimal(((BInteger) bRefTypeValue).decimalValue());
+                break;
+            case TypeTags.FLOAT_TAG:
+                sf.refRegs[j] = new BDecimal(((BFloat) bRefTypeValue).decimalValue());
+                break;
+            case TypeTags.STRING_TAG:
+                sf.refRegs[j] = new BDecimal(((BString) bRefTypeValue).decimalValue());
+                break;
+            case TypeTags.DECIMAL_TAG:
+                sf.refRegs[j] = new BDecimal(((BDecimal) bRefTypeValue).decimalValue());
+                break;
+            case TypeTags.BYTE_TAG:
+                sf.refRegs[j] = new BDecimal(((BByte) bRefTypeValue).decimalValue());
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                sf.refRegs[j] = new BDecimal(((BBoolean) bRefTypeValue).decimalValue());
+                break;
+            default:
+                handleTypeConversionError(strand, sf, j, bRefTypeValue.getType(), typeRefCPEntry.getType());
+        }
+    }
+
+    private static void convertToBoolean(Strand strand, StackFrame sf, int j, TypeRefCPEntry typeRefCPEntry,
+                                         BRefType bRefTypeValue) {
+        switch (bRefTypeValue.getType().getTag()) {
+            case TypeTags.INT_TAG:
+                sf.refRegs[j] = new BBoolean(((BInteger) bRefTypeValue).booleanValue());
+                break;
+            case TypeTags.FLOAT_TAG:
+                sf.refRegs[j] = new BBoolean(((BFloat) bRefTypeValue).booleanValue());
+                break;
+            case TypeTags.STRING_TAG:
+                sf.refRegs[j] = new BBoolean(((BString) bRefTypeValue).booleanValue());
+                break;
+            case TypeTags.DECIMAL_TAG:
+                sf.refRegs[j] = new BBoolean(((BDecimal) bRefTypeValue).booleanValue());
+                break;
+            case TypeTags.BYTE_TAG:
+                sf.refRegs[j] = new BBoolean(((BByte) bRefTypeValue).booleanValue());
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                sf.refRegs[j] = new BBoolean(((BBoolean) bRefTypeValue).booleanValue());
+                break;
+            default:
+                handleTypeConversionError(strand, sf, j, bRefTypeValue.getType(), typeRefCPEntry.getType());
+        }
+    }
+
+    private static void convertToByte(Strand strand, StackFrame sf, int j, TypeRefCPEntry typeRefCPEntry,
+                                      BRefType bRefTypeValue) {
+        switch (bRefTypeValue.getType().getTag()) {
+            case TypeTags.INT_TAG:
+                sf.refRegs[j] = new BByte(((BInteger) bRefTypeValue).byteValue());
+                break;
+            case TypeTags.FLOAT_TAG:
+                sf.refRegs[j] = new BByte(((BFloat) bRefTypeValue).byteValue());
+                break;
+            case TypeTags.STRING_TAG:
+                sf.refRegs[j] = new BByte(((BString) bRefTypeValue).byteValue());
+                break;
+            case TypeTags.DECIMAL_TAG:
+                sf.refRegs[j] = new BByte(((BDecimal) bRefTypeValue).byteValue());
+                break;
+            case TypeTags.BYTE_TAG:
+                sf.refRegs[j] = new BByte(((BByte) bRefTypeValue).byteValue());
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                sf.refRegs[j] = new BByte(((BBoolean) bRefTypeValue).byteValue());
+                break;
+            default:
+                handleTypeConversionError(strand, sf, j, bRefTypeValue.getType(), typeRefCPEntry.getType());
         }
     }
 
