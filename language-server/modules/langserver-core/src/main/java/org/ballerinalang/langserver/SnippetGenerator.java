@@ -145,6 +145,16 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get Listener Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getListenerKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.LISTENER_KEYWORD, "listener ", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
+    }
+
+    /**
      * Get Foreach Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
