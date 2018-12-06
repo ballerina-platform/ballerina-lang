@@ -34,6 +34,7 @@ public class WorkerDataChannel {
     private WaitingSender waitingSender;
     private BRefType error;
     private BError panic;
+    private boolean isFlush;
 
     @SuppressWarnings("rawtypes")
     private Queue<WorkerResult> channel = new LinkedList<>();
@@ -65,7 +66,7 @@ public class WorkerDataChannel {
             waitingCtx.setError(this.panic);
             BVM.handleError(waitingCtx);
             this.panic = null;
-            return false;
+            return true;
         }
         this.channel.add(new WorkerResult(data, true));
         this.waitingSender = new WaitingSender(waitingCtx, retReg);
@@ -83,10 +84,8 @@ public class WorkerDataChannel {
         WorkerResult result = this.channel.peek();
         if (result != null) {
             this.channel.remove();
-            if (waitingSender != null) {
-                if (result.isSync) {
-                    waitingSender.waitingCtx.currentFrame.refRegs[waitingSender.returnReg] = null;
-                }
+            if (result.isSync || this.isFlush) {
+                waitingSender.waitingCtx.currentFrame.refRegs[waitingSender.returnReg] = null;
                 //will continue if this is a sync wait, will try to flush again if blocked on flush
                 BVMScheduler.stateChange(this.waitingSender.waitingCtx, State.PAUSED, State.RUNNABLE);
                 BVMScheduler.schedule(waitingSender.waitingCtx);
@@ -110,6 +109,7 @@ public class WorkerDataChannel {
         if (this.error != null) {
             ctx.currentFrame.refRegs[retReg] = this.error;
             this.error = null;
+            this.isFlush = false;
             return true;
         }
 
@@ -126,6 +126,7 @@ public class WorkerDataChannel {
         if (this.panic != null) {
             ctx.setError(this.panic);
             this.panic = null;
+            this.isFlush = false;
             return true;
         }
 
@@ -140,11 +141,13 @@ public class WorkerDataChannel {
      */
     public synchronized boolean isDataSent(Strand ctx, int retReg) {
         if (channel.isEmpty()) {
+            this.isFlush = false;
             return true;
         }
         waitingSender = new WaitingSender(ctx, retReg);
         ctx.currentFrame.ip--;
         BVMScheduler.stateChange(ctx, State.RUNNABLE, State.PAUSED);
+        this.isFlush = true;
         return false;
     }
 
@@ -165,8 +168,9 @@ public class WorkerDataChannel {
         this.panic  = panic;
         if (this.waitingSender != null) {
             this.waitingSender.waitingCtx.setError(panic);
-            BVMScheduler.stateChange(this.waitingSender.waitingCtx, State.PAUSED, State.RUNNABLE);
             BVM.handleError(this.waitingSender.waitingCtx);
+            BVMScheduler.stateChange(this.waitingSender.waitingCtx, State.PAUSED, State.RUNNABLE);
+            BVMScheduler.schedule(this.waitingSender.waitingCtx);
         }
     }
 

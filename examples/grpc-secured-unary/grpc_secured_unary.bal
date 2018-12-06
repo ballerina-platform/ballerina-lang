@@ -23,7 +23,7 @@ service HelloWorld on ep {
 
         if (err is error) {
             io:println("Error from Connector: " + err.reason() + " - "
-                                                + <string>err.detail().message);
+                                               + <string>err.detail().message);
         } else {
             io:println("Server send response : " + message);
         }

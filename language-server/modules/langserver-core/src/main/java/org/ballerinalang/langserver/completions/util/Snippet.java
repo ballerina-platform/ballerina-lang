@@ -70,8 +70,6 @@ public enum Snippet {
 
     KW_IMPORT(SnippetGenerator.getImportKeywordSnippet()),
 
-    KW_LENGTHOF(SnippetGenerator.getLengthofKeywordSnippet()),
-
     KW_PUBLIC(SnippetGenerator.getPublicKeywordSnippet()),
 
     KW_FINAL(SnippetGenerator.getFinalKeywordSnippet()),
@@ -92,7 +90,7 @@ public enum Snippet {
 
     STMT_FOREACH(SnippetGenerator.getForeachSnippet()),
 
-    STMT_FORK_JOIN(SnippetGenerator.getForkJoinStatementSnippet()),
+    STMT_FORK(SnippetGenerator.getForkStatementSnippet()),
 
     STMT_IF(SnippetGenerator.getIfStatementSnippet()),
 

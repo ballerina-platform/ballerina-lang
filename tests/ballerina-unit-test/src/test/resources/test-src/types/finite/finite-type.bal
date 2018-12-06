@@ -214,3 +214,27 @@ function testTypeDefinitionWithArray() returns (int, int) {
     ArrayCustom val = [34, 23];
     return (val.length() , val[1]);
 }
+
+type FuncType function (string) returns int;
+
+function testTypeDefWithFunctions() returns int {
+    FuncType fn = function (string s) returns int {
+        return s.length();
+    };
+    return fn.call("Hello");
+}
+
+type FuncType2 (function (string) returns int)|string;
+
+function testTypeDefWithFunctions2() returns int {
+    FuncType2 fn = function (string s) returns int {
+        return s.length();
+    };
+
+    if (fn is function (string) returns int) {
+        return fn.call("Hello");
+    }
+
+    return -1;
+}
+

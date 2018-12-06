@@ -273,6 +273,18 @@ public class FiniteTypeTest {
         Assert.assertEquals((((BFloat) returns[1]).floatValue()), 4.5);
     }
 
+    @Test
+    public void testTypeDefWithFunctions() {
+        BValue[] returns = BRunUtil.invoke(result, "testTypeDefWithFunctions");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), "Hello".length());
+    }
+
+    @Test
+    public void testTypeDefWithFunctions2() {
+        BValue[] returns = BRunUtil.invoke(result, "testTypeDefWithFunctions2");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), "Hello".length());
+    }
+
     @AfterClass
     public void tearDown() {
         BaloCreator.clearPackageFromRepository("finiteTypeTest", "foo");

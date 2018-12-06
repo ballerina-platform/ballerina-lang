@@ -252,7 +252,7 @@ function waitTest22() returns int|string|error {
 }
 
 function waitTest23() returns int|string|() {
-    future<()> f1 = runtime:timeout(2000);
+    future<()> f1 = runtime:timeout(50);
     future<int> f2 = start add_1(5, 2);
     future<string> f3 = start greet();
     int|string|() result = wait f1 | f2 | f3;
