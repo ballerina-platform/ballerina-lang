@@ -81,5 +81,11 @@ public class WorkerTest {
         Assert.assertEquals(ret.reason, "err");
     }
 
-
+    @Test
+    public void receiveWithCheck() {
+        BValue[] returns = BRunUtil.invoke(result, "receiveWithCheck", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        BError ret = (BError) returns[0];
+        Assert.assertEquals(ret.reason, "err");
+    }
 }
