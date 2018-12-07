@@ -212,20 +212,20 @@ public function receiveWithCheckAndTrap() returns error|int {
     return wait w2;
 }
 
-//public function receiveWithCheckForDefault() returns boolean|error {
-//    worker w1 returns boolean|error {
-//        int i = 2;
-//        if(true){
-//            error err = error("error: err from panic");
-//            return err;
-//        }
-//        i -> default;
-//        return false;
-//    }
-//
-//    error|boolean j = check <- w1;
-//    return wait w1;
-//}
+public function receiveWithCheckForDefault() returns boolean|error {
+    worker w1 returns boolean|error {
+        int i = 2;
+        if(true){
+            error err = error("err from panic");
+            return err;
+        }
+        i -> default;
+        return false;
+    }
+
+    error|int j = check <- w1;
+    return wait w1;
+}
 
 public function receiveWithTrapForDefault() returns error|int {
     worker w1 returns int {

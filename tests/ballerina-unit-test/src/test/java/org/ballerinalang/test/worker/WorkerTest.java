@@ -210,10 +210,11 @@ public class WorkerTest {
         Assert.assertEquals(returns.length, 1);
     }
 
-    @Test(enabled = false) // TODO This gives compilation errors
+    @Test
     public void receiveWithCheckForDefault() {
         BValue[] returns = BRunUtil.invoke(result, "receiveWithCheckForDefault");
         Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals("err from panic", ((BError) returns[0]).reason);
     }
 
     @Test
