@@ -1,8 +1,8 @@
 import {
     Assignment, ASTNode,
-    ASTUtil, Block, ExpressionStatement, Foreach, Function, If,
+    ASTUtil, Block, CompoundAssignment, ExpressionStatement, Foreach, Function, If,
     Invocation, Lambda, Match, MatchStaticPatternClause, ObjectType, Return, Service,
-    TypeDefinition, Variable, VariableDef, VisibleEndpoint, Visitor, While, CompoundAssignment
+    TypeDefinition, Variable, VariableDef, VisibleEndpoint, Visitor, While
 } from "@ballerina/ast-model";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";

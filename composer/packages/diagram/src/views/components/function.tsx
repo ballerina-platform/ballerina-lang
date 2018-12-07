@@ -34,7 +34,7 @@ export const Function = (props: { model: FunctionNode }, context: IDiagramContex
                 const variable: Variable = ((worker as VariableDef).variable as Variable);
                 const lambda: Lambda = (variable.initialExpression as Lambda);
                 const functionNode = lambda.functionNode;
-                const startY = viewState.defaultWorker.initHeight + viewState.defaultWorker.bBox.y 
+                const startY = viewState.defaultWorker.initHeight + viewState.defaultWorker.bBox.y
                 + config.lifeLine.header.height - config.statement.height;
                 return <g>
                     <StartInvocation client={viewState.defaultWorker.lifeline} worker={workerViewState.lifeline}
