@@ -10,6 +10,7 @@ export * from "./match";
 export * from "./foreach";
 export * from "./return";
 export * from "./type-definition";
+export * from "./worker-send";
 export { Statement as ExpressionStatement};
 export { Statement as VariableDef};
 export { Statement as Assignment};

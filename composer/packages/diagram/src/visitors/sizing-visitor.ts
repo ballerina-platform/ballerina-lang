@@ -1,8 +1,9 @@
 import {
-    Assignment, ASTNode,
-    ASTUtil, Block, CompoundAssignment, ExpressionStatement, Foreach, Function, If,
-    Invocation, Lambda, Match, MatchStaticPatternClause, ObjectType, Return, Service,
-    TypeDefinition, Variable, VariableDef, VisibleEndpoint, Visitor, While
+    Assignment, ASTKindChecker,
+    ASTNode, ASTUtil, Block, CompoundAssignment, ExpressionStatement, Foreach, Function,
+    If, Invocation, Lambda, Match, MatchStaticPatternClause, ObjectType, Return,
+    Service, TypeDefinition, Variable, VariableDef, VisibleEndpoint,
+    Visitor, While, WorkerSend
 } from "@ballerina/ast-model";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
@@ -47,7 +48,7 @@ function sizeStatement(node: ASTNode) {
     }
 }
 
-function sizeWorker(node: VariableDef, preWorkerHeight = 0) {
+function sizeWorker(node: VariableDef, preWorkerHeight = 0, workerHolder: WorkerTuple[]) {
     const variable: Variable = (node.variable as Variable);
     const lambda: Lambda = (variable.initialExpression as Lambda);
     const functionNode = lambda.functionNode;
@@ -68,6 +69,7 @@ function sizeWorker(node: VariableDef, preWorkerHeight = 0) {
         viewState.bBox.leftMargin = config.lifeLine.leftMargin;
     }
     viewState.name = variable.name.value.replace("0", "");
+    workerHolder.push({block: functionNode.body! , view: viewState});
 }
 
 function calcPreWorkerHeight(body: Block) {
@@ -81,6 +83,31 @@ function calcPreWorkerHeight(body: Block) {
         height += statement.viewState.bBox.h;
     }
     return height;
+}
+
+interface WorkerTuple { block: Block; view: WorkerViewState; }
+function syncWorkerInvocations(workerBlocks: WorkerTuple[]) {
+    // traverse default identify interaction
+    workerBlocks.forEach((workerBlock) => {
+        workerBlock.block.statements.forEach((statement) => {
+            if (ASTKindChecker.isWorkerSend(statement)) {
+                const workerViewState = workerBlocks.find((worker) => {
+                    return worker.view.name === (statement as WorkerSend).workerName.value;
+                });
+                (statement as WorkerSend).viewState.to = workerViewState!.view;
+            }
+        });
+    });
+    // Clear out previous calculations.
+    setZeroPadding(workerBlocks);
+}
+
+function setZeroPadding(workerBlocks: WorkerTuple[]) {
+    workerBlocks.forEach((workerBlock) => {
+        workerBlock.block.statements.forEach((statement) => {
+            statement.viewState.paddingTop = 0;
+        });
+    });
 }
 
 let endpointHolder: VisibleEndpoint[] = [];
@@ -119,6 +146,7 @@ export const visitor: Visitor = {
         const header = viewState.header;
         const client = viewState.client;
         const defaultWorker = viewState.defaultWorker;
+        const workerHolder: WorkerTuple[] = [];
 
         // Initialize the client width and height to default.
         client.bBox.h = config.lifeLine.line.height + (config.lifeLine.header.height * 2);
@@ -131,6 +159,9 @@ export const visitor: Visitor = {
         defaultWorker.bBox.w = (node.body!.viewState.bBox.w) ? node.body!.viewState.bBox.w :
             config.lifeLine.width;
         defaultWorker.lifeline.bBox.w = config.lifeLine.width;
+        defaultWorker.name = "default";
+        workerHolder.push({block: node.body, view: defaultWorker});
+
         // tslint:disable-next-line:prefer-conditional-expression
         if (node.body!.viewState.bBox.leftMargin) {
             defaultWorker.bBox.leftMargin = node.body!.viewState.bBox.leftMargin;
@@ -142,13 +173,14 @@ export const visitor: Visitor = {
         let workerWidth = 0;
         defaultWorker.initHeight = calcPreWorkerHeight(node.body);
         node.body!.statements.filter((element) => ASTUtil.isWorker(element)).forEach((worker) => {
-            sizeWorker(worker as VariableDef, defaultWorker.initHeight);
+            sizeWorker(worker as VariableDef, defaultWorker.initHeight, workerHolder);
             if (lineHeight < worker.viewState.bBox.h) {
                 lineHeight = worker.viewState.bBox.h;
             }
             workerWidth += worker.viewState.bBox.w;
         });
-
+        // Set Worker Arrows
+        syncWorkerInvocations(workerHolder);
         // Sync up the heights of lifelines
         client.bBox.h = defaultWorker.bBox.h = lineHeight;
         defaultWorker.lifeline.bBox.h = defaultWorker.bBox.h; // Set the height of lifeline.
@@ -287,6 +319,10 @@ export const visitor: Visitor = {
     },
 
     endVisitCompoundAssignment(node: CompoundAssignment) {
+        sizeStatement(node);
+    },
+
+    endVisitWorkerSend(node: WorkerSend) {
         sizeStatement(node);
     },
 
