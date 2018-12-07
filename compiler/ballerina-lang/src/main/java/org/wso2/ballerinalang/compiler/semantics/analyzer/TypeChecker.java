@@ -146,7 +146,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
@@ -1392,12 +1391,13 @@ public class TypeChecker extends BLangNodeVisitor {
             resultType = new BTupleType(results);
             return;
         }
+
         List<BType> results = new ArrayList<>();
-        for (int i = 0; i < bracedOrTupleExpr.expressions.size(); i++) {
-            results.add(checkExpr(bracedOrTupleExpr.expressions.get(i), env, symTable.noType));
-        }
         if (expType.tag == TypeTags.TYPEDESC) {
             bracedOrTupleExpr.isTypedescExpr = true;
+            for (int i = 0; i < bracedOrTupleExpr.expressions.size(); i++) {
+                results.add(checkExpr(bracedOrTupleExpr.expressions.get(i), env, symTable.noType));
+            }
             List<BType> actualTypes = new ArrayList<>();
             for (int i = 0; i < bracedOrTupleExpr.expressions.size(); i++) {
                 final BLangExpression expr = bracedOrTupleExpr.expressions.get(i);
@@ -1417,6 +1417,9 @@ public class TypeChecker extends BLangNodeVisitor {
             resultType = symTable.typeDesc;
         } else if (bracedOrTupleExpr.expressions.size() > 1) {
             // This is a tuple.
+            for (int i = 0; i < bracedOrTupleExpr.expressions.size(); i++) {
+                results.add(checkExpr(bracedOrTupleExpr.expressions.get(i), env, symTable.noType));
+            }
             BType actualType = new BTupleType(results);
 
             if (expType.tag == TypeTags.ANY || expType.tag == TypeTags.ANYDATA) {
@@ -1438,9 +1441,7 @@ public class TypeChecker extends BLangNodeVisitor {
         } else {
             // This is a braced expression.
             bracedOrTupleExpr.isBracedExpr = true;
-            final BType actualType = results.get(0);
-            BLangExpression expression = bracedOrTupleExpr.expressions.get(0);
-            resultType = types.checkType(expression, actualType, expType);
+            resultType = checkExpr(bracedOrTupleExpr.expressions.get(0), env, expType);
         }
     }
 
