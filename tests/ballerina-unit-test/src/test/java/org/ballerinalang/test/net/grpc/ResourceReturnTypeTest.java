@@ -48,6 +48,6 @@ public class ResourceReturnTypeTest {
         CompileResult result = BCompileUtil.compile(serviceBalPath.toAbsolutePath().toString());
         Assert.assertEquals(result.getErrorCount(), 5);
         Assert.assertEquals(result.getDiagnostics().length, 5);
-        Assert.assertEquals(result.getDiagnostics()[0].getMessage(), "Invalid return type: expected error|()");
+        Assert.assertEquals(result.getDiagnostics()[0].getMessage(), "Invalid return type: expected error?");
     }
 }

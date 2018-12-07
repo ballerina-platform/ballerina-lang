@@ -105,7 +105,7 @@ public class SignatureTest {
 
         Assert.assertEquals(compileResult.getErrorCount(), 1);
         Assert.assertEquals(compileResult.getDiagnostics().clone()[0].getMessage(),
-                            "invalid return type: expected error|()");
+                            "invalid return type: expected error?");
     }
 
     @Test

@@ -115,7 +115,7 @@ public class ServiceProtoBuilder extends AbstractTransportCompilerPlugin {
             for (BLangFunction resourceNode : resources) {
                 if (!isResourceReturnsErrorOrNil(resourceNode)) {
                     dlog.logDiagnostic(Diagnostic.Kind.ERROR, resourceNode.pos,
-                            "Invalid return type: expected error|()");
+                            "Invalid return type: expected error?");
                     validReturnType = false;
                 }
             };
