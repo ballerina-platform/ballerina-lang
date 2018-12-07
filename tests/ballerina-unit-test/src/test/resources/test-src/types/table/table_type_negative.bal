@@ -14,9 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/sql;
 import ballerina/h2;
-import ballerina/io;
 
 type Result record {
     string STRING_TYPE;
@@ -38,27 +36,33 @@ type ResultBlobCorrectOrderWrongType record {
 };
 
 function testWrongOrderInt() {
-    testWrongOrder("SELECT int_type, long_type, float_type, boolean_type, string_type, double_type from DataTable WHERE row_id = 1");
+    testWrongOrder("SELECT int_type, long_type, float_type, boolean_type, string_type, double_type from DataTable
+    WHERE row_id = 1");
 }
 
 function testWrongOrderString() {
-    testWrongOrder("SELECT int_type, long_type, float_type, boolean_type, string_type, double_type from DataTable WHERE row_id = 1");
+    testWrongOrder("SELECT int_type, long_type, float_type, boolean_type, string_type, double_type from DataTable
+    WHERE row_id = 1");
 }
 
 function testWrongOrderBoolean() {
-    testWrongOrder("SELECT boolean_type, long_type, float_type, string_type, int_type, double_type from DataTable WHERE row_id = 1");
+    testWrongOrder("SELECT boolean_type, long_type, float_type, string_type, int_type, double_type from DataTable
+    WHERE row_id = 1");
 }
 
 function testWrongOrderDouble() {
-    testWrongOrder("SELECT double_type, long_type, float_type, string_type, int_type, boolean_type from DataTable WHERE row_id = 1");
+    testWrongOrder("SELECT double_type, long_type, float_type, string_type, int_type, boolean_type from DataTable
+    WHERE row_id = 1");
 }
 
 function testWrongOrderFloat() {
-    testWrongOrder("SELECT double_type, long_type, float_type, string_type, int_type, boolean_type from DataTable WHERE row_id = 1");
+    testWrongOrder("SELECT double_type, long_type, float_type, string_type, int_type, boolean_type from DataTable
+    WHERE row_id = 1");
 }
 
 function testWrongOrderLong() {
-    testWrongOrder("SELECT boolean_type, string_type, float_type, long_type, int_type, double_type from DataTable WHERE row_id = 1");
+    testWrongOrder("SELECT boolean_type, string_type, float_type, long_type, int_type, double_type from DataTable
+    WHERE row_id = 1");
 }
 
 function testWrongOrderBlobWrongOrder() {
