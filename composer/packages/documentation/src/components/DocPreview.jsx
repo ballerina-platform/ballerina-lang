@@ -21,7 +21,6 @@ import Documentation from './Documentation';
 
 export default class DocPreview extends React.Component {
     getDocumentationDetails(node) {
-
         let parameters = {};
         if(this[`_get${node.kind}Parameters`]) {
             parameters = this[`_get${node.kind}Parameters`](node);
@@ -48,17 +47,16 @@ export default class DocPreview extends React.Component {
             }
         }
 
-        let typeNodeKind;
+        let kind = node.kind;
         if (node.typeNode) {
-            typeNodeKind = node.typeNode.kind;
+            kind = node.typeNode.kind;
         }
 
         const documentationDetails = {
-            kind: node.kind,
+            kind: kind,
             title: node.name.value,
             description,
             parameters,
-            typeNodeKind,
             returnParameter
         };
 
@@ -111,10 +109,18 @@ export default class DocPreview extends React.Component {
                 return;
             }
 
+            // Skip anon nodes related to service definitions
+            if (node.kind === "TypeDefinition" && node.service) {
+                return;
+            }
+            if (node.kind === "Variable" && node.service) {
+                return;
+            }
+
             try {
                 const docDetails = this.getDocumentationDetails(node);
                 docElements.push(
-                    <Documentation docDetails={docDetails}/>
+                    <Documentation docDetails={docDetails} />
                 );
             } catch {
                 console.log(`error when getting doc details for ${node.id}`);

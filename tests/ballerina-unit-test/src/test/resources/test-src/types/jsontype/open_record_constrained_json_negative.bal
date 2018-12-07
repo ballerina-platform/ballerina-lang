@@ -82,3 +82,10 @@ function testByteArrayToJsonAssignment() returns (json) {
     json j = b;
     return j;
 }
+
+function testConstraintJSONToConstraintJsonUnsafeNegativeCast() returns (json | error) {
+    json<Employee> je = {first_name:"John", last_name:"Doe", age:30, address:{phoneNumber:{number:"1234"}, 
+                        street:"York St"}};
+    var js = json<Student>.convert(je);
+    return js;
+}

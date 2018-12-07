@@ -190,20 +190,24 @@
             {
                 "command": "ballerina.showAPIEditor",
                 "title": "Show API Designer",
+                "icon": {
+                    "dark": "./resources/images/icons/api-design-inverse.svg",
+                    "light": "./resources/images/icons/api-design.svg"
+                },
                 "category": "Ballerina"
             },
             {
                 "command": "ballerina.showTraces",
                 "title": "Ballerina: Show Network logs"
-            },
-            {
-                "command": "ballerina.showAPIEditor",
-                "title": "Show API Designer",
-                "category": "Ballerina"
             }
         ],
         "menus": {
             "editor/title": [
+                {
+                    "when": "resourceLangId == ballerina",
+                    "command": "ballerina.showAPIEditor",
+                    "group": "navigation"
+                },
                 {
                     "when": "resourceLangId == ballerina",
                     "command": "ballerina.showDiagram",
@@ -211,6 +215,11 @@
                 }
             ],
             "editor/context": [
+                {
+                    "when": "resourceLangId == ballerina",
+                    "command": "ballerina.showDiagram",
+                    "group": "navigation"
+                },
                 {
                     "when": "resourceLangId == ballerina",
                     "command": "ballerina.showAPIEditor",

@@ -817,9 +817,9 @@ public class CommonUtil {
                                                        ItemResolverConstants.BUILTIN_STAMP_LABEL, context);
             SymbolInfo clone = getIterableOpSymbolInfo(Snippet.BUILTIN_CLONE.get(), bType,
                                                        ItemResolverConstants.BUILTIN_CLONE_LABEL, context);
-            SymbolInfo create = getIterableOpSymbolInfo(Snippet.BUILTIN_CREATE.get(), bType,
-                                                        ItemResolverConstants.BUILTIN_CREATE_LABEL, context);
-            symbolInfoList.addAll(Arrays.asList(stamp, clone, create));
+            SymbolInfo convert = getIterableOpSymbolInfo(Snippet.BUILTIN_CONVERT.get(), bType,
+                                                        ItemResolverConstants.BUILTIN_CONVERT_LABEL, context);
+            symbolInfoList.addAll(Arrays.asList(stamp, clone, convert));
         }
 
         // Populate the Builtin Functions
@@ -865,7 +865,8 @@ public class CommonUtil {
     public static List<BLangImportPackage> getCurrentFileImports(BLangPackage pkg, LSContext ctx) {
         String currentFile = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         return pkg.getImports().stream()
-                .filter(bLangImportPackage -> bLangImportPackage.pos.getSource().cUnitName.equals(currentFile)
+                .filter(bLangImportPackage ->
+                        bLangImportPackage.pos.getSource().cUnitName.replace("/", FILE_SEPARATOR).equals(currentFile)
                         && !(bLangImportPackage.getOrgName().getValue().equals("ballerina")
                         && bLangImportPackage.symbol.getName().getValue().equals("transaction")))
                 .collect(Collectors.toList());
@@ -909,7 +910,8 @@ public class CommonUtil {
     public static List<TopLevelNode> getCurrentFileTopLevelNodes(BLangPackage pkgNode, LSContext ctx) {
         String relativeFilePath = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         BLangCompilationUnit filteredCUnit = pkgNode.compUnits.stream()
-                .filter(cUnit -> cUnit.getPosition().getSource().cUnitName.equals(relativeFilePath))
+                .filter(cUnit ->
+                        cUnit.getPosition().getSource().cUnitName.replace("/", FILE_SEPARATOR).equals(relativeFilePath))
                 .findAny().orElse(null);
         List<TopLevelNode> topLevelNodes = filteredCUnit == null
                 ? new ArrayList<>()

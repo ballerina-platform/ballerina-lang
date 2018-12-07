@@ -1,46 +1,33 @@
-import { Uri, ExtensionContext } from 'vscode';
-import * as path from 'path';
+import { ExtendedLangClient } from '../core/extended-language-client';
+import { ExtensionContext } from 'vscode';
+import { getLibraryWebViewContent } from '../utils';
 
-export function render(context: ExtensionContext): string {
-    let composerJsSrc;
-    if (process.env.COMPOSER_DEBUG === "true") {
-        composerJsSrc = 'http://localhost:9000/composer.js';
-    } else {
-        const { extensionPath } = context;
-        const onDiskPath = Uri.file(path.join(extensionPath, 'resources', 'composer', 'composer.js'));
-        composerJsSrc = onDiskPath.with({ scheme: 'vscode-resource' });
-    }
+export function render(context: ExtensionContext, langClient: ExtendedLangClient)
+    : string {
 
-    return `
-        <!doctype html>
-        <html lang="en">
-        <head>
-            <meta charset="utf-8">
-        </head>
-        <body class="documentation">
-            <div id="ballerina-documentation"/>
-            <script>
-                let astJson;
-                const el = document.getElementById("ballerina-documentation");
-                window.addEventListener('message', event => {
-                    switch (event.data.command) {
-                        case 'update':
-                            astJson = event.data.json;
-                            if (window.ballerinaComposer) {
-                                ballerinaComposer.renderDocPreview(astJson, el);
-                            }
-                            break;
-                    }
-                });
-
-                function loadedScript() {
-                    if(astJson) {
-                        ballerinaComposer.renderDocPreview(astJson, el);
-                    }
+    const body = `<div id="ballerina-documentation" class="documentation-container" />`;
+    const bodyCss = "documentation";
+    const styles = ``;
+    const script = `
+            let astJson;
+            const el = document.getElementById("ballerina-documentation");
+            window.addEventListener('message', event => {
+                switch (event.data.command) {
+                    case 'update':
+                        astJson = event.data.json;
+                        if (window.ballerinaComposer) {
+                            ballerinaComposer.renderDocPreview(astJson, el);
+                        }
+                        break;
                 }
-            </script>
-            <script onload="loadedScript();" src="${composerJsSrc}"></script>
-        </body>
-        </html> 
-    `;
+            });
+
+            function loadedScript() {
+                if(astJson) {
+                    ballerinaComposer.renderDocPreview(astJson, el);
+                }
+            }
+        `;
+
+    return getLibraryWebViewContent(context, body, script, styles, bodyCss);
 }

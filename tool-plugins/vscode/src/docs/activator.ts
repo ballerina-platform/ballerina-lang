@@ -91,7 +91,8 @@ function showDocs(context: ExtensionContext, langClient: ExtendedLangClient): vo
 	}
 	activeEditor = editor;
 
-	const html = render(context);
+	const html = render(context, langClient);
+	
 	if (previewPanel && html) {
 		previewPanel.webview.html = html;
 	}

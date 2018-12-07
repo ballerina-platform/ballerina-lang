@@ -19,7 +19,7 @@ export const If: React.StatelessComponent<{
 
         const conditionProps = {
             expression: ASTUtil.genSource(model.condition),
-            label: "if",
+            label: "If",
             width: model.body.viewState.bBox.w,
             x: viewState.bBox.x,
             y: viewState.bBox.y + (config.flowCtrl.condition.height / 2),
@@ -76,7 +76,7 @@ export const If: React.StatelessComponent<{
                         points={`${r1.x},${r1.y} ${r2.x},${r2.y} ${r3.x},${r3.y} ${r4.x},${r4.y}`}
                     />
                     <ArrowHead direction={"left"} {...r4} />
-                    <Condition {...conditionProps} />
+                    <Condition {...conditionProps} astModel={model} />
                     {children}
                 </g>
             </g>);

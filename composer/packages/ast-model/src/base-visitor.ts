@@ -3,386 +3,903 @@
 import * as Ballerina from "./ast-interfaces";
 
 export interface Visitor {
-  beginVisitASTNode?(node: Ballerina.ASTNode): void;
-  endVisitASTNode?(node: Ballerina.ASTNode): void;
+  beginVisitASTNode?(node: Ballerina.ASTNode, parent?: Ballerina.ASTNode): void;
+  endVisitASTNode?(node: Ballerina.ASTNode, parent?: Ballerina.ASTNode): void;
 
-  beginVisitAbort?(node: Ballerina.Abort): void;
-  endVisitAbort?(node: Ballerina.Abort): void;
+  beginVisitAbort?(node: Ballerina.Abort, parent?: Ballerina.ASTNode): void;
+  endVisitAbort?(node: Ballerina.Abort, parent?: Ballerina.ASTNode): void;
 
-  beginVisitAnnotation?(node: Ballerina.Annotation): void;
-  endVisitAnnotation?(node: Ballerina.Annotation): void;
+  beginVisitAnnotation?(
+    node: Ballerina.Annotation,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitAnnotation?(
+    node: Ballerina.Annotation,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitAnnotationAttachment?(node: Ballerina.AnnotationAttachment): void;
-  endVisitAnnotationAttachment?(node: Ballerina.AnnotationAttachment): void;
+  beginVisitAnnotationAttachment?(
+    node: Ballerina.AnnotationAttachment,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitAnnotationAttachment?(
+    node: Ballerina.AnnotationAttachment,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitArrayLiteralExpr?(node: Ballerina.ArrayLiteralExpr): void;
-  endVisitArrayLiteralExpr?(node: Ballerina.ArrayLiteralExpr): void;
+  beginVisitArrayLiteralExpr?(
+    node: Ballerina.ArrayLiteralExpr,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitArrayLiteralExpr?(
+    node: Ballerina.ArrayLiteralExpr,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitArrayType?(node: Ballerina.ArrayType): void;
-  endVisitArrayType?(node: Ballerina.ArrayType): void;
+  beginVisitArrayType?(
+    node: Ballerina.ArrayType,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitArrayType?(
+    node: Ballerina.ArrayType,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitArrowExpr?(node: Ballerina.ArrowExpr): void;
-  endVisitArrowExpr?(node: Ballerina.ArrowExpr): void;
+  beginVisitArrowExpr?(
+    node: Ballerina.ArrowExpr,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitArrowExpr?(
+    node: Ballerina.ArrowExpr,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitAssignment?(node: Ballerina.Assignment): void;
-  endVisitAssignment?(node: Ballerina.Assignment): void;
+  beginVisitAssignment?(
+    node: Ballerina.Assignment,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitAssignment?(
+    node: Ballerina.Assignment,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitBinaryExpr?(node: Ballerina.BinaryExpr): void;
-  endVisitBinaryExpr?(node: Ballerina.BinaryExpr): void;
+  beginVisitBinaryExpr?(
+    node: Ballerina.BinaryExpr,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitBinaryExpr?(
+    node: Ballerina.BinaryExpr,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitBlock?(node: Ballerina.Block): void;
-  endVisitBlock?(node: Ballerina.Block): void;
+  beginVisitBlock?(node: Ballerina.Block, parent?: Ballerina.ASTNode): void;
+  endVisitBlock?(node: Ballerina.Block, parent?: Ballerina.ASTNode): void;
 
-  beginVisitBracedTupleExpr?(node: Ballerina.BracedTupleExpr): void;
-  endVisitBracedTupleExpr?(node: Ballerina.BracedTupleExpr): void;
+  beginVisitBracedTupleExpr?(
+    node: Ballerina.BracedTupleExpr,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitBracedTupleExpr?(
+    node: Ballerina.BracedTupleExpr,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitBreak?(node: Ballerina.Break): void;
-  endVisitBreak?(node: Ballerina.Break): void;
+  beginVisitBreak?(node: Ballerina.Break, parent?: Ballerina.ASTNode): void;
+  endVisitBreak?(node: Ballerina.Break, parent?: Ballerina.ASTNode): void;
 
-  beginVisitBuiltInRefType?(node: Ballerina.BuiltInRefType): void;
-  endVisitBuiltInRefType?(node: Ballerina.BuiltInRefType): void;
+  beginVisitBuiltInRefType?(
+    node: Ballerina.BuiltInRefType,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitBuiltInRefType?(
+    node: Ballerina.BuiltInRefType,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitCatch?(node: Ballerina.Catch): void;
-  endVisitCatch?(node: Ballerina.Catch): void;
+  beginVisitCatch?(node: Ballerina.Catch, parent?: Ballerina.ASTNode): void;
+  endVisitCatch?(node: Ballerina.Catch, parent?: Ballerina.ASTNode): void;
 
-  beginVisitCheckExpr?(node: Ballerina.CheckExpr): void;
-  endVisitCheckExpr?(node: Ballerina.CheckExpr): void;
+  beginVisitCheckExpr?(
+    node: Ballerina.CheckExpr,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitCheckExpr?(
+    node: Ballerina.CheckExpr,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitCompilationUnit?(node: Ballerina.CompilationUnit): void;
-  endVisitCompilationUnit?(node: Ballerina.CompilationUnit): void;
+  beginVisitCompilationUnit?(
+    node: Ballerina.CompilationUnit,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitCompilationUnit?(
+    node: Ballerina.CompilationUnit,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitCompoundAssignment?(node: Ballerina.CompoundAssignment): void;
-  endVisitCompoundAssignment?(node: Ballerina.CompoundAssignment): void;
+  beginVisitCompoundAssignment?(
+    node: Ballerina.CompoundAssignment,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitCompoundAssignment?(
+    node: Ballerina.CompoundAssignment,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitConstant?(node: Ballerina.Constant): void;
-  endVisitConstant?(node: Ballerina.Constant): void;
+  beginVisitConstant?(
+    node: Ballerina.Constant,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitConstant?(node: Ballerina.Constant, parent?: Ballerina.ASTNode): void;
 
-  beginVisitConstrainedType?(node: Ballerina.ConstrainedType): void;
-  endVisitConstrainedType?(node: Ballerina.ConstrainedType): void;
+  beginVisitConstrainedType?(
+    node: Ballerina.ConstrainedType,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitConstrainedType?(
+    node: Ballerina.ConstrainedType,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitDeprecated?(node: Ballerina.Deprecated): void;
-  endVisitDeprecated?(node: Ballerina.Deprecated): void;
+  beginVisitDeprecated?(
+    node: Ballerina.Deprecated,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitDeprecated?(
+    node: Ballerina.Deprecated,
+    parent?: Ballerina.ASTNode
+  ): void;
 
   beginVisitDocumentationDescription?(
-    node: Ballerina.DocumentationDescription
+    node: Ballerina.DocumentationDescription,
+    parent?: Ballerina.ASTNode
   ): void;
   endVisitDocumentationDescription?(
-    node: Ballerina.DocumentationDescription
+    node: Ballerina.DocumentationDescription,
+    parent?: Ballerina.ASTNode
   ): void;
 
   beginVisitDocumentationParameter?(
-    node: Ballerina.DocumentationParameter
+    node: Ballerina.DocumentationParameter,
+    parent?: Ballerina.ASTNode
   ): void;
-  endVisitDocumentationParameter?(node: Ballerina.DocumentationParameter): void;
+  endVisitDocumentationParameter?(
+    node: Ballerina.DocumentationParameter,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitElvisExpr?(node: Ballerina.ElvisExpr): void;
-  endVisitElvisExpr?(node: Ballerina.ElvisExpr): void;
+  beginVisitElvisExpr?(
+    node: Ballerina.ElvisExpr,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitElvisExpr?(
+    node: Ballerina.ElvisExpr,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitErrorConstructor?(node: Ballerina.ErrorConstructor): void;
-  endVisitErrorConstructor?(node: Ballerina.ErrorConstructor): void;
+  beginVisitErrorConstructor?(
+    node: Ballerina.ErrorConstructor,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitErrorConstructor?(
+    node: Ballerina.ErrorConstructor,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitErrorType?(node: Ballerina.ErrorType): void;
-  endVisitErrorType?(node: Ballerina.ErrorType): void;
+  beginVisitErrorType?(
+    node: Ballerina.ErrorType,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitErrorType?(
+    node: Ballerina.ErrorType,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitExpressionStatement?(node: Ballerina.ExpressionStatement): void;
-  endVisitExpressionStatement?(node: Ballerina.ExpressionStatement): void;
+  beginVisitExpressionStatement?(
+    node: Ballerina.ExpressionStatement,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitExpressionStatement?(
+    node: Ballerina.ExpressionStatement,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitFieldBasedAccessExpr?(node: Ballerina.FieldBasedAccessExpr): void;
-  endVisitFieldBasedAccessExpr?(node: Ballerina.FieldBasedAccessExpr): void;
+  beginVisitFieldBasedAccessExpr?(
+    node: Ballerina.FieldBasedAccessExpr,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitFieldBasedAccessExpr?(
+    node: Ballerina.FieldBasedAccessExpr,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitFiniteTypeNode?(node: Ballerina.FiniteTypeNode): void;
-  endVisitFiniteTypeNode?(node: Ballerina.FiniteTypeNode): void;
+  beginVisitFiniteTypeNode?(
+    node: Ballerina.FiniteTypeNode,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitFiniteTypeNode?(
+    node: Ballerina.FiniteTypeNode,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitForeach?(node: Ballerina.Foreach): void;
-  endVisitForeach?(node: Ballerina.Foreach): void;
+  beginVisitForeach?(node: Ballerina.Foreach, parent?: Ballerina.ASTNode): void;
+  endVisitForeach?(node: Ballerina.Foreach, parent?: Ballerina.ASTNode): void;
 
-  beginVisitForever?(node: Ballerina.Forever): void;
-  endVisitForever?(node: Ballerina.Forever): void;
+  beginVisitForever?(node: Ballerina.Forever, parent?: Ballerina.ASTNode): void;
+  endVisitForever?(node: Ballerina.Forever, parent?: Ballerina.ASTNode): void;
 
-  beginVisitForkJoin?(node: Ballerina.ForkJoin): void;
-  endVisitForkJoin?(node: Ballerina.ForkJoin): void;
+  beginVisitForkJoin?(
+    node: Ballerina.ForkJoin,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitForkJoin?(node: Ballerina.ForkJoin, parent?: Ballerina.ASTNode): void;
 
-  beginVisitFunction?(node: Ballerina.Function): void;
-  endVisitFunction?(node: Ballerina.Function): void;
+  beginVisitFunction?(
+    node: Ballerina.Function,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitFunction?(node: Ballerina.Function, parent?: Ballerina.ASTNode): void;
 
-  beginVisitFunctionType?(node: Ballerina.FunctionType): void;
-  endVisitFunctionType?(node: Ballerina.FunctionType): void;
+  beginVisitFunctionType?(
+    node: Ballerina.FunctionType,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitFunctionType?(
+    node: Ballerina.FunctionType,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitGroupBy?(node: Ballerina.GroupBy): void;
-  endVisitGroupBy?(node: Ballerina.GroupBy): void;
+  beginVisitGroupBy?(node: Ballerina.GroupBy, parent?: Ballerina.ASTNode): void;
+  endVisitGroupBy?(node: Ballerina.GroupBy, parent?: Ballerina.ASTNode): void;
 
-  beginVisitHaving?(node: Ballerina.Having): void;
-  endVisitHaving?(node: Ballerina.Having): void;
+  beginVisitHaving?(node: Ballerina.Having, parent?: Ballerina.ASTNode): void;
+  endVisitHaving?(node: Ballerina.Having, parent?: Ballerina.ASTNode): void;
 
-  beginVisitIdentifier?(node: Ballerina.Identifier): void;
-  endVisitIdentifier?(node: Ballerina.Identifier): void;
+  beginVisitIdentifier?(
+    node: Ballerina.Identifier,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitIdentifier?(
+    node: Ballerina.Identifier,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitIf?(node: Ballerina.If): void;
-  endVisitIf?(node: Ballerina.If): void;
+  beginVisitIf?(node: Ballerina.If, parent?: Ballerina.ASTNode): void;
+  endVisitIf?(node: Ballerina.If, parent?: Ballerina.ASTNode): void;
 
-  beginVisitImport?(node: Ballerina.Import): void;
-  endVisitImport?(node: Ballerina.Import): void;
+  beginVisitImport?(node: Ballerina.Import, parent?: Ballerina.ASTNode): void;
+  endVisitImport?(node: Ballerina.Import, parent?: Ballerina.ASTNode): void;
 
-  beginVisitIndexBasedAccessExpr?(node: Ballerina.IndexBasedAccessExpr): void;
-  endVisitIndexBasedAccessExpr?(node: Ballerina.IndexBasedAccessExpr): void;
+  beginVisitIndexBasedAccessExpr?(
+    node: Ballerina.IndexBasedAccessExpr,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitIndexBasedAccessExpr?(
+    node: Ballerina.IndexBasedAccessExpr,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitIntRangeExpr?(node: Ballerina.IntRangeExpr): void;
-  endVisitIntRangeExpr?(node: Ballerina.IntRangeExpr): void;
+  beginVisitIntRangeExpr?(
+    node: Ballerina.IntRangeExpr,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitIntRangeExpr?(
+    node: Ballerina.IntRangeExpr,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitInvocation?(node: Ballerina.Invocation): void;
-  endVisitInvocation?(node: Ballerina.Invocation): void;
+  beginVisitInvocation?(
+    node: Ballerina.Invocation,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitInvocation?(
+    node: Ballerina.Invocation,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitJoinStreamingInput?(node: Ballerina.JoinStreamingInput): void;
-  endVisitJoinStreamingInput?(node: Ballerina.JoinStreamingInput): void;
+  beginVisitJoinStreamingInput?(
+    node: Ballerina.JoinStreamingInput,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitJoinStreamingInput?(
+    node: Ballerina.JoinStreamingInput,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitLambda?(node: Ballerina.Lambda): void;
-  endVisitLambda?(node: Ballerina.Lambda): void;
+  beginVisitLambda?(node: Ballerina.Lambda, parent?: Ballerina.ASTNode): void;
+  endVisitLambda?(node: Ballerina.Lambda, parent?: Ballerina.ASTNode): void;
 
-  beginVisitLimit?(node: Ballerina.Limit): void;
-  endVisitLimit?(node: Ballerina.Limit): void;
+  beginVisitLimit?(node: Ballerina.Limit, parent?: Ballerina.ASTNode): void;
+  endVisitLimit?(node: Ballerina.Limit, parent?: Ballerina.ASTNode): void;
 
-  beginVisitLiteral?(node: Ballerina.Literal): void;
-  endVisitLiteral?(node: Ballerina.Literal): void;
+  beginVisitLiteral?(node: Ballerina.Literal, parent?: Ballerina.ASTNode): void;
+  endVisitLiteral?(node: Ballerina.Literal, parent?: Ballerina.ASTNode): void;
 
-  beginVisitLock?(node: Ballerina.Lock): void;
-  endVisitLock?(node: Ballerina.Lock): void;
+  beginVisitLock?(node: Ballerina.Lock, parent?: Ballerina.ASTNode): void;
+  endVisitLock?(node: Ballerina.Lock, parent?: Ballerina.ASTNode): void;
 
-  beginVisitMarkdownDocumentation?(node: Ballerina.MarkdownDocumentation): void;
-  endVisitMarkdownDocumentation?(node: Ballerina.MarkdownDocumentation): void;
+  beginVisitMarkdownDocumentation?(
+    node: Ballerina.MarkdownDocumentation,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitMarkdownDocumentation?(
+    node: Ballerina.MarkdownDocumentation,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitMatch?(node: Ballerina.Match): void;
-  endVisitMatch?(node: Ballerina.Match): void;
+  beginVisitMatch?(node: Ballerina.Match, parent?: Ballerina.ASTNode): void;
+  endVisitMatch?(node: Ballerina.Match, parent?: Ballerina.ASTNode): void;
 
   beginVisitMatchStaticPatternClause?(
-    node: Ballerina.MatchStaticPatternClause
+    node: Ballerina.MatchStaticPatternClause,
+    parent?: Ballerina.ASTNode
   ): void;
   endVisitMatchStaticPatternClause?(
-    node: Ballerina.MatchStaticPatternClause
+    node: Ballerina.MatchStaticPatternClause,
+    parent?: Ballerina.ASTNode
   ): void;
 
   beginVisitMatchStructuredPatternClause?(
-    node: Ballerina.MatchStructuredPatternClause
+    node: Ballerina.MatchStructuredPatternClause,
+    parent?: Ballerina.ASTNode
   ): void;
   endVisitMatchStructuredPatternClause?(
-    node: Ballerina.MatchStructuredPatternClause
+    node: Ballerina.MatchStructuredPatternClause,
+    parent?: Ballerina.ASTNode
   ): void;
 
-  beginVisitNamedArgsExpr?(node: Ballerina.NamedArgsExpr): void;
-  endVisitNamedArgsExpr?(node: Ballerina.NamedArgsExpr): void;
+  beginVisitNamedArgsExpr?(
+    node: Ballerina.NamedArgsExpr,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitNamedArgsExpr?(
+    node: Ballerina.NamedArgsExpr,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitNext?(node: Ballerina.Next): void;
-  endVisitNext?(node: Ballerina.Next): void;
+  beginVisitNext?(node: Ballerina.Next, parent?: Ballerina.ASTNode): void;
+  endVisitNext?(node: Ballerina.Next, parent?: Ballerina.ASTNode): void;
 
-  beginVisitObjectType?(node: Ballerina.ObjectType): void;
-  endVisitObjectType?(node: Ballerina.ObjectType): void;
+  beginVisitObjectType?(
+    node: Ballerina.ObjectType,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitObjectType?(
+    node: Ballerina.ObjectType,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitOrderBy?(node: Ballerina.OrderBy): void;
-  endVisitOrderBy?(node: Ballerina.OrderBy): void;
+  beginVisitOrderBy?(node: Ballerina.OrderBy, parent?: Ballerina.ASTNode): void;
+  endVisitOrderBy?(node: Ballerina.OrderBy, parent?: Ballerina.ASTNode): void;
 
-  beginVisitOrderByVariable?(node: Ballerina.OrderByVariable): void;
-  endVisitOrderByVariable?(node: Ballerina.OrderByVariable): void;
+  beginVisitOrderByVariable?(
+    node: Ballerina.OrderByVariable,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitOrderByVariable?(
+    node: Ballerina.OrderByVariable,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitOutputRateLimit?(node: Ballerina.OutputRateLimit): void;
-  endVisitOutputRateLimit?(node: Ballerina.OutputRateLimit): void;
+  beginVisitOutputRateLimit?(
+    node: Ballerina.OutputRateLimit,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitOutputRateLimit?(
+    node: Ballerina.OutputRateLimit,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitPanic?(node: Ballerina.Panic): void;
-  endVisitPanic?(node: Ballerina.Panic): void;
+  beginVisitPanic?(node: Ballerina.Panic, parent?: Ballerina.ASTNode): void;
+  endVisitPanic?(node: Ballerina.Panic, parent?: Ballerina.ASTNode): void;
 
-  beginVisitPatternClause?(node: Ballerina.PatternClause): void;
-  endVisitPatternClause?(node: Ballerina.PatternClause): void;
+  beginVisitPatternClause?(
+    node: Ballerina.PatternClause,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitPatternClause?(
+    node: Ballerina.PatternClause,
+    parent?: Ballerina.ASTNode
+  ): void;
 
   beginVisitPatternStreamingEdgeInput?(
-    node: Ballerina.PatternStreamingEdgeInput
+    node: Ballerina.PatternStreamingEdgeInput,
+    parent?: Ballerina.ASTNode
   ): void;
   endVisitPatternStreamingEdgeInput?(
-    node: Ballerina.PatternStreamingEdgeInput
+    node: Ballerina.PatternStreamingEdgeInput,
+    parent?: Ballerina.ASTNode
   ): void;
 
-  beginVisitPatternStreamingInput?(node: Ballerina.PatternStreamingInput): void;
-  endVisitPatternStreamingInput?(node: Ballerina.PatternStreamingInput): void;
+  beginVisitPatternStreamingInput?(
+    node: Ballerina.PatternStreamingInput,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitPatternStreamingInput?(
+    node: Ballerina.PatternStreamingInput,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitRecordDestructure?(node: Ballerina.RecordDestructure): void;
-  endVisitRecordDestructure?(node: Ballerina.RecordDestructure): void;
+  beginVisitRecordDestructure?(
+    node: Ballerina.RecordDestructure,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitRecordDestructure?(
+    node: Ballerina.RecordDestructure,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitRecordLiteralExpr?(node: Ballerina.RecordLiteralExpr): void;
-  endVisitRecordLiteralExpr?(node: Ballerina.RecordLiteralExpr): void;
+  beginVisitRecordLiteralExpr?(
+    node: Ballerina.RecordLiteralExpr,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitRecordLiteralExpr?(
+    node: Ballerina.RecordLiteralExpr,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitRecordLiteralKeyValue?(node: Ballerina.RecordLiteralKeyValue): void;
-  endVisitRecordLiteralKeyValue?(node: Ballerina.RecordLiteralKeyValue): void;
+  beginVisitRecordLiteralKeyValue?(
+    node: Ballerina.RecordLiteralKeyValue,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitRecordLiteralKeyValue?(
+    node: Ballerina.RecordLiteralKeyValue,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitRecordType?(node: Ballerina.RecordType): void;
-  endVisitRecordType?(node: Ballerina.RecordType): void;
+  beginVisitRecordType?(
+    node: Ballerina.RecordType,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitRecordType?(
+    node: Ballerina.RecordType,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitRecordVariable?(node: Ballerina.RecordVariable): void;
-  endVisitRecordVariable?(node: Ballerina.RecordVariable): void;
+  beginVisitRecordVariable?(
+    node: Ballerina.RecordVariable,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitRecordVariable?(
+    node: Ballerina.RecordVariable,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitRecordVariableRef?(node: Ballerina.RecordVariableRef): void;
-  endVisitRecordVariableRef?(node: Ballerina.RecordVariableRef): void;
+  beginVisitRecordVariableRef?(
+    node: Ballerina.RecordVariableRef,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitRecordVariableRef?(
+    node: Ballerina.RecordVariableRef,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitRestArgsExpr?(node: Ballerina.RestArgsExpr): void;
-  endVisitRestArgsExpr?(node: Ballerina.RestArgsExpr): void;
+  beginVisitRestArgsExpr?(
+    node: Ballerina.RestArgsExpr,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitRestArgsExpr?(
+    node: Ballerina.RestArgsExpr,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitRetry?(node: Ballerina.Retry): void;
-  endVisitRetry?(node: Ballerina.Retry): void;
+  beginVisitRetry?(node: Ballerina.Retry, parent?: Ballerina.ASTNode): void;
+  endVisitRetry?(node: Ballerina.Retry, parent?: Ballerina.ASTNode): void;
 
-  beginVisitReturn?(node: Ballerina.Return): void;
-  endVisitReturn?(node: Ballerina.Return): void;
+  beginVisitReturn?(node: Ballerina.Return, parent?: Ballerina.ASTNode): void;
+  endVisitReturn?(node: Ballerina.Return, parent?: Ballerina.ASTNode): void;
 
-  beginVisitSelectClause?(node: Ballerina.SelectClause): void;
-  endVisitSelectClause?(node: Ballerina.SelectClause): void;
+  beginVisitSelectClause?(
+    node: Ballerina.SelectClause,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitSelectClause?(
+    node: Ballerina.SelectClause,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitSelectExpression?(node: Ballerina.SelectExpression): void;
-  endVisitSelectExpression?(node: Ballerina.SelectExpression): void;
+  beginVisitSelectExpression?(
+    node: Ballerina.SelectExpression,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitSelectExpression?(
+    node: Ballerina.SelectExpression,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitService?(node: Ballerina.Service): void;
-  endVisitService?(node: Ballerina.Service): void;
+  beginVisitService?(node: Ballerina.Service, parent?: Ballerina.ASTNode): void;
+  endVisitService?(node: Ballerina.Service, parent?: Ballerina.ASTNode): void;
 
-  beginVisitServiceConstructor?(node: Ballerina.ServiceConstructor): void;
-  endVisitServiceConstructor?(node: Ballerina.ServiceConstructor): void;
+  beginVisitServiceConstructor?(
+    node: Ballerina.ServiceConstructor,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitServiceConstructor?(
+    node: Ballerina.ServiceConstructor,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitSimpleVariableRef?(node: Ballerina.SimpleVariableRef): void;
-  endVisitSimpleVariableRef?(node: Ballerina.SimpleVariableRef): void;
+  beginVisitSimpleVariableRef?(
+    node: Ballerina.SimpleVariableRef,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitSimpleVariableRef?(
+    node: Ballerina.SimpleVariableRef,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitStreamAction?(node: Ballerina.StreamAction): void;
-  endVisitStreamAction?(node: Ballerina.StreamAction): void;
+  beginVisitStreamAction?(
+    node: Ballerina.StreamAction,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitStreamAction?(
+    node: Ballerina.StreamAction,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitStreamingInput?(node: Ballerina.StreamingInput): void;
-  endVisitStreamingInput?(node: Ballerina.StreamingInput): void;
+  beginVisitStreamingInput?(
+    node: Ballerina.StreamingInput,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitStreamingInput?(
+    node: Ballerina.StreamingInput,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitStreamingQuery?(node: Ballerina.StreamingQuery): void;
-  endVisitStreamingQuery?(node: Ballerina.StreamingQuery): void;
+  beginVisitStreamingQuery?(
+    node: Ballerina.StreamingQuery,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitStreamingQuery?(
+    node: Ballerina.StreamingQuery,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitStringTemplateLiteral?(node: Ballerina.StringTemplateLiteral): void;
-  endVisitStringTemplateLiteral?(node: Ballerina.StringTemplateLiteral): void;
+  beginVisitStringTemplateLiteral?(
+    node: Ballerina.StringTemplateLiteral,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitStringTemplateLiteral?(
+    node: Ballerina.StringTemplateLiteral,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitTable?(node: Ballerina.Table): void;
-  endVisitTable?(node: Ballerina.Table): void;
+  beginVisitTable?(node: Ballerina.Table, parent?: Ballerina.ASTNode): void;
+  endVisitTable?(node: Ballerina.Table, parent?: Ballerina.ASTNode): void;
 
-  beginVisitTableColumn?(node: Ballerina.TableColumn): void;
-  endVisitTableColumn?(node: Ballerina.TableColumn): void;
+  beginVisitTableColumn?(
+    node: Ballerina.TableColumn,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitTableColumn?(
+    node: Ballerina.TableColumn,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitTableQuery?(node: Ballerina.TableQuery): void;
-  endVisitTableQuery?(node: Ballerina.TableQuery): void;
+  beginVisitTableQuery?(
+    node: Ballerina.TableQuery,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitTableQuery?(
+    node: Ballerina.TableQuery,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitTableQueryExpression?(node: Ballerina.TableQueryExpression): void;
-  endVisitTableQueryExpression?(node: Ballerina.TableQueryExpression): void;
+  beginVisitTableQueryExpression?(
+    node: Ballerina.TableQueryExpression,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitTableQueryExpression?(
+    node: Ballerina.TableQueryExpression,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitTernaryExpr?(node: Ballerina.TernaryExpr): void;
-  endVisitTernaryExpr?(node: Ballerina.TernaryExpr): void;
+  beginVisitTernaryExpr?(
+    node: Ballerina.TernaryExpr,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitTernaryExpr?(
+    node: Ballerina.TernaryExpr,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitTransaction?(node: Ballerina.Transaction): void;
-  endVisitTransaction?(node: Ballerina.Transaction): void;
+  beginVisitTransaction?(
+    node: Ballerina.Transaction,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitTransaction?(
+    node: Ballerina.Transaction,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitTrapExpr?(node: Ballerina.TrapExpr): void;
-  endVisitTrapExpr?(node: Ballerina.TrapExpr): void;
+  beginVisitTrapExpr?(
+    node: Ballerina.TrapExpr,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitTrapExpr?(node: Ballerina.TrapExpr, parent?: Ballerina.ASTNode): void;
 
-  beginVisitTry?(node: Ballerina.Try): void;
-  endVisitTry?(node: Ballerina.Try): void;
+  beginVisitTry?(node: Ballerina.Try, parent?: Ballerina.ASTNode): void;
+  endVisitTry?(node: Ballerina.Try, parent?: Ballerina.ASTNode): void;
 
-  beginVisitTupleDestructure?(node: Ballerina.TupleDestructure): void;
-  endVisitTupleDestructure?(node: Ballerina.TupleDestructure): void;
+  beginVisitTupleDestructure?(
+    node: Ballerina.TupleDestructure,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitTupleDestructure?(
+    node: Ballerina.TupleDestructure,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitTupleTypeNode?(node: Ballerina.TupleTypeNode): void;
-  endVisitTupleTypeNode?(node: Ballerina.TupleTypeNode): void;
+  beginVisitTupleTypeNode?(
+    node: Ballerina.TupleTypeNode,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitTupleTypeNode?(
+    node: Ballerina.TupleTypeNode,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitTupleVariable?(node: Ballerina.TupleVariable): void;
-  endVisitTupleVariable?(node: Ballerina.TupleVariable): void;
+  beginVisitTupleVariable?(
+    node: Ballerina.TupleVariable,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitTupleVariable?(
+    node: Ballerina.TupleVariable,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitTupleVariableRef?(node: Ballerina.TupleVariableRef): void;
-  endVisitTupleVariableRef?(node: Ballerina.TupleVariableRef): void;
+  beginVisitTupleVariableRef?(
+    node: Ballerina.TupleVariableRef,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitTupleVariableRef?(
+    node: Ballerina.TupleVariableRef,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitTypeConversionExpr?(node: Ballerina.TypeConversionExpr): void;
-  endVisitTypeConversionExpr?(node: Ballerina.TypeConversionExpr): void;
+  beginVisitTypeConversionExpr?(
+    node: Ballerina.TypeConversionExpr,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitTypeConversionExpr?(
+    node: Ballerina.TypeConversionExpr,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitTypeDefinition?(node: Ballerina.TypeDefinition): void;
-  endVisitTypeDefinition?(node: Ballerina.TypeDefinition): void;
+  beginVisitTypeDefinition?(
+    node: Ballerina.TypeDefinition,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitTypeDefinition?(
+    node: Ballerina.TypeDefinition,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitTypeInitExpr?(node: Ballerina.TypeInitExpr): void;
-  endVisitTypeInitExpr?(node: Ballerina.TypeInitExpr): void;
+  beginVisitTypeInitExpr?(
+    node: Ballerina.TypeInitExpr,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitTypeInitExpr?(
+    node: Ballerina.TypeInitExpr,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitTypeTestExpr?(node: Ballerina.TypeTestExpr): void;
-  endVisitTypeTestExpr?(node: Ballerina.TypeTestExpr): void;
+  beginVisitTypeTestExpr?(
+    node: Ballerina.TypeTestExpr,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitTypeTestExpr?(
+    node: Ballerina.TypeTestExpr,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitTypedescExpression?(node: Ballerina.TypedescExpression): void;
-  endVisitTypedescExpression?(node: Ballerina.TypedescExpression): void;
+  beginVisitTypedescExpression?(
+    node: Ballerina.TypedescExpression,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitTypedescExpression?(
+    node: Ballerina.TypedescExpression,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitUnaryExpr?(node: Ballerina.UnaryExpr): void;
-  endVisitUnaryExpr?(node: Ballerina.UnaryExpr): void;
+  beginVisitUnaryExpr?(
+    node: Ballerina.UnaryExpr,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitUnaryExpr?(
+    node: Ballerina.UnaryExpr,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitUnionTypeNode?(node: Ballerina.UnionTypeNode): void;
-  endVisitUnionTypeNode?(node: Ballerina.UnionTypeNode): void;
+  beginVisitUnionTypeNode?(
+    node: Ballerina.UnionTypeNode,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitUnionTypeNode?(
+    node: Ballerina.UnionTypeNode,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitUserDefinedType?(node: Ballerina.UserDefinedType): void;
-  endVisitUserDefinedType?(node: Ballerina.UserDefinedType): void;
+  beginVisitUserDefinedType?(
+    node: Ballerina.UserDefinedType,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitUserDefinedType?(
+    node: Ballerina.UserDefinedType,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitValueType?(node: Ballerina.ValueType): void;
-  endVisitValueType?(node: Ballerina.ValueType): void;
+  beginVisitValueType?(
+    node: Ballerina.ValueType,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitValueType?(
+    node: Ballerina.ValueType,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitVariable?(node: Ballerina.Variable): void;
-  endVisitVariable?(node: Ballerina.Variable): void;
+  beginVisitVariable?(
+    node: Ballerina.Variable,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitVariable?(node: Ballerina.Variable, parent?: Ballerina.ASTNode): void;
 
-  beginVisitVariableDef?(node: Ballerina.VariableDef): void;
-  endVisitVariableDef?(node: Ballerina.VariableDef): void;
+  beginVisitVariableDef?(
+    node: Ballerina.VariableDef,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitVariableDef?(
+    node: Ballerina.VariableDef,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitVisibleEndpoint?(node: Ballerina.VisibleEndpoint): void;
-  endVisitVisibleEndpoint?(node: Ballerina.VisibleEndpoint): void;
+  beginVisitVisibleEndpoint?(
+    node: Ballerina.VisibleEndpoint,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitVisibleEndpoint?(
+    node: Ballerina.VisibleEndpoint,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitWaitExpr?(node: Ballerina.WaitExpr): void;
-  endVisitWaitExpr?(node: Ballerina.WaitExpr): void;
+  beginVisitWaitExpr?(
+    node: Ballerina.WaitExpr,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitWaitExpr?(node: Ballerina.WaitExpr, parent?: Ballerina.ASTNode): void;
 
-  beginVisitWaitLiteralKeyValue?(node: Ballerina.WaitLiteralKeyValue): void;
-  endVisitWaitLiteralKeyValue?(node: Ballerina.WaitLiteralKeyValue): void;
+  beginVisitWaitLiteralKeyValue?(
+    node: Ballerina.WaitLiteralKeyValue,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitWaitLiteralKeyValue?(
+    node: Ballerina.WaitLiteralKeyValue,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitWhere?(node: Ballerina.Where): void;
-  endVisitWhere?(node: Ballerina.Where): void;
+  beginVisitWhere?(node: Ballerina.Where, parent?: Ballerina.ASTNode): void;
+  endVisitWhere?(node: Ballerina.Where, parent?: Ballerina.ASTNode): void;
 
-  beginVisitWhile?(node: Ballerina.While): void;
-  endVisitWhile?(node: Ballerina.While): void;
+  beginVisitWhile?(node: Ballerina.While, parent?: Ballerina.ASTNode): void;
+  endVisitWhile?(node: Ballerina.While, parent?: Ballerina.ASTNode): void;
 
-  beginVisitWindowClause?(node: Ballerina.WindowClause): void;
-  endVisitWindowClause?(node: Ballerina.WindowClause): void;
+  beginVisitWindowClause?(
+    node: Ballerina.WindowClause,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitWindowClause?(
+    node: Ballerina.WindowClause,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitWithin?(node: Ballerina.Within): void;
-  endVisitWithin?(node: Ballerina.Within): void;
+  beginVisitWithin?(node: Ballerina.Within, parent?: Ballerina.ASTNode): void;
+  endVisitWithin?(node: Ballerina.Within, parent?: Ballerina.ASTNode): void;
 
-  beginVisitWorkerFlush?(node: Ballerina.WorkerFlush): void;
-  endVisitWorkerFlush?(node: Ballerina.WorkerFlush): void;
+  beginVisitWorkerFlush?(
+    node: Ballerina.WorkerFlush,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitWorkerFlush?(
+    node: Ballerina.WorkerFlush,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitWorkerReceive?(node: Ballerina.WorkerReceive): void;
-  endVisitWorkerReceive?(node: Ballerina.WorkerReceive): void;
+  beginVisitWorkerReceive?(
+    node: Ballerina.WorkerReceive,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitWorkerReceive?(
+    node: Ballerina.WorkerReceive,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitWorkerSend?(node: Ballerina.WorkerSend): void;
-  endVisitWorkerSend?(node: Ballerina.WorkerSend): void;
+  beginVisitWorkerSend?(
+    node: Ballerina.WorkerSend,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitWorkerSend?(
+    node: Ballerina.WorkerSend,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitWorkerSyncSend?(node: Ballerina.WorkerSyncSend): void;
-  endVisitWorkerSyncSend?(node: Ballerina.WorkerSyncSend): void;
+  beginVisitWorkerSyncSend?(
+    node: Ballerina.WorkerSyncSend,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitWorkerSyncSend?(
+    node: Ballerina.WorkerSyncSend,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitXmlAttribute?(node: Ballerina.XmlAttribute): void;
-  endVisitXmlAttribute?(node: Ballerina.XmlAttribute): void;
+  beginVisitXmlAttribute?(
+    node: Ballerina.XmlAttribute,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitXmlAttribute?(
+    node: Ballerina.XmlAttribute,
+    parent?: Ballerina.ASTNode
+  ): void;
 
   beginVisitXmlAttributeAccessExpr?(
-    node: Ballerina.XmlAttributeAccessExpr
+    node: Ballerina.XmlAttributeAccessExpr,
+    parent?: Ballerina.ASTNode
   ): void;
-  endVisitXmlAttributeAccessExpr?(node: Ballerina.XmlAttributeAccessExpr): void;
+  endVisitXmlAttributeAccessExpr?(
+    node: Ballerina.XmlAttributeAccessExpr,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitXmlCommentLiteral?(node: Ballerina.XmlCommentLiteral): void;
-  endVisitXmlCommentLiteral?(node: Ballerina.XmlCommentLiteral): void;
+  beginVisitXmlCommentLiteral?(
+    node: Ballerina.XmlCommentLiteral,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitXmlCommentLiteral?(
+    node: Ballerina.XmlCommentLiteral,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitXmlElementLiteral?(node: Ballerina.XmlElementLiteral): void;
-  endVisitXmlElementLiteral?(node: Ballerina.XmlElementLiteral): void;
+  beginVisitXmlElementLiteral?(
+    node: Ballerina.XmlElementLiteral,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitXmlElementLiteral?(
+    node: Ballerina.XmlElementLiteral,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitXmlPiLiteral?(node: Ballerina.XmlPiLiteral): void;
-  endVisitXmlPiLiteral?(node: Ballerina.XmlPiLiteral): void;
+  beginVisitXmlPiLiteral?(
+    node: Ballerina.XmlPiLiteral,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitXmlPiLiteral?(
+    node: Ballerina.XmlPiLiteral,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitXmlQname?(node: Ballerina.XmlQname): void;
-  endVisitXmlQname?(node: Ballerina.XmlQname): void;
+  beginVisitXmlQname?(
+    node: Ballerina.XmlQname,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitXmlQname?(node: Ballerina.XmlQname, parent?: Ballerina.ASTNode): void;
 
-  beginVisitXmlQuotedString?(node: Ballerina.XmlQuotedString): void;
-  endVisitXmlQuotedString?(node: Ballerina.XmlQuotedString): void;
+  beginVisitXmlQuotedString?(
+    node: Ballerina.XmlQuotedString,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitXmlQuotedString?(
+    node: Ballerina.XmlQuotedString,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitXmlTextLiteral?(node: Ballerina.XmlTextLiteral): void;
-  endVisitXmlTextLiteral?(node: Ballerina.XmlTextLiteral): void;
+  beginVisitXmlTextLiteral?(
+    node: Ballerina.XmlTextLiteral,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitXmlTextLiteral?(
+    node: Ballerina.XmlTextLiteral,
+    parent?: Ballerina.ASTNode
+  ): void;
 
-  beginVisitXmlns?(node: Ballerina.Xmlns): void;
-  endVisitXmlns?(node: Ballerina.Xmlns): void;
+  beginVisitXmlns?(node: Ballerina.Xmlns, parent?: Ballerina.ASTNode): void;
+  endVisitXmlns?(node: Ballerina.Xmlns, parent?: Ballerina.ASTNode): void;
 }

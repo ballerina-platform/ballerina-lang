@@ -490,7 +490,9 @@ public class CompiledPackageSymbolEnter {
         type.sealed = dataInStream.readBoolean();
         if (!type.sealed) {
             String restFieldTypeDesc = getUTF8CPEntryValue(dataInStream);
-            type.restFieldType = getBTypeFromDescriptor(restFieldTypeDesc);
+            UnresolvedType restFieldType = new UnresolvedType(restFieldTypeDesc,
+                                                              restType -> type.restFieldType = restType);
+            this.env.unresolvedTypes.add(restFieldType);
         } else {
             type.restFieldType = symTable.noType;
         }
