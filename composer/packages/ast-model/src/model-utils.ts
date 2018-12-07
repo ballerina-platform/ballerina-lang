@@ -1,6 +1,6 @@
 import {
     ASTNode, Invocation, ObjectType, SimpleVariableRef,
-    TypeDefinition, Variable, VariableDef
+    TypeDefinition, Variable, VariableDef, WorkerReceive
 } from "./ast-interfaces";
 import { Visitor } from "./base-visitor";
 import { ASTKindChecker } from "./check-kind-util";
@@ -103,4 +103,16 @@ export function isValidObjectType(node: ASTNode): boolean {
         }
     }
     return false;
+}
+
+export function isWorkerReceive(node: ASTNode): boolean | string{
+    let found: boolean | string = false;
+    traversNode(node, {
+        beginVisitASTNode(element: ASTNode) {
+            if (ASTKindChecker.isWorkerReceive(element)) {
+                found = (element as WorkerReceive).workerName.value;
+            }
+        }
+    });
+    return found;
 }

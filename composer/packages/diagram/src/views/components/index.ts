@@ -15,3 +15,6 @@ export { Statement as ExpressionStatement};
 export { Statement as VariableDef};
 export { Statement as Assignment};
 export { Statement as CompoundAssignment};
+export { Statement as Panic};
+export { Statement as Break};
+export { Statement as Continue};

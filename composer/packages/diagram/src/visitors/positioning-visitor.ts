@@ -143,8 +143,8 @@ export const visitor: Visitor = {
         node.statements.forEach((element) => {
             if (ASTUtil.isWorker(element)) { return; }
             element.viewState.bBox.x = viewState.bBox.x;
-            element.viewState.bBox.y = viewState.bBox.y + height;
-            height += element.viewState.bBox.h;
+            element.viewState.bBox.y = viewState.bBox.y + element.viewState.bBox.paddingTop + height;
+            height += element.viewState.bBox.h + element.viewState.bBox.paddingTop;
         });
         viewState.menuTrigger = {
             x: viewState.bBox.x,

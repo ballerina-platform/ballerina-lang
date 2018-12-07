@@ -1,9 +1,9 @@
 import {
     Assignment, ASTKindChecker,
-    ASTNode, ASTUtil, Block, CompoundAssignment, ExpressionStatement, Foreach, Function,
-    If, Invocation, Lambda, Match, MatchStaticPatternClause, ObjectType, Return,
-    Service, TypeDefinition, Variable, VariableDef, VisibleEndpoint,
-    Visitor, While, WorkerSend
+    ASTNode, ASTUtil, Block, Break, CompoundAssignment, Constant, ExpressionStatement,
+    Foreach, Function, If, Invocation, Lambda, Match, MatchStaticPatternClause,
+    ObjectType, Panic, Return, Service, TypeDefinition,
+    Variable, VariableDef, VisibleEndpoint, Visitor, While, WorkerSend
 } from "@ballerina/ast-model";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
@@ -27,7 +27,7 @@ function sizeStatement(node: ASTNode) {
     viewState.bBox.h = config.statement.height;
     viewState.bBox.w = (config.statement.width > label.w) ? config.statement.width : label.w;
     viewState.bBox.label = label.text;
-    // Check if statement is action invocation
+    // Check if statement is action invocation.
     const action = ASTUtil.isActionInvocation(node);
     if (action) {
         // find the endpoint view state
@@ -69,7 +69,7 @@ function sizeWorker(node: VariableDef, preWorkerHeight = 0, workerHolder: Worker
         viewState.bBox.leftMargin = config.lifeLine.leftMargin;
     }
     viewState.name = variable.name.value.replace("0", "");
-    workerHolder.push({block: functionNode.body! , view: viewState});
+    workerHolder.push({ block: functionNode.body!, view: viewState });
 }
 
 function calcPreWorkerHeight(body: Block) {
@@ -87,27 +87,81 @@ function calcPreWorkerHeight(body: Block) {
 
 interface WorkerTuple { block: Block; view: WorkerViewState; }
 function syncWorkerInvocations(workerBlocks: WorkerTuple[]) {
+    const workerMap: { [s: string]: Block; } = {};
+    workerBlocks.forEach((workerBlock) => {
+        workerMap[workerBlock.view.name] = workerBlock.block;
+    });
+    // Clear out previous calculations.
+    setZeroPadding(workerBlocks);
     // traverse default identify interaction
     workerBlocks.forEach((workerBlock) => {
-        workerBlock.block.statements.forEach((statement) => {
+        workerBlock.block.statements.forEach((statement, index) => {
             if (ASTKindChecker.isWorkerSend(statement)) {
                 const workerViewState = workerBlocks.find((worker) => {
                     return worker.view.name === (statement as WorkerSend).workerName.value;
                 });
                 (statement as WorkerSend).viewState.to = workerViewState!.view;
+                // if statement is not synced call balance.
+                balanceWorkerInvocation(index,
+                    workerBlock.view.name,
+                    (statement as WorkerSend).workerName.value,
+                    workerMap);
             }
         });
     });
-    // Clear out previous calculations.
-    setZeroPadding(workerBlocks);
 }
 
 function setZeroPadding(workerBlocks: WorkerTuple[]) {
     workerBlocks.forEach((workerBlock) => {
         workerBlock.block.statements.forEach((statement) => {
+            statement.viewState.synced = false;
             statement.viewState.paddingTop = 0;
         });
     });
+}
+
+function balanceWorkerInvocation(index: number, from: string, to: string, workerMap: { [s: string]: Block; }) {
+    // Iterate the specifc worker till you find the index.
+    const fromWorker: Block = workerMap[from];
+    const toWorker: Block = workerMap[to];
+    let toHeight = 0;
+    for (let i = 0; i < index; i++) {
+        // Add height while you iterate.
+        toHeight += fromWorker.statements[i].viewState.bBox.h
+            + fromWorker.statements[i].viewState.bBox.paddingTop;
+    }
+    const sendStatement = fromWorker.statements[index];
+
+    // Iterate the target worker till you find a compatible receive.
+    let receiveHeight = 0;
+    // tslint:disable-next-line:prefer-for-of
+    for (let j = 0; j < toWorker.statements.length; j++) {
+        // If you find another send or receive call recursive
+        const stmt = toWorker.statements[j];
+        // Add height while iterating.
+        if (ASTKindChecker.isWorkerSend(stmt) && !stmt.viewState.synced) {
+            balanceWorkerInvocation(j, to, (stmt as WorkerSend).workerName.value, workerMap);
+        }
+        const receiveName = ASTUtil.isWorkerReceive(stmt);
+        if (receiveName) {
+            if (!stmt.viewState.synced) {
+                // Check if compatible
+                if (from === (receiveName as string)) {
+                    if (receiveHeight > toHeight) {
+                        sendStatement.viewState.bBox.paddingTop = receiveHeight - toHeight;
+                    } else {
+                        stmt.viewState.bBox.paddingTop = toHeight - receiveHeight;
+                    }
+                    sendStatement.viewState.synced = true;
+                    stmt.viewState.synced = true;
+                } else {
+                    // ToDo bug need to find other send.
+                    // balanceWorkerInvocation(j, to, (receiveName as string), workerMap);
+                }
+            }
+        }
+        receiveHeight += stmt.viewState.bBox.h + stmt.viewState.bBox.paddingTop;
+    }
 }
 
 let endpointHolder: VisibleEndpoint[] = [];
@@ -160,7 +214,7 @@ export const visitor: Visitor = {
             config.lifeLine.width;
         defaultWorker.lifeline.bBox.w = config.lifeLine.width;
         defaultWorker.name = "default";
-        workerHolder.push({block: node.body, view: defaultWorker});
+        workerHolder.push({ block: node.body, view: defaultWorker });
 
         // tslint:disable-next-line:prefer-conditional-expression
         if (node.body!.viewState.bBox.leftMargin) {
@@ -231,7 +285,7 @@ export const visitor: Visitor = {
                 ? element.viewState.bBox.w : viewState.bBox.w;
             viewState.bBox.leftMargin = (viewState.bBox.leftMargin < element.viewState.bBox.leftMargin)
                 ? element.viewState.bBox.leftMargin : viewState.bBox.leftMargin;
-            height += element.viewState.bBox.h;
+            height += element.viewState.bBox.h + element.viewState.bBox.paddingTop;
         });
         viewState.bBox.h = ((height === 0) ? config.statement.height : height) + config.block.bottomMargin;
         const hoverRectLeftMargin = viewState.bBox.leftMargin === 0
@@ -323,6 +377,18 @@ export const visitor: Visitor = {
     },
 
     endVisitWorkerSend(node: WorkerSend) {
+        sizeStatement(node);
+    },
+
+    endVisitPanic(node: Panic) {
+        sizeStatement(node);
+    },
+
+    endVisitBreak(node: Break) {
+        sizeStatement(node);
+    },
+
+    endVisitConstant(node: Constant) {
         sizeStatement(node);
     },
 
