@@ -135,6 +135,22 @@ public class WorkerFailTest {
     }
 
     @Test
+    public void invalidReceiveWithTrapWithNonError() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-receive-with-trap.bal");
+        String message = Arrays.toString(result.getDiagnostics());
+        Assert.assertEquals(result.getErrorCount(), 1, message);
+        Assert.assertTrue(message.contains("incompatible types"), message);
+    }
+
+    @Test
+    public void invalidReceiveWithCheckWithNonError() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-receive-with-check.bal");
+        String message = Arrays.toString(result.getDiagnostics());
+        Assert.assertEquals(result.getErrorCount(), 1, message);
+        Assert.assertTrue(message.contains("no expression type is equivalent to error"), message);
+    }
+
+    @Test
     public void invalidActionsInFork() {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-actions-in-fork.bal");
         Assert.assertEquals(result.getErrorCount(), 2);

@@ -22,6 +22,7 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.util.codegen.CallableUnitInfo.ChannelDetails;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -43,7 +44,7 @@ public class SafeStrandCallback extends StrandCallback {
 
     private CallbackWaitHandler callbackWaitHandler;
 
-    String[] sendIns;
+    ChannelDetails[] sendIns;
 
     SafeStrandCallback(BType retType, WDChannels parentChannels) {
         super(retType);
@@ -63,14 +64,10 @@ public class SafeStrandCallback extends StrandCallback {
                 this.status =  CallbackStatus.VALUE_RETURNED;
             }
             if (this.status == CallbackStatus.PANIC) {
-                for (int i = 0; i < sendIns.length; i++) {
-                    this.parentChannels.getWorkerDataChannel(sendIns[i]).setPanic(this.getErrorVal());
-                }
+                handleChannelPanic();
             }
             if (this.status == CallbackStatus.ERROR_RETURN) {
-                for (int i = 0; i < sendIns.length; i++) {
-                    this.parentChannels.getWorkerDataChannel(sendIns[i]).setError(super.getRefRetVal());
-                }
+                handleChannelError();
             }
             if (this.callbackWaitHandler.waitingStrand == null) {
                 return;
@@ -95,6 +92,38 @@ public class SafeStrandCallback extends StrandCallback {
             }
         } finally {
             this.callbackWaitHandler.dataLock.unlock();
+        }
+    }
+
+    private void handleChannelPanic() {
+        for (int i = 0; i < sendIns.length; i++) {
+            WorkerDataChannel channel;
+            if (sendIns[i].channelInSameStrand) {
+                channel = this.wdChannels.getWorkerDataChannel(sendIns[i].name);
+            } else {
+                channel = this.parentChannels.getWorkerDataChannel(sendIns[i].name);
+            }
+            if (sendIns[i].send) {
+                channel.setSendPanic(this.getErrorVal());
+            } else {
+                channel.setReceiverPanic(this.getErrorVal());
+            }
+        }
+    }
+
+    private void handleChannelError() {
+        for (int i = 0; i < sendIns.length; i++) {
+            WorkerDataChannel channel;
+            if (sendIns[i].channelInSameStrand) {
+                channel = this.wdChannels.getWorkerDataChannel(sendIns[i].name);
+            } else {
+                channel = this.parentChannels.getWorkerDataChannel(sendIns[i].name);
+            }
+            if (sendIns[i].send) {
+                channel.setSendError(super.getRefRetVal());
+            } else {
+                channel.setRecieveError(super.getRefRetVal());
+            }
         }
     }
 

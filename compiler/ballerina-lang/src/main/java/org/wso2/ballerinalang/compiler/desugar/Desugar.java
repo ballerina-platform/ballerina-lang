@@ -2489,7 +2489,7 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorkerFlushExpr workerFlushExpr) {
         workerFlushExpr.workerIdentifierList = workerFlushExpr.cachedWorkerSendStmts
-                .stream().map(send -> send.workerIdentifier).collect(Collectors.toList());
+                .stream().map(send -> send.workerIdentifier).distinct().collect(Collectors.toList());
         result = workerFlushExpr;
     }
 
