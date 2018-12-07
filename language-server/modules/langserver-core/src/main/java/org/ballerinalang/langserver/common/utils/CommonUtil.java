@@ -864,13 +864,11 @@ public class CommonUtil {
      */
     public static List<BLangImportPackage> getCurrentFileImports(BLangPackage pkg, LSContext ctx) {
         String currentFile = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
-        return getCurrentFileTopLevelNodes(pkg, ctx).stream()
-                .filter(topLevelNode -> topLevelNode instanceof BLangImportPackage)
-                .map(topLevelNode -> (BLangImportPackage) topLevelNode)
+        return pkg.getImports().stream()
                 .filter(bLangImportPackage ->
                         bLangImportPackage.pos.getSource().cUnitName.replace("/", FILE_SEPARATOR).equals(currentFile)
-                                && !(bLangImportPackage.getOrgName().getValue().equals("ballerina")
-                                && bLangImportPackage.symbol.getName().getValue().equals("transaction")))
+                        && !(bLangImportPackage.getOrgName().getValue().equals("ballerina")
+                        && bLangImportPackage.symbol.getName().getValue().equals("transaction")))
                 .collect(Collectors.toList());
     }
 
