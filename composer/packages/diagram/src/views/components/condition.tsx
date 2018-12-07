@@ -1,6 +1,6 @@
-
-import { If, While } from "@ballerina/ast-model";
+import { ASTUtil, If, While } from "@ballerina/ast-model";
 import * as React from "react";
+import { Popup } from "semantic-ui-react";
 import { DiagramConfig } from "../../config/default";
 import { DiagramUtils } from "../../diagram/diagram-utils";
 import { SourceLinkedLabel } from "./source-linked-label";
@@ -80,20 +80,29 @@ export const Condition: React.StatelessComponent<{
 
         return (
             <g className="condition">
-                {!astModel &&  <text {...conditionProps} className="expression">{expressionText}</text>}
-                {astModel && <SourceLinkedLabel
+                <Popup
+                    trigger={
+                        <g>
+                            {!astModel &&  <text {...conditionProps} className="expression">{expressionText}</text>}
+                            {astModel && <SourceLinkedLabel
                                     {...conditionProps} target={astModel.condition}
                                     text={expressionText} className="expression"
                                 />
-                }
+                            }
+                        </g>
+                    }
+                    content={expression}
+                    size="mini"
+                    inverted
+                />
                 <polyline
                     points={`${p1.x},${p1.y} ${p2.x},${p2.y} ${p3.x},${p3.y} ${p4.x},${p4.y} ${p1.x},${p1.y}`}
                 />
                 {!astModel && <text {...labelProps} className="label">{label}</text>}
                 {astModel && <SourceLinkedLabel
-                                    {...labelProps} target={astModel}
-                                    text={label} className="label"
-                                />
+                        {...labelProps} target={astModel}
+                        text={label} className="label"
+                    />
                 }
                 <rect {...trueProps} className="condition-case-background condition-case-background-true"></rect>
                 <text {...trueTextProps} className="condition-case condition-case-true">{conditionLables.true}</text>
