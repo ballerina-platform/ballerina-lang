@@ -166,7 +166,6 @@ public class MessageUtils {
      */
     static void handleFailure(StreamObserver streamObserver, BError error) {
         String errorMsg = error.stringValue();
-        LOG.error(errorMsg);
         ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
         if (streamObserver != null) {
             streamObserver.onError(new Message(new StatusRuntimeException(Status.fromCodeValue(Status
