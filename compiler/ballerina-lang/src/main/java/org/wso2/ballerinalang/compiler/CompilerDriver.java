@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.Constants;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 
 import java.util.HashSet;
@@ -134,7 +135,7 @@ public class CompilerDriver {
         importPkgList.addAll(pkgNode.imports);
         // If tests are enabled then get the imports of the testable package as well.
         String testsEnabled = this.options.get(CompilerOptionName.SKIP_TESTS);
-        if (testsEnabled != null && testsEnabled.equals("false")) {
+        if (testsEnabled != null && testsEnabled.equals(Constants.SKIP_TESTS)) {
             pkgNode.getTestablePkgs().forEach(testablePackage -> importPkgList.addAll(testablePackage.imports));
         }
         importPkgList.stream()
