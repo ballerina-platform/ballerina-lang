@@ -164,6 +164,7 @@ import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.CompilerUtils;
+import org.wso2.ballerinalang.compiler.util.Constants;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -3821,7 +3822,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // If tests are enabled then get the imports of the testable package as well.
         String testsEnabled = options.get(CompilerOptionName.SKIP_TESTS);
-        if (testsEnabled != null && testsEnabled.equals("false")) {
+        if (testsEnabled != null && testsEnabled.equals(Constants.SKIP_TESTS)) {
             pkgNode.getTestablePkgs().forEach(testablePackage -> importPkgList.addAll(testablePackage.imports));
         }
         importPkgList.forEach(importPkdNode -> addPackageInfo(importPkdNode.symbol, programFile));
