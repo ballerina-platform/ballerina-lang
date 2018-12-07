@@ -104,6 +104,7 @@ function syncWorkerInvocations(workerBlocks: WorkerTuple[]) {
                 const workerViewState = workerBlocks.find((worker) => {
                     return worker.view.name === (statement as WorkerSend).workerName.value;
                 });
+                if (!workerViewState) { return; }
                 (statement as WorkerSend).viewState.to = workerViewState!.view;
                 // if statement is not synced call balance.
                 balanceWorkerInvocation(index,

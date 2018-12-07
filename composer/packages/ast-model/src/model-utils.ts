@@ -105,7 +105,7 @@ export function isValidObjectType(node: ASTNode): boolean {
     return false;
 }
 
-export function isWorkerReceive(node: ASTNode): boolean | string{
+export function isWorkerReceive(node: ASTNode): boolean | string {
     let found: boolean | string = false;
     traversNode(node, {
         beginVisitASTNode(element: ASTNode) {
