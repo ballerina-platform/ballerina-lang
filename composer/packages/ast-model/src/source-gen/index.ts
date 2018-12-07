@@ -120,7 +120,7 @@ export function attachNodeSilently(
             ws.i = ws.i + treeDiff;
         }
     });
-    attachPointNodes[insertAt] = newNode;
+    attachPointNodes.splice(insertAt, 0, newNode);
 }
 
 export function attachNode(

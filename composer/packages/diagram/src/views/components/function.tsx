@@ -59,7 +59,7 @@ export const Function = (props: { model: FunctionNode }, context: IDiagramContex
                         triggerPosition={viewState.menuTrigger}
                         onAddEndpoint={(epDef: any) => {
                             if (model.body && ast) {
-                                ASTUtil.addEndpointToBlock(model.body, ast, epDef);
+                                ASTUtil.addEndpointToBlock(model.body, ast, epDef, 0);
                             }
                         }}
                         onAddWorker={() => {

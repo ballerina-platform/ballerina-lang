@@ -15,11 +15,11 @@
   ],
   "position": {
     "startColumn": 5,
-    "startLine": 27,
+    "startLine": 24,
     "endColumn": 38,
-    "endLine": 27
+    "endLine": 24
   },
-  "id": "c8c67614-7209-4fff-bb70-def3f365c9f9",
+  "id": "c1bc2005-6db4-4b4d-aec7-f604aaa5b5e5",
   "variable": {
     "ws": [
       {
@@ -37,16 +37,16 @@
     ],
     "position": {
       "startColumn": 5,
-      "startLine": 27,
+      "startLine": 24,
       "endColumn": 38,
-      "endLine": 27
+      "endLine": 24
     },
-    "id": "e79b4211-64a3-4ddf-a958-ec80353070b3",
+    "id": "99a1f6d2-624c-4abd-a775-00f8debf53e5",
     "symbolType": [
       "object"
     ],
     "name": {
-      "id": "f3128556-f103-4ca2-a276-9ff09b80217e",
+      "id": "1bf39fb8-1fb0-4d25-8e45-3684f517d183",
       "literal": false,
       "value": "endpointName",
       "kind": "Identifier",
@@ -75,16 +75,16 @@
       ],
       "position": {
         "startColumn": 5,
-        "startLine": 27,
+        "startLine": 24,
         "endColumn": 16,
-        "endLine": 27
+        "endLine": 24
       },
-      "id": "5fcc0aa9-886d-488e-8427-817d5df113c3",
+      "id": "0e97b2d2-d3a1-4871-80cc-57d0a9f461ff",
       "symbolType": [
         "object"
       ],
       "packageAlias": {
-        "id": "ef64dace-f055-4d32-9587-8cac3004561d",
+        "id": "283aaac4-7fe7-4918-a21d-7baaeac6ce40",
         "literal": false,
         "value": "http",
         "kind": "Identifier",
@@ -116,7 +116,7 @@
       "service": false,
       "constant": false,
       "typeName": {
-        "id": "3545cbc6-6c34-4ea5-b1d7-31ee8ceef5ca",
+        "id": "64281677-9d03-4460-92b9-33627a416c47",
         "literal": false,
         "value": "Client",
         "kind": "Identifier",
@@ -156,11 +156,11 @@
       ],
       "position": {
         "startColumn": 32,
-        "startLine": 27,
+        "startLine": 24,
         "endColumn": 37,
-        "endLine": 27
+        "endLine": 24
       },
-      "id": "316e1be7-ccfa-4aef-988d-c19d831fca7d",
+      "id": "77dde7bd-e1b5-485d-a991-987a3a3b7950",
       "symbolType": [
         "object"
       ],
