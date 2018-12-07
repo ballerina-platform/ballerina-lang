@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
- ~   Copyright 2017, WSO2 Inc. (http://www.wso2.com)
+ ~   Copyright 2018, WSO2 Inc. (http://www.wso2.com)
  ~
  ~   Licensed under the Apache License, Version 2.0 (the "License");
  ~   you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  ~   limitations under the License.
 -->
 
-<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+<svg version="1.1" id="api-design" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 viewBox="0 0 16 16" style="enable-background:new 0 0 16 16;" xml:space="preserve">
 <path fill="#424242" d="M8.9266357,10.3343506h0.633728c0.4277344,0,0.7603149-0.0316162,0.9979858-0.0791626
 	c0.1583862-0.0317383,0.3327026-0.1109009,0.4910889-0.2218018s0.3009644-0.2692871,0.4118652-0.4752197

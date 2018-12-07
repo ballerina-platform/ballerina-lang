@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
- ~   Copyright 2017, WSO2 Inc. (http://www.wso2.com)
+ ~   Copyright 2018, WSO2 Inc. (http://www.wso2.com)
  ~
  ~   Licensed under the Apache License, Version 2.0 (the "License");
  ~   you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  ~   limitations under the License.
 -->
 
-<svg version="1.1" id="api-design-inverse" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
+<svg version="1.1" id="documentation-inverse" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
 	 y="0px" viewBox="0 0 16 16" style="enable-background:new 0 0 16 16;" xml:space="preserve">
 <path fill="#C5C5C5" d="M10.3397903,1h-7.749588v14h10.8195953V3.9699707L10.3397903,1z M12.4097977,14H3.5902021V2h6.5095978
 	v2.3099976h2.3099976V14z M11.2580566,8.1777344H4.7419434V7.1782227h6.5161133V8.1777344z M11.2580566,10.5058594H4.7419434v-1
