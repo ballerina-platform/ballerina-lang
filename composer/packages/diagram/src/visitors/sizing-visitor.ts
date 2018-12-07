@@ -234,7 +234,7 @@ export const visitor: Visitor = {
         const viewState: ViewState = node.viewState;
         const bodyBBox: SimpleBBox = node.body.viewState.bBox;
 
-        viewState.bBox.w = node.body.viewState.bBox.w;
+        viewState.bBox.w = node.body.viewState.bBox.w + config.flowCtrl.rightMargin;
         viewState.bBox.h = node.body.viewState.bBox.h + config.flowCtrl.condition.height
             + config.flowCtrl.condition.bottomMargin
             + config.flowCtrl.bottomMargin;
