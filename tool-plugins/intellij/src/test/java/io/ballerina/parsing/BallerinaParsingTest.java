@@ -106,8 +106,10 @@ public class BallerinaParsingTest extends ParsingTestCase {
             String relativeFilePath = resource.getPath().replace(getTestDataPath(), EMPTY_STRING);
             String text = loadFile(relativeFilePath);
             myFile = createPsiFile(name, text);
-            String psiString = DebugUtil.psiToString(myFile, false, false);
-            VfsTestUtil.overwriteTestData(new File(getExpectedResultPath() + relativeFilePath).toString(), psiString);
+            String psiString = DebugUtil.psiToString(myFile, false, true);
+            String outputFilePath = new File(getExpectedResultPath() + relativeFilePath).toString()
+                    .replace("." + myFileExt, ".txt");
+            VfsTestUtil.overwriteTestData(outputFilePath, psiString);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
