@@ -104,35 +104,35 @@ class InlineEdit extends React.Component<InlineEditProps, InlineEditState> {
                 return (
                     <div className={`inline-editor editing  ${classDefinition}}`}>
                         <Form>
-                            <Form.Group widths="5" inline>
+                            <Form.Group>
                                 <Form.Input
-                                    transparent
-                                    fluid
                                     id="url-link"
+                                    compact
+                                    size="mini"
                                     placeholder={placeholderString}
                                     value={stateText}
                                     onChange={this.handleOnTextChange}
                                 />
                                 <Form.Input
-                                    transparent
-                                    fluid
                                     id="url-text"
+                                    compact
+                                    size="mini"
                                     placeholder="Add a meaningful link text"
                                     value={urlString}
                                     onChange={this.handleOnTextChange}
                                 />
                                 <Form.Button
-                                    width={1}
                                     inverted
                                     color="black"
                                     icon="check"
+                                    size="mini"
                                     onClick={this.handleDoneEditing}
                                 />
                                 <Form.Button
-                                    width={1}
                                     inverted
                                     color="black"
                                     icon="close"
+                                    size="mini"
                                     onClick={this.handleCancelEdit}
                                 />
                             </Form.Group>
