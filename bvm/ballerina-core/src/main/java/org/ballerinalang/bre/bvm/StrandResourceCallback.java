@@ -18,6 +18,9 @@
 package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BError;
+import org.ballerinalang.model.values.BRefType;
 
 /**
  * VM callback implementation which can be used for resource execution.
@@ -38,6 +41,11 @@ public class StrandResourceCallback extends StrandCallback {
         super.signal();
         if (super.getErrorVal() != null) {
             resourceCallback.notifyFailure(super.getErrorVal());
+            return;
+        }
+        BRefType<?> retValue = super.getRefRetVal();
+        if (retValue != null && retValue.getType().getTag() == TypeTags.ERROR_TAG) {
+            resourceCallback.notifyFailure((BError) getRefRetVal());
             return;
         }
         resourceCallback.notifySuccess();
