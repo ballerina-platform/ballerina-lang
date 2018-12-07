@@ -193,3 +193,8 @@ function testArrowExprWithNoArgumentsAndClosure() returns string {
     function () returns string lambda = () => "Some Text " + packageVar + " " + closureVar;
     return lambda.call();
 }
+
+function testArrowExprInBracedExpr() returns string {
+    function () returns string lambda = (() => "Some Text");
+    return lambda.call();
+}
