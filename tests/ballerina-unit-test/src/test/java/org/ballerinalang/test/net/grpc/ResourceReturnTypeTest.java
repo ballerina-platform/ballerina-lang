@@ -41,38 +41,13 @@ public class ResourceReturnTypeTest {
     }
 
     @Test
-    public void testValueReturnType() {
+    public void testInvalidReturnType() {
 
         Path serviceBalPath = Paths.get("src", "test", "resources", "test-src", "net", "grpc",
-                "resource_with_value_return.bal");
+                "resource_with_invalid_return_type.bal");
         CompileResult result = BCompileUtil.compile(serviceBalPath.toAbsolutePath().toString());
-        Assert.assertEquals(1, result.getErrorCount());
-        Assert.assertEquals(1, result.getDiagnostics().length);
-        Assert.assertEquals("Invalid return type, expected error|()", result.getDiagnostics
-                ()[0].getMessage());
-    }
-
-    @Test
-    public void testReturnUserType() {
-
-        Path serviceBalPath = Paths.get("src", "test", "resources", "test-src", "net", "grpc",
-                "resource_with_user_return_type.bal");
-        CompileResult result = BCompileUtil.compile(serviceBalPath.toAbsolutePath().toString());
-        Assert.assertEquals(1, result.getErrorCount());
-        Assert.assertEquals(1, result.getDiagnostics().length);
-        Assert.assertEquals("Invalid return type, expected error|()", result.getDiagnostics
-                ()[0].getMessage());
-    }
-
-    @Test
-    public void testReturnUnionType() {
-
-        Path serviceBalPath = Paths.get("src", "test", "resources", "test-src", "net", "grpc",
-                "resource_with_union_return.bal");
-        CompileResult result = BCompileUtil.compile(serviceBalPath.toAbsolutePath().toString());
-        Assert.assertEquals(1, result.getErrorCount());
-        Assert.assertEquals(1, result.getDiagnostics().length);
-        Assert.assertEquals("Invalid return type, expected error|()", result.getDiagnostics
-                ()[0].getMessage());
+        Assert.assertEquals(result.getErrorCount(), 5);
+        Assert.assertEquals(result.getDiagnostics().length, 5);
+        Assert.assertEquals(result.getDiagnostics()[0].getMessage(), "Invalid return type: expected error|()");
     }
 }

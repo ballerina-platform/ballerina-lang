@@ -19,15 +19,32 @@ import ballerina/io;
 
 service HelloWorld on new grpc:Listener(9090) {
 
-    resource function returnError(grpc:Caller caller, string name) returns error? {
+    resource function returnInt(grpc:Caller caller, string name) returns int {
+        return 10;
+    }
+
+    resource function returnString(grpc:Caller caller, string name) returns string {
+        return "Test";
+    }
+
+    resource function returnUnion(grpc:Caller caller, string name) returns string|error {
         error err = error("Return Error");
         return err;
     }
 
-    resource function returnNil(grpc:Caller caller, string name) returns error? {
-        return;
+    resource function returnUserType(grpc:Caller caller, string name) returns Person {
+        Person p = {};
+        return p;
     }
 
-    resource function noReturn(grpc:Caller caller, string name) {
+    resource function returnTupleType(grpc:Caller caller, string name) returns (Person,grpc:Headers) {
+        Person p = {};
+        grpc:Headers headers = new;
+        return (p,headers);
     }
 }
+
+type Person record {
+    string name = "";
+    int age = 0;
+};
