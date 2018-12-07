@@ -42,6 +42,11 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.wso2.transport.http.netty.util.TestUtil.BOGUS_HOST;
 import static org.wso2.transport.http.netty.util.TestUtil.HTTP_SERVER_PORT;
 
+/**
+ * Test for unresolved host.
+ *
+ * @since 6.0.247
+ */
 public class ClientConnectorUnknownHostTestCase {
     private static final Logger LOG = LoggerFactory.getLogger(ClientConnectorUnknownHostTestCase.class);
 
