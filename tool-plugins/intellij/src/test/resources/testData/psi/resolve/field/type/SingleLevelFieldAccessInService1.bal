@@ -4,8 +4,8 @@ type testRecord record {
     string /*def*/s;
 }
 
-service<http:Service> hello bind { port: 9090 }  {
-    sayHello(endpoint caller, http:Request req) {
+service hello on new http:Listener(9090) {
+    resource function sayHello(http:Caller caller, http:Request req) {
         testRecord ts = {/*ref*/s:""};
     }
 }
