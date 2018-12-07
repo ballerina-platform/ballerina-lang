@@ -198,3 +198,15 @@ function testArrowExprInBracedExpr() returns string {
     function () returns string lambda = (() => "Some Text");
     return lambda.call();
 }
+
+int gVar = 100;
+
+function testArrowExprWithNoReturn() returns int {
+    function (int) lambda = integerVar => incrementInt(integerVar);
+    lambda.call(20);
+    return gVar;
+}
+
+function incrementInt(int x) {
+    gVar += x;
+}
