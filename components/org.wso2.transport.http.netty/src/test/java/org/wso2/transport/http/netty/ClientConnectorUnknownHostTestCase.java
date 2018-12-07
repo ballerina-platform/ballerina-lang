@@ -56,7 +56,7 @@ public class ClientConnectorUnknownHostTestCase {
     }
 
     @Test
-    public void testHttpsGet() {
+    public void testUnresolvedHost() {
         try {
             HttpCarbonMessage httpsRequest = TestUtil.createHttpsPostReq(BOGUS_HOST, HTTP_SERVER_PORT, "", "");
 
@@ -73,7 +73,7 @@ public class ClientConnectorUnknownHostTestCase {
 
             assertTrue(result.contains("Could not resolve host:bogus_hostname"), result);
         } catch (Exception e) {
-            TestUtil.handleException("Exception occurred while running httpsGetTest", e);
+            TestUtil.handleException("Exception occurred while running testUnresolvedHost", e);
         }
     }
 
