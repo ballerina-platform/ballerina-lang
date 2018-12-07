@@ -18,7 +18,7 @@
  */
 
 import * as React from "react";
-import { Button, Checkbox, Form, Select } from "semantic-ui-react";
+import { Button, Checkbox, Form, Header, Icon, Select } from "semantic-ui-react";
 
 import { OpenApiParameter } from "../../components/parameter/add-parameter";
 
@@ -124,6 +124,12 @@ class OpenApiAddParameter extends React.Component<OpenApiAddParameterProps, Open
 
         return (
             <Form size="mini" className="add-operation">
+                <div className="form-box">
+                    <Header floated="left" as="h3">Add Parameter</Header>
+                    <Icon circular onClick={() => {
+                        handleClose(true);
+                    }} name="close" />
+                </div>
                 <Form.Field>
                     <label>Name</label>
                     <input placeholder="Parameter Name" onChange={(e) => this.setState({
