@@ -1,22 +1,26 @@
 
 // import { getCodePoint } from "@ballerina/font";
+import { ASTNode } from "@ballerina/ast-model";
 import { getCodePoint } from "@ballerina/font";
 import classNames from "classnames";
 import * as React from "react";
 import { DiagramConfig } from "../../config/default";
 import { DiagramUtils } from "../../diagram/diagram-utils";
 import { SimpleBBox } from "../../view-model/index";
+import { SourceLinkedLabel } from "./source-linked-label";
 
 const config: DiagramConfig = DiagramUtils.getConfig();
 
 export const LifeLine: React.StatelessComponent<{
     model: SimpleBBox,
     title: string,
-    icon: string
+    icon: string,
+    astModel?: ASTNode
 }> = ({
     model,
     title,
     children,
+    astModel,
     icon
 }) => {
 
@@ -51,8 +55,10 @@ export const LifeLine: React.StatelessComponent<{
                 <line {...lifeLine} />
                 <rect {...topBox} />
                 <rect {...bottomBox} />
-                <text {...topLabel}>{title}</text>
+                {!astModel && <text {...topLabel}>{title}</text>}
+                {astModel && <SourceLinkedLabel {...topLabel} target={astModel} text={title} />}
                 <text {...topIcon}>{getCodePoint(icon)}</text>
-                <text {...bottomLabel}>{title}</text>
+                {!astModel && <text {...bottomLabel}>{title}</text>}
+                {astModel && <SourceLinkedLabel {...bottomLabel} target={astModel} text={title} />}
             </g>);
     };

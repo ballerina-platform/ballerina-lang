@@ -3,6 +3,7 @@ import React from "react";
 import { DefaultConfig } from "../config/default";
 import { CompilationUnitViewState } from "../view-model/index";
 import { SvgCanvas } from "../views";
+import { setActionViewStatus, visitor as actionViewVisitor } from "../visitors/action-view";
 import { visitor as initVisitor } from "../visitors/init-visitor";
 import { visitor as positioningVisitor } from "../visitors/positioning-visitor";
 import { visitor as sizingVisitor } from "../visitors/sizing-visitor";
@@ -54,6 +55,9 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
         if (ast) {
             // Initialize AST node view state
             ASTUtil.traversNode(ast, initVisitor);
+            // Action view visitor
+            setActionViewStatus(this.state.currentMode === DiagramMode.ACTION);
+            ASTUtil.traversNode(ast, actionViewVisitor);
             // Set width and height to toplevel node.
             ast.viewState = cuViewState;
             // Calculate dimention of AST Nodes.
@@ -64,12 +68,23 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
             children.push(DiagramUtils.getComponents(ast.topLevelNodes));
         }
 
+        let zoomDiff;
+
         if (cuViewState.bBox.w > diagramWidth) {
-            diagramWidth = cuViewState.bBox.w;
+            const decrease = cuViewState.bBox.w - diagramWidth;
+            const descresePercentage = decrease / cuViewState.bBox.w * 100;
+
+            diagramHeight = cuViewState.bBox.h - (cuViewState.bBox.h / 100 * descresePercentage);
+            zoomDiff = descresePercentage;
+        } else {
+            const increase = diagramWidth - cuViewState.bBox.w;
+            const increasePercentage = increase / cuViewState.bBox.w * 100;
+
+            diagramHeight = cuViewState.bBox.h + (cuViewState.bBox.h / 100 * increasePercentage);
+            zoomDiff = increasePercentage;
         }
-        if (cuViewState.bBox.h > diagramHeight) {
-            diagramHeight = cuViewState.bBox.h;
-        }
+
+        diagramWidth = cuViewState.bBox.w - (cuViewState.bBox.w / 100 * zoomDiff);
 
         return <DiagramContext.Provider value={this.createContext({
             h: diagramHeight,
@@ -86,7 +101,7 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
 
     private createContext(diagramSize: { w: number, h: number }): IDiagramContext {
         const { ast } = this.props;
-        const { currentMode } = this.state;
+        const { currentMode, currentZoom } = this.state;
         // create context contributions
         const contextContributions: Partial<IDiagramContext> = {
             ast,
@@ -109,6 +124,7 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
                    currentZoom: this.state.currentZoom + zoomFactor
                });
             },
+            zoomLevel: currentZoom,
             zoomOut: () => {
                 if ((this.state.currentZoom - zoomFactor) >= 1) {
                     this.setState({

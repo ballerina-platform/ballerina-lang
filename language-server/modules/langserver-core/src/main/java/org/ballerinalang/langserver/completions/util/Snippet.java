@@ -79,8 +79,9 @@ public enum Snippet {
     KW_TYPE(SnippetGenerator.getTypeKeywordSnippet()),
 
     KW_VAR(SnippetGenerator.getVarKeywordSnippet()),
-    
-    
+
+    KW_LISTENER(SnippetGenerator.getListenerKeywordSnippet()),
+
     // Statement Snippets
     STMT_ABORT(SnippetGenerator.getAbortSnippet()),
 
@@ -140,7 +141,7 @@ public enum Snippet {
 
     BUILTIN_STAMP(SnippetGenerator.getBuiltinStampSnippet()),
 
-    BUILTIN_CREATE(SnippetGenerator.getBuiltinCreateSnippet()),
+    BUILTIN_CONVERT(SnippetGenerator.getBuiltinConvertSnippet()),
 
     BUILTIN_IS_NAN(SnippetGenerator.getBuiltinIsNaNSnippet()),
 

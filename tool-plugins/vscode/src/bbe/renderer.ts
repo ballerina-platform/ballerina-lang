@@ -4,10 +4,10 @@ import { getLibraryWebViewContent } from '../utils';
 
 export function render(context: ExtensionContext, langClient: ExtendedLangClient)
     : string {
-    const body = `<div id="examples" class="examples" />`;
 
+    const body = `<div id="examples" class="examples-container" />`;
     const bodyCss = "examples";
-
+    const styles = ``;
     const script = `
             function loadedScript() {
                     function openExample(url) {
@@ -20,14 +20,6 @@ export function render(context: ExtensionContext, langClient: ExtendedLangClient
                     renderSamples();
             }
         `;
-    const styles = `
-        body.vscode-dark {
-            background-color: #1e1e1e;
-        }
-        body.vscode-light {
-            background-color: white;
-        }
-    `;
 
     return getLibraryWebViewContent(context, body, script, styles, bodyCss);
 }

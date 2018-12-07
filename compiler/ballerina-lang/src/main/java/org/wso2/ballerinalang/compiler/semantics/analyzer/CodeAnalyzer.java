@@ -866,7 +866,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.loopWithintransactionCheckStack.push(true);
         this.checkStatementExecutionValidity(foreach);
         this.loopCount++;
-        foreach.body.stmts.forEach(e -> analyzeNode(e, env));
+        analyzeNode(foreach.body, env);
         this.loopCount--;
         this.resetLastStatement();
         this.loopWithintransactionCheckStack.pop();
@@ -878,7 +878,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.loopWithintransactionCheckStack.push(true);
         this.checkStatementExecutionValidity(whileNode);
         this.loopCount++;
-        whileNode.body.stmts.forEach(e -> analyzeNode(e, env));
+        analyzeNode(whileNode.body, env);
         this.loopCount--;
         this.resetLastStatement();
         this.loopWithintransactionCheckStack.pop();
@@ -1193,7 +1193,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         String workerName = syncSendExpr.workerIdentifier.getValue();
         WorkerActionSystem was = this.workerActionSystemStack.peek();
 
-        if (!isCommunicationAllowedLocation(workerName)) {
+        boolean allowedLocation = isCommunicationAllowedLocation(workerName);
+        if (!allowedLocation) {
             this.dlog.error(syncSendExpr.pos, DiagnosticCode.INVALID_WORKER_SEND_POSITION);
             was.hasErrors = true;
         }
@@ -1941,7 +1942,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 String channelName = WorkerDataChannelInfo.generateChannelName(worker.workerId, otherSM.workerId);
                 otherSM.node.sendsToThis.add(channelName);
 
-                channelName = WorkerDataChannelInfo.generateChannelName(otherSM.workerId, worker.workerId);
                 worker.node.sendsToThis.add(channelName);
             }
         } while (systemRunning);

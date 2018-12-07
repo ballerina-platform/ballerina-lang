@@ -17,18 +17,16 @@ public function main() {
         io:println("[w1 <- w2] j: ", jStr);
         io:println("[w1 ->> w2] i: ", i);
         // Synchronous send to worker `w2`. Worker `w1` wait until `w2` receives the message.
-        error? send = i ->> w2;
+        () send = i ->> w2;
         // Synchronous send returns nil for successful send or returns error or panic based on receiving worker's state.
-        if (send is error) {
-            io:println("w2 failed before receiving sync send");
-        } else {
-            io:println("[w1 ->> w2] successful!!");
-        }
+        io:println("[w1 ->> w2] successful!!");
 
-        foreach var n in 1 ... 3 {
-            io:println("[w1 -> w3] k: ", k);
-            k -> w3;
-        }
+        //Send few messages to `w3`.
+        io:println("[w1 -> w3] k: ", k);
+        k -> w3;
+        k -> w3;
+        k -> w3;
+
         io:println("Waiting for worker w3 to fetch messages..");
         // Flush all the message sends to worker `w3`. Worker halts here until all messages are sent or a `w3` failure.
         error? flushResult = flush w3;
@@ -57,11 +55,11 @@ public function main() {
     worker w3 {
         float mw;
         // Slowly receiving messages from `w1`.
-        foreach var i in 1 ... 3 {
-            runtime:sleep(50);
-            mw = <- w1;
-            io:println("[w3 <- w1] mw: ", mw);
-        }
+        runtime:sleep(50);
+        mw = <- w1;
+        mw = <- w1;
+        mw = <- w1;
+        io:println("[w3 <- w1] mw: ", mw);
     }
 
     wait w1;

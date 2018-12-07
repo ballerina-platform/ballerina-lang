@@ -47,7 +47,7 @@ public class ClosedRecordConstrainedJSONTest {
 
     @Test(description = "Test basic json struct constraint")
     public void testConstrainedJSONNegative() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 12);
+        Assert.assertEquals(negativeResult.getErrorCount(), 18);
         
         // testStructConstraintInInitializationInvalid
         BAssertUtil.validateError(negativeResult, 0, "undefined field 'firstName' in record 'Person'", 17, 23);
@@ -83,6 +83,25 @@ public class ClosedRecordConstrainedJSONTest {
         BAssertUtil.validateError(negativeResult, 10, "incompatible types: expected 'string', found 'int'", 89, 29);
 
         BAssertUtil.validateError(negativeResult, 11, "incompatible types: expected 'string', found 'float'", 94, 21);
+
+        BAssertUtil.validateError(negativeResult, 12,
+                                  "incompatible types: expected 'json<Person>', found 'json<Student>'", 103, 22);
+
+        BAssertUtil.validateError(negativeResult, 13,
+                                  "incompatible types: expected 'json<Person>', found 'json<Student>'", 108, 23);
+
+        BAssertUtil.validateError(negativeResult, 14,
+                                  "incompatible types: 'json<Person>' cannot be converted to 'json<Student>'", 109, 15);
+
+        BAssertUtil.validateError(negativeResult, 15, "function invocation on type 'typedesc' is not supported", 109,
+                                  15);
+
+        BAssertUtil.validateError(negativeResult, 16,
+                                  "incompatible types: 'json<Employee>' cannot be converted to 'json<Student>'", 116,
+                                  14);
+
+        BAssertUtil.validateError(negativeResult, 17, "function invocation on type 'typedesc' is not supported", 116,
+                                  14);
     }
 
     // disabled due to json to string conversion fails
@@ -195,33 +214,6 @@ public class ClosedRecordConstrainedJSONTest {
         Assert.assertEquals(returns[1].stringValue(), "30");
         Assert.assertTrue(returns[2] instanceof BString);
         Assert.assertEquals(returns[2].stringValue(), "London");
-    }
-
-    @Test(description = "Test Constaint JSON to Constaint JSON safe cast.", enabled = false)
-    public void testConstraintJSONToConstraintJsonCast() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testConstraintJSONToConstraintJsonCast");
-        Assert.assertNotNull(returns[0]);
-
-        // TODO: in the resulting json, "class" field should not be visible.
-        // This test case should be updated once the https://github.com/ballerinalang/ballerina/issues/4252
-        Assert.assertEquals(returns[0].stringValue(),
-                "{\"name\":\"John Doe\", \"age\":30, \"address\":\"Colombo\", \"class\":\"5\"}");
-    }
-
-    @Test(description = "Test Constaint JSON to Constaint JSON unsafe cast postive scenario.", enabled = false)
-    public void testConstraintJSONToConstraintJsonUnsafePositiveCast() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testConstraintJSONToConstraintJsonUnsafePositiveCast");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(),
-                "{\"name\":\"John Doe\", \"age\":30, \"address\":\"Colombo\", \"class\":\"5\"}");
-    }
-
-    @Test(description = "Test Constaint JSON to Constaint JSON unsafe cast negative scenario.")
-    public void testConstraintJSONToConstraintJsonUnsafeNegativeCast() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testConstraintJSONToConstraintJsonUnsafeNegativeCast");
-        Assert.assertNotNull(returns[0]);
-        String errorMsg = ((BError) returns[0]).getReason();
-        Assert.assertEquals(errorMsg, "'json<Employee>' cannot be cast to 'json<Student>'");
     }
 
     @Test

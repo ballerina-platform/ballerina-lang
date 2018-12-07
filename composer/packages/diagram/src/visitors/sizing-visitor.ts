@@ -1,7 +1,8 @@
 import {
-    Assignment, ASTNode, ASTUtil,
-    Block, ExpressionStatement, Foreach, Function, If, Invocation,
-    Lambda, Return, Service, Variable, VariableDef, VisibleEndpoint, Visitor, While
+    Assignment, ASTNode,
+    ASTUtil, Block, ExpressionStatement, Foreach, Function, If,
+    Invocation, Lambda, ObjectType, Return, Service, TypeDefinition, Variable,
+    VariableDef, VisibleEndpoint, Visitor, While
 } from "@ballerina/ast-model";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
@@ -15,7 +16,11 @@ const config: DiagramConfig = DiagramUtils.getConfig();
 function sizeStatement(node: ASTNode) {
     const viewState: StmntViewState = node.viewState;
     // If hidden do nothing.
-    if (node.viewState.hidden) { return; }
+    if (node.viewState.hidden) {
+        viewState.bBox.h = 0;
+        viewState.bBox.w = 0;
+        return ;
+    }
 
     const label = DiagramUtils.getTextWidth(ASTUtil.genSource(node));
     viewState.bBox.h = config.statement.height;
@@ -93,7 +98,7 @@ export const visitor: Visitor = {
 
     // tslint:disable-next-line:ban-types
     endVisitFunction(node: Function) {
-        if (node.lambda) {return; }
+        if (node.lambda || !node.body) {return; }
         const viewState: FunctionViewState = node.viewState;
         const body = viewState.body;
         const header = viewState.header;
@@ -173,6 +178,7 @@ export const visitor: Visitor = {
         let height = 0;
         viewState.bBox.w = config.statement.width;
         node.statements.forEach((element) => {
+            if (ASTUtil.isWorker(element)) {return; }
             viewState.bBox.w = (viewState.bBox.w < element.viewState.bBox.w)
                 ? element.viewState.bBox.w : viewState.bBox.w;
             viewState.bBox.leftMargin = (viewState.bBox.leftMargin < element.viewState.bBox.leftMargin)
@@ -269,8 +275,23 @@ export const visitor: Visitor = {
         node.resources.forEach((element: Function) => {
             viewState.bBox.w = (viewState.bBox.w > element.viewState.bBox.w)
                 ? viewState.bBox.w : element.viewState.bBox.w;
-            height = viewState.bBox.h;
+            height +=  element.viewState.bBox.h;
             element.viewState.icon = "resource";
+        });
+        viewState.bBox.h = height;
+    },
+
+    endVisitTypeDefinition(node: TypeDefinition) {
+        // If it is a service do nothing.
+        if (node.service || !ASTUtil.isValidObjectType(node)) {return; }
+        const viewState: ViewState = node.viewState;
+        let height = config.panelGroup.header.height;
+        // tslint:disable-next-line:ban-types
+        (node.typeNode as ObjectType).functions.forEach((element: Function) => {
+            viewState.bBox.w = (viewState.bBox.w > element.viewState.bBox.w)
+                ? viewState.bBox.w : element.viewState.bBox.w;
+            height +=  element.viewState.bBox.h;
+            element.viewState.icon = "function";
         });
         viewState.bBox.h = height;
     }

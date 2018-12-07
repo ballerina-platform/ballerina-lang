@@ -98,6 +98,7 @@ public class TopLevelResolver extends AbstractItemResolver {
         completionItems.add(getStaticItem(Snippet.KW_CONST, snippetCapability));
         completionItems.add(getStaticItem(Snippet.KW_EXTERN, snippetCapability));
         completionItems.add(getStaticItem(Snippet.DEF_ERROR, snippetCapability));
+        completionItems.add(getStaticItem(Snippet.KW_LISTENER, snippetCapability));
         return completionItems;
     }
 

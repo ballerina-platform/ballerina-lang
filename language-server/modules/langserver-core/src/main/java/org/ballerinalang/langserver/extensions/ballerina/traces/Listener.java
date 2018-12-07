@@ -55,8 +55,8 @@ public class Listener {
             return 0;
         }
         Runnable listener = () -> {
-            try {
-                while (!listenSocket.isClosed()) {
+            while (!listenSocket.isClosed()) {
+                try {
                     Socket dataSocket = listenSocket.accept();
                     logReader = new BufferedReader(new InputStreamReader(dataSocket.getInputStream(), "UTF-8"));
                     String line;
@@ -71,10 +71,11 @@ public class Listener {
                         TraceRecord traceRecord = new TraceRecord(LogParser.fromString(rawMessage), record, rawMessage);
                         ballerinaTraceService.pushLogToClient(traceRecord);
                     }
+                } catch (IOException e) {
+                    logger.error("Error listening to network logs", e);
                 }
-            } catch (IOException e) {
-                logger.error("Error listening to network logs", e);
             }
+
         };
         Thread serverThread = new Thread(listener);
         serverThread.start();

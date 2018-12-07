@@ -1,0 +1,17 @@
+/*-------------------------------
+       Documentation Globals 
+--------------------------------*/
+
+@documentation-base-light-color: @offWhite;
+@documentation-base-dark-color: @black;
+
+@documentation-icon-font: "font-ballerina";
+@documentation-font: @fontName, "@{documentation-icon-font}";
+@documentation-font-size: @fontSize;
+
+@light-documentation-background-color: @documentation-base-light-color;
+@dark-documentation-background-color: @documentation-base-dark-color;
+@light-documentation-base-text-color: @dark-documentation-background-color;
+@dark-documentation-base-text-color: @light-documentation-background-color;
+
+@documentation-title-font-size: calc(@documentation-font-size + 4px);

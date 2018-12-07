@@ -24,6 +24,7 @@ import org.ballerinalang.test.utils.PackagingTestUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -37,6 +38,7 @@ import java.nio.file.Paths;
  *
  * @since 0.982.0
  */
+@Ignore
 public class ListDependencyTestCase extends BaseTest {
     private Path tempProjectDirectory;
 

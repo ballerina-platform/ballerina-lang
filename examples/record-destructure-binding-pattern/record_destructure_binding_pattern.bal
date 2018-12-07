@@ -36,7 +36,7 @@ public function main() {
     { name: firstName, age: personAge, ...otherDetails } = getPerson();
     io:println("Name: " + firstName);
     io:println("Age: " + personAge);
-    io:println("Country: " + io:sprintf("%s", otherDetails));
+    io:println("Other Details: " + io:sprintf("%s", otherDetails));
 
     string name;
     int age;

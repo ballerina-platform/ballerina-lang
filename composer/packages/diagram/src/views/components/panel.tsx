@@ -1,22 +1,27 @@
 
+import { ASTUtil, Function as BalFunction } from "@ballerina/ast-model";
 import { getCodePoint } from "@ballerina/font";
 import * as React from "react";
 import { DiagramConfig } from "../../config/default";
+import { DiagramContext } from "../../diagram/diagram-context";
 import { DiagramUtils } from "../../diagram/diagram-utils";
 import { FunctionViewState, SimpleBBox } from "../../view-model/index";
 import { EditableSVGText } from "./editable-svg-text";
+import { SourceLinkedLabel } from "./source-linked-label";
 
 const config: DiagramConfig = DiagramUtils.getConfig();
 
 export const Panel: React.StatelessComponent<{
         model: FunctionViewState,
         title: string,
-        icon: string
+        icon: string,
+        astModel?: BalFunction,
     }> = ({
         model,
         title,
         children,
-        icon
+        icon,
+        astModel
     }) => {
         const body: SimpleBBox = model.body;
         const header: SimpleBBox = model.header;
@@ -45,16 +50,30 @@ export const Panel: React.StatelessComponent<{
                     >
                         {getCodePoint(icon)}
                     </text>
-                    <EditableSVGText
-                        bBox={titleTextBBox}
-                        value={title}
-                        className="panel-title"
-                        onChange={(newValue) => {
-                            // tslint:disable-next-line:no-console
-                            console.log("New value for title is", newValue);
-                            // TODO update model's identifier
+                    <DiagramContext.Consumer>
+                        {({ editingEnabled }) => {
+                            return <React.Fragment>
+                                {(editingEnabled || !astModel) &&
+                                        <EditableSVGText
+                                            bBox={titleTextBBox}
+                                            value={title}
+                                            className="panel-title"
+                                            onChange={(newValue) => {
+                                                if (astModel) {
+                                                    ASTUtil.renameNode(astModel, newValue);
+                                                }
+                                            }}
+                                />}
+                                {(!editingEnabled && astModel) && <SourceLinkedLabel
+                                                x={titleTextBBox.x}
+                                                y={titleTextBBox.y + titleTextBBox.h / 2}
+                                                className="panel-title"
+                                                target={astModel}
+                                                text={title}
+                                />}
+                            </React.Fragment>;
                         }}
-                    />
+                    </DiagramContext.Consumer>
                 </g>
                 <g className="panel-body">
                     <rect

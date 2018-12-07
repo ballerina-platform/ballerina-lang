@@ -57,6 +57,7 @@ public class BallerinaConstants {
 
     public static final String BALLERINA_SDK_LIB_DIR = "/bre/lib";
     public static final String BALLERINA_SDK_LIB_FILE_EXTENTION = ".jar";
+    public static final String BALLERINA_SDK_TYPE = "Ballerina SDK";
 
     public static final String IDEA_CONFIG_DIRECTORY = ".idea";
 
