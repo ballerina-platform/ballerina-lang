@@ -129,7 +129,6 @@ public class ClientSocketTest {
     @AfterClass
     public void cleanup() {
         executor.shutdownNow();
-        SelectorManager.getInstance().stop();
     }
 
     @Test(description = "Open client socket connection to the remote server and write content")
