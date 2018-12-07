@@ -26,7 +26,7 @@ public function main() {
         error? connErr = ep->send(greet + " " + name);
         if (connErr is error) {
             io:println("Error from Connector: " + connErr.reason() + " - "
-                                           + <string>connErr.detail().message);
+                                            + <string>connErr.detail().message);
         } else {
             io:println("send greeting: " + greet + " " + name);
         }
@@ -51,7 +51,7 @@ service HelloWorldMessageListener = service {
     // Resource registered to receive server error messages.
     resource function onError(error err) {
         io:println("Error reported from server: " + err.reason() + " - "
-                                          + <string>err.detail().message);
+                                                + <string>err.detail().message);
     }
 
     // Resource registered to receive server completed messages.

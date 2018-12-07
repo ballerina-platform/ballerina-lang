@@ -14,7 +14,7 @@ public type HelloWorldBlockingClient client object {
         grpc:Client c = new;
         c.init(self.url, self.config);
         error? result = c.initStub("blocking", ROOT_DESCRIPTOR,
-                                                getDescriptorMap());
+                                                            getDescriptorMap());
         if (result is error) {
             panic result;
         } else {
@@ -24,9 +24,10 @@ public type HelloWorldBlockingClient client object {
 
 
     remote function hello(string req, grpc:Headers? headers = ())
-                            returns ((string, grpc:Headers)|error) {
+                                        returns ((string, grpc:Headers)|error) {
         var payload = check self.grpcClient->blockingExecute(
-                            "service.HelloWorld/hello", req, headers = headers);
+                                                 "service.HelloWorld/hello", req,
+                                                 headers = headers);
         grpc:Headers resHeaders = new;
         any result = ();
         (result, resHeaders) = payload;
@@ -48,7 +49,7 @@ public type HelloWorldClient client object {
         grpc:Client c = new;
         c.init(self.url, self.config);
         error? result = c.initStub("non-blocking", ROOT_DESCRIPTOR,
-                                                    getDescriptorMap());
+                                                            getDescriptorMap());
         if (result is error) {
             panic result;
         } else {
@@ -58,9 +59,9 @@ public type HelloWorldClient client object {
 
 
     remote function hello(string req, service msgListener,
-                          grpc:Headers? headers = ()) returns (error?) {
+                                    grpc:Headers? headers = ()) returns (error?) {
         return self.grpcClient->nonBlockingExecute("service.HelloWorld/hello",
-                                    req, msgListener, headers = headers);
+                                            req, msgListener, headers = headers);
     }
 
 };
