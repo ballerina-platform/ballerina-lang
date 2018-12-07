@@ -2632,10 +2632,8 @@ public class FormattingNodeTree {
                                     + indentation);
 
                             currentWS.addProperty(FormattingConstants.WS, whiteSpace);
-                        } else if (text.equals("on")) {
-                            currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
                         } else {
-                            // Update service identifier whitespaces.
+                            // Update service identifier whitespaces and on keyword.
                             currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
                         }
                     }
