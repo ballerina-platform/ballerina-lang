@@ -236,7 +236,7 @@ public type MultiResourceInformation record {
 };
 
 # Presence of this annotation will mark this endpoint to be used as a service endpoint for client generation
-public annotation <client> ClientEndpoint;
+public annotation <listener> ClientEndpoint;
 
 # Annotation to configure client code generation.
 public annotation <service> ClientConfig ClientInformation;
