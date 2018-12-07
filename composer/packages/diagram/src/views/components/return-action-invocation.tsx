@@ -1,5 +1,6 @@
 import { ASTNode, ASTUtil } from "@ballerina/ast-model";
 import * as React from "react";
+import { Popup } from "semantic-ui-react";
 import { DiagramConfig } from "../../config/default";
 import { DiagramUtils } from "../../diagram/diagram-utils";
 import { StmntViewState } from "../../view-model/index";
@@ -26,18 +27,20 @@ export const ReturnActionInvocation: React.StatelessComponent<{
         const fullExpression = (astModel) ? ASTUtil.genSource(astModel) : action;
 
         return (
-            <Popup
-                trigger={
-                    <g className="action-invocation">
-                        <line {...returnLine} />
-                        <ArrowHead direction="left" x={returnLine.x2} y={returnLine.y2} />
-                        {!astModel && <text {...actionProps}>{action}</text>}
-                        {astModel && <SourceLinkedLabel {...actionProps} text={action} target={astModel} />}
-                    </g>
-                }
-                content={fullExpression}
-                size="mini"
-                inverted
-            />
+            <g className="action-invocation">
+                <line {...returnLine} />
+                <ArrowHead direction="left" x={returnLine.x2} y={returnLine.y2} />
+                <Popup
+                    trigger={
+                        <g>
+                            {!astModel && <text {...actionProps}>{action}</text>}
+                            {astModel && <SourceLinkedLabel {...actionProps} text={action} target={astModel} />}
+                        </g>
+                    }
+                    content={fullExpression}
+                    size="mini"
+                    inverted
+                />
+            </g>
         );
     };
