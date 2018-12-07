@@ -143,8 +143,7 @@ public class ServiceDefinitionValidator {
             }
         } else {
             for (BLangFunction resourceNode : resources) {
-                boolean valid = validateResourceSignature(resourceNode, dlog, resourceNode.pos);
-                if (!valid) {
+                if (!validateResourceSignature(resourceNode, dlog, resourceNode.pos)) {
                     return false;
                 }
             }
