@@ -22,20 +22,24 @@ import { ASTUtil } from '@ballerina/ast-model'
 
 export default class DocPreview extends React.Component {
     getDocumentationDetails(node) {
+        const { markdownDocumentationAttachment: mdDoc } = node;
+
         let parameters = {};
+        let returnParameter;
+        let description;
+        let kind = node.kind;
+        let valueType = '';
+
         if(this[`_get${node.kind}Parameters`]) {
             parameters = this[`_get${node.kind}Parameters`](node);
         }
 
-        let returnParameter;
         if (node.returnTypeNode) {
             returnParameter = {
                 type: ASTUtil.genSource(node.returnTypeNode),
             };
         }
 
-        const { markdownDocumentationAttachment: mdDoc } = node;
-        let description;
         if (mdDoc) {
             description = mdDoc.documentation;
             mdDoc.parameters.map((param) => {
@@ -48,13 +52,23 @@ export default class DocPreview extends React.Component {
             }
         }
 
-        let kind = node.kind;
         if (node.typeNode) {
-            kind = node.typeNode.kind;
+            const nodeType = node.typeNode;
+            
+            kind = nodeType.kind;
+            
+            if(kind == "ValueType") {
+                valueType = nodeType.typeKind;
+            }
+
+            if(kind == 'UserDefinedType' && nodeType.packageAlias){
+                valueType = nodeType.packageAlias.value;
+            }
         }
 
         const documentationDetails = {
             kind: kind,
+            valueType: valueType,
             title: node.name.value,
             description,
             parameters,
