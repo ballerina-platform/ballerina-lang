@@ -380,6 +380,10 @@ public final class Constants {
 
     public static final String INBOUND_RESPONSE_ALREADY_RECEIVED = "Inbound response message already received";
 
+    public static final String UNKNOWN_HOST_EXCEPTION = "UnknownHostException";
+
+    public static final String ERROR_COULD_NOT_RESOLVE_HOST = "Could not resolve host";
+
     private Constants() {
     }
 }
