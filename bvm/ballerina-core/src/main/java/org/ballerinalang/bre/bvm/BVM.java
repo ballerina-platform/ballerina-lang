@@ -862,9 +862,8 @@ public class BVM {
         }
 
         SafeStrandCallback strandCallback = new SafeStrandCallback(callableUnitInfo.getRetParamTypes()[0],
-                strand.respCallback.getWorkerDataChannels());
+                strand.respCallback.getWorkerDataChannels(), callableUnitInfo.workerSendInChannels);
 
-        strandCallback.sendIns = callableUnitInfo.workerSendInChannels;
         Strand calleeStrand = new Strand(strand.programFile, callableUnitInfo.getName(),
                 strand.globalProps, strandCallback);
         calleeStrand.pushFrame(df);
