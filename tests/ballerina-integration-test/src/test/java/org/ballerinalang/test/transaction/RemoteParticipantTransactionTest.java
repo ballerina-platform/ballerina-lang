@@ -175,6 +175,18 @@ public class RemoteParticipantTransactionTest extends BaseTest {
     }
 
     @Test
+    public void remoteParticipantReturnsErrorIsParticipantFailure() throws IOException {
+        String url = serverInstance.getServiceURLHttp(initiatorServicePort,
+                "remoteParticipantReturnsError");
+        HttpResponse response = HttpClientRequest.doPost(url, "", new HashMap<>());
+        assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        String target = " in initiator-trx remote1-excepted:[transactionError] onretry " +
+                "in initiator-trx remote1-excepted:[transactionError] onretry " +
+                "in initiator-trx remote1-excepted:[transactionError] aborted";
+        assertEquals(response.getData(), target, "payload mismatched");
+    }
+
+    @Test
     public void remoteParticipantSeperateResourceManagerSuccess() throws IOException {
         String url = serverInstance.getServiceURLHttp(initiatorServicePort,
                 "testInfectSeparateRM");
