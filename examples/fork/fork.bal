@@ -23,7 +23,7 @@ public function main() {
 
     // Workers are visible outside the fork as futures.
     // Curly braced wait will block for both workers to finish.
-    record{ (int,string) w1; float w2; } results = wait {w1, w2};
+    record{ (int, string) w1; float w2; } results = wait {w1, w2};
 
     // Resulting record contains returned values from each worker, with 
     // the field name as worker name if a field name is not provided.
