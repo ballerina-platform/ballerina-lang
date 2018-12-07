@@ -1901,7 +1901,7 @@ public class FormattingNodeTree {
     }
 
     /**
-     * format Match Pattern Clause node.
+     * format Match structured pattern clause node.
      *
      * @param node {JsonObject} node as json object
      */
@@ -1966,6 +1966,11 @@ public class FormattingNodeTree {
         }
     }
 
+    /**
+     * format Match static pattern clause node.
+     *
+     * @param node {JsonObject} node as json object
+     */
     public void formatMatchStaticPatternClauseNode(JsonObject node) {
         if (node.has(FormattingConstants.WS) && node.has(FormattingConstants.FORMATTING_CONFIG)) {
             JsonArray ws = node.getAsJsonArray(FormattingConstants.WS);
@@ -2026,7 +2031,6 @@ public class FormattingNodeTree {
             }
         }
     }
-
 
     /**
      * format Named Args Expr node.
@@ -2377,6 +2381,69 @@ public class FormattingNodeTree {
                     if (this.noHeightAvailable(restWS.get(FormattingConstants.WS).getAsString())) {
                         restWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                     }
+                }
+            }
+        }
+    }
+
+    /**
+     * format Record Variable node.
+     *
+     * @param node {JsonObject} node as json object
+     */
+    public void formatRecordVariableNode(JsonObject node) {
+        // TODO: look in to horizontal whitespaces.
+        if (node.has(FormattingConstants.FORMATTING_CONFIG) && node.has(FormattingConstants.WS)) {
+            JsonObject formatConfig = node.getAsJsonObject(FormattingConstants.FORMATTING_CONFIG);
+            JsonArray ws = node.getAsJsonArray(FormattingConstants.WS);
+
+            String indentation = this.getWhiteSpaces(formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt())
+                    + (formatConfig.get(FormattingConstants.DO_INDENT).getAsBoolean()
+                    ? (this.getWhiteSpaces(formatConfig.get(FormattingConstants.START_COLUMN).getAsInt())
+                    + FormattingConstants.SPACE_TAB)
+                    : this.getWhiteSpaces(formatConfig.get(FormattingConstants.START_COLUMN).getAsInt()));
+
+            String indentWithParentIndentation = formatConfig.get(FormattingConstants.DO_INDENT).getAsBoolean()
+                    ? this.getWhiteSpaces(formatConfig.get(FormattingConstants.INDENTED_START_COLUMN).getAsInt()) +
+                    FormattingConstants.SPACE_TAB
+                    : this.getWhiteSpaces(formatConfig.get(FormattingConstants.INDENTED_START_COLUMN).getAsInt());
+
+            node.getAsJsonObject(FormattingConstants.POSITION).addProperty(FormattingConstants.START_COLUMN,
+                    this.getWhiteSpaceCount(indentation));
+
+            this.preserveHeight(ws, indentWithParentIndentation);
+
+            // Update whitespaces of the variable first keyword.
+            boolean frontedWithKeyword = false;
+            for (JsonElement wsItem : ws) {
+                JsonObject currentWS = wsItem.getAsJsonObject();
+                String text = currentWS.get(FormattingConstants.TEXT).getAsString();
+
+                if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())
+                        && (text.equals("final") || text.equals("public")
+                        || text.equals("var") || text.equals("client")
+                        || text.equals("listener") || text.equals("abstract")
+                        || text.equals("channel") || text.equals("const"))) {
+                    currentWS.addProperty(FormattingConstants.WS,
+                            this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT)
+                                    .getAsInt()) + indentation);
+                    frontedWithKeyword = true;
+                }
+            }
+
+            if (node.has("typeNode") && !frontedWithKeyword) {
+                JsonObject typeNode = node.getAsJsonObject("typeNode");
+                JsonObject typeFormatConfig;
+
+                if (!(node.has("annotationAttachments")
+                        && node.getAsJsonArray("annotationAttachments").size() > 0)) {
+                    typeFormatConfig = this.getFormattingConfig(
+                            formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt(),
+                            formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt(),
+                            formatConfig.get(FormattingConstants.START_COLUMN).getAsInt(),
+                            formatConfig.get(FormattingConstants.DO_INDENT).getAsBoolean(),
+                            this.getWhiteSpaceCount(indentation));
+                    typeNode.add(FormattingConstants.FORMATTING_CONFIG, typeFormatConfig);
                 }
             }
         }
