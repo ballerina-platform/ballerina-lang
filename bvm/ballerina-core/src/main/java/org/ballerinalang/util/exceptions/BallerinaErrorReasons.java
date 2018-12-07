@@ -53,4 +53,6 @@ public class BallerinaErrorReasons {
     public static final String KEY_NOT_FOUND_ERROR = BALLERINA_PREFIX.concat("KeyNotFound");
 
     public static final String DIVISION_BY_ZERO_ERROR = BALLERINA_PREFIX.concat("DivisionByZero");
+
+    public static final String STACK_OVERFLOW_ERROR = BALLERINA_PREFIX.concat("StackOverflow");
 }
