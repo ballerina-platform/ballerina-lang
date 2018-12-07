@@ -88,4 +88,139 @@ public class WorkerTest {
         BError ret = (BError) returns[0];
         Assert.assertEquals(ret.reason, "err");
     }
+
+    @Test
+    public void sendToDefaultWithPanicBeforeSendInWorker() {
+        Exception expectedException = null;
+        try {
+            BRunUtil.invoke(result, "sendToDefaultWithPanicBeforeSendInWorker");
+        } catch (Exception e) {
+            expectedException = e;
+        }
+        Assert.assertNotNull(expectedException);
+        String result = "error: error: err from panic {}\n\tat $lambda$9(workers.bal:92)";
+        Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
+    }
+
+    @Test
+    public void sendToDefaultWithPanicBeforeSendInDefault() {
+        Exception expectedException = null;
+        try {
+            BRunUtil.invoke(result, "sendToDefaultWithPanicBeforeSendInDefault");
+        } catch (Exception e) {
+            expectedException = e;
+        }
+        Assert.assertNotNull(expectedException);
+        String result = "error: error: err from panic {}\n" + "\tat " +
+                                    "sendToDefaultWithPanicBeforeSendInDefault(workers.bal:109)";
+        Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
+    }
+
+    @Test
+    public void sendToDefaultWithPanicAfterSendInWorker() {
+        Exception expectedException = null;
+        try {
+            BRunUtil.invoke(result, "sendToDefaultWithPanicAfterSendInWorker");
+        } catch (Exception e) {
+            expectedException = e;
+        }
+        Assert.assertNotNull(expectedException);
+        String result = "error: error: err from panic {}\n" + "\tat $lambda$11(workers.bal:121)";
+        Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
+    }
+
+    @Test
+    public void sendToDefaultWithPanicAfterSendInDefault() {
+        Exception expectedException = null;
+        try {
+            BRunUtil.invoke(result, "sendToDefaultWithPanicAfterSendInDefault");
+        } catch (Exception e) {
+            expectedException = e;
+        }
+        Assert.assertNotNull(expectedException);
+        String result = "error: error: err from panic {}\n" +
+                                "\tat sendToDefaultWithPanicAfterSendInDefault(workers.bal:137)";
+        Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
+    }
+
+    @Test
+    public void receiveFromDefaultWithPanicAfterSendInDefault() {
+        Exception expectedException = null;
+        try {
+            BRunUtil.invoke(result, "receiveFromDefaultWithPanicAfterSendInDefault");
+        } catch (Exception e) {
+            expectedException = e;
+        }
+        Assert.assertNotNull(expectedException);
+        String result = "error: error: err from panic {}\n" +
+                "\tat receiveFromDefaultWithPanicAfterSendInDefault(workers.bal:151)";
+        Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
+    }
+
+    @Test
+    public void receiveFromDefaultWithPanicBeforeSendInDefault() {
+        Exception expectedException = null;
+        try {
+            BRunUtil.invoke(result, "receiveFromDefaultWithPanicBeforeSendInDefault");
+        } catch (Exception e) {
+            expectedException = e;
+        }
+        Assert.assertNotNull(expectedException);
+        String result = "error: error: err from panic {}\n" +
+                "\tat receiveFromDefaultWithPanicBeforeSendInDefault(workers.bal:162)";
+        Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
+    }
+
+    @Test
+    public void receiveFromDefaultWithPanicBeforeReceiveInWorker() {
+        Exception expectedException = null;
+        try {
+            BRunUtil.invoke(result, "receiveFromDefaultWithPanicBeforeReceiveInWorker");
+        } catch (Exception e) {
+            expectedException = e;
+        }
+        Assert.assertNotNull(expectedException);
+        String result = "error: error: err from panic {}\n" + "\tat $lambda$15(workers.bal:173)";
+        Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
+    }
+
+    @Test
+    public void receiveFromDefaultWithPanicAfterReceiveInWorker() {
+        Exception expectedException = null;
+        try {
+            BRunUtil.invoke(result, "receiveFromDefaultWithPanicAfterReceiveInWorker");
+        } catch (Exception e) {
+            expectedException = e;
+        }
+        Assert.assertNotNull(expectedException);
+        String result = "error: error: err from panic {}\n\tat $lambda$16(workers.bal:188)";
+        Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
+    }
+
+    @Test
+    public void receiveWithCheckAndTrap() {
+        BValue[] returns = BRunUtil.invoke(result, "receiveWithCheckAndTrap");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals("error: err from panic", ((BError) returns[0]).reason);
+    }
+
+    @Test(enabled = false) // Issue with trap
+    public void receiveWithTrapForDefault() {
+        BValue[] returns = BRunUtil.invoke(result, "receiveWithTrapForDefault");
+        Assert.assertEquals(returns.length, 1);
+    }
+
+    @Test
+    public void receiveWithCheckForDefault() {
+        BValue[] returns = BRunUtil.invoke(result, "receiveWithCheckForDefault");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals("err from panic", ((BError) returns[0]).reason);
+    }
+
+    @Test
+    public void receiveDefaultWithCheckAndTrap() {
+        BValue[] returns = BRunUtil.invoke(result, "receiveDefaultWithCheckAndTrap");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals("error: err from panic", ((BError) returns[0]).reason);
+    }
 }
