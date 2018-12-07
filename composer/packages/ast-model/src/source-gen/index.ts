@@ -1,5 +1,5 @@
 import { BallerinaEndpoint } from "@ballerina/lang-service";
-import { ASTNode, Block, Function as BalFunction, Service, UserDefinedType, Variable } from "../ast-interfaces";
+import { ASTNode, Block, Function as BalFunction, If, Service, UserDefinedType, Variable } from "../ast-interfaces";
 import { Visitor } from "../base-visitor";
 import { ASTKindChecker } from "../check-kind-util";
 import * as defaults from "../default-nodes";
@@ -73,11 +73,28 @@ function getStartIndex(attachingNode: ASTNode, attachPointNodes: ASTNode[], inse
         return 1;
     }
 
-    if (!attachingNode.parent) {
+    if (!ASTKindChecker.isBlock(attachingNode)) {
         return 1;
     }
 
-    const attachingNodeWS = getWS(attachingNode.parent);
+    const blockNode = attachingNode as Block;
+
+    if (!blockNode.parent) {
+        return 1;
+    }
+
+    let parent = blockNode.parent;
+
+    if (blockNode.isElseBlock) {
+        const ifNode = parent as If;
+        if (!ifNode.elseStatement) {
+            return 1;
+        }
+
+        parent = ifNode.elseStatement;
+    }
+
+    const attachingNodeWS = getWS(parent);
     const indexWS = attachingNodeWS.find((ws) => (ws.text === "{"));
 
     return indexWS === undefined ? 1 : indexWS.i + 1;
