@@ -18,8 +18,10 @@ package io.ballerina.parsing;
 
 import com.intellij.openapi.fileEditor.impl.LoadTextUtil;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.impl.DebugUtil;
 import com.intellij.testFramework.LightVirtualFile;
 import com.intellij.testFramework.ParsingTestCase;
+import com.intellij.testFramework.VfsTestUtil;
 import io.ballerina.plugins.idea.BallerinaParserDefinition;
 import org.jetbrains.annotations.NonNls;
 
@@ -37,6 +39,8 @@ import static io.netty.util.internal.StringUtil.EMPTY_STRING;
  * Parsing tests.
  */
 public class BallerinaParsingTest extends ParsingTestCase {
+
+    private static boolean overwriteExpectedResults = false;
 
     public BallerinaParsingTest() {
         super("", "bal", new BallerinaParserDefinition());
@@ -74,7 +78,11 @@ public class BallerinaParsingTest extends ParsingTestCase {
             File resource = path.toFile();
             if (resource.exists()) {
                 if (resource.isFile() && resource.getName().endsWith(myFileExt)) {
-                    doTest(resource);
+                    if (overwriteExpectedResults) {
+                        doOverwrite(resource);
+                    } else {
+                        doTest(resource);
+                    }
                     // If the resource is a directory, recursively tests the sub directories/files accordingly,
                     // excluding tests folders.
                 } else if (resource.isDirectory() && !resource.getName().contains("tests")) {
@@ -85,6 +93,21 @@ public class BallerinaParsingTest extends ParsingTestCase {
                     ds.close();
                 }
             }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    // Generates expected results set for a given test set.
+    private void doOverwrite(File resource) {
+        try {
+            String name = resource.getName().replace("." + myFileExt, EMPTY_STRING);
+            // Retrieves relative path of the file since loadFile() uses "myFullDataPath" as the source root.
+            String relativeFilePath = resource.getPath().replace(getTestDataPath(), EMPTY_STRING);
+            String text = loadFile(relativeFilePath);
+            myFile = createPsiFile(name, text);
+            String psiString = DebugUtil.psiToString(myFile, false, false);
+            VfsTestUtil.overwriteTestData(new File(getExpectedResultPath() + relativeFilePath).toString(), psiString);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
