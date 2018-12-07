@@ -1,3 +1,4 @@
+import { BallerinaEndpoint } from "@ballerina/lang-service";
 import React, { Fragment } from "react";
 import { SimplePoint } from "../../view-model/simple-point";
 import { EndpointSearchDialog } from "./endpoint-search-dialog";
@@ -5,7 +6,7 @@ import { SVGDropDownMenu } from "./svg-dropdown-menu";
 
 export class AddWorkerOrEndpointMenu extends React.Component<{
         triggerPosition: SimplePoint;
-        onAddEndpoint?: (endpointDef: any) => void;
+        onAddEndpoint?: (endpointDef: BallerinaEndpoint) => void;
         onAddWorker?: () => void;
     }, {
         showEndpointDialog: boolean

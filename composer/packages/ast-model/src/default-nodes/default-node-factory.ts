@@ -3,7 +3,7 @@ import * as Ballerina from "../ast-interfaces";
 // tslint:disable:no-var-requires
 const defaultImport = JSON.stringify(require("./resources/function.json"));
 const defaultFunction = JSON.stringify(require("./resources/function.json"));
-const defaultMainFunction = JSON.stringify(require("./resources/function.json"));
+const defaultMainFunction = JSON.stringify(require("./resources/main-function.json"));
 const defaultService = JSON.stringify(require("./resources/service.json"));
 const defaultIf = JSON.stringify(require("./resources/if.json"));
 const defaultWhile = JSON.stringify(require("./resources/while.json"));
