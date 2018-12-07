@@ -109,7 +109,7 @@ public class ServiceProtoBuilder extends AbstractTransportCompilerPlugin {
     public void process(ServiceNode service, List<AnnotationAttachmentNode> annotations) {
         try {
             final BLangService serviceNode = (BLangService) service;
-
+            // Validate service resource return type. expected error|()
             List<BLangFunction> resources = serviceNode.getResources();
             boolean validReturnType = true;
             for (BLangFunction resourceNode : resources) {
