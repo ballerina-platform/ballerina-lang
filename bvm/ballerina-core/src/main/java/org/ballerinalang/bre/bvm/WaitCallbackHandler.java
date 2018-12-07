@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.bre.bvm;
 
-import org.ballerinalang.bre.bvm.SafeStrandCallback.CallbackStatus;
+import org.ballerinalang.bre.bvm.StrandCallback.CallbackStatus;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
