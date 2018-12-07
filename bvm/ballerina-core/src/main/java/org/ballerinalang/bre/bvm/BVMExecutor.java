@@ -135,7 +135,7 @@ public class BVMExecutor {
         StrandResourceCallback strandCallback = new StrandResourceCallback(null, responseCallback);
         Strand strand = new Strand(programFile, resourceInfo.getName(), globalProps, strandCallback);
 
-        infectResourceFunction(responseCallback, strand);
+        infectResourceFunction(strandCallback, strand);
         BLangVMUtils.setServiceInfo(strand, serviceInfo);
 
         StackFrame idf = new StackFrame(resourceInfo.getPackageInfo(), resourceInfo,
@@ -150,7 +150,7 @@ public class BVMExecutor {
         BVMScheduler.schedule(strand);
     }
 
-    private static void infectResourceFunction(CallableUnitCallback responseCallback, Strand strand) {
+    private static void infectResourceFunction(StrandResourceCallback strandResourceCallback, Strand strand) {
         String gTransactionId = (String) strand.globalProps.get(Constants.GLOBAL_TRANSACTION_ID);
         if (gTransactionId != null) {
             String globalTransactionId = strand.globalProps.get(Constants.GLOBAL_TRANSACTION_ID).toString();
@@ -158,6 +158,7 @@ public class BVMExecutor {
             TransactionLocalContext transactionLocalContext = TransactionLocalContext.create(globalTransactionId,
                     url, "2pc");
             strand.setLocalTransactionContext(transactionLocalContext);
+            strandResourceCallback.setTransactionLocalContext(transactionLocalContext);
         }
     }
 
