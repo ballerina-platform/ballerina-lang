@@ -1510,15 +1510,12 @@ public class SymbolEnter extends BLangNodeVisitor {
                 names.fromIdNode(typeDef.name), env.enclPkg.symbol.pkgID, typeDef.typeNode.type, env.scope.owner);
         typeDef.symbol.scope = env.scope;
 
-        // Todo - Add more kinds
+        // Todo - Add more kinds.
         switch (typeDef.typeNode.type.tag) {
             case TypeTags.RECORD:
-                typeDef.symbol.kind = ((BLangRecordTypeNode) typeDef.typeNode).symbol.kind;
-                ((BLangRecordTypeNode) typeDef.typeNode).symbol.scope = env.scope;
-                break;
             case TypeTags.OBJECT:
-                typeDef.symbol.kind = ((BLangObjectTypeNode) typeDef.typeNode).symbol.kind;
-                ((BLangObjectTypeNode) typeDef.typeNode).symbol.scope = env.scope;
+                typeDef.symbol.kind = ((BLangStructureTypeNode) typeDef.typeNode).symbol.kind;
+                ((BLangRecordTypeNode) typeDef.typeNode).symbol.scope = env.scope;
                 break;
         }
 
