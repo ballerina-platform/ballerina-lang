@@ -66,6 +66,10 @@ export default class DocPreview extends React.Component {
     _getFunctionParameters(node) {
         const parameters = {};
         node.parameters.forEach(param => {
+            if(!(param.name && param.name.value)) {
+                return;
+            }
+
             parameters[param.name.value] = {
                 name: param.name.value,
                 type: param.typeNode.typeKind,
