@@ -1,4 +1,4 @@
-import { ASTNode, Block, Function as BalFunction, Service, UserDefinedType } from "../ast-interfaces";
+import { ASTNode, Block, Function as BalFunction, Service, UserDefinedType, Variable } from "../ast-interfaces";
 import { Visitor } from "../base-visitor";
 import { ASTKindChecker } from "../check-kind-util";
 import * as defaults from "../default-nodes";
@@ -54,8 +54,16 @@ class SourceGenVisitor implements Visitor {
 const sourceGenVisitor = new SourceGenVisitor();
 
 function getStartIndex(attachingNode: ASTNode, attachPointNodes: ASTNode[], insertAt: number): number {
-    if (attachPointNodes[insertAt - 1]) {
-        const attachPointWS = getWS(attachPointNodes[insertAt - 1]);
+    let previousNode = attachPointNodes[insertAt - 1];
+    if (previousNode) {
+        if (ASTKindChecker.isVariable(previousNode)) {
+            const previousNodeVar = previousNode as Variable;
+            if (previousNodeVar.service) {
+                previousNode = attachPointNodes[insertAt - 3];
+            }
+        }
+
+        const attachPointWS = getWS(previousNode);
         return attachPointWS[attachPointWS.length - 1].i + 1;
     }
 
