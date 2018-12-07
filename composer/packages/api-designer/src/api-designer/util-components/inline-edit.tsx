@@ -126,6 +126,8 @@ class InlineEdit extends React.Component<InlineEditProps, InlineEditState> {
                                     inverted
                                     color="black"
                                     icon="check"
+                                    compact
+                                    size="mini"
                                     onClick={this.handleDoneEditing}
                                 />
                                 <Form.Button
@@ -133,6 +135,8 @@ class InlineEdit extends React.Component<InlineEditProps, InlineEditState> {
                                     inverted
                                     color="black"
                                     icon="close"
+                                    compact
+                                    size="mini"
                                     onClick={this.handleCancelEdit}
                                 />
                             </Form.Group>
