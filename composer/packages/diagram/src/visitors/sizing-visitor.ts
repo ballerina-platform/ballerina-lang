@@ -281,6 +281,8 @@ export const visitor: Visitor = {
 
     endVisitReturn(node: Return) {
         sizeStatement(node);
+        node.viewState.bBox.label = DiagramUtils
+            .getTextWidth(ASTUtil.genSource(node.expression)).text;
         returnStatements.push(node);
     },
 
