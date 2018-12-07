@@ -87,7 +87,7 @@ service circuitbreaker on new http:Listener(9090) {
                 log:printError("Error sending response",
                                 err = responseToCaller);
             }
-        } else if (backendResponse is error) {
+        } else {
             http:Response response = new;
             response.statusCode = http:INTERNAL_SERVER_ERROR_500;
             response.setPayload(<string> backendResponse.detail().message);

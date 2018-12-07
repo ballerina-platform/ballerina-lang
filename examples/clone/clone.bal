@@ -61,7 +61,7 @@ public function main() returns (Person, Person, string)? {
         return (person, result, refCheck);
 
      // If the result is an error, the error is printed out and () is returned.
-    } else if (result is error) {
+    } else {
         io:println("Cannot clone: ", result.reason());
         return ();
     }

@@ -67,7 +67,7 @@ public function main() {
         var rResult = read(filePath);
         if (rResult is xml) {
             io:println(rResult);
-        } else if (rResult is error) {
+        } else {
             log:printError("Error occurred while reading xml: ", err = rResult);
         }
     }
