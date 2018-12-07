@@ -244,30 +244,6 @@ public class BVM {
                     i = operands[0];
                     sf.longRegs[i] = 5;
                     break;
-                case InstructionCodes.FCONST_0:
-                    i = operands[0];
-                    sf.doubleRegs[i] = 0;
-                    break;
-                case InstructionCodes.FCONST_1:
-                    i = operands[0];
-                    sf.doubleRegs[i] = 1;
-                    break;
-                case InstructionCodes.FCONST_2:
-                    i = operands[0];
-                    sf.doubleRegs[i] = 2;
-                    break;
-                case InstructionCodes.FCONST_3:
-                    i = operands[0];
-                    sf.doubleRegs[i] = 3;
-                    break;
-                case InstructionCodes.FCONST_4:
-                    i = operands[0];
-                    sf.doubleRegs[i] = 4;
-                    break;
-                case InstructionCodes.FCONST_5:
-                    i = operands[0];
-                    sf.doubleRegs[i] = 5;
-                    break;
                 case InstructionCodes.BCONST_0:
                     i = operands[0];
                     sf.intRegs[i] = 0;
