@@ -56,11 +56,8 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
                                     === params.textDocumentIdentifier.uri;
             const foundVisibleEditor = visibleTextEditors.find(findByDocUri);
 
-            if (activeTextEditor) {
-                if (activeTextEditor.document.uri.toString() 
-                            === params.textDocumentIdentifier.uri) {
-                    revealRangeInEditor(activeTextEditor);
-                }
+            if (activeTextEditor && findByDocUri(activeTextEditor)) {
+                revealRangeInEditor(activeTextEditor);
             } else if (foundVisibleEditor) {
                 revealRangeInEditor(foundVisibleEditor);            
                 return Promise.resolve();   
