@@ -18,7 +18,6 @@
 
 package org.ballerinalang.stdlib.socket.compiler;
 
-import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedResourceParamTypes;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ServiceNode;
@@ -29,6 +28,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.util.AbstractTransportCompilerPlugin;
 
 import java.util.List;
 
@@ -51,9 +51,10 @@ import static org.ballerinalang.util.diagnostic.Diagnostic.Kind.ERROR;
         expectedListenerType = @SupportedResourceParamTypes.Type(packageName = "socket", name = "Listener"),
         paramTypes = { @SupportedResourceParamTypes.Type(packageName = "socket", name = "Client") }
 )
-public class SocketCompilerPlugin extends AbstractCompilerPlugin {
+public class SocketCompilerPlugin extends AbstractTransportCompilerPlugin {
 
     private static final String INVALID_RESOURCE_SIGNATURE = "Invalid resource signature for %s in service %s. ";
+    private static final String INVALID_RETURN = "Resource should not have any return type.";
     private DiagnosticLog diagnosticLog = null;
 
     @Override
@@ -124,6 +125,7 @@ public class SocketCompilerPlugin extends AbstractCompilerPlugin {
                 diagnosticLog.logDiagnostic(ERROR, resource.getPosition(), msg);
             }
         }
+        validateReturns(resource, diagnosticLog);
     }
 
     private void validateOnReadReady(String serviceName, BLangFunction resource, DiagnosticLog diagnosticLog) {
@@ -147,10 +149,12 @@ public class SocketCompilerPlugin extends AbstractCompilerPlugin {
                 diagnosticLog.logDiagnostic(ERROR, resource.getPosition(), msg);
             }
         }
+        validateReturns(resource, diagnosticLog);
     }
 
     private void validateOnClose(String serviceName, BLangFunction resource, DiagnosticLog diagnosticLog) {
         validateOnAccept(serviceName, resource, diagnosticLog);
+        validateReturns(resource, diagnosticLog);
     }
 
     private void validateOnAccept(String serviceName, BLangFunction resource, DiagnosticLog diagnosticLog) {
@@ -164,6 +168,13 @@ public class SocketCompilerPlugin extends AbstractCompilerPlugin {
         BType caller = acceptParams.get(0).type;
         if (OBJECT.equals(caller.getKind()) && caller instanceof BStructureType) {
             validateEndpointCaller(serviceName, resource, diagnosticLog, (BStructureType) caller);
+        }
+        validateReturns(resource, diagnosticLog);
+    }
+
+    private void validateReturns(BLangFunction resource, DiagnosticLog diagnosticLog) {
+        if (!isResourceReturnsErrorOrNil(resource)) {
+            diagnosticLog.logDiagnostic(ERROR, resource.getPosition(), INVALID_RETURN);
         }
     }
 
