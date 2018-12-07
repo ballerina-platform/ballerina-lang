@@ -20,10 +20,10 @@ service passthrough on new http:Listener(9090) {
         if (clientResponse is http:Response) {
             // If the request was successful, an HTTP response is returned.
             // Here, the received response is forwarded to the client through the outbound endpoint.
-                var result = caller->respond(clientResponse);
-                if (result is error) {
-                   log:printError("Error sending response", err = result);
-                }
+            var result = caller->respond(clientResponse);
+            if (result is error) {
+               log:printError("Error sending response", err = result);
+            }
         } else {
             // If there was an error, the 500 error response is constructed and sent back to the client.
             http:Response res = new;
