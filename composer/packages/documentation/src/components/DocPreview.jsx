@@ -18,6 +18,7 @@
 
 import React from 'react';
 import Documentation from './Documentation';
+import { ASTUtil } from '@ballerina/ast-model'
 
 export default class DocPreview extends React.Component {
     getDocumentationDetails(node) {
@@ -29,7 +30,7 @@ export default class DocPreview extends React.Component {
         let returnParameter;
         if (node.returnTypeNode) {
             returnParameter = {
-                type: node.returnTypeNode.typeKind,
+                type: ASTUtil.genSource(node.returnTypeNode),
             };
         }
 
@@ -72,13 +73,13 @@ export default class DocPreview extends React.Component {
 
             parameters[param.name.value] = {
                 name: param.name.value,
-                type: param.typeNode.typeKind,
+                type: ASTUtil.genSource(param.typeNode),
             };
         });
         node.defaultableParameters.forEach(param => {
             parameters[param.variable.name.value] = {
                 name: param.variable.name.value,
-                type: param.variable.typeNode.typeKind,
+                type: ASTUtil.genSource(param.variable.typeNode),
                 defaultValue: param.variable.initialExpression.value,
             };
         });
@@ -86,7 +87,7 @@ export default class DocPreview extends React.Component {
         if(node.restParameters) {
             parameters[node.restParameters.name.value] = {
                 name: node.restParameters.name.value,
-                type: `${node.restParameters.typeNode.elementType.typeKind}...`,
+                type: `${ASTUtil.genSource(node.restParameters.typeNode)}...`,
             }
         }
 
@@ -98,7 +99,7 @@ export default class DocPreview extends React.Component {
         node.typeNode.fields.forEach(field => {
             parameters[field.name.value] = {
                 name: field.name.value,
-                type: field.typeNode.typeKind,
+                type: ASTUtil.genSource(field.typeNode),
                 defaultValue: field.initialExpression ? field.initialExpression.value: "",
             };
         });
@@ -126,8 +127,9 @@ export default class DocPreview extends React.Component {
                 docElements.push(
                     <Documentation docDetails={docDetails} />
                 );
-            } catch {
+            } catch (e) {
                 console.log(`error when getting doc details for ${node.id}`);
+                console.error(e);
             }
         });
         return docElements;
