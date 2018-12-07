@@ -83,6 +83,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -394,8 +395,11 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 String innerDirName = LSCompilerUtil.getCurrentModulePath(document.getPath())
                         .relativize(document.getPath())
                         .toString().split(Pattern.quote(File.separator))[0];
+                String moduleName = document.getSourceRootPath()
+                        .relativize(LSCompilerUtil.getCurrentModulePath(document.getPath())).toString();
                 if (topLevelNodeType != null && diagnostics.isEmpty() && document.hasProjectRepo() &&
-                        !TEST_DIR_NAME.equals(innerDirName)) {
+                        !TEST_DIR_NAME.equals(innerDirName) &&
+                        !moduleName.endsWith(ProjectDirConstants.BLANG_SOURCE_EXT)) {
                     commands.addAll(CommandUtil.getTestGenerationCommand(topLevelNodeType, fileUri, params,
                                                                          documentManager, lsCompiler));
                 }
