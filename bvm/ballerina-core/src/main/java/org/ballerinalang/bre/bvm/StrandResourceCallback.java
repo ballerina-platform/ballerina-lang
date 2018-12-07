@@ -21,6 +21,7 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.util.codegen.CallableUnitInfo.ChannelDetails;
 import org.ballerinalang.util.transactions.TransactionLocalContext;
 
 /**
@@ -33,8 +34,8 @@ public class StrandResourceCallback extends StrandCallback {
     private CallableUnitCallback resourceCallback;
     private TransactionLocalContext transactionLocalContext;
 
-    StrandResourceCallback(BType retType, CallableUnitCallback resourceCallback) {
-        super(retType);
+    StrandResourceCallback(BType retType, CallableUnitCallback resourceCallback, ChannelDetails[] sendIns) {
+        super(retType, sendIns);
         this.resourceCallback = resourceCallback;
     }
 
