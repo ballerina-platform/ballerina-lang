@@ -1508,6 +1508,20 @@ public class SymbolEnter extends BLangNodeVisitor {
         // This is only to keep the flow running so that at the end there will be proper semantic errors
         typeDef.symbol = Symbols.createTypeSymbol(SymTag.TYPE_DEF, Flags.asMask(typeDef.flagSet),
                 names.fromIdNode(typeDef.name), env.enclPkg.symbol.pkgID, typeDef.typeNode.type, env.scope.owner);
+        typeDef.symbol.scope = env.scope;
+
+        // Todo - Add more kinds
+        switch (typeDef.typeNode.type.tag) {
+            case TypeTags.RECORD:
+                typeDef.symbol.kind = ((BLangRecordTypeNode) typeDef.typeNode).symbol.kind;
+                ((BLangRecordTypeNode) typeDef.typeNode).symbol.scope = env.scope;
+                break;
+            case TypeTags.OBJECT:
+                typeDef.symbol.kind = ((BLangObjectTypeNode) typeDef.typeNode).symbol.kind;
+                ((BLangObjectTypeNode) typeDef.typeNode).symbol.scope = env.scope;
+                break;
+        }
+
         defineSymbol(typeDef.pos, typeDef.symbol, env);
     }
 
