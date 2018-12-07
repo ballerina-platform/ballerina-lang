@@ -2,6 +2,7 @@ import {
     ASTUtil, Function as FunctionNode, Lambda,
     Variable, VariableDef, VisibleEndpoint
 } from "@ballerina/ast-model";
+import { BallerinaEndpoint } from "@ballerina/lang-service";
 import * as React from "react";
 import { DiagramConfig } from "../../config/default";
 import { DiagramUtils } from "../../diagram/diagram-utils";
@@ -13,7 +14,6 @@ import { Block } from "./block";
 import { LifeLine } from "./life-line";
 import { Panel } from "./panel";
 import { StartInvocation } from "./start-invocation";
-import { BallerinaEndpoint } from "@ballerina/lang-service";
 
 const config: DiagramConfig = DiagramUtils.getConfig();
 
