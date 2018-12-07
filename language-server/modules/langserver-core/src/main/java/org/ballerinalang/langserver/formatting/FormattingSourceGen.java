@@ -477,13 +477,15 @@ public class FormattingSourceGen {
 
         if ("VariableDef".equals(kind)) {
             // TODO: refactor variable def whitespace.
-            // Temporary remove variable def ws since it duplicates variable whitespaces.
-            if (!(node.has("variable")
-                    && (node.getAsJsonObject("variable").get("kind").getAsString().equals("TupleVariable")
+            // Temporary remove variable def ws and add it to variable whitespaces.
+            if (node.has("variable") && node.getAsJsonObject("variable").has(FormattingConstants.WS)
+                    && !(node.getAsJsonObject("variable").get("kind").getAsString().equals("TupleVariable")
                     || (node.getAsJsonObject("variable").has("symbolType")
                     && node.getAsJsonObject("variable").getAsJsonArray("symbolType").size() > 0
                     && node.getAsJsonObject("variable").getAsJsonArray("symbolType").get(0)
-                    .getAsString().equals("service"))))) {
+                    .getAsString().equals("service")))) {
+                node.getAsJsonObject("variable").getAsJsonArray(FormattingConstants.WS)
+                        .addAll(node.getAsJsonArray(FormattingConstants.WS));
                 node.remove(FormattingConstants.WS);
             }
 

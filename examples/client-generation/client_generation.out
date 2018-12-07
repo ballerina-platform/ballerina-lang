@@ -5,4 +5,4 @@ Compiling source
     client_generation.bal
 
 Generating executable
-    client_generation.balx
+    ./target/client_generation.balx
