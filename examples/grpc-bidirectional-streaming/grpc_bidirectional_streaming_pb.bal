@@ -14,7 +14,7 @@ public type ChatClient client object {
         grpc:Client c = new;
         c.init(self.url, self.config);
         error? result = c.initStub("non-blocking", ROOT_DESCRIPTOR,
-                                                    getDescriptorMap());
+                                                            getDescriptorMap());
         if (result is error) {
             panic result;
         } else {
@@ -22,11 +22,10 @@ public type ChatClient client object {
         }
     }
 
-
     remote function chat(service msgListener, grpc:Headers? headers = ())
-                                    returns (grpc:StreamingClient|error)  {
-        return self.grpcClient->streamingExecute("Chat/chat", msgListener,
-                                                    headers = headers);
+                        returns (grpc:StreamingClient|error)  {
+        return self.grpcClient->streamingExecute("Chat/chat",
+                                                msgListener, headers = headers);
     }
 };
 

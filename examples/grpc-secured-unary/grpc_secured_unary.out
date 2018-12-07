@@ -1,10 +1,9 @@
 # Create a Ballerina project and a module inside it.
-# Generate mock service and stub code using `grpc_secured_unary.proto` file.
+# Generate mock service and stub code using `grpc_secured_unary_cont.proto` file.
 # For example, if you create a module named 'service', execute the following command to generate Ballerina code.
-$ ballerina grpc --input grpc_secured_unary.proto --output service --mode service
+$ ballerina grpc --input grpc_secured_unary_cont.proto --output service --mode service
 
-# Once you run the command, `grpc_secured_unary_pb.bal` and `HelloWorld_sample_service.bal` files are generated
- inside service directory.
+# Once you run the command, `grpc_secured_unary_cont_pb.bal` and `HelloWorld_sample_service.bal` files are generated inside service directory.
 # Replace the content of `HelloWorld_sample_service.bal` file with the content of `grpc_secured_unary.bal` file.
 
 # Execute the following command to build the 'service' module.
