@@ -1,3 +1,4 @@
+import { BallerinaEndpoint } from "@ballerina/lang-service";
 import { ASTNode, Block, Function as BalFunction, Service, UserDefinedType, Variable } from "../ast-interfaces";
 import { Visitor } from "../base-visitor";
 import { ASTKindChecker } from "../check-kind-util";
@@ -155,23 +156,22 @@ export function addForeachToBlock(block: Block, ast: ASTNode, insertAt?: number)
     attachNode(foreachNode, ast, block, "statements", insertAt);
 }
 
-export function addEndpointToBlock(block: Block, ast: ASTNode, endpointDef: string, insertAt?: number) {
+export function addEndpointToBlock(block: Block, ast: ASTNode, endpointDef: BallerinaEndpoint, insertAt?: number) {
     const endpointNode = defaults.createEndpointNode();
-
+    const { name, packageName } = endpointDef;
     // Update type to match def
     const endpointType = endpointNode.variable.typeNode as UserDefinedType;
-    const endpointDefParts = endpointDef.split(":");
-    endpointType.typeName.value = endpointDefParts[0];
-    endpointType.packageAlias.value = endpointDefParts[1];
+    endpointType.typeName.value = name;
+    endpointType.packageAlias.value = packageName;
 
     const epWS = getWS(endpointNode);
     epWS.forEach((ws) => {
         if (ws.text === "http") {
-            ws.text = endpointDefParts[0];
+            ws.text = packageName;
             return;
         }
         if (ws.text === "Client") {
-            ws.text = endpointDefParts[1];
+            ws.text = name;
         }
     });
 

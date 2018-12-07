@@ -13,6 +13,7 @@ import { Block } from "./block";
 import { LifeLine } from "./life-line";
 import { Panel } from "./panel";
 import { StartInvocation } from "./start-invocation";
+import { BallerinaEndpoint } from "@ballerina/lang-service";
 
 const config: DiagramConfig = DiagramUtils.getConfig();
 
@@ -57,7 +58,7 @@ export const Function = (props: { model: FunctionNode }, context: IDiagramContex
                 {({ ast }) => (
                     <AddWorkerOrEndpointMenu
                         triggerPosition={viewState.menuTrigger}
-                        onAddEndpoint={(epDef: any) => {
+                        onAddEndpoint={(epDef: BallerinaEndpoint) => {
                             if (model.body && ast) {
                                 ASTUtil.addEndpointToBlock(model.body, ast, epDef, 0);
                             }
