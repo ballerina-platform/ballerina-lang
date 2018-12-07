@@ -56,7 +56,7 @@ service retryDemoService on new http:Listener(9090) {
                                 err = responseToCaller);
             }
 
-        } else if (backendResponse is error) {
+        } else {
             http:Response response = new;
             response.statusCode = http:INTERNAL_SERVER_ERROR_500;
             string errCause = <string> backendResponse.detail().message;

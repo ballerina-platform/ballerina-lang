@@ -27,7 +27,7 @@ service infoService on new http:Listener(9092) {
                 res.statusCode = 400;
                 res.setPayload("Name contains invalid data");
             }
-        } else if (msg is error) {
+        } else {
             res.statusCode = 500;
             res.setPayload(untaint <string>msg.detail().message);
         }

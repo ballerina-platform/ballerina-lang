@@ -25,7 +25,7 @@ service echo on new http:Listener(9090) {
                 res.statusCode = 400;
                 res.setPayload("JSON containted invalid data");
             }
-        } else if (payload is error) {
+        } else {
             res.statusCode = 500;
             res.setPayload(untaint <string>payload.detail().message);
         }

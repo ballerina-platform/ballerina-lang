@@ -36,7 +36,7 @@ public function main() {
     var response = wait f3;
     if (response is http:Response) {
         io:println(untaint response.getJsonPayload());
-    } else if (response is error) {
+    } else {
         io:println(response.reason());
     }
     io:println(f3.isDone());
