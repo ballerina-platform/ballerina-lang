@@ -13,3 +13,4 @@ export * from "./type-definition";
 export { Statement as ExpressionStatement};
 export { Statement as VariableDef};
 export { Statement as Assignment};
+export { Statement as CompoundAssignment};

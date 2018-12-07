@@ -19,7 +19,7 @@ const config: DiagramConfig = DiagramUtils.getConfig();
 export const Function = (props: { model: FunctionNode }, context: IDiagramContext) => {
     const { model } = props;
     const viewState: FunctionViewState = model.viewState;
-    if (model.lambda || model.body === undefined) {return <g/>; }
+    if (model.lambda || model.body === undefined) { return <g />; }
 
     return (
         <Panel model={viewState} title={model.name.value}
@@ -33,7 +33,11 @@ export const Function = (props: { model: FunctionNode }, context: IDiagramContex
                 const variable: Variable = ((worker as VariableDef).variable as Variable);
                 const lambda: Lambda = (variable.initialExpression as Lambda);
                 const functionNode = lambda.functionNode;
+                const startY = viewState.defaultWorker.initHeight + viewState.defaultWorker.bBox.y 
+                + config.lifeLine.header.height - config.statement.height;
                 return <g>
+                    <StartInvocation client={viewState.defaultWorker.lifeline} worker={workerViewState.lifeline}
+                        y={startY} label="start" />
                     <LifeLine title={workerViewState.name} icon="worker"
                         model={workerViewState.lifeline.bBox} astModel={worker} />
                     {functionNode.body && <Block model={functionNode.body} />}
@@ -46,24 +50,24 @@ export const Function = (props: { model: FunctionNode }, context: IDiagramContex
                 .filter((element) => element.viewState.visible)
                 .map((element: VisibleEndpoint) => {
                     return <LifeLine title={element.name} icon="endpoint"
-                                model={element.viewState.bBox} astModel={!element.caller ? element : undefined} />;
+                        model={element.viewState.bBox} astModel={!element.caller ? element : undefined} />;
                 })
             }
             <DiagramContext.Consumer>
                 {({ ast }) => (
                     <AddWorkerOrEndpointMenu
-                    triggerPosition={viewState.menuTrigger}
-                    onAddEndpoint={(epDef: any) => {
-                        if (model.body && ast) {
-                            ASTUtil.addEndpointToBlock(model.body, ast, epDef);
-                        }
-                    }}
-                    onAddWorker={() => {
-                        if (model.body && ast) {
-                            ASTUtil.addWorkerToBlock(model.body, ast);
-                        }
-                    }}
-                />
+                        triggerPosition={viewState.menuTrigger}
+                        onAddEndpoint={(epDef: any) => {
+                            if (model.body && ast) {
+                                ASTUtil.addEndpointToBlock(model.body, ast, epDef);
+                            }
+                        }}
+                        onAddWorker={() => {
+                            if (model.body && ast) {
+                                ASTUtil.addWorkerToBlock(model.body, ast);
+                            }
+                        }}
+                    />
                 )}
             </DiagramContext.Consumer>
         </Panel>);

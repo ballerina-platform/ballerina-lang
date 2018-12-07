@@ -84,7 +84,7 @@ export const visitor: Visitor = {
         // Position default worker lifeline.
         positionWorkerLine(defaultWorker);
 
-        // Size the other workers
+        // Position the other workers
         let workerX = defaultWorker.bBox.x + defaultWorker.bBox.w + config.lifeLine.gutter.h;
         let workerWidth = 0;
         node.body!.statements.filter((element) => ASTUtil.isWorker(element)).forEach((worker) => {
@@ -100,7 +100,9 @@ export const visitor: Visitor = {
             leftMargin = (leftMargin === 0) ? 60 : leftMargin;
             functionNode.body!.viewState.bBox.x = workerX + leftMargin;
             workerX = workerX + functionNode.body!.viewState.bBox.w + leftMargin;
-            functionNode.body!.viewState.bBox.y = defaultWorker.bBox.y + config.lifeLine.header.height;
+            functionNode.body!.viewState.bBox.y = defaultWorker.bBox.y
+            + functionNode.body!.viewState.paddingTop
+            + config.lifeLine.header.height;
             workerWidth += functionNode.body!.viewState.bBox.w + leftMargin;
         });
 

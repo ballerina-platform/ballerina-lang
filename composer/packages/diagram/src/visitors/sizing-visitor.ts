@@ -2,7 +2,7 @@ import {
     Assignment, ASTNode,
     ASTUtil, Block, ExpressionStatement, Foreach, Function, If,
     Invocation, Lambda, Match, MatchStaticPatternClause, ObjectType, Return, Service,
-    TypeDefinition, Variable, VariableDef, VisibleEndpoint, Visitor, While
+    TypeDefinition, Variable, VariableDef, VisibleEndpoint, Visitor, While, CompoundAssignment
 } from "@ballerina/ast-model";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
@@ -55,6 +55,7 @@ function sizeWorker(node: VariableDef, preWorkerHeight = 0) {
     // set top pad
     functionNode.body!.viewState.paddingTop = preWorkerHeight;
     viewState.bBox.h = functionNode.body!.viewState.bBox.h + (config.lifeLine.header.height * 2)
+        + functionNode.body!.viewState.paddingTop
         + config.statement.height  // leave room for start call.
         + config.statement.height; // for bottom plus
     viewState.bBox.w = (functionNode.body!.viewState.bBox.w) ? functionNode.body!.viewState.bBox.w :
@@ -67,6 +68,19 @@ function sizeWorker(node: VariableDef, preWorkerHeight = 0) {
         viewState.bBox.leftMargin = config.lifeLine.leftMargin;
     }
     viewState.name = variable.name.value.replace("0", "");
+}
+
+function calcPreWorkerHeight(body: Block) {
+    let height = config.statement.height * 2;
+    // tslint:disable-next-line:prefer-for-of
+    for (let i = 0; i < body!.statements.length; i++) {
+        const statement = body!.statements[i];
+        if (ASTUtil.isWorker(statement)) {
+            break;
+        }
+        height += statement.viewState.bBox.h;
+    }
+    return height;
 }
 
 let endpointHolder: VisibleEndpoint[] = [];
@@ -126,9 +140,9 @@ export const visitor: Visitor = {
         // Size the other workers
         let lineHeight = (client.bBox.h > defaultWorker.bBox.h) ? client.bBox.h : defaultWorker.bBox.h;
         let workerWidth = 0;
-        const preWorkerHeight = 60;
+        defaultWorker.initHeight = calcPreWorkerHeight(node.body);
         node.body!.statements.filter((element) => ASTUtil.isWorker(element)).forEach((worker) => {
-            sizeWorker(worker as VariableDef, preWorkerHeight);
+            sizeWorker(worker as VariableDef, defaultWorker.initHeight);
             if (lineHeight < worker.viewState.bBox.h) {
                 lineHeight = worker.viewState.bBox.h;
             }
@@ -268,6 +282,10 @@ export const visitor: Visitor = {
     endVisitReturn(node: Return) {
         sizeStatement(node);
         returnStatements.push(node);
+    },
+
+    endVisitCompoundAssignment(node: CompoundAssignment) {
+        sizeStatement(node);
     },
 
     endVisitService(node: Service) {
