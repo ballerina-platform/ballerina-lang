@@ -480,7 +480,7 @@ public class BVM {
                     break;
                 case InstructionCodes.FLUSH:
                     Instruction.InstructionFlush flushIns = (Instruction.InstructionFlush) instruction;
-                    if (WaitCallbackHandler.handleFlush(strand, flushIns.retReg, flushIns.channels) == null) {
+                    if (!WaitCallbackHandler.handleFlush(strand, flushIns.retReg, flushIns.channels)) {
                         return;
                     }
                     break;
@@ -821,7 +821,7 @@ public class BVM {
                                                 int reg, int retReg) {
         BRefType val = extractValue(strand.currentFrame, type, reg);
         WorkerDataChannel dataChannel = getWorkerChannel(strand, dataChannelInfo.getChannelName(), false);
-        return dataChannel.putData(val, strand, retReg);
+        return dataChannel.syncSendData(val, strand, retReg);
     }
 
     private static void createClone(Strand ctx, int[] operands, StackFrame sf) {
@@ -853,6 +853,7 @@ public class BVM {
 
         if (!FunctionFlags.isAsync(df.invocationFlags)) {
             try {
+                strand.respCallback.wdChannels = new WDChannels();
                 strand.pushFrame(df);
             } catch (ArrayIndexOutOfBoundsException e) {
                 // Need to decrement the frame pointer count. Otherwise ArrayIndexOutOfBoundsException will
@@ -872,9 +873,8 @@ public class BVM {
         }
 
         SafeStrandCallback strandCallback = new SafeStrandCallback(callableUnitInfo.getRetParamTypes()[0],
-                strand.respCallback.getWorkerDataChannels());
+                strand.respCallback.getWorkerDataChannels(), callableUnitInfo.workerSendInChannels);
 
-        strandCallback.sendIns = callableUnitInfo.workerSendInChannels;
         Strand calleeStrand = new Strand(strand.programFile, callableUnitInfo.getName(),
                 strand.globalProps, strandCallback);
         calleeStrand.pushFrame(df);
@@ -3622,7 +3622,7 @@ public class BVM {
         BRefType val = extractValue(ctx.currentFrame, type, reg);
         WorkerDataChannel dataChannel = getWorkerChannel(ctx, workerDataChannelInfo.getChannelName(),
                 channelInSameStrand);
-        dataChannel.putData(val);
+        dataChannel.sendData(val);
     }
 
     private static WorkerDataChannel getWorkerChannel(Strand ctx, String name, boolean channelInSameStrand) {
@@ -3658,15 +3658,8 @@ public class BVM {
 
     private static boolean handleWorkerReceive(Strand ctx, WorkerDataChannelInfo workerDataChannelInfo,
                                                BType type, int reg, boolean channelInSameStrand) {
-        WorkerDataChannel.WorkerResult passedInValue = getWorkerChannel(
-                ctx, workerDataChannelInfo.getChannelName(), channelInSameStrand).tryTakeData(ctx);
-        if (passedInValue != null) {
-            StackFrame currentFrame = ctx.currentFrame;
-            copyArgValueForWorkerReceive(currentFrame, reg, type, passedInValue.value);
-            return true;
-        } else {
-            return false;
-        }
+        return getWorkerChannel(ctx, workerDataChannelInfo.getChannelName(),
+                channelInSameStrand).tryTakeData(ctx, type, reg);
     }
 
     public static void copyArgValueForWorkerReceive(StackFrame currentSF, int regIndex, BType paramType,

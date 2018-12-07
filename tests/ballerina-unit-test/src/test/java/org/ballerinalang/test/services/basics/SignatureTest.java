@@ -99,6 +99,16 @@ public class SignatureTest {
     }
 
     @Test
+    public void testSignatureWithInvalidReturn() {
+        CompileResult compileResult = BCompileUtil.compile(new File(getClass().getClassLoader().getResource(
+                "test-src/services/signature/invalid-return.bal").getPath()).getAbsolutePath());
+
+        Assert.assertEquals(compileResult.getErrorCount(), 1);
+        Assert.assertEquals(compileResult.getDiagnostics().clone()[0].getMessage(),
+                            "invalid return type: expected error?");
+    }
+
+    @Test
     public void testDuplicateResources() {
         CompileResult compileResult = BCompileUtil.compile(new File(getClass().getClassLoader()
                 .getResource("test-src/services/resources/duplicate_resource_test.bal").getPath()).getAbsolutePath());
