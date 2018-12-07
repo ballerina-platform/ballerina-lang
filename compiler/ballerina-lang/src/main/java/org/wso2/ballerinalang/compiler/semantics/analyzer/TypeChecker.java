@@ -1835,9 +1835,16 @@ public class TypeChecker extends BLangNodeVisitor {
             exprExpType = symTable.noType;
         } else {
             LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
-            memberTypes.add(expType);
+            boolean nillable;
+            if (expType.tag == TypeTags.UNION) {
+                nillable = expType.isNullable();
+                memberTypes.addAll(((BUnionType) expType).memberTypes);
+            } else {
+                nillable = expType == symTable.nilType;
+                memberTypes.add(expType);
+            }
             memberTypes.add(symTable.errorType);
-            exprExpType = new BUnionType(null, memberTypes, false);
+            exprExpType = new BUnionType(null, memberTypes, nillable);
         }
 
         BType exprType = checkExpr(checkedExpr.expr, env, exprExpType);
