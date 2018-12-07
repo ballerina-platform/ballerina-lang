@@ -864,11 +864,13 @@ public class CommonUtil {
      */
     public static List<BLangImportPackage> getCurrentFileImports(BLangPackage pkg, LSContext ctx) {
         String currentFile = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
-        return pkg.getImports().stream()
+        return getCurrentFileTopLevelNodes(pkg, ctx).stream()
+                .filter(topLevelNode -> topLevelNode instanceof BLangImportPackage)
+                .map(topLevelNode -> (BLangImportPackage) topLevelNode)
                 .filter(bLangImportPackage ->
                         bLangImportPackage.pos.getSource().cUnitName.replace("/", FILE_SEPARATOR).equals(currentFile)
-                        && !(bLangImportPackage.getOrgName().getValue().equals("ballerina")
-                        && bLangImportPackage.symbol.getName().getValue().equals("transaction")))
+                                && !(bLangImportPackage.getOrgName().getValue().equals("ballerina")
+                                && bLangImportPackage.symbol.getName().getValue().equals("transaction")))
                 .collect(Collectors.toList());
     }
 
@@ -1240,13 +1242,7 @@ public class CommonUtil {
                 for (BVarSymbol param : bStruct.initializerFunc.symbol.params) {
                     list.add(generateReturnValue(param.type.tsymbol, "{%1}"));
                 }
-                String pkgPrefix = "";
-                if (!bStruct.pkgID.equals(currentPkgId)) {
-                    pkgPrefix = bStruct.pkgID.name.value + ":";
-                    if (importsAcceptor != null) {
-                        importsAcceptor.accept(bStruct.pkgID.orgName.value, bStruct.pkgID.name.value);
-                    }
-                }
+                String pkgPrefix = getPackagePrefix(importsAcceptor, currentPkgId, bStruct.pkgID);
                 String paramsStr = String.join(", ", list);
                 String newObjStr = "new " + pkgPrefix + bStruct.name.getValue() + "(" + paramsStr + ")";
                 return template.replace("{%1}", newObjStr);
@@ -1405,18 +1401,8 @@ public class CommonUtil {
         private static String generateTypeDefinition(BiConsumer<String, String> importsAcceptor,
                                                      PackageID currentPkgId, BTypeSymbol tSymbol) {
             if (tSymbol != null) {
-                if (tSymbol instanceof BObjectTypeSymbol) {
-                    BObjectTypeSymbol objectType = (BObjectTypeSymbol) tSymbol;
-                    String pkgPrefix = "";
-                    if (!objectType.pkgID.equals(currentPkgId)) {
-                        pkgPrefix = objectType.pkgID.name.value + ":";
-                        if (importsAcceptor != null) {
-                            importsAcceptor.accept(objectType.pkgID.orgName.value, objectType.pkgID.name.value);
-                        }
-                    }
-                    return pkgPrefix + objectType.name.getValue();
-                }
-                return tSymbol.name.getValue();
+                String pkgPrefix = getPackagePrefix(importsAcceptor, currentPkgId, tSymbol.pkgID);
+                return pkgPrefix + tSymbol.name.getValue();
             }
             return "any";
         }
@@ -1508,6 +1494,19 @@ public class CommonUtil {
             return (parent != null && parent.parent != null)
                     ? lookupFunctionReturnType(functionName, parent.parent) : "any";
         }
+    }
+
+    public static String getPackagePrefix(BiConsumer<String, String> importsAcceptor, PackageID currentPkgId,
+                                          PackageID typePkgId) {
+        String pkgPrefix = "";
+        if (!typePkgId.equals(currentPkgId) &&
+                !(typePkgId.orgName.value.equals("ballerina") && typePkgId.name.value.equals("builtin"))) {
+            pkgPrefix = typePkgId.name.value + ":";
+            if (importsAcceptor != null) {
+                importsAcceptor.accept(typePkgId.orgName.value, typePkgId.name.value);
+            }
+        }
+        return pkgPrefix;
     }
 
     /**
