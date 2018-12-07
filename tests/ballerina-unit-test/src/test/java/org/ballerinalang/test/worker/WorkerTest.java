@@ -73,7 +73,7 @@ public class WorkerTest {
         Assert.assertEquals(ret.intValue(), 51);
     }
 
-   @Test(enabled = false)
+   @Test
     public void receiveWithTrap() {
         BValue[] returns = BRunUtil.invoke(result, "receiveWithTrap", new BValue[0]);
         Assert.assertEquals(returns.length, 1);
@@ -81,7 +81,7 @@ public class WorkerTest {
         Assert.assertEquals(ret.reason, "err");
     }
 
-    @Test(enabled = false)
+    @Test
     public void receiveWithCheck() {
         BValue[] returns = BRunUtil.invoke(result, "receiveWithCheck", new BValue[0]);
         Assert.assertEquals(returns.length, 1);
