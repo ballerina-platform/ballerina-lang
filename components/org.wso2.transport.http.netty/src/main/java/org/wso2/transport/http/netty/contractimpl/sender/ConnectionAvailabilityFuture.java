@@ -25,6 +25,10 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.contract.Constants;
 
+import static org.wso2.transport.http.netty.contract.Constants.COLON;
+import static org.wso2.transport.http.netty.contract.Constants.ERROR_COULD_NOT_RESOLVE_HOST;
+import static org.wso2.transport.http.netty.contract.Constants.UNKNOWN_HOST_EXCEPTION;
+
 /**
  * A future to check the connection availability.
  */
@@ -127,6 +131,9 @@ public class ConnectionAvailabilityFuture {
         } else if (cause.toString().contains("javax.net.ssl")) {
             connectorException = new ClientConnectorException(cause.getMessage() + socketAddress,
                     HttpResponseStatus.BAD_GATEWAY.code());
+        } else if (cause.toString().contains(UNKNOWN_HOST_EXCEPTION)) {
+            connectorException = new ClientConnectorException(ERROR_COULD_NOT_RESOLVE_HOST + COLON +
+                    cause.getMessage() + socketAddress, HttpResponseStatus.BAD_GATEWAY.code());
         } else {
             connectorException = new ClientConnectorException(channelFuture.cause().getMessage(),
                     HttpResponseStatus.BAD_GATEWAY.code());
