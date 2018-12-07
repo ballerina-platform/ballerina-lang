@@ -46,6 +46,10 @@ function sizeStatement(node: ASTNode) {
             }
         });
     }
+
+    if (node.viewState.hiddenBlock) {
+        viewState.bBox.w = 60;
+    }
 }
 
 function sizeWorker(node: VariableDef, preWorkerHeight = 0, workerHolder: WorkerTuple[]) {
