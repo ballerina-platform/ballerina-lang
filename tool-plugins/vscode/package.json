@@ -184,10 +184,10 @@
             },
             {
                 "command": "ballerina.showDocs",
-                "title": "Open Doc Preview",
+                "title": "Show Documentation Preview",
                 "icon": {
-                    "dark": "./resources/images/icons/documenation-inverse.svg",
-                    "light": "./resources/images/icons/documenation.svg"
+                    "dark": "./resources/images/icons/documentation-inverse.svg",
+                    "light": "./resources/images/icons/documentation.svg"
                 },
                 "category": "Ballerina"
             },
@@ -222,6 +222,11 @@
                 {
                     "when": "resourceLangId == ballerina",
                     "command": "ballerina.showDiagram",
+                    "group": "navigation"
+                },
+                {
+                    "when": "resourceLangId == ballerina",
+                    "command": "ballerina.showDocs",
                     "group": "navigation"
                 },
                 {
