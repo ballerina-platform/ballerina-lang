@@ -245,11 +245,11 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"create(anydata a)",
+      "label":"convert(anydata a)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"create(${1});",
+      "insertText":"convert(${1});",
       "insertTextFormat":"Snippet"
     }
   ]
