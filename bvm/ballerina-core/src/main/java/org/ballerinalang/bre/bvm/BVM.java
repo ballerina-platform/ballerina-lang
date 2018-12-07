@@ -852,7 +852,17 @@ public class BVM {
         copyArgValues(strand.currentFrame, df, argRegs, callableUnitInfo.getParamTypes());
 
         if (!FunctionFlags.isAsync(df.invocationFlags)) {
-            strand.pushFrame(df);
+            try {
+                strand.pushFrame(df);
+            } catch (ArrayIndexOutOfBoundsException e) {
+                // Need to decrement the frame pointer count. Otherwise ArrayIndexOutOfBoundsException will
+                // be thrown from the popFrame() as well.
+                strand.fp--;
+                strand.setError(BLangVMErrors.createError(strand, BallerinaErrorReasons.STACK_OVERFLOW_ERROR,
+                        "stack overflow"));
+                handleError(strand);
+                return strand;
+            }
             // Start observation after pushing the stack frame
             ObserveUtils.startCallableObservation(strand, df.invocationFlags);
             if (callableUnitInfo.isNative()) {
