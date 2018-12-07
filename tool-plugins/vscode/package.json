@@ -185,6 +185,10 @@
             {
                 "command": "ballerina.showDocs",
                 "title": "Open Doc Preview",
+                "icon": {
+                    "dark": "./resources/images/icons/documenation-inverse.svg",
+                    "light": "./resources/images/icons/documenation.svg"
+                },
                 "category": "Ballerina"
             },
             {
@@ -205,12 +209,12 @@
             "editor/title": [
                 {
                     "when": "resourceLangId == ballerina",
-                    "command": "ballerina.showAPIEditor",
+                    "command": "ballerina.showDiagram",
                     "group": "navigation"
                 },
                 {
                     "when": "resourceLangId == ballerina",
-                    "command": "ballerina.showDiagram",
+                    "command": "ballerina.showDocs",
                     "group": "navigation"
                 }
             ],
