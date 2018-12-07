@@ -129,7 +129,7 @@ public class ServiceDefinitionValidator {
                     default:
                         break;
                 }
-                if (!validateResourceSignature(resourceNode.getParameters(), dlog, resourceNode.pos)) {
+                if (!validateResourceSignature(resourceNode, dlog, resourceNode.pos)) {
                     return false;
                 }
             }
@@ -143,16 +143,18 @@ public class ServiceDefinitionValidator {
             }
         } else {
             for (BLangFunction resourceNode : resources) {
-                if (!validateResourceSignature(resourceNode.getParameters(), dlog, resourceNode.pos)) {
-                    return validateResourceSignature(resourceNode.getParameters(), dlog, resourceNode.pos);
+                boolean valid = validateResourceSignature(resourceNode, dlog, resourceNode.pos);
+                if (!valid) {
+                    return false;
                 }
             }
             return true;
         }
     }
 
-    private static boolean validateResourceSignature(List<BLangSimpleVariable> signatureParams, DiagnosticLog dlog,
+    private static boolean validateResourceSignature(BLangFunction resourceNode, DiagnosticLog dlog,
                                                      DiagnosticPos pos) {
+        List<BLangSimpleVariable> signatureParams = resourceNode.getParameters();
         final int nParams = signatureParams.size();
         if (nParams < COMPULSORY_PARAM_COUNT) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, pos, "resource signature parameter count should be >= 1");
