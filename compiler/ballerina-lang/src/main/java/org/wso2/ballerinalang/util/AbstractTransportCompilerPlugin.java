@@ -30,7 +30,7 @@ import java.util.LinkedHashSet;
 
 /**
  * {@code AbstractTransportCompilerPlugin} provides convenient superclass
- * for transport Compiler Plugin implementations.
+ * for standard library compiler plugin implementations.
  *
  * @since 0.990.0
  */
@@ -50,6 +50,7 @@ public abstract class AbstractTransportCompilerPlugin extends AbstractCompilerPl
         SymbolTable symbolTable = SymbolTable.getInstance(context);
         LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
         memberTypes.add(symbolTable.errorType);
+        memberTypes.add(symbolTable.nilType);
         this.errorOrNil = new BUnionType(null, memberTypes, true);
     }
 }
