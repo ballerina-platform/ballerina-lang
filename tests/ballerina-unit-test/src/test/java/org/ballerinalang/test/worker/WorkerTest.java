@@ -197,13 +197,14 @@ public class WorkerTest {
         Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
     }
 
-    @Test(enabled = false)
+    @Test
     public void receiveWithCheckAndTrap() {
         BValue[] returns = BRunUtil.invoke(result, "receiveWithCheckAndTrap");
         Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals("error: err from panic", ((BError) returns[0]).reason);
     }
 
-    @Test(enabled = false)
+    @Test(enabled = false) // Issue with trap
     public void receiveWithTrapForDefault() {
         BValue[] returns = BRunUtil.invoke(result, "receiveWithTrapForDefault");
         Assert.assertEquals(returns.length, 1);
@@ -215,9 +216,10 @@ public class WorkerTest {
         Assert.assertEquals(returns.length, 1);
     }
 
-    @Test(enabled = false)
+    @Test
     public void receiveDefaultWithCheckAndTrap() {
         BValue[] returns = BRunUtil.invoke(result, "receiveDefaultWithCheckAndTrap");
         Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals("error: err from panic", ((BError) returns[0]).reason);
     }
 }
