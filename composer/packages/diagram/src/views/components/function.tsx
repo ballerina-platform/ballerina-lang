@@ -44,8 +44,37 @@ export const Function = (props: { model: FunctionNode }, context: IDiagramContex
                     {functionNode.body && <Block model={functionNode.body} />}
                 </g>;
             })}
-            <StartInvocation client={viewState.client} worker={viewState.defaultWorker.lifeline}
-                y={viewState.defaultWorker.bBox.y + config.lifeLine.header.height} label="" />
+            {model.resource ?
+                <StartInvocation
+                    client={viewState.client}
+                    worker={viewState.defaultWorker.lifeline}
+                    y={viewState.defaultWorker.bBox.y + config.lifeLine.header.height}
+                    label={
+                        model.parameters && model.parameters.map((param: Variable | VariableDef, index) => {
+                            if (model.resource && index === 0) {
+                                return;
+                            }
+                            param = param as Variable;
+                            return " " + param.name.value;
+                        }).toString().replace(",", "")
+                    }
+                />
+            :
+                <StartInvocation
+                    client={viewState.client}
+                    worker={viewState.defaultWorker.lifeline}
+                    y={viewState.defaultWorker.bBox.y + config.lifeLine.header.height}
+                    label={
+                        model.allParams && model.allParams.map((param: Variable | VariableDef, index) => {
+                            if (model.resource && index === 0) {
+                                return;
+                            }
+                            param = param as Variable;
+                            return " " + param.name.value;
+                        }).toString()
+                    }
+                />
+            }
             {model.body && <Block model={model.body} />}
             {model.VisibleEndpoints && model.VisibleEndpoints
                 .filter((element) => element.viewState.visible)
