@@ -55,7 +55,7 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
     public int attachedToTypeCPIndex;
     public BType attachedToType;
     public BFunctionType funcType;
-    public String[] workerSendInChannels;
+    public ChannelDetails[] workerSendInChannels;
 
     protected Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
     
@@ -272,6 +272,26 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
 
         public WorkerInfo[] generalWorkers;
 
+    }
+
+    /**
+     * Channel details which has channel name and where it resides.
+     */
+    public static class ChannelDetails {
+        public String name;
+        public boolean channelInSameStrand;
+        public boolean send;
+
+        public ChannelDetails(String name, boolean channelInSameStrand, boolean send) {
+            this.name = name;
+            this.channelInSameStrand = channelInSameStrand;
+            this.send = send;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
     }
     
 }

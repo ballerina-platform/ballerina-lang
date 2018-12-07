@@ -45,7 +45,7 @@ public function main() {
         var ret = tb.add(emp);
         if (ret is ()) {
             io:println("Adding record to table successful");
-        } else if (ret is error) {
+        } else {
             io:println("Adding to table failed: " + ret.reason());
         }
     }
@@ -65,7 +65,7 @@ public function main() {
         var ret = Employee.convert(tb.getNext());
         if (ret is Employee) {
             io:println("Name: " + ret.name);
-        } else if (ret is error) {
+        } else {
             io:println("Error in get employee from table: "
                                   + ret.reason());
         }
@@ -87,7 +87,7 @@ public function main() {
     var ret = tb.remove(isLowerSalary);
     if (ret is int) {
         io:println("Deleted row count: " + ret);
-    } else if (ret is error) {
+    } else {
         io:println("Error in removing employees from table: "
                                + ret.reason());
     }

@@ -1,5 +1,5 @@
-#At the command line, navigate to the directory that contains the
-#`.bal` file and run the `ballerina run` command.
+# To run this sample, navigate to the directory that contains the
+# `.bal` file and issue the `ballerina run` command.
 $ ballerina run record_match_statement.bal
 Matched with two vars : Hello, 150
 Matched with two vars : Hello, true

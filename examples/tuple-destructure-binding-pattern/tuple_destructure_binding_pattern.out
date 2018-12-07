@@ -1,0 +1,9 @@
+# To run this sample, navigate to the directory that contains the
+# `.bal` file and issue the `ballerina run` command.
+$ ballerina run tuple_destructure.bal
+Tuple variable : Ballerina453false
+Tuple variable : Ballerina453false
+Tuple variable : Ballerina657true76.8
+Tuple variable : Ballerina3true345.645
+Tuple variable : Ballerina453false
+Tuple variable : Ballerina3true345.645

@@ -43,11 +43,11 @@ service actionService on new http:Listener(9090) {
         handleResponse(response);
 
         //Get a byte channel to a given file.
-        io:ReadableByteChannel byteChannel = io:openReadableFile("./files/logo.png");
+        io:ReadableByteChannel bChannel = io:openReadableFile("./files/logo.png");
 
         //POST remote function with byte channel as payload. Xince the file path is static
         //`untaint` is used to denote that the byte channel is trusted .
-        response = clientEP->post("/image", untaint byteChannel);
+        response = clientEP->post("/image", untaint bChannel);
         handleResponse(response);
 
         //Create a json body part.

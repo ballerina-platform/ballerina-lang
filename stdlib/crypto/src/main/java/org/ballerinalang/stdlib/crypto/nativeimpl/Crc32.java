@@ -18,6 +18,7 @@
 
 package org.ballerinalang.stdlib.crypto.nativeimpl;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.BArrayType;
@@ -58,7 +59,9 @@ public class Crc32 extends BlockingNativeCallableUnit {
         long checksumVal;
 
         BType argType = entityBody.getType();
-        if (argType == BTypes.typeJSON || argType == BTypes.typeXML || argType == BTypes.typeString) {
+        if (argType == BTypes.typeString) {
+            bytes = StringEscapeUtils.escapeJava(entityBody.stringValue()).getBytes(StandardCharsets.UTF_8);
+        } else if (argType == BTypes.typeJSON || argType == BTypes.typeXML) {
             // TODO: Look at the possibility of making the encoding configurable
             bytes = entityBody.stringValue().getBytes(StandardCharsets.UTF_8);
         } else if (argType.getTag() == TypeTags.ARRAY_TAG &&

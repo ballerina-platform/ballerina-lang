@@ -187,10 +187,6 @@ public abstract class AbstractItemResolver {
         CompletionItem butKeyword = Snippet.EXPR_MATCH.get().build(new CompletionItem(), snippetCapability);
         completionItems.add(butKeyword);
 
-        // Add lengthof keyword item
-        CompletionItem lengthofKeyword = Snippet.KW_LENGTHOF.get().build(new CompletionItem(), snippetCapability);
-        completionItems.add(lengthofKeyword);
-
         // Add the trap expression keyword
         CompletionItem trapExpression = Snippet.STMT_TRAP.get().build(new CompletionItem(), snippetCapability);
         completionItems.add(trapExpression);
@@ -222,7 +218,7 @@ public abstract class AbstractItemResolver {
      * @param ctx               LS Operation context
      * @return {@link List}     List of packages completion items
      */
-    protected List<CompletionItem> getPackagesCompletionItems(LSServiceOperationContext ctx) {
+    protected List<CompletionItem> getPackagesCompletionItems(LSContext ctx) {
         // First we include the packages from the imported list.
         List<String> populatedList = new ArrayList<>();
         BLangPackage pkg = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);

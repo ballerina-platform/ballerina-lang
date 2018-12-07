@@ -17,7 +17,6 @@ package org.ballerinalang.langserver.signature;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.completion.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
@@ -64,9 +63,7 @@ public class SignatureHelpTest {
         responseJson.remove("id");
         boolean result = expected.equals(responseJson);
         if (!result) {
-            String diff = CommonUtil.LINE_SEPARATOR + "Expected: " + expected.toString()
-                    + CommonUtil.LINE_SEPARATOR + "Actual: " + responseJson.toString();
-            Assert.fail("Failed Test for: " + configJsonPath + diff);
+            Assert.fail("Failed Test for: " + configJsonPath);
         }
     }
     

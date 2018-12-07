@@ -94,5 +94,4 @@ public function main() {
                 err = promisedPayload);
         }
     }
-
 }

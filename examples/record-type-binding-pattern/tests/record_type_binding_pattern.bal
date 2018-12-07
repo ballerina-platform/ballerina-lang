@@ -20,12 +20,12 @@ function testFunc() {
     main();
     test:assertEquals(outputs[0], "Name: Peter");
     test:assertEquals(outputs[1], "Age: 28");
-    test:assertEquals(outputs[2], "Country: {\"country\":\"Sri Lanka\", \"occupation\":\"Software Engineer\"}");
+    test:assertEquals(outputs[2], "Other Details: {\"country\":\"Sri Lanka\", \"occupation\":\"Software Engineer\"}");
     test:assertEquals(outputs[3], "Name: Peter");
     test:assertEquals(outputs[4], "Age: 28");
     test:assertEquals(outputs[5], "Name: Peter");
     test:assertEquals(outputs[6], "Age: 28");
-    test:assertEquals(outputs[7], "Country: {\"country\":\"Sri Lanka\", \"occupation\":\"Software Engineer\"}");
+    test:assertEquals(outputs[7], "Other Details: {\"country\":\"Sri Lanka\", \"occupation\":\"Software Engineer\"}");
     test:assertEquals(outputs[8], "Name: John");
     test:assertEquals(outputs[9], "Age: 26");
     test:assertEquals(outputs[10], "Country Name: Sri Lanka");

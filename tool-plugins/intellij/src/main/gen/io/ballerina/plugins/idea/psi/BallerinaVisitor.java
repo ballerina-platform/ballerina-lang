@@ -1028,6 +1028,10 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitCompositeElement(o);
   }
 
+  public void visitWorkerWithStatementsBlock(@NotNull BallerinaWorkerWithStatementsBlock o) {
+    visitCompositeElement(o);
+  }
+
   public void visitXmlAttrib(@NotNull BallerinaXmlAttrib o) {
     visitCompositeElement(o);
   }

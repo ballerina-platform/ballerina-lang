@@ -20,7 +20,7 @@ function testFunc() {
     main();
     test:assertEquals(outputs[0], "Name: Peter");
     test:assertEquals(outputs[1], "Age: 28");
-    test:assertEquals(outputs[2], "Country: {\"country\":\"Sri Lanka\", \"occupation\":\"Software Engineer\"}");
+    test:assertEquals(outputs[2], "Other Details: {\"country\":\"Sri Lanka\", \"occupation\":\"Software Engineer\"}");
     test:assertEquals(outputs[3], "Name: Peter");
     test:assertEquals(outputs[4], "Age: 28");
     test:assertEquals(outputs[5], "Name: John");

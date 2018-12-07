@@ -490,7 +490,9 @@ public class CompiledPackageSymbolEnter {
         type.sealed = dataInStream.readBoolean();
         if (!type.sealed) {
             String restFieldTypeDesc = getUTF8CPEntryValue(dataInStream);
-            type.restFieldType = getBTypeFromDescriptor(restFieldTypeDesc);
+            UnresolvedType restFieldType = new UnresolvedType(restFieldTypeDesc,
+                                                              restType -> type.restFieldType = restType);
+            this.env.unresolvedTypes.add(restFieldType);
         } else {
             type.restFieldType = symTable.noType;
         }
@@ -1232,8 +1234,10 @@ public class CompiledPackageSymbolEnter {
             if (retType == null) {
                 retType = symTable.nilType;
             }
-            //TODO need to consider a symbol for lambda functions for type definitions.
-            return new BInvokableType(funcParams, retType, null);
+            BTypeSymbol tsymbol = Symbols.createTypeSymbol(SymTag.FUNCTION_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
+                                                           Names.EMPTY, env.pkgSymbol.pkgID, null,
+                                                           env.pkgSymbol.owner);
+            return new BInvokableType(funcParams, retType, tsymbol);
         }
 
         @Override

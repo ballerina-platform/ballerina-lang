@@ -26,24 +26,19 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.Lists;
 
 /**
+ * {@code BConversionOperatorSymbol} represents symbol for type conversion.
+ *
  * @since 0.94
  */
 public class BConversionOperatorSymbol extends BOperatorSymbol {
-
-//    public boolean safe;
-    public boolean implicit;
-
+    
     public BConversionOperatorSymbol(PackageID pkgID,
                                      BType type,
                                      BType sourceType,
                                      BSymbol owner,
-                                     boolean implicit,
-                                     boolean safe,
                                      int opcode) {
         super(Names.CONVERSION_OP, pkgID, type, owner, opcode);
-//        this.safe = safe;
         this.kind = SymbolKind.CONVERSION_OPERATOR;
         this.params = Lists.of(new BVarSymbol(0, new Name("_"), pkgID, sourceType, this));
-        this.implicit = implicit;
     }
 }

@@ -36,7 +36,7 @@ public function main() {
     { name: firstName, age: personAge, ...otherDetails } = getPerson();
     io:println("Name: " + firstName);
     io:println("Age: " + personAge);
-    io:println("Country: " + io:sprintf("%s", otherDetails));
+    io:println("Other Details: " + io:sprintf("%s", otherDetails));
 
     string name;
     int age;
@@ -64,7 +64,8 @@ public function main() {
 }
 
 function getPerson() returns Person {
-    Person person = { name: "Peter", age: 28, country: "Sri Lanka", occupation: "Software Engineer" };
+    Person person = { name: "Peter", age: 28, country: "Sri Lanka",
+                      occupation: "Software Engineer" };
     return person;
 }
 

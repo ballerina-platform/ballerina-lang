@@ -19,8 +19,8 @@ package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.bre.bvm.Strand.State;
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BError;
+import org.ballerinalang.util.codegen.CallableUnitInfo.ChannelDetails;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -36,35 +36,20 @@ import java.util.concurrent.locks.ReentrantLock;
 public class SafeStrandCallback extends StrandCallback {
     private static PrintStream errStream = System.err;
 
-    private volatile boolean done;
-
     private CallbackWaitHandler callbackWaitHandler;
 
-    String[] sendIns;
-
-    SafeStrandCallback(BType retType, WDChannels parentChannels) {
-        super(retType);
+    SafeStrandCallback(BType retType, WDChannels parentChannels, ChannelDetails[] sendIns) {
+        super(retType, sendIns);
         this.callbackWaitHandler = new CallbackWaitHandler();
-        this.done = false;
         this.parentChannels = parentChannels;
     }
 
     @Override
     public void signal() {
-        super.signal();
         try {
             this.callbackWaitHandler.dataLock.lock();
-            this.done = true;
-            if (this.getErrorVal() != null) {
-                for (int i = 0; i < sendIns.length; i++) {
-                    this.parentChannels.getWorkerDataChannel(sendIns[i]).setPanic(this.getErrorVal());
-                }
-            }
-            if (getRefRetVal() != null && getRefRetVal().getType().getTag() == TypeTags.ERROR_TAG) {
-                for (int i = 0; i < sendIns.length; i++) {
-                    this.parentChannels.getWorkerDataChannel(sendIns[i]).setError(getRefRetVal());
-                }
-            }
+            super.signal();
+
             if (this.callbackWaitHandler.waitingStrand == null) {
                 return;
             }
@@ -74,22 +59,17 @@ public class SafeStrandCallback extends StrandCallback {
             if (this.callbackWaitHandler.waitForAll) {
                 List<WaitMultipleCallback> callbackList = new ArrayList<>();
                 callbackList.add(new WaitMultipleCallback(this.callbackWaitHandler.keyReg, this));
-                Strand resultStrand = WaitCallbackHandler.handleReturnInWaitMultiple(this.callbackWaitHandler
-                                                                                             .waitingStrand,
-                                                                                     this.callbackWaitHandler.retReg,
-                                                                                     callbackList);
-                if (resultStrand != null) {
-                    BVMScheduler.stateChange(resultStrand, State.PAUSED, State.RUNNABLE);
-                    BVMScheduler.schedule(resultStrand);
+                if (WaitCallbackHandler.handleReturnInWaitMultiple(this.callbackWaitHandler.waitingStrand,
+                        this.callbackWaitHandler.retReg, callbackList)) {
+                    BVMScheduler.stateChange(this.callbackWaitHandler.waitingStrand, State.PAUSED, State.RUNNABLE);
+                    BVMScheduler.schedule(this.callbackWaitHandler.waitingStrand);
                 }
                 return;
             }
-            Strand resultStrand = WaitCallbackHandler.handleReturnInWait(this.callbackWaitHandler.waitingStrand,
-                                                                         this.callbackWaitHandler.expType,
-                                                                         this.callbackWaitHandler.retReg, this);
-            if (resultStrand != null) {
-                BVMScheduler.stateChange(resultStrand, State.PAUSED, State.RUNNABLE);
-                BVMScheduler.schedule(resultStrand);
+            if (WaitCallbackHandler.handleReturnInWait(this.callbackWaitHandler.waitingStrand,
+                    this.callbackWaitHandler.expType, this.callbackWaitHandler.retReg, this)) {
+                BVMScheduler.stateChange(this.callbackWaitHandler.waitingStrand, State.PAUSED, State.RUNNABLE);
+                BVMScheduler.schedule(this.callbackWaitHandler.waitingStrand);
             }
         } finally {
             this.callbackWaitHandler.dataLock.unlock();
@@ -118,10 +98,6 @@ public class SafeStrandCallback extends StrandCallback {
         this.callbackWaitHandler.expType = expType;
         this.callbackWaitHandler.retReg = retReg;
         this.callbackWaitHandler.keyReg = keyReg;
-    }
-
-    public boolean isDone() {
-        return this.done;
     }
 
     /**
