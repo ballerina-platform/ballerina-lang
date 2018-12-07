@@ -26,6 +26,8 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.Arrays;
 
 /**
@@ -222,5 +224,24 @@ public class WorkerTest {
         BValue[] returns = BRunUtil.invoke(result, "receiveDefaultWithCheckAndTrap");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals("error: err from panic", ((BError) returns[0]).reason);
+    }
+
+    @Test
+    public void sameStrandMultipleInvocation() {
+        for (int i = 0; i < 20; i++) {
+            sameStrandMultipleInvocationTest();
+        }
+    }
+    private void sameStrandMultipleInvocationTest() {
+        PrintStream defaultOut = System.out;
+        try {
+            ByteArrayOutputStream tempOutStream = new ByteArrayOutputStream();
+            System.setOut(new PrintStream(tempOutStream));
+            BRunUtil.invoke(result, "sameStrandMultipleInvocation");
+            String result = new String(tempOutStream.toByteArray());
+            Assert.assertTrue(result.contains("11 - 11"), result);
+        } finally {
+            System.setOut(defaultOut);
+        }
     }
 }

@@ -852,6 +852,7 @@ public class BVM {
         copyArgValues(strand.currentFrame, df, argRegs, callableUnitInfo.getParamTypes());
 
         if (!FunctionFlags.isAsync(df.invocationFlags)) {
+            strand.respCallback.wdChannels = new WDChannels();
             strand.pushFrame(df);
             // Start observation after pushing the stack frame
             ObserveUtils.startCallableObservation(strand, df.invocationFlags);

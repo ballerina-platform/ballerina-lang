@@ -1,4 +1,5 @@
 import ballerina/io;
+import ballerina/runtime;
 
 function workerReturnTest() returns int{
     worker wx returns int {
@@ -254,4 +255,37 @@ public function receiveDefaultWithCheckAndTrap() returns error|int {
 
     error|int j = check trap <- w1;
     return j;
+}
+
+int rs = 0;
+public function sameStrandMultipleInvocation() {
+
+    while rs < 2 {
+        rs = rs + 1;
+        test(rs + 10);
+    }
+    runtime:sleep(60);
+    return;
+}
+
+function test(int c) {
+    worker w1 {
+        int a = c;
+        io:println("w1 begin ", c);
+        if (c == 11) {
+            io:println("w1 sleep ", c);
+            runtime:sleep(20);
+        }
+        io:println("w1 send data ", c);
+        a -> w2;
+    }
+    worker w2 {
+        io:println("w2 begin ", c);
+        if (c == 12) {
+            io:println("w2 sleep ", c);
+            runtime:sleep(20);
+        }
+        int b = <- w1;
+        io:println("w2 end ", c, " - ", b);
+    }
 }
