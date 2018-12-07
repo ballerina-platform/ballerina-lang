@@ -70,7 +70,7 @@ export const While: React.StatelessComponent<{
                         points={`${r1.x},${r1.y} ${r2.x},${r2.y} ${r3.x},${r3.y} ${r4.x},${r4.y}`}
                     />
                     <line className="hide-line" x1={p1.x} y1={p1.y + 1} x2={r4.x} y2={r4.y - 1} strokeLinecap="round" />
-                    <ArrowHead direction={"right"} {...p4} />
+                    <ArrowHead direction={"right"} className="condition-arrow-haad" {...p4} />
                     <Condition {...conditionProps} astModel={model} />
                     {model.body && <Block model={model.body} />}
                 </g>

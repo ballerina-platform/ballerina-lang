@@ -20,10 +20,11 @@
                 }
         
                 .object-type,
-                .service-type {
-                    font-size: 17px;
+                .service-type,
+                .value-type {
+                    font-size: 15px;
                     font-style: italic;
-                    margin-left: 10px;
+                    margin-left: 5px;
                 }
             }
             .description {
@@ -53,6 +54,18 @@
             .ui.table tbody .stacked-content {
                 display: none !important;
             }
+        }
+
+        .__added {
+            animation: added_animate 3s;
+            animation-fill-mode: forwards;
+        }
+        
+        @keyframes added_animate {
+            from {
+                background-color: rgb(225, 225, 50);
+            }
+            to {}
         }
     }
 

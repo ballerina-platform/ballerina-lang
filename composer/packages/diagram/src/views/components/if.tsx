@@ -75,7 +75,7 @@ export const If: React.StatelessComponent<{
                     <polyline className="condition-line"
                         points={`${r1.x},${r1.y} ${r2.x},${r2.y} ${r3.x},${r3.y} ${r4.x},${r4.y}`}
                     />
-                    <ArrowHead direction={"left"} {...r4} />
+                    <ArrowHead direction={"left"} className="condition-arrow-haad" {...r4} />
                     <Condition {...conditionProps} astModel={model} />
                     {children}
                 </g>
