@@ -931,7 +931,13 @@ public class CommonUtil {
                         && ((BLangSimpleVariable) topLevelNode).flagSet.contains(Flag.SERVICE)))
                 .collect(Collectors.toList());
     }
-    
+
+    /**
+     * Get the package name components combined.
+     * 
+     * @param importPackage     BLangImportPackage node
+     * @return {@link String}   Combined package name
+     */
     public static String getPackageNameComponentsCombined(BLangImportPackage importPackage) {
         return String.join(".", importPackage.pkgNameComps.stream()
                 .map(id -> id.value)
