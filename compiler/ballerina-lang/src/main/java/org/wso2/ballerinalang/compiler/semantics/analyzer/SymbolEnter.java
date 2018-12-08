@@ -1515,7 +1515,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             case TypeTags.RECORD:
             case TypeTags.OBJECT:
                 typeDef.symbol.kind = ((BLangStructureTypeNode) typeDef.typeNode).symbol.kind;
-                ((BLangRecordTypeNode) typeDef.typeNode).symbol.scope = env.scope;
+                ((BLangStructureTypeNode) typeDef.typeNode).symbol.scope = env.scope;
                 break;
         }
 
