@@ -221,8 +221,10 @@ public abstract class AbstractItemResolver {
     protected List<CompletionItem> getPackagesCompletionItems(LSContext ctx) {
         // First we include the packages from the imported list.
         List<String> populatedList = new ArrayList<>();
+        String relativePath = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         BLangPackage pkg = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-        List<CompletionItem> completionItems = CommonUtil.getCurrentFileImports(pkg, ctx).stream()
+        BLangPackage srcOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativePath, pkg);
+        List<CompletionItem> completionItems = CommonUtil.getCurrentFileImports(srcOwnerPkg, ctx).stream()
                 .map(bLangImportPackage -> {
                     String orgName = bLangImportPackage.orgName.toString();
                     String pkgName = String.join(".", bLangImportPackage.pkgNameComps.stream()
