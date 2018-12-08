@@ -15,7 +15,7 @@ function startService() {
 }
 function testFunc() {
     // Invoking the main function.
-    endpoint http:Client httpEndpoint { url: "http://localhost:9090" };
+    http:Client httpEndpoint = new("http://localhost:9090");
     // Check whether the server has started. 
     //test:assertTrue(serviceStarted, msg = "Unable to start the service");
     json payload = { "hello": "world" };
@@ -24,11 +24,11 @@ function testFunc() {
     // Send a `GET` request to the specified endpoint.
     var response = httpEndpoint->post("/foo/bar", req);
     match response {
-        http:Response resp => {
+        var resp if resp is http:Response => {
             var jsonRes = check resp.getJsonPayload();
             test:assertEquals(jsonRes, payload);
         }
-        error err => test:assertFail(msg = "Failed to call the endpoint:");
+        var err if err is error => test:assertFail(msg = "Failed to call the endpoint:");
     }
 }
 
