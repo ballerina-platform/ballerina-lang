@@ -402,8 +402,10 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 String moduleName = document.getSourceRootPath()
                         .relativize(LSCompilerUtil.getCurrentModulePath(document.getPath())).toString();
                 if (topLevelNodeType != null && diagnostics.isEmpty() && document.hasProjectRepo() &&
-                        !TEST_DIR_NAME.equals(innerDirName) &&
+                        !TEST_DIR_NAME.equals(innerDirName) && !moduleName.isEmpty() &&
                         !moduleName.endsWith(ProjectDirConstants.BLANG_SOURCE_EXT)) {
+                    // Test generation suggested only when;
+                    //     - no code diagnosis exists, inside a bal project, inside a module, not inside /tests folder
                     commands.addAll(CommandUtil.getTestGenerationCommand(topLevelNodeType, fileUri, params,
                                                                          documentManager, lsCompiler));
                 }
