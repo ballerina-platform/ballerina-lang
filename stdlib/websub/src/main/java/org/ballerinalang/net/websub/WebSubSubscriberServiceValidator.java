@@ -173,7 +173,7 @@ public class WebSubSubscriberServiceValidator {
 
     static void validateResourceReturnType(boolean resourceReturnsErrorOrNil, DiagnosticLog dlog, DiagnosticPos pos) {
         if (!resourceReturnsErrorOrNil) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, pos, "invalid return type: expected error|()");
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, pos, "invalid return type: expected error?");
         }
     }
 }

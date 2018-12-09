@@ -57,7 +57,7 @@ public class WebSubServiceCompilerPlugin extends AbstractTransportCompilerPlugin
 
     private DiagnosticLog dlog = null;
     private static final String WEBSUB_LISTENER = "T".concat(WEBSUB_PACKAGE).concat(":")
-            .concat(WEBSUB_SERVICE_LISTENER);
+            .concat(WEBSUB_SERVICE_LISTENER).concat(";");
 
     @Override
     public void init(DiagnosticLog diagnosticLog) {
