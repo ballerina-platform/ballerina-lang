@@ -15,6 +15,9 @@ export const Return: React.StatelessComponent<{
         model
     }) => {
         const viewState: StmntViewState = model.viewState;
+        if (viewState.hidden) {
+            return null;
+        }
 
         const returnLine = { x1: 1, y1: 0, x2: 0, y2: 0 };
         returnLine.x1 = model.viewState.bBox.x;
