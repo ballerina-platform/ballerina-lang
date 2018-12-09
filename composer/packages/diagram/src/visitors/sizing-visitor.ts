@@ -1,9 +1,9 @@
 import {
     Assignment, ASTKindChecker,
     ASTNode, ASTUtil, Block, Break, CompoundAssignment, Constant, ExpressionStatement,
-    Foreach, Function, If, Invocation, Lambda, Match, MatchStaticPatternClause,
-    ObjectType, Panic, Return, Service, TypeDefinition,
-    Variable, VariableDef, VisibleEndpoint, Visitor, While, WorkerSend
+    Foreach, Function, If, Invocation, Lambda, Literal, Match,
+    MatchStaticPatternClause, ObjectType, Panic, Return, Service,
+    TypeDefinition, Variable, VariableDef, VisibleEndpoint, Visitor, While, WorkerSend
 } from "@ballerina/ast-model";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
@@ -277,9 +277,12 @@ export const visitor: Visitor = {
         returnStatements.forEach((returnStmt) => {
             const returnViewState: ReturnViewState = returnStmt.viewState;
             returnViewState.client = client;
-            // hide return; stmts in resources
-            if (node.resource && returnStmt.noExpressionAvailable) {
-                returnViewState.hidden = true;
+            // hide empty return stmts in resources
+            if (node.resource) {
+                returnViewState.hidden =
+                        returnStmt.noExpressionAvailable
+                    || (ASTKindChecker.isLiteral(returnStmt.expression)
+                    && (returnStmt.expression as Literal).emptyParantheses === true);
             }
         });
     },
