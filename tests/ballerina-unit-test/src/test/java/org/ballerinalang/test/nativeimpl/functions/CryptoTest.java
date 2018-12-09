@@ -47,9 +47,7 @@ public class CryptoTest {
     @Test
     public void testHmac() {
         String messageString = "Ballerina HMAC test";
-        String messageStringWithEscapeChars = "Ballerina HMAC\n test";
         BString message = new BString(messageString);
-        BString messageWithEscapeChars = new BString(messageStringWithEscapeChars);
         String keyString = "abcdefghijk";
         BString key = new BString(keyString);
         BString hexKey = new BString(HashUtils.toHexString(keyString.getBytes(StandardCharsets.UTF_8)));
@@ -60,10 +58,6 @@ public class CryptoTest {
         String expectedMD5Hash = "3D5AC29160F2905A5C8153597798A4C1";
         String expectedSHA1Hash = "13DD8D54D0EB702EDC6E8EDCAF616837D3A51499";
         String expectedSHA256Hash = "2651203E18BF0088D3EF1215022D147E2534FD4BAD5689C9E5F12436E9758B15";
-
-        String expectedMD5HashForEscapeChars = "4A5A9E95DC4D95C4F91F45A1B895BF04";
-        String expectedSHA1HashForEscapeChars = "5B182DB7EE11E3ACB9512B95A2496712A1F3FAF9";
-        String expectedSHA256HashForEscapeChars = "1167DC5540D3E6C7958AA998DC1D75D372DF4C364620970672452BA7D32AC405";
 
         BValue[] args = {message, key};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testHmacWithMD5", args);
@@ -109,21 +103,6 @@ public class CryptoTest {
         returnValues = BRunUtil.invoke(compileResult, "testHmacBase64KeySHA256", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(returnValues[0].stringValue(), expectedSHA256Hash);
-
-        args = new BValue[]{messageWithEscapeChars, key};
-        returnValues = BRunUtil.invoke(compileResult, "testHmacWithMD5", args);
-        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
-        Assert.assertEquals(returnValues[0].stringValue(), expectedMD5HashForEscapeChars);
-
-        args = new BValue[]{messageWithEscapeChars, key};
-        returnValues = BRunUtil.invoke(compileResult, "testHmacWithSHA1", args);
-        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
-        Assert.assertEquals(returnValues[0].stringValue(), expectedSHA1HashForEscapeChars);
-
-        args = new BValue[]{messageWithEscapeChars, key};
-        returnValues = BRunUtil.invoke(compileResult, "testHmacWithSHA256", args);
-        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
-        Assert.assertEquals(returnValues[0].stringValue(), expectedSHA256HashForEscapeChars);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class)
@@ -142,12 +121,6 @@ public class CryptoTest {
         String expectedSHA1Hash = "189AF447E0D338DDD5EDB01E8CC0C899402DA4AF";
         String expectedSHA256Hash = "5AF499F2E770D43DB7F769F8742BA77DA713949EDCD233477DEF4509AEBBB44C";
 
-        BValue[] argsWithEscapeChars = {new BString("Ballerina Hash\n test")};
-
-        String expectedMD5HashForEscapeChars = "131CE565112BAB92A7B17835FA7DCF1A";
-        String expectedSHA1HashForEscapeChars = "10A2E0BB7E5BD0A147BA29A644BED80B600D0076";
-        String expectedSHA256HashForEscapeChars = "EAC6067FA6542749CBED6E34A4FDB652642DC560CCCB5BA5A6DE8A00484C4119";
-
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testHashWithMD5", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(returnValues[0].stringValue(), expectedMD5Hash);
@@ -159,36 +132,17 @@ public class CryptoTest {
         returnValues = BRunUtil.invoke(compileResult, "testHashWithSHA256", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(returnValues[0].stringValue(), expectedSHA256Hash);
-
-        returnValues = BRunUtil.invoke(compileResult, "testHashWithMD5", argsWithEscapeChars);
-        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
-        Assert.assertEquals(returnValues[0].stringValue(), expectedMD5HashForEscapeChars);
-
-        returnValues = BRunUtil.invoke(compileResult, "testHashWithSHA1", argsWithEscapeChars);
-        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
-        Assert.assertEquals(returnValues[0].stringValue(), expectedSHA1HashForEscapeChars);
-
-        returnValues = BRunUtil.invoke(compileResult, "testHashWithSHA256", argsWithEscapeChars);
-        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
-        Assert.assertEquals(returnValues[0].stringValue(), expectedSHA256HashForEscapeChars);
     }
 
     @Test(description = "Testing CRC32 generation for strings")
     public void testCRC32ForText() {
         String payload = "Ballerina CRC32 Hash Test";
-        String payloadWithEscapeChars = "Ballerina CRC32\n Hash Test";
         String expectedCRC32Hash = "e1ad4853";
-        String expectedCRC32HashForEscapeChars = "a79fb629";
 
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testHashWithCRC32ForText",
                                                 new BValue[]{new BString(payload)});
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(returnValues[0].stringValue(), expectedCRC32Hash);
-
-        returnValues = BRunUtil.invoke(compileResult, "testHashWithCRC32ForText",
-                new BValue[]{new BString(payloadWithEscapeChars)});
-        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
-        Assert.assertEquals(returnValues[0].stringValue(), expectedCRC32HashForEscapeChars);
     }
 
     @Test(description = "Testing CRC32 generation for blobs")
