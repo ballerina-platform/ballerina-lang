@@ -273,10 +273,14 @@ export const visitor: Visitor = {
         viewState.bBox.w = (body.w > header.w) ? body.w : header.w;
         viewState.bBox.h = body.h + header.h;
 
-        // Update return statement with client.
-        returnStatements.forEach((element) => {
-            const returnViewState: ReturnViewState = element.viewState;
+        // Update return statement view-states.
+        returnStatements.forEach((returnStmt) => {
+            const returnViewState: ReturnViewState = returnStmt.viewState;
             returnViewState.client = client;
+            // hide return; stmts in resources
+            if (node.resource && returnStmt.noExpressionAvailable) {
+                returnViewState.hidden = true;
+            }
         });
     },
 
