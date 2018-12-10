@@ -46,7 +46,8 @@ public class BUnionType extends BType {
      * @param memberTypes of the union type
      */
     public BUnionType(List<BType> memberTypes) {
-        super(null, null, BValue.class);
+        super(String.join("|", memberTypes.stream().map(BType::toString).collect(Collectors.toList())), null,
+              BValue.class);
         this.memberTypes = memberTypes;
         this.nullable = memberTypes.contains(BTypes.typeNull);
     }

@@ -174,7 +174,7 @@ public class TypeAssertionExpressionsTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeAssertionError \\{\"message\":\"assertion " +
-                    "error: expected 'stream<null>', found 'stream<null>'\"\\}.*")
+                    "error: expected 'stream<float\\|json>', found 'stream<int\\|float>'\"\\}.*")
     public void testOutOfOrderUnionConstraintAssertionNegative() {
         BRunUtil.invoke(result, "testOutOfOrderUnionConstraintAssertionNegative");
     }
