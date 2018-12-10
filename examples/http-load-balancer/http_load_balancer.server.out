@@ -1,5 +1,5 @@
-# To run the service, put the code in `http_load_balancer.bal`
-# and execute the following command from `$BALLERINA_HOME/bin`.
+# To start the services, navigate to the directory that contains the
+# `.bal` file and use the `ballerina run` command.
 $ ballerina run http_load_balancer.bal
 # Service deployment:
 Initiating service(s) in 'http_load_balancer.bal'

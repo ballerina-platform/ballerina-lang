@@ -55,7 +55,7 @@ export class DiagramConfig {
         },
         title: {
             margin: {
-                left: 25
+                left: 20
             }
         }
     };
@@ -122,7 +122,20 @@ export class DiagramConfig {
 
     public block = {
         bottomMargin: STATEMENT_HEIGHT,
-        menuTriggerMargin: 12,
+        hoverRect: {
+            leftMargin: 30
+        },
+        menuTriggerMargin: 12
+    };
+
+    public frame = {
+        header: {
+            height: STATEMENT_HEIGHT,
+            width: 70
+        },
+        leftMarginDefault: 60,
+        rightMargin: STATEMENT_HEIGHT,
+        topMargin: 5,
     };
 }
 

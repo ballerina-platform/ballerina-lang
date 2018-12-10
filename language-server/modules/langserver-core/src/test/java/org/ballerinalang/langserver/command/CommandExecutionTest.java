@@ -89,7 +89,7 @@ public class CommandExecutionTest {
         JsonObject responseJson = getCommandResponse(args, CommandConstants.CMD_IMPORT_MODULE);
         responseJson.get("result").getAsJsonObject().get("edit").getAsJsonObject().getAsJsonArray("documentChanges")
                 .forEach(element -> element.getAsJsonObject().remove("textDocument"));
-        Assert.assertEquals(responseJson, expected);
+        Assert.assertEquals(responseJson, expected, "Test Failed for: " + config);
     }
 
     @Test(dataProvider = "add-doc-data-provider")
@@ -105,7 +105,7 @@ public class CommandExecutionTest {
         JsonObject responseJson = getCommandResponse(args, CommandConstants.CMD_ADD_DOCUMENTATION);
         responseJson.get("result").getAsJsonObject().get("edit").getAsJsonObject().getAsJsonArray("documentChanges")
                 .forEach(element -> element.getAsJsonObject().remove("textDocument"));
-        Assert.assertEquals(responseJson, expected);
+        Assert.assertEquals(responseJson, expected, "Test Failed for: " + config);
     }
 
     @Test(dataProvider = "add-all-doc-data-provider")
@@ -119,7 +119,7 @@ public class CommandExecutionTest {
         JsonObject responseJson = getCommandResponse(args, CommandConstants.CMD_ADD_ALL_DOC);
         responseJson.get("result").getAsJsonObject().get("edit").getAsJsonObject().getAsJsonArray("documentChanges")
                 .forEach(element -> element.getAsJsonObject().remove("textDocument"));
-        Assert.assertEquals(responseJson, expected);
+        Assert.assertEquals(responseJson, expected, "Test Failed for: " + config);
     }
 
     @Test(description = "Test Create Initializer for object", enabled = false)
@@ -135,7 +135,7 @@ public class CommandExecutionTest {
         JsonObject responseJson = getCommandResponse(args, CommandConstants.CMD_CREATE_INITIALIZER);
         responseJson.get("result").getAsJsonObject().get("edit").getAsJsonObject().getAsJsonArray("documentChanges")
                 .forEach(element -> element.getAsJsonObject().remove("textDocument"));
-        Assert.assertEquals(responseJson, expected);
+        Assert.assertEquals(responseJson, expected, "Test Failed for: createInitializer.json");
     }
 
     @Test(dataProvider = "create-function-data-provider")
@@ -152,7 +152,7 @@ public class CommandExecutionTest {
         JsonObject responseJson = getCommandResponse(args, CommandConstants.CMD_CREATE_FUNCTION);
         responseJson.get("result").getAsJsonObject().get("edit").getAsJsonObject().getAsJsonArray("documentChanges")
                 .forEach(element -> element.getAsJsonObject().remove("textDocument"));
-        Assert.assertEquals(responseJson, expected);
+        Assert.assertEquals(responseJson, expected, "Test Failed for: " + config);
     }
 
     @Test(dataProvider = "create-variable-data-provider")
@@ -169,7 +169,7 @@ public class CommandExecutionTest {
         JsonObject responseJson = getCommandResponse(args, CommandConstants.CMD_CREATE_VARIABLE);
         responseJson.get("result").getAsJsonObject().get("edit").getAsJsonObject().getAsJsonArray("documentChanges")
                 .forEach(element -> element.getAsJsonObject().remove("textDocument"));
-        Assert.assertEquals(responseJson, expected);
+        Assert.assertEquals(responseJson, expected, "Test Failed for: " + config);
     }
 
     @Test(dataProvider = "testgen-fail-data-provider", enabled = false)

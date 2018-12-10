@@ -48,3 +48,7 @@ function pseudonymizePiiWithEmptyTableName (string pii) returns string|error {
     privacy:H2PiiStore piiStore = new(testDB, "", ID_CLOUMN, PII_COLUMN);
     return privacy:pseudonymize(piiStore, pii);
 }
+
+function shutdown() {
+    testDB.stop();
+}

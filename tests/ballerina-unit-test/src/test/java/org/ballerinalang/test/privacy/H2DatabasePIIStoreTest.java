@@ -26,6 +26,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.utils.SQLDBUtils;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -140,6 +141,11 @@ public class H2DatabasePIIStoreTest {
     public void testEmptyTableName() {
         BRunUtil.invokeFunction(result, "pseudonymizePiiWithEmptyTableName",
                 new BValue[] { new BString(SAMPLE_PII_VALUE) });
+    }
+
+    @AfterClass(alwaysRun = true)
+    public void stopStoreDB() {
+        BRunUtil.invokeFunction(result, "shutdown");
     }
 
     @AfterSuite

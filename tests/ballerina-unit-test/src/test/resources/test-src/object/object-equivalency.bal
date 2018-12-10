@@ -2,6 +2,7 @@ import eq;
 import eq2;
 import req;
 import req2;
+import ballerina/io;
 
 public type person1 object {
     public int age = 0;
@@ -518,9 +519,7 @@ type SomeStruct object {
 };
 
 function SomeStruct.shout (SomeOtherStruct aa) returns (string|error) {
-    any a = aa;
-    var j = check trap <json>a;
-    return "someStruct" + (j.toString());
+    return "someStruct" + io:sprintf("%s", aa);
 }
 
 function SomeStruct.call () returns (SomeOtherStruct) {

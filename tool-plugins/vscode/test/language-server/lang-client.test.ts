@@ -33,7 +33,7 @@ suite("Language Server Tests", function () {
         langClient = new ExtendedLangClient(
             'ballerina-vscode',
             'Ballerina LS Client',
-            getServerOptions(getBallerinaHome()),
+            getServerOptions(getBallerinaHome(), true),
             { documentSelector: [{ scheme: 'file', language: 'ballerina' }] },
             false
         );

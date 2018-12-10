@@ -29,10 +29,10 @@ service HTTPStreamingService on new http:Listener(9090) {
             var payload = clientResponse.getTextPayload();
             if (payload is string) {
                 res.setPayload(untaint payload);
-            } else if (payload is error) {
+            } else {
                 setError(res, payload);
             }
-        } else if (clientResponse is error) {
+        } else {
             log:printError("Error occurred while sending data to the client ",
                             err = clientResponse);
             setError(res, clientResponse);
@@ -67,12 +67,13 @@ service HTTPStreamingService on new http:Listener(9090) {
             close(destinationChannel);
 
             res.setPayload("File Received!");
-        } else if (payload is error) {
+        } else {
             setError(res, payload);
         }
         var result = caller->respond(res);
         if (result is error) {
-           log:printError("Error occurred while sending response", err = result);
+           log:printError("Error occurred while sending response",
+                           err = result);
         }
     }
 }

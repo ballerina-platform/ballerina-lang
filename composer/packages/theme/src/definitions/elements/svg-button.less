@@ -1,0 +1,45 @@
+@type    : "element";
+@element : "button";
+
+.ui.button.svg {
+   cursor: pointer;
+   text {
+      fill: @textColor;
+      text-anchor: middle;
+      dominant-baseline: central;
+
+      &.icon {
+         font-family: @diagram-font;
+         font-size: 50%;
+      }
+   }
+   rect,
+   circle {
+      fill: @background;
+   }
+   &.primary {
+      text {
+         fill: @primaryTextColor;
+         text-shadow: @primaryTextShadow;
+      }
+      rect,
+      circle {
+         fill: @primaryColor;
+      }
+   }
+   &:hover {
+      text {
+         fill: @hoverColor;
+      }
+      rect,
+      circle {
+         fill: @hoverBackgroundColor;
+      }
+      &.primary {
+         rect,
+         circle {
+               fill: @primaryColorHover;
+         }
+      }
+   }
+}

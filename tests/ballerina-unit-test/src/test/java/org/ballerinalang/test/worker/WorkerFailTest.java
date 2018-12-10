@@ -91,6 +91,15 @@ public class WorkerFailTest {
     }
 
     @Test
+    public void invalidReciveWithErrorReturnTest() {
+        CompileResult result =
+                BCompileUtil.compile("test-src/workers/invalid-receive-with-error-return.bal");
+        String message = Arrays.toString(result.getDiagnostics());
+        Assert.assertEquals(result.getErrorCount(), 1, message);
+        Assert.assertTrue(message.contains("incompatible types"), message);
+    }
+
+    @Test
     public void invalidSendWithErrorCheckTest() {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-send-with-error-check.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
@@ -103,7 +112,8 @@ public class WorkerFailTest {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-send-in-if.bal");
         String message = Arrays.toString(result.getDiagnostics());
         Assert.assertEquals(result.getErrorCount(), 1, message);
-        Assert.assertTrue(message.contains("invalid worker send statement position"), message);
+        Assert.assertTrue(message.contains("invalid worker send statement position, must be a top level statement in " +
+                                                   "a worker"), message);
     }
 
     @Test
@@ -111,7 +121,8 @@ public class WorkerFailTest {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-sync-send-in-if.bal");
         String message = Arrays.toString(result.getDiagnostics());
         Assert.assertEquals(result.getErrorCount(), 1, message);
-        Assert.assertTrue(message.contains("invalid worker send statement position"), message);
+        Assert.assertTrue(message.contains("invalid worker send statement position, must be a top level statement in " +
+                                                   "a worker"), message);
     }
 
     @Test
@@ -119,7 +130,85 @@ public class WorkerFailTest {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-receive-in-if.bal");
         String message = Arrays.toString(result.getDiagnostics());
         Assert.assertEquals(result.getErrorCount(), 1, message);
-        Assert.assertTrue(message.contains("invalid worker receive statement position"), message);
+        Assert.assertTrue(message.contains("invalid worker receive statement position, must be a top level statement " +
+                                                   "in a worker"), message);
     }
 
+    @Test
+    public void invalidReceiveWithTrapWithNonError() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-receive-with-trap.bal");
+        String message = Arrays.toString(result.getDiagnostics());
+        Assert.assertEquals(result.getErrorCount(), 1, message);
+        Assert.assertTrue(message.contains("incompatible types"), message);
+    }
+
+    @Test
+    public void invalidReceiveWithCheckWithNonError() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-receive-with-check.bal");
+        String message = Arrays.toString(result.getDiagnostics());
+        Assert.assertEquals(result.getErrorCount(), 1, message);
+        Assert.assertTrue(message.contains("no expression type is equivalent to error"), message);
+    }
+
+    @Test
+    public void invalidActionsInFork() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-actions-in-fork.bal");
+        Assert.assertEquals(result.getErrorCount(), 2);
+        BAssertUtil.validateError(result, 0, "undefined worker 'w3'", 5, 13);
+        BAssertUtil.validateError(result, 1, "undefined worker 'w1'", 8, 29);
+    }
+
+    @Test
+    public void invalidReceiveInForEach() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-receive-in-foreach.bal");
+        String message = Arrays.toString(result.getDiagnostics());
+        Assert.assertEquals(result.getErrorCount(), 1, message);
+        Assert.assertTrue(message.contains("invalid worker receive statement position, must be a top level statement " +
+                                                   "in a worker"), message);
+    }
+
+    @Test
+    public void invalidAsycnSendInForEach() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-async-send-in-foreach.bal");
+        String message = Arrays.toString(result.getDiagnostics());
+        Assert.assertEquals(result.getErrorCount(), 1, message);
+        Assert.assertTrue(message.contains("invalid worker send statement position, must be a top level statement in " +
+                                                   "a worker"), message);
+    }
+
+    @Test
+    public void invalidSycnSendInForEach() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-sync-send-in-foreach.bal");
+        String message = Arrays.toString(result.getDiagnostics());
+        Assert.assertEquals(result.getErrorCount(), 1, message);
+        Assert.assertTrue(message.contains("invalid worker send statement position, must be a top level statement in " +
+                                                   "a worker"), message);
+    }
+
+    @Test
+    public void invalidAsyncSendInFork() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-async-send-in-fork.bal");
+        String message = Arrays.toString(result.getDiagnostics());
+        Assert.assertEquals(result.getErrorCount(), 1, message);
+        Assert.assertTrue(message.contains("invalid worker send statement position, must be a top level statement " +
+                                                   "in a worker"), message);
+    }
+
+    @Test
+    public void invalidSyncSendInFork() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-sync-send-in-fork.bal");
+        String message = Arrays.toString(result.getDiagnostics());
+        Assert.assertEquals(result.getErrorCount(), 1, message);
+        Assert.assertTrue(message.contains("invalid worker send statement position, must be a top level statement " +
+                                                   "in a worker"), message);
+    }
+
+    @Test
+    public void invalidReceiveInFork() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/invalid-receive-in-fork.bal");
+        String message = Arrays.toString(result.getDiagnostics());
+        Assert.assertEquals(result.getErrorCount(), 1, message);
+        Assert.assertTrue(message.contains("invalid worker receive statement position, must be a top level statement " +
+                                                   "in a worker"), message);
+    }
 }

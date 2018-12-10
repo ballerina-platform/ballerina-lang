@@ -1,5 +1,5 @@
-# Create a file named `secured_client_with_oauth2.bal`, copy the code
-# into it, and use the `ballerina run` command to start the service.
+# To start the service, navigate to the directory that contains the
+# `.bal` file and use the `ballerina run` command.
 $ ballerina run secured_client_with_oauth2.bal
 INFO  [ballerina/log] -
 {

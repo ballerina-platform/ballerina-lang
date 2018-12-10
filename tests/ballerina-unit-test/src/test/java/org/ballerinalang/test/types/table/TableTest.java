@@ -57,6 +57,7 @@ import java.util.Calendar;
 public class TableTest {
 
     private CompileResult result;
+    private CompileResult resultNegative;
     private CompileResult nillableMappingNegativeResult;
     private CompileResult nillableMappingResult;
     private static final String DB_NAME_H2 = "TEST_DATA_TABLE_H2";
@@ -77,6 +78,7 @@ public class TableTest {
                 SQLDBUtils.DB_DIRECTORY, DB_NAME_H2);
 
         result = BCompileUtil.compile("test-src/types/table/table_type.bal");
+        resultNegative = BCompileUtil.compile("test-src/types/table/table_type_negative.bal");
         nillableMappingNegativeResult = BCompileUtil
                 .compile("test-src/types/table/table_nillable_mapping_negative.bal");
         nillableMappingResult = BCompileUtil.compile("test-src/types/table/table_nillable_mapping.bal");
@@ -1257,5 +1259,67 @@ public class TableTest {
           expectedExceptionsMessageRegExp = ".*Table query over a cursor table not supported.*")
     public void testJoinQueryWithCursorTable() {
         BRunUtil.invoke(result, "testJoinQueryWithCursorTable");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*Trying to assign to a mismatching type.*")
+    public void testWrongOrderInt() {
+        BRunUtil.invoke(resultNegative, "testWrongOrderInt");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*Trying to assign to a mismatching type.*")
+    public void testWrongOrderString() {
+        BRunUtil.invoke(resultNegative, "testWrongOrderString");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*Trying to assign to a mismatching type.*")
+    public void testWrongOrderBoolean() {
+        BRunUtil.invoke(resultNegative, "testWrongOrderBoolean");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*Trying to assign to a mismatching type.*")
+    public void testWrongOrderFloat() {
+        BRunUtil.invoke(resultNegative, "testWrongOrderFloat");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*Trying to assign to a mismatching type.*")
+    public void testWrongOrderDouble() {
+        BRunUtil.invoke(resultNegative, "testWrongOrderDouble");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*Trying to assign to a mismatching type.*")
+    public void testWrongOrderLong() {
+        BRunUtil.invoke(resultNegative, "testWrongOrderLong");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*Trying to assign to a mismatching type.*")
+    public void testWrongOrderBlob() {
+        BRunUtil.invoke(resultNegative, "testWrongOrderBlobWrongOrder");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*Trying to assign to a mismatching type.*")
+    public void testCorrectOrderWrongTypeBlob() {
+        BRunUtil.invoke(resultNegative, "testWrongOrderBlobCorrectOrderWrongType");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*Number of fields in the constraint type is greater than column count "
+                  + "of the result set.*")
+    public void testGreaterNoOfParams() {
+        BRunUtil.invoke(resultNegative, "testGreaterNoOfParams");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*Number of fields in the constraint type is lower than column count of "
+                  + "the result set.*")
+    public void testLowerNoOfParams() {
+        BRunUtil.invoke(resultNegative, "testLowerNoOfParams");
     }
 }

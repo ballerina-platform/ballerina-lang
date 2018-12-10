@@ -204,15 +204,15 @@ public class ObservabilityUtils {
         observerContext.setFinished();
     }
 
-    /**
-     * @param context The {@link Context} instance.
-     * @return the parent {@link ObserverContext} or a new {@link ObserverContext} depending on whether observability
-     * is enabled or not.
-     */
-    public static Optional<ObserverContext> getParentContext(Context context) {
-        return enabled ? Optional.of(populateAndGetParentObserverContext(context.getParentWorkerExecutionContext()))
-                : Optional.empty();
-    }
+//    /**
+//     * @param context The {@link Context} instance.
+//     * @return the parent {@link ObserverContext} or a new {@link ObserverContext} depending on whether observability
+//     * is enabled or not.
+//     */
+//    public static Optional<ObserverContext> getParentContext(Context context) {
+//        return enabled ? Optional.of(populateAndGetParentObserverContext(context.getParentWorkerExecutionContext()))
+//                : Optional.empty();
+//    }
 
     public static Map<String, String> getContextProperties(ObserverContext observerContext) {
         BSpan bSpan = (BSpan) observerContext.getProperty(KEY_SPAN);
@@ -270,19 +270,19 @@ public class ObservabilityUtils {
     public static void logMessageToActiveSpan(Context context, String logLevel, Supplier<String> logMessage,
                                               boolean isError) {
         if (tracingEnabled) {
-            Optional<ObserverContext> observerContext = ObservabilityUtils.getParentContext(context);
-            if (observerContext.isPresent()) {
-                BSpan span = (BSpan) observerContext.get().getProperty(KEY_SPAN);
-                if (span != null) {
-                    HashMap<String, Object> logs = new HashMap<>(1);
-                    logs.put(logLevel, logMessage.get());
-                    if (!isError) {
-                        span.log(logs);
-                    } else {
-                        span.logError(logs);
-                    }
-                }
-            }
+//            Optional<ObserverContext> observerContext = ObservabilityUtils.getParentContext(context);
+//            if (observerContext.isPresent()) {
+//                BSpan span = (BSpan) observerContext.get().getProperty(KEY_SPAN);
+//                if (span != null) {
+//                    HashMap<String, Object> logs = new HashMap<>(1);
+//                    logs.put(logLevel, logMessage.get());
+//                    if (!isError) {
+//                        span.log(logs);
+//                    } else {
+//                        span.logError(logs);
+//                    }
+//                }
+//            }
         }
     }
 }

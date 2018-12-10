@@ -12,8 +12,9 @@ function getAccountBalance(int accountID) returns (int|AccountNotFoundError) {
     // Create an instance of the error record and return it.
     // The logic used here is a sample to demonstrate the concept of error handling.
     if (accountID < 100) {
-        AccountNotFoundError accountNotFoundError = error("Account with ID: " + accountID + " is not found",
-                                                                                    { accountID: <string>accountID });
+        AccountNotFoundError accountNotFoundError = error("Account with ID: "
+                                        + accountID + " is not found",
+                                        { accountID: <string>accountID });
         return accountNotFoundError;
     } else {
         return 600;
@@ -29,6 +30,7 @@ public function main() {
         io:println(r);
     } else {
         // `error` type has 3 functions `reason()`, `detail()` and 'stacktarce()'. Only `reason()` can be set from construtor.
-        io:println("Error occurred: ", r.reason(), ", accountID: ", r.detail().accountID);
+        io:println("Error occurred: ", r.reason(), ", accountID: ",
+                        r.detail().accountID);
     }
 }

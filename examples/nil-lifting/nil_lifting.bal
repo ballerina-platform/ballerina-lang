@@ -23,8 +23,9 @@ function getPerson(string name, int age) returns person? {
         return ();
     } else {
         person p = {name: name, age: age, addr:
-                            {line01: "No. 61", line02: "Brandon street", city: "Santa Clara",
-                                state: "CA", zipcode: "95134"}, guardian: ()};
+                            {line01: "No. 61", line02: "Brandon street",
+                                city: "Santa Clara", state: "CA",
+                                zipcode: "95134"}, guardian: ()};
         return p;
     }
 }
