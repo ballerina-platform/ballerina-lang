@@ -29,8 +29,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.ballerinalang.net.grpc.proto.ServiceProtoConstants.TMP_DIRECTORY_PATH;
 import static org.ballerinalang.protobuf.BalGenerationConstants.DESC_SUFFIX;
@@ -46,9 +46,9 @@ import static org.ballerinalang.protobuf.utils.BalFileGenerationUtils.resolvePro
 public class DescriptorsGenerator {
     private static final Logger LOG = LoggerFactory.getLogger(DescriptorsGenerator.class);
     
-    public static List<byte[]> generateDependentDescriptor(String exePath, String rootProtoPath, String
+    public static Set<byte[]> generateDependentDescriptor(String exePath, String rootProtoPath, String
             rootDescriptorPath) {
-        List<byte[]> dependentDescList = new ArrayList<>();
+        Set<byte[]> dependentDescSet = new HashSet<>();
         File tempDir = new File(TMP_DIRECTORY_PATH);
         File initialFile = new File(rootDescriptorPath);
         try (InputStream targetStream = new FileInputStream(initialFile)) {
@@ -69,29 +69,33 @@ public class DescriptorsGenerator {
                 }
                 //Derive proto file path of the dependent library.
                 String protoPath;
+                String protoFolderPath;
                 if (!dependentFilePath.contains(GOOGLE_STANDARD_LIB)) {
-                    protoPath = new File(resolveProtoFolderPath(rootProtoPath) + dependentFilePath).getAbsolutePath();
+                    protoPath = new File(resolveProtoFolderPath(rootProtoPath), dependentFilePath).getAbsolutePath();
+                    protoFolderPath = resolveProtoFolderPath(rootProtoPath);
                 } else {
                     protoPath = new File(tempDir, dependentFilePath).getAbsolutePath();
+                    protoFolderPath = tempDir.getAbsolutePath();
                 }
                 
-                String command = new ProtocCommandBuilder(exePath, protoPath, resolveProtoFolderPath(protoPath)
-                        , dependentDescFile.getAbsolutePath()).build();
+                String command = new ProtocCommandBuilder(exePath, protoPath, protoFolderPath, dependentDescFile
+                        .getAbsolutePath()).build();
                 generateDescriptor(command);
                 File childFile = new File(tempDir, relativeDescFilepath);
                 try (InputStream childStream = new FileInputStream(childFile)) {
                     DescriptorProtos.FileDescriptorSet childDescSet = DescriptorProtos.FileDescriptorSet
                             .parseFrom(childStream);
                     if (childDescSet.getFile(0).getDependencyCount() != 0) {
-                        List<byte[]> childList = generateDependentDescriptor(exePath, protoPath, relativeDescFilepath);
-                        dependentDescList.addAll(childList);
+                        Set<byte[]> childList = generateDependentDescriptor(exePath, rootProtoPath, childFile
+                                .getAbsolutePath());
+                        dependentDescSet.addAll(childList);
                     }
                     byte[] dependentDesc = childDescSet.getFile(0).toByteArray();
                     if (dependentDesc.length == 0) {
                         throw new BalGenerationException("Error occurred at generating dependent proto " +
                                 "descriptor for dependent proto '" + relativeDescFilepath + "'.");
                     }
-                    dependentDescList.add(dependentDesc);
+                    dependentDescSet.add(dependentDesc);
                 } catch (IOException e) {
                     throw new BalGenToolException("Error extracting dependent bal.", e);
                 }
@@ -99,7 +103,7 @@ public class DescriptorsGenerator {
         } catch (IOException e) {
             throw new BalGenToolException("Error parsing descriptor file " + initialFile, e);
         }
-        return dependentDescList;
+        return dependentDescSet;
     }
 
     /**

@@ -1,11 +1,13 @@
 type TestObject object {
     public string testString;
 
-    new (testString) {}
+    public function __init (string testString) {
+        self.testString = testString;
+    }
     function testFunction (string input) returns string;
 };
 
-function TestObject::testFunction (string input) returns string {
+function TestObject.testFunction (string input) returns string {
     return input;
 }
 

@@ -23,10 +23,11 @@ import org.ballerinalang.code.generator.model.ClientContextHolder;
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
-import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
 import java.io.File;
@@ -41,7 +42,7 @@ import java.util.Map;
  */
 @SupportedAnnotationPackages(value = { "ballerina/swagger" })
 public class ClientGeneratorPlugin extends AbstractCompilerPlugin {
-    List<EndpointNode> endpoints;
+    List<BLangSimpleVariable> endpoints;
 
     @Override
     public void init(DiagnosticLog diagnosticLog) {
@@ -59,22 +60,12 @@ public class ClientGeneratorPlugin extends AbstractCompilerPlugin {
         // Generate client only if requested by providing the client config annotation
         if (isClientGenerationEnabled(config)) {
             try {
-                ClientContextHolder context = ClientContextHolder.buildContext(serviceNode, endpoints);
+                ClientContextHolder context = ClientContextHolder.buildContext((BLangService) serviceNode, endpoints);
                 codegen.writeGeneratedSource(GeneratorConstants.GenType.CLIENT, context,
                         getOutputFilePath(serviceNode));
             } catch (CodeGeneratorException e) {
                 err.println("Client code was not generated: " + e.getMessage());
             }
-        }
-    }
-
-    @Override
-    public void process(EndpointNode endpointNode, List<AnnotationAttachmentNode> annotations) {
-        AnnotationAttachmentNode config = GeneratorUtils
-                .getAnnotationFromList("ClientEndpoint", GeneratorConstants.SWAGGER_PKG_ALIAS,
-                        annotations);
-        if (config != null) {
-            this.endpoints.add(endpointNode);
         }
     }
 

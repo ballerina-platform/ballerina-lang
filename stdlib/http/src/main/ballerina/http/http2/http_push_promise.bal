@@ -27,7 +27,9 @@ public type PushPromise object {
     #
     # + path - The resource path
     # + method - The HTTP method
-    public new (path = "/", method = "GET") {
+    public function __init(string path = "/", string method = "GET") {
+        self.path = path;
+        self.method = method;
     }
 
     # Checks whether the requested header exists.

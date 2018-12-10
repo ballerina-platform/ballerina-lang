@@ -1,9 +1,9 @@
 
 
 public type user record {
-    int age;
-    string name;
-    string address;
+    int age = 0;
+    string name = "";
+    string address = "";
     string zipcode = "23468";
 };
 
@@ -18,13 +18,13 @@ function <user u> getAge() returns (int) {
 
 
 public type person record {
-    int age;
-    string name;
-    string address;
+    int age = 0;
+    string name = "";
+    string address = "";
     string zipcode = "95134";
     private:
-    string ssn;
-        int id;
+    string ssn = "";
+        int id = 0;
 };
 
 
@@ -45,13 +45,13 @@ public function <person p> setSSN(string ssn) {
 }
 
 public type employee record {
-    int age;
-    string name;
-    string address;
+    int age = 0;
+    string name = "";
+    string address = "";
     string zipcode = "95134";
     private:
-        string ssn;
-        int id;
+        string ssn = "";
+        int id = 0;
         int employeeId = 123456;
 };
 

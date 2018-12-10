@@ -36,13 +36,16 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Stack;
 import java.util.stream.Collectors;
@@ -73,10 +76,7 @@ public class CompletionSubRuleParser {
     }
     
     public static void parse(LSContext context) {
-        List<String> poppedTokens = CommonUtil.popNFromStack(context.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY), 4)
-                .stream()
-                .map(Token::getText)
-                .collect(Collectors.toList());
+        List<String> poppedTokens = CommonUtil.popNFromList(CommonUtil.getPoppedTokenStrings(context), 4);
         
         // If the deleted tokens contains annotation start (@) symbol, ignore the parser rule context.
         // We can be sure that the writing start is for annotation attachment.
@@ -86,7 +86,7 @@ public class CompletionSubRuleParser {
             // If not (Parser unable to build the next node and not available in the bLangPackage) get it from tokens
             // Sometimes the node key can be null and for a special case of resource, node type can be invalid (need a
             // fix in the custom error strategy)
-            String nextNodeType = getNextNodeTypeString(context.get(CompletionKeys.TOKEN_STREAM_KEY),
+            int nextNodeType = getNextNodeTypeFlag(context.get(CompletionKeys.TOKEN_STREAM_KEY),
                         CommonUtil.getCurrentTokenFromTokenStream(context), context);
             context.put(CompletionKeys.NEXT_NODE_KEY, nextNodeType);
             return;
@@ -95,6 +95,8 @@ public class CompletionSubRuleParser {
         if (symbolEnvNode == null || symbolEnvNode instanceof BLangPackage) {
             // Parse with compilation unit context
             parseWithinCompilationUnit(context);
+        } else if (symbolEnvNode instanceof BLangBlockStmt && CommonUtil.isWithinWorkerDeclaration(symbolEnvNode)) {
+            parseWithinWorkerDeclaration(context);
         } else if (symbolEnvNode instanceof BLangBlockStmt) {
             // Parse with function definition context
             parseWithinFunctionDefinition(context);
@@ -155,10 +157,17 @@ public class CompletionSubRuleParser {
         getParser(context, functionRule).functionDefinition();
     }
 
+    private static void parseWithinWorkerDeclaration(LSContext context) {
+        String tokenString = getCombinedTokenString(context);
+        String functionRule = "worker w1 {" + CommonUtil.LINE_SEPARATOR + "\t" + tokenString +
+                CommonUtil.LINE_SEPARATOR + "}";
+        getParser(context, functionRule).workerDeclaration();
+    }
+
     private static void parseWithinServiceDefinition(LSContext context) {
         if (!isCursorWithinAnnotationContext(context)) {
             String tokenString = getCombinedTokenString(context);
-            String functionRule = "service<http:Service> serviceName {" + CommonUtil.LINE_SEPARATOR + "\t"
+            String functionRule = "service testService on new http:Listener(8080) {" + CommonUtil.LINE_SEPARATOR + "\t"
                     + tokenString + CommonUtil.LINE_SEPARATOR + "}";
             getParser(context, functionRule).serviceDefinition();
         }
@@ -184,9 +193,9 @@ public class CompletionSubRuleParser {
             if (parserRuleContext == null
                     || parserRuleContext.getClass().equals(BallerinaParser.ExpressionContext.class)
                     || moderateContextTypes.contains(parserRuleContext.getClass())
-                    || parserRuleContext instanceof BallerinaParser.EndpointDeclarationContext
                     || parserRuleContext instanceof BallerinaParser.StatementContext
-                    || parserRuleContext instanceof BallerinaParser.DefinitionContext) {
+                    || parserRuleContext instanceof BallerinaParser.DefinitionContext
+                    || parserRuleContext instanceof BallerinaParser.ObjectFieldDefinitionContext) {
                 context.put(CompletionKeys.PARSER_RULE_CONTEXT_KEY, parserRuleContext);
                 break;
             }
@@ -195,11 +204,7 @@ public class CompletionSubRuleParser {
     }
     
     private static String getCombinedTokenString(LSContext context) {
-        Stack<Token> tokens = context.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY);
-        StringBuilder tokenString = new StringBuilder();
-        tokens.forEach(token -> tokenString.append(token.getText()).append(" "));
-        
-        return tokenString.toString();
+        return String.join(" ", CommonUtil.getPoppedTokenStrings(context));
     }
     
     // Utility methods
@@ -215,7 +220,7 @@ public class CompletionSubRuleParser {
                 UtilSymbolKeys.FUNCTION_KEYWORD_KEY,
                 UtilSymbolKeys.SERVICE_KEYWORD_KEY,
                 UtilSymbolKeys.ENDPOINT_KEYWORD_KEY,
-                UtilSymbolKeys.OPEN_BRACKET_KEY)
+                UtilSymbolKeys.OPEN_PARENTHESES_KEY)
         );
         int currentTokenIndex = CommonUtil.getCurrentTokenFromTokenStream(ctx);
         int startIndex = currentTokenIndex;
@@ -273,19 +278,17 @@ public class CompletionSubRuleParser {
         annotationName = fieldsQueue.poll();
         ctx.put(CompletionKeys.ANNOTATION_ATTACHMENT_META_KEY,
                 new AnnotationAttachmentMetaInfo(annotationName, fieldsQueue, pkgAlias,
-                        getNextNodeTypeString(tokenStream, currentTokenIndex, ctx)));
+                        getNextNodeTypeFlag(tokenStream, currentTokenIndex, ctx)));
         ctx.put(CompletionKeys.SYMBOL_ENV_NODE_KEY, new BLangAnnotationAttachment());
         
         return true;
     }
     
-    private static String getNextNodeTypeString(TokenStream tokenStream, int index, LSContext context) {
-        String nodeType = context.get(CompletionKeys.NEXT_NODE_KEY);
-        List<String> nodeTypes = new ArrayList<>(Arrays.asList(
-                UtilSymbolKeys.SERVICE_KEYWORD_KEY,
-                UtilSymbolKeys.FUNCTION_KEYWORD_KEY,
-                UtilSymbolKeys.ENDPOINT_KEYWORD_KEY)
-        );
+    private static int getNextNodeTypeFlag(TokenStream tokenStream, int index, LSContext context) {
+        int nodeType = context.get(CompletionKeys.NEXT_NODE_KEY);
+        Map<String, Integer> flagsMap = new HashMap<>();
+        flagsMap.put(UtilSymbolKeys.SERVICE_KEYWORD_KEY, Flags.SERVICE);
+        flagsMap.put(UtilSymbolKeys.RESOURCE_KEYWORD_KEY, Flags.RESOURCE);
         
         while (true) {
             if (tokenStream == null || index >= tokenStream.size()) {
@@ -294,14 +297,8 @@ public class CompletionSubRuleParser {
             Token token = CommonUtil.getNextDefaultToken(tokenStream, index);
             if (token.getText().equals(UtilSymbolKeys.SEMI_COLON_SYMBOL_KEY)) {
                 break;
-            } else if (nodeTypes.contains(token.getText())) {
-                if (token.getText().equals(UtilSymbolKeys.ENDPOINT_KEYWORD_KEY)
-                        && CommonUtil.getPreviousDefaultToken(tokenStream, token.getTokenIndex()).getText()
-                        .equals(UtilSymbolKeys.OPEN_BRACKET_KEY)) {
-                    nodeType = UtilSymbolKeys.RESOURCE_KEYWORD_KEY;
-                } else {
-                    nodeType = token.getText();
-                }
+            } else if (flagsMap.containsKey(token.getText())) {
+                nodeType = flagsMap.get(token.getText());
                 break;
             }
             index = token.getTokenIndex();
@@ -325,7 +322,7 @@ public class CompletionSubRuleParser {
                 Stack<Token> poppedTokenStack = new Stack<>();
                 poppedTokenStack.addAll(poppedTokens);
                 ctx.put(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY, poppedTokenStack);
-                ctx.put(CompletionKeys.NEXT_NODE_KEY, getNextNodeTypeString(tokenStream, currentTokenIndex, ctx));
+                ctx.put(CompletionKeys.NEXT_NODE_KEY, getNextNodeTypeFlag(tokenStream, currentTokenIndex, ctx));
                 withinAnnotationContext = true;
             } else {
                 withinAnnotationContext = fillAnnotationAttachmentMetaInfo(ctx);

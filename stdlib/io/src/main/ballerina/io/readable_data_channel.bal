@@ -17,8 +17,8 @@
 # Represents a data channel for reading data.
 public type ReadableDataChannel object {
 
-    public new(ReadableByteChannel byteChannel, ByteOrder bOrder = "BE") {
-        init(byteChannel, bOrder);
+    public function __init(ReadableByteChannel byteChannel, ByteOrder bOrder = "BE") {
+        self.init(byteChannel, bOrder);
     }
 
     #Initializes data channel.

@@ -24,18 +24,16 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
 
-import static org.ballerinalang.net.grpc.GrpcConstants.CALLER_ACTION;
+import static org.ballerinalang.net.grpc.GrpcConstants.LISTENER;
 import static org.ballerinalang.net.grpc.GrpcConstants.LISTENER_CONNECTION_FIELD;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_ENDPOINT_INDEX;
-import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_ENDPOINT_TYPE;
 
 /**
  * Get the client responder instance binds to the service endpoint.
@@ -47,10 +45,8 @@ import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_ENDPOINT_TYPE;
         orgName = ORG_NAME,
         packageName = PROTOCOL_PACKAGE_GRPC,
         functionName = "getCallerActions",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = SERVICE_ENDPOINT_TYPE,
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = LISTENER,
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
-        returnType = {@ReturnType(type = TypeKind.OBJECT, structType = CALLER_ACTION, structPackage =
-                PROTOCOL_STRUCT_PACKAGE_GRPC)},
         isPublic = true
 )
 public class GetCallerActions extends AbstractGrpcNativeFunction {
@@ -65,7 +61,7 @@ public class GetCallerActions extends AbstractGrpcNativeFunction {
             BMap<String, BValue> endpointClient = (BMap<String, BValue>) clientType;
             context.setReturnValues(endpointClient);
         } else {
-            context.setError(MessageUtils.getConnectorError(context, new GrpcServerException("Error while " +
+            context.setError(MessageUtils.getConnectorError(new GrpcServerException("Error while " +
                     "retrieving endpoint client.")));
         }
     }

@@ -22,10 +22,10 @@ import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BFloatArray;
-import org.ballerinalang.model.values.BIntArray;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -210,7 +210,7 @@ public class SealedArrayTest {
 
     @Test
     public void testUnionAndMatchSealedArrayStatement() {
-        BFloatArray bFloatArray = new BFloatArray(4);
+        BValueArray bFloatArray = new BValueArray(BTypes.typeFloat, 4);
         bFloatArray.add(0, 01.0);
         bFloatArray.add(0, 12.2);
         bFloatArray.add(0, 23.3);
@@ -222,7 +222,7 @@ public class SealedArrayTest {
         Assert.assertEquals(returnValues[0].stringValue(),
                 "matched sealed float array size 4", "Couldn't match sealed array type");
 
-        bFloatArray = new BFloatArray(5);
+        bFloatArray = new BValueArray(BTypes.typeFloat, 5);
         bFloatArray.add(0, 01.0);
         bFloatArray.add(0, 12.2);
         bFloatArray.add(0, 23.3);
@@ -235,7 +235,7 @@ public class SealedArrayTest {
         Assert.assertEquals(returnValues[0].stringValue(),
                 "matched float array", "Couldn't match sealed array type");
 
-        bFloatArray = new BFloatArray();
+        bFloatArray = new BValueArray(BTypes.typeFloat);
         bFloatArray.add(0, 01.0);
         bFloatArray.add(0, 12.2);
         bFloatArray.add(0, 23.3);
@@ -250,7 +250,7 @@ public class SealedArrayTest {
 
     @Test
     public void testUnionAndMatchNoSealedArrayStatement() {
-        BFloatArray bFloatArray = new BFloatArray(4);
+        BValueArray bFloatArray = new BValueArray(BTypes.typeFloat, 4);
         bFloatArray.add(0, 01.0);
         bFloatArray.add(0, 12.2);
         bFloatArray.add(0, 23.3);
@@ -262,7 +262,7 @@ public class SealedArrayTest {
         Assert.assertEquals(returnValues[0].stringValue(),
                 "matched float array", "Couldn't match sealed array type");
 
-        bFloatArray = new BFloatArray();
+        bFloatArray = new BValueArray(BTypes.typeFloat);
         bFloatArray.add(0, 01.0);
         bFloatArray.add(0, 12.2);
         bFloatArray.add(0, 23.3);
@@ -277,46 +277,46 @@ public class SealedArrayTest {
 
     @Test
     public void testNegativeSealedArrays() {
-        BAssertUtil.validateError(resultNegative, 0, "array index out of range: index: '5', size: '5'", 19, 30);
-        BAssertUtil.validateError(resultNegative, 1, "array index out of range: index: '5', size: '5'", 25, 33);
+        int i = 0;
+        BAssertUtil.validateError(resultNegative, i++, "array index out of range: index: '5', size: '5'", 19, 30);
+        BAssertUtil.validateError(resultNegative, i++, "array index out of range: index: '5', size: '5'", 25, 33);
         BAssertUtil.validateError(
-                resultNegative, 2, "size mismatch in sealed array. expected '4', but found '3'", 30, 31);
+                resultNegative, i++, "size mismatch in sealed array. expected '4', but found '3'", 30, 31);
         BAssertUtil.validateError(
-                resultNegative, 3, "size mismatch in sealed array. expected '4', but found '5'", 31, 31);
+                resultNegative, i++, "size mismatch in sealed array. expected '4', but found '5'", 31, 31);
         BAssertUtil.validateError(
-                resultNegative, 4, "array index out of range: index: '5', size: '5'", 37, 18);
+                resultNegative, i++, "array index out of range: index: '5', size: '5'", 37, 18);
         BAssertUtil.validateError(
-                resultNegative, 5, "array index out of range: index: '5', size: '5'", 38, 18);
+                resultNegative, i++, "variable 'sealedArray1' is not initialized", 37, 5);
         BAssertUtil.validateError(
-                resultNegative, 6, "invalid usage of sealed type: array not initialized", 39, 5);
+                resultNegative, i++, "array index out of range: index: '5', size: '5'", 38, 18);
         BAssertUtil.validateError(
-                resultNegative, 7, "incompatible types: expected 'int[3]', found 'int[]'", 46, 17);
+                resultNegative, i++, "invalid usage of sealed type: array not initialized", 39, 5);
         BAssertUtil.validateError(
-                resultNegative, 8, "incompatible types: expected 'boolean[4]', found 'boolean[3]'", 52, 47);
+                resultNegative, i++, "incompatible types: expected 'int[3]', found 'int[]'", 46, 17);
         BAssertUtil.validateError(
-                resultNegative, 9, "incompatible types: expected 'string[2]', found 'string[]'", 52, 34);
+                resultNegative, i++, "incompatible types: expected 'boolean[4]', found 'boolean[3]'", 52, 47);
         BAssertUtil.validateError(
-                resultNegative, 10, "ambiguous type 'int|int[]|int[4]'", 63, 30);
+                resultNegative, i++, "incompatible types: expected 'string[2]', found 'string[]'", 52, 34);
         BAssertUtil.validateError(
-                resultNegative, 11, "ambiguous type 'int|int[]|int[4]|int[5]'", 65, 40);
+                resultNegative, i++, "ambiguous type 'int|int[]|int[4]'", 63, 30);
         BAssertUtil.validateError(
-                resultNegative, 12, "unreachable pattern: preceding patterns are too" +
-                        " general or the pattern ordering is not correct", 73, 9);
+                resultNegative, i++, "ambiguous type 'int|int[]|int[4]|int[5]'", 65, 40);
         BAssertUtil.validateError(
-                resultNegative, 13, "size mismatch in sealed array. expected '4', but found '2'", 78, 18);
+                resultNegative, i++, "size mismatch in sealed array. expected '4', but found '2'", 81, 18);
         BAssertUtil.validateError(
-                resultNegative, 14, "size mismatch in sealed array. expected '4', but found '5'", 79, 18);
+                resultNegative, i++, "size mismatch in sealed array. expected '4', but found '5'", 82, 18);
         BAssertUtil.validateError(
-                resultNegative, 15, "array index out of range: index: '4', size: '4'", 82, 8);
+                resultNegative, i++, "array index out of range: index: '4', size: '4'", 85, 8);
         BAssertUtil.validateError(
-                resultNegative, 16, "invalid usage of sealed type: can not infer array size", 84, 21);
+                resultNegative, i++, "invalid usage of sealed type: can not infer array size", 87, 21);
         BAssertUtil.validateError(
-                resultNegative, 17, "incompatible types: expected 'json[3]', found 'json[]'", 86, 18);
+                resultNegative, i++, "incompatible types: expected 'json[3]', found 'json[]'", 89, 18);
     }
 
     @Test(description = "Test accessing invalid index of sealed array",
             expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = ".*message: array index out of range: index: 5, size: 3.*")
+            expectedExceptionsMessageRegExp = ".*error: array index out of range: index: 5, size: 3.*")
     public void invalidIndexAccess() {
         BValue[] args = {new BInteger(5)};
         BRunUtil.invoke(compileResult, "invalidIndexAccess", args);
@@ -324,16 +324,16 @@ public class SealedArrayTest {
 
     @Test(description = "Test accessing invalid index of sealed array when assigned to unsealed array",
             expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = ".*message: array index out of range: index: 4, size: 3.*")
+            expectedExceptionsMessageRegExp = ".*error: array index out of range: index: 4, size: 3.*")
     public void assignedArrayInvalidIndexAccess() {
         BRunUtil.invoke(compileResult, "assignedArrayInvalidIndexAccess");
     }
 
     @Test(description = "Test accessing invalid index of sealed array matched union type",
             expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = ".*message: array index out of range: index: 5, size: 3.*")
+            expectedExceptionsMessageRegExp = ".*error: array index out of range: index: 5, size: 3.*")
     public void accessInvalidIndexOfMatchedSealedArray() {
-        BIntArray bIntArray = new BIntArray(3);
+        BValueArray bIntArray = new BValueArray(BTypes.typeInt, 3);
         bIntArray.add(0, 1);
         bIntArray.add(0, 3);
         bIntArray.add(0, 5);
@@ -344,7 +344,7 @@ public class SealedArrayTest {
     @Test(description = "Test accessing invalid index of sealed array matched union type",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    ".*message: failed to set element to json: array index out of range: index: 4, size: 3.*")
+                    ".*error: failed to set element to json: array index out of range: index: 4, size: 3.*")
     public void accessInvalidIndexJSONArray() {
         BInteger bInteger = new BInteger(1);
         BInteger bInteger2 = new BInteger(4);
@@ -357,14 +357,14 @@ public class SealedArrayTest {
     @Test(description = "Test accessing invalid index of sealed array matched union type",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    ".*message: failed to set element to json: array index out of range: index: 3, size: 3.*")
+                    ".*error: failed to set element to json: array index out of range: index: 3, size: 3.*")
     public void invalidIndexReferenceJSONArray() {
         BRunUtil.invoke(compileResult, "invalidIndexReferenceJSONArray");
     }
 
     @Test
     public void accessValidIndexOfMatchedUnsealedArray() {
-        BIntArray bIntArray = new BIntArray();
+        BValueArray bIntArray = new BValueArray(BTypes.typeInt);
         bIntArray.add(0, 1);
         bIntArray.add(0, 3);
         bIntArray.add(0, 5);
@@ -375,11 +375,11 @@ public class SealedArrayTest {
 
     @Test
     public void testSealedArrayConstrainedMap() {
-        BIntArray bIntArray = new BIntArray(3);
+        BValueArray bIntArray = new BValueArray(BTypes.typeInt, 3);
         bIntArray.add(0, 1);
         bIntArray.add(1, 3);
         bIntArray.add(2, 5);
-        BIntArray bIntArray2 = new BIntArray();
+        BValueArray bIntArray2 = new BValueArray(BTypes.typeInt);
         bIntArray2.add(0, 1);
         bIntArray2.add(1, 3);
         bIntArray2.add(2, 5);
@@ -389,10 +389,10 @@ public class SealedArrayTest {
     }
 
     @Test(description = "Test accessing invalid index of sealed array of constrained map",
-            expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = ".*message: array index out of range: index: 3, size: 3.*")
+          expectedExceptions = { BLangRuntimeException.class },
+          expectedExceptionsMessageRegExp = ".*error: array index out of range: index: 3, size: 3.*")
     public void testSealedArrayConstrainedMapInvalidIndex() {
-        BIntArray bIntArray = new BIntArray(3);
+        BValueArray bIntArray = new BValueArray(BTypes.typeInt, 3);
         bIntArray.add(0, 1);
         bIntArray.add(1, 3);
         bIntArray.add(2, 5);

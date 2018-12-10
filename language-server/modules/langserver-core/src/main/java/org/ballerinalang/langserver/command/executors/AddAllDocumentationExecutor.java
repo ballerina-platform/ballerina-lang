@@ -17,16 +17,18 @@ package org.ballerinalang.langserver.command.executors;
 
 import com.google.gson.internal.LinkedTreeMap;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.command.CommandUtil;
 import org.ballerinalang.langserver.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.command.LSCommandExecutor;
 import org.ballerinalang.langserver.command.LSCommandExecutorException;
+import org.ballerinalang.langserver.command.docs.DocAttachmentInfo;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
+import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
@@ -39,7 +41,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.ballerinalang.langserver.command.CommandUtil.applyWorkspaceEdit;
-import static org.ballerinalang.langserver.command.CommandUtil.getDocumentationEditForNode;
+import static org.ballerinalang.langserver.command.docs.DocumentationGenerator.getDocumentationEditForNode;
 
 /**
  * Command executor for adding all documentation for top level items.
@@ -50,7 +52,7 @@ import static org.ballerinalang.langserver.command.CommandUtil.getDocumentationE
 public class AddAllDocumentationExecutor implements LSCommandExecutor {
 
     private static final String COMMAND = "ADD_ALL_DOC";
-    
+
     /**
      * {@inheritDoc}
      */
@@ -66,10 +68,15 @@ public class AddAllDocumentationExecutor implements LSCommandExecutor {
                 context.put(DocumentServiceKeys.FILE_URI_KEY, documentUri);
             }
         }
-        LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
-        BLangPackage bLangPackage = lsCompiler.getBLangPackage(context,
-                context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY), false, LSCustomErrorStrategy.class, false)
-                .getRight();
+
+        BLangPackage bLangPackage = null;
+        try {
+            WorkspaceDocumentManager docManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
+            LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
+            bLangPackage = lsCompiler.getBLangPackage(context, docManager, false, LSCustomErrorStrategy.class, false);
+        } catch (LSCompilerException e) {
+            throw new LSCommandExecutorException("Couldn't compile the source", e);
+        }
 
         context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, bLangPackage.symbol.getName().getValue());
         String relativeSourcePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
@@ -80,13 +87,13 @@ public class AddAllDocumentationExecutor implements LSCommandExecutor {
         CommonUtil.getCurrentFileTopLevelNodes(srcOwnerPkg, context).stream()
                 .filter(node -> node.getPosition().getSource().getCompilationUnitName().equals(fileName))
                 .forEach(topLevelNode -> {
-                    CommandUtil.DocAttachmentInfo docAttachmentInfo = getDocumentationEditForNode(topLevelNode);
+                    DocAttachmentInfo docAttachmentInfo = getDocumentationEditForNode(topLevelNode);
                     if (docAttachmentInfo != null) {
                         textEdits.add(getTextEdit(docAttachmentInfo));
                     }
                     if (topLevelNode instanceof BLangService) {
                         ((BLangService) topLevelNode).getResources().forEach(bLangResource -> {
-                            CommandUtil.DocAttachmentInfo resourceInfo = getDocumentationEditForNode(bLangResource);
+                            DocAttachmentInfo resourceInfo = getDocumentationEditForNode(bLangResource);
                             if (resourceInfo != null) {
                                 textEdits.add(getTextEdit(resourceInfo));
                             }
@@ -95,7 +102,7 @@ public class AddAllDocumentationExecutor implements LSCommandExecutor {
                 });
         TextDocumentEdit textDocumentEdit = new TextDocumentEdit(textDocumentIdentifier, textEdits);
         return applyWorkspaceEdit(Collections.singletonList(textDocumentEdit),
-                context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());
+                                              context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());
     }
 
     /**
@@ -109,10 +116,10 @@ public class AddAllDocumentationExecutor implements LSCommandExecutor {
     /**
      * Get TextEdit from doc attachment info.
      *
-     * @param attachmentInfo    Doc attachment info
+     * @param attachmentInfo Doc attachment info
      * @return {@link TextEdit}     Text edit for attachment info
      */
-    private static TextEdit getTextEdit(CommandUtil.DocAttachmentInfo attachmentInfo) {
+    private static TextEdit getTextEdit(DocAttachmentInfo attachmentInfo) {
         Range range = new Range(attachmentInfo.getDocStartPos(), attachmentInfo.getDocStartPos());
         return new TextEdit(range, attachmentInfo.getDocAttachment());
     }

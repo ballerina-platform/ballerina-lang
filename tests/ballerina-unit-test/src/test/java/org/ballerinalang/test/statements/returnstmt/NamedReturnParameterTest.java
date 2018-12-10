@@ -50,17 +50,6 @@ public class NamedReturnParameterTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 12);
     }
 
-    @Test(description = "Test single named return parameter with zero return stmt arguments")
-    public void testSingleNamedReturnParamDefaultValue() {
-        BValue[] args = {new BInteger(10), new BString("test")};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSingleNamedReturnParamDefaultValue", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
-    }
-
     @Test(description = "Test single named return parameter, zero return arguments")
     public void testSingleNamedReturnParamZeroReturnArgs() {
         BValue[] args = {new BInteger(10), new BString("test")};
@@ -70,18 +59,6 @@ public class NamedReturnParameterTest {
         Assert.assertSame(returns[0].getClass(), BInteger.class);
 
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 12);
-    }
-
-    @Test(description = "Test single named return parameter, zero return arguments and default values")
-    public void testSingleNamedReturnParamDefaultValueZeroReturnArgs() {
-        BValue[] args = {new BInteger(10), new BString("test")};
-        BValue[] returns = BRunUtil.invoke(compileResult,
-                "testSingleNamedReturnParamDefaultValueZeroReturnArgs", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
     }
 
     @Test(description = "Test two named return parameters")
@@ -97,19 +74,6 @@ public class NamedReturnParameterTest {
         Assert.assertEquals(returns[1].stringValue(), "test, john");
     }
 
-    @Test(description = "Test two named return parameters with default valuse")
-    public void testTwoNamedReturnParamDefaultValue() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testTwoNamedReturnParamDefaultValue", args);
-
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        Assert.assertSame(returns[1].getClass(), BString.class);
-
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
-        Assert.assertEquals(returns[1].stringValue(), "");
-    }
-
     @Test(description = "Test two named return parameters")
     public void testTwoNamedReturnParamZeroReturnArgs() {
         BValue[] args = {new BInteger(10), new BString("test")};
@@ -121,18 +85,5 @@ public class NamedReturnParameterTest {
 
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 12);
         Assert.assertEquals(returns[1].stringValue(), "test, john");
-    }
-
-    @Test(description = "Test two named return parameters")
-    public void testTwoNamedReturnParamZeroReturnArgsDefaultValue() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testTwoNamedReturnParamZeroReturnArgsDefaultValue", args);
-
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        Assert.assertSame(returns[1].getClass(), BString.class);
-
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
-        Assert.assertEquals(returns[1].stringValue(), "");
     }
 }

@@ -31,7 +31,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
@@ -122,7 +122,7 @@ public class BLangMatchExpressionContextResolver extends AbstractItemResolver {
     }
     
     private BType getExpectedReturnType(BLangNode parentNode) {
-        if (parentNode instanceof BLangVariable) {
+        if (parentNode instanceof BLangSimpleVariable) {
             return parentNode.type;
         } else if (parentNode instanceof BLangAssignment) {
             return ((BLangAssignment) parentNode).varRef.type;

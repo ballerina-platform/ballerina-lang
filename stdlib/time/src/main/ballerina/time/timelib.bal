@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-@final public TimeFormat TIME_FORMAT_RFC_1123 = "RFC_1123";
+public const TIME_FORMAT_RFC_1123 = "RFC_1123";
 
 public type TimeFormat "RFC_1123";
 
@@ -24,7 +24,7 @@ public type TimeFormat "RFC_1123";
 # + zoneOffset - The offset in seconds
 public type Timezone record {
     string zoneId;
-    int zoneOffset;
+    int zoneOffset = 0;
     !...
 };
 
@@ -37,7 +37,10 @@ public type Time object {
     public int time;
     public Timezone zone;
 
-    public new (time, zone) {}
+    public function __init(int time, Timezone zone) {
+        self.time = time;
+        self.zone = zone;
+    }
 
     # Returns ISO 8601 string representation of the given time.
     #

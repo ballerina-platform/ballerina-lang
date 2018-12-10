@@ -22,13 +22,9 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.values.BBooleanArray;
-import org.ballerinalang.model.values.BFloatArray;
-import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BRefValueArray;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BXMLItem;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -50,8 +46,8 @@ public class ArrayTest {
 
     @Test
     public void testFloatArrayLength() {
-        BFloatArray arrayValue = new BFloatArray();
-        arrayValue.add(0, 10);
+        BValueArray arrayValue = new BValueArray(BTypes.typeFloat);
+        arrayValue.add(0, 10f);
         arrayValue.add(1, 11.1f);
         arrayValue.add(2, 12.2f);
 
@@ -65,7 +61,7 @@ public class ArrayTest {
 
     @Test
     public void testIntArrayLength() {
-        BIntArray arrayValue = new BIntArray();
+        BValueArray arrayValue = new BValueArray(BTypes.typeInt);
         arrayValue.add(0, 10);
         arrayValue.add(1, 11);
         arrayValue.add(2, 12);
@@ -79,7 +75,7 @@ public class ArrayTest {
 
     @Test
     public void testStringArrayLength() {
-        BStringArray arrayValue = new BStringArray();
+        BValueArray arrayValue = new BValueArray(BTypes.typeString);
         arrayValue.add(0, "Hello");
         arrayValue.add(1, "World");
         BValue[] args = {arrayValue};
@@ -110,24 +106,24 @@ public class ArrayTest {
     @Test
     public void testArrayToString() {
         String[] strArray = { "aaa", "bbb", "ccc" };
-        BStringArray bStringArray = new BStringArray(strArray);
+        BValueArray bStringArray = new BValueArray(strArray);
         Assert.assertEquals(bStringArray.stringValue(), "[\"aaa\", \"bbb\", \"ccc\"]");
 
         long[] longArray = { 6, 3, 8, 4 };
-        BIntArray bIntArray = new BIntArray(longArray);
+        BValueArray bIntArray = new BValueArray(longArray);
         Assert.assertEquals(bIntArray.stringValue(), "[6, 3, 8, 4]");
 
         double[] doubleArray = { 6.4, 3.7, 8.8, 7.4 };
-        BFloatArray bFloatArray = new BFloatArray(doubleArray);
+        BValueArray bFloatArray = new BValueArray(doubleArray);
         Assert.assertEquals(bFloatArray.stringValue(), "[6.4, 3.7, 8.8, 7.4]");
 
         int[] boolArray = { 1, 1, 0 };
-        BBooleanArray bBooleanArray = new BBooleanArray(boolArray);
+        BValueArray bBooleanArray = new BValueArray(boolArray);
         Assert.assertEquals(bBooleanArray.stringValue(), "[true, true, false]");
 
-        BXMLItem[] xmlArray = { new BXMLItem("<foo/>"), new BXMLItem("<bar>hello</bar>") };
-        BRefValueArray bXmlArray = new BRefValueArray(xmlArray, BTypes.typeXML);
-        Assert.assertEquals(bXmlArray.stringValue(), "[<foo></foo>, <bar>hello</bar>]");
+        BXMLItem[] xmlArray = { new BXMLItem("<foo> </foo>"), new BXMLItem("<bar>hello</bar>") };
+        BValueArray bXmlArray = new BValueArray(xmlArray, BTypes.typeXML);
+        Assert.assertEquals(bXmlArray.stringValue(), "[<foo> </foo>, <bar>hello</bar>]");
     }
 
     @Test(description = "Test arrays with errors")

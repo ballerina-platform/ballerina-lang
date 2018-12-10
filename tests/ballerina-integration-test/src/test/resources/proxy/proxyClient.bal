@@ -17,8 +17,7 @@
 import ballerina/http;
 import ballerina/io;
 
-endpoint http:Client clientEP {
-    url:"http://localhost:9218",
+http:ClientEndpointConfig clientEPConfig  = {
     proxy: {
         host:"localhost",
         port:9219
@@ -26,15 +25,17 @@ endpoint http:Client clientEP {
 };
 
 public function main (string... args) {
+    http:Client clientEP = new("http://localhost:9218", config = clientEPConfig);
     http:Request req = new;
     var resp = clientEP->post("/proxy/server", req);
-    match resp {
-        error err => io:println(err.message);
-        http:Response response => {
-            match (response.getTextPayload()) {
-                error payloadError => io:println(payloadError.message);
-                string res => io:println(res);
-            }
+    if (resp is http:Response) {
+        var payload = resp.getTextPayload();
+        if (payload is string) {
+            io:println(payload);
+        } else if (payload is error) {
+            io:println(<string> payload.detail().message);
         }
+    } else if (resp is error) {
+        io:println(<string> resp.detail().message);
     }
 }

@@ -123,7 +123,7 @@ public class SymbolicStringTest {
 
     @Test
     public void testLength() {
-        BValue[] returns = BRunUtil.invoke(result, "length");
+        BValue[] returns = BRunUtil.invoke(result, "lengthOfStr");
         Assert.assertEquals(returns[0].stringValue(), "10");
     }
 

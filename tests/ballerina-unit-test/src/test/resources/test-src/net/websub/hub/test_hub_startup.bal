@@ -16,14 +16,17 @@
 
 import ballerina/io;
 import ballerina/websub;
+import ballerina/http;
 
 function startupHub(int hubPort) returns websub:WebSubHub|websub:HubStartedUpError {
-    return websub:startHub(hubPort, sslEnabled = false);
+    return websub:startHub(new http:Listener(hubPort));
 }
 
 function stopHub(websub:WebSubHub|websub:HubStartedUpError hubStartUpResult) returns boolean {
-    websub:WebSubHub hub = hubStartUpResult but {
-        websub:HubStartedUpError hubStartedUpErr => hubStartedUpErr.startedUpHub
-    };
-    return hub.stop();
+    if (hubStartUpResult is websub:WebSubHub) {
+        return hubStartUpResult.stop();
+    } else if (hubStartUpResult is websub:HubStartedUpError) {
+        return hubStartUpResult.startedUpHub.stop();
+    }
+    return false;
 }

@@ -5,6 +5,6 @@ public function main(string... args){
     [1, 2, 3];
     int y = 11;
     { a : "a", b : "b"};
-    () a;
+    () a = ();
     a;
 }

@@ -28,10 +28,16 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 public class BFutureType extends BBuiltInRefType implements ConstrainedType {
 
     public BType constraint;
+    public boolean workerDerivative;
 
     public BFutureType(int tag, BType constraint, BTypeSymbol tsymbol) {
         super(tag, tsymbol);
         this.constraint = constraint;
+    }
+
+    public BFutureType(int tag, BType constraint, BTypeSymbol tsymbol, boolean workerDerivative) {
+        this(tag, constraint, tsymbol);
+        this.workerDerivative = workerDerivative;
     }
 
     @Override
@@ -46,7 +52,8 @@ public class BFutureType extends BBuiltInRefType implements ConstrainedType {
     
     @Override
     public String toString() {
-        if (constraint.tag == TypeTags.NONE || constraint.tag == TypeTags.ERROR || constraint.tag == TypeTags.NIL) {
+        if (constraint.tag == TypeTags.NONE || constraint.tag == TypeTags.SEMANTIC_ERROR
+                || constraint.tag == TypeTags.NIL) {
             return super.toString();
         }
 

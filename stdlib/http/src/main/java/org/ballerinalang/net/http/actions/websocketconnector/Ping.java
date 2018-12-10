@@ -18,16 +18,16 @@ package org.ballerinalang.net.http.actions.websocketconnector;
 
 import io.netty.channel.ChannelFuture;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketOpenConnectionInfo;
 import org.ballerinalang.net.http.WebSocketUtil;
@@ -55,11 +55,11 @@ public class Ping implements NativeCallableUnit {
             BMap<String, BValue> wsConnection = (BMap<String, BValue>) context.getRefArgument(0);
             WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) wsConnection
                     .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
-            byte[] binaryData = ((BByteArray) context.getRefArgument(1)).getBytes();
+            byte[] binaryData = ((BValueArray) context.getRefArgument(1)).getBytes();
             ChannelFuture future = connectionInfo.getWebSocketConnection().ping(ByteBuffer.wrap(binaryData));
             WebSocketUtil.handleWebSocketCallback(context, callback, future);
         } catch (Exception e) {
-            context.setReturnValues(BLangVMErrors.createError(context, e.getMessage()));
+            context.setReturnValues(HttpUtil.getError(context, e.getMessage()));
             callback.notifySuccess();
         }
     }

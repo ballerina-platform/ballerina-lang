@@ -28,7 +28,6 @@ import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
-import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -107,7 +106,7 @@ public class LSCompiler {
     public BallerinaFile compileFile(Path filePath, CompilerPhase phase) {
         String sourceRoot = LSCompilerUtil.getSourceRoot(filePath);
         String packageName = LSCompilerUtil.getPackageNameForGivenFile(sourceRoot, filePath.toString());
-        LSDocument sourceDocument = new LSDocument(filePath.toUri().toString(), sourceRoot);
+        LSDocument sourceDocument = new LSDocument(filePath, sourceRoot);
 
         PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, documentManager);
         PackageID packageID;
@@ -143,6 +142,10 @@ public class LSCompiler {
         BallerinaFile bfile = new BallerinaFile();
         bfile.setBallerinaProject(isProjectDir);
         bfile.setBLangPackage(bLangPackage);
+        // When needed for secondary tree traversal after compiling a text source,
+        // compiler context can be used when needed. As an example, ast generation to a secondary BLangPackage content
+        // visit to find the visible symbols where we need the compiler context to find the symbols
+        bfile.setCompilerContext(context);
         if (context.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
             List<Diagnostic> diagnostics = ((CollectDiagnosticListener) context.get(DiagnosticListener.class))
                     .getDiagnostics();
@@ -182,17 +185,40 @@ public class LSCompiler {
     /**
      * Get the BLangPackage for a given program.
      *
-     * @param context                   Language Server Context
-     * @param docManager                Document manager
-     * @param preserveWS                Enable preserve whitespace
-     * @param errStrategy               custom error strategy class
-     * @param compileFullProject        updateAndCompileFile full project from the source root
-     * @return {@link Either}           Either single BLang Package or a list of packages when compile full project
+     * @param context            Language Server Context
+     * @param docManager         Document manager
+     * @param preserveWS         Enable preserve whitespace
+     * @param errStrategy        custom error strategy class
+     * @param compileFullProject updateAndCompileFile full project from the source root
+     * @return {@link List}      A list of packages when compile full project
+     * @throws LSCompilerException when compilation fails
      */
-    public Either<List<BLangPackage>, BLangPackage> getBLangPackage(LSContext context,
-                                              WorkspaceDocumentManager docManager, boolean preserveWS,
-                                              Class errStrategy,
-                                              boolean compileFullProject) {
+    public BLangPackage getBLangPackage(LSContext context,
+                                        WorkspaceDocumentManager docManager, boolean preserveWS,
+                                        Class errStrategy,
+                                        boolean compileFullProject) throws LSCompilerException {
+        List<BLangPackage> bLangPackages = getBLangPackages(context, docManager, preserveWS, errStrategy,
+                                                            compileFullProject);
+        if (bLangPackages.isEmpty()) {
+            throw new LSCompilerException("Couldn't find any compiled artifact!");
+        }
+        return bLangPackages.get(0);
+    }
+
+    /**
+     * Get the BLangPackage for a given program.
+     *
+     * @param context            Language Server Context
+     * @param docManager         Document manager
+     * @param preserveWS         Enable preserve whitespace
+     * @param errStrategy        custom error strategy class
+     * @param compileFullProject updateAndCompileFile full project from the source root
+     * @return {@link List}      A list of packages when compile full project
+     */
+    public List<BLangPackage> getBLangPackages(LSContext context,
+                                               WorkspaceDocumentManager docManager, boolean preserveWS,
+                                               Class errStrategy,
+                                               boolean compileFullProject) {
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
         Optional<String> unsavedFileId = LSCompilerUtil.getUntitledFileId(uri);
         if (unsavedFileId.isPresent()) {
@@ -205,7 +231,7 @@ public class LSCompiler {
 
         PackageRepository pkgRepo = new WorkspacePackageRepository(sourceRoot, docManager);
         List<BLangPackage> packages = new ArrayList<>();
-        if (compileFullProject && !sourceRoot.isEmpty()) {
+        if (sourceDoc.hasProjectRepo() && compileFullProject && !sourceRoot.isEmpty()) {
             File projectDir = new File(sourceRoot);
             Arrays.stream(projectDir.listFiles()).forEach(
                     file -> {
@@ -223,7 +249,6 @@ public class LSCompiler {
                         }
                     }
             );
-            return Either.forLeft(packages);
         } else {
             PackageID pkgID;
             String pkgName = LSCompilerUtil.getPackageNameForGivenFile(sourceRoot, sourceDoc.getPath().toString());
@@ -242,9 +267,9 @@ public class LSCompiler {
             Compiler compiler = LSCompilerUtil.getCompiler(context, relativeFilePath, compilerContext, errStrategy);
             BLangPackage bLangPackage = compiler.compile(pkgName);
             LSPackageCache.getInstance(compilerContext).invalidate(bLangPackage.packageID);
-
-            return Either.forRight(bLangPackage);
+            packages.add(bLangPackage);
         }
+        return packages;
     }
 
     private boolean isBallerinaPackage(File dir) {
@@ -258,7 +283,7 @@ public class LSCompiler {
     private boolean isBallerinaFile(File file) {
         return !file.isDirectory() && file.getName().endsWith(BAL_EXTENSION);
     }
-    
+
     private PackageID generatePackageFromManifest(String pkgName, String sourceRoot) {
         Manifest manifest = LSCompilerUtil.getManifest(Paths.get(sourceRoot));
         Name orgName = manifest.getName() == null || manifest.getName().isEmpty() ?

@@ -52,8 +52,8 @@ The sample below shows how to retrieve all the annotations of a service:
 
 ```ballerina
 @http:ServiceConfig { basePath: "/helloWorld" }
-service<http:Service> hello bind { port: 9090 } {
-    hello(endpoint caller, http:Request req) {
+service hello on new http:Listener(9090) {
+    resource function hello(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload("hello world");
         var result = caller->respond(res);

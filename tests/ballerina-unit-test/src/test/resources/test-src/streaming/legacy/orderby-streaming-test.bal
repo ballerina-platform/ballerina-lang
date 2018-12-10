@@ -33,15 +33,15 @@ type Teacher record {
 Employee[] globalEmployeeArray = [];
 int employeeIndex = 0;
 
-stream<Employee> employeeStream;
-stream<Teacher> teacherStream;
+stream<Employee> employeeStream = new;
+stream<Teacher> teacherStream = new;
 
 function testOrderBy() {
     forever {
         from teacherStream window lengthBatch(10)
         select name, age, status order by age
         => (Employee[] emp) {
-            foreach e in emp {
+            foreach var e in emp {
                 employeeStream.publish(e);
             }
         }
@@ -52,7 +52,7 @@ function testOrderBy() {
 function startOrderBy() returns (Employee[]) {
 
     int index = 0;
-    Teacher[] teachers;
+    Teacher[] teachers = [];
     testOrderBy();
 
     teachers[0] = {name:"Raja", age:71, status:"single", batch:"LK2014", school:"Hindu College"};
@@ -68,11 +68,11 @@ function startOrderBy() returns (Employee[]) {
 
     employeeStream.subscribe(printEmployeeNumber);
 
-    foreach teacher in teachers {
+    foreach var teacher in teachers {
         teacherStream.publish(teacher);
     }
 
-    while (lengthof globalEmployeeArray != 10 || index < 20) {
+    while (globalEmployeeArray.length() != 10 || index < 20) {
         index += 1;
         runtime:sleep(500);
     }
@@ -81,7 +81,7 @@ function startOrderBy() returns (Employee[]) {
 }
 
 function printEmployeeNumber(Employee e) {
-   addToGlobalEmployeeArray(e);
+    addToGlobalEmployeeArray(e);
 }
 
 function addToGlobalEmployeeArray(Employee e) {
@@ -93,15 +93,15 @@ function addToGlobalEmployeeArray(Employee e) {
 Employee[] globalEmployeeArray2 = [];
 int employeeIndex2 = 0;
 
-stream<Employee> employeeStream2;
-stream<Teacher> teacherStream2;
+stream<Employee> employeeStream2 = new;
+stream<Teacher> teacherStream2 = new;
 
 function testOrderBy2() {
     forever {
         from teacherStream2 window lengthBatch(10)
         select name, age, status order by age ascending
         => (Employee[] emp) {
-            foreach e in emp {
+            foreach var e in emp {
                 employeeStream2.publish(e);
             }
         }
@@ -112,7 +112,7 @@ function testOrderBy2() {
 function startOrderBy2() returns (Employee[]) {
 
     int index = 0;
-    Teacher[] teachers;
+    Teacher[] teachers = [];
     testOrderBy2();
 
     teachers[0] = {name:"Raja", age:71, status:"single", batch:"LK2014", school:"Hindu College"};
@@ -128,11 +128,11 @@ function startOrderBy2() returns (Employee[]) {
 
     employeeStream2.subscribe(printEmployeeNumber2);
 
-    foreach teacher in teachers {
+    foreach var teacher in teachers {
         teacherStream2.publish(teacher);
     }
 
-    while (lengthof globalEmployeeArray2 != 10 || index < 20) {
+    while (globalEmployeeArray2.length() != 10 || index < 20) {
         index += 1;
         runtime:sleep(500);
     }
@@ -152,15 +152,15 @@ function addToGlobalEmployeeArray2(Employee e) {
 Employee[] globalEmployeeArray3 = [];
 int employeeIndex3 = 0;
 
-stream<Employee> employeeStream3;
-stream<Teacher> teacherStream3;
+stream<Employee> employeeStream3 = new;
+stream<Teacher> teacherStream3 = new;
 
 function testOrderBy3() {
     forever {
         from teacherStream3 window lengthBatch(10)
         select name, age, status order by age descending
         => (Employee[] emp) {
-            foreach e in emp {
+            foreach var e in emp {
                 employeeStream3.publish(e);
             }
         }
@@ -171,7 +171,7 @@ function testOrderBy3() {
 function startOrderBy3() returns (Employee[]) {
 
     int index = 0;
-    Teacher[] teachers;
+    Teacher[] teachers = [];
     testOrderBy3();
 
     teachers[0] = {name:"Raja", age:71, status:"single", batch:"LK2014", school:"Hindu College"};
@@ -187,11 +187,11 @@ function startOrderBy3() returns (Employee[]) {
 
     employeeStream3.subscribe(printEmployeeNumber3);
 
-    foreach teacher in teachers {
+    foreach var teacher in teachers {
         teacherStream3.publish(teacher);
     }
 
-    while (lengthof globalEmployeeArray3 != 10 || index < 20) {
+    while (globalEmployeeArray3.length() != 10 || index < 20) {
         index += 1;
         runtime:sleep(500);
     }
@@ -211,15 +211,15 @@ function addToGlobalEmployeeArray3(Employee e) {
 Employee[] globalEmployeeArray4 = [];
 int employeeIndex4 = 0;
 
-stream<Employee> employeeStream4;
-stream<Teacher> teacherStream4;
+stream<Employee> employeeStream4 = new;
+stream<Teacher> teacherStream4 = new;
 
 function testOrderBy4() {
     forever {
         from teacherStream4 window lengthBatch(10)
         select name, age, status order by status, age
         => (Employee[] emp) {
-            foreach e in emp {
+            foreach var e in emp {
                 employeeStream4.publish(e);
             }
         }
@@ -230,7 +230,7 @@ function testOrderBy4() {
 function startOrderBy4() returns (Employee[]) {
 
     int index = 0;
-    Teacher[] teachers;
+    Teacher[] teachers = [];
     testOrderBy4();
 
     teachers[0] = {name:"Raja", age:71, status:"single", batch:"LK2014", school:"Hindu College"};
@@ -246,11 +246,11 @@ function startOrderBy4() returns (Employee[]) {
 
     employeeStream4.subscribe(printEmployeeNumber4);
 
-    foreach teacher in teachers {
+    foreach var teacher in teachers {
         teacherStream4.publish(teacher);
     }
 
-    while (lengthof globalEmployeeArray4 != 10 || index < 20) {
+    while (globalEmployeeArray4.length() != 10 || index < 20) {
         index += 1;
         runtime:sleep(500);
     }
@@ -270,15 +270,15 @@ function addToGlobalEmployeeArray4(Employee e) {
 Employee[] globalEmployeeArray5 = [];
 int employeeIndex5 = 0;
 
-stream<Employee> employeeStream5;
-stream<Teacher> teacherStream5;
+stream<Employee> employeeStream5 = new;
+stream<Teacher> teacherStream5 = new;
 
 function testOrderBy5() {
     forever {
         from teacherStream5 window lengthBatch(10)
         select name, age, status order by status ascending, age descending
         => (Employee[] emp) {
-            foreach e in emp {
+            foreach var e in emp {
                 employeeStream5.publish(e);
             }
         }
@@ -289,7 +289,7 @@ function testOrderBy5() {
 function startOrderBy5() returns (Employee[]) {
 
     int index = 0;
-    Teacher[] teachers;
+    Teacher[] teachers = [];
     testOrderBy5();
 
     teachers[0] = {name:"Raja", age:71, status:"single", batch:"LK2014", school:"Hindu College"};
@@ -305,11 +305,11 @@ function startOrderBy5() returns (Employee[]) {
 
     employeeStream5.subscribe(printEmployeeNumber5);
 
-    foreach teacher in teachers {
+    foreach var teacher in teachers {
         teacherStream5.publish(teacher);
     }
 
-    while (lengthof globalEmployeeArray5 != 10 || index < 20) {
+    while (globalEmployeeArray5.length() != 10 || index < 20) {
         index += 1;
         runtime:sleep(500);
     }

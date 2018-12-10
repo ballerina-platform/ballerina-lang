@@ -35,7 +35,7 @@ public class ObjectWithPrivateFieldsNegativeTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object-private-fields-01-negative.bal");
         BValue[] returns = BRunUtil.invoke(compileResult, "testRuntimeObjEqNegative");
 
-        Assert.assertEquals(returns[0].stringValue(), "'org.foo:user' cannot be cast to 'userB'");
+        Assert.assertEquals(returns[0].stringValue(), "assertion error: expected 'userB', found 'org.foo:user' {}");
     }
 
     @Test(description = "Test private field access")
@@ -50,40 +50,42 @@ public class ObjectWithPrivateFieldsNegativeTest {
     public void testPrivateObjAccess1() {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src/object", "private-field1");
 
-        Assert.assertEquals(compileResult.getErrorCount(), 15);
+        Assert.assertEquals(compileResult.getErrorCount(), 17);
         String expectedErrMsg1 = "attempt to refer to non-accessible symbol ";
         String expectedErrMsg2 = "attempt to expose non-public symbol ";
 
         BAssertUtil.validateError(compileResult, 0, expectedErrMsg2 + "'ChildFoo'", 5, 5);
-        BAssertUtil.validateError(compileResult, 1, expectedErrMsg2 + "'privatePerson'", 33, 45);
-        BAssertUtil.validateError(compileResult, 2, expectedErrMsg2 + "'privatePerson'", 41, 73);
+        BAssertUtil.validateError(compileResult, 1, expectedErrMsg2 + "'PrivatePerson'", 34, 45);
+        BAssertUtil.validateError(compileResult, 2, expectedErrMsg2 + "'PrivatePerson'", 42, 73);
         BAssertUtil.validateError(compileResult, 3, expectedErrMsg2 + "'FooFamily'", 16, 5);
-        BAssertUtil.validateError(compileResult, 5, expectedErrMsg1 + "'ChildFoo.new'", 4, 32);
-        BAssertUtil.validateError(compileResult, 6, expectedErrMsg1 + "'ParentFoo.new'", 4, 24);
-        BAssertUtil.validateError(compileResult, 7, expectedErrMsg1 + "'privatePerson'", 8, 9);
-        BAssertUtil.validateError(compileResult, 8, expectedErrMsg1 + "'privatePerson'", 8, 13);
-        BAssertUtil.validateError(compileResult, 9, expectedErrMsg1 + "'privatePerson.new'", 12, 43);
-        BAssertUtil.validateError(compileResult, 10, expectedErrMsg1 + "'privatePerson'", 16, 9);
-        BAssertUtil.validateError(compileResult, 11, expectedErrMsg1 + "'privatePerson.new'", 16, 47);
-        BAssertUtil.validateError(compileResult, 12, expectedErrMsg1 + "'privatePerson'", 16, 13);
-        BAssertUtil.validateError(compileResult, 13, expectedErrMsg1 + "'privatePerson'", 20, 5);
-        BAssertUtil.validateError(compileResult, 14, "unknown type 'privatePerson'", 20, 5);
+        BAssertUtil.validateError(compileResult, 4, expectedErrMsg1 + "'ChildFoo.__init'", 4, 32);
+        BAssertUtil.validateError(compileResult, 5, expectedErrMsg1 + "'ChildFoo'", 4, 32);
+        BAssertUtil.validateError(compileResult, 8, expectedErrMsg1 + "'ParentFoo.__init'", 4, 24);
+        BAssertUtil.validateError(compileResult, 9, expectedErrMsg1 + "'PrivatePerson'", 8, 13);
+        BAssertUtil.validateError(compileResult, 10, expectedErrMsg1 + "'PrivatePerson.__init'", 12, 43);
+        BAssertUtil.validateError(compileResult, 11, expectedErrMsg1 + "'PrivatePerson'", 12, 43);
+        BAssertUtil.validateError(compileResult, 12, expectedErrMsg1 + "'PrivatePerson.__init'", 16, 47);
+        BAssertUtil.validateError(compileResult, 14, expectedErrMsg1 + "'PrivatePerson'", 16, 13);
+        BAssertUtil.validateError(compileResult, 15, expectedErrMsg1 + "'PrivatePerson'", 20, 5);
+        BAssertUtil.validateError(compileResult, 16, "unknown type 'PrivatePerson'", 20, 5);
     }
 
     @Test(description = "Test private object access in public functions")
     public void testPrivateObjAccess2() {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src/object", "private-field2");
 
-        Assert.assertEquals(compileResult.getErrorCount(), 10);
+        Assert.assertEquals(compileResult.getErrorCount(), 8);
         String expectedErrMsg1 = "attempt to refer to non-accessible symbol ";
         String expectedErrMsg2 = "attempt to expose non-public symbol ";
 
         BAssertUtil.validateError(compileResult, 0, expectedErrMsg2 + "'ChildFoo'", 5, 5);
+        BAssertUtil.validateError(compileResult, 1, expectedErrMsg2 + "'PrivatePerson'", 34, 45);
+        BAssertUtil.validateError(compileResult, 2, expectedErrMsg2 + "'PrivatePerson'", 42, 73);
         BAssertUtil.validateError(compileResult, 3, expectedErrMsg2 + "'FooFamily'", 16, 5);
-        BAssertUtil.validateError(compileResult, 5, expectedErrMsg1 + "'FooFamily'", 5, 13);
-        BAssertUtil.validateError(compileResult, 7, expectedErrMsg1 + "'FooFamily'", 10, 13);
-        BAssertUtil.validateError(compileResult, 8, expectedErrMsg1 + "'address'", 15, 13);
-        BAssertUtil.validateError(compileResult, 9, "undefined field 'address' in object 'org.foo.baz:FooEmployee'",
+        BAssertUtil.validateError(compileResult, 4, expectedErrMsg1 + "'FooFamily'", 5, 13);
+        BAssertUtil.validateError(compileResult, 5, expectedErrMsg1 + "'FooFamily'", 10, 13);
+        BAssertUtil.validateError(compileResult, 6, expectedErrMsg1 + "'address'", 15, 13);
+        BAssertUtil.validateError(compileResult, 7, "undefined field 'address' in object 'org.foo.baz:FooEmployee'",
                 15, 13);
     }
 }

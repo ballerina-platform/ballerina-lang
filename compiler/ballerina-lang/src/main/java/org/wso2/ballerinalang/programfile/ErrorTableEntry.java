@@ -24,16 +24,14 @@ public class ErrorTableEntry {
 
     protected int ipFrom;
     protected int ipTo;
+    // ip target required for cleanup operations.
     protected int ipTarget;
-    // Defined order in try catch.
-    protected int priority;
-    protected int errorStructCPIndex;
+    protected Instruction.RegIndex errorVarIndex;
 
-    public ErrorTableEntry(int ipFrom, int ipTo, int ipTarget, int priority, int errorStructCPIndex) {
+    public ErrorTableEntry(int ipFrom, int ipTo, int ipTarget, Instruction.RegIndex errorVarIndex) {
         this.ipFrom = ipFrom;
         this.ipTo = ipTo;
         this.ipTarget = ipTarget;
-        this.priority = priority;
-        this.errorStructCPIndex = errorStructCPIndex;
+        this.errorVarIndex = errorVarIndex;
     }
 }

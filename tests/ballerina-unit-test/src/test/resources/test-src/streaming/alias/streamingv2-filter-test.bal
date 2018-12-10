@@ -25,8 +25,8 @@ type Teacher record {
 };
 
 int index = 0;
-stream<Teacher> inputStream;
-stream<Teacher> outputStream;
+stream<Teacher> inputStream = new;
+stream<Teacher> outputStream = new;
 Teacher[] globalEmployeeArray = [];
 
 function testFilterQuery() {
@@ -35,7 +35,7 @@ function testFilterQuery() {
         from inputStream where inputStream.age > 25  as input
         select input.name, input.age, input.status, input.batch, input.school
         => (Teacher[] teachers) {
-            foreach t in teachers {
+            foreach var t in teachers {
                 outputStream.publish(t);
             }
         }
@@ -54,8 +54,8 @@ function startFilterQuery() returns (Teacher[]) {
 
     testFilterQuery();
 
-    outputStream.subscribe(printTeachers);
-    foreach t in teachers {
+    outputStream.subscribe(function(Teacher e) {printTeachers(e);});
+    foreach var t in teachers {
         inputStream.publish(t);
     }
 
@@ -63,7 +63,7 @@ function startFilterQuery() returns (Teacher[]) {
     while(true) {
         runtime:sleep(500);
         count += 1;
-        if((lengthof globalEmployeeArray) == 2 || count == 10) {
+        if((globalEmployeeArray.length()) == 2 || count == 10) {
             break;
         }
     }

@@ -47,22 +47,38 @@ public class WebSocketClientConnectorListener implements WebSocketConnectorListe
 
     @Override
     public void onMessage(WebSocketTextMessage webSocketTextMessage) {
-        WebSocketDispatcher.dispatchTextMessage(connectionInfo, webSocketTextMessage);
+        try {
+            WebSocketDispatcher.dispatchTextMessage(connectionInfo, webSocketTextMessage);
+        } catch (IllegalAccessException e) {
+            // Ignore as it is not possible have an Illegal access
+        }
     }
 
     @Override
     public void onMessage(WebSocketBinaryMessage webSocketBinaryMessage) {
-        WebSocketDispatcher.dispatchBinaryMessage(connectionInfo, webSocketBinaryMessage);
+        try {
+            WebSocketDispatcher.dispatchBinaryMessage(connectionInfo, webSocketBinaryMessage);
+        } catch (IllegalAccessException e) {
+            // Ignore as it is not possible have an Illegal access
+        }
     }
 
     @Override
     public void onMessage(WebSocketControlMessage webSocketControlMessage) {
-        WebSocketDispatcher.dispatchControlMessage(connectionInfo, webSocketControlMessage);
+        try {
+            WebSocketDispatcher.dispatchControlMessage(connectionInfo, webSocketControlMessage);
+        } catch (IllegalAccessException e) {
+            // Ignore as it is not possible have an Illegal access
+        }
     }
 
     @Override
     public void onMessage(WebSocketCloseMessage webSocketCloseMessage) {
-        WebSocketDispatcher.dispatchCloseMessage(connectionInfo, webSocketCloseMessage);
+        try {
+            WebSocketDispatcher.dispatchCloseMessage(connectionInfo, webSocketCloseMessage);
+        } catch (IllegalAccessException e) {
+            // Ignore as it is not possible have an Illegal access
+        }
     }
 
     @Override
@@ -72,11 +88,19 @@ public class WebSocketClientConnectorListener implements WebSocketConnectorListe
 
     @Override
     public void onIdleTimeout(WebSocketControlMessage controlMessage) {
-        WebSocketDispatcher.dispatchIdleTimeout(connectionInfo);
+        try {
+            WebSocketDispatcher.dispatchIdleTimeout(connectionInfo);
+        } catch (IllegalAccessException e) {
+            // Ignore as it is not possible have an Illegal access
+        }
     }
 
     @Override
     public void onClose(WebSocketConnection webSocketConnection) {
-        WebSocketUtil.setListenerOpenField(connectionInfo);
+        try {
+            WebSocketUtil.setListenerOpenField(connectionInfo);
+        } catch (IllegalAccessException e) {
+            // Ignore as it is not possible have an Illegal access
+        }
     }
 }

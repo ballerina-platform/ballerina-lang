@@ -1,3 +1,5 @@
 //The `stream` type represents a stream of events that allows you to publish events to the stream, and subscribe to receive
 // events that are published to the stream.
-//Streams can be declared constrained by a type, or as unconstrained streams that accept events of any type.
+//Streams must be declared constrained by a type, or as unconstrained streams that accept events of anydata type.
+// Ballerina Streams is an experimental feature. Please use `--experimental` flag when compiling Ballerina files
+// which have streaming constructs.

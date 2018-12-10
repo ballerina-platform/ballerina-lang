@@ -18,8 +18,7 @@
 package org.ballerinalang.util.observability;
 
 import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.util.tracer.BSpan;
 
 import java.util.HashMap;
@@ -92,8 +91,7 @@ public class TracingUtils {
                 if (errorMessage != null) {
                     errorMessageBuilder.append(errorMessage);
                 }
-                BMap<String, BValue> bError =
-                        (BMap<String, BValue>) observerContext.getProperty(PROPERTY_BSTRUCT_ERROR);
+                BError bError = (BError) observerContext.getProperty(PROPERTY_BSTRUCT_ERROR);
                 if (bError != null) {
                     if (errorMessage != null) {
                         errorMessageBuilder.append('\n');

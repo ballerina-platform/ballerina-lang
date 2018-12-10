@@ -21,12 +21,19 @@ type Teacher record {
     int age;
     string status;
     string school;
+};
+
+type Person record {
+    string name;
+    int age;
+    string status;
+    string school;
     int count;
 };
 
 int index = 0;
-stream<Teacher> inputStreamTimeWindowTest2;
-stream<Teacher > outputStreamTimeWindowTest2;
+stream<Teacher> inputStreamTimeWindowTest2 = new;
+stream<Person> outputStreamTimeWindowTest2 = new;
 Teacher[] globalEmployeeArray = [];
 
 function startTimeWindowTest2() returns (Teacher[]) {
@@ -49,8 +56,8 @@ function startTimeWindowTest2() returns (Teacher[]) {
 
     testTimeWindow();
 
-    outputStreamTimeWindowTest2.subscribe(printTeachers);
-    foreach t in teachers {
+    outputStreamTimeWindowTest2.subscribe(function(Person e) {printTeachers(e);});
+    foreach var t in teachers {
         inputStreamTimeWindowTest2.publish(t);
         runtime:sleep(1200);
     }
@@ -59,7 +66,7 @@ function startTimeWindowTest2() returns (Teacher[]) {
     while(true) {
         runtime:sleep(500);
         count += 1;
-        if((lengthof globalEmployeeArray) == 6 || count == 10) {
+        if((globalEmployeeArray.length()) == 6 || count == 10) {
             break;
         }
     }
@@ -70,23 +77,23 @@ function startTimeWindowTest2() returns (Teacher[]) {
 function testTimeWindow() {
 
     forever {
-        from inputStreamTimeWindowTest2 window timeWindow([2000])
+        from inputStreamTimeWindowTest2 window timeWindow(2000)
         select inputStreamTimeWindowTest2.name, inputStreamTimeWindowTest2.age, inputStreamTimeWindowTest2.status, inputStreamTimeWindowTest2
         .school, count() as count
         group by inputStreamTimeWindowTest2.school
-        => (Teacher [] emp) {
-            foreach e in emp {
+        => (Person [] emp) {
+            foreach var e in emp {
                 outputStreamTimeWindowTest2.publish(e);
             }
         }
     }
 }
 
-function printTeachers(Teacher e) {
+function printTeachers(Person e) {
     addToGlobalEmployeeArray(e);
 }
 
-function addToGlobalEmployeeArray(Teacher e) {
+function addToGlobalEmployeeArray(Person e) {
     globalEmployeeArray[index] = e;
     index = index + 1;
 }

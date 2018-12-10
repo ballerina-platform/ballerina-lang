@@ -77,4 +77,5 @@ public class BalGenConstants {
 
     public static final String SAMPLE_SERVICE_TEMPLATE_NAME = "sampleService";
 
+    public static final String GOOGLE_STANDARD_LIB = "google.protobuf";
 }

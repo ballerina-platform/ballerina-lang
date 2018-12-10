@@ -21,8 +21,8 @@ import io.netty.channel.ChannelFuture;
 import io.netty.handler.codec.CorruptedFrameException;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
@@ -31,24 +31,23 @@ import org.ballerinalang.mime.util.MimeConstants;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.util.XMLNodeType;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BByteArray;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.net.uri.URITemplateException;
 import org.ballerinalang.services.ErrorHandlerUtils;
-import org.ballerinalang.util.BLangConstants;
-import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -113,7 +112,7 @@ public class WebSocketDispatcher {
     }
 
     static void dispatchTextMessage(WebSocketOpenConnectionInfo connectionInfo,
-                                    WebSocketTextMessage textMessage) {
+                                    WebSocketTextMessage textMessage) throws IllegalAccessException {
         WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
         WebSocketService wsService = connectionInfo.getService();
         Resource onTextMessageResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_TEXT);
@@ -170,7 +169,7 @@ public class WebSocketDispatcher {
                     break;
                 case TypeTags.ARRAY_TAG:
                     if (((BArrayType) dataType).getElementType().getTag() == TypeTags.BYTE_TAG) {
-                        bValues[1] = new BByteArray(
+                        bValues[1] = new BValueArray(
                                 aggregateString.getBytes(Charset.forName(MimeConstants.UTF_8)));
                     }
                     break;
@@ -190,7 +189,7 @@ public class WebSocketDispatcher {
     }
 
     static void dispatchBinaryMessage(WebSocketOpenConnectionInfo connectionInfo,
-                                      WebSocketBinaryMessage binaryMessage) {
+                                      WebSocketBinaryMessage binaryMessage) throws IllegalAccessException {
         WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
         WebSocketService wsService = connectionInfo.getService();
         Resource onBinaryMessageResource = wsService.getResourceByName(
@@ -202,7 +201,7 @@ public class WebSocketDispatcher {
         List<ParamDetail> paramDetails = onBinaryMessageResource.getParamDetails();
         BValue[] bValues = new BValue[paramDetails.size()];
         bValues[0] = connectionInfo.getWebSocketEndpoint();
-        bValues[1] = new BByteArray(binaryMessage.getByteArray());
+        bValues[1] = new BValueArray(binaryMessage.getByteArray());
         if (paramDetails.size() == 3) {
             bValues[2] = new BBoolean(binaryMessage.isFinalFragment());
         }
@@ -211,7 +210,7 @@ public class WebSocketDispatcher {
     }
 
     static void dispatchControlMessage(WebSocketOpenConnectionInfo connectionInfo,
-                                       WebSocketControlMessage controlMessage) {
+                                       WebSocketControlMessage controlMessage) throws IllegalAccessException {
         if (controlMessage.getControlSignal() == WebSocketControlSignal.PING) {
             WebSocketDispatcher.dispatchPingMessage(connectionInfo, controlMessage);
         } else if (controlMessage.getControlSignal() == WebSocketControlSignal.PONG) {
@@ -220,7 +219,7 @@ public class WebSocketDispatcher {
     }
 
     private static void dispatchPingMessage(WebSocketOpenConnectionInfo connectionInfo,
-                                            WebSocketControlMessage controlMessage) {
+                                            WebSocketControlMessage controlMessage) throws IllegalAccessException {
         WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
         WebSocketService wsService = connectionInfo.getService();
         Resource onPingMessageResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_PING);
@@ -231,13 +230,13 @@ public class WebSocketDispatcher {
         List<ParamDetail> paramDetails = onPingMessageResource.getParamDetails();
         BValue[] bValues = new BValue[paramDetails.size()];
         bValues[0] = connectionInfo.getWebSocketEndpoint();
-        bValues[1] = new BByteArray(controlMessage.getByteArray());
+        bValues[1] = new BValueArray(controlMessage.getByteArray());
         Executor.submit(onPingMessageResource, new WebSocketResourceCallableUnitCallback(webSocketConnection), null,
                         null, bValues);
     }
 
     private static void dispatchPongMessage(WebSocketOpenConnectionInfo connectionInfo,
-                                            WebSocketControlMessage controlMessage) {
+                                            WebSocketControlMessage controlMessage) throws IllegalAccessException {
         WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
         WebSocketService wsService = connectionInfo.getService();
         Resource onPongMessageResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_PONG);
@@ -248,13 +247,13 @@ public class WebSocketDispatcher {
         List<ParamDetail> paramDetails = onPongMessageResource.getParamDetails();
         BValue[] bValues = new BValue[paramDetails.size()];
         bValues[0] = connectionInfo.getWebSocketEndpoint();
-        bValues[1] = new BByteArray(controlMessage.getByteArray());
+        bValues[1] = new BValueArray(controlMessage.getByteArray());
         Executor.submit(onPongMessageResource, new WebSocketResourceCallableUnitCallback(webSocketConnection), null,
                         null, bValues);
     }
 
     static void dispatchCloseMessage(WebSocketOpenConnectionInfo connectionInfo,
-                                     WebSocketCloseMessage closeMessage) {
+                                     WebSocketCloseMessage closeMessage) throws IllegalAccessException {
         WebSocketUtil.setListenerOpenField(connectionInfo);
         WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
         WebSocketService wsService = connectionInfo.getService();
@@ -293,7 +292,7 @@ public class WebSocketDispatcher {
             }
 
             @Override
-            public void notifyFailure(BMap<String, BValue> error) {
+            public void notifyFailure(BError error) {
                 ErrorHandlerUtils.printError(BLangVMErrors.getPrintableStackTrace(error));
                 WebSocketUtil.closeDuringUnexpectedCondition(webSocketConnection);
             }
@@ -302,7 +301,11 @@ public class WebSocketDispatcher {
     }
 
     static void dispatchError(WebSocketOpenConnectionInfo connectionInfo, Throwable throwable) {
-        WebSocketUtil.setListenerOpenField(connectionInfo);
+        try {
+            WebSocketUtil.setListenerOpenField(connectionInfo);
+        } catch (IllegalAccessException e) {
+            connectionInfo.getWebSocketEndpoint().put(WebSocketConstants.LISTENER_IS_OPEN_FIELD, new BBoolean(false));
+        }
         WebSocketService webSocketService = connectionInfo.getService();
         Resource onErrorResource = webSocketService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_ERROR);
         if (isUnexpectedError(throwable)) {
@@ -314,9 +317,7 @@ public class WebSocketDispatcher {
         }
         BValue[] bValues = new BValue[onErrorResource.getParamDetails().size()];
         bValues[0] = connectionInfo.getWebSocketEndpoint();
-        Context context = connectionInfo.getContext();
-        bValues[1] = context != null ? getError(context.getProgramFile(), throwable) : getError(
-                webSocketService.getServiceInfo().getPackageInfo().getProgramFile(), throwable);
+        bValues[1] = getError(connectionInfo, throwable);
         CallableUnitCallback onErrorCallback = new CallableUnitCallback() {
             @Override
             public void notifySuccess() {
@@ -324,30 +325,36 @@ public class WebSocketDispatcher {
             }
 
             @Override
-            public void notifyFailure(BMap<String, BValue> error) {
+            public void notifyFailure(BError error) {
                 ErrorHandlerUtils.printError(BLangVMErrors.getPrintableStackTrace(error));
             }
         };
         Executor.submit(onErrorResource, onErrorCallback, null, null, bValues);
     }
 
-    private static BMap<String, BValue> getError(ProgramFile programFile, Throwable throwable) {
-        PackageInfo errorPackageInfo = programFile.getPackageInfo(BLangConstants.BALLERINA_BUILTIN_PKG);
-        StructureTypeInfo errorStructInfo = errorPackageInfo.getStructInfo(BLangVMErrors.STRUCT_GENERIC_ERROR);
-        String errMsg;
-        if (isUnexpectedError(throwable)) {
-            errMsg = "Unexpected internal error. Please check internal-log for more details!";
-        } else {
-            errMsg = throwable.getMessage();
+    private static BError getError(WebSocketOpenConnectionInfo connectionInfo, Throwable throwable) {
+        String errMsg = throwable.getMessage();
+        if (errMsg == null) {
+            errMsg = "Unexpected internal error";
         }
-        return BLangVMStructs.createBStruct(errorStructInfo, errMsg);
+        Context context = connectionInfo.getContext();
+        if (context != null) {
+            return HttpUtil.getError(context, errMsg);
+        } else {
+            ProgramFile programFile = connectionInfo.getService().getServiceInfo().getPackageInfo().getProgramFile();
+            BMap<String, BValue> httpErrorRecord = BLangConnectorSPIUtil.createBStruct(
+                    programFile, HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.HTTP_ERROR_RECORD);
+            httpErrorRecord.put(HttpConstants.HTTP_ERROR_MESSAGE, new BString(errMsg));
+            return new BError(BTypes.typeError, errMsg, httpErrorRecord);
+
+        }
     }
 
     private static boolean isUnexpectedError(Throwable throwable) {
         return !(throwable instanceof CorruptedFrameException);
     }
 
-    static void dispatchIdleTimeout(WebSocketOpenConnectionInfo connectionInfo) {
+    static void dispatchIdleTimeout(WebSocketOpenConnectionInfo connectionInfo) throws IllegalAccessException {
         WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
         WebSocketService wsService = connectionInfo.getService();
         Resource onIdleTimeoutResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_IDLE_TIMEOUT);
@@ -365,7 +372,7 @@ public class WebSocketDispatcher {
             }
 
             @Override
-            public void notifyFailure(BMap<String, BValue> error) {
+            public void notifyFailure(BError error) {
                 ErrorHandlerUtils.printError(BLangVMErrors.getPrintableStackTrace(error));
                 WebSocketUtil.closeDuringUnexpectedCondition(webSocketConnection);
             }

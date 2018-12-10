@@ -1,54 +1,54 @@
 import ballerina/runtime;
 import ballerina/io;
 
-int globalResult;
+int globalResult = 0;
 
 function testAsyncNonNativeBasic1() returns int {
   future<int> f1 = start add(5, 2);
-  int result = await f1;
+  int result = wait f1;
   return result;
 }
 
 function testAsyncNonNativeBasic2() returns int {
   future<int> f1 = start add(5, 2);
-  int result = await f1;
+  int result = wait f1;
   future<int> f2 = start add(10, 2);
   runtime:sleep(100);
-  result = result + await f2;
+  result = result + wait f2;
   return result;
 }
 
 function testAsyncNonNativeBasic3() returns int {
   future<int> f1 = start add(5, 2);
-  int result = await f1;
+  int result = wait f1;
   future<int> f2 = start add(10, 2);
-  result = result + await f2;
-  result = result + await f2;
+  result = result + wait f2;
+  result = result + wait f2;
   return result;
 }
 
 function testAsyncNonNativeBasic4() returns int {
-  future f1 = start addGlobal(1, 2);
-  await f1;
+  future<any> f1 = start addGlobal(1, 2);
+  _ = wait f1;
   return globalResult;
 }
 
 function testAsyncNonNativeBasic5() returns float {
   future<float> f1 = start addSlow(10.5, 20.5);
-  return await f1;
+  return wait f1;
 }
 
 function testAsyncNonNativeBasic6() returns boolean {
   future<float> f1 = start addSlower(5.0, 5.0);
   boolean a = f1.isDone();
-  float v1 = await f1;
+  float v1 = wait f1;
   boolean b = f1.isDone();
-  future f2 = start infiniteFunc();
+  future<any> f2 = start infiniteFunc();
   boolean c = f2.isCancelled();
   boolean d = f2.cancel();
-  future f3 = start io:println("NATIVE ASYNC BLOCKING");
+  future<any> f3 = start io:println("NATIVE ASYNC BLOCKING");
   boolean e = f3.cancel();
-  future f4 = start runtime:sleep(100);
+  future<any> f4 = start runtime:sleep(100);
   boolean f = f4.cancel();
   return !a && v1 == 10.0 && b && !c && d && !e && !f;
 }

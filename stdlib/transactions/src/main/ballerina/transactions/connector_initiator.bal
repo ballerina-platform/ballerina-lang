@@ -17,62 +17,48 @@
 import ballerina/http;
 
 type InitiatorClientConfig record {
-    string registerAtURL;
-    int timeoutMillis;
+    string registerAtURL = "";
+    int timeoutMillis = 0;
     record {
-        int count;
-        int interval;
-    } retryConfig;
+        int count = 0;
+        int interval = 0;
+    } retryConfig = {};
 };
 
-type InitiatorClientEP object {
+type InitiatorClientEP client object {
     http:Client httpClient;
 
-    function init(InitiatorClientConfig conf) {
-        endpoint http:Client httpEP {
-            url:conf.registerAtURL,
-            timeoutMillis:conf.timeoutMillis,
-            retryConfig:{
-                count:conf.retryConfig.count, interval:conf.retryConfig.interval
-            }
-        };
+    function __init(InitiatorClientConfig conf) {
+        http:Client httpEP = new(conf.registerAtURL, config = {
+                timeoutMillis:conf.timeoutMillis,
+                retryConfig:{
+                    count:conf.retryConfig.count,
+                    interval:conf.retryConfig.interval
+                }
+            });
         self.httpClient = httpEP;
     }
 
-    function getCallerActions() returns InitiatorClient {
-        InitiatorClient client = new;
-        client.clientEP = self;
-        return client;
-    }
-};
-
-type InitiatorClient object {
-    InitiatorClientEP clientEP;
-
-    new() {
-
-    }
-
-    function register(string transactionId, int transactionBlockId, RemoteProtocol[] participantProtocols)
-        returns RegistrationResponse|error {
-
-        endpoint http:Client httpClient = self.clientEP.httpClient;
+    remote function register(string transactionId, string transactionBlockId, RemoteProtocol[] participantProtocols)
+                 returns RegistrationResponse|error {
+        http:Client httpClient = self.httpClient;
         string participantId = getParticipantId(transactionBlockId);
         RegistrationRequest regReq = {
             transactionId:transactionId, participantId:participantId, participantProtocols:participantProtocols
         };
 
-        json reqPayload = check <json>regReq;
+        json reqPayload = check json.convert(regReq);
         http:Request req = new;
         req.setJsonPayload(reqPayload);
         var result = httpClient->post("", req);
         http:Response res = check result;
         int statusCode = res.statusCode;
         if (statusCode != http:OK_200) {
-            error err = {message:"Registration for transaction: " + transactionId + " failed"};
+            error err = error("Registration for transaction: " + transactionId + " failed response code: "
+                + statusCode);
             return err;
         }
         json resPayload = check res.getJsonPayload();
-        return <RegistrationResponse>resPayload;
+        return RegistrationResponse.convert(resPayload);
     }
 };

@@ -5,7 +5,7 @@ public function main (string... args) {
         return r;
     };
 
-    secureFunction(testLambda("Hello ", "world.!!!"), testLambda("Hello ", "world.!!!"));
+    secureFunction(testLambda.call("Hello ", "world.!!!"), testLambda.call("Hello ", "world.!!!"));
 }
 
 public function secureFunction (@sensitive string secureIn, string insecureIn) {

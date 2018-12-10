@@ -22,6 +22,7 @@ import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.ballerinalang.docgen.docs.BallerinaDocDataHolder;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
 import org.ballerinalang.docgen.model.AnnotationDoc;
+import org.ballerinalang.docgen.model.ConstantDoc;
 import org.ballerinalang.docgen.model.Documentable;
 import org.ballerinalang.docgen.model.EndpointDoc;
 import org.ballerinalang.docgen.model.EnumDoc;
@@ -40,14 +41,9 @@ import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.DocumentableNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.VariableNode;
+import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.types.TypeNode;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -56,17 +52,17 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
-import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
@@ -78,16 +74,12 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static org.wso2.ballerinalang.compiler.util.Names.EP_SPI_INIT;
-import static org.wso2.ballerinalang.compiler.util.Names.EP_SPI_REGISTER;
-
 /**
  * Generates the Page objects for bal packages.
  */
 public class Generator {
 
-    private static final Predicate<BLangFunction> IS_CALLER_ACTIONS =
-            s -> s.name.value.equals(Names.EP_SPI_GET_CALLER_ACTIONS.value);
+    private static final Predicate<BLangFunction> IS_REMOTE_FUNCTION = func -> func.getFlags().contains(Flag.REMOTE);
     private static final String EMPTY_STRING = "";
 
     /**
@@ -99,8 +91,8 @@ public class Generator {
      * @param primitives  list of primitives.
      * @return A page model for the current package.
      */
-    public static Page generatePage(BLangPackage balPackage, List<Link> packages, String description, List<Link>
-            primitives) {
+    public static Page generatePage(BLangPackage balPackage, List<Link> packages, String description,
+                                    List<Link> primitives) {
 
         //TODO orgName is not properly set from the ballerina core, hence this work-around
         String currentPackageName = BallerinaDocDataHolder.getInstance().getOrgName() + balPackage.packageID.getName
@@ -148,8 +140,16 @@ public class Generator {
                 documentables.add(createDocForNode(annotation));
             }
         }
+
+        // Check for constants.
+        for (BLangConstant constant : balPackage.getConstants()) {
+            if (constant.getFlags().contains(Flag.PUBLIC)) {
+                documentables.add(createDocForNode(constant));
+            }
+        }
+
         // Check for global variables
-        for (BLangVariable var : balPackage.getGlobalVariables()) {
+        for (BLangSimpleVariable var : balPackage.getGlobalVariables()) {
             if (var.getFlags().contains(Flag.PUBLIC)) {
                 documentables.add(createDocForNode(var));
             }
@@ -274,6 +274,9 @@ public class Generator {
             String value = userDefinedType.typeName.value;
             union.add(new EnumDoc(typeName, description(typeDefinition), new ArrayList<>(), value));
             added = true;
+        } else if (kind == NodeKind.ERROR_TYPE) {
+            // TODO: Add errors section in API docs
+            added = true;
         }
         if (!added) {
             throw new UnsupportedOperationException("Type def not supported for " + kind);
@@ -348,7 +351,7 @@ public class Generator {
      * @param bLangVariable ballerina variable node.
      * @return documentation for global variables.
      */
-    public static GlobalVariableDoc createDocForNode(BLangVariable bLangVariable) {
+    public static GlobalVariableDoc createDocForNode(BLangSimpleVariable bLangVariable) {
         String globalVarName = bLangVariable.getName().getValue();
         String dataType = getTypeName(bLangVariable.getTypeNode());
         String desc = description(bLangVariable);
@@ -356,39 +359,20 @@ public class Generator {
         return new GlobalVariableDoc(globalVarName, desc, new ArrayList<>(), dataType, href);
     }
 
-    private static Field getVariableForType(String name, BType param) {
-        BTypeSymbol type = param.tsymbol;
-        if (type != null && type.type != null) {
-            return new Field(name, type.type.toString(), EMPTY_STRING, EMPTY_STRING, extractLink(type.type));
-        } else {
-            return new Field(name, param.toString(), EMPTY_STRING, EMPTY_STRING, extractLink(param));
-        }
-    }
+    public static ConstantDoc createDocForNode(BLangConstant constant) {
+        String constantName = constant.getName().getValue();
+        Object value = constant.value;
+        String desc = description(constant);
 
-    private static FunctionDoc createDocForType(BInvokableSymbol invokable) {
-        String name = invokable.name.value;
-        name = name.substring(name.indexOf('.') + 1);
-        List<Field> parameters = new ArrayList<>();
-        List<Variable> returnParams = new ArrayList<>();
-        // Iterate through the parameters
-        for (BVarSymbol param : invokable.getParameters()) {
-            Field variable = getVariableForType(param.name.toString(), param.type);
-            parameters.add(variable);
+        String typeNodeType = "";
+        String href = "";
+
+        if (constant.typeNode != null) {
+            typeNodeType = getTypeName(constant.typeNode);
+            href = extractLink(constant.typeNode);
         }
 
-        for (BVarSymbol param : invokable.getDefaultableParameters()) {
-            Field variable = getVariableForType(param.name.toString(), param.type);
-            parameters.add(variable);
-        }
-        if (null != invokable.retType) {
-            returnParams.add(getVariableForType(EMPTY_STRING, invokable.retType));
-        } else if (invokable.type instanceof BInvokableType) {
-            BInvokableType invokableType = (BInvokableType) invokable.type;
-            returnParams.add(getVariableForType(EMPTY_STRING, invokableType.retType));
-        }
-    
-        return new FunctionDoc(name, invokable.markdownDocumentation.description, new ArrayList<>(), parameters,
-                returnParams);
+        return new ConstantDoc(constantName, value, desc, typeNodeType, href);
     }
 
     /**
@@ -403,24 +387,24 @@ public class Generator {
         List<Variable> returnParams = new ArrayList<>();
         // Iterate through the parameters
         if (functionNode.getParameters().size() > 0) {
-            for (BLangVariable param : functionNode.getParameters()) {
+            for (BLangSimpleVariable param : functionNode.getParameters()) {
                 Field variable = getVariable(functionNode, param);
                 parameters.add(variable);
             }
         }
         // defaultable params
         if (functionNode.getDefaultableParameters().size() > 0) {
-            for (BLangVariableDef variableDef : functionNode.getDefaultableParameters()) {
-                BLangVariable param = variableDef.getVariable();
+            for (BLangSimpleVariableDef variableDef : functionNode.getDefaultableParameters()) {
+                BLangSimpleVariable param = variableDef.getVariable();
                 Field variable = getVariable(functionNode, param);
                 parameters.add(variable);
             }
         }
         // rest params
         if (functionNode.getRestParameters() != null) {
-            VariableNode restParameter = functionNode.getRestParameters();
-            if (restParameter instanceof BLangVariable) {
-                BLangVariable param = (BLangVariable) restParameter;
+            SimpleVariableNode restParameter = functionNode.getRestParameters();
+            if (restParameter instanceof BLangSimpleVariable) {
+                BLangSimpleVariable param = (BLangSimpleVariable) restParameter;
                 Field variable = getVariable(functionNode, param);
                 parameters.add(variable);
             }
@@ -443,7 +427,7 @@ public class Generator {
         return new FunctionDoc(functionName, description(functionNode), new ArrayList<>(), parameters, returnParams);
     }
 
-    private static Field getVariable(BLangFunction functionNode, BLangVariable param) {
+    private static Field getVariable(BLangFunction functionNode, BLangSimpleVariable param) {
         String dataType = type(param);
         String desc = paramAnnotation(functionNode, param);
         String href = param.typeNode != null ? extractLink(param.typeNode) : extractLink(param.type);
@@ -473,10 +457,10 @@ public class Generator {
         return new RecordDoc(structName, documentationText, new ArrayList<>(), fields);
     }
 
-    private static List<Field> getFields(BLangNode node, List<BLangVariable> allFields,
+    private static List<Field> getFields(BLangNode node, List<BLangSimpleVariable> allFields,
                                          BLangMarkdownDocumentation documentation) {
         List<Field> fields = new ArrayList<>();
-        for (BLangVariable param : allFields) {
+        for (BLangSimpleVariable param : allFields) {
             if (param.getFlags().contains(Flag.PUBLIC)) {
                 String name = param.getName().value;
                 String dataType = type(param);
@@ -541,16 +525,10 @@ public class Generator {
         }
 
         if (isEndpoint(objectType)) {
-            Optional<BLangFunction> callerActions = objectType.functions.stream().filter(IS_CALLER_ACTIONS).findAny();
-            if (callerActions.isPresent()) {
-                BObjectTypeSymbol retrunType = (BObjectTypeSymbol) callerActions.get().returnTypeNode.type.tsymbol;
-                functions = retrunType.attachedFuncs.stream()
-                        .filter(c -> !c.funcName.value.equals("new"))
-                        .map(c -> createDocForType(c.symbol))
-                        .collect(Collectors.toList());
-            } else {
-                functions = new ArrayList<>();
-            }
+            functions = objectType.functions.stream()
+                    .filter(IS_REMOTE_FUNCTION)
+                    .map(Generator::createDocForNode)
+                    .collect(Collectors.toList());
             endpoints.add(createEndpointObject(objectType, name, description, functions, fields, hasConstructor));
         } else {
             objects.add(createNonEndpointObject(objectType, name, description, functions, fields, hasConstructor));
@@ -559,20 +537,7 @@ public class Generator {
     }
 
     private static boolean isEndpoint(BLangObjectTypeNode objectType) {
-        boolean hasAction = false;
-        boolean hasInit = false;
-        boolean hasReg = false;
-        for (BLangFunction function : objectType.functions) {
-            String name = function.name.value;
-            if (name.equals(Names.EP_SPI_GET_CALLER_ACTIONS.value)) {
-                hasAction = true;
-            } else if (name.equals(EP_SPI_INIT.value)) {
-                hasInit = true;
-            } else if (name.equals(EP_SPI_REGISTER.value)) {
-                hasReg = true;
-            }
-        }
-        return (hasInit && hasReg) || (hasInit && hasAction);
+        return objectType.flagSet.contains(Flag.CLIENT);
     }
 
     private static ObjectDoc createNonEndpointObject(BLangObjectTypeNode objectType, String name,
@@ -594,7 +559,7 @@ public class Generator {
      * @param bLangVariable a varibale
      * @return data type of the variable.
      */
-    private static String type(final BLangVariable bLangVariable) {
+    private static String type(final BLangSimpleVariable bLangVariable) {
         return bLangVariable.type != null ? bLangVariable.type.toString() : "null";
     }
 
@@ -616,7 +581,7 @@ public class Generator {
      * @param param parameter.
      * @return description of the parameter.
      */
-    private static String paramAnnotation(BLangNode node, BLangVariable param) {
+    private static String paramAnnotation(BLangNode node, BLangSimpleVariable param) {
         String subName = param.getName() == null ? param.type.tsymbol.name.value : param.getName().getValue();
         return getParameterDocumentation(node, subName);
     }
@@ -645,10 +610,10 @@ public class Generator {
      */
     private static String fieldAnnotation(BLangNode node, BLangNode param) {
         String subName = EMPTY_STRING;
-        if (!(param instanceof BLangVariable)) {
+        if (!(param instanceof BLangSimpleVariable)) {
             return getParameterDocumentation(node, subName);
         }
-        BLangVariable paramVariable = (BLangVariable) param;
+        BLangSimpleVariable paramVariable = (BLangSimpleVariable) param;
         subName = (paramVariable.getName() == null) ?
                 paramVariable.type.tsymbol.name.value : paramVariable.getName().getValue();
         return getParameterDocumentation(node, subName);

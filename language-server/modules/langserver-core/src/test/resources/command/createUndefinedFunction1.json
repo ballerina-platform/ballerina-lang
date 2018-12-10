@@ -1,6 +1,8 @@
 {
-  "arguments": "int a, int b",
-  "functionName": "addTwoIntegers",
+  "arguments": {
+    "node.line" : 3,
+    "node.column" : 4
+  },
   "expected": {
     "result":{
       "edit":{

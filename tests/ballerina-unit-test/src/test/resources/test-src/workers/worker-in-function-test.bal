@@ -10,42 +10,19 @@ type TStruct record {
 };
 
 function testSimpleWorkerVM(string msg) returns string {
-    worker default {
+    worker first returns string {
         "a" -> sampleWorker;
-        string result;
-        result <- sampleWorker;
+        string result = "";
+        result = <- sampleWorker;
         return result;
     }
 
     worker sampleWorker {
-        string m;
-        m <- default;
-        msg -> default;
+        string m = "";
+        m = <- first;
+        msg -> first;
     }
 
+    return wait first;
 }
 
-function testMultipleReturnsVM() returns int {
-    worker w1 {
-        return 1;
-    }
-
-    worker w2 {
-        return 2;
-    }
-}
-
-function testMultipleNilReturnsVM() {
-    test();
-    io:println("Done");
-}
-
-function test() {
-    worker w1 {
-        return;
-    }
-
-    worker w2 {
-        return;
-    }
-}

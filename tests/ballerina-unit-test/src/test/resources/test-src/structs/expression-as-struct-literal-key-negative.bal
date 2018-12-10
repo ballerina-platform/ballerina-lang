@@ -1,6 +1,6 @@
 type Department record {
-    string dptName;
-    boolean y;
+    string dptName = "";
+    boolean y = false;
 };
 
 function testVarRefAsKey() {

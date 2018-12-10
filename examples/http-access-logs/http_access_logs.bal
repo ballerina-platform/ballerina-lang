@@ -4,16 +4,15 @@ import ballerina/log;
 @http:ServiceConfig {
     basePath: "/hello"
 }
-service<http:Service> helloService bind { port: 9095 } {
+service helloService on new http:Listener(9095) {
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/"
     }
-    hello(endpoint caller, http:Request request) {
-        http:Response response = new;
-        response.setPayload("Successful");
-        caller->respond(response) but {
-            error e => log:printError("Error when responding", err = e)
-        };
+    resource function hello(http:Caller caller, http:Request request) {
+        var result = caller->respond("Successful");
+        if (result is error) {
+            log:printError("Error occurred while responding", err = result);
+        }
     }
 }

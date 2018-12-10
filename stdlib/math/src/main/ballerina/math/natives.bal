@@ -16,10 +16,10 @@
 
 
 # The ratio of the circumference of a circle to its diameter.
-@final public float PI = 3.141592653589793;
+public const float PI = 3.141592653589793;
 
 # The base of the natural logarithms.
-@final public float E = 2.718281828459045;
+public const float E = 2.718281828459045;
 
 # Returns Euler's number, that is 'e' raised to the power of exponent.
 #

@@ -3,8 +3,8 @@ import ballerina/math;
 import ballerina/runtime;
 import ballerina/task;
 
-int count;
-task:Timer? timer;
+int count = 0;
+task:Timer? timer = ();
 
 public function main() {
     io:println("Timer task demo");
@@ -17,9 +17,9 @@ public function main() {
 
     // Schedule a timer task, which initially runs 500ms from now.
     //After that, it runs every 1000ms.
-    timer = new task:Timer(onTriggerFunction, onErrorFunction,
-                           1000, delay = 500);
-    
+    timer = new task:Timer(onTriggerFunction, onErrorFunction, 1000,
+        delay = 500);
+
     // Start the timer.
     timer.start();
 
@@ -35,20 +35,19 @@ function cleanup() returns error? {
     // to the 'onError' function when an error occurs in the 'onTrigger'
     // function.
     if (math:randomInRange(0, 10) == 5) {
-        error e = { message: "Cleanup error" };
+        error e = error("Cleanup error");
         return e;
     }
-    
+
     if (count >= 10) {
-        
         // This is how you stop a timer.
         timer.stop();
         io:println("Stopped timer");
     }
-    return ();
+    return;
 }
 
 function cleanupError(error e) {
-    io:print("[ERROR] cleanup failed");
+    io:print("[ERROR] cleanup failed: ");
     io:println(e);
 }

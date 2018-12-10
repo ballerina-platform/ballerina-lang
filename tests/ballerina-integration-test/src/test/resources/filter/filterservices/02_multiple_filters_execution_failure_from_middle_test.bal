@@ -20,9 +20,8 @@ import ballerina/log;
 // Filter1
 
 public type Filter03 object {
-    public function filterRequest(http:Listener listener, http:Request request, http:FilterContext context) returns
-                                                                                                                boolean
-    {
+    public function filterRequest(http:Caller caller, http:Request request, http:FilterContext context)
+                        returns boolean {
         log:printInfo("Intercepting request for filter 1");
         return true;
     }
@@ -32,17 +31,15 @@ public type Filter03 object {
     }
 };
 
-Filter03 filter03;
+Filter03 filter03 = new;
 
 // Filter2
 
 public type Filter04 object {
-    public function filterRequest(http:Listener listener, http:Request request, http:FilterContext context) returns
-                                                                                                                boolean
-    {
-        endpoint http:Listener caller = listener;
+    public function filterRequest(http:Caller caller, http:Request request, http:FilterContext context)
+                        returns boolean {
         log:printInfo("Intercepting request for filter 2");
-        http:Response response;
+        http:Response response = new;
         response.statusCode = 405;
         response.setTextPayload("Not Allowed");
         _ = caller->respond(response);
@@ -54,12 +51,13 @@ public type Filter04 object {
     }
 };
 
-Filter04 filter04;
+Filter04 filter04 = new;
 
 // Filter3
 
 public type Filter05 object {
-    public function filterRequest(http:Listener listener, http:Request request, http:FilterContext context) returns boolean {
+    public function filterRequest(http:Caller caller, http:Request request, http:FilterContext context)
+                        returns boolean {
         log:printInfo("Intercepting request for filter 3");
         return true;
     }
@@ -69,22 +67,19 @@ public type Filter05 object {
     }
 };
 
-Filter05 filter05;
+Filter05 filter05 = new;
 
-endpoint http:Listener echoEP01 {
-    port: 9091,
-    filters: [filter03, filter04, filter05]
-};
+listener http:Listener echoEP01 = new(9091, config = { filters: [filter03, filter04, filter05] });
 
 @http:ServiceConfig {
     basePath: "/echo"
 }
-service<http:Service> echo01 bind echoEP01 {
+service echo01 on echoEP01 {
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/test"
     }
-    echo(endpoint caller, http:Request req) {
+    resource function echo(http:Caller caller, http:Request req) {
         http:Response res = new;
         _ = caller->respond(res);
     }

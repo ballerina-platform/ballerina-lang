@@ -54,13 +54,9 @@ done
 # OS specific support.  $var _must_ be set to either true or false.
 #ulimit -n 100000
 BASE_DIR=$PWD
-cygwin=false;
 darwin=false;
 os400=false;
-mingw=false;
 case "`uname`" in
-CYGWIN*) cygwin=true;;
-MINGW*) mingw=true;;
 OS400*) os400=true;;
 Darwin*) darwin=true
         if [ -z "$JAVA_HOME" ] ; then
@@ -93,12 +89,6 @@ PRGDIR=`dirname "$PRG"`
 # set BALLERINA_HOME
 BALLERINA_HOME=`cd "$PRGDIR/../../../.." ; pwd`
 
-# For Cygwin, ensure paths are in UNIX format before anything is touched
-if $cygwin; then
-  [ -n "$JAVA_HOME" ] && JAVA_HOME=`cygpath --unix "$JAVA_HOME"`
-  [ -n "$BALLERINA_HOME" ] && BALLERINA_HOME=`cygpath --unix "$BALLERINA_HOME"`
-fi
-
 # For OS400
 if $os400; then
   # Set job priority to standard for interactive (interactive - 6) by using
@@ -112,13 +102,9 @@ if $os400; then
   export QIBM_MULTI_THREADED
 fi
 
-# For Migwn, ensure paths are in UNIX format before anything is touched
-if $mingw ; then
-  [ -n "$BALLERINA_HOME" ] &&
-    BALLERINA_HOME="`(cd "$BALLERINA_HOME"; pwd)`"
-  [ -n "$JAVA_HOME" ] &&
-    JAVA_HOME="`(cd "$JAVA_HOME"; pwd)`"
-  # TODO classpath?
+# If the jre is found inside BALLERINA_HOME, override JAVA_HOME
+if [ -x "$BALLERINA_HOME/bre/lib/jre1.8.0_172" ] ; then
+  JAVA_HOME="$BALLERINA_HOME/bre/lib/jre1.8.0_172"
 fi
 
 if [ -z "$JAVACMD" ] ; then
@@ -132,11 +118,6 @@ if [ -z "$JAVACMD" ] ; then
   else
     JAVACMD=java
   fi
-fi
-
-# If the jre is found in BALLERINA_HOME, override java executable
-if [ -x "$BALLERINA_HOME/bre/lib/jre1.8.0_172/bin/java" ] ; then
-  JAVACMD="$BALLERINA_HOME/bre/lib/jre1.8.0_172/bin/java"
 fi
 
 if [ ! -x "$JAVACMD" ] ; then
@@ -167,15 +148,6 @@ CLASSPATHS="$CLASSPATHS":"$CUSTOM_CLASSPATH"
 CLASSPATHS="$CLASSPATHS":"$BALLERINA_HOME"/bre/lib/*
 
 CLASSPATHS="$CLASSPATHS":"$BALLERINA_HOME"/lib/tools/lang-server/lib/*
-
-# For Cygwin, switch paths to Windows format before running java
-if $cygwin; then
-  JAVA_HOME=`cygpath --absolute --windows "$JAVA_HOME"`
-  BALLERINA_HOME=`cygpath --absolute --windows "$BALLERINA_HOME"`
-  CLASSPATH=`cygpath --path --windows "$CLASSPATH"`
-  BALLERINA_CLASSPATH=`cygpath --path --windows "$BALLERINA_CLASSPATH"`
-  BALLERINA_XBOOTCLASSPATH=`cygpath --path --windows "$BALLERINA_XBOOTCLASSPATH"`
-fi
 
 # ------------------------- Execute Command ---------------------------------
 

@@ -21,11 +21,11 @@ import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.balo.BaloCreator;
 import org.ballerinalang.test.utils.ByteArrayUtils;
 import org.testng.Assert;
@@ -33,17 +33,15 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
-
 /**
  * Test cases for user defined object types in ballerina.
  */
 public class ObjectInBaloTest {
 
-    CompileResult result;
+    private CompileResult result;
 
     @BeforeClass
-    public void setup() throws IOException {
+    public void setup() {
         BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "foo");
         result = BCompileUtil.compile("test-src/balo/test_balo/object/test_objects.bal");
     }
@@ -200,16 +198,16 @@ public class ObjectInBaloTest {
         BValue[] returns = BRunUtil.invoke(result, "testObjectWithByteTypeFields");
 
         Assert.assertEquals(returns.length, 3);
-        Assert.assertSame(returns[0].getClass(), BByteArray.class);
-        Assert.assertSame(returns[1].getClass(), BByteArray.class);
-        Assert.assertSame(returns[2].getClass(), BByteArray.class);
+        Assert.assertSame(returns[0].getClass(), BValueArray.class);
+        Assert.assertSame(returns[1].getClass(), BValueArray.class);
+        Assert.assertSame(returns[2].getClass(), BValueArray.class);
 
         byte[] bytes1 = new byte[]{3, 4, 5, 8};
         byte[] bytes2 = ByteArrayUtils.decodeBase64("aGVsbG8gYmFsbGVyaW5hICEhIQ==");
         byte[] bytes3 = ByteArrayUtils.hexStringToByteArray("aaabcfccadafcd341a4bdfabcd8912df");
-        BByteArray blobArray1 = (BByteArray) returns[0];
-        BByteArray blobArray2 = (BByteArray) returns[1];
-        BByteArray blobArray3 = (BByteArray) returns[2];
+        BValueArray blobArray1 = (BValueArray) returns[0];
+        BValueArray blobArray2 = (BValueArray) returns[1];
+        BValueArray blobArray3 = (BValueArray) returns[2];
         ByteArrayUtils.assertJBytesWithBBytes(bytes1, blobArray1);
         ByteArrayUtils.assertJBytesWithBBytes(bytes2, blobArray2);
         ByteArrayUtils.assertJBytesWithBBytes(bytes3, blobArray3);
@@ -392,10 +390,10 @@ public class ObjectInBaloTest {
         CompileResult result = BCompileUtil.compile("test-src/balo/test_balo/object" +
                 "/object_with_non_defaultable_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 3);
-        BAssertUtil.validateError(result, 0, "variable 'pp' is not initialized", 3, 1);
-        BAssertUtil.validateError(result, 1, "variable 'p' is not initialized", 6, 5);
-        BAssertUtil.validateError(result, 2, "undefined function 'attachInterface' in object " +
+        BAssertUtil.validateError(result, 0, "undefined function 'attachInterface' in object " +
                 "'testorg/foo:v1:Architect'", 7, 13);
+        BAssertUtil.validateError(result, 1, "variable 'p' is not initialized", 7, 13);
+        BAssertUtil.validateError(result, 2, "variable 'p' is not initialized", 7, 35);
     }
 
     @Test (description = "Negative test to test returning different type without type name")
@@ -410,7 +408,7 @@ public class ObjectInBaloTest {
         BAssertUtil.validateError(result, 2, "cannot infer type of the object from 'other'", 13, 19);
         BAssertUtil.validateError(result, 3, "invalid variable definition; can not infer the assignment type.",
                 13, 19);
-        BAssertUtil.validateError(result, 4, "invalid usage of 'new' with type 'error'", 14, 21);
+        BAssertUtil.validateError(result, 4, "cannot infer type of the object from 'error'", 14, 21);
     }
 
 //    @Test (description = "Negative test to test returning different type without type name")
@@ -564,9 +562,9 @@ public class ObjectInBaloTest {
                 BCompileUtil.compile("test-src/balo/test_balo/object/test_objects_type_reference_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 3);
         int i = 0;
-        BAssertUtil.validateError(result, i++, "undefined field 'name' in object 'Manager1'", 24, 9);
-        BAssertUtil.validateError(result, i++, "undefined field 'age' in object 'Manager1'", 24, 15);
-        BAssertUtil.validateError(result, i++, "incompatible types: 'foo:Manager1' is not an abstract object", 36, 6);
+        BAssertUtil.validateError(result, i++, "undefined field 'name' in object 'Manager1'", 25, 9);
+        BAssertUtil.validateError(result, i++, "undefined field 'age' in object 'Manager1'", 26, 9);
+        BAssertUtil.validateError(result, i++, "incompatible types: 'foo:Manager1' is not an abstract object", 38, 6);
     }
 
     @AfterClass

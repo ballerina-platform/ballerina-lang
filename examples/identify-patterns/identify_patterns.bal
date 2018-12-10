@@ -1,7 +1,7 @@
 import ballerina/io;
 import ballerina/runtime;
 
-int index;
+int index = 0;
 
 // Create a record type that represents the regulator state.
 type RegulatorState record {
@@ -20,9 +20,9 @@ type RoomKeyAction record {
 
 RoomKeyAction[] roomActions = [];
 
-stream<RegulatorState> regulatorStateChangeStream;
-stream<RoomKeyAction> roomKeyStream;
-stream<RoomKeyAction> regulatorActionStream;
+stream<RegulatorState> regulatorStateChangeStream = new;
+stream<RoomKeyAction> roomKeyStream = new;
+stream<RoomKeyAction> regulatorActionStream = new;
 
 // Deploy the decision rules for the regulator's next action based on the current regulator state and the user action on
 // the hotel key. If the regulator was on before and is still on after the user has removed the hotel key from the
@@ -39,7 +39,7 @@ function deployRegulatorActionDecisionRules() {
             e2 == null ? "none" : "stop" as userAction
         having userAction != "none"
         => (RoomKeyAction[] keyAction) {
-            foreach k in keyAction {
+            foreach var k in keyAction {
                 regulatorActionStream.publish(k);
             }
         }
@@ -78,7 +78,7 @@ public function main() {
     while (true) {
         runtime:sleep(500);
         count += 1;
-        if ((lengthof roomActions) > 0 || count == 10) {
+        if ((roomActions.length()) > 0 || count == 10) {
             break;
         }
     }

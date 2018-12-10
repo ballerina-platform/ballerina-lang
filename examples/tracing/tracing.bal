@@ -4,10 +4,10 @@ import ballerina/observe;
 import ballerina/runtime;
 
 // Make sure you start the service with `--observe`, or tracing enabled.
-service<http:Service> hello bind { port: 9234 } {
+service hello on new http:Listener(9234) {
 
     // Invoke all resources with arguments of server connector and request.
-    sayHello(endpoint caller, http:Request req) {
+    resource function sayHello(http:Caller caller, http:Request req) returns error? {
         http:Response res = new;
 
         //Start a child span attaching to the system span generated.
@@ -38,7 +38,12 @@ service<http:Service> hello bind { port: 9234 } {
         res.setPayload("Hello, World!");
 
         //Send the response back to the caller.
-        caller->respond(res) but { error e => log:printError(
-                           "Error sending response", err = e) };
+        var result = caller->respond(res);
+
+        if (result is error) {
+           log:printError("Error sending response", err = result);
+        }
+
+        return ();
     }
 }

@@ -31,6 +31,7 @@ import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -52,7 +53,7 @@ import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 public class WebSocketUtil {
 
     public static ProgramFile getProgramFile(Resource resource) {
-        return resource.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile();
+        return resource.getResourceInfo().getPackageInfo().getProgramFile();
     }
 
     static Annotation getServiceConfigAnnotation(Service service) {
@@ -79,7 +80,7 @@ public class WebSocketUtil {
             public void onSuccess(WebSocketConnection webSocketConnection) {
                 BMap<String, BValue> webSocketEndpoint = BLangConnectorSPIUtil.createObject(
                         wsService.getServiceInfo().getPackageInfo().getProgramFile(), PROTOCOL_PACKAGE_HTTP,
-                        WebSocketConstants.WEBSOCKET_ENDPOINT);
+                        WebSocketConstants.WEBSOCKET_CALLER);
                 BMap<String, BValue> webSocketConnector = BLangConnectorSPIUtil.createObject(
                         wsService.getServiceInfo().getPackageInfo().getProgramFile(), PROTOCOL_PACKAGE_HTTP,
                         WebSocketConstants.WEBSOCKET_CONNECTOR);
@@ -136,7 +137,7 @@ public class WebSocketUtil {
             }
 
             @Override
-            public void notifyFailure(BMap<String, BValue> error) {
+            public void notifyFailure(BError error) {
                 boolean isReady = ((BBoolean) webSocketConnector.get(WebSocketConstants.CONNECTOR_IS_READY_FIELD))
                         .booleanValue();
                 if (!isReady) {
@@ -189,7 +190,7 @@ public class WebSocketUtil {
 
     }
 
-    public static void setListenerOpenField(WebSocketOpenConnectionInfo connectionInfo) {
+    public static void setListenerOpenField(WebSocketOpenConnectionInfo connectionInfo) throws IllegalAccessException {
         connectionInfo.getWebSocketEndpoint().put(WebSocketConstants.LISTENER_IS_OPEN_FIELD,
                                                   new BBoolean(connectionInfo.getWebSocketConnection().isOpen()));
     }

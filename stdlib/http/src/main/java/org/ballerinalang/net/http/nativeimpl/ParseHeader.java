@@ -24,8 +24,8 @@ import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -35,6 +35,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import java.util.Arrays;
 
 import static org.ballerinalang.mime.util.MimeConstants.COMMA;
+import static org.ballerinalang.mime.util.MimeConstants.MIME_ERROR_CODE;
 import static org.ballerinalang.mime.util.MimeConstants.PARSER_ERROR;
 import static org.ballerinalang.mime.util.MimeConstants.SEMICOLON;
 
@@ -71,7 +72,7 @@ public class ParseHeader extends BlockingNativeCallableUnit {
             if (headerValue.contains(SEMICOLON)) {
                 value = HeaderUtil.getHeaderValue(value);
             }
-            BRefValueArray contentTuple = new BRefValueArray(parseHeaderTupleType);
+            BValueArray contentTuple = new BValueArray(parseHeaderTupleType);
             contentTuple.add(0, new BString(value));
             contentTuple.add(1, HeaderUtil.getParamMap(headerValue));
 
@@ -84,6 +85,6 @@ public class ParseHeader extends BlockingNativeCallableUnit {
         }
 
         // set parse error
-        context.setReturnValues(MimeUtil.createError(context, errMsg));
+        context.setReturnValues(MimeUtil.createError(context, MIME_ERROR_CODE, errMsg));
     }
 }

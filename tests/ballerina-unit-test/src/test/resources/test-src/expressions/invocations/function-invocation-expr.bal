@@ -37,7 +37,7 @@ function testReturnNativeFuncInvocationWithinNativeFuncInvocation(float x) retur
 
 function sum (int a) returns @untainted int {
     int x;
-    int val;
+    int val = 0;
     if (a > 0) {
         x = sum(a - 1);
         val =  a + x;

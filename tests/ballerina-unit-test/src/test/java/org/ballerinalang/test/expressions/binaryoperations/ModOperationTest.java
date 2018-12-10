@@ -116,26 +116,26 @@ public class ModOperationTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: error, message:  / by zero.*")
+            expectedExceptionsMessageRegExp = "error:  / by zero.*")
     public void testIntModZero() {
         BRunUtil.invoke(result, "intMod", new BValue[]{new BInteger(2000), new BInteger(0)});
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: error, message:  / by zero.*")
+    @Test
     public void testFloatModZero() {
-        BRunUtil.invoke(result, "floatMod", new BValue[]{new BFloat(200.1), new BFloat(0.0)});
+        BValue[] returns = BRunUtil.invoke(result, "floatMod", new BValue[]{new BFloat(200.1), new BFloat(0.0)});
+        Assert.assertEquals(returns[0].stringValue(), "NaN");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: error, message:  / by zero.*")
+    @Test
     public void testFloatModIntZero() {
-        BRunUtil.invoke(result, "floatIntMod", new BValue[]{new BFloat(200.1), new BInteger(0)});
+        BValue[] returns = BRunUtil.invoke(result, "floatIntMod", new BValue[]{new BFloat(200.1), new BInteger(0)});
+        Assert.assertEquals(returns[0].stringValue(), "NaN");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: error, message:  / by zero.*")
+    @Test
     public void testIntModFloatZero() {
-        BRunUtil.invoke(result, "intFloatMod", new BValue[]{new BInteger(2100), new BFloat(0.0)});
+        BValue[] returns = BRunUtil.invoke(result, "intFloatMod", new BValue[]{new BInteger(2100), new BFloat(0.0)});
+        Assert.assertEquals(returns[0].stringValue(), "NaN");
     }
 }

@@ -6,15 +6,15 @@ public function testObjectWithSimpleInit () returns (int, string, int, string) {
 
 type Person object {
     public int age = 10;
-    public string name;
+    public string name = "";
 
-    int year;
+    int year = 0;
     string month = "february";
 
-    new (year = 50, int count, name = "sample value1", string val1 = "default value") {
-        age = age + count;
-        month = val1;
+    function __init (int year = 50, int count, string name = "sample value1", string val1 = "default value") {
+        self.year = year;
+        self.name = name;
+        self.age = self.age + count;
+        self.month = val1;
     }
 };
-
-

@@ -20,7 +20,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -36,17 +35,16 @@ public class FormattingSourceGen {
      * process the given json before source generation.
      *
      * @param json       Current JSON AST node
-     * @param parent     Parent of the AST node
      * @param parentKind Parent kind
-     * @return {@link JsonObject} Processed AST node.
+     * @return {@link JsonObject} Processed AST node
      */
-    public static JsonObject build(JsonObject json, JsonObject parent, String parentKind) {
+    public static JsonObject build(JsonObject json, String parentKind) {
         String kind = json.get("kind").getAsString();
         for (Map.Entry<String, JsonElement> child : json.entrySet()) {
             if (!child.getKey().equals("position") && !child.getKey().equals("ws")) {
                 if (child.getValue().isJsonObject() &&
                         child.getValue().getAsJsonObject().get("kind") != null) {
-                    json.add(child.getKey(), build(child.getValue().getAsJsonObject(), json, kind));
+                    json.add(child.getKey(), build(child.getValue().getAsJsonObject(), kind));
                 } else if (child.getValue().isJsonArray()) {
                     JsonArray childArray = child.getValue().getAsJsonArray();
                     for (int j = 0; j < childArray.size(); j++) {
@@ -59,7 +57,7 @@ public class FormattingSourceGen {
                             j--;
                         } else if (childItem.isJsonObject()
                                 && childItem.getAsJsonObject().get("kind") != null) {
-                            build(childItem.getAsJsonObject(), json, kind);
+                            build(childItem.getAsJsonObject(), kind);
                         }
                     }
                 }
@@ -73,48 +71,274 @@ public class FormattingSourceGen {
      * Get the source of the given node.
      *
      * @param node Node to generate the ballerina source for
-     * @return {@link String} Generated source string.
+     * @return {@link String} Generated source string
      */
     public static String getSourceOf(JsonObject node) {
-        List<JsonObject> wsCollection = new ArrayList<>();
-        List<JsonObject> mergedWS = new ArrayList<>();
-        collectWSFromNode(node, wsCollection);
-
-        wsCollection.sort(Comparator.comparingInt(a -> a.get("i").getAsInt()));
-
-        JsonObject prevWS = null;
-        for (JsonObject wsItem : wsCollection) {
-            if (prevWS == null) {
-                prevWS = wsItem;
-                mergedWS.add(prevWS);
-            } else if (prevWS.get("i").getAsInt() != wsItem.get("i").getAsInt()) {
-                mergedWS.add(wsItem);
-                prevWS = wsItem;
-            }
-        }
-
         StringBuilder sourceBuilder = new StringBuilder();
-        for (JsonObject wsItem : mergedWS) {
+        for (JsonObject wsItem : extractWS(node)) {
             sourceBuilder.append(wsItem.get("ws").getAsString()).append(wsItem.get("text").getAsString());
         }
         return sourceBuilder.toString();
     }
 
-    private static void collectWSFromNode(JsonObject node, List<JsonObject> wsCollection) {
-        for (Map.Entry<String, JsonElement> child : node.entrySet()) {
-            String childName = child.getKey();
-            if (!"position".equals(childName) && !"parent".equals(childName)) {
-                if (child.getValue().isJsonObject() && child.getValue().getAsJsonObject().has("kind")) {
-                    collectWSFromNode(child.getValue().getAsJsonObject(), wsCollection);
-                } else if (child.getValue().isJsonArray()) {
-                    if ("ws".equals(childName)) {
-                        for (JsonElement wsElement : child.getValue().getAsJsonArray()) {
-                            wsCollection.add(wsElement.getAsJsonObject());
+    /**
+     * Extract Whitespaces from the given node sorted by the token index.
+     *
+     * @param node node to extract the white spaces
+     * @return {@link List} list of white spaces
+     */
+    public static List<JsonObject> extractWS(JsonObject node) {
+        return unify(getSortedWSList(node));
+    }
+
+    /**
+     * Reconcile whitespaces for the given node as to the attach point and the start index.
+     *
+     * @param node        Json Node to be added in to the node tree
+     * @param attachPoint Attach point for the node
+     * @param tree        whole Json AST tree
+     * @param startIndex  Start index where the node to be added
+     */
+    public static void reconcileWS(JsonObject node, JsonArray attachPoint, JsonObject tree, int startIndex) {
+        List<JsonObject> attachWS;
+        List<JsonObject> nodeWS = extractWS(node);
+        List<JsonObject> astWS = getSortedWSList(tree);
+
+        if (startIndex == -1) {
+            if (attachPoint.size() > 0) {
+                attachWS = extractWS(attachPoint.get(attachPoint.size() - 1).getAsJsonObject());
+                startIndex = attachWS.get(attachWS.size() - 1).get("i").getAsInt() + 1;
+            } else {
+                startIndex = 0;
+            }
+        }
+
+        int nodeFirstIndex = nodeWS.get(0).get("i").getAsInt();
+        int diff = startIndex - nodeFirstIndex;
+
+        nodeWS.forEach(ws -> ws.addProperty("i", ws.get("i").getAsInt() + diff));
+
+        int lastIndex = nodeWS.get(nodeWS.size() - 1).get("i").getAsInt();
+        int treeDiff = (lastIndex - startIndex) + 1;
+
+        for (JsonObject ws : astWS) {
+            if (ws.get("i").getAsInt() >= startIndex) {
+                ws.addProperty("i", ws.get("i").getAsInt() + treeDiff);
+            }
+        }
+    }
+
+    /**
+     * Get the start position suitable in the given attach point where new node to be added.
+     *
+     * @param node         Parent of the attach point
+     * @param attachPoint  Name of the attach point where the new node to be added
+     * @param insertBefore start position to add the new node above existing node
+     * @return {@link int} start position suitable for the new node to be added
+     */
+    public static int getStartPosition(JsonObject node, String attachPoint, int insertBefore) {
+        int startPosition = 0;
+        int prevPosition;
+        String kind = node.get("kind").getAsString();
+        switch (kind) {
+            case "CompilationUnit":
+                if (node.has("topLevelNodes") && attachPoint.equals("imports")) {
+                    JsonArray topLevelNodes = node.getAsJsonArray("topLevelNodes");
+
+                    // Collect all the imports available in top level.
+                    List<JsonObject> importsWS = new ArrayList<>();
+                    for (int i = 0; i < topLevelNodes.size(); i++) {
+                        if (topLevelNodes.get(i).getAsJsonObject().get("kind").getAsString().equals("Import")) {
+                            importsWS.add(topLevelNodes.get(i).getAsJsonObject());
                         }
+                    }
+
+                    // Find the last position of the imports to add the new import.
+                    prevPosition = 0;
+                    for (JsonObject ws : importsWS) {
+                        List<JsonObject> extractedWS = extractWS(ws);
+                        int lastIndex = extractedWS.get(extractedWS.size() - 1).get("i").getAsInt();
+                        if (prevPosition < lastIndex) {
+                            prevPosition = lastIndex;
+                        }
+                    }
+
+                    // Start position for the new import.
+                    startPosition = prevPosition + 1;
+                }
+                break;
+            case "Service":
+            case "Function":
+                JsonArray nodeWS = node.getAsJsonArray(FormattingConstants.WS);
+                if (node.has("resource")
+                        && node.get("resource").getAsBoolean() || kind.equals("Service")) {
+
+                    JsonArray annotationAttachments = node.has("annotationAttachments")
+                            ? node.getAsJsonArray("annotationAttachments")
+                            : node.getAsJsonArray("annAttachments");
+                    if ((node.has("annAttachments") || node.has("annotationAttachments"))
+                            && attachPoint.equals("annAttachments")) {
+                        startPosition = getCollectionStartPosition(annotationAttachments,
+                                nodeWS.get(0).getAsJsonObject().get("i").getAsInt() - 1, insertBefore);
+                    }
+
+                    // TODO: handle calculation for the param start position.
+
+                    JsonObject typeDefinition = kind.equals("Service") && node.has("typeDefinition")
+                            && node.getAsJsonObject("typeDefinition").get("service").getAsBoolean()
+                            ? node.getAsJsonObject("typeDefinition") : null;
+
+                    if (typeDefinition != null && typeDefinition.has("typeNode")
+                            && typeDefinition.getAsJsonObject("typeNode").has(FormattingConstants.WS)) {
+                        JsonArray typeDefinitionWS = typeDefinition.getAsJsonObject("typeNode")
+                                .getAsJsonArray(FormattingConstants.WS);
+                        prevPosition = findOpeningBrace(typeDefinitionWS);
                     } else {
-                        for (JsonElement wsElement : child.getValue().getAsJsonArray()) {
-                            if (wsElement.isJsonObject() && wsElement.getAsJsonObject().has("kind")) {
-                                collectWSFromNode(wsElement.getAsJsonObject(), wsCollection);
+                        prevPosition = findOpeningBrace(nodeWS);
+                    }
+
+                    if (node.has("endpointNodes")) {
+                        // If attachment point endpointNodes, calculate the position to add the new node in to endpoint
+                        // Else calculate the position of the last whitespace token.
+                        if (attachPoint.equals("endpointNodes")) {
+                            startPosition = getCollectionStartPosition(node.getAsJsonArray("endpointNodes"),
+                                    prevPosition, insertBefore);
+                        } else if (node.getAsJsonArray("endpointNodes").size() > 0) {
+                            List<JsonObject> endpointWS = extractWS(node.getAsJsonArray("endpointNodes")
+                                    .get(node.getAsJsonArray("endpointNodes").size() - 1).getAsJsonObject());
+                            prevPosition = endpointWS.get(endpointWS.size() - 1).get("i").getAsInt();
+                        }
+                    }
+
+                    if (kind.equals("Service")) {
+                        if (node.has("vars")) {
+                            JsonArray vars = node.getAsJsonArray("vars");
+                            if (attachPoint.equals("vars")) {
+                                startPosition = getCollectionStartPosition(vars, prevPosition, insertBefore);
+                            } else if (vars.size() > 0) {
+                                List<JsonObject> varWS = extractWS(vars.get(vars.size() - 1).getAsJsonObject());
+                                prevPosition = varWS.get(varWS.size() - 1).get("i").getAsInt();
+                            }
+                        }
+
+                        if (node.has("resources")) {
+                            JsonArray resources = node.getAsJsonArray("resources");
+                            if (attachPoint.equals("resources")) {
+                                startPosition = getCollectionStartPosition(resources, prevPosition, insertBefore);
+                            } else if (resources.size() > 0) {
+                                List<JsonObject> resourceWS = extractWS(resources.get(resources.size() - 1)
+                                        .getAsJsonObject());
+                                prevPosition = resourceWS.get(resourceWS.size() - 1).get("i").getAsInt();
+                            }
+                        }
+                    }
+
+                    if (kind.equals("Function") && node.has("resource")
+                            && node.get("resource").getAsBoolean()) {
+                        if (node.has("workers")) {
+                            if (attachPoint.equals("workers")) {
+                                startPosition = getCollectionStartPosition(node.getAsJsonArray("workers"),
+                                        prevPosition, insertBefore);
+                            } else if (node.getAsJsonArray("workers").size() > 0) {
+                                List<JsonObject> workerWS = extractWS(node.getAsJsonArray("workers")
+                                        .get(node.getAsJsonArray("workers").size() - 1).getAsJsonObject());
+                                prevPosition = workerWS.get(workerWS.size() - 1).get("i").getAsInt();
+                            }
+                        }
+
+                        if (node.has(FormattingConstants.BODY) && attachPoint.equals("statements")) {
+                            startPosition = getCollectionStartPosition(node.getAsJsonObject(FormattingConstants.BODY)
+                                    .getAsJsonArray(attachPoint), prevPosition, insertBefore);
+                        }
+                    }
+                }
+                break;
+            default:
+                if (node.has(FormattingConstants.WS)) {
+                    startPosition = findOpeningBrace(node.getAsJsonArray(FormattingConstants.WS)) + 1;
+                }
+                break;
+        }
+        return startPosition;
+    }
+
+    private static List<JsonObject> getSortedWSList(JsonObject node) {
+        List<JsonObject> wsCollection = new ArrayList<>();
+        collectWSFromNode(node, wsCollection);
+        wsCollection.sort(Comparator.comparingInt(a -> a.get("i").getAsInt()));
+        return wsCollection;
+    }
+
+    private static List<JsonObject> unify(List<JsonObject> toBeUnified) {
+        List<JsonObject> unified = new ArrayList<>();
+        JsonObject prevWS = null;
+        for (JsonObject wsItem : toBeUnified) {
+            if (prevWS == null) {
+                prevWS = wsItem;
+                unified.add(prevWS);
+            } else if (prevWS.get("i").getAsInt() != wsItem.get("i").getAsInt()
+                    && !prevWS.equals(wsItem)) {
+                unified.add(wsItem);
+                prevWS = wsItem;
+            }
+        }
+
+        return unified;
+    }
+
+    private static int getCollectionStartPosition(JsonArray collection, int entryPoint, int insertBefore) {
+        int startPosition;
+        if (collection.size() > 0) {
+            startPosition = getPositionToInsertBefore(collection, insertBefore);
+        } else {
+            startPosition = entryPoint + 1;
+        }
+        return startPosition;
+    }
+
+    private static int getPositionToInsertBefore(JsonArray collection, int insertBefore) {
+        int startPosition = -1;
+        if (collection.size() > 0) {
+            if (insertBefore == -1) {
+                List<JsonObject> statementWS = extractWS(collection.get(collection.size() - 1).getAsJsonObject());
+                startPosition = statementWS.get(statementWS.size() - 1).get("i").getAsInt() + 1;
+            } else {
+                List<JsonObject> statementWS = extractWS(collection.get(insertBefore).getAsJsonObject());
+                startPosition = statementWS.get(statementWS.size() - 1).get("i").getAsInt();
+            }
+        }
+        return startPosition;
+    }
+
+    private static int findOpeningBrace(JsonArray ws) {
+        int index = -1;
+        for (int i = 0; i < ws.size(); i++) {
+            if (ws.get(i).getAsJsonObject().get(FormattingConstants.TEXT).getAsString().equals("{")) {
+                index = ws.get(i).getAsJsonObject().get("i").getAsInt();
+                break;
+            }
+        }
+
+        return index;
+    }
+
+    private static void collectWSFromNode(JsonObject node, List<JsonObject> wsCollection) {
+        if (!node.has("skip")) {
+            for (Map.Entry<String, JsonElement> child : node.entrySet()) {
+                String childName = child.getKey();
+                if (!"position".equals(childName) && !"parent".equals(childName)) {
+                    if (child.getValue().isJsonObject() && child.getValue().getAsJsonObject().has("kind")) {
+                        collectWSFromNode(child.getValue().getAsJsonObject(), wsCollection);
+                    } else if (child.getValue().isJsonArray()) {
+                        if ("ws".equals(childName)) {
+                            for (JsonElement wsElement : child.getValue().getAsJsonArray()) {
+                                wsCollection.add(wsElement.getAsJsonObject());
+                            }
+                        } else {
+                            for (JsonElement wsElement : child.getValue().getAsJsonArray()) {
+                                if (wsElement.isJsonObject() && wsElement.getAsJsonObject().has("kind")) {
+                                    collectWSFromNode(wsElement.getAsJsonObject(), wsCollection);
+                                }
                             }
                         }
                     }
@@ -212,11 +436,6 @@ public class FormattingSourceGen {
                 && node.has("attachmentPoints")
                 && node.getAsJsonArray("attachmentPoints").size() <= 0) {
             node.addProperty("noAttachmentPoints", true);
-        }
-
-        if ("AnnotationAttachment".equals(kind) &&
-                node.getAsJsonObject("packageAlias").get("value").getAsString().equals("builtin")) {
-            node.addProperty("builtin", true);
         }
 
         if ("Identifier".equals(kind)) {
@@ -334,6 +553,24 @@ public class FormattingSourceGen {
                 node.addProperty("isServiceTypeUnavailable", true);
             }
 
+            if (node.has("resources")) {
+                if (node.has("typeDefinition")) {
+                    JsonObject typeDefinition = node.getAsJsonObject("typeDefinition");
+                    JsonObject typeNode = typeDefinition.getAsJsonObject("typeNode");
+                    if (typeNode.has("symbolType")
+                            && typeNode.getAsJsonArray("symbolType").get(0)
+                            .getAsString().equals("service")) {
+                        JsonArray functions = typeNode.getAsJsonArray("functions");
+                        for (JsonElement func : functions) {
+                            JsonObject function = func.getAsJsonObject();
+                            if (function.has("resource") && function.get("resource").getAsBoolean()) {
+                                function.addProperty("skip", true);
+                            }
+                        }
+                    }
+                }
+            }
+
             if (!node.has("anonymousEndpointBind")
                     && node.has("boundEndpoints")
                     && node.getAsJsonArray("boundEndpoints").size() <= 0) {
@@ -348,6 +585,11 @@ public class FormattingSourceGen {
                 if (!bindAvailable) {
                     node.addProperty("bindNotAvailable", true);
                 }
+            }
+
+            if (node.has("userDefinedTypeNode")
+                    && node.getAsJsonObject("userDefinedTypeNode").has(FormattingConstants.WS)) {
+                node.getAsJsonObject("userDefinedTypeNode").remove(FormattingConstants.WS);
             }
         }
 
@@ -459,32 +701,30 @@ public class FormattingSourceGen {
                 }
             }
 
-            // Sort and add all the parameters.
-            JsonArray allParamsTemp = node.getAsJsonArray("parameters");
-            allParamsTemp.addAll(node.getAsJsonArray("defaultableParameters"));
-            List<JsonElement> allParamElements = new ArrayList<>();
-            allParamsTemp.forEach(jsonElement -> {
-                allParamElements.add(jsonElement);
-            });
+            if (!(node.has("resource")
+                    && node.get("resource").getAsBoolean())) {
+                // Sort and add all the parameters.
+                JsonArray allParamsTemp = node.getAsJsonArray("parameters");
+                allParamsTemp.addAll(node.getAsJsonArray("defaultableParameters"));
+                List<JsonElement> allParamElements = new ArrayList<>();
+                allParamsTemp.forEach(allParamElements::add);
 
-            Collections.sort(allParamElements, (a, b) -> {
-                int comparator = 0;
-                comparator = (((a.getAsJsonObject().getAsJsonObject("position").get("endColumn").getAsInt() >
-                        b.getAsJsonObject().getAsJsonObject("position").get("startColumn").getAsInt())
-                        && (a.getAsJsonObject().getAsJsonObject("position").get("endLine").getAsInt() ==
-                        b.getAsJsonObject().getAsJsonObject("position").get("endLine").getAsInt())) ||
-                        (a.getAsJsonObject().getAsJsonObject("position").get("endLine").getAsInt() >
-                                b.getAsJsonObject().getAsJsonObject("position").get("endLine").getAsInt())) ? 1 : -1;
-                return comparator;
-            });
+                allParamElements.sort((a, b) -> {
+                    int comparator = 0;
+                    comparator = (((a.getAsJsonObject().getAsJsonObject("position").get("endColumn").getAsInt() >
+                            b.getAsJsonObject().getAsJsonObject("position").get("startColumn").getAsInt())
+                            && (a.getAsJsonObject().getAsJsonObject("position").get("endLine").getAsInt() ==
+                            b.getAsJsonObject().getAsJsonObject("position").get("endLine").getAsInt())) ||
+                            (a.getAsJsonObject().getAsJsonObject("position").get("endLine").getAsInt() >
+                                    b.getAsJsonObject().getAsJsonObject("position").get("endLine").getAsInt()))
+                            ? 1 : -1;
+                    return comparator;
+                });
 
-            JsonArray allParams = new JsonArray();
-
-            allParamElements.forEach(jsonElement -> {
-                allParams.add(jsonElement);
-            });
-
-            node.add("allParams", allParams);
+                JsonArray allParams = new JsonArray();
+                allParamElements.forEach(allParams::add);
+                node.add("allParams", allParams);
+            }
 
             if (node.has("receiver")
                     && !node.getAsJsonObject("receiver").has("ws")) {
@@ -557,6 +797,11 @@ public class FormattingSourceGen {
                         }
                     }
                 }
+            }
+
+            if (node.has("service") && node.get("service").getAsBoolean()
+                    && parentKind.equals("CompilationUnit")) {
+                node.addProperty("skip", true);
             }
         }
 
@@ -751,9 +996,9 @@ public class FormattingSourceGen {
                 && node.has("dimensions")
                 && node.get("dimensions").getAsInt() > 0
                 && node.has("ws")) {
-            String dimensionAsString = "";
+            StringBuilder dimensionAsString = new StringBuilder();
             JsonObject startingBracket = null;
-            JsonObject endingBracket = null;
+            JsonObject endingBracket;
             StringBuilder content = new StringBuilder();
             JsonArray ws = node.getAsJsonArray("ws");
 
@@ -763,12 +1008,11 @@ public class FormattingSourceGen {
                 } else if (ws.get(j).getAsJsonObject().get("text").getAsString().equals("]")) {
                     endingBracket = ws.get(j).getAsJsonObject();
 
-                    dimensionAsString += startingBracket.get("text").getAsString() + content.toString()
-                            + endingBracket.get("ws").getAsString()
-                            + endingBracket.get("text").getAsString();
+                    dimensionAsString.append(startingBracket.get("text").getAsString()).append(content.toString())
+                            .append(endingBracket.get("ws").getAsString()).append(endingBracket.get("text")
+                            .getAsString());
 
                     startingBracket = null;
-                    endingBracket = null;
                     content = new StringBuilder();
                 } else if (startingBracket != null) {
                     content.append(ws.get(j).getAsJsonObject().get("ws").getAsString())
@@ -776,7 +1020,7 @@ public class FormattingSourceGen {
                 }
             }
 
-            node.addProperty("dimensionAsString", dimensionAsString);
+            node.addProperty("dimensionAsString", dimensionAsString.toString());
         }
 
         if ("Block".equals(kind)

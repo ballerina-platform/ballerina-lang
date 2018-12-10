@@ -13,3 +13,8 @@ function name2() {
         return r;
     });
 }
+
+function name3(
+function (string, string) returns (string) param) {
+    string h = param("", "");
+}

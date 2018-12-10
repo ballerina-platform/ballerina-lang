@@ -128,30 +128,6 @@ public class JMSConnectorTestCase extends BaseTest {
 
     }
 
-    @Test(description = "Test MB Connector simple queue receiver and producer")
-    public void testMbSimpleQueueReceiverProducer() throws Exception {
-        LogLeecher serverLog = addServerLogLeecher("Message : Test Text");
-
-        LogLeecher clientLog = clientHandler.start("mb_simple_queue_producer.bal",
-                "Message successfully sent by mb:SimpleQueueSender");
-
-        waitForText(serverLog, TimeUnit.SECONDS, 20);
-        waitForText(clientLog, TimeUnit.SECONDS, 20);
-
-    }
-
-    @Test(description = "Test MB Connector simple topic subscriber and publisher")
-    public void testMbSimpleTopicSubscriberPublisher() throws Exception {
-        LogLeecher serverLog = addServerLogLeecher("Message : Test Text");
-
-        LogLeecher clientLog = clientHandler.start("mb_simple_topic_publisher.bal",
-                "Message successfully sent by mb:SimpleTopicPublisher");
-
-        waitForText(serverLog, TimeUnit.SECONDS, 20);
-        waitForText(clientLog, TimeUnit.SECONDS, 20);
-
-    }
-
     @Test(description = "Test MB Connector simple topic subscriber and publisher")
     public void testJMSMapMessagePublisherAndSubscriber() throws Exception {
 

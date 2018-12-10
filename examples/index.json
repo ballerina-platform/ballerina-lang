@@ -79,8 +79,16 @@
                 "url": "match"
             },
             {
-                "name": "Match Expression",
-                "url": "match-expression"
+                "name": "Tuple Match",
+                "url": "tuple-match-statement"
+            },
+            {
+                "name": "Record Match",
+                "url": "record-match-statement"
+            },
+            {
+                "name": "Type Guard",
+                "url": "type-guard"
             },
             {
                 "name": "Elvis",
@@ -126,6 +134,10 @@
             {
                 "name": "Optional Fields",
                 "url": "record-optional-fields"
+            },
+            {
+                "name": "Record Type Reference",
+                "url": "record-type-reference"
             }
         ]
     },
@@ -186,16 +198,63 @@
                 "url": "any-type"
             },
             {
+                "name": "Any Data Type",
+                "url": "any-data-type"
+            },
+            {
+                "name": "Explicitly Typed Expressions",
+                "url": "explicitly_typed_expressions"
+            },
+            {
+                "name": "Type Assertion",
+                "url": "type-assertion"
+            },
+            {
                 "name": "Type Conversion",
                 "url": "type-conversion"
             },
             {
-                "name": "Lengthof",
-                "url": "lengthof"
+                "name": "Length",
+                "url": "length"
             },
             {
                 "name": "Integer Ranges",
                 "url": "integer-ranges"
+            },
+            {
+                "name": "Equality",
+                "url": "equality"
+            },
+            {
+                "name": "Immutable Values",
+                "url": "immutable-values"
+            },
+            {
+                "name": "Constants",
+                "url": "constants"
+            }
+        ]
+    },
+    {
+        "title": "Binding Patterns",
+        "column": 1,
+        "category": "Language concepts",
+        "samples": [
+            {
+                "name": "Tuple Type Binding Pattern",
+                "url": "tuple-type-binding-pattern"
+            },
+            {
+                "name": "Record Type Binding Pattern",
+                "url": "record-type-binding-pattern"
+            },
+            {
+                "name": "Tuple Destructure Binding Pattern",
+                "url": "tuple-destructure-binding-pattern"
+            },
+            {
+                "name": "Record Destructure Binding Pattern",
+                "url": "record-destructure-binding-pattern"
             }
         ]
     },
@@ -288,16 +347,12 @@
                 "url": "worker-interaction"
             },
             {
-                "name": "Fork/Join",
-                "url": "fork-join"
+                "name": "Fork",
+                "url": "fork"
             },
             {
-                "name": "Fork/Join Conditional Join",
-                "url": "fork-join-conditional-join"
-            },
-            {
-                "name": "Fork/Join Variable Access",
-                "url": "fork-join-variable-access"
+                "name": "Fork Variable Access",
+                "url": "fork-variable-access"
             },
             {
                 "name": "Async",
@@ -340,6 +395,10 @@
             {
                 "name": "Abstract Objects",
                 "url": "abstract-objects"
+            },
+            {
+                "name": "Object Type Reference",
+                "url": "object-type-reference"
             }
         ]
     },
@@ -360,12 +419,12 @@
                 "url": "check"
             },
             {
-                "name": "Throw ",
-                "url": "throw"
+                "name": "Panic ",
+                "url": "panic"
             },
             {
-                "name": "Try/Catch/Finally",
-                "url": "try-catch-finally"
+                "name": "Trap Error",
+                "url": "trap-error"
             }
         ]
     },
@@ -467,6 +526,10 @@
             {
                 "name": "JDBC Client Call Procedures",
                 "url": "jdbc-client-call-procedures"
+            },
+            {
+                "name": "Streaming a Big Dataset",
+                "url": "streaming-big-dataset"
             }
         ]
     },
@@ -477,6 +540,10 @@
         "samples": [{
                 "name": "Local Transactions",
                 "url": "local-transactions"
+            },
+            {
+                "name": "Local Transactions with participants",
+                "url": "local-transactions-with-participants"
             },
             {
                 "name": "XA Transactions",
@@ -553,6 +620,21 @@
             {
                 "name": "Group Tests",
                 "url": "testerina-group-tests"
+            }
+        ]
+    },
+    {
+        "title": "Deployment",
+        "column": 3,
+        "category": "Language concepts",
+        "samples": [
+            {
+                "name": "Docker Deployment",
+                "url": "docker-deployment"
+            },
+            {
+                "name": "Kubernetes Deployment",
+                "url": "kubernetes-deployment"
             }
         ]
     },
@@ -639,6 +721,10 @@
             {
                 "name": "HTTP Compression",
                 "url": "http-compression"
+            },
+            {
+                "name": "HTTP Interceptors/Filters",
+                "url": "http-filters"
             }
         ]
     },
@@ -715,6 +801,10 @@
             {
                 "name": "Retry",
                 "url": "http-retry"
+            },
+            {
+                "name": "Timeout",
+                "url": "http-timeout"
             }
         ]
     },

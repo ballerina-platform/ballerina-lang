@@ -3,45 +3,46 @@ public type ParentFoo object {
 
     public int i;
     public ChildFoo c;
+    private string s = "";
 
-
-
-    private string s;
-
-
-    new (i, c){}
+    function __init (int i, ChildFoo c){
+        self.i = i;
+        self.c = c;
+    }
 };
 
 type ChildFoo object {
+    private string name = "";
 
-    private string name;
-
-
-    new (name) {}
+    function __init (string name) {
+        self.name = name;
+    }
 };
 
-type privatePerson object {
+type PrivatePerson object {
 
-    public int age;
-    public string name;
+    public int age = 0;
+    public string name = "";
 
-
-    new (age, name){}
+    function __init (int age, string name){
+        self.age = age;
+        self.name = name;
+    }
     public function getPrivatePersonName() returns string;
 };
 
-public function newPrivatePerson() returns (privatePerson) {
-    return new privatePerson(12, "mad");
+public function newPrivatePerson() returns (PrivatePerson) {
+    return new PrivatePerson(12, "mad");
 }
 
-public function privatePersonAsParam(privatePerson p) returns (string){
+public function privatePersonAsParam(PrivatePerson p) returns (string){
     return p.name;
 }
 
-public function privatePersonAsParamAndReturn(privatePerson p) returns (privatePerson) {
+public function privatePersonAsParamAndReturn(PrivatePerson p) returns (PrivatePerson) {
     return p;
 }
 
-function privatePerson::getPrivatePersonName() returns (string) {
+function PrivatePerson.getPrivatePersonName() returns (string) {
     return self.name;
 }

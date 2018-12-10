@@ -7,6 +7,7 @@
   "items": [
     {
       "label":"swagger:ServiceInfo",
+      "kind":"Property",
       "detail":"Annotation",
       "sortText":"110",
       "insertText":"swagger:ServiceInfo {\n\t${1}\n}",
@@ -16,11 +17,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":22
+              "character":23
             },
             "end":{
               "line":0,
-              "character":22
+              "character":23
             }
           },
           "newText":"\nimport ballerina/swagger;\n"
@@ -29,6 +30,7 @@
     },
     {
       "label":"swagger:ClientConfig",
+      "kind":"Property",
       "detail":"Annotation",
       "sortText":"110",
       "insertText":"swagger:ClientConfig {\n\t${1}\n}",
@@ -38,11 +40,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":22
+              "character":23
             },
             "end":{
               "line":0,
-              "character":22
+              "character":23
             }
           },
           "newText":"\nimport ballerina/swagger;\n"
@@ -51,6 +53,7 @@
     },
     {
       "label":"websub:SubscriberServiceConfig",
+      "kind":"Property",
       "detail":"Annotation",
       "sortText":"110",
       "insertText":"websub:SubscriberServiceConfig {\n\t${1}\n}",
@@ -60,11 +63,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":22
+              "character":23
             },
             "end":{
               "line":0,
-              "character":22
+              "character":23
             }
           },
           "newText":"\nimport ballerina/websub;\n"
@@ -73,6 +76,7 @@
     },
     {
       "label":"grpc:ServiceConfig",
+      "kind":"Property",
       "detail":"Annotation",
       "sortText":"110",
       "insertText":"grpc:ServiceConfig {\n\t${1}\n}",
@@ -82,11 +86,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":22
+              "character":23
             },
             "end":{
               "line":0,
-              "character":22
+              "character":23
             }
           },
           "newText":"\nimport ballerina/grpc;\n"
@@ -95,6 +99,7 @@
     },
     {
       "label":"grpc:ServiceDescriptor",
+      "kind":"Property",
       "detail":"Annotation",
       "sortText":"110",
       "insertText":"grpc:ServiceDescriptor {\n\t${1}\n}",
@@ -104,11 +109,11 @@
           "range":{
             "start":{
               "line":0,
-              "character":22
+              "character":23
             },
             "end":{
               "line":0,
-              "character":22
+              "character":23
             }
           },
           "newText":"\nimport ballerina/grpc;\n"
@@ -116,14 +121,8 @@
       ]
     },
     {
-      "label":"interruptible",
-      "detail":"Annotation",
-      "sortText":"110",
-      "insertText":"interruptible",
-      "insertTextFormat":"Snippet"
-    },
-    {
       "label":"http:ServiceConfig",
+      "kind":"Property",
       "detail":"Annotation",
       "sortText":"110",
       "insertText":"http:ServiceConfig {\n\t${1}\n}",
@@ -131,6 +130,7 @@
     },
     {
       "label":"http:WebSocketServiceConfig",
+      "kind":"Property",
       "detail":"Annotation",
       "sortText":"110",
       "insertText":"http:WebSocketServiceConfig {\n\t${1}\n}",

@@ -50,13 +50,24 @@ public class AnnotationTests {
     }
 
     @Test
-    public void testBallerinaAnnotations() {
-        BValue[] returns = BRunUtil.invoke(result, "testBallerinaAnnotations");
+    public void testBallerinaServiceAnnotations() {
+        BValue[] returns = BRunUtil.invoke(result, "testBallerinaServiceAnnotations");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0].stringValue().contains("name:\"ServiceConfig\", moduleName:\"ballerina/http\", " +
                 "moduleVersion:\"\""));
         Assert.assertTrue(returns[0].stringValue().contains("/myService"));
+    }
+
+    @Test
+    public void testBallerinaResourceAnnotations() {
+        BValue[] returns = BRunUtil.invoke(result, "testBallerinaResourceAnnotations");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0].stringValue()
+                .contains("name:\"ResourceConfig\", moduleName:\"ballerina/http\", " + "moduleVersion:\"\""));
+        Assert.assertTrue(returns[0].stringValue().contains("/bar"));
     }
 }

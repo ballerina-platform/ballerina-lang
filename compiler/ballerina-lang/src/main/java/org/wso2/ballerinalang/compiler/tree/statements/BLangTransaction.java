@@ -30,23 +30,19 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 public class BLangTransaction extends BLangStatement implements TransactionNode {
     public BLangBlockStmt transactionBody;
     public BLangBlockStmt onRetryBody;
+    public BLangBlockStmt committedBody;
+    public BLangBlockStmt abortedBody;
     public BLangExpression retryCount;
-    public BLangExpression onCommitFunction;
-    public BLangExpression onAbortFunction;
 
     public BLangTransaction() {
     }
 
     public BLangTransaction(BLangBlockStmt transactionBody,
                             BLangBlockStmt onRetryBody,
-                            BLangExpression retryCount,
-                            BLangExpression onCommitFunction,
-                            BLangExpression abortedFunction) {
+                            BLangExpression retryCount) {
         this.transactionBody = transactionBody;
         this.onRetryBody = onRetryBody;
         this.retryCount = retryCount;
-        this.onCommitFunction = onCommitFunction;
-        this.onAbortFunction = abortedFunction;
     }
 
     @Override
@@ -65,13 +61,13 @@ public class BLangTransaction extends BLangStatement implements TransactionNode 
     }
 
     @Override
-    public ExpressionNode getOnCommitFunction() {
-        return onCommitFunction;
+    public BLangBlockStmt getAbortedBody() {
+        return abortedBody;
     }
 
     @Override
-    public ExpressionNode getOnAbortFunction() {
-        return onAbortFunction;
+    public BLangBlockStmt getCommittedBody() {
+        return committedBody;
     }
 
     @Override
@@ -90,13 +86,13 @@ public class BLangTransaction extends BLangStatement implements TransactionNode 
     }
 
     @Override
-    public void setOnCommitFunction(ExpressionNode committedFunction) {
-        this.onCommitFunction = (BLangExpression) committedFunction;
+    public void setCommittedBody(BlockNode committedBlock) {
+        this.committedBody = (BLangBlockStmt) committedBlock;
     }
 
     @Override
-    public void setOnAbortFunction(ExpressionNode abortedFunction) {
-        this.onAbortFunction = (BLangExpression) abortedFunction;
+    public void setAbortedBody(BlockNode abortedBlock) {
+        this.abortedBody = (BLangBlockStmt) abortedBlock;
     }
 
     @Override
@@ -113,8 +109,6 @@ public class BLangTransaction extends BLangStatement implements TransactionNode 
     public String toString() {
         return "Transaction: {" + transactionBody + "} "
                 + (onRetryBody != null ? " failed {" + String.valueOf(onRetryBody) + "}" : "")
-                + (retryCount != null ? " retry (" + retryCount + ")" : "")
-                + (onCommitFunction != null ? " committed (" + onCommitFunction + ")" : "")
-                + (onAbortFunction != null ? " aborted (" + onAbortFunction + ")" : "");
+                + (retryCount != null ? " retry (" + retryCount + ")" : "");
     }
 }
