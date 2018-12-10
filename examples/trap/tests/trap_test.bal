@@ -23,10 +23,6 @@ function testFunc() {
     // Invoking the main function
     main();
 
-    string out1 = "Start dividing numbers";
-    string out2 = "Error occurred: Division by 0 is not defined";
-    string out3 = "Finally block executed";
+    string out = "Error occurred: {ballerina}DivisionByZero";
     test:assertEquals(outputs[0], out1);
-    test:assertEquals(outputs[1], out2);
-    test:assertEquals(outputs[2], out3);
 }
