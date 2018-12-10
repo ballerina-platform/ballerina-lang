@@ -56,6 +56,7 @@ public class LSAnnotationCache {
     private static HashMap<PackageID, List<BAnnotationSymbol>> serviceAnnotations = new HashMap<>();
     private static HashMap<PackageID, List<BAnnotationSymbol>> resourceAnnotations = new HashMap<>();
     private static HashMap<PackageID, List<BAnnotationSymbol>> functionAnnotations = new HashMap<>();
+    private static HashMap<PackageID, List<BAnnotationSymbol>> listenerAnnotations = new HashMap<>();
     private static HashMap<PackageID, List<BAnnotationSymbol>> clientEndpointAnnotations = new HashMap<>();
     private static LSAnnotationCache lsAnnotationCache = null;
     private static List<PackageID> processedPackages = new ArrayList<>();
@@ -140,6 +141,9 @@ public class LSAnnotationCache {
             case FUNCTION:
                 annotationMap = functionAnnotations;
                 break;
+            case LISTENER:
+                annotationMap = listenerAnnotations;
+                break;
             default:
                 annotationMap = new HashMap<>();
                 break;
@@ -171,6 +175,9 @@ public class LSAnnotationCache {
                 }
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.CLIENT)) {
                     addAttachment(annotationSymbol, clientEndpointAnnotations, bPackageSymbol.pkgID);
+                }
+                if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.LISTENER)) {
+                    addAttachment(annotationSymbol, listenerAnnotations, bPackageSymbol.pkgID);
                 }
             }
         });

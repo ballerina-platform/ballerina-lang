@@ -126,7 +126,21 @@ public abstract class AbstractItemResolver {
      */
     boolean isAnnotationStart(LSServiceOperationContext ctx) {
         List<String> poppedTokens = CommonUtil.popNFromList(CommonUtil.getPoppedTokenStrings(ctx), 4);
-        return poppedTokens.contains(UtilSymbolKeys.ANNOTATION_START_SYMBOL_KEY);
+        return poppedTokens.contains(UtilSymbolKeys.ANNOTATION_START_SYMBOL_KEY)
+                && !poppedTokens.get(0).equals(UtilSymbolKeys.LISTENER_KEYWORD_KEY);
+    }
+
+    /**
+     * Check whether the last token is annotation (@).
+     *
+     * @param ctx                   Completion operation context
+     * @return {@link Boolean}      Whether annotation context start or not
+     */
+    boolean isListenerAnnotationStart(LSServiceOperationContext ctx) {
+        List<String> poppedTokens = CommonUtil.getPoppedTokenStrings(ctx);
+        return !poppedTokens.isEmpty()
+                && CommonUtil.getLastItem(poppedTokens).equals(UtilSymbolKeys.ANNOTATION_START_SYMBOL_KEY)
+                && poppedTokens.get(0).equals(UtilSymbolKeys.LISTENER_KEYWORD_KEY);
     }
 
     /**
