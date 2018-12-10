@@ -5,9 +5,9 @@ type TestRecord record {
 
 function name () {
     TestRecord rec = {
-        id : 0,
+        id: 0,
         name: "marcus"
     };
 
-string nameTest=rec . name ;
+string nameTest = rec.name;
 }

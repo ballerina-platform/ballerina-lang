@@ -84,15 +84,17 @@ service circuitbreaker on new http:Listener(9090) {
 
             var responseToCaller = caller->respond(backendResponse);
             if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+                log:printError("Error sending response",
+                                err = responseToCaller);
             }
-        } else if (backendResponse is error) {
+        } else {
             http:Response response = new;
             response.statusCode = http:INTERNAL_SERVER_ERROR_500;
             response.setPayload(<string> backendResponse.detail().message);
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+                log:printError("Error sending response",
+                                err = responseToCaller);
             }
         }
     }
@@ -119,22 +121,26 @@ service helloWorld on new http:Listener(8080) {
 
             var result = caller->respond("Hello World!!!");
             if (result is error) {
-               log:printError("Error sending response from mock service", err = result);
+               log:printError("Error sending response from mock service",
+                               err = result);
             }
         } else if (counter % 5 == 3) {
             counter = counter + 1;
             http:Response res = new;
             res.statusCode = 500;
-            res.setPayload("Internal error occurred while processing the request.");
+            res.setPayload(
+                    "Internal error occurred while processing the request.");
             var result = caller->respond(res);
             if (result is error) {
-               log:printError("Error sending response from mock service", err = result);
+               log:printError("Error sending response from mock service",
+                               err = result);
             }
         } else {
             counter = counter + 1;
             var result = caller->respond("Hello World!!!");
             if (result is error) {
-               log:printError("Error sending response from mock service", err = result);
+               log:printError("Error sending response from mock service",
+                               err = result);
             }
         }
     }

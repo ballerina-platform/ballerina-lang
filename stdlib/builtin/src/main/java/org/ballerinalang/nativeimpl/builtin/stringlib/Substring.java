@@ -24,6 +24,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
+import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 
@@ -49,18 +50,21 @@ public class Substring extends BlockingNativeCallableUnit {
         long toLong = context.getIntArgument(1);
 
         if (toLong != (int) toLong) {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INDEX_NUMBER_TOO_LARGE, toLong);
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.STRING_OPERATION_ERROR,
+                                                           RuntimeErrors.INDEX_NUMBER_TOO_LARGE, toLong);
         }
         if (fromLong != (int) fromLong) {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INDEX_NUMBER_TOO_LARGE, fromLong);
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.STRING_OPERATION_ERROR,
+                                                           RuntimeErrors.INDEX_NUMBER_TOO_LARGE, fromLong);
         }
 
         int from = (int) fromLong;
         int to = (int) toLong;
 
         if (from < 0 || to > initialString.length()) {
-            throw new BallerinaException("String index out of range. Actual:" + initialString.length() +
-                    " requested: " + from + " to " + to);
+            throw new BallerinaException(BallerinaErrorReasons.STRING_OPERATION_ERROR,
+                                         "String index out of range. Actual:" + initialString.length() + " requested: "
+                                                 + from + " to " + to);
         }
         BString subString = new BString(initialString.substring(from, to));
         context.setReturnValues(subString);

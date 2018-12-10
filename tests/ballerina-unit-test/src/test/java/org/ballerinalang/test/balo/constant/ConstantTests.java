@@ -71,8 +71,7 @@ public class ConstantTests {
         Assert.assertEquals(returns[0].stringValue(), "A");
     }
 
-    // Todo - Enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/11148
-    @Test(enabled = false)
+    @Test
     public void testReturnFiniteType() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testReturnFiniteType");
         Assert.assertEquals(returns.length, 1);

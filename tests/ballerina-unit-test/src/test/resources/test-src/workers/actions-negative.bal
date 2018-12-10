@@ -45,11 +45,16 @@ function workerActionFirstTest() {
         // Invalid worker
         var x = flush w4;
     }
-    worker w2 {
+    worker w2 returns error? {
         // Receive expr should get anydata
+        if(false){
+             error err = error("err", { message: "err msg" });
+             return err;
+        }
         Person p2 = <- w1;
         Person p3 = new Person();
         p3 = <- w1;
+        return;
     }
     worker w3 {
         // No send actions to particular worker
@@ -85,10 +90,15 @@ function workerActionThirdTest() {
         var x2 = i ->> w2;
         var result = flush w2;
     }
-    worker w2 {
+    worker w2 returns error?{
+        if(false){
+             error err = error("err", { message: "err msg" });
+             return err;
+        }
         int j =0 ;
         j = <- w1;
         j = <- w1;
+        return;
     }
 }
 

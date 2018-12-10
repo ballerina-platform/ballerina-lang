@@ -7,7 +7,6 @@ http:Client clientEP = new("http://localhost:9090", config = {
     });
 
 public function main() {
-
     // Send a GET request to the specified endpoint.
     var returnResult = clientEP->get("/redirect1");
 
@@ -15,10 +14,10 @@ public function main() {
         var payload = returnResult.getTextPayload();
         if (payload is string) {
             io:println("Response received : " + payload);
-        } else if (payload is error) {
+        } else {
             log:printError("Error in payload", err = payload);
         }
-    } else if (returnResult is error) {
+    } else {
         log:printError("Error in connection", err = returnResult);
     }
 }

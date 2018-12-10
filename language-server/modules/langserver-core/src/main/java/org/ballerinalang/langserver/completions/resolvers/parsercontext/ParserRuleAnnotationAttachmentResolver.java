@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
+import org.ballerinalang.langserver.AnnotationNodeKind;
 import org.ballerinalang.langserver.LSAnnotationCache;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
@@ -36,13 +37,10 @@ public class ParserRuleAnnotationAttachmentResolver extends AbstractItemResolver
     
     @Override
     public List<CompletionItem> resolveItems(LSServiceOperationContext ctx) {
-        int attachmentPointType = ctx.get(CompletionKeys.NEXT_NODE_KEY) != null ?
-                ctx.get(CompletionKeys.NEXT_NODE_KEY) : -1;
-
-        if (attachmentPointType == -1) {
+        if (ctx.get(CompletionKeys.NEXT_NODE_KEY) == null) {
             return new ArrayList<>();
         }
-        return filterAnnotations(attachmentPointType, ctx);
+        return filterAnnotations(ctx.get(CompletionKeys.NEXT_NODE_KEY), ctx);
     }
 
     /**
@@ -50,7 +48,7 @@ public class ParserRuleAnnotationAttachmentResolver extends AbstractItemResolver
      * 
      * @return {@link List}
      */
-    private ArrayList<CompletionItem> filterAnnotations(int attachmentPoint, LSContext ctx) {
+    private ArrayList<CompletionItem> filterAnnotations(AnnotationNodeKind attachmentPoint, LSContext ctx) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         
         LSAnnotationCache.getInstance().getAnnotationMapForType(attachmentPoint, ctx)

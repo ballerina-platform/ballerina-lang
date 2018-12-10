@@ -13,11 +13,11 @@ public function main() {
         if (payload is string) {
             // Log the retrieved text paylod.
             log:printInfo(payload);
-        } else if (payload is error) {
+        } else {
             // If an error occurs when retrieving the text payload, log the error.
             log:printError(<string> payload.detail().message);
         }
-    } else if (resp is error) {
+    } else {
             // If an error occurs when getting the response, log the error.
         log:printError(<string> resp.detail().message);
     }

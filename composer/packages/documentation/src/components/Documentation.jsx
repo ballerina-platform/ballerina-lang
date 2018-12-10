@@ -19,30 +19,34 @@
 import React from 'react';
 import Description from './Description';
 import { Table } from 'semantic-ui-react';
-import './Documentation.css';
 
 const Documentation = ({ docDetails }) => {
-    const { title, kind, description, parameters, typeNodeKind, returnParameter } = docDetails;
+    const { title, kind, description, parameters, returnParameter, valueType } = docDetails;
     const paramNames = Object.keys(parameters);
-
-    let type = (kind == 'TypeDefinition') ? typeNodeKind : kind;
 
     const icon = {
         'Function': 'fw-function',
+        'Service': 'fw-service',
         'ObjectType': 'fw-struct',
         'RecordType': 'fw-record'
-    }[type];
+    }[kind];
 
     return (
-        <div className='documentation'>
+        <div className='documentation-block'>
             <div className='title'>
-                { icon && (<i className={`fw fw-fw icon ${icon}`}></i>) }{title}{ type === 'Function' && '()' } 
-                { type === 'ObjectType' && (<span className='object-type'>{'{'}<span className='type'>object</span>{'}'}</span>)}
+                { icon && (<i className={`fw fw-fw icon ${icon}`}></i>) }{title}
+                { kind === 'Function' && '()' }
+                { valueType !== '' &&
+                    (<span className='value-type'>[<span className='type'>{valueType}</span>]</span>)
+                }
+                { kind === 'Service' && (<span className='service-type'><span className='type'>service</span></span>)}
+                { kind === 'ObjectType' && (<span className='object-type'>{'{'}<span className='type'>object</span>{'}'}</span>)}
             </div>
             <Description source={description} className='description' />
             {returnParameter && returnParameter.type !== 'nil' && (
                 <div className='return-details'>
-                    <div><strong>return:</strong> <span className='type'>{returnParameter.type}</span></div> 
+                    <div>----------------------------------</div>
+                    {returnParameter.type && <div><strong>return:</strong> <span className='type'>{returnParameter.type}</span></div>}
                     <div className='return-description'>{<Description source={returnParameter.description || ''} />}</div>
                 </div>
             )}

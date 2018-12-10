@@ -46,7 +46,8 @@ service InitiatorService on new http:Listener(8080) {
 
         var result = conn->respond(res);
         if (result is error) {
-            log:printError("Could not send response back to client", err = result);
+            log:printError("Could not send response back to client",
+                            err = result);
         } else {
             log:printInfo("Sent response back to client");
         }

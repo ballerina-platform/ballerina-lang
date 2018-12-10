@@ -18,7 +18,7 @@
  */
 
 import * as React from "react";
-import { Button, Form, Select } from "semantic-ui-react";
+import { Button, Form, Header, Icon, Select } from "semantic-ui-react";
 
 import { OpenApiResponse } from "../../components/parameter/add-response";
 
@@ -109,6 +109,12 @@ class OpenApiAddResponse extends React.Component<OpenApiAddResponseProps, OpenAp
 
         return (
             <Form size="mini" className="add-operation">
+                <div className="form-box">
+                    <Header floated="left" as="h3">Add Response</Header>
+                    <Icon circular onClick={() => {
+                        handleClose(true);
+                    }} name="close" />
+                </div>
                 <Form.Field>
                     <Form.Field
                         control={Select}
