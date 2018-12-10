@@ -17,8 +17,6 @@
 package org.ballerinalang.langserver.completions.resolvers;
 
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.ballerinalang.langserver.AnnotationNodeKind;
-import org.ballerinalang.langserver.LSAnnotationCache;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
@@ -51,14 +49,7 @@ public class TopLevelResolver extends AbstractItemResolver {
         AbstractItemResolver resolver = prContext == null ? null : CompletionItemResolver.get(prContext.getClass());
 
         List<String> poppedTokens = CommonUtil.getPoppedTokenStrings(ctx);
-        if (this.isListenerAnnotationStart(ctx)) {
-            LSAnnotationCache.getInstance().getAnnotationMapForType(AnnotationNodeKind.LISTENER, ctx)
-                    .entrySet()
-                    .forEach(annotationLists -> annotationLists.getValue().forEach(bLangAnnotation -> {
-                        completionItems.add(CommonUtil.getAnnotationCompletionItem(annotationLists.getKey(),
-                                bLangAnnotation, ctx));
-                    }));
-        } else if (this.isAnnotationStart(ctx)) {
+        if (this.isAnnotationStart(ctx)) {
             resolver = CompletionItemResolver.get(ParserRuleAnnotationAttachmentResolver.class);
             completionItems.addAll(resolver.resolveItems(ctx));
         } else if (poppedTokens.size() >= 1 && this.isAccessModifierToken(poppedTokens.get(0))) {
