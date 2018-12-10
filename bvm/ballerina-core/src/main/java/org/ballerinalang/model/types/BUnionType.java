@@ -89,7 +89,7 @@ public class BUnionType extends BType {
             return false;
         }
         BUnionType that = (BUnionType) o;
-        return Objects.equals(memberTypes, that.memberTypes);
+        return memberTypes.containsAll(that.memberTypes) && that.memberTypes.containsAll(memberTypes);
     }
 
     @Override
