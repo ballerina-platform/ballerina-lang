@@ -27,6 +27,7 @@ import org.ballerinalang.model.values.BError;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.exceptions.BLangNullReferenceException;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.observability.ObserveUtils;
 import org.ballerinalang.util.program.BLangVMUtils;
 import org.slf4j.Logger;
@@ -70,6 +71,8 @@ public class BVMScheduler {
         try {
             strandCountUp();
             BVM.execute(strand);
+        } catch (OutOfMemoryError e) {
+            throw new BLangRuntimeException("error: out of memory");
         } catch (Throwable e) {
             //These errors are unhandled errors in BVM, hence logging them to bre log.
             breLog.error(e.getMessage(), e);

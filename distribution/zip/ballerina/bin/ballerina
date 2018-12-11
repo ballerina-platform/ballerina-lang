@@ -199,8 +199,6 @@ fi
 $JAVACMD \
 	-Xbootclasspath/a:"$BALLERINA_XBOOTCLASSPATH" \
 	-Xms256m -Xmx1024m \
-	-XX:+HeapDumpOnOutOfMemoryError \
-	-XX:HeapDumpPath="$BALLERINA_HOME/heap-dump.hprof" \
 	$JAVA_OPTS \
 	-classpath "$BALLERINA_CLASSPATH" \
 	-Dballerina.home=$BALLERINA_HOME \
