@@ -563,6 +563,23 @@ public class RecordStampInbuiltFunctionTest {
                 BStringType.class);
     }
 
+    @Test
+    public void testStampRecordToConstraintJSONV2() {
+
+        BValue[] results = BRunUtil.invoke(compileResult, "stampRecordToConstraintJSONV2");
+        BMap<String, BValue> mapValue0 = (BMap<String, BValue>) results[0];
+
+        Assert.assertEquals(results.length, 1);
+        Assert.assertEquals(mapValue0.getType().getClass(), BJSONType.class);
+        Assert.assertEquals(((BJSONType) mapValue0.getType()).getConstrainedType().getClass(), BRecordType.class);
+        Assert.assertEquals(((BJSONType) mapValue0.getType()).getConstrainedType().getName(), "Person");
+
+        Assert.assertEquals((mapValue0.getMap()).size(), 4);
+        Assert.assertEquals(((LinkedHashMap) mapValue0.getMap()).get("school").toString(), "Hindu College");
+        Assert.assertEquals(((BValue) ((LinkedHashMap) mapValue0.getMap()).get("school")).getType().getClass(),
+                BStringType.class);
+    }
+
     //---------------------------------- Negative Test cases ----------------------------------------------
 
     @Test
@@ -604,5 +621,14 @@ public class RecordStampInbuiltFunctionTest {
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).details).get("message").stringValue(),
                             "incompatible stamp operation: 'Employee' value cannot be stamped as 'Teacher'");
     }
-}
 
+    @Test
+    public void testStampRecordToConstraintJSONNegative() {
+        BValue[] results = BRunUtil.invoke(compileResult, "stampRecordToConstraintJSONNegative");
+        BValue error = results[0];
+
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).details).get("message").stringValue(),
+                "incompatible stamp operation: 'Employee' value cannot be stamped as 'json<Person>'");
+    }
+}
