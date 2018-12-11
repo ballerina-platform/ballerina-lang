@@ -34,7 +34,6 @@ import org.ballerinalang.langserver.index.dto.BObjectTypeSymbolDTO;
 import org.ballerinalang.langserver.index.dto.BPackageSymbolDTO;
 import org.ballerinalang.langserver.index.dto.BRecordTypeSymbolDTO;
 import org.ballerinalang.langserver.index.dto.OtherTypeSymbolDTO;
-import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.slf4j.Logger;
@@ -124,8 +123,10 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
 
         LSIndexImpl lsIndex = context.get(LSGlobalContextKeys.LS_INDEX_KEY);
         // Extract the package symbol
+        String relativePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         BLangPackage currentBLangPkg = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-        Optional bLangImport = CommonUtil.getCurrentFileImports(currentBLangPkg, context)
+        BLangPackage sourceOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativePath, currentBLangPkg);
+        Optional bLangImport = CommonUtil.getCurrentFileImports(sourceOwnerPkg, context)
                 .stream()
                 .filter(importPkg -> importPkg.getAlias().getValue().equals(pkgName))
                 .findFirst();
@@ -135,9 +136,8 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
             String realOrgName;
             if (bLangImport.isPresent()) {
                 // There is an added import statement.
-                PackageID pkgId = ((BLangImportPackage) bLangImport.get()).symbol.pkgID;
-                realPackageName = pkgId.getName().getValue();
-                realOrgName = pkgId.getOrgName().getValue();
+                realPackageName = CommonUtil.getPackageNameComponentsCombined(((BLangImportPackage) bLangImport.get()));
+                realOrgName = ((BLangImportPackage) bLangImport.get()).getOrgName().getValue();
             } else {
                 realPackageName = pkgName;
                 realOrgName = "";

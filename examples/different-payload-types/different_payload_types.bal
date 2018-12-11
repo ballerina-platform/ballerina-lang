@@ -43,11 +43,11 @@ service actionService on new http:Listener(9090) {
         handleResponse(response);
 
         //Get a byte channel to a given file.
-        io:ReadableByteChannel byteChannel = io:openReadableFile("./files/logo.png");
+        io:ReadableByteChannel bChannel = io:openReadableFile("./files/logo.png");
 
         //POST remote function with byte channel as payload. Xince the file path is static
         //`untaint` is used to denote that the byte channel is trusted .
-        response = clientEP->post("/image", untaint byteChannel);
+        response = clientEP->post("/image", untaint bChannel);
         handleResponse(response);
 
         //Create a json body part.
@@ -92,45 +92,41 @@ service backEndService on new http:Listener(9091) {
                 string textValue = "";
                 if (returnValue is string) {
                     textValue = returnValue;
-                } else if (returnValue is error) {
+                } else {
                     textValue = string.convert(returnValue.detail().message);
                 }
                 var result = caller->respond(untaint textValue);
                 handleError(result);
-
             } else if (mime:APPLICATION_XML == baseType) {
                 var xmlValue = req.getXmlPayload();
                 if (xmlValue is xml) {
                     var result = caller->respond(untaint xmlValue);
                     handleError(result);
-                } else if (xmlValue is error) {
+                } else {
                     sendErrorMsg(caller, xmlValue);
                 }
-
             } else if (mime:APPLICATION_JSON == baseType) {
                 var jsonValue = req.getJsonPayload();
                 if (jsonValue is json) {
                     var result = caller->respond(untaint jsonValue);
                     handleError(result);
-                } else if (jsonValue is error) {
+                } else {
                     sendErrorMsg(caller, jsonValue);
                 }
-
             } else if (mime:APPLICATION_OCTET_STREAM == baseType) {
                 var blobValue = req.getBinaryPayload();
                 if (blobValue is byte[]) {
                     var result = caller->respond(untaint blobValue);
                     handleError(result);
-                } else if (blobValue is error) {
+                } else {
                     sendErrorMsg(caller, blobValue);
                 }
-
             } else if (mime:MULTIPART_FORM_DATA == baseType) {
                 var bodyParts = req.getBodyParts();
                 if (bodyParts is mime:Entity[]) {
                     var result = caller->respond(untaint bodyParts);
                     handleError(result);
-                } else if (bodyParts is error) {
+                } else {
                     sendErrorMsg(caller, bodyParts);
                 }
             }
@@ -152,7 +148,7 @@ service backEndService on new http:Listener(9091) {
                                         contentType = mime:IMAGE_PNG);
             var result = caller->respond(response);
             handleError(result);
-        } else if (bytes is error) {
+        } else {
             sendErrorMsg(caller, bytes);
         }
     }
@@ -169,7 +165,7 @@ function handleResponse(http:Response|error response) {
                 var payload = response.getTextPayload();
                 if (payload is string) {
                     log:printInfo("Text data: " + payload);
-                } else if (payload is error) {
+                } else {
                     log:printError("Error in parsing text data", err = payload);
                 }
             } else if (mime:APPLICATION_XML == baseType) {
@@ -177,21 +173,21 @@ function handleResponse(http:Response|error response) {
                 if (payload is xml) {
                     string strValue = io:sprintf("%s", payload);
                     log:printInfo("Xml data: " + strValue);
-                } else if (payload is error) {
+                } else {
                     log:printError("Error in parsing xml data", err = payload);
                 }
             } else if (mime:APPLICATION_JSON == baseType) {
                 var payload = response.getJsonPayload();
                 if (payload is json) {
                     log:printInfo("Json data: " + payload.toString());
-                } else if (payload is error) {
+                } else {
                     log:printError("Error in parsing json data", err = payload);
                 }
             } else if (mime:APPLICATION_OCTET_STREAM == baseType) {
                 var payload = response.getPayloadAsString();
                 if (payload is string) {
                     log:printInfo("Response contains binary data: " + payload);
-                } else if (payload is error) {
+                } else {
                     log:printError("Error in parsing binary data", err = payload);
                 }
             } else if (mime:MULTIPART_FORM_DATA == baseType) {
@@ -199,7 +195,7 @@ function handleResponse(http:Response|error response) {
                 var payload = response.getBodyParts();
                 if (payload is mime:Entity[]) {
                     handleBodyParts(payload);
-                } else if (payload is error) {
+                } else {
                     log:printError("Error in parsing multipart data",
                                     err = payload);
                 }
@@ -209,7 +205,7 @@ function handleResponse(http:Response|error response) {
         } else {
             log:printInfo("Entity body is not available");
         }
-    } else if (response is error) {
+    } else {
         log:printError(response.reason(), err = response);
     }
 }
@@ -233,10 +229,9 @@ function getBaseType(string contentType) returns string {
     var result = mime:getMediaType(contentType);
     if (result is mime:MediaType) {
         return result.getBaseType();
-    } else if (result is error) {
+    } else {
         panic result;
     }
-    return "";
 }
 
 //Loop through body parts and print its content.
@@ -247,7 +242,7 @@ function handleBodyParts(mime:Entity[] bodyParts) {
             var payload = bodyPart.getJson();
             if (payload is json) {
                 log:printInfo("Json Part: " + payload.toString());
-            } else if (payload is error) {
+            } else {
                 log:printError(payload.reason(), err = payload);
             }
         }
@@ -255,7 +250,7 @@ function handleBodyParts(mime:Entity[] bodyParts) {
                 var payload = bodyPart.getText();
             if (payload is string) {
                 log:printInfo("Text Part: " + payload);
-            } else if (payload is error) {
+            } else {
                 log:printError(payload.reason(), err = payload);
             }
         }

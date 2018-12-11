@@ -1,4 +1,6 @@
-# This sample requires starting up the Subscriber Service after the Publisher Service
+# This sample requires starting up the Subscriber Service after the Publisher Service.
+# To start the service, navigate to the directory that contains the
+# `.bal` file and use the `ballerina run` command.
 $ ballerina run order_mgmt_service.bal
 Initiating service(s) in 'order_mgmt_service.bal'
 [ballerina/http] started HTTPS/WSS endpoint 0.0.0.0:9191

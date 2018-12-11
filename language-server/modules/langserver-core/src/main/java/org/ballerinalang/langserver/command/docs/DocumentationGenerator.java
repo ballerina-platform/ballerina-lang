@@ -78,12 +78,6 @@ public class DocumentationGenerator {
             case ENDPOINT:
                 docAttachmentInfo = getEndpointNodeDocumentation((BLangEndpoint) node);
                 break;
-            case RESOURCE:
-                if (((BLangResource) node).markdownDocumentationAttachment == null) {
-                    BLangResource bLangResource = (BLangResource) node;
-                    docAttachmentInfo = getResourceNodeDocumentation(bLangResource);
-                }
-                break;
             case SERVICE:
                 if (((BLangService) node).markdownDocumentationAttachment == null) {
                     BLangService bLangService = (BLangService) node;
@@ -117,6 +111,9 @@ public class DocumentationGenerator {
                 break;
             case UtilSymbolKeys.SERVICE_KEYWORD_KEY:
                 docAttachmentInfo = getServiceDocumentationByPosition(bLangPkg, line);
+                break;
+            case UtilSymbolKeys.RESOURCE_KEYWORD_KEY:
+                docAttachmentInfo = getResourceDocumentationByPosition(bLangPkg, line);
                 break;
             case UtilSymbolKeys.RECORD_KEYWORD_KEY:
             case UtilSymbolKeys.OBJECT_KEYWORD_KEY:
@@ -164,6 +161,41 @@ public class DocumentationGenerator {
             }
         }
 
+        return null;
+    }
+
+    /**
+     * Get resource documentation by position.
+     *
+     * @param bLangPackage  Current BLangPackage
+     * @param line          cursor line
+     * @return {@link DocAttachmentInfo} generated doc attachment information
+     */
+    private static DocAttachmentInfo getResourceDocumentationByPosition(BLangPackage bLangPackage, int line) {
+        List<BLangFunction> filteredFunctions = new ArrayList<>();
+        bLangPackage.topLevelNodes.stream()
+                .filter(topLevelNode -> topLevelNode instanceof BLangService)
+                .map(topLevelNode -> (BLangService) topLevelNode)
+                .forEach(bLangService -> {
+                    BLangObjectTypeNode serviceType = (BLangObjectTypeNode) bLangService.serviceTypeDefinition
+                            .getTypeNode();
+                    filteredFunctions.addAll(serviceType.getFunctions());
+                });
+        for (BLangFunction bLangFunction : filteredFunctions) {
+            List<BLangAnnotationAttachment> annotations = bLangFunction.annAttachments;
+            int firstAnnotationStart = -1;
+            DiagnosticPos resourcePosition = CommonUtil.toZeroBasedPosition(bLangFunction.getPosition());
+            if (!annotations.isEmpty()) {
+                firstAnnotationStart = CommonUtil
+                        .toZeroBasedPosition(annotations.get(0).getPosition()).getStartLine();
+            }
+
+            if ((annotations.isEmpty() && line == resourcePosition.getStartLine())
+                    || (!annotations.isEmpty() && line >= firstAnnotationStart
+                    && line <= resourcePosition.getEndLine())) {
+                return getFunctionNodeDocumentation(bLangFunction);
+            }
+        }
         return null;
     }
 

@@ -369,26 +369,29 @@ public class ExplicitlyTypedExpressionsTest {
     }
 
     @Test(dataProvider = "naNFloatAsIntTests", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: 'float' value 'NaN' cannot be converted to 'int'.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'float' " +
+                    "value 'NaN' cannot be converted to 'int'\"\\}.*")
     public void testNaNFloatAsInt(String functionName) {
         BRunUtil.invoke(result, functionName, new BValue[0]);
     }
 
     @Test(dataProvider = "infiniteFloatAsIntTests", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: 'float' value 'Infinity' cannot be converted to 'int'.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'float' " +
+                    "value 'Infinity' cannot be converted to 'int'\"\\}.*")
     public void testInfiniteFloatAsInt(String functionName) {
         BRunUtil.invoke(result, functionName, new BValue[0]);
     }
 
     @Test(dataProvider = "outOfRangeFloatAsIntTests", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: out of range 'float' value '.*' cannot be converted to 'int'.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"out of " +
+                    "range 'float' value '.*' cannot be converted to 'int'\"\\}.*")
     public void testOutOfRangeFloatAsInt(String functionName) {
         BRunUtil.invoke(result, functionName, new BValue[0]);
     }
 
     @Test(dataProvider = "outOfRangeDecimalAsIntTests", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: out of range 'decimal' value '.*' cannot be converted to " +
-                    "'int'.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"out of " +
+                    "range 'decimal' value '.*' cannot be converted to 'int'\"}.*")
     public void testOutOfRangeDecimalAsInt(String functionName) {
         BRunUtil.invoke(result, functionName, new BValue[0]);
     }

@@ -40,6 +40,7 @@ import java.util.concurrent.Executors;
 /**
  * Unit tests for client socket.
  */
+@Test(timeOut = 120000)
 public class ClientSocketTest {
 
     private static final Logger log = LoggerFactory.getLogger(ClientSocketTest.class);

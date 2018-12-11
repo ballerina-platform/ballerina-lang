@@ -148,10 +148,6 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         setPreviousNode(funcNode);
         this.addToNodeStack(funcNode);
 
-        if (funcNode.receiver != null) {
-            this.acceptNode(funcNode.receiver);
-        }
-
         if (funcNode.requiredParams != null) {
             funcNode.requiredParams.forEach(this::acceptNode);
         }

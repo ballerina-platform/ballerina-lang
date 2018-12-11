@@ -436,10 +436,13 @@ public class CommonUtil {
         annotationItem.setInsertTextFormat(InsertTextFormat.Snippet);
         annotationItem.setDetail(ItemResolverConstants.ANNOTATION_TYPE);
         annotationItem.setKind(CompletionItemKind.Property);
+        String relativePath = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         BLangPackage pkg = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-        List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(pkg, ctx);
+        BLangPackage srcOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativePath, pkg);
+        List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(srcOwnerPkg, ctx);
         Optional currentPkgImport = imports.stream()
-                .filter(bLangImportPackage -> bLangImportPackage.symbol.pkgID.equals(packageID))
+                .filter(bLangImportPackage -> bLangImportPackage.symbol != null
+                        && bLangImportPackage.symbol.pkgID.equals(packageID))
                 .findAny();
         // if the particular import statement not available we add the additional text edit to auto import
         if (!currentPkgImport.isPresent()) {
@@ -461,18 +464,18 @@ public class CommonUtil {
         if (UtilSymbolKeys.BALLERINA_KW.equals(orgName) && UtilSymbolKeys.BUILTIN_KW.equals(pkgName)) {
             return null;
         }
+        String relativePath = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         BLangPackage pkg = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-        List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(pkg, ctx);
-        Position start = new Position();
-
+        BLangPackage srcOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativePath, pkg);
+        List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(srcOwnerPkg, ctx);
+        Position start = new Position(0, 0);
         if (!imports.isEmpty()) {
             BLangImportPackage last = CommonUtil.getLastItem(imports);
-            int endLine = last.getPosition().getEndLine() - 1;
-            int endColumn = last.getPosition().getEndColumn();
-            start = new Position(endLine, endColumn);
+            int endLine = last.getPosition().getEndLine();
+            start = new Position(endLine, 0);
         }
 
-        String importStatement = CommonUtil.LINE_SEPARATOR + ItemResolverConstants.IMPORT + " "
+        String importStatement = ItemResolverConstants.IMPORT + " "
                 + orgName + UtilSymbolKeys.SLASH_KEYWORD_KEY + pkgName + UtilSymbolKeys.SEMI_COLON_SYMBOL_KEY
                 + CommonUtil.LINE_SEPARATOR;
         return Collections.singletonList(new TextEdit(new Range(start, start), importStatement));
@@ -819,9 +822,9 @@ public class CommonUtil {
                                                        ItemResolverConstants.BUILTIN_STAMP_LABEL, context);
             SymbolInfo clone = getIterableOpSymbolInfo(Snippet.BUILTIN_CLONE.get(), bType,
                                                        ItemResolverConstants.BUILTIN_CLONE_LABEL, context);
-            SymbolInfo create = getIterableOpSymbolInfo(Snippet.BUILTIN_CREATE.get(), bType,
-                                                        ItemResolverConstants.BUILTIN_CREATE_LABEL, context);
-            symbolInfoList.addAll(Arrays.asList(stamp, clone, create));
+            SymbolInfo convert = getIterableOpSymbolInfo(Snippet.BUILTIN_CONVERT.get(), bType,
+                                                        ItemResolverConstants.BUILTIN_CONVERT_LABEL, context);
+            symbolInfoList.addAll(Arrays.asList(stamp, clone, convert));
         }
 
         // Populate the Builtin Functions
@@ -866,10 +869,13 @@ public class CommonUtil {
      */
     public static List<BLangImportPackage> getCurrentFileImports(BLangPackage pkg, LSContext ctx) {
         String currentFile = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
-        return pkg.getImports().stream()
-                .filter(bLangImportPackage -> bLangImportPackage.pos.getSource().cUnitName.equals(currentFile)
+        return getCurrentFileTopLevelNodes(pkg, ctx).stream()
+                .filter(topLevelNode -> topLevelNode instanceof BLangImportPackage)
+                .map(topLevelNode -> (BLangImportPackage) topLevelNode)
+                .filter(bLangImportPackage ->
+                        bLangImportPackage.pos.getSource().cUnitName.replace("/", FILE_SEPARATOR).equals(currentFile)
                         && !(bLangImportPackage.getOrgName().getValue().equals("ballerina")
-                        && bLangImportPackage.symbol.getName().getValue().equals("transaction")))
+                        && getPackageNameComponentsCombined(bLangImportPackage).equals("transaction")))
                 .collect(Collectors.toList());
     }
 
@@ -891,6 +897,7 @@ public class CommonUtil {
      */
     public static boolean isWorkerDereivative(BLangNode node) {
         return (node instanceof BLangSimpleVariableDef)
+                && ((BLangSimpleVariableDef) node).var.expr != null
                 && ((BLangSimpleVariableDef) node).var.expr.type instanceof BFutureType
                 && ((BFutureType) ((BLangSimpleVariableDef) node).var.expr.type).workerDerivative;
     }
@@ -910,7 +917,8 @@ public class CommonUtil {
     public static List<TopLevelNode> getCurrentFileTopLevelNodes(BLangPackage pkgNode, LSContext ctx) {
         String relativeFilePath = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         BLangCompilationUnit filteredCUnit = pkgNode.compUnits.stream()
-                .filter(cUnit -> cUnit.getPosition().getSource().cUnitName.equals(relativeFilePath))
+                .filter(cUnit ->
+                        cUnit.getPosition().getSource().cUnitName.replace("/", FILE_SEPARATOR).equals(relativeFilePath))
                 .findAny().orElse(null);
         List<TopLevelNode> topLevelNodes = filteredCUnit == null
                 ? new ArrayList<>()
@@ -923,6 +931,18 @@ public class CommonUtil {
                         && !(topLevelNode instanceof BLangSimpleVariable
                         && ((BLangSimpleVariable) topLevelNode).flagSet.contains(Flag.SERVICE)))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Get the package name components combined.
+     * 
+     * @param importPackage     BLangImportPackage node
+     * @return {@link String}   Combined package name
+     */
+    public static String getPackageNameComponentsCombined(BLangImportPackage importPackage) {
+        return String.join(".", importPackage.pkgNameComps.stream()
+                .map(id -> id.value)
+                .collect(Collectors.toList()));
     }
 
     private static SymbolInfo getIterableOpSymbolInfo(SnippetBlock operation, @Nullable BType bType, String label,
@@ -1239,13 +1259,7 @@ public class CommonUtil {
                 for (BVarSymbol param : bStruct.initializerFunc.symbol.params) {
                     list.add(generateReturnValue(param.type.tsymbol, "{%1}"));
                 }
-                String pkgPrefix = "";
-                if (!bStruct.pkgID.equals(currentPkgId)) {
-                    pkgPrefix = bStruct.pkgID.name.value + ":";
-                    if (importsAcceptor != null) {
-                        importsAcceptor.accept(bStruct.pkgID.orgName.value, bStruct.pkgID.name.value);
-                    }
-                }
+                String pkgPrefix = getPackagePrefix(importsAcceptor, currentPkgId, bStruct.pkgID);
                 String paramsStr = String.join(", ", list);
                 String newObjStr = "new " + pkgPrefix + bStruct.name.getValue() + "(" + paramsStr + ")";
                 return template.replace("{%1}", newObjStr);
@@ -1404,18 +1418,8 @@ public class CommonUtil {
         private static String generateTypeDefinition(BiConsumer<String, String> importsAcceptor,
                                                      PackageID currentPkgId, BTypeSymbol tSymbol) {
             if (tSymbol != null) {
-                if (tSymbol instanceof BObjectTypeSymbol) {
-                    BObjectTypeSymbol objectType = (BObjectTypeSymbol) tSymbol;
-                    String pkgPrefix = "";
-                    if (!objectType.pkgID.equals(currentPkgId)) {
-                        pkgPrefix = objectType.pkgID.name.value + ":";
-                        if (importsAcceptor != null) {
-                            importsAcceptor.accept(objectType.pkgID.orgName.value, objectType.pkgID.name.value);
-                        }
-                    }
-                    return pkgPrefix + objectType.name.getValue();
-                }
-                return tSymbol.name.getValue();
+                String pkgPrefix = getPackagePrefix(importsAcceptor, currentPkgId, tSymbol.pkgID);
+                return pkgPrefix + tSymbol.name.getValue();
             }
             return "any";
         }
@@ -1507,6 +1511,19 @@ public class CommonUtil {
             return (parent != null && parent.parent != null)
                     ? lookupFunctionReturnType(functionName, parent.parent) : "any";
         }
+    }
+
+    public static String getPackagePrefix(BiConsumer<String, String> importsAcceptor, PackageID currentPkgId,
+                                          PackageID typePkgId) {
+        String pkgPrefix = "";
+        if (!typePkgId.equals(currentPkgId) &&
+                !(typePkgId.orgName.value.equals("ballerina") && typePkgId.name.value.equals("builtin"))) {
+            pkgPrefix = typePkgId.name.value + ":";
+            if (importsAcceptor != null) {
+                importsAcceptor.accept(typePkgId.orgName.value, typePkgId.name.value);
+            }
+        }
+        return pkgPrefix;
     }
 
     /**

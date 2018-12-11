@@ -18,7 +18,7 @@
  */
 
 import * as React from "react";
-import { Accordion, AccordionTitleProps, Icon } from "semantic-ui-react";
+import { Accordion, AccordionTitleProps } from "semantic-ui-react";
 
 import InlineEdit from "../../util-components/inline-edit";
 import OpenApiAddParameter from "../parameter/add-parameter";
@@ -95,6 +95,7 @@ class OpenApiResource extends React.Component<OpenApiResourceProps, OpenApiResou
                         {(appContext: OpenApiContext) => {
                             return (
                                 <InlineEdit
+                                    characterLimit={50}
                                     changeModel={appContext.openApiJson}
                                     changeAttribute={{
                                         changeValue: operationType,
@@ -109,10 +110,6 @@ class OpenApiResource extends React.Component<OpenApiResourceProps, OpenApiResou
                             );
                         }}
                     </OpenApiContextConsumer>
-                    <Icon
-                        className="delete-op"
-                        name="trash alternate"
-                    />
                 </Accordion.Title>
                 <Accordion.Content active={activeIndex === currIndex}>
                     <OpenApiContextConsumer>

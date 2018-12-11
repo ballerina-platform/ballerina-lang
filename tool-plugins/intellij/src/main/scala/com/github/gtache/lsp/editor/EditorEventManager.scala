@@ -176,7 +176,7 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
     */
   def characterTyped(c: Char): Unit = {
     if (completionTriggers.contains(c.toString)) {
-      completion(DocumentUtils.offsetToLSPPos(editor,editor.getCaretModel.getCurrentCaret.getOffset))
+//      completion(DocumentUtils.offsetToLSPPos(editor,editor.getCaretModel.getCurrentCaret.getOffset))
     } else if (signatureTriggers.contains(c.toString)) {
       signatureHelp()
     } else if (onTypeFormattingTriggers.contains(c.toString)) {
@@ -391,7 +391,7 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
             val doc = item.getDocumentation
             val filterText = item.getFilterText
             // Todo - Revert after fixing ballerina language server plain text snippet issues
-            val insertText = item.getInsertText.replaceAll("(\\$\\{\\d:)([a-zA-Z]*:*[a-zA-Z0-9]*)(\\})", "$2").replaceAll("(\\$\\{\\d\\})", "").replaceAll("\\r\\n","\n")
+            val insertText = item.getInsertText.replaceAll("(\\$\\{\\d:)([a-zA-Z]*:*[^\\}]*)(\\})", "$2").replaceAll("(\\$\\{\\d\\})", "").replaceAll("\\r\\n","\n")
             val insertFormat = item.getInsertTextFormat
             val kind = item.getKind
             val label = item.getLabel
@@ -411,7 +411,7 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
                     })*/
             if (textEdit != null) {
               if (addTextEdits != null) {
-                lookupElementBuilder = LookupElementBuilder.create("")
+                lookupElementBuilder = LookupElementBuilder.create(if (insertText != null && insertText != "") insertText else label)
                   .withInsertHandler((context: InsertionContext, item: LookupElement) => {
                     context.commitDocument()
                     invokeLater(() => {
@@ -420,7 +420,7 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
                     })
                   })
               } else {
-                lookupElementBuilder = LookupElementBuilder.create("")
+                lookupElementBuilder = LookupElementBuilder.create(if (insertText != null && insertText != "") insertText else label)
                   .withInsertHandler((context: InsertionContext, item: LookupElement) => {
                     context.commitDocument()
                     invokeLater(() => {
@@ -430,7 +430,7 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
                   })
               }
             } else if (addTextEdits != null) {
-              lookupElementBuilder = LookupElementBuilder.create("")
+              lookupElementBuilder = LookupElementBuilder.create(if (insertText != null && insertText != "") insertText else label)
                 .withInsertHandler((context: InsertionContext, item: LookupElement) => {
                   context.commitDocument()
                   invokeLater(() => {

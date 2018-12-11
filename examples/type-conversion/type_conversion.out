@@ -1,4 +1,9 @@
-#To run this sample, navigate to the directory that contains the
-#'.bal' file and issue the 'ballerina run' command.
+# To run the program, navigate to the directory that contains the
+# `.bal` file and use the `ballerina run` command.
 $ ballerina run type_conversion.bal
 empPerson name: Jack Sparrow
+Int value 1 : 45
+Error: 'string' cannot be converted to 'int'
+Int value 3 : 10
+Boolean value : true
+Float value : 3.14

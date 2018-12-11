@@ -1,5 +1,5 @@
 import { WebViewMethod, WebViewRPCMessage } from './model';
-import { Webview, Position, Range, Selection, window } from 'vscode';
+import { Webview, Position, Range, Selection, window, Uri, TextEditor, ViewColumn } from 'vscode';
 import { ExtendedLangClient } from 'src/core/extended-language-client';
 
 const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] => {
@@ -42,14 +42,34 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
     {
         methodName: 'revealRange',
         handler: (args: any[]) => {
-            const activeEditor = window.activeTextEditor;
-            if (activeEditor) {
-                const start = new Position(args[0] - 1, args[1] - 1);
-                const end = new Position(args[2] - 1, args[3]);
-                activeEditor.revealRange(new Range(start, end));
-                activeEditor.selection = new Selection(start, end);
+            const params = JSON.parse(args[0]);
+            const revealRangeInEditor = (editor: TextEditor) => {
+                const { start, end } = params.range;
+                const startPosition = new Position(start.line - 1, start.character - 1);
+                const endPosition = new Position(end.line - 1, end.character - 1);
+                editor.revealRange(new Range(startPosition, endPosition));
+                editor.selection = new Selection(startPosition, endPosition);
+            };
+            const activeTextEditor = window.activeTextEditor;
+            const visibleTextEditors = window.visibleTextEditors;
+            const findByDocUri = (editor: TextEditor) => editor.document.uri.toString() 
+                                    === params.textDocumentIdentifier.uri;
+            const foundVisibleEditor = visibleTextEditors.find(findByDocUri);
+
+            if (activeTextEditor && findByDocUri(activeTextEditor)) {
+                revealRangeInEditor(activeTextEditor);
+            } else if (foundVisibleEditor) {
+                revealRangeInEditor(foundVisibleEditor);            
+                return Promise.resolve();   
+            } else {
+                return window.showTextDocument(Uri.parse(params.textDocumentIdentifier.uri)
+                    ,{
+                        viewColumn: ViewColumn.One
+                    })
+                    .then((textEditor) => {
+                        revealRangeInEditor(textEditor);
+                    });
             }
-            return Promise.resolve();
         }
     },
     {

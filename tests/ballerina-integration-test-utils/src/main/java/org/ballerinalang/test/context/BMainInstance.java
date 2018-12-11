@@ -21,15 +21,18 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -244,6 +247,52 @@ public class BMainInstance implements BMain {
 
             serverErrorLogReader.stop();
             serverErrorLogReader.removeAllLeechers();
+        } catch (IOException e) {
+            throw new BallerinaTestException("Error executing ballerina", e);
+        } catch (InterruptedException e) {
+            throw new BallerinaTestException("Error waiting for execution to finish", e);
+        }
+    }
+
+    /**
+     * Executing the sh or bat file to start the server and returns the logs printed to stdout.
+     *
+     * @param command    command to run
+     * @param args       command line arguments to pass when executing the sh or bat file
+     * @param commandDir where to execute the command
+     * @return logs printed to std out
+     * @throws BallerinaTestException if starting services failed or if an error occurs when reading the stdout
+     */
+    public String runMainAndReadStdOut(String command, String[] args, String commandDir) throws BallerinaTestException {
+        String scriptName = Constant.BALLERINA_SERVER_SCRIPT_NAME;
+        String[] cmdArray;
+        try {
+
+            if (Utils.getOSName().toLowerCase(Locale.ENGLISH).contains("windows")) {
+                cmdArray = new String[]{"cmd.exe", "/c", balServer.getServerHome() +
+                        File.separator + "bin" + File.separator + scriptName + ".bat", command};
+            } else {
+                cmdArray = new String[]{"bash", balServer.getServerHome() +
+                        File.separator + "bin/" + scriptName, command};
+            }
+
+            String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args)).toArray(String[]::new);
+            ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).directory(new File(commandDir));
+            Process process = processBuilder.start();
+
+            // Give a small timeout so that the output is given.
+            Thread.sleep(3000);
+
+            String output = "";
+            try (InputStreamReader inputStreamReader = new InputStreamReader(process.getInputStream());
+                 BufferedReader buffer = new BufferedReader(inputStreamReader)) {
+                output = buffer.lines().collect(Collectors.joining("\n"));
+            } catch (Exception e) {
+                throw new BallerinaTestException("Error when reading from the stdout ", e);
+            }
+
+            process.waitFor();
+            return output;
         } catch (IOException e) {
             throw new BallerinaTestException("Error executing ballerina", e);
         } catch (InterruptedException e) {

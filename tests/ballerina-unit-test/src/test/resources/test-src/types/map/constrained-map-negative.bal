@@ -75,3 +75,10 @@ function testInvalidStructEquivalentCastCaseTwo() returns (map<Student>) {
     map<Student> testSMap = <map<Student>>testPMap;
     return testSMap;
 }
+
+function testMapToStructConversionNegative () returns (Student|error) {
+    map<string> testMap = {};
+    testMap["index"] = "100";
+    testMap["age"] = "63";
+    return check Student.convert(testMap);
+}

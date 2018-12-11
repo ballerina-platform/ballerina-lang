@@ -13,7 +13,8 @@ public type HelloWorldClient client object {
         // Initialize client endpoint.
         grpc:Client c = new;
         c.init(self.url, self.config);
-        error? result = c.initStub("non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
+        error? result = c.initStub("non-blocking", ROOT_DESCRIPTOR,
+                                                            getDescriptorMap());
         if (result is error) {
             panic result;
         } else {
@@ -22,8 +23,10 @@ public type HelloWorldClient client object {
     }
 
 
-    remote function lotsOfReplies(string req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
-        return self.grpcClient->nonBlockingExecute("HelloWorld/lotsOfReplies", req, msgListener, headers = headers);
+    remote function lotsOfReplies(string req, service msgListener,
+                                  grpc:Headers? headers = ()) returns (error?) {
+        return self.grpcClient->nonBlockingExecute("HelloWorld/lotsOfReplies",
+                                            req, msgListener, headers = headers);
     }
 
 };

@@ -84,6 +84,8 @@ public class UtilSymbolKeys {
     public static final String NEW_KEYWORD_KEY = "new";
     
     public static final String IMPORT_KEYWORD_KEY = "import";
+    
+    public static final String LISTENER_KEYWORD_KEY = "listener";
 
     public static final String SLASH_KEYWORD_KEY = "/";
 

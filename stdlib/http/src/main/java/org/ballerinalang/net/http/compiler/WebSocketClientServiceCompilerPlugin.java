@@ -16,12 +16,12 @@
  */
 package org.ballerinalang.net.http.compiler;
 
-import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedResourceParamTypes;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.util.AbstractTransportCompilerPlugin;
 
 import java.util.List;
 
@@ -34,7 +34,7 @@ import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_CLIENT;
  */
 @SupportedResourceParamTypes(
         paramTypes = {@SupportedResourceParamTypes.Type(packageName = "http", name = WEBSOCKET_CLIENT)})
-public class WebSocketClientServiceCompilerPlugin extends AbstractCompilerPlugin {
+public class WebSocketClientServiceCompilerPlugin extends AbstractTransportCompilerPlugin {
 
     private DiagnosticLog dlog = null;
 
@@ -47,6 +47,7 @@ public class WebSocketClientServiceCompilerPlugin extends AbstractCompilerPlugin
     @Override
     public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
         List<BLangFunction> resources = (List<BLangFunction>) serviceNode.getResources();
-        resources.forEach(res -> WebSocketResourceValidator.validate(res, dlog, true));
+        resources.forEach(
+                res -> WebSocketResourceValidator.validate(res, dlog, isResourceReturnsErrorOrNil(res), true));
     }
 }

@@ -22,7 +22,7 @@ service multipartDemoService on new http:Listener(9090) {
                 handleContent(part);
             }
             response.setPayload(untaint bodyParts);
-        } else if (bodyParts is error) {
+        } else {
             log:printError(string.convert(bodyParts.detail().message));
             response.setPayload("Error in decoding multiparts!");
             response.statusCode = 500;
@@ -74,7 +74,7 @@ service multipartDemoService on new http:Listener(9090) {
             if (result is error) {
                 log:printError("Error sending response", err = result);
             }
-        } else if (returnResponse is error) {
+        } else {
             http:Response response = new;
             response.setPayload("Error occurred while sending multipart
                                     request!");
@@ -90,7 +90,6 @@ service multipartDemoService on new http:Listener(9090) {
 
 // The content logic that handles the body parts vary based on your requirement.
 function handleContent(mime:Entity bodyPart) {
-
     var mediaType = mime:getMediaType(bodyPart.getContentType());
     if (mediaType is mime:MediaType) {
         string baseType = mediaType.getBaseType();
@@ -99,7 +98,7 @@ function handleContent(mime:Entity bodyPart) {
             var payload = bodyPart.getXml();
             if (payload is xml) {
                 log:printInfo(string.convert(payload));
-            } else if (payload is error) {
+            } else {
                 log:printError(string.convert(payload.detail().message));
             }
 
@@ -108,7 +107,7 @@ function handleContent(mime:Entity bodyPart) {
             var payload = bodyPart.getJson();
             if (payload is json) {
                 log:printInfo(payload.toString());
-            } else if (payload is error) {
+            } else {
                 log:printError(string.convert(payload.detail().message));
             }
 
@@ -117,10 +116,9 @@ function handleContent(mime:Entity bodyPart) {
             var payload = bodyPart.getText();
             if (payload is string) {
                 log:printInfo(payload);
-            } else if (payload is error) {
+            } else {
                 log:printError(string.convert(payload.detail().message));
             }
-
         }
     }
 }

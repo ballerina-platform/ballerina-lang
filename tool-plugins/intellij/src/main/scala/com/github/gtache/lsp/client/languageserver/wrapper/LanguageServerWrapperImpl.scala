@@ -381,10 +381,9 @@ class LanguageServerWrapperImpl(val serverDefinition: LanguageServerDefinition, 
       stop()
       editors.foreach(uri => connect(uri))
     } else {
-      // Todo - Enable after fixing crashes.
-      // removeDefinition()
+      removeDefinition()
       if (!alreadyShownCrash) ApplicationUtils.invokeLater(() => if (!alreadyShownCrash) {
-        Messages.showErrorDialog("LanguageServer for definition " + serverDefinition + ", project " + project + " keeps crashing due to \n" + e.getMessage, "LSP Error")
+        Messages.showErrorDialog("LanguageServer for definition " + serverDefinition + ", project " + project + " keeps crashing due to \n" + e.getMessage + "\nCheck settings.", "LSP Error")
         alreadyShownCrash = true
       })
     }

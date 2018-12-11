@@ -1,11 +1,12 @@
+import classNames from "classnames";
 import * as React from "react";
 
 const ARROW_SIZE = 3;
 
 export const ArrowHead: React.StatelessComponent<{
-        x: number, y: number, direction: "left" | "right"
+        x: number, y: number, direction: "left" | "right", className?: string
     }> = ({
-        x, y, direction
+        x, y, direction, className
     }) => {
         const p1 = { x, y};
         const p2 = { x: 0, y: 0};
@@ -17,7 +18,7 @@ export const ArrowHead: React.StatelessComponent<{
         p3.y = y + ARROW_SIZE;
 
         return (
-            <polyline className="arrow-head"
+            <polyline className={classNames("arrow-head", className)}
                 points={`${p1.x},${p1.y} ${p2.x},${p2.y} ${p3.x},${p3.y} ${p1.x},${p1.y}`}
             />
         );
