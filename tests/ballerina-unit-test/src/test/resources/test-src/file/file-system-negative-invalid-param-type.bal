@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/file;
-import ballerina/http;
 
 listener file:Listener localFolder = new ({
     path: "target/fs",
@@ -23,6 +22,6 @@ listener file:Listener localFolder = new ({
 });
 
 service fileSystem on localFolder {
-    resource function onCreate(http:Request req) {
+    resource function onCreate(string req) {
     }
 }

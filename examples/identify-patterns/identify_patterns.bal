@@ -39,7 +39,7 @@ function deployRegulatorActionDecisionRules() {
             e2 == null ? "none" : "stop" as userAction
         having userAction != "none"
         => (RoomKeyAction[] keyAction) {
-            foreach k in keyAction {
+            foreach var k in keyAction {
                 regulatorActionStream.publish(k);
             }
         }
@@ -60,7 +60,7 @@ public function main() {
 
     // A sample event that represents the user action on the door of the room. 'removed' indicates that the owner has left the room.
     RoomKeyAction roomKeyAction = { roomNo: 2,
-                                        userAction: "removed" };
+                                    userAction: "removed" };
 
     // The `RegulatorActionStream` subscribes to the `alertRoomAction` function. Whenever the
     // 'RegulatorActionStream' stream receives a valid event, this function is called.

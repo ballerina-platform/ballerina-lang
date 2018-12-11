@@ -1,3 +1,5 @@
+import ballerina/runtime;
+
 function errorConstructReasonTest() returns (error, error, error, string, any, string) {
     error er1 = error("error1");
 
@@ -66,4 +68,8 @@ public function testErrorWithErrorConstructor() returns string {
     error<string, TrxErrorData> err = error("trxErr", { data: "test" });
     TrxErrorData errorData = err.detail();
     return errorData.data;
+}
+
+function getCallStackTest() returns runtime:CallStackElement[] {
+    return runtime:getCallStack();
 }

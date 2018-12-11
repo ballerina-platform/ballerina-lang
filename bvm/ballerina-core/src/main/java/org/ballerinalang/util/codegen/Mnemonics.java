@@ -231,6 +231,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.ANY2T] = "any2t";
         mnemonics[InstructionCodes.ANY2MAP] = "any2map";
         mnemonics[InstructionCodes.CHECKCAST] = "checkcast";
+        mnemonics[InstructionCodes.CONVERT] = "convert";
         mnemonics[InstructionCodes.DT2JSON] = "dt2json";
         mnemonics[InstructionCodes.DT2XML] = "dt2xml";
         mnemonics[InstructionCodes.ARRAY2JSON] = "array2json";

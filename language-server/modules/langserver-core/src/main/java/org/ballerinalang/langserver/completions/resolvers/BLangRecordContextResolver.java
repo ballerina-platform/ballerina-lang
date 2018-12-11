@@ -22,9 +22,14 @@ import org.antlr.v4.runtime.Token;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
+import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
+import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
+import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,21 +40,31 @@ import java.util.stream.Collectors;
  */
 public class BLangRecordContextResolver extends AbstractItemResolver {
     @Override
-    public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
+    public List<CompletionItem> resolveItems(LSServiceOperationContext context) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        List<String> poppedTokens = completionContext.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY)
+        List<String> poppedTokens = context.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY)
                 .stream()
                 .map(Token::getText)
                 .collect(Collectors.toList());
-        if (poppedTokens.contains(UtilSymbolKeys.EQUAL_SYMBOL_KEY)) {
+
+        if (this.isInvocationOrInteractionOrFieldAccess(context)) {
+            Either<List<CompletionItem>, List<SymbolInfo>> eitherList = SymbolFilters
+                    .get(DelimiterBasedContentFilter.class).filterItems(context);
+            completionItems.addAll(this.getCompletionsFromEither(eitherList, context));
+        } else if (poppedTokens.contains(UtilSymbolKeys.EQUAL_SYMBOL_KEY)) {
             // If the popped tokens contains the equal symbol, then the variable definition is being writing
             // This parser rule context is used to select the proper sorter.
-            completionContext.put(CompletionKeys.PARSER_RULE_CONTEXT_KEY,
+            context.put(CompletionKeys.PARSER_RULE_CONTEXT_KEY,
                     new BallerinaParser.VariableDefinitionStatementContext(null, -1));
             return CompletionItemResolver.get(BallerinaParser.VariableDefinitionStatementContext.class)
-                    .resolveItems(completionContext);
+                    .resolveItems(context);
+        } else {
+            List<SymbolInfo> filteredTypes = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY).stream()
+                    .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol)
+                    .collect(Collectors.toList());
+            completionItems.addAll(this.getCompletionItemList(filteredTypes, context));
+            completionItems.addAll(this.getPackagesCompletionItems(context));
         }
-        completionItems.addAll(this.populateBasicTypes(completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
         return completionItems;
     }
 }

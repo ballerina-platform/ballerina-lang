@@ -314,13 +314,14 @@ function testJsonArrayToJsonCasting () returns (json) {
     return j2;
 }
 
-function testJsonToJsonArrayCasting () returns (any, any) {
+function testJsonToJsonArrayCasting() returns (any, json[][]|error, json[][]|error) {
     json j1 = [[1, 2, 3], [3, 4, 5], [7, 8, 9]];
 
     json[] j2 = <json[]>j1;
-    json[][] j3 = <json[][]>j1;
+    json[][]|error j3 = trap <json[][]>j1;
+    json[][]|error j4 = json[][].stamp(j1);
 
-    return (j2, j3);
+    return (j2, j3, j4);
 }
 
 function testJsonToJsonArrayInvalidCasting () returns (json[][][] | error) {

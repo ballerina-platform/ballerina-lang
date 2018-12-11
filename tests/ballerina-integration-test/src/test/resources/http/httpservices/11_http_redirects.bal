@@ -23,11 +23,10 @@ listener http:Listener serviceEndpoint2 = new(9102);
 listener http:Listener serviceEndpoint3 = new(9103);
 
 http:ServiceEndpointConfiguration httpsEPConfig = {
-    port:9104,
     secureSocket: {
         keyStore: {
-            path:"${ballerina.home}/bre/security/ballerinaKeystore.p12",
-            password:"ballerina"
+            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            password: "ballerina"
         }
     }
 };

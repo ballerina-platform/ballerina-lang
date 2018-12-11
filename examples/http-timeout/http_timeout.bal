@@ -35,12 +35,12 @@ service timeoutService on new http:Listener(9090) {
             if (responseToCaller is error) {
                 log:printError("Error sending response", err = responseToCaller);
             }
-        } else if (backendResponse is error) {
+        } else {
             http:Response response = new;
             response.statusCode = http:INTERNAL_SERVER_ERROR_500;
             string errorMessage = <string> backendResponse.detail().message;
             if (errorMessage ==
-                        "Idle timeout triggered before initiating inbound response") {
+                  "Idle timeout triggered before initiating inbound response") {
                 response.setPayload(
                             "Request timed out. Please try again in sometime."
                 );
@@ -69,7 +69,8 @@ service helloWorld on new http:Listener(8080) {
 
         var result = caller->respond("Hello World!!!");
         if (result is error) {
-           log:printError("Error sending response from mock service", err = result);
+           log:printError("Error sending response from mock service",
+                           err = result);
         }
     }
 }

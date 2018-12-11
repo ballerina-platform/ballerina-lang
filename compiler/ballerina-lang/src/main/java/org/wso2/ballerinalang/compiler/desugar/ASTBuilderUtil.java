@@ -27,7 +27,7 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
@@ -157,7 +157,7 @@ public class ASTBuilderUtil {
         return castExpr;
     }
 
-    private static BConversionOperatorSymbol createUnboxValueOpSymbolToAnyType(BType sourceType, SymbolTable symTable) {
+    private static BCastOperatorSymbol createUnboxValueOpSymbolToAnyType(BType sourceType, SymbolTable symTable) {
         int opcode;
         switch (sourceType.tag) {
             case TypeTags.INT:
@@ -182,7 +182,7 @@ public class ASTBuilderUtil {
 
         List<BType> paramTypes = Lists.of(sourceType, symTable.anyType);
         BInvokableType opType = new BInvokableType(paramTypes, symTable.anyType, null);
-        return new BConversionOperatorSymbol(null, opType, sourceType, null, false, true, opcode);
+        return new BCastOperatorSymbol(null, opType, sourceType, null, false, true, opcode);
     }
 
     static BLangFunction createFunction(DiagnosticPos pos, String name) {
@@ -384,8 +384,7 @@ public class ASTBuilderUtil {
         conversion.expr = varRef;
         conversion.type = target;
         conversion.targetType = target;
-        conversion.conversionSymbol = (BConversionOperatorSymbol) symResolver.resolveConversionOperator(varRef.type,
-                target);
+        conversion.conversionSymbol = (BCastOperatorSymbol) symResolver.resolveCastOperator(varRef.type, target);
         return conversion;
     }
 

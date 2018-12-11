@@ -22,8 +22,10 @@ service basic on new http:WebSocketListener(9090) {
     }
 
     // This resource is triggered when a new text frame is received from a client.
-    resource function onText(http:WebSocketCaller caller, string text, boolean finalFrame) {
-        io:println("\ntext message: " + text + " & final fragment: " + finalFrame);
+    resource function onText(http:WebSocketCaller caller, string text,
+                                boolean finalFrame) {
+        io:println("\ntext message: " + text + " & final fragment: "
+                                                        + finalFrame);
 
         if (text == "ping") {
             io:println("Pinging...");
@@ -74,9 +76,11 @@ service basic on new http:WebSocketListener(9090) {
     resource function onIdleTimeout(http:WebSocketCaller caller) {
         io:println("\nReached idle timeout");
         io:println("Closing connection " + caller.id);
-        var err = caller->close(statusCode = 1001, reason = "Connection timeout");
+        var err = caller->close(statusCode = 1001, reason =
+                                    "Connection timeout");
         if (err is error) {
-            log:printError("Error occured when closing the connection", err = err);
+            log:printError("Error occured when closing the connection",
+                                err = err);
         }
     }
 
@@ -88,7 +92,8 @@ service basic on new http:WebSocketListener(9090) {
     }
 
     // This resource is triggered when a client connection is closed from the client side.
-    resource function onClose(http:WebSocketCaller caller, int statusCode, string reason) {
+    resource function onClose(http:WebSocketCaller caller, int statusCode,
+                                string reason) {
         io:println(string `Client left with {{statusCode}} because
                     {{reason}}`);
     }

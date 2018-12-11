@@ -32,10 +32,11 @@ import static org.testng.Assert.assertEquals;
  */
 public class OpenRecordNegativeTest {
 
-    @Test(description = "Test use of undefined types as the rest field type", enabled = false)
+    @Test(description = "Test use of undefined types as the rest field type")
     public void testUndefinedTypeAsRestFieldType() {
         CompileResult result = BCompileUtil.compile("test-src/record/undefined_rest_field.bal");
         assertEquals(result.getErrorCount(), 1);
+        validateError(result, 0, "unknown type 'UndefinedType'", 4, 5);
     }
 
     @Test(description = "Test invalid rest field type")

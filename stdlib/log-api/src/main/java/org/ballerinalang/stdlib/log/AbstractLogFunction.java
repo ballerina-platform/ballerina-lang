@@ -110,8 +110,13 @@ public abstract class AbstractLogFunction extends BlockingNativeCallableUnit {
     protected String getPackagePath(Context ctx) {
         // TODO add API method a suitable way to get package path or does this simply returns "ballerina/log"?
         Strand strand = ctx.getStrand();
-        String pkgPath = strand.getStack()[strand.fp-1].callableUnitInfo.getPackageInfo().getPkgPath();
-        pkgPath = pkgPath.split(":")[0];
+        String pkgPath;
+        if (strand.fp > 0) {
+            pkgPath = strand.peekFrame(1).callableUnitInfo.getPackageInfo().getPkgPath();
+            pkgPath = pkgPath.split(":")[0];
+        } else {
+            pkgPath = strand.peekFrame(0).callableUnitInfo.getPackageInfo().getPkgPath();
+        }
         return pkgPath;
     }
 }

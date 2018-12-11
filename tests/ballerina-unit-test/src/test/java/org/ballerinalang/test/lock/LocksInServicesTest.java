@@ -138,7 +138,7 @@ public class LocksInServicesTest {
         }
     }
 
-    @Test(description = "Test throwing error inside lock statement", enabled = false)
+    @Test(description = "Test throwing error inside lock statement")
     public void testThrowErrorInsideLock() {
         Semaphore semaphore = new Semaphore(0);
 

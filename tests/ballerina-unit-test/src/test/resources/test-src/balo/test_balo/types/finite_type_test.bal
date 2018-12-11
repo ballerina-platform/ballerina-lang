@@ -199,3 +199,22 @@ function testByteTypeDefinitionWithVarArgs() returns (foo:BFType, foo:BFType) {
 function testVarByteArgs(foo:BFType... p1) returns foo:BFType {
     return p1[0];
 }
+
+function testTypeDefWithFunctions() returns int {
+    foo:BFuncType fn = function (string s) returns int {
+        return s.length();
+    };
+    return fn.call("Hello");
+}
+
+function testTypeDefWithFunctions2() returns int {
+    foo:BFuncType2 fn = function (string s) returns int {
+        return s.length();
+    };
+
+    if (fn is function (string) returns int) {
+        return fn.call("Hello");
+    }
+
+    return -1;
+}

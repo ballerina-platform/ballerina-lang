@@ -22,7 +22,7 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.983.1-SNAPSHOT</version>
+    <version>0.990.1-SNAPSHOT</version>
     <name>Ballerina - Parent</name>
 
     <description>
@@ -1565,6 +1565,16 @@
                 </exclusions>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk15on</artifactId>
+                <version>${bouncycastle.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcpkix-jdk15on</artifactId>
+                <version>${bouncycastle.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -1725,7 +1735,6 @@
                 <!--<module>tests/ballerina-examples-test</module>-->
                 <module>tool-plugins/intellij</module>
                 <module>tool-plugins/vscode</module>
-                <module>tool-plugins/theia</module>
 
                 <module>benchmarks</module>
             </modules>
@@ -2218,7 +2227,7 @@
     </build>
 
     <properties>
-        <ballerina.version>0.983.1-SNAPSHOT</ballerina.version>
+        <ballerina.version>0.990.1-SNAPSHOT</ballerina.version>
         <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
 
         <commons-net.version>3.6</commons-net.version>
@@ -2241,7 +2250,7 @@
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
-        <transport.http.version>6.0.243</transport.http.version>
+        <transport.http.version>6.0.247</transport.http.version>
         <carbon.messaging.version>2.3.7</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.config.version>2.1.2</carbon.config.version>
@@ -2375,6 +2384,7 @@
 
         <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
         <apache.directory.server.version>1.5.5</apache.directory.server.version>
+        <bouncycastle.version>1.60</bouncycastle.version>
     </properties>
 
 </project>

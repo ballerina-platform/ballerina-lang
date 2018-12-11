@@ -282,6 +282,8 @@ public interface InstructionCodes {
     int NEWMAP = 212;
     int NEWTABLE = 215;
     int NEWSTREAM = 217;
+    
+    int CONVERT = 218;
 
     int ITR_NEW = 219;
     int ITR_NEXT = 221;

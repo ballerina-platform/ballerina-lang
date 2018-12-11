@@ -84,7 +84,11 @@ public class WebSocketService {
     }
 
     public String getName() {
-        return service != null ? service.getName() : null;
+        if (service != null) {
+            String name = service.getName();
+            return !name.startsWith(HttpConstants.DOLLAR) ? name : "";
+        }
+        return null;
     }
 
     public ServiceInfo getServiceInfo() {

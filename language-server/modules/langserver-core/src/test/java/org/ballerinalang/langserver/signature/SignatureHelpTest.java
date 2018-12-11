@@ -61,7 +61,10 @@ public class SignatureHelpTest {
         String response = this.getSignatureResponse(configJsonObject, sourcePath).replace("\\r\\n", "\\n");
         JsonObject responseJson = parser.parse(response).getAsJsonObject();
         responseJson.remove("id");
-        Assert.assertTrue(expected.equals(responseJson));
+        boolean result = expected.equals(responseJson);
+        if (!result) {
+            Assert.fail("Failed Test for: " + configJsonPath);
+        }
     }
     
     @DataProvider(name = "signature-help-data-provider")
@@ -79,13 +82,9 @@ public class SignatureHelpTest {
                 {"signatureWithinIfElse1.json", "signatureWithinWhile.bal"},
                 {"signatureWithinForeach.json", "signatureWithinForeach.bal"},
                 {"signatureWithinTransaction1.json", "signatureWithinTransaction1.bal"},
-                {"signatureWithinTransaction1.json", "signatureWithinTransaction2.bal"},
-                {"signatureWithinTryCatch1.json", "signatureWithinTryCatch1.bal"},
-                {"signatureWithinTryCatch2.json", "signatureWithinTryCatch2.bal"},
-                {"signatureWithinTryCatch3.json", "signatureWithinTryCatch3.bal"},
         };
     }
-    
+
     private String getSignatureResponse(JsonObject config, Path sourcePath)
             throws InterruptedException, IOException {
         JsonObject positionObj = config.get("position").getAsJsonObject();

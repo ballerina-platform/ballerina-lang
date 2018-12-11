@@ -1,0 +1,9 @@
+# To run this sample, navigate to the directory that contains the
+# `.bal` file and issue the `ballerina run` command.
+$ ballerina run stamp.bal
+Element type of the array is Int
+Int array is stamped as JSON array
+School of the Employee is Hindu College
+Map is stamped as Teacher record type
+Tuple is stamped as int array
+JSON value is stamped as Foo

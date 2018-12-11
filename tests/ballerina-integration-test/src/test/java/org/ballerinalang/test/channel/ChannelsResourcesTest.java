@@ -36,7 +36,6 @@ import java.util.concurrent.ExecutionException;
  * Integration test for Channels.
  * @since 0.982.0
  */
-@Test(groups = "broken")
 public class ChannelsResourcesTest extends BaseTest {
 
     private static BServerInstance serverInstance;

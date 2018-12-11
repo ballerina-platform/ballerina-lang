@@ -21,7 +21,8 @@ public function main() {
     var response = httpEndpoint->get("/hello/sayHello");
     if (response is http:Response) {
         var result = response.getPayloadAsString();
-        log:printInfo((result is error) ? "Failed to retrieve payload." : result);
+        log:printInfo((result is error) ? "Failed to retrieve payload."
+                                        : result);
     } else {
         log:printError("Failed to call the endpoint.", err = response);
     }
