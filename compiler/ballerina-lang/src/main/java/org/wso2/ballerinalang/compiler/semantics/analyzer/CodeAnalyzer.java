@@ -42,6 +42,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
+import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -751,8 +752,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return true;
         }
 
-        if (precedingVar.getKind() == NodeKind.VARIABLE &&
-                (var.getKind() == NodeKind.RECORD_VARIABLE || var.getKind() == NodeKind.TUPLE_VARIABLE)) {
+        if (precedingVar.getKind() == NodeKind.ERROR_VARIABLE && var.getKind() == NodeKind.ERROR_VARIABLE) {
+            BLangErrorVariable precedingErrVar = (BLangErrorVariable) precedingVar;
+            BLangErrorVariable errVar = (BLangErrorVariable) var;
+            if (precedingErrVar.detail != null && errVar.detail != null) {
+                return checkStructuredPatternSimilarity(precedingErrVar.detail, errVar.detail);
+            }
             return true;
         }
 

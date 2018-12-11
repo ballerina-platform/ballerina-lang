@@ -943,10 +943,13 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordVarRef varRefExpr) {
+        varRefExpr.recordRefFields.forEach(expr -> analyzeNode(expr.variableReference, env));
     }
 
     @Override
     public void visit(BLangErrorVarRef varRefExpr) {
+        analyzeNode(varRefExpr.reason, env);
+        analyzeNode(varRefExpr.detail, env);
     }
 
     @Override
@@ -971,7 +974,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         BLangVariable var = bLangRecordVariableDef.var;
         if (var.expr == null) {
             addUninitializedVar(var);
-            return;
         }
     }
 
@@ -981,6 +983,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangErrorVariableDef bLangErrorVariableDef) {
+        BLangVariable var = bLangErrorVariableDef.errorVariable;
+        if (var.expr == null) {
+            addUninitializedVar(var);
+        }
     }
 
     @Override
@@ -1085,7 +1091,12 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 ((BLangRecordVarRef) varRef).recordRefFields.forEach(field -> checkAssignment(field.variableReference));
                 return;
             case TUPLE_VARIABLE_REF:
-                ((BLangTupleVarRef) varRef).expressions.forEach(expr -> checkAssignment(expr));
+                ((BLangTupleVarRef) varRef).expressions.forEach(this::checkAssignment);
+                return;
+            case ERROR_VARIABLE_REF:
+                BLangErrorVarRef errorVarRef = (BLangErrorVarRef) varRef;
+                checkAssignment(errorVarRef.reason);
+                checkAssignment(errorVarRef.detail);
                 return;
             case INDEX_BASED_ACCESS_EXPR:
             case FIELD_BASED_ACCESS_EXPR:

@@ -238,7 +238,9 @@ public enum DiagnosticCode {
     NOT_ENOUGH_FIELDS_TO_MATCH_CLOSED_RECORDS("not.enough.fields.to.match.closed.record"),
     INVALID_TYPE_DEFINITION_FOR_RECORD_VAR("invalid.type.definition.for.record.var"),
 
-    ERROR_BINDING_PATTERN_NOT_SUPPORTED("error.binding.pattern.not.supported"),
+    INVALID_ERROR_BINDING_PATTERN("invalid.error.binding.pattern"),
+    INVALID_TYPE_DEFINITION_FOR_ERROR_VAR("invalid.type.definition.for.error.var"),
+    INVALID_ERROR_LITERAL_BINDING_PATTERN("invalid.error.literal.in.binding.pattern"),
 
     INVALID_NAMESPACE_PREFIX("invalid.namespace.prefix"),
     XML_TAGS_MISMATCH("mismatching.xml.start.end.tags"),

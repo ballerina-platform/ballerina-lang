@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -55,6 +56,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
@@ -67,10 +69,12 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
@@ -530,6 +534,14 @@ public class ASTBuilderUtil {
         return variableDef;
     }
 
+    static BLangErrorVariableDef createErrorVariableDef(DiagnosticPos pos, BLangErrorVariable variable) {
+        final BLangErrorVariableDef variableDef =
+                (BLangErrorVariableDef) TreeBuilder.createErrorVariableDefinitionNode();
+        variableDef.pos = pos;
+        variableDef.errorVariable = variable;
+        return variableDef;
+    }
+
     static BLangCheckedExpr createCheckExpr(DiagnosticPos pos, BLangExpression expr, BType returnType) {
         final BLangCheckedExpr checkExpr = (BLangCheckedExpr) TreeBuilder.createCheckExpressionNode();
         checkExpr.pos = pos;
@@ -724,6 +736,17 @@ public class ASTBuilderUtil {
         dupVarSymbol.kind = varSymbol.kind;
 
         return dupVarSymbol;
+    }
+
+    static BLangRecordDestructure createRecordDestructureStmt(DiagnosticPos pos, BLangExpression expr,
+                                                              BLangRecordVarRef detail, BLangBlockStmt target) {
+        BLangRecordDestructure destructureStatementNode =
+                (BLangRecordDestructure) TreeBuilder.createRecordDestructureStatementNode();
+        destructureStatementNode.pos = pos;
+        destructureStatementNode.expr = expr;
+        destructureStatementNode.varRef = detail;
+        target.addStatement(destructureStatementNode);
+        return destructureStatementNode;
     }
 
     private static IdentifierNode createIdentifier(String value) {
