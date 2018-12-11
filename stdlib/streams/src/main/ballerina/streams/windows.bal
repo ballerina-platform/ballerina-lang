@@ -1581,22 +1581,22 @@ public type SortWindow object {
                         if (nextParameter == "ascending" || nextParameter == "descending") {
                             self.sortTypes[self.sortTypes.length()] = nextParameter;
                         } else {
-                            error err = error("Expected ascending or descending at "+ "index " + (i + 1) +
-                                " of sort window parameter array");
+                            error err = error("Expected ascending or descending at parameter " + (i + 1) +
+                                " of sort window");
                             panic err;
                         }
                     }
                 } else if(nextParameter is int) {
-                    error err = error("Expected string parameter at index " + (i + 1) +
-                            " of sort window parameter array, but found <int>");
+                    error err = error("Expected string parameter at parameter " + (i + 1) +
+                            " of sort window, but found <int>");
                     panic err;
                 } else if(nextParameter is float) {
-                    error err = error("Expected string parameter at index " + (i + 1) +
-                            " of sort window parameter array, but found <float>");
+                    error err = error("Expected string parameter at parameter " + (i + 1) +
+                            " of sort window, but found <float>");
                     panic err;
                 } else if(nextParameter is boolean) {
-                    error err = error("Expected string parameter at index " + (i + 1) +
-                            " of sort window parameter array, but found <boolean>");
+                    error err = error("Expected string parameter at parameter " + (i + 1) +
+                            " of sort window, but found <boolean>");
                     panic err;
                 } else {
                     error err = error("Incompatible parameter type" );
