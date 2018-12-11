@@ -649,3 +649,9 @@ function test29() returns (boolean, boolean, boolean, boolean, boolean, boolean,
     return (b10, b11, b20, b21, b30, b31, b40, b41);
 }
 
+(function () returns (int)) fb = function () returns (int) { return 100; };
+
+function test30() returns int {
+    int a = fb.call();
+    return a;
+}
