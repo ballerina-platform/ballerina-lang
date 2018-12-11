@@ -26,8 +26,6 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.util.Arrays;
-
 /**
  * Tests the flush action.
  */
@@ -39,7 +37,7 @@ public class WorkerFlushTest {
     public void setup() {
 
         this.result = BCompileUtil.compile("test-src/workers/flush-workers.bal");
-        Assert.assertEquals(result.getErrorCount(), 0, Arrays.asList(result.getDiagnostics()).toString());
+        Assert.assertEquals(result.getErrorCount(), 0, result.toString());
     }
 
     @Test
@@ -83,7 +81,22 @@ public class WorkerFlushTest {
         }
         Assert.assertNotNull(expectedException);
         String result =
-                "error: error3 {\"message\":\"msg3\"}\n" + "\tat $lambda$12(flush-workers.bal:169)";
+                "error: error3 {\"message\":\"msg3\"}\n" + "\tat $lambda$12(flush-workers.bal:184)";
         Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
+    }
+
+    @Test
+    public void flushInDefaultError() {
+
+        BValue[] returns = BRunUtil.invoke(result, "flushInDefaultError");
+        Assert.assertTrue(returns[0] instanceof BError);
+        Assert.assertEquals(((BError) returns[0]).reason, "err");
+    }
+
+    @Test
+    public void flushInDefault() {
+
+        BValue[] returns = BRunUtil.invoke(result, "flushInDefault");
+        Assert.assertEquals(returns[0].stringValue(), "25");
     }
 }

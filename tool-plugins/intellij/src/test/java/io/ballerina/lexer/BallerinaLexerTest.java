@@ -21,6 +21,7 @@ import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.CharsetToolkit;
 import com.intellij.testFramework.LexerTestCase;
+import com.intellij.testFramework.VfsTestUtil;
 import io.ballerina.plugins.idea.lexer.BallerinaLexerAdapter;
 import org.jetbrains.annotations.NotNull;
 
@@ -38,6 +39,8 @@ import static io.netty.util.internal.StringUtil.EMPTY_STRING;
  * Lexer tests.
  */
 public class BallerinaLexerTest extends LexerTestCase {
+
+    private static boolean overwriteExpectedResults = false;
 
     private String getTestDataDirectoryPath() {
         return "../../examples";
@@ -61,7 +64,11 @@ public class BallerinaLexerTest extends LexerTestCase {
             File resource = path.toFile();
             if (resource.exists()) {
                 if (resource.isFile() && resource.getName().endsWith(".bal")) {
-                    doTestFile(resource);
+                    if (overwriteExpectedResults) {
+                        doOverwrite(resource);
+                    } else {
+                        doTestFile(resource);
+                    }
                     // If the resource is a directory, recursively tests the sub directories/files accordingly,
                     // excluding tests folders.
                 } else if (resource.isDirectory() && !resource.getName().contains("tests")) {
@@ -72,6 +79,20 @@ public class BallerinaLexerTest extends LexerTestCase {
                     ds.close();
                 }
             }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    // Generates expected results set for a given test set.
+    private void doOverwrite(File resource) {
+        try {
+            String text = FileUtil.loadFile(resource, CharsetToolkit.UTF8);
+            String relativePath = resource.getPath().replace(getTestDataDirectoryPath(), EMPTY_STRING);
+            String actual = printTokens(StringUtil.convertLineSeparators(text.trim()), 0);
+            String pathname = (getExpectedResultDirectoryPath() + relativePath).replace(".bal", "") + ".txt";
+            File expectedResultFile = new File(pathname);
+            VfsTestUtil.overwriteTestData(expectedResultFile.toString(), actual);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

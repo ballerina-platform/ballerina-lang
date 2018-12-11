@@ -25,8 +25,11 @@ import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
 import org.ballerinalang.langserver.completions.util.Snippet;
+import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
+import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
 import org.ballerinalang.model.tree.NodeKind;
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -54,7 +57,11 @@ public class ObjectTypeContextResolver extends AbstractItemResolver {
                 .map(Token::getText)
                 .collect(Collectors.toList());
 
-        if (poppedTokens.contains(UtilSymbolKeys.EQUAL_SYMBOL_KEY)) {
+        if (this.isInvocationOrInteractionOrFieldAccess(context)) {
+            Either<List<CompletionItem>, List<SymbolInfo>> eitherList = SymbolFilters
+                    .get(DelimiterBasedContentFilter.class).filterItems(context);
+            completionItems.addAll(this.getCompletionsFromEither(eitherList, context));
+        } else if (poppedTokens.contains(UtilSymbolKeys.EQUAL_SYMBOL_KEY)) {
             // If the popped tokens contains the equal symbol, then the variable definition is being writing
             context.put(CompletionKeys.PARSER_RULE_CONTEXT_KEY,
                     new BallerinaParser.VariableDefinitionStatementContext(null, -1));
@@ -66,15 +73,16 @@ public class ObjectTypeContextResolver extends AbstractItemResolver {
             fillInitializerSignature(completionItems, isSnippet);
             fillFunctionSignature(completionItems, isSnippet);
         }
-        
+
         return completionItems;
     }
-    
+
     private void fillTypes(LSContext context, List<CompletionItem> completionItems) {
         List<SymbolInfo> filteredTypes = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY).stream()
                 .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol)
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(filteredTypes, context));
+        completionItems.addAll(this.getPackagesCompletionItems(context));
     }
     
     private void fillFunctionSignature(List<CompletionItem> completionItems, boolean snippetCapability) {

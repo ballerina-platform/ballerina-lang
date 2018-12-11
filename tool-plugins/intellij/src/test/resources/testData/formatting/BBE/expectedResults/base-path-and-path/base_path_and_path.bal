@@ -1,41 +1,48 @@
 import ballerina/http;
 import ballerina/log;
-import ballerina/mime;
 
-// The `BasePath` attribute associates a path to the service.
-// It binds the service endpoint to the service.
+// The `basePath` attribute associates a path to the service.
+// When bound to a listener endpoint, the service will be accessible at the specified path.
 @http:ServiceConfig { basePath: "/foo" }
-service<http:Service> echo bind { port: 9090 } {
-    // The `POST` annotation restricts the resource to accept `POST` requests only. Similarly, there are different annotations for each HTTP verb.
-    // The `Path` attribute associates a subpath to the resource.
+service echo on new http:Listener(9090) {
+    // When the `methods` attribute is used, it confines the resource to the HTTP methods specified.
+    // In this instance, only `POST` requests are allowed.
+    // The `path` attribute associates a subpath to the resource (i.e., relative to the `basePath` given in the `ServiceConfig` annotation).
     @http:ResourceConfig {
         methods: ["POST"],
         path: "/bar"
     }
-    echo(endpoint caller, http:Request req) {
-        // This method gets the request payload.
-        var result = req.getJsonPayload();
+    resource function echo(http:Caller caller, http:Request req) {
+        // This method retrieves the request payload as a JSON.
+        var payload = req.getJsonPayload();
         http:Response res = new;
-        match result {
-            error err => {
-                res.statusCode = 500;
-                res.setPayload(untaint err.message);
+        if (payload is json) {
+            // Validate the JSON before setting it to the response to prevent security vulnerabilities.
+            if (validateJson(payload.hello)) {
+                // Since the JSON is known to be valid, `untaint` the data denoting that the data is trusted and set the JSON to the response.
+                res.setJsonPayload(untaint payload);
+            } else {
+                res.statusCode = 400;
+                res.setPayload("JSON containted invalid data");
             }
-            json value => {
-                // Perform validation of JSON data before setting it to the response to prevent security vulnerabilities.
-                if (value.hello != null && check value.hello.toString().matches("[a-zA-Z]+")) {
-                    // Since JSON data is known to be valid, `untaint` the data denoting that the data is trusted and set the JSON to response.
-                    res.setJsonPayload(untaint value);
-                } else {
-                    res.statusCode = 400;
-                    res.setPayload("JSON containted invalid data");
-                }
-            }
+        } else if (payload is error) {
+            res.statusCode = 500;
+            res.setPayload(untaint <string>payload.detail().message);
         }
         // Reply to the client with the response.
         var result = caller->respond(res);
+
         if (result is error) {
-           log:printError("Error in responding", err = result);
+            log:printError("Error in responding", err = result);
         }
+    }
+}
+
+function validateJson(json payload) returns boolean {
+    var result = payload.toString().matches("[a-zA-Z]+");
+    if (result is error) {
+        return false;
+    } else {
+        return result;
     }
 }

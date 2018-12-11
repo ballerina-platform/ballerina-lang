@@ -1,4 +1,5 @@
-To run the type_guard.bal to execute this example, place this file in a specific location and issue this command.
+# To run this sample, navigate to the directory that contains the
+# `.bal` file and issue the `ballerina run` command.
 $ ballerina run type_guard.bal
 value: value1
 value is ()

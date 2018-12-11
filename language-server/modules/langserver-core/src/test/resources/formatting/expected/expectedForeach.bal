@@ -1,24 +1,44 @@
-import ballerina/io;
+string output = "";
 
-function name() {
-    map<string> words = {
-        a: "apple",
-        b: "banana",
-        c: "cherry"
-    };
+public function name() {
+    string[] fruits = ["apple", "banana", "cherry"];
+    foreach var v in fruits {
+        secureFunction(v, v);
+    }
+}
 
-    // To fetch the values defined in the map, use one variable. To fetch both the key (string) and value, use two
-    // variables.
-    foreach (k, v in words) {
-        io:println("letter: ", k, ", word: ", v);
-        break;
+function testArrayWithTupleWithType() returns string {
+    output = "";
+
+    (int, string)[] arr = [(1, "A"), (2, "B"), (3, "C")];
+
+    foreach (int, string) (i, v) in arr {
+        int a = i;
     }
-    foreach k, v in words {
-        io:println("letter: ", k, ", word: ", v);
-        foreach j, l in words {
-            io:println("letter: ", j, ", word: ", l);
-            break;
-        }
-        break;
+    return output;
+}
+
+function testArrayWithTupleInTupleWithoutType() returns string {
+    output = "";
+
+    (int, (string, float))[] arr = [(1, ("A", 2.0)), (2, ("B", 3.0)), (3, ("C", 4.0))];
+    foreach var (i, (s, f)) in arr {
+        (string, float) isd = (s,f);
     }
+    return output;
+}
+
+function testArrayWithTupleInTupleWithType() returns string {
+    output = "";
+
+    (int, (string, float))[] arr = [(1, ("A", 2.0)), (2, ("B", 3.0)), (3, ("C", 4.0))];
+
+    foreach (int, (string, float)) (i, (s, f)) in arr {
+        (int, (string, float)) asd = (i, (s,f));
+    }
+    return output;
+}
+
+public function secureFunction(@sensitive string secureIn, string insecureIn) {
+    string data = secureIn + insecureIn;
 }

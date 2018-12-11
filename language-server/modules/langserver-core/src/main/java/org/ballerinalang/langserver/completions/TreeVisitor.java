@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.langserver.completions;
 
+import org.ballerinalang.langserver.AnnotationNodeKind;
 import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -42,8 +43,10 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -295,6 +298,7 @@ public class TreeVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangSimpleVariable varNode) {
         CursorPositionResolver cpr = CursorPositionResolvers.getResolverByClass(cursorPositionResolver);
+        varNode.annAttachments.forEach(annotationAttachment -> this.acceptNode(annotationAttachment, symbolEnv));
         if (cpr.isCursorBeforeNode(varNode.getPosition(), this, this.lsContext, varNode, varNode.symbol)
                 || varNode.expr == null) {
             return;
@@ -345,7 +349,8 @@ public class TreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVariableDef varDefNode) {
-        boolean isFuture = varDefNode.getVariable().expr.type instanceof BFutureType;
+        boolean isFuture = varDefNode.getVariable().expr != null
+                && varDefNode.getVariable().expr.type instanceof BFutureType;
         CursorPositionResolver cpr = CursorPositionResolvers.getResolverByClass(cursorPositionResolver);
         if (isFuture || cpr.isCursorBeforeNode(varDefNode.getPosition(), this, this.lsContext, varDefNode,
                 varDefNode.getVariable().symbol)) {
@@ -448,7 +453,7 @@ public class TreeVisitor extends LSNodeVisitor {
         serviceContent.addAll(serviceFields);
         serviceContent.sort(new CommonUtil.BLangNodeComparator());
 
-//        serviceNode.annAttachments.forEach(annotationAttachment -> this.acceptNode(annotationAttachment, serviceEnv));
+        serviceNode.annAttachments.forEach(annotationAttachment -> this.acceptNode(annotationAttachment, serviceEnv));
         // Reset the previous node
         this.setPreviousNode(null);
         boolean cursorWithinBlock = serviceFunctions.isEmpty()
@@ -753,12 +758,15 @@ public class TreeVisitor extends LSNodeVisitor {
     }
 
     public void setNextNode(BSymbol symbol) {
-        int flags;
-        if (symbol == null) {
-            return;
+        if (symbol instanceof BServiceSymbol) {
+            lsContext.put(CompletionKeys.NEXT_NODE_KEY, AnnotationNodeKind.SERVICE);
+        } else if (symbol instanceof BInvokableSymbol && (symbol.flags & Flags.RESOURCE) == Flags.RESOURCE) {
+            lsContext.put(CompletionKeys.NEXT_NODE_KEY, AnnotationNodeKind.RESOURCE);
+        } else if (symbol instanceof BInvokableSymbol) {
+            lsContext.put(CompletionKeys.NEXT_NODE_KEY, AnnotationNodeKind.FUNCTION);
+        } else if (symbol instanceof BVarSymbol && (symbol.flags & Flags.LISTENER) == Flags.LISTENER) {
+            lsContext.put(CompletionKeys.NEXT_NODE_KEY, AnnotationNodeKind.LISTENER);
         }
-        flags = (symbol instanceof BServiceSymbol) ? symbol.type.tsymbol.flags : symbol.flags;
-        lsContext.put(CompletionKeys.NEXT_NODE_KEY, flags);
     }
 
     /**
@@ -779,7 +787,7 @@ public class TreeVisitor extends LSNodeVisitor {
     /////     Private Methods     /////
     ///////////////////////////////////
     private void acceptNode(BLangNode node, SymbolEnv env) {
-        if (this.terminateVisitor) {
+        if (this.terminateVisitor || node == null) {
             return;
         }
 

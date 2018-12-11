@@ -247,7 +247,7 @@ function testStreamPublishingAndSubscriptionForTupleTypeStream() returns (any[],
 }
 
 function testStreamPublishingAndSubscriptionForAssignableTupleTypeStream(string s1, int i1, string s2, int i2) returns
-any[] {
+                                                                                                               any[] {
     globalAnyArray = [];
     arrayIndex = 0;
     stream<(string, int)> tupleStream = new;

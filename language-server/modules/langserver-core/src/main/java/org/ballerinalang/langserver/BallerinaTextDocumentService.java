@@ -38,7 +38,7 @@ import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.definition.util.DefinitionUtil;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.formatting.FormattingSourceGen;
-//import org.ballerinalang.langserver.formatting.FormattingVisitorEntry;
+import org.ballerinalang.langserver.formatting.FormattingVisitorEntry;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
 import org.ballerinalang.langserver.index.LSIndexImpl;
 import org.ballerinalang.langserver.references.util.ReferenceUtil;
@@ -67,8 +67,8 @@ import org.eclipse.lsp4j.DocumentSymbolParams;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.MarkedString;
-//import org.eclipse.lsp4j.Position;
-//import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.ReferenceParams;
 import org.eclipse.lsp4j.RenameParams;
 import org.eclipse.lsp4j.SignatureHelp;
@@ -86,6 +86,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -95,8 +96,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.Lock;
-//import java.util.regex.Matcher;
-//import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.ZipError;
 
 import static org.ballerinalang.langserver.command.CommandUtil.getCommandForNodeType;
@@ -397,10 +398,16 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 // Add create test commands
                 String innerDirName = LSCompilerUtil.getCurrentModulePath(document.getPath())
                         .relativize(document.getPath())
-                        .toString().split(File.separator)[0];
+                        .toString().split(Pattern.quote(File.separator))[0];
+                String moduleName = document.getSourceRootPath()
+                        .relativize(LSCompilerUtil.getCurrentModulePath(document.getPath())).toString();
                 if (topLevelNodeType != null && diagnostics.isEmpty() && document.hasProjectRepo() &&
-                        !TEST_DIR_NAME.equals(innerDirName)) {
-                    commands.addAll(CommandUtil.getTestGenerationCommand(topLevelNodeType, fileUri, params));
+                        !TEST_DIR_NAME.equals(innerDirName) && !moduleName.isEmpty() &&
+                        !moduleName.endsWith(ProjectDirConstants.BLANG_SOURCE_EXT)) {
+                    // Test generation suggested only when;
+                    //     - no code diagnosis exists, inside a bal project, inside a module, not inside /tests folder
+                    commands.addAll(CommandUtil.getTestGenerationCommand(topLevelNodeType, fileUri, params,
+                                                                         documentManager, lsCompiler));
                 }
 
                 // Add commands base on node diagnostics
@@ -440,7 +447,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
     @Override
     public CompletableFuture<List<? extends TextEdit>> formatting(DocumentFormattingParams params) {
         return CompletableFuture.supplyAsync(() -> {
-//            String textEditContent = null;
+            String textEditContent;
             TextEdit textEdit = new TextEdit();
 
             String fileUri = params.getTextDocument().getUri();
@@ -452,27 +459,28 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 formatContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
 
                 // Build the given ast.
-                JsonObject ast = TextDocumentFormatUtil.getAST(fileUri, lsCompiler, documentManager, formatContext);
+                JsonObject ast = TextDocumentFormatUtil.getAST(formattingFilePath, lsCompiler, documentManager,
+                        formatContext);
                 FormattingSourceGen.build(ast.getAsJsonObject("model"), "CompilationUnit");
 
                 // Format the given ast.
-                // FormattingVisitorEntry formattingUtil = new FormattingVisitorEntry();
-                // formattingUtil.accept(ast.getAsJsonObject("model"));
+                FormattingVisitorEntry formattingUtil = new FormattingVisitorEntry();
+                formattingUtil.accept(ast.getAsJsonObject("model"));
 
-                // Generate source for the ast.
-                // textEditContent = FormattingSourceGen.getSourceOf(ast.getAsJsonObject("model"));
-                // Matcher matcher = Pattern.compile("\r\n|\r|\n").matcher(textEditContent);
-                // int totalLines = 0;
-                // while (matcher.find()) {
-                //    totalLines++;
-                // }
+                //Generate source for the ast.
+                textEditContent = FormattingSourceGen.getSourceOf(ast.getAsJsonObject("model"));
+                Matcher matcher = Pattern.compile("\r\n|\r|\n").matcher(textEditContent);
+                int totalLines = 0;
+                while (matcher.find()) {
+                    totalLines++;
+                }
 
-                // int lastNewLineCharIndex = Math.max(textEditContent.lastIndexOf("\n"),
-                //        textEditContent.lastIndexOf("\r"));
-                // int lastCharCol = textEditContent.substring(lastNewLineCharIndex + 1).length();
+                int lastNewLineCharIndex = Math.max(textEditContent.lastIndexOf("\n"),
+                        textEditContent.lastIndexOf("\r"));
+                int lastCharCol = textEditContent.substring(lastNewLineCharIndex + 1).length();
 
-                // Range range = new Range(new Position(0, 0), new Position(totalLines, lastCharCol));
-                // textEdit = new TextEdit(range, textEditContent);
+                Range range = new Range(new Position(0, 0), new Position(totalLines, lastCharCol));
+                textEdit = new TextEdit(range, textEditContent);
                 return Collections.singletonList(textEdit);
             } catch (Exception e) {
                 if (CommonUtil.LS_DEBUG_ENABLED) {

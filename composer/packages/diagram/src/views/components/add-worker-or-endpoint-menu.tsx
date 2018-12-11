@@ -1,3 +1,4 @@
+import { BallerinaEndpoint } from "@ballerina/lang-service";
 import React, { Fragment } from "react";
 import { SimplePoint } from "../../view-model/simple-point";
 import { EndpointSearchDialog } from "./endpoint-search-dialog";
@@ -5,14 +6,14 @@ import { SVGDropDownMenu } from "./svg-dropdown-menu";
 
 export class AddWorkerOrEndpointMenu extends React.Component<{
         triggerPosition: SimplePoint;
-        onAddEndpoint?: (endpointDef: any) => void;
+        onAddEndpoint?: (endpointDef: BallerinaEndpoint) => void;
         onAddWorker?: () => void;
     }, {
-        showEndpoitDialog: boolean
+        showEndpointDialog: boolean
     }> {
 
     public state = {
-        showEndpoitDialog: false
+        showEndpointDialog: false
     };
 
     public render() {
@@ -36,13 +37,13 @@ export class AddWorkerOrEndpointMenu extends React.Component<{
                     ]}
                 />
             <EndpointSearchDialog
-                show={this.state.showEndpoitDialog}
+                show={this.state.showEndpointDialog}
                 onClose={this.closeEpSearchDialog}
                 onEndpointSelect={onAddEndpoint}
             />
         </Fragment>;
     }
 
-    private openEpSearchDialog = () => this.setState({ showEndpoitDialog: true });
-    private closeEpSearchDialog = () => this.setState({ showEndpoitDialog: false });
+    private openEpSearchDialog = () => this.setState({ showEndpointDialog: true });
+    private closeEpSearchDialog = () => this.setState({ showEndpointDialog: false });
 }

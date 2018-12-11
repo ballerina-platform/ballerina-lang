@@ -24,7 +24,18 @@ package org.ballerinalang.util.exceptions;
  */
 public class BLangMapStoreException extends BLangRuntimeException {
 
+    private String detail = null;
+
     public BLangMapStoreException(String message) {
         super(message);
+    }
+
+    public BLangMapStoreException(String message, String detail) {
+        super(message);
+        this.detail = detail;
+    }
+
+    public String getDetail() {
+        return detail;
     }
 }

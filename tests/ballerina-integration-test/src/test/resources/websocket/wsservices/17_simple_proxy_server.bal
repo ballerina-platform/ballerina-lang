@@ -21,9 +21,8 @@ final string REMOTE_BACKEND_URL = "ws://localhost:15300/websocket";
 final string ASSOCIATED_CONNECTION5 = "ASSOCIATED_CONNECTION";
 
 @http:WebSocketServiceConfig {
-    path: "/"
 }
-service simpleProxy9 on new http:WebSocketListener(9099) {
+service on new http:WebSocketListener(9099) {
 
     resource function onOpen(http:WebSocketCaller wsEp) {
         http:WebSocketClient wsClientEp = new(

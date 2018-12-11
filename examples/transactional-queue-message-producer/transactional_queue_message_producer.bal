@@ -3,26 +3,26 @@ import ballerina/log;
 
 // Initialize a JMS connection with the provider.
 jms:Connection jmsConnection = new({
-    initialContextFactory:"bmbInitialContextFactory",
-    providerUrl:"amqp://admin:admin@carbon/carbon"
-                + "?brokerlist='tcp://localhost:5672'"
-});
+        initialContextFactory: "bmbInitialContextFactory",
+        providerUrl: "amqp://admin:admin@carbon/carbon"
+            + "?brokerlist='tcp://localhost:5672'"
+    });
 
 // Initialize a JMS session on top of the created connection.
 jms:Session jmsSession = new(jmsConnection, {
-    acknowledgementMode:"SESSION_TRANSACTED"
-});
+        acknowledgementMode: "SESSION_TRANSACTED"
+    });
 
 // Initialize a queue sender.
 jms:QueueSender queueSender = new({
-    session:jmsSession,
-    queueName:"MyQueue"
-});
+        session: jmsSession,
+        queueName: "MyQueue"
+    });
 
 public function main() {
     // Message is published within the transaction block.
     transaction {
-    // Create a text message.
+        // Create a text message.
         var msg = jmsSession.createTextMessage("Hello from Ballerina");
         if (msg is jms:Message) {
             // Send the message to the JMS provider.

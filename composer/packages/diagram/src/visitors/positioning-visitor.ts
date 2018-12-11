@@ -1,6 +1,7 @@
 import {
     ASTKindChecker, ASTUtil, Block, CompilationUnit, Foreach,
-    Function, If, Lambda, Service, Variable, VariableDef, VisibleEndpoint, Visitor, While
+    Function, If, Lambda, Match, MatchStaticPatternClause, ObjectType, Service,
+    TypeDefinition, Variable, VariableDef, VisibleEndpoint, Visitor, While
 } from "@ballerina/ast-model";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
@@ -22,7 +23,9 @@ export const visitor: Visitor = {
 
         // filter out visible children from top level nodes.
         const visibleChildren = node.topLevelNodes.filter((child) => {
-            return ASTKindChecker.isFunction(child) || ASTKindChecker.isService(child);
+            return ASTKindChecker.isFunction(child)
+                || ASTKindChecker.isService(child)
+                || ASTUtil.isValidObjectType(child);
         });
 
         let width = 0;
@@ -62,7 +65,7 @@ export const visitor: Visitor = {
 
     // tslint:disable-next-line:ban-types
     beginVisitFunction(node: Function) {
-        if (node.lambda) { return; }
+        if (node.lambda || !node.body) { return; }
         const viewState: FunctionViewState = node.viewState;
         const defaultWorker: WorkerViewState = node.viewState.defaultWorker;
 
@@ -81,8 +84,9 @@ export const visitor: Visitor = {
         // Position default worker lifeline.
         positionWorkerLine(defaultWorker);
 
-        // Size the other workers
+        // Position the other workers
         let workerX = defaultWorker.bBox.x + defaultWorker.bBox.w + config.lifeLine.gutter.h;
+        let workerWidth = 0;
         node.body!.statements.filter((element) => ASTUtil.isWorker(element)).forEach((worker) => {
             const workerViewState: WorkerViewState = worker.viewState;
             const variable: Variable = ((worker as VariableDef).variable as Variable);
@@ -96,7 +100,10 @@ export const visitor: Visitor = {
             leftMargin = (leftMargin === 0) ? 60 : leftMargin;
             functionNode.body!.viewState.bBox.x = workerX + leftMargin;
             workerX = workerX + functionNode.body!.viewState.bBox.w + leftMargin;
-            functionNode.body!.viewState.bBox.y = defaultWorker.bBox.y + config.lifeLine.header.height;
+            functionNode.body!.viewState.bBox.y = defaultWorker.bBox.y
+            + functionNode.body!.viewState.paddingTop
+            + config.lifeLine.header.height;
+            workerWidth += functionNode.body!.viewState.bBox.w + leftMargin;
         });
 
         // Position the body block node
@@ -108,7 +115,8 @@ export const visitor: Visitor = {
         }
 
         let epX = defaultWorker.bBox.x + defaultWorker.bBox.w
-            + config.lifeLine.gutter.h;
+            + config.lifeLine.gutter.h
+            + workerWidth + config.lifeLine.gutter.h;
         // Position endpoints
         if (node.VisibleEndpoints) {
             node.VisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
@@ -133,14 +141,17 @@ export const visitor: Visitor = {
         const viewState: BlockViewState = node.viewState;
         let height = 0;
         node.statements.forEach((element) => {
+            if (ASTUtil.isWorker(element)) { return; }
             element.viewState.bBox.x = viewState.bBox.x;
-            element.viewState.bBox.y = viewState.bBox.y + height;
-            height += element.viewState.bBox.h;
+            element.viewState.bBox.y = viewState.bBox.y + element.viewState.bBox.paddingTop + height;
+            height += element.viewState.bBox.h + element.viewState.bBox.paddingTop;
         });
         viewState.menuTrigger = {
             x: viewState.bBox.x,
             y: viewState.bBox.y + viewState.bBox.h - config.block.menuTriggerMargin
         };
+        viewState.hoverRect.x = viewState.bBox.x - viewState.hoverRect.leftMargin;
+        viewState.hoverRect.y = viewState.bBox.y;
     },
 
     beginVisitWhile(node: While) {
@@ -177,6 +188,36 @@ export const visitor: Visitor = {
             element.viewState.bBox.x = viewState.bBox.x;
             element.viewState.bBox.y = y;
             y += element.viewState.bBox.h;
+        });
+    },
+
+    beginVisitTypeDefinition(node: TypeDefinition) {
+        // If it is a service do nothing.
+        if (node.service || !ASTUtil.isValidObjectType(node)) { return; }
+        const viewState: ViewState = node.viewState;
+        let y = viewState.bBox.y + config.panelGroup.header.height;
+        // tslint:disable-next-line:ban-types
+        (node.typeNode as ObjectType).functions.forEach((element: Function) => {
+            element.viewState.bBox.x = viewState.bBox.x;
+            element.viewState.bBox.y = y;
+            y += element.viewState.bBox.h;
+        });
+    },
+
+    beginVisitMatchStaticPatternClause(node: MatchStaticPatternClause) {
+        const viewState: ViewState = node.viewState;
+        node.statement.viewState.bBox.x = viewState.bBox.x;
+        node.statement.viewState.bBox.y = viewState.bBox.y
+        + config.statement.height; // To print literal;
+    },
+
+    beginVisitMatch(node: Match) {
+        const viewState: ViewState = node.viewState;
+        let height = config.frame.topMargin + config.frame.header.height;
+        node.patternClauses.forEach((element) => {
+            element.viewState.bBox.x = viewState.bBox.x;
+            element.viewState.bBox.y = viewState.bBox.y + height;
+            height += element.viewState.bBox.h;
         });
     }
 };

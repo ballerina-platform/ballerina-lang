@@ -62,7 +62,11 @@ function flushAll() returns string {
             }
         }
 
-        worker w2 {
+        worker w2 returns error?{
+            if(false){
+                 error err = error("err", { message: "err msg" });
+                 return err;
+            }
             runtime:sleep(5);
             foreach var i in 1 ... 5 {
                 append2 = append2 + "w2";
@@ -70,6 +74,7 @@ function flushAll() returns string {
             int b;
             b = <- w1;
             b = <- w1;
+            return;
         }
 
         worker w3 {
@@ -99,7 +104,11 @@ function errorTest() returns error? {
             return result;
         }
 
-        worker w2 {
+        worker w2 returns error?{
+            if(false){
+                 error err = error("err", { message: "err msg" });
+                 return err;
+            }
             runtime:sleep(5);
             foreach var i in 1 ... 5 {
                 append2 = append2 + "w2";
@@ -107,6 +116,7 @@ function errorTest() returns error? {
             int b;
             b = <- w1;
             b = <- w1;
+            return;
         }
 
         worker w3 returns error|string{
@@ -146,7 +156,11 @@ function panicTest() returns error? {
             return result;
         }
 
-        worker w2 {
+        worker w2 returns error?{
+            if(false){
+                 error err = error("err", { message: "err msg" });
+                 return err;
+            }
             runtime:sleep(5);
             foreach var i in 1 ... 5 {
                 append2 = append2 + "w2";
@@ -154,6 +168,7 @@ function panicTest() returns error? {
             int b;
             b = <- w1;
             b = <- w1;
+            return;
         }
 
         worker w3 returns error|string{
@@ -177,4 +192,39 @@ function panicTest() returns error? {
 
         error? res = wait w1;
         return res;
+}
+
+function flushInDefaultError() returns error? {
+   worker w2 returns error? {
+     int a = 0;
+     int b = 15;
+     if (true) {
+       error err = error("err", { message: "err msg" });
+              return err;
+     }
+     a = <- default;
+     b = a + b;
+     b -> default;
+     return ;
+   }
+   int a = 10;
+    a -> w2;
+    error? res = flush;
+    error|int c = <- w2;
+    return res;
+}
+
+function flushInDefault() returns int {
+   worker w2 {
+     int a = 0;
+     int b = 15;
+     a = <- default;
+     b = a + b;
+     b -> default;
+   }
+   int a = 10;
+    a -> w2;
+    error? res = flush;
+    int c = <- w2;
+    return c;
 }

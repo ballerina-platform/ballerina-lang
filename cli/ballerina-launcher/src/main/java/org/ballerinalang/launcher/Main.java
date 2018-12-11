@@ -28,10 +28,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -255,15 +256,32 @@ public class Main {
 
             String programArg = argList.get(0);
             String functionName = MAIN_FUNCTION_NAME;
-            Path sourcePath = Paths.get(programArg);
-            if (programArg.contains(COLON) && !Files.exists(sourceRootPath.resolve(programArg))) {
-                int splitIndex = getSourceFunctionSplitIndex(sourceRootPath, programArg);
-                if (splitIndex != -1) {
-                    sourcePath = Paths.get(programArg.substring(0, splitIndex));
-                    functionName = programArg.substring(splitIndex + 1);
-                    if (functionName.isEmpty() || programArg.endsWith(COLON)) {
-                        throw LauncherUtils.createUsageExceptionWithHelp("expected function name after final ':'");
-                    }
+            Path sourcePath;
+
+            String potentialPath = new File(programArg).getPath();
+            String resolvedPotentialFilePath =
+                    sourceRootPath.toString().concat(potentialPath.startsWith(File.separator) ? potentialPath :
+                                                  File.separator.concat(potentialPath));
+            if (new File(potentialPath).exists() || new File(resolvedPotentialFilePath).exists()) {
+                sourcePath = Paths.get(programArg);
+            } else if (programArg.contains(COLON)) {
+                // could be <SOURCE>:<FUNCTION_NAME>
+                int splitIndex = getSourceFunctionSplitIndex(sourceRootPath.toString(), programArg);
+                if (splitIndex == -1) {
+                    throw LauncherUtils.createLauncherException("ballerina source does not exist '" + programArg + "'");
+                }
+
+                sourcePath = Paths.get(programArg.substring(0, splitIndex));
+                functionName = programArg.substring(splitIndex + 1);
+
+                if (functionName.isEmpty() || programArg.endsWith(COLON)) {
+                    throw LauncherUtils.createUsageExceptionWithHelp("expected function name after final ':'");
+                }
+            } else {
+                try {
+                    sourcePath = Paths.get(programArg);
+                } catch (InvalidPathException e) {
+                    throw LauncherUtils.createLauncherException("ballerina source does not exist '" + programArg + "'");
                 }
             }
 
@@ -325,14 +343,21 @@ public class Main {
          * @param programArg     the program argument specified
          * @return  the index of the colon to split at
          */
-        private int getSourceFunctionSplitIndex(Path sourceRootPath, String programArg) {
+        private int getSourceFunctionSplitIndex(String sourceRootPath, String programArg) {
             String[] programArgConstituents = programArg.split(COLON);
+            boolean startsWithSeparator = programArg.startsWith(File.separator);
             int index = programArgConstituents.length - 1;
 
             String potentialFunction = programArgConstituents[index];
             String potentialPath = programArg.replace(COLON.concat(potentialFunction), "");
-            if (Files.exists(sourceRootPath.resolve(potentialPath))) {
+            if (new File(potentialPath).exists()) {
                 return potentialPath.length();
+            } else {
+                String resolvedPotentialFilePath = sourceRootPath.concat(startsWithSeparator ? potentialPath :
+                                                                                 File.separator.concat(potentialPath));
+                if (new File(resolvedPotentialFilePath).exists()) {
+                    return potentialPath.length();
+                }
             }
             index--;
 
@@ -340,8 +365,15 @@ public class Main {
                 potentialFunction = programArgConstituents[index].concat(COLON).concat(potentialFunction);
                 potentialPath = programArg.replace(COLON.concat(potentialFunction), "");
 
-                if (Files.exists(sourceRootPath.resolve(potentialPath))) {
+                if (new File(potentialPath).exists()) {
                     return potentialPath.length();
+                } else {
+                    String resolvedPotentialFilePath =
+                            sourceRootPath.concat(startsWithSeparator ? potentialPath :
+                                                          File.separator.concat(potentialPath));
+                    if (new File(resolvedPotentialFilePath).exists()) {
+                        return potentialPath.length();
+                    }
                 }
 
                 index--;

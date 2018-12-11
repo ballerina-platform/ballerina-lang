@@ -12,13 +12,7 @@ task:Timer? timer1 = ();
 task:Timer? timer2 = ();
 
 function scheduleTimer(int w1Delay, int w1Interval, int w2Delay, int w2Interval, string errMsgW1, string errMsgW2) {
-    worker default {
-        errorMsgW1 = errMsgW1;
-        errorMsgW2 = errMsgW2;
-        timer1 <- w1;
-        timer2 <- w2;
-    }
-    worker w1 {
+    worker w1 returns task:Timer? {
         task:Timer? t;
         (function() returns error?) onTriggerFunction = onTriggerW1;
         if (errMsgW1 == "") {
@@ -29,9 +23,9 @@ function scheduleTimer(int w1Delay, int w1Interval, int w2Delay, int w2Interval,
             t = new task:Timer(onTriggerFunction, onErrorFunction, w1Interval, delay = w1Delay);
             _ = t.start();
         }
-        t -> default;
+        return t;
     }
-    worker w2 {
+    worker w2 returns task:Timer? {
         task:Timer? t;
         (function() returns error?) onTriggerFunction = onTriggerW2;
         if (errMsgW2 == "") {
@@ -42,8 +36,13 @@ function scheduleTimer(int w1Delay, int w1Interval, int w2Delay, int w2Interval,
             t = new task:Timer(onTriggerFunction, onErrorFunction, w2Interval, delay = w2Delay);
             _ = t.start();
         }
-        t -> default;
+        return t;
     }
+
+    errorMsgW1 = errMsgW1;
+    errorMsgW2 = errMsgW2;
+    timer1 = wait w1;
+    timer2 = wait w2;
 }
 
 function onTriggerW1() returns error? {

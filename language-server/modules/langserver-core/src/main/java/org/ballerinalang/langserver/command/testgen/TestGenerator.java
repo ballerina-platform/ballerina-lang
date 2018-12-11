@@ -200,19 +200,24 @@ public class TestGenerator {
         if (service.attachedExprs.isEmpty()) {
             return Optional.empty();
         }
-        BLangExpression bLangExpression = service.attachedExprs.get(0);
+        BLangExpression expr = service.attachedExprs.get(0);
+        if (expr instanceof BLangTypeInit) {
+            // If in-line listener
+            return Optional.of((BLangTypeInit) expr);
+        }
         String[] variableName = {""};
-        if (bLangExpression instanceof BLangSimpleVarRef) {
-            BLangSimpleVarRef varRef = (BLangSimpleVarRef) bLangExpression;
+        if (expr instanceof BLangSimpleVarRef) {
+            // variable ref listener
+            BLangSimpleVarRef varRef = (BLangSimpleVarRef) expr;
             variableName[0] = varRef.variableName.value;
         }
 
         for (TopLevelNode topLevelNode : builtTestFile.topLevelNodes) {
             if (topLevelNode instanceof BLangSimpleVariable) {
                 BLangSimpleVariable var = (BLangSimpleVariable) topLevelNode;
-                BLangExpression expr = var.expr;
-                if (expr instanceof BLangTypeInit && variableName[0].equals(var.name.value)) {
-                    return Optional.of((BLangTypeInit) expr);
+                BLangExpression varExpr = var.expr;
+                if (varExpr instanceof BLangTypeInit && variableName[0].equals(var.name.value)) {
+                    return Optional.of((BLangTypeInit) varExpr);
                 }
             }
         }

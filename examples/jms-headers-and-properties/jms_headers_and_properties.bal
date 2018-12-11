@@ -3,22 +3,22 @@ import ballerina/log;
 
 // Initialize a JMS connection with the provider.
 jms:Connection conn = new({
-    initialContextFactory:"bmbInitialContextFactory",
-    providerUrl:"amqp://admin:admin@carbon/carbon"
-                + "?brokerlist='tcp://localhost:5672'"
-});
+        initialContextFactory: "bmbInitialContextFactory",
+        providerUrl: "amqp://admin:admin@carbon/carbon"
+            + "?brokerlist='tcp://localhost:5672'"
+    });
 
 // Initialize a JMS session on top of the created connection.
 jms:Session jmsSession = new(conn, {
-    // An optional property that defaults to `AUTO_ACKNOWLEDGE`.
-    acknowledgementMode:"AUTO_ACKNOWLEDGE"
-});
+        // An optional property that defaults to `AUTO_ACKNOWLEDGE`.
+        acknowledgementMode: "AUTO_ACKNOWLEDGE"
+    });
 
 // Initialize a queue receiver using the created session.
 listener jms:QueueReceiver consumerEndpoint = new({
-    session:jmsSession,
-    queueName:"MyQueue"
-});
+        session: jmsSession,
+        queueName: "MyQueue"
+    });
 
 // Bind the created consumer to the listener service.
 service jmsListener on consumerEndpoint {
@@ -27,12 +27,12 @@ service jmsListener on consumerEndpoint {
     resource function onMessage(jms:QueueReceiverCaller consumer,
                                 jms:Message message) {
         // Create a queue sender.
-         jms:SimpleQueueSender queueSender = new({
-            initialContextFactory:"bmbInitialContextFactory",
-            providerUrl:"amqp://admin:admin@carbon/carbon"
-                        + "?brokerlist='tcp://localhost:5672'",
-            queueName: "RequestQueue"
-        });
+        jms:SimpleQueueSender queueSender = new({
+                initialContextFactory: "bmbInitialContextFactory",
+                providerUrl: "amqp://admin:admin@carbon/carbon"
+                    + "?brokerlist='tcp://localhost:5672'",
+                queueName: "RequestQueue"
+            });
 
         var content = message.getTextMessageContent();
         if (content is string) {
@@ -75,20 +75,20 @@ service jmsListener on consumerEndpoint {
             var cid = msg.setCorrelationID("Msg:1");
             if (cid is error) {
                 log:printError("Error setting correlation id",
-                          err = cid);
+                    err = cid);
             }
 
             // Set JMS string property
             var stringProp = msg.setStringProperty("Instruction",
-                               "Do a perfect Pirouette");
+                "Do a perfect Pirouette");
             if (stringProp is error) {
                 log:printError("Error setting string property",
-                                      err = stringProp);
+                    err = stringProp);
             }
             var result = queueSender->send(msg);
             if (result is error) {
                 log:printError("Error sending message to broker",
-                                      err = result);
+                    err = result);
             }
         } else {
             log:printError("Error creating message", err = msg);

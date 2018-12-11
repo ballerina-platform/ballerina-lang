@@ -49,9 +49,9 @@ import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
-import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
+import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 
 /**
@@ -138,6 +138,7 @@ public class LSCompilerUtil {
         options.put(COMPILER_PHASE, phase);
         options.put(PRESERVE_WHITESPACE, Boolean.valueOf(preserveWhitespace).toString());
         options.put(TEST_ENABLED, String.valueOf(true));
+        options.put(SKIP_TESTS, String.valueOf(false));
 
         // In order to capture the syntactic errors, need to go through the default error strategy
         context.put(DefaultErrorStrategy.class, null);

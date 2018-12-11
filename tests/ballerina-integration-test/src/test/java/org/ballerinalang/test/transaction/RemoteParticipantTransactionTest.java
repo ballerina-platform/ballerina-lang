@@ -142,9 +142,11 @@ public class RemoteParticipantTransactionTest extends BaseTest {
                 "remoteParticipantStartNestedTransaction");
         HttpResponse response = HttpClientRequest.doPost(url, "", new HashMap<>());
         assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        String target = " in initiator-trx remote1-excepted:[dynamically nested transactions are not allowed] " +
-                "onretry in initiator-trx remote1-excepted:[dynamically nested transactions are not allowed] " +
-                "onretry in initiator-trx remote1-excepted:[dynamically nested transactions are not allowed] aborted";
+        String target = " in initiator-trx remote1-excepted:[{ballerina}TransactionError:dynamically nested " +
+                "transactions are not allowed] onretry in initiator-trx " +
+                "remote1-excepted:[{ballerina}TransactionError:dynamically nested transactions are not allowed] " +
+                "onretry in initiator-trx remote1-excepted:[{ballerina}TransactionError:dynamically nested " +
+                "transactions are not allowed] aborted";
         assertEquals(response.getData(), target, "payload mismatched");
     }
 
@@ -169,6 +171,18 @@ public class RemoteParticipantTransactionTest extends BaseTest {
         assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         String target = " in initiator-trx <remote-local-error-trapped:[dynamically nested transactions " +
                 "are not allowed]> committed";
+        assertEquals(response.getData(), target, "payload mismatched");
+    }
+
+    @Test
+    public void remoteParticipantReturnsErrorIsParticipantFailure() throws IOException {
+        String url = serverInstance.getServiceURLHttp(initiatorServicePort,
+                "remoteParticipantReturnsError");
+        HttpResponse response = HttpClientRequest.doPost(url, "", new HashMap<>());
+        assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        String target = " in initiator-trx remote1-excepted:[transactionError] onretry " +
+                "in initiator-trx remote1-excepted:[transactionError] onretry " +
+                "in initiator-trx remote1-excepted:[transactionError] aborted";
         assertEquals(response.getData(), target, "payload mismatched");
     }
 
