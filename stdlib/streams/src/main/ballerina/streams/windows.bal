@@ -1539,3 +1539,296 @@ public function delayWindow(any[] windowParameters, function (StreamEvent[])? ne
     DelayWindow delayWindow1 = new(nextProcessPointer, windowParameters);
     return delayWindow1;
 }
+
+public type SortWindow object {
+
+    public int lengthToKeep;
+    public any [] windowParameters;
+    public LinkedList sortedWindow;
+    public string[] sortMetadata;
+    public string[] fields;
+    public string[] sortTypes;
+    public function (StreamEvent[])? nextProcessPointer;
+
+    public function __init(function (StreamEvent[])? nextProcessPointer, any [] windowParameters) {
+        self.nextProcessPointer = nextProcessPointer;
+        self.windowParameters = windowParameters;
+        self.sortedWindow = new;
+        self.lengthToKeep = 0;
+        self.sortMetadata = [];
+        self.fields = [];
+        self.sortTypes = [];
+        self.initParameters(windowParameters);
+    }
+
+    public function initParameters(any[] parameters) {
+        if(parameters.length() >= 3 && parameters.length() % 2 == 1) {
+            any parameter0 = parameters[0];
+            if(parameter0 is int) {
+                self.lengthToKeep = parameter0;
+            } else {
+                error err = error("Sort window's first parameter, windowLength should be of type int");
+                panic err;
+            }
+
+            int i = 1;
+            while(i < parameters.length()) {
+                any nextParameter = parameters[i];
+                if(nextParameter is string) {
+                    if (i % 2 == 1) {
+                        self.fields[self.fields.length()] = nextParameter;
+                    } else {
+                        if (nextParameter == "ascending" || nextParameter == "descending") {
+                            self.sortTypes[self.sortTypes.length()] = nextParameter;
+                        } else {
+                            error err = error("Expected ascending or descending at parameter " + (i + 1) +
+                                " of sort window");
+                            panic err;
+                        }
+                    }
+                } else if(nextParameter is int) {
+                    error err = error("Expected string parameter at parameter " + (i + 1) +
+                            " of sort window, but found <int>");
+                    panic err;
+                } else if(nextParameter is float) {
+                    error err = error("Expected string parameter at parameter " + (i + 1) +
+                            " of sort window, but found <float>");
+                    panic err;
+                } else if(nextParameter is boolean) {
+                    error err = error("Expected string parameter at parameter " + (i + 1) +
+                            " of sort window, but found <boolean>");
+                    panic err;
+                } else {
+                    error err = error("Incompatible parameter type" );
+                    panic err;
+                }
+                i += 1;
+            }
+        } else {
+            error err = error("Sort window should have two or more " +
+                "parameters (<int> windowLength, <string> attribute1, <string> order1, " +
+                "<string> attribute2, <string> order2, ...), but found " + parameters.length()
+                + " input attributes" );
+            panic err;
+        }
+    }
+
+    public function process(StreamEvent[] streamEvents) {
+        LinkedList streamEventChunk = new;
+        foreach var event in streamEvents {
+            streamEventChunk.addLast(event);
+        }
+
+        if (streamEventChunk.getFirst() == null) {
+            return;
+        }
+
+        lock {
+            int currentTime = time:currentTime().time;
+
+            while (streamEventChunk.hasNext()) {
+                StreamEvent streamEvent = <StreamEvent>streamEventChunk.next();
+
+                StreamEvent clonedEvent = streamEvent.copy();
+                clonedEvent.eventType = EXPIRED;
+
+                self.sortedWindow.addLast(clonedEvent);
+                if (self.sortedWindow.getSize() > self.lengthToKeep) {
+                    StreamEvent[] events = [];
+                    self.sortedWindow.resetToFront();
+
+                    while (self.sortedWindow.hasNext()) {
+                        StreamEvent streamEven = <StreamEvent>self.sortedWindow.next();
+                        events[events.length()] = streamEven;
+                    }
+
+                    self.topDownMergeSort(events, self.sortTypes);
+                    self.sortedWindow.clear();
+                    foreach var event in events {
+                        self.sortedWindow.addLast(event);
+                    }
+
+                    StreamEvent expiredEvent = <StreamEvent>self.sortedWindow.removeLast();
+                    expiredEvent.timestamp = currentTime;
+                    streamEventChunk.addLast(expiredEvent);
+                    StreamEvent str = <StreamEvent>streamEventChunk.next();
+                }
+            }
+        }
+
+        any nextProcessFuncPointer = self.nextProcessPointer;
+        if(nextProcessFuncPointer is function (StreamEvent[])) {
+            if (streamEventChunk.getSize() != 0) {
+                StreamEvent[] events = [];
+                streamEventChunk.resetToFront();
+                while (streamEventChunk.hasNext()) {
+                    StreamEvent streamEvent = <StreamEvent>streamEventChunk.next();
+                    events[events.length()] = streamEvent;
+                }
+                nextProcessFuncPointer.call(streamEvents);
+            }
+        }
+    }
+
+    public function topDownMergeSort(StreamEvent[] a, string[] tmpSortTypes) {
+        int index = 0;
+        int n = a.length();
+        StreamEvent[] b = [];
+        while (index < n) {
+            b[index] = a[index];
+            index += 1;
+        }
+        self.topDownSplitMerge(b, 0, n, a, tmpSortTypes);
+    }
+
+    public function topDownSplitMerge(StreamEvent[] b, int iBegin, int iEnd, StreamEvent[] a, string[] tmpSortTypes) {
+
+        if (iEnd - iBegin < 2) {
+            return;
+        }
+        int iMiddle = (iEnd + iBegin) / 2;
+        self.topDownSplitMerge(a, iBegin, iMiddle, b, tmpSortTypes);
+        self.topDownSplitMerge(a, iMiddle, iEnd, b, tmpSortTypes);
+        self.topDownMerge(b, iBegin, iMiddle, iEnd, a, tmpSortTypes);
+    }
+
+    public function topDownMerge(StreamEvent[] a, int iBegin, int iMiddle, int iEnd, StreamEvent[] b,
+            string[] sortFieldMetadata) {
+        int i = iBegin;
+        int j = iMiddle;
+
+        int k = iBegin;
+        while (k < iEnd) {
+            if (i < iMiddle && (j >= iEnd || self.sortFunc(a[i], a[j], sortFieldMetadata, 0) < 0)) {
+                b[k] = a[i];
+                i = i + 1;
+            } else {
+                b[k] = a[j];
+                j = j + 1;
+            }
+            k += 1;
+        }
+    }
+
+    public function numberSort(int|float x, int|float y) returns int {
+        if (x is int) {
+            if (y is int) {
+                return x - y;
+            } else {
+                return <float>x < y ? -1 : <float>x == y ? 0 : 1;
+            }
+        } else {
+            if (y is int) {
+                return x < (<float>y) ? -1 : x == <float>y ? 0 : 1;
+            }
+            else {
+                return x < y ? -1 : x == y ? 0 : 1;
+            }
+        }
+    }
+
+    public function stringSort(string x, string y) returns int {
+
+        byte[] v1 = x.toByteArray("UTF-8");
+        byte[] v2 = y.toByteArray("UTF-8");
+
+        int len1 = v1.length();
+        int len2 = v2.length();
+        int lim = len1 < len2 ? len1 : len2;
+        int k = 0;
+        while (k < lim) {
+            int c1 = <int>v1[k];
+            int c2 = <int>v2[k];
+            if (c1 != c2) {
+                return c1 - c2;
+            }
+            k += 1;
+        }
+        return len1 - len2;
+    }
+
+    public function sortFunc(StreamEvent x, StreamEvent y, string[] sortFieldMetadata, int fieldIndex) returns int {
+        string field = self.fields[fieldIndex];
+        var xFieldValue = x.data[field];
+
+        if (xFieldValue is string) { //even indices contain the field name
+            var yFieldValue = y.data[field];
+            if (yFieldValue is string) {
+                int c;
+                //odd indices contain the sort type (ascending/descending)
+                if (sortFieldMetadata[fieldIndex].equalsIgnoreCase(ASCENDING)) {
+                    c = self.stringSort(xFieldValue, yFieldValue);
+                } else {
+                    c = self.stringSort(yFieldValue, xFieldValue);
+                }
+                // if c == 0 then check for the next sort field
+                return self.callNextSortFunc(x, y, c, sortFieldMetadata, fieldIndex + 1);
+            } else {
+                error err = error("Values to be orderred contain non-string values in fieldIndex: " +
+                    fieldIndex + ", sortType: " + sortFieldMetadata[fieldIndex]);
+                panic err;
+            }
+
+        } else if (xFieldValue is (int|float)) {
+            var yFieldValue = y.data[field];
+            if (yFieldValue is (int|float)) {
+                int c;
+                if (sortFieldMetadata[fieldIndex].equalsIgnoreCase(ASCENDING)) {
+                    c = self.numberSort(xFieldValue, yFieldValue);
+                } else {
+                    c = self.numberSort(yFieldValue, xFieldValue);
+                }
+                return self.callNextSortFunc(x, y, c, sortFieldMetadata, fieldIndex + 1);
+            } else {
+                error err = error("Values to be orderred contain non-number values in fieldIndex: " +
+                    fieldIndex + ", sortType: " + sortFieldMetadata[fieldIndex]);
+                panic err;
+            }
+        } else {
+            error err = error("Values of types other than strings and numbers cannot be sorted in fieldIndex:
+                 " + fieldIndex + ", sortType: " + sortFieldMetadata[fieldIndex]);
+            panic err;
+        }
+    }
+
+    public function callNextSortFunc(StreamEvent x, StreamEvent y, int c, string[] sortFieldMetadata, int fieldIndex)
+            returns int {
+        int result = c;
+        if (result == 0 && (sortFieldMetadata.length() > fieldIndex)) {
+            result = self.sortFunc(x, y, sortFieldMetadata, fieldIndex);
+        }
+        return result;
+    }
+
+    public function getCandidateEvents(
+                        StreamEvent originEvent,
+                        (function (map<anydata> e1Data, map<anydata> e2Data) returns boolean)? conditionFunc,
+                        boolean isLHSTrigger = true)
+                        returns (StreamEvent?, StreamEvent?)[] {
+        (StreamEvent?, StreamEvent?)[] events = [];
+        int i = 0;
+        foreach var e in self.sortedWindow.asArray() {
+            if (e is StreamEvent) {
+                StreamEvent lshEvent = (isLHSTrigger) ? originEvent : e;
+                StreamEvent rhsEvent = (isLHSTrigger) ? e : originEvent;
+
+                if (conditionFunc is function (map<anydata> e1Data, map<anydata> e2Data) returns boolean) {
+                    if (conditionFunc.call(lshEvent.data, rhsEvent.data)) {
+                        events[i] = (lshEvent, rhsEvent);
+                        i += 1;
+                    }
+                } else if (conditionFunc is ()) {
+                    events[i] = (lshEvent, rhsEvent);
+                    i += 1;
+                }
+            }
+        }
+        return events;
+    }
+};
+
+public function sortWindow(any[] windowParameters, function(StreamEvent[])? nextProcessPointer = ())
+                    returns Window {
+    SortWindow sortWindow1 = new(nextProcessPointer, windowParameters);
+    return sortWindow1;
+}
