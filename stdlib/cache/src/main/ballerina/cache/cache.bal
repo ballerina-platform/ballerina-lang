@@ -211,8 +211,18 @@ function runCacheExpiry() returns error? {
     string[] emptyCacheKeys = [];
 
     // Iterate through all caches.
-    foreach var (currentCacheKey, currentCache) in cacheMap {
+    int keyIndex = 0;
+    string[] currentCacheKeys = cacheMap.keys();
+    while (keyIndex < currentCacheKeys.length()) {
 
+        Cache currentCache;
+        string currentCacheKey = currentCacheKeys[keyIndex];
+        Cache? cache = cacheMap[currentCacheKey];
+        if (cache is Cache) {
+            currentCache = cache;
+        } else {
+            return ();
+        }
         // Get the expiry time of the current cache
         int currentCacheExpiryTime = currentCache.expiryTimeMillis;
 
@@ -221,8 +231,18 @@ function runCacheExpiry() returns error? {
 
         int cachesToBeRemovedIndex = 0;
         // Iterate through all keys.
-        foreach var (key, entry) in currentCache.entries {
+        int entrykeyIndex = 0;
+        string[] entryKeys = currentCache.entries.keys();
+        while (entrykeyIndex < entryKeys.length()) {
 
+            CacheEntry entry;
+            var key = entryKeys[entrykeyIndex];
+            CacheEntry? cacheEntry = currentCache.entries[key];
+            if (cacheEntry is CacheEntry) {
+                entry = cacheEntry;
+            } else {
+                return ();
+            }
             // Get the current system time.
             int currentSystemTime = time:currentTime().time;
 
@@ -231,13 +251,16 @@ function runCacheExpiry() returns error? {
                 cachesToBeRemoved[cachesToBeRemovedIndex] = key;
                 cachesToBeRemovedIndex = cachesToBeRemovedIndex + 1;
             }
+            entrykeyIndex = entrykeyIndex +1;
         }
 
         // Iterate through the key list which needs to be removed.
-        foreach var currentKeyIndex in 0..<cachesToBeRemovedIndex {
+        int currentKeyIndex = 0;
+        while(currentKeyIndex < cachesToBeRemovedIndex) {
             string key = cachesToBeRemoved[currentKeyIndex];
             // Remove the cache entry.
             _ = currentCache.entries.remove(key);
+            currentKeyIndex = currentKeyIndex + 1;
         }
 
         // If there are no entries, we add that cache key to the `emptyCacheKeys`.
@@ -246,6 +269,7 @@ function runCacheExpiry() returns error? {
             emptyCacheKeys[emptyCacheCount] = currentCacheKey;
             emptyCacheCount += 1;
         }
+        keyIndex = keyIndex + 1;
     }
 
     // We iterate though all empty cache keys and remove them from the `cacheMap`.
