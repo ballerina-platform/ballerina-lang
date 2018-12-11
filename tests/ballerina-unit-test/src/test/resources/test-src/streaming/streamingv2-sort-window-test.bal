@@ -30,8 +30,8 @@ type TeacherOutput record {
 };
 
 int index = 0;
-stream<Teacher> inputStreamSortWindowTest1;
-stream<TeacherOutput> outputStreamSortWindowTest1;
+stream<Teacher> inputStreamSortWindowTest1 = new;
+stream<TeacherOutput> outputStreamSortWindowTest1 = new;
 TeacherOutput[] globalEmployeeArray = [];
 
 function startSortWindowTest1() returns TeacherOutput[] {
@@ -54,7 +54,7 @@ function startSortWindowTest1() returns TeacherOutput[] {
     testSortWindow();
 
     outputStreamSortWindowTest1.subscribe(printTeachers);
-    foreach t in teachers {
+    foreach var t in teachers {
         inputStreamSortWindowTest1.publish(t);
         runtime:sleep(500);
     }
@@ -63,7 +63,7 @@ function startSortWindowTest1() returns TeacherOutput[] {
     while(true) {
         runtime:sleep(500);
         count += 1;
-        if((lengthof globalEmployeeArray) == 6 || count == 10) {
+        if((globalEmployeeArray.length()) == 6 || count == 10) {
             break;
         }
     }
@@ -74,12 +74,12 @@ function startSortWindowTest1() returns TeacherOutput[] {
 function testSortWindow() {
 
     forever {
-        from inputStreamSortWindowTest1 window sortWindow([3, inputStreamSortWindowTest1.age, "ascending",
-            inputStreamSortWindowTest1.name, "descending"])
+        from inputStreamSortWindowTest1 window sortWindow(3, inputStreamSortWindowTest1.age, "ascending",
+            inputStreamSortWindowTest1.name, "descending")
         select inputStreamSortWindowTest1.name, inputStreamSortWindowTest1.age
         group by inputStreamSortWindowTest1.school
         => (TeacherOutput [] emp) {
-            foreach e in emp {
+            foreach var e in emp {
                 outputStreamSortWindowTest1.publish(e);
             }
         }

@@ -1550,71 +1550,72 @@ public type SortWindow object {
     public string[] sortTypes;
     public function (StreamEvent[])? nextProcessPointer;
 
-    public new (nextProcessPointer, windowParameters) {
-        sortedWindow = new;
-        initParameters(windowParameters);
+    public function __init(function (StreamEvent[])? nextProcessPointer, any [] windowParameters) {
+        self.nextProcessPointer = nextProcessPointer;
+        self.windowParameters = windowParameters;
+        self.sortedWindow = new;
+        self.lengthToKeep = 0;
+        self.sortMetadata = [];
+        self.fields = [];
+        self.sortTypes = [];
+        self.initParameters(windowParameters);
     }
 
     public function initParameters(any[] parameters) {
-        if(lengthof parameters >= 3 && lengthof parameters % 2 == 1) {
-            match parameters[0] {
-                int value => lengthToKeep = value;
-                any anyValue => {
-                    error err = { message: "Sort window's first parameter, windowLength should be of type " +
-                        "int" };
-                    throw err;
-                }
+        if(parameters.length() >= 3 && parameters.length() % 2 == 1) {
+            any parameter0 = parameters[0];
+            if(parameter0 is int) {
+                self.lengthToKeep = parameter0;
+            } else {
+                error err = error("Sort window's first parameter, windowLength should be of type int");
+                panic err;
             }
 
-            foreach i in 1 ... lengthof parameters - 1 {
-                match parameters[i] {
-                    string value => {
-                        if (i % 2 == 1) {
-                            fields[lengthof fields] = value;
+            int i = 1;
+            while(i < parameters.length()) {
+                any nextParameter = parameters[i];
+                if(nextParameter is string) {
+                    if (i % 2 == 1) {
+                        self.fields[self.fields.length()] = nextParameter;
+                    } else {
+                        if (nextParameter == "ascending" || nextParameter == "descending") {
+                            self.sortTypes[self.sortTypes.length()] = nextParameter;
                         } else {
-                            if (value == "ascending" || value == "descending") {
-                                sortTypes[lengthof sortTypes] = value;
-                            } else {
-                                error err = { message: "Expected ascending or descending at "+
-                                    "index " + (i + 1) + " of sort window parameter array"};
-                                throw err;
-                            }
+                            error err = error("Expected ascending or descending at "+ "index " + (i + 1) +
+                                " of sort window parameter array");
+                            panic err;
                         }
                     }
-                    int intValue => {
-                        error err = { message: "Expected string parameter at index " + (i + 1) +
-                            " of sort window parameter array, but found <int>"};
-                        throw err;
-                    }
-                    float floatValue => {
-                        error err = { message: "Expected string parameter at index " + (i + 1) +
-                            " of sort window parameter array, but found <float>"};
-                        throw err;
-                    }
-                    boolean boolValue => {
-                        error err = { message: "Expected string parameter at index " + (i + 1) +
-                            " of sort window parameter array, but found <boolean>"};
-                        throw err;
-                    }
-                    any anyValue => {
-                        error err = { message: "Incompatible parameter type" };
-                        throw err;
-                    }
+                } else if(nextParameter is int) {
+                    error err = error("Expected string parameter at index " + (i + 1) +
+                            " of sort window parameter array, but found <int>");
+                    panic err;
+                } else if(nextParameter is float) {
+                    error err = error("Expected string parameter at index " + (i + 1) +
+                            " of sort window parameter array, but found <float>");
+                    panic err;
+                } else if(nextParameter is boolean) {
+                    error err = error("Expected string parameter at index " + (i + 1) +
+                            " of sort window parameter array, but found <boolean>");
+                    panic err;
+                } else {
+                    error err = error("Incompatible parameter type" );
+                    panic err;
                 }
+                i += 1;
             }
-
         } else {
-            error err = { message: "Sort window should have two or more " +
+            error err = error("Sort window should have two or more " +
                 "parameters (<int> windowLength, <string> attribute1, <string> order1, " +
-                "<string> attribute2, <string> order2, ...), but found " + lengthof parameters
-                + " input attributes" };
-            throw err;
+                "<string> attribute2, <string> order2, ...), but found " + parameters.length()
+                + " input attributes" );
+            panic err;
         }
     }
 
     public function process(StreamEvent[] streamEvents) {
         LinkedList streamEventChunk = new;
-        foreach event in streamEvents {
+        foreach var event in streamEvents {
             streamEventChunk.addLast(event);
         }
 
@@ -1626,86 +1627,79 @@ public type SortWindow object {
             int currentTime = time:currentTime().time;
 
             while (streamEventChunk.hasNext()) {
-                StreamEvent streamEvent = check<StreamEvent>streamEventChunk.next();
+                StreamEvent streamEvent = <StreamEvent>streamEventChunk.next();
 
-                StreamEvent clonedEvent = streamEvent.clone();
+                StreamEvent clonedEvent = streamEvent.copy();
                 clonedEvent.eventType = EXPIRED;
 
-                sortedWindow.addLast(clonedEvent);
-                if (sortedWindow.getSize() > lengthToKeep) {
+                self.sortedWindow.addLast(clonedEvent);
+                if (self.sortedWindow.getSize() > self.lengthToKeep) {
                     StreamEvent[] events = [];
-                    sortedWindow.resetToFront();
+                    self.sortedWindow.resetToFront();
 
-                    while (sortedWindow.hasNext()) {
-                        StreamEvent streamEven = check <StreamEvent>sortedWindow.next();
-                        events[lengthof events] = streamEven;
+                    while (self.sortedWindow.hasNext()) {
+                        StreamEvent streamEven = <StreamEvent>self.sortedWindow.next();
+                        events[events.length()] = streamEven;
                     }
 
-                    topDownMergeSort(events, sortTypes);
-                    sortedWindow.clear();
-                    foreach event in events {
-                        sortedWindow.addLast(event);
+                    self.topDownMergeSort(events, self.sortTypes);
+                    self.sortedWindow.clear();
+                    foreach var event in events {
+                        self.sortedWindow.addLast(event);
                     }
 
-                    StreamEvent expiredEvent = check<StreamEvent>sortedWindow.removeLast();
+                    StreamEvent expiredEvent = <StreamEvent>self.sortedWindow.removeLast();
                     expiredEvent.timestamp = currentTime;
                     streamEventChunk.addLast(expiredEvent);
-                    StreamEvent str = check <StreamEvent>streamEventChunk.next();
+                    StreamEvent str = <StreamEvent>streamEventChunk.next();
                 }
             }
         }
 
-        match nextProcessPointer {
-            function (StreamEvent[]) nxtProc => {
-                if (streamEventChunk.getSize() != 0) {
-                    StreamEvent[] events = [];
-                    streamEventChunk.resetToFront();
-                    while (streamEventChunk.hasNext()) {
-                        StreamEvent streamEvent = check <StreamEvent>streamEventChunk.next();
-                        events[lengthof events] = streamEvent;
-                    }
-                    nxtProc(streamEvents);
+        any nextProcessFuncPointer = self.nextProcessPointer;
+        if(nextProcessFuncPointer is function (StreamEvent[])) {
+            if (streamEventChunk.getSize() != 0) {
+                StreamEvent[] events = [];
+                streamEventChunk.resetToFront();
+                while (streamEventChunk.hasNext()) {
+                    StreamEvent streamEvent = <StreamEvent>streamEventChunk.next();
+                    events[events.length()] = streamEvent;
                 }
-            }
-            () => {
-                //do nothing
+                nextProcessFuncPointer.call(streamEvents);
             }
         }
     }
 
     public function topDownMergeSort(StreamEvent[] a, string[] tmpSortTypes) {
         int index = 0;
-        int n = lengthof a;
-        StreamEvent[] b;
+        int n = a.length();
+        StreamEvent[] b = [];
         while (index < n) {
             b[index] = a[index];
             index += 1;
         }
-        topDownSplitMerge(b, 0, n, a, sortFunc, tmpSortTypes);
+        self.topDownSplitMerge(b, 0, n, a, tmpSortTypes);
     }
 
-    public function topDownSplitMerge(StreamEvent[] b, int iBegin, int iEnd, StreamEvent[] a,
-                                      function (StreamEvent, StreamEvent, string[], int) returns int sortFunc,
-                                      string[] tmpSortTypes) {
+    public function topDownSplitMerge(StreamEvent[] b, int iBegin, int iEnd, StreamEvent[] a, string[] tmpSortTypes) {
 
         if (iEnd - iBegin < 2) {
             return;
         }
         int iMiddle = (iEnd + iBegin) / 2;
-        topDownSplitMerge(a, iBegin, iMiddle, b, sortFunc, tmpSortTypes);
-        topDownSplitMerge(a, iMiddle, iEnd, b, sortFunc, tmpSortTypes);
-        topDownMerge(b, iBegin, iMiddle, iEnd, a, sortFunc, tmpSortTypes);
+        self.topDownSplitMerge(a, iBegin, iMiddle, b, tmpSortTypes);
+        self.topDownSplitMerge(a, iMiddle, iEnd, b, tmpSortTypes);
+        self.topDownMerge(b, iBegin, iMiddle, iEnd, a, tmpSortTypes);
     }
 
     public function topDownMerge(StreamEvent[] a, int iBegin, int iMiddle, int iEnd, StreamEvent[] b,
-                                 function (StreamEvent, StreamEvent, string[], int) returns int sortFunc,
-                                 string[] sortFieldMetadata) {
+            string[] sortFieldMetadata) {
         int i = iBegin;
         int j = iMiddle;
 
         int k = iBegin;
         while (k < iEnd) {
-            if (i < iMiddle && (j >= iEnd || sortFunc(a[i], a[j], sortFieldMetadata, 0) < 0)) {
+            if (i < iMiddle && (j >= iEnd || self.sortFunc(a[i], a[j], sortFieldMetadata, 0) < 0)) {
                 b[k] = a[i];
                 i = i + 1;
             } else {
@@ -1717,27 +1711,18 @@ public type SortWindow object {
     }
 
     public function numberSort(int|float x, int|float y) returns int {
-        match x {
-            int ix => {
-                match y {
-                    int iy => {
-                        return ix - iy;
-                    }
-                    float fy => {
-                        return <float>ix < fy ? -1 : <float>ix == fy ? 0 : 1;
-                    }
-                }
+        if (x is int) {
+            if (y is int) {
+                return x - y;
+            } else {
+                return <float>x < y ? -1 : <float>x == y ? 0 : 1;
             }
-
-            float fx => {
-                match y {
-                    int iy => {
-                        return fx < (<float>iy) ? -1 : fx == <float>iy ? 0 : 1;
-                    }
-                    float fy => {
-                        return fx < fy ? -1 : fx == fy ? 0 : 1;
-                    }
-                }
+        } else {
+            if (y is int) {
+                return x < (<float>y) ? -1 : x == <float>y ? 0 : 1;
+            }
+            else {
+                return x < y ? -1 : x == y ? 0 : 1;
             }
         }
     }
@@ -1747,8 +1732,8 @@ public type SortWindow object {
         byte[] v1 = x.toByteArray("UTF-8");
         byte[] v2 = y.toByteArray("UTF-8");
 
-        int len1 = lengthof v1;
-        int len2 = lengthof v2;
+        int len1 = v1.length();
+        int len2 = v2.length();
         int lim = len1 < len2 ? len1 : len2;
         int k = 0;
         while (k < lim) {
@@ -1763,91 +1748,78 @@ public type SortWindow object {
     }
 
     public function sortFunc(StreamEvent x, StreamEvent y, string[] sortFieldMetadata, int fieldIndex) returns int {
-        string field = fields[fieldIndex];
-        match x.data[field] { //even indices contain the field name
-            string sx => {
-                match y.data[field] {
-                    string sy => {
-                        int c;
-                        //odd indices contain the sort type (ascending/descending)
-                        if (sortFieldMetadata[fieldIndex].equalsIgnoreCase(ASCENDING)) {
-                            c = stringSort(sx, sy);
-                        } else {
-                            c = stringSort(sy, sx);
-                        }
-                        // if c == 0 then check for the next sort field
-                        return callNextSortFunc(x, y, c, sortFieldMetadata, fieldIndex + 1);
-                    }
-                    any a => {
-                        error err = { message: "Values to be orderred contain non-string values in field: " +
-                            fieldIndex + ", sortType: " + sortFieldMetadata[fieldIndex]};
-                        throw err;
-                    }
+        string field = self.fields[fieldIndex];
+        var xFieldValue = x.data[field];
+
+        if (xFieldValue is string) { //even indices contain the field name
+            var yFieldValue = y.data[field];
+            if (yFieldValue is string) {
+                int c;
+                //odd indices contain the sort type (ascending/descending)
+                if (sortFieldMetadata[fieldIndex].equalsIgnoreCase(ASCENDING)) {
+                    c = self.stringSort(xFieldValue, yFieldValue);
+                } else {
+                    c = self.stringSort(yFieldValue, xFieldValue);
                 }
+                // if c == 0 then check for the next sort field
+                return self.callNextSortFunc(x, y, c, sortFieldMetadata, fieldIndex + 1);
+            } else {
+                error err = error("Values to be orderred contain non-string values in fieldIndex: " +
+                    fieldIndex + ", sortType: " + sortFieldMetadata[fieldIndex]);
+                panic err;
             }
 
-            int|float ax => {
-                match y.data[field] {
-                    int|float ay => {
-                        int c;
-                        if (sortFieldMetadata[fieldIndex].equalsIgnoreCase(ASCENDING)) {
-                            c = numberSort(ax, ay);
-                        } else {
-                            c = numberSort(ay, ax);
-                        }
-                        return callNextSortFunc(x, y, c, sortFieldMetadata,fieldIndex + 1);
-                    }
-                    any aa => {
-                        error err = { message: "Values to be orderred contain non-number values in fieldIndex: " +
-                            fieldIndex + ", sortType: " + sortFieldMetadata[fieldIndex]};
-                        throw err;
-                    }
+        } else if (xFieldValue is (int|float)) {
+            var yFieldValue = y.data[field];
+            if (yFieldValue is (int|float)) {
+                int c;
+                if (sortFieldMetadata[fieldIndex].equalsIgnoreCase(ASCENDING)) {
+                    c = self.numberSort(xFieldValue, yFieldValue);
+                } else {
+                    c = self.numberSort(yFieldValue, xFieldValue);
                 }
-
+                return self.callNextSortFunc(x, y, c, sortFieldMetadata, fieldIndex + 1);
+            } else {
+                error err = error("Values to be orderred contain non-number values in fieldIndex: " +
+                    fieldIndex + ", sortType: " + sortFieldMetadata[fieldIndex]);
+                panic err;
             }
-            any a => {
-                error err = { message: "Values of types other than strings and numbers cannot be sorted in field: " +
-                    fieldIndex + ", sortType: " + sortFieldMetadata[fieldIndex]};
-                throw err;
-            }
+        } else {
+            error err = error("Values of types other than strings and numbers cannot be sorted in fieldIndex:
+                 " + fieldIndex + ", sortType: " + sortFieldMetadata[fieldIndex]);
+            panic err;
         }
     }
 
     public function callNextSortFunc(StreamEvent x, StreamEvent y, int c, string[] sortFieldMetadata, int fieldIndex)
-                        returns int {
+            returns int {
         int result = c;
-        if (result == 0 && (lengthof sortFieldMetadata > fieldIndex)) {
-            result = sortFunc(x, y, sortFieldMetadata, fieldIndex);
+        if (result == 0 && (sortFieldMetadata.length() > fieldIndex)) {
+            result = self.sortFunc(x, y, sortFieldMetadata, fieldIndex);
         }
         return result;
     }
 
     public function getCandidateEvents(
                         StreamEvent originEvent,
-                        (function (map e1Data, map e2Data) returns boolean)? conditionFunc,
+                        (function (map<anydata> e1Data, map<anydata> e2Data) returns boolean)? conditionFunc,
                         boolean isLHSTrigger = true)
                         returns (StreamEvent?, StreamEvent?)[] {
-        (StreamEvent?, StreamEvent?)[] events;
+        (StreamEvent?, StreamEvent?)[] events = [];
         int i = 0;
-        foreach e in sortedWindow.asArray() {
-            match e {
-                StreamEvent s => {
-                    StreamEvent lshEvent = (isLHSTrigger) ? originEvent : s;
-                    StreamEvent rhsEvent = (isLHSTrigger) ? s : originEvent;
-                    match (conditionFunc) {
-                        function (map e1Data, map e2Data) returns boolean conditionCheckFunc => {
-                            if (conditionCheckFunc(lshEvent.data, rhsEvent.data)) {
-                                events[i] = (lshEvent, rhsEvent);
-                                i += 1;
-                            }
-                        }
-                        () => {
-                            events[i] = (lshEvent, rhsEvent);
-                            i += 1;
-                        }
+        foreach var e in self.sortedWindow.asArray() {
+            if (e is StreamEvent) {
+                StreamEvent lshEvent = (isLHSTrigger) ? originEvent : e;
+                StreamEvent rhsEvent = (isLHSTrigger) ? e : originEvent;
+
+                if (conditionFunc is function (map<anydata> e1Data, map<anydata> e2Data) returns boolean) {
+                    if (conditionFunc.call(lshEvent.data, rhsEvent.data)) {
+                        events[i] = (lshEvent, rhsEvent);
+                        i += 1;
                     }
-                }
-                any a => {
+                } else if (conditionFunc is ()) {
+                    events[i] = (lshEvent, rhsEvent);
+                    i += 1;
                 }
             }
         }
