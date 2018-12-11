@@ -41,8 +41,8 @@ service hello on new http:Listener(8889) {
                 log:printInfo("in remote: " + payload);
                 if (payload == "blowUp") {
                     int blowNum = blowUp();
+                }
             }
-        }
 
         http:Response res = new;
         res.setPayload("payload-from-remote");
@@ -51,6 +51,28 @@ service hello on new http:Listener(8889) {
         if (resp is error) {
             log:printError("Error sending response", err = resp);
         }
+    }
+
+    @transactions:Participant {
+        oncommit: baz,
+        onabort: bar
+    }
+    resource function returnError(http:Caller caller, http:Request req) returns error? {
+        log:printInfo("in-remote: ");
+        S1 = S1 + " in-remote";
+        var payload =  req.getTextPayload();
+
+        var b = trap blowUp();
+        int c = check b;
+
+        http:Response res = new;
+        res.setPayload("payload-from-remote");
+
+        var resp = caller->respond(res);
+        if (resp is error) {
+            log:printError("Error sending response", err = resp);
+        }
+        return;
     }
 
      @http:ResourceConfig {
@@ -298,6 +320,42 @@ function initiateNestedTransactionInRemote(string nestingMethod) returns string 
     return s;
 }
 
+function remoteErrorReturnInitiator() returns string {
+    http:Client remoteEp = new("http://localhost:8889");
+    string s = "";
+    transaction {
+        s += " in initiator-trx";
+        var resp = remoteEp->get("/returnError");
+        if (resp is http:Response) {
+            if (resp.statusCode == 500) {
+                s += " remote1-excepted";
+                var payload = resp.getTextPayload();
+                if (payload is string) {
+                    s += ":[" + untaint payload + "]";
+                }
+            } else {
+                var text = resp.getTextPayload();
+                if (text is string) {
+                    log:printInfo(text);
+                    s += " <" + untaint text + ">";
+                } else {
+                    s += " error-in-remote-response " + text.reason();
+                    log:printError(text.reason());
+                }
+            }
+        } else {
+            s += " remote call error: " + resp.reason();
+        }
+    } onretry {
+        s += " onretry";
+    } committed {
+        s += " committed";
+    } aborted {
+        s += " aborted";
+    }
+    return s;
+}
+
 @http:ServiceConfig {
     basePath: "/"
 }
@@ -417,6 +475,21 @@ service initiatorService on new http:Listener(8888) {
                             caller, http:Request req) {
 
         string result = initiateNestedTransactionInRemote("nestedTrxInNonParticipantLocalFunc");
+        http:Response res = new;
+        res.setPayload(untaint result);
+        var r = caller->respond(res);
+        if (r is error) {
+            log:printError("Error sending response: " + result, err = r);
+        }
+    }
+
+    @http:ResourceConfig {
+        methods: ["POST"]
+    }
+    resource function remoteParticipantReturnsError(http:Caller
+                            caller, http:Request req) {
+
+        string result = remoteErrorReturnInitiator();
         http:Response res = new;
         res.setPayload(untaint result);
         var r = caller->respond(res);

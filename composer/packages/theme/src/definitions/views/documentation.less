@@ -6,32 +6,31 @@
     color: ~"@{@{color}-documentation-base-text-color}";
 
     .documentation-container {
-        padding: 15px 30px;
+        padding: 25px 30px;
 
         .documentation-block {
-            margin-bottom: 35px;
+            margin-bottom: 45px;
 
             .title {
                 font-size: @documentation-title-font-size;
                 margin-bottom: 5px;
         
                 .icon {
-                    margin-right: 5px;
+                    margin-right: 3px;
                 }
         
                 .object-type,
-                .service-type {
-                    font-size: 17px;
+                .service-type,
+                .value-type {
+                    font-size: 15px;
                     font-style: italic;
-                    margin-left: 10px;
+                    margin-left: 5px;
                 }
             }
             .description {
                 font-size: 15px;
             }
             .return-details {
-                margin: 20px 0;
-        
                 strong {
                     font-weight: 600;
                 }
@@ -55,6 +54,18 @@
             .ui.table tbody .stacked-content {
                 display: none !important;
             }
+        }
+
+        .__added {
+            animation: added_animate 3s;
+            animation-fill-mode: forwards;
+        }
+        
+        @keyframes added_animate {
+            from {
+                background-color: rgb(225, 225, 50);
+            }
+            to {}
         }
     }
 

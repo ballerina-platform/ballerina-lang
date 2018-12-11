@@ -10,6 +10,7 @@
   "author": "ballerina.io",
   "license": "Apache-2.0",
   "dependencies": {
+    "@ballerina/ast-model": "^0.983.1-SNAPSHOT",
     "diff": "^3.5.0",
     "escape-html": "^1.0.3",
     "react-markdown": "^4.0.0"

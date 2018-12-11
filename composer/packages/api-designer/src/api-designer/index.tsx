@@ -32,8 +32,6 @@ import { OpenApiContext, OpenApiContextProvider } from "./context/open-api-conte
 import HideComponent from "./util-components/hider";
 import InlineEdit from "./util-components/inline-edit";
 
-import "./components/style/main.less";
-
 export interface OasProps {
     openApiJson: any;
     onDidAddResource?: (resourse: OpenApiResponse | string, swagger: Swagger.Spec) => void;

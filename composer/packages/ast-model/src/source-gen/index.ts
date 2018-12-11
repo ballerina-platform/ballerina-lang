@@ -1,4 +1,5 @@
-import { ASTNode, Block, Function as BalFunction, Service, UserDefinedType } from "../ast-interfaces";
+import { BallerinaEndpoint } from "@ballerina/lang-service";
+import { ASTNode, Block, Function as BalFunction, If, Service, UserDefinedType, Variable } from "../ast-interfaces";
 import { Visitor } from "../base-visitor";
 import { ASTKindChecker } from "../check-kind-util";
 import * as defaults from "../default-nodes";
@@ -54,8 +55,16 @@ class SourceGenVisitor implements Visitor {
 const sourceGenVisitor = new SourceGenVisitor();
 
 function getStartIndex(attachingNode: ASTNode, attachPointNodes: ASTNode[], insertAt: number): number {
-    if (attachPointNodes[insertAt - 1]) {
-        const attachPointWS = getWS(attachPointNodes[insertAt - 1]);
+    let previousNode = attachPointNodes[insertAt - 1];
+    if (previousNode) {
+        if (ASTKindChecker.isVariable(previousNode)) {
+            const previousNodeVar = previousNode as Variable;
+            if (previousNodeVar.service) {
+                previousNode = attachPointNodes[insertAt - 3];
+            }
+        }
+
+        const attachPointWS = getWS(previousNode);
         return attachPointWS[attachPointWS.length - 1].i + 1;
     }
 
@@ -64,11 +73,28 @@ function getStartIndex(attachingNode: ASTNode, attachPointNodes: ASTNode[], inse
         return 1;
     }
 
-    if (!attachingNode.parent) {
+    if (!ASTKindChecker.isBlock(attachingNode)) {
         return 1;
     }
 
-    const attachingNodeWS = getWS(attachingNode.parent);
+    const blockNode = attachingNode as Block;
+
+    if (!blockNode.parent) {
+        return 1;
+    }
+
+    let parent = blockNode.parent;
+
+    if (blockNode.isElseBlock) {
+        const ifNode = parent as If;
+        if (!ifNode.elseStatement) {
+            return 1;
+        }
+
+        parent = ifNode.elseStatement;
+    }
+
+    const attachingNodeWS = getWS(parent);
     const indexWS = attachingNodeWS.find((ws) => (ws.text === "{"));
 
     return indexWS === undefined ? 1 : indexWS.i + 1;
@@ -112,7 +138,7 @@ export function attachNodeSilently(
             ws.i = ws.i + treeDiff;
         }
     });
-    attachPointNodes[insertAt] = newNode;
+    attachPointNodes.splice(insertAt, 0, newNode);
 }
 
 export function attachNode(
@@ -147,23 +173,22 @@ export function addForeachToBlock(block: Block, ast: ASTNode, insertAt?: number)
     attachNode(foreachNode, ast, block, "statements", insertAt);
 }
 
-export function addEndpointToBlock(block: Block, ast: ASTNode, endpointDef: string, insertAt?: number) {
+export function addEndpointToBlock(block: Block, ast: ASTNode, endpointDef: BallerinaEndpoint, insertAt?: number) {
     const endpointNode = defaults.createEndpointNode();
-
+    const { name, packageName } = endpointDef;
     // Update type to match def
     const endpointType = endpointNode.variable.typeNode as UserDefinedType;
-    const endpointDefParts = endpointDef.split(":");
-    endpointType.typeName.value = endpointDefParts[0];
-    endpointType.packageAlias.value = endpointDefParts[1];
+    endpointType.typeName.value = name;
+    endpointType.packageAlias.value = packageName;
 
     const epWS = getWS(endpointNode);
     epWS.forEach((ws) => {
         if (ws.text === "http") {
-            ws.text = endpointDefParts[0];
+            ws.text = packageName;
             return;
         }
         if (ws.text === "Client") {
-            ws.text = endpointDefParts[1];
+            ws.text = name;
         }
     });
 

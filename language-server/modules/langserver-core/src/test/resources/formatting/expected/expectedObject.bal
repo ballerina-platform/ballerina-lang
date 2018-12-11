@@ -8,12 +8,12 @@ type ObjectName2 object {
     string h;
 };
 
-type ObjectName2 object {
+type ObjectName3 object {
     public int a = 0;
     public string s;
     string h;
 
-    new() {
+    function __init() {
         s = "";
     }
 

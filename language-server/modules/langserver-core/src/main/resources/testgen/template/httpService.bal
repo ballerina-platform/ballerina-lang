@@ -1,6 +1,6 @@
 @test:Config
 function ${testServiceFunctionName}() {
-    http:Client httpEndpoint = new(${serviceUriStrName});
+    http:Client ${endpointName} = new(${serviceUriStrName});
 
 ${resources}
 }

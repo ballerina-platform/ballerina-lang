@@ -119,7 +119,7 @@ public class CommandUtil {
 
         boolean isService = UtilSymbolKeys.SERVICE_KEYWORD_KEY.equals(topLevelNodeType);
         boolean isFunction = UtilSymbolKeys.FUNCTION_KEYWORD_KEY.equals(topLevelNodeType);
-        if ((isService || isFunction) && isTopLevelNode(docUri, documentManager, lsCompiler, context, position)) {
+        if ((isService || isFunction) && !isTopLevelNode(docUri, documentManager, lsCompiler, context, position)) {
             return commands;
         }
 
@@ -137,7 +137,7 @@ public class CommandUtil {
         Pair<BLangNode, Object> bLangNode = getBLangNode(position.getLine(), position.getCharacter(), docUri,
                                                          documentManager, lsCompiler, context);
         // Only supported for top-level nodes
-        return !(bLangNode.getLeft().parent instanceof BLangPackage);
+        return (bLangNode.getLeft().parent instanceof BLangPackage);
     }
 
     /**

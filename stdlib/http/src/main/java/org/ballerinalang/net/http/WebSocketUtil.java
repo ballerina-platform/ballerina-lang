@@ -190,7 +190,7 @@ public class WebSocketUtil {
 
     }
 
-    public static void setListenerOpenField(WebSocketOpenConnectionInfo connectionInfo) {
+    public static void setListenerOpenField(WebSocketOpenConnectionInfo connectionInfo) throws IllegalAccessException {
         connectionInfo.getWebSocketEndpoint().put(WebSocketConstants.LISTENER_IS_OPEN_FIELD,
                                                   new BBoolean(connectionInfo.getWebSocketConnection().isOpen()));
     }

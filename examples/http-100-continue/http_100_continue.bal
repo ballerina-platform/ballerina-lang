@@ -45,7 +45,7 @@ service helloWorld on new http:Listener(9090) {
             if (result is error) {
                 log:printError("Error sending response", err = result);
             }
-        } else if (payload is error) {
+        } else {
             res.statusCode = 500;
             res.setPayload(untaint <string> payload.detail().message);
             var result = caller->respond(res);

@@ -16,9 +16,13 @@ export const EditToggleButton: StatelessComponent<{}> = () => {
                     ? "Close Edit"
                     : "Edit";
                 return (
-                    <Menu.Item onClick={toggleEditing}>
+                    <Menu.Item>
                         <Button.Group size="tiny">
-                            <Button disabled={hasSyntaxErrors} className={`icon ${className}`}>
+                            <Button
+                                disabled={hasSyntaxErrors}
+                                className={`icon ${className}`}
+                                onClick={toggleEditing}
+                            >
                                 <Icon className={`fw ${icon}`} /> {text}
                             </Button>
                         </Button.Group>

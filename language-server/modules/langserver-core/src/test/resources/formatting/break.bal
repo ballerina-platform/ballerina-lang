@@ -1,3 +1,5 @@
+import ballerina/io;
+
 function name1() {
 map<string> words = {
         a: "apple",
@@ -5,17 +7,16 @@ map<string> words = {
         c: "cherry"
     };
 
-    while(true){
-        while(false) {
-    break;
-        }break;
-    }
+   while (true) {
+        while(false){
+   break;
+        }break;}
 
-    foreach k, v in words {
+    foreach var (k, v) in words {
         io:println("letter: ", k, ", word: ", v);
-        foreach j, l in words {
-            io:println("letter: ", j, ", word: ", l);break;
-        }
-                 break;
+        foreach var(j, l) in words {
+            io:println("letter: ", j, ", word: ", l);
+   break;
+        }break;
     }
 }

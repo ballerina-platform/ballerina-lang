@@ -17,11 +17,12 @@ export const Statement: React.StatelessComponent<{
     model
 }) => {
         const viewState: StmntViewState = model.viewState;
+        const label = (/^worker /.test(viewState.bBox.label)) ? "" : viewState.bBox.label;
 
         const statementProps = {
             className: "statement",
             target: model,
-            text: viewState.bBox.label,
+            text: label,
             x: viewState.bBox.x + config.statement.padding.left,
             y: viewState.bBox.y + (viewState.bBox.h / 2)
         };

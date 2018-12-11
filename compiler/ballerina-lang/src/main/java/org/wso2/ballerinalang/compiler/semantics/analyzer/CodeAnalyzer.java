@@ -1779,6 +1779,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangCheckedExpr checkedExpr) {
+        analyzeExpr(checkedExpr.expr);
         boolean enclInvokableHasErrorReturn = false;
         BType exprType = env.enclInvokable.getReturnTypeNode().type;
         if (exprType.tag == TypeTags.UNION) {
@@ -1921,24 +1922,27 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     continue;
                 }
                 currentAction = worker.currentAction();
-                if (isWorkerSend(currentAction) || isWorkerSyncSend(currentAction)) {
-                    WorkerActionStateMachine otherSM = workerActionSystem.find(this.extractWorkerId(currentAction));
-                    if (otherSM != null && otherSM.currentIsReceive(worker.workerId)) {
-                        if (isWorkerSyncSend(currentAction)) {
-                            this.validateWorkerActionParameters((BLangWorkerSyncSendExpr) currentAction,
-                                                                (BLangWorkerReceive) otherSM.currentAction());
-                        } else {
-                            this.validateWorkerActionParameters((BLangWorkerSend) currentAction,
-                                                                (BLangWorkerReceive) otherSM.currentAction());
-                        }
-                        otherSM.next();
-                        worker.next();
-
-                        systemRunning = true;
-                        otherSM.node.sendsToThis.add(WorkerDataChannelInfo.generateChannelName(worker.workerId,
-                                                                                               otherSM.workerId));
-                    }
+                if (!isWorkerSend(currentAction) && !isWorkerSyncSend(currentAction)) {
+                    continue;
                 }
+                WorkerActionStateMachine otherSM = workerActionSystem.find(this.extractWorkerId(currentAction));
+                if (otherSM == null || !otherSM.currentIsReceive(worker.workerId)) {
+                    continue;
+                }
+                BLangWorkerReceive receive = (BLangWorkerReceive) otherSM.currentAction();
+                if (isWorkerSyncSend(currentAction)) {
+                    this.validateWorkerActionParameters((BLangWorkerSyncSendExpr) currentAction, receive);
+                } else {
+                    this.validateWorkerActionParameters((BLangWorkerSend) currentAction, receive);
+                }
+                otherSM.next();
+                worker.next();
+
+                systemRunning = true;
+                String channelName = WorkerDataChannelInfo.generateChannelName(worker.workerId, otherSM.workerId);
+                otherSM.node.sendsToThis.add(channelName);
+
+                worker.node.sendsToThis.add(channelName);
             }
         } while (systemRunning);
         if (!workerActionSystem.everyoneDone()) {
@@ -1954,6 +1958,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private void validateWorkerActionParameters(BLangWorkerSend send, BLangWorkerReceive receive) {
         types.checkType(receive, send.type, receive.type);
         addImplicitCast(send.type, receive);
+        NodeKind kind = receive.parent.getKind();
+        if (kind == NodeKind.TRAP_EXPR || kind == NodeKind.CHECK_EXPR) {
+            typeChecker.checkExpr((BLangExpression) receive.parent, receive.env);
+        }
     }
 
     private void validateWorkerActionParameters(BLangWorkerSyncSendExpr send, BLangWorkerReceive receive) {

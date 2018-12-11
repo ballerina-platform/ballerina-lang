@@ -28,7 +28,7 @@ export function getLibraryWebViewContent(context: ExtensionContext,
                 </style>
             </head>
             
-            <body style="overflow-y: auto;" class="${bodyCss}">
+            <body style="overflow: auto;" class="${bodyCss}">
                 ${body}
                 <script>
                     ${scripts}

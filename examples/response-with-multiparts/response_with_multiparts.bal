@@ -78,7 +78,7 @@ service multipartResponseDecoder on multipartEP {
                 res.setPayload("Body Parts Received!");
             }
 
-        } else if (returnResult is error) {
+        } else {
             res.statusCode = 500;
             res.setPayload("Connection error");
         }
@@ -99,7 +99,7 @@ function handleNestedParts(mime:Entity parentPart) {
             foreach var childPart in childParts {
                 handleContent(childPart);
             }
-        } else if (childParts is error) {
+        } else {
             log:printError("Error retrieving child parts! " +
                             string.convert(childParts.detail().message));
         }
@@ -116,7 +116,7 @@ function handleContent(mime:Entity bodyPart) {
         if (payload is xml) {
             string strValue = io:sprintf("%s", payload);
             log:printInfo("Xml data: " + strValue);
-        } else if (payload is error) {
+        } else {
             log:printError("Error in parsing xml data", err = payload);
         }
 
@@ -125,7 +125,7 @@ function handleContent(mime:Entity bodyPart) {
         var payload = bodyPart.getJson();
         if (payload is json) {
             log:printInfo("Json data: " + payload.toString());
-        } else if (payload is error) {
+        } else {
             log:printError("Error in parsing json data", err = payload);
         }
 
@@ -134,7 +134,7 @@ function handleContent(mime:Entity bodyPart) {
         var payload = bodyPart.getText();
         if (payload is string) {
             log:printInfo("Text data: " + payload);
-        } else if (payload is error) {
+        } else {
             log:printError("Error in parsing text data", err = payload);
         }
 
@@ -151,7 +151,7 @@ function handleContent(mime:Entity bodyPart) {
             }
             close(payload);
             close(destinationChannel);
-        } else if (payload is error) {
+        } else {
             log:printError("Error in parsing byte channel :", err = payload);
         }
     }
@@ -162,10 +162,9 @@ function getBaseType(string contentType) returns string {
     var result = mime:getMediaType(contentType);
     if (result is mime:MediaType) {
         return result.getBaseType();
-    } else if (result is error) {
+    } else {
         panic result;
     }
-    return "";
 }
 
 

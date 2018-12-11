@@ -17,6 +17,7 @@
 import ballerina/http;
 
 final string REMOTE_BACKEND_URL1 = "ws://localhost:15500/websocket";
+http:WebSocketCaller serverCaller = new;
 
 @http:WebSocketServiceConfig {
     path: "/client/failure"
@@ -24,6 +25,12 @@ final string REMOTE_BACKEND_URL1 = "ws://localhost:15500/websocket";
 service clientFailure on new http:WebSocketListener(9091) {
 
     resource function onOpen(http:WebSocketCaller wsEp) {
-        http:WebSocketClient wsClientEp = new(REMOTE_BACKEND_URL1);
+        http:WebSocketClient wsClientEp = new(REMOTE_BACKEND_URL1, config = { callbackService: erroHandlingService });
+        serverCaller = untaint wsEp;
     }
 }
+service erroHandlingService = @http:WebSocketServiceConfig {} service {
+    resource function onError(http:WebSocketClient caller, error err) {
+        _ = serverCaller->close(statusCode = 1011, reason = <string>err.detail().message);
+    }
+};

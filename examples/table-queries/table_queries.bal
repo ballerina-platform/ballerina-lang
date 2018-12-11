@@ -159,7 +159,7 @@ function printTable(string stmt, string tableName, table<anydata> returnedTable)
     io:print(tableName);
     if (retData is json) {
         io:println(io:sprintf("%s", retData));
-    } else if (retData is error) {
+    } else {
         io:println("Error in table to json conversion");
     }
 }
