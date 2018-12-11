@@ -375,6 +375,13 @@ function stampComplexRecordToJSON() returns map<anydata>|error {
     return m;
 }
 
+function stampRecordToConstraintJSON() returns json<Student>|error {
+    Student student = {name: "John", status: "Single", batch: "LK2014", school: "Hindu College"};
+    json<Student>|error returnValue = json<Student>.stamp(student);
+
+    return returnValue;
+}
+
 //------------------------------- Optional field related scenarios ----------------------------------------------
 
 type TeacherWithOptionalField record {
