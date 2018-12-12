@@ -149,6 +149,36 @@ function testToJson() returns (json) {
     return retVal;
 }
 
+function testToJsonComplexTypes() returns (json) {
+    h2:Client testDB = new({
+        path: "./target/tempdb/",
+        name: "TEST_DATA_TABLE_H2",
+        username: "SA",
+        password: "",
+        poolOptions: { maximumPoolSize:1}
+    });
+
+    var result = testDB->select("SELECT blob_type,clob_type,binary_type from ComplexTypes where row_id = 1", ());
+    json retVal = getJsonConversionResult(result);
+    testDB.stop();
+    return retVal;
+}
+
+function testToJsonComplexTypesNil() returns (json) {
+    h2:Client testDB = new({
+        path: "./target/tempdb/",
+        name: "TEST_DATA_TABLE_H2",
+        username: "SA",
+        password: "",
+        poolOptions: { maximumPoolSize:1}
+    });
+
+    var result = testDB->select("SELECT blob_type,clob_type,binary_type from ComplexTypes where row_id = 2", ());
+    json retVal = getJsonConversionResult(result);
+    testDB.stop();
+    return retVal;
+}
+
 function testToXml() returns (xml) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
@@ -160,6 +190,38 @@ function testToXml() returns (xml) {
 
     var result = testDB->select("SELECT int_type, long_type, float_type, double_type,
                    boolean_type, string_type from DataTable WHERE row_id = 1", ());
+    xml retVal = getXMLConversionResult(result);
+    testDB.stop();
+    return retVal;
+}
+
+function testToXmlComplexTypes() returns (xml) {
+    h2:Client testDB = new({
+        path: "./target/tempdb/",
+        name: "TEST_DATA_TABLE_H2",
+        username: "SA",
+        password: "",
+        poolOptions: { maximumPoolSize: 1 }
+    });
+
+    var result = testDB->select("SELECT blob_type,clob_type,binary_type from ComplexTypes where row_id = 1", ());
+
+    xml retVal = getXMLConversionResult(result);
+    testDB.stop();
+    return retVal;
+}
+
+function testToXmlComplexTypesNil() returns (xml) {
+    h2:Client testDB = new({
+        path: "./target/tempdb/",
+        name: "TEST_DATA_TABLE_H2",
+        username: "SA",
+        password: "",
+        poolOptions: { maximumPoolSize: 1 }
+    });
+
+    var result = testDB->select("SELECT blob_type,clob_type,binary_type from ComplexTypes where row_id = 2", ());
+
     xml retVal = getXMLConversionResult(result);
     testDB.stop();
     return retVal;
@@ -454,7 +516,7 @@ function testArrayData() returns (int[], int[], float[], string[],
     string[] string_arr = [];
     boolean[] boolean_arr = [];
     if (tableOrError is table<ResultMap>) {
-        var rs =tableOrError.getNext();
+        var rs = tableOrError.getNext();
         if (rs is ResultMap) {
             int_arr = rs.INT_ARRAY;
             long_arr = rs.LONG_ARRAY;
