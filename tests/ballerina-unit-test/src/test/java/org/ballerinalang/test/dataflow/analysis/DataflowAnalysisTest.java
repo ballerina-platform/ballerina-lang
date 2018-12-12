@@ -19,7 +19,10 @@ package org.ballerinalang.test.dataflow.analysis;
 
 import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -83,5 +86,14 @@ public class DataflowAnalysisTest {
         BAssertUtil.validateError(result, i++, "uninitialized field 'a'", 555, 5);
         BAssertUtil.validateError(result, i++, "uninitialized field 'c'", 557, 5);
         BAssertUtil.validateError(result, i++, "missing non-defaultable required record field 'extra'", 585, 12);
+    }
+
+    @Test(description = "Test uninitialized variables that are defined below from where they are used")
+    public void testUninitializedVariablesDefinedAfterUsage() {
+        CompileResult result = BCompileUtil.compile("test-src/dataflow/analysis/dataflow-analysis-positive.bal");
+        Assert.assertEquals(result.getErrorCount(), 0);
+        BValue[] returns = BRunUtil.invoke(result, "testDataflow_1");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 100);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 200);
     }
 }
