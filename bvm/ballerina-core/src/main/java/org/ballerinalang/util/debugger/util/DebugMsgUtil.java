@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.util.debugger.util;
 
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JsonGenerator;
 import org.ballerinalang.model.util.JsonParser;
@@ -235,7 +234,7 @@ public class DebugMsgUtil {
         writeStringField(gen, var.getType());
 
         gen.writeFieldName(VALUE);
-        writeStringField(gen, StringEscapeUtils.escapeJson(var.getValue()));
+        writeStringField(gen, var.getValue());
 
         gen.endObject();
     }

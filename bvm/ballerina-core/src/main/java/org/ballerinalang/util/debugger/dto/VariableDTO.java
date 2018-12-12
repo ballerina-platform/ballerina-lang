@@ -20,7 +20,6 @@ package org.ballerinalang.util.debugger.dto;
 
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueType;
 import org.ballerinalang.model.values.BXML;
@@ -79,22 +78,10 @@ public class VariableDTO {
         } else if (bValue instanceof BValueType || bValue instanceof BXML ||
                 bValue.getType().getTag() == TypeTags.JSON) {
             bValueString = bValue.stringValue();
-        } else if (bValue instanceof BNewArray) {
-            BNewArray bArray = (BNewArray) bValue;
-            bValueString = "Array[" + bArray.size() + "] ";
-            bValueString = bValueString + bArray.stringValue();
-        } else if (bValue.getType().getTag() == TypeTags.MAP) {
-            BMap bmap = (BMap) bValue;
-            bValueString = "Map[" + bmap.size() + "] ";
-            bValueString = bValueString + bmap.stringValue();
-        } else if (bValue.getType().getTag() == TypeTags.RECORD) {
-            bValueString = "Record " + bValue.getType().getName() + " ";
-            bValueString = bValueString + bValue.stringValue();
         } else if (bValue.getType().getTag() == TypeTags.OBJECT) {
-            bValueString = "Object " + bValue.getType().getName() + " ";
-            bValueString = bValueString + ((BMap) bValue).absoluteStringValue();
+            bValueString = ((BMap) bValue).absoluteStringValue();
         } else {
-            bValueString = "<Complex_Value>";
+            bValueString = bValue.stringValue();
         }
         return bValueString;
     }

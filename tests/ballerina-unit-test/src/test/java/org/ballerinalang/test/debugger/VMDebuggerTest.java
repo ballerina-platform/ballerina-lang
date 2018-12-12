@@ -238,7 +238,7 @@ public class VMDebuggerTest {
         List<DebugPoint> debugPoints = new ArrayList<>();
         // Key: expression, Value: expected results
         Map<String, String> expMap1 = new HashMap<>();
-        populateExpressionMap(expMap1, "args", SUCCESS, "Array[2] [\\\"Hello\\\", \\\"World\\\"]");
+        populateExpressionMap(expMap1, "args", SUCCESS, "[\\\"Hello\\\", \\\"World\\\"]");
         debugPoints.add(Util.createDebugPoint(".", "while-statement.bal", 5, RESUME, 5, expMap1));
 
         List<VariableDTO> variables = new ArrayList<>();
@@ -386,7 +386,7 @@ public class VMDebuggerTest {
         populateExpressionMap(expMap1, "gInt", SUCCESS, "5");
         populateExpressionMap(expMap1, "gBool", SUCCESS, "true");
         populateExpressionMap(expMap1, "y", SUCCESS, "25");
-        populateExpressionMap(expMap1, "foo", SUCCESS, "Record Foo {count:5, last:\\\"last\\\"}");
+        populateExpressionMap(expMap1, "foo", SUCCESS, "{count:5, last:\\\"last\\\"}");
         debugPoints.add(Util.createDebugPoint(".", file, 14, RESUME, 1, expMap1));
 
         List<VariableDTO> variables = new ArrayList<>();
@@ -413,7 +413,7 @@ public class VMDebuggerTest {
         populateExpressionMap(expMap1, "gByte", SUCCESS, "255");
         populateExpressionMap(expMap1, "x", SUCCESS, "10");
         populateExpressionMap(expMap1, "z", SUCCESS, "15");
-        populateExpressionMap(expMap1, "args", SUCCESS, "Array[2] [\\\"Hello\\\", \\\"World\\\"]");
+        populateExpressionMap(expMap1, "args", SUCCESS, "[\\\"Hello\\\", \\\"World\\\"]");
         debugPoints.add(Util.createDebugPoint(".", file, 12, RESUME, 1, expMap1));
 
         List<VariableDTO> variables = new ArrayList<>();
@@ -459,7 +459,7 @@ public class VMDebuggerTest {
         // Key: expression, Value: expected results
         Map<String, String> expMap1 = new HashMap<>();
         populateExpressionMap(expMap1, "abc/fruits:0.0.1:gInt", SUCCESS, "10");
-        populateExpressionMap(expMap1, "abc/fruits:0.0.1:gApple", SUCCESS, "Object Apple {}");
+        populateExpressionMap(expMap1, "abc/fruits:0.0.1:gApple", SUCCESS, "{}");
         populateExpressionMap(expMap1, "abc/vegetables:0.0.1:gInt", FAILURE,
                 "cannot find variable 'abc/vegetables:0.0.1:gInt'");
         debugPoints.add(Util.createDebugPoint(packagePath, file, 9, RESUME, 1, expMap1));
