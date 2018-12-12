@@ -924,20 +924,16 @@
                 "url": "streams"
             },
             {
-                "name": "Join Mutiple Streams",
-                "url": "join-multiple-streams"
+              "name": "Simple Filtering",
+              "url": "simple-filtering"
             },
             {
                 "name": "Temporal Aggregations",
                 "url": "temporal-aggregations-and-windows"
             },
             {
-                "name": "Identify Patterns",
-                "url": "identify-patterns"
-            },
-            {
-                "name": "Identify Trends",
-                "url": "identify-trends"
+                "name": "Join Mutiple Streams",
+                "url": "join-multiple-streams"
             }
         ]
     },
