@@ -46,12 +46,12 @@ import java.nio.channels.CancelledKeyException;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.UnsupportedAddressTypeException;
 
-import static java.nio.channels.SelectionKey.OP_ACCEPT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.CONFIG_FIELD_PORT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.LISTENER_CONFIG;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SERVER_SOCKET_KEY;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_SERVICE;
+import static java.nio.channels.SelectionKey.OP_ACCEPT;
 
 /**
  * Start server socket listener.

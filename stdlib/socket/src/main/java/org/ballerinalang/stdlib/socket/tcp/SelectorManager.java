@@ -180,10 +180,13 @@ public class SelectorManager {
             ServerSocketChannel server = (ServerSocketChannel) socketService.getSocketChannel();
             SocketChannel client = server.accept();
             client.configureBlocking(false);
+            // Creating a new SocketService instance with the newly accepted client.
+            // We don't ServerSocketChannel in here since we have all the necessary resources.
+            SocketService clientSocketService = new SocketService(client, socketService.getResources());
             // Registering the channel against the selector directly without going through the queue,
             // since we are in same thread.
-            client.register(selector, OP_READ, new SocketService(client, socketService.getResources()));
-            SelectorDispatcher.invokeOnAccept(socketService, client);
+            client.register(selector, OP_READ, clientSocketService);
+            SelectorDispatcher.invokeOnAccept(clientSocketService, client);
         } catch (ClosedByInterruptException e) {
             SelectorDispatcher.invokeOnError(socketService, "Client accept interrupt by another process");
         } catch (AsynchronousCloseException e) {
