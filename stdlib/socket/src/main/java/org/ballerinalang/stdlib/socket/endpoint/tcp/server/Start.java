@@ -24,7 +24,6 @@ import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -40,17 +39,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.InetSocketAddress;
 import java.nio.channels.AlreadyBoundException;
 import java.nio.channels.CancelledKeyException;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.UnsupportedAddressTypeException;
 
+import static java.nio.channels.SelectionKey.OP_ACCEPT;
+import static org.ballerinalang.stdlib.socket.SocketConstants.CONFIG_FIELD_PORT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.LISTENER_CONFIG;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SERVER_SOCKET_KEY;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_SERVICE;
-import static java.nio.channels.SelectionKey.OP_ACCEPT;
 
 /**
  * Start server socket listener.
@@ -67,21 +68,23 @@ import static java.nio.channels.SelectionKey.OP_ACCEPT;
 )
 public class Start implements NativeCallableUnit {
     private static final Logger log = LoggerFactory.getLogger(Start.class);
+    private final PrintStream console = System.out;
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
         try {
             Struct listenerEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
             ServerSocketChannel channel = (ServerSocketChannel) listenerEndpoint.getNativeData(SERVER_SOCKET_KEY);
-
+            int port = (int) listenerEndpoint.getNativeData(CONFIG_FIELD_PORT);
             BMap<String, BValue> config = (BMap<String, BValue>) listenerEndpoint.getNativeData(LISTENER_CONFIG);
-            BInteger port = (BInteger) config.get(SocketConstants.CONFIG_FIELD_PORT);
             BString networkInterface = (BString) config.get(SocketConstants.CONFIG_FIELD_INTERFACE);
             if (networkInterface == null) {
-                channel.bind(new InetSocketAddress((int) port.intValue()));
+                channel.bind(new InetSocketAddress(port));
             } else {
-                channel.bind(new InetSocketAddress(networkInterface.stringValue(), (int) port.intValue()));
+                channel.bind(new InetSocketAddress(networkInterface.stringValue(), port));
             }
+            String socketListenerStarted = "[ballerina/socket] started socket listener ";
+            console.println(socketListenerStarted + channel.socket().getLocalPort());
             // Start selector
             final SelectorManager selectorManager = SelectorManager.getInstance();
             selectorManager.start();

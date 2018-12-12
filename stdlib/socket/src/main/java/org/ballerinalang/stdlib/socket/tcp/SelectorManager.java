@@ -34,6 +34,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.nio.channels.spi.AbstractSelectableChannel;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
@@ -103,9 +104,9 @@ public class SelectorManager {
     /**
      * Unregister the given client channel from the selector instance.
      *
-     * @param channel {@link SocketChannel} that about to unregister.
+     * @param channel {@link AbstractSelectableChannel} that about to unregister.
      */
-    public void unRegisterChannel(SocketChannel channel) {
+    public void unRegisterChannel(AbstractSelectableChannel channel) {
         final SelectionKey selectionKey = channel.keyFor(selector);
         if (selectionKey != null) {
             selectionKey.cancel();
