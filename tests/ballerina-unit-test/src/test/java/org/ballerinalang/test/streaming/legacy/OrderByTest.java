@@ -38,12 +38,14 @@ public class OrderByTest {
 
     @BeforeClass
     public void setup() {
+        System.setProperty("enable.siddhiRuntime", "true");
         result = BCompileUtil.compile("test-src/streaming/legacy/orderby-streaming-test.bal");
     }
 
     @Test(description = "Test order by in streaming query - a simple one")
     public void testOrderBy() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startOrderBy");
+        System.setProperty("enable.siddhiRuntime", "false");
         Assert.assertNotNull(outputEmployeeEvents);
         Assert.assertEquals(outputEmployeeEvents.length, 10, "Expected events are not received");
         for (int i = 1; i < outputEmployeeEvents.length; i++) {
@@ -58,6 +60,7 @@ public class OrderByTest {
     @Test(description = "Test order by streaming query with ascending")
     public void testOrderBy2() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startOrderBy2");
+        System.setProperty("enable.siddhiRuntime", "false");
         Assert.assertNotNull(outputEmployeeEvents);
         Assert.assertEquals(outputEmployeeEvents.length, 10, "Expected events are not received");
         for (int i = 1; i < outputEmployeeEvents.length; i++) {
@@ -72,6 +75,7 @@ public class OrderByTest {
     @Test(description = "Test order by streaming query with descending")
     public void testOrderBy3() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startOrderBy3");
+        System.setProperty("enable.siddhiRuntime", "false");
         Assert.assertNotNull(outputEmployeeEvents);
         Assert.assertEquals(outputEmployeeEvents.length, 10, "Expected events are not received");
         for (int i = 1; i < outputEmployeeEvents.length; i++) {
@@ -86,6 +90,7 @@ public class OrderByTest {
     @Test(description = "Test order by streaming query with multiple attributes")
     public void testOrderBy4() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startOrderBy4");
+        System.setProperty("enable.siddhiRuntime", "false");
         Assert.assertNotNull(outputEmployeeEvents);
         Assert.assertEquals(outputEmployeeEvents.length, 10, "Expected events are not received");
         for (int i = 1; i < outputEmployeeEvents.length; i++) {
@@ -105,6 +110,7 @@ public class OrderByTest {
     @Test(description = "Test order by streaming query with multiple attributes with multiple order types")
     public void testOrderBy5() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startOrderBy5");
+        System.setProperty("enable.siddhiRuntime", "false");
         Assert.assertNotNull(outputEmployeeEvents);
         Assert.assertEquals(outputEmployeeEvents.length, 10, "Expected events are not received");
         for (int i = 1; i < outputEmployeeEvents.length; i++) {

@@ -42,7 +42,6 @@ public class BallerinaStreamsV2FilterWithFunctionTest {
 
     @BeforeClass
     public void setup() {
-        System.setProperty("enable.siddhiRuntime", "false");
         result = BCompileUtil.compile("test-src/streaming/streamingv2-filter-with-function-test.bal");
         result2 = BCompileUtil.compile("test-src/streaming/streamingv2-filter-with-function-test2.bal");
         resultWithAlias = BCompileUtil.
@@ -54,7 +53,6 @@ public class BallerinaStreamsV2FilterWithFunctionTest {
     @Test(description = "Test filter streaming query")
     public void testFilterQuery() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startFilterQuery");
-        System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputEmployeeEvents);
 
         Assert.assertEquals(outputEmployeeEvents.length, 2, "Expected events are not received");
@@ -71,7 +69,6 @@ public class BallerinaStreamsV2FilterWithFunctionTest {
     @Test(description = "Test filter streaming query with functions in filter clause")
     public void testFilterQuery2() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result2, "startFilterQuery");
-        System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputEmployeeEvents);
 
         Assert.assertEquals(outputEmployeeEvents.length, 2, "Expected events are not received");
@@ -88,7 +85,6 @@ public class BallerinaStreamsV2FilterWithFunctionTest {
     @Test(description = "Test filter streaming query with alias")
     public void testFilterQueryWithAlias() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(resultWithAlias, "startFilterQuery");
-        System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputEmployeeEvents);
 
         Assert.assertEquals(outputEmployeeEvents.length, 2, "Expected events are not received");
@@ -105,7 +101,6 @@ public class BallerinaStreamsV2FilterWithFunctionTest {
     @Test(description = "Test filter streaming query with functions in filter clause & stream alias")
     public void testFilterQuery2WithAlias() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result2WithAlias, "startFilterQuery");
-        System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputEmployeeEvents);
 
         Assert.assertEquals(outputEmployeeEvents.length, 2, "Expected events are not received");

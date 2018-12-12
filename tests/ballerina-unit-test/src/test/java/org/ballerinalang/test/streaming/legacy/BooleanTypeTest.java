@@ -39,12 +39,14 @@ public class BooleanTypeTest {
 
     @BeforeClass
     public void setup() {
+        System.setProperty("enable.siddhiRuntime", "true");
         result = BCompileUtil.compile("test-src/streaming/legacy/boolean-type-test.bal");
     }
 
     @Test(description = "Test Boolean types in streaming query")
     public void testFilterQuery() {
         BValue[] outputRequestCountObjs = BRunUtil.invoke(result, "startStreamingQuery");
+        System.setProperty("enable.siddhiRuntime", "false");
         Assert.assertNotNull(outputRequestCountObjs);
 
         Assert.assertEquals(outputRequestCountObjs.length, 1, "Expected events are not received");

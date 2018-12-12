@@ -38,12 +38,14 @@ public class WindowTest {
 
     @BeforeClass
     public void setup() {
+        System.setProperty("enable.siddhiRuntime", "true");
         result = BCompileUtil.compile("test-src/streaming/legacy/window-streaming-test.bal");
     }
 
     @Test(description = "Test window streaming query with groupby and aggregation function.")
     public void testWindowQuery() {
         BValue[] outputStatusCountArray = BRunUtil.invoke(result, "startWindowQuery");
+        System.setProperty("enable.siddhiRuntime", "false");
 
         Assert.assertNotNull(outputStatusCountArray);
 
