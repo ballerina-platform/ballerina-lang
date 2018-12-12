@@ -215,61 +215,57 @@ function runCacheExpiry() returns error? {
     string[] currentCacheKeys = cacheMap.keys();
     while (keyIndex < currentCacheKeys.length()) {
 
-        Cache currentCache;
         string currentCacheKey = currentCacheKeys[keyIndex];
-        Cache? cache = cacheMap[currentCacheKey];
-        if (cache is Cache) {
-            currentCache = cache;
+        keyIndex += 1;
+        Cache? currentCache = cacheMap[currentCacheKey];
+        if (currentCache is ()) {
+            continue;
         } else {
-            return ();
-        }
-        // Get the expiry time of the current cache
-        int currentCacheExpiryTime = currentCache.expiryTimeMillis;
+            // Get the expiry time of the current cache
+            int currentCacheExpiryTime = currentCache.expiryTimeMillis;
 
-        // Create a new array to store keys of cache entries which needs to be removed.
-        string[] cachesToBeRemoved = [];
+            // Create a new array to store keys of cache entries which needs to be removed.
+            string[] cachesToBeRemoved = [];
 
-        int cachesToBeRemovedIndex = 0;
-        // Iterate through all keys.
-        int entrykeyIndex = 0;
-        string[] entryKeys = currentCache.entries.keys();
-        while (entrykeyIndex < entryKeys.length()) {
+            int cachesToBeRemovedIndex = 0;
+            // Iterate through all keys.
+            int entrykeyIndex = 0;
+            string[] entryKeys = currentCache.entries.keys();
+            while (entrykeyIndex < entryKeys.length()) {
 
-            CacheEntry entry;
-            var key = entryKeys[entrykeyIndex];
-            CacheEntry? cacheEntry = currentCache.entries[key];
-            if (cacheEntry is CacheEntry) {
-                entry = cacheEntry;
-            } else {
-                return ();
+                var key = entryKeys[entrykeyIndex];
+                entrykeyIndex += 1;
+                CacheEntry? entry = currentCache.entries[key];
+                if (entry is ()) {
+                    continue;
+                } else {
+                    // Get the current system time.
+                    int currentSystemTime = time:currentTime().time;
+
+                    // Check whether the cache entry needs to be removed.
+                    if (currentSystemTime >= entry.lastAccessedTime + currentCacheExpiryTime) {
+                        cachesToBeRemoved[cachesToBeRemovedIndex] = key;
+                        cachesToBeRemovedIndex += 1;
+                    }
+                }
             }
-            // Get the current system time.
-            int currentSystemTime = time:currentTime().time;
 
-            // Check whether the cache entry needs to be removed.
-            if (currentSystemTime >= entry.lastAccessedTime + currentCacheExpiryTime) {
-                cachesToBeRemoved[cachesToBeRemovedIndex] = key;
-                cachesToBeRemovedIndex = cachesToBeRemovedIndex + 1;
+            // Iterate through the key list which needs to be removed.
+            int currentKeyIndex = 0;
+            while(currentKeyIndex < cachesToBeRemovedIndex) {
+                string key = cachesToBeRemoved[currentKeyIndex];
+                // Remove the cache entry.
+                _ = currentCache.entries.remove(key);
+                currentKeyIndex += 1;
             }
-            entrykeyIndex = entrykeyIndex +1;
-        }
 
-        // Iterate through the key list which needs to be removed.
-        int currentKeyIndex = 0;
-        while(currentKeyIndex < cachesToBeRemovedIndex) {
-            string key = cachesToBeRemoved[currentKeyIndex];
-            // Remove the cache entry.
-            _ = currentCache.entries.remove(key);
-            currentKeyIndex = currentKeyIndex + 1;
+            // If there are no entries, we add that cache key to the `emptyCacheKeys`.
+            int size = currentCache.entries.length();
+            if (size == 0) {
+                emptyCacheKeys[emptyCacheCount] = currentCacheKey;
+                emptyCacheCount += 1;
+            }
         }
-
-        // If there are no entries, we add that cache key to the `emptyCacheKeys`.
-        int size = currentCache.entries.length();
-        if (size == 0) {
-            emptyCacheKeys[emptyCacheCount] = currentCacheKey;
-            emptyCacheCount += 1;
-        }
-        keyIndex = keyIndex + 1;
     }
 
     // We iterate though all empty cache keys and remove them from the `cacheMap`.
