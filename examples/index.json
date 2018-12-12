@@ -930,14 +930,6 @@
             {
                 "name": "Temporal Aggregations",
                 "url": "temporal-aggregations-and-windows"
-            },
-            {
-                "name": "Identify Patterns",
-                "url": "identify-patterns"
-            },
-            {
-                "name": "Identify Trends",
-                "url": "identify-trends"
             }
         ]
     },
