@@ -38,7 +38,6 @@ import org.ballerinalang.model.tree.clauses.StreamingInput;
 import org.ballerinalang.model.tree.clauses.WhereNode;
 import org.ballerinalang.model.tree.clauses.WindowClauseNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
@@ -1983,17 +1982,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangGroupBy groupBy) {
         List<? extends ExpressionNode> variableExpressionList = groupBy.getVariables();
         for (ExpressionNode expressionNode : variableExpressionList) {
-            if (isSiddhiRuntimeEnabled || !(expressionNode.getKind() == NodeKind.INVOCATION)) {
+            if (isSiddhiRuntimeEnabled) {
                 ((BLangExpression) expressionNode).accept(this);
                 return;
             }
-
-            BLangInvocation invocationExpr = (BLangInvocation) expressionNode;
-            VariableReferenceNode variableReferenceNode = (VariableReferenceNode) invocationExpr.getExpression();
-            if (variableReferenceNode != null) {
-                ((BLangVariableReference) variableReferenceNode).accept(this);
-            }
-            typeChecker.checkExpr(invocationExpr, env);
+            typeChecker.checkExpr((BLangExpression) expressionNode, env);
         }
     }
 
