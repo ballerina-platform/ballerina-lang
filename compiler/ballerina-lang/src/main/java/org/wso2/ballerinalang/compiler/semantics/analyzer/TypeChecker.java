@@ -1022,6 +1022,12 @@ public class TypeChecker extends BLangNodeVisitor {
                         iExpr.expr.type);
                 resultType = symTable.semanticError;
                 break;
+            case TypeTags.TYPEDESC:
+                if (dlog.errorCount == 0) {
+                    dlog.error(iExpr.pos, DiagnosticCode.INVALID_FUNCTION_INVOCATION, iExpr.expr.type);
+                }
+                resultType = symTable.semanticError;
+                break;
             default:
                 dlog.error(iExpr.pos, DiagnosticCode.INVALID_FUNCTION_INVOCATION, iExpr.expr.type);
                 resultType = symTable.semanticError;
