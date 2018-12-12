@@ -190,6 +190,7 @@ public final class Constants {
     public static final int WEBSOCKET_STATUS_CODE_PROTOCOL_ERROR = 1002;
     public static final int WEBSOCKET_STATUS_CODE_ABNORMAL_CLOSURE = 1006;
     public static final int WEBSOCKET_STATUS_CODE_UNEXPECTED_CONDITION = 1011;
+    public static final int WEBSOCKET_REQUEST_SIZE = 8192;
 
     // Callback related parameters
     public static final String HTTP_CONNECTION_CLOSE = "close";
@@ -383,6 +384,7 @@ public final class Constants {
     public static final String UNKNOWN_HOST_EXCEPTION = "UnknownHostException";
 
     public static final String ERROR_COULD_NOT_RESOLVE_HOST = "Could not resolve host";
+
 
     private Constants() {
     }

@@ -40,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorException;
 import org.wso2.transport.http.netty.contractimpl.websocket.message.DefaultWebSocketHandshaker;
 import org.wso2.transport.http.netty.message.DefaultListener;
 import org.wso2.transport.http.netty.message.HttpCarbonRequest;
@@ -83,7 +84,7 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
                     pipeline.remove(Constants.HTTP_SOURCE_HANDLER);
                     ChannelHandlerContext decoderCtx = pipeline.context(HttpRequestDecoder.class);
                     pipeline.addAfter(decoderCtx.name(), HTTP_OBJECT_AGGREGATOR,
-                                      new HttpObjectAggregator(8192));
+                                      new HttpObjectAggregator(Constants.WEBSOCKET_REQUEST_SIZE));
                     pipeline.addAfter(HTTP_OBJECT_AGGREGATOR, "handshake",
                                       new SimpleChannelInboundHandler<FullHttpRequest>() {
                                           @Override
@@ -144,7 +145,8 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
      *
      * @param fullHttpRequest {@link HttpRequest} of the request.
      */
-    private void handleWebSocketHandshake(FullHttpRequest fullHttpRequest, ChannelHandlerContext ctx) throws Exception {
+    private void handleWebSocketHandshake(FullHttpRequest fullHttpRequest, ChannelHandlerContext ctx)
+            throws WebSocketConnectorException {
         DefaultWebSocketHandshaker webSocketHandshaker =
                 new DefaultWebSocketHandshaker(ctx, serverConnectorFuture, fullHttpRequest,
                                                fullHttpRequest.uri(), true);

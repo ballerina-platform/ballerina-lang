@@ -39,6 +39,7 @@ public class WebSocketClientConnectorConfig extends SslConfiguration {
     private int idleTimeoutInSeconds;
     private boolean autoRead;
     private final HttpHeaders headers;
+    private int maxFrameSize = 65536;
 
     public WebSocketClientConnectorConfig(String remoteAddress) {
         this.remoteAddress = remoteAddress;
@@ -149,5 +150,13 @@ public class WebSocketClientConnectorConfig extends SslConfiguration {
      */
     public void setIdleTimeoutInMillis(int idleTimeoutInSeconds) {
         this.idleTimeoutInSeconds = idleTimeoutInSeconds;
+    }
+
+    public int getMaxFrameSize() {
+        return maxFrameSize;
+    }
+
+    public void setMaxFrameSize(int maxFrameSize) {
+        this.maxFrameSize = maxFrameSize;
     }
 }
