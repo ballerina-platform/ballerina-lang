@@ -17,20 +17,21 @@
 import ballerina/http;
 import ballerina/log;
 
-final string ASSOCIATED_CONNECTION = "ASSOCIATED_CONNECTION";
-
 @http:WebSocketServiceConfig {
 }
-service on new http:WebSocketListener(9099) {
-
+service on new http:WebSocketListener(9077) {
     resource function onOpen(http:WebSocketCaller wsEp) {
-        http:WebSocketClient wsClientEp = new("ws://localhost:15300/websocket", config = { callbackService:
-            clientCallbackService9, readyOnConnect: false });
+        http:WebSocketClient wsClientEp = new("wss://localhost:15400/websocket", config = { callbackService:
+            sslClientService, secureSocket: { trustStore: {
+                path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                password: "ballerina"
+            }
+            }, readyOnConnect: false });
         wsEp.attributes[ASSOCIATED_CONNECTION] = wsClientEp;
         wsClientEp.attributes[ASSOCIATED_CONNECTION] = wsEp;
         var returnVal = wsClientEp->ready();
         if (returnVal is error) {
-             panic returnVal;
+            panic returnVal;
         }
     }
 
@@ -38,7 +39,7 @@ service on new http:WebSocketListener(9099) {
         http:WebSocketClient clientEp = getAssociatedClientEndpoint(wsEp);
         var returnVal = clientEp->pushText(text);
         if (returnVal is error) {
-             panic returnVal;
+            panic returnVal;
         }
     }
 
@@ -46,7 +47,7 @@ service on new http:WebSocketListener(9099) {
         http:WebSocketClient clientEp = getAssociatedClientEndpoint(wsEp);
         var returnVal = clientEp->pushBinary(data);
         if (returnVal is error) {
-             panic returnVal;
+            panic returnVal;
         }
     }
 
@@ -54,18 +55,17 @@ service on new http:WebSocketListener(9099) {
         http:WebSocketClient clientEp = getAssociatedClientEndpoint(wsEp);
         var returnVal = clientEp->close(statusCode = statusCode, reason = reason);
         if (returnVal is error) {
-             panic returnVal;
+            panic returnVal;
         }
     }
-
 }
 
-service clientCallbackService9 = @http:WebSocketServiceConfig {} service {
+service sslClientService = @http:WebSocketServiceConfig {} service {
     resource function onText(http:WebSocketClient wsEp, string text) {
         http:WebSocketCaller serviceEp = getAssociatedListener(wsEp);
         var returnVal = serviceEp->pushText(text);
         if (returnVal is error) {
-             panic returnVal;
+            panic returnVal;
         }
     }
 
@@ -73,7 +73,7 @@ service clientCallbackService9 = @http:WebSocketServiceConfig {} service {
         http:WebSocketCaller serviceEp = getAssociatedListener(wsEp);
         var returnVal = serviceEp->pushBinary(data);
         if (returnVal is error) {
-             panic returnVal;
+            panic returnVal;
         }
     }
 
@@ -81,17 +81,7 @@ service clientCallbackService9 = @http:WebSocketServiceConfig {} service {
         http:WebSocketCaller serviceEp = getAssociatedListener(wsEp);
         var returnVal = serviceEp->close(statusCode = statusCode, reason = reason);
         if (returnVal is error) {
-             panic returnVal;
+            panic returnVal;
         }
     }
 };
-
-public function getAssociatedClientEndpoint(http:WebSocketCaller wsServiceEp) returns (http:WebSocketClient) {
-    var returnVal = <http:WebSocketClient>wsServiceEp.attributes[ASSOCIATED_CONNECTION];
-    return returnVal;
-}
-
-public function getAssociatedListener(http:WebSocketClient wsClientEp) returns (http:WebSocketCaller) {
-    var returnVal = <http:WebSocketCaller>wsClientEp.attributes[ASSOCIATED_CONNECTION];
-    return returnVal;
-}

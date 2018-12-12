@@ -15,14 +15,24 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/io;
 
-service pushTextFailure on new http:WebSocketListener(9089) {
-    resource function onOpen(http:WebSocketCaller caller) {
-        _ = caller->close(timeoutInSecs = 0);
-        var err = caller->pushText("hey");
-        if (err is error) {
-            io:println(err.detail().message);
+service sslEcho on new http:WebSocketListener(9076, config = { secureSocket: {
+        keyStore: {
+            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            password: "ballerina"
+        } } }) {
+
+    resource function onText(http:WebSocketCaller caller, string data, boolean finalFrame) {
+        var returnVal = caller->pushText(data, finalFrame = finalFrame);
+        if (returnVal is error) {
+            panic returnVal;
+        }
+    }
+
+    resource function onBinary(http:WebSocketCaller caller, byte[] data, boolean finalFrame) {
+        var returnVal = caller->pushBinary(data, finalFrame = finalFrame);
+        if (returnVal is error) {
+            panic returnVal;
         }
     }
 }
