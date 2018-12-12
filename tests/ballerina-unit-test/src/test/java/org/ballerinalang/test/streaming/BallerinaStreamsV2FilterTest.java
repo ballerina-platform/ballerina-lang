@@ -40,7 +40,6 @@ public class BallerinaStreamsV2FilterTest {
 
     @BeforeClass
     public void setup() {
-        System.setProperty("enable.siddhiRuntime", "false");
         result = BCompileUtil.compile("test-src/streaming/streamingv2-filter-test.bal");
         resultWithAlias = BCompileUtil.compile("test-src/streaming/alias/streamingv2-filter-test.bal");
     }
@@ -48,7 +47,6 @@ public class BallerinaStreamsV2FilterTest {
     @Test(description = "Test filter streaming query")
     public void testFilterQuery() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startFilterQuery");
-        System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputEmployeeEvents);
 
         Assert.assertEquals(outputEmployeeEvents.length, 2, "Expected events are not received");
@@ -65,7 +63,6 @@ public class BallerinaStreamsV2FilterTest {
     @Test(description = "Test filter streaming query")
     public void testFilterQueryWithAlias() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(resultWithAlias, "startFilterQuery");
-        System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputEmployeeEvents);
 
         Assert.assertEquals(outputEmployeeEvents.length, 2, "Expected events are not received");

@@ -38,17 +38,13 @@ public class BallerinaStreamsV2TimeWindowTest {
 
     @BeforeClass
     public void setup() {
-        System.setProperty("enable.siddhiRuntime", "false");
         result1 = BCompileUtil.compile("test-src/streaming/streamingv2-time-window-test.bal");
-
-        System.setProperty("enable.siddhiRuntime", "false");
         result2 = BCompileUtil.compile("test-src/streaming/streamingv2-time-window-test2.bal");
     }
 
     @Test(description = "Test Time window query")
     public void testTimeQuery1() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result1, "startTimeWindowTest");
-        System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputEmployeeEvents);
 
         Assert.assertEquals(outputEmployeeEvents.length, 2, "Expected events are not received");
@@ -63,7 +59,6 @@ public class BallerinaStreamsV2TimeWindowTest {
     @Test(description = "Test Time window query")
     public void testTimeQuery2() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result2, "startTimeWindowTest2");
-        System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputEmployeeEvents);
 
         Assert.assertEquals(outputEmployeeEvents.length, 6, "Expected events are not received");

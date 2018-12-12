@@ -46,13 +46,11 @@ public class BallerinaStreamsV2AlertsWithServices {
 
     @BeforeClass
     public void setup() {
-        System.setProperty("enable.siddhiRuntime", "false");
         result = BServiceUtil.setupProgramFile(this, "test-src/streaming/streamingv2-alerts-with-services.bal");
     }
 
     @Test(enabled = false)
     public void testAlerts() {
-        System.setProperty("enable.siddhiRuntime", "true");
         java.util.List<org.wso2.carbon.messaging.Header> headers = new ArrayList<>();
         headers.add(new org.wso2.carbon.messaging.Header("Content-Type", APPLICATION_JSON));
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/rawmaterial", "POST", headers,
