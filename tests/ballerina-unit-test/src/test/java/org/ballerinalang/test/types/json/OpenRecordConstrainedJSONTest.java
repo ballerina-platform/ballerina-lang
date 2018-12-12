@@ -47,7 +47,7 @@ public class OpenRecordConstrainedJSONTest {
 
     @Test(description = "Test basic json struct constraint")
     public void testConstrainedJSONNegative() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 9);
+        Assert.assertEquals(negativeResult.getErrorCount(), 7);
 
         int index = 0;
         // testConstrainingUsingRecordWithIncompatibleRestField
@@ -72,18 +72,13 @@ public class OpenRecordConstrainedJSONTest {
                                   "incompatible stamp type: type 'json<Person>[]' cannot be stamped as type " +
                                           "'json<Student>[]'",
                                   76, 14);
-        BAssertUtil.validateError(negativeResult, index++, "function invocation on type 'typedesc' is not supported",
-                                  76, 14);
 
         BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'json', found 'byte[]'", 82,
                                   14);
 
-        BAssertUtil.validateError(negativeResult, index++,
+        BAssertUtil.validateError(negativeResult, index,
                                   "incompatible types: 'json<Employee>' cannot be converted to 'json<Student>'", 89,
                                   14);
-        BAssertUtil.validateError(negativeResult, index,
-                                  "function invocation on type 'typedesc' is not supported", 89, 14);
-        
         
     }
 

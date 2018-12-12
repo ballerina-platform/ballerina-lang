@@ -47,7 +47,7 @@ public class ClosedRecordConstrainedJSONTest {
 
     @Test(description = "Test basic json struct constraint")
     public void testConstrainedJSONNegative() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 18);
+        Assert.assertEquals(negativeResult.getErrorCount(), 15);
         
         // testStructConstraintInInitializationInvalid
         BAssertUtil.validateError(negativeResult, 0, "undefined field 'firstName' in record 'Person'", 17, 23);
@@ -75,32 +75,23 @@ public class ClosedRecordConstrainedJSONTest {
         BAssertUtil.validateError(negativeResult, 7,
                 "incompatible types: 'json<Person>[]' cannot be converted to 'json<Student>[]'", 77, 14);
 
-        BAssertUtil.validateError(negativeResult, 8,
-                "function invocation on type 'typedesc' is not supported", 77, 14);
+        BAssertUtil.validateError(negativeResult, 8, "incompatible types: expected 'json', found 'byte[]'", 83, 14);
 
-        BAssertUtil.validateError(negativeResult, 9, "incompatible types: expected 'json', found 'byte[]'", 83, 14);
+        BAssertUtil.validateError(negativeResult, 9, "incompatible types: expected 'string', found 'int'", 89, 29);
 
-        BAssertUtil.validateError(negativeResult, 10, "incompatible types: expected 'string', found 'int'", 89, 29);
+        BAssertUtil.validateError(negativeResult, 10, "incompatible types: expected 'string', found 'float'", 94, 21);
 
-        BAssertUtil.validateError(negativeResult, 11, "incompatible types: expected 'string', found 'float'", 94, 21);
-
-        BAssertUtil.validateError(negativeResult, 12,
+        BAssertUtil.validateError(negativeResult, 11,
                                   "incompatible types: expected 'json<Person>', found 'json<Student>'", 103, 22);
 
-        BAssertUtil.validateError(negativeResult, 13,
+        BAssertUtil.validateError(negativeResult, 12,
                                   "incompatible types: expected 'json<Person>', found 'json<Student>'", 108, 23);
 
-        BAssertUtil.validateError(negativeResult, 14,
+        BAssertUtil.validateError(negativeResult, 13,
                                   "incompatible types: 'json<Person>' cannot be converted to 'json<Student>'", 109, 15);
 
-        BAssertUtil.validateError(negativeResult, 15, "function invocation on type 'typedesc' is not supported", 109,
-                                  15);
-
-        BAssertUtil.validateError(negativeResult, 16,
+        BAssertUtil.validateError(negativeResult, 14,
                                   "incompatible types: 'json<Employee>' cannot be converted to 'json<Student>'", 116,
-                                  14);
-
-        BAssertUtil.validateError(negativeResult, 17, "function invocation on type 'typedesc' is not supported", 116,
                                   14);
     }
 
