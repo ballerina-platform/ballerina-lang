@@ -31,7 +31,8 @@ function initFilterQuery() {
     // Filterted events are pushed to a stream called `childrenStream`.
     forever {
         from personStream where personStream.age <= 16
-        select personStream.name, personStream.age, personStream.address as city
+        select personStream.name, personStream.age,
+                personStream.address as city
         => (Child[] children) {
             foreach var c in children {
                 childrenStream.publish(c);
@@ -44,9 +45,12 @@ public function main() {
 
     // Sample events that represent the different person.
     Person[] personArray = [];
-    Person t1 = { name: "Raja", age: 12, status: "single", address: "Mountain View", phoneNo: "+19877386134" };
-    Person t2 = { name: "Mohan", age: 30, status: "single", address: "Memphis", phoneNo: "+198353536134"};
-    Person t3 = { name: "Shareek", age: 16, status: "single", address: "Houston", phoneNo: "+1343434454" };
+    Person t1 = { name: "Raja", age: 12, status: "single",
+                    address: "Mountain View", phoneNo: "+19877386134" };
+    Person t2 = { name: "Mohan", age: 30, status: "single",
+                    address: "Memphis", phoneNo: "+198353536134"};
+    Person t3 = { name: "Shareek", age: 16, status: "single",
+                    address: "Houston", phoneNo: "+1343434454" };
 
     personArray[0] = t1;
     personArray[1] = t2;
