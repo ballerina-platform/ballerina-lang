@@ -7,14 +7,12 @@ The future apps we write increasingly depend upon programmable endpoints. The di
 Ballerina makes it easy to build resilient services that integration and orchestrate across distributed endpoints. The Ballerina plugin includes intellisense, diagramming, debugging, code formatting, and refactoring.
 
 ## Quick start
-- Download and install ballerina platform from [ballerina.io](https://ballerina.io/downloads/).
+- Download and install ballerina from [ballerina.io](https://ballerina.io/downloads/).
 - Install VSCode plugin.
     - **Option 1.** Install this extension from the VSCode [marketplace](https://marketplace.visualstudio.com/items?itemName=ballerina.ballerina) (or by entering `ext install Ballerina.Ballerina` at the command palette).
     - **Option 2.** Download and install the VSCode plugin manually.
         - Download `ballerina-vscode-plugin-VERSION.vsix` from [ballerina.io](https://ballerina.io/downloads/). When downloading make sure plugin version matches the platform version you have installed.
         - Go to Install from VSIX... command in the Extensions View command drop-down, or the Extensions: Install from VSIX... command in the Command Palette, and select the .vsix file to install. [More info](https://code.visualstudio.com/docs/editor/extension-gallery#_install-from-a-vsix)
-
-        - ![install from vsix](https://github.com/ballerina-platform/ballerina-lang/blob/master/tool-plugins/vscode/docs/install-from-vsix.gif?raw=true)
 
 ## Plugin Features
 
@@ -32,30 +30,9 @@ For a complete list of features please see the Ballerina Language Server [User G
 
 Ballerina’s underlying language semantics were designed by modeling how independent parties communicate via structured interactions. Subsequently, every Ballerina program can be displayed as a sequence diagram of its flow with endpoints, including synchronous and asynchronous calls. 
 
-To view the sequence diagram of a ballerina file press the diagram icon ( ![design view icon](https://github.com/ballerina-platform/ballerina-lang/blob/master/tool-plugins/vscode/docs/design-view-icon.png?raw=true) ) in top right corner.
+To view the sequence diagram of a ballerina file press the diagram icon ( ![design view icon](https://github.com/ballerina-platform/ballerina-lang/blob/master/tool-plugins/vscode/docs/show-diagram-icon.png?raw=true) ) in top right corner.
 
-![opening design view](https://github.com/ballerina-platform/ballerina-lang/blob/master/tool-plugins/vscode/docs/ballerina-diagram-usage.gif?raw=true)
-
-### Debugger
-
-#### Configuring the debugger
-
-* Open a `.bal` file
-* Go to the debug panel (Ctrl + Shift + D)
-* Click on 'Configure or fix launch.json'
-
-This will create a `.vscode/launch.json` file in your workspace, containing default ballerina debug configurations.
-
-![opening debug config](https://github.com/ballerina-platform/ballerina-lang/blob/master/tool-plugins/vscode/docs/debugger-open-config.gif?raw=true)
-
-There are two configurations with type `"ballerina"`. One with `"request"` set to `"launch"` and the other to `"attach"`. The second is used for remote debugging.
-
-#### Using the debugger
-
-* Add necessary debug points.
-* Select 'Ballerina Debug' from the config menu. And do Debug -> Start Debugging.
-
-![using debugger](https://github.com/ballerina-platform/ballerina-lang/blob/master/tool-plugins/vscode/docs/debugger-using.gif?raw=true)
+![opening design view](https://github.com/ballerina-platform/ballerina-lang/blob/master/tool-plugins/vscode/docs/diagram.gif?raw=true)
 
 ## Compatibility
 
