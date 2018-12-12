@@ -17,11 +17,7 @@
 import ballerina/http;
 import ballerina/io;
 
-@http:WebSocketServiceConfig {
-    path: "/test/without/ping/resource"
-}
-service SimpleServerWithoutPingResource on new http:WebSocketListener(9100) {
-
+service on new http:WebSocketListener(9100) {
     resource function onOpen(http:WebSocketCaller wsEp) {
         io:println("New Client Connected");
     }

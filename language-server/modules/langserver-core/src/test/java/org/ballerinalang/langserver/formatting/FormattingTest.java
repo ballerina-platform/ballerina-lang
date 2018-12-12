@@ -48,7 +48,7 @@ public class FormattingTest {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
 
-    @Test(description = "test formatting functionality on functions", dataProvider = "fileProvider", enabled = false)
+    @Test(description = "test formatting functionality on functions", dataProvider = "fileProvider")
     public void formatTestSuit(String expectedFile, String testFile) throws IOException {
         Path expectedFilePath = formattingDirectory.resolve("expected").resolve(expectedFile);
         Path inputFilePath = formattingDirectory.resolve(testFile);
@@ -96,14 +96,12 @@ public class FormattingTest {
                 {"expectedFunctionType.bal", "functionType.bal"},
                 {"expectedWhile.bal", "while.bal"},
                 {"expectedIf.bal", "if.bal"},
-                {"expectedTryCatch.bal", "tryCatch.bal"},
                 {"expectedBinaryExpr.bal", "binaryExpr.bal"},
                 {"expectedArrayLiteralExpr.bal", "arrayLiteralExpr.bal"},
                 {"expectedForeach.bal", "foreach.bal"},
                 {"expectedConstrainedType.bal", "constrainedType.bal"},
                 {"expectedBreak.bal", "break.bal"},
                 {"expectedMatchStmt.bal", "matchStmt.bal"},
-                {"expectedMatchExpr.bal", "matchExpr.bal"},
                 {"expectedAbort.bal", "abort.bal"},
                 {"expectedTransaction.bal", "transaction.bal"},
                 {"expectedContinue.bal", "continue.bal"},
@@ -113,7 +111,8 @@ public class FormattingTest {
                 {"expectedAnnotation.bal", "annotation.bal"},
                 {"expectedArrowExpr.bal", "arrowExpr.bal"},
                 {"expectedAsyncExpr.bal", "asyncExpr.bal"},
-                {"expectedImportOrder.bal", "importOrder.bal"},
+                {"expectedBindingPatterns.bal", "bindingPatterns.bal"},
+//                {"expectedImportOrder.bal", "importOrder.bal"},
         };
     }
 

@@ -43,12 +43,7 @@ import org.ballerinalang.model.tree.DocumentableNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.types.TypeNode;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -68,7 +63,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
-import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
@@ -80,16 +74,12 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static org.wso2.ballerinalang.compiler.util.Names.EP_SPI_INIT;
-import static org.wso2.ballerinalang.compiler.util.Names.EP_SPI_REGISTER;
-
 /**
  * Generates the Page objects for bal packages.
  */
 public class Generator {
 
-    private static final Predicate<BLangFunction> IS_CALLER_ACTIONS =
-            s -> s.name.value.equals(Names.EP_SPI_GET_CALLER_ACTIONS.value);
+    private static final Predicate<BLangFunction> IS_REMOTE_FUNCTION = func -> func.getFlags().contains(Flag.REMOTE);
     private static final String EMPTY_STRING = "";
 
     /**
@@ -269,7 +259,11 @@ public class Generator {
             union.add(new EnumDoc(typeName, description(typeDefinition), new ArrayList<>(), values));
             added = true;
         } else if (kind == NodeKind.RECORD_TYPE) {
-            records.add(createDocForType(typeDefinition, (BLangRecordTypeNode) typeNode, typeName));
+            BLangRecordTypeNode recordNode = (BLangRecordTypeNode) typeNode;
+            if (recordNode.isAnonymous) {
+                return;
+            }
+            records.add(createDocForType(typeDefinition, recordNode, typeName));
             added = true;
         } else if (kind == NodeKind.UNION_TYPE_NODE) {
             List<BLangType> memberTypeNodes = ((BLangUnionTypeNode) typeNode).memberTypeNodes;
@@ -283,6 +277,9 @@ public class Generator {
             BLangUserDefinedType userDefinedType = (BLangUserDefinedType) typeNode;
             String value = userDefinedType.typeName.value;
             union.add(new EnumDoc(typeName, description(typeDefinition), new ArrayList<>(), value));
+            added = true;
+        } else if (kind == NodeKind.ERROR_TYPE) {
+            // TODO: Add errors section in API docs
             added = true;
         }
         if (!added) {
@@ -380,41 +377,6 @@ public class Generator {
         }
 
         return new ConstantDoc(constantName, value, desc, typeNodeType, href);
-    }
-
-    private static Field getVariableForType(String name, BType param) {
-        BTypeSymbol type = param.tsymbol;
-        if (type != null && type.type != null) {
-            return new Field(name, type.type.toString(), EMPTY_STRING, EMPTY_STRING, extractLink(type.type));
-        } else {
-            return new Field(name, param.toString(), EMPTY_STRING, EMPTY_STRING, extractLink(param));
-        }
-    }
-
-    private static FunctionDoc createDocForType(BInvokableSymbol invokable) {
-        String name = invokable.name.value;
-        name = name.substring(name.indexOf('.') + 1);
-        List<Field> parameters = new ArrayList<>();
-        List<Variable> returnParams = new ArrayList<>();
-        // Iterate through the parameters
-        for (BVarSymbol param : invokable.getParameters()) {
-            Field variable = getVariableForType(param.name.toString(), param.type);
-            parameters.add(variable);
-        }
-
-        for (BVarSymbol param : invokable.getDefaultableParameters()) {
-            Field variable = getVariableForType(param.name.toString(), param.type);
-            parameters.add(variable);
-        }
-        if (null != invokable.retType) {
-            returnParams.add(getVariableForType(EMPTY_STRING, invokable.retType));
-        } else if (invokable.type instanceof BInvokableType) {
-            BInvokableType invokableType = (BInvokableType) invokable.type;
-            returnParams.add(getVariableForType(EMPTY_STRING, invokableType.retType));
-        }
-    
-        return new FunctionDoc(name, invokable.markdownDocumentation.description, new ArrayList<>(), parameters,
-                returnParams);
     }
 
     /**
@@ -567,16 +529,10 @@ public class Generator {
         }
 
         if (isEndpoint(objectType)) {
-            Optional<BLangFunction> callerActions = objectType.functions.stream().filter(IS_CALLER_ACTIONS).findAny();
-            if (callerActions.isPresent()) {
-                BObjectTypeSymbol retrunType = (BObjectTypeSymbol) callerActions.get().returnTypeNode.type.tsymbol;
-                functions = retrunType.attachedFuncs.stream()
-                        .filter(c -> !c.funcName.value.equals("new"))
-                        .map(c -> createDocForType(c.symbol))
-                        .collect(Collectors.toList());
-            } else {
-                functions = new ArrayList<>();
-            }
+            functions = objectType.functions.stream()
+                    .filter(IS_REMOTE_FUNCTION)
+                    .map(Generator::createDocForNode)
+                    .collect(Collectors.toList());
             endpoints.add(createEndpointObject(objectType, name, description, functions, fields, hasConstructor));
         } else {
             objects.add(createNonEndpointObject(objectType, name, description, functions, fields, hasConstructor));
@@ -585,20 +541,7 @@ public class Generator {
     }
 
     private static boolean isEndpoint(BLangObjectTypeNode objectType) {
-        boolean hasAction = false;
-        boolean hasInit = false;
-        boolean hasReg = false;
-        for (BLangFunction function : objectType.functions) {
-            String name = function.name.value;
-            if (name.equals(Names.EP_SPI_GET_CALLER_ACTIONS.value)) {
-                hasAction = true;
-            } else if (name.equals(EP_SPI_INIT.value)) {
-                hasInit = true;
-            } else if (name.equals(EP_SPI_REGISTER.value)) {
-                hasReg = true;
-            }
-        }
-        return (hasInit && hasReg) || (hasInit && hasAction);
+        return objectType.flagSet.contains(Flag.CLIENT);
     }
 
     private static ObjectDoc createNonEndpointObject(BLangObjectTypeNode objectType, String name,

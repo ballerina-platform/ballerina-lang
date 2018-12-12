@@ -30,15 +30,8 @@ export function apiEditorRender(context: ExtensionContext, langClient: ExtendedL
             <div class='api-visualizer' id='api-visualizer'></div>
         </div>
     `;
-
-    const styles = `
-        body {
-            background-color: #1e1e1e !important;
-            color: #fff !important;
-            user-select: none;
-        }
-    `;
-
+    const bodyCss = "api-designer";
+    const styles = ``;
     const script = `
         function loadedScript() {
             let docUri = ${JSON.stringify(docUri.toString())};
@@ -93,5 +86,5 @@ export function apiEditorRender(context: ExtensionContext, langClient: ExtendedL
         }
     `;
 
-    return getLibraryWebViewContent(context, body, script, styles, true);
+    return getLibraryWebViewContent(context, body, script, styles, bodyCss, true);
 }

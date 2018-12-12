@@ -143,7 +143,7 @@ public class BLangMatch extends BLangStatement implements MatchNode {
         public void accept(BLangNodeVisitor visitor) {
             visitor.visit(this);
         }
-        
+
         @Override
         public String toString() {
             return String.valueOf(variable) + " => " + String.valueOf(body);
@@ -213,6 +213,11 @@ public class BLangMatch extends BLangStatement implements MatchNode {
         @Override
         public BLangVariable getVariableNode() {
             return bindingPatternVariable;
+        }
+
+        @Override
+        public BLangExpression getTypeGuardExpr() {
+            return typeGuardExpr;
         }
 
         @Override

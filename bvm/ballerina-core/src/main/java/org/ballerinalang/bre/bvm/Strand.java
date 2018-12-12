@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * This represents a Ballerina execution strand in the new VM.
@@ -58,6 +60,8 @@ public class Strand {
     public Map<String, Object> globalProps;
 
     public StrandWaitHandler strandWaitHandler;
+
+    public FlushDetail flushDetail;
 
     private TransactionLocalContext transactionStrandContext;
 
@@ -167,6 +171,10 @@ public class Strand {
         return debugContext;
     }
 
+    public void configureFlushDetails(String[] flushChannels) {
+        this.flushDetail = new FlushDetail(flushChannels);
+    }
+
     /**
      * Strand execution states.
      */
@@ -193,6 +201,21 @@ public class Strand {
             this.callbacksToWaitFor = callBacksToWaitFor;
             this.waitCompleted = false;
             this.executionLock = new Semaphore(1);
+        }
+    }
+
+    /**
+     * Class to hold flush action related details.
+     */
+    public static class FlushDetail {
+        public String[] flushChannels;
+        public int flushedCount;
+        public Lock flushLock;
+
+        public FlushDetail(String[] flushChannels) {
+            this.flushChannels = flushChannels;
+            this.flushedCount = 0;
+            this.flushLock = new ReentrantLock();
         }
     }
 }

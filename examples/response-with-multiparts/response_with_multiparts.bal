@@ -16,7 +16,8 @@ service multipartResponseEncoder on new http:Listener(9092) {
         methods: ["GET"],
         path: "/encode_out_response"
     }
-    resource function multipartSender(http:Caller caller, http:Request request) {
+    resource function multipartSender(http:Caller caller,
+                                        http:Request request) {
 
         // Creates an enclosing entity to hold the child parts.
         mime:Entity parentPart = new;
@@ -60,7 +61,8 @@ service multipartResponseDecoder on multipartEP {
         path: "/decode_in_response"
     }
     // This resource accepts multipart responses.
-    resource function multipartReceiver(http:Caller caller, http:Request request) {
+    resource function multipartReceiver(http:Caller caller,
+                                        http:Request request) {
         http:Response inResponse = new;
         var returnResult = clientEP->get("/multiparts/encode_out_response");
         http:Response res = new;
@@ -69,14 +71,14 @@ service multipartResponseDecoder on multipartEP {
             var parentParts = returnResult.getBodyParts();
             if (parentParts is mime:Entity[]) {
                 //Loops through body parts.
-                foreach parentPart in parentParts {
+                foreach var parentPart in parentParts {
                     handleNestedParts(parentPart);
                 }
 
                 res.setPayload("Body Parts Received!");
             }
 
-        } else if (returnResult is error) {
+        } else {
             res.statusCode = 500;
             res.setPayload("Connection error");
         }
@@ -94,10 +96,10 @@ function handleNestedParts(mime:Entity parentPart) {
         var childParts = parentPart.getBodyParts();
         if (childParts is mime:Entity[]) {
             log:printInfo("Nested Parts Detected!");
-            foreach childPart in childParts {
+            foreach var childPart in childParts {
                 handleContent(childPart);
             }
-        } else if (childParts is error) {
+        } else {
             log:printError("Error retrieving child parts! " +
                             string.convert(childParts.detail().message));
         }
@@ -114,7 +116,7 @@ function handleContent(mime:Entity bodyPart) {
         if (payload is xml) {
             string strValue = io:sprintf("%s", payload);
             log:printInfo("Xml data: " + strValue);
-        } else if (payload is error) {
+        } else {
             log:printError("Error in parsing xml data", err = payload);
         }
 
@@ -123,7 +125,7 @@ function handleContent(mime:Entity bodyPart) {
         var payload = bodyPart.getJson();
         if (payload is json) {
             log:printInfo("Json data: " + payload.toString());
-        } else if (payload is error) {
+        } else {
             log:printError("Error in parsing json data", err = payload);
         }
 
@@ -132,7 +134,7 @@ function handleContent(mime:Entity bodyPart) {
         var payload = bodyPart.getText();
         if (payload is string) {
             log:printInfo("Text data: " + payload);
-        } else if (payload is error) {
+        } else {
             log:printError("Error in parsing text data", err = payload);
         }
 
@@ -144,11 +146,12 @@ function handleContent(mime:Entity bodyPart) {
                                     io:openWritableFile("ReceivedFile.pdf");
             var result = copy(payload, destinationChannel);
             if (result is error) {
-                log:printError("error occurred while performing copy ", err = result);
+                log:printError("error occurred while performing copy ",
+                                err = result);
             }
             close(payload);
             close(destinationChannel);
-        } else if (payload is error) {
+        } else {
             log:printError("Error in parsing byte channel :", err = payload);
         }
     }
@@ -159,15 +162,15 @@ function getBaseType(string contentType) returns string {
     var result = mime:getMediaType(contentType);
     if (result is mime:MediaType) {
         return result.getBaseType();
-    } else if (result is error) {
+    } else {
         panic result;
     }
-    return "";
 }
 
 
 // Copies the content from the source channel to the destination channel.
-function copy(io:ReadableByteChannel src, io:WritableByteChannel dst) returns error? {
+function copy(io:ReadableByteChannel src, io:WritableByteChannel dst)
+                returns error? {
     int readCount = 1;
     byte[] readContent;
     while (readCount > 0) {

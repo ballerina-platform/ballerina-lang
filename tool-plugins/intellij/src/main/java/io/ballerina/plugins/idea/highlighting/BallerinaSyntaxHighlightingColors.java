@@ -58,7 +58,7 @@ public class BallerinaSyntaxHighlightingColors {
     public static final TextAttributesKey GLOBAL_VARIABLE = createTextAttributesKey("BALLERINA_GLOBAL_VARIABLE",
             DefaultLanguageHighlighterColors.INSTANCE_FIELD);
     public static final TextAttributesKey RECORD_KEY = createTextAttributesKey("BALLERINA_RECORD_KEY", STATIC_FIELD);
-    public static final TextAttributesKey DEFAULT = createTextAttributesKey("BALLERINA_GLOBAL_VARIABLE",
+    public static final TextAttributesKey DEFAULT = createTextAttributesKey("BALLERINA_DEFAULT",
             DefaultLanguageHighlighterColors.OPERATION_SIGN);
     public static final TextAttributesKey RESERVED_WORD = createTextAttributesKey("BALLERINA_DATA_TYPE",
             FUNCTION_DECLARATION);

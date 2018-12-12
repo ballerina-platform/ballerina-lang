@@ -1,50 +1,27 @@
 import ballerina/io;
 
-type Person record {
-    string name;
-    Address? address;
-};
-
-type Address record {
-    string street;
-    string city;
-};
-
-function getAddress(Person p) returns (Address|error) {
-    // If the address does not exist, return an error.
-    // For type-guard to work, only simple variable references should be used. therefore, `p.address` is assigned to a
-    // variable.
-    Address? addr = p.address;
-    if (addr is Address) {
-        return addr;
-    } else {
-        error addNotFoundErr = error("address not found");
-        return addNotFoundErr;
-    }
+// `parse()` takes a string argument and attempts to convert it to an int.
+function parse(string num) returns int|error {
+    return int.convert(num);
 }
 
-function validateAddress(Person person) returns (boolean|error) {
-    // The `getAddress(person)!city` expression produces a value which is union type of `string|error`.
-    // The `check` operation validates the above expression and if it evaluates to a string, the check expression produces a string.
-    // If the expression evaluates to an error, the `check` operation immediately exits the enclosing function with that error.
-    // The enclosing function's return type has `error` as an alternative.
-    string city = check getAddress(person)!city;
-    // If the check fails, this line will not be printed.
-    io:println(person.name, " has a valid city");
-    return true;
+function scale(string num) returns int|error {
+    // The `check` unary operator can be used to lift errors.
+    // In this instance, check is used to lift the (potential) error
+    // returned by the `parse()` function. If the actual value returned
+    // by the function is an error, the function immediately returns
+    // with the error. If `check` is used within a function, the return type
+    // of the function must include `error` in its return signature.
+    int x = check parse(num);
+    return x * 10;
 }
 
 public function main() {
-    Person bob = { name: "bob", address: () };
-    Address address = { street: "1st Avenue", city: "Manhattan" };
-    bob.address = address;
+    // Passing a valid integer as a `string` will return an `int`.
+    int|error x = parse("12");
+    io:println(x);
 
-    io:println("validating bob...");
-    var bobResult1 = validateAddress(bob);
-    io:println("Bob's result:", bobResult1);
-
-    Person tom = { name: "tom", address: () };
-    io:println("\n", "validating tom...");
-    var tomResult1 = validateAddress(tom);
-    io:println("Tom's result:", tomResult1);
+    // Passing a random `string` will return an `error`.
+    int|error y = parse("invalid");
+    io:println(y);
 }

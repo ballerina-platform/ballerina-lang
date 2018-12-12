@@ -20,6 +20,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.command.LSCommandExecutor;
 import org.ballerinalang.langserver.command.LSCommandExecutorException;
+import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
@@ -27,22 +28,17 @@ import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
-import java.net.URI;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 import static org.ballerinalang.langserver.command.CommandUtil.applySingleTextEdit;
-import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
 
 /**
  * Command executor for importing a package.
@@ -74,23 +70,11 @@ public class ImportModuleExecutor implements LSCommandExecutor {
 
         WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
         if (documentUri != null && context.get(ExecuteCommandKeys.PKG_NAME_KEY) != null) {
-            Path filePath = Paths.get(URI.create(documentUri));
-            Path compilationPath = getUntitledFilePath(filePath.toString()).orElse(filePath);
-            String fileContent;
-            try {
-                fileContent = documentManager.getFileContent(compilationPath);
-            } catch (WorkspaceDocumentException e) {
-                throw new LSCommandExecutorException("Error executing command Import module: " + e.getMessage());
-            }
-            String[] contentComponents = fileContent.split(CommonUtil.LINE_SEPARATOR_SPLIT);
-            int totalLines = contentComponents.length;
-            int lastNewLineCharIndex = Math.max(fileContent.lastIndexOf('\n'), fileContent.lastIndexOf('\r'));
-            int lastCharCol = fileContent.substring(lastNewLineCharIndex + 1).length();
             LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
-            BLangPackage bLangPackage = null;
+            BLangPackage bLangPackage;
             try {
-                bLangPackage = lsCompiler.getBLangPackage(context, documentManager, false,
-                                                          LSCustomErrorStrategy.class, false);
+                bLangPackage = lsCompiler.getBLangPackage(context, documentManager, false, 
+                        LSCustomErrorStrategy.class, false);
             } catch (LSCompilerException e) {
                 throw new LSCommandExecutorException("Couldn't compile the source", e);
             }
@@ -98,35 +82,21 @@ public class ImportModuleExecutor implements LSCommandExecutor {
             String relativeSourcePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
             BLangPackage srcOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativeSourcePath, bLangPackage);
             String pkgName = context.get(ExecuteCommandKeys.PKG_NAME_KEY);
-            DiagnosticPos pos = null;
 
             // Filter the imports except the runtime import
             List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(srcOwnerPkg, context);
 
+            Position start = new Position(0, 0);
             if (!imports.isEmpty()) {
-                BLangImportPackage lastImport = CommonUtil.getLastItem(imports);
-                pos = lastImport.getPosition();
+                BLangImportPackage last = CommonUtil.getLastItem(imports);
+                start = new Position(last.getPosition().getEndLine(), 0);
             }
+            Range range = new Range(start, start);
 
-            int endCol = pos == null ? -1 : pos.getEndColumn() - 1;
-            int endLine = pos == null ? 0 : pos.getEndLine() - 1;
+            String importStatement = ItemResolverConstants.IMPORT + " " + pkgName
+                    + UtilSymbolKeys.SEMI_COLON_SYMBOL_KEY + CommonUtil.LINE_SEPARATOR;
 
-            String remainingTextToReplace;
-
-            if (endCol != -1) {
-                int contentLengthToReplaceStart = fileContent.substring(0,
-                        fileContent.indexOf(contentComponents[endLine])).length() + endCol + 1;
-                remainingTextToReplace = fileContent.substring(contentLengthToReplaceStart);
-            } else {
-                remainingTextToReplace = fileContent;
-            }
-
-            String editText = (pos != null ? CommonUtil.LINE_SEPARATOR : "") + "import " + pkgName + ";"
-                    + (remainingTextToReplace.startsWith("\n") || remainingTextToReplace.startsWith("\r")
-                    ? "" : CommonUtil.LINE_SEPARATOR) + remainingTextToReplace;
-            Range range = new Range(new Position(endLine, endCol + 1), new Position(totalLines + 1, lastCharCol));
-
-            return applySingleTextEdit(editText, range, textDocumentIdentifier,
+            return applySingleTextEdit(importStatement, range, textDocumentIdentifier,
                     context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());
         }
 

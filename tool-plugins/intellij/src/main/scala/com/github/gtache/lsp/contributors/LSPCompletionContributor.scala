@@ -4,6 +4,7 @@ import com.github.gtache.lsp.editor.EditorEventManager
 import com.github.gtache.lsp.utils.DocumentUtils
 import com.intellij.codeInsight.completion.{CompletionContributor, CompletionParameters, CompletionResultSet}
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.psi.PsiElement
 
 /**
   * The completion contributor for the LSP
@@ -20,5 +21,10 @@ class LSPCompletionContributor extends CompletionContributor {
 
     result.addAllElements(toAdd)
     super.fillCompletionVariants(parameters, result)
+  }
+
+  // Ballerina Specific trigger characters.
+  override def invokeAutoPopup(position: PsiElement, typeChar: Char): Boolean = {
+    (typeChar == ':') || (typeChar == '@') || (typeChar == '.') || (typeChar == '.') || (typeChar == '>') || (typeChar=='/')
   }
 }

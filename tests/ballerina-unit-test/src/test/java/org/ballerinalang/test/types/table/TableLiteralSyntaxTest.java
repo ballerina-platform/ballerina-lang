@@ -22,7 +22,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -94,8 +94,8 @@ public class TableLiteralSyntaxTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
     }
 
-    @Test(expectedExceptions = BallerinaException.class,
-          expectedExceptionsMessageRegExp = ".*Unique index or primary key violation:.*", groups = "broken")
+    @Test(expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*Unique index or primary key violation:.*")
     public void testTableAddOnConstrainedTableWithViolation() {
         BRunUtil.invoke(result, "testTableAddOnConstrainedTableWithViolation");
     }

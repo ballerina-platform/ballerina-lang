@@ -19,7 +19,7 @@ function testFunc() {
     // Invoking the main function
     main();
     test:assertEquals(outputs[1], ());
-    test:assertEquals(io:sprintf("%s", outputs[0]),
-        "{name:\"\", age:0, addr:{line01:\"61 brandon street\", line02:\"\", city:\"Santa Clara\", state:\"CA\", zipcode:\"95134\"}, guardian:null}"
+    test:assertEquals(io:sprintf("%s", outputs[2]),
+        "{line01:\"No. 61\", line02:\"Brandon street\", city:\"Santa Clara\", state:\"CA\", zipcode:\"95134\"}"
     );
 }

@@ -38,7 +38,7 @@ import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.definition.util.DefinitionUtil;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.formatting.FormattingSourceGen;
-//import org.ballerinalang.langserver.formatting.FormattingVisitorEntry;
+import org.ballerinalang.langserver.formatting.FormattingVisitorEntry;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
 import org.ballerinalang.langserver.index.LSIndexImpl;
 import org.ballerinalang.langserver.references.util.ReferenceUtil;
@@ -86,6 +86,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -231,8 +232,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 BLangPackage bLangPackage = lsCompiler.getBLangPackage(signatureContext, documentManager, false,
                                                                         LSCustomErrorStrategy.class, false);
                 signatureContext.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
-                signatureContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
-                                     bLangPackage.symbol.getName().getValue());
+                signatureContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, 
+                        bLangPackage.packageID.getName().getValue());
                 SignatureTreeVisitor signatureTreeVisitor = new SignatureTreeVisitor(signatureContext);
                 bLangPackage.accept(signatureTreeVisitor);
                 signatureHelp = SignatureHelpUtil.getFunctionSignatureHelp(signatureContext);
@@ -397,10 +398,16 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 // Add create test commands
                 String innerDirName = LSCompilerUtil.getCurrentModulePath(document.getPath())
                         .relativize(document.getPath())
-                        .toString().split(File.separator)[0];
+                        .toString().split(Pattern.quote(File.separator))[0];
+                String moduleName = document.getSourceRootPath()
+                        .relativize(LSCompilerUtil.getCurrentModulePath(document.getPath())).toString();
                 if (topLevelNodeType != null && diagnostics.isEmpty() && document.hasProjectRepo() &&
-                        !TEST_DIR_NAME.equals(innerDirName)) {
-                    commands.addAll(CommandUtil.getTestGenerationCommand(topLevelNodeType, fileUri, params));
+                        !TEST_DIR_NAME.equals(innerDirName) && !moduleName.isEmpty() &&
+                        !moduleName.endsWith(ProjectDirConstants.BLANG_SOURCE_EXT)) {
+                    // Test generation suggested only when;
+                    //     - no code diagnosis exists, inside a bal project, inside a module, not inside /tests folder
+                    commands.addAll(CommandUtil.getTestGenerationCommand(topLevelNodeType, fileUri, params,
+                                                                         documentManager, lsCompiler));
                 }
 
                 // Add commands base on node diagnostics
@@ -440,7 +447,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
     @Override
     public CompletableFuture<List<? extends TextEdit>> formatting(DocumentFormattingParams params) {
         return CompletableFuture.supplyAsync(() -> {
-            String textEditContent = null;
+            String textEditContent;
             TextEdit textEdit = new TextEdit();
 
             String fileUri = params.getTextDocument().getUri();
@@ -452,14 +459,15 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 formatContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
 
                 // Build the given ast.
-                JsonObject ast = TextDocumentFormatUtil.getAST(fileUri, lsCompiler, documentManager, formatContext);
+                JsonObject ast = TextDocumentFormatUtil.getAST(formattingFilePath, lsCompiler, documentManager,
+                        formatContext);
                 FormattingSourceGen.build(ast.getAsJsonObject("model"), "CompilationUnit");
 
                 // Format the given ast.
-                // FormattingVisitorEntry formattingUtil = new FormattingVisitorEntry();
-                // formattingUtil.accept(ast.getAsJsonObject("model"));
+                FormattingVisitorEntry formattingUtil = new FormattingVisitorEntry();
+                formattingUtil.accept(ast.getAsJsonObject("model"));
 
-                // Generate source for the ast.
+                //Generate source for the ast.
                 textEditContent = FormattingSourceGen.getSourceOf(ast.getAsJsonObject("model"));
                 Matcher matcher = Pattern.compile("\r\n|\r|\n").matcher(textEditContent);
                 int totalLines = 0;

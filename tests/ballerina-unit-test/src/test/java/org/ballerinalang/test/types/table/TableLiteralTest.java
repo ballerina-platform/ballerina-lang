@@ -27,7 +27,7 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BXML;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -322,8 +322,8 @@ public class TableLiteralTest {
 
     @Test(priority = 1,
           description = "Test struct with any typed field",
-          expectedExceptions = { BallerinaException.class },
-          expectedExceptionsMessageRegExp = ".*Unsupported column type for table : any.*", groups = "broken")
+          expectedExceptions = { BLangRuntimeException.class },
+          expectedExceptionsMessageRegExp = ".*Unsupported column type for table : any.*")
     public void testTableWithAnyDataToJson() {
         BRunUtil.invoke(result, "testTableWithAnyDataToJson");
     }

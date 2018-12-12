@@ -38,15 +38,15 @@ export class DiagramConfig {
             v: 30
         },
         padding: {
-            bottom: 0,
+            bottom: 20,
             left: 0,
             right: 200,
-            top: 0,
+            top: 20,
         },
     };
 
     public panelHeading = {
-        height: 60,
+        height: 30,
         padding: {
             bottom: 0,
             left: 0,
@@ -55,7 +55,7 @@ export class DiagramConfig {
         },
         title: {
             margin: {
-                left: 25
+                left: 20
             }
         }
     };
@@ -63,6 +63,11 @@ export class DiagramConfig {
     public panelGroup = {
         header: {
             height: STATEMENT_HEIGHT * 2,
+        },
+        title: {
+            margin: {
+                left: 25
+            }
         }
     };
 
@@ -83,10 +88,27 @@ export class DiagramConfig {
         width: 120,
     };
 
+    public condition = {
+        caseLabel: {
+            height: 19,
+            margin: {
+                bottom: 5,
+                left: 5,
+                right: 5,
+                top: 5,
+            },
+            padding: {
+                left: 4,
+                right: 4,
+            }
+        }
+    };
+
     public flowCtrl = {
         bottomMargin: STATEMENT_HEIGHT / 2,
         condition: {
-            height: STATEMENT_HEIGHT * 3
+            bottomMargin: 20,
+            height: STATEMENT_HEIGHT * 3,
         },
         foreach: {
             height: STATEMENT_HEIGHT * 2 + 10,
@@ -96,6 +118,24 @@ export class DiagramConfig {
         leftMarginDefault: 60,
         rightMargin: STATEMENT_HEIGHT,
         whileGap: STATEMENT_HEIGHT,
+    };
+
+    public block = {
+        bottomMargin: STATEMENT_HEIGHT,
+        hoverRect: {
+            leftMargin: 30
+        },
+        menuTriggerMargin: 12
+    };
+
+    public frame = {
+        header: {
+            height: STATEMENT_HEIGHT,
+            width: 70
+        },
+        leftMarginDefault: 60,
+        rightMargin: STATEMENT_HEIGHT,
+        topMargin: 5,
     };
 }
 

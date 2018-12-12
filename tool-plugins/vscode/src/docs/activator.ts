@@ -91,17 +91,24 @@ function showDocs(context: ExtensionContext, langClient: ExtendedLangClient): vo
 	}
 	activeEditor = editor;
 
-	const html = render(context);
+	const html = render(context, langClient);
+	
 	if (previewPanel && html) {
 		previewPanel.webview.html = html;
 	}
 
-	langClient.getAST(editor.document.uri)
+	const disposeLoaded = previewPanel.webview.onDidReceiveMessage((e) => {
+		if (e.message !== "loaded-doc-preview") {
+			return;
+		}
+		disposeLoaded.dispose();
+		langClient.getAST(editor.document.uri)
 		.then((resp) => {
 			if (resp.ast) {
 				updateWebView(resp.ast, editor.document.uri);
 			}
 		});
+	});
 
 	previewPanel.onDidDispose(() => {
 		previewPanel = undefined;

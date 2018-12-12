@@ -30,6 +30,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.BuiltInUtils;
+import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 
 import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
@@ -60,7 +61,8 @@ public class ToXML extends BlockingNativeCallableUnit {
             // Accessing Parameters
             BValue json = ctx.getNullableRefArgument(0);
             if (json == null) {
-                error = BuiltInUtils.createConversionError(ctx, "cannot convert null json to xml");
+                error = BuiltInUtils.createConversionError(ctx, "cannot convert null json to xml",
+                                                           BallerinaErrorReasons.JSON_CONVERSION_ERROR);
                 ctx.setReturnValues(error);
                 return;
             }
@@ -72,7 +74,8 @@ public class ToXML extends BlockingNativeCallableUnit {
             xml = JSONUtils.convertToXML(json, attributePrefix, arrayEntryTag);
             ctx.setReturnValues(xml);
         } catch (Exception e) {
-            error = BuiltInUtils.createConversionError(ctx, "failed to convert json to xml: " + e.getMessage());
+            error = BuiltInUtils.createConversionError(ctx, "failed to convert json to xml: " + e.getMessage(),
+                                                       BallerinaErrorReasons.JSON_CONVERSION_ERROR);
             ctx.setReturnValues(error);
         }
     }

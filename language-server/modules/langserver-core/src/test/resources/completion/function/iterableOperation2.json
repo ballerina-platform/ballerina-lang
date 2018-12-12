@@ -10,7 +10,7 @@
       "kind":"Function",
       "detail":"Function",
       "sortText":"121",
-      "insertText":"foreach((float v) \u003d\u003e {\n\t${1}\n});",
+      "insertText":"foreach(function(float value) {\n\t${1}\n});",
       "insertTextFormat":"Snippet"
     },
     {
@@ -18,7 +18,7 @@
       "kind":"Function",
       "detail":"Function",
       "sortText":"121",
-      "insertText":"map((float v) \u003d\u003e (any) {\n\t${1}\n});",
+      "insertText":"map(function(float value) returns (any) {\n\t${1}\n});",
       "insertTextFormat":"Snippet"
     },
     {
@@ -26,7 +26,7 @@
       "kind":"Function",
       "detail":"Function",
       "sortText":"121",
-      "insertText":"filter((float v) \u003d\u003e (boolean) {\n\t${1}\n});",
+      "insertText":"filter(function(float value) returns (boolean) {\n\t${1}\n});",
       "insertTextFormat":"Snippet"
     },
     {
@@ -110,11 +110,11 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"create(anydata a)",
+      "label":"convert(anydata a)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"121",
-      "insertText":"create(${1});",
+      "insertText":"convert(${1});",
       "insertTextFormat":"Snippet"
     }
   ]

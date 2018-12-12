@@ -127,7 +127,7 @@ function testTupleConversionFail() returns (T1, T2) | error {
     return result;
 }
 
-function testArrayToJsonFail() returns json {
+function testArrayToJsonFail() returns json|error {
     TX[] x = [];
     TX a = {};
     TX b = {};
@@ -135,10 +135,10 @@ function testArrayToJsonFail() returns json {
     b.x = 15;
     x[0] = a;
     x[1] = b;
-    var result = json.convert(x);
-    if (result is json) {
-        return result;
-    } else {
-        panic result;
-    }
+    return json.convert(x);
+}
+
+function testIncompatibleImplicitConversion() returns int|error {
+    json operationReq = { "toInt": "abjd" };
+    return int.convert(operationReq.toInt);
 }

@@ -1,0 +1,202 @@
+{
+  "ws": [
+    {
+      "ws": " ",
+      "i": 150,
+      "text": "=",
+      "static": true
+    },
+    {
+      "ws": "",
+      "i": 155,
+      "text": ";",
+      "static": true
+    }
+  ],
+  "position": {
+    "startColumn": 5,
+    "startLine": 24,
+    "endColumn": 38,
+    "endLine": 24
+  },
+  "id": "c1bc2005-6db4-4b4d-aec7-f604aaa5b5e5",
+  "variable": {
+    "ws": [
+      {
+        "ws": " ",
+        "i": 150,
+        "text": "=",
+        "static": true
+      },
+      {
+        "ws": "",
+        "i": 155,
+        "text": ";",
+        "static": true
+      }
+    ],
+    "position": {
+      "startColumn": 5,
+      "startLine": 24,
+      "endColumn": 38,
+      "endLine": 24
+    },
+    "id": "99a1f6d2-624c-4abd-a775-00f8debf53e5",
+    "symbolType": [
+      "object"
+    ],
+    "name": {
+      "id": "1bf39fb8-1fb0-4d25-8e45-3684f517d183",
+      "literal": false,
+      "value": "endpointName",
+      "kind": "Identifier",
+      "valueWithBar": "endpointName"
+    },
+    "typeNode": {
+      "ws": [
+        {
+          "ws": "\n    ",
+          "i": 144,
+          "text": "http",
+          "static": false
+        },
+        {
+          "ws": "",
+          "i": 145,
+          "text": ":",
+          "static": true
+        },
+        {
+          "ws": "",
+          "i": 146,
+          "text": "Client",
+          "static": false
+        }
+      ],
+      "position": {
+        "startColumn": 5,
+        "startLine": 24,
+        "endColumn": 16,
+        "endLine": 24
+      },
+      "id": "0e97b2d2-d3a1-4871-80cc-57d0a9f461ff",
+      "symbolType": [
+        "object"
+      ],
+      "packageAlias": {
+        "id": "283aaac4-7fe7-4918-a21d-7baaeac6ce40",
+        "literal": false,
+        "value": "http",
+        "kind": "Identifier",
+        "valueWithBar": "http"
+      },
+      "grouped": false,
+      "public": false,
+      "private": false,
+      "remote": false,
+      "native": false,
+      "final": false,
+      "attached": false,
+      "lambda": false,
+      "worker": false,
+      "parallel": false,
+      "listener": false,
+      "deprecated": false,
+      "readonly": false,
+      "function_final": false,
+      "interface": false,
+      "required": false,
+      "record": false,
+      "compensate": false,
+      "abstract": false,
+      "optional": false,
+      "testable": false,
+      "client": false,
+      "resource": false,
+      "service": false,
+      "constant": false,
+      "typeName": {
+        "id": "64281677-9d03-4460-92b9-33627a416c47",
+        "literal": false,
+        "value": "Client",
+        "kind": "Identifier",
+        "valueWithBar": "Client"
+      },
+      "nullable": false,
+      "kind": "UserDefinedType"
+    },
+    "deprecatedAttachments": [],
+    "annotationAttachments": [],
+    "initialExpression": {
+      "ws": [
+        {
+          "ws": " ",
+          "i": 148,
+          "text": "endpointName",
+          "static": false
+        },
+        {
+          "ws": " ",
+          "i": 152,
+          "text": "new",
+          "static": true
+        },
+        {
+          "ws": "",
+          "i": 153,
+          "text": "(",
+          "static": true
+        },
+        {
+          "ws": "",
+          "i": 154,
+          "text": ")",
+          "static": true
+        }
+      ],
+      "position": {
+        "startColumn": 32,
+        "startLine": 24,
+        "endColumn": 37,
+        "endLine": 24
+      },
+      "id": "77dde7bd-e1b5-485d-a991-987a3a3b7950",
+      "symbolType": [
+        "object"
+      ],
+      "expressions": [],
+      "kind": "TypeInitExpr",
+      "noExpressionAvailable": true,
+      "hasParantheses": true,
+      "noTypeAttached": true,
+      "isExpression": true
+    },
+    "kind": "Variable",
+    "public": false,
+    "private": false,
+    "remote": false,
+    "native": false,
+    "final": false,
+    "attached": false,
+    "lambda": false,
+    "worker": false,
+    "parallel": false,
+    "listener": false,
+    "deprecated": false,
+    "readonly": false,
+    "function_final": false,
+    "interface": false,
+    "required": false,
+    "record": false,
+    "compensate": false,
+    "abstract": false,
+    "optional": false,
+    "testable": false,
+    "client": false,
+    "resource": false,
+    "service": false,
+    "constant": false,
+    "endWithSemicolon": true
+  },
+  "kind": "VariableDef"
+}

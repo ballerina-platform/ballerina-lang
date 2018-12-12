@@ -1,18 +1,17 @@
 import ballerina/io;
 
-function transactionTest() {
-    transaction with retries = 1, oncommit = onCommitFunction, onabort = onAbortFunction {
+function initiateNestedTransactionInRemote(string nestingMethod) returns string {
+   http:Client remoteEp = new("http://localhost:8889");
+    string s = "";
+    transaction {
         string testString = "Hello World!!";
         testString.contains(
     } onretry {
-        io:println("Within On-Retry");
+        s += " onretry";
+    } committed {
+        s += " committed";
+    } aborted {
+        s += " aborted";
     }
-}
-
-function onCommitFunction(string transactionId) {
-    io:println("Transaction: " + transactionId + " committed");
-}
-
-function onAbortFunction(string transactionId) {
-    io:println("Transaction: " + transactionId + " aborted");
+    return s;
 }
