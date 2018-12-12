@@ -36,10 +36,10 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * This class processes streams models which comes after the selector processor.
@@ -113,9 +113,8 @@ public class StreamsPostSelectDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
-        for (int i = 0; i < bracedOrTupleExpr.expressions.size(); i++) {
-            bracedOrTupleExpr.expressions.set(i, (BLangExpression) rewrite(bracedOrTupleExpr.expressions.get(i)));
-        }
+        IntStream.range(0, bracedOrTupleExpr.expressions.size()).forEach(i -> bracedOrTupleExpr.expressions
+                .set(i, (BLangExpression) rewrite(bracedOrTupleExpr.expressions.get(i))));
         result = bracedOrTupleExpr;
     }
 
@@ -144,11 +143,10 @@ public class StreamsPostSelectDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangInvocation invocationExpr) {
         if (invocationExpr.requiredArgs.size() > 0) {
-            List<BLangExpression> refactoredArgExprs = new ArrayList<>();
+            List<BLangExpression> refactoredArgExprs;
             List<BLangExpression> functionArgsList = invocationExpr.requiredArgs;
-            for (BLangExpression arg : functionArgsList) {
-                refactoredArgExprs.add((BLangExpression) rewrite(arg));
-            }
+            refactoredArgExprs = functionArgsList.stream().map(arg -> (BLangExpression) rewrite(arg))
+                    .collect(Collectors.toList());
             invocationExpr.argExprs = refactoredArgExprs;
             invocationExpr.requiredArgs = refactoredArgExprs;
         }
