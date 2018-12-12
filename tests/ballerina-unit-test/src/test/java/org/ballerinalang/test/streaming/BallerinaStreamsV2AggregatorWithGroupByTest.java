@@ -42,7 +42,6 @@ public class BallerinaStreamsV2AggregatorWithGroupByTest {
 
     @BeforeClass
     public void setup() {
-        System.setProperty("enable.siddhiRuntime", "false");
         result = BCompileUtil.compile("test-src/streaming/streamingv2-aggregate-with-groupby-test.bal");
         resultWithAlias = BCompileUtil.
                 compile("test-src/streaming/alias/streamingv2-aggregate-with-groupby-test.bal");
@@ -55,7 +54,6 @@ public class BallerinaStreamsV2AggregatorWithGroupByTest {
     @Test(description = "Test filter streaming query")
     public void testSelectQuery() {
         BValue[] outputTeacherEvents = BRunUtil.invoke(result, "startAggregationWithGroupByQuery");
-        System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputTeacherEvents);
         Assert.assertEquals(outputTeacherEvents.length, 4, "Expected events are not received");
 
@@ -84,7 +82,6 @@ public class BallerinaStreamsV2AggregatorWithGroupByTest {
     @Test(description = "Test filter streaming query with stream alias")
     public void testSelectQueryWithAlias() {
         BValue[] outputTeacherEvents = BRunUtil.invoke(resultWithAlias, "startAggregationWithGroupByQuery");
-        System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputTeacherEvents);
         Assert.assertEquals(outputTeacherEvents.length, 4, "Expected events are not received");
 
@@ -114,7 +111,6 @@ public class BallerinaStreamsV2AggregatorWithGroupByTest {
     public void testSelectQueryWithMultipleGroupByAttributes() {
         BValue[] outputTeacherEvents = BRunUtil.invoke(resultWithMultipleAttributes,
                                                        "startGroupByQueryWithMultipleAttributes");
-        System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputTeacherEvents);
         Assert.assertEquals(outputTeacherEvents.length, 4, "Expected events are not received");
 
@@ -139,7 +135,6 @@ public class BallerinaStreamsV2AggregatorWithGroupByTest {
     @Test(description = "Test group by streaming query with functions")
     public void testSelectQueryWithGroupByFunction() {
         BValue[] outputTeacherEvents = BRunUtil.invoke(resultWithGroupByFunctions, "startGroupByQueryWithFunc");
-        System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputTeacherEvents);
         Assert.assertEquals(outputTeacherEvents.length, 4, "Expected events are not received");
 

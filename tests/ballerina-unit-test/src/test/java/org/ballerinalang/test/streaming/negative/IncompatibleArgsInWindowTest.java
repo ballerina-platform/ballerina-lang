@@ -39,7 +39,6 @@ public class IncompatibleArgsInWindowTest {
 
     @BeforeClass
     public void setup() {
-        System.setProperty("enable.siddhiRuntime", "false");
         incompatibleArgsResult =
                 BCompileUtil.compile("test-src/streaming/negative/incompatible-args-in-window-negative-test.bal");
         notFoundResult =
@@ -53,12 +52,10 @@ public class IncompatibleArgsInWindowTest {
           expectedExceptionsMessageRegExp = ".*Time window expects an int parameter.*")
     public void testArgTypes() {
         BRunUtil.invoke(incompatibleArgsResult, "startTimeWindowTest");
-        System.setProperty("enable.siddhiRuntime", "true");
     }
 
     @Test(description = "Checks whether the window function exists or not")
     public void testForWindowFunction() {
-        System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertEquals(notFoundResult.getErrorCount(), 1);
         BAssertUtil.validateError(notFoundResult, 0,
                                   "undefined function 'nonExistingWindow'",
@@ -67,7 +64,6 @@ public class IncompatibleArgsInWindowTest {
 
     @Test(description = "Checks whether the window function returns 'streams:Window' object")
     public void testWindowFunctionReturnType() {
-        System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertEquals(windowReturnResult.getErrorCount(), 1);
         BAssertUtil.validateError(windowReturnResult, 0,
                                   "incompatible types: expected 'streams:Window', found 'Teacher'",

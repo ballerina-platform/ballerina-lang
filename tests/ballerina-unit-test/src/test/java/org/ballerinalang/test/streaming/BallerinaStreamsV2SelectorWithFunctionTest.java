@@ -46,7 +46,6 @@ public class BallerinaStreamsV2SelectorWithFunctionTest {
 
     @BeforeClass
     public void setup() {
-        System.setProperty("enable.siddhiRuntime", "false");
         result = BCompileUtil.compile("test-src/streaming/streamingv2-select-with-function-test.bal");
         resultForFunctionArgs = BCompileUtil.
                 compile("test-src/streaming/streamingv2-select-with-function-args-test.bal");
@@ -67,7 +66,6 @@ public class BallerinaStreamsV2SelectorWithFunctionTest {
     @Test(description = "Test selector streaming query with function")
     public void testSelectQuery() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startSelectQuery");
-        System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputEmployeeEvents);
 
         Assert.assertEquals(outputEmployeeEvents.length, 3, "Expected events are not received");
@@ -87,7 +85,6 @@ public class BallerinaStreamsV2SelectorWithFunctionTest {
     @Test(description = "Test queries which have functions in select clause")
     public void testSelectQueryWithFunctionArgs() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(resultForFunctionArgs, "startSelectQuery");
-        System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputEmployeeEvents);
 
         Assert.assertEquals(outputEmployeeEvents.length, 3, "Expected events are not received");
@@ -107,7 +104,6 @@ public class BallerinaStreamsV2SelectorWithFunctionTest {
     @Test(description = "Test queries which have functions with args in select clause")
     public void testSelectQueryWithFunctionArgs2() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(resultForFunctionArgs2, "startSelectQuery");
-        System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputEmployeeEvents);
 
         Assert.assertEquals(outputEmployeeEvents.length, 3, "Expected events are not received");
@@ -127,7 +123,6 @@ public class BallerinaStreamsV2SelectorWithFunctionTest {
     @Test(description = "Test queries which have functions with multiple args in select clause")
     public void testSelectQueryWithFunctionArgs3() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(resultForFunctionArgs3, "startSelectQuery");
-        System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputEmployeeEvents);
 
         Assert.assertEquals(outputEmployeeEvents.length, 3, "Expected events are not received");
@@ -147,7 +142,6 @@ public class BallerinaStreamsV2SelectorWithFunctionTest {
     @Test(description = "Test selector streaming query with function with stream alias")
     public void testSelectQueryWithAlias() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(resultWithAlias, "startSelectQuery");
-        System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputEmployeeEvents);
 
         Assert.assertEquals(outputEmployeeEvents.length, 3, "Expected events are not received");
@@ -167,7 +161,6 @@ public class BallerinaStreamsV2SelectorWithFunctionTest {
     @Test(description = "Test queries which have functions in select clause with stream alias")
     public void testSelectQueryWithFunctionArgsWithAlias() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(resultForFunctionArgsWithAlias, "startSelectQuery");
-        System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputEmployeeEvents);
 
         Assert.assertEquals(outputEmployeeEvents.length, 3, "Expected events are not received");
@@ -187,7 +180,6 @@ public class BallerinaStreamsV2SelectorWithFunctionTest {
     @Test(description = "Test queries which have functions with args in select clause with stream alias")
     public void testSelectQueryWithFunctionArgs2WithAlias() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(resultForFunctionArgs2WithAlias, "startSelectQuery");
-        System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputEmployeeEvents);
 
         Assert.assertEquals(outputEmployeeEvents.length, 3, "Expected events are not received");
@@ -207,7 +199,6 @@ public class BallerinaStreamsV2SelectorWithFunctionTest {
     @Test(description = "Test queries which have functions with multiple args in select clause with stream alias")
     public void testSelectQueryWithFunctionArgs3WithAlias() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(resultForFunctionArgs3WithAlias, "startSelectQuery");
-        System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputEmployeeEvents);
 
         Assert.assertEquals(outputEmployeeEvents.length, 3, "Expected events are not received");

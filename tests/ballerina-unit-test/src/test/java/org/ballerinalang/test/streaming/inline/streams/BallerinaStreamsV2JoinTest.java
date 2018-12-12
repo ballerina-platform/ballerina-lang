@@ -40,7 +40,6 @@ public class BallerinaStreamsV2JoinTest {
 
     @BeforeClass
     public void setup() {
-        System.setProperty("enable.siddhiRuntime", "false");
         result = BCompileUtil.compile("test-src/streaming/inline.streams/streamingv2-join-test.bal");
         resultWithAlias = BCompileUtil.
                 compile("test-src/streaming/inline.streams/alias/streamingv2-join-test.bal");
@@ -50,7 +49,6 @@ public class BallerinaStreamsV2JoinTest {
 
     @Test(description = "Test stream join query.")
     public void testStreamJoinQuery() {
-        System.setProperty("enable.siddhiRuntime", "true");
         BValue[] stocksWithPrices = BRunUtil.invoke(result, "startJoinQuery");
         Assert.assertNotNull(stocksWithPrices);
         Assert.assertEquals(stocksWithPrices.length, 2, "Expected events are not received");
@@ -67,7 +65,6 @@ public class BallerinaStreamsV2JoinTest {
 
     @Test(description = "Test stream join query with stream alias.")
     public void testStreamJoinQueryWithAlias() {
-        System.setProperty("enable.siddhiRuntime", "true");
         BValue[] stocksWithPrices = BRunUtil.invoke(resultWithAlias, "startJoinQuery");
         Assert.assertNotNull(stocksWithPrices);
         Assert.assertEquals(stocksWithPrices.length, 2, "Expected events are not received");
@@ -84,7 +81,6 @@ public class BallerinaStreamsV2JoinTest {
 
     @Test(description = "Test stream join query without on condition.")
     public void testStreamJoinQueryWithoutOnCondition() {
-        System.setProperty("enable.siddhiRuntime", "true");
         BValue[] stocksWithPrices = BRunUtil.invoke(resultWithoutOnCondition, "startJoinQuery");
         Assert.assertNotNull(stocksWithPrices);
         Assert.assertEquals(stocksWithPrices.length, 3, "Expected events are not received");

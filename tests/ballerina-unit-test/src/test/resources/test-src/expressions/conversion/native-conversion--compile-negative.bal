@@ -73,14 +73,6 @@ function testStructToJsonConstrained1() returns json|error {
     return j;
 }
 
-function testStructToJsonConstrained2() returns json|error {
-    Person2 p = {   name:"Child",
-                    age:25
-                };
-    json<Person2> j = json<Person2>.convert(p);
-    return j;
-}
-
 function testStructToJsonConstrainedNegative() returns json {
     Person2 p = {   name:"Child",
                     age:25
