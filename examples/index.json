@@ -928,6 +928,10 @@
                 "url": "join-multiple-streams"
             },
             {
+                "name": "Join Tables and Streams",
+                "url": "join-tables-and-streams"
+            },
+            {
                 "name": "Temporal Aggregations",
                 "url": "temporal-aggregations-and-windows"
             },
