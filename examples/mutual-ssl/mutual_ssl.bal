@@ -78,10 +78,10 @@ public function main() {
         var payload = resp.getTextPayload();
         if (payload is string) {
             log:printInfo(payload);
-        } else if (payload is error) {
+        } else {
             log:printError(<string> payload.detail().message);
         }
-    } else if (resp is error) {
+    } else {
         log:printError(<string> resp.detail().message);
     }
 }

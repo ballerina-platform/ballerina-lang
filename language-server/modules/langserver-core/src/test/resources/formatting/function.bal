@@ -1,3 +1,5 @@
+import ballerina/io;
+
 function name1(){float c = 0;}
 
 function name2(int a,string b){
@@ -8,9 +10,10 @@ function name3(){}
 
 function name4(   string s,float i) {}
 
-@Description {value: "test annotation"}function name5() {}
+# test annotation
+function name5() {}
 
-function main(   string... args){}
+public function main(   string... args){}
 
 function name6(int a,string... i){}
 

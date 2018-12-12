@@ -9,12 +9,11 @@ export function render(context: ExtensionContext, langClient: ExtendedLangClient
     const bodyCss = "documentation";
     const styles = ``;
     const script = `
-            let astJson;
             const el = document.getElementById("ballerina-documentation");
             window.addEventListener('message', event => {
                 switch (event.data.command) {
                     case 'update':
-                        astJson = event.data.json;
+                        const astJson = event.data.json;
                         if (window.ballerinaComposer) {
                             ballerinaComposer.renderDocPreview(astJson, el);
                         }
@@ -23,9 +22,7 @@ export function render(context: ExtensionContext, langClient: ExtendedLangClient
             });
 
             function loadedScript() {
-                if(astJson) {
-                    ballerinaComposer.renderDocPreview(astJson, el);
-                }
+                vscode.postMessage({message: "loaded-doc-preview"});
             }
         `;
 

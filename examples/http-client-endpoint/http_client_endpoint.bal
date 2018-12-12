@@ -15,10 +15,10 @@ public function main() {
         var msg = response.getJsonPayload();
         if (msg is json) {
             io:println(msg);
-        } else if (msg is error) {
+        } else {
             log:printError(<string>msg.detail().message, err = msg);
         }
-    } else if (response is error) {
+    } else {
         log:printError(<string>response.detail().message, err = response);
     }
 
@@ -31,10 +31,10 @@ public function main() {
         var msg = response.getJsonPayload();
         if (msg is json) {
             io:println(msg);
-        } else if (msg is error) {
+        } else {
             log:printError(<string>msg.detail().message, err = msg);
         }
-    } else if (response is error) {
+    } else {
         log:printError(<string>response.detail().message, err = response);
     }
 
@@ -45,10 +45,10 @@ public function main() {
         var msg = response.getJsonPayload();
         if (msg is json) {
             io:println(msg);
-        } else if (msg is error) {
+        } else {
             log:printError(<string>msg.detail().message, err = msg);
         }
-    } else if (response is error) {
+    } else {
         log:printError(<string>response.detail().message, err = response);
     }
 
@@ -68,7 +68,7 @@ public function main() {
         int statusCode = response.statusCode;
         log:printInfo("Status code: " + statusCode);
 
-    } else if (response is error) {
+    } else {
         log:printError(<string>response.detail().message, err = response);
     }
 }

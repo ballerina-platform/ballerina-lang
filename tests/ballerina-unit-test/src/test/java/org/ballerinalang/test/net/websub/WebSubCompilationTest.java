@@ -34,7 +34,7 @@ public class WebSubCompilationTest {
 
     @Test(description = "Verify compilation error count")
     public void testErrorDiagLength() {
-        Assert.assertEquals(negativeCompilationResult.getDiagnostics().length, 12);
+        Assert.assertEquals(negativeCompilationResult.getDiagnostics().length, 13);
     }
 
     @Test(description = "Test specifying > 1 SubscriberServiceConfig annotations")
@@ -102,5 +102,10 @@ public class WebSubCompilationTest {
         BAssertUtil.validateError(negativeCompilationResult, 11,
                                   "invalid param count for WebSub Resource 'onNotification', expected: 1 found: 2",
                                   123, 5);
+    }
+
+    @Test(description = "Test invalid resource return type")
+    public void testInvalidResourceReturnType() {
+        BAssertUtil.validateError(negativeCompilationResult, 12, "invalid return type: expected error?", 135, 5);
     }
 }

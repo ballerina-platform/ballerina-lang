@@ -54,7 +54,7 @@ public function main() {
         foreach var rec in tblResult {
             io:println(rec);
         }
-    } else if (tblResult is error) {
+    } else {
         log:printError("An error occurred while creating table: ",
                         err = tblResult);
     }

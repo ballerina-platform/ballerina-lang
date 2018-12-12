@@ -40,6 +40,24 @@
             }
             
             .panel {
+                .match{
+                    line{
+                        stroke: ~"@{@{color}-diagram-panel-header-text-color}";
+                        stroke-width: 1px;
+                    }
+                    text {
+                        fill: ~"@{@{color}-diagram-panel-header-text-color}";
+                    }
+                    polygon{
+                        stroke: ~"@{@{color}-diagram-panel-header-text-color}";
+                        stroke-width: 1px;
+                    }
+                }
+                .frame-border {
+                    fill: none;
+                    stroke-width: 1px;
+                    stroke: ~"@{@{color}-diagram-panel-header-text-color}";
+                }
                 .statement {
                     pointer-events: all;
                 }
@@ -123,6 +141,9 @@
                         }
                     }
                     .condition {
+                        .condition-case {
+                            font-style: italic;
+                        }
                         .condition-case-background {
                             fill: ~"@{@{color}-diagram-condition-case-background-color}";
                         }
@@ -141,7 +162,7 @@
                         stroke-width: @diagram-condition-line-stroke-width;
                     }
                     .condition-block {
-                        .arrow-head {
+                        .condition-arrow-head {
                             fill: ~"@{@{color}-diagram-condition-line-worker-arrow-head-color}";
                         }
                     }
@@ -179,6 +200,7 @@
                         fill: ~"@{@{color}-diagram-menu-item-background-color}";
 
                         text {
+                            cursor: pointer;
                             fill: ~"@{@{color}-diagram-menu-item-text-color}";
                         }
                         &:hover {

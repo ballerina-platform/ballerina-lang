@@ -18,23 +18,28 @@
 
 import React from 'react';
 import Documentation from './Documentation';
+import { ASTUtil } from '@ballerina/ast-model'
 
 export default class DocPreview extends React.Component {
     getDocumentationDetails(node) {
+        const { markdownDocumentationAttachment: mdDoc } = node;
+
         let parameters = {};
+        let returnParameter;
+        let description;
+        let kind = node.kind;
+        let valueType = '';
+
         if(this[`_get${node.kind}Parameters`]) {
             parameters = this[`_get${node.kind}Parameters`](node);
         }
 
-        let returnParameter;
         if (node.returnTypeNode) {
             returnParameter = {
-                type: node.returnTypeNode.typeKind,
+                type: ASTUtil.genSource(node.returnTypeNode),
             };
         }
 
-        const { markdownDocumentationAttachment: mdDoc } = node;
-        let description;
         if (mdDoc) {
             description = mdDoc.documentation;
             mdDoc.parameters.map((param) => {
@@ -47,13 +52,23 @@ export default class DocPreview extends React.Component {
             }
         }
 
-        let kind = node.kind;
         if (node.typeNode) {
-            kind = node.typeNode.kind;
+            const nodeType = node.typeNode;
+            
+            kind = nodeType.kind;
+            
+            if(kind == "ValueType") {
+                valueType = nodeType.typeKind;
+            }
+
+            if(kind == 'UserDefinedType' && nodeType.packageAlias){
+                valueType = nodeType.packageAlias.value;
+            }
         }
 
         const documentationDetails = {
             kind: kind,
+            valueType: valueType,
             title: node.name.value,
             description,
             parameters,
@@ -66,15 +81,19 @@ export default class DocPreview extends React.Component {
     _getFunctionParameters(node) {
         const parameters = {};
         node.parameters.forEach(param => {
+            if(!(param.name && param.name.value)) {
+                return;
+            }
+
             parameters[param.name.value] = {
                 name: param.name.value,
-                type: param.typeNode.typeKind,
+                type: ASTUtil.genSource(param.typeNode),
             };
         });
         node.defaultableParameters.forEach(param => {
             parameters[param.variable.name.value] = {
                 name: param.variable.name.value,
-                type: param.variable.typeNode.typeKind,
+                type: ASTUtil.genSource(param.variable.typeNode),
                 defaultValue: param.variable.initialExpression.value,
             };
         });
@@ -82,7 +101,7 @@ export default class DocPreview extends React.Component {
         if(node.restParameters) {
             parameters[node.restParameters.name.value] = {
                 name: node.restParameters.name.value,
-                type: `${node.restParameters.typeNode.elementType.typeKind}...`,
+                type: `${ASTUtil.genSource(node.restParameters.typeNode)}...`,
             }
         }
 
@@ -94,7 +113,7 @@ export default class DocPreview extends React.Component {
         node.typeNode.fields.forEach(field => {
             parameters[field.name.value] = {
                 name: field.name.value,
-                type: field.typeNode.typeKind,
+                type: ASTUtil.genSource(field.typeNode),
                 defaultValue: field.initialExpression ? field.initialExpression.value: "",
             };
         });
@@ -122,8 +141,9 @@ export default class DocPreview extends React.Component {
                 docElements.push(
                     <Documentation docDetails={docDetails} />
                 );
-            } catch {
+            } catch (e) {
                 console.log(`error when getting doc details for ${node.id}`);
+                console.error(e);
             }
         });
         return docElements;

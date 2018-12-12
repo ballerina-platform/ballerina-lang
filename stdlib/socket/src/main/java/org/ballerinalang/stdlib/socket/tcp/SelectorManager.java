@@ -224,6 +224,7 @@ public class SelectorManager {
                 if (log.isDebugEnabled()) {
                     log.debug("Stopping the selector loop.");
                 }
+                selector.wakeup();
                 executing = false;
                 running = false;
                 selector.close();

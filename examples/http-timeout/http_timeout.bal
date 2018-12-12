@@ -35,7 +35,7 @@ service timeoutService on new http:Listener(9090) {
             if (responseToCaller is error) {
                 log:printError("Error sending response", err = responseToCaller);
             }
-        } else if (backendResponse is error) {
+        } else {
             http:Response response = new;
             response.statusCode = http:INTERNAL_SERVER_ERROR_500;
             string errorMessage = <string> backendResponse.detail().message;

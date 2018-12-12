@@ -84,4 +84,19 @@ public class WorkerFlushTest {
                 "error: error3 {\"message\":\"msg3\"}\n" + "\tat $lambda$12(flush-workers.bal:184)";
         Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
     }
+
+    @Test
+    public void flushInDefaultError() {
+
+        BValue[] returns = BRunUtil.invoke(result, "flushInDefaultError");
+        Assert.assertTrue(returns[0] instanceof BError);
+        Assert.assertEquals(((BError) returns[0]).reason, "err");
+    }
+
+    @Test
+    public void flushInDefault() {
+
+        BValue[] returns = BRunUtil.invoke(result, "flushInDefault");
+        Assert.assertEquals(returns[0].stringValue(), "25");
+    }
 }
