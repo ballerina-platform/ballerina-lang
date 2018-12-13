@@ -276,14 +276,14 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
     @Override
     public FormattingModel createModel(PsiElement element, CodeStyleSettings settings) {
 
-        if(!grammarViolated(element.getNode())) {
+        if (!isGrammarViolated(element.getNode())) {
             BallerinaBlock rootBlock = new BallerinaBlock(element.getNode(), null, Indent.getNoneIndent(), null,
                     settings, createSpaceBuilder(settings), new HashMap<>());
             return FormattingModelProvider
                     .createFormattingModelForPsiFile(element.getContainingFile(), rootBlock, settings);
-        // If the plugin grammar tree is not generated correctly for the file, code reformat should not work
+        // If the plugin grammar tree is not generated correctly for the file, code reformat should not work.
         } else {
-            AbstractBlock rootBlock = new AbstractBlock(element.getNode(),null,null) {
+            AbstractBlock rootBlock = new AbstractBlock(element.getNode(), null, null) {
                 @Nullable
                 @Override
                 public Spacing getSpacing(@Nullable Block child1, @NotNull Block child2) {
@@ -306,17 +306,17 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
     }
 
     // Checks whether the PSI tree for the file is properly generated.
-    private static boolean grammarViolated(ASTNode rootNode) {
+    private static boolean isGrammarViolated(ASTNode rootNode) {
         IElementType firstChildType = getFirstChild(rootNode);
         //Todo: Add more conditions
         return firstChildType != BallerinaTypes.DEFINITION && firstChildType != BallerinaTypes.IMPORT_DECLARATION
-                && firstChildType!= BallerinaTypes.NAMESPACE_DECLARATION;
+                && firstChildType != BallerinaTypes.NAMESPACE_DECLARATION;
     }
 
     @NotNull
     private static IElementType getFirstChild(ASTNode parent) {
         ASTNode child = parent.getFirstChildNode();
-        while(child.getElementType() == BallerinaTypes.LINE_COMMENT
+        while (child.getElementType() == BallerinaTypes.LINE_COMMENT
                 || child.getElementType() == TokenType.WHITE_SPACE) {
             child = child.getTreeNext();
         }
