@@ -953,7 +953,7 @@ parameterDescription ::= documentationText?
 returnParameterDescription ::= documentationText?
 
 //TODO:Finalize the order of the expression
-documentationText ::= (MARKDOWN_DOCUMENTATION_TEXT | REFERENCE_TYPE | DOCUMENTATION_ESCAPED_CHARACTERS | documentationReference | backtickedBlock | DEFINITION_REFERENCE)+
+documentationText ::= (MARKDOWN_DOCUMENTATION_TEXT | REFERENCE_TYPE | DOCUMENTATION_ESCAPED_CHARACTERS | documentationReference | backtickedBlock)+
 
 documentationReference ::= documentationDefinitionReference
 
