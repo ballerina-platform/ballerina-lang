@@ -115,7 +115,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         this.serviceListenerMap = new HashMap<>();
 
         ServiceLoader<CompilerPlugin> pluginLoader = ServiceLoader.load(CompilerPlugin.class);
-        pluginLoader.forEach(this::initPlugin);
+        pluginLoader.forEach(plugin -> pluginList.add(plugin));
     }
 
     public BLangPackage runPlugins(BLangPackage pkgNode) {
