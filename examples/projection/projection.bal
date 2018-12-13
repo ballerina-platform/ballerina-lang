@@ -20,7 +20,7 @@ type Message record {
 
 int index = 0;
 
-// Streams which are based on above-created constraint types.
+// These are streams that are based on the constraint types created above.
 stream<Person> personStream = new;
 stream<Message> childrenMessageStream = new;
 
