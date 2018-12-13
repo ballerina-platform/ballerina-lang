@@ -1,4 +1,4 @@
-//Projection involves  selecting only some of the attributes from the input
+// Projection involves selecting only some of the attributes from the input
 // stream to be inserted into an output stream, renaming the attributes, add
 // constant values to the output stream and perform logical or mathematical operations.
 // In this example, events related to person being monitored and there will be a
