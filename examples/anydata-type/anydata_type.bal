@@ -11,13 +11,14 @@ public function main() {
     anydata a = 5;
     io:println(a);
 
-    // First, the variable of type `anydata` needs to be asserted to be of the required type (`int` in this example)
-    int|error intVal = trap <int>a;
-    if (intVal is int) {
-        io:println(intVal + 10);
-    } else {
-        // Runtime value is cast to correct type since Ballerina runtime can infer the correct type to error.
-        io:println("Error occurred: " + intVal.reason());
+    // Before using the value of `a` in arithmetic operations, we need to
+    // ascertain that it is indeed an `int`. To this end, a type assertion or
+    // a type guard can be used.
+    int intVal = <int>a;
+    io:println(intVal + 10);
+
+    if (a is int) {
+        io:println(a + 20);
     }
 
     // A variable of type `anydata` can hold any value of an `anydata` compatible type.
