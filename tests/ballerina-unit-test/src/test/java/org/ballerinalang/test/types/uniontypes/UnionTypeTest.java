@@ -114,10 +114,10 @@ public class UnionTypeTest {
         BAssertUtil.validateError(negativeResult, i++, "ambiguous type 'ClosedBar|OpenBar'", 48, 28);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 51, 31);
         BAssertUtil.validateError(negativeResult, i++, "type 'string' is duplicated in the union type", 54, 1);
-        BAssertUtil.validateError(negativeResult, i++, "type 'string' is duplicated in the union type", 56, 8);
-        BAssertUtil.validateError(negativeResult, i++, "type 'int' is duplicated in the union type", 58, 39);
-        BAssertUtil.validateError(negativeResult, i++, "type 'A|B' is duplicated in the union type", 64, 4);
-        BAssertUtil.validateError(negativeResult, i++, "type 'int' is duplicated in the union type", 66, 43);
-        BAssertUtil.validateError(negativeResult, i++, "type 'A|B' is duplicated in the union type", 66, 43);
+        BAssertUtil.validateError(negativeResult, i++, "type 'string' is duplicated in the union type", 56, 1);
+        BAssertUtil.validateError(negativeResult, i++, "type 'int' is duplicated in the union type", 58, 35);
+        BAssertUtil.validateError(negativeResult, i++, "type 'A|B' is duplicated in the union type", 64, 1);
+        BAssertUtil.validateError(negativeResult, i++, "type 'int' is duplicated in the union type", 66, 36);
+        BAssertUtil.validateError(negativeResult, i++, "type 'A|B' is duplicated in the union type", 66, 36);
     }
 }
