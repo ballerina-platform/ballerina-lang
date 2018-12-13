@@ -22,11 +22,10 @@ import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BIntArray;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -76,7 +75,7 @@ public class SealedArraysOfArraysTest {
     @Test
     public void testIntegerSealedArraysOfArrays() {
 
-        BIntArray arrayValue = new BIntArray(2);
+        BValueArray arrayValue = new BValueArray(BTypes.typeInt, 2);
         arrayValue.add(0, 10);
         arrayValue.add(1, 12);
         BValue[] args = {arrayValue};
@@ -92,7 +91,7 @@ public class SealedArraysOfArraysTest {
     @Test
     public void testStringSealedArraysOfArrays() {
 
-        BStringArray arrayValue = new BStringArray(2);
+        BValueArray arrayValue = new BValueArray(BTypes.typeString, 2);
         arrayValue.add(0, "ballerina");
         arrayValue.add(1, "multidimensional");
         BValue[] args = {arrayValue};
@@ -100,9 +99,9 @@ public class SealedArraysOfArraysTest {
         BValue[] returnValues = BRunUtil.invoke(compileResult, "twoDArrayStringAssignment", args);
         Assert.assertFalse(
                 returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(((BString) returnValues[0]).stringValue(), "val1", "Value didn't match");
-        Assert.assertEquals(((BString) returnValues[1]).stringValue(), "ballerina", "Value didn't match");
-        Assert.assertEquals(((BString) returnValues[2]).stringValue(), "val1", "Value didn't match");
+        Assert.assertEquals((returnValues[0]).stringValue(), "val1", "Value didn't match");
+        Assert.assertEquals((returnValues[1]).stringValue(), "ballerina", "Value didn't match");
+        Assert.assertEquals((returnValues[2]).stringValue(), "val1", "Value didn't match");
     }
 
     @Test

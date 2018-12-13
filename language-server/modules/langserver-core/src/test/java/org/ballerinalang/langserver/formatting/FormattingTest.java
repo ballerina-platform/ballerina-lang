@@ -96,15 +96,12 @@ public class FormattingTest {
                 {"expectedFunctionType.bal", "functionType.bal"},
                 {"expectedWhile.bal", "while.bal"},
                 {"expectedIf.bal", "if.bal"},
-                {"expectedTryCatch.bal", "tryCatch.bal"},
                 {"expectedBinaryExpr.bal", "binaryExpr.bal"},
                 {"expectedArrayLiteralExpr.bal", "arrayLiteralExpr.bal"},
-                {"expectedDone.bal", "done.bal"},
                 {"expectedForeach.bal", "foreach.bal"},
                 {"expectedConstrainedType.bal", "constrainedType.bal"},
                 {"expectedBreak.bal", "break.bal"},
                 {"expectedMatchStmt.bal", "matchStmt.bal"},
-                {"expectedMatchExpr.bal", "matchExpr.bal"},
                 {"expectedAbort.bal", "abort.bal"},
                 {"expectedTransaction.bal", "transaction.bal"},
                 {"expectedContinue.bal", "continue.bal"},
@@ -113,6 +110,9 @@ public class FormattingTest {
                 {"expectedCompilationUnitMultiEOF.bal", "compilationUnitMultiEOF.bal"},
                 {"expectedAnnotation.bal", "annotation.bal"},
                 {"expectedArrowExpr.bal", "arrowExpr.bal"},
+                {"expectedAsyncExpr.bal", "asyncExpr.bal"},
+                {"expectedBindingPatterns.bal", "bindingPatterns.bal"},
+//                {"expectedImportOrder.bal", "importOrder.bal"},
         };
     }
 

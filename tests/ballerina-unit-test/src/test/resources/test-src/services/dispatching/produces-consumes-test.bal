@@ -1,17 +1,15 @@
 import ballerina/http;
 
-endpoint http:NonListener testEP {
-    port: 9090
-};
+listener http:MockListener testEP = new(9090);
 
-service<http:Service> echo66 bind testEP {
+service echo66 on testEP {
     @http:ResourceConfig {
         methods: ["POST"],
         path: "/test1",
         consumes: ["application/xml"]
     }
-    echo1(endpoint conn, http:Request req) {
-        _ = conn->respond({ "msg": "wso2" });
+    resource function echo1(http:Caller caller, http:Request req) {
+        _ = caller->respond({ "msg": "wso2" });
     }
 
     @http:ResourceConfig {
@@ -19,8 +17,8 @@ service<http:Service> echo66 bind testEP {
         path: "/test2",
         produces: ["text/xml", "application/xml "]
     }
-    echo2(endpoint conn, http:Request req) {
-        _ = conn->respond({ "msg": "wso22" });
+    resource function echo2(http:Caller caller, http:Request req) {
+        _ = caller->respond({ "msg": "wso22" });
     }
 
     @http:ResourceConfig {
@@ -29,8 +27,8 @@ service<http:Service> echo66 bind testEP {
         consumes: ["application/xhtml+xml", "text/plain", "text/json"],
         produces: ["text/css", "application/json"]
     }
-    echo3(endpoint conn, http:Request req) {
-        _ = conn->respond({ "msg": "wso222" });
+    resource function echo3(http:Caller caller, http:Request req) {
+        _ = caller->respond({ "msg": "wso222" });
     }
 
     @http:ResourceConfig {
@@ -39,13 +37,13 @@ service<http:Service> echo66 bind testEP {
         consumes: ["appliCation/XML"],
         produces: ["Application/JsON"]
     }
-    echo4(endpoint conn, http:Request req) {
-        _ = conn->respond({ "msg": "wso222" });
+    resource function echo4(http:Caller caller, http:Request req) {
+        _ = caller->respond({ "msg": "wso222" });
     }
 }
 
-service<http:Service> echo67 bind testEP {
-    echo1(endpoint conn, http:Request req) {
-        _ = conn->respond({ "echo33": "echo1" });
+service echo67 on testEP {
+    resource function echo1(http:Caller caller, http:Request req) {
+        _ = caller->respond({ "echo33": "echo1" });
     }
 }

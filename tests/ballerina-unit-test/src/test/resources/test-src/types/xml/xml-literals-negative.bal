@@ -12,7 +12,7 @@ function xmlUndeclaredElementPrefix() returns (xml) {
 }
 
 function xmlTemplateWithNonXML() {
-    map m ;
+    map<any> m = {};
     xml x = xml `<root xmlns="http://default/namespace">{{m}}</root>`;
 }
 
@@ -45,7 +45,7 @@ function testRedeclareNamespaces() {
 
 function testXMlAttributesMapInvalidUsage() {
     var x1 = xml `<root foo1="bar1" foo2="bar2"/>`;
-    map m1 = x1@;
+    map<any> m1 = x1@;
 }
 
 function foo() {
@@ -53,7 +53,7 @@ function foo() {
 }
 
 function getAttributesFromNonXml() {
-    map m ;
+    map<any> m = {};
     string s = m@["foo"];
 }
 
@@ -68,7 +68,7 @@ function updateQname() {
 }
 
 function undefinedNamespace() {
-    xml x;
+    xml x = xml `<root/>`;
     if (true) {
         xmlns "http://wso2.com/" as ns0;
     }

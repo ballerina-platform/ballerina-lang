@@ -1,25 +1,28 @@
 import ballerina/io;
 
-public function main (string... args) {
+public function main (string... args) returns error? {
     string filePath = args[0];
     string chars = args[0];
 
-    int intArg = check <int> args[0];
+    var intArg = int.convert(args[0]);
+    if (intArg is int) {
+        io:ReadableByteChannel rbh = io:openReadableFile(filePath);
+        io:ReadableCharacterChannel rch = new io:ReadableCharacterChannel(rbh, "UTF-8");
 
-    io:ReadableByteChannel rbh = io:openReadableFile(filePath);
-    io:ReadableCharacterChannel rch = new io:ReadableCharacterChannel(rbh, "UTF-8");
+        io:WritableByteChannel wbh = io:openWritableFile(filePath);
+        io:WritableCharacterChannel wch = new io:WritableCharacterChannel(wbh, "UTF-8");
 
-    io:WritableByteChannel wbh = io:openWritableFile(filePath);
-    io:WritableCharacterChannel wch = new io:WritableCharacterChannel(wbh, "UTF-8");
-
-    var writeOutput = wch.write(chars, 0);
-    var readOutput = rch.read(intArg);
-    match readOutput {
-        string text => {
-            testFunction(text, text);
+        var writeOutput = wch.write(chars, 0);
+        var readOutput = rch.read(intArg);
+        if (readOutput is string) {
+            testFunction(readOutput, readOutput);
+        } else {
+            panic readOutput;
         }
-        error ioError => return;
+    } else {
+        panic intArg;
     }
+    return ();
 }
 
 public function testFunction (@sensitive string sensitiveValue, string anyValue) {

@@ -28,9 +28,9 @@ Within this `documentation` syntax, you can write your documentation in markdown
 
 ```
 documentation {
-   Provides the HTTP actions for interacting with an HTTP server. Apart from the standard
+   Provides the HTTP remote functions for interacting with an HTTP server. Apart from the standard
    HTTP methods, `forward()` and `execute()` functions are provided. More complex and
-   specific endpoint types can be created by wrapping this generic ```HTTP``` actions
+   specific endpoint types can be created by wrapping this generic ```HTTP``` remote functions
    implementation.
    ...
 }

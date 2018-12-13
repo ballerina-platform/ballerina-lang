@@ -32,13 +32,20 @@ public class StructEquivalencyNegativeTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/structs/struct-equivalency-01-negative.bal");
 
         BAssertUtil.validateError(compileResult, 0,
-                "incompatible types: expected 'person01', found 'person01|error'", 17, 18);
+                                  "incompatible types: 'employee01' cannot be converted to 'person01'", 17, 18);
         BAssertUtil.validateError(compileResult, 1,
-                "incompatible types: expected 'person02', found 'person02|error'", 36, 18);
+                                  "function invocation on type 'typedesc' is not supported", 17, 18);
         BAssertUtil.validateError(compileResult, 2,
-                "incompatible types: expected 'person03', found 'person03|error'", 54, 18);
+                                  "incompatible types: 'employee02' cannot be converted to 'person02'", 36, 18);
         BAssertUtil.validateError(compileResult, 3,
-                "incompatible types: expected 'person06', found 'person06|error'", 76, 18);
+                                  "function invocation on type 'typedesc' is not supported", 36, 18);
+        BAssertUtil.validateError(compileResult, 4,
+                                  "incompatible types: expected 'person03', found 'person03|error'", 54, 18);
+        BAssertUtil.validateError(compileResult, 5,
+                                  "incompatible types: 'employee06' cannot be converted to 'person06'", 76, 18);
+        BAssertUtil.validateError(compileResult, 6,
+                                  "function invocation on type 'typedesc' is not supported", 76, 18);
+
     }
 
     @Test(description = "Test equivalence of structs that are in the same package from a third package")
@@ -46,7 +53,8 @@ public class StructEquivalencyNegativeTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/structs/struct-equivalency-02-negative.bal");
 
         BAssertUtil.validateError(compileResult, 0,
-                "incompatible types: expected 'org.foo:user', found 'org.foo:userFoo|error'", 11, 23);
+                                  "incompatible types: 'org.foo.bar:userBar' cannot be converted to 'org.foo:userFoo'", 
+                                  11, 23);
 
     }
 }

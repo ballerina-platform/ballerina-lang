@@ -17,14 +17,15 @@ package org.ballerinalang.langserver.command.executors;
 
 import com.google.gson.internal.LinkedTreeMap;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.command.CommandUtil;
 import org.ballerinalang.langserver.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.command.LSCommandExecutor;
 import org.ballerinalang.langserver.command.LSCommandExecutorException;
+import org.ballerinalang.langserver.command.docs.DocAttachmentInfo;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
+import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
@@ -33,7 +34,7 @@ import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import static org.ballerinalang.langserver.command.CommandUtil.applySingleTextEdit;
-import static org.ballerinalang.langserver.command.CommandUtil.getDocumentationEditForNodeByPosition;
+import static org.ballerinalang.langserver.command.docs.DocumentationGenerator.getDocumentationEditForNodeByPosition;
 
 /**
  * Command executor for adding single documentation.
@@ -42,7 +43,7 @@ import static org.ballerinalang.langserver.command.CommandUtil.getDocumentationE
  */
 @JavaSPIService("org.ballerinalang.langserver.command.LSCommandExecutor")
 public class AddDocumentationExecutor implements LSCommandExecutor {
-    
+
     private static final String COMMAND = "ADD_DOC";
 
     /**
@@ -65,18 +66,22 @@ public class AddDocumentationExecutor implements LSCommandExecutor {
                 line = Integer.parseInt((String) ((LinkedTreeMap) arg).get(ARG_VALUE));
             }
         }
-        LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
-        WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
-        BLangPackage bLangPackage = lsCompiler
-                .getBLangPackage(context, documentManager, false, LSCustomErrorStrategy.class, false)
-                .getRight();
+
+        BLangPackage bLangPackage = null;
+        try {
+            WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
+            LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
+            bLangPackage = lsCompiler.getBLangPackage(context, documentManager, false,
+                                                      LSCustomErrorStrategy.class, false);
+        } catch (LSCompilerException e) {
+            throw new LSCommandExecutorException("Couldn't compile the source", e);
+        }
 
         String relativeSourcePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         context.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
         BLangPackage srcOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativeSourcePath, bLangPackage);
 
-        CommandUtil.DocAttachmentInfo docAttachmentInfo =
-                getDocumentationEditForNodeByPosition(nodeType, srcOwnerPkg, line);
+        DocAttachmentInfo docAttachmentInfo = getDocumentationEditForNodeByPosition(nodeType, srcOwnerPkg, line);
 
         if (docAttachmentInfo == null) {
             return new Object();
@@ -85,7 +90,7 @@ public class AddDocumentationExecutor implements LSCommandExecutor {
         Range range = new Range(docAttachmentInfo.getDocStartPos(), docAttachmentInfo.getDocStartPos());
 
         return applySingleTextEdit(docAttachmentInfo.getDocAttachment(), range, textDocumentIdentifier,
-                context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());
+                                   context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());
     }
 
     /**

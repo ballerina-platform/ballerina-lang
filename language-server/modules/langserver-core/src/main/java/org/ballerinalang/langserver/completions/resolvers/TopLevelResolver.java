@@ -52,9 +52,9 @@ public class TopLevelResolver extends AbstractItemResolver {
         if (this.isAnnotationStart(ctx)) {
             resolver = CompletionItemResolver.get(ParserRuleAnnotationAttachmentResolver.class);
             completionItems.addAll(resolver.resolveItems(ctx));
-        } else if (poppedTokens.size() >= 1 && poppedTokens.get(0).equals(ItemResolverConstants.PUBLIC_KEYWORD)) {
+        } else if (poppedTokens.size() >= 1 && this.isAccessModifierToken(poppedTokens.get(0))) {
             // Provides completions after public keyword
-            completionItems.addAll(addTopLevelItems(ctx));
+            completionItems.addAll(this.addTopLevelItems(ctx));
             completionItems.addAll(this.populateBasicTypes(ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
         } else if (poppedTokens.size() >= 1 && poppedTokens.get(0).equals(ItemResolverConstants.EXTERN_KEYWORD)) {
             // Completion after the extern keyword. Only the signature of function should suggest
@@ -92,12 +92,20 @@ public class TopLevelResolver extends AbstractItemResolver {
         completionItems.add(getStaticItem(Snippet.STMT_NAMESPACE_DECLARATION, snippetCapability));
         completionItems.add(getStaticItem(Snippet.DEF_OBJECT_SNIPPET, snippetCapability));
         completionItems.add(getStaticItem(Snippet.DEF_RECORD, snippetCapability));
-        completionItems.add(getStaticItem(Snippet.DEF_ENDPOINT, snippetCapability));
         completionItems.add(getStaticItem(Snippet.KW_TYPE, snippetCapability));
         completionItems.add(getStaticItem(Snippet.KW_PUBLIC, snippetCapability));
+        completionItems.add(getStaticItem(Snippet.KW_FINAL, snippetCapability));
+        completionItems.add(getStaticItem(Snippet.KW_CONST, snippetCapability));
         completionItems.add(getStaticItem(Snippet.KW_EXTERN, snippetCapability));
         completionItems.add(getStaticItem(Snippet.DEF_ERROR, snippetCapability));
+        completionItems.add(getStaticItem(Snippet.KW_LISTENER, snippetCapability));
         return completionItems;
+    }
+
+    private boolean isAccessModifierToken(String token) {
+        return token.equals(ItemResolverConstants.PUBLIC_KEYWORD)
+                || token.equals(ItemResolverConstants.CONST_KEYWORD)
+                || token.equals(ItemResolverConstants.FINAL_KEYWORD);
     }
 
     private ArrayList<CompletionItem> getGlobalVarDefCompletions(LSServiceOperationContext context,
@@ -106,7 +114,7 @@ public class TopLevelResolver extends AbstractItemResolver {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
         if (poppedTokens.size() < 2) {
-            completionItems.addAll(addTopLevelItems(context));
+            completionItems.addAll(this.addTopLevelItems(context));
             completionItems.addAll(this.populateBasicTypes(context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
         } else if (itemResolver instanceof ParserRuleGlobalVariableDefinitionContextResolver) {
             completionItems.addAll(itemResolver.resolveItems(context));

@@ -16,21 +16,18 @@
  */
 package org.ballerinalang.net.http.compiler;
 
-import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
-import org.ballerinalang.compiler.plugins.SupportEndpointTypes;
+import org.ballerinalang.compiler.plugins.SupportedResourceParamTypes;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ServiceNode;
-import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
-import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
-import org.wso2.ballerinalang.compiler.tree.BLangResource;
-import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.util.AbstractTransportCompilerPlugin;
 
 import java.util.List;
 
 import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_ANNOTATION_CONFIGURATION;
-import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_CLIENT_SERVICE;
+import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_CALLER;
 import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_SERVICE;
 
 /**
@@ -38,12 +35,10 @@ import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_SERVICE;
  *
  * @since 0.965.0
  */
-@SupportEndpointTypes(value = {@SupportEndpointTypes.EndpointType(orgName = "ballerina", packageName = "http",
-                                                                  name = WebSocketConstants.WEBSOCKET_ENDPOINT),
-        @SupportEndpointTypes.EndpointType(orgName = "ballerina", packageName = "http",
-                                           name = WebSocketConstants.WEBSOCKET_CLIENT_ENDPOINT)}
-)
-public class WebSocketServiceCompilerPlugin extends AbstractCompilerPlugin {
+@SupportedResourceParamTypes(
+        expectedListenerType = @SupportedResourceParamTypes.Type(packageName = "http", name = "WebSocketListener"),
+        paramTypes = {@SupportedResourceParamTypes.Type(packageName = "http", name = WEBSOCKET_CALLER)})
+public class WebSocketServiceCompilerPlugin extends AbstractTransportCompilerPlugin {
 
     private DiagnosticLog dlog = null;
 
@@ -55,31 +50,21 @@ public class WebSocketServiceCompilerPlugin extends AbstractCompilerPlugin {
     @SuppressWarnings("unchecked")
     @Override
     public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
-        final UserDefinedTypeNode serviceType = serviceNode.getServiceTypeStruct();
-        if (serviceType != null) {
-            if (WEBSOCKET_SERVICE.equals(serviceType.getTypeName().getValue())) {
-                if (annotations.size() > 1) {
-                    int count = 0;
-                    for (AnnotationAttachmentNode annotation : annotations) {
-                        if (annotation.getAnnotationName().getValue().equals(
-                                WEBSOCKET_ANNOTATION_CONFIGURATION)) {
-                            count++;
-                        }
-                    }
-                    if (count > 1) {
-                        dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
-                                           "There cannot be more than one " + WEBSOCKET_SERVICE + " annotations");
-                    }
+        if (annotations.size() > 1) {
+            int count = 0;
+            for (AnnotationAttachmentNode annotation : annotations) {
+                if (annotation.getAnnotationName().getValue().equals(WEBSOCKET_ANNOTATION_CONFIGURATION)) {
+                    count++;
                 }
-                List<BLangResource> resources = (List<BLangResource>) serviceNode.getResources();
-                resources.forEach(res -> WebSocketResourceValidator
-                        .validate(((BLangService) serviceNode).symbol.getName().value, res, dlog, false));
-            } else if (WEBSOCKET_CLIENT_SERVICE.equals(serviceType.getTypeName().getValue())) {
-                List<BLangResource> resources = (List<BLangResource>) serviceNode.getResources();
-                resources.forEach(res -> WebSocketResourceValidator
-                        .validate(((BLangService) serviceNode).symbol.getName().value, res, dlog, true));
+            }
+            if (count > 1) {
+                dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
+                        "There cannot be more than one " + WEBSOCKET_SERVICE + " annotations");
             }
         }
+        List<BLangFunction> resources = (List<BLangFunction>) serviceNode.getResources();
+        resources.forEach(
+                res -> WebSocketResourceValidator.validate(res, dlog, isResourceReturnsErrorOrNil(res), false));
     }
 }
 

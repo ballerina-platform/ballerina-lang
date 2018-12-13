@@ -1,0 +1,92 @@
+@type    : "view";
+@element : "documentation";
+
+.documentation(@color) {
+    background: ~"@{@{color}-documentation-background-color}";
+    color: ~"@{@{color}-documentation-base-text-color}";
+
+    .documentation-container {
+        padding: 25px 30px;
+
+        .documentation-block {
+            margin-bottom: 45px;
+
+            .title {
+                font-size: @documentation-title-font-size;
+                margin-bottom: 5px;
+        
+                .icon {
+                    margin-right: 3px;
+                }
+        
+                .object-type,
+                .service-type,
+                .value-type {
+                    font-size: 15px;
+                    font-style: italic;
+                    margin-left: 5px;
+                }
+            }
+            .description {
+                font-size: 15px;
+            }
+            .return-details {
+                strong {
+                    font-weight: 600;
+                }
+                .return-description {
+                    font-style: italic;
+                }
+            }
+            .type {
+                color: #569cd6;
+                font-style: italic;
+            }
+            
+            code {
+                background: #E0E1E2;
+                border: none;
+                color: #000;
+                padding: 1px 3px;
+                font-family: monospace, monospace;
+                font-size: 0.9em;
+            }
+            .ui.table tbody .stacked-content {
+                display: none !important;
+            }
+        }
+
+        .__added {
+            animation: added_animate 3s;
+            animation-fill-mode: forwards;
+        }
+        
+        @keyframes added_animate {
+            from {
+                background-color: rgb(225, 225, 50);
+            }
+            to {}
+        }
+    }
+
+    @media only screen and (max-width: 767px) {
+        .ui.table {
+            thead {
+                display: none !important;
+            }
+        }
+        .ui.table tbody td .stacked-content {
+            display: inline-block !important;
+        }
+        .ui.table tbody td>.stacked-content+p {
+            display: inline-block;
+        }
+        .ui.table tbody td .stacked-content .label {
+            margin-right: 5px;
+        }
+    }
+}
+
+body.documentation {
+    .documentation("light");
+}

@@ -31,59 +31,65 @@ import ballerina/log;
 import ballerina/mime;
 
 @http:ServiceConfig {basePath:"/test"}
-service<http:Service> test bind {port:9090} {
+service test on new http:Listener(9090) {
 
    @http:ResourceConfig {
        methods:["POST"],
        path:"/multipleparts"
    }
    // The resource that handles multipart requests.
-   multipartResource(endpoint client, http:Request request) {
+   resource function multipartResource(http:Caller caller, http:Request request) {
        http:Response response = new;
-
-       // Get the body parts from the request.
-       match request.getBodyParts() {
-           // If the body parts were returned, iterate through each body part and handle the content.
-           mime:Entity[] bodyParts => {
-               string content = "";
-               foreach part in bodyParts {
-                    content = content + " -- " + handleContent(part);
-               }
-               response.setPayload(untaint content);
-           }
-           // If there is an error while getting the body parts, set the response code as 500 and 
-           //set the error message as the response message.
-          error err => {
-              response.statusCode = 500;
-              response.setPayload(untaint err.message);
-          }
-       }
-       client -> respond(response) but { error e => log:printError("Error in responding", err = e) };
+       
+        // Get the body parts from the request.
+        var bodyParts = request.getBodyParts();
+        if (bodyParts is mime:Entity[]) {
+            string content = "";
+             // Iterate through each body part and handle the content.
+            foreach var part in bodyParts {
+                content = content + " -- " + handleContent(part);
+            }
+            response.setPayload(untaint content);
+        } else if (bodyParts is error) {
+            // If there is an error while getting the body parts, set the response code as 500 and 
+            //set the error message as the response message.
+            response.statusCode = 500;
+            response.setPayload(untaint bodyParts.reason());
+        }
+          
+        var result = caller->respond(response);
+        if (result is error) {
+            log:printError("Error in responding", err = result);
+        }
    }
 }
 
 // The function that handles the content based on the body part type.
 function handleContent(mime:Entity bodyPart) returns (string) {
-   // Get the base type of the specific body part.
-   string baseType = check mime:getMediaType(bodyPart.getContentType())!getBaseType();
-
-   // If the base type is ‘application/xml’ or ‘text/xml’, get the XML content from body part.
-   if (mime:APPLICATION_XML == baseType || mime:TEXT_XML == baseType) {
-       var payload = bodyPart.getXml();
-       match payload {
-           error err => return err.message;
-           xml xmlContent => return xmlContent.getTextValue();
-       }
-   } else if (mime:APPLICATION_JSON == baseType) {
-       // If the base type is ‘application/json’, get the JSON content from body part.
-       var payload = bodyPart.getJson();
-       match payload {
-           error err => return err.message;
-           json jsonContent => {
-               return jsonContent.toString();
-           }
-       }
-   } 
+   var mediaType = mime:getMediaType(bodyPart.getContentType());
+   if (mediaType is mime:MediaType) {
+        // Get the base type of the specific body part.
+        string baseType = mediaType.getBaseType();
+        // If the base type is ‘application/xml’ or ‘text/xml’, get the XML content from body part.
+        if (mime:APPLICATION_XML == baseType || mime:TEXT_XML == baseType) {
+            var payload = bodyPart.getXml();
+            if (payload is xml) {
+                return payload.getTextValue();
+            } else if (payload is error) {
+                return "Error in parsing xml payload";
+            }
+        } else if (mime:APPLICATION_JSON == baseType) {
+            // If the base type is ‘application/json’, get the JSON content from body part.
+            var payload = bodyPart.getJson();
+            if (payload is json) {
+                return payload.toString();
+            } else if (payload is error) {
+                return "Error in parsing json payload";
+            }
+        }
+   } else if (mediaType is error) {
+        return mediaType.reason();
+   }
    return "";
 }
 ```

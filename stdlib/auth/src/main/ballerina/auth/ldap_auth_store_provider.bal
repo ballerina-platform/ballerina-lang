@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/config;
-import ballerina/crypto;
 import ballerina/runtime;
 
 # Represents configurations that required for LDAP auth store.
@@ -63,7 +61,7 @@ public type LdapAuthProviderConfig record {
     int ldapConnectionTimeout = 5000;
     int readTimeout = 60000;
     int retryAttempts = 0;
-    SecureClientSocket? secureClientSocket;
+    SecureClientSocket? secureClientSocket = ();
     !...
 };
 
@@ -72,8 +70,8 @@ public type LdapAuthProviderConfig record {
 # + trustStore - Configures the trust store to be used
 # + trustedCertFile - A file containing a list of certificates or a single certificate that the client trusts
 public type SecureClientSocket record {
-    TrustStore? trustStore;
-    string trustedCertFile;
+    TrustStore? trustStore = ();
+    string trustedCertFile = "";
     !...
 };
 
@@ -82,8 +80,8 @@ public type SecureClientSocket record {
 # + path - Path to the trust store file
 # + password - Trust store password
 public type TrustStore record {
-    string path;
-    string password;
+    string path = "";
+    string password = "";
     !...
 };
 
@@ -100,7 +98,7 @@ public type LdapAuthStoreProvider object {
     #
     # + ldapAuthProviderConfig -  LDAP auth store configurations
     # + instanceId - Endpoint instance id
-    public new (ldapAuthProviderConfig, instanceId) {
+    public function __init(LdapAuthProviderConfig ldapAuthProviderConfig, string instanceId) {
         self.ldapAuthProviderConfig = ldapAuthProviderConfig;
         self.instanceId = instanceId;
         initLdapConnectionContext(self, instanceId);
@@ -115,7 +113,7 @@ public type LdapAuthStoreProvider object {
         boolean isAuthenticated = self.doAuthenticate(username, password);
         if (isAuthenticated) {
             runtime:UserPrincipal userPrincipal = runtime:getInvocationContext().userPrincipal;
-            userPrincipal.userId = ldapAuthProviderConfig.domainName + ":" + username;
+            userPrincipal.userId = self.ldapAuthProviderConfig.domainName + ":" + username;
             // By default set userId as username.
             userPrincipal.username = username;
         }
@@ -133,7 +131,7 @@ public type LdapAuthStoreProvider object {
 
     # Authenticate with username and password
     #
-    # + user - user name
+    # + username - user name
     # + password - password
     # + return - true if authentication is a success, else false
     public extern function doAuthenticate(string username, string password) returns boolean;

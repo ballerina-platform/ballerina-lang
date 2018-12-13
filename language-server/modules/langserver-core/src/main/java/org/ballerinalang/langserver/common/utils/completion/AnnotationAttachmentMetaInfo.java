@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.langserver.common.utils.completion;
 
+import org.ballerinalang.langserver.AnnotationNodeKind;
+
 import java.util.Queue;
 
 /**
@@ -32,10 +34,10 @@ public class AnnotationAttachmentMetaInfo {
     
     private String packageAlias;
     
-    private String attachmentPoint;
+    private AnnotationNodeKind attachmentPoint;
 
     public AnnotationAttachmentMetaInfo(String attachmentName, Queue<String> fieldQueue, String packageAlias,
-                                        String attachmentPoint) {
+                                        AnnotationNodeKind attachmentPoint) {
         this.attachmentName = attachmentName;
         this.fieldQueue = fieldQueue;
         this.packageAlias = packageAlias;
@@ -54,7 +56,7 @@ public class AnnotationAttachmentMetaInfo {
         return packageAlias;
     }
 
-    public String getAttachmentPoint() {
+    public AnnotationNodeKind getAttachmentPoint() {
         return attachmentPoint;
     }
 }

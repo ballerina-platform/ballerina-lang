@@ -33,8 +33,8 @@ type Teacher record {
 
 Employee[] globalEmployeeArray = [];
 int employeeIndex = 0;
-stream<Employee> employeeStream4;
-stream<Teacher> teacherStream7;
+stream<Employee> employeeStream4 = new;
+stream<Teacher> teacherStream7 = new;
 
 function testFilterQuery() {
 
@@ -46,7 +46,7 @@ function testFilterQuery() {
         select name, age, status
         => (Employee[] emp) {
             io:println("Filterted event received #: "+ i);
-            foreach e in emp {
+            foreach var e in emp {
                 employeeStream4.publish(e);
             }
         }

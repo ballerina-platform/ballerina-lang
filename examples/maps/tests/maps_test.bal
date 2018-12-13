@@ -19,13 +19,13 @@ function testFunc() {
     // Invoking the main function
     main();
 
-    map map1 = { line1: "No. 20", line2: "Palm Grove", city: "Colombo 03", country: "Sri Lanka" };
+    map<any> map1 = { line1: "No. 20", line2: "Palm Grove", city: "Colombo 03", country: "Sri Lanka" };
     string out1 = "Sri Lanka";
     string out2 = "Colombo 03";
-    map map2 = { "line1": "No. 20", "line2": "Palm Grove", "city": "Colombo 03", "country": "Sri Lanka" };
+    map<any> map2 = { "line1": "No. 20", "line2": "Palm Grove", "city": "Colombo 03", "country": "Sri Lanka" };
     string[] map3 = ["line1", "line2", "city", "country", "postalCode"];
     int out3 = 5;
-    map map4 = { "line1": "No. 20", "line2": "Palm Grove", "city": "Colombo 03", "country": "Sri Lanka" };
+    map<any> map4 = { "line1": "No. 20", "line2": "Palm Grove", "city": "Colombo 03", "country": "Sri Lanka" };
     string index = "100892N";
 
     test:assertEquals(outputs[0], map1);

@@ -36,13 +36,13 @@ const IS_WIN = process.platform === 'win32';
 export class BallerinaDebugSession extends LoggingDebugSession {
 
     private _dirPaths: Map<string, string> = new Map();
-    private _threadIndexes: Map<any, number> = new Map()
+    private _threadIndexes: Map<any, number> = new Map();
     private _nextThreadId = 1;
     private _nextFrameId = 1;
     private _nextVariableRefId = 1;
-    private _threads: Map<number, Thread> = new Map()
-    private _frames: Map<number, Frame> = new Map()
-    private _variableRefs: Map<number, VariableRef> = new Map()
+    private _threads: Map<number, Thread> = new Map();
+    private _frames: Map<number, Frame> = new Map();
+    private _variableRefs: Map<number, VariableRef> = new Map();
     private _debugManager: DebugManager = new DebugManager();
     private _sourceRoot: string | undefined;
     private _debugTarget: string | undefined;
@@ -52,6 +52,7 @@ export class BallerinaDebugSession extends LoggingDebugSession {
     private _debugPort: string | undefined;
     private _debugTests: boolean = false;
     private _noDebug: boolean | undefined;
+    private _executableArgs: Array<string> = [];
 
     constructor() {
         super('ballerina-debug.txt');
@@ -88,7 +89,7 @@ export class BallerinaDebugSession extends LoggingDebugSession {
                 });
 
                 this._frames.delete(frameId);
-            })
+            });
 
             threadObj.frameIds = [];
 
@@ -148,6 +149,24 @@ export class BallerinaDebugSession extends LoggingDebugSession {
         const openFile = args.script;
         let cwd: string | undefined = path.dirname(openFile);
         this.setSourceRoot(cwd);
+        const { sourceRoot, ballerinaPackage } = this._getRunningInfo(cwd, path.parse(openFile).root);
+
+        if (ballerinaPackage && sourceRoot) {
+            this._ballerinaPackage = ballerinaPackage;
+            this.setSourceRoot(cwd);
+
+            try {
+                const balConfigString = fs.readFileSync(path.join(<string>sourceRoot, 'Ballerina.toml'));
+                this._projectConfig = toml.parse(balConfigString.toString()).project;
+                this.setSourceRoot(sourceRoot);
+            } catch (e) {
+                console.log(e);
+                // no log file
+            }
+        } else {
+            this.setSourceRoot(cwd);
+        }
+
 
         this._debugManager.connect(`ws://${args.host}:${args.port}/debug`, () => {
             this.sendResponse(response);
@@ -157,11 +176,11 @@ export class BallerinaDebugSession extends LoggingDebugSession {
 
     private _getRunningInfo(currentPath: string, root: string, ballerinaPackage: string | undefined = undefined): RunningInfo {
         if (fs.existsSync(path.join(currentPath, '.ballerina'))) {
-            if (currentPath != os.homedir()) {
+            if (currentPath !== os.homedir()) {
                 return {
                     sourceRoot: currentPath,
                     ballerinaPackage,
-                }
+                };
             }
         }
 
@@ -230,9 +249,17 @@ export class BallerinaDebugSession extends LoggingDebugSession {
             let executableArgs: Array<string> = [this._debugTests ? "test" : "run"];
             executableArgs.push('--debug');
             executableArgs.push(<string>this._debugPort);
+            executableArgs.push('--experimental');
 
             if (Array.isArray(commandOptions) && commandOptions.length) {
                 executableArgs = executableArgs.concat(commandOptions);
+            }
+
+            if (args.networkLogs && args.networkLogsPort > 0) {
+                executableArgs.push('-e');
+                executableArgs.push('b7a.http.tracelog.host=localhost');
+                executableArgs.push('-e');
+                executableArgs.push(`b7a.http.tracelog.port=${args.networkLogsPort}`);
             }
 
             executableArgs.push(<string>this._debugTarget);
@@ -240,6 +267,8 @@ export class BallerinaDebugSession extends LoggingDebugSession {
             if (Array.isArray(scriptArguments) && scriptArguments.length) {
                 executableArgs = executableArgs.concat(scriptArguments);
             }
+
+            this._executableArgs = executableArgs;
 
             let debugServer = this._debugServer = spawn(
                 executable,
@@ -250,7 +279,7 @@ export class BallerinaDebugSession extends LoggingDebugSession {
             debugServer.on('error', (err) => {
                 this.terminate("Could not start the debug server.");
             });
-            
+
             debugServer.stdout.on('data', (data) => {
                 if (`${data}`.indexOf('Ballerina remote debugger is activated on port') > -1) {
                     this._debugManager.connect(`ws://127.0.0.1:${port}/debug`, () => {
@@ -265,9 +294,8 @@ export class BallerinaDebugSession extends LoggingDebugSession {
             debugServer.stderr.on('data', (data) => {
                 if (`${data}`.startsWith("error:")) {
                     this.terminate(`${data}`);
-                } else {
-                    this.sendEvent(new OutputEvent(`${data}`));
                 }
+                this.sendEvent(new OutputEvent(`${data}`));
             });
         });
     }
@@ -364,7 +392,7 @@ export class BallerinaDebugSession extends LoggingDebugSession {
                     value: variable.value,
                     variablesReference: 0
                 })),
-            }
+            };
             this.sendResponse(response);
         }
     }
@@ -414,8 +442,7 @@ export class BallerinaDebugSession extends LoggingDebugSession {
             } else {
                 lookup(
                     {
-                        arguments: ['org.ballerinalang.launcher.Main', this._debugTests ? 'test' : 'run',
-                            '--debug', this._debugPort, this._debugTarget],
+                        arguments: ['org.ballerinalang.launcher.Main', ...this._executableArgs],
                     },
                     (err: Error, resultList: any) => {
                         resultList.forEach((process: ChildProcess) => {

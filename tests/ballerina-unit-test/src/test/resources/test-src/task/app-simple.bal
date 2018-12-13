@@ -1,7 +1,7 @@
 import ballerina/task;
 
-int count;
-task:Appointment? app;
+int count = 0;
+task:Appointment? app = ();
 
 function scheduleAppointment(string cronExpression) {
     (function() returns error?) onTriggerFunction = onTrigger;

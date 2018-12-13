@@ -28,15 +28,12 @@ import org.ballerinalang.langserver.index.dto.BRecordTypeSymbolDTO;
 import org.ballerinalang.langserver.index.dto.OtherTypeSymbolDTO;
 import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.CompletionItem;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -47,8 +44,6 @@ import java.util.List;
  */
 public class DTOUtil {
     
-    private static final String GET_CALLER_ACTIONS = "getCallerActions";
-
     private static final Gson gson = new Gson();
     
     /**
@@ -120,12 +115,14 @@ public class DTOUtil {
         CompletionItem completionItem = BFunctionCompletionItemBuilder.build(bInvokableSymbol);
         boolean isPrivate = !((bInvokableSymbol.flags & Flags.PUBLIC) == Flags.PUBLIC);
         boolean isAttached = (bInvokableSymbol.flags & Flags.ATTACHED) == Flags.ATTACHED;
+        boolean isAction = (bInvokableSymbol.flags & Flags.REMOTE) == Flags.REMOTE;
         return new BFunctionSymbolDTO.BFunctionDTOBuilder()
                 .setPackageId(pkgId)
                 .setObjectId(objectId)
                 .setName(bInvokableSymbol.getName().getValue())
                 .setCompletionItem(completionItem)
                 .setPrivate(isPrivate)
+                .setAction(isAction)
                 .setAttached(isAttached)
                 .build();
     }
@@ -133,22 +130,18 @@ public class DTOUtil {
     /**
      * Get the BObjectTypeSymbolDTO for the Object Type symbol.
      *
-     * @param pkgId                         Package Entry ID
-     * @param symbol                        BObjectTypeSymbol to generate DAO
-     * @param type                              ObjectType
+     * @param pkgId                             Package Entry ID
+     * @param symbol                            BObjectTypeSymbol to generate DAO
      * @return {@link BObjectTypeSymbolDTO}     Generated DTO
      */
-    public static BObjectTypeSymbolDTO getObjectTypeSymbolDTO(int pkgId, BObjectTypeSymbol symbol, ObjectType type) {
-        CompletionItem completionItem = null;
+    public static BObjectTypeSymbolDTO getObjectTypeSymbolDTO(int pkgId, BObjectTypeSymbol symbol) {
         boolean isPrivate = !((symbol.flags & Flags.PUBLIC) == Flags.PUBLIC);
-        if (type == ObjectType.OBJECT) {
-            completionItem = BTypeCompletionItemBuilder.build(symbol, symbol.getName().getValue());
-        }
-        
+        CompletionItem completionItem = BTypeCompletionItemBuilder.build(symbol, symbol.getName().getValue());
+
         return new BObjectTypeSymbolDTO.BObjectTypeSymbolDTOBuilder()
                 .setPackageId(pkgId)
                 .setName(symbol.getName().getValue())
-                .setType(type)
+                .setType(ObjectType.get(symbol))
                 .setPrivate(isPrivate)
                 .setCompletionItem(completionItem)
                 .build();
@@ -206,77 +199,5 @@ public class DTOUtil {
      */
     public static CompletionItem jsonToCompletionItem(String jsonVal) {
         return gson.fromJson(jsonVal, CompletionItem.class);
-    }
-
-    /**
-     * Get the Categorized objects from the provided BObjectTypeSymbol list.
-     * @param objectTypeSymbols             List of ObjectTypeSymbols
-     * @return {@link ObjectCategories}     Categorised ObjectSymbols
-     */
-    public static ObjectCategories getObjectCategories(List<BObjectTypeSymbol> objectTypeSymbols) {
-        ObjectCategories objectCategories = new ObjectCategories();
-
-        for (BObjectTypeSymbol objectTypeSymbol : objectTypeSymbols) {
-            // Filter the getCallerActions function from the objects function list
-            BAttachedFunction callerActionsFunction = objectTypeSymbol.attachedFuncs.stream()
-                    .filter(bAttachedFunction -> GET_CALLER_ACTIONS.equals(bAttachedFunction.funcName.getValue()))
-                    .findAny().orElse(null);
-            if (callerActionsFunction != null) {
-                BType endpointActionsHolderType = callerActionsFunction.type.retType;
-                BObjectTypeSymbol endpointActionHolderSymbol =
-                        filterObjectTypeSymbolByBType(endpointActionsHolderType);
-                objectCategories.endpointActionHolders.add(endpointActionHolderSymbol);
-                objectCategories.endpoints.add(objectTypeSymbol);
-            }
-        }
-
-        objectTypeSymbols.removeAll(objectCategories.endpointActionHolders);
-        objectTypeSymbols.removeAll(objectCategories.endpoints);
-        // Add the remaining objects to the objects list since those are neither Caller or Endpoint objects
-        objectCategories.objects.addAll(objectTypeSymbols);
-
-        return objectCategories;
-    }
-
-    /////////////////////
-    // Private Methods //
-    /////////////////////
-    
-    // TODO: Optimize Further
-    private static BObjectTypeSymbol filterObjectTypeSymbolByBType(BType bType) {
-        if (!(bType instanceof BObjectType) || !(((BObjectType) bType).tsymbol instanceof BObjectTypeSymbol)) {
-            return null;
-        }
-
-        return (BObjectTypeSymbol) ((BObjectType) bType).tsymbol;
-    }
-
-    /**
-     * Object categories uses as a vessel to carry categorized objects in a package.
-     * 
-     * {endpoints}                  holds the clients and listeners.
-     * {endpointActionHolders}      holds the endpoint actions for the endpoints.
-     * {objects}                    holds all the other objects.
-     * 
-     * Note: number of endpoints EQUAL to number of endpointActionHolders.
-     * Order of the endpoints EQUAL to the order of endpointActionHolders
-     */
-    public static class ObjectCategories {
-
-        private List<BObjectTypeSymbol> endpoints = new ArrayList<>();
-        private List<BObjectTypeSymbol> endpointActionHolders = new ArrayList<>();
-        private List<BObjectTypeSymbol> objects = new ArrayList<>();
-
-        public List<BObjectTypeSymbol> getEndpoints() {
-            return endpoints;
-        }
-
-        public List<BObjectTypeSymbol> getEndpointActionHolders() {
-            return endpointActionHolders;
-        }
-
-        public List<BObjectTypeSymbol> getObjects() {
-            return objects;
-        }
     }
 }

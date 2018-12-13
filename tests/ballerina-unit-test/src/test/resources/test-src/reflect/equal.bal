@@ -4,25 +4,25 @@ import ballerina/reflect;
 
 
 function testNullTruePositive() returns (boolean) {
-    string | () s1;
-    string | () s2;
+    string | () s1 = ();
+    string | () s2 = ();
     return reflect:equals(s1,s2);
 }
 
 function testNullTrueNegative() returns (boolean) {
-    string |() s1;
+    string |() s1 = ();
     string s2 = "b";
     return reflect:equals(s1,s2);
 }
 
 function testNullFalseNegative() returns (boolean) {
-    string | () s1;
-    string | () s2;
+    string | () s1 = ();
+    string | () s2 = ();
     return !reflect:equals(s1,s2);
 }
 
 function testNullFalsePositive() returns (boolean) {
-    string | () s1;
+    string | () s1 = ();
     string s2 = "b";
     return !reflect:equals(s1,s2);
 }
@@ -372,7 +372,7 @@ function testTypeArrayTruePositive() returns (boolean) {
 
 function testTypeArrayTrueNegative() returns (boolean) {
     typedesc[] t1 = [(int), (string)];
-    typedesc[] t2 = [(int), (map)];
+    typedesc[] t2 = [(int), (map<any>)];
     return reflect:equals(t1,t2);
 }
 
@@ -384,7 +384,7 @@ function testTypeArrayFalseNegative() returns (boolean) {
 
 function testTypeArrayFalsePositive() returns (boolean) {
     typedesc[] t1 = [(int), (string)];
-    typedesc[] t2 = [(int), (map)];
+    typedesc[] t2 = [(int), (map<any>)];
     return !reflect:equals(t1,t2);
 }
 

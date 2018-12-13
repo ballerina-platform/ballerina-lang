@@ -24,9 +24,12 @@ function multiBinaryANDExpr(boolean one, boolean two, boolean three) returns (in
     }
 }
 
-function getBoolean() returns (boolean ) {
+function getBoolean() returns (boolean) {
     json j = {};
-    string val = "ss";
-    val = check <string>j.isPresent;
-    return (val == "test");
+    var val = string.convert(j.isPresent);
+    if (val is string) {
+        return (val == "test");
+    } else {
+        panic val;
+    }
 }

@@ -13,8 +13,8 @@
     "size": 3,
     "actions": {
       "createConstructor": {
-        "title":"Create Constructor",
-        "command":"CREATE_CONSTRUCTOR",
+        "title":"Create Initializer",
+        "command":"CREATE_INITIALIZER",
         "arguments":[
           {
             "argumentK":"node.line",

@@ -19,15 +19,8 @@ import ballerina/log;
 # This represents the protocol associated with the coordination type.
 #
 # + name - protocol name
-type Protocol record {
-    @readonly string name;
-};
-
-# This represents the protocol associated with the coordination type.
-#
-# + name - protocol name
 type LocalProtocol record {
-    @readonly string name;
+    string name = "";
 };
 
 # This represents the protocol associated with the coordination type.
@@ -36,13 +29,15 @@ type LocalProtocol record {
 # + url - protocol URL. This URL will have a value only if the participant is remote. If the participant is local,
 #         the `protocolFn` will be called
 public type RemoteProtocol record {
-    @readonly string name;
-    @readonly string url;
+    string name = "";
+    string url = "";
 };
+
+public type UProtocol LocalProtocol|RemoteProtocol;
 
 type Participant abstract object {
 
-    string participantId;
+    string participantId = "";
 
     function prepare(string protocol) returns ((PrepareResult|error)?, Participant);
 
@@ -55,10 +50,14 @@ type RemoteParticipant object {
     private string transactionId;
     private RemoteProtocol[] participantProtocols;
 
-    new(participantId, transactionId, participantProtocols) {}
+    function __init(string participantId, string transactionId, RemoteProtocol[] participantProtocols) {
+        self.participantId = participantId;
+        self.transactionId = transactionId;
+        self.participantProtocols = participantProtocols;
+    }
 
     function prepare(string protocol) returns ((PrepareResult|error)?, Participant) {
-        foreach remoteProto in participantProtocols {
+        foreach var remoteProto in self.participantProtocols {
             if (remoteProto.name == protocol) {
                 // We are assuming a participant will have only one instance of a protocol
                 return (self.prepareMe(remoteProto.url), self);
@@ -68,34 +67,30 @@ type RemoteParticipant object {
     }
 
     function notify(string action, string? protocolName) returns (NotifyResult|error)? {
-        match protocolName {
-            string proto => {
-                foreach remoteProtocol in participantProtocols {
-                    if (proto == remoteProtocol.name) {
-                        // We are assuming a participant will have only one instance of a protocol
-                        return self.notifyMe(remoteProtocol.url, action);
-                    }
+        if (protocolName is string) {
+            foreach var remoteProtocol in self.participantProtocols {
+                if (protocolName == remoteProtocol.name) {
+                    // We are assuming a participant will have only one instance of a protocol
+                    return self.notifyMe(remoteProtocol.url, action);
                 }
             }
-            () => {
-                NotifyResult|error notifyResult = (action == COMMAND_COMMIT) ? NOTIFY_RESULT_COMMITTED
-                                                                             : NOTIFY_RESULT_ABORTED;
-                foreach remoteProtocol in participantProtocols {
-                    var result = self.notifyMe(remoteProtocol.url, action);
-                    match result {
-                        error err => notifyResult = err;
-                        NotifyResult => {} // Nothing to do since we have set the notifyResult already
-                    }
+        } else {
+            NotifyResult|error notifyResult = (action == COMMAND_COMMIT) ? NOTIFY_RESULT_COMMITTED
+                                                                         : NOTIFY_RESULT_ABORTED;
+            foreach var remoteProtocol in self.participantProtocols {
+                var result = self.notifyMe(remoteProtocol.url, action);
+                if (result is error) {
+                    notifyResult = result;
                 }
-                return notifyResult;
+                // Else, nothing to do since we have set the notifyResult already
             }
+            return notifyResult;
         }
         return (); // No matching protocol
     }
 
     function prepareMe(string protocolUrl) returns PrepareResult|error {
-        endpoint Participant2pcClientEP participantEP;
-        participantEP = getParticipant2pcClient(protocolUrl);
+        Participant2pcClientEP participantEP  = getParticipant2pcClient(protocolUrl);
 
         // Let's set this to true and change it to false only if a participant aborted or an error occurred while trying
         // to prepare a participant
@@ -104,56 +99,50 @@ type RemoteParticipant object {
         log:printInfo("Preparing remote participant: " + self.participantId);
         // If a participant voted NO or failed then abort
         var result = participantEP->prepare(self.transactionId);
-        match result {
-            error err => {
-                log:printError("Remote participant: " + self.participantId + " failed", err = err);
-                return err;
-            }
-            string status => {
-                if (status == "aborted") {
-                    log:printInfo("Remote participant: " + self.participantId + " aborted.");
-                    return PREPARE_RESULT_ABORTED;
-                } else if (status == "committed") {
-                    log:printInfo("Remote participant: " + self.participantId + " committed");
-                    return PREPARE_RESULT_COMMITTED;
-                } else if (status == "read-only") {
-                    log:printInfo("Remote participant: " + self.participantId + " read-only");
-                    return PREPARE_RESULT_READ_ONLY;
-                } else if (status == "prepared") {
-                    log:printInfo("Remote participant: " + self.participantId + " prepared");
-                    return PREPARE_RESULT_PREPARED;
-                } else {
-                    log:printInfo("Remote participant: " + self.participantId + ", outcome: " + status);
-                }
+        if (result is error) {
+            log:printError("Remote participant: " + self.participantId + " failed", err = result);
+            return result;
+        } else if (result is string) {
+            if (result == "aborted") {
+                log:printInfo("Remote participant: " + self.participantId + " aborted.");
+                return PREPARE_RESULT_ABORTED;
+            } else if (result == "committed") {
+                log:printInfo("Remote participant: " + self.participantId + " committed");
+                return PREPARE_RESULT_COMMITTED;
+            } else if (result == "read-only") {
+                log:printInfo("Remote participant: " + self.participantId + " read-only");
+                return PREPARE_RESULT_READ_ONLY;
+            } else if (result == "prepared") {
+                log:printInfo("Remote participant: " + self.participantId + " prepared");
+                return PREPARE_RESULT_PREPARED;
+            } else {
+                log:printInfo("Remote participant: " + self.participantId + ", outcome: " + result);
             }
         }
-        error err = {message:"Remote participant:" + self.participantId + " replied with invalid outcome"};
-        throw err;
+        error err = error("Remote participant:" + self.participantId + " replied with invalid outcome");
+        panic err;
     }
 
     function notifyMe(string protocolUrl, string action) returns NotifyResult|error {
-        endpoint Participant2pcClientEP participantEP;
+        Participant2pcClientEP participantEP;
 
         log:printInfo("Notify(" + action + ") remote participant: " + protocolUrl);
         participantEP = getParticipant2pcClient(protocolUrl);
         var result = participantEP->notify(self.transactionId, action);
-        match result {
-            error err => {
-                log:printError("Remote participant: " + self.participantId + " replied with an error", err = err);
-                return err;
-            }
-            string notificationStatus => {
-                if (notificationStatus == NOTIFY_RESULT_ABORTED_STR) {
-                    log:printInfo("Remote participant: " + self.participantId + " aborted");
-                    return NOTIFY_RESULT_ABORTED;
-                } else if (notificationStatus == NOTIFY_RESULT_COMMITTED_STR) {
-                    log:printInfo("Remote participant: " + self.participantId + " committed");
-                    return NOTIFY_RESULT_COMMITTED;
-                }
+        if (result is error) {
+            log:printError("Remote participant: " + self.participantId + " replied with an error", err = result);
+            return result;
+        } else if (result is string) {
+            if (result == NOTIFY_RESULT_ABORTED_STR) {
+                log:printInfo("Remote participant: " + self.participantId + " aborted");
+                return NOTIFY_RESULT_ABORTED;
+            } else if (result == NOTIFY_RESULT_COMMITTED_STR) {
+                log:printInfo("Remote participant: " + self.participantId + " committed");
+                return NOTIFY_RESULT_COMMITTED;
             }
         }
-        error err = {message:"Unknown status on notify remote participant"};
-        throw err;
+        error err = error("Unknown status on notify remote participant");
+        panic err;
     }
 };
 
@@ -163,98 +152,100 @@ type LocalParticipant object {
     private TwoPhaseCommitTransaction participatedTxn;
     private LocalProtocol[] participantProtocols;
 
-    new(participantId, participatedTxn, participantProtocols) {}
+    function __init(string participantId, TwoPhaseCommitTransaction participatedTxn, LocalProtocol[]
+        participantProtocols) {
+        self.participantId = participantId;
+        self.participatedTxn = participatedTxn;
+        self.participantProtocols = participantProtocols;
+    }
 
     function prepare(string protocol) returns ((PrepareResult|error)?, Participant) {
-        foreach localProto in participantProtocols {
+        foreach var localProto in self.participantProtocols {
             if (localProto.name == protocol) {
                 log:printInfo("Preparing local participant: " + self.participantId);
-                return (prepareMe(participatedTxn.transactionId, participatedTxn.transactionBlockId), self);
+                return (self.prepareMe(self.participatedTxn.transactionId, self.participatedTxn.transactionBlockId), self);
             }
         }
         return ((), self);
     }
 
-    function prepareMe(string transactionId, int transactionBlockId) returns PrepareResult|error {
+    function prepareMe(string transactionId, string transactionBlockId) returns PrepareResult|error {
         string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
         if (!participatedTransactions.hasKey(participatedTxnId)) {
-            error err = {message:TRANSACTION_UNKNOWN};
+            error err = error(TRANSACTION_UNKNOWN);
             return err;
         }
-        if (participatedTxn.state == TXN_STATE_ABORTED) {
+        if (self.participatedTxn.state == TXN_STATE_ABORTED) {
             removeParticipatedTransaction(participatedTxnId);
-            log:printInfo("Local participant: " + participantId + " aborted");
+            log:printInfo("Local participant: " + self.participantId + " aborted");
             return PREPARE_RESULT_ABORTED;
-        } else if (participatedTxn.state == TXN_STATE_COMMITTED) {
+        } else if (self.participatedTxn.state == TXN_STATE_COMMITTED) {
             removeParticipatedTransaction(participatedTxnId);
             return PREPARE_RESULT_COMMITTED;
         } else {
             boolean successful = prepareResourceManagers(transactionId, transactionBlockId);
             if (successful) {
-                participatedTxn.state = TXN_STATE_PREPARED;
-                log:printInfo("Local participant: " + participantId + " prepared");
+                self.participatedTxn.state = TXN_STATE_PREPARED;
+                log:printInfo("Local participant: " + self.participantId + " prepared");
                 return PREPARE_RESULT_PREPARED;
             } else {
-                log:printInfo("Local participant: " + participantId + " aborted");
+                log:printInfo("Local participant: " + self.participantId + " aborted");
                 return PREPARE_RESULT_ABORTED;
             }
         }
     }
 
     function notify(string action, string? protocolName) returns (NotifyResult|error)? {
-        match protocolName {
-            string proto => {
-                foreach localProto in participantProtocols {
-                    if (proto == localProto.name) {
-                        log:printInfo("Notify(" + action + ") local participant: " + self.participantId);
-                        return notifyMe(action, participatedTxn.transactionBlockId);
-                    }
+        if (protocolName is string) {
+            foreach var localProto in self.participantProtocols {
+                if (protocolName == localProto.name) {
+                    log:printInfo("Notify(" + action + ") local participant: " + self.participantId);
+                    return self.notifyMe(action, self.participatedTxn.transactionBlockId);
                 }
             }
-            () => {
-                NotifyResult|error notifyResult = (action == COMMAND_COMMIT) ? NOTIFY_RESULT_COMMITTED
-                                                                             : NOTIFY_RESULT_ABORTED;
-                foreach localProto in participantProtocols {
-                    var result = self.notifyMe(action, participatedTxn.transactionBlockId);
-                    match result {
-                        error err => notifyResult = err;
-                        NotifyResult notifyRes => {} // Nothing to do since we have set the notifyResult already
-                    }
+        } else if (protocolName is ()) {
+            NotifyResult|error notifyResult = (action == COMMAND_COMMIT) ? NOTIFY_RESULT_COMMITTED
+                                                                         : NOTIFY_RESULT_ABORTED;
+            foreach var localProto in self.participantProtocols {
+                var result = self.notifyMe(action, self.participatedTxn.transactionBlockId);
+                if (result is error) {
+                    notifyResult = result;
                 }
-                return notifyResult;
+                // Else, nothing to do since we have set the notifyResult already
             }
+            return notifyResult;
         }
         return (); // No matching protocol
     }
 
-    function notifyMe(string action, int participatedTxnBlockId) returns NotifyResult|error {
-        string participatedTxnId = getParticipatedTransactionId(participatedTxn.transactionId, participatedTxnBlockId);
+    function notifyMe(string action, string participatedTxnBlockId) returns NotifyResult|error {
+        string participatedTxnId = getParticipatedTransactionId(self.participatedTxn.transactionId, participatedTxnBlockId);
         if (action == COMMAND_COMMIT) {
-            if (participatedTxn.state == TXN_STATE_PREPARED) {
-                boolean successful = commitResourceManagers(participatedTxn.transactionId, participatedTxnBlockId);
+            if (self.participatedTxn.state == TXN_STATE_PREPARED) {
+                boolean successful = commitResourceManagers(self.participatedTxn.transactionId, participatedTxnBlockId);
                 removeParticipatedTransaction(participatedTxnId);
                 if (successful) {
                     return NOTIFY_RESULT_COMMITTED;
                 } else {
-                    error err = {message:NOTIFY_RESULT_FAILED_EOT_STR};
+                    error err = error(NOTIFY_RESULT_FAILED_EOT_STR);
                     return err;
                 }
             } else {
-                error err = {message:NOTIFY_RESULT_NOT_PREPARED_STR};
+                error err = error(NOTIFY_RESULT_NOT_PREPARED_STR);
                 return err;
             }
         } else if (action == COMMAND_ABORT) {
-            boolean successful = abortResourceManagers(participatedTxn.transactionId, participatedTxnBlockId);
+            boolean successful = abortResourceManagers(self.participatedTxn.transactionId, participatedTxnBlockId);
             removeParticipatedTransaction(participatedTxnId);
             if (successful) {
                 return NOTIFY_RESULT_ABORTED;
             } else {
-                error err = {message:NOTIFY_RESULT_FAILED_EOT_STR};
+                error err = error(NOTIFY_RESULT_FAILED_EOT_STR);
                 return err;
             }
         } else {
-            error err = {message:"Invalid protocol action:" + action};
-            throw err;
+            error err = error("Invalid protocol action:" + action);
+            panic err;
         }
     }
 };

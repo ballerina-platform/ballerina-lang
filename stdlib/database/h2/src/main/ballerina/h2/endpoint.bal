@@ -16,54 +16,133 @@
 
 import ballerina/sql;
 
-# The Client endpoint configuration for h2 databases.
+# The Client endpoint configuration for the in-memory mode of h2 databases.
+#
+# + name - The name of the database to connect
+# + username - Username for the database connection
+# + password - Password for the database connection
+# + poolOptions - Properties for the connection pool configuration. Refer `sql:PoolOptions` for more details
+# + dbOptions - A map of DB specific properties
+public type InMemoryConfig record {
+    string name;
+    string username;
+    string password;
+    sql:PoolOptions poolOptions = {};
+    map<any> dbOptions = {};
+    !...
+};
+
+# The Client endpoint configuration for the server mode of h2 databases.
 #
 # + host - The host name of the database to connect (in case of server based DB)
-# + path - The path of the database connection (in case of file based DB)
 # + port - The port of the database to connect (in case of server based DB)
 # + name - The name of the database to connect
 # + username - Username for the database connection
 # + password - Password for the database connection
 # + poolOptions - Properties for the connection pool configuration. Refer `sql:PoolOptions` for more details
 # + dbOptions - A map of DB specific properties
-public type ClientEndpointConfiguration record {
+public type ServerModeConfig record {
     string host;
-    string path;
     int port = 9092;
-    string name;
-    string username;
-    string password;
-    sql:PoolOptions poolOptions;
-    map dbOptions;
+    *InMemoryConfig;
     !...
 };
 
+# The Client endpoint configuration for the embedded mode of h2 databases.
+#
+# + path - The path of the database connection (in case of file based DB)
+# + name - The name of the database to connect
+# + username - Username for the database connection
+# + password - Password for the database connection
+# + poolOptions - Properties for the connection pool configuration. Refer `sql:PoolOptions` for more details
+# + dbOptions - A map of DB specific properties
+public type EmbeddedModeConfig record {
+    string path;
+    *InMemoryConfig;
+    !...
+};
 
 # Represents an H2 client endpoint.
 #
-# + config - The configurations associated with the SQL endpoint
-public type Client object {
-    private ClientEndpointConfiguration config;
-    private sql:CallerActions h2Client;
+# + sqlClient - The base SQL Client
+public type Client client object {
+    *sql:AbstractSQLClient;
+    private sql:Client sqlClient;
 
-    # Gets called when the endpoint is being initialized during the module initialization.
-    #
-    # + c - The ClientEndpointConfiguration of the endpoint
-    public function init(ClientEndpointConfiguration c) {
-        self.h2Client = createClient(c);
+    # Gets called when the H2 client is instantiated.
+    public function __init(InMemoryConfig|ServerModeConfig|EmbeddedModeConfig c) {
+        self.sqlClient = createClient(c);
     }
 
-    # Returns the connector that the client code uses.
+    # The call operation implementation for H2 Client to invoke stored procedures/functions.
     #
-    # + return - Actions of the connector
-    public function getCallerActions() returns sql:CallerActions {
-        return self.h2Client;
+    # + sqlQuery - The SQL stored procedure to execute
+    # + recordType - Array of record types of the returned tables if there is any
+    # + parameters - The parameters to be passed to the procedure/function call. The number of parameters is variable
+    # + return - A `table[]` if there are tables returned by the call remote function and else nil,
+    #            `error` will be returned if there is any error
+    public remote function call(@sensitive string sqlQuery, typedesc[]? recordType, sql:Param... parameters)
+                               returns @tainted table<record {}>[]|()|error {
+        return self.sqlClient->call(sqlQuery, recordType, ...parameters);
+    }
+
+    # The select operation implementation for H2 Client to select data from tables.
+    #
+    # + sqlQuery - SQL query to execute
+    # + recordType - Type of the returned table
+    # + loadToMemory - Indicates whether to load the retrieved data to memory or not
+    # + parameters - The parameters to be passed to the select query. The number of parameters is variable
+    # + return - A `table` returned by the sql query statement else `error` will be returned if there is any error
+    public remote function select(@sensitive string sqlQuery, typedesc? recordType, boolean loadToMemory = false,
+                                  sql:Param... parameters) returns @tainted table<record {}>|error {
+        return self.sqlClient->select(sqlQuery, recordType, loadToMemory = loadToMemory, ...parameters);
+    }
+
+
+    # The update operation implementation for H2 Client to update data and schema of the database.
+    #
+    # + sqlQuery - SQL statement to execute
+    # + parameters - The parameters to be passed to the update query. The number of parameters is variable
+    # + return - `int` number of rows updated by the statement and else `error` will be returned if there is any error
+    public remote function update(@sensitive string sqlQuery, sql:Param... parameters) returns int|error {
+        return self.sqlClient->update(sqlQuery, ...parameters);
+    }
+
+    # The batchUpdate operation implementation for H2 Client to batch data insert.
+    #
+    # + sqlQuery - SQL statement to execute
+    # + parameters - Variable number of parameter arrays each representing the set of parameters of belonging to each
+    #                individual update
+    # + return - An `int[]` - The elements in the array returned by the operation may be one of the following  or else
+    #            an`error` will be returned if there is any error.
+    #            A number greater than or equal to zero - indicates that the command was processed successfully
+    #                                                     and is an update count giving the number of rows
+    #            A value of -2 - Indicates that the command was processed successfully but that the number of rows affected
+    #                            is unknown
+    #            A value of -3 - Indicates that the command failed to execute successfully and occurs only if a driver
+    #                            continues to process commands after a command fails
+    public remote function batchUpdate(@sensitive string sqlQuery, sql:Param[]... parameters) returns int[]|error {
+        return self.sqlClient->batchUpdate(sqlQuery, ...parameters);
+    }
+
+    # The updateWithGeneratedKeys operation implementation for H2 Client which returns the auto
+    # generated keys during the update remote function.
+    #
+    # + sqlQuery - SQL statement to execute
+    # + keyColumns - Names of auto generated columns for which the auto generated key values are returned
+    # + parameters - The parameters to be passed to the update query. The number of parameters is variable
+    # + return - A `Tuple` will be returned and would represent updated row count during the query exectuion,
+    #            aray of auto generated key values during the query execution, in order.
+    #            Else `error` will be returned if there is any error.
+    public remote function updateWithGeneratedKeys(@sensitive string sqlQuery, string[]? keyColumns,
+                                                   sql:Param... parameters) returns (int, string[])|error {
+        return self.sqlClient->updateWithGeneratedKeys(sqlQuery,keyColumns, ...parameters);
     }
 
     # Stops the JDBC client.
     public function stop() {
-        sql:close(self.h2Client);
+        sql:close(self.sqlClient);
     }
 };
 
-extern function createClient(ClientEndpointConfiguration config) returns sql:CallerActions;
+extern function createClient(InMemoryConfig|ServerModeConfig|EmbeddedModeConfig config) returns sql:Client;

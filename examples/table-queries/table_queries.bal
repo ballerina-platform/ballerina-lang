@@ -40,7 +40,7 @@ type PersonPublicProfile record {
 
 // This is the main function.
 public function main() {
-    string queryStmt;
+    string queryStmt = "";
 
     // These are a few sample values that represent different `Person` records.
     Person p1 = { id: 1, age: 25, salary: 1000.50, name: "jane", married: true };
@@ -153,12 +153,13 @@ public function main() {
     printTable(queryStmt, "orderDetailsWithFilter: ", orderDetailsWithFilter);
 }
 
-function printTable(string stmt, string tableName, table returnedTable) {
-    var retData = <json>returnedTable;
+function printTable(string stmt, string tableName, table<anydata> returnedTable) {
+    var retData = json.convert(returnedTable);
     io:println(stmt);
     io:print(tableName);
-    match retData {
-        json jsonRes => io:println(io:sprintf("%s", jsonRes));
-        error e => io:println("Error in table to json conversion");
+    if (retData is json) {
+        io:println(io:sprintf("%s", retData));
+    } else {
+        io:println("Error in table to json conversion");
     }
 }

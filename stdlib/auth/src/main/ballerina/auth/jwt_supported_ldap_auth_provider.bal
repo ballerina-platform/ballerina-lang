@@ -14,14 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/config;
-import ballerina/crypto;
-import ballerina/internal;
-import ballerina/log;
-import ballerina/runtime;
-import ballerina/system;
-import ballerina/time;
-
 # Represents LDAP authentication provider that supports generating JWT for client interactions
 #
 # + ldapJwtAuthProviderConfig - JWT configurations
@@ -35,7 +27,10 @@ public type LdapJwtAuthProvider object {
     #
     # + ldapJwtAuthProviderConfig - Configuration for JWT token propagation
     # + ldapAuthProvider - LDAP auth store provider
-    public new(ldapJwtAuthProviderConfig, ldapAuthProvider) {
+    public function __init(InferredJwtAuthProviderConfig ldapJwtAuthProviderConfig,
+                           LdapAuthStoreProvider ldapAuthProvider) {
+        self.ldapJwtAuthProviderConfig = ldapJwtAuthProviderConfig;
+        self.ldapAuthProvider = ldapAuthProvider;
     }
 
     # Authenticate with username and password using LDAP user store
@@ -44,9 +39,9 @@ public type LdapJwtAuthProvider object {
     # + password - password
     # + return - true if authentication is a success, else false
     public function authenticate(string username, string password) returns boolean {
-        boolean isAuthenticated = ldapAuthProvider.authenticate(username, password);
+        boolean isAuthenticated = self.ldapAuthProvider.authenticate(username, password);
         if (isAuthenticated){
-            setAuthToken(username, ldapJwtAuthProviderConfig);
+            setAuthToken(username, self.ldapJwtAuthProviderConfig);
         }
         return isAuthenticated;
     }
@@ -56,6 +51,6 @@ public type LdapJwtAuthProvider object {
     # + username - user name
     # + return - array of groups for the user denoted by the username
     public function getScopes(string username) returns string[] {
-        return ldapAuthProvider.getScopes(username);
+        return self.ldapAuthProvider.getScopes(username);
     }
 };

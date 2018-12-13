@@ -2,7 +2,7 @@ function lazyInitThrowArrayIndexOutOfBound () {
     int[] arr = [];
     int x;
 
-    // This should throw an exception
+    // This should panic an exception
     x = arr[0];
 }
 
@@ -73,5 +73,5 @@ function testArrayGrowth () returns (int) {
         value = value * 1.7;
         count = count + 1;
     }
-    return lengthof ar;
+    return ar.length();
 }

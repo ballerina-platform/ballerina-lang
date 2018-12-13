@@ -7,28 +7,29 @@ int total = 0;
 public function main() {
 
     //Client endpoint configuration.
-    endpoint ChatClient chatEp {
-        url: "http://localhost:9090"
-    };
+    ChatClient chatEp = new("http://localhost:9090");
 
-    endpoint grpc:Client ep;
+    grpc:StreamingClient ep;
     // Executes unary non-blocking call registering server message listener.
     var res = chatEp->chat(ChatMessageListener);
 
-    match res {
-        grpc:error err => {
-            io:print("Unexpected error occurred.");
-        }
-        grpc:Client con => {
-            ep = con;
-        }
+    if (res is error) {
+        io:println("Error from Connector: " + res.reason() + " - "
+                                  + <string>res.detail().message);
+        return;
+    } else {
+        io:println("Initialized connection sucessfully.");
+        ep = res;
     }
 
     // Sends multiple messages to the server.
     ChatMessage mes = { name: "Sam", message: "Hi " };
     error? connErr = ep->send(mes);
 
-    io:println(connErr.message but { () => "" });
+    if (connErr is error) {
+        io:println("Error from Connector: " + connErr.reason() + " - "
+                               + <string>connErr.detail().message);
+    }
     runtime:sleep(6000);
 
     // Once all messages are sent, client send complete message to notify the server, I’m done.
@@ -36,22 +37,21 @@ public function main() {
 }
 
 
-service<grpc:Service> ChatMessageListener {
+service ChatMessageListener = service {
 
     // Resource registered to receive server messages.
-    onMessage(string message) {
+    resource function onMessage(string message) {
         io:println("Response received from server: " + message);
     }
 
     // Resource registered to receive server error messages.
-    onError(error err) {
-        if (err != ()) {
-            io:println("Error reported from server: " + err.message);
-        }
+    resource function onError(error err) {
+        io:println("Error reported from server: " + err.reason() + " - "
+                                  + <string>err.detail().message);
     }
 
     // Resource registered to receive server completed message.
-    onComplete() {
+    resource function onComplete() {
         io:println("Server Complete Sending Responses.");
     }
-}
+};

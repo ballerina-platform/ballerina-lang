@@ -35,38 +35,37 @@ import org.jetbrains.annotations.Nullable;
 public class BallerinaRunLineMarkerProvider extends RunLineMarkerContributor {
 
     private static final Function<PsiElement, String> APPLICATION_TOOLTIP_PROVIDER = element -> "Run Application";
-    private static final Function<PsiElement, String> SERVICE_TOOLTIP_PROVIDER = element -> "Run Services";
+    private static final Function<PsiElement, String> SERVICE_TOOLTIP_PROVIDER = element -> "Run Service";
 
     @Nullable
     @Override
     public Info getInfo(@NotNull PsiElement element) {
-        // We only need to add Run line marker to functions and services. So we check whether the element is an
+
+        // We don't need to check anything specific in services, since services can be defined even without an
         // identifier.
-        if (element.getNode().getElementType() != BallerinaTypes.IDENTIFIER) {
-            return null;
-        }
-        // Get the parent element.
-        PsiElement parent = element.getParent();
-        if (parent instanceof BallerinaAnyIdentifierName) {
-            PsiElement superParent = parent.getParent();
-            if (!(superParent instanceof BallerinaCallableUnitSignature)) {
-                return null;
-            }
-            // Check whether the element is an identifier of a function node.
-            PsiElement superParentParent = superParent.getParent();
-            if (!(superParentParent instanceof BallerinaFunctionDefinition)) {
-                return null;
-            }
-            boolean isMain = BallerinaRunUtil.isMainFunction((BallerinaFunctionDefinition) superParentParent);
-            if (!isMain) {
-                return null;
-            }
-            // If it is a function node, add a run line marker.
-            return new Info(BallerinaIcons.RUN, APPLICATION_TOOLTIP_PROVIDER, ExecutorAction.getActions(0));
-        } else if (parent instanceof BallerinaServiceDefinition) {
-            // We don't need to check anything specific in services. If there is a ServiceDefinitionNode, that
-            // means there is a service. We just return a new Info object.
+        if (element.getNode().getElementType() == BallerinaTypes.SERVICE
+                && element.getParent() instanceof BallerinaServiceDefinition) {
             return new Info(BallerinaIcons.RUN, SERVICE_TOOLTIP_PROVIDER, ExecutorAction.getActions(0));
+        } else if (element.getNode().getElementType() == BallerinaTypes.IDENTIFIER) {
+            // Get the parent element.
+            PsiElement parent = element.getParent();
+            if (parent instanceof BallerinaAnyIdentifierName) {
+                PsiElement superParent = parent.getParent();
+                if (!(superParent instanceof BallerinaCallableUnitSignature)) {
+                    return null;
+                }
+                // Check whether the element is an identifier of a function node.
+                PsiElement superParentParent = superParent.getParent();
+                if (!(superParent.getParent() instanceof BallerinaFunctionDefinition)) {
+                    return null;
+                }
+                boolean isMain = BallerinaRunUtil.isMainFunction((BallerinaFunctionDefinition) superParentParent);
+                if (!isMain) {
+                    return null;
+                }
+                // If it is a function node, add a run line marker.
+                return new Info(BallerinaIcons.RUN, APPLICATION_TOOLTIP_PROVIDER, ExecutorAction.getActions(0));
+            }
         }
         return null;
     }

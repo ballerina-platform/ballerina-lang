@@ -20,6 +20,7 @@ package org.ballerinalang.langserver.completions;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
+import org.ballerinalang.langserver.AnnotationNodeKind;
 import org.ballerinalang.langserver.common.utils.completion.AnnotationAttachmentMetaInfo;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
@@ -48,7 +49,7 @@ public class CompletionKeys {
             = new LSContext.Key<>();
     public static final LSContext.Key<BLangNode> PREVIOUS_NODE_KEY
             = new LSContext.Key<>();
-    public static final LSContext.Key<String> NEXT_NODE_KEY
+    public static final LSContext.Key<AnnotationNodeKind> NEXT_NODE_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<Integer> LOOP_COUNT_KEY
             = new LSContext.Key<>();
@@ -59,8 +60,6 @@ public class CompletionKeys {
     public static final LSContext.Key<Boolean> INVOCATION_STATEMENT_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<WorkspaceDocumentManager> DOC_MANAGER_KEY
-            = new LSContext.Key<>();
-    public static final LSContext.Key<String> CURRENT_LINE_SEGMENT_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<Stack<Token>> FORCE_CONSUMED_TOKENS_KEY
             = new LSContext.Key<>();

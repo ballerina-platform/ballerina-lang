@@ -1,16 +1,16 @@
 type Department record {
-    string dptName;
-    Person[] employees;
-    Person manager;
+    string dptName = "";
+    Person[] employees = [];
+    Person manager = {};
     !...
 };
 
 type Person record {
     string name = "default first name";
-    string lname;
-    map adrs;
+    string lname= "";
+    map<any> adrs = {};
     int age = 999;
-    Person? child;
+    Person? child = ();
     !...
 };
 
@@ -23,4 +23,3 @@ function testStructLiteral2 () returns (Person) {
     Person p = {};
     return p;
 }
-

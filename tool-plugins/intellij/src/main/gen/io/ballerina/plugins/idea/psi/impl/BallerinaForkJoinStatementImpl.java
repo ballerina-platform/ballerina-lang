@@ -42,21 +42,9 @@ public class BallerinaForkJoinStatementImpl extends BallerinaCompositeElementImp
   }
 
   @Override
-  @Nullable
-  public BallerinaForkStatementBody getForkStatementBody() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaForkStatementBody.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaJoinClause getJoinClause() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaJoinClause.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaTimeoutClause getTimeoutClause() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaTimeoutClause.class);
+  @NotNull
+  public List<BallerinaWorkerDefinition> getWorkerDefinitionList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaWorkerDefinition.class);
   }
 
   @Override

@@ -22,7 +22,7 @@ type Person1 abstract object {
 };
 
 type Employee1 abstract object {
-    public float salary;
+    public float salary = 0.0;
 
     public function getSalary() returns float; 
 };
@@ -37,9 +37,15 @@ type Manager1 object {
     function getName() returns string {
         return self.name + " from inner function";
     }
+    
+    function __init() {
+        self.age = 99;
+        self.name = "sample name 2";
+        self.salary = 8.0;
+    }
 };
 
-function Manager1::getSalary() returns float {
+function Manager1.getSalary() returns float {
     return self.salary;
 }
 
@@ -59,13 +65,14 @@ type Manager2 object {
         return self.name + " from inner function";
     }
 
-    new(age=20) {
-        name = "John";
-        salary = 1000.0;
+    function __init(int age=20) {
+        self.age = age;
+        self.name = "John";
+        self.salary = 1000.0;
     }
 };
 
-function Manager2::getSalary() returns float {
+function Manager2.getSalary() returns float {
     return self.salary;
 }
 
@@ -79,23 +86,25 @@ type Manager3 object {
 
     *Employee2;
 
-    new(age=20) {
-        salary = 2500.0;
+    function __init(int age=20) {
+        self.age = age;
+        self.salary = 2500.0;
+        self.name = "Doe";
     } 
 };
 
 type Employee2 abstract object {
-    public float salary;
+    public float salary = 0.0;
     *Person1;
 
     public function getSalary() returns float; 
 };
 
-function Manager3::getName() returns string {
+function Manager3.getName() returns string {
     return self.name + " from outer function";
 }
 
-function Manager3::getSalary() returns float {
+function Manager3.getSalary() returns float {
     return self.salary;
 }
 
@@ -111,8 +120,10 @@ type Manager4 object {
 
     *Employee3;
 
-    new(name, age=25) {
-        salary = 3000.0;
+    function __init(string name, int age=25) {
+        self.name = name;
+        self.age = age;
+        self.salary = 3000.0;
     }
 
     public function getBonus(float ratio, int months=6) returns float {
@@ -120,12 +131,12 @@ type Manager4 object {
     }
 };
 
-function Manager4::getName(string greeting = "Hello") returns string {
+function Manager4.getName(string greeting = "Hello") returns string {
     return greeting + " " + self.name;
 }
 
 type Employee3 abstract object {
-    public float salary;
+    public float salary = 0.0;
     *Person3;
 
     public function getBonus(float ratio, int months=12) returns float;

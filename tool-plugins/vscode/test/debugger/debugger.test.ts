@@ -96,11 +96,11 @@ suite('Ballerina Debug Adapter', () => {
                 }
             });
 
-            return dc.hitBreakpoint(launchArgs, { path: PROGRAM, name: 'hello_world_service.bal', line: 11 });
+            return dc.hitBreakpoint(launchArgs, { path: PROGRAM, name: 'hello_world_service.bal', line: 12 });
         }).timeout(15000);
 
         test('should stop on a breakpoint, hello world service - package', () => {
-            const PROGRAM = Path.join(DATA_ROOT, 'helloPackage1', 'hello', 'hello_service.bal');
+            const PROGRAM = Path.join(DATA_ROOT, 'helloPackage', 'hello', 'hello_service.bal');
 
             const launchArgs = {
                 script: PROGRAM,
@@ -114,11 +114,12 @@ suite('Ballerina Debug Adapter', () => {
                     http.get('http://0.0.0.0:9090/hello/sayHello');
                 }
             });
-            return dc.hitBreakpoint(launchArgs, { path: PROGRAM, name: 'hello_service.bal', line: 24 });
+            return dc.hitBreakpoint(launchArgs, { path: PROGRAM, name: 'hello_service.bal', line: 13 });
         }).timeout(15000);
 
-        test('step In, hello world service - package', () => {
-            const PROGRAM = Path.join(DATA_ROOT, 'helloPackage1', 'hello', 'hello_service.bal');
+        test('step In, hello world service - package', function() {
+            this.skip();
+            const PROGRAM = Path.join(DATA_ROOT, 'helloPackage', 'hello', 'hello_service.bal');
             const launchArgs = {
                 script: PROGRAM,
                 "ballerina.home": ballerinaHome,
@@ -131,7 +132,7 @@ suite('Ballerina Debug Adapter', () => {
                     http.get('http://0.0.0.0:9090/hello/sayHello');
                 }
             });
-            dc.hitBreakpoint(launchArgs, { path: PROGRAM, name: 'hello_service.bal', line: 24 });
+            dc.hitBreakpoint(launchArgs, { path: PROGRAM, name: 'hello_service.bal', line: 13 });
 
             return dc.waitForEvent('stopped', 12000).then((event) => {
                 const threadId: any = event.body.threadId;

@@ -48,7 +48,6 @@ public enum SemanticErrors {
     REPLY_STATEMENT_CANNOT_USED_IN_ACTION("reply.statement.cannot.used.in.action", "SEMANTIC_0023"),
     ACTION_INVOCATION_NOT_ALLOWED_IN_REPLY("action.invocation.not.allowed.in.reply", "SEMANTIC_0024"),
     ACTION_INVOCATION_NOT_ALLOWED_IN_RETURN("action.invocation.not.allowed.in.return", "SEMANTIC_0025"),
-    RETURN_CANNOT_USED_IN_RESOURCE("return.cannot.used.in.resource",  "SEMANTIC_0026"),
     NOT_ENOUGH_ARGUMENTS_TO_RETURN("not.enough.arguments.to.return", "SEMANTIC_0027"),
     TOO_MANY_ARGUMENTS_TO_RETURN("too.many.arguments.to.return", "SEMANTIC_0028"),
     CANNOT_USE_TYPE_IN_RETURN_STATEMENT("cannot.use.type.in.return.statement", "SEMANTIC_0029"),

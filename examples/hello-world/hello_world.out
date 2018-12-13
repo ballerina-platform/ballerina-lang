@@ -1,4 +1,4 @@
-# To run the program, navigate to the directory that contains the
-# `.bal` file and use the `ballerina run` command.
+# To run this sample, navigate to the directory that contains the
+# `.bal` file and issue the `ballerina run` command.
 $ ballerina run hello_world.bal
 Hello, World!

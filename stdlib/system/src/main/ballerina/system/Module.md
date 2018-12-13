@@ -11,7 +11,7 @@ The sample given below uses the functions in the module to get the system-level 
 import ballerina/io;
 import ballerina/system;
 
-public function main(string... args) {
+public function main() {
     //Get environment variables.
     io:println("Envirionment variable: " + system:getEnv("HTTP_PORT")); // Eg. “80”
 

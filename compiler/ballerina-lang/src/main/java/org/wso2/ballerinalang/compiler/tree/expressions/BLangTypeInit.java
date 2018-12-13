@@ -37,7 +37,7 @@ public class BLangTypeInit extends BLangExpression implements TypeInitNode {
 
     public BLangUserDefinedType userDefinedType;
     public List<BLangExpression> argsExpr;
-    public BLangInvocation objectInitInvocation;
+    public BLangInvocation initInvocation;
 
     public BLangTypeInit() {
         argsExpr = new ArrayList<>();
@@ -55,7 +55,7 @@ public class BLangTypeInit extends BLangExpression implements TypeInitNode {
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.Type_INIT_EXPR;
+        return NodeKind.TYPE_INIT_EXPR;
     }
 
     @Override

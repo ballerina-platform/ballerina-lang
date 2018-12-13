@@ -16,21 +16,27 @@
  */
 package org.ballerinalang.net.websub.compiler;
 
-import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
-import org.ballerinalang.compiler.plugins.SupportEndpointTypes;
+import org.ballerinalang.compiler.plugins.SupportedResourceParamTypes;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ServiceNode;
-import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
-import org.wso2.ballerinalang.compiler.tree.BLangResource;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.util.AbstractTransportCompilerPlugin;
 
 import java.util.List;
 
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.GENERIC_SUBSCRIBER_SERVICE_TYPE;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.RESOURCE_NAME_ON_NOTIFICATION;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.STRUCT_WEBSUB_INTENT_VERIFICATION_REQUEST;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.STRUCT_WEBSUB_NOTIFICATION_REQUEST;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERVICE_CALLER;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERVICE_LISTENER;
 import static org.ballerinalang.net.websub.WebSubSubscriberServiceValidator.validateDefaultResources;
 
 /**
@@ -38,12 +44,20 @@ import static org.ballerinalang.net.websub.WebSubSubscriberServiceValidator.vali
  *
  * @since 0.965.0
  */
-@SupportEndpointTypes(
-        value = {@SupportEndpointTypes.EndpointType(orgName = "ballerina", packageName = "websub", name = "Listener")}
+@SupportedResourceParamTypes(
+        expectedListenerType = @SupportedResourceParamTypes.Type(packageName = WEBSUB, name = WEBSUB_SERVICE_LISTENER),
+        paramTypes = {
+                @SupportedResourceParamTypes.Type(packageName = WEBSUB, name = WEBSUB_SERVICE_CALLER),
+                @SupportedResourceParamTypes.Type(packageName = WEBSUB,
+                        name = STRUCT_WEBSUB_INTENT_VERIFICATION_REQUEST),
+                @SupportedResourceParamTypes.Type(packageName = WEBSUB, name = STRUCT_WEBSUB_NOTIFICATION_REQUEST)
+        }
 )
-public class WebSubServiceCompilerPlugin extends AbstractCompilerPlugin {
+public class WebSubServiceCompilerPlugin extends AbstractTransportCompilerPlugin {
 
     private DiagnosticLog dlog = null;
+    private static final String WEBSUB_LISTENER = "T".concat(WEBSUB_PACKAGE).concat(":")
+            .concat(WEBSUB_SERVICE_LISTENER).concat(";");
 
     @Override
     public void init(DiagnosticLog diagnosticLog) {
@@ -53,8 +67,6 @@ public class WebSubServiceCompilerPlugin extends AbstractCompilerPlugin {
     @SuppressWarnings("unchecked")
     @Override
     public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
-        final UserDefinedTypeNode serviceType = serviceNode.getServiceTypeStruct();
-
         int webSubAnnotationConfigCount = 0;
         for (AnnotationAttachmentNode annotation : annotations) {
             if (ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG.equals(annotation.getAnnotationName().getValue())) {
@@ -69,26 +81,31 @@ public class WebSubServiceCompilerPlugin extends AbstractCompilerPlugin {
                                        + "' annotation");
         }
 
-        if (serviceType != null && GENERIC_SUBSCRIBER_SERVICE_TYPE.equals(serviceType.getTypeName().getValue())) {
-            List<BLangResource> resources = (List<BLangResource>) serviceNode.getResources();
-            if (resources.size() > 2) {
-                dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
+        BType listenerType = ((BLangService) serviceNode).listenerType;
+        if (listenerType != null && !WEBSUB_LISTENER.equals(listenerType.getDesc())) {
+            return;
+        }
+
+        List<BLangFunction> resources = (List<BLangFunction>) serviceNode.getResources();
+        if (resources.size() > 2) {
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
                                "cannot have more than two resources with " + WEBSUB_PACKAGE + ":"
                                        + GENERIC_SUBSCRIBER_SERVICE_TYPE);
-                return;
-            }
-            resources.forEach(res -> {
-                validateDefaultResources(res, dlog);
-            });
-
-            if (resources.size() < 1
-                    || (resources.size() == 1
-                                && !(RESOURCE_NAME_ON_NOTIFICATION.equals(resources.get(0).getName().getValue())))) {
-                dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
-                               "required resource '" + RESOURCE_NAME_ON_NOTIFICATION + "' not "
-                                       + "specified with " +  WEBSUB_PACKAGE + ":" + GENERIC_SUBSCRIBER_SERVICE_TYPE);
-            }
+            return;
         }
+
+        if (resources.size() < 1
+                || (resources.size() == 1
+                            && !(RESOURCE_NAME_ON_NOTIFICATION.equals(resources.get(0).getName().getValue())))) {
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
+                               "required resource '" + RESOURCE_NAME_ON_NOTIFICATION + "' not "
+                                       + "specified with " + WEBSUB_PACKAGE + ":" +
+                                       GENERIC_SUBSCRIBER_SERVICE_TYPE);
+        }
+
+        resources.forEach(res -> {
+            validateDefaultResources(res, isResourceReturnsErrorOrNil(res), dlog);
+        });
     }
 
 }

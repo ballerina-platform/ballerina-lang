@@ -25,9 +25,9 @@ import org.ballerinalang.model.util.serializer.BValueDeserializer;
 import org.ballerinalang.model.util.serializer.BValueSerializer;
 import org.ballerinalang.model.util.serializer.SerializationBValueProvider;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.model.values.BXMLQName;
@@ -89,21 +89,21 @@ public class BXMLBValueProviders {
         public BPacket toBValue(BXMLSequence bxmlSequence, BValueSerializer serializer) {
             BRefType[] serializedItems = new BRefType[bxmlSequence.length()];
             for (int i = 0; i < bxmlSequence.length(); i++) {
-                BRefType value = (BRefType) serializer.toBValue(bxmlSequence.value().get(i), null);
+                BRefType value = (BRefType) serializer.toBValue(bxmlSequence.value().getRefValue(i), null);
                 serializedItems[i] = value;
             }
-            BRefValueArray array = new BRefValueArray(serializedItems, new BArrayType(BTypes.typeAny));
+            BValueArray array = new BValueArray(serializedItems, new BArrayType(BTypes.typeAny));
             return BPacket.from(typeName(), array);
         }
 
         @Override
         public BXMLSequence toObject(BPacket packet, BValueDeserializer bValueDeserializer) {
-            BRefValueArray srcArray = (BRefValueArray) packet.getValue();
+            BValueArray srcArray = (BValueArray) packet.getValue();
             BRefType[] values = new BRefType[(int) srcArray.size()];
             for (int i = 0; i < srcArray.size(); i++) {
-                values[i] = (BXML<?>) bValueDeserializer.deserialize(srcArray.get(i), Object.class);
+                values[i] = (BXML<?>) bValueDeserializer.deserialize(srcArray.getRefValue(i), Object.class);
             }
-            BRefValueArray xmlItemArray = new BRefValueArray(values, new BArrayType(BTypes.typeXML));
+            BValueArray xmlItemArray = new BValueArray(values, new BArrayType(BTypes.typeXML));
             return new BXMLSequence(xmlItemArray);
         }
     }

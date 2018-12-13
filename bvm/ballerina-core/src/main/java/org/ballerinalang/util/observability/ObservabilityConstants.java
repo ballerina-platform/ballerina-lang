@@ -32,6 +32,7 @@ public class ObservabilityConstants {
     public static final String KEY_TRACE_CONTEXT = "_trace_context_";
     public static final String KEY_OBSERVER_CONTEXT = "__observer_context__";
     public static final String UNKNOWN_SERVICE = "Unknown Service";
+    public static final String UNKNOWN_CONNECTOR = "Unknown";
 
     public static final String SERVER_CONNECTOR_HTTP = "http";
     public static final String SERVER_CONNECTOR_WEBSOCKET = "ws";

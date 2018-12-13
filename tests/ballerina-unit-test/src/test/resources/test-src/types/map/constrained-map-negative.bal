@@ -1,5 +1,5 @@
 function testConstrainedMapAssignNegative() returns (map<int>) {
-    map testMap;
+    map<any> testMap = {};
     return testMap;
 }
 
@@ -9,13 +9,13 @@ function testConstrainedMapRecordLiteralNegative() returns (map<int>) {
 }
 
 function testConstrainedMapIndexBasedAssignNegative() returns (map<string>) {
-    map<string> testMap;
+    map<string> testMap = {};
     testMap["name"] = 24;
     return testMap;
 }
 
 function testConstrainedMapAssignDifferentConstraintsNegative() returns (map<int>) {
-    map<string> testMap;
+    map<string> testMap = {};
     return testMap;
 }
 
@@ -31,7 +31,7 @@ type Employee record {
 };
 
 function testInvalidMapPassAsArgument() returns (map<Person>) {
-    map<Employee> testMap;
+    map<Employee> testMap = {};
     map<Person> m = returnMap(testMap);
     return m;
 }
@@ -41,23 +41,21 @@ function returnMap(map<Person> m) returns (map<Person>) {
 }
 
 function testInvalidAnyMapPassAsArgument() returns (map<Person>) {
-    map testMap;
+    map<any> testMap = {};
     map<Person> m = returnMap(testMap);
     return m;
 }
 
 function testInvalidStructEquivalentCast() returns (map<Person>) {
-    map<Employee> testEMap;
-    map<Person> testPMap;
-    testPMap = <map<Person>>testEMap;
+    map<Employee> testEMap = {};
+    map<Person> testPMap = <map<Person>>testEMap;
     return testPMap;
 }
 
 function testInvalidCastAnyToConstrainedMap() returns (map<Employee>) {
-    map<Employee> testMap;
+    map<Employee> testMap = {};
     any m = testMap;
-    map<Employee> castMap;
-    castMap = <map<Employee>>m;
+    map<Employee> castMap = <map<Employee>>m;
     return castMap;
 }
 
@@ -66,16 +64,21 @@ type Student record {
     int age;
 };
 
-function testInvalidStructToConstrainedMapSafeConversion() returns (map<int>) {
+function testInvalidStructToConstrainedMapSafeConversion() returns (map<int>|error) {
     Student s = {index:100, age:25};
-    map<int> imap;
-    imap = <map<int>>s;
+    map<int> imap = check map<int>.convert(s);
     return imap;
 }
 
 function testInvalidStructEquivalentCastCaseTwo() returns (map<Student>) {
-    map<Person> testPMap;
-    map<Student> testSMap;
-    testSMap = <map<Student>>testPMap;
+    map<Person> testPMap = {};
+    map<Student> testSMap = <map<Student>>testPMap;
     return testSMap;
+}
+
+function testMapToStructConversionNegative () returns (Student|error) {
+    map<string> testMap = {};
+    testMap["index"] = "100";
+    testMap["age"] = "63";
+    return check Student.convert(testMap);
 }

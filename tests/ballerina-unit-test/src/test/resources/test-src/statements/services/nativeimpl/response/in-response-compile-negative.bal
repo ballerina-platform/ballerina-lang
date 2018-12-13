@@ -44,5 +44,3 @@ function testSetXmlPayload(http:Response res, xml value) returns http:Response {
     res.setXmlPayload(value);
     return res;
 }
-
-

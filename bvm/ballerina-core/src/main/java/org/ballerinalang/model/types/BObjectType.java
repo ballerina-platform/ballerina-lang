@@ -59,12 +59,6 @@ public class BObjectType extends BStructureType {
     }
 
     @Override
-    public TypeSignature getSig() {
-        String packagePath = (pkgPath == null) ? "." : pkgPath;
-        return new TypeSignature(TypeSignature.SIG_STRUCT, packagePath, typeName);
-    }
-
-    @Override
     public int getTag() {
         return TypeTags.OBJECT_TYPE_TAG;
     }

@@ -31,9 +31,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -202,10 +202,10 @@ public class CompletionVisitorUtil {
      * Generate a variable Definition.
      *
      * @param var                           BLang Variable
-     * @return {@link BLangVariableDef}     Generated BLang Variable Definition
+     * @return {@link BLangSimpleVariableDef}     Generated BLang Variable Definition
      */
-    public static BLangVariableDef createVarDef(BLangVariable var) {
-        BLangVariableDef varDefNode = new BLangVariableDef();
+    public static BLangSimpleVariableDef createVarDef(BLangSimpleVariable var) {
+        BLangSimpleVariableDef varDefNode = new BLangSimpleVariableDef();
         varDefNode.var = var;
         varDefNode.pos = var.pos;
         return varDefNode;

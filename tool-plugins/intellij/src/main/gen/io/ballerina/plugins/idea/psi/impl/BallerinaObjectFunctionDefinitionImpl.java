@@ -91,8 +91,26 @@ public class BallerinaObjectFunctionDefinitionImpl extends BallerinaCompositeEle
 
   @Override
   @Nullable
+  public PsiElement getPrivate() {
+    return findChildByType(PRIVATE);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getPublic() {
     return findChildByType(PUBLIC);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getRemote() {
+    return findChildByType(REMOTE);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getResource() {
+    return findChildByType(RESOURCE);
   }
 
 }

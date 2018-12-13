@@ -25,6 +25,8 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.util.Arrays;
+
 /**
  * Basic worker related tests.
  */
@@ -35,7 +37,7 @@ public class BasicWorkerTest {
     @BeforeClass
     public void setup() {
         this.result = BCompileUtil.compile("test-src/workers/basic-worker-actions.bal");
-        Assert.assertEquals(result.getErrorCount(), 0);
+        Assert.assertEquals(result.getErrorCount(), 0, Arrays.asList(result.getDiagnostics()).toString());
     }
     
     @Test
@@ -49,36 +51,22 @@ public class BasicWorkerTest {
     }
     
     @Test
-    public void basicForkJoinTest() {
-        BValue[] vals = BRunUtil.invoke(result, "basicForkJoinTest", new BValue[0]);
+    public void basicForkTest() {
+        BValue[] vals = BRunUtil.invoke(result, "basicForkTest", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         Assert.assertEquals(((BInteger) vals[0]).intValue(), 10);
     }
     
     @Test
-    public void forkJoinWithMessageParsingTest() {
-        BValue[] vals = BRunUtil.invoke(result, "forkJoinWithMessageParsingTest", new BValue[0]);
+    public void forkWithMessageParsingTest() {
+        BValue[] vals = BRunUtil.invoke(result, "forkWithMessageParsingTest", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         Assert.assertEquals(((BInteger) vals[0]).intValue(), 5);
     }
     
     @Test
-    public void forkJoinWithSingleForkMessages() {
-        BValue[] vals = BRunUtil.invoke(result, "forkJoinWithSingleForkMessages", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
-        Assert.assertEquals(((BInteger) vals[0]).intValue(), 5);
-    }
-    
-    @Test
-    public void forkJoinWithMultipleForkMessages() {
-        BValue[] vals = BRunUtil.invoke(result, "forkJoinWithMultipleForkMessages", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
-        Assert.assertEquals(((BInteger) vals[0]).intValue(), 5);
-    }
-    
-    @Test
-    public void forkJoinWithSomeJoin() {
-        BValue[] vals = BRunUtil.invoke(result, "forkJoinWithSomeJoin", new BValue[0]);
+    public void forkWithWaitForAny() {
+        BValue[] vals = BRunUtil.invoke(result, "forkWithWaitForAny", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         BInteger val = (BInteger) vals[0];
         Assert.assertEquals(val.intValue(), 15);

@@ -27,13 +27,13 @@ public interface BallerinaDefinition extends BallerinaCompositeElement {
   BallerinaAnnotationDefinition getAnnotationDefinition();
 
   @Nullable
+  BallerinaConstantDefinition getConstantDefinition();
+
+  @Nullable
   BallerinaFunctionDefinition getFunctionDefinition();
 
   @Nullable
-  BallerinaGlobalEndpointDefinition getGlobalEndpointDefinition();
-
-  @Nullable
-  BallerinaGlobalVariable getGlobalVariable();
+  BallerinaGlobalVariableDefinition getGlobalVariableDefinition();
 
   @Nullable
   BallerinaServiceDefinition getServiceDefinition();

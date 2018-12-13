@@ -13,16 +13,14 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/io;
 import ballerina/grpc;
 
-endpoint grpc:Listener ep {
-    host:"localhost",
-    port:9090
-};
+listener grpc:Listener server2 = new (9090, config = {
+    host:"localhost"
+});
 
-service HelloWorld bind ep {
-    invalidRespType(endpoint caller, string name) {
+service HelloWorld on server2 {
+    resource function invalidRespType(grpc:Caller caller, string name) {
         string? message = "Hello " + name;
         error? err = caller->send(message);
         _ = caller->complete();

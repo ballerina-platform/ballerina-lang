@@ -27,7 +27,6 @@ import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -35,6 +34,7 @@ import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.stdlib.time.util.TimeUtils;
 import org.ballerinalang.util.TableIterator;
 import org.ballerinalang.util.TableResourceManager;
@@ -139,7 +139,12 @@ public class SQLDataIterator extends TableIterator {
         String columnName = null;
         int sqlType = -1;
         try {
-            BField[] structFields = this.type.getFields();
+            BField[] structFields = this.type.getFields().values().toArray(new BField[0]);
+            if (columnDefs.size() != structFields.length) {
+                throw new BallerinaException(
+                        "Number of fields in the constraint type is " + (structFields.length > columnDefs.size() ?
+                                "greater" : "lower") + " than column count of the result set");
+            }
             for (ColumnDefinition columnDef : columnDefs) {
                 if (columnDef instanceof SQLColumnDefinition) {
                     SQLColumnDefinition def = (SQLColumnDefinition) columnDef;
@@ -296,7 +301,7 @@ public class SQLDataIterator extends TableIterator {
         if (structValue == null) {
             return null;
         }
-        BField[] internalStructFields = structType.getFields();
+        BField[] internalStructFields = structType.getFields().values().toArray(new BField[0]);
         BMap<String, BValue> struct = new BMap<>(structType);
         try {
             Object[] dataArray = structValue.getAttributes();
@@ -442,8 +447,8 @@ public class SQLDataIterator extends TableIterator {
                 handleUnAssignableUnionTypeAssignment();
             }
         } else if (fieldTypeTag == TypeTags.RECORD_TYPE_TAG) {
-            bStruct.put(fieldName,
-                    createUserDefinedType(structData, (BRecordType) fieldType));
+            validateAndSetRefRecordField(bStruct, fieldName, TypeTags.RECORD_TYPE_TAG, fieldTypeTag,
+                    createUserDefinedType(structData, (BRecordType) fieldType), MISMATCHING_FIELD_ASSIGNMENT);
         } else {
             handleMismatchingFieldAssignment();
         }
@@ -461,7 +466,8 @@ public class SQLDataIterator extends TableIterator {
             if (isOriginalValueNull) {
                 handleNilToNonNillableFieldAssignment();
             } else {
-                bStruct.put(fieldName, new BBoolean(boolValue));
+                validateAndSetRefRecordField(bStruct, fieldName, TypeTags.BOOLEAN_TAG, fieldTypeTag,
+                        new BBoolean(boolValue), MISMATCHING_FIELD_ASSIGNMENT);
             }
         }
     }
@@ -483,7 +489,7 @@ public class SQLDataIterator extends TableIterator {
             if (nonNillType.getTag() == TypeTags.ARRAY_TAG) {
                 int elementTypeTag = ((BArrayType) nonNillType).getElementType().getTag();
                 if (elementTypeTag == TypeTags.BYTE_TAG) {
-                    BRefType refValue = bytes == null ? null : new BByteArray(bytes);
+                    BRefType refValue = bytes == null ? null : new BValueArray(bytes);
                     bStruct.put(fieldName, refValue);
                 } else {
                     handleUnAssignableUnionTypeAssignment();
@@ -493,7 +499,16 @@ public class SQLDataIterator extends TableIterator {
             }
         } else {
             if (bytes != null) {
-                bStruct.put(fieldName, new BByteArray(bytes));
+                if (TypeTags.ARRAY_TAG == fieldTypeTag) {
+                    int elementTypeTag = ((BArrayType) fieldType).getElementType().getTag();
+                    if (elementTypeTag == TypeTags.BYTE_TAG) {
+                        bStruct.put(fieldName, new BValueArray(bytes));
+                    } else {
+                        throw new BallerinaException(MISMATCHING_FIELD_ASSIGNMENT);
+                    }
+                } else {
+                    throw new BallerinaException(MISMATCHING_FIELD_ASSIGNMENT);
+                }
             } else {
                 handleNilToNonNillableFieldAssignment();
             }
@@ -509,7 +524,8 @@ public class SQLDataIterator extends TableIterator {
                     retrieveNonNilTypeTag(fieldType), refValue, UNASSIGNABLE_UNIONTYPE_EXCEPTION);
         } else {
             if (stringValue != null) {
-                bStruct.put(fieldName, new BString(stringValue));
+                validateAndSetRefRecordField(bStruct, fieldName, TypeTags.STRING_TAG, fieldTypeTag,
+                        new BString(stringValue), MISMATCHING_FIELD_ASSIGNMENT);
             } else {
                 handleNilToNonNillableFieldAssignment();
             }
@@ -550,7 +566,7 @@ public class SQLDataIterator extends TableIterator {
             if (elementTypeTag == TypeTags.BYTE_TAG) {
                 Blob blobValue = rs.getBlob(index);
                 byte[] bytes = blobValue.getBytes(1L, (int) blobValue.length());
-                bStruct.put(fieldName, bytes == null ? null : new BByteArray(bytes));
+                bStruct.put(fieldName, bytes == null ? null : new BValueArray(bytes));
             } else {
                 errorHandlerFunction.apply();
             }
@@ -573,7 +589,8 @@ public class SQLDataIterator extends TableIterator {
             if (isOriginalValueNull) {
                 handleNilToNonNillableFieldAssignment();
             } else {
-                bStruct.put(fieldName, new BInteger(longValue));
+                validateAndSetRefRecordField(bStruct, fieldName, TypeTags.INT_TAG, fieldTypeTag,
+                        new BInteger(longValue), MISMATCHING_FIELD_ASSIGNMENT);
             }
         }
     }
@@ -590,7 +607,8 @@ public class SQLDataIterator extends TableIterator {
             if (isOriginalValueNull) {
                 handleNilToNonNillableFieldAssignment();
             } else {
-                bStruct.put(fieldName, new BFloat(fValue));
+                validateAndSetRefRecordField(bStruct, fieldName, TypeTags.FLOAT_TAG, fieldTypeTag,
+                        new BFloat(fValue), MISMATCHING_FIELD_ASSIGNMENT);
             }
         }
     }

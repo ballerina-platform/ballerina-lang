@@ -24,6 +24,9 @@ import com.intellij.psi.PsiElement;
 public interface BallerinaSimpleTypeName extends BallerinaTypeName {
 
   @Nullable
+  BallerinaAnyDataTypeName getAnyDataTypeName();
+
+  @Nullable
   BallerinaAnyTypeName getAnyTypeName();
 
   @Nullable

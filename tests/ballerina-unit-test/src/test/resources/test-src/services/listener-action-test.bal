@@ -1,11 +1,9 @@
 import ballerina/http;
 
-endpoint http:NonListener echoEP {
-    port:9090
-};
+listener http:MockListener echoEP  = new(9090);
 
 @http:ServiceConfig {basePath:"/listener"}
-service<http:Service> echo bind echoEP {
+service echo on echoEP {
 
     string serviceLevelStringVar = "sample value";
 
@@ -13,10 +11,10 @@ service<http:Service> echo bind echoEP {
         methods:["GET"],
         path:"/message"
     }
-    echo (endpoint conn, http:Request req) {
+    resource function echo(http:Caller caller, http:Request req) {
         http:Response res = new;
-        res.setTextPayload(serviceLevelStringVar);
-        _ = conn -> respond(res);
-        serviceLevelStringVar = "done";
+        res.setTextPayload(self.serviceLevelStringVar);
+        _ = caller->respond(res);
+        self.serviceLevelStringVar = "done";
     }
 }

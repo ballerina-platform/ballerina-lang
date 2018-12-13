@@ -1,21 +1,16 @@
-
 type Person object {
+    public int age = 0;
 
-    public int age;
-
-
-    new (age) {
-
+    function __init (int age) {
+        self.age = age;
     }
 };
 
 type Employee object {
+    public int age = 0;
 
-    public int age;
-
-
-    new (age, int addVal) {
-        age = age + addVal;
+    function __init (int age, int addVal) {
+        self.age = age + addVal;
     }
 };
 
@@ -30,7 +25,4 @@ function returnDifferentObectInit1() returns Person | () {
 function returnDifferentObectInit2() {
     Person | () person = new (5);
     var person1 = new (5);
-    error person2 = new (5);
 }
-
-

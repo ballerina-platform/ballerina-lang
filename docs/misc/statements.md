@@ -11,7 +11,7 @@ A statement can be one of the following:
 - return
 - reply
 - worker initiation/invocation/join: see [Workers](workers.md)
-- action invocation: see [Actions](actions.md)
+- remote function invocation: see [Remote Functions](remote-functions.md)
 - comment
 
 The rest of this page describes the statements you can use in your Ballerina program. 
@@ -130,8 +130,8 @@ Note that when you use Reply, the request message with its original HTTP headers
 
 ## Comment
 
-Comments are quite different in Ballerina in comparison to other languages. Comments are only allowed as a statement, i.e., only inside a resource, action, or function.
+Comments are quite different in Ballerina in comparison to other languages. Comments are only allowed as a statement, i.e., only inside a resource, remote function, or function.
 
-Ballerina has designed structured mechanisms via annotations to document all outer-level Ballerina constructs (services, resources, etc.), and comments only play the role of providing a comment about the logic of a resource, action, or function.
+Ballerina has designed structured mechanisms via annotations to document all outer-level Ballerina constructs (services, resources, etc.), and comments only play the role of providing a comment about the logic of a resource, remote function, or function.
 
 Any statement that starts with the characters `//` is a comment.

@@ -1,46 +1,71 @@
 import ballerina/io;
 
-public function main() {
-    // A `float` to `int` conversion can result in some of the information getting lost.
-    // However, this type of conversion is always considered safe because the conversion can never fail at runtime.
-    float f = 10.0;
-    var i = <int>f;
-    io:println(i);
+type Person record {
+    string name = "";
+    int age = 0;
+};
 
-    // An `int` to `string` conversion is always considered safe.
-    int intVal = 45;
-    var strVal = <string>intVal;
+type Employee record {
+    string name = "";
+    int age = 0;
+    int empNo = 0;
+};
 
-    // A `string` to `int` conversion is considered unsafe.
-    // The compiler requires the user to assign the result of conversion expression to an `int|error` union typed variable.
-    // The `error` typed variable represents an error that occurs during the type conversion.
-    strVal = "Sri Lanka";
-    var intResult = <int>strVal;
-    match intResult {
-        int value => io:println(value);
-        error err => io:println("error: " + err.message);
+function convertType(Employee emp) returns () {
+    // The `convert()` creates a new value and changes its type without editing provided value's inherent type.
+    Person|error empPerson = Person.convert(emp);
+    io:println("empPerson name: ",
+                (empPerson is Person) ? empPerson["name"] : empPerson.reason());
+}
+
+function convertSimpleTypes() {
+
+    // The `convert()` can be used to explicity convert simple values as below.
+    string s1 = "45";
+    string s2 = "abc";
+    string s3 = "true";
+    float f = 10.2;
+    any a = 3.14;
+    
+    int|error intVal1 = int.convert(s1);
+
+    int|error intVal2 = int.convert(s2);
+
+    int intVal3 = int.convert(f);
+
+    boolean|error b = boolean.convert(s3);
+
+    float|error af = float.convert(a);
+
+    if (intVal1 is int) {
+        io:println("Int value 1 : " + intVal1);
+    } else {
+        io:println("Error: " + intVal1.reason());
     }
 
-    // A `boolean` to `int` conversion is always considered safe. In such conversions, `0` represents a `false` value, and `1` represents a `true` value.
-    boolean boolVal = true;
-    intVal = <int>boolVal;
-    io:println(intVal);
+    if (intVal2 is int) {
+        io:println("Int value 2 : " + intVal2);
+    } else {
+        io:println("Error: " + intVal2.reason());
+    }
 
-    // This is an `int` to `boolean` conversion. The boolean value is `false` only if the int value is `0`.
-    intVal = -10;
-    boolVal = <boolean>intVal;
-    io:println(boolVal);
+    io:println("Int value 3 : " + intVal3);
 
-    // This is a `string` to `boolean` conversion.
-    strVal = "true";
-    boolVal = <boolean>strVal;
-    io:println(boolVal);
+    if (b is boolean) {
+        io:println("Boolean value : " + b);
+    } else {
+        io:println("Error: " + b.reason());
+    }
 
-    // This assigns a value of the `float` type to a variable of the `any` type.
-    any a = 3.14;
+    if (af is float) {
+        io:println("Float value : " + af);
+    } else {
+        io:println("Error: " + af.reason());
+    }
+}
 
-    // This shows how to convert a variable of the `any` type to the `float` type.
-    // This conversion is unsafe because the value of the `a` variable is unknown.
-    float? af = check <float>a;
-    io:println(af);
+public function main() {
+    Employee emp = {name: "Jack Sparrow", age: 54, empNo: 100};
+    convertType(emp);
+    convertSimpleTypes();
 }

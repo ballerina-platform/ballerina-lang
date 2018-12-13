@@ -16,11 +16,9 @@
 
 import ballerina/http;
 import ballerina/io;
-import ballerina/mime;
 
 public function main(string... args) {
-    endpoint http:Client clientEP {
-        url: args[0],
+    http:Client clientEP = new(args[0], config = {
         secureSocket: {
             keyStore: {
                 path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
@@ -30,18 +28,19 @@ public function main(string... args) {
                 path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
                 password: "ballerina"
             },
-            ciphers: ["TLS_RSA_WITH_AES_256_CBC_SHA"]
+            ciphers: ["TLS_RSA_WITH_AES_128_CBC_SHA"]
         }
-    };
+    });
     http:Request req = new;
     var resp = clientEP->get("/echo/");
-    match resp {
-        error err => io:println(err.message);
-        http:Response response => {
-            match (response.getTextPayload()) {
-                error payloadError => io:println(payloadError.message);
-                string res => io:println(res);
-            }
+    if (resp is http:Response) {
+        var payload = resp.getTextPayload();
+        if (payload is string) {
+            io:println(payload);
+        } else if (payload is error) {
+            io:println(<string> payload.detail().message);
         }
+    } else if (resp is error) {
+        io:println(<string> resp.detail().message);
     }
 }

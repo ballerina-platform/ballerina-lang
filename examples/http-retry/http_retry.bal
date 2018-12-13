@@ -3,66 +3,68 @@ import ballerina/log;
 import ballerina/runtime;
 
 // Define the end point to the call the `mockHelloService`.
-endpoint http:Client backendClientEP {
-    url: "http://localhost:8080",
-    // Retry configuration options.
-    retryConfig: {
+http:Client backendClientEP = new("http://localhost:8080", config = {
+        // Retry configuration options.
+        retryConfig: {
 
-        // Initial retry interval in milliseconds.
-        interval: 3000,
+            // Initial retry interval in milliseconds.
+            interval: 3000,
 
-        // Number of retry attempts before giving up
-        count: 3,
+            // Number of retry attempts before giving up
+            count: 3,
 
-        // Multiplier of the retry interval to exponentailly
-        // increase; retry interval
-        backOffFactor: 2.0,
+            // Multiplier of the retry interval to exponentailly
+            // increase; retry interval
+            backOffFactor: 2.0,
 
-        // Upper limit of the retry interval in milliseconds
-        // If interval into backOffFactor value exceeded
-        // maxWaitInterval interval values. maxWaitInterval
-        // will be considered as the retry intrval.
-        maxWaitInterval: 20000
+            // Upper limit of the retry interval in milliseconds
+            // If `interval` into `backOffFactor` value exceeded
+            // `maxWaitInterval` interval value. `maxWaitInterval`
+            // will be considered as the retry intrval.
+            maxWaitInterval: 20000
 
-    },
-    timeoutMillis: 2000
-};
+        },
+        timeoutMillis: 2000
+    });
 
 @http:ServiceConfig {
     basePath: "/retry"
 }
-service<http:Service> retryDemoService bind { port: 9090 } {
+service retryDemoService on new http:Listener(9090) {
     // Create a REST resource within the API.
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/"
     }
-    // Parameters include a reference to the caller endpoint and an object of
+    // Parameters include a reference to the caller and an object of
     // the request data.
-    invokeEndpoint(endpoint caller, http:Request request) {
-        var backendResponse = backendClientEP->get("/hello", message = untaint request);
-        // `match` is used to handle union-type returns.
-        // If a response is returned, the normal process runs.
-        // If the service does not get the expected response,
-        // the error-handling logic is executed.
-        match backendResponse {
+    resource function invokeEndpoint(http:Caller caller, http:Request request) {
 
-            http:Response response => {
-                // '->' signifies remote call.
-                caller->respond(response) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+        var backendResponse = backendClientEP->forward("/hello", request);
 
+        // `is` operator is used to separate out union-type returns.
+        // The type of `backendResponse` variable is the union of `http:Response` and `error`.
+        // If a response is returned, `backendResponse` is treated as an `http:Response`
+        // within the if-block and the normal process runs.
+        // If the service returns an `error`, `backendResponse` is implicitly
+        // converted to an `error` within the else block.
+        if (backendResponse is http:Response) {
+
+            var responseToCaller = caller->respond(backendResponse);
+            if (responseToCaller is error) {
+                log:printError("Error sending response",
+                                err = responseToCaller);
             }
-            error responseError => {
-                // Create a new HTTP response by looking at the error message.
-                http:Response errorResponse = new;
-                errorResponse.statusCode = 500;
-                errorResponse.setPayload(responseError.message);
 
-                caller->respond(errorResponse) but {
-                    error e => log:printError("Error sending response", err = e)
-                };
+        } else {
+            http:Response response = new;
+            response.statusCode = http:INTERNAL_SERVER_ERROR_500;
+            string errCause = <string> backendResponse.detail().message;
+            response.setPayload(errCause);
+            var responseToCaller = caller->respond(response);
+            if (responseToCaller is error) {
+                log:printError("Error sending response",
+                                err = responseToCaller);
             }
         }
     }
@@ -73,14 +75,14 @@ public int counter = 0;
 // This sample service is used to mock connection timeouts and service outages.
 // The service outage is mocked by stopping/starting this service.
 // This should run separately from the `retryDemoService` service.
-
 @http:ServiceConfig { basePath: "/hello" }
-service<http:Service> mockHelloService bind { port: 8080 } {
+service mockHelloService on new http:Listener(8080) {
+
     @http:ResourceConfig {
-        methods: ["GET"],
+        methods: ["GET", "POST"],
         path: "/"
     }
-    sayHello(endpoint caller, http:Request req) {
+    resource function sayHello(http:Caller caller, http:Request req) {
         counter = counter + 1;
         if (counter % 4 != 0) {
             log:printInfo(
@@ -88,21 +90,18 @@ service<http:Service> mockHelloService bind { port: 8080 } {
             // Delay the response by 5000 milliseconds to
             // mimic network level delays.
             runtime:sleep(5000);
-
-            http:Response res = new;
-            res.setPayload("Hello World!!!");
-            caller->respond(res) but {
-                error e => log:printError(
-                    "Error sending response from mock service", err = e)
-            };
+            var responseToCaller = caller->respond("Hello World!!!");
+            if (responseToCaller is error) {
+                log:printError("Error sending response from mock service",
+                        err = responseToCaller);
+            }
         } else {
-            log:printInfo(
-                "Request received from the client to healthy service.");
-            http:Response res = new;
-            res.setPayload("Hello World!!!");
-            caller->respond(res) but {
-                error e => log:printError(
-                    "Error sending response from mock service", err = e) };
+            log:printInfo("Request received from the client to healthy service.");
+            var responseToCaller = caller->respond("Hello World!!!");
+            if (responseToCaller is error) {
+                log:printError("Error sending response from mock service",
+                        err = responseToCaller);
+            }
         }
     }
 }

@@ -12,7 +12,7 @@ function simpleWorkers() {
         int a = calculateExp1(p , q);
         io:println("worker 1 - " + a);
         a -> w2;
-        a <- w2;
+        a = <- w2;
     }
     worker w2 {
         int a = 0;
@@ -21,17 +21,17 @@ function simpleWorkers() {
         // Invoke Some random Logic.
         int b = calculateExp3(p , q);
         io:println("worker 2 - " + b);
-        a <- w1;
+        a = <- w1;
         b -> w1;
     }
 }
 
 function calculateExp1(int x, int y) returns (int) {
-    int z;
+    int z = 0;
     int a = y;
     while(x >= a) {
         a = a + 1;
-        if(a == 10){
+        if(a == 10) {
             z = 100;
             break;
         }
@@ -41,11 +41,11 @@ function calculateExp1(int x, int y) returns (int) {
 }
 
 function calculateExp3(int x, int y) returns (int) {
-    int z;
+    int z = 0;
     int a = y;
     while(x >= a) {
         a = a + 1;
-        if(a == 10){
+        if(a == 10) {
             z = 100;
             break;
         }

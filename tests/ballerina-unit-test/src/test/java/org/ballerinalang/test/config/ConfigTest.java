@@ -329,6 +329,14 @@ public class ConfigTest {
         Assert.assertEquals(((BFloat) returnVals[0]).floatValue(), 0.23333);
     }
 
+    @Test(description = "Test \\ in the config value string")
+    public void testBackwardSlashInString() throws IOException {
+        registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
+        BValue[] inputArg = {new BString("path.test")};
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetAsString", inputArg);
+        Assert.assertEquals(returnVals[0].stringValue(), "C:\\Users\\John");
+    }
+
     private Map<String, String> getRuntimeProperties() {
         Map<String, String> runtimeConfigs = new HashMap<>();
         runtimeConfigs.put("ballerina.http.host", "10.100.1.201");

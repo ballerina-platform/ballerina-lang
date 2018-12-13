@@ -20,13 +20,13 @@ package org.ballerinalang.test.nativeimpl.functions;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BValueType;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
@@ -223,7 +223,7 @@ public class IOTest {
 
     @Test
     public void testFormatBooleanTrue() {
-        BRefValueArray fArgs = new BRefValueArray();
+        BValueArray fArgs = new BValueArray();
         fArgs.add(0, new BBoolean(true));
         BValue[] args = {new BString("%b"), fArgs};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSprintf", args);
@@ -232,7 +232,7 @@ public class IOTest {
 
     @Test
     public void testFormatBooleanFalse() {
-        BRefValueArray fArgs = new BRefValueArray();
+        BValueArray fArgs = new BValueArray();
         fArgs.add(0, new BBoolean(false));
         BValue[] args = {new BString("%b"), fArgs};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSprintf", args);
@@ -241,7 +241,7 @@ public class IOTest {
 
     @Test
     public void testFormatDecimal() {
-        BRefValueArray fArgs = new BRefValueArray();
+        BValueArray fArgs = new BValueArray();
         fArgs.add(0, new BInteger(65));
         BValue[] args = {new BString("%d"), fArgs};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSprintf", args);
@@ -250,7 +250,7 @@ public class IOTest {
 
     @Test
     public void testFormatFloat() {
-        BRefValueArray fArgs = new BRefValueArray();
+        BValueArray fArgs = new BValueArray();
         fArgs.add(0, new BFloat(3.25));
         BValue[] args = {new BString("%f"), fArgs};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSprintf", args);
@@ -260,7 +260,7 @@ public class IOTest {
     @Test
     public void testFormatString() {
         String name = "John";
-        BRefValueArray fArgs = new BRefValueArray();
+        BValueArray fArgs = new BValueArray();
         fArgs.add(0, new BString(name));
         BValue[] args = {new BString("%s"), fArgs};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSprintf", args);
@@ -269,7 +269,7 @@ public class IOTest {
 
     @Test
     public void testFormatHex() {
-        BRefValueArray fArgs = new BRefValueArray();
+        BValueArray fArgs = new BValueArray();
         fArgs.add(0, new BInteger(57005));
         BValue[] args = {new BString("%x"), fArgs};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSprintf", args);
@@ -278,11 +278,11 @@ public class IOTest {
 
     @Test
     public void testFormatIntArray() {
-        BRefValueArray fArgs = new BRefValueArray();
-        BIntArray arr = new BIntArray();
-        arr.add(0, 111);
-        arr.add(1, 222);
-        arr.add(2, 333);
+        BValueArray fArgs = new BValueArray();
+        BValueArray arr = new BValueArray(BTypes.typeInt);
+        arr.add(0, 111L);
+        arr.add(1, 222L);
+        arr.add(2, 333L);
 
         fArgs.add(0, arr);
         BValue[] args = {new BString("%s"), fArgs};
@@ -292,7 +292,7 @@ public class IOTest {
 
     @Test
     public void testFormatLiteralPercentChar() {
-        BRefValueArray fArgs = new BRefValueArray();
+        BValueArray fArgs = new BValueArray();
         fArgs.add(0, new BString("test"));
         BValue[] args = {new BString("%% %s"), fArgs};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSprintf", args);
@@ -301,7 +301,7 @@ public class IOTest {
 
     @Test
     public void testFormatStringWithPadding() {
-        BRefValueArray fArgs = new BRefValueArray();
+        BValueArray fArgs = new BValueArray();
         fArgs.add(0, new BString("Hello Ballerina"));
         BValue[] args = {new BString("%9.2s"), fArgs};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSprintf", args);
@@ -310,7 +310,7 @@ public class IOTest {
 
     @Test
     public void testFormatFloatWithPadding() {
-        BRefValueArray fArgs = new BRefValueArray();
+        BValueArray fArgs = new BValueArray();
         fArgs.add(0, new BFloat(123456789.9876543));
         BValue[] args = {new BString("%5.4f"), fArgs};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSprintf", args);
@@ -319,7 +319,7 @@ public class IOTest {
 
     @Test
     public void testFormatDecimalWithPadding() {
-        BRefValueArray fArgs = new BRefValueArray();
+        BValueArray fArgs = new BValueArray();
         fArgs.add(0, new BInteger(12345));
         BValue[] args = {new BString("%15d"), fArgs};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSprintf", args);
@@ -329,7 +329,7 @@ public class IOTest {
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = ".*unknown format conversion 'z'.*")
     public void testSprintfInvalidFormatSpecifier() {
-        BRefValueArray fArgs = new BRefValueArray();
+        BValueArray fArgs = new BValueArray();
         fArgs.add(0, new BString("cow"));
         BValue[] args = {new BString("%z"), fArgs};
         BRunUtil.invoke(compileResult, "testSprintf", args);
@@ -338,7 +338,7 @@ public class IOTest {
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = ".*illegal format conversion 'x != string'.*")
     public void testSprintfIllegalFormatConversion() {
-        BRefValueArray fArgs = new BRefValueArray();
+        BValueArray fArgs = new BValueArray();
         fArgs.add(0, new BString("cow"));
         BValue[] args = {new BString("%x"), fArgs};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSprintf", args);

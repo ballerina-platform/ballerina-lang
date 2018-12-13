@@ -114,44 +114,13 @@ public class BObjectTypeSymbolDAO extends AbstractDAO<BObjectTypeSymbolDTO> {
     }
 
     /**
-     * Do a batch update on action holder IDs.
-     * 
-     * @param endpoints             List of endpoint ids
-     * @param actionHolders         List of action holder ids
-     * @return {@link List}         List of generated Keys
-     * @throws LSIndexException     Exception while updating the entries
-     */
-    public List<Integer> updateActionHolderIDs(List<Integer> endpoints, List<Integer> actionHolders)
-            throws LSIndexException {
-        PreparedStatement statement = null;
-        ResultSet rs = null;
-        String query = "UPDATE bLangObject SET actionHolderId = ? WHERE id = ?";
-        try {
-            statement = this.connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-            for (int i = 0; i < endpoints.size(); i++) {
-                statement.setInt(1, actionHolders.get(i));
-                statement.setInt(2, endpoints.get(i));
-                statement.addBatch();
-            }
-            statement.executeBatch();
-            rs = statement.getGeneratedKeys();
-            return this.getGeneratedKeys(rs);
-        } catch (SQLException e) {
-            throw new LSIndexException("Error while updating endpoint action holder IDs");
-        } finally {
-            this.releaseResources(rs, statement);
-        }
-    }
-
-    /**
-     * Get all the endpoint objects.
+     * Get all the client endpoint objects.
      *
-     * @return  {@link List}    List of retrieved endpoint objects
-     * @throws LSIndexException Exception while index access
+     * @return  {@link List}        List of retrieved client endpoint objects
+     * @throws LSIndexException     Exception while index access
      */
-    public List<BObjectTypeSymbolDTO> getAllEndpoints() throws LSIndexException {
-        String query = "SELECT id, packageId, name, type, actionHolderId, private, completionItem FROM bLangObject " +
-                "WHERE type = 1";
+    public List<BObjectTypeSymbolDTO> getAllClientEndpoints() throws LSIndexException {
+        String query = "SELECT id, packageId, name, type, private, completionItem FROM bLangObject WHERE type = 1";
         PreparedStatement statement = null;
         ResultSet rs = null;
         try {
@@ -164,16 +133,15 @@ public class BObjectTypeSymbolDAO extends AbstractDAO<BObjectTypeSymbolDTO> {
                         .setPackageId(rs.getInt(2))
                         .setName(rs.getString(3))
                         .setType(ObjectType.get(rs.getInt(4)))
-                        .setActionHolderId(rs.getInt(5))
-                        .setPrivate(rs.getBoolean(6))
-                        .setCompletionItem(DTOUtil.jsonToCompletionItem(rs.getString(7)))
+                        .setPrivate(rs.getBoolean(5))
+                        .setCompletionItem(DTOUtil.jsonToCompletionItem(rs.getString(6)))
                         .build();
                 epDTOs.add(epDto);
             }
-            
+
             return epDTOs;
         } catch (SQLException e) {
-            throw new LSIndexException("Error retrieving endpoints from index");
+            throw new LSIndexException("Error retrieving client endpoints from index");
         } finally {
             this.releaseResources(rs, statement);
         }

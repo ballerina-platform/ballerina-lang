@@ -27,6 +27,9 @@ import io.ballerina.plugins.idea.stubs.BallerinaWorkerDefinitionStub;
 public interface BallerinaWorkerDefinition extends BallerinaNamedElement, BallerinaTopLevelDefinition, StubBasedPsiElement<BallerinaWorkerDefinitionStub> {
 
   @Nullable
+  BallerinaReturnParameter getReturnParameter();
+
+  @Nullable
   BallerinaWorkerBody getWorkerBody();
 
   @Nullable

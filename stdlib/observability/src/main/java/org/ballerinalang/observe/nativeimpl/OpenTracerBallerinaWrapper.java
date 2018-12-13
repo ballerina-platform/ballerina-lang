@@ -21,10 +21,9 @@ package org.ballerinalang.observe.nativeimpl;
 
 import io.opentracing.Tracer;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.util.codegen.ServiceInfo;
-import org.ballerinalang.util.observability.ObservabilityUtils;
+import org.ballerinalang.util.observability.ObserveUtils;
 import org.ballerinalang.util.observability.ObserverContext;
 import org.ballerinalang.util.observability.TracingUtils;
 import org.ballerinalang.util.program.BLangVMUtils;
@@ -76,11 +75,11 @@ public class OpenTracerBallerinaWrapper {
             return -1;
         }
 
-        WorkerExecutionContext workerExecutionContext = context.getParentWorkerExecutionContext();
-        ServiceInfo serviceInfo = BLangVMUtils.getServiceInfo(workerExecutionContext);
+        // TODO fix - rajith
+        ServiceInfo serviceInfo = BLangVMUtils.getServiceInfo(context.getStrand());
         String serviceName;
         if (serviceInfo != null) {
-            serviceName = ObservabilityUtils.getFullServiceName(serviceInfo);
+            serviceName = ObserveUtils.getFullServiceName(serviceInfo);
         } else {
             serviceName = UNKNOWN_SERVICE;
         }
@@ -95,8 +94,9 @@ public class OpenTracerBallerinaWrapper {
         tags.forEach((observerContext::addTag));
 
         if (parentSpanId == SYSTEM_TRACE_INDICATOR) {
-            ObservabilityUtils.getParentContext(context).ifPresent(observerContext::setParent);
-            ObservabilityUtils.setObserverContextToWorkerExecutionContext(workerExecutionContext, observerContext);
+            observerContext.setSystemSpan(true);
+            ObserveUtils.getObserverContextOfCurrentFrame(context).ifPresent(observerContext::setParent);
+            ObserveUtils.setObserverContextToCurrentFrame(context.getStrand(), observerContext);
             return startSpan(observerContext, true, spanName);
         } else if (parentSpanId != ROOT_SPAN_INDICATOR) {
             ObserverContext parentOContext = observerContextList.get(parentSpanId);
@@ -121,15 +121,20 @@ public class OpenTracerBallerinaWrapper {
     /**
      * Method to mark a span as finished.
      *
+     *
+     * @param context current context
      * @param spanId id of the Span
      * @return boolean to indicate if span was finished
      */
-    public boolean finishSpan(int spanId) {
+    public boolean finishSpan(Context context, int spanId) {
         if (!enabled) {
             return false;
         }
         ObserverContext observerContext = observerContextList.get(spanId);
         if (observerContext != null) {
+            if (observerContext.isSystemSpan()) {
+                ObserveUtils.setObserverContextToCurrentFrame(context.getStrand(), observerContext.getParent());
+            }
             TracingUtils.stopObservation(observerContext);
             observerContext.setFinished();
             observerContextList.remove(spanId);
@@ -154,7 +159,7 @@ public class OpenTracerBallerinaWrapper {
         }
         ObserverContext observerContext = observerContextList.get(spanId);
         if (spanId == -1) {
-            Optional<ObserverContext> observer = ObservabilityUtils.getParentContext(context);
+            Optional<ObserverContext> observer = ObserveUtils.getObserverContextOfCurrentFrame(context);
             if (observer.isPresent()) {
                 observer.get().addTag(tagKey, tagValue);
                 return true;

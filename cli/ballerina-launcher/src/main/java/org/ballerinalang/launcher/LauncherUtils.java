@@ -63,6 +63,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.LogManager;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
+import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
@@ -82,12 +83,19 @@ public class LauncherUtils {
     public static void runProgram(Path sourceRootPath, Path sourcePath, Map<String, String> runtimeParams,
                                   String configFilePath, String[] args, boolean offline, boolean observeFlag) {
         runProgram(sourceRootPath, sourcePath, MAIN_FUNCTION_NAME, runtimeParams, configFilePath, args, offline,
-                   observeFlag, false);
+                observeFlag, false, true);
     }
 
     public static void runProgram(Path sourceRootPath, Path sourcePath, String functionName,
                                   Map<String, String> runtimeParams, String configFilePath, String[] args,
                                   boolean offline, boolean observeFlag, boolean printReturn) {
+        runProgram(sourceRootPath, sourcePath, functionName, runtimeParams, configFilePath, args, offline, observeFlag,
+                printReturn, true);
+    }
+
+    public static void runProgram(Path sourceRootPath, Path sourcePath, String functionName,
+                                  Map<String, String> runtimeParams, String configFilePath, String[] args,
+                                  boolean offline, boolean observeFlag, boolean printReturn, boolean experimentalFlag) {
         ProgramFile programFile;
         String srcPathStr = sourcePath.toString();
         Path fullPath = sourceRootPath.resolve(sourcePath);
@@ -99,17 +107,21 @@ public class LauncherUtils {
             programFile = BLangProgramLoader.read(sourcePath);
         } else if (Files.isRegularFile(fullPath) && srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX) &&
                 !RepoUtils.hasProjectRepo(sourceRootPath)) {
-            programFile = compile(fullPath.getParent(), fullPath.getFileName(), offline);
+            programFile = compile(fullPath.getParent(), fullPath.getFileName(), offline, experimentalFlag);
         } else if (Files.isDirectory(sourceRootPath)) {
             if (Files.isDirectory(fullPath) && !RepoUtils.hasProjectRepo(sourceRootPath)) {
                 throw createLauncherException("did you mean to run the module ? If so, either run from the project " +
                                               "folder or use --sourceroot to specify the project path and run the " +
                                               "module");
             }
-            if (Files.isRegularFile(fullPath) && !srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX)) {
-                throw createLauncherException("only modules, " + BLANG_SRC_FILE_SUFFIX + " and " +
-                                                      BLANG_EXEC_FILE_SUFFIX + " files can be used with the " +
-                                                      "'ballerina run' command.");
+            if (Files.exists(fullPath)) {
+                if (Files.isRegularFile(fullPath) && !srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX)) {
+                    throw createLauncherException("only modules, " + BLANG_SRC_FILE_SUFFIX + " and " +
+                                                          BLANG_EXEC_FILE_SUFFIX + " files can be used with the " +
+                                                          "'ballerina run' command.");
+                }
+            } else {
+                throw createLauncherException("ballerina source does not exist '" + srcPathStr + "'");
             }
             // If we are trying to run a bal file inside a module from inside a project directory an error is thrown.
             // To differentiate between top level bals and bals inside modules we need to check if the parent of the
@@ -119,7 +131,7 @@ public class LauncherUtils {
                 throw createLauncherException("you are trying to run a ballerina file inside a module within a " +
                                                       "project. Try running 'ballerina run <module-name>'");
             }
-            programFile = compile(sourceRootPath, sourcePath, offline);
+            programFile = compile(sourceRootPath, sourcePath, offline, experimentalFlag);
         } else {
             throw createLauncherException("only modules, " + BLANG_SRC_FILE_SUFFIX + " and " + BLANG_EXEC_FILE_SUFFIX
                                                   + " files can be used with the 'ballerina run' command.");
@@ -288,15 +300,18 @@ public class LauncherUtils {
      * @param sourceRootPath Path to the source root
      * @param sourcePath Path to the source from the source root
      * @param offline Should the build call remote repos
+     * @param enableExpFeatures Flag indicating to enable the experimental feature
      * @return Executable program
      */
-    public static ProgramFile compile(Path sourceRootPath, Path sourcePath, boolean offline) {
+    public static ProgramFile compile(Path sourceRootPath, Path sourcePath, boolean offline,
+                                      boolean enableExpFeatures) {
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRootPath.toString());
         options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
         options.put(PRESERVE_WHITESPACE, "false");
         options.put(OFFLINE, Boolean.toString(offline));
+        options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExpFeatures));
 
         // compile
         Compiler compiler = Compiler.getInstance(context);

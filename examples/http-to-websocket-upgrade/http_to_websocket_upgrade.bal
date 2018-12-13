@@ -5,32 +5,29 @@ import ballerina/log;
 @http:ServiceConfig {
     basePath: "/hello"
 }
-service<http:Service> httpService bind { port: 9090 } {
+service httpService on new http:Listener(9090) {
 
     @http:ResourceConfig {
         path: "/world",
         methods: ["POST"]
     }
-    httpResource(endpoint caller, http:Request req) {
+    resource function httpResource(http:Caller caller, http:Request req) {
         http:Response resp = new;
         var payload = req.getTextPayload();
-        match payload {
-            error err => {
-                log:printError("Error sending message", err = err);
-                resp.setPayload(untaint err.message);
-                resp.statusCode = 500;
-            }
-            string val => {
-                io:println(val);
-                resp.setPayload(string `HTTP POST received: {{untaint val}}\n`);
-            }
+        if (payload is error) {
+            log:printError("Error sending message", err = payload);
+            resp.setPayload("Error in payload");
+            resp.statusCode = 500;
+        } else if (payload is string) {
+            io:println(payload);
+            resp.setPayload(string `HTTP POST received: {{untaint payload}}`);
         }
 
-        caller->respond(resp) but {
-            error e => log:printError("Error in responding", err = e)
-        };
+        var err = caller->respond(resp);
+        if (err is error) {
+            log:printError("Error in responding", err = err);
+        }
     }
-
 
     @http:ResourceConfig {
         webSocketUpgrade: {
@@ -38,7 +35,7 @@ service<http:Service> httpService bind { port: 9090 } {
             upgradeService: wsService
         }
     }
-    upgrader(endpoint caller, http:Request req) {
+    resource function upgrader(http:Caller caller, http:Request req) {
 
     }
 }
@@ -49,24 +46,22 @@ service<http:Service> httpService bind { port: 9090 } {
 // - If  WebSocketServiceConfig is defined without the path, sub protocols, idle timeout etc... can be configured.
 // - If path is defined in the WebSocketServiceConfig it shall be ignored.
 // - This service can also be bound to a different endpoint in which case the path configuration becomes useful.
-@http:WebSocketServiceConfig {
-    subProtocols: ["xml, json"],
-    idleTimeoutInSeconds: 20
-}
-service<http:WebSocketService> wsService {
+service wsService = @http:WebSocketServiceConfig {subProtocols: ["xml, json"]
+                                         ,idleTimeoutInSeconds: 20} service {
 
-    onOpen(endpoint caller) {
+    resource function onOpen(http:WebSocketCaller caller) {
         io:println("New WebSocket connection: " + caller.id);
     }
 
-    onText(endpoint caller, string text) {
+    resource function onText(http:WebSocketCaller caller, string text) {
         io:println(text);
-        caller->pushText(text) but {
-            error e => log:printError("Error sending message", err = e)
-        };
+        var err = caller->pushText(text);
+        if (err is error) {
+            log:printError("Error sending message", err = err);
+        }
     }
 
-    onIdleTimeout(endpoint caller) {
+    resource function onIdleTimeout(http:WebSocketCaller caller) {
         io:println("Idle timeout: " + caller.id);
     }
-}
+};

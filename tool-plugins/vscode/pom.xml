@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.983.1-SNAPSHOT</version>
+        <version>0.990.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -196,10 +196,11 @@
                         <configuration>
                             <target name="copy resources">
                                 <mkdir dir="${project.basedir}/resources/composer" />
-                                <copy todir="${project.basedir}/resources/composer" overwrite="true" flatten="true">
-                                    <fileset dir="${project.build.directory}/composer">
-                                        <include name="**/*.js" />
-                                        <include name="**/*.css" />
+                                <copy todir="${project.basedir}/resources/composer" overwrite="true">
+                                    <fileset dir="${project.build.directory}/composer/composer-library-${project.version}">
+                                        <include name="**/*.*" />
+                                        <exclude name="**/*.map" />
+                                        <exclude name="**/*.d.ts" />
                                     </fileset>
                                 </copy>
                             </target>
