@@ -2,8 +2,8 @@
 // an imported module.
 // By default, the last element of the module name becomes an alias that is
 // used to refer to symbols of the imported module.
-// If the module name has dots, then the word after the last dot becomes the
-// alias.
+// If the module name has periods, then the word after the last period becomes
+// the alias.
 import ballerina/math;
 
 // Declare an explicit alias
