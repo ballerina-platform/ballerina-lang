@@ -400,9 +400,6 @@ public class BLangPackageBuilder {
         if (rhsTypeNode.getKind() == NodeKind.UNION_TYPE_NODE) {
             unionTypeNode = (BLangUnionTypeNode) rhsTypeNode;
             unionTypeNode.memberTypeNodes.add(0, lhsTypeNode);
-            unionTypeNode.addWS(ws);
-            this.typeNodeStack.push(unionTypeNode);
-            return;
         } else {
             unionTypeNode = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
             unionTypeNode.memberTypeNodes.add(lhsTypeNode);
