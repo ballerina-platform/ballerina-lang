@@ -863,14 +863,18 @@ public class SymbolResolver extends BLangNodeVisitor {
                 .peek(type -> {
                     if (resolvedMemberTypes.contains(type)) {
                         dlog.error(unionTypeNode.pos, DiagnosticCode.DUPLICATE_TYPE_IN_UNION, type);
-                    } else {
+                    } else if (type != symTable.noType) {
+                        // If the type cannot be resolved, it will be noType. We don't need to add it to the resolved
+                        // member types list.
                         resolvedMemberTypes.add(type);
                     }
                 })
                 .collect(Collectors.toCollection(LinkedHashSet::new));
 
-        if (unionTypeNode.memberTypeNodes.size() != resolvedMemberTypes.size()) {
-            resultType = symTable.semanticError;
+        // The resolved member types cannot be less than the member type nodes in the union type. If it is less, that
+        // means there is at least one duplicate type node is in the union type.
+        if (unionTypeNode.memberTypeNodes.size() > resolvedMemberTypes.size()) {
+            resultType = symTable.noType;
             return;
         }
 
