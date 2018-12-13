@@ -45,9 +45,8 @@ public class StreamJoiningTest {
 
     @Test(description = "Test streaming join query.")
     public void testStreamJoinQuery() {
-        System.setProperty("enable.siddhiRuntime", "true");
         BValue[] outputStatusCountArray = BRunUtil.invoke(result, "startJoinQuery");
-
+        System.setProperty("enable.siddhiRuntime", "false");
         Assert.assertNotNull(outputStatusCountArray);
 
         Assert.assertEquals(outputStatusCountArray.length, 2, "Expected events are not received");
@@ -55,8 +54,8 @@ public class StreamJoiningTest {
 
     @Test(description = "Test streaming join query with errors")
     public void testJoinNegativeCases() {
-        System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertEquals(resultNegative.getErrorCount(), 3);
+        System.setProperty("enable.siddhiRuntime", "false");
         BAssertUtil.validateError(resultNegative, 0,
                 "undefined stream name (or alias) 'stockStream' found in select clause",
                 50, 9);

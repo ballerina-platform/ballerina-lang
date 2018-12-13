@@ -38,12 +38,14 @@ public class AggregationTest {
 
     @BeforeClass
     public void setup() {
+        System.setProperty("enable.siddhiRuntime", "true");
         result = BCompileUtil.compile("test-src/streaming/legacy/aggregation-streaming-test.bal");
     }
 
     @Test(description = "Test streaming aggregation query.")
     public void testAggregationQuery() {
         BValue[] outputStatusCountArray = BRunUtil.invoke(result, "startAggregationQuery");
+        System.setProperty("enable.siddhiRuntime", "false");
 
         Assert.assertNotNull(outputStatusCountArray);
 

@@ -36,6 +36,7 @@ public class StreamingActionTest {
 
     @BeforeClass
     public void setup() {
+        System.setProperty("enable.siddhiRuntime", "true");
         resultNegativeInvalidType = BCompileUtil.
                 compile("test-src/streaming/negative/streaming-action-negative-test-v1.bal");
         resultNegativeInvalidArgumentCount = BCompileUtil.
@@ -44,6 +45,7 @@ public class StreamingActionTest {
 
     @Test(description = "Test streaming action query with errors")
     public void testStreamingActionNegativeType() {
+        System.setProperty("enable.siddhiRuntime", "false");
         Assert.assertEquals(resultNegativeInvalidType.getErrorCount(), 2);
         BAssertUtil.validateError(resultNegativeInvalidType, 1, "undefined symbol 'emp'",
                 44, 37);
@@ -51,6 +53,7 @@ public class StreamingActionTest {
 
     @Test(description = "Test streaming action query with errors", enabled = false)
     public void testStreamingActionNegativeArgumentCount() {
+        System.setProperty("enable.siddhiRuntime", "false");
         Assert.assertEquals(resultNegativeInvalidArgumentCount.getErrorCount(), 1);
         BAssertUtil.validateError(resultNegativeInvalidArgumentCount, 0,
                                   "mismatched input ','. expecting ')'", 43, 27);

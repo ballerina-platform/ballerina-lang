@@ -36,12 +36,14 @@ public class SequenceTest {
 
     @BeforeClass
     public void setup() {
+        System.setProperty("enable.siddhiRuntime", "true");
         result = BCompileUtil.compile("test-src/streaming/legacy/sequence-streaming-test.bal");
     }
 
     @Test(description = "Test sequence streaming query")
     public void testSequenceQuery1() {
         BValue[] initialAndPeakTemps = BRunUtil.invoke(result, "runSequenceQuery1");
+        System.setProperty("enable.siddhiRuntime", "false");
 
         Assert.assertNotNull(initialAndPeakTemps);
 

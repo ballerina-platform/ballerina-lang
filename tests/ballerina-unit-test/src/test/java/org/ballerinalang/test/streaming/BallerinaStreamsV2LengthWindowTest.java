@@ -38,14 +38,12 @@ public class BallerinaStreamsV2LengthWindowTest {
 
     @BeforeClass
     public void setup() {
-        System.setProperty("enable.siddhiRuntime", "false");
         result = BCompileUtil.compile("test-src/streaming/streamingv2-length-window-test.bal");
     }
 
     @Test(description = "Test lengthWindow query")
     public void testExternalLengthQuery() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startLengthWindowTest");
-        System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputEmployeeEvents);
 
         Assert.assertEquals(outputEmployeeEvents.length, 6, "Expected events are not received");
