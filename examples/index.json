@@ -934,6 +934,10 @@
             {
                 "name": "Join Mutiple Streams",
                 "url": "join-multiple-streams"
+            },
+            {
+              "name": "Join Tables and Streams",
+              "url": "join-tables-and-streams"
             }
         ]
     },
