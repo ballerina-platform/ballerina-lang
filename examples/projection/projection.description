@@ -1,5 +1,5 @@
 // Projection involves selecting only some of the attributes from the input
-// stream to be inserted into an output stream, renaming the attributes, add
+// stream to be inserted into an output stream, renaming the attributes, adding
 // constant values to the output stream and perform logical or mathematical operations.
 // In this example, events are related to the person being monitored and there will be a
 // children's day wish triggered when there is a person found whose age is less
