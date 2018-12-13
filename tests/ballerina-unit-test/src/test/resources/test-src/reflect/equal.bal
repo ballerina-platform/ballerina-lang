@@ -168,25 +168,25 @@ function testFloatFalsePositive() returns (boolean) {
 
 // Start Decimal
 
-function testDecimalTruePositive() returns (boolean) {
+function testDecimalTruePositive() returns boolean {
     decimal d1 = 2.12;
     decimal d2 = 2.12;
     return reflect:equals(d1,d2);
 }
 
-function testDecimalTrueNegative() returns (boolean) {
+function testDecimalTrueNegative() returns boolean {
     decimal d1 = 2.12;
     decimal d2 = 5.12;
     return reflect:equals(d1,d2);
 }
 
-function testDecimalFalseNegative() returns (boolean) {
+function testDecimalFalseNegative() returns boolean {
     decimal d1 = 2.12;
     decimal d2 = 2.12;
     return !reflect:equals(d1,d2);
 }
 
-function testDecimalFalsePositive() returns (boolean) {
+function testDecimalFalsePositive() returns boolean {
     decimal d1 = 2.12;
     decimal d2 = 5.12;
     return !reflect:equals(d1,d2);
