@@ -27,8 +27,8 @@ stream<Message> childrenMessageStream = new;
 Message[] globalChildrenMessageArray = [];
 
 function initProjectionQuery() {
-    // Streaming query which filter events based on the attribute age and add
-    // generate and add a custom message by calling an user defined fucntion.
+    // This is a streaming query that filters events based on the attribute age
+    // and generates a custom message by calling a user defined function.
     // Filterted events are pushed to a stream called `childrenMessageStream`.
     forever {
         from personStream where personStream.age <= 16
