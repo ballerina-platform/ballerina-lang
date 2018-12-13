@@ -16,10 +16,10 @@ public function mockPrint(any... s) {
 
 @test:Config
 function testFunc() {
-    // Invoke the main function. 
+    // Invoke the main function.
     main();
-    string out1 = "printInitalAndPeakTemp function is invoked. InitialTemp : 20.0 and Peak temp : 23.0";
-    string out2 = "printInitalAndPeakTemp function is invoked. InitialTemp : 21.0 and Peak temp : 24.0";
+    string out1 = "Child detected. Child name : Raja, age : 12 and from : Mountain View";
+    string out2 = "Child detected. Child name : Shareek, age : 16 and from : Houston";
     test:assertEquals(outputs.length(), 2);
     test:assertEquals(outputs[0], out1);
     test:assertEquals(outputs[1], out2);

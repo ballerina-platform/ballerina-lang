@@ -38,12 +38,14 @@ public class StreamingInlineOperationTest {
 
     @BeforeClass
     public void setup() {
+        System.setProperty("enable.siddhiRuntime", "true");
         result = BCompileUtil.compile("test-src/streaming/legacy/streaming-inline-operations-test.bal");
     }
 
     @Test(description = "Test streaming query for inline operations within streaming action")
     public void testStreamingInlineOperationQuery() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startInlineOperationQuery");
+        System.setProperty("enable.siddhiRuntime", "false");
         Assert.assertNotNull(outputEmployeeEvents);
 
         Assert.assertEquals(outputEmployeeEvents.length, 2, "Expected events are not received");

@@ -1539,3 +1539,178 @@ public function delayWindow(any[] windowParameters, function (StreamEvent[])? ne
     DelayWindow delayWindow1 = new(nextProcessPointer, windowParameters);
     return delayWindow1;
 }
+
+public type SortWindow object {
+
+    public int lengthToKeep;
+    public any [] windowParameters;
+    public LinkedList sortedWindow;
+    public string[] sortMetadata;
+    public string[] fields;
+    public string[] sortTypes;
+    public function (StreamEvent[])? nextProcessPointer;
+    public (function (map<anydata>) returns anydata)[] fieldFuncs;
+    public MergeSort mergeSort;
+
+    public function __init(function (StreamEvent[])? nextProcessPointer, any [] windowParameters) {
+        self.nextProcessPointer = nextProcessPointer;
+        self.windowParameters = windowParameters;
+        self.sortedWindow = new;
+        self.lengthToKeep = 0;
+        self.sortMetadata = [];
+        self.fields = [];
+        self.sortTypes = [];
+        self.fieldFuncs = [];
+        self.mergeSort = new(self.fieldFuncs, self.sortTypes);
+        self.initParameters(windowParameters);
+    }
+
+    public function initParameters(any[] parameters) {
+        if(!(parameters.length() >= 3 && parameters.length() % 2 == 1)) {
+            error err = error("Sort window should have three or more odd no of" +
+                "parameters (<int> windowLength, <string> attribute1, <string> order1, " +
+                "<string> attribute2, <string> order2, ...), but found " + parameters.length()
+                + " input attributes" );
+            panic err;
+        }
+
+        any parameter0 = parameters[0];
+        if(parameter0 is int) {
+            self.lengthToKeep = parameter0;
+        } else {
+            error err = error("Sort window's first parameter, windowLength should be of type int");
+            panic err;
+        }
+
+        int i = 1;
+        while(i < parameters.length()) {
+            any nextParameter = parameters[i];
+            if(nextParameter is string) {
+                if (i % 2 == 1) {
+                    self.fields[self.fields.length()] = nextParameter;
+                } else {
+                    if (nextParameter == ASCENDING || nextParameter == DESCENDING) {
+                        self.sortTypes[self.sortTypes.length()] = nextParameter;
+                    } else {
+                        error err = error("Expected ascending or descending at parameter " + (i + 1) +
+                            " of sort window");
+                        panic err;
+                    }
+                }
+            } else if(nextParameter is int) {
+                error err = error("Expected string parameter at parameter " + (i + 1) +
+                    " of sort window, but found <int>");
+                panic err;
+            } else if(nextParameter is float) {
+                error err = error("Expected string parameter at parameter " + (i + 1) +
+                    " of sort window, but found <float>");
+                panic err;
+            } else if(nextParameter is boolean) {
+                error err = error("Expected string parameter at parameter " + (i + 1) +
+                    " of sort window, but found <boolean>");
+                panic err;
+            } else {
+                error err = error("Incompatible parameter type" );
+                panic err;
+            }
+            i += 1;
+        }
+
+        foreach string field in self.fields {
+            self.fieldFuncs[self.fieldFuncs.length()] = function (map<anydata> x) returns anydata {
+                return x[field];
+            };
+        }
+
+        self.mergeSort = new(self.fieldFuncs, self.sortTypes);
+    }
+
+    public function process(StreamEvent[] streamEvents) {
+        LinkedList streamEventChunk = new;
+        foreach var event in streamEvents {
+            streamEventChunk.addLast(event);
+        }
+
+        if (streamEventChunk.getFirst() == null) {
+            return;
+        }
+
+        lock {
+            int currentTime = time:currentTime().time;
+
+            while (streamEventChunk.hasNext()) {
+                StreamEvent streamEvent = <StreamEvent>streamEventChunk.next();
+
+                StreamEvent clonedEvent = streamEvent.copy();
+                clonedEvent.eventType = EXPIRED;
+
+                self.sortedWindow.addLast(clonedEvent);
+                if (self.sortedWindow.getSize() > self.lengthToKeep) {
+                    StreamEvent[] events = [];
+                    self.sortedWindow.resetToFront();
+
+                    while (self.sortedWindow.hasNext()) {
+                        StreamEvent streamEven = <StreamEvent>self.sortedWindow.next();
+                        events[events.length()] = streamEven;
+                    }
+
+                    self.mergeSort.topDownMergeSort(events);
+                    self.sortedWindow.clear();
+                    foreach var event in events {
+                        self.sortedWindow.addLast(event);
+                    }
+
+                    StreamEvent expiredEvent = <StreamEvent>self.sortedWindow.removeLast();
+                    expiredEvent.timestamp = currentTime;
+                    streamEventChunk.addLast(expiredEvent);
+                    StreamEvent str = <StreamEvent>streamEventChunk.next();
+                }
+            }
+        }
+
+        any nextProcessFuncPointer = self.nextProcessPointer;
+        if(nextProcessFuncPointer is function (StreamEvent[])) {
+            if (streamEventChunk.getSize() != 0) {
+                StreamEvent[] events = [];
+                streamEventChunk.resetToFront();
+                while (streamEventChunk.hasNext()) {
+                    StreamEvent streamEvent = <StreamEvent>streamEventChunk.next();
+                    events[events.length()] = streamEvent;
+                }
+                nextProcessFuncPointer.call(streamEvents);
+            }
+        }
+    }
+
+    public function getCandidateEvents(
+                        StreamEvent originEvent,
+                        (function (map<anydata> e1Data, map<anydata> e2Data) returns boolean)? conditionFunc,
+                        boolean isLHSTrigger = true)
+                        returns (StreamEvent?, StreamEvent?)[] {
+        (StreamEvent?, StreamEvent?)[] events = [];
+        int i = 0;
+        foreach var e in self.sortedWindow.asArray() {
+            if (e is StreamEvent) {
+                StreamEvent lshEvent = (isLHSTrigger) ? originEvent : e;
+                StreamEvent rhsEvent = (isLHSTrigger) ? e : originEvent;
+
+                if (conditionFunc is function (map<anydata> e1Data, map<anydata> e2Data) returns boolean) {
+                    if (conditionFunc.call(lshEvent.data, rhsEvent.data)) {
+                        events[i] = (lshEvent, rhsEvent);
+                        i += 1;
+                    }
+                } else if (conditionFunc is ()) {
+                    events[i] = (lshEvent, rhsEvent);
+                    i += 1;
+                }
+            }
+        }
+        return events;
+    }
+};
+
+public function sortWindow(any[] windowParameters, function(StreamEvent[])? nextProcessPointer = ())
+                    returns Window {
+    SortWindow sortWindow1 = new(nextProcessPointer, windowParameters);
+    return sortWindow1;
+}
