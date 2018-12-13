@@ -31,8 +31,8 @@ function initRealtimeProductionAlert() returns () {
     // production outcome. This `forever` block is executed once, when initializing the service. The processing happens
     // asynchronously each time the `requestStream` or `productionInputStream` receives an event.
     forever {
-        from productionInputStream window time(10000) as p
-        join rawMaterialStream window time(10000) as r
+        from productionInputStream window timeWindow(10000) as p
+        join rawMaterialStream window timeWindow(10000) as r
         on r.name == p.name
         select r.name, sum(r.amount) as totalRawMaterial,
                 sum(p.amount) as totalConsumption
