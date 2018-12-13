@@ -34,8 +34,9 @@ public class TomlErrorListener extends BaseErrorListener {
     }
 
     public static TomlErrorListener getErrorListener(String tomlFilePath) {
-        if (errorListener == null)
+        if (errorListener == null) {
             errorListener = new TomlErrorListener(tomlFilePath);
+        }
 
         return errorListener;
     }
