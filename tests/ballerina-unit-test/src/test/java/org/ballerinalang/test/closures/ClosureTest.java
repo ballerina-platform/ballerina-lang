@@ -241,10 +241,4 @@ public class ClosureTest {
         Assert.assertTrue(((BBoolean) returns[6]).booleanValue());
         Assert.assertFalse(((BBoolean) returns[7]).booleanValue());
     }
-
-    @Test(description = "Test globally defined closure")
-    public void testGloballyDeclaredClosure() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "test30");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 100);
-    }
 }
