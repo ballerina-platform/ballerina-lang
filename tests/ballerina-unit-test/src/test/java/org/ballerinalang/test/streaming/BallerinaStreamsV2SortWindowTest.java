@@ -28,7 +28,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * This contains methods to test uniqueLengthWindow behaviour in Ballerina Streaming V2.
+ * This contains methods to test sort window behaviour in Ballerina Streaming V2.
  *
  * @since 0.990.0
  */
@@ -38,14 +38,12 @@ public class BallerinaStreamsV2SortWindowTest {
 
     @BeforeClass
     public void setup() {
-        System.setProperty("enable.siddhiRuntime", "false");
         result1 = BCompileUtil.compile("test-src/streaming/streamingv2-sort-window-test.bal");
     }
 
     @Test(description = "Test sort window query")
     public void testSortWindowQuery1() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result1, "startSortWindowTest1");
-        System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputEmployeeEvents);
         Assert.assertEquals(outputEmployeeEvents.length, 6, "Expected events are not received");
         BMap<String, BValue> employee0 = (BMap<String, BValue>) outputEmployeeEvents[0];
