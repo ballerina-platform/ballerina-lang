@@ -79,6 +79,7 @@ function foo() {
     forever {
         from inputStream where inputStream.age > 25
         select inputStream.name, inputStream.age, sum (inputStream.age) as sumAge, count() as count
+
         => (TeacherOutput [] teachers) {
             foreach var t in teachers {
                 outputStream.publish(t);
