@@ -50,3 +50,19 @@ function testAmbiguousAssignment() {
     ClosedFoo|Foo2 x5 = {var2:"John"}; // Match to Foo2
     ClosedFoo|Foo2 x6 = {var2:12}; // Match to Foo2, but type is wrong
 }
+
+string|string v1 = "";
+
+string|int|string v2 = "";
+
+function testBasicTypes() returns int|string|int {
+    return "";
+}
+
+type AB "A"|"B";
+
+AB|AB|int v3 = "A";
+
+function testFiniteTypes() returns AB|int|int|AB {
+    return "";
+}
