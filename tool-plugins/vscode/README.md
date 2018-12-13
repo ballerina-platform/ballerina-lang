@@ -30,9 +30,21 @@ For a complete list of features please see the Ballerina Language Server [User G
 
 Ballerina’s underlying language semantics were designed by modeling how independent parties communicate via structured interactions. Subsequently, every Ballerina program can be displayed as a sequence diagram of its flow with endpoints, including synchronous and asynchronous calls. 
 
-To view the sequence diagram of a ballerina file press the diagram icon ( ![design view icon](https://github.com/ballerina-platform/ballerina-lang/blob/master/tool-plugins/vscode/docs/show-diagram-icon.png?raw=true) ) in top right corner.
+To view the sequence diagram of a ballerina file press the diagram icon ( ![design view icon](https://raw.githubusercontent.com/ballerina-platform/ballerina-lang/2fd0bdd4e7d081adf23901ed65eca32623d81889/tool-plugins/vscode/docs/show-diagram-icon.png) ) in top right corner.
 
-![opening design view](https://github.com/ballerina-platform/ballerina-lang/blob/master/tool-plugins/vscode/docs/diagram.gif?raw=true)
+![opening design view](https://raw.githubusercontent.com/ballerina-platform/ballerina-lang/2fd0bdd4e7d081adf23901ed65eca32623d81889/tool-plugins/vscode/docs/diagram.gif)
+
+### Debugger
+
+![using debugger](https://raw.githubusercontent.com/ballerina-platform/ballerina-lang/2fd0bdd4e7d081adf23901ed65eca32623d81889/tool-plugins/vscode/docs/debugger.gif)
+
+### Documentation Preview
+
+![opening doc preview](https://raw.githubusercontent.com/ballerina-platform/ballerina-lang/2fd0bdd4e7d081adf23901ed65eca32623d81889/tool-plugins/vscode/docs/documentation.gif)
+
+### API Designer
+
+![opening api designer](https://raw.githubusercontent.com/ballerina-platform/ballerina-lang/2fd0bdd4e7d081adf23901ed65eca32623d81889/tool-plugins/vscode/docs/api-designer.gif)
 
 ## Compatibility
 
