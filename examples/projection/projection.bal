@@ -20,7 +20,7 @@ type Message record {
 
 int index = 0;
 
-// Streams which are based on above-created constraint types.
+// These are streams that are based on the constraint types created above.
 stream<Person> personStream = new;
 stream<Message> childrenMessageStream = new;
 
@@ -49,7 +49,7 @@ function generateChildrenDayWishMessage(string name) returns string {
 
 public function main() {
 
-    // Sample events that represent the different person.
+    // Sample events that represent a different person.
     Person[] personArray = [];
     Person t1 = { name: "Raja", age: 12, status: "single",
                     address: "Mountain View", phoneNo: "+19877386134" };
