@@ -1,0 +1,5 @@
+body.diagram {
+    &.vscode-dark {
+       .diagram("dark");
+    }
+}

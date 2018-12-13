@@ -1,6 +1,8 @@
 @type    : "view";
 @element : "diagram";
 
+@import (multiple) '../definitions.config';
+
 .diagram(@color) {
     background: ~"@{@{color}-diagram-background-color}";
     display: inline-block;
@@ -31,7 +33,7 @@
                 fill: ~"@{@{color}-diagram-panel-header-background-color}";
 
                 .panel-icon {
-                    font-family: @diagram-icon-font;
+                    font-family: @diagram-font;
                 }
                 text {
                     fill: ~"@{@{color}-diagram-panel-header-text-color}";
@@ -70,7 +72,7 @@
                     fill: ~"@{@{color}-diagram-panel-header-background-color}";
 
                     .panel-icon {
-                        font-family: @diagram-icon-font;
+                        font-family: @diagram-font;
                     }
                     text {
                         fill: ~"@{@{color}-diagram-panel-header-text-color}";
@@ -242,3 +244,5 @@
 body.diagram {
     .diagram("light");
 }
+
+.loadUIOverrides();

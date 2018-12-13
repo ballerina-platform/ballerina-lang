@@ -2,7 +2,8 @@
        Fonts
 --------------------*/
 
-@fontName          : -apple-system, BlinkMacSystemFont, Segoe WPC, Segoe UI, HelveticaNeue-Light, Ubuntu, Droid Sans, sans-serif;
+@iconFont          : "font-ballerina";
+@fontName          : -apple-system, BlinkMacSystemFont, Segoe WPC, Segoe UI, HelveticaNeue-Light, Ubuntu, Droid Sans, sans-serif, @iconFont;
 @googleFontName    : 'Lato';
 
 /*-------------------

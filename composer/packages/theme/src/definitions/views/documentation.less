@@ -1,6 +1,8 @@
 @type    : "view";
 @element : "documentation";
 
+@import (multiple) '../definitions.config';
+
 .documentation(@color) {
     background: ~"@{@{color}-documentation-background-color}";
     color: ~"@{@{color}-documentation-base-text-color}";
@@ -90,3 +92,5 @@
 body.documentation {
     .documentation("light");
 }
+
+.loadUIOverrides();

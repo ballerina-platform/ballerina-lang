@@ -5,7 +5,7 @@
 @examples-base-light-color: @offWhite;
 @examples-base-dark-color: @black;
 
-@light-examples-background-color: @diagram-base-light-color;
+@light-examples-background-color: @examples-base-light-color;
 @dark-examples-background-color: #1e1e1e;
 
 @light-examples-text-color: @examples-base-dark-color;

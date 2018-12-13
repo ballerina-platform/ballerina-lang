@@ -1,6 +1,8 @@
 @type    : "view";
 @element : "examples";
 
+@import (multiple) '../definitions.config';
+
 .examples(@color) {
     background: ~"@{@{color}-examples-background-color}";
     padding: 30px;
@@ -50,3 +52,5 @@ body.examples {
         .examples("dark");
     }
 }
+
+.loadUIOverrides();

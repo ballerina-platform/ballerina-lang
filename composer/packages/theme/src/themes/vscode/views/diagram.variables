@@ -1,0 +1,9 @@
+/*---------------------------
+       Diagram Globals 
+----------------------------*/
+
+@diagram-base-light-color: var(--background-color);
+@diagram-base-dark-color: var(--background-color);
+
+@light-diagram-base-text-color: var(--color);
+@dark-diagram-base-text-color: var(--color);

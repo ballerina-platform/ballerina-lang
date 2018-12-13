@@ -1,6 +1,8 @@
 @type    : "element";
 @element : "button";
 
+@import (multiple) '../../themes/default/theme.config';
+
 .ui.button.svg {
    cursor: pointer;
    text {
@@ -9,7 +11,6 @@
       dominant-baseline: central;
 
       &.icon {
-         font-family: @diagram-font;
          font-size: 50%;
       }
    }

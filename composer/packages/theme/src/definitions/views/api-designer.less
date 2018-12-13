@@ -1,6 +1,8 @@
 @type    : "view";
 @element : "api-designer";
 
+@import (multiple) '../definitions.config';
+
 .api-designer(@color) {
     background: ~"@{@{color}-api-designer-background-color}";
     color: ~"@{@{color}-api-designer-base-text-color}";
@@ -299,3 +301,5 @@
 body.api-designer {
     .api-designer("light");
 }
+
+.loadUIOverrides();

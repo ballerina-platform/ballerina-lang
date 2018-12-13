@@ -1,9 +1,14 @@
+@type    : "global";
+@element : "site";
+
+@import (multiple) 'definitions.config';
+
 /* Views */
-@import "./views/diagram.less";
-@import "./views/documentation.less";
-@import "./views/examples.less";
-@import "./views/api-designer.less";
-@import "./views/network-logs.less";
+& { @import "./views/diagram.less"; }
+& { @import "./views/documentation.less"; }
+& { @import "./views/examples.less"; }
+& { @import "./views/api-designer.less"; }
+& { @import "./views/network-logs.less"; }
 
 /* Elements */
-@import "./elements/svg-button.less";
+& { @import "./elements/svg-button.less"; }
