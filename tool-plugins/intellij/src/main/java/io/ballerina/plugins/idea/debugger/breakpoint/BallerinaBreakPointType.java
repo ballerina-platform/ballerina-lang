@@ -51,10 +51,8 @@ public class BallerinaBreakPointType extends XLineBreakpointType<BallerinaBreakp
 
     @Override
     public boolean canPutAt(@NotNull VirtualFile file, int line, @NotNull Project project) {
-        if (line < 0 || file.getFileType() != BallerinaFileType.INSTANCE) {
-            return false;
-        }
-        return isLineBreakpointAvailable(file, line, project);
+        return line >= 0 && file.getFileType() == BallerinaFileType.INSTANCE
+                && isLineBreakpointAvailable(file, line, project);
     }
 
     private static boolean isLineBreakpointAvailable(@NotNull VirtualFile file, int line, @NotNull Project project) {
@@ -81,15 +79,11 @@ public class BallerinaBreakPointType extends XLineBreakpointType<BallerinaBreakp
         @Override
         public boolean process(@NotNull PsiElement element) {
             IElementType type = element.getNode().getElementType();
-            if (type instanceof PsiWhiteSpace || element.getNode().getText().isEmpty()) {
-                myIsLineBreakpointAvailable = false;
-            } else {
-                myIsLineBreakpointAvailable = true;
-            }
+            myIsLineBreakpointAvailable = !(type instanceof PsiWhiteSpace) && !element.getNode().getText().isEmpty();
             return true;
         }
 
-        public boolean isLineBreakpointAvailable() {
+        boolean isLineBreakpointAvailable() {
             return myIsLineBreakpointAvailable;
         }
     }
