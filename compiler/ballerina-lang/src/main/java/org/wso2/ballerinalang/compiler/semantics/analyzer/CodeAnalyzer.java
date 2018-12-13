@@ -1628,6 +1628,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             String workerVarName = ((BLangSimpleVariable) bLangLambdaFunction.parent).name.value;
             if (workerVarName.startsWith(WORKER_LAMBDA_VAR_PREFIX)) {
                 String workerName = workerVarName.substring(1);
+                // Check if the worker name is default, if so log an error
+                if (workerName.equalsIgnoreCase(DEFAULT_WORKER_NAME)) {
+                    dlog.error(bLangLambdaFunction.pos, DiagnosticCode.INVALID_WORKER_NAME);
+                }
                 isWorker = true;
                 this.workerActionSystemStack.peek().startWorkerActionStateMachine(workerName,
                                                                                   bLangLambdaFunction.function.pos,
