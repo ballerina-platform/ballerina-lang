@@ -28,7 +28,7 @@ public function main() {
     io:println(john.name);
 
     // This is an example of index-based access of record fields. The return type of this expression is `T?`, where
-    // `T` is the type of the field. If it is an open record and the specified key is not present in the record during run time,
+    // `T` is the type of the field. If it is an open record and the specified key is not present in the record at run time,
     // `()` will be returned. If it is a closed record, undefined key access will result in a compile error.
     io:println(john["name"]);
 
