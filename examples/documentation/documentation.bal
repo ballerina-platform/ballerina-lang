@@ -6,7 +6,7 @@ public function main() {
 
 // This is the documentation attachment for object `DummyObject`.
 # `DummyObject` is a user defined object type in your Ballerina program.
-# This `DummyObject` is used to hold two string data fields and one attached
+# This `DummyObject` is used to hold two `string` data fields and one attached
 # function definition `doThatOnObject` that performs a certain functionality
 # on the associated `DummyObject` instance.
 #
