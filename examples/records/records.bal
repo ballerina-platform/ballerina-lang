@@ -24,12 +24,12 @@ public function main() {
 
     // This is an example of field-based access of record fields. The return type of this expression is the
     // type of the field. If it is an open record and the specified key is not present in the record during run time,
-    // it will result in a panic. If it is a closed record, undefined key access will result in a compile error.
+    // it will result in a panic. If it is a closed record, accessing an undefined key will result in a compilation error.
     io:println(john.name);
 
     // This is an example of index-based access of record fields. The return type of this expression is `T?`, where
     // `T` is the type of the field. If it is an open record and the specified key is not present in the record during run time,
-    // `()` will be returned. If it is a closed record, undefined key access will result in a compile error.
+    // `()` will be returned. If it is a closed record, accessing an undefined key will result in a compilation error.
     io:println(john["name"]);
 
     // This fetches a field of a nested record.

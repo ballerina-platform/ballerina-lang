@@ -11,10 +11,10 @@ public function main() {
     // This creates a `Grades` record.
     Grades grades = {maths: 80, physics: 75, chemistry: 65};
 
-    // The foreach variable is a 2-tuple which consists of the field name and the value of the field.
+    // The foreach variable is a 2-tuple, which consists of the field name and the value of the field.
     // The type of the field name is `string`. The variable type of the value depends on the types of fields of the record.
-    // If the fields and the rest descriptor are of same type (or if it is a closed record, the rest descriptor does not matter),
-    // the variable will also be of that same type. If not, the variable will be an `any` variable.
+    // If the fields and the rest descriptor are of same type (the rest descriptor does not matter if it is a closed record),
+    // the variable will also be of the same type. If not, the variable will be of type `any`.
     int total = 0;
     foreach var (subject, grade) in grades {
         total += grade;
@@ -42,6 +42,7 @@ public function main() {
     io:println("Average grade using iterable ops: ", grades.average());
 }
 
+// The mapping function to be used to map integer grades to letter grades.
 function mapToLetterGrade((string, int) entry) returns (string, string) {
     var (subject, grade) = entry;
     if (grade >= 80) {
