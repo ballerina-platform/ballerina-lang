@@ -17,6 +17,8 @@
  *
  */
  
-/* Semantic UI import */
-@import (multiple) "../../semantic.less";
-@import (multiple) "../../definitions/index.less";
+body.diagram {
+    &.vscode-dark {
+       .diagram("dark");
+    }
+}

@@ -17,6 +17,13 @@
  *
  */
  
-/* Semantic UI import */
-@import (multiple) "../../semantic.less";
-@import (multiple) "../../definitions/index.less";
+/*******************************
+            Button
+*******************************/
+
+/*-------------------
+       Element
+--------------------*/
+
+/* Text */
+@fontWeight: 500;
