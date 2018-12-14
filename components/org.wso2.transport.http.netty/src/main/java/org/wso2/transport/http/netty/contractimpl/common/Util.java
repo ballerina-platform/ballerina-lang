@@ -261,11 +261,8 @@ public class Util {
     }
 
     public static void setupContentLengthRequest(HttpCarbonMessage httpOutboundRequest, long contentLength) {
-        httpOutboundRequest.removeHeader(HttpHeaderNames.TRANSFER_ENCODING.toString());
-        httpOutboundRequest.removeHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
-        if (httpOutboundRequest.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString()) == null) {
-            httpOutboundRequest.setHeader(HttpHeaderNames.CONTENT_LENGTH.toString(), String.valueOf(contentLength));
-        }
+        removeContentLengthAndTransferEncodingHeaders(httpOutboundRequest);
+        httpOutboundRequest.setHeader(HttpHeaderNames.CONTENT_LENGTH.toString(), String.valueOf(contentLength));
     }
 
     private static void setTransferEncodingHeader(HttpCarbonMessage httpOutboundRequest) {
@@ -274,9 +271,20 @@ public class Util {
         }
     }
 
-    public static boolean isEntityBodyAllowed(String method) {
-        return method.equals(Constants.HTTP_POST_METHOD) || method.equals(Constants.HTTP_PUT_METHOD)
-                || method.equals(Constants.HTTP_PATCH_METHOD) || method.equals(Constants.HTTP_DELETE_METHOD);
+    public static boolean checkContentLengthAndTransferEncodingHeaderAllowance(HttpCarbonMessage httpOutboundRequest,
+                                                                               long contentLength) {
+        HttpMethod method = getHttpMethod(httpOutboundRequest);
+        if (contentLength == 0 && (HttpMethod.GET.equals(method)
+                || HttpMethod.HEAD.equals(method) || HttpMethod.OPTIONS.equals(method))) {
+            removeContentLengthAndTransferEncodingHeaders(httpOutboundRequest);
+            return false;
+        }
+        return true;
+    }
+
+    private static void removeContentLengthAndTransferEncodingHeaders(HttpCarbonMessage httpOutboundRequest) {
+        httpOutboundRequest.removeHeader(HttpHeaderNames.TRANSFER_ENCODING.toString());
+        httpOutboundRequest.removeHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
     }
 
     /**

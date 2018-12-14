@@ -38,7 +38,8 @@ import static org.wso2.transport.http.netty.contract.Constants
 import static org.wso2.transport.http.netty.contract.Constants.INBOUND_RESPONSE_ALREADY_RECEIVED;
 import static org.wso2.transport.http.netty.contract.Constants
         .REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS;
-import static org.wso2.transport.http.netty.contractimpl.common.Util.isEntityBodyAllowed;
+import static org.wso2.transport.http.netty.contractimpl.common.Util
+        .checkContentLengthAndTransferEncodingHeaderAllowance;
 import static org.wso2.transport.http.netty.contractimpl.common.Util.isLastHttpContent;
 import static org.wso2.transport.http.netty.contractimpl.common.Util.setupChunkedRequest;
 import static org.wso2.transport.http.netty.contractimpl.common.Util.setupContentLengthRequest;
@@ -71,11 +72,11 @@ public class SendingHeaders implements SenderState {
     @Override
     public void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
         if (isLastHttpContent(httpContent)) {
-            if (isEntityBodyAllowed(getHttpMethod(httpOutboundRequest))) {
+            long contentLength = httpContent.content().readableBytes();
+            if (checkContentLengthAndTransferEncodingHeaderAllowance(httpOutboundRequest, contentLength)) {
                 if (chunkConfig == ChunkConfig.ALWAYS && checkChunkingCompatibility(httpVersion, chunkConfig)) {
                     setupChunkedRequest(httpOutboundRequest);
                 } else {
-                    long contentLength = httpContent.content().readableBytes();
                     setupContentLengthRequest(httpOutboundRequest, contentLength);
                 }
             }
