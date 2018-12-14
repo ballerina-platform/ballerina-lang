@@ -187,6 +187,7 @@ public class BVM {
         while (sf.ip >= 0) {
             if (strand.aborted) {
                 strand.currentFrame.ip = -1;
+                BVMScheduler.strandCountDown();
                 return;
             }
             if (debugEnabled && debug(strand)) {
