@@ -89,6 +89,7 @@ public class TestUtil {
     public static final int WEBSOCKET_TEST_IDLE_TIMEOUT = 30;
     public static final long HTTP2_RESPONSE_TIME_OUT = 30;
     public static final String TEST_HOST = "localhost";
+    public static final String BOGUS_HOST = "bogus_hostname";
     public static final String TEST_SERVER = "test-server";
     public static final String KEY_STORE_FILE_PATH = "/simple-test-config/wso2carbon.jks";
     public static final String TRUST_STORE_FILE_PATH = "/simple-test-config/client-truststore.jks";
@@ -211,11 +212,15 @@ public class TestUtil {
     }
 
     public static HttpCarbonMessage createHttpsPostReq(int serverPort, String payload, String path) {
+        return createHttpsPostReq(TEST_HOST, serverPort, payload, path);
+    }
+
+    public static HttpCarbonMessage createHttpsPostReq(String host, int serverPort, String payload, String path) {
         HttpCarbonMessage httpPostRequest = new HttpCarbonMessage(
                 new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, path));
         httpPostRequest.setProperty(Constants.HTTP_PORT, serverPort);
         httpPostRequest.setProperty(Constants.PROTOCOL, Constants.HTTPS_SCHEME);
-        httpPostRequest.setProperty(Constants.HTTP_HOST, TestUtil.TEST_HOST);
+        httpPostRequest.setProperty(Constants.HTTP_HOST, host);
         httpPostRequest.setProperty(Constants.HTTP_METHOD, Constants.HTTP_POST_METHOD);
 
         ByteBuffer byteBuffer = ByteBuffer.wrap(payload.getBytes(Charset.forName("UTF-8")));

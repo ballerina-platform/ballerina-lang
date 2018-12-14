@@ -64,6 +64,7 @@ public class WebSocketClient {
     private final String subProtocols;
     private final int idleTimeout;
     private final HttpHeaders headers;
+    private final int maxFrameSize;
     private final EventLoopGroup wsClientEventLoopGroup;
     private final boolean autoRead;
     private final WebSocketClientConnectorConfig connectorConfig;
@@ -79,6 +80,7 @@ public class WebSocketClient {
         this.headers = connectorConfig.getHeaders();
         this.wsClientEventLoopGroup = wsClientEventLoopGroup;
         this.autoRead = connectorConfig.isAutoRead();
+        this.maxFrameSize = connectorConfig.getMaxFrameSize();
         this.connectorConfig = connectorConfig;
     }
 
@@ -102,7 +104,7 @@ public class WebSocketClient {
             final int port = getPort(uri);
             final boolean ssl = Constants.WSS_SCHEME.equalsIgnoreCase(scheme);
             WebSocketClientHandshaker webSocketHandshaker = WebSocketClientHandshakerFactory.newHandshaker(
-                    uri, WebSocketVersion.V13, subProtocols, true, headers);
+                    uri, WebSocketVersion.V13, subProtocols, true, headers, maxFrameSize);
             MessageQueueHandler messageQueueHandler = new MessageQueueHandler();
             clientHandshakeHandler = new WebSocketClientHandshakeHandler(webSocketHandshaker, handshakeFuture,
                                                                          messageQueueHandler, ssl, autoRead, url,
