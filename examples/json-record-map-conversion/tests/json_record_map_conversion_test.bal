@@ -31,18 +31,18 @@ function testFunc() {
 
     json jt2 = "Punke";
     int jt3 = 30;
-    json jt4 = {
-        "title": "Inception",
-        "year": "2010",
-        "released": "16 Jul 2010",
-        "writer": {
-            "fname": "Christopher",
-            "lname": "Nolan",
-            "age": 30
+    Movie jt4 = {
+        title: "Inception",
+        year: "2010",
+        released: "16 Jul 2010",
+        writer: {
+            fname: "Christopher",
+            lname: "Nolan",
+            age: 30
         }
     };
 
-    //test:assertEquals(outputs[0], jt1); currently fails due to json vs map<json>
+    //test:assertEquals(outputs[0], jt1); currently fails due to json vs map<json> #12774
     test:assertEquals(outputs[1], jt2);
     test:assertEquals(outputs[2], jt3);
     test:assertEquals(outputs[3], jt4);

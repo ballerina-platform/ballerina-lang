@@ -57,5 +57,7 @@ public function main() {
         }
     };
     Movie|error inception = Movie.convert(inceptionJ);
-    io:println(inceptionJ);
+    if (inception is Movie) {
+        io:println(inception);
+    }
 }
