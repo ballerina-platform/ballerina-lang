@@ -5,5 +5,5 @@ $ ballerina run json_record_map_conversion.bal
  "writer":{"fname":"Michael", "lname":"Punke", "age":30}}
 Punke
 30
-{"title":"Inception", "year":"2010", "released":"16 Jul 2010",
- "writer":{"fname":"Christopher", "lname":"Nolan", "age":30}}
+{title:"Inception", year:"2010", released:"16 Jul 2010",
+ writer:{fname:"Christopher", lname:"Nolan", age:30}}
