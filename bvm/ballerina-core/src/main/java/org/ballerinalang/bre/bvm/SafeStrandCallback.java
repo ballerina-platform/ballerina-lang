@@ -41,7 +41,6 @@ public class SafeStrandCallback extends StrandCallback {
     SafeStrandCallback(BType retType, WDChannels parentChannels, ChannelDetails[] sendIns) {
         super(retType, sendIns);
         this.callbackWaitHandler = new CallbackWaitHandler();
-        this.parentChannels = parentChannels;
     }
 
     @Override

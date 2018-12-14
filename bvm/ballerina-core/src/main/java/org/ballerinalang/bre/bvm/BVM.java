@@ -755,6 +755,9 @@ public class BVM {
                         } else {
                             strand.respCallback.setRefReturn(sf.refRegs[j]);
                         }
+                        if (checkIsType(sf.refRegs[j], BTypes.typeError)) {
+                            sf.handleChannelError(sf.refRegs[j]);
+                        }
                         break;
                     case InstructionCodes.RET:
                         if (strand.fp > 0) {
@@ -848,12 +851,12 @@ public class BVM {
                                        int[] argRegs, int retReg, int flags) {
         //TODO refactor when worker info is removed from compiler
         StackFrame df = new StackFrame(callableUnitInfo.getPackageInfo(), callableUnitInfo,
-                callableUnitInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), retReg, flags);
+                callableUnitInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), retReg, flags,
+                strand.currentFrame.wdChannels, callableUnitInfo.workerSendInChannels);
         copyArgValues(strand.currentFrame, df, argRegs, callableUnitInfo.getParamTypes());
 
         if (!FunctionFlags.isAsync(df.invocationFlags)) {
             try {
-                strand.respCallback.wdChannels = new WDChannels();
                 strand.pushFrame(df);
             } catch (ArrayIndexOutOfBoundsException e) {
                 // Need to decrement the frame pointer count. Otherwise ArrayIndexOutOfBoundsException will
@@ -873,7 +876,7 @@ public class BVM {
         }
 
         SafeStrandCallback strandCallback = new SafeStrandCallback(callableUnitInfo.getRetParamTypes()[0],
-                strand.respCallback.getWorkerDataChannels(), callableUnitInfo.workerSendInChannels);
+                strand.currentFrame.wdChannels, callableUnitInfo.workerSendInChannels);
 
         Strand calleeStrand = new Strand(strand.programFile, callableUnitInfo.getName(),
                 strand.globalProps, strandCallback);
@@ -907,6 +910,9 @@ public class BVM {
             if (nativeCallable.isBlocking()) {
                 nativeCallable.execute(ctx, null);
 
+                if (BVM.checkIsType(ctx.getReturnValue(), BTypes.typeError)) {
+                    strand.currentFrame.handleChannelError((BRefType) ctx.getReturnValue());
+                }
                 if (strand.fp > 0) {
                     // Stop the observation context before popping the stack frame
                     ObserveUtils.stopCallableObservation(strand);
@@ -930,7 +936,7 @@ public class BVM {
         }
         // Stop the observation context before popping the stack frame
         ObserveUtils.stopCallableObservation(strand);
-        strand.popFrame();
+        strand.popFrame().handleChannelPanic(strand.getError());
         handleError(strand);
         return strand;
     }
@@ -3627,9 +3633,9 @@ public class BVM {
 
     private static WorkerDataChannel getWorkerChannel(Strand ctx, String name, boolean channelInSameStrand) {
         if (channelInSameStrand) {
-            return ctx.respCallback.getWorkerDataChannels().getWorkerDataChannel(name);
+            return ctx.currentFrame.wdChannels.getWorkerDataChannel(name);
         }
-        return ctx.respCallback.getParentWorkerDataChannels().getWorkerDataChannel(name);
+        return ctx.currentFrame.parentChannels.getWorkerDataChannel(name);
     }
 
     private static BRefType extractValue(StackFrame data, BType type, int reg) {
@@ -4537,10 +4543,12 @@ public class BVM {
             // Stop the observation context before popping the stack frame
             ObserveUtils.stopCallableObservation(strand);
             StackFrame popedFrame = strand.popFrame();
+            popedFrame.handleChannelPanic(strand.getError());
             signalTransactionError(strand, popedFrame.trxParticipant);
             handleError(strand);
         } else {
             strand.respCallback.setError(strand.getError());
+            strand.currentFrame.handleChannelPanic(strand.getError());
             signalTransactionError(strand, StackFrame.TransactionParticipantType.REMOTE_PARTICIPANT);
             //Below is to return current thread from VM
             sf.ip = -1;

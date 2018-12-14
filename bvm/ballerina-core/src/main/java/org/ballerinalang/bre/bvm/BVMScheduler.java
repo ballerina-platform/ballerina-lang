@@ -23,7 +23,9 @@ import org.ballerinalang.bre.old.WorkerExecutionContext;
 import org.ballerinalang.bre.old.WorkerState;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BError;
+import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.exceptions.BLangNullReferenceException;
@@ -227,6 +229,10 @@ public class BVMScheduler {
             BType retType = cui.getRetParamTypes()[0];
             try {
                 this.nativeCallable.execute(this.nativeCtx, callback);
+                // Maybe we can omit this since natives cannot have worker interactions
+                if (BVM.checkIsType(this.nativeCtx.getReturnValue(), BTypes.typeError)) {
+                    strand.currentFrame.handleChannelError((BRefType) this.nativeCtx.getReturnValue());
+                }
                 if (strand.fp > 0) {
                     // Stop the observation context before popping the stack frame
                     ObserveUtils.stopCallableObservation(strand);
@@ -249,7 +255,7 @@ public class BVMScheduler {
             strand.setError(error);
             // Stop the observation context before popping the stack frame
             ObserveUtils.stopCallableObservation(strand);
-            strand.popFrame();
+            strand.popFrame().handleChannelPanic(error);
             BVM.handleError(strand);
             execute(strand);
         }

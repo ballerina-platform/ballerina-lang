@@ -17,12 +17,15 @@
  */
 package org.ballerinalang.bre;
 
+import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.bre.bvm.BVMScheduler;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.bre.bvm.Strand;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BError;
+import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.util.observability.ObserveUtils;
 import org.ballerinalang.util.program.BLangVMUtils;
 
@@ -51,6 +54,9 @@ public class BLangCallableUnitCallback implements CallableUnitCallback {
 
     @Override
     public void notifySuccess() {
+        if (BVM.checkIsType(this.nativeCallCtx.getReturnValue(), BTypes.typeError)) {
+            strand.currentFrame.handleChannelError((BRefType) this.nativeCallCtx.getReturnValue());
+        }
         if (strand.fp > 0) {
             // Stop the observation context before popping the stack frame
             ObserveUtils.stopCallableObservation(strand);
@@ -66,6 +72,7 @@ public class BLangCallableUnitCallback implements CallableUnitCallback {
 
     @Override
     public void notifyFailure(BError error) {
+        strand.currentFrame.handleChannelPanic(error);
         if (strand.fp > 0) {
             // Stop the observation context before popping the stack frame
             ObserveUtils.stopCallableObservation(strand);
