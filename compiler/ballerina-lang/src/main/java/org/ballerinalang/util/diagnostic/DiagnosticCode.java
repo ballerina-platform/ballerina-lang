@@ -79,6 +79,7 @@ public enum DiagnosticCode {
     INVALID_WORKER_INTERACTION("worker.invalid.worker.interaction"),
     WORKER_SEND_AFTER_RETURN("worker.send.after.return"),
     WORKER_RECEIVE_AFTER_RETURN("worker.receive.after.return"),
+    EXPLICIT_WORKER_CANNOT_BE_DEFAULT("explicit.worker.cannot.be.default"),
     INVALID_MULTIPLE_FORK_JOIN_SEND("worker.multiple.fork.join.send"),
     INCOMPATIBLE_TYPE_REFERENCE("incompatible.type.reference"),
     INCOMPATIBLE_RECORD_TYPE_REFERENCE("incompatible.record.type.reference"),
