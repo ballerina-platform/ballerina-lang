@@ -1,6 +1,6 @@
 import ballerina/io;
 
-// This function takes base salary, annual increment and bonus rate as input
+// This function takes base salary, annual increment, and bonus rate as input
 // parameters and prints them. The first parameter `baseSalary` is a required
 // parameter. The next two parameters `annualIncrement` and `bonusRate` are 
 // two defaultable parameters. They are optional parameters which have default
