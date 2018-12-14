@@ -21,6 +21,7 @@ package org.wso2.transport.http.netty.unitfunction;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
@@ -70,5 +71,33 @@ public class CommonUtilTestCase {
         Assert.assertEquals(outboundNettyResponse.headers().getAll("aaa").size(), 2);
         Assert.assertEquals(outboundNettyResponse.headers().getAll("aaa").get(0), "123");
         Assert.assertEquals(outboundNettyResponse.headers().getAll("aaa").get(1), "xyz");
+    }
+
+    @Test(description = "Test setting content length header to non entity body request")
+    public void testCheckContentLengthHeaderAllowanceForGetRequest() {
+        HttpHeaders headers = new DefaultHttpHeaders();
+        headers.set(HttpHeaderNames.CONTENT_LENGTH, 10);
+        HttpCarbonMessage httpOutboundRequest = new HttpCarbonMessage(
+                new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/get", headers));
+        httpOutboundRequest.setProperty(Constants.HTTP_METHOD, HttpMethod.GET.toString());
+        boolean allow = Util.checkContentLengthAndTransferEncodingHeaderAllowance(httpOutboundRequest, 0);
+
+        Assert.assertEquals(allow, false, "Content length header should not be updated");
+        Assert.assertEquals(httpOutboundRequest.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString()), null,
+                            "Content length header should be removed");
+    }
+
+    @Test(description = "Test setting content length header to entity body request")
+    public void testCheckContentLengthHeaderAllowanceForGetRequestWithBody() {
+        HttpHeaders headers = new DefaultHttpHeaders();
+        headers.set(HttpHeaderNames.CONTENT_LENGTH, 10);
+        HttpCarbonMessage httpOutboundRequest = new HttpCarbonMessage(
+                new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/get", headers));
+        httpOutboundRequest.setProperty(Constants.HTTP_METHOD, HttpMethod.GET.toString());
+        boolean allow = Util.checkContentLengthAndTransferEncodingHeaderAllowance(httpOutboundRequest, 20);
+
+        Assert.assertEquals(allow, true, "Content length header should be updated");
+        Assert.assertEquals(httpOutboundRequest.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString()), "10",
+                            "Content length header is been removed");
     }
 }

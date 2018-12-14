@@ -226,7 +226,9 @@ public class Util {
 
     public static void setupChunkedRequest(HttpCarbonMessage httpOutboundRequest) {
         httpOutboundRequest.removeHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
-        setTransferEncodingHeader(httpOutboundRequest);
+        if (httpOutboundRequest.getHeader(HttpHeaderNames.TRANSFER_ENCODING.toString()) == null) {
+            httpOutboundRequest.setHeader(HttpHeaderNames.TRANSFER_ENCODING.toString(), Constants.CHUNKED);
+        }
     }
 
     /**
@@ -263,12 +265,6 @@ public class Util {
     public static void setupContentLengthRequest(HttpCarbonMessage httpOutboundRequest, long contentLength) {
         removeContentLengthAndTransferEncodingHeaders(httpOutboundRequest);
         httpOutboundRequest.setHeader(HttpHeaderNames.CONTENT_LENGTH.toString(), String.valueOf(contentLength));
-    }
-
-    private static void setTransferEncodingHeader(HttpCarbonMessage httpOutboundRequest) {
-        if (httpOutboundRequest.getHeader(HttpHeaderNames.TRANSFER_ENCODING.toString()) == null) {
-            httpOutboundRequest.setHeader(HttpHeaderNames.TRANSFER_ENCODING.toString(), Constants.CHUNKED);
-        }
     }
 
     public static boolean checkContentLengthAndTransferEncodingHeaderAllowance(HttpCarbonMessage httpOutboundRequest,
