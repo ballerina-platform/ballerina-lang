@@ -61,6 +61,7 @@ public class SSLHandlerFactory {
     private SSLContext sslContext = null;
     private SSLConfig sslConfig;
     private boolean needClientAuth;
+    private boolean wantClientAuth;
     private KeyManagerFactory kmf;
     private TrustManagerFactory tmf;
     private SslContextBuilder sslContextBuilder;
@@ -68,6 +69,7 @@ public class SSLHandlerFactory {
     public SSLHandlerFactory(SSLConfig sslConfig) {
         this.sslConfig = sslConfig;
         needClientAuth = sslConfig.isNeedClientAuth();
+        wantClientAuth = sslConfig.isWantClientAuth();
     }
 
     /**
@@ -130,7 +132,11 @@ public class SSLHandlerFactory {
     public SSLEngine buildServerSSLEngine(SSLContext sslContext) {
         SSLEngine engine = sslContext.createSSLEngine();
         engine.setUseClientMode(false);
-        engine.setNeedClientAuth(needClientAuth);
+        if (needClientAuth) {
+            engine.setNeedClientAuth(true);
+        } else if (wantClientAuth) {
+            engine.setWantClientAuth(true);
+        }
         return addCommonConfigs(engine);
     }
 

@@ -30,6 +30,7 @@ import static org.wso2.transport.http.netty.contract.Constants.CLIENT_SUPPORT_CI
 import static org.wso2.transport.http.netty.contract.Constants.CLIENT_SUPPORT_SSL_PROTOCOLS;
 import static org.wso2.transport.http.netty.contract.Constants.HTTPS_SCHEME;
 import static org.wso2.transport.http.netty.contract.Constants.JKS;
+import static org.wso2.transport.http.netty.contract.Constants.OPTIONAL;
 import static org.wso2.transport.http.netty.contract.Constants.REQUIRE;
 import static org.wso2.transport.http.netty.contract.Constants.SERVER_ENABLE_SESSION_CREATION;
 import static org.wso2.transport.http.netty.contract.Constants.SERVER_SUPPORTED_SERVER_NAMES;
@@ -57,6 +58,8 @@ public class SslConfiguration {
     public void setVerifyClient(String verifyClient) {
         if (REQUIRE.equalsIgnoreCase(verifyClient)) {
             sslConfig.setNeedClientAuth(true);
+        } else if (OPTIONAL.equalsIgnoreCase(verifyClient)) {
+            sslConfig.setWantClientAuth(true);
         }
     }
 
