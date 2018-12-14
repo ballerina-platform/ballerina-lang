@@ -502,8 +502,12 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangStreamingInput streamingInput) {
-        BLangExpression streamRef = (BLangExpression) streamingInput.getStreamReference();
+        BLangVariableReference streamRef = (BLangVariableReference) streamingInput.getStreamReference();
         typeChecker.checkExpr(streamRef, env);
+
+        if (streamRef.symbol == null) {
+            return;
+        }
 
         WhereNode beforeWhereNode = streamingInput.getBeforeStreamingCondition();
         if (beforeWhereNode != null) {
@@ -549,31 +553,12 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
                         names.fromString(streamingInput.getAlias()), env);
             }
         } else {
-            if (isTableReference(streamingInput.getStreamReference())) {
-                if (streamingInput.getAlias() == null) {
-                    dlog.error(streamingInput.pos, DiagnosticCode.UNDEFINED_INVOCATION_ALIAS,
-                               ((BLangInvocation) streamRef).name.getValue());
-                }
-                if (streamingInput.getStreamReference().getKind() == NodeKind.INVOCATION) {
-                    BInvokableSymbol functionSymbol = (BInvokableSymbol) ((BLangInvocation) streamRef).symbol;
-                    symbolEnter.defineVarSymbol(streamingInput.pos, EnumSet.noneOf(Flag.class),
-                            ((BTableType) functionSymbol.retType).constraint,
-                            names.fromString(streamingInput.getAlias()), env);
-                } else {
-                    BType constraint =
-                            ((BTableType) ((BLangVariableReference) streamingInput.getStreamReference()).type)
-                                    .constraint;
-                    symbolEnter.defineVarSymbol(streamingInput.pos, EnumSet.noneOf(Flag.class), constraint,
-                            names.fromString(streamingInput.getAlias()), env);
-                }
-            } else {
-                //Create duplicate symbol for stream alias
-                if (streamingInput.getAlias() != null) {
-                    BVarSymbol streamSymbol = (BVarSymbol) ((BLangSimpleVarRef) streamRef).symbol;
-                    BVarSymbol streamAliasSymbol = ASTBuilderUtil.duplicateVarSymbol(streamSymbol);
-                    streamAliasSymbol.name = names.fromString(streamingInput.getAlias());
-                    symbolEnter.defineSymbol(streamingInput.pos, streamAliasSymbol, env);
-                }
+            //Create duplicate symbol for stream alias
+            if (streamingInput.getAlias() != null) {
+                BVarSymbol streamSymbol = (BVarSymbol) streamRef.symbol;
+                BVarSymbol streamAliasSymbol = ASTBuilderUtil.duplicateVarSymbol(streamSymbol);
+                streamAliasSymbol.name = names.fromString(streamingInput.getAlias());
+                symbolEnter.defineSymbol(streamingInput.pos, streamAliasSymbol, env);
             }
         }
     }
