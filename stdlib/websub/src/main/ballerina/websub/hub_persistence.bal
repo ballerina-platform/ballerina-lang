@@ -46,10 +46,4 @@ public type HubPersistenceObject abstract object {
     #
     # + return - An array of subscriber details
     public function retrieveAllSubscribers() returns SubscriptionDetails[];
-
-    # Function to retrieve subscription details of of subscribers to a specific topic.
-    #
-    # + topic - The topic for which subscription details need to be retrieved
-    # + return - An array of subscriber details
-    public function retrieveSubscribersForTopic(string topic) returns SubscriptionDetails[];
 };

@@ -16,7 +16,6 @@
 
 import ballerina/crypto;
 import ballerina/http;
-import ballerina/h2;
 import ballerina/log;
 import ballerina/mime;
 import ballerina/sql;
@@ -375,9 +374,11 @@ function persistSubscriptionChange(string mode, SubscriptionDetails subscription
 # Function to initiate set up activities on startup/restart.
 function setupOnStartup() {
     if (hubPersistenceEnabled) {
-        HubPersistenceObject persistenceObject = <HubPersistenceObject> hubPersistenceObjectImpl;
-        addTopicRegistrationsOnStartup(persistenceObject);
-        addSubscriptionsOnStartup(persistenceObject); //TODO:verify against topics
+        if (hubPersistenceObjectImpl is HubPersistenceObject) {
+            // always true since already checked
+            addTopicRegistrationsOnStartup(hubPersistenceObjectImpl);
+            addSubscriptionsOnStartup(hubPersistenceObjectImpl); //TODO:verify against topics
+        }
     }
     return;
 }
