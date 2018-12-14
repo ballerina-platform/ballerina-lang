@@ -28,6 +28,16 @@ type ResultPrimitive record {
     string STRING_TYPE;
 };
 
+type ResultClosed record {
+    int INT_TYPE;
+    int LONG_TYPE;
+    float FLOAT_TYPE;
+    float DOUBLE_TYPE;
+    boolean BOOLEAN_TYPE;
+    string STRING_TYPE;
+    !...
+};
+
 type ResultSetTestAlias record {
     int INT_TYPE;
     int LONG_TYPE;
@@ -1521,4 +1531,39 @@ function testJoinQueryWithCursorTable() returns (int | error) {
 
     testDB.stop();
     return 0;
+}
+
+function testTypeCheckingConstrainedCursorTableWithClosedConstraint() returns (int, int, float, float, boolean,
+    string) {
+    h2:Client testDB = new({
+            path: "./target/tempdb/",
+            name: "TEST_DATA_TABLE_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
+
+    int i = -1;
+    int l = -1;
+    float f = -1;
+    float d = -1;
+    boolean b = false;
+    string s = "";
+    var dtRet = testDB->select("SELECT int_type, long_type, float_type, double_type,
+                  boolean_type, string_type from DataTable WHERE row_id = 1", ResultClosed);
+    if (dtRet is table<ResultClosed>) {
+        while (dtRet.hasNext()) {
+            var rs = dtRet.getNext();
+            if (rs is ResultClosed) {
+                i = rs.INT_TYPE;
+                l = rs.LONG_TYPE;
+                f = rs.FLOAT_TYPE;
+                d = rs.DOUBLE_TYPE;
+                b = rs.BOOLEAN_TYPE;
+                s = rs.STRING_TYPE;
+            }
+        }
+    }
+    testDB.stop();
+    return (i, l, f, d, b, s);
 }
