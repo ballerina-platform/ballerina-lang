@@ -22,7 +22,7 @@ public function main() {
     printSalaryDetails(2500);
 
     // Call the function by passing only the `baseSalary` and `annualIncrement`.
-    // Pass the defaultable parameter as a key-value pair, when invoking the
+    // Pass the defaultable parameter as a key-value pair when invoking the
     // function. The `bonusRate` defaults to 0.02.
     printSalaryDetails(2500, annualIncrement = 100);
 
