@@ -688,7 +688,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             if (selectExpr.getKind() == NodeKind.INVOCATION) {
                 BLangInvocation invocation = (BLangInvocation) selectExpr;
                 BInvokableSymbol aggregatorInvokableSymbol =
-                        getInvokableSymbol(invocation, "Aggregator");
+                        getInvokableSymbol(invocation, AGGREGATOR_OBJECT_NAME);
                 if (aggregatorInvokableSymbol != null) {
                     if (isReturnTypeMatching(invocation.pos, AGGREGATOR_OBJECT_NAME, aggregatorInvokableSymbol)) {
                         BLangInvocation aggregatorInvocation = ASTBuilderUtil.
@@ -1228,7 +1228,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         convertFieldAccessArgsToStringLiteral(invocation);
 
         //checks for the symbol, if not exists, then set the pkgAlias to STREAMS_STDLIB_PACKAGE_NAME
-        BInvokableSymbol windowInvokableSymbol = getInvokableSymbol(invocation, "Window");
+        BInvokableSymbol windowInvokableSymbol = getInvokableSymbol(invocation, WINDOW_OBJECT_NAME);
 
         if (windowInvokableSymbol != null) {
             if (isReturnTypeMatching(invocation.pos, WINDOW_OBJECT_NAME, windowInvokableSymbol)) {
@@ -1656,7 +1656,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         // Aggregator invocation in streaming query ( sum(..), count(..) .. etc)
         BLangInvocation invocation = (BLangInvocation) selectExpression.getExpression();
 
-        BInvokableSymbol symbol = getInvokableSymbol(invocation, "Aggregator");
+        BInvokableSymbol symbol = getInvokableSymbol(invocation, AGGREGATOR_OBJECT_NAME);
         if (symbol != null) {
             if (isReturnTypeMatching(invocation.pos, AGGREGATOR_OBJECT_NAME, symbol)) {
 
