@@ -115,7 +115,8 @@ public class BallerinaParserUtil extends GeneratedParserUtilBase {
                                 && !(rawLookup == BallerinaTypes.LEFT_BRACE
                                 && rawLookup2 == BallerinaTypes.RIGHT_BRACKET)
                                 && !(rawLookup == BallerinaTypes.LEFT_BRACE && rawLookup2 == BallerinaTypes.RETURN)
-                                && !(rawLookup == BallerinaTypes.QUESTION_MARK && rawLookup2 == BallerinaTypes.QUESTION_MARK)
+                                && !(rawLookup == BallerinaTypes.QUESTION_MARK
+                                && rawLookup2 == BallerinaTypes.QUESTION_MARK)
                                 ) {
                             IElementType rawLookup3;
                             do {
@@ -124,10 +125,11 @@ public class BallerinaParserUtil extends GeneratedParserUtilBase {
                                     continue;
                                 }
                                 // Example - string a = b is string ? b : e;
-                                if (!(rawLookup == BallerinaTypes.QUESTION_MARK && rawLookup3 == BallerinaTypes.IS)) {
-                                    return true;
+                                if ((rawLookup == BallerinaTypes.QUESTION_MARK && rawLookup3 == BallerinaTypes.IS)) {
+                                    return false;
                                 }
-                            }  while (rawLookup3 != null && isWhiteSpaceOrComment(rawLookup));
+                                return true;
+                            }  while (rawLookup3 != null && isWhiteSpaceOrComment(rawLookup3));
                         } else {
                             LighterASTNode latestDoneMarker = builder.getLatestDoneMarker();
                             if (rawLookup == BallerinaTypes.COMMA && rawLookup2 == BallerinaTypes.COLON) {
