@@ -928,6 +928,10 @@
               "url": "simple-filtering"
             },
             {
+              "name": "Projection",
+              "url": "projection"
+            },
+            {
                 "name": "Temporal Aggregations",
                 "url": "temporal-aggregations-and-windows"
             },

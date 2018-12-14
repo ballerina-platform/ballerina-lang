@@ -147,4 +147,11 @@ public class ErrorTest {
         Assert.assertEquals(returns[0].stringValue(), "{callableName:\"getCallStack\", " +
                 "moduleName:\"ballerina/runtime\", fileName:\"<native>\", lineNumber:0}");
     }
+
+    @Test
+    public void testConsecutiveTraps() {
+        BValue[] returns = BRunUtil.invoke(basicErrorTest, "testConsecutiveTraps");
+        Assert.assertEquals(returns[0].stringValue(), "Error");
+        Assert.assertEquals(returns[1].stringValue(), "Error");
+    }
 }
