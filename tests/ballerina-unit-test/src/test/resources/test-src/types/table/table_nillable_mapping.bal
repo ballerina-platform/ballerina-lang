@@ -25,20 +25,6 @@ type ResultDatesWithNillableStringType record {
     string? DATETIME_TYPE;
 };
 
-type ResultDatesWithTimeType record {
-    time:Time DATE_TYPE;
-    time:Time TIME_TYPE;
-    time:Time TIMESTAMP_TYPE;
-    time:Time DATETIME_TYPE;
-};
-
-type ResultDatesWithNillableTimeType record {
-    time:Time? DATE_TYPE;
-    time:Time? TIME_TYPE;
-    time:Time? TIMESTAMP_TYPE;
-    time:Time? DATETIME_TYPE;
-};
-
 type ResultDatesWithIntType record {
     int DATE_TYPE;
     int TIME_TYPE;
@@ -67,10 +53,14 @@ type NillableDataTypesAll record {
     int? smallint_type;
     string? clob_type;
     byte[]? binary_type;
-    time:Time? date_type;
-    time:Time? time_type;
-    time:Time? datetime_type;
-    time:Time? timestamp_type;
+    int? date_type;
+    int? time_type;
+    int? datetime_type;
+    int? timestamp_type;
+    string? date_type_str;
+    string? time_type_str;
+    string? datetime_type_str;
+    string? timestamp_type_str;
 };
 
 type NillableDataTypes record {
@@ -192,65 +182,6 @@ function testMappingToNillableTypeFieldsBlob() returns (byte[]?) {
     return blob_type;
 }
 
-function testMappingDatesToNillableTimeType() returns (int, int, int,
-            int, int, int, int, int) {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    });
-
-    int dateInserted = -1;
-    int dateRetrieved = -1;
-    int timeInserted = -1;
-    int timeRetrieved = -1;
-    int timestampInserted = -1;
-    int timestampRetrieved = -1;
-    int datetimeInserted = -1;
-    int datetimeRetrieved = -1;
-
-    time:Time dateStruct = time:createTime(2017, 5, 23, 0, 0, 0, 0, "");
-
-    time:Timezone zoneValue = { zoneId: "UTC" };
-    time:Time timeStruct = new(51323000, zoneValue);
-
-    time:Time timestampStruct = time:createTime(2017, 1, 25, 16, 12, 23, 0, "UTC");
-    time:Time datetimeStruct = time:createTime(2017, 1, 31, 16, 12, 23, 332, "UTC");
-    dateInserted = dateStruct.time;
-    timeInserted = timeStruct.time;
-    timestampInserted = timestampStruct.time;
-    datetimeInserted = datetimeStruct.time;
-
-    sql:Parameter para0 = { sqlType: sql:TYPE_INTEGER, value: 150 };
-    sql:Parameter para1 = { sqlType: sql:TYPE_DATE, value: dateStruct };
-    sql:Parameter para2 = { sqlType: sql:TYPE_TIME, value: timeStruct };
-    sql:Parameter para3 = { sqlType: sql:TYPE_TIMESTAMP, value: timestampStruct };
-    sql:Parameter para4 = { sqlType: sql:TYPE_DATETIME, value: datetimeStruct };
-
-    _ = testDB->update("Insert into DateTimeTypes
-        (row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)",
-        para0, para1, para2, para3, para4);
-    var dt = testDB->select("SELECT date_type, time_type, timestamp_type, datetime_type
-                from DateTimeTypes where row_id = 150", ResultDatesWithNillableTimeType);
-
-    if (dt is table<ResultDatesWithNillableTimeType>) {
-        while (dt.hasNext()) {
-            var rs = dt.getNext();
-            if (rs is ResultDatesWithNillableTimeType) {
-                dateRetrieved = rs.DATE_TYPE.time ?: -1;
-                timeRetrieved = rs.TIME_TYPE.time ?: -1;
-                timestampRetrieved = rs.TIMESTAMP_TYPE.time ?: -1;
-                datetimeRetrieved = rs.DATETIME_TYPE.time ?: -1;
-            }
-        }
-    }
-    testDB.stop();
-    return (dateInserted, dateRetrieved, timeInserted, timeRetrieved, timestampInserted, timestampRetrieved,
-    datetimeInserted, datetimeRetrieved);
-}
-
 function testMappingDatesToNillableIntType(int datein, int timein,
                                            int timestampin) returns (int, int, int, int) {
     h2:Client testDB = new({
@@ -338,8 +269,8 @@ timein, int timestampin) returns (string, string, string,
 }
 
 function testMappingNullToNillableTypes() returns (int?, int?, float?,
-            float?, boolean?, string?, float?, float?, float?, int?, int?, string?, byte[]?, time:Time?, time:Time?
-            , time:Time?, time:Time?) {
+            float?, boolean?, string?, float?, float?, float?, int?, int?, string?, byte[]?, int?, int?
+            ,int?, int?, string?, string?, string?, string?) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_DATA_TABLE_H2",
@@ -349,8 +280,8 @@ function testMappingNullToNillableTypes() returns (int?, int?, float?,
     });
     var dt = testDB->select("SELECT int_type, long_type, float_type, double_type,
     boolean_type, string_type, numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type,
-    binary_type, date_type, time_type, datetime_type, timestamp_type from DataTypeTableNillable where
-    row_id=2", NillableDataTypesAll);
+    binary_type, date_type, time_type, datetime_type, timestamp_type, date_type, time_type, datetime_type, timestamp_type
+     from DataTypeTableNillable where row_id=2", NillableDataTypesAll);
 
     int? int_type = ();
     int? long_type = ();
@@ -365,10 +296,14 @@ function testMappingNullToNillableTypes() returns (int?, int?, float?,
     int? smallint_type = ();
     string? clob_type = ();
     byte[]? binary_type = ();
-    time:Time? date_type = ();
-    time:Time? time_type = ();
-    time:Time? datetime_type = ();
-    time:Time? timestamp_type = ();
+    int? date_type = ();
+    int? time_type = ();
+    int? datetime_type = ();
+    int? timestamp_type = ();
+    string? date_type_str = ();
+    string? time_type_str = ();
+    string? datetime_type_str = ();
+    string? timestamp_type_str = ();
 
     if (dt is table<NillableDataTypesAll>) {
         while (dt.hasNext()) {
@@ -391,13 +326,17 @@ function testMappingNullToNillableTypes() returns (int?, int?, float?,
                 time_type = rs.time_type;
                 datetime_type = rs.datetime_type;
                 timestamp_type = rs.timestamp_type;
+                date_type_str = rs.date_type_str;
+                time_type_str = rs.time_type_str;
+                datetime_type_str = rs.datetime_type_str;
+                timestamp_type_str = rs.timestamp_type_str;
             }
         }
     }
     testDB.stop();
     return (int_type, long_type, float_type, double_type, boolean_type, string_type, numeric_type, decimal_type,
     real_type, tinyint_type, smallint_type, clob_type, binary_type, date_type, time_type, datetime_type,
-    timestamp_type);
+    timestamp_type, date_type_str, time_type_str, datetime_type_str, timestamp_type_str);
 }
 
 function testMappingNullToNillableTypesBlob() returns byte[]? {

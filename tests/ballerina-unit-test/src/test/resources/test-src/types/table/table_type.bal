@@ -63,13 +63,6 @@ type ResultDates record {
     string DATETIME_TYPE;
 };
 
-type ResultDatesStruct record {
-    time:Time DATE_TYPE;
-    time:Time TIME_TYPE;
-    time:Time TIMESTAMP_TYPE;
-    time:Time DATETIME_TYPE;
-};
-
 type ResultDatesInt record {
     int DATE_TYPE;
     int TIME_TYPE;
@@ -560,65 +553,6 @@ function testDateTime(int datein, int timein, int timestampin)
     }
     testDB.stop();
     return (date, time, timestamp, datetime);
-}
-
-function testDateTimeAsTimeStruct() returns (int, int, int, int, int,
-            int, int, int) {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    });
-
-    int dateInserted = -1;
-    int dateRetrieved = -1;
-    int timeInserted = -1;
-    int timeRetrieved = -1;
-    int timestampInserted = -1;
-    int timestampRetrieved = -1;
-    int datetimeInserted = -1;
-    int datetimeRetrieved = -1;
-
-    time:Time dateStruct = time:createTime(2017, 5, 23, 0, 0, 0, 0, "");
-
-    time:Timezone zoneValue = { zoneId: "UTC" };
-    time:Time timeStruct = new(51323000, zoneValue);
-
-    time:Time timestampStruct = time:createTime(2017, 1, 25, 16, 12, 23, 0, "UTC");
-    time:Time datetimeStruct = time:createTime(2017, 1, 31, 16, 12, 23, 332, "UTC");
-    dateInserted = dateStruct.time;
-    timeInserted = timeStruct.time;
-    timestampInserted = timestampStruct.time;
-    datetimeInserted = datetimeStruct.time;
-
-    sql:Parameter para0 = { sqlType: sql:TYPE_INTEGER, value: 31 };
-    sql:Parameter para1 = { sqlType: sql:TYPE_DATE, value: dateStruct };
-    sql:Parameter para2 = { sqlType: sql:TYPE_TIME, value: timeStruct };
-    sql:Parameter para3 = { sqlType: sql:TYPE_TIMESTAMP, value: timestampStruct };
-    sql:Parameter para4 = { sqlType: sql:TYPE_DATETIME, value: datetimeStruct };
-
-    _ = testDB->update("Insert into DateTimeTypes
-        (row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)",
-        para0, para1, para2, para3, para4);
-
-    var selectRet = testDB->select("SELECT date_type, time_type, timestamp_type, datetime_type
-                from DateTimeTypes where row_id = 31", ResultDatesStruct);
-    if (selectRet is table<ResultDatesStruct>) {
-        while (selectRet.hasNext()) {
-            var rs =selectRet.getNext();
-            if (rs is ResultDatesStruct) {
-                dateRetrieved = rs.DATE_TYPE.time;
-                timeRetrieved = rs.TIME_TYPE.time;
-                timestampRetrieved = rs.TIMESTAMP_TYPE.time;
-                datetimeRetrieved = rs.DATETIME_TYPE.time;
-            }
-        }
-    }
-    testDB.stop();
-    return (dateInserted, dateRetrieved, timeInserted, timeRetrieved, timestampInserted, timestampRetrieved,
-    datetimeInserted, datetimeRetrieved);
 }
 
 function testDateTimeInt(int datein, int timein, int timestampin)

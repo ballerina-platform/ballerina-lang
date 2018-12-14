@@ -35,7 +35,6 @@ import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.stdlib.time.util.TimeUtils;
 import org.ballerinalang.util.TableIterator;
 import org.ballerinalang.util.TableResourceManager;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
@@ -67,30 +66,16 @@ import static org.ballerinalang.database.sql.SQLDatasourceUtils.POSTGRES_OID_COL
 public class SQLDataIterator extends TableIterator {
 
     private Calendar utcCalendar;
-    private StructureTypeInfo timeStructInfo;
-    private StructureTypeInfo zoneStructInfo;
     private static final String UNASSIGNABLE_UNIONTYPE_EXCEPTION =
             "Corresponding Union type in the record is not an assignable nillable type";
     private static final String MISMATCHING_FIELD_ASSIGNMENT = "Trying to assign to a mismatching type";
     private String sourceDatabase;
-
-    public SQLDataIterator(Calendar utcCalendar, BStructureType structType, StructureTypeInfo timeStructInfo,
-                           StructureTypeInfo zoneStructInfo, TableResourceManager rm,
-                           ResultSet rs, List<ColumnDefinition> columnDefs, String databaseProductName) {
-        super(rm, rs, structType, columnDefs);
-        this.utcCalendar = utcCalendar;
-        this.timeStructInfo = timeStructInfo;
-        this.zoneStructInfo = zoneStructInfo;
-        this.sourceDatabase = databaseProductName;
-    }
 
     public SQLDataIterator(TableResourceManager rm, ResultSet rs, Calendar utcCalendar,
             List<ColumnDefinition> columnDefs, BStructureType structType, StructureTypeInfo timeStructInfo,
             StructureTypeInfo zoneStructInfo, String databaseProductName) {
         super(rm, rs, structType, columnDefs);
         this.utcCalendar = utcCalendar;
-        this.timeStructInfo = timeStructInfo;
-        this.zoneStructInfo = zoneStructInfo;
         this.sourceDatabase = databaseProductName;
     }
 
@@ -132,7 +117,7 @@ public class SQLDataIterator extends TableIterator {
     @Override
     public BMap<String, BValue> generateNext() {
         if (this.type == null) {
-            throw new BallerinaException("the expected struct type is not specified in action");
+            throw new BallerinaException("the expected record type is not specified in the remote function");
         }
         BMap<String, BValue> bStruct = new BMap<>(this.type);
         int index = 0;
@@ -291,10 +276,6 @@ public class SQLDataIterator extends TableIterator {
     private int retrieveNonNilTypeTag(BType fieldType) {
         List<BType> members = ((BUnionType) fieldType).getMemberTypes();
         return retrieveNonNilType(members).getTag();
-    }
-
-    private BMap<String, BValue> createTimeStruct(long millis) {
-        return TimeUtils.createTimeStruct(zoneStructInfo, timeStructInfo, millis, Constants.TIMEZONE_UTC);
     }
 
     private BMap<String, BValue> createUserDefinedType(Struct structValue, BStructureType structType) {
@@ -621,10 +602,6 @@ public class SQLDataIterator extends TableIterator {
             String dateValue = SQLDatasourceUtils.getString(date);
             bStruct.put(fieldName, dateValue != null ? new BString(dateValue) : null);
             break;
-        case TypeTags.OBJECT_TYPE_TAG:
-        case TypeTags.RECORD_TYPE_TAG:
-            bStruct.put(fieldName, date != null ? createTimeStruct(date.getTime()) : null);
-            break;
         case TypeTags.INT_TAG:
             bStruct.put(fieldName, date != null ? new BInteger(date.getTime()) : null);
             break;
@@ -640,10 +617,6 @@ public class SQLDataIterator extends TableIterator {
             case TypeTags.STRING_TAG:
                 String dateValue = SQLDatasourceUtils.getString(date);
                 bStruct.put(fieldName, new BString(dateValue));
-                break;
-            case TypeTags.OBJECT_TYPE_TAG:
-            case TypeTags.RECORD_TYPE_TAG:
-                bStruct.put(fieldName, createTimeStruct(date.getTime()));
                 break;
             case TypeTags.INT_TAG:
                 bStruct.put(fieldName, new BInteger(date.getTime()));

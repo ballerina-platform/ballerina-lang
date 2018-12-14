@@ -16,6 +16,7 @@
 
 import ballerina/h2;
 import ballerina/time;
+import ballerina/io;
 
 type NonNillableInt record {
     int val;
@@ -74,19 +75,19 @@ type NonNillableBinary record {
 };
 
 type NonNillableDate record {
-    time:Time val;
+    int val;
 };
 
 type NonNillableTime record {
-    time:Time val;
+    int val;
 };
 
 type NonNillableDateTime record {
-    time:Time val;
+    int val;
 };
 
 type NonNillableTimeStamp record {
-    time:Time val;
+    int val;
 };
 
 type InvalidUnion record {

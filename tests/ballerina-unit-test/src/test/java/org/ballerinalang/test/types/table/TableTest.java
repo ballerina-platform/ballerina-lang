@@ -342,16 +342,6 @@ public class TableTest {
     }
 
     @Test(groups = TABLE_TEST, description = "Check date time operation")
-    public void testDateTimeAsTimeStruct() {
-        BValue[] returns = BRunUtil.invoke(result,  "testDateTimeAsTimeStruct");
-        Assert.assertEquals(returns.length, 8);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), ((BInteger) returns[1]).intValue());
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), ((BInteger) returns[3]).intValue());
-        Assert.assertEquals(((BInteger) returns[4]).intValue(), ((BInteger) returns[5]).intValue());
-        Assert.assertEquals(((BInteger) returns[6]).intValue(), ((BInteger) returns[7]).intValue());
-    }
-
-    @Test(groups = TABLE_TEST, description = "Check date time operation")
     public void testDateTimeInt() {
         BValue[] args = new BValue[3];
         Calendar cal = Calendar.getInstance();
@@ -701,17 +691,6 @@ public class TableTest {
     }
 
     @Test(groups = TABLE_TEST,
-          description = "Test mapping date to nillable Time field")
-    public void testMapptingDatesToNillableTime() {
-        BValue[] returns = BRunUtil.invoke(nillableMappingResult, "testMappingDatesToNillableTimeType");
-        Assert.assertEquals(returns.length, 8);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), ((BInteger) returns[1]).intValue());
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), ((BInteger) returns[3]).intValue());
-        Assert.assertEquals(((BInteger) returns[4]).intValue(), ((BInteger) returns[5]).intValue());
-        Assert.assertEquals(((BInteger) returns[6]).intValue(), ((BInteger) returns[7]).intValue());
-    }
-
-    @Test(groups = TABLE_TEST,
           description = "Test mapping date to nillable int field")
     public void testMappingDatesToNillableIntType() {
         BValue[] args = new BValue[3];
@@ -787,7 +766,7 @@ public class TableTest {
     public void testMappingNullToNillableTypes() {
         BValue[] returns = BRunUtil.invoke(nillableMappingResult, "testMappingNullToNillableTypes");
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 17);
+        Assert.assertEquals(returns.length, 21);
         for (BValue returnVal : returns) {
             Assert.assertNull(returnVal);
         }
