@@ -216,14 +216,14 @@ public class WorkerFailTest {
     public void invalidWorkerNameAsDefault() {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-worker-as-default.bal");
         Assert.assertEquals(result.getErrorCount(), 4);
-        BAssertUtil.validateError(result, 0, "explicit workers cannot be 'default' since the " +
-                "function already hsa an implicit worker named 'default'", 4, 5);
-        BAssertUtil.validateError(result, 1, "explicit workers cannot be 'default' since the " +
-                "function already hsa an implicit worker named 'default'", 15, 5);
+        BAssertUtil.validateError(result, 0, "explicit workers cannot be named as 'default' " +
+                "since the function already has an implicit worker named 'default'", 4, 5);
+        BAssertUtil.validateError(result, 1, "explicit workers cannot be named as 'default' " +
+                "since the function already has an implicit worker named 'default'", 15, 5);
         BAssertUtil.validateError(result, 2, "worker send/receive interactions are invalid; worker(s) cannot " +
                 "move onwards from the state: '[x -> default,  <- default]'", 15, 5);
-        BAssertUtil.validateError(result, 3, "explicit workers cannot be 'default' since the " +
-                "function already hsa an implicit worker named 'default'", 25, 9);
+        BAssertUtil.validateError(result, 3, "explicit workers cannot be named as 'default' " +
+                "since the function already has an implicit worker named 'default'", 25, 9);
 
     }
 }
