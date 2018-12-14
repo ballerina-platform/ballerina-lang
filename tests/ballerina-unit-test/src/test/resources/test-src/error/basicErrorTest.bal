@@ -73,3 +73,19 @@ public function testErrorWithErrorConstructor() returns string {
 function getCallStackTest() returns runtime:CallStackElement[] {
     return runtime:getCallStack();
 }
+
+function testConsecutiveTraps() returns (string, string) {
+    error? e1 = trap generatePanic();
+    error? e2 = trap generatePanic();
+    if e1 is error {
+        if e2 is error {
+            return (e1.reason(), e2.reason());
+        }
+    }
+    return ("Failed", "Failed");
+}
+
+function generatePanic() {
+    error e = error("Error");
+    panic e;
+}
