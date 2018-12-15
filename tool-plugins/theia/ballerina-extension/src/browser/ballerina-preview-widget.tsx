@@ -1,46 +1,38 @@
-import axios from "axios";
 import { ReactWidget } from '@theia/core/lib/browser/widgets/react-widget';
 import { Widget } from '@theia/core/lib/browser/widgets/widget';
 import { injectable, postConstruct, inject } from 'inversify';
 import { EditorManager, TextEditor, EditorWidget, TextDocumentChangeEvent } from "@theia/editor/lib/browser";
 import { DisposableCollection } from '@theia/core/lib/common/disposable';
 import * as React from 'react';
-import * as lsp from 'vscode-languageserver-types';
 import { BALLERINA_LANGUAGE_ID } from '../common'
 
-import { BallerinaDiagram, BallerinaDiagramChangeEvent, ParserReply } from './diagram/ballerina-diagram'; 
+import { EditableDiagram, DiagramMode } from '@ballerina/diagram'; 
+import { BallerinaLangClient } from './ballerina-language-client';
+import { LanguageClientProvider } from '@theia/languages/lib/browser/language-client-provider';
 
-export function parseContent(content: String) : Promise<ParserReply> {
-    const parseOpts = {
-        content,
-        includePackageInfo: true,
-        includeProgramDir: true,
-        includeTree: true,
-    }
-    return axios.post(
-                    'https://parser.playground.preprod.ballerina.io/api/parser',
-                    parseOpts,
-                    { 
-                        headers: {
-                            'content-type': 'application/json; charset=utf-8',
-                        } 
-                    })
-                .then(response => response.data);
-}
+import '@ballerina/distribution/build/themes/ballerina-default.css';
+import { ILanguageClient } from '@theia/languages/lib/browser';
 
 @injectable()
 export class BallerinaPreviewWidget extends ReactWidget {
 
     protected readonly toDisposePerCurrentEditor = new DisposableCollection();
+    protected langClient?: BallerinaLangClient;
 
     constructor(
-        @inject(EditorManager) readonly editorManager: EditorManager
+        @inject(EditorManager) readonly editorManager: EditorManager,
+        @inject(LanguageClientProvider) readonly languageClientProvider: LanguageClientProvider
     ) {
         super();
         this.id = 'ballerina-preview-widget';
         this.title.label = 'Ballerina Interaction';
         this.title.closable = true;
         this.addClass('ballerina-preview');
+        this.languageClientProvider.getLanguageClient(BALLERINA_LANGUAGE_ID)
+            .then((langClient) => {
+                this.langClient = new BallerinaLangClient(langClient as ILanguageClient);
+                this.update();
+            });
     }
 
     @postConstruct()
@@ -73,22 +65,6 @@ export class BallerinaPreviewWidget extends ReactWidget {
         }
     }
 
-    protected onChange(evt: BallerinaDiagramChangeEvent) {
-        const newContent = evt.newContent;
-        const currentEditor: TextEditor | undefined = this.getCurrentEditor();
-        if (currentEditor && currentEditor.document.languageId === BALLERINA_LANGUAGE_ID) {
-            const endLine = currentEditor.document.lineCount;
-            const endOffset = currentEditor.document.getLineContent(endLine).length;
-            const startPosition = lsp.Position.create(0,0);
-            const endPosition = lsp.Position.create(endLine, endOffset);
-            const editOperation: lsp.TextEdit = {
-                newText: newContent,
-                range: lsp.Range.create(startPosition, endPosition)
-            };
-            currentEditor.executeEdits([editOperation])
-        }
-    }
-
     protected onDocumentContentChanged(editor: TextEditor, event: TextDocumentChangeEvent): void {
         this.update();
     }
@@ -114,14 +90,15 @@ export class BallerinaPreviewWidget extends ReactWidget {
             )
         }
         return <React.Fragment>
-                <div className='ballerina-editor design-view-container'>
-                    <BallerinaDiagram 
-                        content={currentEditor.document.getText()}
-                        parseContent={parseContent}
-                        onChange={this.onChange.bind(this)}
+                <div className='diagram'>
+                    {this.langClient && <EditableDiagram
+                        mode={DiagramMode.ACTION}
+                        docUri={currentEditor.document.uri}
+                        zoom={1}
                         height={this.node.clientHeight}
                         width={this.node.clientWidth}
-                    />
+                        langClient={this.langClient as BallerinaLangClient}
+                    />}
                 </div>
             </React.Fragment>;
     }
