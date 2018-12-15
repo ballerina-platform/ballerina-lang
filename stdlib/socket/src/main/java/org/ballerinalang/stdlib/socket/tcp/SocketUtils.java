@@ -90,6 +90,7 @@ public class SocketUtils {
         BValue[] args = new BValue[] { null };
         BMap<String, BValue> caller = BLangConnectorSPIUtil.createObject(programFile, SOCKET_PACKAGE, CLIENT, args);
         caller.addNativeData(SOCKET_KEY, client);
+        // Client could be null, if any error happen during the onAccept function.
         if (client != null) {
             Socket socket = client.socket();
             caller.put(REMOTE_PORT, new BInteger(socket.getPort()));
