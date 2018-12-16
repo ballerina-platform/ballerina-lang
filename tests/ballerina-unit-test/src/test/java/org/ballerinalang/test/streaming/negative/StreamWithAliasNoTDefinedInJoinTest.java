@@ -25,7 +25,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * This class tests if the proper errors are logged if the stream is not defined
+ * This class tests if the proper errors are logged if the stream is not defined.
  *
  * @since 0.990.1
  */
