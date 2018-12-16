@@ -26,7 +26,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * This class tests if the aggregator method take an undefined arg, a proper error is thrown
+ * This class tests if the aggregator method take an undefined arg, a proper error is thrown.
  * @since 0.990.0
  */
 public class UndefinedArgInAggregatorTest {
