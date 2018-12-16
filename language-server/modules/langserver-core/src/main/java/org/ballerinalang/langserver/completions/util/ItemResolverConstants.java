@@ -114,4 +114,6 @@ public class ItemResolverConstants {
     public static final String BUILTIN_IS_FROZEN_LABEL = "isFrozen()";
     public static final String BUILTIN_STAMP_LABEL = "stamp(anydata a)";
     public static final String BUILTIN_CONVERT_LABEL = "convert(anydata a)";
+    public static final String BUILTIN_DETAIL_LABEL = "detail()";
+    public static final String BUILTIN_REASON_LABEL = "reason()";
 }

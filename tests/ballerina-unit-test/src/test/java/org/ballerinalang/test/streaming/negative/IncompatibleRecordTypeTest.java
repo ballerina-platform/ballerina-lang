@@ -36,7 +36,7 @@ public class IncompatibleRecordTypeTest {
 
     @BeforeClass
     public void setup() {
-
+        System.setProperty("enable.siddhiRuntime", "true");
         resultNegative = BCompileUtil.
                 compile("test-src/streaming/negative/streaming-invalid-record-type-negative-test.bal");
         resultNegativeForInvalidOrder = BCompileUtil.
@@ -45,6 +45,7 @@ public class IncompatibleRecordTypeTest {
 
     @Test(description = "Test filter streaming query with invalid stream attribute type")
     public void testFilterQueryWithInvalidStreamAttributeType() {
+        System.setProperty("enable.siddhiRuntime", "false");
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
         BAssertUtil.validateError(resultNegative, 0,
                 "invalid stream attribute type found. it should be either integer or long or " +
@@ -54,6 +55,7 @@ public class IncompatibleRecordTypeTest {
 
     @Test(description = "Test filter streaming query with invalid stream attribute order")
     public void testFilterQueryWithInvalidStreamAttributeOrder() {
+        System.setProperty("enable.siddhiRuntime", "false");
         Assert.assertEquals(resultNegativeForInvalidOrder.getErrorCount(), 3);
         BAssertUtil.validateError(resultNegativeForInvalidOrder, 0,
                 "incompatible stream action argument type 'Employee' defined",

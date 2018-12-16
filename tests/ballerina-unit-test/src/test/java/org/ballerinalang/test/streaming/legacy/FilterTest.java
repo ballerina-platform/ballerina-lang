@@ -39,6 +39,7 @@ public class FilterTest {
 
     @BeforeClass
     public void setup() {
+        System.setProperty("enable.siddhiRuntime", "true");
         result = BCompileUtil.compile("test-src/streaming/legacy/filter-streaming-test.bal");
         resultWithReference = BCompileUtil.
                 compile("test-src/streaming/legacy/filter-streaming-with-reference-test.bal");
@@ -47,6 +48,7 @@ public class FilterTest {
     @Test(description = "Test filter streaming query")
     public void testFilterQuery() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startFilterQuery");
+        System.setProperty("enable.siddhiRuntime", "false");
         Assert.assertNotNull(outputEmployeeEvents);
 
         Assert.assertEquals(outputEmployeeEvents.length, 2, "Expected events are not received");
@@ -62,6 +64,7 @@ public class FilterTest {
     @Test(description = "Test filter streaming query")
     public void testFilterQueryWithFuntionParam() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(resultWithReference, "startFilterQuery");
+        System.setProperty("enable.siddhiRuntime", "false");
         Assert.assertNotNull(outputEmployeeEvents);
 
         Assert.assertEquals(outputEmployeeEvents.length, 2, "Expected events are not received");

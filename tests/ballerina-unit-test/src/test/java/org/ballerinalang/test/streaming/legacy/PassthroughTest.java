@@ -39,6 +39,7 @@ public class PassthroughTest {
 
     @BeforeClass
     public void setup() {
+        System.setProperty("enable.siddhiRuntime", "true");
         result = BCompileUtil.compile("test-src/streaming/legacy/passthrough-streaming-test.bal");
         result2 = BCompileUtil.compile("test-src/streaming/legacy/passthrough-streaming-without-select-test.bal");
     }
@@ -46,7 +47,7 @@ public class PassthroughTest {
     @Test(description = "Test passthrough streaming query")
     public void testPassthroughQuery() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startPassthroughQuery");
-
+        System.setProperty("enable.siddhiRuntime", "false");
         Assert.assertNotNull(outputEmployeeEvents);
 
         Assert.assertEquals(outputEmployeeEvents.length, 3, "Expected events are not received");
@@ -63,7 +64,7 @@ public class PassthroughTest {
     @Test(description = "Test passthrough streaming query without select")
     public void testPassthroughQueryWithoutSelect() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startPassthroughQuery");
-
+        System.setProperty("enable.siddhiRuntime", "false");
         Assert.assertNotNull(outputEmployeeEvents);
 
         Assert.assertEquals(outputEmployeeEvents.length, 3, "Expected events are not received");

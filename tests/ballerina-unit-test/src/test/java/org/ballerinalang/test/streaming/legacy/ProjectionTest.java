@@ -40,6 +40,7 @@ public class ProjectionTest {
 
     @BeforeClass
     public void setup() {
+        System.setProperty("enable.siddhiRuntime", "true");
         result = BCompileUtil.compile("test-src/streaming/legacy/projection-streaming-test.bal");
         resultNegative = BCompileUtil.compile("test-src/streaming/negative/projection-streaming-negative-test.bal");
     }
@@ -47,6 +48,7 @@ public class ProjectionTest {
     @Test(description = "Test projection streaming query")
     public void testProjectionQuery() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startProjectionQuery");
+        System.setProperty("enable.siddhiRuntime", "false");
 
         Assert.assertNotNull(outputEmployeeEvents);
 
@@ -64,6 +66,7 @@ public class ProjectionTest {
     @Test(description = "Test streaming projection query with errors")
     public void testProjectionNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        System.setProperty("enable.siddhiRuntime", "false");
         BAssertUtil.validateError(resultNegative, 0,
                 "incompatible stream action argument type 'Employee' defined",
                 44, 9);

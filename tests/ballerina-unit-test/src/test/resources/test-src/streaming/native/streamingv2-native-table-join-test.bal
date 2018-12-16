@@ -90,8 +90,9 @@ function tableJoinFunc() {
     streams:OutputProcess outputProcess = streams:createOutputProcess(outputFunc);
 
     // Selector
-    streams:SimpleSelect select = streams:createSimpleSelect(function (streams:StreamEvent[] e) {outputProcess.process(e);},
-        function (streams:StreamEvent e) returns map<anydata> {
+    streams:Select select = streams:createSelect(function (streams:StreamEvent[] e) {outputProcess.process(e);},
+        [], (),
+        function (streams:StreamEvent e, streams:Aggregator[] aggregatorArr1) returns map<anydata> {
             return {
                 "symbol": e.data["tb.symbol"],
                 "tweet": e.data["twitterStream.tweet"],

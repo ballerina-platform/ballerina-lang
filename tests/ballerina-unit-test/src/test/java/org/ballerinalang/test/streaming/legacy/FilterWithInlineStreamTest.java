@@ -38,12 +38,14 @@ public class FilterWithInlineStreamTest {
 
     @BeforeClass
     public void setup() {
+        System.setProperty("enable.siddhiRuntime", "true");
         result = BCompileUtil.compile("test-src/streaming/legacy/filter-streaming-test-v2.bal");
     }
 
     @Test(description = "Test filter streaming query")
     public void testFilterQuery() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startFilterQuery");
+        System.setProperty("enable.siddhiRuntime", "false");
         Assert.assertNotNull(outputEmployeeEvents);
 
         Assert.assertEquals(outputEmployeeEvents.length, 2, "Expected events are not received");
