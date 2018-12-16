@@ -654,21 +654,31 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLiteral literalExpr) {
-
+        if (!isSiddhiRuntimeEnabled) {
+            typeChecker.checkExpr(literalExpr, env);
+        }
     }
 
     @Override
     public void visit(BLangTernaryExpr ternaryExpr) {
-
+        if (!isSiddhiRuntimeEnabled) {
+            typeChecker.checkExpr(ternaryExpr, env);
+        }
     }
 
     @Override
     public void visit(BLangTableLiteral tableLiteral) {
+        if (!isSiddhiRuntimeEnabled) {
+            typeChecker.checkExpr(tableLiteral, env);
+        }
 
     }
 
     @Override
     public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
+        if (!isSiddhiRuntimeEnabled) {
+            typeChecker.checkExpr(bracedOrTupleExpr, env);
+        }
 
     }
 
