@@ -20,8 +20,8 @@ public type Listener object {
 
     *AbstractListener;
 
-    public function __init(ListenerConfig config) {
-        var result = self.initServer(config);
+    public function __init(int port, ListenerConfig? config = ()) {
+        var result = self.initServer(port, config ?: {});
         if (result is error) {
             panic result;
         }
@@ -32,26 +32,26 @@ public type Listener object {
     }
 
     public function __stop() returns error? {
-        return ();
+        return self.stop();
     }
 
     public function __attach(service s, map<any> annotationData) returns error? {
         return self.register(s, annotationData);
     }
 
-    extern function initServer(ListenerConfig config) returns error?;
+    extern function initServer(int port, ListenerConfig config) returns error?;
 
     extern function register(service s, map<any> annotationData) returns error?;
 
     extern function start() returns error?;
+
+    extern function stop() returns error?;
 };
 
 # Represents the socket server configuration.
 #
 # + interface - the interface that server with to bind
-# + port - the port that server wish to bind
 public type ListenerConfig record {
     string? interface = ();
-    int port = 0;
     !...
 };

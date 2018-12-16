@@ -23,59 +23,48 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.stdlib.socket.tcp.SelectorManager;
 import org.ballerinalang.stdlib.socket.tcp.SocketUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.SocketException;
 import java.nio.channels.ServerSocketChannel;
 
-import static org.ballerinalang.stdlib.socket.SocketConstants.CONFIG_FIELD_PORT;
-import static org.ballerinalang.stdlib.socket.SocketConstants.LISTENER_CONFIG;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SERVER_SOCKET_KEY;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
 
 /**
- * Initialize the server socket endpoint.
+ * Stop server socket listener.
  *
- * @since 0.985.0
+ * @since 0.990.1
  */
+
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "socket",
-        functionName = "initServer",
+        functionName = "stop",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener", structPackage = SOCKET_PACKAGE),
         isPublic = true
 )
-public class InitServer extends BlockingNativeCallableUnit {
-    private static final Logger log = LoggerFactory.getLogger(InitServer.class);
+public class Stop extends BlockingNativeCallableUnit {
+    private static final Logger log = LoggerFactory.getLogger(Stop.class);
 
     @Override
     public void execute(Context context) {
         try {
-            Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-            ServerSocketChannel serverSocket = ServerSocketChannel.open();
-            serverSocket.configureBlocking(false);
-            serverSocket.socket().setReuseAddress(true);
-            serviceEndpoint.addNativeData(SERVER_SOCKET_KEY, serverSocket);
-            BMap<String, BValue> endpointConfig = (BMap<String, BValue>) context.getRefArgument(1);
-            serviceEndpoint.addNativeData(LISTENER_CONFIG, endpointConfig);
-            int port = (int) context.getIntArgument(0);
-            serviceEndpoint.addNativeData(CONFIG_FIELD_PORT, port);
-        } catch (SocketException e) {
-            context.setReturnValues(SocketUtils.createSocketError(context, "Unable to bind the socket port"));
-            return;
+            Struct listenerEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
+            ServerSocketChannel channel = (ServerSocketChannel) listenerEndpoint.getNativeData(SERVER_SOCKET_KEY);
+            final SelectorManager selectorManager = SelectorManager.getInstance();
+            selectorManager.unRegisterChannel(channel);
+            channel.close();
+            selectorManager.stop();
         } catch (IOException e) {
-            log.error("Unable to initiate the server socket", e);
+            log.error(e.getMessage(), e);
             context.setReturnValues(
-                    SocketUtils.createSocketError(context, "Unable to initiate the socket service"));
-            return;
+                    SocketUtils.createSocketError(context, "Unable to stop the socket listener: " + e.getMessage()));
         }
-        context.setReturnValues();
     }
 }
