@@ -10,6 +10,7 @@ import { EditableDiagram, DiagramMode } from '@ballerina/diagram';
 import { BallerinaLangClient } from './ballerina-language-client';
 import { LanguageClientProvider } from '@theia/languages/lib/browser/language-client-provider';
 
+import '@ballerina/font/build/font/font-ballerina.css';
 import '@ballerina/distribution/build/themes/ballerina-default.css';
 import { ILanguageClient } from '@theia/languages/lib/browser';
 
@@ -28,6 +29,11 @@ export class BallerinaPreviewWidget extends ReactWidget {
         this.title.label = 'Ballerina Interaction';
         this.title.closable = true;
         this.addClass('ballerina-preview');
+        // this is a workaround to fix styles until ballerina theme is fixed
+        const body = document.getElementsByTagName("body").item(0)
+        if (body) {
+            body.classList.add("diagram");
+        }
         this.languageClientProvider.getLanguageClient(BALLERINA_LANGUAGE_ID)
             .then((langClient) => {
                 this.langClient = new BallerinaLangClient(langClient as ILanguageClient);
