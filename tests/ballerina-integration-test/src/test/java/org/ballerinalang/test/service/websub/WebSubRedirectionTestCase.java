@@ -35,6 +35,7 @@ import java.io.File;
  */
 @Test(groups = "websub-test")
 public class WebSubRedirectionTestCase extends WebSubBaseTest {
+    private static final int LOG_LEECHER_TIMEOUT = 45000;
     private BServerInstance webSubSubscriber;
 
     private static final String INTENT_VERIFICATION_SUBSCRIBER_ONE_LOG = "ballerina: Intent Verification agreed - Mode "
@@ -64,12 +65,12 @@ public class WebSubRedirectionTestCase extends WebSubBaseTest {
 
     @Test
     public void testTopicMovedPermanentlyAndHubTemporaryRedirect() throws BallerinaTestException {
-        intentVerificationLogLeecherOne.waitForText(30000);
+        intentVerificationLogLeecherOne.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
     @Test(dependsOnMethods = "testTopicMovedPermanentlyAndHubTemporaryRedirect")
     public void testTopicRedirectFoundAndHubPermanentRedirect() throws BallerinaTestException {
-        intentVerificationLogLeecherTwo.waitForText(30000);
+        intentVerificationLogLeecherTwo.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
     @AfterClass

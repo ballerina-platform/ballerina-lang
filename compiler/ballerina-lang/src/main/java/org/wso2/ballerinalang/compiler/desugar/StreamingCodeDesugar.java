@@ -18,6 +18,7 @@ package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.clauses.HavingNode;
 import org.ballerinalang.model.tree.clauses.OrderByVariableNode;
@@ -687,7 +688,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             if (selectExpr.getKind() == NodeKind.INVOCATION) {
                 BLangInvocation invocation = (BLangInvocation) selectExpr;
                 BInvokableSymbol aggregatorInvokableSymbol =
-                        getInvokableSymbol(invocation);
+                        getInvokableSymbol(invocation, AGGREGATOR_OBJECT_NAME);
                 if (aggregatorInvokableSymbol != null) {
                     if (isReturnTypeMatching(invocation.pos, AGGREGATOR_OBJECT_NAME, aggregatorInvokableSymbol)) {
                         BLangInvocation aggregatorInvocation = ASTBuilderUtil.
@@ -1227,7 +1228,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         convertFieldAccessArgsToStringLiteral(invocation);
 
         //checks for the symbol, if not exists, then set the pkgAlias to STREAMS_STDLIB_PACKAGE_NAME
-        BInvokableSymbol windowInvokableSymbol = getInvokableSymbol(invocation);
+        BInvokableSymbol windowInvokableSymbol = getInvokableSymbol(invocation, WINDOW_OBJECT_NAME);
 
         if (windowInvokableSymbol != null) {
             if (isReturnTypeMatching(invocation.pos, WINDOW_OBJECT_NAME, windowInvokableSymbol)) {
@@ -1317,14 +1318,22 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     }
 
 
-    private BInvokableSymbol getInvokableSymbol(BLangInvocation invocation) {
+    private BInvokableSymbol getInvokableSymbol(BLangInvocation invocation, String modelType) {
         BInvokableSymbol invokableSymbol = (BInvokableSymbol) symResolver.
                 resolvePkgSymbol(invocation.pos, env, names.fromString(invocation.pkgAlias.value)).
                 scope.lookup(new Name(invocation.name.value)).symbol;
         if (invokableSymbol == null && invocation.pkgAlias.value.isEmpty()) {
-            invokableSymbol = (BInvokableSymbol) symResolver.
+            BSymbol windowSymbol = symResolver.
                     resolvePkgSymbol(invocation.pos, env, Names.STREAMS_MODULE).
                     scope.lookup(new Name(invocation.name.value)).symbol;
+
+            if (windowSymbol != null && SymbolKind.FUNCTION.equals(windowSymbol.kind) &&
+                    isReturnTypeMatching(invocation.pos, modelType, (BInvokableSymbol) windowSymbol)) {
+                invokableSymbol = (BInvokableSymbol) windowSymbol;
+            } else {
+                dlog.error(invocation.pos, DiagnosticCode.INVALID_STREAMING_MODEL_TYPE, modelType, invocation.name);
+            }
+
             invocation.pkgAlias.value = Names.STREAMS_MODULE.value;
         }
         return invokableSymbol;
@@ -1647,7 +1656,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         // Aggregator invocation in streaming query ( sum(..), count(..) .. etc)
         BLangInvocation invocation = (BLangInvocation) selectExpression.getExpression();
 
-        BInvokableSymbol symbol = getInvokableSymbol(invocation);
+        BInvokableSymbol symbol = getInvokableSymbol(invocation, AGGREGATOR_OBJECT_NAME);
         if (symbol != null) {
             if (isReturnTypeMatching(invocation.pos, AGGREGATOR_OBJECT_NAME, symbol)) {
 

@@ -1628,6 +1628,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             String workerVarName = ((BLangSimpleVariable) bLangLambdaFunction.parent).name.value;
             if (workerVarName.startsWith(WORKER_LAMBDA_VAR_PREFIX)) {
                 String workerName = workerVarName.substring(1);
+                // Check if the worker name is default, if so log an error
+                // TODO Remove this after the default worker node is defined in SymbolEnter.
+                if (workerName.equalsIgnoreCase(DEFAULT_WORKER_NAME)) {
+                    dlog.error(bLangLambdaFunction.pos, DiagnosticCode.EXPLICIT_WORKER_CANNOT_BE_DEFAULT);
+                }
                 isWorker = true;
                 this.workerActionSystemStack.peek().startWorkerActionStateMachine(workerName,
                                                                                   bLangLambdaFunction.function.pos,
