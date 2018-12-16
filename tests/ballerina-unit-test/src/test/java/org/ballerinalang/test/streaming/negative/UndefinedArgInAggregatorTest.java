@@ -43,6 +43,5 @@ public class UndefinedArgInAggregatorTest {
         Assert.assertEquals(result.getErrorCount(), 2);
         BAssertUtil.validateError(result, 0, "undefined function 'sum6'", 81, 51);
         BAssertUtil.validateError(result, 1, "undefined symbol 'inputStreamage'", 81, 57);
-
     }
 }

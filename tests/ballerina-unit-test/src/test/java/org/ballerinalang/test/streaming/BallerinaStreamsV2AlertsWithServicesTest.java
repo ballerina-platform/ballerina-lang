@@ -40,6 +40,7 @@ import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_JSON;
  *
  * @since 0.990.0
  */
+@Test(enabled = false)
 public class BallerinaStreamsV2AlertsWithServicesTest {
 
     private CompileResult result;
@@ -49,7 +50,7 @@ public class BallerinaStreamsV2AlertsWithServicesTest {
         result = BServiceUtil.setupProgramFile(this, "test-src/streaming/streamingv2-alerts-with-services.bal");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testAlerts() {
         java.util.List<org.wso2.carbon.messaging.Header> headers = new ArrayList<>();
         headers.add(new org.wso2.carbon.messaging.Header("Content-Type", APPLICATION_JSON));
