@@ -266,8 +266,11 @@ public class SSLHandlerFactory {
     }
 
     private SslContextBuilder serverContextBuilderWithKs(SslProvider sslProvider) {
-        return SslContextBuilder.forServer(this.getKeyManagerFactory()).trustManager(this.getTrustStoreFactory())
-                .clientAuth(needClientAuth ? ClientAuth.REQUIRE : ClientAuth.NONE).sslProvider(sslProvider);
+        SslContextBuilder serverSslContextBuilder = SslContextBuilder.forServer(this.getKeyManagerFactory())
+                .trustManager(this.getTrustStoreFactory())
+                .sslProvider(sslProvider);
+        setClientAuth(serverSslContextBuilder);
+        return serverSslContextBuilder;
     }
 
     private SslContextBuilder clientContextBuilderWithKs(SslProvider sslProvider) {
@@ -276,11 +279,12 @@ public class SSLHandlerFactory {
 
     private SslContextBuilder serverContextBuilderWithCerts(SslProvider sslProvider) {
         String keyPassword = sslConfig.getServerKeyPassword();
-        return SslContextBuilder
+        SslContextBuilder serverSslContextBuilder = SslContextBuilder
                 .forServer(sslConfig.getServerCertificates(), sslConfig.getServerKeyFile())
                 .keyManager(sslConfig.getServerCertificates(), sslConfig.getServerKeyFile(), keyPassword)
-                .trustManager(sslConfig.getServerTrustCertificates()).sslProvider(sslProvider)
-                .clientAuth(needClientAuth ? ClientAuth.REQUIRE : ClientAuth.NONE);
+                .trustManager(sslConfig.getServerTrustCertificates()).sslProvider(sslProvider);
+        setClientAuth(serverSslContextBuilder);
+        return serverSslContextBuilder;
     }
 
     private SslContextBuilder clientContextBuilderWithCerts(SslProvider sslProvider) {
@@ -336,6 +340,16 @@ public class SSLHandlerFactory {
 
     private TrustManagerFactory getTrustStoreFactory() {
         return tmf;
+    }
+
+    private void setClientAuth(SslContextBuilder serverSslContextBuilder) {
+        if (needClientAuth) {
+            serverSslContextBuilder.clientAuth(ClientAuth.REQUIRE);
+        } else if (wantClientAuth) {
+            serverSslContextBuilder.clientAuth(ClientAuth.OPTIONAL);
+        } else {
+            serverSslContextBuilder.clientAuth(ClientAuth.NONE);
+        }
     }
 
     public void setSNIServerNames(SSLEngine sslEngine, String peerHost) {

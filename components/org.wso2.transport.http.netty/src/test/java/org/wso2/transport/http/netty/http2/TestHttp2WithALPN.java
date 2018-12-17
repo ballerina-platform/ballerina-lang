@@ -42,6 +42,7 @@ import java.util.List;
 import static org.wso2.transport.http.netty.contract.Constants.HTTPS_SCHEME;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_1_1;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_2_0;
+import static org.wso2.transport.http.netty.contract.Constants.OPTIONAL;
 
 /**
  * A test case consisting of a http2 client and server communicating over TLS.
@@ -96,6 +97,7 @@ public class TestHttp2WithALPN {
         listenerConfiguration.setPort(TestUtil.SERVER_PORT1);
         listenerConfiguration.setScheme(HTTPS_SCHEME);
         listenerConfiguration.setVersion(String.valueOf(HTTP_2_0));
+        listenerConfiguration.setVerifyClient(OPTIONAL);
         listenerConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
         listenerConfiguration.setKeyStorePass(TestUtil.KEY_STORE_PASSWORD);
         return listenerConfiguration;

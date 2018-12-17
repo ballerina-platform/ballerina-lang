@@ -52,7 +52,6 @@ public class MutualOptionalMutualSSL {
 
     @BeforeClass
     public void setup() throws InterruptedException {
-
         factory = new DefaultHttpWsConnectorFactory();
 
         ListenerConfiguration listenerConfiguration = getListenerConfiguration();
@@ -89,7 +88,7 @@ public class MutualOptionalMutualSSL {
     }
 
     @Test
-    public void testHttpsPost() {
+    public void testMutualSslOptional() {
         TestUtil.testHttpsPost(httpClientConnector, TestUtil.SERVER_PORT3);
     }
 
