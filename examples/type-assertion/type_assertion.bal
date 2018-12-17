@@ -22,12 +22,12 @@ public function main() {
     io:println("asserted employee's name: ", employeeTwo.name);
 
     // Asserting `person` to be of type `Person` will result in a panic, since `person` is inherently an `Employee` here.
-    // `trap` is used to handle the error.
+    // `trap` is used to trap the panic and retrieve it as an `error`.
     Person|error result = trap <Person>person;
     if (result is Person) {
         io:println("asserted person's name: ", result.name);
     } else {
-        // Print the detail message from the trapped error from the panic that on occurred on assertion.
+        // Print the detail message from the error.
         io:println(result.detail().message);
     }
 }

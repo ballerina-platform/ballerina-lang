@@ -3,7 +3,7 @@
 $ ballerina run type_conversion.bal
 Employee to Person, name: Jack Sparrow
 map<any> to Person, name: Jack Sparrow
-error occurred on conversion
+Error occurred on conversion
 int value: 45
 error: 'string' cannot be converted to 'int'
 int value: 10

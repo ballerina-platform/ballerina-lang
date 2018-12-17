@@ -20,7 +20,7 @@ function convertEmployeeToPerson(Employee emp) {
         // If the conversion is successful, print the `name` field.
         io:println("Employee to Person, name: ", res["name"]);
     } else {
-        io:println("error occurred on conversion");
+        io:println("Error occurred on conversion");
     }
 }
 
@@ -34,7 +34,7 @@ function convertAnyMapToPerson(map<any> m) {
         // If the conversion is successful, print the `name` field.
         io:println("map<any> to Person, name: ", res["name"]);
     } else {
-        io:println("error occurred on conversion");
+        io:println("Error occurred on conversion");
     }
 }
 
@@ -46,7 +46,7 @@ function convertSimpleBasicTypes() {
     float f = 10.2;
     any a = 3.14;
 
-    // `string` to `int` conversion is unsafe, since the `string` may not be convertible to `int`.
+    // `string` to `int` conversion is unsafe, since the `string` value may not be convertible to `int`.
     int|error res1 = int.convert(s1);
     if (res1 is int) {
         io:println("int value: ", res1);
@@ -96,7 +96,7 @@ public function main() {
     map<any> m = { name: "Jack Sparrow", age: 54, empNo: 100 };
     convertAnyMapToPerson(m);
 
-    // Add a non-`anydata` `typedesc` element to the map and re-attempt conversion.
+    // Add a non-`anydata` element (e.g., `typedesc`) to the map and re-attempt conversion.
     // The conversion attempt would now return an error.
     m["name"] = int;
     convertAnyMapToPerson(m);

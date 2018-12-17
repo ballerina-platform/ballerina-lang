@@ -24,7 +24,7 @@ function testFunc() {
     test:assertEquals(outputs[1], "Jack Sparrow");
     test:assertEquals(outputs[2], "map<any> to Person, name: ");
     test:assertEquals(outputs[3], "Jack Sparrow");
-    test:assertEquals(outputs[4], "error occurred on conversion");
+    test:assertEquals(outputs[4], "Error occurred on conversion");
     test:assertEquals(outputs[5], "int value: ");
     test:assertEquals(outputs[6], 45);
     test:assertEquals(outputs[7], "error: ");
