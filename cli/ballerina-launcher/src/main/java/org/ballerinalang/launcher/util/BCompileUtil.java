@@ -126,7 +126,7 @@ public class BCompileUtil {
         Path sourcePath = Paths.get(sourceFilePath);
         String packageName = sourcePath.getFileName().toString();
         Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
-        return compile(sourceRoot.toString(), packageName, CompilerPhase.CODE_GEN, true, true);
+        return compile(sourceRoot.toString(), packageName, CompilerPhase.CODE_GEN, isSiddhiRuntimeEnabled, true);
     }
 
     /**
