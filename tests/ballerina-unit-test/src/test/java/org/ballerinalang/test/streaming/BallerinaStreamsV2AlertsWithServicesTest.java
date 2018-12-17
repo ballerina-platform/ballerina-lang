@@ -25,6 +25,7 @@ import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -40,7 +41,7 @@ import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_JSON;
  * @since 0.990.0
  */
 @Test(enabled = false)
-public class BallerinaStreamsV2AlertsWithServices {
+public class BallerinaStreamsV2AlertsWithServicesTest {
 
     private CompileResult result;
 
@@ -68,5 +69,10 @@ public class BallerinaStreamsV2AlertsWithServices {
                 StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(responseMsg).getInputStream());
         Assert.assertEquals(responseMsgPayload, "ALERT!! : Material usage is higher than the expected limit for " +
                                                 "material : Teak, usage difference (%) : 50.0");
+    }
+
+    @AfterClass
+    public void release() {
+        result = null;
     }
 }
