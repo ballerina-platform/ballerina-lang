@@ -19,6 +19,7 @@ export class BallerinaPreviewWidget extends ReactWidget {
 
     protected readonly toDisposePerCurrentEditor = new DisposableCollection();
     protected langClient?: BallerinaLangClient;
+    protected currentEditor?: EditorWidget;
 
     constructor(
         @inject(EditorManager) readonly editorManager: EditorManager,
@@ -45,6 +46,8 @@ export class BallerinaPreviewWidget extends ReactWidget {
     protected init(): void {
         this.update();
         this.toDispose.push(this.editorManager.onCurrentEditorChanged(this.onCurrentEditorChanged.bind(this)));
+        this.toDispose.push(this.editorManager.onCreated(this.onCurrentEditorChanged.bind(this)));
+        this.toDispose.push(this.editorManager.onActiveEditorChanged(this.onCurrentEditorChanged.bind(this)));
     }
 
     protected onResize(msg: Widget.ResizeMessage): void {
@@ -54,20 +57,25 @@ export class BallerinaPreviewWidget extends ReactWidget {
 
     protected onCurrentEditorChanged(editorWidget: EditorWidget | undefined): void {
         this.toDisposePerCurrentEditor.dispose();
-        if (editorWidget) {
-            const { editor } = editorWidget;
+        const currentEditor = editorWidget
+                    || this.editorManager.currentEditor
+                    || this.editorManager.activeEditor;
+        this.currentEditor = currentEditor;            
+        if (currentEditor) {
+            const { editor } = currentEditor;
             this.toDisposePerCurrentEditor.push(
-                editor.onDocumentContentChanged(event => this.onDocumentContentChanged(editor, event))
+                editor.onDocumentContentChanged(event => this.onDocumentContentChanged(editor, event)),
             );
-        }
-        this.update();
-        const currentEditor = this.getCurrentEditor();
-        if (currentEditor && currentEditor.document.languageId !== BALLERINA_LANGUAGE_ID) {
-            if (this.isVisible) {
-                this.hide();
+            this.update();
+            if (editor && editor.document.languageId !== BALLERINA_LANGUAGE_ID) {
+                if (this.isVisible) {
+                    this.hide();
+                }
+            } else if (this.isHidden) {
+                this.show();
             }
-        } else if (this.isHidden) {
-            this.show();
+        } else {
+            this.update();
         }
     }
 
@@ -76,7 +84,7 @@ export class BallerinaPreviewWidget extends ReactWidget {
     }
 
     protected render(): React.ReactNode {
-        const currentEditor = this.getCurrentEditor();
+        const { currentEditor } = this;
         if (!currentEditor) {
             return (
                 <div className="ballerina-preview">
@@ -86,7 +94,8 @@ export class BallerinaPreviewWidget extends ReactWidget {
                 </div>
             )
         }
-        if (currentEditor && currentEditor.document.languageId !== BALLERINA_LANGUAGE_ID) {
+        const { editor } = currentEditor;
+        if (editor && editor.document.languageId !== BALLERINA_LANGUAGE_ID) {
             return (
                 <div className="ballerina-preview">
                     <div>
@@ -99,7 +108,7 @@ export class BallerinaPreviewWidget extends ReactWidget {
                 <div className='diagram'>
                     {this.langClient && <EditableDiagram
                         mode={DiagramMode.ACTION}
-                        docUri={currentEditor.document.uri}
+                        docUri={editor.document.uri}
                         zoom={1}
                         height={this.node.clientHeight}
                         width={this.node.clientWidth}
@@ -108,13 +117,4 @@ export class BallerinaPreviewWidget extends ReactWidget {
                 </div>
             </React.Fragment>;
     }
-
-    protected getCurrentEditor(): TextEditor | undefined {
-        const activeEditor = this.editorManager.currentEditor;
-        if (activeEditor) {
-            return activeEditor.editor;
-        }
-        return undefined;
-    }
-
 }

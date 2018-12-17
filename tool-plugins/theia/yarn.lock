@@ -20,7 +20,7 @@
     swagger-parser "^5.0.5"
     swagger-schema-official "^2.0.0-bab6bed"
 
-"@ballerina/ast-model@^0.983.1-SNAPSHOT", "@ballerina/ast-model@^0.99.0-RC3":
+"@ballerina/ast-model@^0.99.0-RC3":
   version "0.99.0-RC3"
   resolved "https://registry.yarnpkg.com/@ballerina/ast-model/-/ast-model-0.99.0-RC3.tgz#07d8a25b809668dd687d74acd58b0071b7849aa8"
   dependencies:
@@ -61,10 +61,10 @@
     "@ballerina/tracing" "^0.99.0-RC3"
 
 "@ballerina/documentation@^0.99.0-RC3":
-  version "0.990.0-RC3"
-  resolved "https://registry.yarnpkg.com/@ballerina/documentation/-/documentation-0.990.0-RC3.tgz#86b1c645c0217dd0b648697137cf10220d2fbc2e"
+  version "0.99.0-RC3"
+  resolved "https://registry.yarnpkg.com/@ballerina/documentation/-/documentation-0.99.0-RC3.tgz#6041e6f9e76111c309801ebee2a3775387627f58"
   dependencies:
-    "@ballerina/ast-model" "^0.983.1-SNAPSHOT"
+    "@ballerina/ast-model" "^0.99.0-RC3"
     diff "^3.5.0"
     escape-html "^1.0.3"
     react-markdown "^4.0.0"
@@ -1243,8 +1243,8 @@ ajv@^4.9.1:
     json-stable-stringify "^1.0.1"
 
 ajv@^6.1.0, ajv@^6.5.3, ajv@^6.5.5:
-  version "6.6.1"
-  resolved "https://registry.yarnpkg.com/ajv/-/ajv-6.6.1.tgz#6360f5ed0d80f232cc2b294c362d5dc2e538dd61"
+  version "6.6.2"
+  resolved "https://registry.yarnpkg.com/ajv/-/ajv-6.6.2.tgz#caceccf474bf3fc3ce3b147443711a24063cc30d"
   dependencies:
     fast-deep-equal "^2.0.1"
     fast-json-stable-stringify "^2.0.0"
@@ -6382,8 +6382,8 @@ nan@2.10.0:
   resolved "http://registry.npmjs.org/nan/-/nan-2.10.0.tgz#96d0cd610ebd58d4b4de9cc0c6828cda99c7548f"
 
 nan@^2.0.0, nan@^2.10.0, nan@^2.9.2:
-  version "2.11.1"
-  resolved "https://registry.yarnpkg.com/nan/-/nan-2.11.1.tgz#90e22bccb8ca57ea4cd37cc83d3819b52eea6766"
+  version "2.12.0"
+  resolved "https://registry.yarnpkg.com/nan/-/nan-2.12.0.tgz#9d443fdb5e13a20770cc5e602eee59760a685885"
 
 nanomatch@^1.2.9:
   version "1.2.13"
@@ -7350,8 +7350,8 @@ postcss@^6.0.1:
     supports-color "^5.4.0"
 
 postcss@^7.0.5:
-  version "7.0.6"
-  resolved "https://registry.yarnpkg.com/postcss/-/postcss-7.0.6.tgz#6dcaa1e999cdd4a255dcd7d4d9547f4ca010cdc2"
+  version "7.0.7"
+  resolved "https://registry.yarnpkg.com/postcss/-/postcss-7.0.7.tgz#2754d073f77acb4ef08f1235c36c5721a7201614"
   dependencies:
     chalk "^2.4.1"
     source-map "^0.6.1"
@@ -7788,8 +7788,8 @@ readable-stream@1.0.x:
     string_decoder "~0.10.x"
 
 readable-stream@^3.0.6:
-  version "3.0.6"
-  resolved "https://registry.yarnpkg.com/readable-stream/-/readable-stream-3.0.6.tgz#351302e4c68b5abd6a2ed55376a7f9a25be3057a"
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/readable-stream/-/readable-stream-3.1.0.tgz#19c2e9c1ce43507c53f6eefbcf1ee3d4aaa786f5"
   dependencies:
     inherits "^2.0.3"
     string_decoder "^1.1.1"
@@ -8731,7 +8731,7 @@ string-template@~0.2.1:
 
 string-width@^1.0.1, string-width@^1.0.2:
   version "1.0.2"
-  resolved "https://registry.yarnpkg.com/string-width/-/string-width-1.0.2.tgz#118bdf5b8cdc51a2a7e70d211e07e2b0b9b107d3"
+  resolved "http://registry.npmjs.org/string-width/-/string-width-1.0.2.tgz#118bdf5b8cdc51a2a7e70d211e07e2b0b9b107d3"
   dependencies:
     code-point-at "^1.0.0"
     is-fullwidth-code-point "^1.0.0"
@@ -8990,7 +8990,7 @@ temp-write@^3.3.0:
 
 temp@^0.8.1:
   version "0.8.3"
-  resolved "https://registry.yarnpkg.com/temp/-/temp-0.8.3.tgz#e0c6bc4d26b903124410e4fed81103014dfc1f59"
+  resolved "http://registry.npmjs.org/temp/-/temp-0.8.3.tgz#e0c6bc4d26b903124410e4fed81103014dfc1f59"
   dependencies:
     os-tmpdir "^1.0.0"
     rimraf "~2.2.6"
