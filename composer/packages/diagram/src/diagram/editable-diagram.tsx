@@ -103,8 +103,14 @@ export class EditableDiagram extends React.Component<EditableDiagramProps, Edita
         const disposable = ASTUtil.onTreeModified((tree) => {
             this.forceUpdate();
             const { langClient } = this.props;
+            const serializableAST = JSON.stringify(this.state.ast, (key, value) => {
+                if (key === "parent" || key === "viewState") {
+                    return undefined;
+                }
+                return value;
+            });
             langClient.astDidChange({
-                ast: this.state.ast as BallerinaAST,
+                ast: JSON.parse(serializableAST) as BallerinaAST,
                 textDocumentIdentifier: {
                     uri: this.state.docUri
                 },
