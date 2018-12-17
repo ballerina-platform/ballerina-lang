@@ -68,7 +68,7 @@ function testTimeLengthwindow() {
 
     forever {
         from inputStreamTimeLengthWindowTest1 window timeLengthWindow(2000, 10)
-        select inputStreamTimeLengthWindowTest1.timestamp, inputStreamTimeLengthWindowTest1.name, count() as count
+        select inputStreamTimeLengthWindowTest1.name, count() as count
         group by inputStreamTimeLengthWindowTest1.school
         => (TeacherOutput [] teachers) {
             foreach var t in teachers {

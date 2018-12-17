@@ -178,12 +178,12 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
             analyzeStmt((BLangStatement) streamingQueryStatement, stmtEnv);
         }
 
-        if (isSiddhiRuntimeEnabled) {
-            //Validate output attribute names with stream/struct
-            for (StreamingQueryStatementNode streamingQueryStatement : foreverStatement.getStreamingQueryStatements()) {
+        //Validate output attribute names with stream/struct
+        for (StreamingQueryStatementNode streamingQueryStatement : foreverStatement.getStreamingQueryStatements()) {
+            if (isSiddhiRuntimeEnabled) {
                 checkOutputAttributesWithOutputConstraint((BLangStatement) streamingQueryStatement);
-                validateOutputAttributeTypes((BLangStatement) streamingQueryStatement);
             }
+            validateOutputAttributeTypes((BLangStatement) streamingQueryStatement);
         }
     }
 
@@ -263,7 +263,7 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
             return;
         } else if (actualType.tag == TypeTags.SEMANTIC_ERROR) {
             return;
-        } else if (this.types.isAssignable(actualType, expType)) {
+        } else if (this.types.isAssignable(expType, actualType)) {
             return;
         }
 
@@ -276,7 +276,8 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
         JoinStreamingInput joinStreamingInput = ((BLangStreamingQueryStatement) streamingQueryStatement).
                 getJoiningInput();
 
-        if (streamingInput != null) {
+        if (streamingInput != null &&
+                ((BLangExpression) streamingInput.getStreamReference()).type.tag != TypeTags.SEMANTIC_ERROR) {
             Map<String, List<BField>> inputStreamSpecificFieldMap =
                     createInputStreamSpecificFieldMap(streamingInput, joinStreamingInput);
             BType streamActionArgumentType = ((BInvokableType) ((BLangLambdaFunction) (((BLangStreamingQueryStatement)
@@ -346,8 +347,12 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private List<BField> getFieldListFromStreamInput(StreamingInput streamingInput) {
-        return ((BStructureType) ((BStreamType) ((BLangSimpleVarRef)
-                                                         streamingInput.getStreamReference()).type).constraint).fields;
+        BType inputReferenceType = ((BLangExpression) streamingInput.getStreamReference()).type;
+        if (inputReferenceType.tag == TypeTags.STREAM) {
+            return ((BStructureType) ((BStreamType) inputReferenceType).constraint).fields;
+        }
+
+        return ((BStructureType) ((BTableType) inputReferenceType).constraint).fields;
     }
 
     private String getStreamIdentifier(StreamingInput streamingInput) {
@@ -404,13 +409,15 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
                 getFunctionNode()).requiredParams;
         if (functionParameters == null || functionParameters.size() != 1) {
             dlog.error((streamAction).pos,
-                       DiagnosticCode.INVALID_STREAM_ACTION_ARGUMENT_COUNT,
-                       functionParameters == null ? 0 : functionParameters.size());
-        } else if (!(functionParameters.get(0).type.tag == TypeTags.ARRAY &&
-                     (((BArrayType) functionParameters.get(0).type).eType.tag == TypeTags.OBJECT)
-                     || ((BArrayType) functionParameters.get(0).type).eType.tag == TypeTags.RECORD)) {
-            dlog.error((streamAction).pos, DiagnosticCode.INVALID_STREAM_ACTION_ARGUMENT_TYPE,
-                       ((BArrayType) functionParameters.get(0).type).eType.getKind());
+                    DiagnosticCode.INVALID_STREAM_ACTION_ARGUMENT_COUNT,
+                    functionParameters == null ? 0 : functionParameters.size());
+            return;
+        }
+
+        if (functionParameters.get(0).type.tag != TypeTags.ARRAY ||
+                (!((((BArrayType) functionParameters.get(0).type).eType.tag == TypeTags.OBJECT)
+                        || (((BArrayType) functionParameters.get(0).type).eType.tag == TypeTags.RECORD)))) {
+            dlog.error((streamAction).pos, DiagnosticCode.INVALID_STREAM_ACTION_ARGUMENT_TYPE);
         }
     }
 
@@ -540,16 +547,16 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
         if (isTableReference(streamingInput.getStreamReference())) {
             if (streamingInput.getAlias() == null) {
                 dlog.error(streamingInput.pos, DiagnosticCode.UNDEFINED_INVOCATION_ALIAS,
-                           ((BLangInvocation) streamRef).name.getValue());
+                        ((BLangInvocation) streamRef).name.getValue());
             }
             if (streamingInput.getStreamReference().getKind() == NodeKind.INVOCATION) {
                 BInvokableSymbol functionSymbol = (BInvokableSymbol) ((BLangInvocation) streamRef).symbol;
                 symbolEnter.defineVarSymbol(streamingInput.pos, EnumSet.noneOf(Flag.class),
-                        ((BTableType) functionSymbol.retType).constraint, names.fromString(streamingInput.getAlias()),
+                        functionSymbol.retType, names.fromString(streamingInput.getAlias()),
                         env);
             } else {
-                BType constraint = ((BTableType) ((BLangVariableReference) streamingInput
-                        .getStreamReference()).type).constraint;
+                BType constraint = (((BLangVariableReference) streamingInput
+                        .getStreamReference()).type);
                 symbolEnter.defineVarSymbol(streamingInput.pos, EnumSet.noneOf(Flag.class), constraint,
                         names.fromString(streamingInput.getAlias()), env);
             }
