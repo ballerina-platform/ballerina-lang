@@ -783,6 +783,12 @@ public class CommonUtil {
             SymbolInfo itrCount = getIterableOpSymbolInfo(Snippet.ITR_COUNT.get(), bType,
                     ItemResolverConstants.ITR_COUNT_LABEL, context);
             symbolInfoList.addAll(Arrays.asList(itrForEach, itrMap, itrFilter, itrCount));
+            
+            if (bType.tag == TypeTags.TABLE) {
+                SymbolInfo itrSelect = getIterableOpSymbolInfo(Snippet.ITR_SELECT.get(), bType,
+                        ItemResolverConstants.ITR_SELECT_LABEL, context);
+                symbolInfoList.add(itrSelect);
+            }
 
             if (aggregateFunctionsAllowed(bType)) {
                 SymbolInfo itrMin = getIterableOpSymbolInfo(Snippet.ITR_MIN.get(), bType,
