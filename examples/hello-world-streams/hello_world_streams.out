@@ -2,4 +2,3 @@
 # `.bal` file and issue the `ballerina run` command.
 $ ballerina run --experimental hello_world_streams.bal
 Event received; status: single, total occurrences: 2
-

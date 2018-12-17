@@ -3,4 +3,3 @@
 $ ballerina run mutual_ssl.bal
 [ballerina/http] started HTTPS/WSS endpoint 0.0.0.0:9095
 INFO  [] - Successful
-
