@@ -26,22 +26,23 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * This class tests if the aggregator method take an undefined arg, a proper error is thrown.
+ * This class tests if the streaming action arg is incorrect, a proper error is thrown.
+ *
  * @since 0.990.0
  */
-public class UndefinedArgInAggregatorTest {
+public class InvalidStreamingActionArgTest {
 
     private CompileResult result;
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/streaming/negative/undefined-aggregator-and-args-test.bal");
+        result = BCompileUtil.compile("test-src/streaming/negative/invalid-streaming-action-arg-test.bal");
     }
 
-    @Test(description = "Test if the proper error is thrown if the aggregator or arg is not defined")
-    public void testUndefinedArgsInAggregator() {
-        Assert.assertEquals(result.getErrorCount(), 3);
-        BAssertUtil.validateError(result, 0, "undefined function 'sum6'", 81, 51);
-        BAssertUtil.validateError(result, 1, "undefined symbol 'inputStreamage'", 81, 57);
+    @Test(description = "Test if the proper error is thrown if the streaming action arg is incorrect")
+    public void testInvalidStreamingActionArg() {
+        Assert.assertEquals(result.getErrorCount(), 1);
+        BAssertUtil.validateError(result, 0, "invalid stream action argument type found. it " +
+                "should be an array type argument of a record", 83, 9);
     }
 }

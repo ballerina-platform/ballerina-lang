@@ -181,13 +181,15 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
         //Validate output attribute names with stream/struct
         for (StreamingQueryStatementNode streamingQueryStatement : foreverStatement.getStreamingQueryStatements()) {
             if (isSiddhiRuntimeEnabled) {
+                checkOutputAttributesWithOutputConstraintForSiddhi((BLangStatement) streamingQueryStatement);
+            } else {
                 checkOutputAttributesWithOutputConstraint((BLangStatement) streamingQueryStatement);
             }
             validateOutputAttributeTypes((BLangStatement) streamingQueryStatement);
         }
     }
 
-    private void checkOutputAttributesWithOutputConstraint(BLangStatement streamingQueryStatement) {
+    private void checkOutputAttributesWithOutputConstraintForSiddhi(BLangStatement streamingQueryStatement) {
         List<? extends SelectExpressionNode> selectExpressions =
                 ((BLangStreamingQueryStatement) streamingQueryStatement).getSelectClause().getSelectExpressions();
 
@@ -244,6 +246,59 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
                     dlog.error(((BLangStreamAction) ((BLangStreamingQueryStatement) streamingQueryStatement).
                             getStreamingAction()).pos, DiagnosticCode.INCOMPATIBLE_STREAM_ACTION_ARGUMENT, structType);
                 }
+            }
+        }
+    }
+
+    private void checkOutputAttributesWithOutputConstraint(BLangStatement streamingQueryStatement) {
+        List<? extends SelectExpressionNode> selectExpressions =
+                ((BLangStreamingQueryStatement) streamingQueryStatement).getSelectClause().getSelectExpressions();
+
+        Map<String, BType> selectClauseAttributeMap = new HashMap<>();
+        if (!((BLangStreamingQueryStatement) streamingQueryStatement).getSelectClause().isSelectAll()) {
+            for (SelectExpressionNode expressionNode : selectExpressions) {
+                String variableName = resolveSelectFieldName(expressionNode);
+                BType variableType = resolveSelectFieldType(expressionNode);
+                selectClauseAttributeMap.put(variableName, variableType);
+            }
+        }
+
+        BType streamActionArgumentType = ((BInvokableType) ((BLangLambdaFunction) (((BLangStreamingQueryStatement)
+                streamingQueryStatement).getStreamingAction()).getInvokableBody()).type).paramTypes.get(0);
+
+        if (streamActionArgumentType.tag == TypeTags.ARRAY) {
+            BType structType = (((BArrayType) streamActionArgumentType).eType);
+
+            if (structType.tag == TypeTags.OBJECT || structType.tag == TypeTags.RECORD) {
+                List<BField> structFieldList = ((BStructureType) structType).fields;
+                for (BField structField : structFieldList) {
+                    String fieldName = structField.name.value;
+                    BType fieldType = structField.getType();
+                    if (!(selectClauseAttributeMap.containsKey(fieldName) &&
+                            (selectClauseAttributeMap.get(fieldName) == null ||
+                                    types.isAssignable(selectClauseAttributeMap.get(fieldName), fieldType)))) {
+                        dlog.error(((BLangStreamAction) ((BLangStreamingQueryStatement) streamingQueryStatement).
+                                        getStreamingAction()).pos, DiagnosticCode.INCOMPATIBLE_STREAM_ACTION_ARGUMENT,
+                                structType);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    private BType resolveSelectFieldType(SelectExpressionNode expressionNode) {
+        return ((BLangExpression) (expressionNode).getExpression()).type;
+    }
+
+    private String resolveSelectFieldName(SelectExpressionNode expressionNode) {
+        if (expressionNode.getIdentifier() != null) {
+            return expressionNode.getIdentifier();
+        } else {
+            if (expressionNode.getExpression() instanceof BLangFieldBasedAccess) {
+                return ((BLangFieldBasedAccess) expressionNode.getExpression()).field.value;
+            } else {
+                return ((BLangSimpleVarRef) (expressionNode).getExpression()).variableName.value;
             }
         }
     }
