@@ -138,7 +138,7 @@ public class TimeoutHandler implements Http2DataEventListener {
         if (msgHolder != null) {
             msgHolder.setLastReadWriteTime(ticksInNanos());
         } else {
-            LOG.debug("OutboundMsgHolder may have already removed for streamId: {}", streamId);
+            LOG.debug("OutboundMsgHolder may have already been removed for streamId: {}", streamId);
         }
     }
 

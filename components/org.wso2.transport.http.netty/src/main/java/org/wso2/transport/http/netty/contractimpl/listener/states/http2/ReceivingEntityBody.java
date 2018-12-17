@@ -76,7 +76,7 @@ public class ReceivingEntityBody implements ListenerState {
                 sourceReqCMsg.addHttpContent(new DefaultHttpContent(data));
             }
         } else {
-            LOG.warn("Inconsistent state detected : data has received before headers");
+            LOG.warn("Inconsistent state detected : data has been received before headers");
         }
     }
 

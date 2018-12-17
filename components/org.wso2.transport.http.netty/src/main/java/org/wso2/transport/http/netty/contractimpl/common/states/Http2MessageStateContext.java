@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.transport.http.netty.contractimpl.common.states;
 
 import org.wso2.transport.http.netty.contractimpl.listener.states.http2.ListenerState;
@@ -30,18 +31,38 @@ public class Http2MessageStateContext {
     private ListenerState listenerState;
     private SenderState senderState;
 
+    /**
+     * Set the given listener state to the context.
+     *
+     * @param state the current state which represents the flow of packets receiving
+     */
     public void setListenerState(ListenerState state) {
         this.listenerState = state;
     }
 
+    /**
+     * Get the given listener state from the context.
+     *
+     * @return the current state which represents the flow of packets receiving
+     */
     public ListenerState getListenerState() {
         return listenerState;
     }
 
+    /**
+     * Get the given sender state from the context.
+     *
+     * @return the current state which represents the flow of packets sending
+     */
     public SenderState getSenderState() {
         return senderState;
     }
 
+    /**
+     * Set the given sender state to the context.
+     *
+     * @param senderState the current state which represents the flow of packets sending
+     */
     public void setSenderState(SenderState senderState) {
         this.senderState = senderState;
     }
