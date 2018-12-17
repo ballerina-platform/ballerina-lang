@@ -441,7 +441,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     .forEach(keyValuePair -> checkRecLiteralKeyValue(keyValuePair, matchedTypeList.get(0)));
             actualType = matchedTypeList.get(0);
         }
-
+        
         resultType = types.checkType(recordLiteral, actualType, expType);
 
         // If the record literal is of record type and types are validated for the fields, check if there are any
