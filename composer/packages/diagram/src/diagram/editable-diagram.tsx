@@ -72,9 +72,7 @@ export class EditableDiagram extends React.Component<EditableDiagramProps, Edita
     }
 
     public componentWillReceiveProps(nextProps: EditableDiagramProps) {
-        if (this.props.docUri !== nextProps.docUri) {
-            this.updateAST(nextProps.docUri);
-        }
+        this.updateAST(nextProps.docUri);
     }
 
     public componentDidMount(): void {
