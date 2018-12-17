@@ -33,22 +33,32 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Test case to test simple WebSocket pass through scenarios.
+ *
+ * @since 0.990.1
  */
 @Test(groups = {"websocket-test"})
-public class WebSocketSimpleProxyTestCase extends WebSocketTestCommons {
+public class WebSocketSimpleProxyTestCommons extends WebSocketTestCommons {
 
     private WebSocketRemoteServer remoteServer;
-    private static final String URL = "ws://localhost:9099";
+    private String url;
+    private int port;
+    private boolean sslEnabled;
+
+    public WebSocketSimpleProxyTestCommons(int port, boolean sslEnabled, String url) {
+        this.port = port;
+        this.sslEnabled = sslEnabled;
+        this.url = url;
+    }
 
     @BeforeClass(description = "Initializes Ballerina")
     public void setup() throws InterruptedException, BallerinaTestException {
-        remoteServer = new WebSocketRemoteServer(15300);
+        remoteServer = new WebSocketRemoteServer(port, sslEnabled);
         remoteServer.run();
     }
 
     @Test(description = "Tests sending and receiving of text frames in WebSockets")
     public void testSendText() throws URISyntaxException, InterruptedException {
-        WebSocketTestClient client = new WebSocketTestClient(URL);
+        WebSocketTestClient client = new WebSocketTestClient(url);
         client.handshake();
         String textSent = "hi all";
         CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -61,7 +71,7 @@ public class WebSocketSimpleProxyTestCase extends WebSocketTestCommons {
 
     @Test(description = "Tests sending and receiving of binary frames in WebSocket")
     public void testSendBinary() throws URISyntaxException, InterruptedException {
-        WebSocketTestClient client = new WebSocketTestClient(URL);
+        WebSocketTestClient client = new WebSocketTestClient(url);
         client.handshake();
         CountDownLatch countDownLatch = new CountDownLatch(1);
         client.setCountDownLatch(countDownLatch);
