@@ -15,10 +15,10 @@ type Employee record {
 function convertEmployeeToPerson(Employee emp) {
     // Attempt creating a new value of type `Person` from the `Employee` typed `emp` value, without changing `emp`'s
     // inherent type.
-    Person|error empPerson = Person.convert(emp);
-    if (empPerson is Person) {
+    Person|error res = Person.convert(emp);
+    if (res is Person) {
         // If the conversion is successful, print the `name` field.
-        io:println("empPerson name: ", empPerson["name"]);
+        io:println("Employee to Person, name: ", res["name"]);
     } else {
         io:println("error occurred on conversion");
     }
@@ -29,10 +29,10 @@ function convertEmployeeToPerson(Employee emp) {
 function convertAnyMapToPerson(map<any> m) {
     // Attempt creating a new value of type `Person` from the `map<any>` typed `m` value, without changing `m`'s
     // inherent type.
-    Person|error mPerson = Person.convert(m);
-    if (mPerson is Person) {
+    Person|error res = Person.convert(m);
+    if (res is Person) {
         // If the conversion is successful, print the `name` field.
-        io:println("mPerson name: ", mPerson["name"]);
+        io:println("map<any> to Person, name: ", res["name"]);
     } else {
         io:println("error occurred on conversion");
     }
@@ -98,7 +98,7 @@ public function main() {
 
     // Add a non-`anydata` `typedesc` element to the map and re-attempt conversion.
     // The conversion attempt would now return an error.
-    m["anc"] = int;
+    m["name"] = int;
     convertAnyMapToPerson(m);
 
     // Attempt converting to/from simple basic types.

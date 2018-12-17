@@ -1,8 +1,8 @@
 # To run the program, navigate to the directory that contains the
 # `.bal` file and issue the `ballerina run` command.
 $ ballerina run type_conversion.bal
-empPerson name: Jack Sparrow
-mPerson name: Jack Sparrow
+Employee to Person, name: Jack Sparrow
+map<any> to Person, name: Jack Sparrow
 error occurred on conversion
 int value: 45
 error: 'string' cannot be converted to 'int'

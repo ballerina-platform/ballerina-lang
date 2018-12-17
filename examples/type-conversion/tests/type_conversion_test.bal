@@ -20,9 +20,9 @@ public function mockPrint(any|error... s) {
 function testFunc() {
     // Invoking the main function
     main();
-    test:assertEquals(outputs[0], "empPerson name: ");
+    test:assertEquals(outputs[0], "Employee to Person, name: ");
     test:assertEquals(outputs[1], "Jack Sparrow");
-    test:assertEquals(outputs[2], "mPerson name: ");
+    test:assertEquals(outputs[2], "map<any> to Person, name: ");
     test:assertEquals(outputs[3], "Jack Sparrow");
     test:assertEquals(outputs[4], "error occurred on conversion");
     test:assertEquals(outputs[5], "int value: ");
