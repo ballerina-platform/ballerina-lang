@@ -213,7 +213,8 @@ function runCacheExpiry() returns error? {
     // Iterate through all caches.
     int keyIndex = 0;
     string[] currentCacheKeys = cacheMap.keys();
-    while (keyIndex < currentCacheKeys.length()) {
+    int cacheKeysLength = currentCacheKeys.length();
+    while (keyIndex < cacheKeysLength) {
 
         string currentCacheKey = currentCacheKeys[keyIndex];
         keyIndex += 1;
@@ -231,7 +232,8 @@ function runCacheExpiry() returns error? {
             // Iterate through all keys.
             int entrykeyIndex = 0;
             string[] entryKeys = currentCache.entries.keys();
-            while (entrykeyIndex < entryKeys.length()) {
+            int entryKeysLength = entryKeys.length();
+            while (entrykeyIndex < entryKeysLength) {
 
                 var key = entryKeys[entrykeyIndex];
                 entrykeyIndex += 1;
