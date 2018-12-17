@@ -37,7 +37,7 @@ export class BallerinaPreviewWidget extends ReactWidget {
         }
         this.languageClientProvider.getLanguageClient(BALLERINA_LANGUAGE_ID)
             .then((langClient) => {
-                this.langClient = new BallerinaLangClient(langClient as ILanguageClient);
+                this.langClient = new BallerinaLangClient(langClient as ILanguageClient, this.editorManager);
                 this.update();
             });
     }

@@ -6,14 +6,19 @@ import { InitializeParams, InitializeResult,  } from "@ballerina/lang-service/no
 import { 
         BallerinaSourceFragment, BallerinaASTNode, BallerinaEndpoint 
     } from "@ballerina/lang-service/lib/src/client/ast-models";
-import { ILanguageClient } from "@theia/languages/lib/browser";
+import { ILanguageClient, Position, Range } from "@theia/languages/lib/browser";
+import { TextEditor } from "@theia/editor/lib/browser/editor";
+import { EditorManager } from "@theia/editor/lib/browser/editor-manager";
+import { EditorWidget } from "@theia/editor/lib/browser";
+import URI from "@theia/core/lib/common/uri";
 
 
 export class BallerinaLangClient implements IBallerinaLangClient {
 
     isInitialized: boolean = true;
 
-    constructor(private langClient: ILanguageClient) {
+    constructor(private langClient: ILanguageClient,
+        private editorManager: EditorManager) {
     }
 
     public init(params?: InitializeParams): Thenable<InitializeResult> {
@@ -50,7 +55,33 @@ export class BallerinaLangClient implements IBallerinaLangClient {
     }
 
     public revealRange(params: RevealRangeParams): void {
-        // TODO
+        const revealRangeInEditor = (editor: TextEditor) => {
+            const { start, end } = params.range;
+            const startPosition = Position.create(start.line - 1, start.character - 1);
+            const endPosition = Position.create(end.line - 1, end.character - 1);
+            const range = Range.create(startPosition, endPosition);
+            editor.revealRange(range);
+            editor.selection = range;
+        };
+        const activeEditorWidget = this.editorManager.currentEditor;
+        const visibleEditorWidgets = this.editorManager.all;
+        const findByDocUri = (widget: EditorWidget) => widget.editor.document.uri.toString() 
+                                === params.textDocumentIdentifier.uri;
+        const foundVisibleEditorWidget = visibleEditorWidgets.find(findByDocUri);
+
+        if (activeEditorWidget && findByDocUri(activeEditorWidget)) {
+            revealRangeInEditor(activeEditorWidget.editor);
+        } else if (foundVisibleEditorWidget) {
+            revealRangeInEditor(foundVisibleEditorWidget.editor);
+        } else {
+            this.editorManager.open(new URI(params.textDocumentIdentifier.uri), {
+                widgetOptions: {
+                    area: "main"
+                }
+            }).then((openedEditor) => {
+                revealRangeInEditor(openedEditor.editor);
+            });
+        }
     }
 
     public close(): void {
