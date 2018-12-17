@@ -3,7 +3,7 @@ import ballerina/io;
 public type Person record {
     string name;
     int age;
-    // This is an anonymous record type descriptor
+    // This is an anonymous record type descriptor.
     record {
         string city;
         string country;
@@ -36,7 +36,7 @@ public function main() {
 
 // This function accepts any record with data typed fields
 // (i.e., `anydata` fields). Anonymous record types are implicitly public.
-// Hence non-public normal records will never be structurally equivalent
+// Hence, non-public normal records will never be structurally equivalent
 // to anonymous records even if they have the same fields.
 function toFieldsArray(record {} anydataRecord) returns anydata[] {
     anydata[] fields = [];
