@@ -267,6 +267,10 @@
             {
                 "name": "Stamping Values",
                 "url": "stamp"
+            },
+            {
+                "name": "Compound Assignment Operators",
+                "url": "compound-assignment-operators"
             }
         ]
     },
