@@ -709,8 +709,8 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
                 }
 
                 List<BField> inputStreamFields = ((BStructureType) ((BStreamType) ((BLangExpression)
-                        (((BLangStreamingQueryStatement) streamingQueryStatement).getStreamingInput())
-                                .getStreamReference()).type).constraint).fields;
+                        (((BLangStreamingQueryStatement) streamingQueryStatement).getStreamingInput()).
+                                getStreamReference()).type).constraint).fields;
 
                 for (int i = 0; i < inputStreamFields.size(); i++) {
                     BField inputStructField = inputStreamFields.get(i);
@@ -722,7 +722,6 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
                 }
             }
         }
-
     }
 
     private List<BField> getFieldListFromStreamInput(StreamingInput streamingInput) {
@@ -757,7 +756,6 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
     private void validateAttributeWithOutputStruct(BField structField, String attributeName,
                                                    BLangStatement streamingQueryStatement,
                                                    BField outputStructField) {
-
         if (structField != null) {
             validateStreamingEventType(((BLangStreamAction) ((BLangStreamingQueryStatement)
                             streamingQueryStatement).getStreamingAction()).pos, outputStructField.getType(),
@@ -767,7 +765,6 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
 
     private Map<String, List<BField>> createInputStreamSpecificFieldMap
             (StreamingInput streamingInput, JoinStreamingInput joinStreamingInput) {
-
         Map<String, List<BField>> inputStreamSpecificFieldMap = new HashMap<>();
         String firstStreamIdentifier = getStreamIdentifier(streamingInput);
         List<BField> firstInputStreamFieldList = getFieldListFromStreamInput(streamingInput);
