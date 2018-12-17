@@ -210,6 +210,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     private static final CompilerContext.Key<DataflowAnalyzer> DATAFLOW_ANALYZER_KEY = new CompilerContext.Key<>();
     private int globalVarRefCounter;
+    private boolean analyzingGlobalVariableDefinition = false; // flag set when analyzing variable definitions.
 
     private DataflowAnalyzer(CompilerContext context) {
         context.put(DATAFLOW_ANALYZER_KEY, this);
@@ -248,7 +249,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
 
         mapTopLevelNodeToSymbol(pkgNode.globalVars);
+        this.analyzingGlobalVariableDefinition = true;
         pkgNode.topLevelNodes.forEach(topLevelNode -> analyzeNode((BLangNode) topLevelNode, env));
+        this.analyzingGlobalVariableDefinition = false;
         analyzeTopLevelNodeReferencePatterns(pkgNode, this.globalVarSymbolRefPositions, dlog);
         pkgNode.completedPhases.add(CompilerPhase.DATAFLOW_ANALYZE);
     }
@@ -283,8 +286,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
+        // Global variable references from functions, always comes after all global variables are defined.
+        boolean prevGlobalVarAnalyzisState = this.analyzingGlobalVariableDefinition;
+        this.analyzingGlobalVariableDefinition = false;
+
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
         analyzeBranch(funcNode.body, funcEnv);
+
+        this.analyzingGlobalVariableDefinition = prevGlobalVarAnalyzisState;
     }
 
     @Override
@@ -1112,7 +1121,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private void observeGlobalVariableReference(BSymbol symbol, DiagnosticPos pos) {
-        if (globalVarSymbolRefPositions.containsKey(symbol)) {
+        if (this.analyzingGlobalVariableDefinition && globalVarSymbolRefPositions.containsKey(symbol)) {
             // Add the sequence number we saw this symbol.
             globalVarSymbolRefPositions.get(symbol).add(RefPosition.newRef(++globalVarRefCounter, pos));
         }
