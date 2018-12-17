@@ -24,7 +24,7 @@ function convertEmployeeToPerson(Employee emp) {
     }
 }
 
-// Function to attempt converting an `any` constrained map , to an `anydata` record `Person`.
+// Function to attempt converting an `any` constrained map, to an `anydata` record `Person`.
 // The conversion would return an error if non-`anydata` or an incompatible value is found.
 function convertAnyMapToPerson(map<any> m) {
     // Attempt creating a new value of type `Person` from the `map<any>` typed `m` value, without changing `m`'s
@@ -62,7 +62,7 @@ function convertSimpleBasicTypes() {
     }
 
     // A `float` to `int` conversion can result in some of the information getting lost.
-    // But this conversion is always safe since there is a corresponding `int` representation
+    // However, this conversion is always safe since there is a corresponding `int` representation
     // for all `float` values except for `NaN` or `infinite` float values, in which case the
     // the conversion attempt will result in a panic.
     int intVal = int.convert(f);

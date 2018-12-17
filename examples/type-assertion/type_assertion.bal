@@ -12,7 +12,7 @@ type Employee record {
 };
 
 public function main() {
-    // Define an `Employee` and assign it to a `Person` typed variable;
+    // Define an `Employee` and assign it to a `Person` typed variable.
     Employee employee = { name: "Speedy Gonzales", age: 4, empNo: 1 };
     Person person = employee;
 
