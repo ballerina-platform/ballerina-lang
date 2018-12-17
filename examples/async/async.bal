@@ -38,7 +38,7 @@ public function main() {
     io:println(f3.isDone());
     // Wait for action call `f3` to finish.
     var response = wait f3;
-    // Print the response payload of the action call if successful, else the
+    // Print the response payload of the action call if successful, or print the
     // reason for failure.
     if (response is http:Response) {
         io:println(untaint response.getJsonPayload());
