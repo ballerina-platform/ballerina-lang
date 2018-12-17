@@ -38,15 +38,12 @@ public class PipelineQueryTest {
 
     @BeforeClass
     public void setup() {
-        System.setProperty("enable.siddhiRuntime", "true");
-        result = BCompileUtil.compile("test-src/streaming/legacy/pipeline-streaming-test.bal");
+        result = BCompileUtil.compile("test-src/streaming/legacy/pipeline-streaming-test.bal", true);
     }
 
     @Test(description = "Test streaming pipeline query.")
     public void testPipelineQuery() {
         BValue[] outputStatusCountArray = BRunUtil.invoke(result, "startPipelineQuery");
-        System.setProperty("enable.siddhiRuntime", "false");
-
         Assert.assertNotNull(outputStatusCountArray);
 
         Assert.assertEquals(outputStatusCountArray.length, 1, "Expected events are not received");
