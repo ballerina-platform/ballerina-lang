@@ -15,7 +15,7 @@ public function main() {
         io:println("[w1 -> w2] i: ", i, " k: ", k);
 
         // Receive a message from worker `w2`. This message contains a `json`
-        // type value.
+        // typed value.
         json j = {};
         j = <- w2;
         string jStr = j.toString();

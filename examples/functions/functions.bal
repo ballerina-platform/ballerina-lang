@@ -1,6 +1,6 @@
 import ballerina/io;
 
-// This function takes in a `string` argument, but does not return a value.
+// This function takes a `string` argument, but does not return a value.
 function printValue(string value) {
     io:println(value);
 }
@@ -11,8 +11,8 @@ function add(int a, int b) returns (int) {
     return a + b;
 }
 
-// This function named `main()` is considered as the default function as an
-// entry point.
+// A public function named `main` is considered a default entry point to a
+// Ballerina program.
 public function main() {
     // Call a function that prints the given value to the console.
     printValue("This is a sample text");

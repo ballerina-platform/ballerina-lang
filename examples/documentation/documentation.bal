@@ -5,7 +5,7 @@ public function main() {
 }
 
 // This is the documentation attachment for object `DummyObject`.
-# `DummyObject` is a user defined object type in your Ballerina program.
+# `DummyObject` is a user defined object type in Ballerina program.
 # This `DummyObject` is used to hold two `string` data fields and one attached
 # function definition `doThatOnObject` that performs a certain functionality
 # on the associated `DummyObject` instance.
@@ -28,7 +28,7 @@ public type DummyObject abstract object {
 };
 
 // This is the documentation attachment for record `DummyType`.
-# `DummyType` is a user defined record type in your Ballerina program.
+# `DummyType` is a user defined record type in Ballerina program.
 # This `DummyType` is used to hold a `string` type data field and an `int` type
 # data field.
 #
