@@ -1,6 +1,6 @@
 import {
-    ASTUtil, Function as FunctionNode, Lambda,
-    Variable, VariableDef, VisibleEndpoint
+    ASTUtil, Function as FunctionNode, Identifier,
+    Lambda, Literal, Variable, VariableDef, VisibleEndpoint
 } from "@ballerina/ast-model";
 import { BallerinaEndpoint } from "@ballerina/lang-service";
 import * as React from "react";
@@ -69,8 +69,16 @@ export const Function = (props: { model: FunctionNode }, context: IDiagramContex
                             if (model.resource && index === 0) {
                                 return;
                             }
-                            param = param as Variable;
-                            return " " + param.name.value;
+                            const defaultable = param.defaultable;
+                            const name: Identifier = defaultable
+                                ? ((param as VariableDef).variable as Variable).name
+                                : (param as Variable).name;
+                            const value: any = defaultable
+                                ? (((param as VariableDef).variable as Variable).initialExpression as Literal).value
+                                : undefined;
+                            return defaultable
+                                    ? " " + name.value + " = " + value
+                                    : " " + name.value;
                         }).toString()
                     }
                 />

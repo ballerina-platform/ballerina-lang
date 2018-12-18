@@ -836,6 +836,14 @@ public class CommonUtil {
                     ItemResolverConstants.BUILTIN_IS_INFINITE_LABEL, context);
             symbolInfoList.addAll(Arrays.asList(isNaN, isFinite, isInfinite));
         }
+        
+        if (bType.tag == TypeTags.ERROR) {
+            SymbolInfo detail = getIterableOpSymbolInfo(Snippet.BUILTIN_DETAIL.get(), bType,
+                    ItemResolverConstants.BUILTIN_DETAIL_LABEL, context);
+            SymbolInfo reason = getIterableOpSymbolInfo(Snippet.BUILTIN_REASON.get(), bType,
+                    ItemResolverConstants.BUILTIN_REASON_LABEL, context);
+            symbolInfoList.addAll(Arrays.asList(detail, reason));
+        }
     }
 
     /**

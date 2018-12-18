@@ -68,7 +68,7 @@ function testUniqueLengthwindow() {
 
     forever {
         from inputStreamUniqueLengthTest1 window uniqueLengthWindow(inputStreamUniqueLengthTest1.age, 4)
-        select inputStreamUniqueLengthTest1.timestamp, inputStreamUniqueLengthTest1.name, count() as count
+        select inputStreamUniqueLengthTest1.name, count() as count
         group by inputStreamUniqueLengthTest1.school
         => (TeacherOutput [] emp) {
             foreach var e in emp {

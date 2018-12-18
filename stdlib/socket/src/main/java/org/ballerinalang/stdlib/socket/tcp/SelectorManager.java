@@ -34,6 +34,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.nio.channels.spi.AbstractSelectableChannel;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
@@ -103,9 +104,9 @@ public class SelectorManager {
     /**
      * Unregister the given client channel from the selector instance.
      *
-     * @param channel {@link SocketChannel} that about to unregister.
+     * @param channel {@link AbstractSelectableChannel} that about to unregister.
      */
-    public void unRegisterChannel(SocketChannel channel) {
+    public void unRegisterChannel(AbstractSelectableChannel channel) {
         final SelectionKey selectionKey = channel.keyFor(selector);
         if (selectionKey != null) {
             selectionKey.cancel();
@@ -179,10 +180,13 @@ public class SelectorManager {
             ServerSocketChannel server = (ServerSocketChannel) socketService.getSocketChannel();
             SocketChannel client = server.accept();
             client.configureBlocking(false);
+            // Creating a new SocketService instance with the newly accepted client.
+            // We don't ServerSocketChannel in here since we have all the necessary resources.
+            SocketService clientSocketService = new SocketService(client, socketService.getResources());
             // Registering the channel against the selector directly without going through the queue,
             // since we are in same thread.
-            client.register(selector, OP_READ, new SocketService(client, socketService.getResources()));
-            SelectorDispatcher.invokeOnAccept(socketService, client);
+            client.register(selector, OP_READ, clientSocketService);
+            SelectorDispatcher.invokeOnAccept(clientSocketService, client);
         } catch (ClosedByInterruptException e) {
             SelectorDispatcher.invokeOnError(socketService, "Client accept interrupt by another process");
         } catch (AsynchronousCloseException e) {

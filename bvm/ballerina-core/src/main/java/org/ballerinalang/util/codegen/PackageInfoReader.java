@@ -1129,12 +1129,6 @@ public class PackageInfoReader {
                 case InstructionCodes.ICONST_3:
                 case InstructionCodes.ICONST_4:
                 case InstructionCodes.ICONST_5:
-                case InstructionCodes.FCONST_0:
-                case InstructionCodes.FCONST_1:
-                case InstructionCodes.FCONST_2:
-                case InstructionCodes.FCONST_3:
-                case InstructionCodes.FCONST_4:
-                case InstructionCodes.FCONST_5:
                 case InstructionCodes.BCONST_0:
                 case InstructionCodes.BCONST_1:
                 case InstructionCodes.RCONST_NULL:

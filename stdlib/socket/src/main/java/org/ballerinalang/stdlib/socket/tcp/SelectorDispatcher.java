@@ -57,13 +57,40 @@ class SelectorDispatcher {
         try {
             Resource error = socketService.getResources().get(RESOURCE_ON_ERROR);
             ProgramFile programFile = error.getResourceInfo().getPackageInfo().getProgramFile();
+            // An error can be thrown during the onAccept function. So there is a possibility of client not
+            // available at that time. Hence the below null check.
             SocketChannel client = null;
             if (socketService.getSocketChannel() != null) {
                 client = (SocketChannel) socketService.getSocketChannel();
             }
             BValue[] params = getOnErrorResourceSignature(client, programFile, errorMsg);
-            Executor.submit(error, new TCPSocketCallback(), null, null, params);
-        } catch (BallerinaConnectorException e) {
+            Executor.submit(error, new TCPSocketCallback(socketService), null, null, params);
+        } catch (Throwable e) {
+            log.error("Error while executing onError resource", e);
+        }
+    }
+
+    /**
+     * Invoke the 'onError' resource with provided callback and error.
+     *
+     * @param socketService {@link SocketService} instance that contains SocketChannel and resource map
+     * @param callback      {@link TCPSocketCallback} instance
+     * @param error         {@link BError} instance which contains the error details
+     */
+    static void invokeOnError(SocketService socketService, TCPSocketCallback callback, BError error) {
+        try {
+            Resource errorResource = socketService.getResources().get(RESOURCE_ON_ERROR);
+            ProgramFile programFile = errorResource.getResourceInfo().getPackageInfo().getProgramFile();
+            // An error can be thrown during the onAccept function. So there is a possibility of client not
+            // available at that time. Hence the below null check.
+            SocketChannel client = null;
+            if (socketService.getSocketChannel() != null) {
+                client = (SocketChannel) socketService.getSocketChannel();
+            }
+            final BMap<String, BValue> caller = SocketUtils.createClient(programFile, client);
+            BValue[] params = new BValue[] { caller, error };
+            Executor.submit(errorResource, callback, null, null, params);
+        } catch (Throwable e) {
             log.error("Error while executing onError resource", e);
         }
     }
@@ -77,14 +104,17 @@ class SelectorDispatcher {
     static void invokeReadReady(SocketService socketService, ByteBuffer buffer) {
         try {
             final Resource readReady = socketService.getResources().get(RESOURCE_ON_READ_READY);
-            ProgramFile programFile = readReady.getResourceInfo().getPackageInfo().getProgramFile();
-            BMap<String, BValue> caller = SocketUtils
-                    .createClient(programFile, (SocketChannel) socketService.getSocketChannel());
+            BMap<String, BValue> caller = createCaller(socketService, readReady);
             BValue[] params = { caller, new BValueArray(SocketUtils.getByteArrayFromByteBuffer(buffer)) };
-            Executor.submit(readReady, new TCPSocketCallback(), null, null, params);
+            Executor.submit(readReady, new TCPSocketCallback(socketService), null, null, params);
         } catch (BallerinaConnectorException e) {
             invokeOnError(socketService, e.getMessage());
         }
+    }
+
+    private static BMap<String, BValue> createCaller(SocketService socketService, Resource resource) {
+        ProgramFile programFile = resource.getResourceInfo().getPackageInfo().getProgramFile();
+        return SocketUtils.createClient(programFile, (SocketChannel) socketService.getSocketChannel());
     }
 
     /**
@@ -96,10 +126,8 @@ class SelectorDispatcher {
         try {
             socketService.getSocketChannel().close();
             final Resource close = socketService.getResources().get(RESOURCE_ON_CLOSE);
-            ProgramFile programFile = close.getResourceInfo().getPackageInfo().getProgramFile();
-            BMap<String, BValue> caller = SocketUtils
-                    .createClient(programFile, (SocketChannel) socketService.getSocketChannel());
-            Executor.submit(close, new TCPSocketCallback(), null, null, caller);
+            BMap<String, BValue> caller = createCaller(socketService, close);
+            Executor.submit(close, new TCPSocketCallback(socketService), null, null, caller);
         } catch (IOException e) {
             String msg = "Unable to close the client connection properly";
             log.error(msg, e);
@@ -120,8 +148,9 @@ class SelectorDispatcher {
             Resource accept = socketService.getResources().get(RESOURCE_ON_ACCEPT);
             ProgramFile programFile = accept.getResourceInfo().getPackageInfo().getProgramFile();
             BValue[] params = getAcceptResourceSignature(client, programFile);
-            Executor.submit(accept, new TCPSocketCallback(), null, null, params);
+            Executor.submit(accept, new TCPSocketCallback(socketService), null, null, params);
         } catch (BallerinaConnectorException e) {
+            // SocketService's socketChannel has the ServerSocketChannel instance only in this time.
             invokeOnError(socketService, e.getMessage());
         }
     }

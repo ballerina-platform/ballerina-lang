@@ -636,6 +636,26 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get detail Builtin Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getBuiltinDetailSnippet() {
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_DETAIL_LABEL, "detail();", "",
+                SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get reason Builtin Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getBuiltinReasonSnippet() {
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_REASON_LABEL, "reason();", "",
+                SnippetType.SNIPPET);
+    }
+
+    /**
      * Get Min Iterable Function Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block

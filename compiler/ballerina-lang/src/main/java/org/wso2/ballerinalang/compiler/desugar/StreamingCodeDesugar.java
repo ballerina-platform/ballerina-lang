@@ -18,6 +18,7 @@ package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.clauses.HavingNode;
 import org.ballerinalang.model.tree.clauses.OrderByVariableNode;
@@ -124,7 +125,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private static final String ORDERING_FUNC_ARRAY_REFERENCE = "$lambda$streaming$orderby$funcarray$variable";
     private static final String ORDERING_FUNC_VAR_ARG = "$lambda$streaming$orderby$func$var$arg";
     private static final String FILTER_FUNC_REFERENCE = "$lambda$streaming$filter";
-    private static final String SIMPLE_SELECT_FUNC_REFERENCE = "$lambda$streaming$simple$select";
     private static final String SELECT_WITH_GROUP_BY_FUNC_REFERENCE = "$lambda$streaming$groupby$select";
     private static final String JOIN_PROCESS_FUNC_REFERENCE = "$lambda$streaming$join$process";
     private static final String TABLE_JOIN_PROCESS_FUNC_REFERENCE = "$lambda$streaming$table$join$process";
@@ -152,11 +152,9 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private static final String ORDER_BY_PROCESS_OBJECT_NAME = "OrderBy";
     private static final String CREATE_OUTPUT_PROCESS_METHOD_NAME = "createOutputProcess";
     private static final String CREATE_FILTER_METHOD_NAME = "createFilter";
-    private static final String SIMPLE_SELECT_OBJECT_NAME = "SimpleSelect";
     private static final String SELECT_WITH_GROUP_BY_OBJECT_NAME = "Select";
     private static final String JOIN_PROCESS_OBJECT_NAME = "JoinProcesor";
     private static final String TABLE_JOIN_PROCESS_OBJECT_NAME = "TableJoinProcessor";
-    private static final String CREATE_SIMPLE_SELECT_METHOD_NAME = "createSimpleSelect";
     private static final String CREATE_SELECT_WITH_GROUP_BY_METHOD_NAME = "createSelect";
     private static final String CREATE_ORDER_BY_METHOD_NAME = "createOrderBy";
     private static final String CREATE_STREAM_JOIN_PROCESS_METHOD_NAME = "createStreamJoinProcessor";
@@ -590,19 +588,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
  /*  This method converts the select clause of the streaming query in to Ballerina native constructs.
 
      eg: Below query,
-              select inputStream.name as teacherName, inputStream.age
-
-     convert into below constructs.
-
-              streams:SimpleSelect simpleSelect = streams:createSimpleSelect(outputProcess.process,
-                  (streams:StreamEvent e)  => map {
-                        return {
-                            "name": e.data["inputStream.name"],
-                            "age": e.data["inputStream.age"],
-                        };
-                  });
-
-     And below query,
                select inputStream.name, inputStream.age, sum (inputStream.age) as sumAge, count() as count
 
      convert into below constructs.
@@ -629,15 +614,11 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             ((BLangHaving) havingNode).accept(this);
         }
 
-        // Create lambda function Variable
-        if (selectClause.getGroupBy() != null) {
-            createSelectStatementWithGroupBy(selectClause);
-        } else {
-            createSimpleSelectStatement(selectClause);
-        }
+        // Create select statement
+        createSelectStatement(selectClause);
     }
 
-    private void createSelectStatementWithGroupBy(BLangSelectClause selectClause) {
+    private void createSelectStatement(BLangSelectClause selectClause) {
 
         // 1st arg for createSelect
         BLangExpression nextProcessMethodAccess = createNextProcessFuncPointer(selectClause.pos);
@@ -646,7 +627,12 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         BLangExpression aggregateArray = createAggregatorArray(selectClause);
 
         // ((streams:StreamEvent e) returns string)[], 3rd arg
-        BLangExpression groupingLambda = createGroupByLambdas(selectClause);
+        BLangExpression groupingLambda;
+        if (selectClause.getGroupBy() != null) {
+            groupingLambda = createGroupByLambdas(selectClause);
+        } else {
+            groupingLambda = ASTBuilderUtil.createLiteral(selectClause.pos, symTable.nilType, Names.NIL_VALUE);
+        }
 
         // (streams:StreamEvent e, streams:Aggregator[] aggregatorArr)  returns map<anydata>, 4th arg of createSelect
         BLangExpression aggregatorLambda = createAggregatorLambda(selectClause);
@@ -702,7 +688,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             if (selectExpr.getKind() == NodeKind.INVOCATION) {
                 BLangInvocation invocation = (BLangInvocation) selectExpr;
                 BInvokableSymbol aggregatorInvokableSymbol =
-                        getInvokableSymbol(invocation);
+                        getInvokableSymbol(invocation, AGGREGATOR_OBJECT_NAME);
                 if (aggregatorInvokableSymbol != null) {
                     if (isReturnTypeMatching(invocation.pos, AGGREGATOR_OBJECT_NAME, aggregatorInvokableSymbol)) {
                         BLangInvocation aggregatorInvocation = ASTBuilderUtil.
@@ -902,57 +888,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 .collect(Collectors.toCollection(LinkedHashSet::new));
         return createLambdaFunction(pos, Arrays.asList(varArgs),
                 varArgClosureSymbols, typeNode);
-    }
-
-    private void createSimpleSelectStatement(BLangSelectClause selectClause) {
-        BLangSimpleVariable streamEventVarArg =
-                this.createStreamEventArgVariable(getVariableName(SELECT_LAMBDA_PARAM_REFERENCE),
-                        selectClause.pos, env);
-        TypeNode typeNode = ASTBuilderUtil.createTypeNode(symTable.mapAnydataType);
-        BLangLambdaFunction simpleSelectLambdaFunction = createLambdaWithVarArg(selectClause.pos,
-                new BLangSimpleVariable[]{streamEventVarArg}, typeNode);
-        BLangBlockStmt lambdaBody = simpleSelectLambdaFunction.function.body;
-
-        //Output object creation
-        BLangRecordLiteral outputEventRecordLiteral = ASTBuilderUtil.createEmptyRecordLiteral(selectClause.pos,
-                symTable.mapAnydataType);
-        outputEventRecordLiteral.keyValuePairs = getFieldListInSelectClause(selectClause.pos,
-                selectClause.getSelectExpressions(), streamEventVarArg.symbol, null, null);
-
-        // Return statement with newly created output event
-        addReturnStmt(selectClause.pos, lambdaBody, outputEventRecordLiteral);
-        //Create event simple selector definition
-        BLangExpression nextProcessMethodAccess = createNextProcessFuncPointer(selectClause.pos);
-
-        BInvokableSymbol simpleSelectInvokableSymbol = (BInvokableSymbol) symResolver.
-                resolvePkgSymbol(selectClause.pos, env, Names.STREAMS_MODULE).
-                scope.lookup(new Name(CREATE_SIMPLE_SELECT_METHOD_NAME)).symbol;
-
-        BType simpleSelectInvokableType = simpleSelectInvokableSymbol.type.getReturnType();
-        BVarSymbol simpleSelectInvokableTypeVarSymbol = new BVarSymbol(0,
-                new Name(getVariableName(SIMPLE_SELECT_FUNC_REFERENCE)), simpleSelectInvokableSymbol.pkgID,
-                simpleSelectInvokableType, env.scope.owner);
-        nextProcessVarSymbolStack.push(simpleSelectInvokableTypeVarSymbol);
-
-        List<BLangExpression> args = new ArrayList<>();
-        args.add(nextProcessMethodAccess);
-        args.add(simpleSelectLambdaFunction);
-
-        BLangInvocation simpleSelectMethodInvocation = ASTBuilderUtil.
-                createInvocationExprForMethod(selectClause.pos, simpleSelectInvokableSymbol, args,
-                        symResolver);
-        simpleSelectMethodInvocation.argExprs = args;
-        BLangSimpleVariable simpleSelectInvokableTypeVariable = ASTBuilderUtil.
-                createVariable(selectClause.pos, getVariableName(SIMPLE_SELECT_FUNC_REFERENCE),
-                        simpleSelectInvokableType, simpleSelectMethodInvocation, simpleSelectInvokableTypeVarSymbol);
-
-        BLangUserDefinedType userDefinedType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
-        userDefinedType.typeName = ASTBuilderUtil.createIdentifier(selectClause.pos, SIMPLE_SELECT_OBJECT_NAME);
-        userDefinedType.type = simpleSelectInvokableType;
-        simpleSelectInvokableTypeVariable.setTypeNode(userDefinedType);
-        BLangSimpleVariableDef simpleSelectInvokableTypeVariableDef = ASTBuilderUtil.createVariableDef(selectClause.pos,
-                simpleSelectInvokableTypeVariable);
-        stmts.add(simpleSelectInvokableTypeVariableDef);
     }
 
     @Override
@@ -1303,7 +1238,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         convertFieldAccessArgsToStringLiteral(invocation);
 
         //checks for the symbol, if not exists, then set the pkgAlias to STREAMS_STDLIB_PACKAGE_NAME
-        BInvokableSymbol windowInvokableSymbol = getInvokableSymbol(invocation);
+        BInvokableSymbol windowInvokableSymbol = getInvokableSymbol(invocation, WINDOW_OBJECT_NAME);
 
         if (windowInvokableSymbol != null) {
             if (isReturnTypeMatching(invocation.pos, WINDOW_OBJECT_NAME, windowInvokableSymbol)) {
@@ -1393,14 +1328,22 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     }
 
 
-    private BInvokableSymbol getInvokableSymbol(BLangInvocation invocation) {
+    private BInvokableSymbol getInvokableSymbol(BLangInvocation invocation, String modelType) {
         BInvokableSymbol invokableSymbol = (BInvokableSymbol) symResolver.
                 resolvePkgSymbol(invocation.pos, env, names.fromString(invocation.pkgAlias.value)).
                 scope.lookup(new Name(invocation.name.value)).symbol;
         if (invokableSymbol == null && invocation.pkgAlias.value.isEmpty()) {
-            invokableSymbol = (BInvokableSymbol) symResolver.
+            BSymbol windowSymbol = symResolver.
                     resolvePkgSymbol(invocation.pos, env, Names.STREAMS_MODULE).
                     scope.lookup(new Name(invocation.name.value)).symbol;
+
+            if (windowSymbol != null && SymbolKind.FUNCTION.equals(windowSymbol.kind) &&
+                    isReturnTypeMatching(invocation.pos, modelType, (BInvokableSymbol) windowSymbol)) {
+                invokableSymbol = (BInvokableSymbol) windowSymbol;
+            } else {
+                dlog.error(invocation.pos, DiagnosticCode.INVALID_STREAMING_MODEL_TYPE, modelType, invocation.name);
+            }
+
             invocation.pkgAlias.value = Names.STREAMS_MODULE.value;
         }
         return invokableSymbol;
@@ -1736,7 +1679,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         // Aggregator invocation in streaming query ( sum(..), count(..) .. etc)
         BLangInvocation invocation = (BLangInvocation) selectExpression.getExpression();
 
-        BInvokableSymbol symbol = getInvokableSymbol(invocation);
+        BInvokableSymbol symbol = getInvokableSymbol(invocation, AGGREGATOR_OBJECT_NAME);
         if (symbol != null) {
             if (isReturnTypeMatching(invocation.pos, AGGREGATOR_OBJECT_NAME, symbol)) {
 
