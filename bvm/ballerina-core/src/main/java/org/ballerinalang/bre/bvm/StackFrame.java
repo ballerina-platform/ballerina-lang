@@ -70,7 +70,8 @@ public class StackFrame {
     // Indicate this frame belong to a transaction participant
     TransactionParticipantType trxParticipant;
 
-    public WDChannels parentChannels;
+    // RefReg index of returning error value of the frame, -1 if not returning error
+    int errorRetReg = -1;
 
     public WDChannels wdChannels;
 
@@ -79,8 +80,7 @@ public class StackFrame {
     public StackFrame() {}
 
     public StackFrame(PackageInfo packageInfo, CallableUnitInfo callableUnitInfo, CodeAttributeInfo ci, int retReg,
-                      int invocationFlags, WDChannels parentChannels,
-                      CallableUnitInfo.ChannelDetails[] workerSendInChannels) {
+                      int invocationFlags, CallableUnitInfo.ChannelDetails[] workerSendInChannels) {
         if (ci.maxLongRegs > 0) {
             this.longRegs = new long[ci.maxLongRegs];
         }
@@ -103,7 +103,6 @@ public class StackFrame {
         this.retReg = retReg;
         this.invocationFlags = invocationFlags;
         this.wdChannels = new WDChannels();
-        this.parentChannels = parentChannels;
         this.workerSendInChannels = workerSendInChannels;
     }
 
@@ -113,15 +112,16 @@ public class StackFrame {
         NON_PARTICIPANT
     }
 
-    public void handleChannelPanic(BError error) {
+    public void handleChannelPanic(BError error, WDChannels parentChannels) {
         for (int i = 0; i < workerSendInChannels.length; i++) {
             WorkerDataChannel channel;
-            if (workerSendInChannels[i].channelInSameStrand) {
-                channel = this.wdChannels.getWorkerDataChannel(workerSendInChannels[i].name);
+            CallableUnitInfo.ChannelDetails channelDetails = workerSendInChannels[i];
+            if (channelDetails.channelInSameStrand) {
+                channel = this.wdChannels.getWorkerDataChannel(channelDetails.name);
             } else {
-                channel = this.parentChannels.getWorkerDataChannel(workerSendInChannels[i].name);
+                channel = parentChannels.getWorkerDataChannel(channelDetails.name);
             }
-            if (workerSendInChannels[i].send) {
+            if (channelDetails.send) {
                 channel.setSendPanic(error);
             } else {
                 channel.setReceiverPanic(error);
@@ -129,15 +129,16 @@ public class StackFrame {
         }
     }
 
-    public void handleChannelError(BRefType value) {
+    public void handleChannelError(BRefType value, WDChannels parentChannels) {
         for (int i = 0; i < workerSendInChannels.length; i++) {
             WorkerDataChannel channel;
-            if (workerSendInChannels[i].channelInSameStrand) {
-                channel = this.wdChannels.getWorkerDataChannel(workerSendInChannels[i].name);
+            CallableUnitInfo.ChannelDetails channelDetails = workerSendInChannels[i];
+            if (channelDetails.channelInSameStrand) {
+                channel = this.wdChannels.getWorkerDataChannel(channelDetails.name);
             } else {
-                channel = this.parentChannels.getWorkerDataChannel(workerSendInChannels[i].name);
+                channel = parentChannels.getWorkerDataChannel(channelDetails.name);
             }
-            if (workerSendInChannels[i].send) {
+            if (channelDetails.send) {
                 channel.setSendError(value);
             } else {
                 channel.setRecieveError(value);

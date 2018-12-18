@@ -141,7 +141,7 @@ public class BVMExecutor {
 
         StackFrame idf = new StackFrame(resourceInfo.getPackageInfo(), resourceInfo,
                                         resourceInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), -1,
-                                        FunctionFlags.NOTHING, null, resourceInfo.workerSendInChannels);
+                                        FunctionFlags.NOTHING, resourceInfo.workerSendInChannels);
         copyArgValues(args, idf, resourceInfo.getParamTypes());
         strand.pushFrame(idf);
         // Start observation after pushing the stack frame
@@ -175,7 +175,7 @@ public class BVMExecutor {
         Strand strand = new Strand(programFile, callableInfo.getName(), globalProps, strandCallback);
 
         StackFrame idf = new StackFrame(callableInfo.getPackageInfo(), callableInfo,
-                callableInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), -1, FunctionFlags.NOTHING, null,
+                callableInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), -1, FunctionFlags.NOTHING,
                 callableInfo.workerSendInChannels);
         copyArgValues(args, idf, callableInfo.getParamTypes());
         strand.pushFrame(idf);

@@ -54,12 +54,13 @@ public class BLangCallableUnitCallback implements CallableUnitCallback {
 
     @Override
     public void notifySuccess() {
-        if (BVM.checkIsType(this.nativeCallCtx.getReturnValue(), BTypes.typeError)) {
-            strand.currentFrame.handleChannelError((BRefType) this.nativeCallCtx.getReturnValue());
-        }
         if (strand.fp > 0) {
             // Stop the observation context before popping the stack frame
             ObserveUtils.stopCallableObservation(strand);
+            if (BVM.checkIsType(this.nativeCallCtx.getReturnValue(), BTypes.typeError)) {
+                strand.currentFrame.handleChannelError((BRefType) this.nativeCallCtx.getReturnValue(),
+                        strand.peekFrame(1).wdChannels);
+            }
             strand.popFrame();
             StackFrame sf = strand.currentFrame;
             BLangVMUtils.populateWorkerDataWithValues(sf, this.retReg,
@@ -67,21 +68,26 @@ public class BLangCallableUnitCallback implements CallableUnitCallback {
             BVMScheduler.schedule(strand);
             return;
         }
+        if (BVM.checkIsType(this.nativeCallCtx.getReturnValue(), BTypes.typeError)) {
+            strand.currentFrame.handleChannelError((BRefType) this.nativeCallCtx.getReturnValue(),
+                    null);
+        }
         strand.respCallback.signal();
     }
 
     @Override
     public void notifyFailure(BError error) {
-        strand.currentFrame.handleChannelPanic(error);
         if (strand.fp > 0) {
             // Stop the observation context before popping the stack frame
             ObserveUtils.stopCallableObservation(strand);
             strand.popFrame();
             StackFrame sf = strand.currentFrame;
+            strand.currentFrame.handleChannelPanic(error, sf.wdChannels);
             strand.setError(error);
             BVMScheduler.schedule(strand);
             return;
         }
+        strand.currentFrame.handleChannelPanic(error, null);
         strand.respCallback.setError(error);
         strand.respCallback.signal();
     }

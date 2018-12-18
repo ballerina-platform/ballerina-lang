@@ -463,7 +463,7 @@ public class BVM {
                 case InstructionCodes.WORKERSYNCSEND:
                     Instruction.InstructionWRKSyncSend syncSendIns = (Instruction.InstructionWRKSyncSend) instruction;
                     if (!handleWorkerSyncSend(strand, syncSendIns.dataChannelInfo, syncSendIns.type, syncSendIns.reg,
-                            syncSendIns.retReg)) {
+                            syncSendIns.retReg, syncSendIns.isSameStrand)) {
                         return;
                     }
                     //worker data channel will resume this upon data retrieval or error
@@ -732,15 +732,23 @@ public class BVM {
                             strand.respCallback.setRefReturn(sf.refRegs[j]);
                         }
                         if (checkIsType(sf.refRegs[j], BTypes.typeError)) {
-                            sf.handleChannelError(sf.refRegs[j]);
+                            sf.errorRetReg = j;
                         }
                         break;
                     case InstructionCodes.RET:
                         if (strand.fp > 0) {
                             // Stop the observation context before popping the stack frame
                             ObserveUtils.stopCallableObservation(strand);
+                            if (sf.errorRetReg > 0) {
+                                //notifying waiting workers
+                                sf.handleChannelError(sf.refRegs[sf.errorRetReg], strand.peekFrame(1).wdChannels);
+                            }
                             strand.popFrame();
                             break;
+                        }
+                        if (sf.errorRetReg > 0) {
+                            //notifying waiting workers
+                            sf.handleChannelError(sf.refRegs[sf.errorRetReg], null);
                         }
                         sf.ip = -1;
                         strand.respCallback.signal();
@@ -797,9 +805,9 @@ public class BVM {
     }
 
     private static boolean handleWorkerSyncSend(Strand strand, WorkerDataChannelInfo dataChannelInfo, BType type,
-                                                int reg, int retReg) {
+                                                int reg, int retReg, boolean isSameStrand) {
         BRefType val = extractValue(strand.currentFrame, type, reg);
-        WorkerDataChannel dataChannel = getWorkerChannel(strand, dataChannelInfo.getChannelName(), false);
+        WorkerDataChannel dataChannel = getWorkerChannel(strand, dataChannelInfo.getChannelName(), isSameStrand);
         return dataChannel.syncSendData(val, strand, retReg);
     }
 
@@ -828,7 +836,7 @@ public class BVM {
         //TODO refactor when worker info is removed from compiler
         StackFrame df = new StackFrame(callableUnitInfo.getPackageInfo(), callableUnitInfo,
                 callableUnitInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), retReg, flags,
-                strand.currentFrame.wdChannels, callableUnitInfo.workerSendInChannels);
+                callableUnitInfo.workerSendInChannels);
         copyArgValues(strand.currentFrame, df, argRegs, callableUnitInfo.getParamTypes());
 
         if (!FunctionFlags.isAsync(df.invocationFlags)) {
@@ -886,16 +894,20 @@ public class BVM {
             if (nativeCallable.isBlocking()) {
                 nativeCallable.execute(ctx, null);
 
-                if (BVM.checkIsType(ctx.getReturnValue(), BTypes.typeError)) {
-                    strand.currentFrame.handleChannelError((BRefType) ctx.getReturnValue());
-                }
                 if (strand.fp > 0) {
                     // Stop the observation context before popping the stack frame
                     ObserveUtils.stopCallableObservation(strand);
+                    if (BVM.checkIsType(ctx.getReturnValue(), BTypes.typeError)) {
+                        strand.currentFrame.handleChannelError((BRefType) ctx.getReturnValue(),
+                                strand.peekFrame(1).wdChannels);
+                    }
                     strand.popFrame();
                     StackFrame retFrame = strand.currentFrame;
                     BLangVMUtils.populateWorkerDataWithValues(retFrame, retReg, ctx.getReturnValue(), retType);
                     return strand;
+                }
+                if (BVM.checkIsType(ctx.getReturnValue(), BTypes.typeError)) {
+                    strand.currentFrame.handleChannelError((BRefType) ctx.getReturnValue(), null);
                 }
                 strand.respCallback.signal();
                 return null;
@@ -912,7 +924,11 @@ public class BVM {
         }
         // Stop the observation context before popping the stack frame
         ObserveUtils.stopCallableObservation(strand);
-        strand.popFrame().handleChannelPanic(strand.getError());
+        if (strand.fp > 0) {
+            strand.popFrame().handleChannelPanic(strand.getError(), strand.peekFrame(1).wdChannels);
+        } else {
+            strand.popFrame().handleChannelPanic(strand.getError(), null);
+        }
         handleError(strand);
         return strand;
     }
@@ -3489,7 +3505,7 @@ public class BVM {
         if (channelInSameStrand) {
             return ctx.currentFrame.wdChannels.getWorkerDataChannel(name);
         }
-        return ctx.currentFrame.parentChannels.getWorkerDataChannel(name);
+        return ctx.peekFrame(1).wdChannels.getWorkerDataChannel(name);
     }
 
     private static BRefType extractValue(StackFrame data, BType type, int reg) {
@@ -4397,12 +4413,12 @@ public class BVM {
             // Stop the observation context before popping the stack frame
             ObserveUtils.stopCallableObservation(strand);
             StackFrame popedFrame = strand.popFrame();
-            popedFrame.handleChannelPanic(strand.getError());
+            popedFrame.handleChannelPanic(strand.getError(), strand.currentFrame.wdChannels);
             signalTransactionError(strand, popedFrame.trxParticipant);
             handleError(strand);
         } else {
             strand.respCallback.setError(strand.getError());
-            strand.currentFrame.handleChannelPanic(strand.getError());
+            strand.currentFrame.handleChannelPanic(strand.getError(), null);
             signalTransactionError(strand, StackFrame.TransactionParticipantType.REMOTE_PARTICIPANT);
             //Below is to return current thread from VM
             sf.ip = -1;

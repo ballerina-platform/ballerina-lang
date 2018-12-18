@@ -229,19 +229,23 @@ public class BVMScheduler {
             BType retType = cui.getRetParamTypes()[0];
             try {
                 this.nativeCallable.execute(this.nativeCtx, callback);
-                // Maybe we can omit this since natives cannot have worker interactions
-                if (BVM.checkIsType(this.nativeCtx.getReturnValue(), BTypes.typeError)) {
-                    strand.currentFrame.handleChannelError((BRefType) this.nativeCtx.getReturnValue());
-                }
                 if (strand.fp > 0) {
                     // Stop the observation context before popping the stack frame
                     ObserveUtils.stopCallableObservation(strand);
                     strand.popFrame();
                     StackFrame retFrame = strand.currentFrame;
+                    // Maybe we can omit this since natives cannot have worker interactions
+                    if (BVM.checkIsType(this.nativeCtx.getReturnValue(), BTypes.typeError)) {
+                        strand.currentFrame.handleChannelError((BRefType) this.nativeCtx.getReturnValue(),
+                                retFrame.wdChannels);
+                    }
                     BLangVMUtils.populateWorkerDataWithValues(retFrame, this.nativeCtx.getDataFrame().retReg,
                             this.nativeCtx.getReturnValue(), retType);
                     execute(strand);
                     return;
+                }
+                if (BVM.checkIsType(this.nativeCtx.getReturnValue(), BTypes.typeError)) {
+                    strand.currentFrame.handleChannelError((BRefType) this.nativeCtx.getReturnValue(), null);
                 }
                 strand.respCallback.signal();
                 return;
@@ -255,7 +259,11 @@ public class BVMScheduler {
             strand.setError(error);
             // Stop the observation context before popping the stack frame
             ObserveUtils.stopCallableObservation(strand);
-            strand.popFrame().handleChannelPanic(error);
+            if (strand.fp > 0) {
+                strand.popFrame().handleChannelPanic(error, strand.currentFrame.wdChannels);
+            } else {
+                strand.popFrame().handleChannelPanic(error, null);
+            }
             BVM.handleError(strand);
             execute(strand);
         }
