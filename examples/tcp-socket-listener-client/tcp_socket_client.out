@@ -1,0 +1,9 @@
+# To run the client, navigate to the directory that contains the
+# `.bal` file and use the `ballerina run` command.
+$ ballerina run tcp_socket_client.bal
+
+# onConnect invokes and print the remote server port upon the successful connection to the server.
+Connect to: 61598
+# Print the response that gets from the server through callback service.
+Hello Ballerina back
+Client connection closed successfully.

@@ -916,6 +916,16 @@
         ]
     },
     {
+        "title": "Socket",
+        "column": 3,
+        "category": "Working over the network",
+        "samples": [{
+                "name": "TCP Socket Basic Example",
+                "url": "tcp-socket-listener-client"
+            }
+        ]
+    },
+    {
         "title": "Streams",
         "column": 0,
         "category": "Experimental features",
