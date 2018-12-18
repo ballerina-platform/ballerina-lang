@@ -1,4 +1,4 @@
-import ballerina/io;
+timport ballerina/io;
 
 type Student record {
     int id;
@@ -28,20 +28,20 @@ public function main() {
     length = jsonArray.length();
     io:println("JSON array size: ", length);
 
-    // This creates an `int` constrained map.
+    // This creates an `int` constrained `map`.
     map<int> strMap = {};
     strMap["A"] = 1;
     strMap["B"] = 2;
     strMap["C"] = 3;
 
-    // This prints the length of the created map.
+    // This prints the length of the created `map`.
     length = strMap.length();
     io:println("Map size: ", length);
 
-    // This creates a string.
+    // This creates a `string`.
     string myStr = "My name is Peter Parker";
     
-    // This prints the length of the string.
+    // This prints the length of the `string`.
     length = myStr.length();
     io:println("String size: ", length);
 
@@ -58,12 +58,12 @@ public function main() {
     length = tupleVar.length();
     io:println("Tuple size: ", length);
 
-    // This creates a record of `Student` type
+    // This creates a `record` of `Student` type
     Student stu = { id: 1, fname: "John", lname: "Doe", age: 17};
     length = stu.length();
     io:println("Field size in `Student` record: ", length);
 
-    // This creates an in-memory table constrained by the `Student` type.
+    // This creates an in-memory `table` constrained by the `Student` type.
     table<Student> tbStudent = table {
         { key id, fname, lname, age },
         [ { 1, "Mary", "Popins" , 17 },

@@ -16,7 +16,7 @@ public function main() {
     io:println(bookXML.author.fname);
     io:println(bookXML["author"]["fname"]);
 
-    // Accessing a non existing child will returns nil.
+    // Accessing a non existing child will returns `nil`.
     io:println(bookXML.ISBN.code);
     io:println(bookXML["ISBN"]["code"]);
 

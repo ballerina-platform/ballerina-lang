@@ -19,7 +19,7 @@ service contentBasedRouting on new http:Listener(9090) {
         var jsonMsg = req.getJsonPayload();
 
         if (jsonMsg is json) {
-                //Get the string value relevant to the key `name`.
+            //Get the string value relevant to the key `name`.
             string nameString = jsonMsg["name"].toString();
             http:Response|error clientResponse;
 

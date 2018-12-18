@@ -1,7 +1,7 @@
 import ballerina/io;
 import ballerina/runtime;
 
-// Create a record type that represents the Person.
+// Create a `record` type that represents the `Person`.
 type Person record {
     string name;
     int age;
@@ -10,7 +10,7 @@ type Person record {
     string phoneNo;
 };
 
-// Create a record type that represents the Child.
+// Create a `record` type that represents the `Child`.
 type Child record {
     string name;
     int age;

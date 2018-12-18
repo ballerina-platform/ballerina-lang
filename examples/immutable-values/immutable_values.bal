@@ -34,7 +34,7 @@ public function main() {
     // Check if `m1` is frozen.
     io:println("frozen status of m1: ", m1.isFrozen());
 
-    // Attempt adding an entry to the map, and trap the error if an error occurs.
+    // Attempt adding an entry to the `map`, and `trap` the error if an error occurs.
     error? updateResult = trap addEntryToMap(m2, "intValTwo", 10);
     if (updateResult is error) {
         // An error should occur since `m2` is frozen
@@ -45,10 +45,10 @@ public function main() {
     // Create a `Department` record.
     Department d = { name: "finance", id: 1100 };
 
-    // Create a map that may hold `anydata` typed values.
+    // Create a `map` that may hold `anydata` typed values.
     map<any> m3 = { stringVal: "str", intVal: 1, recVal: d };
 
-    // Attempt freezing `m3`. Note how the return type could now be an error, since there is the possibility that a
+    // Attempt freezing `m3`. Note how the return type could now be an `error`, since there is the possibility that a
     // `map` constrained by type `any` could have `non-anydata` values.
     map<any>|error freezeResult = m3.freeze();
     if (freezeResult is error) {
@@ -61,7 +61,7 @@ public function main() {
     // Create an `Employee` object.
     Employee e = new("Anne");
 
-    // Now, create a map that may hold `anydata` values, and add the `non-anydata` object `Employee` too.
+    // Now, create a `map` that may hold `anydata` values, and add the `non-anydata` object `Employee` too.
     map<any> m4 = { stringVal: "str", intVal: 1, objVal: e };
 
     // Attempt freezing `m4`.
@@ -74,7 +74,7 @@ public function main() {
     }
 }
 
-// Function to add an entry to a map.
+// Function to add an entry to a `map`.
 function addEntryToMap(map<string|int> m, string key, string|int value) {
     m[key] = value;
 }

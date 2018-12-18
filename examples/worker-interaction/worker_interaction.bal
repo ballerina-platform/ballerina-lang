@@ -18,7 +18,7 @@ public function main() {
         io:println("[w1 ->> w2] i: ", i);
         // Synchronous send to worker `w2`. Worker `w1` wait until `w2` receives the message.
         () send = i ->> w2;
-        // Synchronous send returns nil for successful send or returns error or panic based on receiving worker's state.
+        // Synchronous send returns `nil` for successful send or returns error or panic based on receiving worker's state.
         io:println("[w1 ->> w2] successful!!");
 
         //Send few messages to `w3`.

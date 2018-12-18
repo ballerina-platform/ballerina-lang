@@ -2,7 +2,7 @@ import ballerina/io;
 
 public function main() {
     // A closed integer range `x ... y` generates an array of integers containing values `x` to `y`, `x` and `y`
-    // inclusive
+    // inclusive.
     int[] closedRangeArray = 25 ... 28;
     io:println("Length of the array created by the closed integer range"
                 + " 25 ... 28: ", closedRangeArray.length());
@@ -11,7 +11,7 @@ public function main() {
 
 
     // A half open integer range `x ..< y` generates an array of integers containing values `x` to `y`, including `x`
-    // but excluding `y`
+    // but excluding `y`.
     int[] halfOpenRangeArray = 25 ..< 28;
     io:println("\nLength of the array created by the half open integer range"
                 + " 25 ..< 28: ", halfOpenRangeArray.length());

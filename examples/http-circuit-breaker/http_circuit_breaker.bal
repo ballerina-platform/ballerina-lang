@@ -8,7 +8,7 @@ import ballerina/runtime;
 // the backend until the `resetTime`.
 http:Client backendClientEP = new("http://localhost:8080", config = {
         // Circuit breaker configuration options that control the
-        // behavior of the Ballerina circuit breaker
+        // behavior of the Ballerina circuit breaker.
         circuitBreaker: {
             // Failure calculation window. This is how long Ballerina
             // circuit breaker keeps the statistics for the operations.
@@ -74,7 +74,7 @@ service circuitbreaker on new http:Listener(9090) {
 
         var backendResponse = backendClientEP->forward("/hello", request);
 
-        // `is` operator is used to separate out union-type returns.
+        // The `is` operator is used to separate out union-type returns.
         // The type of `backendResponse` variable is the union of `http:Response` and `error`.
         // If a response is returned, `backendResponse` is treated as an `http:Response`
         // within the if-block and the normal process runs.

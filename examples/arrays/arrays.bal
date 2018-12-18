@@ -16,7 +16,7 @@ public function main() {
     io:println(b[999]);
     io:println(b.length());
 
-    //This initializes an array of int arrays.
+    //This initializes an array of `int` arrays.
     int[][] iarray = [[1, 2, 3], [10, 20, 30], [5, 6, 7]];
     io:println(iarray.length());
     io:println(iarray[0].length());

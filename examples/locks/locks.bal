@@ -10,7 +10,7 @@ public function main() {
 }
 
 type Counter object {
-    //shared field among same object instances
+    //Shared field among same object instances.
     int count = 0;
 
     public function update() {

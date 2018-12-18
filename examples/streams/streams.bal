@@ -8,13 +8,13 @@ type Employee record {
 
 public function main() {
 
-    // Declare a stream constrained by the `Employee` type.
+    // Declare a `stream` constrained by the `Employee` type.
     stream<Employee> employeeStream = new;
 
     // Subscribe to the `employeeStream` using a function that accepts `Employee` events.
     employeeStream.subscribe(printEmployeeName);
 
-    // Publish `Employee` events to the stream.
+    // Publish `Employee` events to the `stream`.
     Employee e1 = { id: 1, name: "Jane" };
     Employee e2 = { id: 2, name: "Anne" };
     Employee e3 = { id: 3, name: "John" };
@@ -27,13 +27,13 @@ public function main() {
     runtime:sleep(1000);
 
 
-    // Declare a stream constrained by `float` values.
+    // Declare a `stream` constrained by `float` values.
     stream<float> temperatureStream = new;
 
     // Subscribe to the `temperatureStream` using a function that accepts `float` events.
     temperatureStream.subscribe(printTemperature);
 
-    // Publish `float` events to the stream, indicating temperature.
+    // Publish `float` events to the `stream`, indicating temperature.
     temperatureStream.publish(28.0);
     temperatureStream.publish(30.1);
     temperatureStream.publish(29.5);
@@ -42,13 +42,13 @@ public function main() {
     runtime:sleep(1000);
 
 
-    // Declare a stream that accepts events of anydata type`.
+    // Declare a `stream` that accepts events of `anydata` type.
     stream<anydata> updateStream = new;
 
-    // Subscribe to the stream using a function that accepts events of anydata type.
+    // Subscribe to the `stream` using a function that accepts events of `anydata` type.
     updateStream.subscribe(printEvent);
 
-    // Publish events to the stream.
+    // Publish events to the `stream`.
     updateStream.publish("Hello Ballerina!");
     updateStream.publish(1.0);
     updateStream.publish(e1);
@@ -58,18 +58,18 @@ public function main() {
 
 }
 
-// This function accepts `Employee` events and is used to subscribe to a stream. 
+// This function accepts `Employee` events and is used to subscribe to a `stream`.
 function printEmployeeName(Employee employee) {
     io:println("Employee event received for Employee Name: "
                     + employee.name);
 }
 
-// This function accepts `float` events and is used to subscribe to a stream. 
+// This function accepts `float` events and is used to subscribe to a `stream`.
 function printTemperature(float temperature) {
     io:println("Temperature event received: " + temperature);
 }
 
-// This function accepts events of anydata type and is used to subscribe to a stream.
+// This function accepts events of `anydata` type and is used to subscribe to a `stream`.
 function printEvent(anydata event) {
     io:println("Event received: ", event);
 }

@@ -1,6 +1,6 @@
 import ballerina/test;
 
-// This function allows you to compare primitive types (e.g., int) to composite objects.
+// This function allows you to compare primitive types (e.g., `int`) to composite objects.
 @test:Config
 function testAssertIntEquals() {
 
@@ -11,7 +11,7 @@ function testAssertIntEquals() {
     test:assertEquals(answer, 8, msg = "IntAdd function failed");
 }
 
-// Compare the values of type float.
+// Compare the values of type `float`.
 @test:Config
 function testAssertFloatEquals() {
     float a = 10.000;
@@ -20,7 +20,7 @@ function testAssertFloatEquals() {
     test:assertEquals(answer, 30.050, msg = "FloatAdd function failed");
 }
 
-// Comparing strings.
+// Comparing `string` values.
 @test:Config
 function testAssertStringEquals() {
     string a = "John";
@@ -29,7 +29,7 @@ function testAssertStringEquals() {
     test:assertEquals(concatenated, "JohnDoe", msg = "String concat failed");
 }
 
-// Comparing JSON objects.
+// Comparing `json` values.
 @test:Config
 function testAssertJsonEquals() {
 
@@ -38,7 +38,7 @@ function testAssertJsonEquals() {
     test:assertEquals(a, b, msg = "JSON assert equals failed");
 }
 
-// Comparing boolean values.
+// Comparing `boolean` values.
 @test:Config
 function testAssertBooleanEquals() {
 
@@ -47,7 +47,7 @@ function testAssertBooleanEquals() {
     test:assertEquals(x, y, msg = "AssertBooleanEquals failed");
 }
 
-// Comparing string arrays.
+// Comparing `string` arrays.
 @test:Config
 function testAssertStringArrayEquals() {
 
@@ -57,7 +57,7 @@ function testAssertStringArrayEquals() {
     test:assertEquals(x, y, msg = "String arrays are not equal");
 }
 
-// Comparing Integer arrays.
+// Comparing `int` arrays.
 @test:Config
 function testAssertIntArrayEquals() {
 
@@ -67,7 +67,7 @@ function testAssertIntArrayEquals() {
     test:assertEquals(x, y, msg = "Int arrays are not equal");
 }
 
-// Comparing Float arrays.
+// Comparing `float` arrays.
 @test:Config
 function testAssertFloatArrayEquals() {
 
@@ -87,7 +87,7 @@ function testAssertNotEqualsString() {
     test:assertNotEquals(s1, s2, msg = "Strings are equal");
 }
 
-// Comparing distinct JSON objects.
+// Comparing distinct `json` values.
 @test:Config
 function testAssertNotEqualsJson() {
 
@@ -97,14 +97,14 @@ function testAssertNotEqualsJson() {
     test:assertNotEquals(s1, s2, msg = "JSON are equal");
 }
 
-// Asserting true.
+// Asserting `true`.
 @test:Config
 function testAssertTrue() {
     boolean value = true;
     test:assertTrue(value, msg = "AssertTrue failed");
 }
 
-// Asserting false.
+// Asserting `false`.
 @test:Config
 function testAssertFalse() {
 

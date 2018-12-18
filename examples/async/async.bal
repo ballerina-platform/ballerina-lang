@@ -29,7 +29,7 @@ public function main() {
     io:println(f2.isDone());
     io:println(f2.isCancelled());
 
-    // async action call
+    // Asynchronous remote function call.
     future<http:Response|error> f3 = start clientEp->get("/get?test=123");
     io:println(sum(25, 75));
     io:println(f3.isDone());
@@ -44,7 +44,7 @@ public function main() {
     future<int> f4 = start square(20);
     future<string> f5 = start greet("Bert");
     // You can wait for either of the asynchronous functions to finish.
-    // Here `f4` will finish before `f5` since runtim:sleep() is called
+    // Here `f4` will finish before `f5` since `runtim:sleep()` is called
     // in the `greet()` function to delay its execution. The value returned
     // by the asynchronous function that finishes first will be taken as the
     // result.

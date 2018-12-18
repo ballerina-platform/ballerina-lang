@@ -4,7 +4,7 @@ public function main() {
     io:println("Iterating over a string array:-");
     string[] fruits = ["apple", "banana", "cherry"];
 
-    // Foreach statement can be used to iterate over an array. Each iteration returns an element in the array. Note
+    // The `foreach` statement can be used to iterate over an array. Each iteration returns an element in the array. Note
     // that the index of the corresponding element is not returned.
     foreach var v in fruits {
         io:println("fruit: " + v);
@@ -22,8 +22,8 @@ public function main() {
     io:println("\nIterating over a json object:-");
     json apple = { name: "apple", colors: ["red", "green"], price: 5 };
     map<json> mapValue = <map<json>> map<json>.convert(apple);
-    // Iterating over a JSON is not supported. To iterate over a JSON, first convert the JSON to a map and then iterate
-    // over the newly created map.
+    // Iterating over a JSON is not supported. To iterate over a JSON, first convert the JSON to a `map` and then iterate
+    // over the newly created `map`.
     foreach var (i, j) in mapValue {
         if (j is string) {
             io:println("string value: ", j);
@@ -32,7 +32,7 @@ public function main() {
         } else if (j is json[]) {
             io:println("json array value: ", j);
         } else {
-            // JSON is a union type for () or null | int | float | decimal | string | json[] | map<json>,
+            // JSON is a union type for `()` or `null` | `int` | `float` | `decimal` | `string` | `json[]` | `map<json>`,
             // `j` in else block if type cannot be inferred then it is type `anydata`.
             io:println("non-string value: ", j);
         }

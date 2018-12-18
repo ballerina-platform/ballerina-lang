@@ -4,7 +4,7 @@ public function main() {
     // Declare a `map` constrained by type `any`.
     map<any> m;
 
-    // You can also declare and initialize a map with a map literal.
+    // You can also declare and initialize a `map` with a map literal.
     map<any> addrMap = { line1: "No. 20", line2: "Palm Grove",
                          city: "Colombo 03", country: "Sri Lanka" };
     io:println(addrMap);
@@ -13,7 +13,7 @@ public function main() {
     string country = <string>addrMap["country"];
     io:println(country);
 
-    // This retrieves a value of a key from the map using the dot (.) operator.
+    // This retrieves a value of a key from the `map` using the dot (.) operator.
     string city = <string>addrMap.city;
     io:println(city);
 
@@ -22,10 +22,10 @@ public function main() {
     addrMap.postalCode = "00301";
     io:println(addrMap);
 
-    // You can use the `keys()` function of the map to get the keys of the map as an array.
+    // You can use the `keys()` function of the `map` to get the keys of the `map` as an array.
     io:println(addrMap.keys());
 
-    // Print the number of keys in the map.
+    // Print the number of keys in the `map`.
     io:println(addrMap.length());
 
     // You can remove a key using the `remove()` function.
@@ -36,7 +36,7 @@ public function main() {
     map<string> stringMap = {};
     stringMap["index"] = "100892N";
 
-    // Notice you do not need explicit conversion to `string` when retrieving the value from map.
+    // Notice you do not need explicit conversion to `string` when retrieving the value from `map`.
     string index = stringMap.index;
     io:println(index);
 

@@ -1,7 +1,7 @@
 import ballerina/io;
 
-// Define an abstract object called 'Person'. It should only describe the 
-// type of each field and method. Note that an abstract object cannot have
+// Define an `abstract object` called 'Person'. It should only describe the
+// type of each field and method. Note that an `abstract object` cannot have
 // a constructor method, or any attached functions.
 type Person abstract object {
     public int age;

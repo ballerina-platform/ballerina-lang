@@ -1,7 +1,7 @@
 import ballerina/h2;
 import ballerina/io;
 
-// Create a client for h2 database. Change the path before running the sample.
+// Create a client for `h2` database. Change the path before running the sample.
 // This will create a new database in the given path if not exists already.
 h2:Client testDB = new({
         path: "./h2-client",
@@ -12,13 +12,13 @@ h2:Client testDB = new({
     });
 
 public function main() {
-    // Creates a table using the update remote function.
+    // Creates a `table` using the `update` remote function.
     io:println("The update operation - Creating a table:");
     var ret = testDB->update("CREATE TABLE STUDENT(ID INTEGER,
                     AGE INTEGER, NAME VARCHAR(255), PRIMARY KEY (ID))");
     handleUpdate(ret, "Create student table");
 
-    // Inserts data to the table using the update remote functon.
+    // Inserts data to the `table` using the `update` remote functon.
     io:println("\nThe update operation - Inserting data to a table");
     ret = testDB->update("INSERT INTO student(id, age, name)
                           values (1, 23, 'john')");
@@ -28,7 +28,7 @@ public function main() {
     io:println("\nThe select operation - Select data from a table");
     var selectRet = testDB->select("SELECT * FROM student", ());
     if (selectRet is table<record {}>) {
-        // Convert a table to JSON.
+        // Convert a `table` to JSON.
         io:println("\nConvert the table into json");
         var jsonConversionRet = json.convert(selectRet);
         if (jsonConversionRet is json) {
@@ -42,13 +42,13 @@ public function main() {
                      + <string>selectRet.detail().message);
     }
 
-    // Drop the STUDENT table.
+    // Drop the STUDENT table in the databasae.
     io:println("\nThe update operation - Drop student table");
     ret = testDB->update("DROP TABLE student");
     handleUpdate(ret, "Drop table student");
 }
 
-// Function to handle return of the update operation.
+// Function to handle return values of the `update` operation.
 function handleUpdate(int|error returned, string message) {
     if (returned is int) {
         io:println(message + " status: " + returned);

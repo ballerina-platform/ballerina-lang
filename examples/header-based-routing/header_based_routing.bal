@@ -11,7 +11,7 @@ http:ClientEndpointConfig weatherEPConfig = {
 }
 
 service headerBasedRouting on new http:Listener(9090) {
-    //`http:resourceConfig{}` annotation with GET method declares the HTTP method.
+    //`http:resourceConfig{}` annotation with `GET` method declares the HTTP method.
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/route"

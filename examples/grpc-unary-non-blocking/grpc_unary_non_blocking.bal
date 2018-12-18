@@ -2,7 +2,7 @@
 import ballerina/grpc;
 import ballerina/io;
 
-// Bind the service to the port.
+// Bind the `service` to the port.
 service HelloWorld on new grpc:Listener(9090) {
 
     resource function hello(grpc:Caller caller, string name) {

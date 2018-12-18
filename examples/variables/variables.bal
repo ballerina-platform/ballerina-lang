@@ -10,8 +10,8 @@ public int count = 0;
 const string OK = "ok";
 
 // Declare a public final variable that behaves as a constant for other modules.
-// Value of final variable is forzen. All the parameters for a function call is also implicitly final.
-// Value is computed at runtime therefore not immutable but cannot assign any other value since variable is final.
+// Value of `final` variable is forzen. All the parameters for a function call is also implicitly final.
+// Value is computed at runtime therefore not immutable but cannot assign any other value since variable is `final`.
 public final int status = 1;
 
 public function main() {

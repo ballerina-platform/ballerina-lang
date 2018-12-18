@@ -88,7 +88,7 @@ function appointment1Cleanup() returns (error?) {
         io:println("Stopping Appointment#1 cleanup task since it
                        has run 5 times");
 
-        // This is how you cancel an appointment.
+        // This is how you `cancel` an appointment.
         appointment1.cancel();
     }
     return cleanup();

@@ -7,7 +7,7 @@ http:Client clientEndpoint = new("https://postman-echo.com");
 public function main() {
 
     http:Request req = new;
-    // Send a GET request to the specified endpoint.
+    // Send a `GET` request to the specified endpoint.
     var response = clientEndpoint->get("/get?test=123");
 
     if (response is http:Response) {
@@ -22,7 +22,7 @@ public function main() {
         log:printError(<string>response.detail().message, err = response);
     }
 
-    // Set a string payload to the message to be sent to the endpoint.
+    // Set a `string` payload to the message to be sent to the endpoint.
     req.setPayload("POST: Hello World");
 
     response = clientEndpoint->post("/post", req);

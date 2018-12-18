@@ -18,7 +18,6 @@ public function main() {
 
     //The binding patterns are recursive in nature. Following examples shows how we can write complex recursive
     //variable references for de-structuring.
-
     (string, (int, (boolean, float))) (c1, (c2, (c3, c4))) =
                                         ("Test", (123, (true, 5.6)));
     ((c1, c2), c3) = (("Ballerina", 453), false);

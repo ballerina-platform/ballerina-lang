@@ -16,7 +16,7 @@ service passthrough on new http:Listener(9090) {
         // used to invoke the passthrough resource. The `forward()` function returns the response from the backend if
         // there are no errors.
         var clientResponse = clientEP->forward("/", req);
-        // Since the `forward()` can return an error as well, a `match` is required to handle the respective scenarios.
+        // Since the `forward()` can return an error as well, a `is` check is required to handle the respective scenarios.
         if (clientResponse is http:Response) {
             // If the request was successful, an HTTP response is returned.
             // Here, the received response is forwarded to the client through the outbound endpoint.

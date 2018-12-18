@@ -2,7 +2,7 @@ import ballerina/io;
 
 type KeyNotFoundError error<string, record { string key; }>;
 
-// The values of this map are constrained to the values of the optional string type.
+// The values of this `map` are constrained to the values of the optional `string` type.
 map<string?> values = {"key1": "value1", "key2": ()};
 
 type Person record {
@@ -37,7 +37,7 @@ function explainTypeTest(Person p) returns (Address?|Employment|error) {
     }
 }
 
-// This function returns either a `string`, a `KeyNotFoundError` or nil.
+// This function returns either a `string`, a `KeyNotFoundError` or `nil`.
 function getValue(string key) returns string?|KeyNotFoundError {
     if (!values.hasKey(key)) {
         KeyNotFoundError err = error("key '" + key + "' not found",

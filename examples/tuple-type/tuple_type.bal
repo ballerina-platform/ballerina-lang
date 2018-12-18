@@ -2,7 +2,7 @@ import ballerina/io;
 
 public function main() {
 
-    // Here, you can define the type of `a` as a pair that consists of an int and a string.
+    // Here, you can define the type of `a` as a pair that consists of an `int` and a `string`.
     (int, string) a = (10, "John");
     io:println(a);
 
@@ -22,7 +22,7 @@ public function main() {
     var (q, r) = divideBy10(6);
     io:println("06/10: " + "quotient=" + q + " " + "remainder=" + r);
 
-    //To ignore a return value, use '_'.
+    //To ignore a return value, use `_`.
     //This ignores the second return value.
     var (q1, _) = divideBy10(57);
     io:println("57/10: " + "quotient=" + q1);

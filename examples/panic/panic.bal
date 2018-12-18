@@ -5,7 +5,7 @@ type Record record {
     string name;
 };
 
-// This example demonstrates how panic works.
+// This example demonstrates how `panic` works.
 function readRecord(Record|() value) {
     if (value is Record) {
          io:println("Record ID: ", value.id, ", value: ", value.name);
@@ -19,7 +19,7 @@ public function main() {
     Record r1 = { id: 1, name: "record1" };
     readRecord(r1);
     Record|() r2 = ();
-    // Record r2 is nil.
+    // Record r2 is `nil`.
     if (r2 is Record) {
         io:println("Record: " + r2.name);
     } else {
