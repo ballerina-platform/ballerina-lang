@@ -968,8 +968,18 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             BLangLambdaFunction conditionFunc = createLambdaWithVarArg(joinStreamingInput.pos, new BLangSimpleVariable[]
                     {lhsDataMap, rhsDataMap}, typeNode);
             BLangBlockStmt funcBody = conditionFunc.function.body;
-            onExpr = (BLangBinaryExpr) preSelectDesuagr.rewrite(onExpr,
+            BType lhsType = onExpr.lhsExpr.type;
+            BType rhsType = onExpr.rhsExpr.type;
+            BLangBinaryExpr refactoredOnExpr = (BLangBinaryExpr) preSelectDesuagr.rewrite(onExpr,
                     new BSymbol[]{lhsDataMap.symbol, rhsDataMap.symbol}, streamAliasMap, rhsStream);
+
+            refactoredOnExpr.lhsExpr = desugar.addConversionExprIfRequired(refactoredOnExpr.lhsExpr,
+                                                                                      lhsType);
+            refactoredOnExpr.rhsExpr = desugar.addConversionExprIfRequired(refactoredOnExpr.rhsExpr,
+                                                                                     rhsType);
+            onExpr = refactoredOnExpr;
+
+            //onExpr.lhsExpr = desugar.addConversionExprIfRequired(onExpr.lhsExpr, on)
             addReturnStmt(onExpr.pos, funcBody, onExpr);
             createJoinProcessorStmt(joinStreamingInput, conditionFunc);
         } else if (onExpr == null && !isTableJoin) {
@@ -1688,18 +1698,31 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                         ((BLangFieldBasedAccess) selectExpression.getExpression()).field.value);
             }
 
-            if (selectExpression.getExpression().getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
-                BLangFieldBasedAccess fieldBasedAccess = (BLangFieldBasedAccess) selectExpression.getExpression();
-                recordKeyValue.valueExpr =
-                        createMapVariableIndexAccessExpr((BVarSymbol) createEventDataFieldAccessExpr(fieldBasedAccess
-                                .pos, streamEventSymbol).symbol, fieldBasedAccess);
-            } else if (selectExpression.getExpression().getKind() == NodeKind.INVOCATION) {
+
+//            if (selectExpression.getExpression().getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
+//                BLangFieldBasedAccess fieldBasedAccess = (BLangFieldBasedAccess) selectExpression.getExpression();
+//                recordKeyValue.valueExpr =
+//                        createMapVariableIndexAccessExpr((BVarSymbol) createEventDataFieldAccessExpr(fieldBasedAccess
+//                                .pos, streamEventSymbol).symbol, fieldBasedAccess);
+//            } else
+
+
+            if (selectExpression.getExpression().getKind() == NodeKind.INVOCATION) {
                 setInvocationToRecordKeyValue(recordKeyValue, streamEventSymbol, aggregatorArraySymbol,
                         aggregatorIndex, selectExpression, groupBy);
             } else {
-                recordKeyValue.valueExpr = desugar.addConversionExprIfRequired((BLangExpression) selectExpression
-                        .getExpression(), symTable.anydataType);
+                BLangExpression expr = (BLangExpression) selectExpression.getExpression();
+                BLangExpression refactoredExpr = (BLangExpression) preSelectDesuagr.rewrite(expr,
+                                                                                            new BSymbol[]{createEventDataFieldAccessExpr(selectExpression.pos, streamEventSymbol).symbol},
+                                                                                            streamAliasMap, rhsStream);
+                recordKeyValue.valueExpr = desugar.addConversionExprIfRequired(refactoredExpr, symTable.anydataType);
             }
+
+
+//                ((BLangExpression)selectExpression.getExpression()).accept(this);
+//                recordKeyValue.valueExpr = desugar.addConversionExprIfRequired((BLangExpression) selectExpression
+//                        .getExpression(), symTable.anydataType);
+//            }
             recordKeyValueList.add(recordKeyValue);
         }
         return recordKeyValueList;
