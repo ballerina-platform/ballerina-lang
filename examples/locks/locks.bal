@@ -17,7 +17,7 @@ type Counter object {
         foreach var i in 1 ... 1000 {
             lock {
                 // Lock the field variable and increment the count.
-                // The `count' field of same object instance is locked.
+                // The `count` field of same object instance is locked.
                 self.count = self.count + 1;
             }
         }

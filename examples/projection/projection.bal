@@ -66,7 +66,7 @@ public function main() {
     initProjectionQuery();
 
     // The `childrenMessageStream` subscribes to the `printChildrenMessage` function. Whenever the
-    // 'childrenMessageStream' stream receives a valid event, this function is called.
+    // `childrenMessageStream` stream receives a valid event, this function is called.
     childrenMessageStream.subscribe(printChildrenMessage);
 
     // Simulate the sample event that represents the `Person`.

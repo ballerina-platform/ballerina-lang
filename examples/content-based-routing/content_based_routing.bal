@@ -33,7 +33,7 @@ service contentBasedRouting on new http:Listener(9090) {
                 clientResponse =
                         locationEP->post("/v2/594e026c1100004011d6d39c", ());
             }
-            //Use the native function 'respond' to send the client response back to the caller.
+            //Use the native function `respond` to send the client response back to the caller.
             if (clientResponse is http:Response) {
                 var result = outboundEP->respond(clientResponse);
                 if (result is error) {

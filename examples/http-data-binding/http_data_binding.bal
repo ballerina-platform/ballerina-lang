@@ -77,7 +77,7 @@ service hello on new http:Listener(9090) {
     }
     resource function bindStruct(http:Caller caller, http:Request req,
                                  Student student) {
-        //Accesses the fields of the record 'Student'.
+        //Accesses the fields of the record `Student`.
         string name = student.Name;
         int grade = student.Grade;
 

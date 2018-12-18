@@ -1,6 +1,6 @@
 import ballerina/io;
 
-// Defines an `object` called 'Person' with public fields and attached function.
+// Defines an `object` called `Person` with public fields and attached function.
 public type Person object {
     public int age = 0;
     public string name = "";
@@ -10,7 +10,7 @@ public type Person object {
     }
 };
 
-// Defines an `object` called 'Employee' with public fields and attached functions.
+// Defines an `object` called `Employee` with public fields and attached functions.
 public type Employee object {
     public int age;
     public string name;

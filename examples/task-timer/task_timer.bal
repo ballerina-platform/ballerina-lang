@@ -32,7 +32,7 @@ function cleanup() returns error? {
     io:println(count);
 
     // An `error` is randomly returned to demonstrate how the error is propagated
-    // to the 'onError' function when an error occurs in the 'onTrigger'
+    // to the `onError` function when an error occurs in the `onTrigger`
     // function.
     if (math:randomInRange(0, 10) == 5) {
         error e = error("Cleanup error");

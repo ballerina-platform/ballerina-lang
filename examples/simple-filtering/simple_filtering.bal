@@ -60,7 +60,7 @@ public function main() {
     initFilterQuery();
 
     // The `childrenStream` subscribes to the `printChildren` function. Whenever the
-    // 'childrenStream' stream receives a valid event, this function is called.
+    // `childrenStream` stream receives a valid event, this function is called.
     childrenStream.subscribe(printChildren);
 
     // Simulate the sample event that represents the Person.

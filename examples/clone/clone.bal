@@ -43,8 +43,8 @@ public function main() returns (Person, Person, string)? {
     // if the value being cloned is not of `anydata` type. If the type of the value being cloned can be determined in
     // compile time, return value is exactly of the type of the value being cloned.
     // e.g. Person result = person.clone();
-    // In above example, 'person' is cloned instead of 'anyValue'. In compile time itself, we know the return type
-    // should be 'Person'
+    // In above example, `person` is cloned instead of `anyValue`. In compile time itself, we know the return type
+    // should be `Person`
     var result = anyValue.clone();
 
     // Type of any variable is only determined in runtime. Therefore we have to check if the returned type is `Person`

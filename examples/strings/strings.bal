@@ -11,7 +11,7 @@ public function main() {
     string s2 = statement.toLower();
     io:println("ToLower: " + s2);
 
-    //This compares two strings ignoring the case. It returns 'true' if the strings are equal, or 'false' if they are not equal.
+    //This compares two strings ignoring the case. It returns `true` if the strings are equal, or `false` if they are not equal.
     boolean isEqual =
             statement.equalsIgnoreCase("lion in town. catch the lion");
     io:println("EqualsIgnoreCase: " + isEqual);
@@ -37,15 +37,15 @@ public function main() {
     string s4 = <string>value;
     io:println("ValueOf: " + s4);
 
-    //This replaces the first instance of the 'replacePattern' string with the 'replaceWith' string.
+    //This replaces the first instance of the `replacePattern` string with the `replaceWith` string.
     string s5 = statement.replaceFirst("Lion", "Tiger");
     io:println("ReplaceFirst: " + s5);
 
-    //This replaces the 'replacePattern' string with the replacement string.
+    //This replaces the `replacePattern` string with the replacement string.
     string s6 = statement.replace("Lion", "Tiger");
     io:println("Replace: " + s6);
 
-    //This replaces each substring of the 'replacePattern' string that matches the given regular expression with the replacement `string`.
+    //This replaces each substring of the `replacePattern` string that matches the given regular expression with the replacement `string`.
     string s7 = statement.replaceAll("[o]+", "0");
     io:println("ReplaceAll: " + s7);
 

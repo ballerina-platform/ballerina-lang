@@ -23,7 +23,7 @@ service headerBasedRouting on new http:Listener(9090) {
         http:Client locationEP = new("http://www.mocky.io");
         //Create new outbound request to handle client call.
         http:Request newRequest = new;
-        // Checks whether 'x-type' header exists in the request.
+        // Checks whether `x-type` header exists in the request.
         if (!req.hasHeader("x-type")) {
             http:Response errorResponse = new;
             errorResponse.statusCode = 500;
