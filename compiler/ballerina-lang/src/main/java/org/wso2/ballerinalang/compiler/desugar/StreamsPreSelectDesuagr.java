@@ -232,7 +232,6 @@ public class StreamsPreSelectDesuagr extends BLangNodeVisitor {
             BLangIndexBasedAccess mapAccessExpr = createMapVariableIndexAccessExpr((BVarSymbol) mapRef.symbol,
                                                                                    indexExpr);
             result = mapAccessExpr;
-//                    desugar.addConversionExprIfRequired(mapAccessExpr, fieldAccessExpr.type);
         } else {
             result = fieldAccessExpr;
         }

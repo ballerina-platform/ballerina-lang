@@ -908,10 +908,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             BLangBinaryExpr refactoredOnExpr = (BLangBinaryExpr) preSelectDesuagr.rewrite(onExpr,
                     new BSymbol[]{lhsDataMap.symbol, rhsDataMap.symbol}, streamAliasMap, rhsStream);
 
-            refactoredOnExpr.lhsExpr = desugar.addConversionExprIfRequired(refactoredOnExpr.lhsExpr,
-                                                                                      lhsType);
-            refactoredOnExpr.rhsExpr = desugar.addConversionExprIfRequired(refactoredOnExpr.rhsExpr,
-                                                                                     rhsType);
+            refactoredOnExpr.lhsExpr = desugar.addConversionExprIfRequired(refactoredOnExpr.lhsExpr, lhsType);
+            refactoredOnExpr.rhsExpr = desugar.addConversionExprIfRequired(refactoredOnExpr.rhsExpr, rhsType);
             onExpr = refactoredOnExpr;
 
             //onExpr.lhsExpr = desugar.addConversionExprIfRequired(onExpr.lhsExpr, on)
@@ -1640,16 +1638,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 recordKeyValue.key.fieldSymbol = getOutputEventFieldSymbol(outputEventType,
                         ((BLangFieldBasedAccess) selectExpression.getExpression()).field.value);
             }
-
-
-//            if (selectExpression.getExpression().getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
-//                BLangFieldBasedAccess fieldBasedAccess = (BLangFieldBasedAccess) selectExpression.getExpression();
-//                recordKeyValue.valueExpr =
-//                        createMapVariableIndexAccessExpr((BVarSymbol) createEventDataFieldAccessExpr(fieldBasedAccess
-//                                .pos, streamEventSymbol).symbol, fieldBasedAccess);
-//            } else
-
-
             if (selectExpression.getExpression().getKind() == NodeKind.INVOCATION) {
                 setInvocationToRecordKeyValue(recordKeyValue, streamEventSymbol, aggregatorArraySymbol,
                         aggregatorIndex, selectExpression, groupBy);
@@ -1660,12 +1648,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                                                                                             streamAliasMap, rhsStream);
                 recordKeyValue.valueExpr = desugar.addConversionExprIfRequired(refactoredExpr, symTable.anydataType);
             }
-
-
-//                ((BLangExpression)selectExpression.getExpression()).accept(this);
-//                recordKeyValue.valueExpr = desugar.addConversionExprIfRequired((BLangExpression) selectExpression
-//                        .getExpression(), symTable.anydataType);
-//            }
             recordKeyValueList.add(recordKeyValue);
         }
         return recordKeyValueList;
