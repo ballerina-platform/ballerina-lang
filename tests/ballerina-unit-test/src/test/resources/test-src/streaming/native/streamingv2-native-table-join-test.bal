@@ -116,7 +116,7 @@ function tableJoinFunc() {
         });
 
     // Window processor
-    streams:Window lengthWindow = streams:lengthWindow([1], nextProcessPointer =
+    streams:Window lengthWindow = streams:length([1], nextProcessPointer =
                                     function (streams:StreamEvent[] e) {tableJoinProcessor.process(e);});
 
     // Set the tableName, streamName, windowProcessors to the table join processor
