@@ -70,7 +70,7 @@ public class BLangCallableUnitCallback implements CallableUnitCallback {
         }
         if (BVM.checkIsType(this.nativeCallCtx.getReturnValue(), BTypes.typeError)) {
             strand.currentFrame.handleChannelError((BRefType) this.nativeCallCtx.getReturnValue(),
-                    null);
+                    strand.respCallback.parentChannels);
         }
         strand.respCallback.signal();
     }
@@ -80,14 +80,14 @@ public class BLangCallableUnitCallback implements CallableUnitCallback {
         if (strand.fp > 0) {
             // Stop the observation context before popping the stack frame
             ObserveUtils.stopCallableObservation(strand);
-            strand.popFrame();
+            StackFrame poppedFrame = strand.popFrame();
             StackFrame sf = strand.currentFrame;
-            strand.currentFrame.handleChannelPanic(error, sf.wdChannels);
+            poppedFrame.handleChannelPanic(error, sf.wdChannels);
             strand.setError(error);
             BVMScheduler.schedule(strand);
             return;
         }
-        strand.currentFrame.handleChannelPanic(error, null);
+        strand.currentFrame.handleChannelPanic(error, strand.respCallback.parentChannels);
         strand.respCallback.setError(error);
         strand.respCallback.signal();
     }

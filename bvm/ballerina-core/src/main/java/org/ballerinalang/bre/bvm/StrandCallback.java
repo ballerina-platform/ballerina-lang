@@ -50,10 +50,13 @@ public abstract class StrandCallback {
 
     protected BType retType; //TODO may be this is wrong, we should take the type in wait expression -check this
 
-    StrandCallback(BType retType, ChannelDetails[] sendIns) {
+    public WDChannels parentChannels;
+
+    StrandCallback(BType retType, ChannelDetails[] sendIns, WDChannels parentChannels) {
         this.retType = retType;
         this.status = CallbackStatus.NOT_RETURNED;
         this.sendIns = sendIns;
+        this.parentChannels = parentChannels;
     }
 
     /**

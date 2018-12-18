@@ -39,7 +39,7 @@ public class SafeStrandCallback extends StrandCallback {
     private CallbackWaitHandler callbackWaitHandler;
 
     SafeStrandCallback(BType retType, WDChannels parentChannels, ChannelDetails[] sendIns) {
-        super(retType, sendIns);
+        super(retType, sendIns, parentChannels);
         this.callbackWaitHandler = new CallbackWaitHandler();
     }
 

@@ -232,20 +232,21 @@ public class BVMScheduler {
                 if (strand.fp > 0) {
                     // Stop the observation context before popping the stack frame
                     ObserveUtils.stopCallableObservation(strand);
-                    strand.popFrame();
-                    StackFrame retFrame = strand.currentFrame;
                     // Maybe we can omit this since natives cannot have worker interactions
                     if (BVM.checkIsType(this.nativeCtx.getReturnValue(), BTypes.typeError)) {
                         strand.currentFrame.handleChannelError((BRefType) this.nativeCtx.getReturnValue(),
-                                retFrame.wdChannels);
+                                strand.peekFrame(1).wdChannels);
                     }
+                    strand.popFrame();
+                    StackFrame retFrame = strand.currentFrame;
                     BLangVMUtils.populateWorkerDataWithValues(retFrame, this.nativeCtx.getDataFrame().retReg,
                             this.nativeCtx.getReturnValue(), retType);
                     execute(strand);
                     return;
                 }
                 if (BVM.checkIsType(this.nativeCtx.getReturnValue(), BTypes.typeError)) {
-                    strand.currentFrame.handleChannelError((BRefType) this.nativeCtx.getReturnValue(), null);
+                    strand.currentFrame.handleChannelError((BRefType) this.nativeCtx.getReturnValue(),
+                            strand.respCallback.parentChannels);
                 }
                 strand.respCallback.signal();
                 return;
@@ -262,7 +263,7 @@ public class BVMScheduler {
             if (strand.fp > 0) {
                 strand.popFrame().handleChannelPanic(error, strand.currentFrame.wdChannels);
             } else {
-                strand.popFrame().handleChannelPanic(error, null);
+                strand.popFrame().handleChannelPanic(error, strand.respCallback.parentChannels);
             }
             BVM.handleError(strand);
             execute(strand);

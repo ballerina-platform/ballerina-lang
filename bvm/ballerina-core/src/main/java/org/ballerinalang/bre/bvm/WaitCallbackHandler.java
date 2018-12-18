@@ -137,7 +137,12 @@ public class WaitCallbackHandler {
                     .getWorkerName().equals(BLangConstants.DEFAULT_WORKER_NAME)) {
                 dataChannel = strand.currentFrame.wdChannels.getWorkerDataChannel(channels[i]);
             } else {
-                dataChannel = strand.peekFrame(1).wdChannels.getWorkerDataChannel(channels[i]);
+                if (strand.fp > 0) {
+                    dataChannel = strand.peekFrame(1).wdChannels.getWorkerDataChannel(channels[i]);
+                } else {
+                    dataChannel = strand.respCallback.parentChannels.getWorkerDataChannel(channels[i]);
+                }
+
             }
             if (dataChannel.flushChannel(strand, retReg)) {
                 return true;

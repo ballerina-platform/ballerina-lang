@@ -739,16 +739,16 @@ public class BVM {
                         if (strand.fp > 0) {
                             // Stop the observation context before popping the stack frame
                             ObserveUtils.stopCallableObservation(strand);
-                            if (sf.errorRetReg > 0) {
+                            if (sf.errorRetReg > -1) {
                                 //notifying waiting workers
                                 sf.handleChannelError(sf.refRegs[sf.errorRetReg], strand.peekFrame(1).wdChannels);
                             }
                             strand.popFrame();
                             break;
                         }
-                        if (sf.errorRetReg > 0) {
+                        if (sf.errorRetReg > -1) {
                             //notifying waiting workers
-                            sf.handleChannelError(sf.refRegs[sf.errorRetReg], null);
+                            sf.handleChannelError(sf.refRegs[sf.errorRetReg], strand.respCallback.parentChannels);
                         }
                         sf.ip = -1;
                         strand.respCallback.signal();
@@ -907,7 +907,8 @@ public class BVM {
                     return strand;
                 }
                 if (BVM.checkIsType(ctx.getReturnValue(), BTypes.typeError)) {
-                    strand.currentFrame.handleChannelError((BRefType) ctx.getReturnValue(), null);
+                    strand.currentFrame.handleChannelError((BRefType) ctx.getReturnValue(),
+                            strand.respCallback.parentChannels);
                 }
                 strand.respCallback.signal();
                 return null;
@@ -925,9 +926,9 @@ public class BVM {
         // Stop the observation context before popping the stack frame
         ObserveUtils.stopCallableObservation(strand);
         if (strand.fp > 0) {
-            strand.popFrame().handleChannelPanic(strand.getError(), strand.peekFrame(1).wdChannels);
+            strand.popFrame().handleChannelPanic(strand.getError(), strand.currentFrame.wdChannels);
         } else {
-            strand.popFrame().handleChannelPanic(strand.getError(), null);
+            strand.popFrame().handleChannelPanic(strand.getError(), strand.respCallback.parentChannels);
         }
         handleError(strand);
         return strand;
@@ -3505,7 +3506,7 @@ public class BVM {
         if (channelInSameStrand) {
             return ctx.currentFrame.wdChannels.getWorkerDataChannel(name);
         }
-        return ctx.peekFrame(1).wdChannels.getWorkerDataChannel(name);
+        return ctx.respCallback.parentChannels.getWorkerDataChannel(name);
     }
 
     private static BRefType extractValue(StackFrame data, BType type, int reg) {
@@ -4418,7 +4419,7 @@ public class BVM {
             handleError(strand);
         } else {
             strand.respCallback.setError(strand.getError());
-            strand.currentFrame.handleChannelPanic(strand.getError(), null);
+            strand.currentFrame.handleChannelPanic(strand.getError(), strand.respCallback.parentChannels);
             signalTransactionError(strand, StackFrame.TransactionParticipantType.REMOTE_PARTICIPANT);
             //Below is to return current thread from VM
             sf.ip = -1;
