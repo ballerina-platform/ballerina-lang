@@ -3,7 +3,7 @@ import {
     ASTNode, ASTUtil, Block, Break, CompoundAssignment, Constant, ExpressionStatement,
     Foreach, Function, If, Invocation, Lambda, Literal, Match,
     MatchStaticPatternClause, ObjectType, Panic, Return, Service,
-    TypeDefinition, Variable, VariableDef, VisibleEndpoint, Visitor, While, WorkerSend
+    TypeDefinition, UserDefinedType, Variable, VariableDef, VisibleEndpoint, Visitor, While, WorkerSend
 } from "@ballerina/ast-model";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
@@ -194,6 +194,26 @@ export const visitor: Visitor = {
             } else {
                 viewState.client = new ViewState();
             }
+        }
+
+        // make endpoints, which are defined in function, visible
+        if (node.VisibleEndpoints && node.body) {
+            const varDefStmts = node.body.statements.filter(ASTKindChecker.isVariableDef);
+            node.VisibleEndpoints.forEach((visibleEndpoint) => {
+                const epDef = varDefStmts.find((varDefStmt) => {
+                    const varDef = varDefStmt as VariableDef;
+                    const variable = varDef.variable as Variable;
+                    const variableTypeNode = variable.typeNode as UserDefinedType;
+                    return variable.name.value === visibleEndpoint.name
+                        && variableTypeNode.packageAlias.value === visibleEndpoint.pkgAlias
+                        && variableTypeNode.typeName.value === visibleEndpoint.typeName;
+                });
+                if (epDef) {
+                    (visibleEndpoint.viewState as EndpointViewState).visible = true;
+                    // link position info of var def stmt to make revealPosition work
+                    visibleEndpoint.position = epDef.position;
+                }
+            });
         }
     },
 
