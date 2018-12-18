@@ -208,7 +208,7 @@ public class StreamsPreSelectDesuagr extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
-        if (fieldAccessExpr.expr.type.tag == TypeTags.STREAM) {
+        if (fieldAccessExpr.expr.type.tag == TypeTags.STREAM || fieldAccessExpr.expr.type.tag == TypeTags.TABLE) {
             BLangSimpleVarRef varRef = (BLangSimpleVarRef) fieldAccessExpr.expr;
             BLangSimpleVarRef mapRef;
             int mapVarArgIndex;
