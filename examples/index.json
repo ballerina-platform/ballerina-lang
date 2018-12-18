@@ -232,7 +232,12 @@
         "title": "Value/Type Operations",
         "column": 1,
         "category": "Language concepts",
-        "samples": [{
+        "samples": [
+            {
+                "name": "Compound Assignment Operators",
+                "url": "compound-assignment-operators"
+            },
+            {
                 "name": "Equality",
                 "url": "equality"
             },
@@ -267,10 +272,6 @@
             {
                 "name": "Stamping Values",
                 "url": "stamp"
-            },
-            {
-                "name": "Compound Assignment Operators",
-                "url": "compound-assignment-operators"
             }
         ]
     },
