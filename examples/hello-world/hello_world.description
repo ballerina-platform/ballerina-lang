@@ -1,2 +1,2 @@
 // Let's print "Hello, World!" using a `main` function in Ballerina.
-// A public function named `main` is considered the default function as an entry point.
+// A public function named `main` is considered a default entry point.
