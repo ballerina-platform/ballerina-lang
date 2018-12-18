@@ -38,14 +38,12 @@ public class StreamFunctionTest {
 
     @BeforeClass
     public void setup() {
-        System.setProperty("enable.siddhiRuntime", "true");
-        result = BCompileUtil.compile("test-src/streaming/legacy/stream-functions-test.bal");
+        result = BCompileUtil.compile("test-src/streaming/legacy/stream-functions-test.bal", true);
     }
 
     @Test(description = "Test stream functions")
     public void testFilterQuery() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startStreamingQuery");
-        System.setProperty("enable.siddhiRuntime", "false");
         Assert.assertNotNull(outputEmployeeEvents);
 
         Assert.assertEquals(outputEmployeeEvents.length, 2, "Expected events are not received");

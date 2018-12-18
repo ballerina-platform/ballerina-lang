@@ -236,6 +236,9 @@ public class Main {
         @CommandLine.Option(names = "--experimental", description = "enable experimental language features")
         private boolean experimentalFlag;
 
+        @CommandLine.Option(names = "--siddhiruntime", description = "enable siddhi runtime for stream processing")
+        private boolean siddhiRuntimeFlag;
+
         public void execute() {
             if (helpFlag) {
                 printUsageInfo(BallerinaCliCommands.RUN);
@@ -297,7 +300,8 @@ public class Main {
 
             // Normalize the source path to remove './' or '.\' characters that can appear before the name
             LauncherUtils.runProgram(sourceRootPath, sourcePath.normalize(), functionName, runtimeParams,
-                    configFilePath, programArgs, offline, observeFlag, printReturn, experimentalFlag);
+                    configFilePath, programArgs, offline, observeFlag, printReturn, siddhiRuntimeFlag,
+                    experimentalFlag);
         }
 
         @Override

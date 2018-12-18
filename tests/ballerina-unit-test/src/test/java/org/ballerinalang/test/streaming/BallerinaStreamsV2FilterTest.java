@@ -82,7 +82,7 @@ public class BallerinaStreamsV2FilterTest {
 
     @Test(description = "Test streaming query when undefined stream is present with alias")
     public void testUndefinedStreamVariableNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 6);
+        Assert.assertEquals(resultNegative.getErrorCount(), 7);
         BAssertUtil.validateError(resultNegative, 0,
                 "undefined symbol 'inStream'", 35, 14);
     }

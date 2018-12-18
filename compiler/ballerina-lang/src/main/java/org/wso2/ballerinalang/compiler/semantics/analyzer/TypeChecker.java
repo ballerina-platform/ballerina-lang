@@ -2665,6 +2665,12 @@ public class TypeChecker extends BLangNodeVisitor {
                     actualType = checkStructFieldAccess(fieldAccessExpr, fieldName, streamConstraintType);
                 }
                 break;
+            case TypeTags.TABLE:
+                BType tableConstraintType = ((BTableType) varRefType).constraint;
+                if (tableConstraintType.tag == TypeTags.RECORD) {
+                    actualType = checkStructFieldAccess(fieldAccessExpr, fieldName, tableConstraintType);
+                }
+                break;
             case TypeTags.JSON:
                 BType constraintType = ((BJSONType) varRefType).constraint;
                 if (constraintType.tag == TypeTags.OBJECT || constraintType.tag == TypeTags.RECORD) {
