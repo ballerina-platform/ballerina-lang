@@ -37,7 +37,7 @@ public function main() {
     length = myStr.length();
     io:println("String size: ", length);
 
-    // This creates a XML element.
+    // This creates an XML element.
     xml x1 = xml `<book>
                     <name>Sherlock Holmes</name>
                     <author>Sir Arthur Conan Doyle</author>
