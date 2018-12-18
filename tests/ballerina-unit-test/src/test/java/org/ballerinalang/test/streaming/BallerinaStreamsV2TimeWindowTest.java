@@ -80,10 +80,10 @@ public class BallerinaStreamsV2TimeWindowTest {
     public void testForWindowFunction() {
         Assert.assertEquals(resultNegative.getErrorCount(), 2);
         BAssertUtil.validateError(resultNegative, 0,
-                "invalid streaming 'Window' type 'time232' found",
+                "invalid streaming 'Window' type 'undefinedWindow' found",
                 62, 47);
         BAssertUtil.validateError(resultNegative, 1,
-                "undefined function 'time232'",
+                "undefined function 'undefinedWindow'",
                 62, 47);
     }
 }
