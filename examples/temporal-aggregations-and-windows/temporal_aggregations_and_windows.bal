@@ -24,7 +24,7 @@ function initRealtimeRequestCounter() returns () {
     // the `requestCountStream` stream as an alert. This `forever` block is executed once, when initializing the service.
     // The processing happens asynchronously each time the `requestStream` receives an event.
     forever {
-        from requestStream window timeBatchWindow(10000)
+        from requestStream window timeBatc(10000)
         select requestStream.host, count() as count
             group by requestStream.host
             having count > 6

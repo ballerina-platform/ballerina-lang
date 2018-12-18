@@ -42,7 +42,7 @@ function initOutOfStockAlert() {
     // Whenever an order event is published to `orderStream`, it is matched against the `itemStockTable` through
     //the `queryItemTable` function. If there is a match, an alert event is published to `oredrAlertStream`.
     forever {
-        from orderStream window lengthWindow(1) as itemOrder
+        from orderStream window length(1) as itemOrder
         join queryItemTable(itemOrder.itemName, itemOrder.orderingAmount) as item
         select item.name as itemName, item.stockAmount
         => (OutOfStockAlert[] alerts) {
