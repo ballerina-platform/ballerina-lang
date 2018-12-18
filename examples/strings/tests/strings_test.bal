@@ -36,4 +36,5 @@ function testFunc() {
     test:assertEquals(outputs[16], "Split: in");
     test:assertEquals(outputs[17], "Split: Town.");
     test:assertEquals(outputs[18], "Bytes: Lion in Town. Catch the Lion");
+    test:assertEquals(outputs[19], "Sprintf: Lion 5.800000");
 }

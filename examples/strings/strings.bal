@@ -26,11 +26,11 @@ public function main() {
     boolean contains = statement.contains("Lion");
     io:println("Contains: " + contains);
 
-    // Retrieve the first index of the first occurrence of the substring "on" within the `statement` string.
+    // Retrieve the starting index of the first occurrence of the substring "on" within the `statement` string.
     int index = statement.indexOf("on");
     io:println("IndexOf: " + index);
 
-    // Retrieve the first index of the last occurrence of the substring "on" within the `statement` string.
+    // Retrieve the starting index of the last occurrence of the substring "on" within the `statement` string.
     int lastIndex = statement.lastIndexOf("on");
     io:println("LastIndexOf: " + lastIndex);
 
