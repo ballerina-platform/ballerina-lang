@@ -1,2 +1,2 @@
-// Let's print "Hello, World!" using Ballerina. 
-// Here's the full source code.
+// Let's print "Hello, World!" using a `main` function in Ballerina.
+// A public function named `main` is considered a default entry point.
