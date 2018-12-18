@@ -217,6 +217,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     private String lambdaIdentifier;
 
     private Map<String, TaintedStatus> workerInteractionTaintedStatusMap = new HashMap<>();
+    private Set<TaintRecord.TaintError> taintErrorSet = new LinkedHashSet<>();
     private List<BlockedNode> blockedNodeList = new ArrayList<>();
     private List<BlockedNode> blockedEntryPointNodeList = new ArrayList<>();
 
@@ -237,8 +238,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     private AnalyzerPhase analyzerPhase;
 
     private class AnalysisState {
-        private Set<TaintRecord.TaintError> taintErrorSet = new LinkedHashSet<>();
-
         private String currLambdaIdentifier;
 
         private TaintedStatus taintedStatus;
@@ -418,7 +417,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             visit(funcNode);
         }
     }
-    
+
     @Override
     public void visit(BLangService serviceNode) {
         /* ignored */
@@ -1705,7 +1704,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         boolean isBlocked = processBlockedNode(invNode);
         if (!isBlocked) {
             // Display errors only if scan of was fully complete, so that errors will not get duplicated.
-            getCurrentAnalysisState().taintErrorSet.forEach(error -> this.dlog.error(error.pos, error.diagnosticCode, error.paramName));
+            this.taintErrorSet.forEach(error -> this.dlog.error(error.pos, error.diagnosticCode, error.paramName));
         }
     }
 
@@ -1755,7 +1754,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             int requiredParamCount = invNode.requiredParams.size();
             int defaultableParamCount = invNode.defaultableParams.size();
             int totalParamCount = requiredParamCount + defaultableParamCount + (invNode.restParam == null ? 0 : 1);
-            if (getCurrentAnalysisState().taintErrorSet.size() > 0) {
+            if (this.taintErrorSet.size() > 0) {
                 // If taint error occurred when no parameter is tainted, there is no point of checking tainted status of
                 // returns when each parameter is tainted. An compiler error will get generated for the usage anyway,
                 // hence adding dummy table to the function to make sure remaining analysis stays intact.
@@ -1765,7 +1764,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 for (int paramIndex = 0; paramIndex < totalParamCount; paramIndex++) {
                     taintTable.put(paramIndex, new TaintRecord(TaintedStatus.UNTAINTED, paramTaintedStatus));
                 }
-                getCurrentAnalysisState().taintErrorSet.clear();
+                this.taintErrorSet.clear();
             } else {
                 for (int paramIndex = 0; paramIndex < totalParamCount; paramIndex++) {
                     BLangSimpleVariable param = getParam(invNode, paramIndex, requiredParamCount,
@@ -1780,7 +1779,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     if (analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS_COMPLETE) {
                         analyzerPhase = AnalyzerPhase.LOOP_ANALYSIS;
                     }
-                    getCurrentAnalysisState().taintErrorSet.clear();
+                    this.taintErrorSet.clear();
                 }
             }
             invNode.symbol.taintTable = taintTable;
@@ -1815,7 +1814,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             }
         }
         analyzeReturnTaintedStatus(invokableNode, symbolEnv);
-        if (getCurrentAnalysisState().taintErrorSet.size() > 0) {
+        if (this.taintErrorSet.size() > 0) {
             // When invocation returns an error (due to passing a tainted argument to a sensitive parameter) add current
             // error to the table for future reference. However, if taint-error is raised when analyzing all-parameters
             // are untainted, the code of the function is wrong (and passes a tainted value generated within the
@@ -1825,9 +1824,9 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     (analyzerPhase == AnalyzerPhase.INITIAL_ANALYSIS
                             || analyzerPhase == AnalyzerPhase.BLOCKED_NODE_ANALYSIS
                             || analyzerPhase == AnalyzerPhase.LOOPS_RESOLVED_ANALYSIS)) {
-                getCurrentAnalysisState().taintErrorSet.forEach(error -> this.dlog.error(error.pos, error.diagnosticCode, error.paramName));
+                this.taintErrorSet.forEach(error -> this.dlog.error(error.pos, error.diagnosticCode, error.paramName));
             } else {
-                taintTable.put(paramIndex, new TaintRecord(new ArrayList<>(getCurrentAnalysisState().taintErrorSet)));
+                taintTable.put(paramIndex, new TaintRecord(new ArrayList<>(this.taintErrorSet)));
             }
         } else if (getCurrentAnalysisState().blockedNode == null) {
             // This is when taint analysis was successful for the function body without any blocking invocations.
@@ -1937,7 +1936,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             getCurrentAnalysisState().blockedNode = null;
             // Discard any error generated if invokable was found to be blocked. This will avoid duplicates when
             // blocked invokable is re-examined.
-            getCurrentAnalysisState().taintErrorSet.clear();
+            this.taintErrorSet.clear();
             isBlocked = true;
         }
         return isBlocked;
@@ -1973,14 +1972,14 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     private void addTaintError(DiagnosticPos diagnosticPos, String paramName, DiagnosticCode diagnosticCode) {
         TaintRecord.TaintError taintError = new TaintRecord.TaintError(diagnosticPos, paramName, diagnosticCode);
-        getCurrentAnalysisState().taintErrorSet.add(taintError);
+        this.taintErrorSet.add(taintError);
         if (!entryPointAnalysis) {
             stopAnalysis = true;
         }
     }
 
     private void addTaintError(List<TaintRecord.TaintError> taintErrors) {
-        getCurrentAnalysisState().taintErrorSet.addAll(taintErrors);
+        this.taintErrorSet.addAll(taintErrors);
         if (!entryPointAnalysis) {
             stopAnalysis = true;
         }
