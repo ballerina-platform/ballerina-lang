@@ -148,8 +148,8 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
         analyzeNode(stmtNode, env);
     }
 
-    void analyzeNode(BLangNode node, SymbolEnv env) {
-         analyzeNode(node, env, symTable.noType, null);
+    private void analyzeNode(BLangNode node, SymbolEnv env) {
+        analyzeNode(node, env, symTable.noType, null);
     }
 
     private void analyzeNode(BLangNode node, SymbolEnv env, BType expType, DiagnosticCode diagCode) {
@@ -178,257 +178,14 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
             analyzeStmt((BLangStatement) streamingQueryStatement, stmtEnv);
         }
 
-        if (isSiddhiRuntimeEnabled) {
-            //Validate output attribute names with stream/struct
-            for (StreamingQueryStatementNode streamingQueryStatement : foreverStatement.getStreamingQueryStatements()) {
+        //Validate output attribute names with stream/struct
+        for (StreamingQueryStatementNode streamingQueryStatement : foreverStatement.getStreamingQueryStatements()) {
+            if (isSiddhiRuntimeEnabled) {
+                checkOutputAttributesWithOutputConstraintForSiddhi((BLangStatement) streamingQueryStatement);
+            } else {
                 checkOutputAttributesWithOutputConstraint((BLangStatement) streamingQueryStatement);
-                validateOutputAttributeTypes((BLangStatement) streamingQueryStatement);
             }
-        }
-    }
-
-    private void checkOutputAttributesWithOutputConstraint(BLangStatement streamingQueryStatement) {
-        List<? extends SelectExpressionNode> selectExpressions =
-                ((BLangStreamingQueryStatement) streamingQueryStatement).getSelectClause().getSelectExpressions();
-
-        List<String> variableList = new ArrayList<>();
-        boolean isSelectAll = true;
-        if (!((BLangStreamingQueryStatement) streamingQueryStatement).getSelectClause().isSelectAll()) {
-            isSelectAll = false;
-            for (SelectExpressionNode expressionNode : selectExpressions) {
-                String variableName;
-                if (expressionNode.getIdentifier() != null) {
-                    variableName = expressionNode.getIdentifier();
-                } else {
-                    if (expressionNode.getExpression() instanceof BLangFieldBasedAccess) {
-                        variableName = ((BLangFieldBasedAccess) expressionNode.getExpression()).field.value;
-                    } else {
-                        variableName = ((BLangSimpleVarRef) (expressionNode).getExpression()).variableName.value;
-                    }
-                }
-                variableList.add(variableName);
-            }
-        }
-
-        // Validate whether input stream constraint type only contains attribute type that can be processed by Siddhi
-        if (((BLangStreamingQueryStatement) streamingQueryStatement).getStreamingInput() != null) {
-            List<BField> fields = ((BStructureType) ((BStreamType) ((BLangExpression)
-                    (((BLangStreamingQueryStatement) streamingQueryStatement).getStreamingInput()).
-                    getStreamReference()).type).constraint).fields;
-
-            for (BField structField : fields) {
-                validateStreamEventType(((BLangStreamingQueryStatement) streamingQueryStatement).pos, structField);
-                if (isSelectAll) {
-                    //create the variable list to validate when select * clause is used in query
-                    variableList.add(structField.name.value);
-                }
-            }
-        }
-
-        BType streamActionArgumentType = ((BInvokableType) ((BLangLambdaFunction) (((BLangStreamingQueryStatement)
-                streamingQueryStatement).getStreamingAction()).getInvokableBody()).type).paramTypes.get(0);
-
-        if (streamActionArgumentType.tag == TypeTags.ARRAY) {
-            BType structType = (((BArrayType) streamActionArgumentType).eType);
-
-            if (structType.tag == TypeTags.OBJECT || structType.tag == TypeTags.RECORD) {
-                List<BField> structFieldList = ((BStructureType) structType).fields;
-                List<String> structFieldNameList = new ArrayList<>();
-                for (BField structField : structFieldList) {
-                    validateStreamEventType(((BLangStreamAction) ((BLangStreamingQueryStatement)
-                            streamingQueryStatement).getStreamingAction()).pos, structField);
-                    structFieldNameList.add(structField.name.value);
-                }
-
-                if (!variableList.equals(structFieldNameList)) {
-                    dlog.error(((BLangStreamAction) ((BLangStreamingQueryStatement) streamingQueryStatement).
-                            getStreamingAction()).pos, DiagnosticCode.INCOMPATIBLE_STREAM_ACTION_ARGUMENT, structType);
-                }
-            }
-        }
-    }
-
-    private void validateStreamEventType(DiagnosticPos pos, BField field) {
-        if (!(field.type.tag == TypeTags.INT || field.type.tag == TypeTags.BOOLEAN || field.type.tag == TypeTags.STRING
-              || field.type.tag == TypeTags.FLOAT)) {
-            dlog.error(pos, DiagnosticCode.INVALID_STREAM_ATTRIBUTE_TYPE);
-        }
-    }
-
-    private void validateStreamingEventType(DiagnosticPos pos, BType actualType, String attributeName, BType expType,
-                                            DiagnosticCode diagCode) {
-        if (expType.tag == TypeTags.SEMANTIC_ERROR) {
-            return;
-        } else if (expType.tag == TypeTags.NONE) {
-            return;
-        } else if (actualType.tag == TypeTags.SEMANTIC_ERROR) {
-            return;
-        } else if (this.types.isAssignable(actualType, expType)) {
-            return;
-        }
-
-        // e.g. incompatible types: expected 'int' for attribute 'name', found 'string'
-        dlog.error(pos, diagCode, expType, attributeName, actualType);
-    }
-
-    private void validateOutputAttributeTypes(BLangStatement streamingQueryStatement) {
-        StreamingInput streamingInput = ((BLangStreamingQueryStatement) streamingQueryStatement).getStreamingInput();
-        JoinStreamingInput joinStreamingInput = ((BLangStreamingQueryStatement) streamingQueryStatement).
-                getJoiningInput();
-
-        if (streamingInput != null) {
-            Map<String, List<BField>> inputStreamSpecificFieldMap =
-                    createInputStreamSpecificFieldMap(streamingInput, joinStreamingInput);
-            BType streamActionArgumentType = ((BInvokableType) ((BLangLambdaFunction) (((BLangStreamingQueryStatement)
-                    streamingQueryStatement).getStreamingAction()).getInvokableBody()).type).paramTypes.get(0);
-
-            if (streamActionArgumentType.tag == TypeTags.ARRAY) {
-                BType structType = (((BArrayType) streamActionArgumentType).eType);
-
-                if (structType.tag == TypeTags.OBJECT || structType.tag == TypeTags.RECORD) {
-                    List<BField> outputStreamFieldList = ((BStructureType) structType).fields;
-                    List<? extends SelectExpressionNode> selectExpressions = ((BLangStreamingQueryStatement)
-                            streamingQueryStatement).getSelectClause().getSelectExpressions();
-
-                    if (!((BLangStreamingQueryStatement) streamingQueryStatement).getSelectClause().isSelectAll()) {
-                        for (int i = 0; i < selectExpressions.size(); i++) {
-                            SelectExpressionNode expressionNode = selectExpressions.get(i);
-                            BField structField = null;
-                            if (expressionNode.getExpression() instanceof BLangFieldBasedAccess) {
-                                String attributeName =
-                                        ((BLangFieldBasedAccess) expressionNode.getExpression()).field.value;
-                                String streamIdentifier = ((BLangSimpleVarRef) ((BLangFieldBasedAccess) expressionNode.
-                                        getExpression()).expr).variableName.value;
-
-                                List<BField> streamFieldList = inputStreamSpecificFieldMap.
-                                        get(streamIdentifier);
-                                if (streamFieldList == null) {
-                                    dlog.error(((BLangSelectClause) ((BLangStreamingQueryStatement)
-                                            streamingQueryStatement).getSelectClause()).pos,
-                                            DiagnosticCode.UNDEFINED_STREAM_REFERENCE, streamIdentifier);
-                                } else {
-                                    structField = getStructField(streamFieldList, attributeName);
-                                    validateAttributeWithOutputStruct(structField, attributeName,
-                                            streamingQueryStatement, outputStreamFieldList.get(i));
-                                }
-                            } else if (expressionNode.getExpression() instanceof BLangSimpleVarRef) {
-                                String attributeName = ((BLangSimpleVarRef) expressionNode.getExpression()).
-                                        variableName.getValue();
-
-                                for (List<BField> streamFieldList :
-                                        inputStreamSpecificFieldMap.values()) {
-                                    structField = getStructField(streamFieldList, attributeName);
-                                    if (structField != null) {
-                                        break;
-                                    }
-                                }
-                                validateAttributeWithOutputStruct(structField, attributeName, streamingQueryStatement,
-                                        outputStreamFieldList.get(i));
-                            }
-                        }
-                    } else {
-                        List<BField> inputStreamFields = ((BStructureType) ((BStreamType) ((BLangExpression)
-                                (((BLangStreamingQueryStatement) streamingQueryStatement).getStreamingInput())
-                                        .getStreamReference()).type).constraint).fields;
-
-                        for (int i = 0; i < inputStreamFields.size(); i++) {
-                            BField inputStructField = inputStreamFields.get(i);
-                            BField outputStructField = outputStreamFieldList.get(i);
-                            validateStreamingEventType(((BLangStreamAction) ((BLangStreamingQueryStatement)
-                                    streamingQueryStatement).getStreamingAction()).pos, outputStructField.getType(),
-                                    outputStructField.getName().getValue(), inputStructField.getType(),
-                                    DiagnosticCode.STREAMING_INCOMPATIBLE_TYPES);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private List<BField> getFieldListFromStreamInput(StreamingInput streamingInput) {
-        return ((BStructureType) ((BStreamType) ((BLangSimpleVarRef)
-                                                         streamingInput.getStreamReference()).type).constraint).fields;
-    }
-
-    private String getStreamIdentifier(StreamingInput streamingInput) {
-        String streamIdentifier = streamingInput.getAlias();
-        if (streamIdentifier == null) {
-            streamIdentifier = ((BLangSimpleVarRef) streamingInput.getStreamReference()).variableName.value;
-        }
-
-        return streamIdentifier;
-    }
-
-    private BField getStructField(List<BField> fieldList, String fieldName) {
-        for (BField structField : fieldList) {
-            String structFieldName = structField.name.getValue();
-            if (structFieldName.equalsIgnoreCase(fieldName)) {
-                return structField;
-            }
-        }
-
-        return null;
-    }
-
-    private void validateAttributeWithOutputStruct(BField structField, String attributeName,
-                                                   BLangStatement streamingQueryStatement,
-                                                   BField outputStructField) {
-
-        if (structField != null) {
-            validateStreamingEventType(((BLangStreamAction) ((BLangStreamingQueryStatement)
-                    streamingQueryStatement).getStreamingAction()).pos, outputStructField.getType(), attributeName,
-                    structField.getType(), DiagnosticCode.STREAMING_INCOMPATIBLE_TYPES);
-        }
-    }
-
-    private Map<String, List<BField>> createInputStreamSpecificFieldMap
-            (StreamingInput streamingInput, JoinStreamingInput joinStreamingInput) {
-
-        Map<String, List<BField>> inputStreamSpecificFieldMap = new HashMap<>();
-        String firstStreamIdentifier = getStreamIdentifier(streamingInput);
-        List<BField> firstInputStreamFieldList = getFieldListFromStreamInput(streamingInput);
-        inputStreamSpecificFieldMap.put(firstStreamIdentifier, firstInputStreamFieldList);
-
-        if (joinStreamingInput != null) {
-            List<BField> secondInputStreamFieldList =
-                    getFieldListFromStreamInput(joinStreamingInput.getStreamingInput());
-            String secondStreamIdentifier = getStreamIdentifier(joinStreamingInput.getStreamingInput());
-            inputStreamSpecificFieldMap.put(secondStreamIdentifier, secondInputStreamFieldList);
-        }
-
-        return inputStreamSpecificFieldMap;
-    }
-
-    private void validateStreamingActionFunctionParameters(BLangStreamAction streamAction) {
-        List<BLangSimpleVariable> functionParameters = ((BLangFunction) streamAction.getInvokableBody().
-                getFunctionNode()).requiredParams;
-        if (functionParameters == null || functionParameters.size() != 1) {
-            dlog.error((streamAction).pos,
-                       DiagnosticCode.INVALID_STREAM_ACTION_ARGUMENT_COUNT,
-                       functionParameters == null ? 0 : functionParameters.size());
-        } else if (!(functionParameters.get(0).type.tag == TypeTags.ARRAY &&
-                     (((BArrayType) functionParameters.get(0).type).eType.tag == TypeTags.OBJECT)
-                     || ((BArrayType) functionParameters.get(0).type).eType.tag == TypeTags.RECORD)) {
-            dlog.error((streamAction).pos, DiagnosticCode.INVALID_STREAM_ACTION_ARGUMENT_TYPE,
-                       ((BArrayType) functionParameters.get(0).type).eType.getKind());
-        }
-    }
-
-    private void defineSelectorAttributes(SymbolEnv stmtEnv, StreamingQueryStatementNode node) {
-        if (node.getStreamingAction() == null) {
-            return;
-        }
-        BType streamActionArgumentType = ((BLangLambdaFunction) node.getStreamingAction()
-                .getInvokableBody()).function.requiredParams.get(0).type;
-        if (streamActionArgumentType.tag != TypeTags.ARRAY) {
-            return;
-        }
-        BType structType = (((BArrayType) streamActionArgumentType).eType);
-        if (structType.tag == TypeTags.OBJECT || structType.tag == TypeTags.RECORD) {
-            List<BField> outputStreamFieldList = ((BStructureType) structType).fields;
-            for (BField field : outputStreamFieldList) {
-                stmtEnv.scope.define(field.name, field.symbol);
-            }
+            validateOutputAttributeTypes((BLangStatement) streamingQueryStatement);
         }
     }
 
@@ -540,16 +297,16 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
         if (isTableReference(streamingInput.getStreamReference())) {
             if (streamingInput.getAlias() == null) {
                 dlog.error(streamingInput.pos, DiagnosticCode.UNDEFINED_INVOCATION_ALIAS,
-                           ((BLangInvocation) streamRef).name.getValue());
+                        ((BLangInvocation) streamRef).name.getValue());
             }
             if (streamingInput.getStreamReference().getKind() == NodeKind.INVOCATION) {
                 BInvokableSymbol functionSymbol = (BInvokableSymbol) ((BLangInvocation) streamRef).symbol;
                 symbolEnter.defineVarSymbol(streamingInput.pos, EnumSet.noneOf(Flag.class),
-                        ((BTableType) functionSymbol.retType).constraint, names.fromString(streamingInput.getAlias()),
+                        functionSymbol.retType, names.fromString(streamingInput.getAlias()),
                         env);
             } else {
-                BType constraint = ((BTableType) ((BLangVariableReference) streamingInput
-                        .getStreamReference()).type).constraint;
+                BType constraint = (((BLangVariableReference) streamingInput
+                        .getStreamReference()).type);
                 symbolEnter.defineVarSymbol(streamingInput.pos, EnumSet.noneOf(Flag.class), constraint,
                         names.fromString(streamingInput.getAlias()), env);
             }
@@ -594,22 +351,6 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
                 typeChecker.checkExpr(invocationExpr, env);
             }
         }
-    }
-
-    private boolean checkInvocationExpr(BLangInvocation invocationExpr, BSymbol aggregatorTypeSymbol,
-                                        BSymbol windowTypeSymbol, Name name) {
-        BSymbol symbol = symResolver.lookupSymbolInPackage(invocationExpr.pos, env, name,
-                names.fromIdNode(invocationExpr.name), SymTag.INVOKABLE);
-        if (symbol != symTable.notFoundSymbol) {
-            BSymbol typeSymbol = symbol.type.getReturnType().tsymbol;
-            if (typeSymbol == aggregatorTypeSymbol || typeSymbol == windowTypeSymbol) {
-                invocationExpr.argExprs.forEach(arg -> arg.accept(this));
-                return true;
-            }
-            typeChecker.checkExpr(invocationExpr, env);
-            return true;
-        }
-        return false;
     }
 
     @Override
@@ -763,6 +504,332 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
 
         ExpressionNode variableReference = setAssignmentClause.getVariableReference();
         ((BLangExpression) variableReference).accept(this);
+    }
+
+    //------------- private methods ---------------------------------------------------------
+
+    private void checkOutputAttributesWithOutputConstraintForSiddhi(BLangStatement streamingQueryStatement) {
+        List<? extends SelectExpressionNode> selectExpressions =
+                ((BLangStreamingQueryStatement) streamingQueryStatement).getSelectClause().getSelectExpressions();
+
+        List<String> variableList = new ArrayList<>();
+        boolean isSelectAll = true;
+        if (!((BLangStreamingQueryStatement) streamingQueryStatement).getSelectClause().isSelectAll()) {
+            isSelectAll = false;
+            for (SelectExpressionNode expressionNode : selectExpressions) {
+                String variableName;
+                if (expressionNode.getIdentifier() != null) {
+                    variableName = expressionNode.getIdentifier();
+                } else {
+                    if (expressionNode.getExpression() instanceof BLangFieldBasedAccess) {
+                        variableName = ((BLangFieldBasedAccess) expressionNode.getExpression()).field.value;
+                    } else {
+                        variableName = ((BLangSimpleVarRef) (expressionNode).getExpression()).variableName.value;
+                    }
+                }
+                variableList.add(variableName);
+            }
+        }
+
+        // Validate whether input stream constraint type only contains attribute type that can be processed by Siddhi
+        if (((BLangStreamingQueryStatement) streamingQueryStatement).getStreamingInput() != null) {
+            List<BField> fields = ((BStructureType) ((BStreamType) ((BLangExpression)
+                    (((BLangStreamingQueryStatement) streamingQueryStatement).getStreamingInput()).
+                            getStreamReference()).type).constraint).fields;
+
+            for (BField structField : fields) {
+                validateStreamEventType(((BLangStreamingQueryStatement) streamingQueryStatement).pos, structField);
+                if (isSelectAll) {
+                    //create the variable list to validate when select * clause is used in query
+                    variableList.add(structField.name.value);
+                }
+            }
+        }
+
+        BType streamActionArgumentType = ((BInvokableType) ((BLangLambdaFunction) (((BLangStreamingQueryStatement)
+                streamingQueryStatement).getStreamingAction()).getInvokableBody()).type).paramTypes.get(0);
+
+        if (streamActionArgumentType.tag == TypeTags.ARRAY) {
+            BType structType = (((BArrayType) streamActionArgumentType).eType);
+
+            if (structType.tag == TypeTags.OBJECT || structType.tag == TypeTags.RECORD) {
+                List<BField> structFieldList = ((BStructureType) structType).fields;
+                List<String> structFieldNameList = new ArrayList<>();
+                for (BField structField : structFieldList) {
+                    validateStreamEventType(((BLangStreamAction) ((BLangStreamingQueryStatement)
+                            streamingQueryStatement).getStreamingAction()).pos, structField);
+                    structFieldNameList.add(structField.name.value);
+                }
+
+                if (!variableList.equals(structFieldNameList)) {
+                    dlog.error(((BLangStreamAction) ((BLangStreamingQueryStatement) streamingQueryStatement).
+                            getStreamingAction()).pos, DiagnosticCode.INCOMPATIBLE_STREAM_ACTION_ARGUMENT, structType);
+                }
+            }
+        }
+    }
+
+    private void checkOutputAttributesWithOutputConstraint(BLangStatement streamingQueryStatement) {
+        List<? extends SelectExpressionNode> selectExpressions =
+                ((BLangStreamingQueryStatement) streamingQueryStatement).getSelectClause().getSelectExpressions();
+
+        Map<String, BType> selectClauseAttributeMap = new HashMap<>();
+        if (!((BLangStreamingQueryStatement) streamingQueryStatement).getSelectClause().isSelectAll()) {
+            for (SelectExpressionNode expressionNode : selectExpressions) {
+                String variableName = resolveSelectFieldName(expressionNode);
+                BType variableType = resolveSelectFieldType(expressionNode);
+                selectClauseAttributeMap.put(variableName, variableType);
+            }
+        }
+
+        BType streamActionArgumentType = ((BInvokableType) ((BLangLambdaFunction) (((BLangStreamingQueryStatement)
+                streamingQueryStatement).getStreamingAction()).getInvokableBody()).type).paramTypes.get(0);
+
+        if (streamActionArgumentType.tag != TypeTags.ARRAY) {
+            return;
+        }
+        BType structType = (((BArrayType) streamActionArgumentType).eType);
+
+        if (structType.tag == TypeTags.OBJECT || structType.tag == TypeTags.RECORD) {
+            List<BField> structFieldList = ((BStructureType) structType).fields;
+            for (BField structField : structFieldList) {
+                String fieldName = structField.name.value;
+                BType fieldType = structField.getType();
+                if (!(selectClauseAttributeMap.containsKey(fieldName) &&
+                        // type cannot be resolved for aggregators at compile time,
+                        (selectClauseAttributeMap.get(fieldName) == null ||
+                                types.isAssignable(selectClauseAttributeMap.get(fieldName), fieldType)))) {
+                    dlog.error(((BLangStreamAction) ((BLangStreamingQueryStatement) streamingQueryStatement).
+                                    getStreamingAction()).pos, DiagnosticCode.INCOMPATIBLE_STREAM_ACTION_ARGUMENT,
+                            structType);
+                    return;
+                }
+            }
+        }
+    }
+
+    private BType resolveSelectFieldType(SelectExpressionNode expressionNode) {
+        return ((BLangExpression) (expressionNode).getExpression()).type;
+    }
+
+    private String resolveSelectFieldName(SelectExpressionNode expressionNode) {
+        if (expressionNode.getIdentifier() != null) {
+            return expressionNode.getIdentifier();
+        } else {
+            if (expressionNode.getExpression() instanceof BLangFieldBasedAccess) {
+                return ((BLangFieldBasedAccess) expressionNode.getExpression()).field.value;
+            } else {
+                return ((BLangSimpleVarRef) (expressionNode).getExpression()).variableName.value;
+            }
+        }
+    }
+
+    private void validateStreamEventType(DiagnosticPos pos, BField field) {
+        if (!(field.type.tag == TypeTags.INT || field.type.tag == TypeTags.BOOLEAN || field.type.tag == TypeTags.STRING
+                || field.type.tag == TypeTags.FLOAT)) {
+            dlog.error(pos, DiagnosticCode.INVALID_STREAM_ATTRIBUTE_TYPE);
+        }
+    }
+
+    private void validateStreamingEventType(DiagnosticPos pos, BType actualType, String attributeName, BType expType,
+                                            DiagnosticCode diagCode) {
+        if (expType.tag == TypeTags.SEMANTIC_ERROR) {
+            return;
+        } else if (expType.tag == TypeTags.NONE) {
+            return;
+        } else if (actualType.tag == TypeTags.SEMANTIC_ERROR) {
+            return;
+        } else if (this.types.isAssignable(expType, actualType)) {
+            return;
+        }
+
+        // e.g. incompatible types: expected 'int' for attribute 'name', found 'string'
+        dlog.error(pos, diagCode, expType, attributeName, actualType);
+    }
+
+    private void validateOutputAttributeTypes(BLangStatement streamingQueryStatement) {
+        StreamingInput streamingInput = ((BLangStreamingQueryStatement) streamingQueryStatement).getStreamingInput();
+        JoinStreamingInput joinStreamingInput = ((BLangStreamingQueryStatement) streamingQueryStatement).
+                getJoiningInput();
+
+        if (streamingInput != null &&
+                ((BLangExpression) streamingInput.getStreamReference()).type.tag != TypeTags.SEMANTIC_ERROR) {
+            Map<String, List<BField>> inputStreamSpecificFieldMap =
+                    createInputStreamSpecificFieldMap(streamingInput, joinStreamingInput);
+            BType streamActionArgumentType = ((BInvokableType) ((BLangLambdaFunction) (((BLangStreamingQueryStatement)
+                    streamingQueryStatement).getStreamingAction()).getInvokableBody()).type).paramTypes.get(0);
+
+            if (streamActionArgumentType.tag != TypeTags.ARRAY) {
+                return;
+            }
+
+            BType structType = (((BArrayType) streamActionArgumentType).eType);
+            if (structType.tag == TypeTags.OBJECT || structType.tag == TypeTags.RECORD) {
+                List<BField> outputStreamFieldList = ((BStructureType) structType).fields;
+                List<? extends SelectExpressionNode> selectExpressions = ((BLangStreamingQueryStatement)
+                        streamingQueryStatement).getSelectClause().getSelectExpressions();
+
+                if (!((BLangStreamingQueryStatement) streamingQueryStatement).getSelectClause().isSelectAll()) {
+                    for (int i = 0; i < selectExpressions.size(); i++) {
+                        SelectExpressionNode expressionNode = selectExpressions.get(i);
+                        BField structField = null;
+                        if (expressionNode.getExpression() instanceof BLangFieldBasedAccess) {
+                            String attributeName =
+                                    ((BLangFieldBasedAccess) expressionNode.getExpression()).field.value;
+                            String streamIdentifier = ((BLangSimpleVarRef) ((BLangFieldBasedAccess) expressionNode.
+                                    getExpression()).expr).variableName.value;
+
+                            List<BField> streamFieldList = inputStreamSpecificFieldMap.
+                                    get(streamIdentifier);
+                            if (streamFieldList == null) {
+                                dlog.error(((BLangSelectClause) ((BLangStreamingQueryStatement)
+                                                streamingQueryStatement).getSelectClause()).pos,
+                                        DiagnosticCode.UNDEFINED_STREAM_REFERENCE, streamIdentifier);
+                            } else {
+                                structField = getStructField(streamFieldList, attributeName);
+                                validateAttributeWithOutputStruct(structField, attributeName,
+                                        streamingQueryStatement, outputStreamFieldList.get(i));
+                            }
+                        } else if (expressionNode.getExpression() instanceof BLangSimpleVarRef) {
+                            String attributeName = ((BLangSimpleVarRef) expressionNode.getExpression()).
+                                    variableName.getValue();
+
+                            for (List<BField> streamFieldList :
+                                    inputStreamSpecificFieldMap.values()) {
+                                structField = getStructField(streamFieldList, attributeName);
+                                if (structField != null) {
+                                    break;
+                                }
+                            }
+                            validateAttributeWithOutputStruct(structField, attributeName, streamingQueryStatement,
+                                    outputStreamFieldList.get(i));
+                        }
+                    }
+                    return;
+                }
+
+                List<BField> inputStreamFields = ((BStructureType) ((BStreamType) ((BLangExpression)
+                        (((BLangStreamingQueryStatement) streamingQueryStatement).getStreamingInput()).
+                                getStreamReference()).type).constraint).fields;
+
+                for (int i = 0; i < inputStreamFields.size(); i++) {
+                    BField inputStructField = inputStreamFields.get(i);
+                    BField outputStructField = outputStreamFieldList.get(i);
+                    validateStreamingEventType(((BLangStreamAction) ((BLangStreamingQueryStatement)
+                                    streamingQueryStatement).getStreamingAction()).pos,
+                            outputStructField.getType(), outputStructField.getName().getValue(),
+                            inputStructField.getType(), DiagnosticCode.STREAMING_INCOMPATIBLE_TYPES);
+                }
+            }
+        }
+    }
+
+    private List<BField> getFieldListFromStreamInput(StreamingInput streamingInput) {
+        BType inputReferenceType = ((BLangExpression) streamingInput.getStreamReference()).type;
+        if (inputReferenceType.tag == TypeTags.STREAM) {
+            return ((BStructureType) ((BStreamType) inputReferenceType).constraint).fields;
+        }
+
+        return ((BStructureType) ((BTableType) inputReferenceType).constraint).fields;
+    }
+
+    private String getStreamIdentifier(StreamingInput streamingInput) {
+        String streamIdentifier = streamingInput.getAlias();
+        if (streamIdentifier == null) {
+            streamIdentifier = ((BLangSimpleVarRef) streamingInput.getStreamReference()).variableName.value;
+        }
+
+        return streamIdentifier;
+    }
+
+    private BField getStructField(List<BField> fieldList, String fieldName) {
+        for (BField structField : fieldList) {
+            String structFieldName = structField.name.getValue();
+            if (structFieldName.equalsIgnoreCase(fieldName)) {
+                return structField;
+            }
+        }
+
+        return null;
+    }
+
+    private void validateAttributeWithOutputStruct(BField structField, String attributeName,
+                                                   BLangStatement streamingQueryStatement,
+                                                   BField outputStructField) {
+        if (structField != null) {
+            validateStreamingEventType(((BLangStreamAction) ((BLangStreamingQueryStatement)
+                            streamingQueryStatement).getStreamingAction()).pos, outputStructField.getType(),
+                    attributeName, structField.getType(), DiagnosticCode.STREAMING_INCOMPATIBLE_TYPES);
+        }
+    }
+
+    private Map<String, List<BField>> createInputStreamSpecificFieldMap
+            (StreamingInput streamingInput, JoinStreamingInput joinStreamingInput) {
+        Map<String, List<BField>> inputStreamSpecificFieldMap = new HashMap<>();
+        String firstStreamIdentifier = getStreamIdentifier(streamingInput);
+        List<BField> firstInputStreamFieldList = getFieldListFromStreamInput(streamingInput);
+        inputStreamSpecificFieldMap.put(firstStreamIdentifier, firstInputStreamFieldList);
+
+        if (joinStreamingInput != null) {
+            List<BField> secondInputStreamFieldList =
+                    getFieldListFromStreamInput(joinStreamingInput.getStreamingInput());
+            String secondStreamIdentifier = getStreamIdentifier(joinStreamingInput.getStreamingInput());
+            inputStreamSpecificFieldMap.put(secondStreamIdentifier, secondInputStreamFieldList);
+        }
+
+        return inputStreamSpecificFieldMap;
+    }
+
+    private void validateStreamingActionFunctionParameters(BLangStreamAction streamAction) {
+        List<BLangSimpleVariable> functionParameters = ((BLangFunction) streamAction.getInvokableBody().
+                getFunctionNode()).requiredParams;
+        if (functionParameters == null || functionParameters.size() != 1) {
+            dlog.error((streamAction).pos,
+                    DiagnosticCode.INVALID_STREAM_ACTION_ARGUMENT_COUNT,
+                    functionParameters == null ? 0 : functionParameters.size());
+            return;
+        }
+
+        if (functionParameters.get(0).type.tag != TypeTags.ARRAY ||
+                (!((((BArrayType) functionParameters.get(0).type).eType.tag == TypeTags.OBJECT)
+                        || (((BArrayType) functionParameters.get(0).type).eType.tag == TypeTags.RECORD)))) {
+            dlog.error((streamAction).pos, DiagnosticCode.INVALID_STREAM_ACTION_ARGUMENT_TYPE);
+        }
+    }
+
+    private void defineSelectorAttributes(SymbolEnv stmtEnv, StreamingQueryStatementNode node) {
+        if (node.getStreamingAction() == null) {
+            return;
+        }
+        BType streamActionArgumentType = ((BLangLambdaFunction) node.getStreamingAction()
+                .getInvokableBody()).function.requiredParams.get(0).type;
+        if (streamActionArgumentType.tag != TypeTags.ARRAY) {
+            return;
+        }
+        BType structType = (((BArrayType) streamActionArgumentType).eType);
+        if (structType.tag == TypeTags.OBJECT || structType.tag == TypeTags.RECORD) {
+            List<BField> outputStreamFieldList = ((BStructureType) structType).fields;
+            for (BField field : outputStreamFieldList) {
+                stmtEnv.scope.define(field.name, field.symbol);
+            }
+        }
+    }
+
+
+    private boolean checkInvocationExpr(BLangInvocation invocationExpr, BSymbol aggregatorTypeSymbol,
+                                        BSymbol windowTypeSymbol, Name name) {
+        BSymbol symbol = symResolver.lookupSymbolInPackage(invocationExpr.pos, env, name,
+                names.fromIdNode(invocationExpr.name), SymTag.INVOKABLE);
+        if (symbol != symTable.notFoundSymbol) {
+            BSymbol typeSymbol = symbol.type.getReturnType().tsymbol;
+            if (typeSymbol == aggregatorTypeSymbol || typeSymbol == windowTypeSymbol) {
+                invocationExpr.argExprs.forEach(arg -> arg.accept(this));
+                return true;
+            }
+            typeChecker.checkExpr(invocationExpr, env);
+            return true;
+        }
+        return false;
     }
 
     private void checkExpr(BLangExpression expr) {

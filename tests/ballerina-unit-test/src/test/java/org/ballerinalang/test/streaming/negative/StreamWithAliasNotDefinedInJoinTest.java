@@ -29,7 +29,7 @@ import org.testng.annotations.Test;
  *
  * @since 0.990.1
  */
-public class StreamWithAliasNoTDefinedInJoinTest {
+public class StreamWithAliasNotDefinedInJoinTest {
 
     private CompileResult result;
 
@@ -40,7 +40,7 @@ public class StreamWithAliasNoTDefinedInJoinTest {
 
     @Test(description = "Tests if the streams with alias is not defined.")
     public void testStreamJoinQuery() {
-        Assert.assertEquals(result.getErrorCount(), 7);
+        Assert.assertEquals(result.getErrorCount(), 8);
         BAssertUtil.validateError(result, 0, "undefined symbol 'stockSream'", 48, 14);
         BAssertUtil.validateError(result, 1, "undefined symbol 'twitterSream'", 49, 14);
         BAssertUtil.validateError(result, 2, "undefined symbol 'x'", 50, 12);
@@ -48,5 +48,7 @@ public class StreamWithAliasNoTDefinedInJoinTest {
         BAssertUtil.validateError(result, 4, "undefined symbol 'x'", 51, 16);
         BAssertUtil.validateError(result, 5, "undefined symbol 'y'", 51, 36);
         BAssertUtil.validateError(result, 6, "undefined symbol 'x'", 51, 54);
+        BAssertUtil.validateError(result, 7, "incompatible stream action argument type 'StockWithPrice' defined",
+                52, 9);
     }
 }
