@@ -2,45 +2,45 @@ import ballerina/io;
 
 public function main() {
     int value = 1;
-    io:println("initial value: ", value);
+    io:println("value: ", value);
 
     // Compound `add` operator.
     value += 7;
-    io:println("add: ", value);
+    io:println("value += 7: ", value);
 
     // Compound `subtract` operator.
     value -= 2;
-    io:println("subtract: ", value);
+    io:println("value -= 2: ", value);
 
     // Compound `divide` operator.
     value /= 3;
-    io:println("divide: ", value);
+    io:println("value /= 3: ", value);
 
     // Compound `multiply` operator.
     value *= 2;
-    io:println("multiply: ", value);
+    io:println("value *= 2: ", value);
 
     // Compound `and` operator.
     value &= 4;
-    io:println("and: ", value);
+    io:println("value &= 4: ", value);
 
     // Compound `or` operator.
     value |= 3;
-    io:println("or: ", value);
+    io:println("value |= 3: ", value);
 
     // Compound `xor` operator.
     value ^= 5;
-    io:println("xor: ", value);
+    io:println("value ^= 5: ", value);
 
     // Compound `left shift` operator.
     value <<= 1;
-    io:println("left shift: ", value);
+    io:println("value <<= 1: ", value);
 
     // Compound `right shift` operator.
     value >>= 1;
-    io:println("right shift: ", value);
+    io:println("value >>= 1: ", value);
 
     // Compound `logical shift` operator.
     value >>>= 1;
-    io:println("logical shift: ", value);
+    io:println("value >>>= 1: ", value);
 }

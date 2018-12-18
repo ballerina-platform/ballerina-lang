@@ -18,15 +18,15 @@ public function mockPrint(any... s) {
 function testFunc() {
     // Invoking the main function.
     main();
-    test:assertEquals(outputs[0], "initial value: 1");
-    test:assertEquals(outputs[1], "add: 8");
-    test:assertEquals(outputs[2], "subtract: 6");
-    test:assertEquals(outputs[3], "divide: 2");
-    test:assertEquals(outputs[4], "multiply: 4");
-    test:assertEquals(outputs[5], "and: 4");
-    test:assertEquals(outputs[6], "or: 7");
-    test:assertEquals(outputs[7], "xor: 2");
-    test:assertEquals(outputs[8], "left shift: 4");
-    test:assertEquals(outputs[9], "right shift: 2");
-    test:assertEquals(outputs[10], "logical shift: 1");
+    test:assertEquals(outputs[0], "value: 1");
+    test:assertEquals(outputs[1], "value += 7: 8");
+    test:assertEquals(outputs[2], "value -= 2: 6");
+    test:assertEquals(outputs[3], "value /= 3: 2");
+    test:assertEquals(outputs[4], "value *= 2: 4");
+    test:assertEquals(outputs[5], "value &= 4: 4");
+    test:assertEquals(outputs[6], "value |= 3: 7");
+    test:assertEquals(outputs[7], "value ^= 5: 2");
+    test:assertEquals(outputs[8], "value <<= 1: 4");
+    test:assertEquals(outputs[9], "value >>= 1: 2");
+    test:assertEquals(outputs[10], "value >>>= 1: 1");
 }
