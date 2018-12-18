@@ -22,7 +22,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -122,8 +121,9 @@ public class StreamsPreSelectDesuagr extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
-        indexAccessExpr.indexExpr = desugar.addConversionExprIfRequired((BLangExpression) rewrite(indexAccessExpr.indexExpr),
-                                                              indexAccessExpr.indexExpr.type);
+        indexAccessExpr.indexExpr =
+                desugar.addConversionExprIfRequired((BLangExpression) rewrite(indexAccessExpr.indexExpr),
+                                                    indexAccessExpr.indexExpr.type);
         result = indexAccessExpr;
     }
 
@@ -158,7 +158,7 @@ public class StreamsPreSelectDesuagr extends BLangNodeVisitor {
     public void visit(BLangUnaryExpr unaryExpr) {
         unaryExpr.expr = desugar.addConversionExprIfRequired((BLangExpression) rewrite(unaryExpr.expr),
                                                              unaryExpr.expr.type);
-        result =unaryExpr;
+        result = unaryExpr;
     }
 
     @Override

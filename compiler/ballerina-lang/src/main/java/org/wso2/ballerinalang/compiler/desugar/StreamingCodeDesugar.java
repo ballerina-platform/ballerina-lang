@@ -1644,8 +1644,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             } else {
                 BLangExpression expr = (BLangExpression) selectExpression.getExpression();
                 BLangExpression refactoredExpr = (BLangExpression) preSelectDesuagr.rewrite(expr,
-                                                                                            new BSymbol[]{createEventDataFieldAccessExpr(selectExpression.pos, streamEventSymbol).symbol},
-                                                                                            streamAliasMap, rhsStream);
+                        new BSymbol[]{createEventDataFieldAccessExpr(selectExpression.pos, streamEventSymbol).symbol},
+                        streamAliasMap, rhsStream);
                 recordKeyValue.valueExpr = desugar.addConversionExprIfRequired(refactoredExpr, symTable.anydataType);
             }
             recordKeyValueList.add(recordKeyValue);
