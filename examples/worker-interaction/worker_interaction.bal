@@ -30,7 +30,7 @@ public function main() {
         // returns an error or panics based on the receiving worker's state.
         io:println("[w1 ->> w2] successful!!");
 
-        //Send messages asynchronously to worker `w3`.
+        // Send messages asynchronously to worker `w3`.
         io:println("[w1 -> w3] k: ", k);
         k -> w3;
         k -> w3;
