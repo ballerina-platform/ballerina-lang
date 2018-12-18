@@ -290,15 +290,15 @@ public class BTable implements BRefType<Object>, BCollection {
         return iterator.getString(columnIndex);
     }
 
-    public long getInt(int columnIndex) {
+    public Long getInt(int columnIndex) {
         return iterator.getInt(columnIndex);
     }
 
-    public double getFloat(int columnIndex) {
+    public Double getFloat(int columnIndex) {
         return iterator.getFloat(columnIndex);
     }
 
-    public boolean getBoolean(int columnIndex) {
+    public Boolean getBoolean(int columnIndex) {
         return iterator.getBoolean(columnIndex);
     }
 
