@@ -25,8 +25,11 @@ public type Person record {
 
 public function main() {
     // There is no difference in how objects of anonymous types are created.
-    Person john = {name:"John Doe", age:25,
-                    address:new("Colombo", "Sri Lanka")};
+    Person john = {
+        name: "John Doe",
+        age: 25,
+        address: new("Colombo", "Sri Lanka")
+    };
     io:println(john);
 
     // Since anonymous objects do not have a type name associated with them,
@@ -46,6 +49,6 @@ public function main() {
         }
     } adr = new("London", "UK");
 
-    Person jane = {name:"Jane Doe", age:20, address:adr};
+    Person jane = { name: "Jane Doe", age: 20, address: adr };
     io:println(jane);
 }

@@ -14,8 +14,11 @@ public type Person record {
 public function main() {
     // There is no difference in how we create normal records vs.
     // how we create anonymous records.
-    Person john = {name:"John Doe", age:25,
-                    address:{city:"Colombo", country:"Sri Lanka"}};
+    Person john = {
+        name: "John Doe",
+        age: 25,
+        address: { city: "Colombo", country: "Sri Lanka" }
+    };
     io:println(john);
 
     // Since anonymous records do not have a type name associated with them,
@@ -25,9 +28,9 @@ public function main() {
         string city;
         string country;
         !...
-    } adr = {city:"London", country:"UK"};
+    } adr = { city: "London", country: "UK" };
 
-    Person jane = {name:"Jane Doe", age:20, address:adr};
+    Person jane = { name: "Jane Doe", age: 20, address: adr };
     io:println(jane);
 
     anydata[] fields = toFieldsArray(john);
