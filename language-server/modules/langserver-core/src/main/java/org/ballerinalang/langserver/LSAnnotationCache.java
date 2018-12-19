@@ -144,6 +144,9 @@ public class LSAnnotationCache {
             case FUNCTION:
                 annotationMap = functionAnnotations;
                 break;
+            case LISTENER:
+                annotationMap = listenerAnnotations;
+                break;
             default:
                 annotationMap = new HashMap<>();
                 break;

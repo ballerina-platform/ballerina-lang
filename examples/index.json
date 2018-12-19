@@ -363,8 +363,8 @@
                 "url": "panic"
             },
             {
-                "name": "Trap Error",
-                "url": "trap-error"
+                "name": "Trap",
+                "url": "trap"
             }
         ]
     },

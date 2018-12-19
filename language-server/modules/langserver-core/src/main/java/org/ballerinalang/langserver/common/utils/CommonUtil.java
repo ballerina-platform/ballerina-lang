@@ -441,7 +441,8 @@ public class CommonUtil {
         BLangPackage srcOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativePath, pkg);
         List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(srcOwnerPkg, ctx);
         Optional currentPkgImport = imports.stream()
-                .filter(bLangImportPackage -> bLangImportPackage.symbol.pkgID.equals(packageID))
+                .filter(bLangImportPackage -> bLangImportPackage.symbol != null
+                        && bLangImportPackage.symbol.pkgID.equals(packageID))
                 .findAny();
         // if the particular import statement not available we add the additional text edit to auto import
         if (!currentPkgImport.isPresent()) {

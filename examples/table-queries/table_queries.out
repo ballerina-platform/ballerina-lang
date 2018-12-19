@@ -30,4 +30,3 @@ table<OrderDetails> orderDetailsWithFilter = from personTable where name != 'jan
              select tempOrderTable.orderId as orderId, tempPersonTable.name as personName,tempOrderTable.items as items,
                     tempOrderTable.amount as amount;
 orderDetailsWithFilter: [{"orderId":5643, "personName":"kane", "items":"Macbook Pro", "amount":2334.75}]
-
