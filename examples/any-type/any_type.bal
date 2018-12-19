@@ -34,7 +34,7 @@ public function main() {
         io:println("First name: ", john.fname);
     }
 
-    // Variables of `any` type can hold arrays as well.
+    // Variables of type `any` can hold values of any type except for `error`.
     int[] ia = [1, 3, 5, 6];
     any ar = ia;
     io:println(ar);
