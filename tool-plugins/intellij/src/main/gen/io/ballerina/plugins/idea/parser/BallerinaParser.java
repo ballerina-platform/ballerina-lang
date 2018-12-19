@@ -8315,7 +8315,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   // 5: ATOM(TableLiteralExpression)
   // 6: ATOM(RecordLiteralExpression)
   // 7: ATOM(BracedOrTupleExpression)
-  // 8: BINARY(TernaryExpression)
+  // 8: POSTFIX(TernaryExpression)
   // 9: ATOM(ArrayLiteralExpression)
   // 10: ATOM(ActionInvocationExpression)
   // 11: ATOM(VariableReferenceExpression)
@@ -8383,9 +8383,8 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     boolean r = true;
     while (true) {
       Marker m = enter_section_(b, l, _LEFT_, null);
-      if (g < 8 && consumeTokenSmart(b, QUESTION_MARK)) {
-        r = report_error_(b, Expression(b, l, 8));
-        r = TernaryExpression_1(b, l + 1) && r;
+      if (g < 8 && TernaryExpression_0(b, l + 1)) {
+        r = true;
         exit_section_(b, l, m, TERNARY_EXPRESSION, r, true, null);
       }
       else if (g < 15 && BinaryDivMulModExpression_0(b, l + 1)) {
@@ -8535,15 +8534,18 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // COLON Expression
-  private static boolean TernaryExpression_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "TernaryExpression_1")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = consumeToken(b, COLON);
-    r = r && Expression(b, l + 1, -1);
-    exit_section_(b, m, null, r);
-    return r;
+  // QUESTION_MARK Expression COLON Expression
+  private static boolean TernaryExpression_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "TernaryExpression_0")) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_);
+    r = consumeTokenSmart(b, QUESTION_MARK);
+    p = r; // pin = 1
+    r = r && report_error_(b, Expression(b, l + 1, -1));
+    r = p && report_error_(b, consumeToken(b, COLON)) && r;
+    r = p && Expression(b, l + 1, -1) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   // ArrayLiteral
@@ -9052,7 +9054,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
         }
         exit_section_(b, l, m, UNION_TYPE_NAME, r, true, null);
       }
-      else if (g < 6 && consumeTokenSmart(b, QUESTION_MARK)) {
+      else if (g < 6 && NullableTypeName_0(b, l + 1)) {
         r = true;
         exit_section_(b, l, m, NULLABLE_TYPE_NAME, r, true, null);
       }
@@ -9216,6 +9218,17 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     if (!recursion_guard_(b, l, "ObjectTypeName_1")) return false;
     consumeTokenSmart(b, CLIENT);
     return true;
+  }
+
+  // <<nullableTypePredicate>> QUESTION_MARK
+  private static boolean NullableTypeName_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "NullableTypeName_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = nullableTypePredicate(b, l + 1);
+    r = r && consumeToken(b, QUESTION_MARK);
+    exit_section_(b, m, null, r);
+    return r;
   }
 
   // record? LEFT_BRACE RecordFieldDefinitionList RIGHT_BRACE
