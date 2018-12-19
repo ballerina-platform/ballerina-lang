@@ -46,5 +46,4 @@ public class OutputFieldsOnlyInHavingAndOrderByTest {
         BAssertUtil.validateError(result, 1, "output field 'name' can be used in having and orderby " +
                                              "clauses only", 64, 16);
     }
-
 }

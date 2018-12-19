@@ -50,5 +50,4 @@ public class UndefinedOutputAttrTest {
                                              "unknownOutputField, age, status]'", 66, 9);
 
     }
-
 }
