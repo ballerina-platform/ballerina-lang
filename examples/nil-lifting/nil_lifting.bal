@@ -9,7 +9,7 @@ type Address record {
 };
 
 // According to the `Person` record type descriptor, the `addr` field could either hold an `Address` record or the value
-// `nil` (`()`).
+// nil (`()`).
 type Person record {
     string name;
     int age;
@@ -43,14 +43,14 @@ public function main() {
 
     // The field access operator is a lifted operator in Ballerina.
     // The types of both `p1` and `p1.addr` are optional types.
-    // If the type of either `p1` or `p1.addr` is `nil` at run time, `nil` would
+    // If the type of either `p1` or `p1.addr` is `()` at run time, `()` would
     // be assigned to the `city1` variable, else the `string` value of `p1.addr.city`
     // would be assigned.
     string? city1 = p1.addr.city;
     // The value "Santa Clara" is displayed in the console.
     io:println(city1);
 
-    // Invoking `getPerson` as follows would result in `nil` being assigned to `p2`.
+    // Invoking `getPerson()` as follows will result in `()` being assigned to `p2`.
     Person? p2 = getPerson("", 0);
     // The `city2` variable will thus contain `nil` as the value.
     string? city2 = p2.addr.city;

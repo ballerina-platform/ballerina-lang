@@ -22,7 +22,7 @@ public function main() {
     employeeStream.publish(e2);
     employeeStream.publish(e3);
 
-    // Allow for receipt by subscribers. The `printEmployeeName` function should be invoked for each published value.
+    // Allow for receipt by subscribers. The `printEmployeeName()` function should be invoked for each published value.
     runtime:sleep(1000);
 
 
@@ -37,7 +37,8 @@ public function main() {
     temperatureStream.publish(30.1);
     temperatureStream.publish(29.5);
 
-    // Wait for the subscriber to receive the values. The `printTemperature` function should be invoked for each published value.
+    // Wait for the subscriber to receive the values. The `printTemperature()` function should be invoked for each
+    // published value.
     runtime:sleep(1000);
 
 
@@ -52,7 +53,8 @@ public function main() {
     updateStream.publish(1.0);
     updateStream.publish(e1);
 
-    // Wait for the subscriber to receive the values. The `printEvent` function should be invoked for each published value.
+    // Wait for the subscriber to receive the values. The `printEvent()` function should be invoked for each published
+    // value.
     runtime:sleep(1000);
 }
 
