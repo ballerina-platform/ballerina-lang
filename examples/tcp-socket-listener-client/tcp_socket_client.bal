@@ -3,19 +3,19 @@ import ballerina/io;
 import ballerina/socket;
 
 public function main() {
-    // Create new socket client by providing host, port and callback service.
+    // Create a new socket client by providing the host, port, and callback service.
     socket:Client socketClient = new({ host: "localhost", port: 61598,
             callbackService: ClientService });
     string content = "Hello Ballerina";
     byte[] payloadByte = content.toByteArray("UTF-8");
-    // Send desire content to the server using write function.
+    // Send desired content to the server using the write function.
     var writeResult = socketClient->write(payloadByte);
     if (writeResult is error) {
         io:println("Unable to written the content ", writeResult);
     }
 }
 
-// Callback service for the TCP client. Service need to have below four predefine resources.
+// Callback service for the TCP client. The service needs to have four predefined resources.
 service ClientService = service {
 
     // This invokes once the client connect to the TCP server.
@@ -23,7 +23,7 @@ service ClientService = service {
         io:println("Connect to: ", caller.remotePort);
     }
 
-    // This invokes when the server send any content.
+    // This is invoked when the server sends any content.
     resource function onReadReady(socket:Caller caller, byte[] content) {
         io:ReadableByteChannel byteChannel = io:createReadableChannel(content);
         io:ReadableCharacterChannel characterChannel =
@@ -31,10 +31,10 @@ service ClientService = service {
         var str = characterChannel.read(25);
         if (str is string) {
             io:println(untaint str);
-        } else if (str is error) {
+        } else {
             io:println(str);
         }
-        // Close the connection between server.
+        // Close the connection between the server and the client.
         var closeResult = caller->close();
         if (closeResult is error) {
             io:println(closeResult);
@@ -43,12 +43,13 @@ service ClientService = service {
         }
     }
 
-    // This invokes upon the connection close.
+    // This is invoked once the connection is closed.
     resource function onClose(socket:Caller caller) {
         io:println("Leave from: ", caller.remotePort);
     }
 
-    // This resource invokes for the error situation if happen during the onConnect, onReadReady and onClose.
+    // This resource is invoked for the error situation
+    // if it happens during the `onConnect`, `onReadReady`, and `onClose` functions.
     resource function onError(socket:Caller caller, error err) {
         io:println(err);
     }
