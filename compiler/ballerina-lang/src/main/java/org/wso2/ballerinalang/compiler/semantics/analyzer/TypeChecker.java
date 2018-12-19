@@ -2054,6 +2054,11 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private void checkObjectFunctionInvocationExpr(BLangInvocation iExpr, BObjectType objectType) {
+        if (Names.OBJECT_INIT_SUFFIX.value.equals(iExpr.name.value)) {
+            dlog.error(iExpr.pos, DiagnosticCode.INVALID_INVOCATION_OF_INITIALIZER);
+            return;
+        }
+
         // check for object attached function
         Name funcName =
                 names.fromString(Symbols.getAttachedFuncSymbolName(objectType.tsymbol.name.value, iExpr.name.value));

@@ -317,6 +317,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
+        if (objectTypeNode.initFunction.flagSet.contains(Flag.PRIVATE)) {
+            this.dlog.error(objectTypeNode.initFunction.pos, DiagnosticCode.PRIVATE_OBJECT_CONSTRUCTOR,
+                    objectTypeNode.symbol.name);
+            return;
+        }
+
         if (objectTypeNode.flagSet.contains(Flag.ABSTRACT)) {
             this.dlog.error(objectTypeNode.initFunction.pos, DiagnosticCode.ABSTRACT_OBJECT_CONSTRUCTOR,
                     objectTypeNode.symbol.name);
