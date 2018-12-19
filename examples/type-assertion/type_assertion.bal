@@ -1,30 +1,33 @@
 import ballerina/io;
 
 type Person record {
-    string name = "";
-    int age = 0;
+    string name;
+    int age;
 };
 
 type Employee record {
-    string name = "";
-    int age = 0;
-    int empNo = 0;
+    string name;
+    int age;
+    int empNo;
 };
 
-function assertTypes(anydata emp) {
-    // The `emp` variable is asserted to be of type `Employee`, and if successful the value is assigned to the variable
-    // `employee`.
-    Employee employee = <Employee>emp;
-    io:println("Type asserted employee name: ", employee.name);
-
-    // Asserting `emp` to be of type `Person` will result in a panic, since `emp` is inherently an `Employee`. `trap` is used to
-    // handle the error.
-    Person|error person = trap <Person>emp;
-    io:println("Type asserted person name or error: ",
-               (person is Person) ? person.name : person.detail().message);
-}
-
 public function main() {
-    Employee emp = { name: "Speedy Gonzales", age: 4, empNo: 1 };
-    assertTypes(emp);
+    // Define an `Employee` and assign it to a `Person` typed variable.
+    Employee employee = { name: "Speedy Gonzales", age: 4, empNo: 1 };
+    Person person = employee;
+
+    // The `person` variable is asserted to be of type `Employee`, and is assigned to another variable of
+    // type `Employee`.
+    Employee employeeTwo = <Employee>person;
+    io:println("asserted employee's name: ", employeeTwo.name);
+
+    // Asserting `person` to be of type `Person` will result in a panic, since `person` is inherently an `Employee` here.
+    // `trap` is used to trap the panic and retrieve it as an `error`.
+    Person|error result = trap <Person>person;
+    if (result is Person) {
+        io:println("asserted person's name: ", result.name);
+    } else {
+        // Print the detail message from the error.
+        io:println(result.detail().message);
+    }
 }
