@@ -783,6 +783,12 @@ public class CommonUtil {
             SymbolInfo itrCount = getIterableOpSymbolInfo(Snippet.ITR_COUNT.get(), bType,
                     ItemResolverConstants.ITR_COUNT_LABEL, context);
             symbolInfoList.addAll(Arrays.asList(itrForEach, itrMap, itrFilter, itrCount));
+            
+            if (bType.tag == TypeTags.TABLE) {
+                SymbolInfo itrSelect = getIterableOpSymbolInfo(Snippet.ITR_SELECT.get(), bType,
+                        ItemResolverConstants.ITR_SELECT_LABEL, context);
+                symbolInfoList.add(itrSelect);
+            }
 
             if (aggregateFunctionsAllowed(bType)) {
                 SymbolInfo itrMin = getIterableOpSymbolInfo(Snippet.ITR_MIN.get(), bType,
@@ -835,6 +841,14 @@ public class CommonUtil {
             SymbolInfo isInfinite = getIterableOpSymbolInfo(Snippet.BUILTIN_IS_INFINITE.get(), bType,
                     ItemResolverConstants.BUILTIN_IS_INFINITE_LABEL, context);
             symbolInfoList.addAll(Arrays.asList(isNaN, isFinite, isInfinite));
+        }
+        
+        if (bType.tag == TypeTags.ERROR) {
+            SymbolInfo detail = getIterableOpSymbolInfo(Snippet.BUILTIN_DETAIL.get(), bType,
+                    ItemResolverConstants.BUILTIN_DETAIL_LABEL, context);
+            SymbolInfo reason = getIterableOpSymbolInfo(Snippet.BUILTIN_REASON.get(), bType,
+                    ItemResolverConstants.BUILTIN_REASON_LABEL, context);
+            symbolInfoList.addAll(Arrays.asList(detail, reason));
         }
     }
 

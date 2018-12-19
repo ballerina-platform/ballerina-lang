@@ -129,7 +129,7 @@ function createStreamingConstruct() {
         }
     );
 
-    streams:Window tmpWindow = streams:timeWindow([1000],
+    streams:Window tmpWindow = streams:time([1000],
         nextProcessPointer = function (streams:StreamEvent[] e) {select.process(e);});
     streams:Filter filter = streams:createFilter(function (streams:StreamEvent[] e) {tmpWindow.process(e);},
         function (map<anydata> m) returns boolean {

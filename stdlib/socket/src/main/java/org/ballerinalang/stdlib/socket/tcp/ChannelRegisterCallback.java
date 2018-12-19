@@ -70,7 +70,7 @@ public class ChannelRegisterCallback {
             final Resource onConnect = socketService.getResources().get(RESOURCE_ON_CONNECT);
             SocketChannel channel = (SocketChannel) socketService.getSocketChannel();
             final BMap<String, BValue> clientObj = SocketUtils.createClient(context.getProgramFile(), channel);
-            Executor.submit(onConnect, new TCPSocketCallback(), null, null, clientObj);
+            Executor.submit(onConnect, new TCPSocketCallback(socketService), null, null, clientObj);
         }
     }
 

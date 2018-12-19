@@ -1689,7 +1689,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangForever foreverStatement) {
-        streamsQuerySemanticAnalyzer.analyzeNode(foreverStatement, env);
+        streamsQuerySemanticAnalyzer.analyze(foreverStatement, env);
     }
 
     @Override

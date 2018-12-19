@@ -18,6 +18,7 @@ package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.clauses.HavingNode;
 import org.ballerinalang.model.tree.clauses.OrderByVariableNode;
@@ -687,7 +688,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             if (selectExpr.getKind() == NodeKind.INVOCATION) {
                 BLangInvocation invocation = (BLangInvocation) selectExpr;
                 BInvokableSymbol aggregatorInvokableSymbol =
-                        getInvokableSymbol(invocation);
+                        getInvokableSymbol(invocation, AGGREGATOR_OBJECT_NAME);
                 if (aggregatorInvokableSymbol != null) {
                     if (isReturnTypeMatching(invocation.pos, AGGREGATOR_OBJECT_NAME, aggregatorInvokableSymbol)) {
                         BLangInvocation aggregatorInvocation = ASTBuilderUtil.
@@ -902,8 +903,16 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             BLangLambdaFunction conditionFunc = createLambdaWithVarArg(joinStreamingInput.pos, new BLangSimpleVariable[]
                     {lhsDataMap, rhsDataMap}, typeNode);
             BLangBlockStmt funcBody = conditionFunc.function.body;
-            onExpr = (BLangBinaryExpr) preSelectDesuagr.rewrite(onExpr,
+            BType lhsType = onExpr.lhsExpr.type;
+            BType rhsType = onExpr.rhsExpr.type;
+            BLangBinaryExpr refactoredOnExpr = (BLangBinaryExpr) preSelectDesuagr.rewrite(onExpr,
                     new BSymbol[]{lhsDataMap.symbol, rhsDataMap.symbol}, streamAliasMap, rhsStream);
+
+            refactoredOnExpr.lhsExpr = desugar.addConversionExprIfRequired(refactoredOnExpr.lhsExpr, lhsType);
+            refactoredOnExpr.rhsExpr = desugar.addConversionExprIfRequired(refactoredOnExpr.rhsExpr, rhsType);
+            onExpr = refactoredOnExpr;
+
+            //onExpr.lhsExpr = desugar.addConversionExprIfRequired(onExpr.lhsExpr, on)
             addReturnStmt(onExpr.pos, funcBody, onExpr);
             createJoinProcessorStmt(joinStreamingInput, conditionFunc);
         } else if (onExpr == null && !isTableJoin) {
@@ -1227,7 +1236,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         convertFieldAccessArgsToStringLiteral(invocation);
 
         //checks for the symbol, if not exists, then set the pkgAlias to STREAMS_STDLIB_PACKAGE_NAME
-        BInvokableSymbol windowInvokableSymbol = getInvokableSymbol(invocation);
+        BInvokableSymbol windowInvokableSymbol = getInvokableSymbol(invocation, WINDOW_OBJECT_NAME);
 
         if (windowInvokableSymbol != null) {
             if (isReturnTypeMatching(invocation.pos, WINDOW_OBJECT_NAME, windowInvokableSymbol)) {
@@ -1317,14 +1326,22 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     }
 
 
-    private BInvokableSymbol getInvokableSymbol(BLangInvocation invocation) {
+    private BInvokableSymbol getInvokableSymbol(BLangInvocation invocation, String modelType) {
         BInvokableSymbol invokableSymbol = (BInvokableSymbol) symResolver.
                 resolvePkgSymbol(invocation.pos, env, names.fromString(invocation.pkgAlias.value)).
                 scope.lookup(new Name(invocation.name.value)).symbol;
         if (invokableSymbol == null && invocation.pkgAlias.value.isEmpty()) {
-            invokableSymbol = (BInvokableSymbol) symResolver.
+            BSymbol windowSymbol = symResolver.
                     resolvePkgSymbol(invocation.pos, env, Names.STREAMS_MODULE).
                     scope.lookup(new Name(invocation.name.value)).symbol;
+
+            if (windowSymbol != null && SymbolKind.FUNCTION.equals(windowSymbol.kind) &&
+                    isReturnTypeMatching(invocation.pos, modelType, (BInvokableSymbol) windowSymbol)) {
+                invokableSymbol = (BInvokableSymbol) windowSymbol;
+            } else {
+                dlog.error(invocation.pos, DiagnosticCode.INVALID_STREAMING_MODEL_TYPE, modelType, invocation.name);
+            }
+
             invocation.pkgAlias.value = Names.STREAMS_MODULE.value;
         }
         return invokableSymbol;
@@ -1621,18 +1638,15 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 recordKeyValue.key.fieldSymbol = getOutputEventFieldSymbol(outputEventType,
                         ((BLangFieldBasedAccess) selectExpression.getExpression()).field.value);
             }
-
-            if (selectExpression.getExpression().getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
-                BLangFieldBasedAccess fieldBasedAccess = (BLangFieldBasedAccess) selectExpression.getExpression();
-                recordKeyValue.valueExpr =
-                        createMapVariableIndexAccessExpr((BVarSymbol) createEventDataFieldAccessExpr(fieldBasedAccess
-                                .pos, streamEventSymbol).symbol, fieldBasedAccess);
-            } else if (selectExpression.getExpression().getKind() == NodeKind.INVOCATION) {
+            if (selectExpression.getExpression().getKind() == NodeKind.INVOCATION) {
                 setInvocationToRecordKeyValue(recordKeyValue, streamEventSymbol, aggregatorArraySymbol,
                         aggregatorIndex, selectExpression, groupBy);
             } else {
-                recordKeyValue.valueExpr = desugar.addConversionExprIfRequired((BLangExpression) selectExpression
-                        .getExpression(), symTable.anydataType);
+                BLangExpression expr = (BLangExpression) selectExpression.getExpression();
+                BLangExpression refactoredExpr = (BLangExpression) preSelectDesuagr.rewrite(expr,
+                        new BSymbol[]{createEventDataFieldAccessExpr(selectExpression.pos, streamEventSymbol).symbol},
+                        streamAliasMap, rhsStream);
+                recordKeyValue.valueExpr = desugar.addConversionExprIfRequired(refactoredExpr, symTable.anydataType);
             }
             recordKeyValueList.add(recordKeyValue);
         }
@@ -1647,7 +1661,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         // Aggregator invocation in streaming query ( sum(..), count(..) .. etc)
         BLangInvocation invocation = (BLangInvocation) selectExpression.getExpression();
 
-        BInvokableSymbol symbol = getInvokableSymbol(invocation);
+        BInvokableSymbol symbol = getInvokableSymbol(invocation, AGGREGATOR_OBJECT_NAME);
         if (symbol != null) {
             if (isReturnTypeMatching(invocation.pos, AGGREGATOR_OBJECT_NAME, symbol)) {
 
