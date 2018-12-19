@@ -41,7 +41,6 @@ public class BallerinaStreamsV2AggregatorWithGroupByTest {
 
     @BeforeClass
     public void setup() {
-        System.setProperty("enable.siddhiRuntime", "false");
         result = BCompileUtil.
                 compile("test-src/streaming/inline.streams/streamingv2-aggregate-with-groupby-test.bal");
         resultWithAlias = BCompileUtil.
@@ -51,7 +50,6 @@ public class BallerinaStreamsV2AggregatorWithGroupByTest {
     @Test(description = "Test filter streaming query")
     public void testSelectQuery() {
         BValue[] outputTeacherEvents = BRunUtil.invoke(result, "startAggregationWithGroupByQuery");
-        System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputTeacherEvents);
         Assert.assertEquals(outputTeacherEvents.length, 4, "Expected events are not received");
 
@@ -81,7 +79,6 @@ public class BallerinaStreamsV2AggregatorWithGroupByTest {
     @Test(description = "Test filter streaming query with stream alias")
     public void testSelectQueryWithAlias() {
         BValue[] outputTeacherEvents = BRunUtil.invoke(resultWithAlias, "startAggregationWithGroupByQuery");
-        System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputTeacherEvents);
         Assert.assertEquals(outputTeacherEvents.length, 4, "Expected events are not received");
 

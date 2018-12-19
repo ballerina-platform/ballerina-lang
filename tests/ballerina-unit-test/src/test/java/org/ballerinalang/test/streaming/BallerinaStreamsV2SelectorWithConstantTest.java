@@ -40,7 +40,6 @@ public class BallerinaStreamsV2SelectorWithConstantTest {
 
     @BeforeClass
     public void setup() {
-        System.setProperty("enable.siddhiRuntime", "false");
         result = BCompileUtil.compile("test-src/streaming/streamingv2-select-with-constant-test.bal");
         resultWithAlias = BCompileUtil.
                 compile("test-src/streaming/alias/streamingv2-select-with-constant-test.bal");
@@ -49,7 +48,6 @@ public class BallerinaStreamsV2SelectorWithConstantTest {
     @Test(description = "Test filter streaming query")
     public void testSelectQuery() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startSelectQuery");
-        System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputEmployeeEvents);
 
         Assert.assertEquals(outputEmployeeEvents.length, 3, "Expected events are not received");
@@ -69,7 +67,6 @@ public class BallerinaStreamsV2SelectorWithConstantTest {
     @Test(description = "Test filter streaming query with stream alias")
     public void testSelectQueryWithAlias() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(resultWithAlias, "startSelectQuery");
-        System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputEmployeeEvents);
 
         Assert.assertEquals(outputEmployeeEvents.length, 3, "Expected events are not received");

@@ -41,7 +41,6 @@ public class BallerinaStreamsV2HavingTest {
 
     @BeforeClass
     public void setup() {
-        System.setProperty("enable.siddhiRuntime", "false");
         result = BCompileUtil.compile("test-src/streaming/streamingv2-having-test.bal");
         result2 = BCompileUtil.compile("test-src/streaming/streamingv2-having-test2.bal");
         resultWithAlias = BCompileUtil.compile("test-src/streaming/alias/streamingv2-having-test.bal");
@@ -51,7 +50,6 @@ public class BallerinaStreamsV2HavingTest {
     @Test(description = "Test `having` clause within streaming query")
     public void testFilterQuery() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startFilterQuery");
-        System.setProperty("enable.siddhiRuntime", "true");
 
         Assert.assertNotNull(outputEmployeeEvents);
         Assert.assertEquals(outputEmployeeEvents.length, 3, "Expected events are not received");
@@ -68,7 +66,6 @@ public class BallerinaStreamsV2HavingTest {
     @Test(description = "Test `having` clause within streaming query with functions")
     public void testFilterQuery2() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result2, "startFilterQuery");
-        System.setProperty("enable.siddhiRuntime", "true");
 
         Assert.assertNotNull(outputEmployeeEvents);
         Assert.assertEquals(outputEmployeeEvents.length, 3, "Expected events are not received");
@@ -85,7 +82,6 @@ public class BallerinaStreamsV2HavingTest {
     @Test(description = "Test `having` clause within streaming query with stream alias")
     public void testFilterQueryWithAlias() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(resultWithAlias, "startFilterQuery");
-        System.setProperty("enable.siddhiRuntime", "true");
 
         Assert.assertNotNull(outputEmployeeEvents);
         Assert.assertEquals(outputEmployeeEvents.length, 3, "Expected events are not received");
@@ -102,7 +98,6 @@ public class BallerinaStreamsV2HavingTest {
     @Test(description = "Test `having` clause within streaming query with functions with stream alias")
     public void testFilterQuery2WithAlias() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result2WithAlias, "startFilterQuery");
-        System.setProperty("enable.siddhiRuntime", "true");
 
         Assert.assertNotNull(outputEmployeeEvents);
         Assert.assertEquals(outputEmployeeEvents.length, 3, "Expected events are not received");

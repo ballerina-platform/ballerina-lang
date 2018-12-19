@@ -58,8 +58,11 @@ public class Close extends BlockingNativeCallableUnit {
         BMap<String, BValue> clientEndpoint = (BMap<String, BValue>) context.getRefArgument(0);
         final SocketChannel socketChannel = (SocketChannel) clientEndpoint.getNativeData(SocketConstants.SOCKET_KEY);
         try {
-            socketChannel.close();
-            SelectorManager.getInstance().unRegisterChannel(socketChannel);
+            // SocketChannel can be null if something happen during the onAccept. Hence the null check.
+            if (socketChannel != null) {
+                socketChannel.close();
+                SelectorManager.getInstance().unRegisterChannel(socketChannel);
+            }
             final Object client = clientEndpoint.getNativeData(IS_CLIENT);
             // This need to handle to support multiple client close.
             if (client != null && Boolean.getBoolean(client.toString())) {

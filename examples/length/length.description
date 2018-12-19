@@ -1,2 +1,2 @@
-// Ballerina supports the `length()` builtin function that returns the length/size of the given value.
+// Ballerina supports the built-in method `length()`  that returns the length/size of the given value.
 // `length()` function is supported for `string`, `array`, `map`, `record`, `table`, `json`, `xml` and `tuple` types.
