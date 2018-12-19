@@ -2,7 +2,7 @@ import ballerina/http;
 import ballerina/log;
 
 final string ASSOCIATED_CONNECTION = "ASSOCIATED_CONNECTION";
-// Url of the remote backend.
+// The Url of the remote backend.
 final string REMOTE_BACKEND = "ws://echo.websocket.org";
 
 @http:WebSocketServiceConfig {
