@@ -255,10 +255,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 sortedListOfNodes.add(topLevelNode);
             }
         });
-        sortedListOfNodes.forEach(topLevelNode -> analyzeNode((BLangNode) topLevelNode, env));
         mapTopLevelNodeToSymbol(pkgNode.globalVars);
         this.analyzingGlobalVariableDefinition = true;
-        pkgNode.topLevelNodes.forEach(topLevelNode -> analyzeNode((BLangNode) topLevelNode, env));
+        sortedListOfNodes.forEach(topLevelNode -> analyzeNode((BLangNode) topLevelNode, env));
         this.analyzingGlobalVariableDefinition = false;
         analyzeTopLevelNodeReferencePatterns(pkgNode, this.globalVarSymbolRefPositions, dlog);
         pkgNode.completedPhases.add(CompilerPhase.DATAFLOW_ANALYZE);
