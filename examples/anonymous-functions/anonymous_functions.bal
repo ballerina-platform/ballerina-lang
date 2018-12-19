@@ -16,7 +16,7 @@ public function main() {
 
     // If an anonymous function contains only the return statement in the body,
     // you can use the `arrow function expression` instead of the anonymous function.
-    // The types of the input parameters will be inferred from the lhs.
+    // The types of the input parameters are inferred from the left-hand side.
     // The return of the arrow function expression is determined by the
     // evaluation of the expression to the right hand side of the `=>` symbol.
     function (string, string) returns (string) arrowExpr = (x, y) => x + y;
