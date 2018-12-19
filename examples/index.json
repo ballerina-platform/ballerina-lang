@@ -425,6 +425,10 @@
             {
                 "name": "XML I/O",
                 "url": "xml-io"
+            },
+            {
+                "name": "JSON to CSV Transform",
+                "url": "json-csv"
             }
         ]
     },
@@ -912,6 +916,16 @@
             {
                 "name": "Send JMS Message to HTTP Endpoint",
                 "url": "send-jms-message-to-http-endpoint"
+            }
+        ]
+    },
+    {
+        "title": "Socket",
+        "column": 3,
+        "category": "Working over the network",
+        "samples": [{
+                "name": "TCP Socket Basic Example",
+                "url": "tcp-socket-listener-client"
             }
         ]
     },

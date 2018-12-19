@@ -22,10 +22,10 @@ public function main() {
     }
 
     // Workers are visible outside the fork as futures.
-    // Wait till both workers `w1` and `w2` are finished.
+    // The `wait` action will wait for both workers `w1` and `w2` to finish.
     record{ (int, string) w1; float w2; } results = wait {w1, w2};
 
-    // Resulting record contains returned values from each worker, with 
+    // The resulting record contains returned values from each worker, with
     // the field name as worker name if a field name is not provided.
     var (iW1, sW1) = results.w1;
     var fW2 = results.w2;
