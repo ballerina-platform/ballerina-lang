@@ -57,6 +57,7 @@ import static org.ballerinalang.test.service.websub.WebSubTestUtils.requestUpdat
  */
 @Test(groups = "websub-test")
 public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
+    private static final int LOG_LEECHER_TIMEOUT = 45000;
     private BServerInstance webSubSubscriber;
     private BMainInstance subscriptionChanger;
 
@@ -118,34 +119,34 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
 
     @Test
     public void testSubscriptionAndAutomaticIntentVerification() throws BallerinaTestException {
-        intentVerificationLogLeecher.waitForText(30000);
+        intentVerificationLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
     @Test(dependsOnMethods = "testSubscriptionAndAutomaticIntentVerification")
     public void testSubscriptionAndExplicitIntentVerification() throws BallerinaTestException {
-        explicitIntentVerificationLogLeecher.waitForText(30000);
+        explicitIntentVerificationLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
         requestUpdate(PUBLISHER_NOTIFY_URL, HUB_MODE_INTERNAL, CONTENT_TYPE_JSON);
         requestUpdate(PUBLISHER_NOTIFY_URL, HUB_MODE_REMOTE, CONTENT_TYPE_JSON);
     }
 
     @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification")
     public void testContentReceiptForDirectHubNotification() throws BallerinaTestException {
-        internalHubNotificationLogLeecher.waitForText(45000);
+        internalHubNotificationLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
     @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification")
     public void testContentReceiptForRemoteHubNotification() throws BallerinaTestException {
-        remoteHubNotificationLogLeecher.waitForText(45000);
+        remoteHubNotificationLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
     @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification")
     public void testAuthenticatedContentReceiptForDirectHubNotification() throws BallerinaTestException {
-        internalHubNotificationLogLeecherTwo.waitForText(45000);
+        internalHubNotificationLogLeecherTwo.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
     @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification")
     public void testAuthenticatedContentReceiptForRemoteHubNotification() throws BallerinaTestException {
-        remoteHubNotificationLogLeecherTwo.waitForText(45000);
+        remoteHubNotificationLogLeecherTwo.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
     @Test(dependsOnMethods = "testSubscriberDetailsRetrievalFromHub")
@@ -161,7 +162,7 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
             }
         });
         webSubSubscriber.addLogLeecher(logAbsenceTestLogLeecher);
-        unsubscriptionIntentVerificationLogLeecher.waitForText(30000);
+        unsubscriptionIntentVerificationLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
     @Test(dependsOnMethods = "testUnsubscriptionIntentVerification",
@@ -189,7 +190,7 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
 
     @Test(dependsOnMethods = "testRemoteTopicRegistration")
     public void testIntentVerificationRejectionForIncorrectTopic() throws BallerinaTestException {
-        intentVerificationDenialLogLeecher.waitForText(45000);
+        intentVerificationDenialLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
     @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification")

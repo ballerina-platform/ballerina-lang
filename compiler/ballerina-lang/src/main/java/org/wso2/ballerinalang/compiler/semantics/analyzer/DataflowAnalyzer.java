@@ -248,6 +248,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             return;
         }
 
+        // Rearrange the top level nodes so that global variables come on top
+        List<TopLevelNode> sortedListOfNodes = new ArrayList<>(pkgNode.globalVars);
+        pkgNode.topLevelNodes.forEach(topLevelNode -> {
+            if (!sortedListOfNodes.contains(topLevelNode)) {
+                sortedListOfNodes.add(topLevelNode);
+            }
+        });
+        sortedListOfNodes.forEach(topLevelNode -> analyzeNode((BLangNode) topLevelNode, env));
         mapTopLevelNodeToSymbol(pkgNode.globalVars);
         this.analyzingGlobalVariableDefinition = true;
         pkgNode.topLevelNodes.forEach(topLevelNode -> analyzeNode((BLangNode) topLevelNode, env));

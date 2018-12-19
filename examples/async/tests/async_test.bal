@@ -46,6 +46,6 @@ function testFunc() {
 
     test:assertEquals(outputs[13], "first field of record --> 100");
     test:assertEquals(outputs[14], "second field of record --> 27");
-    test:assertEquals(outputs[15], "third field of record --> Hello Bert!!");
+    test:assertEquals(outputs[15], "third field of record --> Hello Moose!!");
 
 }

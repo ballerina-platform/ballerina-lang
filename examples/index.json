@@ -425,6 +425,10 @@
             {
                 "name": "XML I/O",
                 "url": "xml-io"
+            },
+            {
+                "name": "JSON to CSV Transform",
+                "url": "json-csv"
             }
         ]
     },
@@ -916,6 +920,16 @@
         ]
     },
     {
+        "title": "Socket",
+        "column": 3,
+        "category": "Working over the network",
+        "samples": [{
+                "name": "TCP Socket Basic Example",
+                "url": "tcp-socket-listener-client"
+            }
+        ]
+    },
+    {
         "title": "Streams",
         "column": 0,
         "category": "Experimental features",
@@ -924,20 +938,24 @@
                 "url": "streams"
             },
             {
-                "name": "Join Mutiple Streams",
-                "url": "join-multiple-streams"
+              "name": "Simple Filtering",
+              "url": "simple-filtering"
+            },
+            {
+              "name": "Projection",
+              "url": "projection"
             },
             {
                 "name": "Temporal Aggregations",
                 "url": "temporal-aggregations-and-windows"
             },
             {
-                "name": "Identify Patterns",
-                "url": "identify-patterns"
+                "name": "Join Mutiple Streams",
+                "url": "join-multiple-streams"
             },
             {
-                "name": "Identify Trends",
-                "url": "identify-trends"
+              "name": "Join Tables and Streams",
+              "url": "join-tables-and-streams"
             }
         ]
     },

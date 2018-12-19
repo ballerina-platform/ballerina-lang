@@ -17,17 +17,15 @@
 import ballerina/io;
 import ballerina/socket;
 
-listener socket:Listener server = new ({
-    port:59152
-});
+listener socket:Listener server = new(59152);
 
 service echoServer on server {
 
-    resource function onAccept (socket:Caller caller) {
+    resource function onAccept(socket:Caller caller) {
         io:println("Join: ", caller.remotePort);
     }
 
-    resource function onReadReady (socket:Caller caller, byte[] content) {
+    resource function onReadReady(socket:Caller caller, byte[] content) {
         _ = caller->write(content);
         io:println("Server write");
     }

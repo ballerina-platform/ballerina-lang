@@ -604,3 +604,13 @@ function testDataflow_12() returns string {
 
     return val;
 }
+
+(function () returns (int)) fa;
+
+function testDataflow_13() returns (int, int) {
+    int a = fa.call();
+    int b = fb.call();
+    return (a, b);
+}
+
+(function () returns (int)) fb;
