@@ -10,16 +10,19 @@ listener file:Listener inFolder = new ({
     recursive: false
 });
 
-
+// The directory listener should have at least one of these predefined resources.
 service localObserver on inFolder {
+    // This resource is invoked once a new file created in the listening directory.
     resource function onCreate(file:FileEvent m) {
         string msg = "Create: " + m.name;
         log:printInfo(msg);
     }
+    // This resource is invoked once an existing file got deleted from the listening directory.
     resource function onDelete(file:FileEvent m) {
         string msg = "Delete: " + m.name;
         log:printInfo(msg);
     }
+    // This resource is invoked once an existing file got modified in the listening directory.
     resource function onModify(file:FileEvent m) {
         string msg = "Modify: " + m.name;
         log:printInfo(msg);
