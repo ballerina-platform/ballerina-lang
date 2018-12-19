@@ -15,7 +15,7 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
         methodName: 'astDidChange',
         handler: (args: any[]) => {
             return langClient.onReady().then(() => {
-                return langClient.triggerASTDidChange(JSON.parse(args[0]), args[1]);
+                return langClient.triggerASTDidChange(args[0], args[1]);
             });
         }
     },

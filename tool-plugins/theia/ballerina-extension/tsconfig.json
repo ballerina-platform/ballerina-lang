@@ -12,6 +12,7 @@
         "noUnusedLocals": true,
         "emitDecoratorMetadata": true,
         "downlevelIteration": true,
+        "esModuleInterop": true,
         "module": "commonjs",
         "moduleResolution": "node",
         "target": "es5",
