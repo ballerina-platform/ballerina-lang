@@ -45,6 +45,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
@@ -411,6 +412,14 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
             fieldAccessExpr.expr.accept(this);
         } else {
             typeChecker.checkExpr(fieldAccessExpr, env);
+            if (fieldAccessExpr.expr.type.tag == TypeTags.STREAM) {
+                BRecordType streamType = (BRecordType) ((BStreamType) fieldAccessExpr.expr.type).constraint;
+                if (streamType.fields.stream()
+                        .noneMatch(bField -> bField.name.value.equals(fieldAccessExpr.field.value))) {
+                    dlog.error(fieldAccessExpr.pos, DiagnosticCode.UNDEFINED_STREAM_ATTRIBUTE, fieldAccessExpr.field
+                            .value);
+                }
+            }
         }
     }
 
@@ -625,11 +634,12 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
         if (streamActionArgumentType.tag != TypeTags.ARRAY) {
             return;
         }
+
         BType structType = (((BArrayType) streamActionArgumentType).eType);
 
         if (structType.tag == TypeTags.OBJECT || structType.tag == TypeTags.RECORD) {
             List<BField> structFieldList = ((BStructureType) structType).fields;
-            if(structFieldList.stream().anyMatch(bField -> !(selectClauseAttributeMap.containsKey(bField.name.value) &&
+            if (structFieldList.stream().anyMatch(bField -> !(selectClauseAttributeMap.containsKey(bField.name.value) &&
                     (selectClauseAttributeMap.get(bField.name.value) == null ||
                     types.isAssignable(selectClauseAttributeMap.get(bField.name.value), bField.type))))) {
                 String[] fieldNames = structFieldList.stream().map(field -> field.name.value)
