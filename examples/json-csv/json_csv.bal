@@ -25,9 +25,9 @@ function writeCsv(json content, string path) returns error? {
         var (headers, fields) = result;
         if (recIndex == 0) {
             //We ignore the result as this would mean a nill return
-             _  = check csvch.write(headers);
+            check csvch.write(headers);
         }
-        _  = check csvch.write(fields);
+        check csvch.write(fields);
         recIndex = recIndex + 1;
     }
     return;
