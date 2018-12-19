@@ -38,11 +38,13 @@ public function main() {
 // be checked for "isLike" relationship and will be matched at runtime.
 function basicMatch(any a) {
     match a {
-        // This pattern checks for a mapping value with three fields `var1`, `var2` and `var3` and types will be any in the pattern block.
+        // This pattern checks for a mapping value with three fields `var1`, `var2` and `var3` and types will
+        // be any in the pattern block.
         var {var1, var2, var3} => io:println("Matched with three vars : "
                     + io:sprintf("%s", var1) + ", "
                     + io:sprintf("%s", var2) + ", " + io:sprintf("%s", var3));
-        // This pattern checks for a mapping value with three fields `var1`, `var2` and types will be any in the pattern block.
+        // This pattern checks for a mapping value with three fields `var1`, `var2` and types will be any in
+        // the pattern block.
         var {var1, var2} => io:println("Matched with two vars : "
                     + io:sprintf("%s", var1) + ", " + io:sprintf("%s", var2));
         // This pattern checks for a mapping value with three fields `var1` and type will be any in the pattern block.
@@ -55,7 +57,8 @@ function basicMatch(any a) {
 // match expression will be checked for "isLike" relationship and also it will check the type guard present for a
 // successful match.
 function matchWithTypeGuard(any matchExpr) {
-    // All the patterns except the last one will check for a mapping value with two fields `var1` and `var2` with a given type guard.
+    // All the patterns except the last one will check for a mapping value with two fields `var1` and `var2`
+    // with a given type guard.
     match matchExpr {
         // This pattern will only match if `var2` is of type `string`.
         var {var1, var2} if var2 is string =>
@@ -76,7 +79,8 @@ function matchWithTypeGuard(any matchExpr) {
         var {var1, var2} if (var1 is string && var2 is RecordTwo) =>
                io:println("Matched with string and RecordTwo typeguard : "
                           + io:sprintf("%s", var2.var1));
-        // A pattern with a single identifier can be used as the last match pattern and all values will be matched to this
+        // A pattern with a single identifier can be used as the last match pattern and all values will
+        // be matched to this
         var x => io:println("Matched with Default");
     }
 }
