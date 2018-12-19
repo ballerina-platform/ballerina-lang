@@ -51,8 +51,8 @@ public class BallerinaBreakPointType extends XLineBreakpointType<BallerinaBreakp
 
     @Override
     public boolean canPutAt(@NotNull VirtualFile file, int line, @NotNull Project project) {
-        return line >= 0 && file.getFileType() == BallerinaFileType.INSTANCE
-                && isLineBreakpointAvailable(file, line, project);
+        return line >= 0 && file.getFileType() == BallerinaFileType.INSTANCE && isLineBreakpointAvailable(file, line,
+                project);
     }
 
     private static boolean isLineBreakpointAvailable(@NotNull VirtualFile file, int line, @NotNull Project project) {
@@ -64,7 +64,7 @@ public class BallerinaBreakPointType extends XLineBreakpointType<BallerinaBreakp
         XDebuggerUtil.getInstance().iterateLine(project, document, line, canPutAtChecker);
 
         // Used to identify line comments, which cannot be correctly processed by the checker.
-        if (document.getText(new TextRange(document.getLineStartOffset(line), document.getLineEndOffset(line)))
+        if (document.getText(new TextRange(document.getLineStartOffset(line), document.getLineEndOffset(line))).trim()
                 .startsWith(BALLERINA_LINE_COMMENT_PREFIX)) {
             return false;
         }
