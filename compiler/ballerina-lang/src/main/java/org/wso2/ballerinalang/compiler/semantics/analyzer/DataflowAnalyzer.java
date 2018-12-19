@@ -837,6 +837,13 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         // Visit the constructor with the same scope as the object
         if (objectTypeNode.initFunction != null) {
+            if (objectTypeNode.initFunction.body == null) {
+                // if the __init() function is defined as an outside function definition
+                objectTypeNode.initFunction = objectEnv.enclPkg.functions.stream()
+                        .filter(f -> f.symbol.name.equals((objectTypeNode.initFunction).symbol.name))
+                        .findFirst()
+                        .get(); // the function should exist in the enclosed package, or would have failed earlier
+            }
             objectTypeNode.initFunction.body.stmts.forEach(statement -> analyzeNode(statement, objectEnv));
         }
 
