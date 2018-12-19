@@ -1,7 +1,7 @@
 import ballerina/io;
 import ballerina/log;
 
-// Converts a json into an array of strings
+// Converts a `JSON` value to an array of strings.
 // Returns the result as a tuple which contains the headers and fields
 function getFields(json rec) returns (string[], string[]) {
     int count = 0;
@@ -15,7 +15,7 @@ function getFields(json rec) returns (string[], string[]) {
     return (headers, fields);
 }
 
-// Example function which writes json content to csv
+// Writes `JSON` content to CSV.
 function writeCsv(json content, string path) returns error? {
     io:WritableCSVChannel csvch = io:openWritableCsvFile(path);
     int recIndex = 0;
@@ -34,7 +34,7 @@ function writeCsv(json content, string path) returns error? {
 }
 
 public function main() {
-    // Sample json which will be written
+    // Sample `JSON` which will be written.
     json sample = {
             "employees": {
                 "employee": [
