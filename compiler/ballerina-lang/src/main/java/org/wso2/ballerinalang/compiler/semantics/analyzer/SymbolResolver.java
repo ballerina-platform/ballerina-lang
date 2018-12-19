@@ -1043,7 +1043,11 @@ public class SymbolResolver extends BLangNodeVisitor {
         Map<Name, ScopeEntry> visibleEntries = new HashMap<>();
         visibleEntries.putAll(env.scope.entries);
         if (env.enclEnv != null) {
-            visibleEntries.putAll(getAllVisibleInScopeSymbols(env.enclEnv));
+            getAllVisibleInScopeSymbols(env.enclEnv).forEach((name, scopeEntry) -> {
+                if (!visibleEntries.containsKey(name)) {
+                    visibleEntries.put(name, scopeEntry);
+                }
+            });
         }
         return visibleEntries;
     }

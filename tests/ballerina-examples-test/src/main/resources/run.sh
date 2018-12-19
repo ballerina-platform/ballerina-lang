@@ -43,7 +43,39 @@ exclude=("date-time"
         "secured-service-with-basic-auth"
         "testerina-function-mocks"
         "jms-queue-message-receiver-with-client-acknowledgment"
-        "gauge-metrics")
+        "gauge-metrics"
+        "jdbc-client-crud-operations"
+        "jdbc-client-batch-update"
+        "jdbc-client-call-procedures"
+        "streaming-big-dataset"
+        "docker-deployment"
+        "kubernetes-deployment"
+        "table"
+        "byte-type"
+        "records"
+        "clone"
+        "xml-attributes"
+        "error-handling"
+        "error-lifting"
+        "trap-error"
+        "testerina-group"
+        "testerina-guarantee-test-execution-order"
+        "testerina-data-driven-tests"
+        "testerina-before-and-after-suite"
+        "http-redirects"
+        "hello-world-parallel"
+        "http-cors"
+        "http-access-logs"
+        "http-compression"
+        "header-based-routing"
+        "content-based-routing"
+        "http-circuit-breaker"
+        "http-load-balancer"
+        "http-failover"
+        "http-retry"
+        "mysql-client"
+        "async")
+
 packages=($( sed -n 's/.*"url": "\([^"]*\)"/\1/p' index.json ))
 echo `date "+%Y-%m-%d-%H:%M:%S"`" : Start building ${#packages[@]} Ballerina By Examples and ${#exclude[@]} will be skipped"
 
@@ -57,6 +89,6 @@ sh ../bin/ballerina init
 
 for package in "${packages[@]}"
 do
-  sh ../bin/ballerina build ${package} ${skipTest} || exit 1
+  sh ../bin/ballerina build ${package} ${skipTest} --experimental || exit 1
 done
 echo `date "+%Y-%m-%d-%H:%M:%S"`" : Ballerina By Examples built successfully!"

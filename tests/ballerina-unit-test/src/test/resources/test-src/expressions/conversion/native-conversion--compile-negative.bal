@@ -86,3 +86,8 @@ function testStructToJsonConstrainedNegative() returns json {
     }
     return j;
 }
+
+function testTypeCheckingRecordToMapConversion() returns map<int>|error {
+    Person2 p = { name: "Supun" };
+    return map<int>.convert(p);
+}

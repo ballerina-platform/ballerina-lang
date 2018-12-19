@@ -74,7 +74,7 @@ function startSortWindowTest1() returns TeacherOutput[] {
 function testSortWindow() {
 
     forever {
-        from inputStreamSortWindowTest1 window sortWindow(3, inputStreamSortWindowTest1.age, "ascending",
+        from inputStreamSortWindowTest1 window sort(3, inputStreamSortWindowTest1.age, "ascending",
             inputStreamSortWindowTest1.name, "descending")
         select inputStreamSortWindowTest1.name, inputStreamSortWindowTest1.age
         group by inputStreamSortWindowTest1.school
