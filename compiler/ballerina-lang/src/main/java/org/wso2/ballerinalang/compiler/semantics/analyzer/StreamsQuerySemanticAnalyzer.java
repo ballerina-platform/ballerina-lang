@@ -94,10 +94,12 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * This class checks semantics of streaming queries.
@@ -627,18 +629,15 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
 
         if (structType.tag == TypeTags.OBJECT || structType.tag == TypeTags.RECORD) {
             List<BField> structFieldList = ((BStructureType) structType).fields;
-            for (BField structField : structFieldList) {
-                String fieldName = structField.name.value;
-                BType fieldType = structField.getType();
-                if (!(selectClauseAttributeMap.containsKey(fieldName) &&
-                        // type cannot be resolved for aggregators at compile time,
-                        (selectClauseAttributeMap.get(fieldName) == null ||
-                                types.isAssignable(selectClauseAttributeMap.get(fieldName), fieldType)))) {
-                    dlog.error(((BLangStreamAction) ((BLangStreamingQueryStatement) streamingQueryStatement).
-                                    getStreamingAction()).pos, DiagnosticCode.INCOMPATIBLE_STREAM_ACTION_ARGUMENT,
-                            structType);
-                    return;
-                }
+            if(structFieldList.stream().anyMatch(bField -> !(selectClauseAttributeMap.containsKey(bField.name.value) &&
+                    (selectClauseAttributeMap.get(bField.name.value) == null ||
+                    types.isAssignable(selectClauseAttributeMap.get(bField.name.value), bField.type))))) {
+                String[] fieldNames = structFieldList.stream().map(field -> field.name.value)
+                        .collect(Collectors.toList()).toArray(new String[]{});
+                String[] selectExprs = selectClauseAttributeMap.keySet().toArray(new String[]{});
+                dlog.error(((BLangStreamAction) ((BLangStreamingQueryStatement) streamingQueryStatement).
+                        getStreamingAction()).pos, DiagnosticCode.INCOMPATIBLE_FIELDS_IN_SELECT_CLAUSE, structType,
+                           Arrays.toString(fieldNames), Arrays.toString(selectExprs));
             }
         }
     }

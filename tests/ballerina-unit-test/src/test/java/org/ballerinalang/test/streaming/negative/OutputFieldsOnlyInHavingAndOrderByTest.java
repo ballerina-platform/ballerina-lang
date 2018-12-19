@@ -26,24 +26,25 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * This class tests if the attribute selected in the projection is invalid, a proper error is thrown.
+ * This contains methods to test if the proper error is thrown if the output attributes are used in select clause.
  *
- * @since 0.990.0
+ * @since 0.990.1
  */
-public class InvalidSelectAttributeTest {
+public class OutputFieldsOnlyInHavingAndOrderByTest {
 
     private CompileResult result;
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/streaming/negative/invalid-attribute-select-test.bal");
+        result = BCompileUtil.compile("test-src/streaming/negative/output-field-not-allowed-in-select.bal");
     }
 
-    @Test(description = "Test if the proper error is thrown if an attribute is invalid in projection ")
-    public void testInvalidAttributeInSelectClause() {
-        Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "fields defined in select clause, incompatible " +
-                "with output fields in type 'Teacher', expected '[name, age, status, batch, school]' but found " +
-                "'[batches, school, name, age, status]'", 37, 9);
+    @Test
+    public void testOutputputFieldInSelect() {
+        Assert.assertEquals(result.getErrorCount(), 2);
+        BAssertUtil.validateError(result, 0, "alias matching the output stream attribute, not defined", 64, 16);
+        BAssertUtil.validateError(result, 1, "output field 'name' can be used in having and orderby " +
+                                             "clauses only", 64, 16);
     }
+
 }
