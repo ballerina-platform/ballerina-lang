@@ -5,6 +5,11 @@ export function getWebViewResourceRoot(context: ExtensionContext): Uri {
     return Uri.file(join(context.extensionPath, 'resources')).with({ scheme: 'vscode-resource' });
 }
 
+export function getNodeModulesRoot(context: ExtensionContext): Uri {
+    return Uri.file(join(context.extensionPath, 'node_modules')).with({ scheme: 'vscode-resource' });
+}
+
+
 export function getLibraryWebViewContent(context: ExtensionContext,
         body: string, scripts: string, styles: string, bodyCss?: string, isAPIDesigner?: boolean) {
 
@@ -13,6 +18,8 @@ export function getLibraryWebViewContent(context: ExtensionContext,
                 ? process.env.COMPOSER_DEV_HOST
                 : `${resourceRoot}/composer`;
     const jsModule = isAPIDesigner ? 'apiEditor' : 'composer';
+
+    const nodeModulesRoot = getNodeModulesRoot(context).toString();
 
     return `
             <!DOCTYPE html>
@@ -33,7 +40,9 @@ export function getLibraryWebViewContent(context: ExtensionContext,
                 <script>
                     ${scripts}
                 </script>
+                <script charset="UTF-8" src="${nodeModulesRoot}/mousetrap/mousetrap.min.js"></script>
                 <script charset="UTF-8" src="${resourceRoot}/utils/messaging.js"></script>
+                <script charset="UTF-8" src="${resourceRoot}/utils/undo-redo.js"></script>
                 <script charset="UTF-8" onload="loadedScript();" src="${composerResourcesRoot}/${jsModule}.js"></script>
             </body>
             </html>
