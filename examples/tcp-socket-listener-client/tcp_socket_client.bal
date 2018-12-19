@@ -18,7 +18,7 @@ public function main() {
 // Callback service for the TCP client. The service needs to have four predefined resources.
 service ClientService = service {
 
-    // This invokes once the client connect to the TCP server.
+    // This is invoked once the client connects to the TCP server.
     resource function onConnect(socket:Caller caller) {
         io:println("Connect to: ", caller.remotePort);
     }
