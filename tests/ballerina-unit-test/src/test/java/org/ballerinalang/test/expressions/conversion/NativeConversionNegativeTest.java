@@ -111,7 +111,7 @@ public class NativeConversionNegativeTest {
 
     @Test(description = "Test convert function with multiple arguments")
     public void testFloatToIntWithMultipleArguments() {
-        Assert.assertEquals(negativeCompileResult.getErrorCount(), 10);
+        Assert.assertEquals(negativeCompileResult.getErrorCount(), 12);
         BAssertUtil.validateError(negativeCompileResult, 0, "too many arguments in call to 'convert()'", 51, 12);
     }
 
@@ -136,6 +136,12 @@ public class NativeConversionNegativeTest {
     public void testStructToJsonConstrainedNegative() {
         BAssertUtil.validateError(negativeCompileResult, 8, "incompatible types: 'Person2' cannot be converted to "
                 + "'json<Person3>'", 81, 18);
+    }
+
+    @Test
+    public void testTypeCheckingRecordToMapConversion() {
+        BAssertUtil.validateError(negativeCompileResult, 10, "incompatible types: 'Person2' cannot be converted to "
+                + "'map<int>'", 92, 12);
     }
 
     @Test

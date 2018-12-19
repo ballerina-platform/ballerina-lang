@@ -425,6 +425,10 @@
             {
                 "name": "XML I/O",
                 "url": "xml-io"
+            },
+            {
+                "name": "JSON to CSV Transform",
+                "url": "json-csv"
             }
         ]
     },
@@ -926,6 +930,10 @@
             {
               "name": "Simple Filtering",
               "url": "simple-filtering"
+            },
+            {
+              "name": "Projection",
+              "url": "projection"
             },
             {
                 "name": "Temporal Aggregations",
