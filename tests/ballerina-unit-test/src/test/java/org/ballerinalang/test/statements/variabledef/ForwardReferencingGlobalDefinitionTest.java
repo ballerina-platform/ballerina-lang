@@ -17,10 +17,9 @@
  */
 package org.ballerinalang.test.statements.variabledef;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -29,9 +28,9 @@ import org.testng.annotations.Test;
 /**
  * Test forward variable definitions not allowed.
  *
- * @since 0.990.xxx what is this
+ * @since 0.990.1
  */
-public class ForwardReferenceVariableDefinitionTest {
+public class ForwardReferencingGlobalDefinitionTest {
     private CompileResult resultNegative;
 
     @BeforeClass
@@ -40,14 +39,13 @@ public class ForwardReferenceVariableDefinitionTest {
                 compile("test-src/statements/variabledef/forward-reference-in-global-vardef-negative.bal");
     }
 
-    @Test(description = "-----------------")
+    @Test(description = "Test compiler rejecting forward referenced global variables")
     public void simpleDefinition() {
         Diagnostic[] diagnostics = resultNegative.getDiagnostics();
-//        Assert.assertTrue(diagnostics.length > 0);
-
-        // this should not go into the commit, just for testing the issue.
-        BValue[] returns = BRunUtil.invoke(resultNegative, "getEmployee");
-        int i = 0;
-
+        Assert.assertTrue(diagnostics.length > 0);
+        BAssertUtil.validateError(resultNegative, 0, "illegal forward reference to 'employee'", 32, 26);
+        BAssertUtil.validateError(resultNegative, 1, "illegal forward reference to 'person'", 32, 36);
+        BAssertUtil.validateError(resultNegative, 2, "illegal forward reference to 'person'", 35, 11);
+        BAssertUtil.validateError(resultNegative, 3, "illegal forward reference to 'person'", 36, 10);
     }
 }
