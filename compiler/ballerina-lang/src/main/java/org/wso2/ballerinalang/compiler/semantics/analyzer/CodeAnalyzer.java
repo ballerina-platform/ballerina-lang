@@ -197,6 +197,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private int loopCount;
     private int transactionCount;
     private boolean statementReturns;
+    private boolean implicitReturnRequired;
     private boolean lastStatement;
     private boolean withinRetryBlock;
     private int workerCount;
@@ -235,10 +236,15 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private void resetFunction() {
         this.resetStatementReturns();
+        this.resetImplicitReturnRequired();
     }
 
     private void resetStatementReturns() {
         this.statementReturns = false;
+    }
+
+    private void resetImplicitReturnRequired() {
+        this.implicitReturnRequired = false;
     }
 
     private void resetLastStatement() {
@@ -340,15 +346,17 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (Symbols.isNative(funcNode.symbol)) {
             return;
         }
-        boolean invokableReturns = funcNode.returnTypeNode.type != symTable.nilType;
+        boolean isNilableReturn = funcNode.symbol.type.getReturnType().isNullable();
         if (isPublicInvokableNode(funcNode)) {
             analyzeNode(funcNode.returnTypeNode, invokableEnv);
         }
         /* the body can be null in the case of Object type function declarations */
         if (funcNode.body != null) {
             analyzeNode(funcNode.body, invokableEnv);
-            /* the function returns, but none of the statements surely returns */
-            if (invokableReturns && !this.statementReturns) {
+            
+            // If the return signature is nil-able, an implicit return will be added in Desugar.
+            // Hence this only checks for non-nil-able return signatures and uncertain return in the body.
+            if (!isNilableReturn && !this.statementReturns) {
                 this.dlog.error(funcNode.pos, DiagnosticCode.INVOKABLE_MUST_RETURN,
                         funcNode.getKind().toString().toLowerCase());
             }
@@ -1798,6 +1806,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (!enclInvokableHasErrorReturn) {
             dlog.error(checkedExpr.expr.pos, DiagnosticCode.CHECKED_EXPR_NO_ERROR_RETURN_IN_ENCL_INVOKABLE);
         }
+
+        this.implicitReturnRequired = true;
 
         returnTypes.peek().add(exprType);
     }
