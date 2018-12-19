@@ -24,9 +24,10 @@ function writeCsv(json content, string path) returns error? {
         (string [], string []) result = getFields(content[recIndex]);
         var (headers, fields) = result;
         if (recIndex == 0) {
-             var wResult1 = check csvch.write(headers);
+            //We ignore the result as this would mean a nill return
+             _  = check csvch.write(headers);
         }
-        var wResult2 = check csvch.write(fields);
+        _  = check csvch.write(fields);
         recIndex = recIndex + 1;
     }
     return;
