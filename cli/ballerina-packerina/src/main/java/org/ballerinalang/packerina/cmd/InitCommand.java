@@ -54,7 +54,7 @@ public class InitCommand implements BLauncherCmd {
 
     public static final String DEFAULT_VERSION = "0.0.1";
     private static final String USER_DIR = "user.dir";
-    private static final PrintStream outStream = System.err;
+    private static final PrintStream errStream = System.err;
     private final Path homePath = RepoUtils.createAndGetHomeReposPath();
     private boolean alreadyInitializedProject  = false;
     private boolean manifestExistInProject  = false;
@@ -91,14 +91,14 @@ public class InitCommand implements BLauncherCmd {
                                 path.toFile().getName().equals(ProjectDirConstants.DOT_BALLERINA_DIR_NAME))
                         .findFirst();
                 if (childDotBallerina.isPresent()) {
-                    out.println("A ballerina project is already initialized in " + childDotBallerina.get().toFile()
-                            .getParent());
+                    errStream.println("A ballerina project is already initialized in " +
+                            childDotBallerina.get().toFile().getParent());
                     return;
                 }
                 // Recursively traverse up till the root
                 Path projectRoot = findProjectRoot(projectPath);
                 if (projectRoot != null) {
-                    out.println("Directory is already within a ballerina project :" + projectRoot.toString());
+                    errStream.println("Directory is already within a ballerina project :" + projectRoot.toString());
                     return;
                 }
             }
@@ -111,7 +111,7 @@ public class InitCommand implements BLauncherCmd {
 
             if (helpFlag) {
                 String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(INIT_COMMAND);
-                outStream.println(commandUsageInfo);
+                errStream.println(commandUsageInfo);
                 return;
             }
 
@@ -126,28 +126,7 @@ public class InitCommand implements BLauncherCmd {
                     out.print("Create Ballerina.toml [yes/y, no/n]: (y) ");
                     String createToml = scanner.nextLine().trim();
 
-                    if (createToml.equalsIgnoreCase("yes") || createToml.equalsIgnoreCase("y")
-                            || createToml.isEmpty()) {
-                        manifest = new Manifest();
-
-                        String defaultOrg = guessOrgName();
-
-                        String orgName;
-                        do {
-                            out.print("Organization name: (" + defaultOrg + ") ");
-                            orgName = scanner.nextLine().trim();
-                        } while (!validateOrgName(orgName));
-                        // Set org-name
-                        manifest.setName(orgName.isEmpty() ? defaultOrg : orgName);
-                        String version;
-                        do {
-                            out.print("Version: (" + DEFAULT_VERSION + ") ");
-                            version = scanner.nextLine().trim();
-                            version = version.isEmpty() ? DEFAULT_VERSION : version;
-                        } while (!validateVersion(out, version));
-
-                        manifest.setVersion(version);
-                    }
+                    manifest = createManifest(scanner, createToml);
                 }
                 // If its already an initialized project
                 if (alreadyInitializedProject) {
@@ -237,6 +216,39 @@ public class InitCommand implements BLauncherCmd {
         } catch (IOException e) {
             out.println("Error occurred while creating project: " + e.getMessage());
         }
+    }
+
+    /**
+     * Create a manifest object.
+     *
+     * @param scanner    scanner object
+     * @param createToml create toml or not
+     * @return manifest object
+     */
+    private Manifest createManifest(Scanner scanner, String createToml) {
+        Manifest manifest = new Manifest();
+        if (createToml.equalsIgnoreCase("yes") || createToml.equalsIgnoreCase("y")
+                || createToml.isEmpty()) {
+
+            String defaultOrg = guessOrgName();
+
+            String orgName;
+            do {
+                out.print("Organization name: (" + defaultOrg + ") ");
+                orgName = scanner.nextLine().trim();
+            } while (!validateOrgName(orgName));
+            // Set org-name
+            manifest.setName(orgName.isEmpty() ? defaultOrg : orgName);
+            String version;
+            do {
+                out.print("Version: (" + DEFAULT_VERSION + ") ");
+                version = scanner.nextLine().trim();
+                version = version.isEmpty() ? DEFAULT_VERSION : version;
+            } while (!validateVersion(out, version));
+
+            manifest.setVersion(version);
+        }
+        return manifest;
     }
 
     /**
