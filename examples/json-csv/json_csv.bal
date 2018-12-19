@@ -4,7 +4,7 @@ import ballerina/log;
 // Converts a json into an array of strings
 // Returns the result as a tuple which contains the headers and fields
 function getFields(json rec) returns (string[], string[]) {
-    int count =0;
+    int count = 0;
     string [] headers = [];
     string [] fields = [];
     headers = rec.getKeys();
@@ -18,7 +18,7 @@ function getFields(json rec) returns (string[], string[]) {
 // Example function which writes json content to csv
 function writeCsv(json content, string path) returns error? {
     io:WritableCSVChannel csvch = io:openWritableCsvFile(path);
-    int recIndex =0;
+    int recIndex = 0;
     int recLen = content.length();
     while (recIndex < recLen) {
         (string [], string []) result = getFields(content[recIndex]);
