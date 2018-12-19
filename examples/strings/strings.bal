@@ -12,7 +12,7 @@ public function main() {
     io:println("ToLower: " + s2);
 
     // Compare two strings ignoring the case.
-    // Returns 'true' if the strings are equal, or 'false' if they are not equal.
+    // Returns `true` if the strings are equal, or `false` if they are not equal.
     boolean isEqual =
             statement.equalsIgnoreCase("lion in town. catch the lion");
     io:println("EqualsIgnoreCase: " + isEqual);
