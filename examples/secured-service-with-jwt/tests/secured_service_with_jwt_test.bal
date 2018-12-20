@@ -3,20 +3,8 @@ import ballerina/http;
 import ballerina/test;
 import ballerina/runtime;
 
-boolean serviceStarted = false;
-
-function startService() {
-    //serviceStarted = test:startServices("secured-service-with-jwt");
-}
-
-@test:Config {
-    enable: true,
-    before: "startService",
-    after: "stopService"
-}
+@test:Config
 function testFunc() {
-    // Check whether the server has started. 
-    //test:assertTrue(serviceStarted, msg = "Unable to start the service");
     setJwtTokenToAuthContext();
     testAuthSuccess();
     clearTokenFromAuthContext();
@@ -119,8 +107,4 @@ function setJwtTokenWithNoScopesToAuthContext () {
         "Ogu12RJMaCE1FlA1ZoyLrmzj2Mm3RHc_A88lKoGvaEBcGzJwllekuQeDUJ1P90SGA";
     runtime:getInvocationContext().authContext.scheme = "jwt";
     runtime:getInvocationContext().authContext.authToken = token;
-}
-
-function stopService() {
-    //test:stopServices("secured-service-with-jwt");
 }
