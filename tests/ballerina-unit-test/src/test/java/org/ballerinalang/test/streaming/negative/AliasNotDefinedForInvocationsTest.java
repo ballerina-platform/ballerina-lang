@@ -26,25 +26,27 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * This contains methods to test if the proper error is thrown if the output attributes are used in select clause.
+ * This contains methods to test the errors thrown when the alias is not defined for select expressions
  *
  * @since 0.990.1
  */
-public class OutputFieldsOnlyInHavingAndOrderByTest {
+public class AliasNotDefinedForInvocationsTest {
 
     private CompileResult result;
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/streaming/negative/output-field-not-allowed-in-select.bal");
+        result = BCompileUtil.
+                compile("test-src/streaming/negative/alias-not-found.bal");
     }
 
     @Test
-    public void testOutputputFieldInSelect() {
+    public void testAliasNotFoundError() {
         Assert.assertEquals(result.getErrorCount(), 2);
-        BAssertUtil.validateError(result, 0, "alias not defined for expression in select clause", 64, 16);
-        BAssertUtil.validateError(result, 1, "fields defined in select clause, " +
-                "incompatible with output fields in type 'Teacher', expected '[name, age, status, batch, school]'" +
-                " but found '[school, batch, age, status]'", 65, 9);
+        BAssertUtil.validateError(result, 0,
+                "alias not defined for expression in select clause", 81, 84);
+        BAssertUtil.validateError(result, 1,
+                "fields defined in select clause, incompatible with output fields in type" +
+                " 'TeacherOutput', expected '[name, age, sumAge, count]' but found '[sumAge, name, age]'", 83, 9);
     }
 }
