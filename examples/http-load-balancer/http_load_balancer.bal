@@ -13,7 +13,7 @@ http:LoadBalanceClient lbBackendEP = new({
             { url: "http://localhost:8080/mock3" }
         ],
         timeoutMillis: 5000
-    });
+});
 
 
 // Create an HTTP service bound to the endpoint (`loadBlancerEP`).
@@ -37,7 +37,7 @@ service loadBalancerDemoService on new http:Listener (9090) {
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {
                 log:printError("Error sending response",
-                    err = responseToCaller);
+                               err = responseToCaller);
             }
         } else {
             http:Response outResponse = new;

@@ -53,7 +53,7 @@ service retryDemoService on new http:Listener(9090) {
             var responseToCaller = caller->respond(backendResponse);
             if (responseToCaller is error) {
                 log:printError("Error sending response",
-                    err = responseToCaller);
+                                err = responseToCaller);
             }
 
         } else {
@@ -64,7 +64,7 @@ service retryDemoService on new http:Listener(9090) {
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {
                 log:printError("Error sending response",
-                    err = responseToCaller);
+                                err = responseToCaller);
             }
         }
     }

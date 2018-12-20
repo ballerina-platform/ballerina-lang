@@ -71,8 +71,8 @@ service echo on backendEP {
 
         var result = caller->respond("echo Resource is invoked");
         if (result is error) {
-            log:printError("Error sending response from mock service",
-                err = result);
+           log:printError("Error sending response from mock service",
+                          err = result);
         }
     }
 }
@@ -89,8 +89,8 @@ service mock on backendEP {
     resource function mockResource(http:Caller caller, http:Request req) {
         var result = caller->respond("Mock Resource is Invoked.");
         if (result is error) {
-            log:printError("Error sending response from mock service",
-                err = result);
+           log:printError("Error sending response from mock service",
+                          err = result);
         }
     }
 }
