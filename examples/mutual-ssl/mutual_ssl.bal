@@ -36,7 +36,7 @@ listener http:Listener helloWorldEP = new(9095, config = helloWorldEPConfig);
     basePath: "/hello"
 }
 
-// Bind the service to the listener endpoint that you declared above.
+// Bind the service to the listener endpoint that you declared earlier.
 service helloWorld on helloWorldEP {
     @http:ResourceConfig {
         methods: ["GET"],
