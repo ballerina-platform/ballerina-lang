@@ -189,6 +189,10 @@
                 "url": "records"
             },
             {
+                "name": "Anonymous Records",
+                "url": "anonymous-records"
+            },
+            {
                 "name": "Optional Fields",
                 "url": "record-optional-fields"
             },
@@ -221,6 +225,10 @@
             {
                 "name": "Abstract Objects",
                 "url": "abstract-objects"
+            },
+            {
+                "name": "Anonymous Objects",
+                "url": "anonymous-objects"
             },
             {
                 "name": "Object Type Reference",
