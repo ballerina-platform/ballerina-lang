@@ -156,20 +156,20 @@ public class CommonUtil {
      * Get the package URI to the given package name.
      *
      * @param pkgName        Name of the package that need the URI for
-     * @param currentPkgPath String URI of the current package
+     * @param pkgPath String URI of the current package
      * @param currentPkgName Name of the current package
      * @return String URI for the given path.
      */
-    public static String getPackageURI(String pkgName, String currentPkgPath, String currentPkgName) {
+    public static String getPackageURI(String pkgName, String pkgPath, String currentPkgName) {
         String newPackagePath;
         // If current package path is not null and current package is not default package continue,
         // else new package path is same as the current package path.
-        if (currentPkgPath != null && !currentPkgName.equals(".")) {
-            int indexOfCurrentPkgName = currentPkgPath.lastIndexOf(currentPkgName);
+        if (pkgPath != null && !currentPkgName.equals(".")) {
+            int indexOfCurrentPkgName = pkgPath.lastIndexOf(currentPkgName);
             if (indexOfCurrentPkgName >= 0) {
-                newPackagePath = currentPkgPath.substring(0, indexOfCurrentPkgName);
+                newPackagePath = pkgPath.substring(0, indexOfCurrentPkgName);
             } else {
-                newPackagePath = currentPkgPath;
+                newPackagePath = pkgPath;
             }
 
             if (pkgName.equals(".")) {
@@ -178,7 +178,7 @@ public class CommonUtil {
                 newPackagePath = Paths.get(newPackagePath, pkgName).toString();
             }
         } else {
-            newPackagePath = currentPkgPath;
+            newPackagePath = pkgPath;
         }
         return newPackagePath;
     }
@@ -783,6 +783,12 @@ public class CommonUtil {
             SymbolInfo itrCount = getIterableOpSymbolInfo(Snippet.ITR_COUNT.get(), bType,
                     ItemResolverConstants.ITR_COUNT_LABEL, context);
             symbolInfoList.addAll(Arrays.asList(itrForEach, itrMap, itrFilter, itrCount));
+            
+            if (bType.tag == TypeTags.TABLE) {
+                SymbolInfo itrSelect = getIterableOpSymbolInfo(Snippet.ITR_SELECT.get(), bType,
+                        ItemResolverConstants.ITR_SELECT_LABEL, context);
+                symbolInfoList.add(itrSelect);
+            }
 
             if (aggregateFunctionsAllowed(bType)) {
                 SymbolInfo itrMin = getIterableOpSymbolInfo(Snippet.ITR_MIN.get(), bType,

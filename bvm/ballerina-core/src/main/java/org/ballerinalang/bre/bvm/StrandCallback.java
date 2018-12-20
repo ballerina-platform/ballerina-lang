@@ -57,6 +57,7 @@ public abstract class StrandCallback {
         this.status = CallbackStatus.NOT_RETURNED;
         this.sendIns = sendIns;
         this.parentChannels = parentChannels;
+        BVMScheduler.strandCountUp();
     }
 
     /**
@@ -69,6 +70,7 @@ public abstract class StrandCallback {
         }
         // Stop observation
         ObserveUtils.stopObservation(observerContext);
+        BVMScheduler.strandCountDown();
     }
 
     public CallbackStatus getStatus() {

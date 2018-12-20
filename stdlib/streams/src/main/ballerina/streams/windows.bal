@@ -110,7 +110,7 @@ public type LengthWindow object {
     }
 };
 
-public function lengthWindow(any[] windowParameters, function (StreamEvent[])? nextProcessPointer = ())
+public function length(any[] windowParameters, function (StreamEvent[])? nextProcessPointer = ())
                     returns Window {
     LengthWindow lengthWindow1 = new(nextProcessPointer, windowParameters);
     return lengthWindow1;
@@ -254,7 +254,7 @@ public type TimeWindow object {
     }
 };
 
-public function timeWindow(any[] windowParameters, function (StreamEvent[])? nextProcessPointer = ())
+public function time(any[] windowParameters, function (StreamEvent[])? nextProcessPointer = ())
                     returns Window {
     TimeWindow timeWindow1 = new(nextProcessPointer, windowParameters);
     return timeWindow1;
@@ -386,10 +386,10 @@ public type LengthBatchWindow object {
     }
 };
 
-public function lengthBatchWindow(any[] windowParameters, function (StreamEvent[])? nextProcessPointer = ())
+public function lengthBatch(any[] windowParameters, function (StreamEvent[])? nextProcessPointer = ())
                     returns Window {
-    LengthBatchWindow lengthBatch = new(nextProcessPointer, windowParameters);
-    return lengthBatch;
+    LengthBatchWindow lengthBatchWindow = new(nextProcessPointer, windowParameters);
+    return lengthBatchWindow;
 }
 
 
@@ -533,10 +533,10 @@ public type TimeBatchWindow object {
     }
 };
 
-public function timeBatchWindow(any[] windowParameters, function (StreamEvent[])? nextProcessPointer = ())
+public function timeBatch(any[] windowParameters, function (StreamEvent[])? nextProcessPointer = ())
                     returns Window {
-    TimeBatchWindow timeBatch = new(nextProcessPointer, windowParameters);
-    return timeBatch;
+    TimeBatchWindow timeBatchWindow = new(nextProcessPointer, windowParameters);
+    return timeBatchWindow;
 }
 
 public type ExternalTimeWindow object {
@@ -667,7 +667,7 @@ public type ExternalTimeWindow object {
     }
 };
 
-public function externalTimeWindow(any[] windowParameters, function (StreamEvent[])? nextProcessPointer = ())
+public function externalTime(any[] windowParameters, function (StreamEvent[])? nextProcessPointer = ())
                     returns Window {
 
     ExternalTimeWindow timeWindow1 = new(nextProcessPointer, windowParameters);
@@ -1076,7 +1076,7 @@ public type ExternalTimeBatchWindow object {
     }
 };
 
-public function externalTimeBatchWindow(any[] windowParameters, function (StreamEvent[])? nextProcessPointer = ())
+public function externalTimeBatch(any[] windowParameters, function (StreamEvent[])? nextProcessPointer = ())
                     returns Window {
     ExternalTimeBatchWindow timeWindow1 = new(nextProcessPointer, windowParameters);
     return timeWindow1;
@@ -1237,7 +1237,7 @@ public type TimeLengthWindow object {
 
 };
 
-public function timeLengthWindow(any[] windowParameters, function (StreamEvent[])? nextProcessPointer = ())
+public function timeLength(any[] windowParameters, function (StreamEvent[])? nextProcessPointer = ())
                     returns Window {
     TimeLengthWindow timeLengthWindow1 = new(nextProcessPointer, windowParameters);
     return timeLengthWindow1;
@@ -1390,7 +1390,7 @@ public type UniqueLengthWindow object {
     }
 };
 
-public function uniqueLengthWindow(any[] windowParameters, function (StreamEvent[])? nextProcessPointer = ())
+public function uniqueLength(any[] windowParameters, function (StreamEvent[])? nextProcessPointer = ())
                     returns Window {
     UniqueLengthWindow uniqueLengthWindow1 = new(nextProcessPointer, windowParameters);
     return uniqueLengthWindow1;
@@ -1465,10 +1465,10 @@ public type DelayWindow object {
 
                     if (self.lastTimestamp < streamEvent.timestamp) {
                         //calculate the remaining time to delay the current event
-                        int delay = self.delayInMilliSeconds - (currentTime - streamEvent.timestamp);
+                        int delayInMillis = self.delayInMilliSeconds - (currentTime - streamEvent.timestamp);
                         self.timer = new
                         task:Timer(function () returns error? {return self.invokeProcess();},
-                            function (error e) {self.handleError(e);}, delay);
+                            function (error e) {self.handleError(e);}, delayInMillis);
                         _ = self.timer.start();
                         self.lastTimestamp = streamEvent.timestamp;
                     }
@@ -1534,7 +1534,7 @@ public type DelayWindow object {
     }
 };
 
-public function delayWindow(any[] windowParameters, function (StreamEvent[])? nextProcessPointer = ())
+public function delay(any[] windowParameters, function (StreamEvent[])? nextProcessPointer = ())
                     returns Window {
     DelayWindow delayWindow1 = new(nextProcessPointer, windowParameters);
     return delayWindow1;
@@ -1709,7 +1709,7 @@ public type SortWindow object {
     }
 };
 
-public function sortWindow(any[] windowParameters, function(StreamEvent[])? nextProcessPointer = ())
+public function sort(any[] windowParameters, function(StreamEvent[])? nextProcessPointer = ())
                     returns Window {
     SortWindow sortWindow1 = new(nextProcessPointer, windowParameters);
     return sortWindow1;

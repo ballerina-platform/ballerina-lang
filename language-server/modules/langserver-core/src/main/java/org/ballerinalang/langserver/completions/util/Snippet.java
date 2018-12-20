@@ -122,6 +122,8 @@ public enum Snippet {
 
     ITR_COUNT(SnippetGenerator.getIterableCountSnippet()),
 
+    ITR_SELECT(SnippetGenerator.getIterableSelectSnippet()),
+
     ITR_MIN(SnippetGenerator.getIterableMinSnippet()),
 
     ITR_MAX(SnippetGenerator.getIterableMaxSnippet()),

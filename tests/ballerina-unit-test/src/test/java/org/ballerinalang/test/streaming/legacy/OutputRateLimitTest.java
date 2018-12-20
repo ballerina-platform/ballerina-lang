@@ -38,16 +38,14 @@ public class OutputRateLimitTest {
 
     @BeforeClass
     public void setup() {
-        System.setProperty("enable.siddhiRuntime", "true");
-        result = BCompileUtil.compile("test-src/streaming/legacy/output-rate-limiting-test.bal");
+        result = BCompileUtil.compile("test-src/streaming/legacy/output-rate-limiting-test.bal", true);
         resultForTimeBasedRateLimiting = BCompileUtil.
-                compile("test-src/streaming/legacy/output-rate-limiting-time-test.bal");
+                compile("test-src/streaming/legacy/output-rate-limiting-time-test.bal", true);
     }
 
     @Test(description = "Test output rate limiting query")
     public void testOutputRateLimitQuery() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startOutputRateLimitQuery");
-        System.setProperty("enable.siddhiRuntime", "false");
         Assert.assertNotNull(outputEmployeeEvents);
 
         Assert.assertEquals(outputEmployeeEvents.length, 2, "Expected events are not received");
@@ -62,7 +60,6 @@ public class OutputRateLimitTest {
     @Test(description = "Test output rate limiting query based on time")
     public void testOutputRateLimitWithTimeQuery() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(resultForTimeBasedRateLimiting, "startOutputRateLimitQuery");
-        System.setProperty("enable.siddhiRuntime", "false");
         Assert.assertNotNull(outputEmployeeEvents);
         Assert.assertEquals(outputEmployeeEvents.length, 1, "Expected events are not received");
 
