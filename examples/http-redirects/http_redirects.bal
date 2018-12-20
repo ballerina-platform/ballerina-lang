@@ -54,7 +54,7 @@ service redirect2 on new http:Listener(9093) {
         path:"/"
     }
     resource function redirect2(http:Caller caller, http:Request req) {
-        // Send response to the caller.
+         // Send a response to the caller.
         var result = caller->respond("Hello World!");
         if (result is error) {
            log:printError("Error in responding", err = result);
