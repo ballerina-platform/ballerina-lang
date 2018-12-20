@@ -164,6 +164,6 @@ public class NotSoBasicWorkerTest {
         Assert.assertEquals(vals.length, 1);
         Assert.assertEquals(((BInteger) vals[0]).intValue(), 10);
         int pkgIndex = result.getProgFile().getEntryPackage().pkgIndex;
-        Assert.assertEquals(result.getProgFile().globalMemArea.getIntField(pkgIndex, 0), 10);
+        Assert.assertEquals(result.getProgFile().globalMemArea.getIntField(pkgIndex, 0), 5);
     }
 }

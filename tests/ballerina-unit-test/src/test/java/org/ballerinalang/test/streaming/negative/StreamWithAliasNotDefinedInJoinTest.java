@@ -48,7 +48,8 @@ public class StreamWithAliasNotDefinedInJoinTest {
         BAssertUtil.validateError(result, 4, "undefined symbol 'x'", 51, 16);
         BAssertUtil.validateError(result, 5, "undefined symbol 'y'", 51, 36);
         BAssertUtil.validateError(result, 6, "undefined symbol 'x'", 51, 54);
-        BAssertUtil.validateError(result, 7, "incompatible stream action argument type 'StockWithPrice' defined",
+        BAssertUtil.validateError(result, 7, "fields defined in select clause, incompatible with output " +
+                "fields in type 'StockWithPrice', expected '[symbol, tweet, price]' but found '[symbol, price, tweet]'",
                 52, 9);
     }
 }

@@ -21,15 +21,15 @@ function foo(int x, function (int, string) returns (float) bar)
 }
 
 // Function pointer as a return type.
-function getIt() returns (function (int, string) returns (float)) {
+function getFunctionPointer() returns (function (int, string) returns (float)) {
     return test;
 }
 
 public function main() {
     // Value 'test' will serve as a function pointer to the 'foo' function.
     io:println("Answer: " + foo(10, test));
-    io:println("Answer: " + foo(10, getIt()));
+    io:println("Answer: " + foo(10, getFunctionPointer()));
     // Function pointer as a variable;
-    function (int, string) returns (float) f = getIt();
+    function (int, string) returns (float) f = getFunctionPointer();
     io:println("Answer: " + foo(10, f));
 }
