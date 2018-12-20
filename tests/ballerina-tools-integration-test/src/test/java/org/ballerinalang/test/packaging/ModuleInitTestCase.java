@@ -239,7 +239,7 @@ public class ModuleInitTestCase extends BaseTest {
         Path projectPath = tempProjectDirectory.resolve("firstTestWithModulesMain");
 
         String[] clientArgsForInit = {"-i"};
-        String[] options = {"\n", orgName + "\n", "\n", "m\n", "newpkg\n", "f\n"};
+        String[] options = {"\n", "m\n", "newpkg\n", "f\n"};
         balClient.runMain("init", clientArgsForInit, envVariables, options, new LogLeecher[]{},
                 projectPath.toString());
 
@@ -264,6 +264,61 @@ public class ModuleInitTestCase extends BaseTest {
 
         // Test ballerina run with balx
         runMainFunction(projectPath, projectPath.resolve("target").resolve("newpkg.balx").toString());
+    }
+
+    @Test(description = "Test running init on an already existing project and create a new module with the same name " +
+            "as existing module", dependsOnMethods = "testInitOnExistingProjectWithNewModule")
+    public void testInitOnExistingProjectWithNewModuleWithSameName() throws Exception {
+        // Test ballerina init
+        Path projectPath = tempProjectDirectory.resolve("firstTestWithModulesMain");
+
+        String[] clientArgsForInit = {"-i"};
+        String[] options = {"\n", "m\n", "newpkg\n", "foo\n", "anotherpkg\n", "f\n"};
+        balClient.runMain("init", clientArgsForInit, envVariables, options, new LogLeecher[]{},
+                projectPath.toString());
+
+        Assert.assertTrue(Files.exists(projectPath.resolve("anotherpkg").resolve("main.bal")));
+        Assert.assertTrue(Files.exists(projectPath.resolve("anotherpkg").resolve("tests").resolve("main_test.bal")));
+
+        // Test ballerina build
+        balClient.runMain("build", new String[]{"anotherpkg"}, envVariables, new String[]{},
+                new LogLeecher[]{}, projectPath.toString());
+        Assert.assertTrue(Files.exists(projectPath.resolve("target").resolve("anotherpkg.balx")));
+        Assert.assertTrue(Files.exists(projectPath.resolve(".ballerina").resolve("repo").resolve(orgName)
+                .resolve("anotherpkg").resolve("0.0.1").resolve("anotherpkg.zip")));
+
+
+        // Test ballerina run on the new module
+        runMainFunction(projectPath, "anotherpkg");
+
+        // Test ballerina run with balx
+        runMainFunction(projectPath, projectPath.resolve("target").resolve("anotherpkg.balx").toString());
+    }
+
+    @Test(description = "Test running init on an already existing module",
+            dependsOnMethods = "testInitWithMainInModule")
+    public void testInitInsideAModule() throws Exception {
+        // Test ballerina init
+        Path projectPath = tempProjectDirectory.resolve("firstTestWithModulesMain").resolve("foo")
+                                               .resolve("tests").resolve("newProj");
+
+        Files.createDirectories(projectPath);
+        String[] clientArgsForInit = {"-i"};
+        LogLeecher leecher = new LogLeecher("Directory is already within a ballerina project :" +
+                tempProjectDirectory.resolve("firstTestWithModulesMain"), LogLeecher.LeecherType.ERROR);
+        balClient.runMain("init", clientArgsForInit, envVariables, new String[0], new LogLeecher[]{leecher},
+                projectPath.toString());
+    }
+
+    @Test(description = "Test running init on an already existing module",
+            dependsOnMethods = "testInitWithMainInModule")
+    public void testInitOutsideAProject() throws Exception {
+        // Test ballerina init
+        String[] clientArgsForInit = {"-i"};
+        LogLeecher leecher = new LogLeecher("A ballerina project is already initialized in " +
+                tempProjectDirectory, LogLeecher.LeecherType.ERROR);
+        balClient.runMain("init", clientArgsForInit, envVariables, new String[0], new LogLeecher[]{leecher},
+                tempProjectDirectory.toString());
     }
 
     @Test(description = "Test creating a project with invalid options")
