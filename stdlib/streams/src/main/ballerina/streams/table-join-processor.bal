@@ -34,9 +34,10 @@ public type TableJoinProcessor object {
     }
 
     public function process(StreamEvent[] streamEvents) {
+        StreamEvent?[] joinedEvents = [];
+        StreamEvent[] outputEvents;
         lock {
             self.lockField += 1;
-            StreamEvent?[] joinedEvents = [];
             int j = 0;
             foreach var event in streamEvents {
                 (StreamEvent?, StreamEvent?)[] candidateEvents = [];
@@ -56,7 +57,7 @@ public type TableJoinProcessor object {
                     j += 1;
                 }
             }
-            StreamEvent[] outputEvents = [];
+            outputEvents = [];
             int i = 0;
             foreach var e in joinedEvents {
                 if (e is StreamEvent) {

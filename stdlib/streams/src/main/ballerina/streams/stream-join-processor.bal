@@ -38,10 +38,11 @@ public type StreamJoinProcessor object {
     }
 
     public function process(StreamEvent[] streamEvents) {
+        StreamEvent?[] joinedEvents = [];
+        StreamEvent[] outputEvents;
         lock {
-            StreamEvent?[] joinedEvents = [];
-            int i = 0;
             self.lockField += 1;
+            int i = 0;
             foreach var event in streamEvents {
                 string originStream = event.data.keys()[0].split("\\.")[0];
                 // resolve trigger according to join direction
@@ -102,7 +103,7 @@ public type StreamJoinProcessor object {
                 }
             }
 
-            StreamEvent[] outputEvents = [];
+            outputEvents = [];
             i = 0;
             foreach var e in joinedEvents {
                 if (e is StreamEvent) {
