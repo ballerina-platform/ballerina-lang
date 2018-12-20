@@ -14,13 +14,13 @@ http:ServiceEndpointConfiguration helloWorldEPConfig = {
             path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
             password: "ballerina"
         },
-        // Configure prefered SSL protocol and versions to enable.
+        // Configure preferred SSL protocol and versions to enable.
         protocol: {
             name: "TLS",
             versions: ["TLSv1.2", "TLSv1.1"]
         },
 
-        // Configure prefered ciphers.
+        // Configure preferred ciphers.
         ciphers: ["TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"],
 
         // Enable mutual SSL.
@@ -44,7 +44,7 @@ service helloWorld on helloWorldEP {
     }
 
     resource function sayHello(http:Caller caller, http:Request req) {
-        // Send response to caller.
+        // Send response to the caller.
         var result = caller->respond("Successful");
 
         if (result is error) {
@@ -75,12 +75,11 @@ http:ClientEndpointConfig clientEPConfig = {
 };
 
 public function main() {
-
     // Create an HTTP client to interact with the created listener endpoint.
     http:Client clientEP = new("https://localhost:9095",
                                 config = clientEPConfig);
 
-    // Send a get request to the server.
+    // Send a get request to the listener.
     var resp = clientEP->get("/hello");
 
     if (resp is http:Response) {
