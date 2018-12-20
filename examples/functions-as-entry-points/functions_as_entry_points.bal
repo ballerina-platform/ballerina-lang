@@ -2,8 +2,8 @@ import ballerina/io;
 
 error unknownOpError = error("unknown operation");
 
-// A function named `main` acts as a default entry point to a Ballerina program.
-// This entry function can have zero or more parameters, and can also return
+ // A function named `main` acts as one of the default entry points to a Ballerina program.
+// This entry function can have zero or more parameters and can also return
 // a value.
 public function main(int i, int j, string s) returns int {
     if (s == "add") {
