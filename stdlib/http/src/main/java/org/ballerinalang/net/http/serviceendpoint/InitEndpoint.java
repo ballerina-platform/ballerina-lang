@@ -166,21 +166,16 @@ public class InitEndpoint extends AbstractHttpNativeFunction {
         RequestSizeValidationConfig requestSizeValidationConfig = listenerConfiguration
                 .getRequestSizeValidationConfig();
 
-        if (maxUriLength != -1) {
-            if (maxUriLength >= 0) {
-                requestSizeValidationConfig.setMaxUriLength(Math.toIntExact(maxUriLength));
-            } else {
-                throw new BallerinaConnectorException("Invalid configuration found for maxUriLength : " + maxUriLength);
-            }
+        if (maxUriLength >= 0) {
+            requestSizeValidationConfig.setMaxUriLength(Math.toIntExact(maxUriLength));
+        } else {
+            throw new BallerinaConnectorException("Invalid configuration found for maxUriLength : " + maxUriLength);
         }
 
-        if (maxHeaderSize != -1) {
-            if (maxHeaderSize >= 0) {
-                requestSizeValidationConfig.setMaxHeaderSize(Math.toIntExact(maxHeaderSize));
-            } else {
-                throw new BallerinaConnectorException(
-                        "Invalid configuration found for maxHeaderSize : " + maxHeaderSize);
-            }
+        if (maxHeaderSize >= 0) {
+            requestSizeValidationConfig.setMaxHeaderSize(Math.toIntExact(maxHeaderSize));
+        } else {
+            throw new BallerinaConnectorException("Invalid configuration found for maxHeaderSize : " + maxHeaderSize);
         }
 
         if (maxEntityBodySize != -1) {

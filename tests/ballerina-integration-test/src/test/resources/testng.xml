@@ -58,6 +58,7 @@
             <class name="org.ballerinalang.test.service.http.sample.HttpStatusCodeTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.CipherStrengthSSLTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.ResourceFunctionReturnTestCase"/>
+            <class name="org.ballerinalang.test.service.http.configuration.RequestLimitsConfigurationTest"/>
         </classes>
     </test>
 
