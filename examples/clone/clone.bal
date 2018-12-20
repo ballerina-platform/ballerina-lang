@@ -57,7 +57,7 @@ public function main() {
         io:println("Cloned value: ", result);
         // Check reference inequality for the original value and the cloned value.
         io:println("Source and Clone are at two different memory locations: ", result !== person);
-    // If the result is an error, print out the detail message.
+    // If the result is an error, print out the detailed error message.
     } else if (result is error) {
         io:println("Cannot clone: ", result.detail().message);
         return ();
