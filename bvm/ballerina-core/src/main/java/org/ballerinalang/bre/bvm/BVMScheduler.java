@@ -261,9 +261,11 @@ public class BVMScheduler {
             // Stop the observation context before popping the stack frame
             ObserveUtils.stopCallableObservation(strand);
             if (strand.fp > 0) {
-                strand.popFrame().handleChannelPanic(error, strand.currentFrame.wdChannels);
+                strand.currentFrame.handleChannelPanic(error, strand.peekFrame(1).wdChannels);
+                strand.popFrame();
             } else {
-                strand.popFrame().handleChannelPanic(error, strand.respCallback.parentChannels);
+                strand.currentFrame.handleChannelPanic(error, strand.respCallback.parentChannels);
+                strand.popFrame();
             }
             BVM.handleError(strand);
             execute(strand);

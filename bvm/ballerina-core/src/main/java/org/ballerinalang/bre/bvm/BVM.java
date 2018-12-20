@@ -926,9 +926,11 @@ public class BVM {
         // Stop the observation context before popping the stack frame
         ObserveUtils.stopCallableObservation(strand);
         if (strand.fp > 0) {
-            strand.popFrame().handleChannelPanic(strand.getError(), strand.currentFrame.wdChannels);
+            strand.currentFrame.handleChannelPanic(strand.getError(), strand.peekFrame(1).wdChannels);
+            strand.popFrame();
         } else {
-            strand.popFrame().handleChannelPanic(strand.getError(), strand.respCallback.parentChannels);
+            strand.currentFrame.handleChannelPanic(strand.getError(), strand.respCallback.parentChannels);
+            strand.popFrame();
         }
         handleError(strand);
         return strand;

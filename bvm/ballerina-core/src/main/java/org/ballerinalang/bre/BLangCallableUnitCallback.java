@@ -80,9 +80,8 @@ public class BLangCallableUnitCallback implements CallableUnitCallback {
         if (strand.fp > 0) {
             // Stop the observation context before popping the stack frame
             ObserveUtils.stopCallableObservation(strand);
-            StackFrame poppedFrame = strand.popFrame();
-            StackFrame sf = strand.currentFrame;
-            poppedFrame.handleChannelPanic(error, sf.wdChannels);
+            strand.currentFrame.handleChannelPanic(error, strand.peekFrame(1).wdChannels);
+            strand.popFrame();
             strand.setError(error);
             BVMScheduler.schedule(strand);
             return;
