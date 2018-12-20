@@ -54,7 +54,7 @@ service helloWorld on helloWorldEP {
 }
 
 // Create a new client configuration to be passed to the client endpoint.
-// Configure the `keyStoreFile`, `keyStorePassword`, `trustStoreFile` and
+// Configure the `keyStoreFile`, `keyStorePassword`, `trustStoreFile`, and
  // `trustStorePassword` to enable mutual SSL.
 http:ClientEndpointConfig clientEPConfig = {
     secureSocket: {
