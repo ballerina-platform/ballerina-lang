@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
  *
  * @since 0.990.1
  */
-public class AliasNotFoundForInvocationsTest {
+public class AliasNotDefinedForInvocationsTest {
 
     private CompileResult result;
 
@@ -44,7 +44,7 @@ public class AliasNotFoundForInvocationsTest {
     public void testAliasNotFoundError() {
         Assert.assertEquals(result.getErrorCount(), 2);
         BAssertUtil.validateError(result, 0,
-                "alias not found for expression in select clause", 81, 84);
+                "alias not defined for expression in select clause", 81, 84);
         BAssertUtil.validateError(result, 1,
                 "fields defined in select clause, incompatible with output fields in type" +
                 " 'TeacherOutput', expected '[name, age, sumAge, count]' but found '[sumAge, name, age]'", 83, 9);
