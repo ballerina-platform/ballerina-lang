@@ -9,7 +9,7 @@ service hello on new http:Listener(9090) {
     resource function sayHello(http:Caller caller, http:Request req) {
         // Send a response back to the caller.
         var result = caller->respond("Hello, World!");
-        // Handle error in case of failure.
+        // Log the `error` in case of a failure.
         if (result is error) {
             log:printError("Error sending response", err = result);
         }

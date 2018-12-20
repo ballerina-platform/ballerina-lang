@@ -1,36 +1,20 @@
 import ballerina/test;
-import ballerina/io;
 import ballerina/http;
 
-boolean serviceStarted;
+// Invoking the main function.
+http:Client httpEndpoint = new("http://localhost:9095");
 
-function startService() {
-    //serviceStarted = test:startServices("http-access-logs");
-}
-
-@test:Config {
-    before: "startService",
-    after: "stopService"
-}
+@test:Config
 function testFunc() {
-    // Invoking the main function.
-    endpoint http:Client httpEndpoint { url: "http://localhost:9095" };
-    // Check whether the server has started.
-    //test:assertTrue(serviceStarted, msg = "Unable to start the service");
 
     string response1 = "Successful";
 
     // Send a GET request to the specified endpoint.
     var response = httpEndpoint->get("/hello");
-    match response {
-        http:Response resp => {
-            var res = check resp.getTextPayload();
-            test:assertEquals(res, response1);
-        }
-        error err => test:assertFail(msg = "Failed to call the endpoint:");
+    if (response is http:Response) {
+        var res = response.getTextPayload();
+        test:assertEquals(res, response1);
+    } else {
+        test:assertFail(msg = "Failed to call the endpoint:");
     }
-}
-
-function stopService() {
-    //test:stopServices("http-access-logs");
 }
