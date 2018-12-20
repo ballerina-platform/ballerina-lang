@@ -337,7 +337,9 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWindow windowClause) {
-        //do nothing
+        for (BLangExpression expr : ((BLangInvocation) windowClause.getFunctionInvocation()).argExprs) {
+            expr.accept(this);
+        }
     }
 
     @Override
