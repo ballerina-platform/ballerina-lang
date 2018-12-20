@@ -126,8 +126,8 @@ public class Init extends AbstractGrpcNativeFunction {
         }
 
         if (idleTimeout < 0) {
-            throw new BallerinaConnectorException("Idle timeout cannot be negative. If you want to disable the " +
-                    "timeout please use value 0");
+            throw new BallerinaConnectorException("Idle timeout cannot be negative. To disable the " +
+                    "timeout please set value to 0");
         }
         listenerConfiguration.setSocketIdleTimeout(Math.toIntExact(idleTimeout));
         
