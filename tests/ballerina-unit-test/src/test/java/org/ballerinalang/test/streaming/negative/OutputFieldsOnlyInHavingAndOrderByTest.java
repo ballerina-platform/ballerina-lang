@@ -43,8 +43,8 @@ public class OutputFieldsOnlyInHavingAndOrderByTest {
     public void testOutputputFieldInSelect() {
         Assert.assertEquals(result.getErrorCount(), 2);
         BAssertUtil.validateError(result, 0, "alias not defined for expression in select clause", 64, 16);
-        BAssertUtil.validateError(result, 1, "fields defined in select clause, incompatible with output fields in type" +
-                " 'Teacher', expected '[name, age, status, batch, school]' but found '[school, batch, age, status]'",
-                65, 9);
+        BAssertUtil.validateError(result, 1, "fields defined in select clause, " +
+                "incompatible with output fields in type 'Teacher', expected '[name, age, status, batch, school]'" +
+                " but found '[school, batch, age, status]'", 65, 9);
     }
 }
