@@ -43,3 +43,14 @@ function testObjectInitializerOrder() returns (int, string){
     employee p = new (a = 40, "B");
     return (p.age, p.name);
 }
+
+function testObjectInitializerUsedAsAFunction() returns (int, string, int, string) {
+    person p = new(n = "Peter");
+    int age1 = p.age;
+    string name1 = p.name;
+    p.age = 15;
+    p.name = "Jack";
+
+    p.__init(a = 20, n = "James");
+    return (p.age, p.name, age1, name1);
+}

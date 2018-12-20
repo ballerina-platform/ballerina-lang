@@ -81,5 +81,15 @@ public class ObjectInitializerTest {
                 "object initializer function can not be declared as private", 11, 4);
 
     }
+
+    @Test(description = "Test object initializer invocation")
+    public void testObjectInitializerUsedAsAFunction() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testObjectInitializerUsedAsAFunction");
+
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 20);
+        Assert.assertEquals(returns[1].stringValue(), "James");
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 10);
+        Assert.assertEquals(returns[3].stringValue(), "Peter");
+    }
 }
 
