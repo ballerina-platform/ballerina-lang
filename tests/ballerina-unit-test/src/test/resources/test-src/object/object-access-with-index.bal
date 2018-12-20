@@ -1,29 +1,30 @@
 type Department object {
-    public string dptName;
-    public Person[] employees;
+    public string dptName = "";
+    public Person[] employees = [];
 
-    new (dptName = "", employees) {
-        
+    function __init (string dptName = "", Person[] employees) {
+        self.dptName = dptName;
+        self.employees = employees;
     }
 };
 
 type Person object {
     public string name = "default first name";
-    public string lname;
-    public map adrs;
+    public string lname = "";
+    public map<any> adrs = {};
     public int age = 999;
-    public Family family;
+    public Family family = new;
 };
 
 type Family object {
-    public string spouse;
-    public int noOfChildren;
-    public string[] children;
+    public string spouse = "";
+    public int noOfChildren = 0;
+    public string[] children = [];
 };
 
-function testCreateObject () returns (string, map, int) {
-    map address1;
-    map address = {"country":"USA", "state":"CA"};
+function testCreateObject () returns (string, map<any>, int) {
+    map<any> address1 = {};
+    map<any> address = {"country":"USA", "state":"CA"};
     Person emp = new ();
     emp.name = "Jack";
     emp.adrs = address;
@@ -33,7 +34,7 @@ function testCreateObject () returns (string, map, int) {
 
 function testObjectOfObject () returns (string) {
 
-    map address = {"country":"USA", "state":"CA"};
+    map<any> address = {"country":"USA", "state":"CA"};
     Person emp1 = new ();
     emp1.name = "Jack";
     emp1.adrs = address;
@@ -42,13 +43,18 @@ function testObjectOfObject () returns (string) {
     Person[] emps = [emp1, emp2];
     Department dpt = new (emps);
 
-    string country;
-    country = dpt["employees"][0]["adrs"]["country"] but { () => "", any a => <string> a};
-    return country;
+    var country = dpt["employees"][0]["adrs"]["country"];
+    if (country is string) {
+        return country;
+    } else if (country is ()) {
+        return "";
+    } else {
+        return <string> country;
+    }
 }
 
 function testReturnObjectAttributes () returns (string) {
-    map address = {"country":"USA", "state":"CA"};
+    map<any> address = {"country":"USA", "state":"CA"};
     string[] chldrn = [];
     Family fmly = new ();
     fmly.children = chldrn;
@@ -76,12 +82,12 @@ function testExpressionAsIndex () returns (string) {
 }
 
 function testObjectExpressionAsIndex () returns (string) {
-    string country;
+    string country = "";
     Department dpt = new ([]);
     Family fmly = new ();
     fmly.children = [];
     Person emp2 = new ();
-    map address = {"country":"USA", "state":"CA"};
+    map<any> address = {"country":"USA", "state":"CA"};
     Person emp1 = new ();
     emp1.name = "Jack";
     emp1.adrs = address;

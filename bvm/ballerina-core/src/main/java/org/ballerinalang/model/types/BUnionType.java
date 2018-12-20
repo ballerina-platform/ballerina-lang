@@ -46,7 +46,8 @@ public class BUnionType extends BType {
      * @param memberTypes of the union type
      */
     public BUnionType(List<BType> memberTypes) {
-        super(null, null, BValue.class);
+        super(String.join("|", memberTypes.stream().map(BType::toString).collect(Collectors.toList())), null,
+              BValue.class);
         this.memberTypes = memberTypes;
         this.nullable = memberTypes.contains(BTypes.typeNull);
     }
@@ -70,12 +71,6 @@ public class BUnionType extends BType {
     }
 
     @Override
-    public TypeSignature getSig() {
-        return new TypeSignature(TypeSignature.SIG_UNION,
-                memberTypes.stream().map(type -> type.getSig()).collect(Collectors.toList()));
-    }
-
-    @Override
     public int getTag() {
         return TypeTags.UNION_TAG;
     }
@@ -95,7 +90,7 @@ public class BUnionType extends BType {
             return false;
         }
         BUnionType that = (BUnionType) o;
-        return Objects.equals(memberTypes, that.memberTypes);
+        return memberTypes.containsAll(that.memberTypes) && that.memberTypes.containsAll(memberTypes);
     }
 
     @Override

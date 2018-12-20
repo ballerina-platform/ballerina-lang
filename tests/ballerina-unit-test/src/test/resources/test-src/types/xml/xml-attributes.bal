@@ -193,15 +193,17 @@ function testUsingQNameAsString () returns (string, string) {
     return (s1, s2);
 }
 
-function testGetAttributesAsMap() returns (map, map, string, string) {
+function testGetAttributesAsMap() returns (map<string>, map<string>, string, string) {
     var x1 = xml `<root xmlns:ns0="http://sample.com/wso2/a1" ns0:foo1="bar1" foo2="bar2"/>`;
     var x2 = xml `<root xmlns="http://sample.com/default/namepsace" xmlns:ns0="http://sample.com/wso2/a1" ns0:foo1="bar1" foo2="bar2"/>`;
     
-    map m1 = <map> x1@;
-    map m2 = <map> x2@;
-    
-    var s1 = m1["{http://sample.com/wso2/a1}foo1"] but { () => "", any a => <string> a};
-    var s2 = m1[ns0:foo1] but { () => "", any a => <string> a};
+    map<string> m1 = map<string>.convert(x1@);
+    map<string> m2 = map<string>.convert(x2@);
+
+    var a = m1["{http://sample.com/wso2/a1}foo1"];
+    var s1 = a is string ?  a : "";
+    a = m1[ns0:foo1];
+    var s2 =  a is string ? a : "";
     return (m1, m2, s1, s2);
 }
 
@@ -250,7 +252,7 @@ function testRuntimeNamespaceLookupPriority() returns (xml) {
 }
 
 function testSetAttributes() returns (xml) {
-    map attributesMap = {"foo1":"bar1", "{http://wso2.com}foo2":"bar2"};
+    map<any> attributesMap = {"foo1":"bar1", "{http://wso2.com}foo2":"bar2"};
     attributesMap[ns0:foo3] = "bar3";
     var x = xml `<root xmlns:p1="http://wso2.com" xmlns:p2="http://sample.com/wso2/a1"/>`;
     

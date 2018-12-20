@@ -1,7 +1,11 @@
+# To run the program, navigate to the directory that contains the
+# `.bal` file and issue the `ballerina run` command.
 $ ballerina run type_conversion.bal
-10
+Employee to Person, name: Jack Sparrow
+map<any> to Person, name: Jack Sparrow
+Error occurred on conversion
+int value: 45
 error: 'string' cannot be converted to 'int'
-1
-true
-true
-3.14
+int value: 10
+boolean value: true
+float value: 3.14

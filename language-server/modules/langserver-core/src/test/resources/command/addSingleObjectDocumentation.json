@@ -1,33 +1,31 @@
 {
   "nodeType": "object",
-  "nodeLine": "23",
+  "nodeLine": "19",
   "expected": {
-    "result":{
-      "edit":{
-        "changes":{
-
-        },
-        "documentChanges":[
+    "result": {
+      "edit": {
+        "changes": {},
+        "documentChanges": [
           {
-            "edits":[
+            "edits": [
               {
-                "range":{
-                  "start":{
-                    "line":23,
-                    "character":0
+                "range": {
+                  "start": {
+                    "line": 19,
+                    "character": 0
                   },
-                  "end":{
-                    "line":23,
-                    "character":0
+                  "end": {
+                    "line": 19,
+                    "character": 0
                   }
                 },
-                "newText":"# Description\n#\n# + testString - testString Parameter Description\n"
+                "newText": "# Description\n#\n# + testString - testString Parameter Description\n"
               }
             ]
           }
         ]
       }
     },
-    "jsonrpc":"2.0"
+    "jsonrpc": "2.0"
   }
 }

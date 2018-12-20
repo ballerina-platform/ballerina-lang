@@ -37,22 +37,21 @@ public class ChannelsNegativeTest {
     public void setup() {
 
         result = BCompileUtil.compile("test-src/channels/channel-negative-test.bal");
-        Assert.assertEquals(result.getErrorCount(), 6, "Channels negative test error count");
+        Assert.assertEquals(result.getErrorCount(), 5, "Channels negative test error count");
 
     }
 
     @Test(description = "Test channel result's incompatible types", groups = CHANNEL_TEST)
     public void checkIncompatibleResultType() {
-
-        Assert.assertEquals(result.getDiagnostics()[0].getPosition().getStartLine(), 7, "Wrong channel position line " +
-                "number");
-        Assert.assertEquals(result.getDiagnostics()[0].getMessage(), "incompatible types: expected 'json', found " +
-                "'xml'", "Channel receive expression, incompatible result type error");
-
-        Assert.assertEquals(result.getDiagnostics()[1].getPosition().getStartColumn(), 9, "Wrong channel position " +
+        Assert.assertEquals(result.getDiagnostics()[0].getPosition().getStartColumn(), 9, "Wrong channel position " +
                 "column number");
-        Assert.assertEquals(result.getDiagnostics()[1].getMessage(), "incompatible types: expected 'json', found " +
+        Assert.assertEquals(result.getDiagnostics()[0].getMessage(), "incompatible types: expected 'json', found " +
                 "'string'", "Channel receive expression, incompatible result type error");
+
+        Assert.assertEquals(result.getDiagnostics()[1].getPosition().getStartLine(), 12, "Wrong channel position " +
+                "line number");
+        Assert.assertEquals(result.getDiagnostics()[1].getMessage(), "incompatible types: expected 'json', found " +
+                "'xml'", "Channel receive expression, incompatible result type error");
 
     }
 
@@ -60,11 +59,11 @@ public class ChannelsNegativeTest {
     @Test(description = "Test unsupported channel constraint types", groups = CHANNEL_TEST)
     public void checkChannelConstraintErrors() {
 
-        Assert.assertEquals(result.getDiagnostics()[2].getPosition().getStartLine(), 18, "Incorrect position for " +
+        Assert.assertEquals(result.getDiagnostics()[2].getPosition().getStartLine(), 16, "Incorrect position for " +
                 "channel constraint error");
         Assert.assertEquals(result.getDiagnostics()[2].getMessage(), "incompatible types: 'channel' cannot be " +
                 "constrained with 'map'", "Channel constraint type error message");
-        Assert.assertEquals(result.getDiagnostics()[3].getPosition().getStartColumn(), 1, "Incorrect column position " +
+        Assert.assertEquals(result.getDiagnostics()[2].getPosition().getStartColumn(), 1, "Incorrect column position " +
                 "for " +
                 "channel constraint error");
         Assert.assertEquals(result.getDiagnostics()[3].getMessage(), "incompatible types: 'channel' cannot be " +
@@ -73,18 +72,9 @@ public class ChannelsNegativeTest {
 
     @Test(description = "Test invalid annotations", groups = CHANNEL_TEST)
     public void checkInvalidAnnotations() {
-
-        Assert.assertEquals(result.getDiagnostics()[4].getPosition().getStartLine(), 29, "Wrong channel annotation " +
-                "position line " +
-                "number");
-        Assert.assertEquals(result.getDiagnostics()[4].getMessage(), "annotation 'ballerina/builtin:final' is not " +
-                "allowed in channel", "@final annotation for channels error message");
-
-        Assert.assertEquals(result.getDiagnostics()[5].getPosition().getStartColumn(), 1, "Wrong channel annotation " +
-                "position column number");
-        Assert.assertEquals(result.getDiagnostics()[5].getMessage(), "annotation 'ballerina/builtin:readonly' is not " +
-                "allowed in channel", "@final annotation for channels error message");
-
+        Assert.assertEquals(result.getDiagnostics()[4].getPosition().getStartLine(), 27, "Wrong channel annotation " +
+                "position line number");
+        Assert.assertEquals(result.getDiagnostics()[4].getMessage(), "annotation 'ballerina/builtin:sensitive' is " +
+                "not allowed in channel", "@sensitive annotation for channels error message");
     }
-
 }

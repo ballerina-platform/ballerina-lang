@@ -1,7 +1,7 @@
 import ballerina/io;
 import ballerina/internal;
 
-byte[] glbVarBlob;
+byte[] glbVarBlob = [];
 
 byte[] gA = base16 `aeeecdefabcd12345567888822`;
 byte[] gB = base64 `aGVsbG8gYmFsbGVyaW5hICEhIQ==`;
@@ -13,13 +13,13 @@ type BinaryData record {
 type TestRec record {
     byte[] a = base16 `aa ab`;
     byte[] b = base64 `aGVsbG8gYmFsbGVyaW5hICEhIQ==`;
-    byte[] c;
+    byte[] c = [];
 };
 
 type TestObj object {
     public byte[] a = base16 `aa ab`;
     public byte[] b = base64 `aGVsbG8gYmFsbGVyaW5hICEhIQ==`;
-    public byte[] c;
+    public byte[] c = [];
 };
 
 function base16Test() {
@@ -56,7 +56,7 @@ function testByteArrayLiteral() returns byte[] {
 }
 
 function testBlobParameter(byte[] b) returns (byte[]) {
-    byte[] a;
+    byte[] a = [];
     a = b;
     return a;
 }
@@ -135,7 +135,7 @@ function testBlobAssign() returns (byte[], byte[]) {
 }
 
 function testBlobDefaultValue() returns (byte[], byte[], byte[], byte[], byte[], byte[], byte[], byte[]) {
-    byte[] a;
+    byte[] a = [];
     byte[] b = a;
     TestRec testRec = {};
     TestObj testObj = new;

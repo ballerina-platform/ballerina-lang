@@ -23,10 +23,13 @@ import com.intellij.psi.PsiElement;
 
 public interface BallerinaObjectBody extends BallerinaCompositeElement {
 
-  @Nullable
-  BallerinaObjectInitializer getObjectInitializer();
+  @NotNull
+  List<BallerinaObjectFieldDefinition> getObjectFieldDefinitionList();
 
   @NotNull
-  List<BallerinaObjectMember> getObjectMemberList();
+  List<BallerinaObjectFunctionDefinition> getObjectFunctionDefinitionList();
+
+  @NotNull
+  List<BallerinaTypeReference> getTypeReferenceList();
 
 }

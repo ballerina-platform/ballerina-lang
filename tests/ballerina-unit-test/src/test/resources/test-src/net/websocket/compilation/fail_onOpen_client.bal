@@ -17,16 +17,13 @@
 import ballerina/http;
 import ballerina/io;
 
-endpoint http:WebSocketClient wsClient {
-    url: "wss://echo.websocket.org",
-    callbackService: wsClientService
+http:WebSocketClient wsClient = new("wss://echo.websocket.org", config = {callbackService: wsClientService});
+
+service wsClientService = @http:WebSocketServiceConfig {} service {
+
+    resource function onOpen(http:WebSocketClient caller) {
+    }
+
+    resource function onIdleTimeout(http:WebSocketClient caller) {
+    }
 };
-
-service<http:WebSocketClientService> wsClientService {
-    onOpen(endpoint caller) {
-    }
-
-    onIdleTimeout(endpoint caller) {
-
-    }
-}

@@ -172,23 +172,21 @@ function testSetHeaderAfterStringPayloadResponse() returns (string[]) {
     return response.getHeaders("content-type");
 }
 
-endpoint http:NonListener mockEP {
-    port: 9090
-};
+listener http:MockListener mockEP = new(9090);
 
 @http:ServiceConfig { basePath: "/test" }
-service<http:Service> echo bind mockEP {
+service echo on mockEP {
     @http:ResourceConfig {
         methods: ["POST"],
         path: "/jsonTest"
     }
-    getJson(endpoint caller, http:Request request) {
+    resource function getJson(http:Caller caller, http:Request request) {
         http:Response response = new;
-        match request.getJsonPayload() {
-            error err => response.setTextPayload(untaint err.message);
-            json requestJson => {
-                response.setJsonPayload(untaint requestJson);
-            }
+        var payload = request.getJsonPayload();
+        if (payload is json) {
+            response.setPayload(untaint payload);
+        } else if (payload is error) {
+            response.setPayload(untaint <string>payload.detail().message);
         }
         _ = caller->respond(response);
     }

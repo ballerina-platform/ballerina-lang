@@ -4,39 +4,22 @@ import { getLibraryWebViewContent } from '../utils';
 
 export function render(context: ExtensionContext, langClient: ExtendedLangClient)
     : string {
-    const body = `<div id="examples" />`;
-    const script = `
-        function getSamples() {
-            return Promise.resolve(examples);
-        }
-        function getExamples() {
-            return new Promise((resolve, reject) => {
-                webViewRPCHandler.invokeRemoteMethod('getExamples', [], (resp) => {
-                    resolve(resp.samples);
-                });
-            })
-        }
-        function openExample(url) {
-            vscode.postMessage({
-                command: 'openExample',
-                url: JSON.stringify(url)
-            });
-        }
-        function renderSamples() {
-            ballerinaComposer.renderSamplesList(document.getElementById("examples"), openExample, getExamples, () => {});
-        }
-        renderSamples();
-        renderSamples();
-        
-        `;
-    const styles = `
-        body.vscode-dark {
-            background-color: #1e1e1e;
-        }
-        body.vscode-light {
-            background-color: white;
-        }
-    `;
 
-    return getLibraryWebViewContent(context, body, script, styles);
+    const body = `<div id="examples" class="examples-container" />`;
+    const bodyCss = "examples";
+    const styles = ``;
+    const script = `
+            function loadedScript() {
+                    function openExample(url) {
+                        webViewRPCHandler.invokeRemoteMethod("openExample", [url]);
+                    }
+                    const langClient = getLangClient();
+                    function renderSamples() {
+                        ballerinaComposer.renderSamplesList(document.getElementById("examples"), openExample, langClient.getExamples, () => {});
+                    }
+                    renderSamples();
+            }
+        `;
+
+    return getLibraryWebViewContent(context, body, script, styles, bodyCss);
 }

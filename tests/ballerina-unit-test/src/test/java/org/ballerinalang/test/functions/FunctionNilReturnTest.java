@@ -21,6 +21,7 @@ package org.ballerinalang.test.functions;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueType;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -112,6 +113,29 @@ public class FunctionNilReturnTest {
             System.setOut(new PrintStream(outputStream));
             BRunUtil.invoke(compileResult, "testPrintInWorkers", new BValueType[0]);
             Assert.assertEquals(outputStream.toString().replace("\r", ""), EXPECTED_OUTPUT);
+        } finally {
+            System.setOut(original);
+        }
+    }
+
+    @Test
+    public void testNoReturnFuncInvocnInNilReturnFuncRetStmt() throws IOException {
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            System.setOut(new PrintStream(outputStream));
+            BRunUtil.invoke(compileResult, "testNoReturnFuncInvocnInNilReturnFuncRetStmt", new BValue[0]);
+            Assert.assertEquals(outputStream.toString().replace("\r", ""), "nil returns here\nno returns here\n\n");
+        } finally {
+            System.setOut(original);
+        }
+    }
+
+    @Test
+    public void testNilReturnFuncInvocnInNilReturnFuncRetStmt() throws IOException {
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            System.setOut(new PrintStream(outputStream));
+            BRunUtil.invoke(compileResult, "testNilReturnFuncInvocnInNilReturnFuncRetStmt", new BValue[0]);
+            Assert.assertEquals(outputStream.toString().replace("\r", ""), "nil returns here\nexplicit nil returns" +
+                    " here\n\n");
         } finally {
             System.setOut(original);
         }

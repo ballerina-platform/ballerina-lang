@@ -20,7 +20,8 @@ import ballerina/log;
 // Filter1
 
 public type Filter10 object {
-    public function filterRequest (http:Listener listener, http:Request request, http:FilterContext context) returns boolean {
+    public function filterRequest(http:Caller caller, http:Request request, http:FilterContext context)
+                                                                                        returns boolean {
         log:printInfo("Intercepting request for filter 1");
         return true;
     }
@@ -30,15 +31,15 @@ public type Filter10 object {
     }
 };
 
-Filter10 filter10;
+Filter10 filter10 = new;
 
 // Filter2
 
 public type Filter11 object {
-    public function filterRequest (http:Listener listener, http:Request request, http:FilterContext context) returns boolean {
-        endpoint http:Listener caller = listener;
+    public function filterRequest(http:Caller caller, http:Request request, http:FilterContext context)
+                        returns boolean {
         log:printInfo("Intercepting request for filter 2");
-        http:Response response;
+        http:Response response = new;
         response.statusCode = 403;
         response.setTextPayload("Authorization failure");
         var value = caller->respond(response);
@@ -50,22 +51,19 @@ public type Filter11 object {
     }
 };
 
-Filter11 filter11;
+Filter11 filter11 = new;
 
-endpoint http:Listener echoEP04 {
-    port:9094,
-    filters:[filter10, filter11]
-};
+listener http:Listener echoEP04 = new(9094, config = { filters: [filter10, filter11] });
 
 @http:ServiceConfig {
     basePath:"/echo"
 }
-service<http:Service> echo04 bind echoEP04 {
+service echo04 on  echoEP04 {
     @http:ResourceConfig {
         methods:["GET"],
         path:"/test"
     }
-    echo (endpoint caller, http:Request req) {
+    resource function echo(http:Caller caller, http:Request req) {
         http:Response res = new;
         _ = caller -> respond(res);
     }

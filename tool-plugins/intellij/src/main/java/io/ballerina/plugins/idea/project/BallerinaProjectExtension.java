@@ -65,6 +65,7 @@ public class BallerinaProjectExtension extends ProjectExtension {
                 WriteAction.run(() -> ModuleRootModificationUtil.setSdkInherited(module));
             }
         }
+
         // Need to prompt a restart action to clear and re initiate language server instance from the new SDK.
         // Todo - Figure out a way to apply language server changes without restarting.
         if (isBallerinaSdk(sdk)) {

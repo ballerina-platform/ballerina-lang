@@ -24,12 +24,15 @@ type Employee object {
     public string lastName;
 
     // Non-abstract object can have a constructor method.
-    new(age, firstName, lastName) {
+    function __init(int age, string firstName, string lastName) {
+        self.age = age;
+        self.firstName = firstName;
+        self.lastName = lastName;
     }
 
     // Member function should have a body.
     function getFullName() returns string {
-        return firstName + " " + lastName; 
+        return self.firstName + " " + self.lastName;
     }
 
     // Otherwise must be defined outside.
@@ -37,7 +40,7 @@ type Employee object {
 };
 
 // Implement the declared function.
-function Employee::checkAndModifyAge(int condition, int a) {
+function Employee.checkAndModifyAge(int condition, int a) {
     if (self.age < condition) {
         self.age = a;
     }

@@ -18,8 +18,6 @@
 
 package org.ballerinalang.packerina.init;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.packerina.init.models.FileType;
 import org.ballerinalang.packerina.init.models.ModuleMdFile;
 import org.ballerinalang.packerina.init.models.SrcFile;
@@ -31,12 +29,10 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 
@@ -44,18 +40,19 @@ import java.util.List;
  * Test cases for ballerina init command.
  */
 public class InitHandlerTest {
-    Path tmpDir;
+    private Path tmpDir;
+
     @BeforeClass
     public void setup() throws IOException {
         tmpDir = Files.createTempDirectory("init-command-files-");
     }
-    
-    @Test(description = "Test if the generated source are runnable.", enabled = false)
+
+    @Test(description = "Test if the generated source are runnable.")
     public void testGeneratedSourceContent() throws IOException {
         Manifest manifest = new Manifest();
         manifest.setName("wso2");
         manifest.setVersion("1.0.0");
-    
+
         SrcFile packageFile = new SrcFile("wso2_abc", FileType.SERVICE);
         SrcFile mainFile = new SrcFile("main_runner", FileType.MAIN);
         List<SrcFile> srcFiles = new ArrayList<>();
@@ -70,46 +67,34 @@ public class InitHandlerTest {
         moduleMdFiles.add(moduleMdFileForMain);
 
         InitHandler.initialize(tmpDir, manifest, srcFiles, moduleMdFiles);
-    
+
         Path tomlFile = tmpDir.resolve("Ballerina.toml");
         byte[] tomlFileBytes = Files.readAllBytes(tomlFile);
-    
+
         String tomlFileContents = new String(tomlFileBytes, Charset.defaultCharset());
         Assert.assertTrue(tomlFileContents.contains("[project]"), "Project header missing in Ballerina.toml");
         Assert.assertTrue(tomlFileContents.contains("org-name = \"" + manifest.getName() + "\""),
-                "Org-Name missing in Ballerina.toml");
+                          "Org-Name missing in Ballerina.toml");
         Assert.assertTrue(tomlFileContents.contains("version = \"" + manifest.getVersion() + "\""),
-                "Version missing in Ballerina.toml");
-        
-        Path servicesBalFile = tmpDir.resolve(packageFile.getName()).resolve("services.bal");
+                          "Version missing in Ballerina.toml");
+
+        Path servicesBalFile = tmpDir.resolve(packageFile.getName()).resolve("hello_service.bal");
         Path mainBalFile = tmpDir.resolve(mainFile.getName());
-    
+
         Assert.assertTrue(Files.exists(servicesBalFile), "Module not generated.");
         Assert.assertTrue(Files.exists(mainBalFile), "Main file not generated.");
-        
-        CompileResult serviceFileCompileResult = BCompileUtil.compile(servicesBalFile.getParent().toString());
-        Assert.assertFalse(serviceFileCompileResult.getDiagnostics().length > 0,
-                "Errors found in the generated service files.");
-    
-        CompileResult mainFileCompileResult = BCompileUtil.compile(mainBalFile.toString());
-        Assert.assertFalse(mainFileCompileResult.getDiagnostics().length > 0,
-                "Errors found in the generated service files.");
     }
-    
+
     @AfterClass
-    public void teardown() throws IOException {
-        Files.walkFileTree(tmpDir, new SimpleFileVisitor<Path>() {
-            @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                Files.delete(file);
-                return FileVisitResult.CONTINUE;
-            }
-            
-            @Override
-            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                Files.delete(dir);
-                return FileVisitResult.CONTINUE;
-            }
-        });
+    public void cleanup() throws IOException {
+        Files.walk(tmpDir)
+             .sorted(Comparator.reverseOrder())
+             .forEach(path -> {
+                 try {
+                     Files.delete(path);
+                 } catch (IOException e) {
+                     Assert.fail(e.getMessage(), e);
+                 }
+             });
     }
 }

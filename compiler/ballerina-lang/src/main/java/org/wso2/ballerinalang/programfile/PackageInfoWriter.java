@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.programfile.attributes.ParamDefaultValueAttributeI
 import org.wso2.ballerinalang.programfile.attributes.ParameterAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.TaintTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.VarTypeCountAttributeInfo;
+import org.wso2.ballerinalang.programfile.attributes.WorkerSendInsAttributeInfo;
 import org.wso2.ballerinalang.programfile.cpentries.ActionRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.BlobCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ByteCPEntry;
@@ -52,6 +53,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Serialize Ballerina {@code PackageInfo} structure to a byte stream.
@@ -192,6 +194,9 @@ public class PackageInfoWriter {
             writeResourceInfo(dataOutStream, serviceInfo);
         }
 
+        // Emit constant info entries
+        writeConstantInfoEntries(dataOutStream, packageInfo.getConstantInfoEntries());
+
         // Emit global variable info entries
         writeGlobalVarInfoEntries(dataOutStream, packageInfo.getPackageInfoEntries());
 
@@ -221,6 +226,18 @@ public class PackageInfoWriter {
 
 
     // Private methods
+
+    private static void writeConstantInfoEntries(DataOutputStream dataOutStream,
+                                                 ConstantInfo[] constantInfos) throws IOException {
+        dataOutStream.writeShort(constantInfos.length);
+        for (ConstantInfo constantInfo : constantInfos) {
+            dataOutStream.writeInt(constantInfo.nameCPIndex);
+            dataOutStream.writeInt(constantInfo.finiteTypeCPIndex);
+            dataOutStream.writeInt(constantInfo.valueTypeCPIndex);
+            dataOutStream.writeInt(constantInfo.flags);
+            writeAttributeInfoEntries(dataOutStream, constantInfo.getAttributeInfoEntries());
+        }
+    }
 
     private static void writeGlobalVarInfoEntries(DataOutputStream dataOutStream,
                                                   PackageVarInfo[] packageVarInfoEntry) throws IOException {
@@ -383,35 +400,15 @@ public class PackageInfoWriter {
                                          ServiceInfo serviceInfo) throws IOException {
         dataOutStream.writeInt(serviceInfo.nameCPIndex);
         dataOutStream.writeInt(serviceInfo.flags);
-        dataOutStream.writeInt(serviceInfo.endpointNameCPIndex);
+        dataOutStream.writeInt(serviceInfo.serviceTypeCPIndex);
     }
 
     private static void writeResourceInfo(DataOutputStream dataOutStream,
                                           ServiceInfo serviceInfo) throws IOException {
-        ResourceInfo[] resourceInfoEntries = serviceInfo.resourceInfoMap.values().toArray(new ResourceInfo[0]);
-        dataOutStream.writeShort(resourceInfoEntries.length);
-        for (ResourceInfo resourceInfo : resourceInfoEntries) {
-            writeResourceInfo(dataOutStream, resourceInfo);
+        dataOutStream.writeShort(serviceInfo.resourcesCPIndex.size());
+        for (Integer resourceNameCPIndex : serviceInfo.resourcesCPIndex) {
+            dataOutStream.writeInt(resourceNameCPIndex);
         }
-
-        // Write attribute info entries
-        writeAttributeInfoEntries(dataOutStream, serviceInfo.getAttributeInfoEntries());
-    }
-
-    private static void writeResourceInfo(DataOutputStream dataOutStream,
-                                          ResourceInfo resourceInfo) throws IOException {
-        dataOutStream.writeInt(resourceInfo.nameCPIndex);
-        dataOutStream.writeInt(resourceInfo.signatureCPIndex);
-
-        int[] paramNameCPIndexes = resourceInfo.paramNameCPIndexes;
-        dataOutStream.writeShort(paramNameCPIndexes.length);
-        for (int paramNameCPIndex : paramNameCPIndexes) {
-            dataOutStream.writeInt(paramNameCPIndex);
-        }
-
-        writeWorkerData(dataOutStream, resourceInfo);
-
-        writeAttributeInfoEntries(dataOutStream, resourceInfo.getAttributeInfoEntries());
     }
 
     private static void writeWorkerInfo(DataOutputStream dataOutStream,
@@ -503,8 +500,8 @@ public class PackageInfoWriter {
                     attrDataOutStream.writeInt(errorTableEntry.ipFrom);
                     attrDataOutStream.writeInt(errorTableEntry.ipTo);
                     attrDataOutStream.writeInt(errorTableEntry.ipTarget);
-                    attrDataOutStream.writeInt(errorTableEntry.priority);
-                    attrDataOutStream.writeInt(errorTableEntry.errorStructCPIndex);
+                    attrDataOutStream.writeInt(
+                            Optional.ofNullable(errorTableEntry.errorVarIndex).map(Operand::getValue).orElse(-1));
                 }
                 break;
 
@@ -549,9 +546,9 @@ public class PackageInfoWriter {
                 attrDataOutStream.writeShort(taintTableAttributeInfo.columnCount);
                 for (Integer paramIndex : taintTableAttributeInfo.taintTable.keySet()) {
                     attrDataOutStream.writeShort(paramIndex);
-                    List<Boolean> taintRecord = taintTableAttributeInfo.taintTable.get(paramIndex);
-                    for (Boolean taintStatus : taintRecord) {
-                        attrDataOutStream.writeBoolean(taintStatus);
+                    List<Byte> taintRecord = taintTableAttributeInfo.taintTable.get(paramIndex);
+                    for (Byte taintStatus : taintRecord) {
+                        attrDataOutStream.writeByte(taintStatus);
                     }
                 }
                 break;
@@ -568,6 +565,14 @@ public class PackageInfoWriter {
                     attrDataOutStream.writeInt(docAttrInfo.returnParameterDescriptionCPIndex);
                 } else {
                     attrDataOutStream.writeBoolean(false);
+                }
+                break;
+            case WORKER_SEND_INS:
+                WorkerSendInsAttributeInfo wrkAttrInfo = (WorkerSendInsAttributeInfo) attributeInfo;
+                int[] sendIns = wrkAttrInfo.getWorkerSendIns();
+                attrDataOutStream.writeShort(sendIns.length);
+                for (int index : sendIns) {
+                    attrDataOutStream.writeInt(index);
                 }
                 break;
         }

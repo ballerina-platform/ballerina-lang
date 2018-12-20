@@ -15,7 +15,7 @@ public function mockPrint(any... s) {
 
 @test:Config
 function testFunc() {
-    // Calling the main fuction with ampty args array
+    // Calling the main fuction with empty args array
     main();
     test:assertEquals(outputs[0], 5);
     test:assertEquals(outputs[1], 15);

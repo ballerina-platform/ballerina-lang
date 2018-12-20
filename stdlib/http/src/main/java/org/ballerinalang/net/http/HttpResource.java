@@ -23,6 +23,7 @@ import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.transactions.TransactionConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +36,7 @@ import static org.ballerinalang.net.http.HttpConstants.ANN_NAME_INTERRUPTIBLE;
 import static org.ballerinalang.net.http.HttpConstants.ANN_NAME_RESOURCE_CONFIG;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
 import static org.ballerinalang.net.http.HttpConstants.PACKAGE_BALLERINA_BUILTIN;
+import static org.ballerinalang.net.http.HttpUtil.checkConfigAnnotationAvailability;
 
 /**
  * {@code HttpResource} This is the http wrapper for the {@code Resource} implementation.
@@ -66,10 +68,16 @@ public class HttpResource {
     private boolean transactionInfectable = true; //default behavior
     private boolean interruptible;
 
+    private boolean transactionAnnotated = false;
+
     protected HttpResource(Resource resource, HttpService parentService) {
         this.balResource = resource;
         this.parentService = parentService;
         this.producesSubTypes = new ArrayList<>();
+    }
+
+    public boolean isTransactionAnnotated() {
+        return transactionAnnotated;
     }
 
     public String getName() {
@@ -182,28 +190,36 @@ public class HttpResource {
         Annotation resourceConfigAnnotation = getResourceConfigAnnotation(resource);
         httpResource.setInterruptible(httpService.isInterruptible() || hasInterruptibleAnnotation(resource));
 
-        if (resourceConfigAnnotation == null) {
-            if (log.isDebugEnabled()) {
-                log.debug("resourceConfig not specified in the Resource instance, using default sub path");
-            }
-            httpResource.setPath(resource.getName());
+        setupTransactionAnnotations(resource, httpResource);
+        if (checkConfigAnnotationAvailability(resourceConfigAnnotation)) {
+            Struct resourceConfig = resourceConfigAnnotation.getValue();
+            httpResource.setPath(resourceConfig.getStringField(PATH_FIELD));
+            httpResource.setMethods(getAsStringList(resourceConfig.getArrayField(METHODS_FIELD)));
+            httpResource.setConsumes(getAsStringList(resourceConfig.getArrayField(CONSUMES_FIELD)));
+            httpResource.setProduces(getAsStringList(resourceConfig.getArrayField(PRODUCES_FIELD)));
+            httpResource.setEntityBodyAttributeValue(resourceConfig.getStringField(BODY_FIELD));
+            httpResource.setCorsHeaders(CorsHeaders.buildCorsHeaders(resourceConfig.getStructField(CORS_FIELD)));
+            httpResource.setTransactionInfectable(resourceConfig.getBooleanField(TRANSACTION_INFECTABLE_FIELD));
+
+            processResourceCors(httpResource, httpService);
             httpResource.prepareAndValidateSignatureParams();
             return httpResource;
         }
 
-        Struct resourceConfig = resourceConfigAnnotation.getValue();
-
-        httpResource.setPath(resourceConfig.getStringField(PATH_FIELD));
-        httpResource.setMethods(getAsStringList(resourceConfig.getArrayField(METHODS_FIELD)));
-        httpResource.setConsumes(getAsStringList(resourceConfig.getArrayField(CONSUMES_FIELD)));
-        httpResource.setProduces(getAsStringList(resourceConfig.getArrayField(PRODUCES_FIELD)));
-        httpResource.setEntityBodyAttributeValue(resourceConfig.getStringField(BODY_FIELD));
-        httpResource.setCorsHeaders(CorsHeaders.buildCorsHeaders(resourceConfig.getStructField(CORS_FIELD)));
-        httpResource.setTransactionInfectable(resourceConfig.getBooleanField(TRANSACTION_INFECTABLE_FIELD));
-
-        processResourceCors(httpResource, httpService);
+        if (log.isDebugEnabled()) {
+            log.debug("resourceConfig not specified in the Resource instance, using default sub path");
+        }
+        httpResource.setPath(resource.getName());
         httpResource.prepareAndValidateSignatureParams();
         return httpResource;
+    }
+
+    private static void setupTransactionAnnotations(Resource resource, HttpResource httpResource) {
+        Annotation transactionConfigAnnotation = HttpUtil.getTransactionConfigAnnotation(resource,
+                        TransactionConstants.TRANSACTION_PACKAGE_PATH);
+        if (transactionConfigAnnotation != null) {
+            httpResource.transactionAnnotated = true;
+        }
     }
 
     protected static Annotation getResourceConfigAnnotation(Resource resource) {
@@ -265,5 +281,4 @@ public class HttpResource {
         signatureParams = new SignatureParams(this, balResource.getParamDetails());
         signatureParams.validate();
     }
-
 }

@@ -44,7 +44,11 @@ public enum CompilerOptionName {
 
     TARGET_BINARY_PATH("targetBinaryPath"),
 
-    LOCK_ENABLED("lockEnabled");
+    LOCK_ENABLED("lockEnabled"),
+
+    SIDDHI_RUNTIME_ENABLED("siddhiRuntimeEnabled"),
+
+    EXPERIMENTAL_FEATURES_ENABLED("experimentalFeaturesEnabled");
 
     public final String name;
 

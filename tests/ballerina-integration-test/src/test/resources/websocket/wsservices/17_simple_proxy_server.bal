@@ -17,77 +17,84 @@
 import ballerina/http;
 import ballerina/log;
 
-@final string REMOTE_BACKEND_URL = "ws://localhost:15300/websocket";
-@final public string ASSOCIATED_CONNECTION5 = "ASSOCIATED_CONNECTION";
+final string REMOTE_BACKEND_URL = "ws://localhost:15300/websocket";
+final string ASSOCIATED_CONNECTION5 = "ASSOCIATED_CONNECTION";
 
 @http:WebSocketServiceConfig {
-    path: "/"
 }
-service<http:WebSocketService> simpleProxy9 bind { port: 9099 } {
+service on new http:WebSocketListener(9099) {
 
-    onOpen(endpoint wsEp) {
-        endpoint http:WebSocketClient wsClientEp {
-            url: REMOTE_BACKEND_URL,
-            callbackService: clientCallbackService9,
-            readyOnConnect: false
-        };
+    resource function onOpen(http:WebSocketCaller wsEp) {
+        http:WebSocketClient wsClientEp = new(
+            REMOTE_BACKEND_URL,
+            config = {callbackService: clientCallbackService9,
+            readyOnConnect: false});
         wsEp.attributes[ASSOCIATED_CONNECTION5] = wsClientEp;
         wsClientEp.attributes[ASSOCIATED_CONNECTION5] = wsEp;
-        wsClientEp->ready() but {
-            error e => log:printError("Ready failed ", err = e)
-        };
+        var returnVal = wsClientEp->ready();
+        if (returnVal is error) {
+             panic returnVal;
+        }
     }
 
-    onText(endpoint wsEp, string text) {
-        endpoint http:WebSocketClient clientEp = getAssociatedClientEndpoint3(wsEp);
-        clientEp->pushText(text) but {
-            error e => log:printError("server text error", err = e)
-        };
+    resource function onText(http:WebSocketCaller wsEp, string text) {
+        http:WebSocketClient clientEp = getAssociatedClientEndpoint3(wsEp);
+        var returnVal = clientEp->pushText(text);
+        if (returnVal is error) {
+             panic returnVal;
+        }
     }
 
-    onBinary(endpoint wsEp, byte[] data) {
-        endpoint http:WebSocketClient clientEp = getAssociatedClientEndpoint3(wsEp);
-        clientEp->pushBinary(data) but {
-            error e => log:printError("server binary error", err = e)
-        };
+    resource function onBinary(http:WebSocketCaller wsEp, byte[] data) {
+        http:WebSocketClient clientEp = getAssociatedClientEndpoint3(wsEp);
+        var returnVal = clientEp->pushBinary(data);
+        if (returnVal is error) {
+             panic returnVal;
+        }
     }
 
-    onClose(endpoint wsEp, int statusCode, string reason) {
-        endpoint http:WebSocketClient clientEp = getAssociatedClientEndpoint3(wsEp);
-        clientEp->close(statusCode = statusCode, reason = reason) but {
-            error e => log:printError("server closing error", err = e)
-        };
+    resource function onClose(http:WebSocketCaller wsEp, int statusCode, string reason) {
+        http:WebSocketClient clientEp = getAssociatedClientEndpoint3(wsEp);
+        var returnVal = clientEp->close(statusCode = statusCode, reason = reason);
+        if (returnVal is error) {
+             panic returnVal;
+        }
     }
 
 }
 
-service<http:WebSocketClientService> clientCallbackService9 {
-    onText(endpoint wsEp, string text) {
-        endpoint http:WebSocketListener serviceEp = getAssociatedListener3(wsEp);
-        serviceEp->pushText(text) but {
-            error e => log:printError("client text error", err = e)
-        };
+service clientCallbackService9 = @http:WebSocketServiceConfig {} service {
+    resource function onText(http:WebSocketClient wsEp, string text) {
+        http:WebSocketCaller serviceEp = getAssociatedListener3(wsEp);
+        var returnVal = serviceEp->pushText(text);
+        if (returnVal is error) {
+             panic returnVal;
+        }
     }
 
-    onBinary(endpoint wsEp, byte[] data) {
-        endpoint http:WebSocketListener serviceEp = getAssociatedListener3(wsEp);
-        serviceEp->pushBinary(data) but {
-            error e => log:printError("client binary error", err = e)
-        };
+    resource function onBinary(http:WebSocketClient wsEp, byte[] data) {
+        http:WebSocketCaller serviceEp = getAssociatedListener3(wsEp);
+        var returnVal = serviceEp->pushBinary(data);
+        if (returnVal is error) {
+             panic returnVal;
+        }
     }
 
-    onClose(endpoint wsEp, int statusCode, string reason) {
-        endpoint http:WebSocketListener serviceEp = getAssociatedListener3(wsEp);
-        serviceEp->close(statusCode = statusCode, reason = reason) but {
-            error e => log:printError("client closing error", err = e)
-        };
+    resource function onClose(http:WebSocketClient wsEp, int statusCode, string reason) {
+        http:WebSocketCaller serviceEp = getAssociatedListener3(wsEp);
+        var returnVal = serviceEp->close(statusCode = statusCode, reason = reason);
+        if (returnVal is error) {
+             panic returnVal;
+        }
     }
+};
+
+public function getAssociatedClientEndpoint3(http:WebSocketCaller wsServiceEp) returns (http:WebSocketClient) {
+    var returnVal = <http:WebSocketClient>wsServiceEp.attributes[ASSOCIATED_CONNECTION5];
+    return returnVal;
 }
 
-public function getAssociatedClientEndpoint3(http:WebSocketListener wsServiceEp) returns (http:WebSocketClient) {
-    return check <http:WebSocketClient>wsServiceEp.attributes[ASSOCIATED_CONNECTION5];
-}
-
-public function getAssociatedListener3(http:WebSocketClient wsClientEp) returns (http:WebSocketListener) {
-    return check <http:WebSocketListener>wsClientEp.attributes[ASSOCIATED_CONNECTION5];
+public function getAssociatedListener3(http:WebSocketClient wsClientEp) returns (http:WebSocketCaller) {
+    var returnVal = <http:WebSocketCaller>wsClientEp.attributes[ASSOCIATED_CONNECTION5];
+    return returnVal;
 }

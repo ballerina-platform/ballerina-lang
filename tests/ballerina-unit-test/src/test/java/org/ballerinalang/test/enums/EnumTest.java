@@ -85,14 +85,14 @@ public class EnumTest {
     @Test(description = "Test negatives tests")
     public void testEnumNegativeCases() {
         CompileResult result = BCompileUtil.compile("test-src/enums/enums-negative.bal");
-
-//      BAssertUtil.validateError(result, 0,
-//          "operator '==' not defined for 'GREATER_THAN|NOT|OR|PLUS|MINUS|AND' and 'int'", 10, 24);
-//      BAssertUtil.validateError(result, 1,
-//          "incompatible types: expected 'GREATER_THAN|NOT|OR|PLUS|MINUS|AND', found 'string'", 16, 14);
-//      BAssertUtil.validateError(result, 2,
-//          "invalid operation: type 'AND|MINUS|NOT|GREATER_THAN|PLUS|OR' does not support field access", 21, 14);
-        BAssertUtil.validateError(result, 3, "undefined symbol 'kind'", 26, 12);
+        BAssertUtil.validateError(result, 0,
+                "operator '==' not defined for 'PLUS|MINUS|AND|OR|NOT|GREATER_THAN' and 'int'", 10, 9);
+        BAssertUtil.validateError(result, 1,
+                "incompatible types: expected 'PLUS|MINUS|AND|OR|NOT|GREATER_THAN', found 'string'", 16, 14);
+        BAssertUtil.validateError(result, 2,
+                "invalid operation: type 'PLUS|MINUS|AND|OR|NOT|GREATER_THAN' does not support field access", 21, 14);
+        BAssertUtil.validateError(result, 3, "invalid operation: type 'typedesc' does not support field access",
+                26, 12);
         BAssertUtil.validateError(result, 4, "undefined symbol 'bar'", 34, 15);
     }
 }

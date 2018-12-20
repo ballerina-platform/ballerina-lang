@@ -17,118 +17,114 @@
 
 import ballerina/grpc;
 import ballerina/io;
-import ballerina/log;
 import ballerina/runtime;
 
 int total = 0;
-public function main(string... args) {
+string[2] msgs = ["", ""];
+const string ERROR_MSG_FORMAT = "Error from Connector: %s - %s";
 
-    endpoint ChatClient chatEp {
-        url:"http://localhost:9094"
-    };
-
-    endpoint grpc:Client ep;
+public function testBidiStreaming() returns string {
+    grpc:StreamingClient ep = new;
+    ChatClient chatEp = new ("http://localhost:9095");
+    string response = "";
     // Executing unary non-blocking call registering server message listener.
     var res = chatEp->chat(ChatMessageListener);
-    match res {
-        grpc:error err => {
-            io:print("error");
-        }
-        grpc:Client con => {
-            ep = con;
-        }
+    if (res is error) {
+        string msg = io:sprintf(ERROR_MSG_FORMAT, res.reason(), <string>res.detail().message);
+        io:println(msg);
+    } else {
+        ep = res;
     }
-    ChatMessage mes = new;
-    mes.name = "Sam";
-    mes.message = "Hi ";
-    error? connErr = ep->send(mes);
-    io:println(err.message but { () => "" });
-    //this will hold forever since this is chat application
-    runtime:sleep(6000);
+    ChatMessage mes1 = {name:"Sam", message:"Hi"};
+    error? connErr = ep->send(mes1);
+    if (connErr is error) {
+        return io:sprintf(ERROR_MSG_FORMAT, connErr.reason(), <string>connErr.detail().message);
+    }
+    runtime:sleep(3000);
+    ChatMessage mes2 = {name:"Sam", message:"GM"};
+    connErr = ep->send(mes2);
+    if (connErr is error) {
+        return io:sprintf(ERROR_MSG_FORMAT, connErr.reason(), <string>connErr.detail().message);
+    }
+
+    int waitCount = 0;
+    while(total < 2) {
+        runtime:sleep(1000);
+        io:println("msg count: ", total);
+        if (waitCount > 10) {
+            break;
+        }
+        waitCount += 1;
+    }
+    io:println(msgs);
+    if (msgs[0] == "Sam: Hi" || msgs[1] == "Sam: GM") {
+        response = "Success: received vaild responses from server";
+    } else {
+        response = "Failed: invaild response from server";
+    }
     _ = ep->complete();
+    return response;
 }
 
 
-service<grpc:Service> ChatMessageListener {
+service ChatMessageListener = service {
 
-    onMessage(string message) {
+    resource function onMessage(string message) {
+        msgs[total] = message;
+        total = total + 1;
         io:println("Response received from server: " + message);
     }
 
-    onError(error err) {
-        if (err != ()) {
-            io:println("Error reported from server: " + err.message);
-        }
+    resource function onError(error err) {
+        string msg = io:sprintf(ERROR_MSG_FORMAT, err.reason(), <string>err.detail().message);
+        io:println(msg);
     }
 
-    onComplete() {
+    resource function onComplete() {
         io:println("Server Complete Sending Responses.");
-    }
-}
-
-// Non-blocking client
-public type ChatStub object {
-
-    public grpc:Client clientEndpoint44;
-    public grpc:Stub stub;
-
-
-    function initStub(grpc:Client ep) {
-        grpc:Stub navStub = new;
-        navStub.initStub(ep, "non-blocking", DESCRIPTOR_KEY4, descriptorMap4);
-        self.stub = navStub;
-    }
-
-    function chat(typedesc listener, grpc:Headers? headers = ()) returns (grpc:Client|error) {
-        var res = stub.stub.streamingExecute("Chat/chat", listener, headers = headers);
-        match res {
-            error err1 => {
-                return err1;
-            }
-            grpc:Client con => {
-                return con;
-            }
-        }
     }
 };
 
 
 // Non-blocking client endpoint
-public type ChatClient object {
+public type ChatClient client object {
 
-    public grpc:Client client;
-    public ChatStub stub;
+    private grpc:Client grpcClient = new;
+    private grpc:ClientEndpointConfig config = {};
+    private string url;
 
-
-    public function init(grpc:ClientEndpointConfig config) {
+    function __init(string url, grpc:ClientEndpointConfig? config = ()) {
+        self.config = config ?: {};
+        self.url = url;
         // initialize client endpoint.
-        grpc:Client client = new;
-        client.init(config);
-        self.client = client;
-        // initialize service stub.
-        ChatStub stub = new;
-        stub.initStub(client);
-        self.stub = stub;
+        grpc:Client c = new;
+        c.init(self.url, self.config);
+        error? result = c.initStub("non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
+        if (result is error) {
+            panic result;
+        } else {
+            self.grpcClient = c;
+        }
     }
-    public function getCallerActions() returns (ChatStub) {
-        return self.stub;
+
+    remote function chat(service msgListener, grpc:Headers? headers = ()) returns (grpc:StreamingClient|error) {
+        return self.grpcClient->streamingExecute("Chat/chat", msgListener, headers = headers);
     }
 };
 
 type ChatMessage record {
-    string name;
-    string message;
+    string name = "";
+    string message = "";
 };
 
-@final string DESCRIPTOR_KEY4 = "Chat.proto";
-map descriptorMap4 =
-{
-    "Chat.proto":
-    "0A0A436861742E70726F746F1A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F22280A0B436861744D657373616765120A0A046E616D6518012809120D0A076D65737361676518022809323C0A044368617412340A0463686174120B436861744D6573736167651A1B676F6F676C652E70726F746F6275662E537472696E6756616C756528013001620670726F746F33"
-    ,
-
-    "google.protobuf.google/protobuf/wrappers.proto":
-    "0A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F120F676F6F676C652E70726F746F627566221C0A0B446F75626C6556616C7565120D0A0576616C7565180120012801221B0A0A466C6F617456616C7565120D0A0576616C7565180120012802221B0A0A496E74363456616C7565120D0A0576616C7565180120012803221C0A0B55496E74363456616C7565120D0A0576616C7565180120012804221B0A0A496E74333256616C7565120D0A0576616C7565180120012805221C0A0B55496E74333256616C7565120D0A0576616C756518012001280D221A0A09426F6F6C56616C7565120D0A0576616C7565180120012808221C0A0B537472696E6756616C7565120D0A0576616C7565180120012809221B0A0A427974657356616C7565120D0A0576616C756518012001280C427C0A13636F6D2E676F6F676C652E70726F746F627566420D577261707065727350726F746F50015A2A6769746875622E636F6D2F676F6C616E672F70726F746F6275662F7074797065732F7772617070657273F80101A20203475042AA021E476F6F676C652E50726F746F6275662E57656C6C4B6E6F776E5479706573620670726F746F33"
-
-};
+const string ROOT_DESCRIPTOR = "0A0A436861742E70726F746F1A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F22280A0B436861744D657373616765120A0A046E616D6518012809120D0A076D65737361676518022809323C0A044368617412340A0463686174120B436861744D6573736167651A1B676F6F676C652E70726F746F6275662E537472696E6756616C756528013001620670726F746F33";
+function getDescriptorMap() returns map<string> {
+    return {
+        "Chat.proto":
+        "0A0A436861742E70726F746F1A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F22280A0B436861744D657373616765120A0A046E616D6518012809120D0A076D65737361676518022809323C0A044368617412340A0463686174120B436861744D6573736167651A1B676F6F676C652E70726F746F6275662E537472696E6756616C756528013001620670726F746F33"
+        ,
+        "google/protobuf/wrappers.proto":
+        "0A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F120F676F6F676C652E70726F746F627566221C0A0B446F75626C6556616C7565120D0A0576616C7565180120012801221B0A0A466C6F617456616C7565120D0A0576616C7565180120012802221B0A0A496E74363456616C7565120D0A0576616C7565180120012803221C0A0B55496E74363456616C7565120D0A0576616C7565180120012804221B0A0A496E74333256616C7565120D0A0576616C7565180120012805221C0A0B55496E74333256616C7565120D0A0576616C756518012001280D221A0A09426F6F6C56616C7565120D0A0576616C7565180120012808221C0A0B537472696E6756616C7565120D0A0576616C7565180120012809221B0A0A427974657356616C7565120D0A0576616C756518012001280C427C0A13636F6D2E676F6F676C652E70726F746F627566420D577261707065727350726F746F50015A2A6769746875622E636F6D2F676F6C616E672F70726F746F6275662F7074797065732F7772617070657273F80101A20203475042AA021E476F6F676C652E50726F746F6275662E57656C6C4B6E6F776E5479706573620670726F746F33"
+    };
+}
 

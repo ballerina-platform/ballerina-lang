@@ -1,8 +1,8 @@
 
 public type Employee object {
-    public int age;
-    private string name;
-    string email;
+    public int age = 0;
+    private string name = "";
+    string email = "";
 
     public function getName() returns (string);
 
@@ -12,14 +12,14 @@ public type Employee object {
 };
 
 
-function Employee::getName() returns (string) {
+function Employee.getName() returns (string) {
     return self.name;
 }
 
-function Employee::getAge() returns (int) {
+function Employee.getAge() returns (int) {
     return self.age;
 }
 
-function Employee::getEmail() returns (string) {
+function Employee.getEmail() returns (string) {
     return self.email;
 }

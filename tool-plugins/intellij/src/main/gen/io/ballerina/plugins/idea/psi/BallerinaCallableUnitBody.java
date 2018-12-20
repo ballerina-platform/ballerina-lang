@@ -23,8 +23,11 @@ import com.intellij.psi.PsiElement;
 
 public interface BallerinaCallableUnitBody extends BallerinaCompositeElement {
 
-  @Nullable
-  BallerinaBlock getBlock();
+  @NotNull
+  List<BallerinaStatement> getStatementList();
+
+  @NotNull
+  List<BallerinaWorkerWithStatementsBlock> getWorkerWithStatementsBlockList();
 
   @NotNull
   PsiElement getLeftBrace();

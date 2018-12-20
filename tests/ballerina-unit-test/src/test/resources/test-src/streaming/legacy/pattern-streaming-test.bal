@@ -36,9 +36,9 @@ type TempDiffInfo record {
 
 TempDiffInfo[] tempDiffInfoArray = [];
 int index = 0;
-stream<RoomTempInfo> tempStream;
-stream<RegulatorInfo> regulatorStream;
-stream<TempDiffInfo> tempDiffStream;
+stream<RoomTempInfo> tempStream = new;
+stream<RegulatorInfo> regulatorStream = new;
+stream<TempDiffInfo> tempDiffStream = new;
 
 function testPatternQuery () {
 
@@ -47,7 +47,7 @@ function testPatternQuery () {
         followed by regulatorStream where e1.roomNo == roomNo as e3 within 2 seconds
         select e1.roomNo, e2[1].temp - e2[0].temp as tempDifference
         => (TempDiffInfo[] emp) {
-            foreach e in emp {
+            foreach var e in emp {
                 tempDiffStream.publish(e);
             }
         }
@@ -88,7 +88,7 @@ function runPatternQuery1() returns (TempDiffInfo[]) {
     while(true) {
         runtime:sleep(500);
         count += 1;
-        if((lengthof tempDiffInfoArray) > 0 || count == 10) {
+        if((tempDiffInfoArray.length()) > 0 || count == 10) {
             break;
         }
     }
@@ -113,9 +113,9 @@ RoomKeyAction[] roomActions2 = [];
 RoomKeyAction[] roomActions3 = [];
 RoomKeyAction[] roomActions4 = [];
 
-stream<RegulatorState> regulatorStateChangeStream;
-stream<RoomKeyAction> roomKeyStream;
-stream<RoomKeyAction> regulatorActionStream;
+stream<RegulatorState> regulatorStateChangeStream = new;
+stream<RoomKeyAction> roomKeyStream = new;
+stream<RoomKeyAction> regulatorActionStream = new;
 
 function testPatternQueryWithOr() {
     forever {
@@ -124,7 +124,7 @@ function testPatternQueryWithOr() {
         || regulatorStateChangeStream where e1.roomNo == roomNo && userAction == "off" as e3
         select e1.roomNo as roomNo, e2 == null ? "none" : "stop" as userAction having userAction != "none"
         => (RoomKeyAction[] keyAction) {
-            foreach e in keyAction {
+            foreach var e in keyAction {
                 regulatorActionStream.publish(e);
             }
         }
@@ -155,7 +155,7 @@ function runPatternQuery2() returns (RoomKeyAction[]) {
     while(true) {
         runtime:sleep(500);
         count += 1;
-        if((lengthof roomActions) > 0 || count == 10) {
+        if((roomActions.length()) > 0 || count == 10) {
             break;
         }
     }
@@ -173,9 +173,9 @@ function addToGlobalRoomActions(RoomKeyAction s) {
     index = index + 1;
 }
 
-stream<RegulatorState> regulatorStateChangeStream2;
-stream<RoomKeyAction> roomKeyStream2;
-stream<RoomKeyAction> regulatorActionStream2;
+stream<RegulatorState> regulatorStateChangeStream2 = new;
+stream<RoomKeyAction> roomKeyStream2 = new;
+stream<RoomKeyAction> regulatorActionStream2 = new;
 
 function testPatternQueryWithAnd() {
     forever {
@@ -185,7 +185,7 @@ function testPatternQueryWithAnd() {
         select e1.roomNo as roomNo, e2 != null ? "RoomClosedWithRegulatorOff" : "other" as userAction having userAction
         != "other"
         => (RoomKeyAction[] keyAction) {
-            foreach e in keyAction {
+            foreach var e in keyAction {
                 regulatorActionStream2.publish(e);
             }
         }
@@ -212,7 +212,7 @@ function runPatternQuery3() returns (RoomKeyAction[]) {
     while(true) {
         runtime:sleep(500);
         count += 1;
-        if((lengthof roomActions2) > 0 || count == 10) {
+        if((roomActions2.length()) > 0 || count == 10) {
             break;
         }
     }
@@ -230,9 +230,9 @@ function addToGlobalRoomActions2(RoomKeyAction s) {
     index = index + 1;
 }
 
-stream<RegulatorState> regulatorStateChangeStream3;
-stream<RoomKeyAction> roomKeyStream3;
-stream<RoomKeyAction> regulatorActionStream3;
+stream<RegulatorState> regulatorStateChangeStream3 = new;
+stream<RoomKeyAction> roomKeyStream3 = new;
+stream<RoomKeyAction> regulatorActionStream3 = new;
 
 function testPatternQueryWithNot() {
     forever {
@@ -242,7 +242,7 @@ function testPatternQueryWithNot() {
         select e1.roomNo as roomNo, e2 != null ? "RoomNotClosedWithRegulatorNotOff" : "other" as userAction
         having userAction != "other"
         => (RoomKeyAction[] keyAction) {
-            foreach e in keyAction {
+            foreach var e in keyAction {
                 regulatorActionStream3.publish(e);
             }
         }
@@ -269,7 +269,7 @@ function runPatternQuery4() returns (RoomKeyAction[]) {
     while(true) {
         runtime:sleep(500);
         count += 1;
-        if((lengthof roomActions3) > 0 || count == 10) {
+        if((roomActions3.length()) > 0 || count == 10) {
             break;
         }
     }
@@ -288,9 +288,9 @@ function addToGlobalRoomActions3(RoomKeyAction s) {
     index = index + 1;
 }
 
-stream<RegulatorState> regulatorStateChangeStream4;
-stream<RoomKeyAction> roomKeyStream4;
-stream<RoomKeyAction> regulatorActionStream4;
+stream<RegulatorState> regulatorStateChangeStream4 = new;
+stream<RoomKeyAction> roomKeyStream4 = new;
+stream<RoomKeyAction> regulatorActionStream4 = new;
 
 function testPatternQueryWithFor() {
     forever {
@@ -298,7 +298,7 @@ function testPatternQueryWithFor() {
         followed by !roomKeyStream4 where e1.roomNo == roomNo && userAction == "removed" for 2 seconds
         select e1.roomNo as roomNo, "CloseRoomAfter2Sec" as userAction
         => (RoomKeyAction[] keyAction) {
-            foreach e in keyAction {
+            foreach var e in keyAction {
                 regulatorActionStream4.publish(e);
             }
         }
@@ -322,7 +322,7 @@ function runPatternQuery5() returns (RoomKeyAction[]) {
     while(true) {
         runtime:sleep(500);
         count += 1;
-        if((lengthof roomActions3) > 0 || count == 10) {
+        if((roomActions3.length()) > 0 || count == 10) {
             break;
         }
     }
@@ -342,9 +342,9 @@ function addToGlobalRoomActions4(RoomKeyAction s) {
 
 TempDiffInfo[] tempDiffInfoArray6 = [];
 int index6 = 0;
-stream<RoomTempInfo> tempStream6;
-stream<RegulatorInfo> regulatorStream6;
-stream<TempDiffInfo> tempDiffStream6;
+stream<RoomTempInfo> tempStream6 = new;
+stream<RegulatorInfo> regulatorStream6 = new;
+stream<TempDiffInfo> tempDiffStream6 = new;
 
 function testPatternQuery6 () {
 
@@ -353,7 +353,7 @@ function testPatternQuery6 () {
         followed by regulatorStream6 where e1.roomNo == roomNo as e3 within 2 seconds
         select e1.roomNo, e2[1].temp - e2[0].temp as tempDifference
         => (TempDiffInfo[] emp) {
-            foreach e in emp {
+            foreach var e in emp {
                 tempDiffStream6.publish(e);
             }
         }
@@ -394,7 +394,7 @@ function runPatternQuery6() returns (TempDiffInfo[]) {
     while(true) {
         runtime:sleep(500);
         count += 1;
-        if((lengthof tempDiffInfoArray6) > 0 || count == 10) {
+        if((tempDiffInfoArray6.length()) > 0 || count == 10) {
             break;
         }
     }

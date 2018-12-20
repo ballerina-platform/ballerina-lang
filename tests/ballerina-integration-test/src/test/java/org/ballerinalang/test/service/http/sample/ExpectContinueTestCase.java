@@ -36,6 +36,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,18 +49,19 @@ public class ExpectContinueTestCase extends HttpBaseTest {
 
     private final int servicePort = 9090;
 
-    @Test
+    @Test(description = "Test 100 continue response and for request with expect:100-continue header")
     public void test100Continue() {
         HttpClient httpClient = new HttpClient("localhost", servicePort);
 
-        DefaultHttpRequest reqHeaders = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "/continue");
+        DefaultHttpRequest httpRequest = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "/continue");
         DefaultLastHttpContent reqPayload = new DefaultLastHttpContent(
                 Unpooled.wrappedBuffer(TestUtils.LARGE_ENTITY.getBytes()));
 
-        reqHeaders.headers().set(HttpHeaderNames.CONTENT_LENGTH, TestUtils.LARGE_ENTITY.getBytes().length);
-        reqHeaders.headers().set(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.TEXT_PLAIN);
+        httpRequest.headers().set(HttpHeaderNames.CONTENT_LENGTH, TestUtils.LARGE_ENTITY.getBytes().length);
+        httpRequest.headers().set(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.TEXT_PLAIN);
+        httpRequest.headers().set("X-Status", "Positive");
 
-        List<FullHttpResponse> responses = httpClient.sendExpectContinueRequest(reqHeaders, reqPayload);
+        List<FullHttpResponse> responses = httpClient.sendExpectContinueRequest(httpRequest, reqPayload);
 
         Assert.assertFalse(httpClient.waitForChannelClose());
 
@@ -74,6 +76,32 @@ public class ExpectContinueTestCase extends HttpBaseTest {
         Assert.assertEquals(responsePayload.getBytes().length, TestUtils.LARGE_ENTITY.getBytes().length);
         Assert.assertEquals(Integer.parseInt(responses.get(1).headers().get(HttpHeaderNames.CONTENT_LENGTH)),
                 TestUtils.LARGE_ENTITY.getBytes().length);
+    }
+
+    @Test(description = "Test ignoring inbound payload with a 417 response for request with expect:100-continue header")
+    public void test100ContinueNegative() {
+        HttpClient httpClient = new HttpClient("localhost", servicePort);
+
+        DefaultHttpRequest httpRequest = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "/continue");
+        DefaultLastHttpContent reqPayload = new DefaultLastHttpContent(
+                Unpooled.wrappedBuffer(TestUtils.LARGE_ENTITY.getBytes()));
+
+        httpRequest.headers().set(HttpHeaderNames.CONTENT_LENGTH, TestUtils.LARGE_ENTITY.getBytes().length);
+        httpRequest.headers().set(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.TEXT_PLAIN);
+
+        List<FullHttpResponse> responses = httpClient.sendExpectContinueRequest(httpRequest, reqPayload);
+
+        Assert.assertFalse(httpClient.waitForChannelClose());
+
+        // 417 Expectation Failed response
+        Assert.assertEquals(responses.get(0).status(), HttpResponseStatus.EXPECTATION_FAILED, "Response code mismatch");
+        int length = Integer.parseInt(responses.get(0).headers().get(HttpHeaderNames.CONTENT_LENGTH));
+        Assert.assertEquals(length, 26, "Content length mismatched");
+        String payload = responses.get(0).content().readCharSequence(length, Charset.defaultCharset()).toString();
+        Assert.assertEquals(payload, "Do not send me any payload", "Entity body mismatched");
+        // Actual response
+        Assert.assertEquals(responses.size(), 1,
+                            "Multiple responses received when only a 417 response was expected");
     }
 
     @Test(description = "Test multipart form data request with expect:100-continue header")

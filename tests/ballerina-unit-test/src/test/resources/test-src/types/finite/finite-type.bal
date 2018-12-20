@@ -101,11 +101,12 @@ function finiteAssignmentRefValueTypeCaseTwo() returns POrInt {
 
 type PreparedResult "ss"|"sss"|"qqq";
 
-function testFiniteTypeWithMatch() returns PreparedResult {
-    match foo() {
-         PreparedResult x => return x;
-         () => return "qqq";
-         error => return "qqq";
+function testFiniteTypeWithTypeCheck() returns PreparedResult {
+    var result = foo();
+    if (result is PreparedResult) {
+        return result;
+    } else {
+        return "qqq";
     }
 }
 
@@ -128,9 +129,10 @@ type Channel object {
 
     public State? b;
 
-    new (b = "off", boolean a = true){
+    function __init (State b = "off", boolean a = true){
+        self.b = b;
         State o =  "on";
-        if(b == o) {
+        if(self.b == o) {
            int i = 4;
         }
     }
@@ -210,5 +212,29 @@ type ArrayCustom int[];
 
 function testTypeDefinitionWithArray() returns (int, int) {
     ArrayCustom val = [34, 23];
-    return (lengthof val , val[1]);
+    return (val.length() , val[1]);
 }
+
+type FuncType function (string) returns int;
+
+function testTypeDefWithFunctions() returns int {
+    FuncType fn = function (string s) returns int {
+        return s.length();
+    };
+    return fn.call("Hello");
+}
+
+type FuncType2 (function (string) returns int)|string;
+
+function testTypeDefWithFunctions2() returns int {
+    FuncType2 fn = function (string s) returns int {
+        return s.length();
+    };
+
+    if (fn is function (string) returns int) {
+        return fn.call("Hello");
+    }
+
+    return -1;
+}
+

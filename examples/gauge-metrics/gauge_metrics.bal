@@ -3,19 +3,19 @@ import ballerina/io;
 import ballerina/log;
 import ballerina/observe;
 
+//Create a gauge as a global varaible in the service with optional field description,
+//and default statistics configurations = { timeWindow: 600000, buckets: 5,
+// percentiles: [0.33, 0.5, 0.66, 0.99] }.
+observe:Gauge globalGauge = new("global_gauge", desc = "Global gauge defined");
+
 // Make sure you start the service with `--observe`, or metrics enabled.
 @http:ServiceConfig { basePath: "/online-store-service" }
-service<http:Service> onlineStoreService bind { port: 9090 } {
-
-    //Create a gauge as a global varaible in the service with optional field description,
-    //and default statistics configurations = { timeWindow: 600000, buckets: 5,
-    // percentiles: [0.33, 0.5, 0.66, 0.99] }.
-    observe:Gauge globalGauge = new("global_gauge", desc = "Global gauge defined");
+service onlineStoreService on new http:Listener(9090) {
 
     @http:ResourceConfig {
         path: "/make-order"
     }
-    makeOrder(endpoint caller, http:Request req) {
+    resource function makeOrder(http:Caller caller, http:Request req) {
         io:println("------------------------------------------");
         //Incrementing the global gauge defined by 15.0.
         globalGauge.increment(amount = 15.0);
@@ -39,7 +39,8 @@ service<http:Service> onlineStoreService bind { port: 9090 } {
 
         //Create a gauge with optional fields description, and tags defined.
         observe:Gauge registeredGaugeWithTags = new("registered_gauge_with_tags",
-            desc = "RegisteredGauge", tags = { property: "gaugeProperty", gaugeType: "RegisterType" });
+            desc = "RegisteredGauge",
+            tags = { property: "gaugeProperty", gaugeType: "RegisterType" });
 
         //Register the gauge instance, therefore it is stored in the global registry and can be reported to the
         //metrics server such as Prometheus. Additionally, this operation will register to the global registry for the
@@ -59,17 +60,19 @@ service<http:Service> onlineStoreService bind { port: 9090 } {
 
         //Create a gauge with statistics disabled by passing empty statistics config array.
         observe:StatisticConfig[] statsConfigs = [];
-        observe:Gauge gaugeWithNoStats = new("gauge_with_no_stats", desc = "Some description",
+        observe:Gauge gaugeWithNoStats = new("gauge_with_no_stats",
+            desc = "Some description",
             statisticConfig = statsConfigs);
         gaugeWithNoStats.setValue(100);
         printGauge(gaugeWithNoStats);
 
 
         //Create gauge with custom statistics config.
-        observe:StatisticConfig config = { timeWindow: 30000, percentiles: [0.33, 0.5, 0.9, 0.99], buckets: 3 };
+        observe:StatisticConfig config = { timeWindow: 30000,
+                    percentiles: [0.33, 0.5, 0.9, 0.99], buckets: 3 };
         statsConfigs[0] = config;
-        observe:Gauge gaugeWithCustomStats = new("gauge_with_custom_stats", desc = "Some description"
-            , statisticConfig = statsConfigs);
+        observe:Gauge gaugeWithCustomStats = new("gauge_with_custom_stats",
+                desc = "Some description", statisticConfig = statsConfigs);
         int i = 1;
         while (i < 6) {
             gaugeWithCustomStats.setValue(100.0 * i);
@@ -86,10 +89,11 @@ service<http:Service> onlineStoreService bind { port: 9090 } {
         res.setPayload("Order Processed!");
 
         // Send the response back to the caller.
-        caller->respond(res) but {
-            error e => log:printError(
-                           "Error sending response", err = e)
-        };
+        var result = caller->respond(res);
+
+        if (result is error) {
+            log:printError("Error sending response", err = result);
+        }
     }
 }
 
@@ -98,5 +102,6 @@ function printGauge(observe:Gauge gauge) {
     io:print("Gauge - " + gauge.name + " Snapshot: ");
     io:println(gauge.getSnapshot());
     //Get the current value of the gauge.
-    io:println("Gauge - " + gauge.name + " Current Value: " + gauge.getValue());
+    io:println("Gauge - " + gauge.name + " Current Value: "
+                                    + gauge.getValue());
 }

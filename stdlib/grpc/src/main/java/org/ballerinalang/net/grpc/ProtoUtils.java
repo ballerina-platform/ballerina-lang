@@ -42,13 +42,13 @@ public class ProtoUtils {
             byte[4096]));
 
     /**
-     * Create a {@code Marshaller} for protos of the same type as {@code defaultInstance}.
+     * Create a {@code Marshaller} for protos of the same type as {@code instance}.
      *
-     * @param defaultInstance message instance
+     * @param instance message instance
      * @return proto marshall
      */
-    public static MethodDescriptor.Marshaller marshaller(Message defaultInstance) {
-        final MessageParser parser = defaultInstance.getParserForType();
+    public static MethodDescriptor.Marshaller marshaller(MessageParser instance) {
+        final MessageParser parser = instance;
         return new MethodDescriptor.Marshaller() {
 
             @Override
@@ -83,7 +83,7 @@ public class ProtoUtils {
                         }
                         cis = CodedInputStream.newInstance(buf, 0, size);
                     } else if (size == 0) {
-                        return defaultInstance;
+                        return instance.getDefaultInstance();
                     }
                 } catch (IOException e) {
                     throw new RuntimeException(e);

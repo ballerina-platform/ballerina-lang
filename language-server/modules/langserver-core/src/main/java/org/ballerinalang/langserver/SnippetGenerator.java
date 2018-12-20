@@ -53,14 +53,23 @@ public class SnippetGenerator {
                                 SnippetType.SNIPPET);
     }
 
-
     /**
-     * Get Bind statement Snippet Block.
+     * Get On keyword Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
-    public static SnippetBlock getBindSnippet() {
-        return new SnippetBlock(ItemResolverConstants.BIND, "bind ", ItemResolverConstants.KEYWORD_TYPE,
+    public static SnippetBlock getOnSnippet() {
+        return new SnippetBlock(ItemResolverConstants.ON, "on ", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
+    }
+
+    /**
+     * Get new keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getNewKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.NEW, "new ", ItemResolverConstants.KEYWORD_TYPE,
                                 SnippetType.KEYWORD);
     }
 
@@ -96,6 +105,16 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get Wait Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getWaitKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.WAIT_KEYWORD, "wait ", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
+    }
+
+    /**
      * Get Extern Keyword Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -126,15 +145,13 @@ public class SnippetGenerator {
     }
 
     /**
-     * Get Endpoint Snippet Block.
+     * Get Listener Keyword Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
-    public static SnippetBlock getEndpointSnippet() {
-        String snippet = "endpoint ${1:http:Listener} ${2:listener} {" + CommonUtil.LINE_SEPARATOR + "\t${3}"
-                + CommonUtil.LINE_SEPARATOR + "};";
-        return new SnippetBlock(ItemResolverConstants.ENDPOINT, snippet, ItemResolverConstants.SNIPPET_TYPE,
-                                SnippetType.SNIPPET);
+    public static SnippetBlock getListenerKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.LISTENER_KEYWORD, "listener ", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
     }
 
     /**
@@ -143,21 +160,19 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getForeachSnippet() {
-        String snippet = "foreach ${1:item} in ${2:itemList} {" + CommonUtil.LINE_SEPARATOR + "\t${3}"
+        String snippet = "foreach ${1:var} ${2:item} in ${3:itemList} {" + CommonUtil.LINE_SEPARATOR + "\t${4}"
                 + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.FOREACH, snippet, ItemResolverConstants.STATEMENT_TYPE,
                                 SnippetType.STATEMENT);
     }
 
     /**
-     * Get ForkJoin Snippet Block.
+     * Get Fork Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
-    public static SnippetBlock getForkJoinStatementSnippet() {
-        String snippet = "fork {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR
-                + "} join (${2:all}) (map ${3:results}) {" + CommonUtil.LINE_SEPARATOR + "\t${4}"
-                + CommonUtil.LINE_SEPARATOR + "}";
+    public static SnippetBlock getForkStatementSnippet() {
+        String snippet = "fork {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.FORK, snippet, ItemResolverConstants.STATEMENT_TYPE,
                                 SnippetType.STATEMENT);
     }
@@ -252,14 +267,14 @@ public class SnippetGenerator {
     }
 
     /**
-     * Get ObjectConstructor Snippet Block.
+     * Get Object Initializer Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
-    public static SnippetBlock getObjectConstructorSnippet() {
-        String snippet = "public new(${1:args}) {" + CommonUtil.LINE_SEPARATOR + "\t${2}" + CommonUtil.LINE_SEPARATOR
-                + "}";
-        return new SnippetBlock(ItemResolverConstants.NEW_OBJECT_CONSTRUCTOR_TYPE, snippet,
+    public static SnippetBlock getObjectInitializerSnippet() {
+        String snippet = "public function __init(${1:any arg}) {" + CommonUtil.LINE_SEPARATOR + "\t${2}" +
+                CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.NEW_OBJECT_INITIALIZER_TYPE, snippet,
                                 ItemResolverConstants.SNIPPET_TYPE, SnippetType.SNIPPET);
     }
 
@@ -315,7 +330,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getResourceDefinitionSnippet() {
-        String snippet = "${1:newResource} (endpoint ${2:caller}, ${3:http:Request request}) {"
+        String snippet = "resource function ${1:newResource}(http:Caller ${2:caller}, ${3:http:Request request}) {"
                 + CommonUtil.LINE_SEPARATOR + "\t${4}" + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.RESOURCE_TYPE, snippet, ItemResolverConstants.SNIPPET_TYPE,
                                 SnippetType.SNIPPET);
@@ -347,9 +362,10 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getServiceDefSnippet() {
-        String snippet = "service<${1:http:Service}> ${2:serviceName} bind { port: 9090 } {"
-                + CommonUtil.LINE_SEPARATOR + "\t${3:newResource} (endpoint ${4:caller}, "
-                + "http:Request ${5:request}) {" + CommonUtil.LINE_SEPARATOR + "\t}" + CommonUtil.LINE_SEPARATOR + "}";
+        String snippet = "service ${1:serviceName} on new http:Listener(8080) {"
+                + CommonUtil.LINE_SEPARATOR + "\tresource function ${2:newResource}(http:Caller ${3:caller}, "
+                + "http:Request ${5:request}) {" + CommonUtil.LINE_SEPARATOR + "\t\t" + CommonUtil.LINE_SEPARATOR +
+                "\t}" + CommonUtil.LINE_SEPARATOR + "}";
 
         return new SnippetBlock(ItemResolverConstants.SERVICE, snippet, ItemResolverConstants.SNIPPET_TYPE,
                                 SnippetType.SNIPPET);
@@ -361,13 +377,14 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getWebSocketServiceDefSnippet() {
-        String snippet = "service<http:WebSocketService> ${1:serviceName} bind { port: 9090 } {"
-                + CommonUtil.LINE_SEPARATOR + "\tonOpen(endpoint caller) {"
-                + CommonUtil.LINE_SEPARATOR + "\t\t" + CommonUtil.LINE_SEPARATOR + "\t}" + CommonUtil.LINE_SEPARATOR
-                + "\tonText(endpoint caller, string text, boolean final) {" + CommonUtil.LINE_SEPARATOR + "\t\t"
-                + CommonUtil.LINE_SEPARATOR + "\t}" + CommonUtil.LINE_SEPARATOR
-                + "\tonClose(endpoint caller, int statusCode, string reason) {" + CommonUtil.LINE_SEPARATOR
-                + "\t\t" + CommonUtil.LINE_SEPARATOR + "\t}" + CommonUtil.LINE_SEPARATOR + "}";
+        String snippet = "service ${1:serviceName} on new http:WebSocketListener(9090) {" + CommonUtil.LINE_SEPARATOR +
+                "\tresource function onOpen(http:WebSocketCaller caller) {"
+                + CommonUtil.LINE_SEPARATOR + "\t\t" + CommonUtil.LINE_SEPARATOR + "\t}" + CommonUtil.LINE_SEPARATOR +
+                "\tresource function onText(http:WebSocketCaller caller, string data, boolean finalFrame) {"
+                + CommonUtil.LINE_SEPARATOR + "\t\t" + CommonUtil.LINE_SEPARATOR + "\t}" + CommonUtil.LINE_SEPARATOR +
+                "\tresource function onClose(http:WebSocketCaller caller, int statusCode, string reason) {"
+                + CommonUtil.LINE_SEPARATOR + "\t\t" + CommonUtil.LINE_SEPARATOR + "\t}"
+                + CommonUtil.LINE_SEPARATOR + "}";
 
         return new SnippetBlock(ItemResolverConstants.SERVICE_WEBSOCKET, snippet, ItemResolverConstants.SNIPPET_TYPE,
                                 SnippetType.SNIPPET);
@@ -379,24 +396,44 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getWebSubServiceDefSnippet() {
-        String snippet = "service<websub:Service> ${1:websubSubscriber} bind {port: 9090} {" + CommonUtil.LINE_SEPARATOR
-                + "\tonIntentVerification(endpoint caller, websub:IntentVerificationRequest request) {"
-                + CommonUtil.LINE_SEPARATOR + "\t\t" + CommonUtil.LINE_SEPARATOR + "\t}" + CommonUtil.LINE_SEPARATOR
-                + "\tonNotification(websub:Notification notification) {" + CommonUtil.LINE_SEPARATOR + "\t\t"
-                + CommonUtil.LINE_SEPARATOR + "\t}" + CommonUtil.LINE_SEPARATOR + "}";
-
+        String snippet = "service ${1:websubSubscriber} on new websub:Listener(9092) {" + CommonUtil.LINE_SEPARATOR +
+                "\tresource function onIntentVerification(websub:Caller caller, websub:IntentVerificationRequest " +
+                "request) {" + CommonUtil.LINE_SEPARATOR + "\t\t" + CommonUtil.LINE_SEPARATOR + "\t}" +
+                CommonUtil.LINE_SEPARATOR + "\tresource function onNotification(websub:Notification notification) {" +
+                CommonUtil.LINE_SEPARATOR + "\t\t" + CommonUtil.LINE_SEPARATOR + "\t}" +
+                CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.SERVICE_WEBSUB, snippet, ItemResolverConstants.SNIPPET_TYPE,
                                 SnippetType.SNIPPET);
     }
 
     /**
-     * Get Throw Statement Snippet Block.
+     * Get Panic Statement Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
-    public static SnippetBlock getThrowStatementSnippet() {
-        return new SnippetBlock(ItemResolverConstants.THROW, "throw ", ItemResolverConstants.STATEMENT_TYPE,
+    public static SnippetBlock getPanicStatementSnippet() {
+        return new SnippetBlock(ItemResolverConstants.PANIC, "panic ", ItemResolverConstants.STATEMENT_TYPE,
                                 SnippetType.STATEMENT);
+    }
+
+    /**
+     * Get Const Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getConstKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.CONST_KEYWORD, "const ", ItemResolverConstants.KEYWORD_TYPE,
+                SnippetType.KEYWORD);
+    }
+
+    /**
+     * Get Final Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getFinalKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.FINAL_KEYWORD, "final ", ItemResolverConstants.KEYWORD_TYPE,
+                SnippetType.KEYWORD);
     }
 
     /**
@@ -405,25 +442,22 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getTransactionStatementSnippet() {
-        String snippet = "transaction with retries = ${1:1}, oncommit = ${2:onCommitFunction}, "
-                + "onabort = ${3:onAbortFunction} " + "{" + CommonUtil.LINE_SEPARATOR
-                + "\t${4}" + CommonUtil.LINE_SEPARATOR + "} onretry {" + CommonUtil.LINE_SEPARATOR + "\t${5}"
+        String snippet = "transaction with retries ${1:0} {" + CommonUtil.LINE_SEPARATOR
+                + "\t${2}" + CommonUtil.LINE_SEPARATOR + "} onretry {" + CommonUtil.LINE_SEPARATOR + "\t${3}"
                 + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.TRANSACTION, snippet, ItemResolverConstants.STATEMENT_TYPE,
                                 SnippetType.STATEMENT);
     }
 
     /**
-     * Get Try-Catch Statement Snippet Block.
+     * Get Trap Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
-    public static SnippetBlock getTryCatchStatementSnippet() {
-        String snippet = "try {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR
-                + "} catch (${2:error} ${3:err}) {" + CommonUtil.LINE_SEPARATOR + "\t${4}"
-                + CommonUtil.LINE_SEPARATOR + "}";
-        return new SnippetBlock(ItemResolverConstants.TRY, snippet, ItemResolverConstants.STATEMENT_TYPE,
-                                SnippetType.STATEMENT);
+    public static SnippetBlock getTrapSnippet() {
+        String snippet = "trap ";
+        return new SnippetBlock(ItemResolverConstants.TRAP, snippet, ItemResolverConstants.SNIPPET_TYPE,
+                                SnippetType.SNIPPET);
     }
 
     /**
@@ -450,28 +484,6 @@ public class SnippetGenerator {
     }
 
     /**
-     * Get Worker Trigger Statement Snippet Block.
-     *
-     * @return {@link SnippetBlock}     Generated Snippet Block
-     */
-    public static SnippetBlock getWorkerTriggerStatementSnippet() {
-        String snippet = "${1:var1} -> ${2:w1};";
-        return new SnippetBlock(ItemResolverConstants.TRIGGER_WORKER, snippet, ItemResolverConstants.STATEMENT_TYPE,
-                                SnippetType.STATEMENT);
-    }
-
-    /**
-     * Get Worker Reply Statement Snippet Block.
-     *
-     * @return {@link SnippetBlock}     Generated Snippet Block
-     */
-    public static SnippetBlock getWorkerReplyStatementSnippet() {
-        String snippet = "${1:var1} <- ${2:w1};";
-        return new SnippetBlock(ItemResolverConstants.WORKER_REPLY, snippet, ItemResolverConstants.STATEMENT_TYPE,
-                                SnippetType.STATEMENT);
-    }
-
-    /**
      * Get Worker Declaration Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -489,7 +501,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getErrorDefinitionSnippet() {
-        String snippet = "error ${1:name} = { description: \"${2}\" };";
+        String snippet = "error ${1:name} = error(\"${2:errorCode}\", { message: \"${3}\" });";
         return new SnippetBlock(ItemResolverConstants.ERROR, snippet, ItemResolverConstants.SNIPPET_TYPE,
                                 SnippetType.SNIPPET);
     }
@@ -502,7 +514,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getIterableForeachSnippet() {
-        String snippet = "foreach((%params%) => {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
+        String snippet = "foreach(function(%params%) {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
                 + CommonUtil.LINE_SEPARATOR + "});";
 
         return new SnippetBlock(ItemResolverConstants.ITR_FOREACH_LABEL, snippet, "", SnippetType.SNIPPET);
@@ -514,7 +526,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getIterableMapSnippet() {
-        String snippet = "map((%params%) => (any) {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
+        String snippet = "map(function(%params%) returns (any) {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
                 + CommonUtil.LINE_SEPARATOR + "});";
 
         return new SnippetBlock(ItemResolverConstants.ITR_MAP_LABEL, snippet, "", SnippetType.SNIPPET);
@@ -526,7 +538,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getIterableFilterSnippet() {
-        String snippet = "filter((%params%) => (boolean) {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
+        String snippet = "filter(function(%params%) returns (boolean) {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
                 + CommonUtil.LINE_SEPARATOR + "});";
 
         return new SnippetBlock(ItemResolverConstants.ITR_FILTER_LABEL, snippet, "", SnippetType.SNIPPET);
@@ -539,6 +551,118 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getIterableCountSnippet() {
         return new SnippetBlock(ItemResolverConstants.ITR_COUNT_LABEL, "count();", "", SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get Length Builtin Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getBuiltinLengthSnippet() {
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_LENGTH_LABEL, "length();", "", SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get clone Builtin Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getBuiltinIsCloneSnippet() {
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_CLONE_LABEL, "clone();", "", SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get Freeze Builtin Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getBuiltinFreezeSnippet() {
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_FREEZE_LABEL, "freeze();", "", SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get isFrozen Builtin Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getBuiltinIsFrozenSnippet() {
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_IS_FROZEN_LABEL, "isFrozen();", "", SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get stamp Builtin Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getBuiltinStampSnippet() {
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_STAMP_LABEL, "stamp(${1});", "", SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get convert Builtin Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getBuiltinConvertSnippet() {
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_CONVERT_LABEL, "convert(${1});", "", SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get isNaN Builtin Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getBuiltinIsNaNSnippet() {
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_IS_NAN_LABEL, "isNaN();", "", SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get isFinite Builtin Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getBuiltinIsFiniteSnippet() {
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_IS_FINITE_LABEL, "isFinite();", "", SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get isInFinite Builtin Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getBuiltinIsInFiniteSnippet() {
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_IS_INFINITE_LABEL, "isInfinite();", "",
+                SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get detail Builtin Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getBuiltinDetailSnippet() {
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_DETAIL_LABEL, "detail();", "",
+                SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get reason Builtin Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getBuiltinReasonSnippet() {
+        return new SnippetBlock(ItemResolverConstants.BUILTIN_REASON_LABEL, "reason();", "",
+                SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get Select Iterable Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getIterableSelectSnippet() {
+        return new SnippetBlock(ItemResolverConstants.ITR_SELECT_LABEL, "select(${1:functionReference});", "",
+                SnippetType.SNIPPET);
     }
 
     /**
@@ -585,7 +709,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getIterableOnMapParamSnippet() {
-        return new SnippetBlock("string k, any v", SnippetType.SNIPPET);
+        return new SnippetBlock("(%key%, %value%) entry", SnippetType.SNIPPET);
     }
 
     /**

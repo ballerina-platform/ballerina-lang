@@ -27,7 +27,7 @@ import java.net.URISyntaxException;
 /**
  * This Class tests the cancelWebSocketUpgrade method of the http connector.
  */
-@Test(groups = "websocket-test")
+@Test(groups = {"websocket-test"})
 public class CancelWebSocketUpgradeTest extends WebSocketTestCommons {
 
     private WebSocketTestClient client;

@@ -6,17 +6,19 @@
   "source": "toplevel/source/globalVarDef1.bal",
   "items": [
     {
-      "label":"queryTableWithJoinClause(string sqlQuery, table fromTable, table joinTable, any parameters, any retType)(table)",
+      "label":"queryTableWithJoinClause(string sqlQuery, table fromTable, table joinTable, any parameters, any retType)(table\u003c$anonType$builtin$8\u003e)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Execute the given sql query to fetch the records and return as a new in memory table.\n",
       "sortText":"120",
       "insertText":"queryTableWithJoinClause(${1:sqlQuery}, ${2:fromTable}, ${3:joinTable}, ${4:parameters}, ${5:retType})",
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"queryTableWithoutJoinClause(string sqlQuery, table fromTable, any parameters, any retType)(table)",
+      "label":"queryTableWithoutJoinClause(string sqlQuery, table fromTable, any parameters, any retType)(table\u003c$anonType$builtin$10\u003e)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Execute the given sql query to fetch the records and return as a new in memory table.\n",
       "sortText":"120",
       "insertText":"queryTableWithoutJoinClause(${1:sqlQuery}, ${2:fromTable}, ${3:parameters}, ${4:retType})",
       "insertTextFormat":"Snippet"
@@ -25,6 +27,7 @@
       "label":"startForever(string streamQuery, any inStreamRefs, any inTableRefs, any outStreamRefs, any outTableRefs, any funcPointers)",
       "kind":"Function",
       "detail":"Function",
+      "documentation":"Creates the forever runtime.\n",
       "sortText":"120",
       "insertText":"startForever(${1:streamQuery}, ${2:inStreamRefs}, ${3:inTableRefs}, ${4:outStreamRefs}, ${5:outTableRefs}, ${6:funcPointers})",
       "insertTextFormat":"Snippet"
@@ -46,18 +49,11 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"pkg1Endpoint1",
-      "kind":"Unit",
+      "label":"ep",
+      "kind":"Variable",
       "detail":"ballerina/http:Listener",
       "sortText":"110",
-      "insertText":"pkg1Endpoint1"
-    },
-    {
-      "label":"pkg1Endpoint2",
-      "kind":"Unit",
-      "detail":"ballerina/http:Listener",
-      "sortText":"110",
-      "insertText":"pkg1Endpoint2"
+      "insertText":"ep"
     },
     {
       "label":"ballerina/io",
@@ -83,15 +79,15 @@
         {
           "range":{
             "start":{
-              "line":1,
-              "character":22
+              "line":2,
+              "character":0
             },
             "end":{
-              "line":1,
-              "character":22
+              "line":2,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/transactions;\n"
+          "newText":"import ballerina/transactions;\n"
         }
       ]
     },
@@ -105,15 +101,15 @@
         {
           "range":{
             "start":{
-              "line":1,
-              "character":22
+              "line":2,
+              "character":0
             },
             "end":{
-              "line":1,
-              "character":22
+              "line":2,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/websub;\n"
+          "newText":"import ballerina/websub;\n"
         }
       ]
     },
@@ -127,15 +123,15 @@
         {
           "range":{
             "start":{
-              "line":1,
-              "character":22
+              "line":2,
+              "character":0
             },
             "end":{
-              "line":1,
-              "character":22
+              "line":2,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/grpc;\n"
+          "newText":"import ballerina/grpc;\n"
         }
       ]
     },
@@ -149,15 +145,15 @@
         {
           "range":{
             "start":{
-              "line":1,
-              "character":22
+              "line":2,
+              "character":0
             },
             "end":{
-              "line":1,
-              "character":22
+              "line":2,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/reflect;\n"
+          "newText":"import ballerina/reflect;\n"
         }
       ]
     },
@@ -171,15 +167,15 @@
         {
           "range":{
             "start":{
-              "line":1,
-              "character":22
+              "line":2,
+              "character":0
             },
             "end":{
-              "line":1,
-              "character":22
+              "line":2,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/log;\n"
+          "newText":"import ballerina/log;\n"
         }
       ]
     },
@@ -193,15 +189,37 @@
         {
           "range":{
             "start":{
-              "line":1,
-              "character":22
+              "line":2,
+              "character":0
             },
             "end":{
-              "line":1,
-              "character":22
+              "line":2,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/time;\n"
+          "newText":"import ballerina/time;\n"
+        }
+      ]
+    },
+    {
+      "label":"ballerina/test",
+      "kind":"Module",
+      "detail":"Package",
+      "sortText":"140",
+      "insertText":"test",
+      "additionalTextEdits":[
+        {
+          "range":{
+            "start":{
+              "line":2,
+              "character":0
+            },
+            "end":{
+              "line":2,
+              "character":0
+            }
+          },
+          "newText":"import ballerina/test;\n"
         }
       ]
     },
@@ -215,15 +233,15 @@
         {
           "range":{
             "start":{
-              "line":1,
-              "character":22
+              "line":2,
+              "character":0
             },
             "end":{
-              "line":1,
-              "character":22
+              "line":2,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/runtime;\n"
+          "newText":"import ballerina/runtime;\n"
         }
       ]
     },
@@ -237,15 +255,15 @@
         {
           "range":{
             "start":{
-              "line":1,
-              "character":22
+              "line":2,
+              "character":0
             },
             "end":{
-              "line":1,
-              "character":22
+              "line":2,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/swagger;\n"
+          "newText":"import ballerina/swagger;\n"
         }
       ]
     },
@@ -259,15 +277,15 @@
         {
           "range":{
             "start":{
-              "line":1,
-              "character":22
+              "line":2,
+              "character":0
             },
             "end":{
-              "line":1,
-              "character":22
+              "line":2,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/file;\n"
+          "newText":"import ballerina/file;\n"
         }
       ]
     },
@@ -281,15 +299,15 @@
         {
           "range":{
             "start":{
-              "line":1,
-              "character":22
+              "line":2,
+              "character":0
             },
             "end":{
-              "line":1,
-              "character":22
+              "line":2,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/sql;\n"
+          "newText":"import ballerina/sql;\n"
         }
       ]
     },
@@ -303,15 +321,15 @@
         {
           "range":{
             "start":{
-              "line":1,
-              "character":22
+              "line":2,
+              "character":0
             },
             "end":{
-              "line":1,
-              "character":22
+              "line":2,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/internal;\n"
+          "newText":"import ballerina/internal;\n"
         }
       ]
     },
@@ -325,37 +343,15 @@
         {
           "range":{
             "start":{
-              "line":1,
-              "character":22
+              "line":2,
+              "character":0
             },
             "end":{
-              "line":1,
-              "character":22
+              "line":2,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/mysql;\n"
-        }
-      ]
-    },
-    {
-      "label":"ballerina/mb",
-      "kind":"Module",
-      "detail":"Package",
-      "sortText":"140",
-      "insertText":"mb",
-      "additionalTextEdits":[
-        {
-          "range":{
-            "start":{
-              "line":1,
-              "character":22
-            },
-            "end":{
-              "line":1,
-              "character":22
-            }
-          },
-          "newText":"\nimport ballerina/mb;\n"
+          "newText":"import ballerina/mysql;\n"
         }
       ]
     },
@@ -369,15 +365,15 @@
         {
           "range":{
             "start":{
-              "line":1,
-              "character":22
+              "line":2,
+              "character":0
             },
             "end":{
-              "line":1,
-              "character":22
+              "line":2,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/mime;\n"
+          "newText":"import ballerina/mime;\n"
         }
       ]
     },
@@ -391,15 +387,15 @@
         {
           "range":{
             "start":{
-              "line":1,
-              "character":22
+              "line":2,
+              "character":0
             },
             "end":{
-              "line":1,
-              "character":22
+              "line":2,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/task;\n"
+          "newText":"import ballerina/task;\n"
         }
       ]
     },
@@ -413,15 +409,15 @@
         {
           "range":{
             "start":{
-              "line":1,
-              "character":22
+              "line":2,
+              "character":0
             },
             "end":{
-              "line":1,
-              "character":22
+              "line":2,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/crypto;\n"
+          "newText":"import ballerina/crypto;\n"
         }
       ]
     },
@@ -435,15 +431,15 @@
         {
           "range":{
             "start":{
-              "line":1,
-              "character":22
+              "line":2,
+              "character":0
             },
             "end":{
-              "line":1,
-              "character":22
+              "line":2,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/cache;\n"
+          "newText":"import ballerina/cache;\n"
         }
       ]
     },
@@ -457,15 +453,15 @@
         {
           "range":{
             "start":{
-              "line":1,
-              "character":22
+              "line":2,
+              "character":0
             },
             "end":{
-              "line":1,
-              "character":22
+              "line":2,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/auth;\n"
+          "newText":"import ballerina/auth;\n"
         }
       ]
     },
@@ -479,15 +475,15 @@
         {
           "range":{
             "start":{
-              "line":1,
-              "character":22
+              "line":2,
+              "character":0
             },
             "end":{
-              "line":1,
-              "character":22
+              "line":2,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/jms;\n"
+          "newText":"import ballerina/jms;\n"
         }
       ]
     },
@@ -501,15 +497,15 @@
         {
           "range":{
             "start":{
-              "line":1,
-              "character":22
+              "line":2,
+              "character":0
             },
             "end":{
-              "line":1,
-              "character":22
+              "line":2,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/system;\n"
+          "newText":"import ballerina/system;\n"
         }
       ]
     },
@@ -523,15 +519,15 @@
         {
           "range":{
             "start":{
-              "line":1,
-              "character":22
+              "line":2,
+              "character":0
             },
             "end":{
-              "line":1,
-              "character":22
+              "line":2,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/h2;\n"
+          "newText":"import ballerina/h2;\n"
         }
       ]
     },
@@ -552,15 +548,15 @@
         {
           "range":{
             "start":{
-              "line":1,
-              "character":22
+              "line":2,
+              "character":0
             },
             "end":{
-              "line":1,
-              "character":22
+              "line":2,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/math;\n"
+          "newText":"import ballerina/math;\n"
         }
       ]
     },
@@ -574,15 +570,15 @@
         {
           "range":{
             "start":{
-              "line":1,
-              "character":22
+              "line":2,
+              "character":0
             },
             "end":{
-              "line":1,
-              "character":22
+              "line":2,
+              "character":0
             }
           },
-          "newText":"\nimport ballerina/config;\n"
+          "newText":"import ballerina/config;\n"
         }
       ]
     },
@@ -595,19 +591,27 @@
       "insertTextFormat":"Snippet"
     },
     {
+      "label":"check",
+      "kind":"Keyword",
+      "detail":"Keyword",
+      "sortText":"210",
+      "insertText":"check ",
+      "insertTextFormat":"Snippet"
+    },
+    {
       "label":"but",
-      "kind":"Unit",
+      "kind":"Snippet",
       "detail":"Statement",
       "sortText":"200",
       "insertText":"but {\n\t${1}\n};",
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"lengthof",
-      "kind":"Keyword",
-      "detail":"Keyword",
-      "sortText":"210",
-      "insertText":"lengthof ",
+      "label":"trap",
+      "kind":"Snippet",
+      "detail":"Snippet",
+      "sortText":"190",
+      "insertText":"trap ",
       "insertTextFormat":"Snippet"
     }
   ]

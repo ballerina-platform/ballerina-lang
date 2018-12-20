@@ -9,13 +9,13 @@ function testAnonStructFunc(int i, record {int k = 10; string s;} anonSt) return
 
 
 function testAnonStructAsLocalVar() returns (int) {
-    record {int k = 11; string s;} anonSt = {};
+    record {int k = 11; string s = "";} anonSt = {};
 
     return anonSt.k;
 }
 
 
-record {string fname; string lname; int age;} person;
+record {string fname = ""; string lname = ""; int age = 0;} person = {};
 
 function testAnonStructAsPkgVar() returns (string) {
 
@@ -26,14 +26,14 @@ function testAnonStructAsPkgVar() returns (string) {
 }
 
 type employee record {
-    string fname;
-    string lname;
-    int age;
-    record { string line01;
-             string line02;
-             string city;
-             string state;
-             string zipcode;
+    string fname = "";
+    string lname = "";
+    int age = 0;
+    record { string line01 = "";
+             string line02 = "";
+             string city = "";
+             string state = "";
+             string zipcode = "";
     } address;
 
     record {
@@ -58,7 +58,7 @@ function testRestField() returns person {
     return p;
 }
 
-record {string kind; string name; int...} animal;
+record {string kind = ""; string name = ""; int...} animal = {};
 
 function testAnonRecWithExplicitRestField() returns animal {
     animal a = {kind:"Cat", name:"Miaw"};

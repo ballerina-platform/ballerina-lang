@@ -20,14 +20,16 @@ package org.ballerinalang.nativeimpl.builtin.jsonlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.JSONUtils;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 
 /**
  * Extern function ballerina.model.json:getKeys. Returns an array of keys contained in the specified JSON.
@@ -46,17 +48,17 @@ public class GetKeys extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context ctx) {
-        BStringArray keys = null;
+        BValueArray keys = null;
         try {
             // Accessing Parameters.
             BValue json = ctx.getNullableRefArgument(0);
             if (json == null) {
-                keys = new BStringArray();
+                keys = new BValueArray(BTypes.typeString);
             } else {
                 keys = JSONUtils.getKeys(json);
             }
         } catch (Throwable e) {
-            ErrorHandler.handleJsonException("get keys from json", e);
+            ErrorHandler.handleJsonException(BallerinaErrorReasons.JSON_OPERATION_ERROR, "get keys from json", e);
         }
 
         ctx.setReturnValues(keys);

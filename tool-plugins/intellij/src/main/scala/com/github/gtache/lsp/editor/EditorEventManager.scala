@@ -138,7 +138,7 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
 
   private val completionTriggers =
     if (serverOptions.completionOptions != null && serverOptions.completionOptions.getTriggerCharacters != null)
-      serverOptions.completionOptions.getTriggerCharacters.asScala.toSet.filter(s => s != ".")
+      serverOptions.completionOptions.getTriggerCharacters.asScala.toSet
     else Set[String]()
 
   private val signatureTriggers =
@@ -176,7 +176,7 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
     */
   def characterTyped(c: Char): Unit = {
     if (completionTriggers.contains(c.toString)) {
-      //completion(DocumentUtils.offsetToLSPPos(editor,editor.getCaretModel.getCurrentCaret.getOffset))
+//      completion(DocumentUtils.offsetToLSPPos(editor,editor.getCaretModel.getCurrentCaret.getOffset))
     } else if (signatureTriggers.contains(c.toString)) {
       signatureHelp()
     } else if (onTypeFormattingTriggers.contains(c.toString)) {
@@ -411,7 +411,7 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
                     })*/
             if (textEdit != null) {
               if (addTextEdits != null) {
-                lookupElementBuilder = LookupElementBuilder.create("")
+                lookupElementBuilder = LookupElementBuilder.create(if (insertText != null && insertText != "") insertText else label)
                   .withInsertHandler((context: InsertionContext, item: LookupElement) => {
                     context.commitDocument()
                     invokeLater(() => {
@@ -420,7 +420,7 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
                     })
                   })
               } else {
-                lookupElementBuilder = LookupElementBuilder.create("")
+                lookupElementBuilder = LookupElementBuilder.create(if (insertText != null && insertText != "") insertText else label)
                   .withInsertHandler((context: InsertionContext, item: LookupElement) => {
                     context.commitDocument()
                     invokeLater(() => {
@@ -430,7 +430,7 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
                   })
               }
             } else if (addTextEdits != null) {
-              lookupElementBuilder = LookupElementBuilder.create("")
+              lookupElementBuilder = LookupElementBuilder.create(if (insertText != null && insertText != "") insertText else label)
                 .withInsertHandler((context: InsertionContext, item: LookupElement) => {
                   context.commitDocument()
                   invokeLater(() => {

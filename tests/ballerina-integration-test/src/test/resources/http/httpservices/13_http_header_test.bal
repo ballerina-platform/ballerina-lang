@@ -1,57 +1,42 @@
 import ballerina/http;
 
-endpoint http:Listener headerServiceEP {
-    port: 9106
-};
-
-endpoint http:Listener stockServiceEP {
-    port: 9107
-};
-
-endpoint http:Client stockqEP {
-    url: "http://localhost:9107"
-};
+http:Client stockqEP = new("http://localhost:9107");
 
 @http:ServiceConfig {
     basePath:"/product"
 }
-service<http:Service> headerService bind headerServiceEP {
+service headerService on new http:Listener(9106) {
 
-    value (endpoint conn, http:Request req) {
+    resource function value(http:Caller caller, http:Request req) {
         req.setHeader("core", "aaa");
         req.addHeader("core", "bbb");
 
         var result = stockqEP -> get("/sample/stocks", message = untaint req);
-        match result {
-            http:Response clientResponse => {
-                _ = conn -> respond(clientResponse);
-            }
-            any|() => {}
+        if (result is http:Response) {
+            _ = caller->respond(result);
+        } else if (result is error) {
+            _ = caller->respond(result.reason());
         }
     }
 
-    id (endpoint conn, http:Request req) {
+    resource function id(http:Caller caller, http:Request req) {
         http:Response clntResponse = new;
-        var reply = stockqEP -> forward("/sample/customers", req);
-
-        match reply {
-            http:Response clientResponse => {
-                json payload = {};
-                if (clientResponse.hasHeader("person")) {
-                    string[] headers = clientResponse.getHeaders("person");
-                    if (lengthof(headers) == 2) {
-                        payload = {header1:headers[0], header2:headers[1]};
-                    } else {
-                        payload = {"response":"expected number of 'person' headers not found"};
-                    }
+        var clientResponse = stockqEP -> forward("/sample/customers", req);
+        if (clientResponse is http:Response) {
+            json payload = {};
+            if (clientResponse.hasHeader("person")) {
+                string[] headers = clientResponse.getHeaders("person");
+                if (headers.length() == 2) {
+                    payload = {header1:headers[0], header2:headers[1]};
                 } else {
-                    payload = {"response":"person header not available"};
+                    payload = {"response":"expected number of 'person' headers not found"};
                 }
-                http:Response res = new;
-                res.setJsonPayload(untaint payload);
-                _ = conn -> respond(res);
+            } else {
+                payload = {"response":"person header not available"};
             }
-            any|() => {}
+            _ = caller->respond(payload);
+        } else if (clientResponse is error) {
+            _ = caller->respond(clientResponse.reason());
         }
     }
 }
@@ -59,17 +44,17 @@ service<http:Service> headerService bind headerServiceEP {
 @http:ServiceConfig {
     basePath:"/sample"
 }
-service<http:Service> quoteService1 bind stockServiceEP {
+service quoteService1 on new http:Listener(9107) {
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/stocks"
     }
-    company (endpoint conn, http:Request req) {
+    resource function company(http:Caller caller, http:Request req) {
         json payload = {};
         if (req.hasHeader("core")) {
             string[] headers = req.getHeaders("core");
-            if (lengthof(headers) == 2) {
+            if (headers.length() == 2) {
                 payload = {header1:headers[0], header2:headers[1]};
             } else {
                 payload = {"response":"expected number of 'core' headers not found"};
@@ -79,17 +64,17 @@ service<http:Service> quoteService1 bind stockServiceEP {
         }
         http:Response res = new;
         res.setJsonPayload(untaint payload);
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/customers"
     }
-    product (endpoint conn, http:Request req) {
+    resource function product(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setHeader("person", "kkk");
         res.addHeader("person", "jjj");
-        _ = conn -> respond(res);
+        _ = caller->respond(res);
     }
 }

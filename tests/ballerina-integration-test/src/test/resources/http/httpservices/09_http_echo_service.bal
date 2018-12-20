@@ -1,22 +1,34 @@
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 import ballerina/http;
 
-endpoint http:Listener echoEP3 {
-    port:9099
-};
+listener http:Listener echoEP3 = new(9099);
 
-endpoint http:Listener echoEP4 {
-    port:9100
-};
+listener http:Listener echoEP4 = new(9100);
 
 @http:ServiceConfig {
     basePath:"/echo"
 }
-service<http:Service> echo3 bind echoEP3 {
+service echo3 on echoEP3 {
     @http:ResourceConfig {
         methods:["POST"],
         path:"/"
     }
-    echo3 (endpoint caller, http:Request req) {
+    resource function echo3 (http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload("hello world");
         _ = caller -> respond(res);
@@ -26,12 +38,12 @@ service<http:Service> echo3 bind echoEP3 {
 @http:ServiceConfig {
     basePath:"/echoOne"
 }
-service<http:Service> echoOne2 bind echoEP3 {
+service echoOne2 on echoEP3 {
     @http:ResourceConfig {
         methods:["POST"],
         path:"/abc"
     }
-    echoAbc (endpoint caller, http:Request req) {
+    resource function echoAbc (http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload("hello world");
         _ = caller -> respond(res);
@@ -41,13 +53,13 @@ service<http:Service> echoOne2 bind echoEP3 {
 @http:ServiceConfig {
     basePath:"/echoDummy"
 }
-service<http:Service> echoDummy2 bind echoEP4 {
+service echoDummy2 on echoEP4 {
 
     @http:ResourceConfig {
         methods:["POST"],
         path:"/"
     }
-    echoDummy2 (endpoint caller, http:Request req) {
+    resource function echoDummy2 (http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload("hello world");
         _ = caller -> respond(res);
@@ -57,7 +69,7 @@ service<http:Service> echoDummy2 bind echoEP4 {
         methods:["OPTIONS"],
         path:"/getOptions"
     }
-    echoOptions (endpoint caller, http:Request req) {
+    resource function echoOptions (http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload("hello Options");
         _ = caller -> respond(res);

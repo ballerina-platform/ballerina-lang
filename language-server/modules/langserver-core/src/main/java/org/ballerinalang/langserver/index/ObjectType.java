@@ -17,12 +17,15 @@
 */
 package org.ballerinalang.langserver.index;
 
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.util.Flags;
+
 /**
  * Enum for ObjectType.
  */
 public enum ObjectType {
-    ENDPOINT(1),
-    ACTION_HOLDER(2),
+    CLIENT(1),
+    SERVER(2),
     OBJECT(3);
 
     private int type;
@@ -47,7 +50,20 @@ public enum ObjectType {
                 return objectType;
             }
         }
-        
         return null;
+    }
+
+    /**
+     * Get the enum value from {@link BObjectTypeSymbol}.
+     *
+     * @param objectTypeSymbol      object type symbol
+     * @return {@link ObjectType}   Object Type
+     */
+    public static ObjectType get(BObjectTypeSymbol objectTypeSymbol) {
+        if ((objectTypeSymbol.type.tsymbol.flags & Flags.CLIENT) == Flags.CLIENT) {
+            return ObjectType.CLIENT;
+        } else {
+            return ObjectType.OBJECT;
+        }
     }
 }

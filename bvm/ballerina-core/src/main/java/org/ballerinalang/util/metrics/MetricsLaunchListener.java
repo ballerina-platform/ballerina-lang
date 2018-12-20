@@ -18,14 +18,14 @@
 package org.ballerinalang.util.metrics;
 
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.bre.bvm.BLangScheduler;
+import org.ballerinalang.bre.old.BLangScheduler;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.util.LaunchListener;
 import org.ballerinalang.util.metrics.noop.NoOpMetricProvider;
 import org.ballerinalang.util.metrics.noop.NoOpMetricReporter;
 import org.ballerinalang.util.metrics.spi.MetricProvider;
 import org.ballerinalang.util.metrics.spi.MetricReporter;
-import org.ballerinalang.util.observability.ObservabilityUtils;
+import org.ballerinalang.util.observability.ObserveUtils;
 import org.ballerinalang.util.tracer.exception.InvalidConfigurationException;
 
 import java.io.PrintStream;
@@ -76,7 +76,7 @@ public class MetricsLaunchListener implements LaunchListener {
                         + e.getMessage());
             }
             // Add Metrics Observer
-            ObservabilityUtils.addObserver(new BallerinaMetricsObserver());
+            ObserveUtils.addObserver(new BallerinaMetricsObserver());
         }
     }
 

@@ -44,7 +44,9 @@ import org.ballerinalang.mime.util.EntityWrapper;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDecoder;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.JsonGenerator;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -55,8 +57,9 @@ import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.observability.ObservabilityUtils;
+import org.ballerinalang.util.observability.ObserveUtils;
 import org.ballerinalang.util.observability.ObserverContext;
+import org.ballerinalang.util.transactions.TransactionConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
@@ -90,6 +93,7 @@ import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.MimeConstants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
+import static org.ballerinalang.mime.util.MimeConstants.MIME_ERROR_CODE;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.NO_CONTENT_LENGTH_FOUND;
 import static org.ballerinalang.mime.util.MimeConstants.OCTET_STREAM;
@@ -103,6 +107,7 @@ import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSI
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION_CONTENT_TYPES;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION_ENABLE;
 import static org.ballerinalang.net.http.HttpConstants.AUTO;
+import static org.ballerinalang.net.http.HttpConstants.COLON;
 import static org.ballerinalang.net.http.HttpConstants.ENABLED_PROTOCOLS;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_CERTIFICATE;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY;
@@ -114,6 +119,9 @@ import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_TRUST_STO
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_VALIDATE_CERT;
 import static org.ballerinalang.net.http.HttpConstants.ENTITY_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.FILE_PATH;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_CODE;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_MESSAGE;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_RECORD;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_MESSAGE_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
 import static org.ballerinalang.net.http.HttpConstants.NEVER;
@@ -250,14 +258,9 @@ public class HttpUtil {
             if (entityBodyRequired && !byteChannelAlreadySet) {
                 populateEntityBody(context, httpMessageStruct, entity, isRequest);
             }
-
-            // Entity cannot be null, since it is not a nullable field in http:Request or http:Response
-            if (entity.isEmpty()) {
-                entity = createNewEntity(context, httpMessageStruct);
-            }
             return new BValue[]{entity};
         } catch (Throwable throwable) {
-            return new BValue[]{MimeUtil.createError(context,
+            return new BValue[]{MimeUtil.createError(context, MIME_ERROR_CODE,
                     "Error occurred during entity construction: " + throwable.getMessage())};
         }
     }
@@ -432,11 +435,20 @@ public class HttpUtil {
         sendPipelinedResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
     }
 
-    public static void handleFailure(HttpCarbonMessage requestMessage, BMap<String, BValue> error) {
-        String errorMsg = error.get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
+    static void handleFailure(HttpCarbonMessage requestMessage, BError error) {
+        String errorMsg = getErrorMessage(error);
         int statusCode = getStatusCode(requestMessage, errorMsg);
         ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
         sendPipelinedResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
+    }
+
+    private static String getErrorMessage(BError error) {
+        String errorMsg = error.reason;
+        BMap<String, BValue> errorDetails = (BMap<String, BValue>) error.getDetails();
+        if (!errorDetails.isEmpty()) {
+            errorMsg = errorMsg.concat(COLON + errorDetails.get(HTTP_ERROR_MESSAGE));
+        }
+        return errorMsg;
     }
 
     private static int getStatusCode(HttpCarbonMessage requestMessage, String errorMsg) {
@@ -486,8 +498,14 @@ public class HttpUtil {
      * @param errMsg  Error message
      * @return Error struct
      */
-    public static BMap<String, BValue> getError(Context context, String errMsg) {
-        return BLangVMErrors.createError(context, errMsg);
+    public static BError getError(Context context, String errMsg) {
+        BMap<String, BValue> httpErrorRecord = createHTTPErrorRecord(context);
+        httpErrorRecord.put(HTTP_ERROR_MESSAGE, new BString(errMsg));
+        return BLangVMErrors.createError(context, true, BTypes.typeError, HTTP_ERROR_CODE, httpErrorRecord);
+    }
+
+    private static BMap<String, BValue> createHTTPErrorRecord(Context context) {
+        return BLangConnectorSPIUtil.createBStruct(context, PROTOCOL_PACKAGE_HTTP, HTTP_ERROR_RECORD);
     }
 
     /**
@@ -497,11 +515,11 @@ public class HttpUtil {
      * @param throwable Throwable representing the error.
      * @return Error struct
      */
-    public static BMap<String, BValue> getError(Context context, Throwable throwable) {
+    public static BError getError(Context context, Throwable throwable) {
         if (throwable.getMessage() == null) {
-            return BLangVMErrors.createError(context, IO_EXCEPTION_OCCURED);
+            return getError(context, IO_EXCEPTION_OCCURED);
         } else {
-            return BLangVMErrors.createError(context, throwable.getMessage());
+            return getError(context, throwable.getMessage());
         }
     }
 
@@ -610,40 +628,40 @@ public class HttpUtil {
                 new BString((String) inboundRequestMsg.getProperty(HttpConstants.HTTP_VERSION)));
         Map<String, String> resourceArgValues =
                 (Map<String, String>) inboundRequestMsg.getProperty(HttpConstants.RESOURCE_ARGS);
-        if (resourceArgValues != null) {
+        if (resourceArgValues != null && resourceArgValues.get(HttpConstants.EXTRA_PATH_INFO) != null) {
             inboundRequestStruct.put(HttpConstants.REQUEST_EXTRA_PATH_INFO_FIELD,
                     new BString(resourceArgValues.get(HttpConstants.EXTRA_PATH_INFO)));
         }
     }
 
     /**
-     * Populate connection information.
+     * Populates the HTTP caller with native data.
      *
-     * @param connection Represent the connection struct
-     * @param inboundMsg Represent carbon message.
-     * @param config Service endpoint configuration.
+     * @param caller     Represents the HTTP caller
+     * @param inboundMsg Represents carbon message
+     * @param config     Represents service endpoint configuration
      */
-    public static void enrichConnectionInfo(BMap<String, BValue> connection, HttpCarbonMessage inboundMsg,
-                                            Struct config) {
-        connection.addNativeData(HttpConstants.TRANSPORT_MESSAGE, inboundMsg);
-        connection.put(HttpConstants.HTTP_CONNECTOR_CONFIG_FIELD, (BMap<String, BValue>) config.getVMValue());
+    public static void enrichHttpCallerWithNativeData(BMap<String, BValue> caller, HttpCarbonMessage inboundMsg,
+                                                      Struct config) {
+        caller.addNativeData(HttpConstants.TRANSPORT_MESSAGE, inboundMsg);
+        caller.put(HttpConstants.HTTP_CONNECTOR_CONFIG_FIELD, (BMap<String, BValue>) config.getVMValue());
     }
 
     /**
-     * Populate serviceEndpoint information.
+     * Populates the HTTP caller with connection information.
      *
-     * @param serviceEndpoint Represent the serviceEndpoint struct
-     * @param inboundMsg Represent carbon message.
-     * @param httpResource Represent Http Resource.
-     * @param config Service endpoint configuration.
+     * @param httpCaller   Represents the HTTP caller
+     * @param inboundMsg   Represents the carbon message
+     * @param httpResource Represents the Http Resource
+     * @param config       Represents the service endpoint configuration
      */
-    public static void enrichServiceEndpointInfo(BMap<String, BValue> serviceEndpoint, HttpCarbonMessage inboundMsg,
-                                                 HttpResource httpResource, Struct config) {
+    public static void enrichHttpCallerWithConnectionInfo(BMap<String, BValue> httpCaller, HttpCarbonMessage inboundMsg,
+                                                          HttpResource httpResource, Struct config) {
         BMap<String, BValue> remote = BLangConnectorSPIUtil.createBStruct(
-                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
+                httpResource.getBalResource().getResourceInfo().getPackageInfo().getProgramFile(),
                 PROTOCOL_PACKAGE_HTTP, HttpConstants.REMOTE);
         BMap<String, BValue> local = BLangConnectorSPIUtil.createBStruct(
-                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
+                httpResource.getBalResource().getResourceInfo().getPackageInfo().getProgramFile(),
                 PROTOCOL_PACKAGE_HTTP, HttpConstants.LOCAL);
 
         Object remoteSocketAddress = inboundMsg.getProperty(HttpConstants.REMOTE_ADDRESS);
@@ -654,7 +672,7 @@ public class HttpUtil {
             remote.put(HttpConstants.REMOTE_HOST_FIELD, new BString(remoteHost));
             remote.put(HttpConstants.REMOTE_PORT_FIELD, new BInteger(remotePort));
         }
-        serviceEndpoint.put(HttpConstants.REMOTE_STRUCT_FIELD, remote);
+        httpCaller.put(HttpConstants.REMOTE_STRUCT_FIELD, remote);
 
         Object localSocketAddress = inboundMsg.getProperty(HttpConstants.LOCAL_ADDRESS);
         if (localSocketAddress instanceof InetSocketAddress) {
@@ -664,10 +682,10 @@ public class HttpUtil {
             local.put(HttpConstants.LOCAL_HOST_FIELD, new BString(localHost));
             local.put(HttpConstants.LOCAL_PORT_FIELD, new BInteger(localPort));
         }
-        serviceEndpoint.put(HttpConstants.LOCAL_STRUCT_INDEX, local);
-        serviceEndpoint.put(HttpConstants.SERVICE_ENDPOINT_PROTOCOL_FIELD,
+        httpCaller.put(HttpConstants.LOCAL_STRUCT_INDEX, local);
+        httpCaller.put(HttpConstants.SERVICE_ENDPOINT_PROTOCOL_FIELD,
                 new BString((String) inboundMsg.getProperty(HttpConstants.PROTOCOL)));
-        serviceEndpoint.put(HttpConstants.SERVICE_ENDPOINT_CONFIG_FIELD, (BMap<String, BValue>) config.getVMValue());
+        httpCaller.put(HttpConstants.SERVICE_ENDPOINT_CONFIG_FIELD, (BMap<String, BValue>) config.getVMValue());
     }
 
     /**
@@ -837,9 +855,9 @@ public class HttpUtil {
     private static void setCompressionHeaders(Context context, HttpCarbonMessage requestMsg, HttpCarbonMessage
             outboundResponseMsg) {
         Service serviceInstance = BLangConnectorSPIUtil.getService(context.getProgramFile(),
-                context.getServiceInfo().getType());
+                context.getServiceInfo().serviceValue);
         Annotation configAnnot = getServiceConfigAnnotation(serviceInstance, PROTOCOL_PACKAGE_HTTP);
-        if (configAnnot == null) {
+        if (!checkConfigAnnotationAvailability(configAnnot)) {
             return;
         }
         String contentEncoding = outboundResponseMsg.getHeaders().get(HttpHeaderNames.CONTENT_ENCODING);
@@ -1050,6 +1068,21 @@ public class HttpUtil {
         return annotationList.isEmpty() ? null : annotationList.get(0);
     }
 
+    public static Annotation getTransactionConfigAnnotation(Resource resource, String transactionPackagePath) {
+        List<Annotation> annotationList = resource.getAnnotationList(transactionPackagePath,
+                TransactionConstants.ANN_NAME_TRX_PARTICIPANT_CONFIG);
+
+        if (annotationList == null || annotationList.isEmpty()) {
+            return null;
+        }
+        if (annotationList.size() > 1) {
+            throw new BallerinaException(
+                    "multiple transaction configuration annotations found in resource: " +
+                            resource.getServiceName() + "." + resource.getName());
+        }
+        return annotationList.get(0);
+    }
+
     private static int getIntValue(long val) {
         int intVal = (int) val;
 
@@ -1102,13 +1135,13 @@ public class HttpUtil {
     }
 
     public static void checkAndObserveHttpRequest(Context context, HttpCarbonMessage message) {
-        Optional<ObserverContext> observerContext = ObservabilityUtils.getParentContext(context);
+        Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(context);
         observerContext.ifPresent(ctx -> {
-            HttpUtil.injectHeaders(message, ObservabilityUtils.getContextProperties(ctx));
+            HttpUtil.injectHeaders(message, ObserveUtils.getContextProperties(ctx));
             ctx.addTag(TAG_KEY_HTTP_METHOD, String.valueOf(message.getProperty(HttpConstants.HTTP_METHOD)));
             ctx.addTag(TAG_KEY_HTTP_URL, String.valueOf(message.getProperty(HttpConstants.TO)));
             ctx.addTag(TAG_KEY_PEER_ADDRESS,
-                    message.getProperty(PROPERTY_HTTP_HOST) + ":" + message.getProperty(PROPERTY_HTTP_PORT));
+                       message.getProperty(PROPERTY_HTTP_HOST) + ":" + message.getProperty(PROPERTY_HTTP_PORT));
             // Add HTTP Status Code tag. The HTTP status code will be set using the response message.
             // Sometimes the HTTP status code will not be set due to errors etc. Therefore, it's very important to set
             // some value to HTTP Status Code to make sure that tags will not change depending on various
@@ -1127,9 +1160,9 @@ public class HttpUtil {
     private static void setChunkingHeader(Context context, HttpCarbonMessage
             outboundResponseMsg) {
         Service serviceInstance = BLangConnectorSPIUtil.getService(context.getProgramFile(),
-                context.getServiceInfo().getType());
+                context.getServiceInfo().serviceValue);
         Annotation configAnnot = getServiceConfigAnnotation(serviceInstance, PROTOCOL_PACKAGE_HTTP);
-        if (configAnnot == null) {
+        if (!checkConfigAnnotationAvailability(configAnnot)) {
             return;
         }
         String transferValue = configAnnot.getValue().getRefField(ANN_CONFIG_ATTR_CHUNKING).getStringValue();
@@ -1297,6 +1330,16 @@ public class HttpUtil {
         } else {
             outboundMessageSource.serialize(messageOutputStream);
         }
+    }
+
+    /**
+     * Check the availability of an annotation.
+     *
+     * @param configAnnotation      Represent the annotation
+     * @return True if the annotation and the annotation value are available
+     */
+    public static boolean checkConfigAnnotationAvailability(Annotation configAnnotation) {
+        return configAnnotation != null && configAnnotation.getValue() != null;
     }
 
     private HttpUtil() {

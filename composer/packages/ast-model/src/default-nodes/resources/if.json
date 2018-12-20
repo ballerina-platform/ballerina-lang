@@ -1,0 +1,87 @@
+{
+  "ws": [
+    {
+      "ws": "\n    ",
+      "i": 87,
+      "text": "if",
+      "static": true
+    },
+    {
+      "ws": " ",
+      "i": 93,
+      "text": "{",
+      "static": true
+    },
+    {
+      "ws": "\n\n    ",
+      "i": 96,
+      "text": "}",
+      "static": true
+    }
+  ],
+  "position": {
+    "startColumn": 5,
+    "startLine": 14,
+    "endColumn": 6,
+    "endLine": 16
+  },
+  "id": "fbf541d3-189e-4d77-bab1-2d3b3cecc1c1",
+  "body": {
+    "id": "db952006-16c0-424d-bc86-0fb7ca006770",
+    "statements": [],
+    "kind": "Block"
+  },
+  "condition": {
+    "ws": [
+      {
+        "ws": " ",
+        "i": 89,
+        "text": "(",
+        "static": true
+      },
+      {
+        "ws": "",
+        "i": 91,
+        "text": ")",
+        "static": true
+      }
+    ],
+    "position": {
+      "startColumn": 8,
+      "startLine": 14,
+      "endColumn": 14,
+      "endLine": 14
+    },
+    "id": "0df82551-7964-4142-ad57-2f429dfa26ee",
+    "symbolType": [
+      "boolean"
+    ],
+    "expressions": [
+      {
+        "ws": [
+          {
+            "ws": "",
+            "i": 90,
+            "text": "true",
+            "static": false
+          }
+        ],
+        "position": {
+          "startColumn": 9,
+          "startLine": 14,
+          "endColumn": 13,
+          "endLine": 14
+        },
+        "id": "3a4d1205-8851-4e0d-adc3-3f4949828798",
+        "symbolType": [
+          "boolean"
+        ],
+        "value": "true",
+        "originalValue": "true",
+        "kind": "Literal"
+      }
+    ],
+    "kind": "BracedTupleExpr"
+  },
+  "kind": "If"
+}

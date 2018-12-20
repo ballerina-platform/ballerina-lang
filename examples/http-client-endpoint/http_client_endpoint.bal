@@ -2,131 +2,81 @@ import ballerina/http;
 import ballerina/io;
 import ballerina/log;
 
-endpoint http:Client clientEndpoint {
-    url: "https://postman-echo.com"
-};
+// Create a new client with the backend url.
+http:Client clientEndpoint = new("https://postman-echo.com");
 
 public function main() {
 
     http:Request req = new;
-    // Send a GET request to the specified endpoint.
+    // Send a `GET` request to the specified endpoint.
     var response = clientEndpoint->get("/get?test=123");
 
-    match response {
-        http:Response resp => {
-            io:println("GET request:");
-            var msg = resp.getJsonPayload();
-            match msg {
-                json jsonPayload => {
-                    io:println(jsonPayload);
-                }
-                error err => {
-                    log:printError(err.message, err = err);
-                }
-            }
+    if (response is http:Response) {
+        io:println("GET request:");
+        // Retrieve the json payload from the response.
+        var msg = response.getJsonPayload();
+        if (msg is json) {
+            // Print the received json response.
+            io:println(msg);
+        } else {
+            log:printError("Invalid payload received", err = msg);
         }
-        error err => { log:printError(err.message, err = err); }
+    } else {
+        log:printError("Error when calling the backend", err = response);
     }
+
     // Set a string payload to the message to be sent to the endpoint.
     req.setPayload("POST: Hello World");
 
+    // Send a `POST` request to the specified endpoint.
     response = clientEndpoint->post("/post", req);
-    match response {
-        http:Response resp => {
-            io:println("\nPOST request:");
-            var msg = resp.getJsonPayload();
-            match msg {
-                json jsonPayload => {
-                    io:println(jsonPayload);
-                }
-                error err => {
-                    log:printError(err.message, err = err);
-                }
-            }
+    if (response is http:Response) {
+        io:println("\nPOST request:");
+        // Retrieve the json payload from the response.
+        var msg = response.getJsonPayload();
+        if (msg is json) {
+            // Print the received json response.
+            io:println(msg);
+        } else {
+            log:printError("Invalid payload received", err = msg);
         }
-        error err => { log:printError(err.message, err = err); }
-
-    }
-
-    // Set a JSON payload to the message to be sent to the endpoint.
-    json jsonMsg = { method: "PUT", payload: "Hello World" };
-    req.setJsonPayload(jsonMsg);
-
-    response = clientEndpoint->put("/put", req);
-    match response {
-        http:Response resp => {
-            io:println("\nPUT request:");
-            var msg = resp.getJsonPayload();
-            match msg {
-                json jsonPayload => {
-                    io:println(jsonPayload);
-                }
-                error err => {
-                    log:printError(err.message, err = err);
-                }
-            }
-        }
-        error err => { log:printError(err.message, err = err); }
-    }
-
-    // Set an XML payload to the message to be sent to the endpoint.
-    xml xmlMsg = xml `<request>
-                        <method>PATCH</method>
-                        <payload>Hello World!</payload>
-                      </request>`;
-    req.setXmlPayload(xmlMsg);
-
-    response = clientEndpoint->patch("/patch", req);
-    match response {
-        http:Response resp => {
-            io:println("\nPATCH request:");
-            var msg = resp.getJsonPayload();
-            match msg {
-                json jsonPayload => {
-                    io:println(jsonPayload);
-                }
-                error err => {
-                    log:printError(err.message, err = err);
-                }
-            }
-        }
-        error err => { log:printError(err.message, err = err); }
+    } else {
+        log:printError("Error when calling the backend", err = response);
     }
 
     req.setPayload("DELETE: Hello World");
+    // Send a `DELETE` request to the specified endpoint.
     response = clientEndpoint->delete("/delete", req);
-    match response {
-        http:Response resp => {
-            io:println("\nDELETE request:");
-            var msg = resp.getJsonPayload();
-            match msg {
-                json jsonPayload => {
-                    io:println(jsonPayload);
-                }
-                error err => {
-                    log:printError(err.message, err = err);
-                }
-            }
+    if (response is http:Response) {
+        io:println("\nDELETE request:");
+        var msg = response.getJsonPayload();
+        if (msg is json) {
+            io:println(msg);
+        } else {
+            log:printError("Invalid payload received", err = msg);
         }
-        error err => { log:printError(err.message, err = err); }
+    } else {
+        log:printError("Error when calling the backend", err = response);
     }
 
     req.setPayload("CUSTOM: Hello World");
-    // The `execute()` action can be used if one needs to use custom HTTP verbs.
+    // Use the `execute()` remote function for custom HTTP verbs.
     response = clientEndpoint->execute("COPY", "/get", req);
 
+    // Reinitialize the request.
     req = new;
     req.addHeader("Sample-Name", "http-client-connector");
+    // The `get()`, `head()` and `options()` can have the optional `message` parameter
+    // that is a request or a payload.
     response = clientEndpoint->get("/get", message = req);
-    match response {
-        http:Response resp => {
-            string contentType = resp.getHeader("Content-Type");
-            log:printInfo("Content-Type: " + contentType);
+    if (response is http:Response) {
+        string contentType = response.getHeader("Content-Type");
+        log:printInfo("Content-Type: " + contentType);
 
-            int statusCode = resp.statusCode;
-            log:printInfo("Status code: " + statusCode);
+        int statusCode = response.statusCode;
+        log:printInfo("Status code: " + statusCode);
 
-        }
-        error err => { log:printError(err.message, err = err); }
+    } else {
+        log:printError("Error when calling the backend", err = response);
     }
 }

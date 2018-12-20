@@ -36,6 +36,8 @@ import org.ballerinalang.util.codegen.RecordTypeInfo;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Contain SerializationBValueProviders for BType derived classes.
@@ -252,7 +254,9 @@ public class BTypeBValueProviders {
             }
 
             BRecordType bRecType = new BRecordType(recTypeInfo, typeName, pkgPath, flags);
-            bRecType.setFields((BField[]) bValueDeserializer.deserialize(packet.getValue(), BField[].class));
+            Map<String, BField> fields = (Map<String, BField>) bValueDeserializer.deserialize(packet.getValue(),
+                                                                                              LinkedHashMap.class);
+            bRecType.setFields(fields);
 
             recTypeInfo.setType(bRecType);
             bRecType.restFieldType = (BType) bValueDeserializer.deserialize(packet.get(REST_FIELD_TYPE), BType.class);

@@ -22,7 +22,7 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.983.1-SNAPSHOT</version>
+    <version>0.990.1-SNAPSHOT</version>
     <name>Ballerina - Parent</name>
 
     <description>
@@ -460,6 +460,27 @@
                 <classifier>ballerina-binary-repo</classifier>
             </dependency>
 
+            <!-- ballerina-socket -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-socket</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-socket</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-socket</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+
             <!-- ballerina-jms -->
             <dependency>
                 <groupId>org.ballerinalang</groupId>
@@ -518,22 +539,6 @@
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-math</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-                <classifier>ballerina-binary-repo</classifier>
-            </dependency>
-
-            <!-- ballerina-mb -->
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-mb</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-                <classifier>ballerina-sources</classifier>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-mb</artifactId>
                 <version>${ballerina.version}</version>
                 <type>zip</type>
                 <classifier>ballerina-binary-repo</classifier>
@@ -910,11 +915,11 @@
                 <artifactId>ballerina-to-swagger</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-codegen</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
+            <!--<dependency>-->
+                <!--<groupId>org.ballerinalang</groupId>-->
+                <!--<artifactId>ballerina-codegen</artifactId>-->
+                <!--<version>${ballerina.version}</version>-->
+            <!--</dependency>-->
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>protobuf-ballerina</artifactId>
@@ -1017,6 +1022,11 @@
                 <groupId>org.apache.ws.commons.axiom</groupId>
                 <artifactId>axiom-dom</artifactId>
                 <version>${orbit.version.axiom}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.ws.commons.axiom</groupId>
+                <artifactId>axiom-c14n</artifactId>
+                <version>${c14n.axiom.orbit.version}</version>
             </dependency>
             <dependency>
                 <groupId>jaxen</groupId>
@@ -1555,6 +1565,16 @@
                 </exclusions>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk15on</artifactId>
+                <version>${bouncycastle.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcpkix-jdk15on</artifactId>
+                <version>${bouncycastle.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -1653,6 +1673,7 @@
                 <module>stdlib/http</module>
                 <module>stdlib/swagger</module>
                 <module>stdlib/io</module>
+                <module>stdlib/socket</module>
                 <module>stdlib/internal</module>
                 <module>stdlib/log-api</module>
                 <module>stdlib/transactions</module>
@@ -1667,7 +1688,6 @@
                 <module>stdlib/time</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
-                <module>stdlib/mb</module>
                 <module>stdlib/observability</module>
                 <module>stdlib/database/h2</module>
                 <module>stdlib/database/mysql</module>
@@ -1712,10 +1732,9 @@
                 <module>tests/ballerina-integration-test</module>
                 <module>tests/ballerina-tools-integration-test</module>
                 <module>tests/ballerina-compiler-plugin-test</module>
-                <!--<module>tests/ballerina-examples-test</module>-->
+                <module>tests/ballerina-examples-test</module>
                 <module>tool-plugins/intellij</module>
                 <module>tool-plugins/vscode</module>
-                <!--<module>tool-plugins/theia</module> -->
 
                 <module>benchmarks</module>
             </modules>
@@ -1738,6 +1757,7 @@
                 <module>stdlib/http</module>
                 <module>stdlib/swagger</module>
                 <module>stdlib/io</module>
+                <module>stdlib/socket</module>
                 <module>stdlib/internal</module>
                 <module>stdlib/log-api</module>
                 <module>stdlib/transactions</module>
@@ -1752,7 +1772,6 @@
                 <module>stdlib/time</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
-                <module>stdlib/mb</module>
                 <module>stdlib/observability</module>
                 <module>stdlib/database/h2</module>
                 <module>stdlib/database/mysql</module>
@@ -1818,6 +1837,7 @@
                 <module>stdlib/http</module>
                 <module>stdlib/swagger</module>
                 <module>stdlib/io</module>
+                <module>stdlib/socket</module>
                 <module>stdlib/internal</module>
                 <module>stdlib/log-api</module>
                 <module>stdlib/transactions</module>
@@ -1832,7 +1852,6 @@
                 <module>stdlib/time</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
-                <module>stdlib/mb</module>
                 <module>stdlib/observability</module>
                 <module>stdlib/database/h2</module>
                 <module>stdlib/database/mysql</module>
@@ -1878,7 +1897,7 @@
                 <module>tests/ballerina-integration-test-utils</module>
                 <module>tests/ballerina-integration-test</module>
                 <module>tests/ballerina-tools-integration-test</module>
-                <!--<module>tests/ballerina-examples-test</module>-->
+                <module>tests/ballerina-examples-test</module>
                 <!-- Intellij build disabled in default build -->
                 <!--<module>tool-plugins/intellij</module>-->
                 <module>tool-plugins/vscode</module>
@@ -2208,7 +2227,7 @@
     </build>
 
     <properties>
-        <ballerina.version>0.983.1-SNAPSHOT</ballerina.version>
+        <ballerina.version>0.990.1-SNAPSHOT</ballerina.version>
         <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
 
         <commons-net.version>3.6</commons-net.version>
@@ -2231,7 +2250,7 @@
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
-        <transport.http.version>6.0.243</transport.http.version>
+        <transport.http.version>6.0.250</transport.http.version>
         <carbon.messaging.version>2.3.7</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.config.version>2.1.2</carbon.config.version>
@@ -2244,6 +2263,7 @@
         <com.fasterxml.jackson.dataformat.yaml.version>2.9.1</com.fasterxml.jackson.dataformat.yaml.version>
         <tapestry.json.orbit.version>5.4.1.wso2v1</tapestry.json.orbit.version>
         <orbit.version.axiom>1.2.20</orbit.version.axiom>
+        <c14n.axiom.orbit.version>1.2.11-wso2v11</c14n.axiom.orbit.version>
         <saxon.wso2.version>9.7.0.wso2v1</saxon.wso2.version>
         <jaxen.version>1.1.6</jaxen.version>
         <geronimo.activation>1.1</geronimo.activation>
@@ -2364,6 +2384,7 @@
 
         <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
         <apache.directory.server.version>1.5.5</apache.directory.server.version>
+        <bouncycastle.version>1.60</bouncycastle.version>
     </properties>
 
 </project>

@@ -1,5 +1,5 @@
-# To run the service, put the code in a `http_compression.bal` file
-# and execute the following command from `$BALLERINA_HOME/bin`.
+# To start the services, navigate to the directory that contains the
+# `.bal` file and use the `ballerina run` command.
 $ ballerina run http_compression.bal
 # Service deployment:
 Initiating service(s) in 'http_compression.bal'

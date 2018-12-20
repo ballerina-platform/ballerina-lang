@@ -1,7 +1,7 @@
 import ballerina/task;
 
-int count;
-task:Timer? timer;
+int count = 0;
+task:Timer? timer = ();
 
 function scheduleTimer(int delay, int interval) {
     (function() returns error?) onTriggerFunction = onTrigger;

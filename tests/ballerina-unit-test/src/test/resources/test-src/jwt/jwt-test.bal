@@ -18,10 +18,7 @@ function testIssueJwt (string keyStorePath) returns (string)|error {
     config.keyPassword = "ballerina";
     config.keyStoreFilePath = keyStorePath;
     config.keyStorePassword = "ballerina";
-    match internal:issue(header, payload, config) {
-        string jwtString => return jwtString;
-        error err => return err;
-    }
+    return  internal:issue(header, payload, config);
 }
 
 function testValidateJwt (string jwtToken, string trustStorePath) returns boolean|error {
@@ -33,9 +30,10 @@ function testValidateJwt (string jwtToken, string trustStorePath) returns boolea
     config.trustStoreFilePath = trustStorePath;
     config.trustStorePassword = "ballerina";
 
-    var value = internal:validate(jwtToken, config);
-    match value {
-        internal:JwtPayload result => return true;
-        error err => return err;
+    var result = internal:validate(jwtToken, config);
+    if (result is internal:JwtPayload) {
+        return true;
+    } else {
+        return result;
     }
 }

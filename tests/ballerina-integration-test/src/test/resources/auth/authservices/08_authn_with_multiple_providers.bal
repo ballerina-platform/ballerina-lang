@@ -17,10 +17,10 @@
 import ballerina/http;
 
 http:AuthProvider jwtAuthProvider1 = {
-    scheme:"jwt",
-    issuer:"example1",
+    scheme: "jwt",
+    issuer: "example1",
     audience: "ballerina",
-    certificateAlias:"ballerina",
+    certificateAlias: "ballerina",
     trustStore: {
         path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
         password: "ballerina"
@@ -28,30 +28,29 @@ http:AuthProvider jwtAuthProvider1 = {
 };
 
 http:AuthProvider jwtAuthProvider2 = {
-    scheme:"jwt",
-    issuer:"example2",
+    scheme: "jwt",
+    issuer: "example2",
     audience: "ballerina",
-    certificateAlias:"ballerina",
+    certificateAlias: "ballerina",
     trustStore: {
         path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
         password: "ballerina"
     }
 };
 
-endpoint http:Listener listener08 {
-    port:9099,
-    authProviders:[jwtAuthProvider1, jwtAuthProvider2],
+listener http:Listener listener08 = new(9099, config = {
+    authProviders: [jwtAuthProvider1, jwtAuthProvider2],
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
             password: "ballerina"
         }
     }
-};
+});
 
-service<http:Service> echo8 bind listener08 {
-    test8 (endpoint caller, http:Request req) {
-        http:Response res = new;
-        _ = caller -> respond(res);
+service echo8 on listener08 {
+
+    resource function test8(http:Caller caller, http:Request req) {
+        _ = caller->respond(());
     }
 }

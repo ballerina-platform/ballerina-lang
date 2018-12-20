@@ -24,10 +24,11 @@ import ballerina/http;
 #                               to the topic
 # + publicUrl - The URL for the hub to be included in content delivery requests, defaults to
 #               `http(s)://localhost:{port}/websub/hub` if unspecified
+# + hubListener - The `http:Listener` to which the hub service is attached
 # + return - `WebSubHub` The WebSubHub object representing the newly started up hub, or `HubStartedUpError` indicating
 #            that the hub is already started, and including the WebSubHub object representing the
 #            already started up hub
-extern function startUpHubService(boolean topicRegistrationRequired, string publicUrl)
+extern function startUpHubService(boolean topicRegistrationRequired, string publicUrl, http:Listener hubListener)
                                                                             returns WebSubHub|HubStartedUpError;
 
 # Stop the Ballerina Hub, if started.

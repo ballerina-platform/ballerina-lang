@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Test whether upgrade resource failure after handshake causes a close frame to be sent.
  */
-@Test(groups = "websocket-test")
+@Test(groups = {"websocket-test"})
 public class UpgradeResourceFailureTest extends WebSocketTestCommons {
 
     private WebSocketTestClient client;

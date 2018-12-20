@@ -1,7 +1,7 @@
 import ballerina/io;
 
 // This function returns a value of the `any` type.
-function getValue() returns (any) {
+function getValue() returns any {
     string name = "cat";
     return name;
 }
@@ -11,11 +11,11 @@ public function main() {
     any a = 5;
     io:println(a);
 
-    // First, the variable of the `any` type needs to be cast to the required type (`int` in this example) as shown here.
-    int intVal = check <int>a;
+    // First, the variable of type `any` needs to be asserted to be of the required type.
+    int intVal = <int>a;
     io:println(intVal + 10);
 
-    // In Ballerina, a variable of the `any` type can hold values of any data type.
+    // In Ballerina, a variable of the `any` type can hold values of any type.
     int[] ia = [1, 3, 5, 6];
     any ar = ia;
     io:println(ar);

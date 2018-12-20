@@ -1,6 +1,6 @@
 function testJsonPositive() returns (json) {
     json j1;
-    json j2;
+    json j2 = ();
     j1 = {"name":"Jack"};
     j1 = +j2;
 
@@ -9,7 +9,7 @@ function testJsonPositive() returns (json) {
 
 function testJsonNegative() returns (json) {
     json j1;
-    json j2;
+    json j2 = ();
     j1 = {"name":"Jack"};
     j1 = -j2;
 
@@ -18,7 +18,7 @@ function testJsonNegative() returns (json) {
 
 function testJsonNot() returns (json) {
     json j1;
-    json j2;
+    json j2 = ();
     j1 = {"name":"Jack"};
     j1 = !j2;
 

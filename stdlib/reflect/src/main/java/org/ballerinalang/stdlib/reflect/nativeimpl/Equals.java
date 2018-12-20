@@ -20,7 +20,6 @@ package org.ballerinalang.stdlib.reflect.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
@@ -107,6 +106,7 @@ public class Equals extends BlockingNativeCallableUnit {
             case TypeTags.INT_TAG:
             case TypeTags.BYTE_TAG:
             case TypeTags.FLOAT_TAG:
+            case TypeTags.DECIMAL_TAG:
             case TypeTags.BOOLEAN_TAG:
             case TypeTags.TYPEDESC_TAG:
                 BRefType lhsRef = (BRefType) lhsValue;
@@ -168,8 +168,8 @@ public class Equals extends BlockingNativeCallableUnit {
      * @return True if deeply equals, else false.
      */
     private boolean isEqual(BMap<String, BValue> lhsStruct, BMap<String, BValue> rhsStruct, BStructureType structType) {
-        for (BField field: structType.getFields()) {
-            if (!isEqual(lhsStruct.get(field.fieldName), rhsStruct.get(field.fieldName))) {
+        for (String fieldName : structType.getFields().keySet()) {
+            if (!isEqual(lhsStruct.get(fieldName), rhsStruct.get(fieldName))) {
                 return false;
             }
         }

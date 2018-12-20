@@ -11,46 +11,48 @@ jms:Connection conn2 = new ({
 
 // Initialize a JMS session on top of the created connection.
 jms:Session jmsSession2 = new (conn2, {
-        // Optional property. Defaults to AUTO_ACKNOWLEDGE
-        acknowledgementMode: "AUTO_ACKNOWLEDGE"
-    });
+    // Optional property. Defaults to AUTO_ACKNOWLEDGE
+    acknowledgementMode: "AUTO_ACKNOWLEDGE"
+});
 
 // Initialize a Queue consumer using the created session.
-endpoint jms:TopicSubscriber topicSubscriber2 {
+listener jms:TopicSubscriber topicSubscriber2 = new({
     session: jmsSession2,
     topicPattern: "testMapMessageSubscriber"
-};
+});
 
 // Bind the created consumer to the listener service.
-service<jms:Consumer> jmsListener2 bind topicSubscriber2 {
+service jmsListener2 on topicSubscriber2 {
 
     // OnMessage resource get invoked when a message is received.
-    onMessage(endpoint subscriber, jms:Message message) {
-        map messageRetrieved = check message.getMapMessageContent();
-        io:print(messageRetrieved["a"]);
-        io:print(messageRetrieved["b"]);
-        io:print(messageRetrieved["c"]);
-        io:println(messageRetrieved["d"]);
-        byte[] retrievedBlob = check <byte[]>messageRetrieved["e"];
+    resource function onMessage(jms:TopicSubscriberCaller subscriber, jms:Message message) {
+        var messageRetrieved = message.getMapMessageContent();
+        if (messageRetrieved is map<any>) {
+             io:print(messageRetrieved["a"]);
+             io:print(messageRetrieved["b"]);
+             io:print(messageRetrieved["c"]);
+             io:println(messageRetrieved["d"]);
+             byte[] retrievedBlob = <byte[]>messageRetrieved["e"];
+        } else {
+             panic messageRetrieved;
+        }
     }
 }
 
 // This is to make sure that the test case can detect the PID using port. Removing following will result in
 // intergration testframe work failing to kill the ballerina service.
-endpoint http:Listener helloWorldEp2 {
-    port:9092
-};
+listener http:Listener helloWorldEp2 = new(9092);
 
 @http:ServiceConfig {
     basePath:"/jmsDummyService"
 }
-service<http:Service> helloWorld2 bind helloWorldEp2 {
+service helloWorld2 on helloWorldEp2 {
 
     @http:ResourceConfig {
         methods:["GET"],
         path:"/"
     }
-    sayHello (endpoint client, http:Request req) {
+    resource function sayHello (http:Caller caller, http:Request req) {
         // Do nothing
     }
 }

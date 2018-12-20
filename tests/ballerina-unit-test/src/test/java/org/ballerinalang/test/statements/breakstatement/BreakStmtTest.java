@@ -96,25 +96,12 @@ public class BreakStmtTest {
     }
 
     @Test
-    public void testFinallyWithWhile() {
+    public void testBreakWithForeach() {
         BValue[] args = {new BString("break")};
-        BValue[] returns = BRunUtil.invoke(positiveCompileResult, "testFinallyWithWhile", args);
+        BValue[] returns = BRunUtil.invoke(positiveCompileResult, "testBreakWithForeach", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "start->while0->try0->finally0->whileEnd0->" +
-                "while1->try1->finally1->whileEnd1->" +
-                "while2->try2->break->finally2->end");
-    }
-
-    @Test
-    public void testFinallyWithForeach() {
-        BValue[] args = {new BString("break")};
-        BValue[] returns = BRunUtil.invoke(positiveCompileResult, "testFinallyWithForeach", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "start->" +
-                "foreach0->try0->tryIn0->finallyIn0->finally0->foreachEnd0->" +
-                "foreach1->try1->tryIn1->finallyIn1->finally1->foreachEnd1->" +
-                "foreach2->try2->tryIn2->finallyIn2->finally2->foreachEnd2->" +
-                "foreach3->try3->tryIn3->break->finallyIn3->finally3->end");
+        Assert.assertEquals(returns[0].stringValue(),
+                "start->foreach0->foreachEnd0->foreach1->foreachEnd1->foreach2->foreachEnd2->foreach3->break->end");
     }
 
     @Test(description = "Check not reachable statements.")

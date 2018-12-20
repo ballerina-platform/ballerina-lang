@@ -18,30 +18,35 @@ import ballerina/http;
 import ballerina/testobserve;
 import ballerina/observe;
 
-endpoint http:Listener listener1 {
-    port : 9091
-};
-
 @http:ServiceConfig {
     basePath:"/echoService"
 }
-service echoService1 bind listener1 {
-    resourceOne (endpoint caller, http:Request clientRequest) {
-        int spanId = check observe:startSpan("uSpanOne");
+service echoService1 on new http:Listener(9091) {
+    resource function resourceOne (http:Caller caller, http:Request clientRequest) {
+        int id = 0;
+        var spanId = observe:startSpan("uSpanOne");
+        if (spanId is int) {
+            id = spanId;
+        }
         http:Response outResponse = new;
-        var response = check callNextResource1();
-        outResponse.setTextPayload("Hello, World!");
-        _ = caller -> respond(outResponse);
-        _ = observe:finishSpan(spanId);
+        var response = callNextResource1();
+        if (response is http:Response) {
+            outResponse.setTextPayload("Hello, World!");
+            _ = caller -> respond(outResponse);
+            _ = observe:finishSpan(id);
+        } else {
+            error err = error ("error occurred");
+            panic err;
+        }
     }
 
-    resourceTwo (endpoint caller, http:Request clientRequest) {
+    resource function resourceTwo (http:Caller caller, http:Request clientRequest) {
         http:Response res = new;
         res.setTextPayload("Hello, World 2!");
         _ = caller -> respond(res);
     }
 
-    getMockTracers(endpoint caller, http:Request clientRequest) {
+    resource function getMockTracers(http:Caller caller, http:Request clientRequest) {
         http:Response res = new;
         json returnString = testobserve:getMockTracers();
         res.setJsonPayload(returnString);
@@ -50,9 +55,7 @@ service echoService1 bind listener1 {
 }
 
 function callNextResource1() returns (http:Response | error) {
-    endpoint http:Client httpEndpoint {
-        url: "http://localhost:9091/echoService"
-    };
+    http:Client httpEndpoint = new("http://localhost:9091/echoService", config = {});
     int spanId = check observe:startSpan("uSpanTwo");
     http:Response resp = check httpEndpoint -> get("/resourceTwo");
     _ = observe:finishSpan(spanId);

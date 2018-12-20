@@ -16,17 +16,22 @@
 package org.ballerinalang.stdlib.internal.compression;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMStructs;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructureTypeInfo;
 
 /**
  * Util class for compression related operations.
  */
 public class CompressionUtils {
-    public static final String PROTOCOL_PACKAGE_COMPRESSION = "ballerina/internal";
+    private static final String PROTOCOL_PACKAGE_COMPRESSION = "ballerina/internal";
+    private static final String COMPRESSION_ERROR_CODE = "{ballerina/internal}CompressionError";
+    private static final String COMPRESSION_ERROR_RECORD = "CompressionError";
+    private static final String COMPRESSION_ERROR_MESSAGE = "message";
 
     /**
      * Get compression error as a ballerina struct.
@@ -35,9 +40,14 @@ public class CompressionUtils {
      * @param msg     Error message in string form
      * @return Ballerina struct with compression error
      */
-    public static BMap<String, BValue> createCompressionError(Context context, String msg) {
-        PackageInfo filePkg = context.getProgramFile().getPackageInfo(PROTOCOL_PACKAGE_COMPRESSION);
-        StructureTypeInfo compressionErrorStruct = filePkg.getStructInfo("CompressionError");
-        return BLangVMStructs.createBStruct(compressionErrorStruct, msg);
+    public static BError createCompressionError(Context context, String msg) {
+        BMap<String, BValue> compressionErrorRecord = createCompressionErrorRecord(context);
+        compressionErrorRecord.put(COMPRESSION_ERROR_MESSAGE, new BString(msg));
+        return BLangVMErrors.createError(context, true, BTypes.typeError,
+                                         COMPRESSION_ERROR_CODE, compressionErrorRecord);
+    }
+
+    private static BMap<String, BValue> createCompressionErrorRecord(Context context) {
+        return BLangConnectorSPIUtil.createBStruct(context, PROTOCOL_PACKAGE_COMPRESSION, COMPRESSION_ERROR_RECORD);
     }
 }

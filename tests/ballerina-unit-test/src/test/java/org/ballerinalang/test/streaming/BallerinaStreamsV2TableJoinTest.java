@@ -38,13 +38,11 @@ public class BallerinaStreamsV2TableJoinTest {
 
     @BeforeClass
     public void setup() {
-        System.setProperty("enable.siddhiRuntime", "false");
         result = BCompileUtil.compile("test-src/streaming/streamingv2-table-join-test.bal");
     }
 
-    @Test(description = "Test stream & table join query.", enabled = false)
+    @Test(description = "Test stream & table join query.")
     public void testStreamJoinQuery() {
-        System.setProperty("enable.siddhiRuntime", "true");
         BValue[] stocksWithPrices = BRunUtil.invoke(result, "startTableJoinQuery");
         Assert.assertNotNull(stocksWithPrices);
         Assert.assertEquals(stocksWithPrices.length, 2, "Expected events are not received");
@@ -60,9 +58,8 @@ public class BallerinaStreamsV2TableJoinTest {
         Assert.assertEquals(((BFloat) stock2.get("price")).floatValue(), 58.6);
     }
 
-    @Test(description = "Test stream & table outer join query.", enabled = false)
+    @Test(description = "Test stream & table outer join query.")
     public void testStreamOuterJoinQuery() {
-        System.setProperty("enable.siddhiRuntime", "true");
         BValue[] stocksWithPrices = BRunUtil.invoke(result, "startTableOuterJoinQuery");
         Assert.assertNotNull(stocksWithPrices);
         Assert.assertEquals(stocksWithPrices.length, 2, "Expected events are not received");

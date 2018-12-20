@@ -3,8 +3,7 @@ import ballerina/log;
 
 // Create a new service endpoint to accept new connections
 //that are secured via mutual SSL.
-endpoint http:Listener helloWorldEP {
-    port: 9095,
+http:ServiceEndpointConfiguration helloWorldEPConfig = {
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
@@ -24,24 +23,29 @@ endpoint http:Listener helloWorldEP {
     }
 };
 
+listener http:Listener helloWorldEP = new(9095, config = helloWorldEPConfig);
+
 @http:ServiceConfig {
     basePath: "/hello"
 }
 
 // Bind the service to the endpoint that you declared above.
-service helloWorld bind helloWorldEP {
+service helloWorld on helloWorldEP {
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/"
     }
 
-    sayHello(endpoint caller, http:Request req) {
+    resource function sayHello(http:Caller caller, http:Request req) {
         http:Response res = new;
         // Set the response payload.
         res.setPayload("Successful");
         // Send response to client.
-        caller->respond(res) but {
-            error e => log:printError("Error in responding", err = e) };
+        var result = caller->respond(res);
+
+        if (result is error) {
+            log:printError("Error in responding", err = result);
+        }
     }
 }
 
@@ -49,8 +53,7 @@ service helloWorld bind helloWorldEP {
 //above via mutual SSL. The Ballerina client can be used to connect to the
 //created HTTPS listener. Provide the `keyStoreFile`, `keyStorePassword`,
 //`trustStoreFile` and `trustStorePassword` in the client.
-endpoint http:Client clientEP {
-    url: "https://localhost:9095",
+http:ClientEndpointConfig clientEPConfig = {
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
@@ -67,15 +70,18 @@ endpoint http:Client clientEP {
     }
 };
 public function main() {
+    http:Client clientEP = new("https://localhost:9095",
+                                config = clientEPConfig);
     // Create a request.
     var resp = clientEP->get("/hello");
-    match resp {
-        http:Response response => {
-            match (response.getTextPayload()) {
-                string res => log:printInfo(res);
-                error err => log:printError(err.message);
-            }
+    if (resp is http:Response) {
+        var payload = resp.getTextPayload();
+        if (payload is string) {
+            log:printInfo(payload);
+        } else {
+            log:printError(<string> payload.detail().message);
         }
-        error err => log:printError(err.message);
+    } else {
+        log:printError(<string> resp.detail().message);
     }
 }

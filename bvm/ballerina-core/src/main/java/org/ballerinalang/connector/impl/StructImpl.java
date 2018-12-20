@@ -30,9 +30,9 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,7 +52,7 @@ public class StructImpl extends AnnotatableNode implements Struct {
     StructImpl(BMap<String, BValue> value) {
         this.value = value;
         type = (BStructureType) value.getType();
-        Arrays.stream(type.getFields()).forEach(sf -> {
+        type.getFields().values().forEach(sf -> {
             final StructFieldImpl structField = new StructFieldImpl(sf.fieldName, sf.fieldType.getTag());
             setIndex(structField, indexes);
             structFields.put(sf.fieldName, structField);
@@ -104,6 +104,11 @@ public class StructImpl extends AnnotatableNode implements Struct {
     }
 
     @Override
+    public BMap getServiceField(String fieldName) {
+        return (BMap) value.get(fieldName);
+    }
+
+    @Override
     public Value[] getArrayField(String fieldName) {
         final BNewArray refField = (BNewArray) value.get(fieldName);
         if (refField == null) {
@@ -112,7 +117,7 @@ public class StructImpl extends AnnotatableNode implements Struct {
         List<Value> list = new ArrayList<>();
         final BIterator bIterator = refField.newIterator();
         while (bIterator.hasNext()) {
-            list.add(ValueImpl.createValue(bIterator.getNext(1)[0]));
+            list.add(ValueImpl.createValue(bIterator.getNext()));
         }
         return list.toArray(new Value[0]);
     }
@@ -131,8 +136,8 @@ public class StructImpl extends AnnotatableNode implements Struct {
         Map<String, Value> valueMap = new LinkedHashMap<>();
         final BIterator bIterator = refField.newIterator();
         while (bIterator.hasNext()) {
-            final BValue[] next = bIterator.getNext(2);
-            valueMap.put(next[0].stringValue(), ValueImpl.createValue(next[1]));
+            final BValueArray next = (BValueArray) bIterator.getNext();
+            valueMap.put(next.getRefValue(0).stringValue(), ValueImpl.createValue(next.getRefValue(1)));
         }
         return valueMap;
     }

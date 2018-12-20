@@ -14,46 +14,65 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents service endpoint where one or more services can be registered. so that ballerina program can offer
-# service through this endpoint.
-#
-# + id - Caller endpoint id.
+# Represents server listener where one or more services can be registered. so that ballerina program can offer
+# service through this listener.
 public type Listener object {
-    public int id;
 
-    private CallerAction conn;
+    *AbstractListener;
 
-    # Gets called when the endpoint is being initialize during module init time.
+    private int port = 0;
+    private ServiceEndpointConfiguration config = {};
+
+    # Starts the registered service.
     #
-    # + config - The ServiceEndpointConfiguration of the endpoint.
-    public extern function init(ServiceEndpointConfiguration config);
+    # + return - Returns an error if encounters an error while starting the server, returns nil otherwise.
+    public function __start() returns error? {
+        return self.start();
+    }
+
+    # Stops the registered service.
+    #
+    # + return - Returns an error if encounters an error while stopping the server, returns nil otherwise.
+    public function __stop() returns error? {
+        return self.stop();
+    }
 
     # Gets called every time a service attaches itself to this endpoint - also happens at module init time.
     #
     # + serviceType - The type of the service to be registered.
-    public extern function register(typedesc serviceType);
+    # + annotationData - Annotations attached to the service.
+    # + return - Returns an error if encounters an error while attaching the service, returns nil otherwise.
+    public function __attach(service s, map<any> annotationData) returns error? {
+        return self.register(s, annotationData);
+    }
 
-    # Starts the registered service.
-    public extern function start();
-
-    # Stops the registered service.
-    public extern function stop();
-
-    # Returns the client connection that servicestub code uses.
+    # Gets called when the endpoint is being initialize during module init time.
     #
-    # + return - Client connection.
-    public extern function getCallerActions() returns CallerAction;
+    # + port - Listener port.
+    # + config - The ServiceEndpointConfiguration of the endpoint.
+    public function __init(int port, ServiceEndpointConfiguration? config = ()) {
+        self.config = config ?: {};
+        self.port = port;
+        self.init(self.port, self.config);
+    }
+
+    extern function init(int port, ServiceEndpointConfiguration config);
+
+
+    extern function register(service serviceType, map<any> annotationData) returns error?;
+
+    extern function start() returns error?;
+
+    extern function stop() returns error?;
 };
 
 # Represents the gRPC server endpoint configuration.
 #
 # + host - The server hostname.
-# + port - The server port.
 # + secureSocket - The SSL configurations for the client endpoint.
 public type ServiceEndpointConfiguration record {
-    string host;
-    int port;
-    ServiceSecureSocket? secureSocket;
+    string host = "0.0.0.0";
+    ServiceSecureSocket? secureSocket = ();
     !...
 };
 
@@ -73,23 +92,17 @@ public type ServiceEndpointConfiguration record {
 # + shareSession - Enable/disable new ssl session creation.
 # + ocspStapling - Enable/disable ocsp stapling.
 public type ServiceSecureSocket record {
-    TrustStore? trustStore;
-    KeyStore? keyStore;
-    string certFile;
-    string keyFile;
-    string keyPassword;
-    string trustedCertFile;
-    Protocols? protocol;
-    ValidateCert? certValidation;
-    string[] ciphers;
-    string sslVerifyClient;
+    TrustStore? trustStore = ();
+    KeyStore? keyStore = ();
+    string certFile = "";
+    string keyFile = "";
+    string keyPassword = "";
+    string trustedCertFile = "";
+    Protocols? protocol = ();
+    ValidateCert? certValidation = ();
+    string[] ciphers = [];
+    string sslVerifyClient = "";
     boolean shareSession = true;
-    ServiceOcspStapling? ocspStapling;
+    ServiceOcspStapling? ocspStapling = ();
     !...
-};
-
-public type Service object {
-    function getEndpoint() returns Listener {
-        return new;
-    }
 };

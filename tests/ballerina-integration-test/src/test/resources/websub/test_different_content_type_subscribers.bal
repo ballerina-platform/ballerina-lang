@@ -19,29 +19,39 @@ import ballerina/mime;
 import ballerina/http;
 import ballerina/websub;
 
-endpoint websub:Listener websubEP {
-    port:8282
-};
+listener websub:Listener websubEP = new websub:Listener(8282);
 
 @websub:SubscriberServiceConfig {
     path:"/websub",
     subscribeOnStartUp:true,
-    hub: "https://localhost:9191/websub/hub",
+    hub: "http://localhost:9191/websub/hub",
     topic: "http://one.websub.topic.com",
     leaseSeconds: 3000,
     secret: "Kslk30SNF2AChs2"
 }
-service<websub:Service> websubSubscriber bind websubEP {
-    onNotification (websub:Notification notification) {
+service websubSubscriber on websubEP {
+    resource function onNotification (websub:Notification notification) {
         if (notification.getContentType() == mime:TEXT_PLAIN) {
-            string payload = check notification.getTextPayload();
-            io:println("Text WebSub Notification Received by websubSubscriber: ", payload);
+            var payload = notification.getTextPayload();
+            if (payload is string) {
+                io:println("Text WebSub Notification Received by websubSubscriber: ", payload);
+            } else {
+                panic payload;
+            }
         } else if (notification.getContentType() == mime:APPLICATION_XML) {
-            xml payload = check notification.getXmlPayload();
-            io:println("XML WebSub Notification Received by websubSubscriber: ", payload);
+            var payload = notification.getXmlPayload();
+            if (payload is xml) {
+                io:println("XML WebSub Notification Received by websubSubscriber: ", payload);
+            } else {
+                panic payload;
+            }
         } else if (notification.getContentType() == mime:APPLICATION_JSON) {
-            json payload = check notification.getJsonPayload();
-            io:println("JSON WebSub Notification Received by websubSubscriber: ", payload);
+            var payload = notification.getJsonPayload();
+            if (payload is json) {
+                io:println("JSON WebSub Notification Received by websubSubscriber: ", payload);
+            } else {
+                panic payload;
+            }
         }
     }
 }
@@ -49,21 +59,33 @@ service<websub:Service> websubSubscriber bind websubEP {
 @websub:SubscriberServiceConfig {
     path:"/websubTwo",
     subscribeOnStartUp:true,
-    hub: "https://localhost:9191/websub/hub",
+    hub: "http://localhost:9191/websub/hub",
     topic: "http://one.websub.topic.com",
     leaseSeconds: 1000
 }
-service<websub:Service> websubSubscriberTwo bind websubEP {
-    onNotification (websub:Notification notification) {
+service websubSubscriberTwo on websubEP {
+    resource function onNotification (websub:Notification notification) {
         if (notification.getContentType() == mime:TEXT_PLAIN) {
-            string payload = check notification.getTextPayload();
-            io:println("Text WebSub Notification Received by websubSubscriberTwo: ", payload);
+            var payload = notification.getTextPayload();
+            if (payload is string) {
+                io:println("Text WebSub Notification Received by websubSubscriberTwo: ", payload);
+            } else {
+                panic payload;
+            }
         } else if (notification.getContentType() == mime:APPLICATION_XML) {
-            xml payload = check notification.getXmlPayload();
-            io:println("XML WebSub Notification Received by websubSubscriberTwo: ", payload);
+            var payload = notification.getXmlPayload();
+            if (payload is xml) {
+                io:println("XML WebSub Notification Received by websubSubscriberTwo: ", payload);
+            } else {
+                panic payload;
+            }
         } else if (notification.getContentType() == mime:APPLICATION_JSON) {
-            json payload = check notification.getJsonPayload();
-            io:println("JSON WebSub Notification Received by websubSubscriberTwo: ", payload);
+            var payload = notification.getJsonPayload();
+            if (payload is json) {
+                io:println("JSON WebSub Notification Received by websubSubscriberTwo: ", payload);
+            } else {
+                panic payload;
+            }
         }
     }
 }

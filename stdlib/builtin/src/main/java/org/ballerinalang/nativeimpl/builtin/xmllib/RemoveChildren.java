@@ -40,7 +40,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 )
 public class RemoveChildren extends BlockingNativeCallableUnit {
 
-    private static final String OPERATION = "remove children form xml element";
+    private static final String OPERATION = "remove children from xml element";
 
     @Override
     public void execute(Context ctx) {

@@ -25,6 +25,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,7 +82,7 @@ public class BSymbol implements Symbol {
 
     @Override
     public Set<Flag> getFlags() {
-        return null;
+        return Flags.unMask(flags);
     }
 
     @Override

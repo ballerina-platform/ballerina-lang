@@ -38,13 +38,12 @@ public class PipelineQueryWithinSameForeverTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/streaming/legacy/pipeline-streaming-test-v2.bal");
+        result = BCompileUtil.compile("test-src/streaming/legacy/pipeline-streaming-test-v2.bal", true);
     }
 
     @Test(description = "Test streaming pipeline query.")
     public void testPipelineQuery() {
         BValue[] outputStatusCountArray = BRunUtil.invoke(result, "startPipelineQuery");
-
         Assert.assertNotNull(outputStatusCountArray);
 
         Assert.assertEquals(outputStatusCountArray.length, 1, "Expected events are not received");

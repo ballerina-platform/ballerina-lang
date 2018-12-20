@@ -37,8 +37,8 @@ type StockWithPrice record {
 StockWithPrice[] globalEventsArray = [];
 int index = 0;
 
-stream<Twitter> twitterStream;
-stream<StockWithPrice> stockWithPriceStream;
+stream<Twitter> twitterStream = new;
+stream<StockWithPrice> stockWithPriceStream = new;
 
 table<Stock> stocksTable = table {
     { symbol, price, volume },
@@ -49,29 +49,29 @@ table<Stock> stocksTable = table {
 };
 
 function testJoinQuery() {
-    //forever {
-    //    from twitterStream window lengthWindow(1) as tw
-    //    join queryStocksTable(tw.company, 1) as tb
-    //    select tb.symbol, tw.tweet, tb.price
-    //    => (StockWithPrice[] stocks) {
-    //        foreach s in stocks {
-    //            stockWithPriceStream.publish(s);
-    //        }
-    //    }
-    //}
+    forever {
+        from twitterStream window length(1) as tw
+        join queryStocksTable(tw.company, 1) as tb
+        select tb.symbol, tw.tweet, tb.price
+        => (StockWithPrice[] stocks) {
+            foreach var s in stocks {
+                stockWithPriceStream.publish(s);
+            }
+        }
+    }
 }
 
 function testOuterJoinQuery() {
-    //forever {
-    //    from twitterStream window lengthWindow(1) as tw
-    //    full outer join queryStocksTable(tw.company, 1) as tb
-    //    select tb.symbol, tw.tweet, tb.price
-    //    => (StockWithPrice[] stocks) {
-    //        foreach s in stocks {
-    //            stockWithPriceStream.publish(s);
-    //        }
-    //    }
-    //}
+    forever {
+        from twitterStream window length(1) as tw
+        full outer join queryStocksTable(tw.company, 1) as tb
+        select tb.symbol, tw.tweet, tb.price
+        => (StockWithPrice[] stocks) {
+            foreach var s in stocks {
+                stockWithPriceStream.publish(s);
+            }
+        }
+    }
 }
 
 function startTableJoinQuery() returns (StockWithPrice[]) {
@@ -82,7 +82,7 @@ function startTableJoinQuery() returns (StockWithPrice[]) {
     Twitter t1 = { user: "User1", tweet: "Hello WSO2, happy to be a user.", company: "WSO2" };
     Twitter t2 = { user: "User2", tweet: "Hello IBM, happy to be a user.", company: "IBM" };
 
-    stockWithPriceStream.subscribe(printCompanyStockPrice);
+    stockWithPriceStream.subscribe(function (StockWithPrice e) {printCompanyStockPrice(e);});
 
     twitterStream.publish(t1);
     runtime:sleep(1000);
@@ -93,7 +93,7 @@ function startTableJoinQuery() returns (StockWithPrice[]) {
     while(true) {
         runtime:sleep(500);
         count += 1;
-        if((lengthof globalEventsArray) == 2 || count == 10) {
+        if((globalEventsArray.length()) == 2 || count == 10) {
             break;
         }
     }
@@ -119,7 +119,7 @@ function startTableOuterJoinQuery() returns (StockWithPrice[]) {
     while(true) {
         runtime:sleep(500);
         count += 1;
-        if((lengthof globalEventsArray) == 2 || count == 10) {
+        if((globalEventsArray.length()) == 2 || count == 10) {
             break;
         }
     }
@@ -130,7 +130,7 @@ public function queryStocksTable(string symbol, int volume) returns table<Stock>
     table<Stock> result = table {
         { symbol, price, volume }, []
     };
-    foreach stock in stocksTable {
+    foreach var stock in stocksTable {
         if (stock.symbol == symbol && stock.volume > volume) {
             var ret = result.add(stock);
         }

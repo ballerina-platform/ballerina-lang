@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.persistence.states;
 
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.bre.old.WorkerExecutionContext;
 
 /**
  * Represents execution state for given @{@link WorkerExecutionContext}.

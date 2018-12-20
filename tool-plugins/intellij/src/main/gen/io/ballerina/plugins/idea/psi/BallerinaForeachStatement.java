@@ -24,13 +24,16 @@ import com.intellij.psi.PsiElement;
 public interface BallerinaForeachStatement extends BallerinaCompositeElement {
 
   @Nullable
+  BallerinaBindingPattern getBindingPattern();
+
+  @Nullable
   BallerinaBlock getBlock();
 
   @Nullable
   BallerinaExpression getExpression();
 
   @Nullable
-  BallerinaVariableReferenceList getVariableReferenceList();
+  BallerinaTypeName getTypeName();
 
   @Nullable
   PsiElement getLeftBrace();
@@ -49,5 +52,8 @@ public interface BallerinaForeachStatement extends BallerinaCompositeElement {
 
   @Nullable
   PsiElement getIn();
+
+  @Nullable
+  PsiElement getVar();
 
 }

@@ -153,28 +153,6 @@ public class TernaryExpressionTest {
         Assert.assertEquals(results[0].stringValue(), "{name:\"bob\", location:\"UK\"}");
     }
 
-    @Test
-    public void testWithFinallyBreak() {
-        BValue[] args = {new BInteger(1)};
-        BValue[] results = BRunUtil.invoke(compileResult, "test11", args);
-        Assert.assertEquals(results[0].stringValue(), "run_1 run_2 run_3 ");
-
-        args = new BValue[]{new BInteger(0)};
-        results = BRunUtil.invoke(compileResult, "test11", args);
-        Assert.assertEquals(results[0].stringValue(), "time_1 time_2 time_3 ");
-    }
-
-    @Test
-    public void testWithFinallyReturn() {
-        BValue[] args = {new BInteger(1)};
-        BValue[] results = BRunUtil.invoke(compileResult, "test12", args);
-        Assert.assertEquals(results[0].stringValue(), "run_1 run_2 ");
-
-        args = new BValue[]{new BInteger(0)};
-        results = BRunUtil.invoke(compileResult, "test12", args);
-        Assert.assertEquals(results[0].stringValue(), "time_1 time_2 ");
-    }
-
     /*  Test cases for Nested ternary   */
 
     @Test

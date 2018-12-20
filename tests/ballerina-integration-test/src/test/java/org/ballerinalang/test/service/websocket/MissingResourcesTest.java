@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @since 0.982.0
  */
-@Test(groups = "websocket-test")
+@Test(groups = {"websocket-test"})
 public class MissingResourcesTest extends WebSocketTestCommons {
 
     private WebSocketTestClient client;

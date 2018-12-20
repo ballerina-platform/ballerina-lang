@@ -52,7 +52,7 @@ public class SignatureTest {
 
         Assert.assertEquals(compileResult.getErrorCount(), 1);
         Assert.assertEquals(compileResult.getDiagnostics().clone()[0].getMessage(),
-                "first parameter should be of type ballerina/http:Listener");
+                "first parameter should be of type ballerina/http:Caller");
     }
 
     @Test()
@@ -99,10 +99,20 @@ public class SignatureTest {
     }
 
     @Test
+    public void testSignatureWithInvalidReturn() {
+        CompileResult compileResult = BCompileUtil.compile(new File(getClass().getClassLoader().getResource(
+                "test-src/services/signature/invalid-return.bal").getPath()).getAbsolutePath());
+
+        Assert.assertEquals(compileResult.getErrorCount(), 1);
+        Assert.assertEquals(compileResult.getDiagnostics().clone()[0].getMessage(),
+                            "invalid return type: expected error?");
+    }
+
+    @Test
     public void testDuplicateResources() {
         CompileResult compileResult = BCompileUtil.compile(new File(getClass().getClassLoader()
                 .getResource("test-src/services/resources/duplicate_resource_test.bal").getPath()).getAbsolutePath());
         Assert.assertEquals(compileResult.getErrorCount(), 1);
-        BAssertUtil.validateError(compileResult, 0, "redeclared symbol 'employee'", 8, 5);
+        BAssertUtil.validateError(compileResult, 0, "redeclared symbol 'dataservice$$service$0.employee'", 8, 23);
     }
 }

@@ -1,5 +1,5 @@
-#At the command line, navigate to the directory that contains the
-#`.bal` file and run the `ballerina run` command.
+# To run this sample, navigate to the directory that contains the
+# `.bal` file and issue the `ballerina run` command.
 $ ballerina run integer_ranges.bal
 Length of the array created by the closed integer range 25 ... 28: 4
 First element: 25
