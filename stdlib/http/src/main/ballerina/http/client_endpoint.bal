@@ -54,9 +54,9 @@ public type Client client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function post(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                                            message) returns Response|error {
-        return self.httpClient->post(path, message);
+    public remote function post(@sensitive string path, ClientMessage message) returns Response|error {
+        Request req = buildRequest(message);
+        return self.httpClient->post(path, req);
     }
 
     # The `head()` function can be used to send HTTP HEAD requests to HTTP endpoints.
@@ -65,9 +65,9 @@ public type Client client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function head(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                                            message = ()) returns Response|error {
-        return self.httpClient->head(path, message = message);
+    public remote function head(@sensitive string path, ClientMessage message = ()) returns Response|error {
+        Request req = buildRequest(message);
+        return self.httpClient->head(path, message = req);
     }
 
     # The `put()` function can be used to send HTTP PUT requests to HTTP endpoints.
@@ -76,9 +76,9 @@ public type Client client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function put(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                                            message) returns Response|error {
-        return self.httpClient->put(path, message);
+    public remote function put(@sensitive string path, ClientMessage message) returns Response|error {
+        Request req = buildRequest(message);
+        return self.httpClient->put(path, req);
     }
 
     # Invokes an HTTP call with the specified HTTP verb.
@@ -88,9 +88,9 @@ public type Client client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function execute(@sensitive string httpVerb, @sensitive string path, Request|string|xml|json|byte[]
-                                                            |io:ReadableByteChannel|mime:Entity[]|() message) returns Response|error {
-        return self.httpClient->execute(httpVerb, path, message);
+    public remote function execute(@sensitive string httpVerb, @sensitive string path, ClientMessage message) returns Response|error {
+        Request req = buildRequest(message);
+        return self.httpClient->execute(httpVerb, path, req);
     }
 
     # The `patch()` function can be used to send HTTP PATCH requests to HTTP endpoints.
@@ -99,9 +99,9 @@ public type Client client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function patch(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                                            message) returns Response|error {
-        return self.httpClient->patch(path, message);
+    public remote function patch(@sensitive string path, ClientMessage message) returns Response|error {
+        Request req = buildRequest(message);
+        return self.httpClient->patch(path, req);
     }
 
     # The `delete()` function can be used to send HTTP DELETE requests to HTTP endpoints.
@@ -110,9 +110,9 @@ public type Client client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function delete(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                                            message) returns Response|error {
-        return self.httpClient->delete(path, message);
+    public remote function delete(@sensitive string path, ClientMessage message) returns Response|error {
+        Request req = buildRequest(message);
+        return self.httpClient->delete(path, req);
     }
 
     # The `get()` function can be used to send HTTP GET requests to HTTP endpoints.
@@ -121,9 +121,9 @@ public type Client client object {
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function get(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                                            message = ()) returns Response|error {
-        return self.httpClient->get(path, message = message);
+    public remote function get(@sensitive string path, ClientMessage message = ()) returns Response|error {
+        Request req = buildRequest(message);
+        return self.httpClient->get(path, message = req);
     }
 
     # The `options()` function can be used to send HTTP OPTIONS requests to HTTP endpoints.
@@ -132,9 +132,9 @@ public type Client client object {
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function options(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                                            message = ()) returns Response|error {
-        return self.httpClient->options(path, message = message);
+    public remote function options(@sensitive string path, ClientMessage message = ()) returns Response|error {
+        Request req = buildRequest(message);
+        return self.httpClient->options(path, message = req);
     }
 
     # The `forward()` function can be used to invoke an HTTP call with inbound request's HTTP verb
@@ -155,8 +155,7 @@ public type Client client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - An `HttpFuture` that represents an asynchronous service invocation, or an `error` if the submission fails
-    public remote function submit(@sensitive string httpVerb, string path, Request|string|xml|json|byte[]|
-                                            io:ReadableByteChannel|mime:Entity[]|() message) returns HttpFuture|error {
+    public remote function submit(@sensitive string httpVerb, string path, ClientMessage message) returns HttpFuture|error {
         return self.httpClient->submit(httpVerb, path, message);
 
     }

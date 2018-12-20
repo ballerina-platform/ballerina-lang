@@ -57,7 +57,7 @@ public class Execute extends AbstractHTTPAction {
 
         HttpUtil.checkEntityAvailability(context, requestStruct);
         HttpUtil.enrichOutboundMessage(outboundRequestMsg, requestStruct);
-        prepareOutboundRequest(context, path, outboundRequestMsg);
+        prepareOutboundRequest(context, path, outboundRequestMsg, false);
 
         // If the verb is not specified, use the verb in incoming message
         if (httpVerb == null || httpVerb.isEmpty()) {

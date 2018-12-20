@@ -397,6 +397,7 @@ public class HttpConstants {
     public static final int REQUEST_STRUCT_INDEX = 1;
     public static final String REQUEST_REUSE_STATUS_INDEX = "dirtyRequest";
     public static final boolean DIRTY_REQUEST = true;
+    public static final String NON_ENTITY_BODY_REQUEST = "NON_ENTITY_BODY_REQUEST";
 
     public static final String MOCK_LISTENER_ENDPOINT = "MockListener";
     public static final String HTTP_LISTENER_ENDPOINT = "Listener";

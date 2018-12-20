@@ -111,10 +111,11 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
 
         HttpCarbonMessage requestMsg = HttpUtil
                 .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(true));
+        Boolean nonEntityBodyReq = context.getBooleanArgument(0);
 
         HttpUtil.checkEntityAvailability(context, requestStruct);
         HttpUtil.enrichOutboundMessage(requestMsg, requestStruct);
-        prepareOutboundRequest(context, path, requestMsg);
+        prepareOutboundRequest(context, path, requestMsg, nonEntityBodyReq);
         handleAcceptEncodingHeader(requestMsg, getCompressionConfigFromEndpointConfig(bConnector));
         return requestMsg;
     }
@@ -136,7 +137,8 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
         }
     }
 
-    protected void prepareOutboundRequest(Context context, String path, HttpCarbonMessage outboundRequest) {
+    protected void prepareOutboundRequest(Context context, String path, HttpCarbonMessage outboundRequest,
+                                          Boolean nonEntityBodyReq) {
         if (context.isInTransaction()) {
             TransactionLocalContext transactionLocalContext = context.getLocalTransactionInfo();
             outboundRequest.setHeader(HttpConstants.HEADER_X_XID, transactionLocalContext.getGlobalTransactionId());
@@ -149,7 +151,7 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
             int port = getOutboundReqPort(url);
             String host = url.getHost();
 
-            setOutboundReqProperties(outboundRequest, url, port, host);
+            setOutboundReqProperties(outboundRequest, url, port, host, nonEntityBodyReq);
             setOutboundReqHeaders(outboundRequest, port, host);
 
         } catch (MalformedURLException e) {
@@ -174,7 +176,8 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
         removeConnectionHeader(headers);
     }
 
-    private void setOutboundReqProperties(HttpCarbonMessage outboundRequest, URL url, int port, String host) {
+    private void setOutboundReqProperties(HttpCarbonMessage outboundRequest, URL url, int port, String host,
+                                          Boolean nonEntityBodyReq) {
         outboundRequest.setProperty(Constants.HTTP_HOST, host);
         outboundRequest.setProperty(Constants.HTTP_PORT, port);
 
@@ -182,6 +185,7 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
         outboundRequest.setProperty(HttpConstants.TO, outboundReqPath);
 
         outboundRequest.setProperty(HttpConstants.PROTOCOL, url.getProtocol());
+        outboundRequest.setProperty(HttpConstants.NON_ENTITY_BODY_REQUEST, nonEntityBodyReq);
     }
 
     private void setHostHeader(String host, int port, HttpHeaders headers) {

@@ -38,6 +38,7 @@ public type Request object {
 
     private mime:Entity entity;
     private boolean dirtyRequest;
+    private boolean nonEntityBodyRequest;
 
     public function __init() {
         self.dirtyRequest = false;

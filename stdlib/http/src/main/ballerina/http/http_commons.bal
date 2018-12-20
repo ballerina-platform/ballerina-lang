@@ -98,6 +98,9 @@ public const COMPRESSION_ALWAYS = "ALWAYS";
 # Never set accept-encoding/content-encoding header in outbound request/response.
 public const COMPRESSION_NEVER = "NEVER";
 
+# The types of messages that are accepted by HTTP `client`.
+public type ClientMessage Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|();
+
 # Defines the HTTP operations related to circuit breaker, failover and load balancer.
 #
 # `FORWARD`: Forward the specified payload
@@ -232,6 +235,14 @@ function buildResponse(Response|string|xml|json|byte[]|io:ReadableByteChannel|mi
         response.setBodyParts(message);
     }
     return response;
+}
+
+function isNonEntityBody(Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns boolean {
+    if (message is ()) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 # The HEAD remote function implementation of the Circuit Breaker. This wraps the `head()` function of the underlying
