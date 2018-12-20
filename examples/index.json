@@ -189,6 +189,10 @@
                 "url": "records"
             },
             {
+                "name": "Anonymous Records",
+                "url": "anonymous-records"
+            },
+            {
                 "name": "Optional Fields",
                 "url": "record-optional-fields"
             },
@@ -223,6 +227,10 @@
                 "url": "abstract-objects"
             },
             {
+                "name": "Anonymous Objects",
+                "url": "anonymous-objects"
+            },
+            {
                 "name": "Object Type Reference",
                 "url": "object-type-reference"
             }
@@ -232,7 +240,12 @@
         "title": "Value/Type Operations",
         "column": 1,
         "category": "Language concepts",
-        "samples": [{
+        "samples": [
+            {
+                "name": "Compound Assignment Operators",
+                "url": "compound-assignment-operators"
+            },
+            {
                 "name": "Equality",
                 "url": "equality"
             },
@@ -425,6 +438,10 @@
             {
                 "name": "XML I/O",
                 "url": "xml-io"
+            },
+            {
+                "name": "JSON to CSV Transform",
+                "url": "json-csv"
             }
         ]
     },
@@ -912,6 +929,16 @@
             {
                 "name": "Send JMS Message to HTTP Endpoint",
                 "url": "send-jms-message-to-http-endpoint"
+            }
+        ]
+    },
+    {
+        "title": "Socket",
+        "column": 3,
+        "category": "Working over the network",
+        "samples": [{
+                "name": "TCP Socket Basic Example",
+                "url": "tcp-socket-listener-client"
             }
         ]
     },

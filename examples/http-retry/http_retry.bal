@@ -10,17 +10,17 @@ http:Client backendClientEP = new("http://localhost:8080", config = {
             // Initial retry interval in milliseconds.
             interval: 3000,
 
-            // Number of retry attempts before giving up
+            // Number of retry attempts before giving up.
             count: 3,
 
             // Multiplier of the retry interval to exponentailly
-            // increase; retry interval
+            // increase; retry interval.
             backOffFactor: 2.0,
 
-            // Upper limit of the retry interval in milliseconds
+            // Upper limit of the retry interval in milliseconds.
             // If `interval` into `backOffFactor` value exceeded
             // `maxWaitInterval` interval value. `maxWaitInterval`
-            // will be considered as the retry intrval.
+            // will be considered as the retry interval.
             maxWaitInterval: 20000
 
         },

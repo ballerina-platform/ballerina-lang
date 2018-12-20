@@ -6,7 +6,7 @@ public function main() {
     var strVal = <string>intVal;
     io:println(strVal);
 
-    // Specifying `int` as the explicit type for `boolean` would result in the conversion of `false` as `0` and `true`
+    // Specifying `int` as the explicit type for a `boolean` would result in the conversion of `false` as `0` and `true`
     // as `1`.
     boolean boolVal = true;
     intVal = <int>boolVal;

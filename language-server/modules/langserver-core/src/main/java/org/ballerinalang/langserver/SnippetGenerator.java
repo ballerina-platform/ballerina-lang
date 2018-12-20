@@ -656,6 +656,16 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get Select Iterable Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getIterableSelectSnippet() {
+        return new SnippetBlock(ItemResolverConstants.ITR_SELECT_LABEL, "select(${1:functionReference});", "",
+                SnippetType.SNIPPET);
+    }
+
+    /**
      * Get Min Iterable Function Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block

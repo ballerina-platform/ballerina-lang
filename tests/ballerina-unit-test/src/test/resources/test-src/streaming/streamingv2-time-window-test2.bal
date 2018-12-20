@@ -81,7 +81,7 @@ function startTimeWindowTest2() returns (Teacher[]) {
 function testTimeWindow() {
 
     forever {
-        from inputStreamTimeWindowTest2 window timeWindow(1000)
+        from inputStreamTimeWindowTest2 window time(1000)
         select inputStreamTimeWindowTest2.name, inputStreamTimeWindowTest2.age, inputStreamTimeWindowTest2.status,
             inputStreamTimeWindowTest2.school, count() as count
         group by inputStreamTimeWindowTest2.school

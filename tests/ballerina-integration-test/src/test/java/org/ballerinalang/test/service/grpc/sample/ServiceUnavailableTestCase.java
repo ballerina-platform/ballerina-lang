@@ -58,4 +58,17 @@ public class ServiceUnavailableTestCase extends GrpcBaseTest {
         Assert.assertEquals(responses[0].stringValue(), expectedMsg);
     }
 
+    @Test(description = "Test invoking service with slow response. Connector error is expected with Idle timeout " +
+            "triggered.")
+    public void testClientSocketTimeout() {
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "grpc_client_socket_timeout.bal");
+        CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
+        final String expectedMsg = "Error from Connector: {ballerina/grpc}UNAVAILABLE - Idle timeout triggered before" +
+                " initiating inbound response";
+
+        BValue[] responses = BRunUtil.invoke(result, "testClientSocketTimeout", new BValue[]{});
+        Assert.assertEquals(responses.length, 1);
+        Assert.assertTrue(responses[0] instanceof BString);
+        Assert.assertEquals(responses[0].stringValue(), expectedMsg);
+    }
 }

@@ -3,41 +3,34 @@ import ballerina/io;
 public function main() {
     // In here there are four different variables created and they will be used with invoking the function `foo`,
     // which does the match.
-    (string, int)|(float, boolean)|(float, string, boolean)|float a1 = 66.6;
-    (string, int)|(float, boolean)|(float, string, boolean)|float a2 =
-                                                                 ("Hello", 12);
-    (string, int)|(float, boolean)|(float, string, boolean)|float a3 =
-                                                                   (4.5, true);
-    (string, int)|(float, boolean)|(float, string, boolean)|float a4 =
-                                                          (6.7, "Test", false);
+    (string, int)|(float, string, boolean)|float a1 = 66.6;
+    (string, int)|(float, string, boolean)|float a2 = ("Hello", 12);
+    (float, boolean)|(float, string, boolean)|float a3 = (4.5, true);
+    (string, int)|(float, string, boolean)|float a4 = (6.7, "Test", false);
 
-    foo(a1);
-    foo(a2);
-    foo(a3);
-    foo(a4);
+    basicMatch(a1);
+    basicMatch(a2);
+    basicMatch(a3);
+    basicMatch(a4);
 
     // In this example, there are five different variables created and they will be used with invoking the function
-    // `bar`, which does the match along with type guard conditions.
-    (string, int)|(float, boolean)|(boolean, int)|(int, boolean)|int|float b1 =
-                                                                    ("Hello", 45);
-    (string, int)|(float, boolean)|(boolean, int)|(int, boolean)|int|float b2 =
-                                                                    (4.5, true);
-    (string, int)|(float, boolean)|(boolean, int)|(int, boolean)|int|float b3 =
-                                                                    (false, 4);
-    (string, int)|(float, boolean)|(boolean, int)|(int, boolean)|int|float b4 =
-                                                                    (455, true);
-    (string, int)|(float, boolean)|(boolean, int)|(int, boolean)|float b5 = 5.6;
+    // 'bar', which does the match along with type guard conditions.
+    (string, int)|(boolean, int)|(int, boolean)|int|float b1 = ("Hello", 45);
+    (string, int)|(float, boolean)|(int, boolean)|int|float b2 = (4.5, true);
+    (float, boolean)|(boolean, int)|(int, boolean)|int|float b3 = (false, 4);
+    (string, int)|(float, boolean)|(int, boolean)|int|float b4 = (455, true);
+    (float, boolean)|(boolean, int)|(int, boolean)|float b5 = 5.6;
 
-    bar(b1);
-    bar(b2);
-    bar(b3);
-    bar(b4);
-    bar(b5);
+    matchWithTypeGuard(b1);
+    matchWithTypeGuard(b2);
+    matchWithTypeGuard(b3);
+    matchWithTypeGuard(b4);
+    matchWithTypeGuard(b5);
 }
 
 // Following method uses structured tuple match patterns with different sizes. The given `match` expression
 // will be checked for "isLike" relationship and will be matched at runtime.
-function foo(any a) {
+function basicMatch(any a) {
     match a {
         // This pattern check for tuple type of three variables and types can be of any.
         var (s, i, b) => io:println("Matched with three vars : "
@@ -54,7 +47,7 @@ function foo(any a) {
 // Following method uses structured tuple match patterns with different sizes along with a type guards. The given
 // `match` expression will be checked for "isLike" relationship and also it will check the type guard for the pattern
 // to match at runtime.
-function bar(any b) {
+function matchWithTypeGuard(any b) {
     match b {
         // This pattern check for tuple type of two variables and types has to `string` and `int`.
         var (s, i) if (s is string && i is int) =>

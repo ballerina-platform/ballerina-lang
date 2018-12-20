@@ -95,19 +95,30 @@ public class Sprintf extends BlockingNativeCallableUnit {
                 }
                 try {
                     char formatSpecifier = format.charAt(j);
+                    BRefType ref = args.getRefValue(k);
                     switch (formatSpecifier) {
                         case 'b':
                         case 'B':
                         case 'd':
                         case 'f':
-                            result.append(String.format("%" + padding + formatSpecifier, args.getRefValue(k).value()));
+                            if (ref == null) {
+                                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.ILLEGAL_FORMAT_CONVERSION,
+                                        format.charAt(j) + " != ()");
+                            }
+                            result.append(String.format("%" + padding + formatSpecifier, ref.value()));
                             break;
                         case 'x':
                         case 'X':
+                            if (ref == null) {
+                                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.ILLEGAL_FORMAT_CONVERSION,
+                                        format.charAt(j) + " != ()");
+                            }
                             formatHexString(args, result, k, padding, formatSpecifier);
                             break;
                         case 's':
-                            result.append(String.format("%" + padding + "s", args.getRefValue(k).stringValue()));
+                            if (ref != null) {
+                                result.append(String.format("%" + padding + "s", ref.stringValue()));
+                            }
                             break;
                         case '%':
                             result.append("%");
@@ -146,7 +157,7 @@ public class Sprintf extends BlockingNativeCallableUnit {
                 result.append(String.format("%" + padding + x, byteArray.getByte(i)));
             }
         } else {
-            result.append(String.format("%" + padding + x, args.getRefValue(k).value()));
+            result.append(String.format("%" + padding + x, ref.value()));
         }
     }
 }

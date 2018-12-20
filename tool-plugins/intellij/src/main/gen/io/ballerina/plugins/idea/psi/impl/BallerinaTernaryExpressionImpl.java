@@ -54,9 +54,9 @@ public class BallerinaTernaryExpressionImpl extends BallerinaExpressionImpl impl
   }
 
   @Override
-  @NotNull
+  @Nullable
   public PsiElement getQuestionMark() {
-    return notNullChild(findChildByType(QUESTION_MARK));
+    return findChildByType(QUESTION_MARK);
   }
 
 }

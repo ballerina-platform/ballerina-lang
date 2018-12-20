@@ -32,13 +32,13 @@ public function main() {
     io:println("m1 === m2: ", m1 === m2);
 
     // Check if `m1` is frozen.
-    io:println("frozen status of m1: ", m1.isFrozen());
+    io:println("Frozen status of m1: ", m1.isFrozen());
 
     // Attempt adding an entry to the `map`, and `trap` the error if an error occurs.
     error? updateResult = trap addEntryToMap(m2, "intValTwo", 10);
     if (updateResult is error) {
         // An error should occur since `m2` is frozen
-        io:println("error occurred on update: ",
+        io:println("Error occurred on update: ",
                    <string>updateResult.detail().message);
     }
 
@@ -52,10 +52,10 @@ public function main() {
     // `map` constrained by type `any` could have `non-anydata` values.
     map<any>|error freezeResult = m3.freeze();
     if (freezeResult is error) {
-        io:println("'freeze()' failed for m3: ",
+        io:println("'.freeze()' failed for m3: ",
                    <string>freezeResult.detail().message);
     } else {
-        io:println("'freeze()' successful for m3");
+        io:println("'.freeze()' successful for m3");
     }
 
     // Create an `Employee` object.
@@ -67,10 +67,10 @@ public function main() {
     // Attempt freezing `m4`.
     freezeResult = m4.freeze();
     if (freezeResult is error) {
-        io:println("'freeze()' failed for m4: ",
+        io:println("'.freeze()' failed for m4: ",
                    <string>freezeResult.detail().message);
     } else {
-        io:println("'freeze()' successful for m4");
+        io:println("'.freeze()' successful for m4");
     }
 }
 

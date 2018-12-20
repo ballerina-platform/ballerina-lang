@@ -6,7 +6,7 @@ int globalA = 5;
 // variables.
 function basicClosure() returns (function (int) returns int) {
     int a = 3;
-    var foo =  function (int b) returns int {
+    var foo = function (int b) returns int {
         int c = 34;
         if (b == 3) {
             c = c + b + a + globalA;
@@ -34,7 +34,7 @@ function multilevelClosure() returns (function (int) returns int) {
     return func1;
 }
 
-// Example to represents how function pointers are passed with closures
+// Example to represent how function pointers are passed with closures
 // so that the inner scope anonymous function can access the outer scope variables.
 function functionPointers(int a) returns
                     (function (int) returns (function (int) returns int)) {
@@ -64,5 +64,4 @@ public function main() {
     var baz2 = baz1.call(5);
     int result3 = baz2.call(3);
     io:println("Answer: " + result3);
-
 }

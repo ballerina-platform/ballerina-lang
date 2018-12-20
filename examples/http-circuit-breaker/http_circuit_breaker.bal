@@ -40,7 +40,7 @@ http:Client backendClientEP = new("http://localhost:8080", config = {
             // When this threshold exceeds, the circuit trips.
             // This is the ratio between failures and total requests
             //  and the ratio is considered only within the configured
-            // `RollingWindow`
+            // `RollingWindow`.
             failureThreshold: 0.2,
 
             // The time period (in milliseconds) to wait before
@@ -102,7 +102,7 @@ service circuitbreaker on new http:Listener(9090) {
 
 public int counter = 1;
 
-// This sample service is used to mock connection timeouts and service outages. 
+// This sample service is used to mock connection timeouts and service outages.
 // Mock a service outage by stopping/starting this service.
 // This should run separately from the `circuitBreakerDemo` service.
 
@@ -122,7 +122,7 @@ service helloWorld on new http:Listener(8080) {
             var result = caller->respond("Hello World!!!");
             if (result is error) {
                log:printError("Error sending response from mock service",
-                               err = result);
+                                err = result);
             }
         } else if (counter % 5 == 3) {
             counter = counter + 1;
