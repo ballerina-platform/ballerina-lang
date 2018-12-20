@@ -20,7 +20,7 @@ http:ServiceEndpointConfiguration helloWorldEPConfig = {
             versions: ["TLSv1.2", "TLSv1.1"]
         },
 
-         // Configure thepreferred ciphers.
+         // Configure the preferred ciphers.
         ciphers: ["TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"],
 
          // Enable mutual SSL.
