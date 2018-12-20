@@ -3,11 +3,8 @@ RUN useradd --create-home theia && apt-get update && apt-get install -y build-es
 WORKDIR /home/theia
 USER theia
 COPY --chown=theia:theia . composer
-RUN cd composer && \
-    yarn && \
-    rm -rf /home/theia/composer/resources/lib && \
-    rm /home/theia/composer/resources/ballerina.tmLanguage
+RUN cd composer && yarn
 EXPOSE 3000
 WORKDIR /home/theia/composer/browser-app
 ENV SHELL /bin/bash
-CMD yarn run start --hostname 0.0.0.0
+CMD yarn start --hostname 0.0.0.0
