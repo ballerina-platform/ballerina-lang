@@ -121,7 +121,7 @@ service helloWorld on new http:Listener(8080) {
 
             var result = caller->respond("Hello World!!!");
             if (result is error) {
-                log:printError("Error sending response from mock service",
+               log:printError("Error sending response from mock service",
                                 err = result);
             }
         } else if (counter % 5 == 3) {
@@ -140,7 +140,7 @@ service helloWorld on new http:Listener(8080) {
             var result = caller->respond("Hello World!!!");
             if (result is error) {
                log:printError("Error sending response from mock service",
-                                err = result);
+                               err = result);
             }
         }
     }
