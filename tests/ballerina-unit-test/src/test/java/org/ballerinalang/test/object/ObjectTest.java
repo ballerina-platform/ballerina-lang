@@ -482,7 +482,7 @@ public class ObjectTest {
     public void testNonMatchingAttachedFunction() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_invalid_attached_func_def.bal");
         int index = 0;
-        Assert.assertEquals(result.getErrorCount(), 10);
+        Assert.assertEquals(result.getErrorCount(), 11);
         BAssertUtil.validateError(result, index++, "cannot find matching interface " +
                 "function 'test0' in the object 'Person'", 41, 1);
         BAssertUtil.validateError(result, index++, "cannot find matching interface " +
@@ -499,6 +499,7 @@ public class ObjectTest {
                 "in object attached function definition 'test6'", 65, 1);
         BAssertUtil.validateError(result, index++, "cannot find matching interface " +
                 "function 'test9' in the object 'Person'", 77, 1);
+        BAssertUtil.validateError(result, index++, "this function must return a result", 77, 1);
         BAssertUtil.validateError(result, index++, "cannot find matching interface " +
                 "function 'test12' in the object 'Person'", 89, 1);
         BAssertUtil.validateError(result, index, "cannot find matching interface " +
