@@ -26,7 +26,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * This contains methods to test the errors thrown when the alias is not defined for select expressions
+ * This contains methods to test the errors thrown when the alias is not defined for select expressions.
  *
  * @since 0.990.1
  */
