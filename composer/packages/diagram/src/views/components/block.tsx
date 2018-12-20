@@ -1,9 +1,13 @@
 
-import { Block as BlockNode } from "@ballerina/ast-model";
+import { ASTKindChecker, ASTNode, ASTUtil, Block as BlockNode,
+        Function as FunctionNode } from "@ballerina/ast-model";
 import * as React from "react";
 import { DiagramUtils } from "../../diagram/diagram-utils";
 import { BlockViewState } from "../../view-model/block";
+import { FunctionViewState, ViewState } from "../../view-model/index";
+import { ReturnViewState } from "../../view-model/return";
 import { BlockDropdown } from "./block-dropdown";
+import { Return } from "./return";
 
 export class Block extends React.Component<{ model: BlockNode }, { isHovered: boolean }> {
 
@@ -25,6 +29,19 @@ export class Block extends React.Component<{ model: BlockNode }, { isHovered: bo
             y
         };
         statements.push(DiagramUtils.getComponents(model.statements));
+        const additionalComponents: React.ReactNode[] = [];
+        if (ASTKindChecker.isFunction(model.parent as ASTNode)) {
+            const implicitReturn = ASTUtil.createReturnNode();
+            const returnViewState: ViewState = ((model.parent as FunctionNode)
+                    .viewState as FunctionViewState)
+                    .implicitReturn;
+            returnViewState.bBox.x = triggerPosition.x;
+            returnViewState.bBox.y = triggerPosition.y;
+            implicitReturn.viewState = returnViewState;
+            if (!(implicitReturn.viewState as ReturnViewState).hidden) {
+                additionalComponents.push(<Return model={implicitReturn} />);
+            }
+        }
         const dropDownProps = { model, isHovered, triggerPosition };
         return (
             <g className="worker-block-container">
@@ -44,6 +61,7 @@ export class Block extends React.Component<{ model: BlockNode }, { isHovered: bo
                     visibility="hidden"
                 />
                 {statements}
+                {...additionalComponents}
                 {<BlockDropdown {...dropDownProps} />}
             </g>);
     }
