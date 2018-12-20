@@ -527,6 +527,14 @@ public class ObjectTest {
         BAssertUtil.validateError(result, 0, "undefined symbol 'abc'", 6, 9);
     }
 
+    @Test (description = "Negative test to test invalid object init functions")
+    public void testObjectInitFunctionNegative() {
+        CompileResult result = BCompileUtil.compile("test-src/object/object_init_function_negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 2);
+        BAssertUtil.validateError(result, 0, "object '__init()' function cannot be an 'extern' function", 19, 5);
+        BAssertUtil.validateError(result, 1, "object '__init()' function cannot be an 'extern' function", 23, 5);
+    }
+
     @Test (description = "Negative test to test nillable initialization")
     public void testNillableInitialization() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_nillable_init.bal");
