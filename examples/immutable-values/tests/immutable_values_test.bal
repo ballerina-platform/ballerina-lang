@@ -10,7 +10,7 @@ int counter = 0;
     functionName: "println"
 }
 public function mockPrint(any... s) {
-    foreach v in s {
+    foreach var v in s {
         outputs[counter] = v;
         counter += 1;
     }
@@ -22,12 +22,12 @@ function testFunc() {
     main();
     test:assertEquals(outputs[0], "m1 === m2: ");
     test:assertEquals(outputs[1], true);
-    test:assertEquals(outputs[2], "frozen status of m1: ");
+    test:assertEquals(outputs[2], "Frozen status of m1: ");
     test:assertEquals(outputs[3], true);
-    test:assertEquals(outputs[4], "error occurred on update: ");
+    test:assertEquals(outputs[4], "Error occurred on update: ");
     test:assertEquals(outputs[5], "Invalid map insertion: modification not allowed on frozen value");
-    test:assertEquals(outputs[6], "'freeze()' successful for m3");
-    test:assertEquals(outputs[7], "'freeze()' failed for m4: ");
+    test:assertEquals(outputs[6], "'.freeze()' successful for m3");
+    test:assertEquals(outputs[7], "'.freeze()' failed for m4: ");
     string output8 = <string> outputs[8];
     test:assertTrue(output8.hasPrefix("'freeze()' not allowed on '") && output8.hasSuffix("Employee'"));
 }

@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.langserver.common.utils;
 
-import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
@@ -67,7 +66,6 @@ public class FilterUtils {
                                                                      List<SymbolInfo> symbolInfos, boolean addBuiltIn) {
         ArrayList<SymbolInfo> resultList = new ArrayList<>();
         SymbolTable symbolTable = context.get(DocumentServiceKeys.SYMBOL_TABLE_KEY);
-        ParserRuleContext parserRuleContext = context.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
         SymbolInfo variable = getVariableByName(variableName, symbolInfos);
 
         if (variable == null) {

@@ -4,12 +4,10 @@ import ballerina/io;
 // because they are basic types with only simple values. Simple values are always immutable.
 public function main() {
     // The `int` type represents the set of 64-bit signed integers.
-    // The implicit initial value of the `int` type is `0`.
     int i = 10;
     io:println(i);
 
     // The `float` type represents the set of double precision IEEE 754 floating point numbers.
-    // The implicit initial value of the `float` type is `+0.0.`
     float f = 20.0;
     io:println(f);
 
@@ -27,22 +25,27 @@ public function main() {
     io:println(finiteVal.isFinite());
 
     // The `decimal` type represents the set of 128-bits IEEE 754R decimal floating point numbers.
-    // The implicit initial value of the `decimal` type is `+0.0.`
     decimal d = 27.5;
     io:println(d);
 
     // The `byte` type represents the set of 8-bit unsigned integers.
-    // The implicit initial value of the `byte` type is `0`. Value space for `byte` is 0-255 both inclusive.
     byte c = 23;
     io:println(c);
 
     // The `string` type represents the set of sequences of Unicode code points.
-    // The implicit initial value of the `string` type is `""` (empty string).
     string s = "Ballerina";
     io:println(s);
 
-    // The `boolean` type has only two values named `true` and `false`.
-    // The implicit initial value of the `boolean` type is `false`.
+    // The `boolean` type has only two values, `true` and `false`.
     boolean b = true;
     io:println(b);
+
+    // The `nil` type has the single value `nil` and is used to represent the absence of any other value.
+    // The `nil` value is represented by `()`.
+    () n = ();
+    io:println(n);
+    // The `nil` value can also be written as `null`, representing JSON `null`.
+    // Usage of `null` as the value for a `nil` typed variable is only expected in JSON contexts.
+    n = null;
+    io:println(n);
 }
