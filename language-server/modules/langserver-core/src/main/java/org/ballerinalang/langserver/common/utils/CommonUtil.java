@@ -509,6 +509,22 @@ public class CommonUtil {
     }
 
     /**
+     * Populate the given map with the completion item.
+     *
+     * @param map               ID to completion item map
+     * @param id                pkg id in index
+     * @param completionItem    completion item to populate
+     */
+    public static void populateIdCompletionMap(HashMap<Integer, ArrayList<CompletionItem>> map, int id,
+                                         CompletionItem completionItem) {
+        if (map.containsKey(id)) {
+            map.get(id).add(completionItem);
+        } else {
+            map.put(id, new ArrayList<>(Collections.singletonList(completionItem)));
+        }
+    }
+
+    /**
      * Get the annotation Insert text.
      *
      * @param packageID        Package ID
