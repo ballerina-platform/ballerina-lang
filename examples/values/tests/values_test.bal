@@ -20,7 +20,11 @@ function testFunc() {
     main();
     test:assertEquals(outputs[0], 10);
     test:assertEquals(outputs[1], 20.0);
-    test:assertEquals(outputs[2], 23);
-    test:assertEquals(outputs[3], "Ballerina");
+    test:assertEquals(outputs[2], true);
+    test:assertEquals(outputs[3], true);
     test:assertEquals(outputs[4], true);
+    test:assertEquals(outputs[5], <decimal>27.5);
+    test:assertEquals(outputs[6], 23);
+    test:assertEquals(outputs[7], "Ballerina");
+    test:assertEquals(outputs[8], true);
 }

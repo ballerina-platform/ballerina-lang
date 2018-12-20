@@ -69,6 +69,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     private String pkgVersion;
     private boolean isInErrorState = false;
     private boolean enableExperimentalFeatures;
+    private boolean isSiddhiRuntimeEnabled;
 
     BLangParserListener(CompilerContext context, CompilationUnitNode compUnit, BDiagnosticSource diagnosticSource) {
         this.pkgBuilder = new BLangPackageBuilder(context, compUnit);
@@ -76,6 +77,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.enableExperimentalFeatures = Boolean.parseBoolean(
                 CompilerOptions.getInstance(context).get(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED));
+        this.isSiddhiRuntimeEnabled = Boolean.parseBoolean(
+                CompilerOptions.getInstance(context).get(CompilerOptionName.SIDDHI_RUNTIME_ENABLED));
     }
 
     @Override
@@ -929,6 +932,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                 || (ctx.parent instanceof BallerinaParser.FieldBindingPatternContext)
                 || (ctx.parent instanceof BallerinaParser.MatchPatternClauseContext))) {
             this.pkgBuilder.addBindingPatternMemberVariable(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
+        } else if (ctx.Identifier() != null) {
+            this.pkgBuilder.addBindingPatternNameWhitespace(getWS(ctx));
         }
     }
 
@@ -3081,7 +3086,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startForeverNode(getCurrentPos(ctx));
+        this.pkgBuilder.startForeverNode(getCurrentPos(ctx), isSiddhiRuntimeEnabled);
     }
 
     @Override

@@ -27,6 +27,7 @@ let examplesPanel: WebviewPanel | undefined;
 
 function showExamples(context: ExtensionContext, langClient: ExtendedLangClient) :void {
     if (examplesPanel) {
+        examplesPanel.reveal();
         return;
     }
     // Create and show a new webview

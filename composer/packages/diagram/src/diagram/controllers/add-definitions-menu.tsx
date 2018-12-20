@@ -1,6 +1,6 @@
 import { ASTNode, ASTUtil, CompilationUnit } from "@ballerina/ast-model";
 import React, { StatelessComponent } from "react";
-import { Dropdown, Menu } from "semantic-ui-react";
+import { Button, Dropdown, Menu } from "semantic-ui-react";
 import { DiagramContext } from "../diagram-context";
 
 const definitions: any[] = [{
@@ -12,47 +12,53 @@ const definitions: any[] = [{
     icon: "service",
     id: "service",
     name: "Service"
-}];
+},
+{
+    icon: "function",
+    id: "main-function",
+    name: "MainFunction"
+}
+];
 
-export const AddDefinitionsMenu: StatelessComponent<{}> = (
-            { children }
-        ) => {
+export const AddDefinitionsMenu: StatelessComponent<{}> = () => {
     return  (
         <DiagramContext.Consumer>
-            {(diagContext) => {
-                return (diagContext.editingEnabled &&
+            {({ editingEnabled, hasSyntaxErrors, ast }) => {
+                return (editingEnabled &&
                     <Menu.Item>
-                        <Dropdown
-                            button
-                            className="icon primary add-definitions"
-                            floating
-                            labeled
-                            icon="fw fw-add"
-                            text="Definition"
-                        >
-                            <Dropdown.Menu>
-                                {
-                                    definitions.map((definition) => {
-                                        if (definition.id === "seperator") {
-                                            return <Dropdown.Divider />;
-                                        }
-                                        return (<Dropdown.Item
-                                            onClick={(event, item) => {
-                                                const {ast} = diagContext;
-                                                if (ast) {
-                                                    addDefinition(item.data.name, ast as CompilationUnit);
-                                                }
-                                            }}
-                                            data={definition}
-                                            key={definition.id}
-                                        >
-                                            <i className={`fw fw-${definition.icon}`} />
-                                            {definition.name}
-                                        </Dropdown.Item>);
-                                    })
-                                }
-                            </Dropdown.Menu>
-                        </Dropdown>
+                        <Button.Group size="tiny">
+                            <Dropdown
+                                disabled={hasSyntaxErrors}
+                                button
+                                className="icon primary add-definitions"
+                                floating
+                                labeled
+                                icon="fw fw-add"
+                                text="Definition"
+                            >
+                                <Dropdown.Menu>
+                                    {
+                                        definitions.map((definition) => {
+                                            if (definition.id === "seperator") {
+                                                return <Dropdown.Divider />;
+                                            }
+                                            return (<Dropdown.Item
+                                                onClick={(event, item) => {
+                                                    if (ast) {
+                                                        addDefinition(item.data.name, ast as CompilationUnit);
+                                                    }
+                                                }}
+                                                data={definition}
+                                                key={definition.id}
+                                            >
+                                                <i className={`fw fw-${definition.icon}`} />
+                                                {definition.name}
+                                            </Dropdown.Item>);
+                                        })
+                                    }
+                                </Dropdown.Menu>
+                            </Dropdown>
+                        </Button.Group>
                     </Menu.Item>
                 );
             }}

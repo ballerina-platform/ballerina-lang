@@ -26,6 +26,7 @@ import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
@@ -33,6 +34,7 @@ import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
+import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -87,6 +89,14 @@ public class BLangVMErrors {
         return generateError(strand, true, BTypes.typeError, message, null);
     }
 
+    public static BError createError(Strand strand, String reason, String detail) {
+        BMap<String, BValue> detailMap = new BMap<>(BTypes.typeMap);
+        if (detail != null) {
+            detailMap.put(ERROR_MESSAGE_FIELD, new BString(detail));
+        }
+        return generateError(strand, true, BTypes.typeError, reason, detailMap);
+    }
+
     public static BError createError(Context context, boolean attachCallStack, BErrorType errorType, String reason,
             BMap<String, BValue> details) {
         return generateError(context.getStrand(), attachCallStack, errorType, reason, details);
@@ -106,7 +116,7 @@ public class BLangVMErrors {
     }
 
     public static BError createTypeConversionError(Strand context, String errorMessage) {
-        return createError(context, errorMessage);
+        return createError(context, BallerinaErrorReasons.CONVERSION_ERROR, errorMessage);
     }
 
     /* Type Specific Errors */
@@ -121,15 +131,16 @@ public class BLangVMErrors {
             BMap<String, BValue> details) {
         BMap<String, BValue> detailMap = Optional.ofNullable(details).orElse(new BMap<>(BTypes.typeMap));
         BError error = new BError(type, Optional.ofNullable(reason).orElse(""), detailMap);
+        StructureTypeInfo typeInfo = getStructureTypeInfo(strand.programFile);
         if (attachCallStack) {
-            attachStack(error, strand.programFile, strand);
+            attachStack(error, typeInfo, strand);
         }
         return error;
     }
 
-    public static void attachStack(BError error, ProgramFile programFile, Strand strand) {
+    public static void attachStack(BError error, StructureTypeInfo typeInfo, Strand strand) {
         for (StackFrame frame : strand.getStack()) {
-            Optional.ofNullable(getStackFrame(programFile, frame)).ifPresent(sf -> error.callStack.add(0, sf));
+            Optional.ofNullable(getStackFrame(typeInfo, frame)).ifPresent(sf -> error.callStack.add(0, sf));
         }
     }
 
@@ -137,7 +148,7 @@ public class BLangVMErrors {
         BValueArray callStack = new BValueArray();
         long index = 0;
         if (nativeCUI != null) {
-            callStack.add(index, getStackFrame(context.programFile, nativeCUI, 0));
+            callStack.add(index, getStackFrame(getStructureTypeInfo(context.programFile), nativeCUI, 0));
             index++;
         }
         while (!context.isRootContext()) {
@@ -150,31 +161,26 @@ public class BLangVMErrors {
     }
 
     public static BValueArray generateCallStack(ProgramFile programFile, Strand strand) {
+        StructureTypeInfo typeInfo = getStructureTypeInfo(programFile);
         List<BMap<String, BValue>> sfList = new ArrayList<>();
         for (StackFrame frame : strand.getStack()) {
-            BMap<String, BValue> sf = getStackFrame(programFile, frame);
+            BMap<String, BValue> sf = getStackFrame(typeInfo, frame);
             if (sf != null) {
                 sfList.add(0, sf);
             }
         }
 
-        BValueArray callStack = new BValueArray();
+        BValueArray callStack = new BValueArray(typeInfo.getType());
         for (int i = 0; i < sfList.size(); i++) {
             callStack.add(i, sfList.get(i));
         }
         return callStack;
     }
 
-    public static BMap<String, BValue> getStackFrame(ProgramFile programFile, CallableUnitInfo callableUnitInfo,
+    public static BMap<String, BValue> getStackFrame(StructureTypeInfo typeInfo, CallableUnitInfo callableUnitInfo,
                                                      int ip) {
         if (callableUnitInfo == null) {
             return null;
-        }
-
-        PackageInfo runtimePackage = programFile.getPackageInfo(BALLERINA_RUNTIME_PKG);
-        StructureTypeInfo typeInfo = runtimePackage.getStructInfo(STRUCT_CALL_STACK_ELEMENT);
-        if (typeInfo == null || typeInfo.getType().getTag() != TypeTags.RECORD_TYPE_TAG) {
-            throw new BallerinaConnectorException("record - " + STRUCT_CALL_STACK_ELEMENT + " does not exist");
         }
 
         int currentIP = ip - 1;
@@ -199,11 +205,11 @@ public class BLangVMErrors {
         return BLangVMStructs.createBStruct(typeInfo, values);
     }
 
-    public static BMap<String, BValue> getStackFrame(ProgramFile programFile, StackFrame sf) {
+    public static BMap<String, BValue> getStackFrame(StructureTypeInfo typeInfo, StackFrame sf) {
         if (sf == null) {
             return null;
         }
-        return getStackFrame(programFile, sf.callableUnitInfo, sf.ip);
+        return getStackFrame(typeInfo, sf.callableUnitInfo, sf.ip);
     }
 
     public static String getPrintableStackTrace(BError error) {
@@ -261,5 +267,15 @@ public class BLangVMErrors {
             return null;
         }
         return s.replaceAll("java", "runtime");
+    }
+
+    private static StructureTypeInfo getStructureTypeInfo(ProgramFile programFile) {
+
+        PackageInfo runtimePackage = programFile.getPackageInfo(BALLERINA_RUNTIME_PKG);
+        StructureTypeInfo typeInfo = runtimePackage.getStructInfo(STRUCT_CALL_STACK_ELEMENT);
+        if (typeInfo == null || typeInfo.getType().getTag() != TypeTags.RECORD_TYPE_TAG) {
+            throw new BallerinaConnectorException("record - " + STRUCT_CALL_STACK_ELEMENT + " does not exist");
+        }
+        return typeInfo;
     }
 }

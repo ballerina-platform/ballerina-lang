@@ -1,5 +1,4 @@
 import ballerina/io;
-import ballerina/jdbc;
 import ballerina/sql;
 
 type Person record {
@@ -11,11 +10,13 @@ type Person record {
 };
 
 table<Person> dt1 = table {
-
+    {key id, key age, salary, name, married}
 };
 
 function name1() {
-    table<Person> dt2;
+    table<Person> dt2 = table {
+        {key id, key age, salary, name, married}
+    };
 
     Person p1 = {
         id: 1,
@@ -30,6 +31,12 @@ function name1() {
     table<Person> dt4 = table {
         {key id, key age, salary, name, married}
     };
+    table<Person> dt9 = table {
+        {key id, key age, salary, name, married},
+        [
+            {1, 26, 3000.50, "marcus", false}
+        ]
+    };
 
     table<Person> dt5 = table {
         {key id, key age, salary, name, married},
@@ -38,27 +45,8 @@ function name1() {
         ]
     };
 
-    table<Person> dt5 = table {
-        {key id
-            , key age
-            , salary
-            , name
-            , married
-        }
-        ,
-        [
-            {1, 26, 3000.50, "marcus", false}
-        ]
-    };
-
     table<Person> dt6 = table {
-        {
-            key id,
-            key age,
-            salary,
-            name,
-            married
-        }
+        {key id, key age,salary,name, married}
     };
 
     table<Person> dt7 = table {
@@ -70,21 +58,9 @@ function name1() {
         ]
     };
 
-    Person p2 = {
-        id: 1,
-        age: 26,
-        salary: 3000.50,
-        name: "marcus",
-        married: false
-    };
+    Person p2 = {id:1, age:26, salary:3000.50, name:"marcus", married:false};
 
-    Person p3 = {
-        id: 1,
-        age: 26,
-        salary: 3000.50,
-        name: "jui",
-        married: false
-    };
+    Person p3 = {id:1, age:26, salary:3000.50, name:"jui", married:false};
 
     table<Person> dt8 = table {
         {key id, key age, salary, name, married},

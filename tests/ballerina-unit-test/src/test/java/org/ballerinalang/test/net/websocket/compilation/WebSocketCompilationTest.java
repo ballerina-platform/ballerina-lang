@@ -51,18 +51,17 @@ public class WebSocketCompilationTest {
         Assert.assertEquals(compileResult.toString(), "Compilation Successful");
     }
 
-    //Todo: Need a fix for the compiler plugin side to fix this.
-    @Test(description = "Invalid signature for onOpen and onIdle resources", enabled = false)
+    @Test(description = "Invalid signature for onOpen and onIdle resources")
     public void testFailOnOpenOnIdle() {
         CompileResult compileResult = BCompileUtil.compile(TEST_PATH + "fail_onOpen_onIdle.bal");
 
         assertExpectedDiagnosticsLength(compileResult, 3);
         BAssertUtil.validateError(compileResult, 0, "Invalid resource signature for onOpen resource in service " +
-                ": The first parameter should be an endpoint", 29, 5);
+                ": The first parameter should be an endpoint", 27, 5);
         BAssertUtil.validateError(compileResult, 1, "Invalid resource signature for onIdleTimeout resource in " +
-                "service : Expected parameter count = 1", 32, 5);
+                "service : Expected parameter count = 1", 30, 5);
         BAssertUtil.validateError(compileResult, 2, "Invalid resource signature for onIdleTimeout resource in " +
-                "service : The first parameter should be an endpoint", 32, 5);
+                "service : The first parameter should be an endpoint", 30, 5);
     }
 
     @Test(description = "Invalid parameter count for onText resource")
@@ -166,6 +165,14 @@ public class WebSocketCompilationTest {
         assertExpectedDiagnosticsLength(compileResult, 1);
         BAssertUtil.validateError(compileResult, 0,
                                   "An upgradeService need to be specified for the WebSocket upgrade resource", 26, 5);
+    }
+
+    @Test(description = "Resource returns can only be error or nil")
+    public void testResourceReturn() {
+        CompileResult compileResult = BCompileUtil.compile(TEST_PATH + "resource_return.bal");
+
+        assertExpectedDiagnosticsLength(compileResult, 1);
+        BAssertUtil.validateError(compileResult, 0, "Invalid return type: expected error?", 21, 5);
     }
 
     private void assertExpectedDiagnosticsLength(CompileResult compileResult, int expectedLength) {

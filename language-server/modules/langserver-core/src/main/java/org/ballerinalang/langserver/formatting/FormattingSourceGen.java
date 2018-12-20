@@ -475,13 +475,28 @@ public class FormattingSourceGen {
             node.addProperty("global", true);
         }
 
-        if ("VariableDef".equals(kind)
-                && node.getAsJsonObject("variable") != null
-                && node.getAsJsonObject("variable").getAsJsonObject("typeNode") != null
-                && node.getAsJsonObject("variable").getAsJsonObject("typeNode")
-                .get("kind").getAsString().equals("EndpointType")) {
-            node.getAsJsonObject("variable").addProperty("endpoint", true);
-            node.addProperty("endpoint", true);
+        if ("VariableDef".equals(kind)) {
+            // TODO: refactor variable def whitespace.
+            // Temporary remove variable def ws and add it to variable whitespaces.
+            if (node.has("variable") && node.has(FormattingConstants.WS)
+                    && node.getAsJsonObject("variable").has(FormattingConstants.WS)
+                    && !(node.getAsJsonObject("variable").get("kind").getAsString().equals("TupleVariable")
+                    || (node.getAsJsonObject("variable").has("symbolType")
+                    && node.getAsJsonObject("variable").getAsJsonArray("symbolType").size() > 0
+                    && node.getAsJsonObject("variable").getAsJsonArray("symbolType").get(0)
+                    .getAsString().equals("service")))) {
+                node.getAsJsonObject("variable").getAsJsonArray(FormattingConstants.WS)
+                        .addAll(node.getAsJsonArray(FormattingConstants.WS));
+                node.remove(FormattingConstants.WS);
+            }
+
+            if (node.getAsJsonObject("variable") != null
+                    && node.getAsJsonObject("variable").getAsJsonObject("typeNode") != null
+                    && node.getAsJsonObject("variable").getAsJsonObject("typeNode")
+                    .get("kind").getAsString().equals("EndpointType")) {
+                node.getAsJsonObject("variable").addProperty("endpoint", true);
+                node.addProperty("endpoint", true);
+            }
         }
 
         if ("Variable".equals(kind)) {
@@ -545,6 +560,18 @@ public class FormattingSourceGen {
                         node.addProperty("endWithComma", true);
                     }
                 }
+            }
+
+            if (node.has("service")
+                    && node.get("service").getAsBoolean()
+                    && node.has("noVisibleName")
+                    && node.get("noVisibleName").getAsBoolean()) {
+                node.addProperty("skip", true);
+            }
+
+            if (node.has("name")
+                    && node.getAsJsonObject("name").get("value").getAsString().startsWith("0")) {
+                node.addProperty("worker", true);
             }
         }
 
@@ -628,11 +655,35 @@ public class FormattingSourceGen {
             }
         }
 
+        if ("Match".equals(kind)) {
+            if (node.has("structuredPatternClauses")) {
+                JsonArray structuredPatternClauses = node.getAsJsonArray("structuredPatternClauses");
+                for (JsonElement pattern : structuredPatternClauses) {
+                    pattern.getAsJsonObject().addProperty("skip", true);
+                }
+            }
+
+            if (node.has("staticPatternClauses")) {
+                JsonArray staticPatternClauses = node.getAsJsonArray("staticPatternClauses");
+                for (JsonElement pattern : staticPatternClauses) {
+                    pattern.getAsJsonObject().addProperty("skip", true);
+                }
+            }
+        }
+
         // Check if sorrounded by curlies
-        if (("MatchPatternClause".equals(kind) || "MatchExpressionPatternClause".equals(kind))
-                && node.has("ws")
-                && node.getAsJsonArray("ws").size() > 2) {
-            node.addProperty("withCurlies", true);
+        if (("MatchStructuredPatternClause".equals(kind) || "MatchStaticPatternClause".equals(kind)
+                || "MatchTypedPatternClause".equals(kind))
+                && node.has("ws")) {
+
+            for (JsonElement wsItem : node.getAsJsonArray(FormattingConstants.WS)) {
+                JsonObject currentWS = wsItem.getAsJsonObject();
+                String text = currentWS.get(FormattingConstants.TEXT).getAsString();
+                if (text.equals("{")) {
+                    node.addProperty("withCurlies", true);
+                    break;
+                }
+            }
         }
 
         // Check if sorrounded by parantheses
@@ -696,8 +747,16 @@ public class FormattingSourceGen {
                 JsonArray defaultableParameters = node.getAsJsonArray("defaultableParameters");
                 for (int i = 0; i < defaultableParameters.size(); i++) {
                     defaultableParameters.get(i).getAsJsonObject().addProperty("defaultable", true);
+                    defaultableParameters.get(i).getAsJsonObject().addProperty("param", true);
                     defaultableParameters.get(i).getAsJsonObject().getAsJsonObject("variable")
                             .addProperty("defaultable", true);
+                }
+            }
+
+            if (node.has("parameters")) {
+                JsonArray parameters = node.getAsJsonArray("parameters");
+                for (int i = 0; i < parameters.size(); i++) {
+                    parameters.get(i).getAsJsonObject().addProperty("param", true);
                 }
             }
 
@@ -757,10 +816,12 @@ public class FormattingSourceGen {
                 node.addProperty("hasRestParams", true);
             }
 
-            if (node.has("restParameters")
-                    && node.getAsJsonObject("restParameters").has("typeNode")) {
-                node.getAsJsonObject("restParameters").getAsJsonObject("typeNode")
-                        .addProperty("isRestParam", true);
+            if (node.has("restParameters")) {
+                node.getAsJsonObject("restParameters").addProperty("param", true);
+                if (node.getAsJsonObject("restParameters").has("typeNode")) {
+                    node.getAsJsonObject("restParameters").getAsJsonObject("typeNode")
+                            .addProperty("isRestParam", true);
+                }
             }
         }
 

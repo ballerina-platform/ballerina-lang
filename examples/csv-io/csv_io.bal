@@ -7,41 +7,24 @@ type Employee record {
     float salary;
 };
 
-// This function reads the next record from the csvChannel.
-function readNext(io:ReadableCSVChannel csvChannel) returns string[] {
-    match csvChannel.getNext() {
-        string[] records => {
-            return records;
-        }
-        error err => {
-            throw err;
-        }
-        () => {
-            error e = error("Record channel not initialized properly");
-            throw e;
-        }
-    }
-}
-
 // This function reads records one by one and prints the records.
-function process(io:ReadableCSVChannel csvChannel) {
-    try {
-        // Read all the records from the provided file
-        // until there are no more records.
-        while (csvChannel.hasNext()) {
-            // Read the records.
-            string[] records = readNext(csvChannel);
-            // Print the records.
+function process(io:ReadableCSVChannel csvChannel) returns error? {
+    // Read all the records from the provided file
+    // until there are no more records.
+    while (csvChannel.hasNext()) {
+        // Read the records.
+        var records = check csvChannel.getNext();
+        // Print the records.
+        if (records is string[]) {
             io:println(records);
         }
-    } catch (error err) {
-        throw err;
     }
+    return;
 }
+
 //Specify the location of the `.CSV` file.
 public function main() {
     string srcFileName = "./files/sample.csv";
-
     // Open a CSV channel in `write` mode and write some data to
     // ./files/sample.csv for later use.
     // The record separator of the `.CSV` file is a
@@ -51,37 +34,31 @@ public function main() {
     ["3", "Ronald", "120000"], ["4", "Roy", "6000"], ["5", "Oliver", "1100000"]];
     writeDataToCSVChannel(wCsvChannel, ...data);
     closeWritableCSVChannel(wCsvChannel);
-
     // Open a CSV channel in `read` mode which is the default mode.
     io:ReadableCSVChannel rCsvChannel = io:openReadableCsvFile(srcFileName);
-    try {
-        io:println("Start processing the CSV file from ", srcFileName);
-        process(rCsvChannel);
-        io:println("Processing completed.");
-    } catch (error e) {
+    io:println("Start processing the CSV file from ", srcFileName);
+    var processedResult = process(rCsvChannel);
+    if (processedResult is error) {
         log:printError("An error occurred while processing the records: ",
-            err = e);
-    } finally {
-        // Close the CSV channel.
-        closeReadableCSVChannel(rCsvChannel);
+                        err = processedResult);
     }
-
+    io:println("Processing completed.");
+    // Close the CSV channel.
+    closeReadableCSVChannel(rCsvChannel);
     // Open a CSV channel in `read` mode which is the default mode.
     io:ReadableCSVChannel rCsvChannel2 = io:openReadableCsvFile(srcFileName);
     // Read the `.CSV` file as a table.
     io:println("Reading  " + srcFileName + " as a table");
-    match rCsvChannel2.getTable(Employee) {
-        table<Employee> employeeTable => {
-            foreach rec in employeeTable {
-                io:println(rec);
-            }
+    var tblResult = rCsvChannel2.getTable(Employee);
+    if (tblResult is table<Employee>) {
+        foreach var rec in tblResult {
+            io:println(rec);
         }
-        error err => {
-            io:println(err.message);
-        }
+    } else {
+        log:printError("An error occurred while creating table: ",
+                        err = tblResult);
     }
     closeReadableCSVChannel(rCsvChannel2);
-
     // Writing the a table to a `.CSV` file.
     string targetFileName = "./files/output.csv";
     // Opening CSV channel in "write" mode.
@@ -89,7 +66,7 @@ public function main() {
     io:println("Creating a table and adding data");
     table<Employee> employeeTable = createTableAndAddData();
     io:println("Writing the table to " + targetFileName);
-    foreach entry in employeeTable {
+    foreach var entry in employeeTable {
         string[] rec = [entry.id, entry.name, <string>entry.salary];
         writeDataToCSVChannel(wCsvChannel2, rec);
     }
@@ -99,50 +76,46 @@ public function main() {
 // Creates a table and adds some data.
 function createTableAndAddData() returns table<Employee> {
     table<Employee> employeeTable = table{};
-
-    Employee[] employees;
+    Employee[] employees = [];
     employees[0] = { id: "1", name: "Allen", salary: 300000.0 };
     employees[1] = { id: "2", name: "Wallace", salary: 200000.0 };
     employees[2] = { id: "3", name: "Sheldon", salary: 1000000.0 };
-
-    foreach employee in employees {
-        match employeeTable.add(employee) {
-            error e => io:println("Error occurred while adding data to table ", e);
-            () => io:println("Successfully added entry to table");
+    foreach var employee in employees {
+        var result = employeeTable.add(employee);
+        if (result is error) {
+            log:printError("Error occurred while adding data to table: ",
+                            err = result);
         }
     }
     return employeeTable;
 }
 
 // Write data to a given CSV Channel.
-function writeDataToCSVChannel(io:WritableCSVChannel csvChannel, string[]... data) {
-    foreach rec in data {
+function writeDataToCSVChannel(io:WritableCSVChannel csvChannel,
+                                string[]... data) {
+    foreach var rec in data {
         var returnedVal = csvChannel.write(rec);
-        match returnedVal {
-            error e => io:println(e.message);
-            () => io:println("Record was successfully written to target file");
+        if (returnedVal is error) {
+            log:printError("Error occurred while writing to target file: ",
+                            err = returnedVal);
         }
     }
 }
 
 // Close Readable CSV channel.
 function closeReadableCSVChannel(io:ReadableCSVChannel csvChannel) {
-    match csvChannel.close() {
-        error channelCloseError => {
-            log:printError("Error occured while closing the channel: ",
-                err = channelCloseError);
-        }
-        () => io:println("CSV channel closed successfully.");
+    var result = csvChannel.close();
+    if (result is error) {
+        log:printError("Error occured while closing the channel: ",
+                        err = result);
     }
 }
 
 // Close Writable CSV channel.
 function closeWritableCSVChannel(io:WritableCSVChannel csvChannel) {
-    match csvChannel.close() {
-        error channelCloseError => {
-            log:printError("Error occured while closing the channel: ",
-                err = channelCloseError);
-        }
-        () => io:println("CSV channel closed successfully.");
+    var result = csvChannel.close();
+    if (result is error) {
+        log:printError("Error occured while closing the channel: ",
+                        err = result);
     }
 }

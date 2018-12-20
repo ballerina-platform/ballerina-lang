@@ -1,3 +1,5 @@
+import ballerina/io;
+
 function name1() {
     float c = 0;
 }
@@ -15,14 +17,12 @@ function name4(string s, float i) {
 
 }
 
-@Description {
-    value: "test annotation"
-}
+# test annotation
 function name5() {
 
 }
 
-function main(string... args) {
+public function main(string... args) {
 
 }
 

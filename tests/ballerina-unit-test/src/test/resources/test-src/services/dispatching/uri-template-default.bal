@@ -1,6 +1,8 @@
 import ballerina/http;
 
 listener http:MockListener testEP = new(9090);
+listener http:MockListener mockEP1 = new(9091);
+listener http:MockListener mockEP2 = new(9092);
 
 @http:ServiceConfig {
     cors: {
@@ -51,5 +53,20 @@ service serviceWithNoAnnotation on testEP {
         json responseJson = {"echo":"dispatched to a service without an annotation"};
         res.setJsonPayload(responseJson);
         _ = caller->respond(res);
+    }
+}
+
+service on mockEP1 {
+    resource function testResource(http:Caller caller, http:Request req) {
+        _ = caller->respond({"echo":"dispatched to the service that neither has an explicitly defined basepath nor a name"});
+    }
+}
+
+@http:ServiceConfig {
+    compression: {enable: http:COMPRESSION_AUTO}
+}
+service on mockEP2 {
+    resource function testResource(http:Caller caller, http:Request req) {
+        _ = caller->respond("dispatched to the service that doesn't have a name but has a config without a basepath");
     }
 }

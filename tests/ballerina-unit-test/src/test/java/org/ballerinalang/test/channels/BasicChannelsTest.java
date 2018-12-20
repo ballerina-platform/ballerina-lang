@@ -30,7 +30,6 @@ import org.testng.annotations.Test;
  *
  * @since 0.982.0
  */
-@Test(groups = "broken")
 public class BasicChannelsTest {
 
     private CompileResult result;

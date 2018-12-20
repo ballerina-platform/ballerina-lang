@@ -1,4 +1,5 @@
-# To run Ballerina, place the `foreach.bal` file in a specific location. Then navigate to this location and issue this command.
+# To run this sample, navigate to the directory that contains the
+# `.bal` file and issue the `ballerina run` command.
 $ ballerina run foreach.bal
 Iterating over a string array:-
 fruit: apple
@@ -12,7 +13,7 @@ letter: c, word: cherry
 
 Iterating over a json object:-
 string value: apple
-string array value: ["red", "green"]
+json array value: ["red", "green"]
 int value: 5
 
 Iterating over a json array:-

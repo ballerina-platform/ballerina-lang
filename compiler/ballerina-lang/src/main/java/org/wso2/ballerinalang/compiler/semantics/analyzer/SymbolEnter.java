@@ -512,6 +512,12 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         }
 
+        if (typeDefinition.typeNode.getKind() == NodeKind.FUNCTION_TYPE && definedType.tsymbol == null) {
+            definedType.tsymbol = Symbols.createTypeSymbol(SymTag.FUNCTION_TYPE, Flags.asMask(typeDefinition.flagSet),
+                                                           Names.EMPTY, env.enclPkg.symbol.pkgID, definedType,
+                                                           env.scope.owner);
+        }
+
         typeDefinition.precedence = this.typePrecedence++;
         BTypeSymbol typeDefSymbol;
         if (definedType.tsymbol.name != Names.EMPTY) {
@@ -858,8 +864,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                 // let's inject future symbol to all the lambdas
                 // last lambda needs to be skipped to avoid self reference
                 // lambda's form others functions also need to be skiped
-                if (lambdaFunctions.hasNext() &&
-                    varSymbol.owner == lambdaFunction.cachedEnv.enclInvokable.symbol) {
+                BLangInvokableNode enclInvokable = lambdaFunction.cachedEnv.enclInvokable;
+                if (lambdaFunctions.hasNext() && enclInvokable != null && varSymbol.owner == enclInvokable.symbol) {
                     lambdaFunction.cachedEnv.scope.define(varSymbol.name, varSymbol);
                 }
             }

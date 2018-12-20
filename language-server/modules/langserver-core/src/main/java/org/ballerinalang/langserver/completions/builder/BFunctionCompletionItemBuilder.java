@@ -171,7 +171,7 @@ public final class BFunctionCompletionItemBuilder {
             return getTypeName(bVarSymbol) + " " + bVarSymbol.getName();
         } else {
             String defaultStringVal;
-            if (bVarSymbol.defaultValue == null) {
+            if (bVarSymbol.defaultValue == null || bVarSymbol.defaultValue.getValue() == null) {
                 defaultStringVal = "()";
             } else {
                 defaultStringVal = bVarSymbol.defaultValue.getValue().toString();
@@ -185,7 +185,7 @@ public final class BFunctionCompletionItemBuilder {
             return "${" + iteration + ":" + bVarSymbol.getName() + "}";
         } else {
             String defaultStringVal;
-            if (bVarSymbol.defaultValue == null) {
+            if (bVarSymbol.defaultValue == null || bVarSymbol.defaultValue.getValue() == null) {
                 defaultStringVal = "()";
             } else {
                 defaultStringVal = bVarSymbol.defaultValue.getValue().toString();

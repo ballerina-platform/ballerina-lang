@@ -62,8 +62,7 @@ public class SourceGenTest {
         this.ballerinaTestResources = getBallerinaUnitTestFiles();
     }
 
-    @Test(description = "Source gen test suit for formatting source gen", dataProvider = "unitTestFiles",
-            enabled = false)
+    @Test(description = "Source gen test suit for formatting source gen", dataProvider = "unitTestFiles")
     public void formattingSourceGenTests(File file) {
         LSServiceOperationContext formatContext = new LSServiceOperationContext();
         try {
@@ -75,7 +74,7 @@ public class SourceGenTest {
             String expected = new String(encoded1, StandardCharsets.UTF_8);
             TestUtil.openDocument(serviceEndpoint, filePath);
             LSCompiler lsCompiler = new LSCompiler(documentManager);
-            JsonObject ast = TextDocumentFormatUtil.getAST(filePath.toUri().toString(), lsCompiler, documentManager,
+            JsonObject ast = TextDocumentFormatUtil.getAST(filePath, lsCompiler, documentManager,
                     formatContext);
             FormattingSourceGen.build(ast.getAsJsonObject("model"), "CompilationUnit");
             String actual = FormattingSourceGen.getSourceOf(ast.getAsJsonObject("model"));
@@ -125,7 +124,12 @@ public class SourceGenTest {
                 "lang/annotations/lang.annotations.doc1/doc-annotation.bal", "structs/eq2/eq2.bal",
                 "workers/fork-join-some-map.bal", "services/session/http-session-test.bal",
                 "streamingv2-aggregation-groupby-test.bal", "streamingv2-aggregation-test.bal",
-                "streamingv2-external-window-test.bal", "streamingv2-aggregation-with-groupby-test.bal"};
+                "streamingv2-external-window-test.bal", "streamingv2-aggregation-with-groupby-test.bal",
+                "not-enough-args-to-return-3.bal", "too-many-args-to-return-1.bal", "file_ops.bal",
+                "valid-service.bal", "match_stmt_basic.bal", "checkpoint.bal", "http_load_balancer_test.bal",
+                "content_based_routing_test.bal", "http_cors_test.bal", "header_based_routing_test.bal",
+                "http_compression_test.bal", "http_access_logs_test.bal", "immutable_values_test.bal",
+                "trap_error_test.bal", "http_redirects_test.bal"};
 
         FileVisitor(List<File> ballerinaFiles) {
             this.files = ballerinaFiles;

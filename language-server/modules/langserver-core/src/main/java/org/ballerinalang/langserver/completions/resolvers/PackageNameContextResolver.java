@@ -64,7 +64,7 @@ public class PackageNameContextResolver extends AbstractItemResolver {
 
         packagesList.forEach(pkg -> {
             if (!orgNames.contains(pkg.getOrgName())) {
-                completionItems.add(getImportCompletion(pkg.getOrgName(), pkg.getOrgName()));
+                completionItems.add(getImportCompletion(pkg.getOrgName(), (pkg.getOrgName() + "/")));
                 orgNames.add(pkg.getOrgName());
             }
         });

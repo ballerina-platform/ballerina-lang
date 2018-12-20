@@ -13,7 +13,8 @@ public type HelloWorldClient client object {
         // Initialize client endpoint.
         grpc:Client c = new;
         c.init(self.url, self.config);
-        error? result = c.initStub("non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
+        error? result = c.initStub("non-blocking", ROOT_DESCRIPTOR,
+                                                            getDescriptorMap());
         if (result is error) {
             panic result;
         } else {
@@ -21,9 +22,11 @@ public type HelloWorldClient client object {
         }
     }
 
-
-    remote function lotsOfGreetings(service msgListener, grpc:Headers? headers = ()) returns (grpc:StreamingClient|error)  {
-        return self.grpcClient->streamingExecute("HelloWorld/lotsOfGreetings", msgListener, headers = headers);
+    remote function lotsOfGreetings(service msgListener,
+                                    grpc:Headers? headers = ())
+                        returns (grpc:StreamingClient|error)  {
+        return self.grpcClient->streamingExecute("HelloWorld/lotsOfGreetings",
+                                                msgListener, headers = headers);
     }
 };
 

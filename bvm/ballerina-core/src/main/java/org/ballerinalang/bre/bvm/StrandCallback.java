@@ -18,8 +18,10 @@
 package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.util.codegen.CallableUnitInfo.ChannelDetails;
 import org.ballerinalang.util.observability.ObserveUtils;
 import org.ballerinalang.util.observability.ObserverContext;
 
@@ -43,19 +45,73 @@ public abstract class StrandCallback {
     WDChannels parentChannels;
     WDChannels wdChannels;
 
+    private volatile CallbackStatus status;
+
+    private CallbackStatus valueStatus;
+
+    ChannelDetails[] sendIns;
+
     protected BType retType; //TODO may be this is wrong, we should take the type in wait expression -check this
 
-    StrandCallback(BType retType) {
+    StrandCallback(BType retType, ChannelDetails[] sendIns) {
         this.retType = retType;
+        this.status = CallbackStatus.NOT_RETURNED;
         this.wdChannels = new WDChannels();
+        this.sendIns = sendIns;
     }
 
     /**
      * Method to signal the callback once done.
      */
     public void signal() {
+        this.status = valueStatus;
+        if (this.status == null) {
+            this.status =  CallbackStatus.VALUE_RETURNED;
+        }
+        if (this.status == CallbackStatus.PANIC) {
+            handleChannelPanic();
+        }
+        if (this.status == CallbackStatus.ERROR_RETURN) {
+            handleChannelError();
+        }
         // Stop observation
         ObserveUtils.stopObservation(observerContext);
+    }
+
+    private void handleChannelPanic() {
+        for (int i = 0; i < sendIns.length; i++) {
+            WorkerDataChannel channel;
+            if (sendIns[i].channelInSameStrand) {
+                channel = this.wdChannels.getWorkerDataChannel(sendIns[i].name);
+            } else {
+                channel = this.parentChannels.getWorkerDataChannel(sendIns[i].name);
+            }
+            if (sendIns[i].send) {
+                channel.setSendPanic(this.getErrorVal());
+            } else {
+                channel.setReceiverPanic(this.getErrorVal());
+            }
+        }
+    }
+
+    private void handleChannelError() {
+        for (int i = 0; i < sendIns.length; i++) {
+            WorkerDataChannel channel;
+            if (sendIns[i].channelInSameStrand) {
+                channel = this.wdChannels.getWorkerDataChannel(sendIns[i].name);
+            } else {
+                channel = this.parentChannels.getWorkerDataChannel(sendIns[i].name);
+            }
+            if (sendIns[i].send) {
+                channel.setSendError(this.refVal);
+            } else {
+                channel.setRecieveError(this.refVal);
+            }
+        }
+    }
+
+    public CallbackStatus getStatus() {
+        return this.status;
     }
 
     /**
@@ -65,6 +121,7 @@ public abstract class StrandCallback {
      */
     public void setIntReturn(long value) {
         this.longVal = value;
+        this.valueStatus = CallbackStatus.VALUE_RETURNED;
     }
 
     /**
@@ -74,6 +131,7 @@ public abstract class StrandCallback {
      */
     public void setFloatReturn(double value) {
         this.doubleVal = value;
+        this.valueStatus = CallbackStatus.VALUE_RETURNED;
     }
 
     /**
@@ -83,6 +141,7 @@ public abstract class StrandCallback {
      */
     public void setStringReturn(String value) {
         this.stringVal = value;
+        this.valueStatus = CallbackStatus.VALUE_RETURNED;
     }
 
     /**
@@ -92,6 +151,7 @@ public abstract class StrandCallback {
      */
     public void setBooleanReturn(int value) {
         this.intVal = value;
+        this.valueStatus = CallbackStatus.VALUE_RETURNED;
     }
 
     /**
@@ -101,6 +161,7 @@ public abstract class StrandCallback {
      */
     public void setByteReturn(int value) {
         this.intVal = value;
+        this.valueStatus = CallbackStatus.VALUE_RETURNED;
     }
 
     /**
@@ -110,6 +171,11 @@ public abstract class StrandCallback {
      */
     public void setRefReturn(BRefType<?> value) {
         this.refVal = value;
+        if (BVM.checkIsType(this.refVal, BTypes.typeError)) {
+            this.valueStatus = CallbackStatus.ERROR_RETURN;
+        } else {
+            this.valueStatus = CallbackStatus.VALUE_RETURNED;
+        }
     }
 
     /**
@@ -119,6 +185,7 @@ public abstract class StrandCallback {
      */
     public void setError(BError error) {
         this.error = error;
+        this.valueStatus = CallbackStatus.PANIC;
     }
 
     /**
@@ -218,5 +285,18 @@ public abstract class StrandCallback {
     WDChannels getParentWorkerDataChannels() {
         //used in SafeStrandCallback, override if required
         return this.parentChannels;
+    }
+
+    /**
+     * Callback statuses.
+     */
+    public static enum CallbackStatus {
+        NOT_RETURNED(false), VALUE_RETURNED(true), ERROR_RETURN(true), PANIC(false);
+
+        public final boolean returned;
+
+        CallbackStatus(boolean returned) {
+            this.returned = returned;
+        }
     }
 }

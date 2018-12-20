@@ -243,8 +243,7 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
         while (type != BallerinaParser.EOF && ((tLine < cursorLine) || (tLine == cursorLine && tCol < cursorCol))) {
             // Checking for terminating tokens with the type number is inconsistent. Thus, uses string comparisons
             String tokenText = beforeCursorToken.getText();
-            if (beforeCursorToken.getTokenIndex() == 1 ||
-                    UtilSymbolKeys.SEMI_COLON_SYMBOL_KEY.equals(tokenText) ||
+            if (UtilSymbolKeys.SEMI_COLON_SYMBOL_KEY.equals(tokenText) ||
                     UtilSymbolKeys.OPEN_BRACE_KEY.equals(tokenText) ||
                     UtilSymbolKeys.CLOSE_BRACE_KEY.equals(tokenText) ||
                     UtilSymbolKeys.COMMA_SYMBOL_KEY.equals(tokenText)) {

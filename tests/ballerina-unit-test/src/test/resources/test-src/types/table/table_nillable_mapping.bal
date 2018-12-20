@@ -53,7 +53,7 @@ type ResultDatesWithNillableIntType record {
     int? DATETIME_TYPE;
 };
 
-type NillableDataTypes record {
+type NillableDataTypesAll record {
     int? int_type;
     int? long_type;
     float? float_type;
@@ -71,6 +71,22 @@ type NillableDataTypes record {
     time:Time? time_type;
     time:Time? datetime_type;
     time:Time? timestamp_type;
+};
+
+type NillableDataTypes record {
+    int? int_type;
+    int? long_type;
+    float? float_type;
+    float? double_type;
+    boolean? boolean_type;
+    string? string_type;
+    float? numeric_type;
+    float? decimal_type;
+    float? real_type;
+    int? tinyint_type;
+    int? smallint_type;
+    string? clob_type;
+    byte[]? binary_type;
 };
 
 type NillableBlob record {
@@ -164,7 +180,7 @@ function testMappingToNillableTypeFieldsBlob() returns (byte[]?) {
     byte[]? blob_type = ();
     var dt = testDB->select("SELECT blob_type from DataTypeTableNillableBlob where
     row_id=3", NillableBlob);
-    if (dt is table<NillableDataTypes>) {
+    if (dt is table<NillableBlob>) {
         while (dt.hasNext()) {
             var rs = dt.getNext();
             if (rs is NillableBlob) {
@@ -334,7 +350,7 @@ function testMappingNullToNillableTypes() returns (int?, int?, float?,
     var dt = testDB->select("SELECT int_type, long_type, float_type, double_type,
     boolean_type, string_type, numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type,
     binary_type, date_type, time_type, datetime_type, timestamp_type from DataTypeTableNillable where
-    row_id=2", NillableDataTypes);
+    row_id=2", NillableDataTypesAll);
 
     int? int_type = ();
     int? long_type = ();
@@ -354,10 +370,10 @@ function testMappingNullToNillableTypes() returns (int?, int?, float?,
     time:Time? datetime_type = ();
     time:Time? timestamp_type = ();
 
-    if (dt is table<NillableDataTypes>) {
+    if (dt is table<NillableDataTypesAll>) {
         while (dt.hasNext()) {
             var rs = dt.getNext();
-            if (rs is NillableDataTypes) {
+            if (rs is NillableDataTypesAll) {
                 int_type = rs.int_type;
                 long_type = rs.long_type;
                 float_type = rs.float_type;

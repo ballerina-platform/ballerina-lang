@@ -76,7 +76,7 @@ service passthrough on new http:Listener(9092) {
             if (result is error) {
                log:printError("Error sending response", err = result);
             }
-        } else if (response is error) {
+        } else {
             json err = { "error": "error occurred while invoking service" };
             var result = caller->respond(err);
             if (result is error) {

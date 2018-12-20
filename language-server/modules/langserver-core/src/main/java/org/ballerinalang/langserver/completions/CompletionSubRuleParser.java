@@ -22,6 +22,7 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
+import org.ballerinalang.langserver.AnnotationNodeKind;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.AnnotationAttachmentMetaInfo;
@@ -36,7 +37,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
-import org.wso2.ballerinalang.util.Flags;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -86,7 +86,7 @@ public class CompletionSubRuleParser {
             // If not (Parser unable to build the next node and not available in the bLangPackage) get it from tokens
             // Sometimes the node key can be null and for a special case of resource, node type can be invalid (need a
             // fix in the custom error strategy)
-            int nextNodeType = getNextNodeTypeFlag(context.get(CompletionKeys.TOKEN_STREAM_KEY),
+            AnnotationNodeKind nextNodeType = getNextNodeTypeFlag(context.get(CompletionKeys.TOKEN_STREAM_KEY),
                         CommonUtil.getCurrentTokenFromTokenStream(context), context);
             context.put(CompletionKeys.NEXT_NODE_KEY, nextNodeType);
             return;
@@ -284,11 +284,11 @@ public class CompletionSubRuleParser {
         return true;
     }
     
-    private static int getNextNodeTypeFlag(TokenStream tokenStream, int index, LSContext context) {
-        int nodeType = context.get(CompletionKeys.NEXT_NODE_KEY);
-        Map<String, Integer> flagsMap = new HashMap<>();
-        flagsMap.put(UtilSymbolKeys.SERVICE_KEYWORD_KEY, Flags.SERVICE);
-        flagsMap.put(UtilSymbolKeys.RESOURCE_KEYWORD_KEY, Flags.RESOURCE);
+    private static AnnotationNodeKind getNextNodeTypeFlag(TokenStream tokenStream, int index, LSContext context) {
+        AnnotationNodeKind nodeType = context.get(CompletionKeys.NEXT_NODE_KEY);
+        Map<String, AnnotationNodeKind> flagsMap = new HashMap<>();
+        flagsMap.put(UtilSymbolKeys.SERVICE_KEYWORD_KEY, AnnotationNodeKind.SERVICE);
+        flagsMap.put(UtilSymbolKeys.RESOURCE_KEYWORD_KEY, AnnotationNodeKind.RESOURCE);
         
         while (true) {
             if (tokenStream == null || index >= tokenStream.size()) {

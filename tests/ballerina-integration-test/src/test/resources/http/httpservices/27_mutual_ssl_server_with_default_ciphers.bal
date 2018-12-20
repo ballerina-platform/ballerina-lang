@@ -60,7 +60,7 @@ http:ServiceEndpointConfiguration weakCipherConfig = {
             path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
             password: "ballerina"
         },
-        ciphers: ["TLS_RSA_WITH_AES_256_CBC_SHA"]
+        ciphers: ["TLS_RSA_WITH_AES_128_CBC_SHA"]
     }
 };
 

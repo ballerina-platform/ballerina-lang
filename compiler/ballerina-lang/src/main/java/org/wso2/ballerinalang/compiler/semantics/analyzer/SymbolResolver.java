@@ -28,7 +28,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
@@ -265,14 +265,14 @@ public class SymbolResolver extends BLangNodeVisitor {
         return true;
     }
 
-    public BSymbol resolveImplicitConversionOp(BType sourceType,
-                                               BType targetType) {
-        BSymbol symbol = resolveOperator(Names.CONVERSION_OP, Lists.of(sourceType, targetType));
+    public BSymbol resolveImplicitCastOp(BType sourceType,
+                                         BType targetType) {
+        BSymbol symbol = resolveOperator(Names.CAST_OP, Lists.of(sourceType, targetType));
         if (symbol == symTable.notFoundSymbol) {
             return symbol;
         }
 
-        BConversionOperatorSymbol castSymbol = (BConversionOperatorSymbol) symbol;
+        BCastOperatorSymbol castSymbol = (BCastOperatorSymbol) symbol;
         if (castSymbol.implicit) {
             return symbol;
         }
@@ -280,12 +280,15 @@ public class SymbolResolver extends BLangNodeVisitor {
         return symTable.notFoundSymbol;
     }
 
-    public BSymbol resolveConversionOperator(BType sourceType,
-                                             BType targetType) {
+    public BSymbol resolveConversionOperator(BType sourceType, BType targetType) {
         return types.getConversionOperator(sourceType, targetType);
     }
 
-    public BSymbol resolveTypeConversionOrAssertionOperator(BType sourceType, BType targetType) {
+    public BSymbol resolveCastOperator(BType sourceType, BType targetType) {
+        return types.getCastOperator(sourceType, targetType);
+    }
+
+    BSymbol resolveTypeCastOrAssertionOperator(BType sourceType, BType targetType) {
         return types.getTypeAssertionOperator(sourceType, targetType);
     }
 
@@ -561,8 +564,8 @@ public class SymbolResolver extends BLangNodeVisitor {
         int sourceTypeTag = sourceType.tag;
         if (types.isValueType(sourceType)) {
             if (sourceType == targetType) {
-                return Symbols.createConversionOperatorSymbol(sourceType, targetType, symTable.errorType, false,
-                                                              true, InstructionCodes.NOP, null, null);
+                return Symbols.createCastOperatorSymbol(sourceType, targetType, symTable.errorType, false, true, 
+                                                        InstructionCodes.NOP, null, null);
             }
 
             if (!(sourceTypeTag == TypeTags.STRING && targetType.tag != TypeTags.STRING)) {
@@ -1040,7 +1043,11 @@ public class SymbolResolver extends BLangNodeVisitor {
         Map<Name, ScopeEntry> visibleEntries = new HashMap<>();
         visibleEntries.putAll(env.scope.entries);
         if (env.enclEnv != null) {
-            visibleEntries.putAll(getAllVisibleInScopeSymbols(env.enclEnv));
+            getAllVisibleInScopeSymbols(env.enclEnv).forEach((name, scopeEntry) -> {
+                if (!visibleEntries.containsKey(name)) {
+                    visibleEntries.put(name, scopeEntry);
+                }
+            });
         }
         return visibleEntries;
     }

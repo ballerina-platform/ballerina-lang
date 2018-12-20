@@ -34,12 +34,6 @@ public interface InstructionCodes {
     int ICONST_3 = 8;
     int ICONST_4 = 9;
     int ICONST_5 = 10;
-    int FCONST_0 = 11;
-    int FCONST_1 = 12;
-    int FCONST_2 = 13;
-    int FCONST_3 = 14;
-    int FCONST_4 = 15;
-    int FCONST_5 = 16;
     int BCONST_0 = 17;
     int BCONST_1 = 18;
     int RCONST_NULL = 19;
@@ -282,6 +276,8 @@ public interface InstructionCodes {
     int NEWMAP = 212;
     int NEWTABLE = 215;
     int NEWSTREAM = 217;
+    
+    int CONVERT = 218;
 
     int ITR_NEW = 219;
     int ITR_NEXT = 221;

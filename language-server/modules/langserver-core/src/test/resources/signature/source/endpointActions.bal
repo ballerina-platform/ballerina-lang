@@ -1,9 +1,7 @@
 import ballerina/http;
 
-endpoint http:Listener listener {
-    port: 9090
-};
+http:Client httpClient = new ("http://localhost:8080");
 
 function testSignatureHelp () {
-    listener->respond(
+    httpClient->get(
 }

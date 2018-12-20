@@ -10,11 +10,11 @@ export function render (context: ExtensionContext, langClient: ExtendedLangClien
 function renderDiagram(context: ExtensionContext, docUri: Uri): string {
 
     const body = `
-        <div id="warning">
-        </div>
-        <div class="ballerina-editor design-view-container" id="diagram">
-        </div>
+        <div id="warning"></div>
+        <div class="ballerina-editor design-view-container" id="diagram"></div>
     `;
+
+    const bodyCss = "diagram";
 
     const styles = `
         body {
@@ -75,7 +75,6 @@ function renderDiagram(context: ExtensionContext, docUri: Uri): string {
                     };
                     const diagram = ballerinaComposer.renderDiagramEditor(options);
                     webViewRPCHandler.addMethod("updateAST", (args) => {
-                        console.log(args);
                         diagram.updateAST(args[0]);
                         return Promise.resolve({});
                     });
@@ -100,7 +99,7 @@ function renderDiagram(context: ExtensionContext, docUri: Uri): string {
         }
     `;
 
-    return getLibraryWebViewContent(context, body, script, styles);
+    return getLibraryWebViewContent(context, body, script, styles, bodyCss);
 }
 
 export function renderError() {

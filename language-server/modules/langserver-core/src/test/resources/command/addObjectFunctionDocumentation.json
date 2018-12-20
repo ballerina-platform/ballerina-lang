@@ -1,33 +1,31 @@
 {
   "nodeType": "function",
-  "nodeLine": "28",
+  "nodeLine": "24",
   "expected": {
-    "result":{
-      "edit":{
-        "changes":{
-
-        },
-        "documentChanges":[
+    "result": {
+      "edit": {
+        "changes": {},
+        "documentChanges": [
           {
-            "edits":[
+            "edits": [
               {
-                "range":{
-                  "start":{
-                    "line":28,
-                    "character":4
+                "range": {
+                  "start": {
+                    "line": 24,
+                    "character": 4
                   },
-                  "end":{
-                    "line":28,
-                    "character":4
+                  "end": {
+                    "line": 24,
+                    "character": 4
                   }
                 },
-                "newText":"# Description\n    #\n    # + param1 - param1 Parameter Description \n    # + param2 - param2 Parameter Description \n    # + return - Return Value Description\n    "
+                "newText": "# Description\n    #\n    # + param1 - param1 Parameter Description \n    # + param2 - param2 Parameter Description \n    # + return - Return Value Description\n    "
               }
             ]
           }
         ]
       }
     },
-    "jsonrpc":"2.0"
+    "jsonrpc": "2.0"
   }
 }

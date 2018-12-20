@@ -57,6 +57,10 @@ There are two configurations with type `"ballerina"`. One with `"request"` set t
 
 ![using debugger](https://github.com/ballerina-platform/ballerina-lang/blob/master/tool-plugins/vscode/docs/debugger-using.gif?raw=true)
 
+## Compatibility
+
+Ballerina Language Specification supports a set of experimental features such as *_transactions_* syntax. In order to be compatible with the experimental features and for supporting language intelligence in VSCode Plugin, enable the `Allow Experimental` option in user settings. 
+
 ## Contributing
 
 If you want to help develop the ballerina vscode plugin or want to build from source and try out the latest features see [information for developers](https://github.com/ballerina-platform/ballerina-lang/blob/master/tool-plugins/vscode/docs/developer-info.md).

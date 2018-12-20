@@ -77,7 +77,9 @@ public enum DiagnosticCode {
     INCOMPATIBLE_TYPE_CONSTRAINT("incompatible.type.constraint"),
     WORKER_SEND_RECEIVE_PARAMETER_COUNT_MISMATCH("worker.send.receive.parameter.count.mismatch"),
     INVALID_WORKER_INTERACTION("worker.invalid.worker.interaction"),
-    WORKER_AFTER_RETURN("worker.after.return"),
+    WORKER_SEND_AFTER_RETURN("worker.send.after.return"),
+    WORKER_RECEIVE_AFTER_RETURN("worker.receive.after.return"),
+    EXPLICIT_WORKER_CANNOT_BE_DEFAULT("explicit.worker.cannot.be.default"),
     INVALID_MULTIPLE_FORK_JOIN_SEND("worker.multiple.fork.join.send"),
     INCOMPATIBLE_TYPE_REFERENCE("incompatible.type.reference"),
     INCOMPATIBLE_RECORD_TYPE_REFERENCE("incompatible.record.type.reference"),
@@ -333,6 +335,7 @@ public enum DiagnosticCode {
     INVALID_STREAM_ATTRIBUTE_TYPE("invalid.stream.attribute.type"),
     STREAMING_INCOMPATIBLE_TYPES("streaming.incompatible.types"),
     UNDEFINED_INVOCATION_ALIAS("undefined.invocation.alias"),
+    INVALID_STREAMING_MODEL_TYPE("invalid.streaming.model.type"),
 
     // Taint checking related codes
     ENTRY_POINT_PARAMETERS_CANNOT_BE_SENSITIVE("entry.point.parameters.cannot.be.sensitive"),

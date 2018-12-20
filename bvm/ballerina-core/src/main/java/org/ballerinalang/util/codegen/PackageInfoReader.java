@@ -47,6 +47,8 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.NativeUnitLoader;
+import org.ballerinalang.util.BLangConstants;
+import org.ballerinalang.util.codegen.CallableUnitInfo.ChannelDetails;
 import org.ballerinalang.util.codegen.Instruction.InstructionCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionIteratorNext;
 import org.ballerinalang.util.codegen.Instruction.InstructionLock;
@@ -696,6 +698,26 @@ public class PackageInfoReader {
 
         // Read attributes
         readAttributeInfoEntries(packageInfo, packageInfo, functionInfo);
+
+        // Set worker send in channels
+        WorkerSendInsAttributeInfo attributeInfo =
+                (WorkerSendInsAttributeInfo) functionInfo.getAttributeInfo(AttributeInfo.Kind.WORKER_SEND_INS);
+        functionInfo.workerSendInChannels = new ChannelDetails[attributeInfo.sendIns.length];
+        if (functionInfo.workerSendInChannels.length == 0) {
+            return;
+        }
+        String currentWorkerName = functionInfo.defaultWorkerInfo.getWorkerName();
+        for (int i = 0; i < attributeInfo.sendIns.length; i++) {
+            String chnlName = attributeInfo.sendIns[i];
+
+            functionInfo.workerSendInChannels[i] = new ChannelDetails(chnlName, currentWorkerName
+                    .equals(BLangConstants.DEFAULT_WORKER_NAME), isChannelSend(chnlName, currentWorkerName));
+        }
+    }
+
+    //TODO remove below and pass these details from compiler
+    private boolean isChannelSend(String chnlName, String workerName) {
+        return chnlName.startsWith(workerName) && chnlName.split(workerName)[1].startsWith("->");
     }
 
     private void readWorkerData(PackageInfo packageInfo, CallableUnitInfo callableUnitInfo) throws IOException {
@@ -1107,12 +1129,6 @@ public class PackageInfoReader {
                 case InstructionCodes.ICONST_3:
                 case InstructionCodes.ICONST_4:
                 case InstructionCodes.ICONST_5:
-                case InstructionCodes.FCONST_0:
-                case InstructionCodes.FCONST_1:
-                case InstructionCodes.FCONST_2:
-                case InstructionCodes.FCONST_3:
-                case InstructionCodes.FCONST_4:
-                case InstructionCodes.FCONST_5:
                 case InstructionCodes.BCONST_0:
                 case InstructionCodes.BCONST_1:
                 case InstructionCodes.RCONST_NULL:
@@ -1298,6 +1314,7 @@ public class PackageInfoReader {
                 case InstructionCodes.XMLLOAD:
                 case InstructionCodes.LENGTHOF:
                 case InstructionCodes.STAMP:
+                case InstructionCodes.CONVERT:
                 case InstructionCodes.NEWSTREAM:
                 case InstructionCodes.CHECKCAST:
                 case InstructionCodes.TYPE_ASSERTION:
@@ -1465,9 +1482,12 @@ public class PackageInfoReader {
                     int sigCPIndex = codeStream.readInt();
                     UTF8CPEntry sigCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(sigCPIndex);
                     BType bType = getParamTypes(packageInfo, sigCPEntry.getValue())[0];
+                    WorkerDataChannelInfo dataChannelInfo = channelRefCPEntry.getWorkerDataChannelInfo();
+                    boolean channelInSameStrand =  opcode == InstructionCodes.WRKSEND ? dataChannelInfo.getSource()
+                            .equals(BLangConstants.DEFAULT_WORKER_NAME) : dataChannelInfo.getTarget()
+                            .equals(BLangConstants.DEFAULT_WORKER_NAME);
                     packageInfo.addInstruction(new InstructionWRKSendReceive(opcode, channelRefCPIndex,
-                            channelRefCPEntry.getWorkerDataChannelInfo(), sigCPIndex, bType,
-                            codeStream.readInt(), opcode == InstructionCodes.WRKSEND));
+                            dataChannelInfo, sigCPIndex, bType, codeStream.readInt(), channelInSameStrand));
                     break;
                 case InstructionCodes.CHNRECEIVE:
                     BType keyType = null;

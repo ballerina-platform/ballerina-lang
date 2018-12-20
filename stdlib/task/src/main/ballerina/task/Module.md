@@ -57,8 +57,8 @@ import ballerina/io;
 import ballerina/runtime;
 import ballerina/task;
 
-int count;
-task:Timer? timer;
+int count = 0;
+task:Timer? timer = ();
 
 public function main(string... args) {
     io:println("tasks sample is running");
@@ -94,15 +94,13 @@ function onTrigger() returns error? {
     }
 
     if(count == 20) {
-        match stopTask() {
-            error e => {
-                return e;
-            }
-            () => {}
+        var stopResult = stopTask();
+        if (stopResult is error) {
+            return stopResult;
         }
     }
     io:println("on trigger : count value is: " + count);
-    return ();
+    return;
 }
 
 // Define the function to stop the task.
@@ -110,7 +108,7 @@ function stopTask() returns error? {
     io:println("Stopping task");
     timer.stop();
     count = -1;
-    return ();
+    return;
 }
 
 ```
@@ -128,8 +126,8 @@ import ballerina/io;
 import ballerina/runtime;
 import ballerina/task;
 
-int count;
-task:Appointment? app;
+int count = 0;
+task:Appointment? app = ();
 
 public function main(string... args) {
     io:println("tasks sample is running");

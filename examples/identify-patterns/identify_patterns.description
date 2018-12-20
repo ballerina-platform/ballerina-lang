@@ -1,4 +1,0 @@
-// Streaming patterns are state machine implementations that allow you to detect patterns in the events that arrive
-// over time. These can correlate events within a single stream or between multiple streams.
-// In this example, streaming rules send the `stop` control action to the regulator when the key is removed from the hotel
-// room given that the regulator is switched on prior to removing the hotel key.

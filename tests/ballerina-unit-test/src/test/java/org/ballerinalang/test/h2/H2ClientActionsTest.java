@@ -46,6 +46,7 @@ public class H2ClientActionsTest {
     private CompileResult result;
     private static final String DB_NAME = "TestDBH2";
     private static final String DB_DIRECTORY_H2 = "./target/H2Client/";
+    private static final String H2_TEST_GROUP = "H2_TEST";
 
     @BeforeClass
     public void setup() {
@@ -54,7 +55,7 @@ public class H2ClientActionsTest {
         SQLDBUtils.initH2Database(DB_DIRECTORY_H2, DB_NAME, "datafiles/sql/H2ConnectorTableCreate.sql");
     }
 
-    @Test
+    @Test(groups = H2_TEST_GROUP)
     public void testSelect() {
         BValue[] returns = BRunUtil.invoke(result, "testSelect");
         Assert.assertEquals(returns.length, 1);
@@ -64,7 +65,7 @@ public class H2ClientActionsTest {
         Assert.assertEquals(((BValueArray) returns[0]).getInt(1), 2);
     }
 
-    @Test
+    @Test(groups = H2_TEST_GROUP)
     public void testUpdate() {
         BValue[] returns = BRunUtil.invoke(result, "testUpdate");
         Assert.assertEquals(returns.length, 1);
@@ -73,7 +74,7 @@ public class H2ClientActionsTest {
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
-    @Test
+    @Test(groups = H2_TEST_GROUP)
     public void testCall() {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invokeFunction(result, "testCall", args);
@@ -84,7 +85,7 @@ public class H2ClientActionsTest {
         Assert.assertEquals(retValue.stringValue(), expected);
     }
 
-    @Test
+    @Test(groups = H2_TEST_GROUP)
     public void testGeneratedKeyOnInsert() {
         BValue[] returns = BRunUtil.invoke(result, "testGeneratedKeyOnInsert");
         Assert.assertEquals(returns.length, 1);
@@ -93,7 +94,7 @@ public class H2ClientActionsTest {
         Assert.assertTrue(Integer.parseInt(retValue.stringValue()) > 0);
     }
 
-    @Test
+    @Test(groups = H2_TEST_GROUP)
     public void testBatchUpdate() {
         BValue[] returns = BRunUtil.invoke(result, "testBatchUpdate");
         Assert.assertEquals(returns.length, 1);
@@ -103,7 +104,7 @@ public class H2ClientActionsTest {
         Assert.assertEquals(retValue.getInt(1), 1);
     }
 
-    @Test
+    @Test(groups = H2_TEST_GROUP)
     public void testUpdateInMemory() {
         BValue[] returns = BRunUtil.invoke(result, "testUpdateInMemory");
         Assert.assertEquals(returns.length, 2);
@@ -113,13 +114,13 @@ public class H2ClientActionsTest {
                 "[{\"customerId\":15, \"name\":\"Anne\", \"creditLimit\":1000.0, \"country\":\"UK\"}]");
     }
 
-    @Test
+    @Test(groups = H2_TEST_GROUP)
     public void testInitWithNilDbOptions() {
         BValue[] returns = BRunUtil.invoke(result, "testInitWithNilDbOptions");
         assertInitTestReturnValues(returns);
     }
 
-    @Test
+    @Test(groups = H2_TEST_GROUP)
     public void testInitWithDbOptions() {
         BValue[] returns = BRunUtil.invoke(result, "testInitWithDbOptions");
         assertInitTestReturnValues(returns);
@@ -127,7 +128,7 @@ public class H2ClientActionsTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = ".*error in sql connector configuration:Failed to initialize pool: "
-                  + "Unsupported connection setting \"INVALID_PARAM\".*")
+                  + "Unsupported connection setting \"INVALID_PARAM\".*", groups = H2_TEST_GROUP)
     public void testInitWithInvalidDbOptions() {
         BRunUtil.invoke(result, "testInitWithInvalidDbOptions");
         Assert.fail("Expected exception should have been thrown by this point");
@@ -141,14 +142,14 @@ public class H2ClientActionsTest {
         Assert.assertEquals(((BValueArray) returns[0]).getInt(1), 2);
     }
 
-    @Test
+    @Test(groups = H2_TEST_GROUP)
     public void testH2MemDBUpdate() {
         BValue[] returns = BRunUtil.invoke(result, "testH2MemDBUpdate");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(returns[1].stringValue(), "[{\"ID\":15, \"NAME\":\"Anne\"}]");
     }
 
-    @Test
+    @Test(dependsOnGroups = H2_TEST_GROUP)
     public void testCloseConnectionPool() {
         BValue connectionCountQuery = new BString("SELECT COUNT(*) FROM INFORMATION_SCHEMA.SESSIONS");
         BValue[] args = { connectionCountQuery };

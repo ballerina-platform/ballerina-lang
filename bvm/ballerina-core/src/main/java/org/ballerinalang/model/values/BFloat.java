@@ -20,6 +20,7 @@ package org.ballerinalang.model.values;
 import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.math.BigDecimal;
@@ -43,11 +44,13 @@ public final class BFloat extends BValueType implements BRefType<Double> {
     @Override
     public long intValue() {
         if (Double.isNaN(value) || Double.isInfinite(value)) {
-            throw new BallerinaException("'float' value '" + value + "' cannot be converted to 'int'");
+            throw new BallerinaException(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+                                         "'float' value '" + value + "' cannot be converted to 'int'");
         }
 
         if (!BVM.isFloatWithinIntRange(value)) {
-            throw new BallerinaException("out of range 'float' value '" + value + "' cannot be converted to 'int'");
+            throw new BallerinaException(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+                                         "out of range 'float' value '" + value + "' cannot be converted to 'int'");
         }
         return Math.round(value);
     }

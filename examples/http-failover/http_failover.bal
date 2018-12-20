@@ -40,15 +40,14 @@ service failoverDemoService on new http:Listener(9090) {
         // If the service returns an `error`, `backendResponse` is implicitly
         // converted to an `error` within the else block.
         if (backendResponse is http:Response) {
-
             var responseToCaller = caller->respond(backendResponse);
             if (responseToCaller is error) {
                 log:printError("Error sending response", err = responseToCaller);
             }
-        } else if (backendResponse is error) {
+        } else {
             http:Response response = new;
             response.statusCode = http:INTERNAL_SERVER_ERROR_500;
-            response.setPayload(<string> backendResponse.detail().message);
+            response.setPayload(<string>backendResponse.detail().message);
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {
                 log:printError("Error sending response", err = responseToCaller);
@@ -72,7 +71,8 @@ service echo on backendEP {
 
         var result = caller->respond("echo Resource is invoked");
         if (result is error) {
-           log:printError("Error sending response from mock service", err = result);
+           log:printError("Error sending response from mock service",
+                          err = result);
         }
     }
 }
@@ -89,7 +89,8 @@ service mock on backendEP {
     resource function mockResource(http:Caller caller, http:Request req) {
         var result = caller->respond("Mock Resource is Invoked.");
         if (result is error) {
-           log:printError("Error sending response from mock service", err = result);
+           log:printError("Error sending response from mock service",
+                          err = result);
         }
     }
 }

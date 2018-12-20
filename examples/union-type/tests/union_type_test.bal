@@ -1,7 +1,7 @@
 import ballerina/test;
 import ballerina/io;
 
-any[] outputs = [];
+(any|error)[] outputs = [];
 int counter = 0;
 
 // This is the mock function which will replace the real function
@@ -9,7 +9,7 @@ int counter = 0;
     moduleName: "ballerina/io",
     functionName: "println"
 }
-public function mockPrint(any... s) {
+public function mockPrint(any|error... s) {
     outputs[counter] = s[0];
     counter += 1;
 }
@@ -22,12 +22,10 @@ function testFunc() {
     test:assertEquals(outputs[1], 101);
     test:assertEquals(outputs[2], "this is a value");
 
-    //ExpectedRecordType expectedError = {message: "key '' not found", cause: null, key: ""};
-    //test:assertEquals(outputs[3], expectedError);
+    var output3 = outputs[3];
+    if (output3 is error) {
+        test:assertEquals(output3.reason(), "key '' not found");
+    } else {
+        test:assertFail();
+    }
 }
-
-type ExpectedRecordType record {
-    string message;
-    error? cause;
-    string key;
-};

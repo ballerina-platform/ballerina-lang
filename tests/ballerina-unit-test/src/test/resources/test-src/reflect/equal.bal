@@ -4,25 +4,25 @@ import ballerina/reflect;
 
 
 function testNullTruePositive() returns (boolean) {
-    string | () s1;
-    string | () s2;
+    string | () s1 = ();
+    string | () s2 = ();
     return reflect:equals(s1,s2);
 }
 
 function testNullTrueNegative() returns (boolean) {
-    string |() s1;
+    string |() s1 = ();
     string s2 = "b";
     return reflect:equals(s1,s2);
 }
 
 function testNullFalseNegative() returns (boolean) {
-    string | () s1;
-    string | () s2;
+    string | () s1 = ();
+    string | () s2 = ();
     return !reflect:equals(s1,s2);
 }
 
 function testNullFalsePositive() returns (boolean) {
-    string | () s1;
+    string | () s1 = ();
     string s2 = "b";
     return !reflect:equals(s1,s2);
 }
@@ -165,6 +165,34 @@ function testFloatFalsePositive() returns (boolean) {
 }
 
 // End Float
+
+// Start Decimal
+
+function testDecimalTruePositive() returns boolean {
+    decimal d1 = 2.12;
+    decimal d2 = 2.12;
+    return reflect:equals(d1,d2);
+}
+
+function testDecimalTrueNegative() returns boolean {
+    decimal d1 = 2.12;
+    decimal d2 = 5.12;
+    return reflect:equals(d1,d2);
+}
+
+function testDecimalFalseNegative() returns boolean {
+    decimal d1 = 2.12;
+    decimal d2 = 2.12;
+    return !reflect:equals(d1,d2);
+}
+
+function testDecimalFalsePositive() returns boolean {
+    decimal d1 = 2.12;
+    decimal d2 = 5.12;
+    return !reflect:equals(d1,d2);
+}
+
+// End Decimal
 
 // Start Boolean
 

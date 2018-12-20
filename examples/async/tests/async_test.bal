@@ -28,7 +28,7 @@ function testFunc() {
     test:assertEquals(outputs[7], 100);
     test:assertEquals(outputs[8], false);
 
-    var j9 = json.create(outputs[9]);
+    var j9 = json.convert(outputs[9]);
     if (j9 is json) {
         test:assertEquals(j9.args.test, "123");
     }
@@ -36,7 +36,7 @@ function testFunc() {
     test:assertEquals(outputs[10], true);
     test:assertEquals(outputs[11], 400);
 
-    var j12 = json.create(outputs[12]);
+    var j12 = json.convert(outputs[12]);
     if (j12 is json) {
         test:assertEquals(j12.first_field, 100);
         test:assertEquals(j12.second_field, 27);
@@ -46,6 +46,6 @@ function testFunc() {
 
     test:assertEquals(outputs[13], "first field of record --> 100");
     test:assertEquals(outputs[14], "second field of record --> 27");
-    test:assertEquals(outputs[15], "third field of record --> Hello Bert!!");
+    test:assertEquals(outputs[15], "third field of record --> Hello Moose!!");
 
 }

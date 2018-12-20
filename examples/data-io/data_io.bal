@@ -31,7 +31,7 @@ function deserialize(io:ReadableByteChannel byteChannel) returns Person {
     var int32Result = dc.readInt32();
     if (int32Result is int) {
         nameLength = int32Result;
-    } else if (int32Result is error) {
+    } else {
         log:printError("Error occurred while reading name length",
                         err = int32Result);
     }
@@ -39,14 +39,14 @@ function deserialize(io:ReadableByteChannel byteChannel) returns Person {
     var strResult = dc.readString(nameLength, "UTF-8");
     if (strResult is string) {
         person.name = strResult;
-    } else if (strResult is error) {
+    } else {
         log:printError("Error occurred while reading name", err = strResult);
     }
     //Read 16 bit signed integer
     var int16Result = dc.readInt16();
     if (int16Result is int) {
         person.age = int16Result;
-    } else if (int16Result is error) {
+    } else {
         log:printError("Error occurred while reading age",
                         err = int16Result);
     }
@@ -54,7 +54,7 @@ function deserialize(io:ReadableByteChannel byteChannel) returns Person {
     var float64Result = dc.readFloat64();
     if (float64Result is float) {
         person.income = float64Result;
-    } else if (float64Result is error) {
+    } else {
         log:printError("Error occurred while reading income",
                         err = float64Result);
     }
@@ -62,7 +62,7 @@ function deserialize(io:ReadableByteChannel byteChannel) returns Person {
     var boolResult = dc.readBool();
     if (boolResult is boolean) {
         person.isMarried = boolResult;
-    } else if (boolResult is error) {
+    } else {
         log:printError("Error occurred while reading marital status",
                         err = boolResult);
     }
