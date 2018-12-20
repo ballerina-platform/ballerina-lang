@@ -239,7 +239,7 @@ public class WorkerTest {
     public void workerTestWithLambda() {
         BValue[] returns = BRunUtil.invoke(result, "workerTestWithLambda");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 88);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 18);
     }
 
     private void sameStrandMultipleInvocationTest() {
@@ -253,5 +253,12 @@ public class WorkerTest {
         } finally {
             System.setOut(defaultOut);
         }
+    }
+
+    @Test
+    public void waitOnSameFutureByMultiple() {
+        BValue[] returns = BRunUtil.invoke(result, "waitOnSameFutureByMultiple");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 88);
     }
 }
