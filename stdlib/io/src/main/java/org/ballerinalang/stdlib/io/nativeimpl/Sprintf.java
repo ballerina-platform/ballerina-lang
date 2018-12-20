@@ -102,22 +102,18 @@ public class Sprintf extends BlockingNativeCallableUnit {
                         case 'd':
                         case 'f':
                             if (ref == null) {
-                                throw BLangExceptionHelper.getRuntimeException(
-                                        RuntimeErrors.ILLEGAL_FORMAT_CONVERSION,
+                                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.ILLEGAL_FORMAT_CONVERSION,
                                         format.charAt(j) + " != ()");
-                            } else {
-                                result.append(String.format("%" + padding + formatSpecifier, ref.value()));
                             }
+                            result.append(String.format("%" + padding + formatSpecifier, ref.value()));
                             break;
                         case 'x':
                         case 'X':
                             if (ref == null) {
-                                throw BLangExceptionHelper.getRuntimeException(
-                                        RuntimeErrors.ILLEGAL_FORMAT_CONVERSION,
+                                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.ILLEGAL_FORMAT_CONVERSION,
                                         format.charAt(j) + " != ()");
-                            } else {
-                                formatHexString(args, result, k, padding, formatSpecifier);
                             }
+                            formatHexString(args, result, k, padding, formatSpecifier);
                             break;
                         case 's':
                             if (ref != null) {
