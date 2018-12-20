@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.streaming;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -34,12 +35,14 @@ import org.testng.annotations.Test;
  * @since 0.981.2
  */
 public class BallerinaStreamsV2TimeWindowTest {
-    private CompileResult result1, result2;
+    private CompileResult result1, result2, resultNegative;
 
     @BeforeClass
     public void setup() {
         result1 = BCompileUtil.compile("test-src/streaming/streamingv2-time-window-test.bal");
         result2 = BCompileUtil.compile("test-src/streaming/streamingv2-time-window-test2.bal");
+        resultNegative =
+                BCompileUtil.compile("test-src/streaming/negative/streamingv2-window-negative-test.bal");
     }
 
     @Test(description = "Test Time window query")
@@ -71,5 +74,16 @@ public class BallerinaStreamsV2TimeWindowTest {
 
         Assert.assertEquals(employee1.get("name").stringValue(), "Naveen");
         Assert.assertEquals(((BInteger) employee1.get("count")).intValue(), 2);
+    }
+
+    @Test(description = "Checks whether the window function exists or not")
+    public void testForWindowFunction() {
+        Assert.assertEquals(resultNegative.getErrorCount(), 2);
+        BAssertUtil.validateError(resultNegative, 0,
+                "invalid streaming 'Window' type 'undefinedWindow' found",
+                62, 47);
+        BAssertUtil.validateError(resultNegative, 1,
+                "undefined function 'undefinedWindow'",
+                62, 47);
     }
 }

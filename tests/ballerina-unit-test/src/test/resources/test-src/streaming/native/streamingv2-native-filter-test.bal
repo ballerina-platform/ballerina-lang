@@ -84,10 +84,10 @@ function foo() {
     };
 
     streams:OutputProcess outputProcess = streams:createOutputProcess(outputFunc);
-
-    streams:SimpleSelect simpleSelect = streams:createSimpleSelect(
-                                            function (streams:StreamEvent[] e) {outputProcess.process(e);},
-                                            function (streams:StreamEvent e) returns map<anydata> {
+    streams:Select select = streams:createSelect(
+                function (streams:StreamEvent[] e) {outputProcess.process(e);},
+                [], (),
+                function (streams:StreamEvent e, streams:Aggregator[] aggregatorArr1) returns map<anydata> {
                                                 // got rid of type casting
                                                 return {
                                                     "name": e.data["inputStream.name"],
@@ -96,7 +96,7 @@ function foo() {
                                             }
     );
 
-    streams:Filter filter = streams:createFilter(function (streams:StreamEvent[] e) {simpleSelect.process(e);},
+    streams:Filter filter = streams:createFilter(function (streams:StreamEvent[] e) {select.process(e);},
         function (map<anydata> m) returns boolean {
             // simplify filter
             return <int>m["inputStream.age"] > 25;

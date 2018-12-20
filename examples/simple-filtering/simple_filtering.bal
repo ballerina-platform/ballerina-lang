@@ -20,15 +20,15 @@ type Child record {
 
 int index = 0;
 
-// Streams which are based on above-created constraint types.
+// Streams that are based on the constraint types created above.
 stream<Person> personStream = new;
 stream<Child> childrenStream = new;
 
 Child[] globalChildrenArray = [];
 
 function initFilterQuery() {
-    // Streaming query which filter events based on the attribute age.
-    // Filterted events are pushed to a stream called `childrenStream`.
+    // Streaming query that filters events based on the attribute age.
+    // Filtered events are pushed to a stream called `childrenStream`.
     forever {
         from personStream where personStream.age <= 16
         select personStream.name, personStream.age,
@@ -43,7 +43,7 @@ function initFilterQuery() {
 
 public function main() {
 
-    // Sample events that represent the different person.
+    // Sample events that represent a different person.
     Person[] personArray = [];
     Person t1 = { name: "Raja", age: 12, status: "single",
                     address: "Mountain View", phoneNo: "+19877386134" };

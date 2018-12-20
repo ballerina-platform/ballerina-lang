@@ -108,34 +108,38 @@ public class TableIterator implements DataIterator {
     @Override
     public String getString(int columnIndex) {
         try {
-            return rs.getString(columnIndex);
+            String val = rs.getString(columnIndex);
+            return rs.wasNull() ? null : val;
         } catch (SQLException e) {
             throw new BallerinaException(e.getMessage(), e);
         }
     }
 
     @Override
-    public long getInt(int columnIndex) {
+    public Long getInt(int columnIndex) {
         try {
-            return rs.getLong(columnIndex);
+            long val = rs.getLong(columnIndex);
+            return rs.wasNull() ? null : val;
         } catch (SQLException e) {
             throw new BallerinaException(e.getMessage(), e);
         }
     }
 
     @Override
-    public double getFloat(int columnIndex) {
+    public Double getFloat(int columnIndex) {
         try {
-            return rs.getDouble(columnIndex);
+            double val = rs.getDouble(columnIndex);
+            return rs.wasNull() ? null : val;
         } catch (SQLException e) {
             throw new BallerinaException(e.getMessage(), e);
         }
     }
 
     @Override
-    public boolean getBoolean(int columnIndex) {
+    public Boolean getBoolean(int columnIndex) {
         try {
-            return rs.getBoolean(columnIndex);
+            boolean val = rs.getBoolean(columnIndex);
+            return rs.wasNull() ? null : val;
         } catch (SQLException e) {
             throw new BallerinaException(e.getMessage(), e);
         }
@@ -145,8 +149,7 @@ public class TableIterator implements DataIterator {
     public String getBlob(int columnIndex) {
         try {
             Blob bValue = rs.getBlob(columnIndex);
-            byte[] bdata = bValue.getBytes(1, (int) bValue.length());
-            return new String(bdata);
+            return rs.wasNull() ? null : new String(bValue.getBytes(1, (int) bValue.length()));
         } catch (SQLException e) {
             throw new BallerinaException(e.getMessage(), e);
         }
@@ -157,7 +160,7 @@ public class TableIterator implements DataIterator {
         Object[] objArray = null;
         try {
             Struct data = (Struct) rs.getObject(columnIndex);
-            if (data != null) {
+            if (!rs.wasNull() && data != null) {
                 objArray = data.getAttributes();
             }
         } catch (SQLException e) {

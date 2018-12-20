@@ -94,7 +94,7 @@ public class FilterUtils {
             Map<Name, Scope.ScopeEntry> entries = new HashMap<>();
             PackageID pkgId = getPackageIDForBType(bType);
             String packageIDString = pkgId == null ? "" : pkgId.getName().getValue();
-            BType modifiedBType = bType instanceof BUnionType ? getBTypeForUnionType((BUnionType) bType) : bType;
+            BType modifiedBType = getModifiedBType(bType);
 
             // Extract the package symbol. This is used to extract the entries of the particular package
             SymbolInfo packageSymbolInfo = symbolInfos.stream().filter(item -> {
@@ -278,5 +278,9 @@ public class FilterUtils {
         });
 
         return actionFunctionList;
+    }
+    
+    private static BType getModifiedBType(BType bType) {
+        return bType instanceof BUnionType ? getBTypeForUnionType((BUnionType) bType) : bType.tsymbol.type;
     }
 }
