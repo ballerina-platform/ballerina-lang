@@ -3817,6 +3817,10 @@ public class Desugar extends BLangNodeVisitor {
             BLangExpression expression) {
 
         BLangBinaryExpr binaryExpr;
+        if (NodeKind.BRACED_TUPLE_EXPR == expression.getKind() && ((BLangBracedOrTupleExpr) expression).isBracedExpr) {
+            return createBinaryExpression(pos, varRef, ((BLangBracedOrTupleExpr) expression).expressions.get(0));
+        }
+
         if (NodeKind.BINARY_EXPR == expression.getKind()) {
             binaryExpr = (BLangBinaryExpr) expression;
             BLangExpression lhsExpr = createBinaryExpression(pos, varRef, binaryExpr.lhsExpr);

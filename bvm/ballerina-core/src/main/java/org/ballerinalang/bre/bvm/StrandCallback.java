@@ -58,6 +58,7 @@ public abstract class StrandCallback {
         this.status = CallbackStatus.NOT_RETURNED;
         this.wdChannels = new WDChannels();
         this.sendIns = sendIns;
+        BVMScheduler.strandCountUp();
     }
 
     /**
@@ -76,6 +77,7 @@ public abstract class StrandCallback {
         }
         // Stop observation
         ObserveUtils.stopObservation(observerContext);
+        BVMScheduler.strandCountDown();
     }
 
     private void handleChannelPanic() {

@@ -14,16 +14,16 @@ http:ServiceEndpointConfiguration helloWorldEPConfig = {
             path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
             password: "ballerina"
         },
-        // Configure preferred SSL protocol and versions to enable.
+         // Configure the preferred SSL protocol and the versions to enable.
         protocol: {
             name: "TLS",
             versions: ["TLSv1.2", "TLSv1.1"]
         },
 
-        // Configure preferred ciphers.
+         // Configure thepreferred ciphers.
         ciphers: ["TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"],
 
-        // Enable mutual SSL.
+         // Enable mutual SSL.
         sslVerifyClient: "require"
 
     }

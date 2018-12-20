@@ -52,7 +52,7 @@ public type Client client object {
     # Writes given data to the client socket.
     #
     # + content - - the content that wish to send to the client socket
-    # + return - - number of byte got written or an error if encounters an error while writing
+    # + return - - number of bytes got written or an error if encounters an error while writing
     public remote extern function write(byte[] content) returns int|error;
 
     # Closes the client socket connection.
