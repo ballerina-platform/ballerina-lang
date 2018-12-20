@@ -332,6 +332,7 @@ public enum DiagnosticCode {
     UNDEFINED_STREAM_ATTRIBUTE("undefined.stream.attribute"),
     UNDEFINED_OUTPUT_STREAM_ATTRIBUTE("undefined.output.stream.attribute"),
     UNDEFINED_SELECT_EXPR_ALIAS("alias.not.defined"),
+    SELECT_EXPR_ALIAS_NOT_FOUND("alias.not.found"),
     OUTPUT_FIELD_VISIBLE_IN_HAVING_ORDER_BY("output.fields.allowed.in.having.and.orderby.only"),
     STREAM_ATTR_NOT_ALLOWED_IN_HAVING_ORDER_BY("stream.attributes.not.allowed.in.having.and.orderby"),
     INCOMPATIBLE_FIELDS_IN_SELECT_CLAUSE("incompatible.fields.in.select.clause"),
