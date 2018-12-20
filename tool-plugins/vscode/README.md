@@ -46,6 +46,10 @@ To view the sequence diagram of a ballerina file press the diagram icon ( ![desi
 
 ![opening api designer](https://raw.githubusercontent.com/ballerina-platform/ballerina-lang/2fd0bdd4e7d081adf23901ed65eca32623d81889/tool-plugins/vscode/docs/api-designer.gif)
 
+### Network Logs
+
+![using network logs](https://raw.githubusercontent.com/ballerina-platform/ballerina-lang/4e20df2957c1b9fa85c8c85f79fc23edb54f96f0/tool-plugins/vscode/docs/network-logs.gif)
+
 ## Compatibility
 
 Ballerina Language Specification supports a set of experimental features such as *_transactions_* syntax. In order to be compatible with the experimental features and for supporting language intelligence in VSCode Plugin, enable the `Allow Experimental` option in user settings. 
