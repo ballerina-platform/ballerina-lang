@@ -93,14 +93,14 @@ service mockHelloService on new http:Listener(8080) {
             var responseToCaller = caller->respond("Hello World!!!");
             if (responseToCaller is error) {
                 log:printError("Error sending response from mock service",
-                    err = responseToCaller);
+                        err = responseToCaller);
             }
         } else {
             log:printInfo("Request received from the client to healthy service.");
             var responseToCaller = caller->respond("Hello World!!!");
             if (responseToCaller is error) {
                 log:printError("Error sending response from mock service",
-                    err = responseToCaller);
+                        err = responseToCaller);
             }
         }
     }
