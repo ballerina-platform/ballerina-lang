@@ -35,7 +35,7 @@ public type TableJoinProcessor object {
 
     public function process(StreamEvent[] streamEvents) {
         StreamEvent?[] joinedEvents = [];
-        StreamEvent[] outputEvents;
+        StreamEvent[] outputEvents = [];
         lock {
             self.lockField += 1;
             int j = 0;

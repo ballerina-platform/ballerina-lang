@@ -39,7 +39,7 @@ public type StreamJoinProcessor object {
 
     public function process(StreamEvent[] streamEvents) {
         StreamEvent?[] joinedEvents = [];
-        StreamEvent[] outputEvents;
+        StreamEvent[] outputEvents = [];
         lock {
             self.lockField += 1;
             int i = 0;
