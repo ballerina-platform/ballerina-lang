@@ -173,6 +173,13 @@ public class TypeAssertionExpressionsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeAssertionError \\{\"message\":\"assertion " +
+                    "error: expected 'stream<float\\|json>', found 'stream<int\\|float>'\"\\}.*")
+    public void testOutOfOrderUnionConstraintAssertionNegative() {
+        BRunUtil.invoke(result, "testOutOfOrderUnionConstraintAssertionNegative");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*assertion error: expected 'int', found 'string'.*")
     public void testStringAsInvalidBasicType() {
         BRunUtil.invoke(result, "testStringAsInvalidBasicType");
@@ -228,7 +235,8 @@ public class TypeAssertionExpressionsTest {
                 {"testStreamAssertionPositive"},
                 {"testTypedescAssertionPositive"},
                 {"testMapElementAssertionPositive"},
-                {"testListElementAssertionPositive"}
+                {"testListElementAssertionPositive"},
+                {"testOutOfOrderUnionConstraintAssertionPositive"}
         };
     }
 }
