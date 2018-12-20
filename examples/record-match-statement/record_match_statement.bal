@@ -39,15 +39,15 @@ public function main() {
 function basicMatch(any a) {
     match a {
         // This pattern checks for a mapping value with three fields `var1`, `var2` and `var3` and types will
-        // be any in the pattern block.
+        // be `any` in the pattern block.
         var {var1, var2, var3} => io:println("Matched with three vars : "
                     + io:sprintf("%s", var1) + ", "
                     + io:sprintf("%s", var2) + ", " + io:sprintf("%s", var3));
-        // This pattern checks for a mapping value with three fields `var1`, `var2` and types will be any in
+        // This pattern checks for a mapping value with two fields `var1`, `var2` and types will be `any` in
         // the pattern block.
         var {var1, var2} => io:println("Matched with two vars : "
                     + io:sprintf("%s", var1) + ", " + io:sprintf("%s", var2));
-        // This pattern checks for a mapping value with three fields `var1` and type will be any in the pattern block.
+        // This pattern checks for a mapping value with single field `var1` and type will be `any` in the pattern block.
         var {var1} => io:println("Matched with single var : "
                     + io:sprintf("%s", var1));
     }

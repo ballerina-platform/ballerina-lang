@@ -13,8 +13,8 @@ public function main() {
     io:println("\nIterating over a map :");
     map<string> words = { a: "apple", b: "banana", c: "cherry" };
 
-    // Iterating over a map will return the key (`string`) and the value as a `tuple` variable. Use tuple destructuring
-    // to split the tuple variable in to two variables.
+    // Iterating over a `map` will return the key (`string`) and the value as a `tuple` variable.
+    // We can use tuple destructuring to split the tuple variable in to two variables.
     foreach var (k, v) in words {
         io:println("letter: " + k + ", word: " + v);
     }
