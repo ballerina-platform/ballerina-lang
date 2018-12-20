@@ -615,6 +615,8 @@ public class PackageInfoWriter {
         dataOutStream.writeInt(localVariableInfo.scopeStartLineNumber);
         dataOutStream.writeInt(localVariableInfo.scopeEndLineNumber);
 
+        dataOutStream.writeBoolean(localVariableInfo.isIdentifierLiteral);
+
         int[] attachmentsIndexes = localVariableInfo.attachmentIndexes;
         dataOutStream.writeShort(attachmentsIndexes.length);
         for (int attachmentIndex : attachmentsIndexes) {

@@ -544,6 +544,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             LocalVariableInfo localVarInfo = getLocalVarAttributeInfo(varSymbol);
             setVariableScopeStart(localVarInfo, varNode);
             setVariableScopeEnd(localVarInfo, varNode);
+            localVarInfo.isIdentifierLiteral = varNode.name.isLiteral;
             localVarAttrInfo.localVars.add(localVarInfo);
         } else {
             // TODO Support other variable nodes

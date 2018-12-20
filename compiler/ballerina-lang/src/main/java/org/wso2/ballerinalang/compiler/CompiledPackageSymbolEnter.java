@@ -949,6 +949,8 @@ public class CompiledPackageSymbolEnter {
         dataInStream.readInt();
         dataInStream.readInt();
         dataInStream.readInt();
+        // Read and ignore identifier kind flag
+        dataInStream.readBoolean();
 
         int attchmntIndexesLength = dataInStream.readShort();
         for (int i = 0; i < attchmntIndexesLength; i++) {

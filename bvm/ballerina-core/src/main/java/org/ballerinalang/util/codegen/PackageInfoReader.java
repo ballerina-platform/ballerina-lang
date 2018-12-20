@@ -1075,11 +1075,13 @@ public class PackageInfoReader {
         int scopeStartLineNumber = dataInStream.readInt();
         int scopeEndLineNumber = dataInStream.readInt();
 
+        boolean isIdentifierLiteral = dataInStream.readBoolean();
+
         UTF8CPEntry typeSigCPEntry = (UTF8CPEntry) constantPool.getCPEntry(typeSigCPIndex);
 
         BType type = getBTypeFromDescriptor(packageInfo, typeSigCPEntry.getValue());
         LocalVariableInfo localVariableInfo = new LocalVariableInfo(varNameCPEntry.getValue(), varNameCPIndex,
-                variableIndex, typeSigCPIndex, type, scopeStartLineNumber, scopeEndLineNumber);
+                variableIndex, typeSigCPIndex, type, scopeStartLineNumber, scopeEndLineNumber, isIdentifierLiteral);
         int attchmntIndexesLength = dataInStream.readShort();
         int[] attachmentIndexes = new int[attchmntIndexesLength];
         for (int i = 0; i < attchmntIndexesLength; i++) {
