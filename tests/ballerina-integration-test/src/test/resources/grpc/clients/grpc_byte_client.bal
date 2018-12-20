@@ -17,6 +17,11 @@
 import ballerina/io;
 import ballerina/grpc;
 
+public function main() {
+    string response = testByteArray();
+    io:println(response);
+}
+
 function testByteArray() returns (string) {
     byteServiceBlockingClient blockingEp  = new ("http://localhost:8557");
     string statement = "Lion in Town.";
@@ -29,6 +34,30 @@ function testByteArray() returns (string) {
         grpc:Headers resHeaders = new;
         (result, resHeaders) = addResponse;
         return "byte array works";
+    }
+}
+
+function testLargeByteArray(string filePath) returns (string) {
+    byteServiceBlockingClient blockingEp  = new ("http://localhost:8557");
+    io:ReadableByteChannel rch = untaint io:openReadableFile(filePath);
+    var resultBytes = rch.read(10000);
+    byte[] bytes = [];
+    if (resultBytes is (byte[], int)) {
+        (bytes, _) = resultBytes;
+    } else {
+        return io:sprintf("File read error: %s - %s", resultBytes.reason(), <string>resultBytes.detail().message);
+    }
+    var addResponse = blockingEp->checkBytes(bytes);
+    if (addResponse is error) {
+        return io:sprintf("Error from Connector: %s - %s", addResponse.reason(), <string>addResponse.detail().message);
+    } else {
+        byte[] result = [];
+        (result, _) = addResponse;
+        if(result == bytes) {
+            return "30KB file content transmitted successfully";
+        } else {
+            return "Error while transmitting file content";
+        }
     }
 }
 
