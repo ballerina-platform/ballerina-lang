@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
@@ -210,7 +211,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     private static final CompilerContext.Key<DataflowAnalyzer> DATAFLOW_ANALYZER_KEY = new CompilerContext.Key<>();
     private int globalVarRefCounter;
-    private boolean analyzingGlobalVariableDefinition = false; // flag set when analyzing variable definitions.
 
     private DataflowAnalyzer(CompilerContext context) {
         context.put(DATAFLOW_ANALYZER_KEY, this);
@@ -256,9 +256,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             }
         });
         mapTopLevelNodeToSymbol(pkgNode.globalVars);
-        this.analyzingGlobalVariableDefinition = true;
         sortedListOfNodes.forEach(topLevelNode -> analyzeNode((BLangNode) topLevelNode, env));
-        this.analyzingGlobalVariableDefinition = false;
         analyzeTopLevelNodeReferencePatterns(pkgNode, this.globalVarSymbolRefPositions, dlog);
         pkgNode.completedPhases.add(CompilerPhase.DATAFLOW_ANALYZE);
     }
@@ -293,14 +291,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
-        // Global variable references from functions, always comes after all global variables are defined.
-        boolean prevGlobalVarAnalyzisState = this.analyzingGlobalVariableDefinition;
-        this.analyzingGlobalVariableDefinition = false;
-
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
         analyzeBranch(funcNode.body, funcEnv);
-
-        this.analyzingGlobalVariableDefinition = prevGlobalVarAnalyzisState;
     }
 
     @Override
@@ -1128,7 +1120,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private void observeGlobalVariableReference(BSymbol symbol, DiagnosticPos pos) {
-        if (this.analyzingGlobalVariableDefinition && globalVarSymbolRefPositions.containsKey(symbol)) {
+        boolean isInPkgLevel = this.env.scope.owner.getKind() == SymbolKind.PACKAGE;
+        if (isInPkgLevel && globalVarSymbolRefPositions.containsKey(symbol)) {
             // Add the sequence number we saw this symbol.
             globalVarSymbolRefPositions.get(symbol).add(RefPosition.newRef(++globalVarRefCounter, pos));
         }
