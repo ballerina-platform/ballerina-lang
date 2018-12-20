@@ -12,7 +12,6 @@ public function main() {
 
     //The binding patterns are recursive in nature. Following examples shows how we can write complex recursive
     //variable definitions.
-
     ((string, int), float) ((b1, b2), b3) = (("Ballerina", 4), 6.7);
     io:println("Tuple variable : ", b1, b2, b3);
 
@@ -37,6 +36,7 @@ public function main() {
     io:println("Tuple variable : ", f1, f2, f3, f4, f5, f6);
 
     //Tuple variable definitions can also take union types as below.
-    (string|int|float, (string|float, int)) (g1, (g2, g3)) = ("Ballerina", (3.4, 456));
+    (string|int|float, (string|float, int)) (g1, (g2, g3)) =
+                                                    ("Ballerina", (3.4, 456));
     io:println("Tuple variable : ", g1, g2, g3);
 }
