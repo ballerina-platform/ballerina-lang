@@ -70,6 +70,13 @@ public class ArrayInitializerExprTest {
         Assert.assertEquals(arrayValue.getString(1), "Cat");
         Assert.assertEquals(arrayValue.getString(5), "Croc");
     }
+
+    @Test(description = "Test array of finite type and nil")
+    public void finiteTypeArray() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "finiteTypeArray");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].toString(), "Terminating");
+    }
     
 //    @Test(description = "Test arrays initializing with different types",
 //            expectedExceptions = {SemanticException.class },

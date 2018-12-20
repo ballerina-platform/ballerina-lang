@@ -18,10 +18,13 @@
 
 package org.wso2.ballerinalang.compiler.desugar;
 
+import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -39,6 +42,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 
 import java.util.List;
 import java.util.Map;
@@ -56,16 +60,19 @@ public class StreamsPreSelectDesuagr extends BLangNodeVisitor {
             new CompilerContext.Key<>();
     private final SymbolTable symTable;
     private final Desugar desugar;
+    private final BLangDiagnosticLog dlog;
 
     private BSymbol[] mapVarSymbols;
     private BLangNode result;
     private Map<String, String> aliasMap;
     private BLangVariableReference rhsStream;
+    private BRecordType outputType;
 
     private StreamsPreSelectDesuagr(CompilerContext context) {
         context.put(STREAMING_DESUGAR_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
         this.desugar = Desugar.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
     }
 
     public static StreamsPreSelectDesuagr getInstance(CompilerContext context) {
@@ -78,7 +85,7 @@ public class StreamsPreSelectDesuagr extends BLangNodeVisitor {
     }
 
     public BLangNode rewrite(BLangNode node, BSymbol[] mapVarSymbol, Map<String, String> aliasMap,
-                             BLangVariableReference rhsStream) {
+                             BLangVariableReference rhsStream, BType outputType) {
         if (node == null) {
             return null;
         }
@@ -86,6 +93,7 @@ public class StreamsPreSelectDesuagr extends BLangNodeVisitor {
         this.mapVarSymbols = mapVarSymbol;
         this.aliasMap = aliasMap;
         this.rhsStream = rhsStream;
+        this.outputType = (BRecordType) outputType;
         node.accept(this);
         BLangNode resultNode = this.result;
 
@@ -93,12 +101,9 @@ public class StreamsPreSelectDesuagr extends BLangNodeVisitor {
         this.aliasMap = null;
         this.rhsStream = null;
         this.mapVarSymbols = null;
+        this.outputType = null;
 
         return resultNode;
-    }
-
-    public BLangNode rewrite(BLangNode node, BSymbol[] mapVarSymbols) {
-        return rewrite(node, mapVarSymbols, aliasMap, rhsStream);
     }
 
     private BLangNode rewrite(BLangNode node) {
@@ -199,6 +204,11 @@ public class StreamsPreSelectDesuagr extends BLangNodeVisitor {
     @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
         result = varRefExpr;
+        outputType.fields.forEach(bField -> {
+            if (bField.name.value.equals(varRefExpr.variableName.value)) {
+                dlog.error(varRefExpr.pos, DiagnosticCode.OUTPUT_FIELD_VISIBLE_IN_HAVING_ORDER_BY, varRefExpr);
+            }
+        });
     }
 
     @Override

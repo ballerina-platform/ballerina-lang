@@ -26,25 +26,28 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * This class tests if the attribute selected in the projection is invalid, a proper error is thrown.
+ * This contains methods to test if the proper error is thrown if a undefined output attributes is used in select
+ * clause.
  *
- * @since 0.990.0
+ * @since 0.990.1
  */
-public class InvalidSelectAttributeTest {
+public class UndefinedOutputAttrTest {
 
     private CompileResult result;
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/streaming/negative/invalid-attribute-select-test.bal");
+        result = BCompileUtil.compile("test-src/streaming/negative/undefined-output-attr.bal");
     }
 
-    @Test(description = "Test if the proper error is thrown if an attribute is invalid in projection ")
-    public void testInvalidAttributeInSelectClause() {
+    @Test
+    public void testOutputputFieldInSelect() {
         Assert.assertEquals(result.getErrorCount(), 2);
-        BAssertUtil.validateError(result, 0, "undefined stream attribute 'batches' found in select clause", 36, 53);
-        BAssertUtil.validateError(result, 1, "fields defined in select clause, incompatible " +
-                "with output fields in type 'Teacher', expected '[name, age, status, batch, school]' but found " +
-                "'[batches, school, name, age, status]'", 37, 9);
+        BAssertUtil.validateError(result, 0, "undefined stream attribute 'unknownField' found in select clause", 64,
+                                  56);
+        BAssertUtil.validateError(result, 1, "fields defined in select clause, incompatible with output fields " +
+                "in type 'Teacher', expected '[name, age, status, batch, school]' but found '[school, batch, " +
+                                             "unknownOutputField, age, status]'", 66, 9);
+
     }
 }
