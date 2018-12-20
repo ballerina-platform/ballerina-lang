@@ -35,7 +35,7 @@ public function main() {
         io:println("Element type of the array is 'json'");
     }
 
-    // Stamp a `Teacher` record as an `Employee`.
+    // Stamp a `Teacher` record as an `Employee` record.
     // This would not return an `error` since all fields match.
     Teacher t1 = { name: "Raja", age: 25, status: "single",
                             batch: "LK2014", school: "Hindu College" };

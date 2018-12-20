@@ -44,8 +44,8 @@ public function main() {
     // If the type of the value being cloned can be determined at compile time and is `anydata`, the type of the
     // return value is exactly the type of the value being cloned.
     // e.g. `Person result = person.clone();`
-    // If 'person' is cloned instead of 'anyValue', it would be known at compile time that the return type should be
-    // 'Person'.
+    // If `person` is cloned instead of `anyValue`, it would be known at compile time that the return type should be
+    // `Person`.
     var result = anyValue.clone();
 
     // The type of the value held by an `any` typed variable is only determined at run time.
