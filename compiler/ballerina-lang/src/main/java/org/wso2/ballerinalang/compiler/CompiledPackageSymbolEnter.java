@@ -718,6 +718,9 @@ public class CompiledPackageSymbolEnter {
         int flags = dataInStream.readInt();
         int memIndex = dataInStream.readInt();
 
+        // Read and ignore identifier kind flag
+        dataInStream.readBoolean();
+
         Map<Kind, byte[]> attrDataMap = readAttributes(dataInStream);
 
         // Create variable symbol

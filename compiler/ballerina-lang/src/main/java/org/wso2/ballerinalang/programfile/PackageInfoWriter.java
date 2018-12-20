@@ -247,6 +247,7 @@ public class PackageInfoWriter {
             dataOutStream.writeInt(packageVarInfo.signatureCPIndex);
             dataOutStream.writeInt(packageVarInfo.flags);
             dataOutStream.writeInt(packageVarInfo.globalMemIndex);
+            dataOutStream.writeBoolean(packageVarInfo.isIdentifierLiteral);
 
             writeAttributeInfoEntries(dataOutStream, packageVarInfo.getAttributeInfoEntries());
         }

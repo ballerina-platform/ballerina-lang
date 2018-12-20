@@ -623,11 +623,15 @@ public class PackageInfoReader {
         // Read and ignore flags
         dataInStream.readInt();
 
+        // Read memory index
         int globalMemIndex = dataInStream.readInt();
+
+        // Read identifier kind flag
+        boolean isIdentifierLiteral = dataInStream.readBoolean();
 
         BType type = getBTypeFromDescriptor(packageInfo, sigUTF8CPEntry.getValue());
         PackageVarInfo packageVarInfo = new PackageVarInfo(nameCPIndex, nameUTF8CPEntry.getValue(),
-                sigCPIndex, globalMemIndex, type);
+                sigCPIndex, globalMemIndex, type, isIdentifierLiteral);
 
         // Read attributes
         readAttributeInfoEntries(packageInfo, constantPool, packageVarInfo);
