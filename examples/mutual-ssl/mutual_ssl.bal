@@ -78,7 +78,7 @@ public function main() {
     http:Client clientEP = new("https://localhost:9095",
                                 config = clientEPConfig);
 
-    // Send a get request to the listener.
+    // Send a GET request to the listener.
     var resp = clientEP->get("/hello");
 
     if (resp is http:Response) {
