@@ -62,7 +62,6 @@ public enum DiagnosticCode {
     INVALID_INTERFACE_ON_NON_ABSTRACT_OBJECT("invalid.interface.of.non.abstract.object"),
     CANNOT_ATTACH_FUNCTIONS_TO_ABSTRACT_OBJECT("cannot.attach.functions.to.abstract.object"),
     ABSTRACT_OBJECT_FUNCTION_CANNOT_HAVE_BODY("abstract.object.function.cannot.have.body"),
-    INVALID_INVOCATION_OF_INITIALIZER("invalid.invocation.of.initializer"),
     PRIVATE_OBJECT_CONSTRUCTOR("private.object.constructor"),
 
     INCOMPATIBLE_TYPES("incompatible.types"),

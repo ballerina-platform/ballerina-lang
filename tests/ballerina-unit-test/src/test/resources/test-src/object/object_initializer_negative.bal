@@ -7,11 +7,6 @@ type Foo object {
     function __init() {}
 };
 
-function testInitializerInvocation() {
-    Foo f = new();
-    _ = f.__init();
-}
-
 type Bar object {
    private function __init() {}
 };

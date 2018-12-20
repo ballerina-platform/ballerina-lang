@@ -75,12 +75,10 @@ public class ObjectInitializerTest {
     @Test(description = "Test negative object initializers scenarios")
     public void testObjectInitializerNegatives() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_initializer_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 3);
+        Assert.assertEquals(result.getErrorCount(), 2);
         BAssertUtil.validateError(result, 0, "redeclared symbol 'Foo.__init'", 7, 14);
         BAssertUtil.validateError(result, 1,
-                "object initializer function is not an invokable function", 12, 9);
-        BAssertUtil.validateError(result, 2,
-                "object initializer function can not be declared as private", 16, 4);
+                "object initializer function can not be declared as private", 11, 4);
 
     }
 }
