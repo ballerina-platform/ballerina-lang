@@ -103,8 +103,9 @@
         <codeInsight.parameterInfo language="Ballerina"
                                    implementationClass="io.ballerina.plugins.idea.editor.BallerinaParameterInfoHandler"/>
 
-        <!--<spellchecker.support language="Ballerina"-->
-        <!--implementationClass="org.ballerinalang.plugins.idea.spellchecker.BallerinaSpellcheckingStrategy"/>-->
+        <spellchecker.support language="Ballerina"
+                              implementationClass="io.ballerina.plugins.idea.spellchecker.BallerinaSpellcheckingStrategy"/>
+
         <!--<defaultTemplatePropertiesProvider-->
         <!--implementation="org.ballerinalang.plugins.idea.actions.BallerinaTemplatePropertiesProvider"/>-->
 
