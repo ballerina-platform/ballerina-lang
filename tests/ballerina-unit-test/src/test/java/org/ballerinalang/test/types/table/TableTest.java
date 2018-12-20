@@ -37,7 +37,6 @@ import org.ballerinalang.test.utils.SQLDBUtils;
 import org.ballerinalang.test.utils.SQLDBUtils.DBType;
 import org.ballerinalang.test.utils.SQLDBUtils.FileBasedTestDatabase;
 import org.ballerinalang.test.utils.SQLDBUtils.TestDatabase;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
@@ -535,9 +534,8 @@ public class TableTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
 
-    // TODO: Enable once ballerina-platform/ballerina-lang#9048 is fixed
     @Test(dependsOnGroups = TABLE_TEST,
-          description = "Check whether all sql connectors are closed properly.", enabled = false)
+          description = "Check whether all sql connectors are closed properly.")
     public void testCloseConnectionPool() {
         BValue connectionCountQuery = new BString("SELECT COUNT(*) FROM INFORMATION_SCHEMA.SESSIONS");
         BValue[] args = { connectionCountQuery };
@@ -1219,7 +1217,8 @@ public class TableTest {
         Assert.assertEquals(((BBoolean) booleanArray.getRefValue(2)).booleanValue(), true);
     }
 
-    @Test(description = "Check table to JSON conversion and streaming back to client in a service.")
+    @Test(description = "Check table to JSON conversion and streaming back to client in a service.",
+          dependsOnGroups = TABLE_TEST)
     public void testTableToJsonStreamingInService() {
         CompileResult service =
                 BServiceUtil.setupProgramFile(this, "test-src/types/table/table_to_json_service_test.bal");
@@ -1282,7 +1281,8 @@ public class TableTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
     }
 
-    @Test(description = "Check table to JSON conversion and streaming back to client in a service.")
+    @Test(description = "Check table to JSON conversion and streaming back to client in a service.",
+          dependsOnGroups = TABLE_TEST)
     public void testTableToJsonStreamingInService_2() {
         CompileResult service =
                 BServiceUtil.setupProgramFile(this, "test-src/types/table/table_to_json_service_test.bal");
@@ -1295,16 +1295,20 @@ public class TableTest {
         Assert.assertEquals(ResponseReader.getReturnValue(responseMsg), expected);
     }
 
-    @Test(expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*Table query over a cursor table not supported.*")
+    @Test
     public void testSelectQueryWithCursorTable() {
-        BRunUtil.invoke(result, "testSelectQueryWithCursorTable");
+        BValue[] retVal = BRunUtil.invoke(result, "testSelectQueryWithCursorTable");
+        Assert.assertTrue(retVal[0] instanceof BError);
+        Assert.assertTrue(((BError) retVal[0]).getDetails().stringValue()
+                .contains("Table query over a cursor table not supported"));
     }
 
-    @Test(expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*Table query over a cursor table not supported.*")
+    @Test
     public void testJoinQueryWithCursorTable() {
-        BRunUtil.invoke(result, "testJoinQueryWithCursorTable");
+        BValue[] retVal = BRunUtil.invoke(result, "testJoinQueryWithCursorTable");
+        Assert.assertTrue(retVal[0] instanceof BError);
+        Assert.assertTrue(((BError) retVal[0]).getDetails().stringValue()
+                .contains("Table query over a cursor table not supported"));
     }
 
     @Test(description = "Wrong order int test")
