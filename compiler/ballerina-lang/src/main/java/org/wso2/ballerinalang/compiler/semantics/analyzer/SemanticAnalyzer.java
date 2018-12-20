@@ -323,6 +323,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
+        if (objectTypeNode.initFunction.flagSet.contains(Flag.NATIVE)) {
+            this.dlog.error(objectTypeNode.initFunction.pos, DiagnosticCode.OBJECT_INIT_FUNCTION_CANNOT_BE_EXTERN,
+                            objectTypeNode.symbol.name);
+            return;
+        }
+
         analyzeDef(objectTypeNode.initFunction, env);
     }
 

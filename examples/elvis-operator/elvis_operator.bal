@@ -8,9 +8,9 @@ public function main() {
     // expression.
     string output = x is string ? "value is string: " + x : "value is nil";
 
-    io:println("The output from is check expression: ", output);
+    io:println("The output from is check expression: " + output);
 
-    // This shows how to achieve the same via the Elvis operator.
+    // This shows how to achieve the same via the `elvis` operator.
     string elvisOutput = x ?: "value is nil";
-    io:println("The output from elvis operator: ", elvisOutput);
+    io:println("The output from elvis operator: " + elvisOutput);
 }
