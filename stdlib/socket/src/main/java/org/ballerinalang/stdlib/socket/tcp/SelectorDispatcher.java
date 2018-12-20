@@ -91,7 +91,7 @@ public class SelectorDispatcher {
     static void invokeReadReady(SocketService socketService, ByteBuffer buffer) {
         try {
             final Resource readReady = socketService.getResources().get(RESOURCE_ON_READ_READY);
-            BValue[] params = getReadyReadyResourceSignature(socketService, buffer, readReady);
+            BValue[] params = getReadReadyResourceSignature(socketService, buffer, readReady);
             Executor.submit(readReady, new TCPSocketCallback(socketService), null, null, params);
         } catch (BallerinaConnectorException e) {
             invokeOnError(socketService, e.getMessage());
@@ -160,7 +160,7 @@ public class SelectorDispatcher {
         return new BValue[] { caller, error };
     }
 
-    private static BValue[] getReadyReadyResourceSignature(SocketService socketService, ByteBuffer buffer,
+    private static BValue[] getReadReadyResourceSignature(SocketService socketService, ByteBuffer buffer,
             Resource readReady) {
         ProgramFile programFile = readReady.getResourceInfo().getPackageInfo().getProgramFile();
         BMap<String, BValue> caller = SocketUtils.createClient(programFile, socketService);
