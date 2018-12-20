@@ -9,7 +9,7 @@ int count = 0;
     functionName: "println"
 }
 public function mockPrint(any... s) {
-    outputs[count] = s[0];
+    outputs[count] = string.convert(s[0]);
     count += 1;
 }
 
