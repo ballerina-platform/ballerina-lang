@@ -2,6 +2,6 @@
 // could be specified with the ballerina `run` command. If a function is not specified with the ballerina `run` command,
 // the `main` function is considered to be the entry point.
 // Entry point functions can be data-binding, and can have zero or more parameters of any supported type, including any
-// number of required/defaultable parameters and/or a single rest parameter.
-// To print the return value of an entry point function to the standard out stream, set the `--printreturn` option
+// number of required/defaultable parameters and/or a single rest parameter. They could also return a value.
+// To print the return value of such a function to the standard out stream, set the `--printreturn` option
 // with the `run` command.
