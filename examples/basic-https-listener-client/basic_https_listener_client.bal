@@ -27,6 +27,7 @@ service helloWorld on helloWorldEP {
     resource function sayHello(http:Caller caller, http:Request req) {
         // Send the response back to the caller.
         var result = caller->respond("Hello World!");
+
         if (result is error) {
            log:printError("Failed to respond", err = result);
         }
@@ -49,15 +50,19 @@ public function main() {
     // Create an HTTP client to interact with the created listener endpoint.
     http:Client clientEP = new("https://localhost:9095",
                                 config = clientEPConfig);
+
     // Sends an outbound request.
     var resp = clientEP->get("/hello/");
+
     if (resp is http:Response) {
         // If the request is successful, retrieve the text payload from the
         // response.
         var payload = resp.getTextPayload();
+
         if (payload is string) {
             // If an error occurs when getting the response, log the error.
             log:printInfo(payload);
+
         } else {
             log:printError(<string>payload.detail().message);
         }
