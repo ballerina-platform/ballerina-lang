@@ -250,6 +250,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             }
         });
         sortedListOfNodes.forEach(topLevelNode -> analyzeNode((BLangNode) topLevelNode, env));
+        pkgNode.getTestablePkgs().forEach(testablePackage -> visit((BLangPackage) testablePackage));
         pkgNode.completedPhases.add(CompilerPhase.DATAFLOW_ANALYZE);
     }
 
