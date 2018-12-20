@@ -1380,10 +1380,9 @@ public class TableTest {
         BValue[] retVal = BRunUtil.invoke(resultNegative, "testGreaterNoOfParams");
         Assert.assertEquals(retVal.length, 1);
         Assert.assertTrue(retVal[0] instanceof BError);
-        Assert.assertTrue(
-                Pattern.matches(".*Number of fields in the constraint type is greater than column count of the result set.*",
-                        retVal[0].stringValue())
-        );
+        Assert.assertTrue(Pattern.matches(
+                ".*Number of fields in the constraint type is greater than column count of the result set.*",
+                retVal[0].stringValue()));
     }
 
     @Test(description = "Lower number of parameters test")
@@ -1391,9 +1390,8 @@ public class TableTest {
         BValue[] retVal = BRunUtil.invoke(resultNegative, "testLowerNoOfParams");
         Assert.assertEquals(retVal.length, 1);
         Assert.assertTrue(retVal[0] instanceof BError);
-        Assert.assertTrue(
-                Pattern.matches(".*Number of fields in the constraint type is lower than column count of the result set.*",
-                        retVal[0].stringValue())
-        );
+        Assert.assertTrue(Pattern.matches(
+                ".*Number of fields in the constraint type is lower than column count of the result set.*",
+                retVal[0].stringValue()));
     }
 }
