@@ -23,7 +23,9 @@ import org.ballerinalang.bre.old.WorkerExecutionContext;
 import org.ballerinalang.bre.old.WorkerState;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BError;
+import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.exceptions.BLangNullReferenceException;
@@ -216,12 +218,21 @@ public class BVMScheduler {
                 if (strand.fp > 0) {
                     // Stop the observation context before popping the stack frame
                     ObserveUtils.stopCallableObservation(strand);
+                    // Maybe we can omit this since natives cannot have worker interactions
+                    if (BVM.checkIsType(this.nativeCtx.getReturnValue(), BTypes.typeError)) {
+                        strand.currentFrame.handleChannelError((BRefType) this.nativeCtx.getReturnValue(),
+                                strand.peekFrame(1).wdChannels);
+                    }
                     strand.popFrame();
                     StackFrame retFrame = strand.currentFrame;
                     BLangVMUtils.populateWorkerDataWithValues(retFrame, this.nativeCtx.getDataFrame().retReg,
                             this.nativeCtx.getReturnValue(), retType);
                     execute(strand);
                     return;
+                }
+                if (BVM.checkIsType(this.nativeCtx.getReturnValue(), BTypes.typeError)) {
+                    strand.currentFrame.handleChannelError((BRefType) this.nativeCtx.getReturnValue(),
+                            strand.respCallback.parentChannels);
                 }
                 strand.respCallback.signal();
                 return;
@@ -233,7 +244,13 @@ public class BVMScheduler {
             strand.setError(error);
             // Stop the observation context before popping the stack frame
             ObserveUtils.stopCallableObservation(strand);
-            strand.popFrame();
+            if (strand.fp > 0) {
+                strand.currentFrame.handleChannelPanic(error, strand.peekFrame(1).wdChannels);
+                strand.popFrame();
+            } else {
+                strand.currentFrame.handleChannelPanic(error, strand.respCallback.parentChannels);
+                strand.popFrame();
+            }
             BVM.handleError(strand);
             execute(strand);
         }
