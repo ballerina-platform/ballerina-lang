@@ -21,6 +21,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -36,7 +37,6 @@ import org.ballerinalang.test.utils.SQLDBUtils;
 import org.ballerinalang.test.utils.SQLDBUtils.DBType;
 import org.ballerinalang.test.utils.SQLDBUtils.FileBasedTestDatabase;
 import org.ballerinalang.test.utils.SQLDBUtils.TestDatabase;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
@@ -50,6 +50,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.regex.Pattern;
 
 /**
  * Class to test functionality of tables.
@@ -533,9 +534,8 @@ public class TableTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
 
-    // TODO: Enable once ballerina-platform/ballerina-lang#9048 is fixed
     @Test(dependsOnGroups = TABLE_TEST,
-          description = "Check whether all sql connectors are closed properly.", enabled = false)
+          description = "Check whether all sql connectors are closed properly.")
     public void testCloseConnectionPool() {
         BValue connectionCountQuery = new BString("SELECT COUNT(*) FROM INFORMATION_SCHEMA.SESSIONS");
         BValue[] args = { connectionCountQuery };
@@ -713,7 +713,7 @@ public class TableTest {
         BValue[] returns = BRunUtil.invoke(result, "tableGetNextInvalid");
         Assert.assertTrue((returns[0]).stringValue().contains("Trying to perform an operation over a closed table"));
     }
-    
+
     //Nillable mapping tests
     @Test(groups = TABLE_TEST,
           description = "Test mapping to nillable type fields")
@@ -1217,7 +1217,8 @@ public class TableTest {
         Assert.assertEquals(((BBoolean) booleanArray.getRefValue(2)).booleanValue(), true);
     }
 
-    @Test(description = "Check table to JSON conversion and streaming back to client in a service.")
+    @Test(description = "Check table to JSON conversion and streaming back to client in a service.",
+          dependsOnGroups = TABLE_TEST)
     public void testTableToJsonStreamingInService() {
         CompileResult service =
                 BServiceUtil.setupProgramFile(this, "test-src/types/table/table_to_json_service_test.bal");
@@ -1269,7 +1270,7 @@ public class TableTest {
                 "\"BOOLEAN_TYPE\":null, \"STRING_TYPE\":null}]}}";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
-    
+
     @Test(groups = TABLE_TEST, description = "Check table to JSON conversion.")
     public void testToJsonAndLengthof() {
         BValue[] returns = BRunUtil.invoke(result, "testToJsonAndLengthof");
@@ -1280,7 +1281,8 @@ public class TableTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
     }
 
-    @Test(description = "Check table to JSON conversion and streaming back to client in a service.")
+    @Test(description = "Check table to JSON conversion and streaming back to client in a service.",
+          dependsOnGroups = TABLE_TEST)
     public void testTableToJsonStreamingInService_2() {
         CompileResult service =
                 BServiceUtil.setupProgramFile(this, "test-src/types/table/table_to_json_service_test.bal");
@@ -1293,77 +1295,103 @@ public class TableTest {
         Assert.assertEquals(ResponseReader.getReturnValue(responseMsg), expected);
     }
 
-    @Test(expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*Table query over a cursor table not supported.*")
+    @Test
     public void testSelectQueryWithCursorTable() {
-        BRunUtil.invoke(result, "testSelectQueryWithCursorTable");
+        BValue[] retVal = BRunUtil.invoke(result, "testSelectQueryWithCursorTable");
+        Assert.assertTrue(retVal[0] instanceof BError);
+        Assert.assertTrue(((BError) retVal[0]).getDetails().stringValue()
+                .contains("Table query over a cursor table not supported"));
     }
 
-    @Test(expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*Table query over a cursor table not supported.*")
+    @Test
     public void testJoinQueryWithCursorTable() {
-        BRunUtil.invoke(result, "testJoinQueryWithCursorTable");
+        BValue[] retVal = BRunUtil.invoke(result, "testJoinQueryWithCursorTable");
+        Assert.assertTrue(retVal[0] instanceof BError);
+        Assert.assertTrue(((BError) retVal[0]).getDetails().stringValue()
+                .contains("Table query over a cursor table not supported"));
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*Trying to assign to a mismatching type.*")
+    @Test(description = "Wrong order int test")
     public void testWrongOrderInt() {
-        BRunUtil.invoke(resultNegative, "testWrongOrderInt");
+        BValue[] retVal = BRunUtil.invoke(resultNegative, "testWrongOrderInt");
+        Assert.assertEquals(retVal.length, 1);
+        Assert.assertTrue(retVal[0] instanceof BError);
+        Assert.assertTrue(Pattern.matches(".*Trying to assign to a mismatching type.*", retVal[0].stringValue()));
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*Trying to assign to a mismatching type.*")
+    @Test(description = "Wrong order string test")
     public void testWrongOrderString() {
-        BRunUtil.invoke(resultNegative, "testWrongOrderString");
+        BValue[] retVal = BRunUtil.invoke(resultNegative, "testWrongOrderString");
+        Assert.assertEquals(retVal.length, 1);
+        Assert.assertTrue(retVal[0] instanceof BError);
+        Assert.assertTrue(Pattern.matches(".*Trying to assign to a mismatching type.*", retVal[0].stringValue()));
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*Trying to assign to a mismatching type.*")
+    @Test(description = "Wrong order boolean test")
     public void testWrongOrderBoolean() {
-        BRunUtil.invoke(resultNegative, "testWrongOrderBoolean");
+        BValue[] retVal = BRunUtil.invoke(resultNegative, "testWrongOrderBoolean");
+        Assert.assertEquals(retVal.length, 1);
+        Assert.assertTrue(retVal[0] instanceof BError);
+        Assert.assertTrue(Pattern.matches(".*Trying to assign to a mismatching type.*", retVal[0].stringValue()));
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*Trying to assign to a mismatching type.*")
+    @Test(description = "Wrong order float test")
     public void testWrongOrderFloat() {
-        BRunUtil.invoke(resultNegative, "testWrongOrderFloat");
+        BValue[] retVal = BRunUtil.invoke(resultNegative, "testWrongOrderFloat");
+        Assert.assertEquals(retVal.length, 1);
+        Assert.assertTrue(retVal[0] instanceof BError);
+        Assert.assertTrue(Pattern.matches(".*Trying to assign to a mismatching type.*", retVal[0].stringValue()));
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*Trying to assign to a mismatching type.*")
+    @Test(description = "Wrong order double test")
     public void testWrongOrderDouble() {
-        BRunUtil.invoke(resultNegative, "testWrongOrderDouble");
+        BValue[] retVal = BRunUtil.invoke(resultNegative, "testWrongOrderDouble");
+        Assert.assertEquals(retVal.length, 1);
+        Assert.assertTrue(retVal[0] instanceof BError);
+        Assert.assertTrue(Pattern.matches(".*Trying to assign to a mismatching type.*", retVal[0].stringValue()));
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*Trying to assign to a mismatching type.*")
+    @Test(description = "Wrong order long test")
     public void testWrongOrderLong() {
-        BRunUtil.invoke(resultNegative, "testWrongOrderLong");
+        BValue[] retVal = BRunUtil.invoke(resultNegative, "testWrongOrderLong");
+        Assert.assertEquals(retVal.length, 1);
+        Assert.assertTrue(retVal[0] instanceof BError);
+        Assert.assertTrue(Pattern.matches(".*Trying to assign to a mismatching type.*", retVal[0].stringValue()));
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*Trying to assign to a mismatching type.*")
+    @Test(description = "Wrong order blob test")
     public void testWrongOrderBlob() {
-        BRunUtil.invoke(resultNegative, "testWrongOrderBlobWrongOrder");
+        BValue[] retVal = BRunUtil.invoke(resultNegative, "testWrongOrderBlobWrongOrder");
+        Assert.assertEquals(retVal.length, 1);
+        Assert.assertTrue(retVal[0] instanceof BError);
+        Assert.assertTrue(Pattern.matches(".*Trying to assign to a mismatching type.*", retVal[0].stringValue()));
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*Trying to assign to a mismatching type.*")
+    @Test(description = "Correct order but wrong type blob test")
     public void testCorrectOrderWrongTypeBlob() {
-        BRunUtil.invoke(resultNegative, "testWrongOrderBlobCorrectOrderWrongType");
+        BValue[] retVal = BRunUtil.invoke(resultNegative, "testWrongOrderBlobCorrectOrderWrongType");
+        Assert.assertEquals(retVal.length, 1);
+        Assert.assertTrue(retVal[0] instanceof BError);
+        Assert.assertTrue(Pattern.matches(".*Trying to assign to a mismatching type.*", retVal[0].stringValue()));
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*Number of fields in the constraint type is greater than column count "
-                  + "of the result set.*")
+    @Test(description = "Greater number of parameters test")
     public void testGreaterNoOfParams() {
-        BRunUtil.invoke(resultNegative, "testGreaterNoOfParams");
+        BValue[] retVal = BRunUtil.invoke(resultNegative, "testGreaterNoOfParams");
+        Assert.assertEquals(retVal.length, 1);
+        Assert.assertTrue(retVal[0] instanceof BError);
+        Assert.assertTrue(Pattern.matches(
+                ".*Number of fields in the constraint type is greater than column count of the result set.*",
+                retVal[0].stringValue()));
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*Number of fields in the constraint type is lower than column count of "
-                  + "the result set.*")
+    @Test(description = "Lower number of parameters test")
     public void testLowerNoOfParams() {
-        BRunUtil.invoke(resultNegative, "testLowerNoOfParams");
+        BValue[] retVal = BRunUtil.invoke(resultNegative, "testLowerNoOfParams");
+        Assert.assertEquals(retVal.length, 1);
+        Assert.assertTrue(retVal[0] instanceof BError);
+        Assert.assertTrue(Pattern.matches(
+                ".*Number of fields in the constraint type is lower than column count of the result set.*",
+                retVal[0].stringValue()));
     }
 }
