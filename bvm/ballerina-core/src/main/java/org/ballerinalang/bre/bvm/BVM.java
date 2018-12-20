@@ -3508,6 +3508,9 @@ public class BVM {
         if (channelInSameStrand) {
             return ctx.currentFrame.wdChannels.getWorkerDataChannel(name);
         }
+        if (ctx.fp > 0) {
+            return ctx.peekFrame(1).wdChannels.getWorkerDataChannel(name);
+        }
         return ctx.respCallback.parentChannels.getWorkerDataChannel(name);
     }
 
