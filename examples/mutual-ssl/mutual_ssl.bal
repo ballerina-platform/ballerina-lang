@@ -53,10 +53,9 @@ service helloWorld on helloWorldEP {
     }
 }
 
-// Create a new client endpoint to connect to the service endpoint you created
-// above via mutual SSL. The Ballerina client can be used to connect to the
-// created HTTPS listener. Provide the `keyStoreFile`, `keyStorePassword`,
-// `trustStoreFile` and `trustStorePassword` in the client.
+// Create a new client configuration to be passed to the client endpoint.
+// Configure the `keyStoreFile`, `keyStorePassword`, `trustStoreFile` and
+// `trustStorePassword` to enable mutual ssl.
 http:ClientEndpointConfig clientEPConfig = {
     secureSocket: {
         keyStore: {
