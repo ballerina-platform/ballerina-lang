@@ -6,7 +6,7 @@ function ${testServiceFunctionName} () {
     );
     // Send a message
     _ = ${endpointName}->pushText("hey");
-    // Receive received message via channel
+    // Receive message via channel
     string wsReply = <- ${wsReplyChannel};
     // Test reply
     test:assertEquals(wsReply, "hey", msg = "Received message should be equal to the expected message");
@@ -14,7 +14,7 @@ function ${testServiceFunctionName} () {
 
 service ${callbackServiceName} = @http:WebSocketServiceConfig {} service {
     resource function onText(http:WebSocketClient ${callbackServiceName}Ep, string text) {
-        // Send received message via channel
+        // Send message via channel
         text -> ${wsReplyChannel};
     }
 };
