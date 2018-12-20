@@ -17,7 +17,7 @@ service passthrough on new http:Listener(9090) {
         // there are no errors.
         var clientResponse = clientEP->forward("/", req);
 
-        // `forward()` can return an http response or an error.
+        // `forward()` can return an HTTP response or an error.
         if (clientResponse is http:Response) {
             // If the request was successful, an HTTP response is returned.
             // Here, the received response is forwarded to the client through the outbound endpoint.
