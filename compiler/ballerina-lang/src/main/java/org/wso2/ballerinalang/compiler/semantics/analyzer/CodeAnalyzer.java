@@ -197,7 +197,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private int loopCount;
     private int transactionCount;
     private boolean statementReturns;
-    private boolean implicitReturnRequired;
     private boolean lastStatement;
     private boolean withinRetryBlock;
     private int workerCount;
@@ -236,15 +235,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private void resetFunction() {
         this.resetStatementReturns();
-        this.resetImplicitReturnRequired();
     }
 
     private void resetStatementReturns() {
         this.statementReturns = false;
-    }
-
-    private void resetImplicitReturnRequired() {
-        this.implicitReturnRequired = false;
     }
 
     private void resetLastStatement() {
@@ -1806,8 +1800,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (!enclInvokableHasErrorReturn) {
             dlog.error(checkedExpr.expr.pos, DiagnosticCode.CHECKED_EXPR_NO_ERROR_RETURN_IN_ENCL_INVOKABLE);
         }
-
-        this.implicitReturnRequired = true;
 
         returnTypes.peek().add(exprType);
     }
