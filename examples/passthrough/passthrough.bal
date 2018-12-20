@@ -41,7 +41,7 @@ service passthrough on new http:Listener(9090) {
 // Sample hello world service.
 service hello on new http:Listener(9092) {
 
-    // The helloResource only accepts requests made using the specified HTTP methods.
+    // The `helloResource` only accepts requests made using the specified HTTP methods.
     @http:ResourceConfig {
         methods: ["POST", "PUT", "GET"],
         path: "/"
