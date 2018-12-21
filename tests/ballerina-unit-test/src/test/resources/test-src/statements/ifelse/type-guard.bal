@@ -320,3 +320,19 @@ function testUpdatingGuardedVar_2() returns string {
 function getUpdatedString(string s) returns string {
     return s + " - updated via function";
 }
+
+type func function() returns boolean;
+int fPtrFlag = 0;
+
+function testFuncPtrTypeInferenceInElseGuard() returns (boolean, int) {
+    func? f = function () returns boolean {
+        fPtrFlag = 100;
+        return true;
+    };
+
+    if (f is ()) {
+        return (false, fPtrFlag);
+    } else {
+        return (f.call(), fPtrFlag);
+    }
+}
