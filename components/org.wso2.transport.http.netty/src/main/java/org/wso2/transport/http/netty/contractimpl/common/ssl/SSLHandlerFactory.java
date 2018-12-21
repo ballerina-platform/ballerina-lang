@@ -27,6 +27,8 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslProvider;
 import io.netty.handler.ssl.SupportedCipherSuiteFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
 
 import java.io.File;
@@ -65,6 +67,8 @@ public class SSLHandlerFactory {
     private KeyManagerFactory kmf;
     private TrustManagerFactory tmf;
     private SslContextBuilder sslContextBuilder;
+    private static final Logger LOG = LoggerFactory.getLogger(SSLHandlerFactory.class);
+
 
     public SSLHandlerFactory(SSLConfig sslConfig) {
         this.sslConfig = sslConfig;
@@ -136,6 +140,8 @@ public class SSLHandlerFactory {
             engine.setNeedClientAuth(true);
         } else if (wantClientAuth) {
             engine.setWantClientAuth(true);
+        } else {
+            LOG.warn("Received an unidentified configuration for sslVerifyClient.");
         }
         return addCommonConfigs(engine);
     }

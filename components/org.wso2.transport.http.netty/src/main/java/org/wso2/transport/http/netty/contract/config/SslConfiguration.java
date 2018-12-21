@@ -18,6 +18,8 @@
 
 package org.wso2.transport.http.netty.contract.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.common.ssl.SSLConfig;
 
@@ -46,6 +48,7 @@ public class SslConfiguration {
     private String scheme = "http";
     private List<Parameter> parameters = new ArrayList<>();
     private SSLConfig sslConfig = new SSLConfig();
+    private static final Logger LOG = LoggerFactory.getLogger(SslConfiguration.class);
 
     public void setKeyStoreFile(String keyStoreFile) {
         sslConfig.setKeyStore(new File(Util.substituteVariables(keyStoreFile)));
@@ -60,6 +63,8 @@ public class SslConfiguration {
             sslConfig.setNeedClientAuth(true);
         } else if (OPTIONAL.equalsIgnoreCase(verifyClient)) {
             sslConfig.setWantClientAuth(true);
+        } else {
+            LOG.warn("Received an unidentified configuration for sslVerify client.");
         }
     }
 
