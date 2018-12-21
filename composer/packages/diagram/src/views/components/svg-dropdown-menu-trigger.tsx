@@ -20,14 +20,14 @@ export const SVGDropDownMenuTrigger: StatelessComponent<SVGDropDownMenuTriggerPr
         icon, onClick, position, radius
     };
     return <DiagramContext.Consumer>
-        {({ editingEnabled }) => {
-            return editingEnabled &&
+        {({ editingEnabled, hasSyntaxErrors }) => {
+            return (editingEnabled && !hasSyntaxErrors) &&
                 <SVGOverlayComponent>
                     <g className={className} onMouseOut={onMouseOut} onMouseOver={onMouseOver} >
+                        {children}
                         <g className="trigger">
                             <SVGCircleButton {...btnProps} />
                         </g>
-                        {children}
                    </g>
                 </SVGOverlayComponent>;
         }}

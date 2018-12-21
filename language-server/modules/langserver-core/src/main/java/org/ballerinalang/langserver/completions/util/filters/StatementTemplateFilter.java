@@ -55,22 +55,13 @@ public class StatementTemplateFilter extends AbstractSymbolFilter {
         completionItems.add(forEachItem);
 
         // Populate Fork Statement template
-        CompletionItem forkItem = Snippet.STMT_FORK_JOIN.get().build(new CompletionItem(), isSnippet);
+        CompletionItem forkItem = Snippet.STMT_FORK.get().build(new CompletionItem(), isSnippet);
         completionItems.add(forkItem);
 
         // Populate Transaction Statement template
         CompletionItem transactionItem = Snippet.STMT_TRANSACTION.get().build(new CompletionItem(), isSnippet);
         completionItems.add(transactionItem);
 
-        // Populate Trigger Worker Statement template
-        CompletionItem workerTriggerItem = new CompletionItem();
-        Snippet.STMT_WORKER_TRIGGER.get().build(workerTriggerItem, isSnippet);
-        completionItems.add(workerTriggerItem);
-
-        // Populate Worker Reply Statement template
-        CompletionItem workerReplyItem = Snippet.STMT_WORKER_REPLY.get().build(new CompletionItem(), isSnippet);
-        completionItems.add(workerReplyItem);
-        
         // Populate Match statement template
         CompletionItem matchItem = Snippet.STMT_MATCH.get().build(new CompletionItem(), isSnippet);
         completionItems.add(matchItem);

@@ -374,7 +374,7 @@ public class ObjectTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 89);
     }
 
-    @Test(description = "Test function references from an object", enabled = false)
+    @Test(description = "Test function references from an object")
     public void testFunctionReferencesFromObjects() {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object_function_pointer.bal");
         BValue[] returns = BRunUtil.invoke(compileResult, "testObjectFunctionPointer");

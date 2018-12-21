@@ -12,10 +12,24 @@ service helloWorld on new http:Listener(9090) {
     resource function hello(http:Caller caller, http:Request request) {
         // Check if the client expects a 100-continue response.
         if (request.expects100Continue()) {
-            // Send a 100-continue response to the client.
-            var result = caller->continue();
-            if (result is error) {
-                log:printError("Error sending response", err = result);
+            string mediaType = request.getHeader("Content-Type");
+            if (mediaType.equalsIgnoreCase("text/plain")) {
+                // Send a 100-continue response to the client.
+                var result = caller->continue();
+                if (result is error) {
+                    log:printError("Error sending response", err = result);
+                }
+            } else {
+                // Send a 417 response to ignore the payload since content type is mismatched
+                // with the expected content type.
+                http:Response res = new;
+                res.statusCode = 417;
+                res.setPayload("Unprocessable Entity");
+                var result = caller->respond(res);
+                if (result is error) {
+                    log:printError("Error sending response", err = result);
+                }
+                return;
             }
         }
 
@@ -31,7 +45,7 @@ service helloWorld on new http:Listener(9090) {
             if (result is error) {
                 log:printError("Error sending response", err = result);
             }
-        } else if (payload is error) {
+        } else {
             res.statusCode = 500;
             res.setPayload(untaint <string> payload.detail().message);
             var result = caller->respond(res);

@@ -3,12 +3,12 @@ import ballerina/log;
 
 // This creates a queue sender.
 jms:SimpleQueueSender queueSender = new({
-    initialContextFactory:"bmbInitialContextFactory",
-    providerUrl:"amqp://admin:admin@carbon/carbon?"
-                + "brokerlist='tcp://localhost:5672'",
-    acknowledgementMode: "AUTO_ACKNOWLEDGE",
-    queueName:"MyQueue"
-});
+        initialContextFactory: "bmbInitialContextFactory",
+        providerUrl: "amqp://admin:admin@carbon/carbon?"
+            + "brokerlist='tcp://localhost:5672'",
+        acknowledgementMode: "AUTO_ACKNOWLEDGE",
+        queueName: "MyQueue"
+    });
 
 public function main() {
     // This creates a text message.
@@ -22,6 +22,6 @@ public function main() {
         }
     } else {
         log:printError("Error occurred while creating message",
-                    err = msg);
+            err = msg);
     }
 }

@@ -21,7 +21,7 @@ import * as path from 'path';
 import { log } from '../utils/logger';
 import { ServerOptions } from 'vscode-languageclient';
 
-export function getServerOptions(ballerinaHome: string) : ServerOptions {
+export function getServerOptions(ballerinaHome: string, experimental: boolean) : ServerOptions {
     log(`Using Ballerina installation at ${ballerinaHome} for Language server.`);
 
     let cmd;
@@ -40,6 +40,9 @@ export function getServerOptions(ballerinaHome: string) : ServerOptions {
     }
     if (process.env.LS_CUSTOM_CLASSPATH) {
         args.push('--classpath', process.env.LS_CUSTOM_CLASSPATH);
+    }
+    if (experimental) {
+        args.push('--experimental');
     }
 
     return {

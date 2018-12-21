@@ -16,21 +16,29 @@
 
 package io.ballerina.plugins.idea.formatter;
 
+import com.intellij.formatting.Block;
 import com.intellij.formatting.FormattingModel;
 import com.intellij.formatting.FormattingModelBuilder;
 import com.intellij.formatting.FormattingModelProvider;
 import com.intellij.formatting.Indent;
+import com.intellij.formatting.Spacing;
 import com.intellij.formatting.SpacingBuilder;
 import com.intellij.lang.ASTNode;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.TokenType;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
+import com.intellij.psi.formatter.common.AbstractBlock;
+import com.intellij.psi.tree.IElementType;
 import io.ballerina.plugins.idea.BallerinaLanguage;
+import io.ballerina.plugins.idea.psi.BallerinaTypes;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ABORT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ABORTED;
@@ -106,6 +114,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.FLUSH;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FOLLOWED;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FOR;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FOREACH;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.FOREACH_STATEMENT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FOREVER;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FORK;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FROM;
@@ -177,6 +186,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.PIPE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.POW;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.PRIVATE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.PUBLIC;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.QUESTION_MARK;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RANGE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RARROW;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECORD_FIELD_DEFINITION_LIST;
@@ -217,6 +227,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.STREAM;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.SUB;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.SYNCRARROW;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TABLE;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.TERNARY_EXPRESSION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.THROW;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRANSACTION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRANSACTION_CLAUSE;
@@ -264,13 +275,52 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
     @NotNull
     @Override
     public FormattingModel createModel(PsiElement element, CodeStyleSettings settings) {
-        BallerinaBlock rootBlock = new BallerinaBlock(
-                element.getNode(), null, Indent.getNoneIndent(), null, settings, createSpaceBuilder(settings),
-                new HashMap<>()
-        );
-        return FormattingModelProvider.createFormattingModelForPsiFile(
-                element.getContainingFile(), rootBlock, settings
-        );
+
+        if (!isGrammarViolated(element.getNode())) {
+            BallerinaBlock rootBlock = new BallerinaBlock(element.getNode(), null, Indent.getNoneIndent(), null,
+                    settings, createSpaceBuilder(settings), new HashMap<>());
+            return FormattingModelProvider
+                    .createFormattingModelForPsiFile(element.getContainingFile(), rootBlock, settings);
+        // If the plugin grammar tree is not generated correctly for the file, code reformat should not work.
+        } else {
+            AbstractBlock rootBlock = new AbstractBlock(element.getNode(), null, null) {
+                @Nullable
+                @Override
+                public Spacing getSpacing(@Nullable Block child1, @NotNull Block child2) {
+                    return null;
+                }
+
+                @Override
+                public boolean isLeaf() {
+                    return false;
+                }
+
+                @Override
+                protected List<Block> buildChildren() {
+                    return new LinkedList<>();
+                }
+            };
+            return FormattingModelProvider
+                    .createFormattingModelForPsiFile(element.getContainingFile(), rootBlock, settings);
+        }
+    }
+
+    // Checks whether the PSI tree for the file is properly generated.
+    private static boolean isGrammarViolated(ASTNode rootNode) {
+        IElementType firstChildType = getFirstChild(rootNode);
+        //Todo: Add more conditions
+        return firstChildType != BallerinaTypes.DEFINITION && firstChildType != BallerinaTypes.IMPORT_DECLARATION
+                && firstChildType != BallerinaTypes.NAMESPACE_DECLARATION;
+    }
+
+    @NotNull
+    private static IElementType getFirstChild(ASTNode parent) {
+        ASTNode child = parent.getFirstChildNode();
+        while (child.getElementType() == BallerinaTypes.LINE_COMMENT
+                || child.getElementType() == TokenType.WHITE_SPACE) {
+            child = child.getTreeNext();
+        }
+        return child.getElementType();
     }
 
     // Note - In case of multiple matching rules, top rule is the one which will get applied.
@@ -377,6 +427,8 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(EQUAL_GT).spaceIf(true)
 
                 // Binding Patterns
+                .betweenInside(LEFT_PARENTHESIS, BINDING_PATTERN, TUPLE_BINDING_PATTERN).spaceIf(false)
+                .betweenInside(BINDING_PATTERN, RIGHT_PARENTHESIS, TUPLE_BINDING_PATTERN).spaceIf(false)
                 .around(BINDING_PATTERN).spaceIf(true)
 
                 // Record binding pattern
@@ -413,6 +465,10 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
 
                 // Error
                 .betweenInside(ERROR, LEFT_PARENTHESIS, ERROR_CONSTRUCTOR_EXPRESSION).spaceIf(false)
+
+                // Ternary Expressions
+                .aroundInside(QUESTION_MARK, TERNARY_EXPRESSION).spaceIf(true)
+                .aroundInside(COLON, TERNARY_EXPRESSION).spaceIf(true)
 
                 .between(LEFT_PARENTHESIS, RIGHT_PARENTHESIS).spaceIf(false)
                 .around(RETURN_PARAMETER).spaceIf(true)
@@ -462,6 +518,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(RECORD_FIELD_DEFINITION_LIST).spaceIf(true)
 
                 // Statements
+                .beforeInside(LEFT_BRACE, FOREACH_STATEMENT).spaceIf(true)
                 .between(LEFT_BRACE, RIGHT_BRACE).spaceIf(false)
                 .between(LEFT_BRACKET, RIGHT_BRACKET).spaceIf(false)
                 .between(SIMPLE_VARIABLE_REFERENCE, ASSIGN).spaceIf(true)

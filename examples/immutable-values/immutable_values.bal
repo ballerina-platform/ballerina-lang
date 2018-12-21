@@ -38,7 +38,8 @@ public function main() {
     error? updateResult = trap addEntryToMap(m2, "intValTwo", 10);
     if (updateResult is error) {
         // An error should occur since `m2` is frozen
-        io:println("error occurred on update: ", updateResult.reason());
+        io:println("error occurred on update: ",
+                   <string>updateResult.detail().message);
     }
 
     // Create a `Department` record.
@@ -51,7 +52,8 @@ public function main() {
     // `map` constrained by type `any` could have `non-anydata` values.
     map<any>|error freezeResult = m3.freeze();
     if (freezeResult is error) {
-        io:println("'freeze()' failed for m3: ", freezeResult.reason());
+        io:println("'freeze()' failed for m3: ",
+                   <string>freezeResult.detail().message);
     } else {
         io:println("'freeze()' successful for m3");
     }
@@ -65,7 +67,8 @@ public function main() {
     // Attempt freezing `m4`.
     freezeResult = m4.freeze();
     if (freezeResult is error) {
-        io:println("'freeze()' failed for m4: ", freezeResult.reason());
+        io:println("'freeze()' failed for m4: ",
+                   <string>freezeResult.detail().message);
     } else {
         io:println("'freeze()' successful for m4");
     }

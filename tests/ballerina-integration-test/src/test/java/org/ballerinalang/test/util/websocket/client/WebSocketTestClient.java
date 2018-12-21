@@ -40,15 +40,28 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
 import io.netty.handler.codec.http.websocketx.WebSocketVersion;
 import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketClientCompressionHandler;
+import io.netty.handler.ssl.SslHandler;
+import org.ballerinalang.test.util.TestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
 
 /**
  * WebSocket client class for test.
@@ -62,9 +75,15 @@ public class WebSocketTestClient {
     private final URI uri;
     private EventLoopGroup group;
     private boolean first = true;
+    private boolean sslEnabled;
 
     public WebSocketTestClient(String url) throws URISyntaxException {
         this(url, new HashMap<>());
+    }
+
+    public WebSocketTestClient(String url, boolean sslEnabled) throws URISyntaxException {
+        this(url, new HashMap<>());
+        this.sslEnabled = sslEnabled;
     }
 
     public WebSocketTestClient(String url, Map<String, String> headers) throws URISyntaxException {
@@ -89,8 +108,15 @@ public class WebSocketTestClient {
         Bootstrap bootstrap = new Bootstrap();
         bootstrap.group(group).channel(NioSocketChannel.class).handler(new ChannelInitializer<SocketChannel>() {
             @Override
-            protected void initChannel(SocketChannel ch) {
+            protected void initChannel(SocketChannel ch)
+                    throws IOException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException,
+                           CertificateException {
                 ChannelPipeline pipeline = ch.pipeline();
+                if (sslEnabled) {
+                    SSLEngine sslEngine = createSSLContextFromTruststores().createSSLEngine();
+                    sslEngine.setUseClientMode(true);
+                    pipeline.addLast(new SslHandler(sslEngine));
+                }
                 pipeline.addLast(new HttpClientCodec(), new HttpObjectAggregator(8192),
                                  WebSocketClientCompressionHandler.INSTANCE, webSocketHandler);
             }
@@ -98,6 +124,22 @@ public class WebSocketTestClient {
         channel = bootstrap.connect(uri.getHost(), uri.getPort()).sync().channel();
         webSocketHandler.handshakeFuture().sync();
     }
+
+    private SSLContext createSSLContextFromTruststores()
+            throws NoSuchAlgorithmException, KeyStoreException, KeyManagementException, IOException,
+                   CertificateException {
+        TrustManager[] trustManagers;
+        KeyStore tks = TestUtils.getKeyStore(new File(
+                "src" + File.separator + "test" + File.separator + "resources" + File.separator + "security" +
+                        File.separator + "keystore" + File.separator + "ballerinaTruststore.p12"));
+        TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+        tmf.init(tks);
+        trustManagers = tmf.getTrustManagers();
+        SSLContext sslContext = SSLContext.getInstance("TLS");
+        sslContext.init(null, trustManagers, null);
+        return sslContext;
+    }
+
 
     /**
      * Send text to the server.

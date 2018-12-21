@@ -16,7 +16,7 @@ service HelloWorld on new grpc:Listener(9090) {
             error? err = caller->send(msg);
             if (err is error) {
                 io:println("Error from Connector: " + err.reason() + " - "
-                                                    + <string>err.detail().message);
+                                                + <string>err.detail().message);
             } else {
                 io:println("send reply: " + msg);
             }

@@ -47,7 +47,7 @@ public class OpenRecordConstrainedJSONTest {
 
     @Test(description = "Test basic json struct constraint")
     public void testConstrainedJSONNegative() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 7);
+        Assert.assertEquals(negativeResult.getErrorCount(), 9);
 
         int index = 0;
         // testConstrainingUsingRecordWithIncompatibleRestField
@@ -75,7 +75,16 @@ public class OpenRecordConstrainedJSONTest {
         BAssertUtil.validateError(negativeResult, index++, "function invocation on type 'typedesc' is not supported",
                                   76, 14);
 
-        BAssertUtil.validateError(negativeResult, index, "incompatible types: expected 'json', found 'byte[]'", 82, 14);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'json', found 'byte[]'", 82,
+                                  14);
+
+        BAssertUtil.validateError(negativeResult, index++,
+                                  "incompatible types: 'json<Employee>' cannot be converted to 'json<Student>'", 89,
+                                  14);
+        BAssertUtil.validateError(negativeResult, index,
+                                  "function invocation on type 'typedesc' is not supported", 89, 14);
+        
+        
     }
 
     @Test(description = "Test basic json struct constraint")
@@ -183,7 +192,7 @@ public class OpenRecordConstrainedJSONTest {
     public void testJSONToConstraintJsonUnsafeCast() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJSONToConstraintJsonUnsafeCast");
         Assert.assertNotNull(returns[0]);
-        String errorMsg = ((BError) returns[0]).reason;
+        String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).details).get("message").stringValue();
         Assert.assertEquals(errorMsg, "incompatible stamp operation: 'json' value cannot be stamped as 'json<Person>'");
     }
 
@@ -214,13 +223,6 @@ public class OpenRecordConstrainedJSONTest {
                             "{\"name\":\"John Doe\", \"age\":30, \"address\":\"Colombo\", \"class\":\"5\"}");
     }
 
-    @Test(description = "Test Constaint JSON to Constaint JSON unsafe cast negative scenario.")
-    public void testConstraintJSONToConstraintJsonUnsafeNegativeCast() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testConstraintJSONToConstraintJsonUnsafeNegativeCast");
-        Assert.assertNotNull(returns[0]);
-        String errorMsg = ((BError) returns[0]).reason;
-        Assert.assertEquals(errorMsg, "'json<Employee>' cannot be cast to 'json<Student>'");
-    }
 
     @Test
     public void testJSONArrayToConstraintJsonArrayCastPositive() {
@@ -234,7 +236,7 @@ public class OpenRecordConstrainedJSONTest {
     public void testJSONArrayToConstraintJsonArrayCastNegative() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJSONArrayToConstraintJsonArrayCastNegative");
         Assert.assertNotNull(returns[0]);
-        String errorMsg = ((BError) returns[0]).reason;
+        String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).details).get("message").stringValue();
         Assert.assertEquals(errorMsg,
                             "incompatible stamp operation: 'json[]' value cannot be stamped as 'json<Student>[]'");
     }
@@ -251,7 +253,7 @@ public class OpenRecordConstrainedJSONTest {
     public void testJSONArrayToCJsonArrayCastNegative() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJSONArrayToCJsonArrayCastNegative");
         Assert.assertNotNull(returns[0]);
-        String errorMsg = ((BError) returns[0]).reason;
+        String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).details).get("message").stringValue();
         Assert.assertEquals(errorMsg,
                             "incompatible stamp operation: 'json[]' value cannot be stamped as 'json<Student>[]'");
     }
@@ -268,7 +270,7 @@ public class OpenRecordConstrainedJSONTest {
     public void testMixedTypeJSONArrayToCJsonArrayCastNegative() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testMixedTypeJSONArrayToCJsonArrayCastNegative");
         Assert.assertNotNull(returns[0]);
-        String errorMsg = ((BError) returns[0]).reason;
+        String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).details).get("message").stringValue();
         Assert.assertEquals(errorMsg,
                             "incompatible stamp operation: 'json[]' value cannot be stamped as 'json<Student>[]'");
     }

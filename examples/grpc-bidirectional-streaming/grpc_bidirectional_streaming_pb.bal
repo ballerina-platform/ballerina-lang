@@ -13,7 +13,8 @@ public type ChatClient client object {
         // Initialize client endpoint.
         grpc:Client c = new;
         c.init(self.url, self.config);
-        error? result = c.initStub("non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
+        error? result = c.initStub("non-blocking", ROOT_DESCRIPTOR,
+                                                            getDescriptorMap());
         if (result is error) {
             panic result;
         } else {
@@ -21,9 +22,10 @@ public type ChatClient client object {
         }
     }
 
-
-    remote function chat(service msgListener, grpc:Headers? headers = ()) returns (grpc:StreamingClient|error)  {
-        return self.grpcClient->streamingExecute("Chat/chat", msgListener, headers = headers);
+    remote function chat(service msgListener, grpc:Headers? headers = ())
+                        returns (grpc:StreamingClient|error)  {
+        return self.grpcClient->streamingExecute("Chat/chat",
+                                                msgListener, headers = headers);
     }
 };
 

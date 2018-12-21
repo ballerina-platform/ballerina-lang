@@ -2,24 +2,17 @@ import ballerina/config;
 import ballerina/http;
 import ballerina/test;
 
-boolean serviceStarted = false;
-
 function startService() {
     config:setConfig("b7a.users.tom.password", "password1");
     config:setConfig("b7a.users.tom.scopes", "scope2,scope3");
     config:setConfig("b7a.users.dick.password", "password2");
     config:setConfig("b7a.users.dick.scopes", "scope1");
-    //serviceStarted = test:startServices("secured-service-with-basic-auth");
 }
 
 @test:Config {
-    enable: true,
-    before: "startService",
-    after: "stopService"
+    before: "startService"
 }
 function testFunc() {
-    // Check whether the server has started.
-    //test:assertTrue(serviceStarted, msg = "Unable to start the service");
     testAuthSuccess();
     testAuthnFailure();
     testAuthzFailure();
@@ -80,8 +73,4 @@ function testAuthzFailure() {
     } else {
         test:assertFail(msg = "Failed to call the endpoint:");
     }
-}
-
-function stopService() {
-    //test:stopServices("secured-service-with-basic-auth");
 }

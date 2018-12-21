@@ -123,3 +123,16 @@ service {
     resource function onNotification (websub:Caller caller, websub:Notification notification) {
     }
 };
+
+service websubSubscriberEight =
+@websub:SubscriberServiceConfig {
+    path: "/websub",
+    subscribeOnStartUp: true,
+    topic: "http://websubpubtopictwo.com",
+    hub: "http://websubpubhubtwo.com"
+}
+service {
+    resource function onNotification (websub:Notification notification) returns int? {
+        return 10;
+    }
+};

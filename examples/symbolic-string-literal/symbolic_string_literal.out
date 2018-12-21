@@ -1,5 +1,5 @@
-# To run the program, place the code in "symbolic_string_literal.bal"
-# and issue the `ballerina run` command.
+# To run this sample, navigate to the directory that contains the
+# `.bal` file and issue the `ballerina run` command.
 $ ballerina run symbolic_string_literal.bal
 HelloBallerina
 Hello_Ballerina
