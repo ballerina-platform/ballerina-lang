@@ -53,6 +53,8 @@ public class UtilSymbolKeys {
 
     public static final String LT_SYMBOL_KEY = "<";
 
+    public static final String OBJECT_REFERENCE_SYMBOL_KEY = "*";
+
     public static final String DOLLAR_SYMBOL_KEY = "$";
     // End non letter symbol keys
 
@@ -86,8 +88,6 @@ public class UtilSymbolKeys {
     public static final String IMPORT_KEYWORD_KEY = "import";
 
     public static final String SLASH_KEYWORD_KEY = "/";
-
-    public static final String EP_OBJECT_IDENTIFIER = "getCallerActions";
     
     public static final String BALLERINA_KW = "ballerina";
     

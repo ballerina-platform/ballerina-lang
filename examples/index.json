@@ -189,6 +189,10 @@
                 "url": "records"
             },
             {
+                "name": "Anonymous Records",
+                "url": "anonymous-records"
+            },
+            {
                 "name": "Optional Fields",
                 "url": "record-optional-fields"
             },
@@ -223,6 +227,10 @@
                 "url": "abstract-objects"
             },
             {
+                "name": "Anonymous Objects",
+                "url": "anonymous-objects"
+            },
+            {
                 "name": "Object Type Reference",
                 "url": "object-type-reference"
             }
@@ -232,7 +240,12 @@
         "title": "Value/Type Operations",
         "column": 1,
         "category": "Language concepts",
-        "samples": [{
+        "samples": [
+            {
+                "name": "Compound Assignment Operators",
+                "url": "compound-assignment-operators"
+            },
+            {
                 "name": "Equality",
                 "url": "equality"
             },

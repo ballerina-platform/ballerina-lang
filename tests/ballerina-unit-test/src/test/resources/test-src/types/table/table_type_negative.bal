@@ -35,37 +35,37 @@ type ResultBlobCorrectOrderWrongType record {
     int INT_TYPE;
 };
 
-function testWrongOrderInt() {
-    testWrongOrder("SELECT int_type, long_type, float_type, boolean_type, string_type, double_type from DataTable
+function testWrongOrderInt() returns error? {
+    return testWrongOrder("SELECT int_type, long_type, float_type, boolean_type, string_type, double_type from DataTable
     WHERE row_id = 1");
 }
 
-function testWrongOrderString() {
-    testWrongOrder("SELECT int_type, long_type, float_type, boolean_type, string_type, double_type from DataTable
+function testWrongOrderString() returns error? {
+    return testWrongOrder("SELECT int_type, long_type, float_type, boolean_type, string_type, double_type from DataTable
     WHERE row_id = 1");
 }
 
-function testWrongOrderBoolean() {
-    testWrongOrder("SELECT boolean_type, long_type, float_type, string_type, int_type, double_type from DataTable
+function testWrongOrderBoolean() returns error? {
+    return testWrongOrder("SELECT boolean_type, long_type, float_type, string_type, int_type, double_type from DataTable
     WHERE row_id = 1");
 }
 
-function testWrongOrderDouble() {
-    testWrongOrder("SELECT double_type, long_type, float_type, string_type, int_type, boolean_type from DataTable
+function testWrongOrderDouble() returns error? {
+    return testWrongOrder("SELECT double_type, long_type, float_type, string_type, int_type, boolean_type from DataTable
     WHERE row_id = 1");
 }
 
-function testWrongOrderFloat() {
-    testWrongOrder("SELECT double_type, long_type, float_type, string_type, int_type, boolean_type from DataTable
+function testWrongOrderFloat() returns error? {
+    return testWrongOrder("SELECT double_type, long_type, float_type, string_type, int_type, boolean_type from DataTable
     WHERE row_id = 1");
 }
 
-function testWrongOrderLong() {
-    testWrongOrder("SELECT boolean_type, string_type, float_type, long_type, int_type, double_type from DataTable
+function testWrongOrderLong() returns error? {
+    return testWrongOrder("SELECT boolean_type, string_type, float_type, long_type, int_type, double_type from DataTable
     WHERE row_id = 1");
 }
 
-function testWrongOrderBlobWrongOrder() {
+function testWrongOrderBlobWrongOrder() returns error? {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_DATA_TABLE_H2",
@@ -75,16 +75,23 @@ function testWrongOrderBlobWrongOrder() {
         });
 
     var selectRet = testDB->select("SELECT blob_type, row_id from ComplexTypes WHERE row_id = 1", ResultBlobWrongOrder);
+    error? retVal = ();
 
     if (selectRet is table<ResultBlobWrongOrder>) {
         while (selectRet.hasNext()) {
-            var rs = selectRet.getNext();
+            var rs = trap selectRet.getNext();
+            if (rs is error) {
+                retVal = rs;
+                break;
+            }
         }
+        selectRet.close();
     }
     testDB.stop();
+    return retVal;
 }
 
-function testWrongOrderBlobCorrectOrderWrongType() {
+function testWrongOrderBlobCorrectOrderWrongType() returns error? {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_DATA_TABLE_H2",
@@ -95,16 +102,23 @@ function testWrongOrderBlobCorrectOrderWrongType() {
 
     var selectRet = testDB->select("SELECT blob_type, row_id from ComplexTypes WHERE row_id = 1",
         ResultBlobCorrectOrderWrongType);
+    error? retVal = ();
 
     if (selectRet is table<ResultBlobCorrectOrderWrongType>) {
         while (selectRet.hasNext()) {
-            var rs = selectRet.getNext();
+            var rs = trap selectRet.getNext();
+            if (rs is error) {
+                retVal = rs;
+                break;
+            }
         }
+        selectRet.close();
     }
     testDB.stop();
+    return retVal;
 }
 
-function testGreaterNoOfParams() {
+function testGreaterNoOfParams() returns error? {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_DATA_TABLE_H2",
@@ -114,16 +128,23 @@ function testGreaterNoOfParams() {
         });
 
     var selectRet = testDB->select("SELECT boolean_type from DataTable WHERE row_id = 1", Result);
+    error? retVal = ();
 
     if (selectRet is table<Result>) {
         while (selectRet.hasNext()) {
-            var rs = selectRet.getNext();
+            var rs = trap selectRet.getNext();
+            if (rs is error) {
+                retVal = rs;
+                break;
+            }
         }
+        selectRet.close();
     }
     testDB.stop();
+    return retVal;
 }
 
-function testLowerNoOfParams() {
+function testLowerNoOfParams() returns error? {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_DATA_TABLE_H2",
@@ -134,16 +155,23 @@ function testLowerNoOfParams() {
 
     var selectRet = testDB->select("SELECT boolean_type, boolean_type, string_type, float_type, long_type, int_type,
         double_type from DataTable WHERE row_id = 1", Result);
+    error? retVal = ();
 
     if (selectRet is table<Result>) {
         while (selectRet.hasNext()) {
-            var rs = selectRet.getNext();
+            var rs = trap selectRet.getNext();
+            if (rs is error) {
+                retVal = rs;
+                break;
+            }
         }
+        selectRet.close();
     }
     testDB.stop();
+    return retVal;
 }
 
-function testWrongOrder(string queryStr) {
+function testWrongOrder(string queryStr) returns error? {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_DATA_TABLE_H2",
@@ -153,11 +181,18 @@ function testWrongOrder(string queryStr) {
         });
 
     var selectRet = testDB->select(queryStr, Result);
+    error? retVal = ();
 
     if (selectRet is table<Result>) {
         while (selectRet.hasNext()) {
-            var rs = selectRet.getNext();
+            var rs = trap selectRet.getNext();
+            if (rs is error) {
+                retVal = rs;
+                break;
+            }
         }
+        selectRet.close();
     }
     testDB.stop();
+    return retVal;
 }
