@@ -3330,7 +3330,7 @@ public class Desugar extends BLangNodeVisitor {
         //This won't analyse if else blocks etc to see whether return statements are present
         BLangBlockStmt blockStmt = invokableNode.body;
         if (invokableNode.workers.size() == 0 &&
-                invokableNode.returnTypeNode.type == this.symTable.nilType
+                invokableNode.symbol.type.getReturnType().isNullable()
                 && (blockStmt.stmts.size() < 1 ||
                 blockStmt.stmts.get(blockStmt.stmts.size() - 1).getKind() != NodeKind.RETURN)) {
 

@@ -1,4 +1,4 @@
-timport ballerina/io;
+import ballerina/io;
 
 public function main() {
     // This creates an integer array with several integer elements.

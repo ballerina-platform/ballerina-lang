@@ -21,7 +21,6 @@ export const Function = (props: { model: FunctionNode }, context: IDiagramContex
     const { model } = props;
     const viewState: FunctionViewState = model.viewState;
     if (model.lambda || model.body === undefined) { return <g />; }
-
     return (
         <Panel model={viewState} title={model.name.value}
             icon={viewState.icon} astModel={model}>

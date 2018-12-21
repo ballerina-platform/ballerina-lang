@@ -10,6 +10,7 @@ const defaultWhile = JSON.stringify(require("./resources/while.json"));
 const defaultForeach = JSON.stringify(require("./resources/foreach.json"));
 const defaultEndpoint = JSON.stringify(require("./resources/endpoint.json"));
 const defaultWorker = JSON.stringify(require("./resources/worker.json"));
+const implicitReturn = JSON.stringify(require("./resources/implicitReturn.json"));
 // tslint:enable:no-var-requires
 
 export function createImportNode(): Ballerina.Import {
@@ -46,4 +47,8 @@ export function createEndpointNode(): Ballerina.VariableDef {
 
 export function createWorkerNode(): Ballerina.VariableDef {
     return JSON.parse(defaultWorker);
+}
+
+export function createReturnNode(): Ballerina.Return {
+    return JSON.parse(implicitReturn);
 }
