@@ -20,20 +20,219 @@ import ballerina/io;
 OneofFieldServiceBlockingClient blockingEp = new("http://localhost:9105");
 
 public function main() {
-    string result = testOneofFieldValue();
-    io:println(result);
+    io:println(testDoubleFieldValue());
+    io:println(testFloatFieldValue());
+    io:println(testInt64FieldValue());
+    io:println(testUInt64FieldValue());
+    io:println(testInt32FieldValue());
+    io:println(testFixed64FieldValue());
+    io:println(testFixed32FieldValue());
+    io:println(testBolFieldValue());
+    io:println(testStringFieldValue());
+    io:println(testMessageFieldValue());
+    io:println(testBytesFieldValue());
 }
 public function testOneofFieldValue() returns string {
-    HelloRequest_FirstName first = {first_name:"Sam"};
-    HelloRequest_Age age = {age:31};
-    HelloRequest request = {name:first, other:age};
+    Request_FirstName first = {first_name:"Sam"};
+    Request_Age age = {age:31};
+    Request request = {name:first, other:age};
     var result = blockingEp->hello(request);
     if (result is error) {
         return io:sprintf("Error from Connector: %s - %s", result.reason(), <string>result.detail().message);
     } else {
-        HelloResponse resp = {message:""};
+        Response resp = {message:""};
         (resp, _) = result;
         return resp.message;
+    }
+}
+
+public function testDoubleFieldValue() returns string {
+    ZZZ_OneA oneA = {one_a:1.7976931348623157E308};
+    ZZZ zzz = {value:oneA};
+    var result = blockingEp->testOneofField(zzz);
+    if (result is error) {
+        return io:sprintf("Error from Connector: %s - %s", result.reason(), <string>result.detail().message);
+    } else {
+        ZZZ resp;
+        (resp, _) = result;
+        Value val = resp.value;
+        if (val is ZZZ_OneA) {
+            return <string>val.one_a;
+        }
+        return "Expected response value type is not received";
+    }
+}
+
+public function testFloatFieldValue() returns string {
+    ZZZ_OneB oneB = {one_b:3.4028235E38};
+    ZZZ zzz = {value:oneB};
+    var result = blockingEp->testOneofField(zzz);
+    if (result is error) {
+        return io:sprintf("Error from Connector: %s - %s", result.reason(), <string>result.detail().message);
+    } else {
+        ZZZ resp;
+        (resp, _) = result;
+        Value val = resp.value;
+        if (val is ZZZ_OneB) {
+            return <string>val.one_b;
+        }
+        return "Expected response value type is not received";
+    }
+}
+
+public function testInt64FieldValue() returns string {
+    ZZZ_OneC oneC = {one_c:-9223372036854775808};
+    ZZZ zzz = {value:oneC};
+    var result = blockingEp->testOneofField(zzz);
+    if (result is error) {
+        return io:sprintf("Error from Connector: %s - %s", result.reason(), <string>result.detail().message);
+    } else {
+        ZZZ resp;
+        (resp, _) = result;
+        Value val = resp.value;
+        if (val is ZZZ_OneC) {
+            return <string>val.one_c;
+        }
+        return "Expected response value type is not received";
+    }
+}
+
+public function testUInt64FieldValue() returns string {
+    ZZZ_OneD oneD = {one_d:9223372036854775807};
+    ZZZ zzz = {value:oneD};
+    var result = blockingEp->testOneofField(zzz);
+    if (result is error) {
+        return io:sprintf("Error from Connector: %s - %s", result.reason(), <string>result.detail().message);
+    } else {
+        ZZZ resp;
+        (resp, _) = result;
+        Value val = resp.value;
+        if (val is ZZZ_OneD) {
+            return <string>val.one_d;
+        }
+        return "Expected response value type is not received";
+    }
+}
+
+public function testInt32FieldValue() returns string {
+    ZZZ_OneE oneE = {one_e:-2147483648};
+    ZZZ zzz = {value:oneE};
+    var result = blockingEp->testOneofField(zzz);
+    if (result is error) {
+        return io:sprintf("Error from Connector: %s - %s", result.reason(), <string>result.detail().message);
+    } else {
+        ZZZ resp;
+        (resp, _) = result;
+        Value val = resp.value;
+        if (val is ZZZ_OneE) {
+            return <string>val.one_e;
+        }
+        return "Expected response value type is not received";
+    }
+}
+
+public function testFixed64FieldValue() returns string {
+    ZZZ_OneF oneF = {one_f:9223372036854775807};
+    ZZZ zzz = {value:oneF};
+    var result = blockingEp->testOneofField(zzz);
+    if (result is error) {
+        return io:sprintf("Error from Connector: %s - %s", result.reason(), <string>result.detail().message);
+    } else {
+        ZZZ resp;
+        (resp, _) = result;
+        Value val = resp.value;
+        if (val is ZZZ_OneF) {
+            return <string>val.one_f;
+        }
+        return "Expected response value type is not received";
+    }
+}
+
+public function testFixed32FieldValue() returns string {
+    ZZZ_OneG oneG = {one_g:2147483647};
+    ZZZ zzz = {value:oneG};
+    var result = blockingEp->testOneofField(zzz);
+    if (result is error) {
+        return io:sprintf("Error from Connector: %s - %s", result.reason(), <string>result.detail().message);
+    } else {
+        ZZZ resp;
+        (resp, _) = result;
+        Value val = resp.value;
+        if (val is ZZZ_OneG) {
+            return <string>val.one_g;
+        }
+        return "Expected response value type is not received";
+    }
+}
+
+public function testBolFieldValue() returns string {
+    ZZZ_OneH oneH = {one_h:true};
+    ZZZ zzz = {value:oneH};
+    var result = blockingEp->testOneofField(zzz);
+    if (result is error) {
+        return io:sprintf("Error from Connector: %s - %s", result.reason(), <string>result.detail().message);
+    } else {
+        ZZZ resp;
+        (resp, _) = result;
+        Value val = resp.value;
+        if (val is ZZZ_OneH) {
+            return <string>val.one_h;
+        }
+        return "Expected response value type is not received";
+    }
+}
+
+public function testStringFieldValue() returns string {
+    ZZZ_OneI oneI = {one_i:"Testing"};
+    ZZZ zzz = {value:oneI};
+    var result = blockingEp->testOneofField(zzz);
+    if (result is error) {
+        return io:sprintf("Error from Connector: %s - %s", result.reason(), <string>result.detail().message);
+    } else {
+        ZZZ resp;
+        (resp, _) = result;
+        Value val = resp.value;
+        if (val is ZZZ_OneI) {
+            return <string>val.one_i;
+        }
+        return "Expected response value type is not received";
+    }
+}
+
+public function testMessageFieldValue() returns string {
+    AAA aaa = {aaa: "Testing"};
+    ZZZ_OneJ oneJ = {one_j:aaa};
+    ZZZ zzz = {value:oneJ};
+    var result = blockingEp->testOneofField(zzz);
+    if (result is error) {
+        return io:sprintf("Error from Connector: %s - %s", result.reason(), <string>result.detail().message);
+    } else {
+        ZZZ resp;
+        (resp, _) = result;
+        Value val = resp.value;
+        if (val is ZZZ_OneJ) {
+            return val.one_j.aaa;
+        }
+        return "Expected response value type is not received";
+    }
+}
+
+public function testBytesFieldValue() returns string {
+    string statement = "Lion in Town.";
+    byte[] bytes = statement.toByteArray("UTF-8");
+    ZZZ_OneK oneK = {one_k:bytes};
+    ZZZ zzz = {value:oneK};
+    var result = blockingEp->testOneofField(zzz);
+    if (result is error) {
+        return io:sprintf("Error from Connector: %s - %s", result.reason(), <string>result.detail().message);
+    } else {
+        ZZZ resp;
+        (resp, _) = result;
+        Value val = resp.value;
+        if (val is ZZZ_OneK) {
+            return <string>(val.one_k == bytes);
+        }
+        return "Expected response value type is not received";
     }
 }
 
@@ -57,14 +256,28 @@ public type OneofFieldServiceBlockingClient client object {
     }
 
 
-    remote function hello(HelloRequest req, grpc:Headers? headers = ()) returns ((HelloResponse, grpc:Headers)|error) {
-
+    remote function hello(Request req, grpc:Headers? headers = ()) returns ((Response, grpc:Headers)|error) {
         var payload = check self.grpcClient->blockingExecute("grpcservices.OneofFieldService/hello", req, headers = headers);
         grpc:Headers resHeaders = new;
         any result = ();
         (result, resHeaders) = payload;
-        var value = HelloResponse.convert(result);
-        if (value is HelloResponse) {
+        var value = Response.convert(result);
+        if (value is Response) {
+            return (value, resHeaders);
+        } else {
+            error err = error("{ballerina/grpc}INTERNAL", {"message": value.reason()});
+            return err;
+        }
+    }
+
+    remote function testOneofField(ZZZ req, grpc:Headers? headers = ()) returns ((ZZZ, grpc:Headers)|error) {
+
+        var payload = check self.grpcClient->blockingExecute("grpcservices.OneofFieldService/testOneofField", req, headers = headers);
+        grpc:Headers resHeaders = new;
+        any result = ();
+        (result, resHeaders) = payload;
+        var value = ZZZ.convert(result);
+        if (value is ZZZ) {
             return (value, resHeaders);
         } else {
             error err = error("{ballerina/grpc}INTERNAL", {"message": value.reason()});
@@ -93,43 +306,46 @@ public type OneofFieldServiceClient client object {
         }
     }
 
-
-    remote function hello(HelloRequest req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
+    remote function hello(Request req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
 
         return self.grpcClient->nonBlockingExecute("grpcservices.OneofFieldService/hello", req, msgListener, headers = headers);
     }
 
+    remote function testOneofField(ZZZ req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
+
+        return self.grpcClient->nonBlockingExecute("grpcservices.OneofFieldService/testOneofField", req, msgListener, headers = headers);
+    }
 };
 
-type HelloRequest record {
+type Request record {
     Other other;Name name;
 };
 
-public type Other HelloRequest_Age|HelloRequest_Address|HelloRequest_Married;
+public type Other Request_Age|Request_Address|Request_Married;
 
-type HelloRequest_Age record {
+type Request_Age record {
     int age;
 
 };
 
-type HelloRequest_Address record {
+type Request_Address record {
     Address1 address;
 
 };
 
-type HelloRequest_Married record {
+type Request_Married record {
     boolean married;
 
 };
 
-public type Name HelloRequest_FirstName|HelloRequest_LastName;
+public type Name Request_FirstName|Request_LastName;
 
-type HelloRequest_FirstName record {
+type Request_FirstName record {
     string first_name;
 
 };
 
-type HelloRequest_LastName record {
+type Request_LastName record {
     string last_name;
 
 };
@@ -150,15 +366,92 @@ type Address1_StreetNumber record {
 
 };
 
-type HelloResponse record {
+type Response record {
     string message;
 
 };
 
-const string ROOT_DESCRIPTOR = "0A196F6E656F665F6669656C645F736572766963652E70726F746F120C67727063736572766963657322C3010A0C48656C6C6F52657175657374121F0A0A66697273745F6E616D651801200128094800520966697273744E616D65121D0A096C6173745F6E616D65180220012809480052086C6173744E616D6512120A036167651803200128054801520361676512320A076164647265737318042001280B32162E6772706373657276696365732E41646472657373314801520761646472657373121A0A076D617272696564180520012808480152076D61727269656442060A046E616D6542070A056F74686572225E0A08416464726573733112230A0C686F7573655F6E756D6265721801200128034800520B686F7573654E756D62657212250A0D7374726565745F6E756D6265721802200128074800520C7374726565744E756D62657242060A04636F646522290A0D48656C6C6F526573706F6E736512180A076D65737361676518012001280952076D65737361676532550A114F6E656F664669656C645365727669636512400A0568656C6C6F121A2E6772706373657276696365732E48656C6C6F526571756573741A1B2E6772706373657276696365732E48656C6C6F526573706F6E7365620670726F746F33";
+type ZZZ record {
+    float aa = 1.2345;
+    float bb = 1.23;
+    int cc = 10;
+    int dd = 11;
+    int ee = 12;
+    int ff = 13;
+    int gg = 14;
+    boolean hh = true;
+    string ii = "Test";
+    AAA jj = {};
+    byte[] kk = [24, 25];
+    Value value;
+};
+
+public type Value ZZZ_OneA|ZZZ_OneB|ZZZ_OneC|ZZZ_OneD|ZZZ_OneE|ZZZ_OneF|ZZZ_OneG|ZZZ_OneH|ZZZ_OneI|ZZZ_OneJ|ZZZ_OneK;
+
+type ZZZ_OneA record {
+    float one_a;
+
+};
+
+type ZZZ_OneB record {
+    float one_b;
+
+};
+
+type ZZZ_OneC record {
+    int one_c;
+
+};
+
+type ZZZ_OneD record {
+    int one_d;
+
+};
+
+type ZZZ_OneE record {
+    int one_e;
+
+};
+
+type ZZZ_OneF record {
+    int one_f;
+
+};
+
+type ZZZ_OneG record {
+    int one_g;
+
+};
+
+type ZZZ_OneH record {
+    boolean one_h;
+
+};
+
+type ZZZ_OneI record {
+    string one_i;
+
+};
+
+type ZZZ_OneJ record {
+    AAA one_j;
+
+};
+
+type ZZZ_OneK record {
+    byte[] one_k;
+
+};
+
+type AAA record {
+    string aaa = "aaa";
+
+};
+
+const string ROOT_DESCRIPTOR = "0A196F6E656F665F6669656C645F736572766963652E70726F746F120C67727063736572766963657322BE010A0752657175657374121F0A0A66697273745F6E616D651801200128094800520966697273744E616D65121D0A096C6173745F6E616D65180220012809480052086C6173744E616D6512120A036167651803200128054801520361676512320A076164647265737318042001280B32162E6772706373657276696365732E41646472657373314801520761646472657373121A0A076D617272696564180520012808480152076D61727269656442060A046E616D6542070A056F74686572225E0A08416464726573733112230A0C686F7573655F6E756D6265721801200128034800520B686F7573654E756D62657212250A0D7374726565745F6E756D6265721802200128074800520C7374726565744E756D62657242060A04636F646522240A08526573706F6E736512180A076D65737361676518012001280952076D65737361676522E1030A035A5A5A12150A056F6E655F61180120012801480052046F6E654112150A056F6E655F62180220012802480052046F6E654212150A056F6E655F63180320012803480052046F6E654312150A056F6E655F64180420012804480052046F6E654412150A056F6E655F65180520012805480052046F6E654512150A056F6E655F66180620012806480052046F6E654612150A056F6E655F67180720012807480052046F6E654712150A056F6E655F68180820012808480052046F6E654812150A056F6E655F69180920012809480052046F6E654912280A056F6E655F6A180A2001280B32112E6772706373657276696365732E414141480052046F6E654A12150A056F6E655F6B180B2001280C480052046F6E654B120E0A026161180C2001280152026161120E0A026262180D2001280252026262120E0A026363180E2001280352026363120E0A026464180F2001280452026464120E0A02656518102001280552026565120E0A02666618112001280652026666120E0A02676718122001280752026767120E0A02686818132001280852026868120E0A0269691814200128095202696912210A026A6A18152001280B32112E6772706373657276696365732E41414152026A6A120E0A026B6B18162001280C52026B6B42070A0576616C756522170A0341414112100A0361616118012001280952036161613283010A114F6E656F664669656C645365727669636512360A0568656C6C6F12152E6772706373657276696365732E526571756573741A162E6772706373657276696365732E526573706F6E736512360A0E746573744F6E656F664669656C6412112E6772706373657276696365732E5A5A5A1A112E6772706373657276696365732E5A5A5A620670726F746F33";
 function getDescriptorMap() returns map<string> {
     return {
-        "oneof_field_service.proto":"0A196F6E656F665F6669656C645F736572766963652E70726F746F120C67727063736572766963657322C3010A0C48656C6C6F52657175657374121F0A0A66697273745F6E616D651801200128094800520966697273744E616D65121D0A096C6173745F6E616D65180220012809480052086C6173744E616D6512120A036167651803200128054801520361676512320A076164647265737318042001280B32162E6772706373657276696365732E41646472657373314801520761646472657373121A0A076D617272696564180520012808480152076D61727269656442060A046E616D6542070A056F74686572225E0A08416464726573733112230A0C686F7573655F6E756D6265721801200128034800520B686F7573654E756D62657212250A0D7374726565745F6E756D6265721802200128074800520C7374726565744E756D62657242060A04636F646522290A0D48656C6C6F526573706F6E736512180A076D65737361676518012001280952076D65737361676532550A114F6E656F664669656C645365727669636512400A0568656C6C6F121A2E6772706373657276696365732E48656C6C6F526571756573741A1B2E6772706373657276696365732E48656C6C6F526573706F6E7365620670726F746F33"
+        "oneof_field_service.proto":"0A196F6E656F665F6669656C645F736572766963652E70726F746F120C67727063736572766963657322BE010A0752657175657374121F0A0A66697273745F6E616D651801200128094800520966697273744E616D65121D0A096C6173745F6E616D65180220012809480052086C6173744E616D6512120A036167651803200128054801520361676512320A076164647265737318042001280B32162E6772706373657276696365732E41646472657373314801520761646472657373121A0A076D617272696564180520012808480152076D61727269656442060A046E616D6542070A056F74686572225E0A08416464726573733112230A0C686F7573655F6E756D6265721801200128034800520B686F7573654E756D62657212250A0D7374726565745F6E756D6265721802200128074800520C7374726565744E756D62657242060A04636F646522240A08526573706F6E736512180A076D65737361676518012001280952076D65737361676522E1030A035A5A5A12150A056F6E655F61180120012801480052046F6E654112150A056F6E655F62180220012802480052046F6E654212150A056F6E655F63180320012803480052046F6E654312150A056F6E655F64180420012804480052046F6E654412150A056F6E655F65180520012805480052046F6E654512150A056F6E655F66180620012806480052046F6E654612150A056F6E655F67180720012807480052046F6E654712150A056F6E655F68180820012808480052046F6E654812150A056F6E655F69180920012809480052046F6E654912280A056F6E655F6A180A2001280B32112E6772706373657276696365732E414141480052046F6E654A12150A056F6E655F6B180B2001280C480052046F6E654B120E0A026161180C2001280152026161120E0A026262180D2001280252026262120E0A026363180E2001280352026363120E0A026464180F2001280452026464120E0A02656518102001280552026565120E0A02666618112001280652026666120E0A02676718122001280752026767120E0A02686818132001280852026868120E0A0269691814200128095202696912210A026A6A18152001280B32112E6772706373657276696365732E41414152026A6A120E0A026B6B18162001280C52026B6B42070A0576616C756522170A0341414112100A0361616118012001280952036161613283010A114F6E656F664669656C645365727669636512360A0568656C6C6F12152E6772706373657276696365732E526571756573741A162E6772706373657276696365732E526573706F6E736512360A0E746573744F6E656F664669656C6412112E6772706373657276696365732E5A5A5A1A112E6772706373657276696365732E5A5A5A620670726F746F33"
 
     };
 }

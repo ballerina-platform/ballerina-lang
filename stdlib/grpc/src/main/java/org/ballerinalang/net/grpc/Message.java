@@ -37,7 +37,9 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.net.grpc.exception.UnsupportedFieldTypeException;
+import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -355,7 +357,15 @@ public class Message {
                                         ((BArrayType) bMapFields.get(name)).getElementType(), input).bMessage);
                                 bMapValue.put(name, structArray);
                             } else if (fieldDescriptor.getContainingOneof() != null) {
-                                BValue bValue = readMessage(fieldDescriptor, programFile, bMapFields.get(name),
+                                PackageInfo packageInfo = programFile.getPackageInfo(bType.getPackagePath());
+                                if (packageInfo == null) {
+                                    throw new UnsupportedFieldTypeException("module - " + bType.getPackagePath() + " " +
+                                            "does not exist");
+                                }
+                                StructureTypeInfo structureInfo =
+                                        packageInfo.getStructInfo(fieldDescriptor.getMessageType().getName());
+                                BValue bValue = readMessage(fieldDescriptor, programFile,
+                                        structureInfo.getType(),
                                         input).bMessage;
                                 BMap<String, BValue> bMsg = getOneOfBValue(programFile, bType, fieldDescriptor, bValue);
                                 bMapValue.put(fieldDescriptor.getContainingOneof().getName(), bMsg);

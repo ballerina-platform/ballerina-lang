@@ -46,10 +46,109 @@ public class UnaryBlockingOneofFieldTestCase extends GrpcBaseTest {
         result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
     }
 
-    @Test
-    public void testEnumBlockingBallerinaClient() {
+    @Test(description = "Testing one of field value using blocking client")
+    public void testOneofFieldValueClient() {
         final String serverMsg = "Hello Sam";
         BValue[] responses = BRunUtil.invoke(result, "testOneofFieldValue");
+        Assert.assertEquals(responses.length, 1);
+        Assert.assertTrue(responses[0] instanceof BString);
+        Assert.assertEquals(responses[0].stringValue(), serverMsg);
+    }
+
+    @Test(description = "Testing one of double field value using blocking client")
+    public void testDoubleFieldValueClient() {
+        final String serverMsg = "1.7976931348623157E308";
+        BValue[] responses = BRunUtil.invoke(result, "testDoubleFieldValue");
+        Assert.assertEquals(responses.length, 1);
+        Assert.assertTrue(responses[0] instanceof BString);
+        Assert.assertEquals(responses[0].stringValue(), serverMsg);
+    }
+
+    @Test(description = "Testing one of float field value using blocking client")
+    public void testFloatFieldValueClient() {
+        final String serverMsg = "3.4028235E38";
+        BValue[] responses = BRunUtil.invoke(result, "testFloatFieldValue");
+        Assert.assertEquals(responses.length, 1);
+        Assert.assertTrue(responses[0] instanceof BString);
+        Assert.assertEquals(responses[0].stringValue(), serverMsg);
+    }
+
+    @Test(description = "Testing one of float field value using blocking client")
+    public void testInt64FieldValueClient() {
+        final String serverMsg = "-9223372036854775808";
+        BValue[] responses = BRunUtil.invoke(result, "testInt64FieldValue");
+        Assert.assertEquals(responses.length, 1);
+        Assert.assertTrue(responses[0] instanceof BString);
+        Assert.assertEquals(responses[0].stringValue(), serverMsg);
+    }
+
+    @Test(description = "Testing one of float field value using blocking client")
+    public void testUInt64FieldValueClient() {
+        final String serverMsg = "9223372036854775807";
+        BValue[] responses = BRunUtil.invoke(result, "testUInt64FieldValue");
+        Assert.assertEquals(responses.length, 1);
+        Assert.assertTrue(responses[0] instanceof BString);
+        Assert.assertEquals(responses[0].stringValue(), serverMsg);
+    }
+
+    @Test(description = "Testing one of float field value using blocking client")
+    public void testInt32FieldValueClient() {
+        final String serverMsg = "-2147483648";
+        BValue[] responses = BRunUtil.invoke(result, "testInt32FieldValue");
+        Assert.assertEquals(responses.length, 1);
+        Assert.assertTrue(responses[0] instanceof BString);
+        Assert.assertEquals(responses[0].stringValue(), serverMsg);
+    }
+
+    @Test(description = "Testing one of float field value using blocking client")
+    public void testFixed64FieldValueClient() {
+        final String serverMsg = "9223372036854775807";
+        BValue[] responses = BRunUtil.invoke(result, "testFixed64FieldValue");
+        Assert.assertEquals(responses.length, 1);
+        Assert.assertTrue(responses[0] instanceof BString);
+        Assert.assertEquals(responses[0].stringValue(), serverMsg);
+    }
+
+    @Test(description = "Testing one of float field value using blocking client")
+    public void testFixed32FieldValueClient() {
+        final String serverMsg = "2147483647";
+        BValue[] responses = BRunUtil.invoke(result, "testFixed32FieldValue");
+        Assert.assertEquals(responses.length, 1);
+        Assert.assertTrue(responses[0] instanceof BString);
+        Assert.assertEquals(responses[0].stringValue(), serverMsg);
+    }
+
+    @Test(description = "Testing one of float field value using blocking client")
+    public void testBolFieldValueClient() {
+        final String serverMsg = "true";
+        BValue[] responses = BRunUtil.invoke(result, "testBolFieldValue");
+        Assert.assertEquals(responses.length, 1);
+        Assert.assertTrue(responses[0] instanceof BString);
+        Assert.assertEquals(responses[0].stringValue(), serverMsg);
+    }
+
+    @Test(description = "Testing one of float field value using blocking client")
+    public void testStringFieldValueClient() {
+        final String serverMsg = "Testing";
+        BValue[] responses = BRunUtil.invoke(result, "testStringFieldValue");
+        Assert.assertEquals(responses.length, 1);
+        Assert.assertTrue(responses[0] instanceof BString);
+        Assert.assertEquals(responses[0].stringValue(), serverMsg);
+    }
+
+    @Test(description = "Testing one of float field value using blocking client")
+    public void testMessageFieldValueClient() {
+        final String serverMsg = "Testing";
+        BValue[] responses = BRunUtil.invoke(result, "testMessageFieldValue");
+        Assert.assertEquals(responses.length, 1);
+        Assert.assertTrue(responses[0] instanceof BString);
+        Assert.assertEquals(responses[0].stringValue(), serverMsg);
+    }
+
+    @Test(description = "Testing one of float field value using blocking client")
+    public void testBytesFieldValueClient() {
+        final String serverMsg = "true";
+        BValue[] responses = BRunUtil.invoke(result, "testBytesFieldValue");
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BString);
         Assert.assertEquals(responses[0].stringValue(), serverMsg);
