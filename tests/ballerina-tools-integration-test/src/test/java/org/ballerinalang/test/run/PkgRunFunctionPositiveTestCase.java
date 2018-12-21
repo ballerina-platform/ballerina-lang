@@ -20,6 +20,7 @@ package org.ballerinalang.test.run;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -34,6 +35,7 @@ import java.io.File;
  *          ...
  *      }
  */
+@Ignore
 public class PkgRunFunctionPositiveTestCase extends BaseTest {
 
     private static final String PRINT_RETURN = "--printreturn";
