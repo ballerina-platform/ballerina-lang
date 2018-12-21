@@ -24,5 +24,5 @@ function testFunc() {
     main();
 
     string out = "Error occurred: {ballerina}DivisionByZero";
-    test:assertEquals(outputs[0], out1);
+    test:assertEquals(outputs[0], out);
 }
