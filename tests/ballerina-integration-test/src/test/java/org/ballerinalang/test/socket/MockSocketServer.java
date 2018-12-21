@@ -41,7 +41,7 @@ public class MockSocketServer implements Runnable {
 
     public static final int SERVER_PORT = 54387;
     private static final String POISON_PILL = "Bye";
-    private boolean execute = false;
+    private boolean execute = true;
     private Selector selector = null;
 
     private void answerWithEcho(ByteBuffer buffer, SelectionKey key) throws IOException {

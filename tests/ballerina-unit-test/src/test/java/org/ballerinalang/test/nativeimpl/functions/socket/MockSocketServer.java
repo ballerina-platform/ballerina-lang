@@ -43,7 +43,7 @@ public class MockSocketServer implements Runnable {
     static final String SERVER_HOST = "localhost";
     private static final String POISON_PILL = "Bye";
     private String receivedString;
-    private boolean execute = false;
+    private boolean execute = true;
     private Selector selector = null;
 
     private void answerWithEcho(ByteBuffer buffer, SelectionKey key) throws IOException {
