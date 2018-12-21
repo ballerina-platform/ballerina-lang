@@ -17,13 +17,11 @@
   ~ under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>ballerina-parent</artifactId>
         <groupId>org.ballerinalang</groupId>
-        <version>0.990.1-SNAPSHOT</version>
+        <version>0.990.1</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -45,8 +43,7 @@
                         <phase>generate-resources</phase>
                         <configuration>
                             <tasks>
-                                <unzip src="${basedir}/../../distribution/zip/ballerina-tools/target/ballerina-tools-${project.version}.zip"
-                                       dest="${project.build.directory}" />
+                                <unzip src="${basedir}/../../distribution/zip/ballerina-tools/target/ballerina-tools-${project.version}.zip" dest="${project.build.directory}" />
                             </tasks>
                         </configuration>
                         <goals>
@@ -60,8 +57,7 @@
                         </goals>
                         <configuration>
                             <target>
-                            <delete dir="${project.build.directory}/ballerina-tools-${project.version}" includeemptydirs="true"
-                                    deleteonexit="true" />
+                            <delete dir="${project.build.directory}/ballerina-tools-${project.version}" includeemptydirs="true" deleteonexit="true" />
                             </target>
                         </configuration>
                     </execution>
