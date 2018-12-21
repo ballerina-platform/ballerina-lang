@@ -149,13 +149,15 @@
             <class name="org.ballerinalang.test.service.websocket.PushAndOnTextResourceTest"/>
             <class name="org.ballerinalang.test.service.websocket.WebSocketQueryAndPathParamSupportTestCase"/>
             <class name="org.ballerinalang.test.service.websocket.WebSocketServiceNotFoundTest"/>
-            <class name="org.ballerinalang.test.service.websocket.WebSocketSimpleProxyTestCase"/>
+            <class name="org.ballerinalang.test.service.websocket.WebSocketSimpleProxyTest"/>
+            <class name="org.ballerinalang.test.service.websocket.WebSocketSslProxyTest"/>
             <class name="org.ballerinalang.test.service.websocket.OnBinaryContinuationTest"/>
             <class name="org.ballerinalang.test.service.websocket.MissingResourcesTest"/>
             <class name="org.ballerinalang.test.service.websocket.ClientInitializationFailureTest"/>
             <class name="org.ballerinalang.test.service.websocket.ClientCloseTest"/>
             <class name="org.ballerinalang.test.service.websocket.PushTextFailureTest"/>
             <class name="org.ballerinalang.test.service.websocket.IsOpenTest"/>
+            <class name="org.ballerinalang.test.service.websocket.SslEchoTest"/>
         </classes>
     </test>
 
