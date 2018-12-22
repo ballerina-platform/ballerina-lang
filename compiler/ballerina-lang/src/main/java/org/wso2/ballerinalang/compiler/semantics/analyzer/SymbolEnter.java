@@ -625,6 +625,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         funcNode.symbol = Symbols.createFunctionSymbol(Flags.asMask(funcNode.flagSet),
                 getFuncSymbolName(funcNode), env.enclPkg.symbol.pkgID, null, env.scope.owner, true);
         funcNode.symbol.scope = new Scope(funcNode.symbol);
+        funcNode.symbol.type = new BInvokableType(new ArrayList<>(), symTable.noType, null);
     }
 
     private void visitObjectAttachedFunction(BLangFunction funcNode) {
@@ -864,8 +865,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                 // let's inject future symbol to all the lambdas
                 // last lambda needs to be skipped to avoid self reference
                 // lambda's form others functions also need to be skiped
-                if (lambdaFunctions.hasNext() &&
-                    varSymbol.owner == lambdaFunction.cachedEnv.enclInvokable.symbol) {
+                BLangInvokableNode enclInvokable = lambdaFunction.cachedEnv.enclInvokable;
+                if (lambdaFunctions.hasNext() && enclInvokable != null && varSymbol.owner == enclInvokable.symbol) {
                     lambdaFunction.cachedEnv.scope.define(varSymbol.name, varSymbol);
                 }
             }

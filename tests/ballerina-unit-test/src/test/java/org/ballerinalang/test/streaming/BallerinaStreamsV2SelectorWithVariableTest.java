@@ -39,13 +39,11 @@ public class BallerinaStreamsV2SelectorWithVariableTest {
 
     @BeforeClass
     public void setup() {
-        System.setProperty("enable.siddhiRuntime", "false");
         result = BCompileUtil.compile("test-src/streaming/streamingv2-select-with-variable-test.bal");
     }
 
     @Test(description = "Test filter streaming query")
     public void testSelectQuery() {
-        System.setProperty("enable.siddhiRuntime", "true");
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startSelectQuery");
         Assert.assertNotNull(outputEmployeeEvents);
 

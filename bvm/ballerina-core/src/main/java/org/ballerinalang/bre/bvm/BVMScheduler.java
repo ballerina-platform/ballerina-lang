@@ -23,7 +23,9 @@ import org.ballerinalang.bre.old.WorkerExecutionContext;
 import org.ballerinalang.bre.old.WorkerState;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BError;
+import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.exceptions.BLangNullReferenceException;
@@ -57,7 +59,6 @@ public class BVMScheduler {
      * @param strand to be executed
      */
     public static void schedule(Strand strand) {
-        strandCountUp();
         ThreadPoolFactory.getInstance().getWorkerExecutor().submit(new CallableExecutor(strand));
     }
 
@@ -68,15 +69,12 @@ public class BVMScheduler {
      */
     public static void execute(Strand strand) {
         try {
-            strandCountUp();
             BVM.execute(strand);
         } catch (Throwable e) {
             //These errors are unhandled errors in BVM, hence logging them to bre log.
             breLog.error(e.getMessage(), e);
             // Wrap the errors in a runtime exception to make sure these are logged in internal log.
             throw new RuntimeException(e);
-        } finally {
-            strandCountDown();
         }
     }
 
@@ -89,7 +87,6 @@ public class BVMScheduler {
      */
     public static void scheduleNative(NativeCallableUnit nativeCallable,
                                       Context nativeCtx, CallableUnitCallback callback) {
-        strandCountUp();
         ThreadPoolFactory.getInstance().getWorkerExecutor()
                 .submit(new NativeCallableExecutor(nativeCallable, nativeCtx, callback));
     }
@@ -103,13 +100,7 @@ public class BVMScheduler {
      */
     public static void executeNative(NativeCallableUnit nativeCallable,
                                      Context nativeCtx, CallableUnitCallback callback) {
-        try {
-            strandCountUp();
-            nativeCallable.execute(nativeCtx, callback);
-        } finally {
-            //TODO Ideally we shouldn't need to handle errors or finally here. Remove if possible
-            strandCountDown();
-        }
+        nativeCallable.execute(nativeCtx, callback);
     }
 
 
@@ -148,7 +139,7 @@ public class BVMScheduler {
     }
 
 
-    private static void strandCountUp() {
+    static void strandCountUp() {
         if (strandCount.incrementAndGet() == 1) {
             try {
                 strandsDoneSemaphore.acquire();
@@ -158,7 +149,7 @@ public class BVMScheduler {
         }
     }
 
-    private static void strandCountDown() {
+    static void strandCountDown() {
         if (strandCount.decrementAndGet() == 0) {
             strandsDoneSemaphore.release();
         }
@@ -194,11 +185,8 @@ public class BVMScheduler {
             } catch (Throwable e) {
                 //These errors are unhandled errors in BVM, hence logging them to bre log.
                 breLog.error(e.getMessage(), e);
-            } finally {
-                strandCountDown();
             }
         }
-
     }
 
     /**
@@ -230,6 +218,11 @@ public class BVMScheduler {
                 if (strand.fp > 0) {
                     // Stop the observation context before popping the stack frame
                     ObserveUtils.stopCallableObservation(strand);
+                    // Maybe we can omit this since natives cannot have worker interactions
+                    if (BVM.checkIsType(this.nativeCtx.getReturnValue(), BTypes.typeError)) {
+                        strand.currentFrame.handleChannelError((BRefType) this.nativeCtx.getReturnValue(),
+                                strand.peekFrame(1).wdChannels);
+                    }
                     strand.popFrame();
                     StackFrame retFrame = strand.currentFrame;
                     BLangVMUtils.populateWorkerDataWithValues(retFrame, this.nativeCtx.getDataFrame().retReg,
@@ -237,19 +230,27 @@ public class BVMScheduler {
                     execute(strand);
                     return;
                 }
+                if (BVM.checkIsType(this.nativeCtx.getReturnValue(), BTypes.typeError)) {
+                    strand.currentFrame.handleChannelError((BRefType) this.nativeCtx.getReturnValue(),
+                            strand.respCallback.parentChannels);
+                }
                 strand.respCallback.signal();
                 return;
             } catch (BLangNullReferenceException e) {
                 error = BLangVMErrors.createNullRefException(this.nativeCtx.getStrand());
             } catch (Throwable e) {
                 error = BLangVMErrors.createError(this.nativeCtx.getStrand(), e.getMessage());
-            } finally {
-                strandCountDown();
             }
             strand.setError(error);
             // Stop the observation context before popping the stack frame
             ObserveUtils.stopCallableObservation(strand);
-            strand.popFrame();
+            if (strand.fp > 0) {
+                strand.currentFrame.handleChannelPanic(error, strand.peekFrame(1).wdChannels);
+                strand.popFrame();
+            } else {
+                strand.currentFrame.handleChannelPanic(error, strand.respCallback.parentChannels);
+                strand.popFrame();
+            }
             BVM.handleError(strand);
             execute(strand);
         }

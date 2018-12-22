@@ -50,12 +50,27 @@ public class BallerinaEnterInDocumentationHandler extends EnterHandlerDelegateAd
                         editor.getDocument().getLineEndOffset(prevLine)));
         if (lineString.trim().startsWith("#")) {
             int newCol = lineString.indexOf("#");
-            // Move caret to be vertically aligned with the previous doc line.
-            editor.getCaretModel().moveToLogicalPosition(new LogicalPosition(caretPos.line, newCol));
-            EditorModificationUtil.insertStringAtCaret(editor, "# ", false);
+            String enteredText = editor.getDocument().getText(
+                    new TextRange(editor.getDocument().getLineStartOffset(caretPos.line),
+                            editor.getDocument().getLineEndOffset(caretPos.line))).trim();
+            editor.getDocument().deleteString(editor.getDocument().getLineStartOffset(caretPos.line),
+                    editor.getDocument().getLineEndOffset(caretPos.line));
+            editor.getCaretModel().moveToLogicalPosition(new LogicalPosition(caretPos.line, 1));
+            enterNewLine(editor, enteredText, newCol);
+
             // Commit the document.
             PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument());
         }
         return Result.Continue;
+    }
+
+    private void enterNewLine(Editor editor, String str, int col) {
+        StringBuilder strBuilder = new StringBuilder("# " + str);
+        // Left padding with whitespaces in order to be vertically aligned with the previous doc line.
+        for (int i = 0; i < col; i++) {
+            strBuilder.insert(0, ' ');
+        }
+        str = strBuilder.toString();
+        EditorModificationUtil.insertStringAtCaret(editor, str, false, str.indexOf('#') + 2);
     }
 }

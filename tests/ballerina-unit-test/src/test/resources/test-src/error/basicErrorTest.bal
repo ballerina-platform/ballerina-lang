@@ -73,3 +73,62 @@ public function testErrorWithErrorConstructor() returns string {
 function getCallStackTest() returns runtime:CallStackElement[] {
     return runtime:getCallStack();
 }
+
+function testConsecutiveTraps() returns (string, string) {
+    error? e1 = trap generatePanic();
+    error? e2 = trap generatePanic();
+    if e1 is error {
+        if e2 is error {
+            return (e1.reason(), e2.reason());
+        }
+    }
+    return ("Failed", "Failed");
+}
+
+function generatePanic() {
+    error e = error("Error");
+    panic e;
+}
+
+function testOneLinePanic() returns string[] {
+    error? error1 = trap panicWithReasonOnly();
+    error? error2 = trap panicWithReasonAndDetailMap();
+    error? error3 = trap panicWithReasonAndDetailRecord();
+    string[] results = [];
+    if error1 is error {
+        results[0] = error1.reason();
+    }
+
+    if error2 is error {
+        results[1] = error2.reason();
+        var detail = error2.detail();
+        results[2] = <string>detail.msg;
+    }
+
+    if error3 is error {
+        results[3] = error3.reason();
+        var detail = error3.detail();
+        results[4] = <string>detail.message;
+        results[5] = <string>detail.statusCode;
+    }
+
+    return results;
+}
+
+function panicWithReasonOnly() {
+    panic error("Error1");
+}
+
+function panicWithReasonAndDetailMap() {
+    panic error("Error2", { msg: "Something Went Wrong" });
+}
+
+type DetailRec record {
+    string message;
+    int statusCode;
+};
+
+function panicWithReasonAndDetailRecord() {
+    DetailRec detail = { message: "Something Went Wrong", statusCode: 1 };
+    panic error("Error3", detail);
+}

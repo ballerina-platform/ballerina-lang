@@ -36,11 +36,10 @@ public class IncompatibleRecordTypeTest {
 
     @BeforeClass
     public void setup() {
-
         resultNegative = BCompileUtil.
-                compile("test-src/streaming/negative/streaming-invalid-record-type-negative-test.bal");
+                compile("test-src/streaming/negative/streaming-invalid-record-type-negative-test.bal", true);
         resultNegativeForInvalidOrder = BCompileUtil.
-                compile("test-src/streaming/negative/streaming-output-attribute-order-negative-test.bal");
+                compile("test-src/streaming/negative/streaming-output-attribute-order-negative-test.bal", true);
     }
 
     @Test(description = "Test filter streaming query with invalid stream attribute type")

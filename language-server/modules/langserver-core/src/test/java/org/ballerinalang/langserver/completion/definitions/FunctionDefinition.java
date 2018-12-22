@@ -86,6 +86,10 @@ public class FunctionDefinition extends CompletionTest {
                 {"anonFunctionSnippetSuggestion1.json", "function"},
                 {"anonFunctionSnippetSuggestion2.json", "function"},
                 {"anonFunctionSnippetSuggestion3.json", "function"},
+                {"typeGuardSuggestions1.json", "function"},
+                {"typeGuardSuggestions2.json", "function"},
+                {"typeGuardSuggestions3.json", "function"},
+                {"typeGuardSuggestions4.json", "function"},
         };
     }
 }

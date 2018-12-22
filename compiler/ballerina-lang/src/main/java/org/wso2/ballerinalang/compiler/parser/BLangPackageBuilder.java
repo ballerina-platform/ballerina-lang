@@ -1971,8 +1971,10 @@ public class BLangPackageBuilder {
         BLangObjectTypeNode objectNode = (BLangObjectTypeNode) this.typeNodeStack.peek();
         if (Names.OBJECT_INIT_SUFFIX.value.equals(function.name.value)) {
             function.objInitFunction = true;
-            objectNode.initFunction = function;
-            return;
+            if (objectNode.initFunction == null) {
+                objectNode.initFunction = function;
+                return;
+            }
         }
 
         objectNode.addFunction(function);
@@ -3523,8 +3525,8 @@ public class BLangPackageBuilder {
         }
     }
 
-    void startForeverNode(DiagnosticPos pos) {
-        ForeverNode foreverNode = TreeBuilder.createForeverNode();
+    void startForeverNode(DiagnosticPos pos, boolean isSiddhiRuntimeEnabled) {
+        ForeverNode foreverNode = TreeBuilder.createForeverNode(isSiddhiRuntimeEnabled);
         ((BLangForever) foreverNode).pos = pos;
         this.foreverNodeStack.push(foreverNode);
     }
