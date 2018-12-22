@@ -121,3 +121,12 @@ function testUnknownFields() {
     any unknown2;
     {name, married, age: {age, format, unknown1}, unknown2} = p; // unknown fields
 }
+
+type UserData1 record {
+    *Data;
+};
+
+type UserData2 record {
+    int index;
+    *Data;
+};
