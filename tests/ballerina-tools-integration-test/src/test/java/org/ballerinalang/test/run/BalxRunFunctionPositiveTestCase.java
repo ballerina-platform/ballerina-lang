@@ -45,6 +45,7 @@ import static org.ballerinalang.test.utils.PackagingTestUtils.deleteFiles;
 public class BalxRunFunctionPositiveTestCase extends BaseTest {
 
     private static final String PRINT_RETURN = "--printreturn";
+    private static final int LOG_LEECHER_TIMEOUT = 10000;
 
     private String sourceRoot = (new File("src/test/resources/run/balx/simple/")).getAbsolutePath();
 
@@ -74,7 +75,7 @@ public class BalxRunFunctionPositiveTestCase extends BaseTest {
         String arg0 = "main with no return";
         LogLeecher outLogLeecher = new LogLeecher(arg0);
         balClient.runMain(sourceArg, new String[]{PRINT_RETURN}, new String[]{arg0}, new LogLeecher[]{outLogLeecher});
-        outLogLeecher.waitForText(2000);
+        outLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
     @Test
@@ -83,7 +84,7 @@ public class BalxRunFunctionPositiveTestCase extends BaseTest {
         sourceArg = balxPath + ":" + functionName;
         LogLeecher outLogLeecher = new LogLeecher("1");
         balClient.runMain(sourceArg, new String[]{PRINT_RETURN}, new String[0], new LogLeecher[]{outLogLeecher});
-        outLogLeecher.waitForText(2000);
+        outLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
     @Test
@@ -97,7 +98,7 @@ public class BalxRunFunctionPositiveTestCase extends BaseTest {
         balClient.runMain(sourceArg, new String[]{PRINT_RETURN}, new String[]{"1000", "1.0",
                         "Hello Ballerina", "255", "true", "{ \"name\": \"Maryam\" }", "<book>Harry Potter</book>",
                         "{ \"name\": \"Em\" }", "just", "the", "rest"}, new LogLeecher[]{outLogLeecher});
-        outLogLeecher.waitForText(2000);
+        outLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
     @Test(description = "test running a function where the function name has colons. " +
@@ -112,7 +113,7 @@ public class BalxRunFunctionPositiveTestCase extends BaseTest {
         String sourceArg = generatedBalx.toString() + ":colonsInName:Function";
         LogLeecher outLogLeecher = new LogLeecher(arg);
         balClient.runMain(sourceArg, new String[]{PRINT_RETURN}, new String[]{arg}, new LogLeecher[]{outLogLeecher});
-        outLogLeecher.waitForText(2000);
+        outLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
     @AfterClass
