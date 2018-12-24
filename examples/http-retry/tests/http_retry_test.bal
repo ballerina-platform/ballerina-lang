@@ -20,7 +20,7 @@ function testFunc() {
     // Send a GET request to the specified endpoint
     var response = httpEndpoint->get("/retry");
     if (response is http:Response) {
-        var result = textResponse.getTextPayload();
+        var result = response.getTextPayload();
         if (result is string) {
             test:assertEquals(result, "Hello World!!!");
         } else {

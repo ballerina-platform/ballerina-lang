@@ -21,7 +21,7 @@ function testFunc() {
     // Send a GET request to the specified endpoint
     var response = httpEndpoint->get("/fo");
     if (response is http:Response) {
-        var result = textResponse.getTextPayload();
+        var result = response.getTextPayload();
         if (result is string) {
             test:assertEquals(result, "Mock Resource is Invoked.");
         } else {

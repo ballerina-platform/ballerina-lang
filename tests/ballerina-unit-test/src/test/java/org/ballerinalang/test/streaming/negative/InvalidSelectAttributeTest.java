@@ -41,8 +41,10 @@ public class InvalidSelectAttributeTest {
 
     @Test(description = "Test if the proper error is thrown if an attribute is invalid in projection ")
     public void testInvalidAttributeInSelectClause() {
-        Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "incompatible stream action argument type " +
-                "'Teacher' defined", 37, 9);
+        Assert.assertEquals(result.getErrorCount(), 2);
+        BAssertUtil.validateError(result, 0, "undefined stream attribute 'batches' found in select clause", 36, 53);
+        BAssertUtil.validateError(result, 1, "fields defined in select clause, incompatible " +
+                "with output fields in type 'Teacher', expected '[name, age, status, batch, school]' but found " +
+                "'[batches, school, name, age, status]'", 37, 9);
     }
 }

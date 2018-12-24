@@ -120,12 +120,12 @@ public class DefinitionUtil {
 
         Location l = new Location();
         TextDocumentPositionParams position = definitionContext.get(DocumentServiceKeys.POSITION_KEY);
-        Path parentPath = new LSDocument(position.getTextDocument().getUri()).getPath().getParent();
+        String parentPath = new LSDocument(position.getTextDocument().getUri()).getSourceRoot();
         if (parentPath != null) {
             String fileName = bLangNode.getPosition().getSource().getCompilationUnitName();
             Path filePath = Paths
                     .get(CommonUtil.getPackageURI(definitionContext.get(NodeContextKeys.PACKAGE_OF_NODE_KEY)
-                            .name.getValue(), parentPath.toString(), definitionContext
+                            .name.getValue(), parentPath, definitionContext
                             .get(NodeContextKeys.PACKAGE_OF_NODE_KEY).name.getValue()), fileName);
             l.setUri(filePath.toUri().toString());
             Range r = new Range();

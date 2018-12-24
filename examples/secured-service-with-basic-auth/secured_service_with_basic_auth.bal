@@ -10,8 +10,8 @@ http:AuthProvider basicAuthProvider = {
 // override the authentication and authorization at the service level and
 // resource level.
 listener http:Listener ep = new(9090, config = {
-    // The secure hello world sample uses https.
     authProviders: [basicAuthProvider],
+    // The secure hello world sample uses https.
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",

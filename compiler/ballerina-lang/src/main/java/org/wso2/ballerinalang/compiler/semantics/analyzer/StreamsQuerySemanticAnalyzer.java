@@ -45,6 +45,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
@@ -94,10 +95,12 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * This class checks semantics of streaming queries.
@@ -334,7 +337,9 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWindow windowClause) {
-        //do nothing
+        for (BLangExpression expr : ((BLangInvocation) windowClause.getFunctionInvocation()).argExprs) {
+            expr.accept(this);
+        }
     }
 
     @Override
@@ -409,6 +414,14 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
             fieldAccessExpr.expr.accept(this);
         } else {
             typeChecker.checkExpr(fieldAccessExpr, env);
+            if (fieldAccessExpr.expr.type.tag == TypeTags.STREAM) {
+                BRecordType streamType = (BRecordType) ((BStreamType) fieldAccessExpr.expr.type).constraint;
+                if (streamType.fields.stream()
+                        .noneMatch(bField -> bField.name.value.equals(fieldAccessExpr.field.value))) {
+                    dlog.error(fieldAccessExpr.pos, DiagnosticCode.UNDEFINED_STREAM_ATTRIBUTE, fieldAccessExpr.field
+                            .value);
+                }
+            }
         }
     }
 
@@ -612,6 +625,11 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
         if (!((BLangStreamingQueryStatement) streamingQueryStatement).getSelectClause().isSelectAll()) {
             for (SelectExpressionNode expressionNode : selectExpressions) {
                 String variableName = resolveSelectFieldName(expressionNode);
+
+                if (variableName == null) {
+                    continue;
+                }
+
                 BType variableType = resolveSelectFieldType(expressionNode);
                 selectClauseAttributeMap.put(variableName, variableType);
             }
@@ -623,22 +641,20 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
         if (streamActionArgumentType.tag != TypeTags.ARRAY) {
             return;
         }
+
         BType structType = (((BArrayType) streamActionArgumentType).eType);
 
         if (structType.tag == TypeTags.OBJECT || structType.tag == TypeTags.RECORD) {
             List<BField> structFieldList = ((BStructureType) structType).fields;
-            for (BField structField : structFieldList) {
-                String fieldName = structField.name.value;
-                BType fieldType = structField.getType();
-                if (!(selectClauseAttributeMap.containsKey(fieldName) &&
-                        // type cannot be resolved for aggregators at compile time,
-                        (selectClauseAttributeMap.get(fieldName) == null ||
-                                types.isAssignable(selectClauseAttributeMap.get(fieldName), fieldType)))) {
-                    dlog.error(((BLangStreamAction) ((BLangStreamingQueryStatement) streamingQueryStatement).
-                                    getStreamingAction()).pos, DiagnosticCode.INCOMPATIBLE_STREAM_ACTION_ARGUMENT,
-                            structType);
-                    return;
-                }
+            if (structFieldList.stream().anyMatch(bField -> !(selectClauseAttributeMap.containsKey(bField.name.value) &&
+                    (selectClauseAttributeMap.get(bField.name.value) == null ||
+                    types.isAssignable(selectClauseAttributeMap.get(bField.name.value), bField.type))))) {
+                String[] fieldNames = structFieldList.stream().map(field -> field.name.value)
+                        .collect(Collectors.toList()).toArray(new String[]{});
+                String[] selectExprs = selectClauseAttributeMap.keySet().toArray(new String[]{});
+                dlog.error(((BLangStreamAction) ((BLangStreamingQueryStatement) streamingQueryStatement).
+                        getStreamingAction()).pos, DiagnosticCode.INCOMPATIBLE_FIELDS_IN_SELECT_CLAUSE, structType,
+                           Arrays.toString(fieldNames), Arrays.toString(selectExprs));
             }
         }
     }
@@ -651,10 +667,12 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
         if (expressionNode.getIdentifier() != null) {
             return expressionNode.getIdentifier();
         } else {
-            if (expressionNode.getExpression() instanceof BLangFieldBasedAccess) {
-                return ((BLangFieldBasedAccess) expressionNode.getExpression()).field.value;
+            BLangExpression expr = (BLangExpression) expressionNode.getExpression();
+            if (expr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
+                return ((BLangFieldBasedAccess) expr).field.value;
             } else {
-                return ((BLangSimpleVarRef) (expressionNode).getExpression()).variableName.value;
+                dlog.error(expr.pos, DiagnosticCode.SELECT_EXPR_ALIAS_NOT_FOUND);
+                return null;
             }
         }
     }

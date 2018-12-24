@@ -140,4 +140,73 @@ public class FunctionNilReturnTest {
             System.setOut(original);
         }
     }
+
+    @Test
+    public void testReturnsDuringValidCheck() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testReturnsDuringValidCheck");
+        Assert.assertNull(returns[0]);
+    }
+
+    @Test
+    public void testMissingReturnInIfElse() {
+        Assert.assertNull(BRunUtil.invoke(compileResult, "testMissingReturnInIfElse")[0]);
+    }
+
+    @Test
+    public void testMissingReturnInNestedIfElse() {
+        Assert.assertNull(BRunUtil.invoke(compileResult, "testMissingReturnInNestedIfElse")[0]);
+    }
+
+    @Test
+    public void testReturningInMatch() {
+        Assert.assertNull(BRunUtil.invoke(compileResult, "testReturningInMatch")[0]);
+    }
+
+    @Test
+    public void testValidCheckWithExplicitReturn() {
+        Assert.assertNull(BRunUtil.invoke(compileResult, "testValidCheckWithExplicitReturn")[0]);
+    }
+
+    @Test
+    public void testEmptyFunctionsWithNilableReturns() {
+        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableInt")[0]);
+        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableFloat")[0]);
+        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableDecimal")[0]);
+        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableString")[0]);
+        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableBoolean")[0]);
+        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableByte")[0]);
+        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableJSON")[0]);
+        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableXML")[0]);
+        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableMap")[0]);
+
+        // Arrays
+        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableIntArray")[0]);
+        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableFloatArray")[0]);
+        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableDecimalArray")[0]);
+        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableStringArray")[0]);
+        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableBooleanArray")[0]);
+        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableByteArray")[0]);
+        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableJSONArray")[0]);
+        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableXMLArray")[0]);
+    }
+
+    @Test
+    public void testEmptyFunctionsWithComplexNilableReturns() {
+        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableOpenRecord")[0]);
+        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableClosedRecord")[0]);
+        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableObject")[0]);
+        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableUnion")[0]);
+        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableTuple")[0]);
+        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableTypedesc")[0]);
+        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableStream")[0]);
+
+        // Arrays
+        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableOpenRecordArray")[0]);
+        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableClosedRecordArray")[0]);
+        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableObjectArray")[0]);
+        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableUnionArray")[0]);
+        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableTupleArray")[0]);
+        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableTypedescArray")[0]);
+        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableStreamArray")[0]);
+    }
 }

@@ -3,7 +3,8 @@ import {
     ASTNode, ASTUtil, Block, Break, CompoundAssignment, Constant, ExpressionStatement,
     Foreach, Function, If, Invocation, Lambda, Literal, Match,
     MatchStaticPatternClause, ObjectType, Panic, Return, Service,
-    TypeDefinition, UserDefinedType, Variable, VariableDef, VisibleEndpoint, Visitor, While, WorkerSend
+    TypeDefinition, UnionTypeNode, UserDefinedType, ValueType, Variable, VariableDef, VisibleEndpoint,
+    Visitor, While, WorkerSend
 } from "@ballerina/ast-model";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
@@ -305,6 +306,22 @@ export const visitor: Visitor = {
                     && (returnStmt.expression as Literal).emptyParantheses === true);
             }
         });
+
+        // show an implicit return line for functions with return type nil
+        // and doesn't have any return statements
+        if (!node.resource && returnStatements.length === 0) {
+            const isNilType = (target: ASTNode) => ASTKindChecker.isValueType(target)
+                            && (target as ValueType).typeKind === "nil";
+
+            // case one: returns () or no return type declaration
+            viewState.implicitReturn.hidden = !(isNilType(node.returnTypeNode)
+                // case two: returns a union type which wraps nil
+                || (ASTKindChecker.isUnionTypeNode(node.returnTypeNode)
+                    && (node.returnTypeNode as UnionTypeNode).memberTypeNodes.find(isNilType) !== undefined));
+            viewState.implicitReturn.client = client;
+            viewState.implicitReturn.bBox.h = config.statement.height;
+            viewState.implicitReturn.bBox.w = config.statement.width;
+        }
     },
 
     endVisitBlock(node: Block) {

@@ -42,6 +42,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.net.grpc.GrpcConstants.ENDPOINT_CONFIG_TIMEOUT;
 import static org.ballerinalang.net.grpc.GrpcConstants.LISTENER;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
@@ -104,6 +105,7 @@ public class Init extends AbstractGrpcNativeFunction {
     private ListenerConfiguration getListenerConfig(long port, Struct endpointConfig) {
         String host = endpointConfig.getStringField(GrpcConstants.ENDPOINT_CONFIG_HOST);
         Struct sslConfig = endpointConfig.getStructField(GrpcConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
+        long idleTimeout = endpointConfig.getIntField(ENDPOINT_CONFIG_TIMEOUT);
         
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         
@@ -122,6 +124,12 @@ public class Init extends AbstractGrpcNativeFunction {
         if (sslConfig != null) {
             setSslConfig(sslConfig, listenerConfiguration);
         }
+
+        if (idleTimeout < 0) {
+            throw new BallerinaConnectorException("Idle timeout cannot be negative. To disable the " +
+                    "timeout, set value to 0");
+        }
+        listenerConfiguration.setSocketIdleTimeout(Math.toIntExact(idleTimeout));
         
         listenerConfiguration.setServerHeader(getServerName());
         listenerConfiguration.setVersion(String.valueOf(Constants.HTTP_2_0));
