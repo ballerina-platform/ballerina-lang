@@ -99,6 +99,7 @@ public class ItemResolverConstants {
     public static final String ITR_MAP_LABEL = "map(<@lambda:function>)";
     public static final String ITR_FILTER_LABEL = "filter(<@lambda:function>)";
     public static final String ITR_COUNT_LABEL = "count()";
+    public static final String ITR_SELECT_LABEL = "select(functionReference)";
     public static final String ITR_MIN_LABEL = "min()";
     public static final String ITR_MAX_LABEL = "max()";
     public static final String ITR_AVERAGE_LABEL = "average()";
@@ -114,4 +115,6 @@ public class ItemResolverConstants {
     public static final String BUILTIN_IS_FROZEN_LABEL = "isFrozen()";
     public static final String BUILTIN_STAMP_LABEL = "stamp(anydata a)";
     public static final String BUILTIN_CONVERT_LABEL = "convert(anydata a)";
+    public static final String BUILTIN_DETAIL_LABEL = "detail()";
+    public static final String BUILTIN_REASON_LABEL = "reason()";
 }

@@ -133,15 +133,15 @@ public class NativeConversionNegativeTest {
     }
 
     @Test
-    public void testStructToJsonConstrained2() {
-        BAssertUtil.validateError(negativeCompileResult, 8, "incompatible types: 'Person2' cannot be converted to " 
-                + "'json<Person2>'", 80, 23);
+    public void testStructToJsonConstrainedNegative() {
+        BAssertUtil.validateError(negativeCompileResult, 8, "incompatible types: 'Person2' cannot be converted to "
+                + "'json<Person3>'", 81, 18);
     }
 
     @Test
-    public void testStructToJsonConstrainedNegative() {
-        BAssertUtil.validateError(negativeCompileResult, 10, "incompatible types: 'Person2' cannot be converted to " 
-                + "'json<Person3>'", 89, 18);
+    public void testTypeCheckingRecordToMapConversion() {
+        BAssertUtil.validateError(negativeCompileResult, 10, "incompatible types: 'Person2' cannot be converted to "
+                + "'map<int>'", 92, 12);
     }
 
     @Test

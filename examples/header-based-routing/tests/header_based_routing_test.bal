@@ -11,9 +11,9 @@ function startService() {
     before: "startService",
     after: "stopService"
 }
-function testFunc() {
+function testFunc() returns error? {
     // Invoking the main function.
-    endpoint http:Client httpEndpoint { url: "http://localhost:9090" };
+    http:Client httpEndpoint = new("http://localhost:9090");
     // Check whether the server is started.
     //test:assertTrue(serviceStarted, msg = "Unable to start the service");
 
@@ -28,13 +28,13 @@ function testFunc() {
     req.setHeader("x-type", "location");
     // Send a GET request to the specified endpoint.
     var response = httpEndpoint->get("/hbr/route", message = req);
-    match response {
-        http:Response resp => {
-            var realResponse = check resp.getJsonPayload();
-            test:assertEquals(realResponse, expectedJson);
-        }
-        error err => test:assertFail(msg = "Failed to call the endpoint:");
+    if (response is http:Response) {
+        var realResponse = check response.getJsonPayload();
+        test:assertEquals(realResponse, expectedJson);
+    } else {
+        test:assertFail(msg = "Failed to call the endpoint:");
     }
+    return;
 }
 
 function stopService() {

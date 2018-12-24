@@ -2,4 +2,3 @@
 # `.bal` file and issue the `ballerina run` command.
 $ ballerina run documentation.bal
 Documentation attachments are non executable constructs.
-

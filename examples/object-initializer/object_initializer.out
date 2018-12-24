@@ -3,4 +3,3 @@
 $ ballerina run object_initializer.bal
 {age:5, name:"John", fullName:"John Doe"}
 {age:5, name:"Adam", fullName:"Adam Page"}
-

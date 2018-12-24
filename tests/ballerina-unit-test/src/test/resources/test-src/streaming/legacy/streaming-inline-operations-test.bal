@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/runtime;
-import ballerina/io;
 
 type Employee record {
     string name;
@@ -45,7 +44,6 @@ function testFilterQuery() {
         where age > 30
         select name, age, status
         => (Employee[] emp) {
-            io:println("Filterted event received #: "+ i);
             foreach var e in emp {
                 employeeStream4.publish(e);
             }

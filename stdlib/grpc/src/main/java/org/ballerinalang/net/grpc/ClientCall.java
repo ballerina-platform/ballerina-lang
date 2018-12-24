@@ -20,6 +20,7 @@ package org.ballerinalang.net.grpc;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaders;
 
+import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
 import org.ballerinalang.net.grpc.stubs.AbstractStub;
 import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
@@ -185,7 +186,8 @@ public final class ClientCall {
         try {
             InputStream resp = method.streamRequest(message);
             outboundMessage.sendMessage(resp);
-
+        } catch (StatusRuntimeException ex) {
+            throw ex;
         } catch (Exception ex) {
             throw Status.Code.CANCELLED.toStatus().withCause(ex).withDescription("Failed to stream message")
                     .asRuntimeException();

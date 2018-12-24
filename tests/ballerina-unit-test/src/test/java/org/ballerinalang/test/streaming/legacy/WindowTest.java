@@ -38,13 +38,12 @@ public class WindowTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/streaming/legacy/window-streaming-test.bal");
+        result = BCompileUtil.compile("test-src/streaming/legacy/window-streaming-test.bal", true);
     }
 
     @Test(description = "Test window streaming query with groupby and aggregation function.")
     public void testWindowQuery() {
         BValue[] outputStatusCountArray = BRunUtil.invoke(result, "startWindowQuery");
-
         Assert.assertNotNull(outputStatusCountArray);
 
         Assert.assertEquals(outputStatusCountArray.length, 2, "Expected events are not received");

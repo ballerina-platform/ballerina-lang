@@ -404,9 +404,10 @@ public class Instruction {
         public BType type;
         public int reg;
         public int retReg;
+        public boolean isSameStrand;
 
         InstructionWRKSyncSend(int opcode, int channelRefCPIndex, WorkerDataChannelInfo dataChannelInfo,
-                               int sigCPIndex, BType type, int reg, int retReg) {
+                               int sigCPIndex, BType type, int reg, int retReg, boolean isSameStrand) {
             super(opcode);
             this.channelRefCPIndex = channelRefCPIndex;
             this.dataChannelInfo = dataChannelInfo;
@@ -414,6 +415,7 @@ public class Instruction {
             this.type = type;
             this.reg = reg;
             this.retReg = retReg;
+            this.isSameStrand = isSameStrand;
         }
         @Override
         public String toString() {

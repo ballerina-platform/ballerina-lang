@@ -42,6 +42,7 @@ import static org.ballerinalang.test.service.websub.WebSubTestUtils.requestUpdat
  */
 @Test(groups = "websub-test")
 public class WebSubDiscoveryWithMultipleSubscribersTestCase extends WebSubBaseTest {
+    private static final int LOG_LEECHER_TIMEOUT = 45000;
     private BServerInstance webSubSubscriber;
 
     private static final String INTENT_VERIFICATION_SUBSCRIBER_ONE_LOG = "ballerina: Intent Verification agreed - " +
@@ -77,15 +78,15 @@ public class WebSubDiscoveryWithMultipleSubscribersTestCase extends WebSubBaseTe
 
     @Test
     public void testDiscoveryAndIntentVerification() throws BallerinaTestException {
-        intentVerificationLogLeecherOne.waitForText(30000);
-        intentVerificationLogLeecherTwo.waitForText(30000);
+        intentVerificationLogLeecherOne.waitForText(LOG_LEECHER_TIMEOUT);
+        intentVerificationLogLeecherTwo.waitForText(LOG_LEECHER_TIMEOUT);
         requestUpdate(PUBLISHER_NOTIFY_URL_TWO, HUB_MODE_INTERNAL, CONTENT_TYPE_JSON);
     }
 
     @Test(dependsOnMethods = "testDiscoveryAndIntentVerification")
     public void testContentReceipt() throws BallerinaTestException {
-        internalHubNotificationLogLeecherOne.waitForText(45000);
-        internalHubNotificationLogLeecherTwo.waitForText(45000);
+        internalHubNotificationLogLeecherOne.waitForText(LOG_LEECHER_TIMEOUT);
+        internalHubNotificationLogLeecherTwo.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
     @AfterClass

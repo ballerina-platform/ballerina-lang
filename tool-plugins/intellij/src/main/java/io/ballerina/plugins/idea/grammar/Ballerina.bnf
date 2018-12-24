@@ -306,7 +306,7 @@ TypeDescTypeName ::= typedesc
 
 //AnnotatedTypeName ::= AnnotationAttachment+ SimpleTypeName
 ArrayTypeName ::= TypeName (LEFT_BRACKET (IntegerLiteral | SealedLiteral)? RIGHT_BRACKET)+
-NullableTypeName ::= TypeName QUESTION_MARK
+NullableTypeName ::= TypeName <<nullableTypePredicate>> QUESTION_MARK
 UnionTypeName ::= TypeName (PIPE TypeName)+
 GroupTypeName ::= LEFT_PARENTHESIS <<isGroupType>> TypeName RIGHT_PARENTHESIS
 TupleTypeName ::= LEFT_PARENTHESIS TypeName (COMMA TypeName)* RIGHT_PARENTHESIS
@@ -705,7 +705,6 @@ BinaryCompareExpression ::= Expression (LT_EQUAL | GT_EQUAL | GT | LT) Expressio
 BinaryEqualExpression ::= Expression (EQUAL | NOT_EQUAL) Expression
 BinaryAndExpression ::= Expression <<isNotInStreams>> AND Expression
 BinaryOrExpression ::= Expression OR Expression
-TernaryExpression ::= Expression QUESTION_MARK Expression COLON Expression {pin=2}
 WaitExpression ::=   wait (WaitForCollection | Expression) {pin=1}
 WorkerSendAsyncExpression ::= Expression SYNCRARROW identifier {pin=2}
 WorkerReceiveExpression ::= LARROW identifier (COMMA Expression)? {pin=1}
@@ -716,6 +715,7 @@ BitwiseExpression ::= Expression (BITAND | PIPE | BITXOR) Expression
 BitwiseShiftExpression ::= Expression (ShiftExpression) Expression
 ArrowFunctionExpression ::= ArrowFunction
 ServiceConstructorExpression ::= AnnotationAttachment* service ServiceBody {pin=2}
+TernaryExpression ::= Expression (QUESTION_MARK Expression COLON Expression) {pin(".*")=1}
 
 TypeInitExpression ::= initWithType | initWithoutType
 initWithType ::= new UserDefineTypeName LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS {pin=3}

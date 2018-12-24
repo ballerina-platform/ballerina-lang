@@ -123,7 +123,7 @@ public class SQLDataIterator extends TableIterator {
     public String getBlob(int columnIndex) {
         try {
             Blob bValue = rs.getBlob(columnIndex);
-            return SQLDatasourceUtils.getString(bValue);
+            return rs.wasNull() ? null : SQLDatasourceUtils.getString(bValue);
         } catch (SQLException e) {
             throw new BallerinaException(e.getMessage(), e);
         }

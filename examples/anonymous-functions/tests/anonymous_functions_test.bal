@@ -22,4 +22,5 @@ function testFunc() {
     string out1 = "Output: Hello World.!!!";
     test:assertEquals(outputs[0], out1);
     test:assertEquals(outputs[1], out1);
+    test:assertEquals(outputs[2], out1);
 }
