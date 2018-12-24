@@ -181,21 +181,25 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * 
+ *
  * Responsible for performing data flow analysis.
  * <p>
  * The following validations are done here:-
  * <ul>
  * <li>Uninitialized variable referencing validation</li>
  * </ul>
- * 
+ *
  * @since 0.985.0
  */
 public class DataflowAnalyzer extends BLangNodeVisitor {
@@ -205,12 +209,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private BLangDiagnosticLog dlog;
     private Map<BSymbol, InitStatus> uninitializedVars;
     // Track the sequence of access to global variables to analyze reference patterns.
-    private Map<BSymbol, ArrayList<RefPosition>> globalVarSymbolRefPositions;
+    private Map<BSymbol, List<RefPosition>> globalVarSymbolRefPositions;
+    private Map<BSymbol, DefPosition> globalVarSymbolDefPositions;
     private boolean flowTerminated = false;
     private BLangAnonymousModelHelper anonymousModelHelper;
 
     private static final CompilerContext.Key<DataflowAnalyzer> DATAFLOW_ANALYZER_KEY = new CompilerContext.Key<>();
     private int globalVarRefCounter;
+    private int dependentId = 0;
 
     private DataflowAnalyzer(CompilerContext context) {
         context.put(DATAFLOW_ANALYZER_KEY, this);
@@ -229,13 +235,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     /**
      * Perform data-flow analysis on a package.
-     * 
+     *
      * @param pkgNode Package to perform data-flow analysis.
      * @return Data-flow analyzed package
      */
     public BLangPackage analyze(BLangPackage pkgNode) {
         this.uninitializedVars = new HashMap<>();
         this.globalVarSymbolRefPositions = new HashMap<>();
+        this.globalVarSymbolDefPositions = new HashMap<>();
         this.globalVarRefCounter = 0;
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
         analyzeNode(pkgNode, pkgEnv);
@@ -262,24 +269,75 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private void analyzeTopLevelNodeReferencePatterns(BLangPackage pkgNode,
-                                                      Map<BSymbol, ArrayList<RefPosition>> globalVarSymbolRefPositions,
+                                                      Map<BSymbol, List<RefPosition>> globalVarSymbolRefPositions,
                                                       BLangDiagnosticLog dlog) {
+        LinkedList<DefPosition> dependencyOrder = new LinkedList<>();
+
         List<BLangSimpleVariable> globalVars = pkgNode.globalVars;
-        for (int i = 0; i < globalVars.size(); i++) {
-            BLangSimpleVariable globalVar = globalVars.get(i);
+        boolean forwardRefFound = false;
+        for (BLangSimpleVariable globalVar : globalVars) {
             BSymbol symbol = globalVar.symbol;
-            ArrayList<RefPosition> accessedSequence = globalVarSymbolRefPositions.get(symbol);
-            boolean definedVariable = false;
-            for (RefPosition refPosition : accessedSequence) {
-                if (refPosition.isDefinition) {
-                    definedVariable = true;
-                }
-                if (!definedVariable) {
-                    dlog.error(refPosition.position, DiagnosticCode.GLOBAL_VARIABLE_FORWARD_REFERENCE, globalVar.name);
-                }
+            DefPosition defPosition = globalVarSymbolDefPositions.get(symbol);
+            List<RefPosition> accessedSequence = globalVarSymbolRefPositions.get(symbol);
+            forwardRefFound = validateSameFileForwardReferences(dlog, globalVar, defPosition, accessedSequence);
+            if (forwardRefFound) {
+                continue;
+            }
+
+            Optional<RefPosition> minPos = accessedSequence.stream().min(Comparator.comparingInt(r -> r.dependentId));
+            if (minPos.isPresent()) {
+                RefPosition min = minPos.get();
+                int position = findOrderedPosition(min.dependentId, dependencyOrder);
+                dependencyOrder.add(position, defPosition);
+            } else {
+                dependencyOrder.add(defPosition);
             }
         }
 
+        List<BLangVariable> orderedGlobalVars = dependencyOrder.stream().map(d -> d.variableNode)
+                .collect(Collectors.toList());
+        if (orderedGlobalVars.size() == pkgNode.globalVars.size()) { // != when there are same file forward references.
+            pkgNode.globalVars.clear();
+            List<Integer> topLevelPositions = new ArrayList<>();
+            for (DefPosition defPosition : dependencyOrder) {
+                BLangSimpleVariable variableNode = (BLangSimpleVariable) defPosition.variableNode;
+                topLevelPositions.add(pkgNode.topLevelNodes.indexOf(variableNode));
+                pkgNode.globalVars.add(variableNode);
+            }
+
+            topLevelPositions.sort(Comparator.comparingInt(value -> value));
+            for (int i = 0; i < topLevelPositions.size(); i++) {
+                pkgNode.topLevelNodes.set(topLevelPositions.get(i), orderedGlobalVars.get(i));
+            }
+        }
+    }
+
+    private boolean validateSameFileForwardReferences(BLangDiagnosticLog dlog, BLangSimpleVariable globalVar, DefPosition defPosition, List<RefPosition> accessedSequence) {
+        String defFile = defPosition.position.src.cUnitName;
+        List<RefPosition> sameFileForwardReferences = accessedSequence.stream()
+                .filter(p -> p.position.src.cUnitName.equals(defFile))
+                .filter(p -> p.refId < defPosition.refId)
+                .collect(Collectors.toList());
+
+        boolean foundForwardRef = false;
+        for (RefPosition refPosition : sameFileForwardReferences) {
+            foundForwardRef = true;
+            dlog.error(refPosition.position, DiagnosticCode.GLOBAL_VARIABLE_FORWARD_REFERENCE, globalVar.name);
+        }
+        return foundForwardRef;
+    }
+
+    private int findOrderedPosition(int minDependencyId, LinkedList<DefPosition> dependencyOrder) {
+        int size = dependencyOrder.size();
+        Iterator<DefPosition> iterator = dependencyOrder.iterator();
+        for (int i = 0; iterator.hasNext(); i++) {
+            DefPosition next = iterator.next();
+            if (minDependencyId >= next.refId) {
+                int position = i;
+                return position;
+            }
+        }
+        return size;
     }
 
     private void mapTopLevelNodeToSymbol(List<BLangSimpleVariable> globalVars) {
@@ -325,30 +383,48 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangSimpleVariableDef varDefNode) {
         BLangVariable var = varDefNode.var;
+        int prevDependentId = setDependentId();
+        observeGlobalVariableDefinition(var.symbol, var.pos, var);
         if (var.expr == null) {
             addUninitializedVar(var);
             return;
         }
 
         analyzeNode(var, env);
+        resetDependentId(prevDependentId);
+    }
+
+    private void resetDependentId(int prevDependentId) {
+        this.dependentId = prevDependentId;
+    }
+
+    private int setDependentId() {
+        int prevDependentId = this.dependentId;
+        this.dependentId = this.globalVarRefCounter + 1;
+        return prevDependentId;
     }
 
     @Override
     public void visit(BLangSimpleVariable variable) {
-        observeGlobalVariableDefinition(variable.symbol, variable.pos);
-        if (variable.expr != null) {
-            analyzeNode(variable.expr, env);
-            this.uninitializedVars.remove(variable.symbol);
-            return;
-        }
+        int prevDependentId = setDependentId();
+        try {
+            observeGlobalVariableDefinition(variable.symbol, variable.pos, variable);
+            if (variable.expr != null) {
+                analyzeNode(variable.expr, env);
+                this.uninitializedVars.remove(variable.symbol);
+                return;
+            }
 
-        // Handle package/object level variables
-        BSymbol owner = variable.symbol.owner;
-        if (owner.tag != SymTag.PACKAGE && owner.tag != SymTag.OBJECT) {
-            return;
-        }
+            // Handle package/object level variables
+            BSymbol owner = variable.symbol.owner;
+            if (owner.tag != SymTag.PACKAGE && owner.tag != SymTag.OBJECT) {
+                return;
+            }
 
-        addUninitializedVar(variable);
+            addUninitializedVar(variable);
+        } finally {
+            resetDependentId(prevDependentId);
+        }
     }
 
     @Override
@@ -1045,7 +1121,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     /**
      * Analyze a branch and returns the set of uninitialized variables for that branch.
      * This method will not update the current uninitialized variables set.
-     * 
+     *
      * @param node Branch node to be analyzed
      * @param env Symbol environment
      * @return Result of the branch.
@@ -1123,14 +1199,15 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         boolean isInPkgLevel = this.env.scope.owner.getKind() == SymbolKind.PACKAGE;
         if (isInPkgLevel && globalVarSymbolRefPositions.containsKey(symbol)) {
             // Add the sequence number we saw this symbol.
-            globalVarSymbolRefPositions.get(symbol).add(RefPosition.newRef(++globalVarRefCounter, pos));
+            globalVarSymbolRefPositions.get(symbol).add(RefPosition.newRef(++globalVarRefCounter, pos, dependentId));
         }
     }
 
-    private void observeGlobalVariableDefinition(BSymbol symbol, DiagnosticPos pos) {
+    private void observeGlobalVariableDefinition(BSymbol symbol, DiagnosticPos pos, BLangVariable var) {
         if (globalVarSymbolRefPositions.containsKey(symbol)) {
             // Add the sequence number we saw this symbol.
-            globalVarSymbolRefPositions.get(symbol).add(RefPosition.newDef(++globalVarRefCounter, pos));
+            int sequenceNo = ++globalVarRefCounter;
+            globalVarSymbolDefPositions.put(symbol, DefPosition.newDef(sequenceNo, pos, var));
         }
     }
 
@@ -1189,22 +1266,34 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private static class RefPosition {
-        final int sequenceNo;
+        final int refId;
         final DiagnosticPos position;
-        final boolean isDefinition;
+        final int dependentId;
 
-        private RefPosition(int sequenceNo, DiagnosticPos position, boolean def) {
-            this.sequenceNo = sequenceNo;
+        private RefPosition(int refId, DiagnosticPos position, int dependentId) {
+            this.refId = refId;
             this.position = position;
-            this.isDefinition = def;
+            this.dependentId = dependentId;
         }
 
-        static RefPosition newRef(int sequenceNo, DiagnosticPos position) {
-            return new RefPosition(sequenceNo, position, false);
+        static RefPosition newRef(int sequenceNo, DiagnosticPos position, int dependentId) {
+            return new RefPosition(sequenceNo, position, dependentId);
+        }
+    }
+
+    private static class DefPosition {
+        final int refId;
+        final DiagnosticPos position;
+        final BLangVariable variableNode;
+
+        private DefPosition(int refId, DiagnosticPos position, BLangVariable variableNode) {
+            this.refId = refId;
+            this.position = position;
+            this.variableNode = variableNode;
         }
 
-        static RefPosition newDef(int sequenceNo, DiagnosticPos position) {
-            return new RefPosition(sequenceNo, position, true);
+        static DefPosition newDef(int sequenceNo, DiagnosticPos position, BLangVariable var) {
+            return new DefPosition(sequenceNo, position, var);
         }
     }
 }
