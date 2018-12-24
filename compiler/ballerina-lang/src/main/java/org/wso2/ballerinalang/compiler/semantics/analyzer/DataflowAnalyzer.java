@@ -313,7 +313,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private boolean validateSameFileForwardReferences(BLangDiagnosticLog dlog, BLangSimpleVariable globalVar, DefPosition defPosition, List<RefPosition> accessedSequence) {
+    private boolean validateSameFileForwardReferences(BLangDiagnosticLog dlog, BLangSimpleVariable globalVar,
+                                                      DefPosition defPosition, List<RefPosition> accessedSequence) {
         String defFile = defPosition.position.src.cUnitName;
         List<RefPosition> sameFileForwardReferences = accessedSequence.stream()
                 .filter(p -> p.position.src.cUnitName.equals(defFile))

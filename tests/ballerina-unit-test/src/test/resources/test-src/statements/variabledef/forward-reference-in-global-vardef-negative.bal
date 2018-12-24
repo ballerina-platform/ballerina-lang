@@ -42,6 +42,8 @@ Person person = {
     age: 30
 };
 
+(Employee, Person) pp2 = (employee, person);
+
 public function getEmployee() returns Employee {
     return employee;
 }
