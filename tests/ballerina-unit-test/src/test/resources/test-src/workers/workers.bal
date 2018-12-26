@@ -289,3 +289,21 @@ function test(int c) {
         io:println("w2 end ", c, " - ", b);
     }
 }
+
+
+function workerTestWithLambda() returns int {
+    invokeTestFunc(5);
+    int a = fa.call();
+    return a;
+}
+
+(function () returns (int)) fa = function () returns (int) { return 88; };
+
+function invokeTestFunc(int c) {
+    worker w1 returns int {
+        int a = <- default;
+        return a;
+    }
+    int b = 9;
+    b -> w1;
+}

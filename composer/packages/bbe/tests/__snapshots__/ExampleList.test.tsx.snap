@@ -2,42 +2,41 @@
 
 exports[`SamplesList renders properly 1`] = `
 <div
-  className="ui grid welcome-page"
+  className="ui divided grid welcome-page"
 >
   <div
-    className="two column row welcome-navbar"
+    className="one column row welcome-navbar"
   >
-    <div
-      className="column nav-tagline"
-    >
-      Search and open available examples
-    </div>
     <div
       className="column"
     >
-      <div
-        className="top-nav-links"
-        style={
-          Object {
-            "marginRight": 40,
-            "paddingRight": 0,
-          }
-        }
+      <h3
+        className="ui dividing header"
+      >
+        Ballerina Examples
+      </h3>
+      <form
+        className="ui form"
+        onSubmit={[Function]}
       >
         <div
-          className="ui loading icon input"
+          className="inline field"
         >
-          <input
-            onChange={[Function]}
-            placeholder="Search"
-            type="text"
-          />
-          <i
-            aria-hidden="true"
-            className="spinner icon"
-          />
+          <div
+            className="ui loading icon input search-control"
+          >
+            <input
+              onChange={[Function]}
+              placeholder="Search"
+              type="text"
+            />
+            <i
+              aria-hidden="true"
+              className="spinner icon"
+            />
+          </div>
         </div>
-      </div>
+      </form>
     </div>
   </div>
   <div

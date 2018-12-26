@@ -19,12 +19,12 @@ function testFunc() {
     // Invoking the main function
     main();
 
-    string out1 = "Element type of the array is Int";
-    string out2 = "Int array is stamped as JSON array";
+    string out1 = "Element type of the array is 'int'";
+    string out2 = "Element type of the array is 'json'";
     string out3 = "School of the Employee is Hindu College";
-    string out4 = "Map is stamped as Teacher record type";
-    string out5 = "Tuple is stamped as int array";
-    string out6 = "JSON value is stamped as Foo";
+    string out4 = "'map<anydata>' is stamped as a 'Teacher'";
+    string out5 = "Tuple is stamped as an 'int' array";
+    string out6 = "JSON value is stamped as 'Foo'";
     test:assertEquals(outputs[0], out1);
     test:assertEquals(outputs[1], out2);
     test:assertEquals(outputs[2], out3);

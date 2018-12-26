@@ -17,20 +17,16 @@
 import ballerina/io;
 import ballerina/socket;
 
-listener socket:Listener server1 = new ({
-    port:60152
-});
+listener socket:Listener server1 = new(60152);
 
-listener socket:Listener server2 = new ({
-    port:60152
-});
+listener socket:Listener server2 = new(60152);
 
 service echoServer1 on server1 {
-    resource function onAccept (socket:Caller caller) {
+    resource function onAccept(socket:Caller caller) {
         io:println("Join: ", caller.remotePort);
     }
 
-    resource function onReadReady (socket:Caller caller, byte[] content) {
+    resource function onReadReady(socket:Caller caller, byte[] content) {
         _ = caller->write(content);
         io:println("Server write");
     }
@@ -45,11 +41,11 @@ service echoServer1 on server1 {
 }
 
 service echoServer2 on server2 {
-    resource function onAccept (socket:Caller caller) {
+    resource function onAccept(socket:Caller caller) {
         io:println("Join: ", caller.remotePort);
     }
 
-    resource function onReadReady (socket:Caller caller, byte[] content) {
+    resource function onReadReady(socket:Caller caller, byte[] content) {
         _ = caller->write(content);
         io:println("Server write");
     }

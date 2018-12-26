@@ -41,12 +41,16 @@ const debugConfigProvider: DebugConfigurationProvider = {
             config.script = window.activeTextEditor.document.uri.path;
         }
 
+        
 
         let langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
         if (langClient.initializeResult) {
             const { experimental } = langClient.initializeResult!.capabilities;
             if (experimental && experimental.introspection && experimental.introspection.port > 0) {
                 config.networkLogsPort = experimental.introspection.port;
+                if (config.networkLogs === undefined) {
+                    config.networkLogs = true;
+                }
             }
         }
 

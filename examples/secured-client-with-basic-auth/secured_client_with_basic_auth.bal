@@ -29,7 +29,13 @@ public function main() {
 }
 
 // Create a basic authentication provider with the relevant configurations.
+http:AuthProvider basicAuthProvider = {
+    scheme: "basic",
+    authStoreProvider: "config"
+};
+
 listener http:Listener ep  = new(9090, config = {
+    authProviders: [basicAuthProvider],
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",

@@ -1,3 +1,5 @@
+import ballerina/runtime;
+
 type ClientEndpointConfiguration record {
 
 };
@@ -67,3 +69,31 @@ function testAction2() returns string {
     string x = ep1->testAction2();
     return x;
 }
+
+
+string testStr = "";
+public function testDefaultError () returns string{
+    var a = test1(5);
+    test2();
+    runtime:sleep(200);
+    return testStr;
+}
+
+function test1(int c) returns error|() {
+    worker w1 returns int {
+        int|error a = <- default;
+        //need to verify this line is reached
+        testStr = "REACHED";
+        return 8;
+    }
+    int b = 9;
+
+    if (true) {
+        error e = error("error occurred");
+        return e;
+    }
+    b -> w1;
+    return ();
+}
+
+function test2() {}
