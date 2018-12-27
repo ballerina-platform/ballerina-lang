@@ -46,6 +46,7 @@ import static org.ballerinalang.test.utils.PackagingTestUtils.deleteFiles;
 public class BalxRunFunctionNegativeTestCase extends BaseTest {
 
     private String sourceRoot = (new File("src/test/resources/run/balx/simple")).getAbsolutePath();
+    private static final int LOG_LEECHER_TIMEOUT = 10000;
 
     private String balxPath;
     private Path tempProjectDir;
@@ -72,7 +73,7 @@ public class BalxRunFunctionNegativeTestCase extends BaseTest {
         LogLeecher errLogLeecher = new LogLeecher("error: ballerina source does not exist '" + balxPath +
                                                           ":" + "'", LeecherType.ERROR);
         balClient.runMain(sourceArg, new LogLeecher[]{errLogLeecher});
-        errLogLeecher.waitForText(2000);
+        errLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
     @Test(description = "test an invalid function name with ballerina run, where the function name includes colons")
@@ -89,7 +90,7 @@ public class BalxRunFunctionNegativeTestCase extends BaseTest {
                                                           + tempProjectDirTwo.resolve(fileName.replace("bal", "balx"))
                                                           + "'", LeecherType.ERROR);
         balClient.runMain(sourceArg, new LogLeecher[]{errLogLeecher});
-        errLogLeecher.waitForText(2000);
+        errLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
     @AfterClass

@@ -88,3 +88,14 @@ type Student3 record {
     *Person2;
     !...
 };
+
+type UserData1 record {
+    *Data;
+    !...
+};
+
+type UserData2 record {
+    int index;
+    *Data;
+    !...
+};
