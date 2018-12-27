@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.test.service.websub;
+package org.ballerinalang.test.service.websub.basic;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.test.context.BMainInstance;

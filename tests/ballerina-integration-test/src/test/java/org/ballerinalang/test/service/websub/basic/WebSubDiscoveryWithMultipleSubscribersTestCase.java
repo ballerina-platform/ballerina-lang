@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.test.service.websub;
+package org.ballerinalang.test.service.websub.basic;
 
 import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
