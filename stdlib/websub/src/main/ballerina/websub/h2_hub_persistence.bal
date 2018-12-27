@@ -17,6 +17,19 @@
 import ballerina/h2;
 import ballerina/log;
 
+const string CREATE_TOPICS_TABLE = "CREATE TABLE IF NOT EXISTS topics (topic VARCHAR(255), PRIMARY KEY (topic))";
+const string INSERT_INTO_TOPICS = "INSERT INTO topics (topic) VALUES (?)";
+const string DELETE_FROM_TOPICS = "DELETE FROM topics WHERE topic=?";
+const string SELECT_ALL_FROM_TOPICS = "SELECT * FROM topics";
+
+const string CREATE_SUBSCRIPTIONS_TABLE = "CREATE TABLE IF NOT EXISTS subscriptions
+                                            (topic VARCHAR(255), callback VARCHAR(255), secret VARCHAR(255),
+                                            lease_seconds BIGINT, created_at BIGINT, PRIMARY KEY (topic, callback))";
+const string INSERT_INTO_SUBSCRIPTIONS_TABLE = "INSERT INTO subscriptions
+                                                (topic,callback,secret,lease_seconds,created_at) VALUES (?,?,?,?,?)";
+const string DELETE_FROM_SUBSCRIPTIONS = "DELETE FROM subscriptions WHERE topic=? AND callback=?";
+const string SELECT_FROM_SUBSCRIPTIONS = "SELECT topic, callback, secret, lease_seconds, created_at FROM subscriptions";
+
 # Represents H2 based hub persistence configuration and functions.
 public type H2HubPersistenceObject object {
 
@@ -25,16 +38,12 @@ public type H2HubPersistenceObject object {
 
     public function __init(h2:Client subscriptionDbClient) {
         self.subscriptionDbClient = subscriptionDbClient;
-        var ret = self.subscriptionDbClient->update(
-                                    "CREATE TABLE IF NOT EXISTS topics (topic VARCHAR(255), PRIMARY KEY (topic))");
+        var ret = self.subscriptionDbClient->update(CREATE_TOPICS_TABLE);
         if (ret is error) {
             log:printError("'topics' table creation failed: " + <string>ret.detail().message);
         }
 
-        ret = self.subscriptionDbClient->update(
-                                    "CREATE TABLE IF NOT EXISTS subscriptions (topic VARCHAR(255)," +
-                                    " callback VARCHAR(255), secret VARCHAR(255), lease_seconds BIGINT," +
-                                    " created_at BIGINT, PRIMARY KEY (topic, callback))");
+        ret = self.subscriptionDbClient->update(CREATE_SUBSCRIPTIONS_TABLE);
         if (ret is error) {
             log:printError("'subscriptions' table creation failed: " + <string>ret.detail().message);
         }
@@ -49,11 +58,17 @@ public type H2HubPersistenceObject object {
         sql:Parameter para3 = { sqlType: sql:TYPE_VARCHAR, value: subscriptionDetails.secret };
         sql:Parameter para4 = { sqlType: sql:TYPE_BIGINT, value: subscriptionDetails.leaseSeconds };
         sql:Parameter para5 = { sqlType: sql:TYPE_BIGINT, value: subscriptionDetails.createdAt };
-        var rowCount = self.subscriptionDbClient->update("INSERT INTO subscriptions" +
-                                            " (topic,callback,secret,lease_seconds,created_at) VALUES (?,?,?,?,?) ON" +
-                                            " DUPLICATE KEY UPDATE secret=?, lease_seconds=?,created_at=?",
-                                            untaint para1, untaint para2, untaint para3, untaint para4, untaint para5,
-                                            untaint para3, untaint para4, untaint para5);
+
+        var rowCount = self.subscriptionDbClient->update(DELETE_FROM_SUBSCRIPTIONS, untaint para1, untaint para2);
+        if (rowCount is int) {
+            log:printDebug("Successfully removed " + rowCount + " entries for existing subscription");
+        } else if (rowCount is error) {
+            string errCause = <string> rowCount.detail().message;
+            log:printError("Error occurred deleting subscription data: " + errCause);
+        }
+
+        rowCount = self.subscriptionDbClient->update(INSERT_INTO_SUBSCRIPTIONS_TABLE, untaint para1, untaint para2,
+                                                    untaint para3, untaint para4, untaint para5);
         if (rowCount is int) {
             log:printDebug("Successfully updated " + rowCount + " entries for subscription");
         } else if (rowCount is error) {
@@ -68,8 +83,7 @@ public type H2HubPersistenceObject object {
     public function removeSubscription(SubscriptionDetails subscriptionDetails) {
         sql:Parameter para1 = { sqlType: sql:TYPE_VARCHAR, value: subscriptionDetails.topic };
         sql:Parameter para2 = { sqlType: sql:TYPE_VARCHAR, value: subscriptionDetails.callback };
-        var rowCount = self.subscriptionDbClient->update("DELETE FROM subscriptions WHERE topic=? AND callback=?",
-        untaint para1, untaint para2);
+        var rowCount = self.subscriptionDbClient->update(DELETE_FROM_SUBSCRIPTIONS, untaint para1, untaint para2);
 
         if (rowCount is int) {
             log:printDebug("Successfully updated " + rowCount + " entries for unsubscription");
@@ -84,7 +98,7 @@ public type H2HubPersistenceObject object {
     # + topic - The topic to add
     public function addTopic(string topic) {
         sql:Parameter para1 = { sqlType: sql:TYPE_VARCHAR, value: topic };
-        var rowCount = self.subscriptionDbClient->update("INSERT INTO topics (topic) VALUES (?)", para1);
+        var rowCount = self.subscriptionDbClient->update(INSERT_INTO_TOPICS, para1);
         if (rowCount is int) {
             log:printDebug("Successfully updated " + rowCount + " entries for topic registration");
         } else if (rowCount is error) {
@@ -99,7 +113,7 @@ public type H2HubPersistenceObject object {
     # + topic - The topic to remove
     public function removeTopic(string topic) {
         sql:Parameter para1 = { sqlType: sql:TYPE_VARCHAR, value: topic };
-        var rowCount = self.subscriptionDbClient->update("DELETE FROM topics WHERE topic=?", para1);
+        var rowCount = self.subscriptionDbClient->update(DELETE_FROM_TOPICS, para1);
         if (rowCount is int) {
             log:printDebug("Successfully updated " + rowCount + " entries for topic unregistration");
         } else if (rowCount is error) {
@@ -115,11 +129,10 @@ public type H2HubPersistenceObject object {
     public function retrieveTopics() returns string[] {
         string[] topics = [];
         int topicIndex = 0;
-        var dbResult = self.subscriptionDbClient->select("SELECT * FROM topics", TopicRegistration);
-        if (dbResult is table<TopicRegistration>) {
-            table<TopicRegistration> dt = dbResult;
-            while (dt.hasNext()) {
-                var registrationDetails = trap <TopicRegistration>dt.getNext();
+        var dbResult = self.subscriptionDbClient->select(SELECT_ALL_FROM_TOPICS, TopicRegistration);
+        if (dbResult is table<record {}>) {
+            while (dbResult.hasNext()) {
+                var registrationDetails = trap <TopicRegistration>dbResult.getNext();
                 if (registrationDetails is TopicRegistration) {
                     topics[topicIndex] = registrationDetails.topic;
                     topicIndex += 1;
@@ -141,9 +154,8 @@ public type H2HubPersistenceObject object {
     public function retrieveAllSubscribers() returns SubscriptionDetails[] {
         SubscriptionDetails[] subscriptions = [];
         int subscriptionIndex = 0;
-        var dbResult = self.subscriptionDbClient->select("SELECT topic, callback, secret, lease_seconds, created_at" +
-                                                " FROM subscriptions", SubscriptionDetails);
-        if (dbResult is table<SubscriptionDetails>) {
+        var dbResult = self.subscriptionDbClient->select(SELECT_FROM_SUBSCRIPTIONS, SubscriptionDetails);
+        if (dbResult is table<record {}>) {
             while (dbResult.hasNext()) {
                 var subscriptionDetails = trap <SubscriptionDetails>dbResult.getNext();
                 if (subscriptionDetails is SubscriptionDetails) {
