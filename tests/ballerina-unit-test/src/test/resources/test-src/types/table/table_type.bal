@@ -649,7 +649,7 @@ function testDateTimeAsTimeStruct() returns (int, int, int, int, int,
     time:Time dateStruct = time:createTime(2017, 5, 23, 0, 0, 0, 0, "");
 
     time:Timezone zoneValue = { zoneId: "UTC" };
-    time:Time timeStruct = new(51323000, zoneValue);
+    time:Time timeStruct = { time: 51323000, zone: zoneValue };
 
     time:Time timestampStruct = time:createTime(2017, 1, 25, 16, 12, 23, 0, "UTC");
     time:Time datetimeStruct = time:createTime(2017, 1, 31, 16, 12, 23, 332, "UTC");

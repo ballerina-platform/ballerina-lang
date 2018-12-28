@@ -315,7 +315,7 @@ function Response.setETag(json|xml|string|byte[] payload) {
 
 function Response.setLastModified() {
     time:Time currentT = time:currentTime();
-    string lastModified = currentT.format(time:TIME_FORMAT_RFC_1123);
+    string lastModified = time:format(currentT, time:TIME_FORMAT_RFC_1123);
     self.setHeader(LAST_MODIFIED, lastModified);
 }
 
