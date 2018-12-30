@@ -246,25 +246,25 @@ where the values specified via the Config API would override values specified as
 | b7a.websub.hub.remotepublish   | false         | Whether publishing updates against the topics in the hub could be done by remote publishers via HTTP requests with `hub.mode` set to `publish`  |
 | b7a.websub.hub.topicregistration | true      | Whether a topic needs to be registered at the hub for publishers to publish updates against the topic and for subscribers to send subscription requests for the topic |
 
-## Introducing Specific Subscriber Services
+## Introducing Specific Subscriber Services (Webhook Callback Services)
 
-Ballerina's WebSub subscriber service endpoint can be extended to introduce specific Webhooks.
+Ballerina's WebSub subscriber service listener can be extended to introduce specific Webhooks.
  
 With specific subscriber services, multiple resources could be introduced to accept content delivery requests, instead
  of the single `onNotification` resource. These resources could correspond to the possible content delivery 
  requests that could be received for a particular topic.
  
 For example, assume by subscribing to a particular topic with an issue tracking system, you receive notifications 
-either when an issue is opened or when an issue is closed. With a custom subscriber service endpoint, extending the generic 
-WebSub subscriber service endpoint, two resources accepting content delivery requests (e.g., `onIssueOpened` and 
-`onIssueClosed`) could be allowed instead of only the `onNotification` resource. 
+either when an issue is opened or when an issue is closed. With a custom subscriber service listener, extending the 
+generic WebSub subscriber service listener, two resources accepting content delivery requests (e.g., `onIssueOpened` 
+and `onIssueClosed`) could be allowed instead of the `onNotification` resource. 
 
 These resources would accept two parameters,
 1. The generic `websub:Notification` record as the first parameter
 2. A custom record, corresponding to the expected payload (JSON) of the notification (e.g, `IssueCreatedEvent`,
 `IssueClosedEvent`)
 
-Such a specific service could be introduced by extending the generic subscriber service endpoint, specifying a 
+Such a specific service could be introduced by extending the generic subscriber service listener, specifying a 
 mapping between the expected notifications and the resources that requests need to be dispatched to.
 
 The mapping could be based on one of the following indicators of a notification request. Dispatching would then be 
