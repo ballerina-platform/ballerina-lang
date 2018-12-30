@@ -33,6 +33,8 @@ import static org.testng.Assert.assertEquals;
 
 /**
  * Test re-ordering global variable initializations to satisfy dependency order.
+ *
+ * @since 0.990.3
  */
 public class GlobalForwardReferenceTestCase extends BaseTest {
     private static BServerInstance serverInstance;
