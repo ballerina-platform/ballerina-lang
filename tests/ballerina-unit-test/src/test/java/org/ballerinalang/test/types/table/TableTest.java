@@ -534,8 +534,9 @@ public class TableTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
 
+    //TODO:Enable after fixing #9048
     @Test(dependsOnGroups = TABLE_TEST,
-          description = "Check whether all sql connectors are closed properly.")
+          description = "Check whether all sql connectors are closed properly.", enabled = false)
     public void testCloseConnectionPool() {
         BValue connectionCountQuery = new BString("SELECT COUNT(*) FROM INFORMATION_SCHEMA.SESSIONS");
         BValue[] args = { connectionCountQuery };
