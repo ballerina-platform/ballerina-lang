@@ -38,13 +38,14 @@ public type Manager1 object {
         return self.salary*ratio*months;
     }
 
-    public new(age=20) {
-        name = "John";
-        salary = 1000.0;
+    public function __init(int age=20) {
+        self.age = age;
+        self.name = "John";
+        self.salary = 1000.0;
     }
 };
 
-function Manager1::getName(string greeting = "Hello") returns string {
+function Manager1.getName(string greeting = "Hello") returns string {
     return greeting + " " + self.name;
 }
 

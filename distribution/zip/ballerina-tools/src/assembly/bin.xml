@@ -131,6 +131,11 @@
                 <include>org.ballerinalang:ballerina-cli-utils:jar</include>
                 <include>org.ballerinalang:testerina-core:jar</include>
                 <include>org.ballerinalang:swagger-to-ballerina-generator:jar</include>
+                <!--
+                    Keeping lang-server compiler under bre as this is being used
+                    in ballerina swagger CLI tools
+                 -->
+                <include>org.ballerinalang:language-server-compiler:jar</include>
                 <include>org.ballerinalang:ballerina-packerina:jar</include>
                 <include>org.ballerinalang:protobuf-ballerina:jar</include>
                 <include>org.ballerinalang:ballerina-codegen:jar</include>
@@ -146,7 +151,6 @@
         <dependencySet>
             <outputDirectory>lib/tools/lang-server/lib</outputDirectory>
             <includes>
-                <include>org.ballerinalang:language-server-compiler:jar</include>
                 <include>org.ballerinalang:language-server-core:jar</include>
                 <include>org.ballerinalang:language-server-stdio-launcher:jar</include>
             </includes>

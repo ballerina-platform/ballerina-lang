@@ -20,7 +20,7 @@
     <parent>
         <artifactId>swagger-ballerina</artifactId>
         <groupId>org.ballerinalang</groupId>
-        <version>0.982.1-SNAPSHOT</version>
+        <version>0.990.2-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -60,7 +60,7 @@
     </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>language-server-core</artifactId>
+            <artifactId>language-server-compiler</artifactId>
         </dependency>
         <dependency>
         <groupId>org.ballerinalang</groupId>

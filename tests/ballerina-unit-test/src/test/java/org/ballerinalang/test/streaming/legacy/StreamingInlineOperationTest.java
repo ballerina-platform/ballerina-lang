@@ -38,7 +38,7 @@ public class StreamingInlineOperationTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/streaming/legacy/streaming-inline-operations-test.bal");
+        result = BCompileUtil.compile("test-src/streaming/legacy/streaming-inline-operations-test.bal", true);
     }
 
     @Test(description = "Test streaming query for inline operations within streaming action")

@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/runtime;
-import ballerina/io;
 
 type Employee record {
     string name;
@@ -33,8 +32,8 @@ type Teacher record {
 
 Employee[] globalEmployeeArray = [];
 int employeeIndex = 0;
-stream<Employee> employeeStream2;
-stream<Teacher> teacherStream4;
+stream<Employee> employeeStream2 = new;
+stream<Teacher> teacherStream4 = new;
 
 function testProjectionQuery() {
 

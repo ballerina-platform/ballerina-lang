@@ -1,9 +1,25 @@
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 type Person record {
     int id;
     int age;
     float salary;
     string name;
-    boolean married;
+    boolean married = false;
     !...
 };
 
@@ -14,7 +30,10 @@ type Employee object {
     public string name = "sample name";
 
 
-    new(id, age, name) {
+    function __init(int id, int age, string name) {
+        self.id  = id;
+        self.age = age;
+        self.name = name;
     }
 };
 
@@ -25,7 +44,7 @@ function testTableLiteralDataAndAdd2() returns (int) {
     Person p5 = { id: 5, age: 30, salary: 300.50, name: "mary", married: true };
 
     table<Person> t1 = table {
-        { primarykey id, primarykey salary, name, age, married2 },
+        { key id, key salary, name, age, married2 },
         [{ 1, 300.5, "jane",  30, true },
         { 2, 302.5, "anne",  23, false },
         { 3, 320.5, "john",  33, true }
@@ -41,7 +60,7 @@ function testTableLiteralDataAndAdd2() returns (int) {
 
 function testTableLiteralDataWithInit() returns (int) {
     table<Person> t1 = table {
-        { primarykey id, primarykey salary, name, age, married },
+        { key id, key salary, name, age, married },
         [1, 1]
     };
 
@@ -55,7 +74,7 @@ function testTableLiteralDataAndAddWithObject() returns (int) {
 
     //Object types cannot be included in the literal
     table<Employee> t1 = table {
-        { primarykey id, name, age }
+        { key id, name, age }
     };
 
     _ = t1.add(p4);
@@ -65,10 +84,30 @@ function testTableLiteralDataAndAddWithObject() returns (int) {
     return count;
 }
 
-function testEmptyTableCreateInvalid() {
-    table t1 = table{};
-}
-
 function testUnknownTableType() {
     table<Student> t1 = table {};
+}
+
+function testTableRemoveInvalidFunctionPointer() returns (int, json) | error {
+    Person p1 = { id: 1, age: 35, salary: 300.50, name: "jane", married: true };
+    Person p2 = { id: 2, age: 40, salary: 200.50, name: "martin", married: true };
+    Person p3 = { id: 3, age: 42, salary: 100.50, name: "john", married: false };
+
+    table<Person> dt = table{};
+    _ = dt.add(p1);
+    _ = dt.add(p2);
+    _ = dt.add(p3);
+
+    var res = dt.remove(isBelow35Invalid);
+    int count = -1;
+    if (res is int) {
+        count = res;
+    }
+    json j = check json.convert(dt);
+
+    return (count, j);
+}
+
+function isBelow35Invalid(Person p) {
+    p.age = 10;
 }

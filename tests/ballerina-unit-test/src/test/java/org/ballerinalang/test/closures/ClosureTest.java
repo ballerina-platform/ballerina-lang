@@ -21,10 +21,10 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -104,7 +104,7 @@ public class ClosureTest {
     @Test(description = "Test different type args 2")
     public void testDifferentTypeArgs2() {
         BValue[] returns = BRunUtil.invoke(compileResult, "test11");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 9);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
     }
 
     @Test(description = "Test different type args 3")
@@ -171,25 +171,25 @@ public class ClosureTest {
     @Test(description = "Test closure with variable shadowing")
     public void testClosureWithVariableShadowing1() {
         BValue[] returns = BRunUtil.invoke(compileResult, "test23");
-        Assert.assertEquals((returns[0]).stringValue(), "Ballerina30");
+        Assert.assertEquals((returns[0]).stringValue(), "Ballerina31");
     }
 
     @Test(description = "Test two level closure with variable shadowing")
     public void testClosureWithVariableShadowing2() {
         BValue[] returns = BRunUtil.invoke(compileResult, "test24");
-        Assert.assertEquals((returns[0]).stringValue(), "Out30In63Ballerina!!!");
+        Assert.assertEquals((returns[0]).stringValue(), "Out31In65Ballerina!!!");
     }
 
     @Test(description = "Test three level closure with variable shadowing")
     public void testClosureWithVariableShadowing3() {
         BValue[] returns = BRunUtil.invoke(compileResult, "test25");
-        Assert.assertEquals((returns[0]).stringValue(), "OutMost30Out44In77Ballerina!!!");
+        Assert.assertEquals((returns[0]).stringValue(), "OutMost31Out46In80Ballerina!!!");
     }
 
     @Test(description = "Test three level closure with variable shadowing another test case")
     public void testClosureWithVariableShadowing4() {
         BValue[] returns = BRunUtil.invoke(compileResult, "test26");
-        Assert.assertEquals((returns[0]).stringValue(), "OutMost47Out47In35Ballerina!!!");
+        Assert.assertEquals((returns[0]).stringValue(), "OutMost47Out47In36Ballerina!!!");
     }
 
     @Test(description = "Test iterable operations with lambda. This will verify whether local referred vars are " +
@@ -204,27 +204,27 @@ public class ClosureTest {
     public void testByteAndBoolean() {
         BValue[] returns = BRunUtil.invoke(compileResult, "test27");
         Assert.assertEquals(returns.length, 3);
-        Assert.assertSame(returns[0].getClass(), BByteArray.class);
-        Assert.assertSame(returns[1].getClass(), BByteArray.class);
-        Assert.assertSame(returns[2].getClass(), BByteArray.class);
-        BByteArray blob1 = (BByteArray) returns[0];
-        BByteArray blob2 = (BByteArray) returns[1];
-        BByteArray blob3 = (BByteArray) returns[2];
+        Assert.assertSame(returns[0].getClass(), BValueArray.class);
+        Assert.assertSame(returns[1].getClass(), BValueArray.class);
+        Assert.assertSame(returns[2].getClass(), BValueArray.class);
+        BValueArray blob1 = (BValueArray) returns[0];
+        BValueArray blob2 = (BValueArray) returns[1];
+        BValueArray blob3 = (BValueArray) returns[2];
         assertJBytesWithBBytes(new byte[]{13, 7, 4, 3}, blob1);
         assertJBytesWithBBytes(new byte[]{3, 13, 5, 7, 3}, blob2);
         assertJBytesWithBBytes(new byte[]{1, 2, 3, 13, 7}, blob3);
     }
 
-    private void assertJBytesWithBBytes(byte[] jBytes, BByteArray bBytes) {
+    private void assertJBytesWithBBytes(byte[] jBytes, BValueArray bBytes) {
         for (int i = 0; i < jBytes.length; i++) {
-            Assert.assertEquals(bBytes.get(i), jBytes[i], "Invalid byte value returned.");
+            Assert.assertEquals(bBytes.getByte(i), jBytes[i], "Invalid byte value returned.");
         }
     }
 
     @Test(description = "Test multi level block statements with closure test case")
     public void testMultiLevelBlockStatements() {
         BValue[] returns = BRunUtil.invoke(compileResult, "test28");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 57);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 58);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 167);
     }
 

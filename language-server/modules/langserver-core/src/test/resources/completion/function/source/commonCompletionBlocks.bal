@@ -1,15 +1,23 @@
+import ballerina/h2;
 import ballerina/io;
 import ballerina/http;
-import ballerina/jdbc;
-
-endpoint jdbc:Client testDB {
-    url: "jdbc:h2:file:./local-transactions/Testdb",
-    username: "root",
-    password: "root",
-    poolOptions: { maximumPoolSize: 5 }
+import ballerina/log;
+h2:InMemoryConfig conf = {
+    name: "testName",
+    username: "user",
+    password: "pwd"
 };
 
-function main(string... args) {
+h2:Client testDb = new h2:Client({
+        path: "testPath",
+        name: "hubDatabaseName",
+        username: "hubDatabaseUsername",
+        password: "hubDatabasePassword",
+        poolOptions: {
+            maximumPoolSize: 5
+        }});
+
+public function main(string... args) {
     int a = 10;
     int b = 20;
     int checkValue = 20;
@@ -28,32 +36,16 @@ function main(string... args) {
     while(a > 5) {
         
         io:println(a);
-        a--;
-    }
-
-
-    try {
-        io:println("Start dividing numbers");
-
-        a = check divideNumbers(1, 0);
-
-    } catch (error err) {
-        
-        io:println("Error occurred: ", err.message);
-        
-        throw err;
-    } finally {
-
-        io:println("Finally block executed");
+        a -= 1;
     }
 }
 
-service<http:Service> sampleService bind { port: 9090 } {
+service sampleService on new http:Listener(8080) {
     int serviceVar1 = 124;
 
     string serviceVar2 = "Test String";
 
-    sampleResource (endpoint caller, http:Request request) {
+    resource function sampleResource(http:Caller caller, http:Request request) {
         worker w1 {
             int a = 12;
         }
@@ -66,81 +58,77 @@ service<http:Service> sampleService bind { port: 9090 } {
 
 function divideNumbers(int a, int b) returns int|error {
     if (b == 0) {
-        error err = { message: "Division by 0 is not defined" };
+        error err = error("Division by 0 is not defined");
         return err;
     }
     return a / b;
 }
 
-function transactionFunc(string... args) {
-    var ret = testDB->update("CREATE TABLE CUSTOMER (ID INTEGER, NAME VARCHAR(30))");
-
-    ret = testDB->update("CREATE TABLE SALARY (ID INTEGER, MON_SALARY FLOAT)");
-
-    transaction with retries = 4, oncommit = onCommitFunction, onabort = onAbortFunction {
-    
-        var result = testDB->update("INSERT INTO CUSTOMER(ID,NAME) VALUES (1, 'Anne')");
-                                     
-        result = testDB->update("INSERT INTO SALARY (ID, MON_SALARY) VALUES (1, 2500)");
-        match result {
-            int c => {
-                io:println("Inserted count: " + c);
-                if (c == 0) {
-                    
-                    abort;
+function initiateNestedTransactionInRemote(string nestingMethod) returns string {
+   http:Client remoteEp = new("http://localhost:8889");
+    string s = "";
+    transaction {
+        s += " in initiator-trx";
+        
+        // this call sends the transaction context with it
+        var resp = remoteEp->post("/nestedTrx", nestingMethod);
+        if (resp is http:Response) {
+            if (resp.statusCode == 500) {
+                s += " remote1-excepted";
+                var payload = resp.getTextPayload();
+                if (payload is string) {
+                    s += ":[" + untaint payload + "]";
+                }
+            } else {
+                var text = resp.getTextPayload();
+                if (text is string) {
+                    log:printInfo(text);
+                    s += " <" + untaint text + ">";
+                } else {
+                    s += " error-in-remote-response " + text.reason();
+                    log:printError(text.reason());
                 }
             }
-            error err => {
-
-                retry;
-            }
+        } else {
+            s += " remote call error: " + resp.reason();
         }
     } onretry {
+        s += " onretry";
         
-        io:println("Retrying transaction");
+    } committed {
+        s += " committed";
+
+    } aborted {
+        s += " aborted";
+
     }
-
-    ret = testDB->update("DROP TABLE CUSTOMER");
+    return s;
 }
 
-function onCommitFunction(string transactionId) {
-    io:println("Transaction: " + transactionId + " committed");
-}
+function functionForkJoin() returns int{
+    int x = 5;
 
-function onAbortFunction(string transactionId) {
-    io:println("Transaction: " + transactionId + " aborted");
-}
-
-function functionForkJoin(string... args) {
     fork {
         worker w1 {
-            int i = 23;
-            string s = "Colombo";
-            io:println("[w1] i: ", i, " s: ", s);
-            
-            (i, s) -> fork;
+            int a = 5;
+            int b = 0;
+            a -> w2;
+            b  = <- w2;
         }
 
         worker w2 {
-            float f = 10.344;
-            io:println("[w2] f: ", f);
-            f -> fork;
+            int a = 0;
+            int b = 15;
+
+            a = <- w1;
+            b -> w1;
         }
-    } join (all) (map results) {
-        int iW1;
-        string sW1;
-        (iW1, sW1) = check <(int, string)>results["w1"];
-        io:println("[join-block] iW1: ", iW1, " sW1: ", sW1);
-        float fW2 = check <float>results["w2"];
-        
-        io:println("[join-block] fW2: ", fW2);
-    } timeout (1000) (map results) {
-        
-        if (results["w1"] != null) {
-            int iW1;
-            string sW1;
-            (iW1, sW1) = check <(int, string)>results["w1"];
-            io:println("[timeout-block] iW1: ", iW1, " sW1: ", sW1);
-        }
-     }
+    }
+    worker wx returns int {
+       int y = 50;
+       return y + 1;
+    }
+
+    return (wait wx) + 1;
 }
+

@@ -1,6 +1,6 @@
 // Year 2017
 import ballerina/io;
-
+import ballerina/http;
 
 function testComments () {
     // defining start name
@@ -34,27 +34,24 @@ function fooFunc(string a, // foo function
 
 type Person record { // Person type
     // name field
-    string name;
+    string name = "";
 
     // only one field
 };
 
 type Day "MONDAY" | "TUESDAY"; // enum Day
 
-@final Day MONDAY = "MONDAY"; // enumerator Monday
-@final Day TUESDAY = "TUESDAY"; // enumerator Tuesday
+final Day MONDAY = "MONDAY"; // enumerator Monday
+final Day TUESDAY = "TUESDAY"; // enumerator Tuesday
 
 
-@Description {value:"/FooService"} // http config annotation
-service<DummyService> FooService {
+@http:ServiceConfig {basePath:"/FooService"} // http config annotation
+service FooService on new http:Listener(9090) {
 
-    @Description{ value:"POST" // http method post
-                          // http resource path 
-
-                        }
-        fooResource (string s) {
-            io:println(s);
-        }
+@http:ResourceConfig{ methods: ["POST"] } // http method post
+    resource function fooResource (http:Caller caller, http:Request req) {
+        io:println(req);
+    }
 }
 
 //transformer <Person p,string s> {
@@ -63,22 +60,3 @@ service<DummyService> FooService {
 //}
 
 // end of file
-
-type Config record {
-    string name;
-};
-
-type DummyEndpoint object {
-
-    function init (Config conf)  {
-    }
-};
-
-
-type DummyService object {
-
-    function getEndpoint() returns (DummyEndpoint) {
-        DummyEndpoint myDummyEndpoint = new;
-        return myDummyEndpoint ;
-    }
-};

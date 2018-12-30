@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/runtime;
-import ballerina/io;
 
 type Stock record {
     string symbol;
@@ -40,9 +39,9 @@ int index = 0;
 
 function startJoinQuery() returns (StockWithPrice[]) {
 
-    stream<Stock> stockStream;
-    stream<Twitter> twitterStream;
-    stream<StockWithPrice> stockWithPriceStream;
+    stream<Stock> stockStream = new;
+    stream<Twitter> twitterStream = new;
+    stream<StockWithPrice> stockWithPriceStream = new;
 
     forever {
         from stockStream window time(1000) as s
@@ -50,7 +49,7 @@ function startJoinQuery() returns (StockWithPrice[]) {
         on stockStream.symbol == twitterStream.company
         select stockStream.symbol as symbol, twitterStream.tweet as tweet, stockStream.price as price
         => (StockWithPrice[] emp) {
-            foreach e in emp {
+            foreach var e in emp {
                 stockWithPriceStream.publish(e);
             }
         }

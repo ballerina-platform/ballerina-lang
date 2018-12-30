@@ -1,66 +1,57 @@
-import ballerina/http;
-import ballerina/mime;
 import ballerina/auth;
+import ballerina/http;
 
-function testCreateAuthnHandlerChain () returns (http:AuthnHandlerChain) {
+function testCreateAuthnHandlerChain() returns (http:AuthnHandlerChain) {
     http:AuthHandlerRegistry registry = new;
     http:AuthnHandlerChain authnHandlerChain = new(registry);
     return authnHandlerChain;
 }
 
-function testAuthFailure () returns (boolean) {
+function testAuthFailure() returns (boolean) {
     http:AuthHandlerRegistry registry = new;
     registry.add("basicProvider1", createBasicAuthnHandler());
     http:Request inRequest = createRequest();
     string basicAutheaderValue = "123Basic xxxxx";
-    mime:Entity requestEntity = new;
-    requestEntity.setHeader("123Authorization", basicAutheaderValue);
-    inRequest.setEntity(requestEntity);
+    inRequest.setHeader("123Authorization", basicAutheaderValue);
     http:AuthnHandlerChain authnHandlerChain = new(registry);
     return authnHandlerChain.handle(inRequest);
 }
 
-function testAuthFailureWithSpecificHandlers () returns (boolean) {
+function testAuthFailureWithSpecificHandlers() returns (boolean) {
     http:AuthHandlerRegistry registry = new;
     registry.add("basicProvider1", createBasicAuthnHandler());
     http:Request inRequest = createRequest();
     string basicAutheaderValue = "123Basic xxxxx";
-    mime:Entity requestEntity = new;
-    requestEntity.setHeader("123Authorization", basicAutheaderValue);
-    inRequest.setEntity(requestEntity);
+    inRequest.setHeader("123Authorization", basicAutheaderValue);
     http:AuthnHandlerChain authnHandlerChain = new(registry);
     string[] authProviders = [];
     authProviders[0] = "basicProvider1";
     return authnHandlerChain.handleWithSpecificAuthnHandlers(authProviders, inRequest);
 }
 
-function testAuthSuccess () returns (boolean) {
+function testAuthSuccess() returns (boolean) {
     http:AuthHandlerRegistry registry = new;
     registry.add("basicProvider1", createBasicAuthnHandler());
     http:Request inRequest = createRequest();
     string basicAutheaderValue = "Basic aXN1cnU6eHh4";
-    mime:Entity requestEntity = new;
-    requestEntity.setHeader("Authorization", basicAutheaderValue);
-    inRequest.setEntity(requestEntity);
+    inRequest.setHeader("Authorization", basicAutheaderValue);
     http:AuthnHandlerChain authnHandlerChain = new(registry);
     return authnHandlerChain.handle(inRequest);
 }
 
-function testAuthSuccessWithSpecificHandlers () returns (boolean) {
+function testAuthSuccessWithSpecificHandlers() returns (boolean) {
     http:AuthHandlerRegistry registry = new;
     registry.add("basicProvider1", createBasicAuthnHandler());
     http:Request inRequest = createRequest();
     string basicAutheaderValue = "Basic aXN1cnU6eHh4";
-    mime:Entity requestEntity = new;
-    requestEntity.setHeader("Authorization", basicAutheaderValue);
-    inRequest.setEntity(requestEntity);
+    inRequest.setHeader("Authorization", basicAutheaderValue);
     http:AuthnHandlerChain authnHandlerChain = new(registry);
     string[] authProviders = [];
     authProviders[0] = "basicProvider1";
     return authnHandlerChain.handleWithSpecificAuthnHandlers(authProviders, inRequest);
 }
 
-function createRequest () returns (http:Request) {
+function createRequest() returns (http:Request) {
     http:Request inRequest = new;
     inRequest.rawPath = "/helloWorld/sayHello";
     inRequest.method = "GET";
@@ -68,9 +59,9 @@ function createRequest () returns (http:Request) {
     return inRequest;
 }
 
-function createBasicAuthnHandler () returns (http:HttpAuthnHandler) {
-    auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
-    auth:AuthStoreProvider authStoreProvider = <auth:AuthStoreProvider>configAuthStoreProvider;
+function createBasicAuthnHandler() returns (http:HttpAuthnHandler) {
+    auth:ConfigAuthStoreProvider configAuthStoreProvider = new();
+    auth:AuthStoreProvider authStoreProvider = configAuthStoreProvider;
     http:HttpBasicAuthnHandler basicAuthnHandler = new(authStoreProvider);
-    return <http:HttpAuthnHandler> basicAuthnHandler;
+    return basicAuthnHandler;
 }

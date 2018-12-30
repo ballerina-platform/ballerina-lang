@@ -33,16 +33,13 @@ public interface BallerinaStatement extends BallerinaCompositeElement {
   BallerinaBreakStatement getBreakStatement();
 
   @Nullable
-  BallerinaCompensateStatement getCompensateStatement();
-
-  @Nullable
   BallerinaCompoundAssignmentStatement getCompoundAssignmentStatement();
 
   @Nullable
   BallerinaContinueStatement getContinueStatement();
 
   @Nullable
-  BallerinaDoneStatement getDoneStatement();
+  BallerinaErrorDestructuringStatement getErrorDestructuringStatement();
 
   @Nullable
   BallerinaExpressionStmt getExpressionStmt();
@@ -66,16 +63,16 @@ public interface BallerinaStatement extends BallerinaCompositeElement {
   BallerinaNamespaceDeclarationStatement getNamespaceDeclarationStatement();
 
   @Nullable
-  BallerinaPostIncrementStatement getPostIncrementStatement();
+  BallerinaPanicStatement getPanicStatement();
+
+  @Nullable
+  BallerinaRecordDestructuringStatement getRecordDestructuringStatement();
 
   @Nullable
   BallerinaRetryStatement getRetryStatement();
 
   @Nullable
   BallerinaReturnStatement getReturnStatement();
-
-  @Nullable
-  BallerinaScopeStatement getScopeStatement();
 
   @Nullable
   BallerinaStreamingQueryStatement getStreamingQueryStatement();
@@ -96,7 +93,7 @@ public interface BallerinaStatement extends BallerinaCompositeElement {
   BallerinaWhileStatement getWhileStatement();
 
   @Nullable
-  BallerinaWorkerInteractionStatement getWorkerInteractionStatement();
+  BallerinaWorkerSendAsyncStatement getWorkerSendAsyncStatement();
 
   @Nullable
   BallerinaMatchStatement getMatchStatement();

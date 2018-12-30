@@ -42,7 +42,7 @@ The following code snippet depicts the usage of all the functions in the log API
 log:printError("error log");
 
 // Logs the message at ERROR level, along with an error record
-error e = {message: "error occurred"};
+error e = error("error occurred");
 log:printError("error log with cause", err = e);
 
 // Logs the message at WARN level
@@ -61,15 +61,15 @@ log:printTrace("trace log");
 
 Suppose that the above code snippet resides in a module named `foo`. We can set the log level of `foo` to `DEBUG` in a configuration file by placing the following entry in it:
 ```toml
-[foo]
+["<org-name>/foo"]
 loglevel="DEBUG"
 
 OR
 
-foo.loglevel="DEBUG"
+"<org-name>/foo.loglevel"="DEBUG"
 ```
 
 The log level of `foo` can also be configured through the CLI as follows:
 ```bash
-$ ballerina run foo -e foo.loglevel=DEBUG
+$ ballerina run -e \"<org-name>/foo.loglevel\"=DEBUG foo
 ```

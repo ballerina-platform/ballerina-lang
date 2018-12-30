@@ -43,14 +43,14 @@ public class BallerinaStreamingInputImpl extends BallerinaCompositeElementImpl i
 
   @Override
   @NotNull
-  public BallerinaExpression getExpression() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaExpression.class));
+  public List<BallerinaFunctionInvocation> getFunctionInvocationList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaFunctionInvocation.class);
   }
 
   @Override
   @NotNull
-  public List<BallerinaFunctionInvocation> getFunctionInvocationList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaFunctionInvocation.class);
+  public BallerinaVariableReference getVariableReference() {
+    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaVariableReference.class));
   }
 
   @Override

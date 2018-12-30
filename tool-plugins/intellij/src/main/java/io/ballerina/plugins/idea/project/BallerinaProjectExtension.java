@@ -19,16 +19,18 @@ package io.ballerina.plugins.idea.project;
 import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.DataKeys;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.WriteAction;
+import com.intellij.openapi.application.ex.ApplicationManagerEx;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ModuleRootModificationUtil;
 import com.intellij.openapi.roots.ProjectExtension;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.AsyncResult;
-import io.ballerina.plugins.idea.BallerinaExternalAnnotator;
-import io.ballerina.plugins.idea.preloading.BallerinaLanguageServerPreloadingActivity;
+import io.ballerina.plugins.idea.BallerinaConstants;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkService;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
@@ -63,11 +65,12 @@ public class BallerinaProjectExtension extends ProjectExtension {
                 WriteAction.run(() -> ModuleRootModificationUtil.setSdkInherited(module));
             }
         }
-        // Reset Ballerina external annotator.
-        BallerinaExternalAnnotator.reset();
 
-        //Register language server definition for the new SDK
-        BallerinaLanguageServerPreloadingActivity.registerServerDefinition(project);
+        // Need to prompt a restart action to clear and re initiate language server instance from the new SDK.
+        // Todo - Figure out a way to apply language server changes without restarting.
+        if (isBallerinaSdk(sdk)) {
+            ApplicationManager.getApplication().invokeLater(this::showRestartDialog);
+        }
     }
 
     @Override
@@ -78,5 +81,18 @@ public class BallerinaProjectExtension extends ProjectExtension {
     @Override
     public void writeExternal(@NotNull Element element) {
         // We don't have any use of this method at the moment.
+    }
+
+    private boolean isBallerinaSdk(Sdk sdk) {
+        return sdk != null && BallerinaConstants.BALLERINA_SDK_TYPE.equals(sdk.getSdkType().getName());
+    }
+
+    @Messages.YesNoResult
+    private void showRestartDialog() {
+        String action = ApplicationManagerEx.getApplicationEx().isRestartCapable() ? "Restart" : "Shutdown";
+        String message = action + " is required to activate SDK changes. Do you wish to continue?";
+        if (Messages.showYesNoDialog(message, "Apply Changes", action, "Postpone", Messages.getQuestionIcon()) == 0) {
+            ApplicationManagerEx.getApplicationEx().restart(true);
+        }
     }
 }

@@ -17,14 +17,15 @@
  */
 package org.ballerinalang.testerina.core.entity;
 
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
+import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.ballerinalang.util.codegen.FunctionInfo;
+import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.program.BLangFunctions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,13 +55,14 @@ public class TesterinaFunction {
     static final String PREFIX_AFTERTEST = "AFTERTEST";
     static final String PREFIX_MOCK = "MOCK";
     static final String INIT_SUFFIX = ".<INIT>";
+    static final String TEST_INIT_SUFFIX = ".<TESTINIT>";
 
     /**
      * Prefixes for the test function names.
      */
     public enum Type {
         TEST(PREFIX_TEST), BEFORE_TEST(PREFIX_BEFORETEST), AFTER_TEST(PREFIX_AFTERTEST), MOCK(PREFIX_MOCK), INIT
-                (INIT_SUFFIX), UTIL(PREFIX_UTIL);
+                (INIT_SUFFIX), UTIL(PREFIX_UTIL), TEST_INIT(TEST_INIT_SUFFIX);
 
         String prefix;
 
@@ -81,13 +83,36 @@ public class TesterinaFunction {
     }
 
     public BValue[] invoke() throws BallerinaException {
-        if (this.type == Type.INIT) {
-            BLangFunctions.invokePackageInitFunctions(programFile);
-            BLangFunctions.invokePackageStartFunctions(programFile);
+        if (this.type == Type.TEST_INIT) {
+            // Invoke init functions
+            TesterinaUtils.invokePackageInitFunctions(programFile);
+            TesterinaUtils.invokePackageTestInitFunctions(programFile);
+
+            //  Invoke start functions
+            TesterinaUtils.invokePackageStartFunctions(programFile);
+            TesterinaUtils.invokePackageTestStartFunctions(programFile);
+
             TesterinaRegistry.getInstance().addInitializedPackage(programFile.getEntryPkgName());
-            return new BValue[] {};
+            return new BValue[]{};
         } else {
-            return invoke(new BValue[] {});
+            return invoke(new BValue[]{});
+        }
+    }
+
+    /**
+     * Invoke package stop functions.
+     *
+     * @throws BallerinaException exception is thrown
+     */
+    public void invokeStopFunctions() throws BallerinaException {
+        for (PackageInfo info : programFile.getPackageInfoEntries()) {
+            BVMExecutor.executeFunction(programFile, info.getStopFunctionInfo());
+        }
+
+        for (PackageInfo info : programFile.getPackageInfoEntries()) {
+            if (info.getTestStopFunctionInfo() != null) {
+                BVMExecutor.executeFunction(programFile, info.getTestStopFunctionInfo());
+            }
         }
     }
 
@@ -98,8 +123,7 @@ public class TesterinaFunction {
      * @return a BValue array
      */
     public BValue[] invoke(BValue[] args) {
-        WorkerExecutionContext ctx = new WorkerExecutionContext(programFile);
-        return BLangFunctions.invokeCallable(bFunction, ctx, args);
+        return BVMExecutor.executeFunction(programFile, bFunction, args);
     }
 
     public String getName() {

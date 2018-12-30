@@ -138,7 +138,7 @@ public class LocksInServicesTest {
         }
     }
 
-    @Test(description = "Test throwing error inside lock statement", enabled = false)
+    @Test(description = "Test throwing error inside lock statement")
     public void testThrowErrorInsideLock() {
         Semaphore semaphore = new Semaphore(0);
 
@@ -161,6 +161,21 @@ public class LocksInServicesTest {
         } catch (InterruptedException e) {
             Assert.fail("thread interrupted before request execution finished - " + e.getMessage(), e);
         }
+    }
+
+    @Test(description = "Test field locking in services")
+    public void testFieldLock() {
+
+        String path = "/sample4/echo";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HttpCarbonMessage response = Services.invokeNew(compileResult, MOCK_ENDPOINT_NAME, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        String responseMsgPayload =
+                StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertTrue(responseMsgPayload.equals("1001000") || responseMsgPayload.equals("500500"),
+                "incorrect response value");
+
     }
 
     private class TestRequestSender implements Runnable {

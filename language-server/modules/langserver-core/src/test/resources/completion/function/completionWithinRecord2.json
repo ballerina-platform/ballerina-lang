@@ -1,0 +1,40 @@
+{
+  "position": {
+    "line": 8,
+    "character": 12
+  },
+  "source": "function/source/completionWithinRecord.bal",
+  "items": [
+    {
+      "label":"innerRecField1",
+      "kind":"Field",
+      "detail":"Field",
+      "sortText":"120",
+      "insertText":"innerRecField1: ${1:\"\"}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"innerRecField2",
+      "kind":"Field",
+      "detail":"Field",
+      "sortText":"120",
+      "insertText":"innerRecField2: ${1:0}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"inner2Rec",
+      "kind":"Field",
+      "detail":"Field",
+      "sortText":"120",
+      "insertText":"inner2Rec: {\n\t${1}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"Add All Attributes",
+      "kind":"Property",
+      "detail":"none",
+      "sortText":"110",
+      "insertText":"innerRecField1: \"\",\ninnerRecField2: 0,\ninner2Rec: {}"
+    }
+  ]
+}

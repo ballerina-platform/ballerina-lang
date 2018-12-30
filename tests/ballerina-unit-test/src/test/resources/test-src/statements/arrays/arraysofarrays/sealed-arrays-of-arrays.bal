@@ -15,17 +15,21 @@
 // under the License.
 
 function initTwoDimensionalSealedArray() returns (int, int, int, int) {
-    string[3][4] x1;
+    string[3][4] x1 = [["00", "01", "02", "03"], ["10", "11", "12", "13"], ["20", "21", "22", "23"]];
     float[!...][!...] x2 = [[1.0, 2.1, 3.2], [4.3, 5.4, 6.5]];
 
-    return (lengthof x1, lengthof x1[0], lengthof x2, lengthof x2[0]);
+    return (x1.length(), x1[0].length(), x2.length(), x2[0].length());
 }
 
 function initThreeDimensionalSealedArray() returns (int, int, int, int, int, int) {
-    boolean[3][4][5] x1;
+    boolean[3][4][5] x1 = [[[false, true, false, true, false], [false, true, false, true, false],
+    [false, true, false,true, false], [false, true, false, true, false]], [[false, true, false, true, false],
+    [false, true, false, true, false], [false, true, false,true, false], [false, true, false, true, false]],
+    [[false, true, false, true, false], [false, true, false, true, false], [false, true, false,true, false],
+    [false, true, false, true, false]]];
     int[!...][!...][!...] x2 = [[[1, 2, 3], [4, 5, 6], [7, 8, 9]], [[1, 2, 3], [4, 5, 6], [7, 8, 9]]];
 
-    return (lengthof x1, lengthof x1[0], lengthof x1[0][0], lengthof x2, lengthof x2[0], lengthof x2[0][0]);
+    return (x1.length(), x1[0].length(), x1[0][0].length(), x2.length(), x2[0].length(), x2[0][0].length());
 }
 
 function twoDArrayIntAssignment(int[2] x2) returns (int, int, int) {

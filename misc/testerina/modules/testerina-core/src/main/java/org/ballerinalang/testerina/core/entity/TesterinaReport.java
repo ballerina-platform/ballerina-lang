@@ -18,7 +18,7 @@
 
 package org.ballerinalang.testerina.core.entity;
 
-import org.ballerinalang.testerina.util.Utils;
+import org.ballerinalang.testerina.util.TesterinaUtils;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -44,7 +44,7 @@ public class TesterinaReport {
         if (!testSummary.failedTests.isEmpty()) {
             for (TesterinaResult failedResult : testSummary.failedTests) {
                 outStream.println("\t[fail] " + failedResult.getTestFunctionName() + ":");
-                outStream.println("\t    " + Utils.formatError(failedResult.getAssertFailureMessage()));
+                outStream.println("\t    " + TesterinaUtils.formatError(failedResult.getAssertFailureMessage()));
             }
         }
 

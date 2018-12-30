@@ -23,11 +23,11 @@ package org.ballerinalang.net.http;
  */
 public class WebSocketConstants {
 
-    public static final String WEBSOCKET_ENDPOINT_NAME = "ballerina/http:WebSocketListener";
+    public static final String WEBSOCKET_CALLER_NAME = "ballerina/http:WebSocketCaller";
     public static final String WEBSOCKET_CLIENT_ENDPOINT_NAME = "ballerina/http:WebSocketClient";
     public static final String WEBSOCKET_CONNECTOR = "WebSocketConnector";
-    public static final String WEBSOCKET_ENDPOINT = "WebSocketListener";
-    public static final String WEBSOCKET_CLIENT_ENDPOINT = "WebSocketClient";
+    public static final String WEBSOCKET_CALLER = "WebSocketCaller";
+    public static final String WEBSOCKET_CLIENT = "WebSocketClient";
     public static final String WEBSOCKET_SERVICE = "WebSocketService";
     public static final String WEBSOCKET_CLIENT_SERVICE = "WebSocketClientService";
 
@@ -37,7 +37,6 @@ public class WebSocketConstants {
     public static final String ANNOTATION_ATTR_SUB_PROTOCOLS = "subProtocols";
     public static final String ANNOTATION_ATTR_IDLE_TIMEOUT = "idleTimeoutInSeconds";
     public static final String ANNOTATION_ATTR_MAX_FRAME_SIZE = "maxFrameSize";
-    public static final String ANN_CONFIG_ATTR_WSS_PORT = "wssPort";
 
     public static final String RESOURCE_NAME_ON_OPEN = "onOpen";
     public static final String RESOURCE_NAME_ON_TEXT = "onText";
@@ -52,15 +51,10 @@ public class WebSocketConstants {
 
     public static final String NATIVE_DATA_WEBSOCKET_CONNECTION_INFO = "NATIVE_DATA_WEBSOCKET_CONNECTION_INFO";
 
-    public static final String NATIVE_DATA_QUERY_PARAMS = "NATIVE_DATA_QUERY_PARAMS";
-
     public static final String CLIENT_URL_CONFIG = "url";
     public static final String CLIENT_SERVICE_CONFIG = "callbackService";
-    public static final String CLIENT_SUB_PROTOCOLS_CONFIG = "subProtocols";
     public static final String CLIENT_CUSTOM_HEADERS_CONFIG = "customHeaders";
-    public static final String CLIENT_IDLE_TIMOUT_CONFIG = "idleTimeoutInSeconds";
     public static final String CLIENT_READY_ON_CONNECT = "readyOnConnect";
-    public static final String CLIENT_CONNECTOR_CONFIGS = "clientEndpointConfigs";
     public static final String WEBSOCKET_UPGRADE_SERVICE_CONFIG = "upgradeService";
 
     // WebSocketListener struct field names
@@ -68,8 +62,6 @@ public class WebSocketConstants {
     public static final String LISTENER_NEGOTIATED_SUBPROTOCOLS_FIELD = "negotiatedSubProtocol";
     public static final String LISTENER_IS_SECURE_FIELD = "isSecure";
     public static final String LISTENER_IS_OPEN_FIELD = "isOpen";
-    public static final String LISTENER_ATTRIBUTES_FIELD = "attributes";
-    public static final String LISTENER_CONFIG_FIELD = "config";
     public static final String LISTENER_CONNECTOR_FIELD = "conn";
     public static final int LISTENER_HTTP_ENDPOINT_FIELD = 3;
 
@@ -82,6 +74,8 @@ public class WebSocketConstants {
 
     public static final int STATUS_CODE_ABNORMAL_CLOSURE = 1006;
     public static final int STATUS_CODE_FOR_NO_STATUS_CODE_PRESENT = 1005;
+
+    public static final int DEFAULT_MAX_FRAME_SIZE = 65536;
 
     private WebSocketConstants() {
     }

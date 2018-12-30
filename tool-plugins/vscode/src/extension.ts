@@ -18,19 +18,59 @@
  *
  */
 import { ExtensionContext } from 'vscode';
+import { ballerinaExtInstance } from './core';
+import { activate as activateAPIEditor } from './api-editor';
 import { activate as activateDiagram } from './diagram'; 
 import { activate as activateBBE } from './bbe';
-import { ballerinaExtInstance } from './core';
+import { activate as activateDocs } from './docs';
+import { activate as activateTraceLogs } from './trace-logs';
 import { activateDebugConfigProvider } from './debugger';
+import { activateTestRunner } from './test-runner';
+import { StaticFeature, ClientCapabilities, DocumentSelector, ServerCapabilities } from 'vscode-languageclient';
+import { ExtendedLangClient } from './core/extended-language-client';
+
+// TODO initializations should be contributions from each component
+function onBeforeInit(langClient: ExtendedLangClient) {
+    class TraceLogsFeature implements StaticFeature {
+        fillClientCapabilities(capabilities: ClientCapabilities): void {
+            capabilities.experimental = capabilities.experimental || {};
+            capabilities.experimental.introspection = true;
+        }
+        initialize(capabilities: ServerCapabilities, documentSelector: DocumentSelector | undefined): void {
+        }
+    }
+
+    class ShowFileFeature implements StaticFeature {
+        fillClientCapabilities(capabilities: ClientCapabilities): void {
+            capabilities.experimental = capabilities.experimental || {};
+            capabilities.experimental.showTextDocument = true;
+        }
+        initialize(capabilities: ServerCapabilities, documentSelector: DocumentSelector | undefined): void {
+        }
+    }
+
+    langClient.registerFeature(new TraceLogsFeature());
+    langClient.registerFeature(new ShowFileFeature());
+}
 
 export function activate(context: ExtensionContext): void {
-	ballerinaExtInstance.setContext(context);
-	ballerinaExtInstance.init();
-	// start the features.
-	// Enable Ballerina diagram
-	activateDiagram(ballerinaExtInstance);
-	// Enable Ballerina by examples
-	activateBBE(ballerinaExtInstance);
-	// Enable Ballerina Debug Config Provider
-	activateDebugConfigProvider(ballerinaExtInstance);
+    ballerinaExtInstance.setContext(context);
+    ballerinaExtInstance.init(onBeforeInit).then(() => {
+        // start the features.
+        // Enable Ballerina diagram
+        activateDiagram(ballerinaExtInstance);
+        // Enable Ballerina by examples
+        activateBBE(ballerinaExtInstance);
+        // Enable Network logs
+        activateTraceLogs(ballerinaExtInstance);
+        // Enable Ballerina Debug Config Provider
+        activateDebugConfigProvider(ballerinaExtInstance);
+        // Enable Test Runner
+        activateTestRunner(ballerinaExtInstance);
+        // Enable API Docs Live Preview
+        activateDocs(ballerinaExtInstance);
+        activateDebugConfigProvider(ballerinaExtInstance);
+		// Enable Ballerina API Designer
+		activateAPIEditor(ballerinaExtInstance);
+    });
 }

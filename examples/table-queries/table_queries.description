@@ -2,3 +2,5 @@
 // Editing an existing table is not supported.
 // When an existing table is queried using Ballerina SQL, a new in-memory table is created with the queried data and
 // that table is returned.
+// Please note that executing these SQL-like queries, on tables returned through ballerina database clients, is not
+// supported yet.

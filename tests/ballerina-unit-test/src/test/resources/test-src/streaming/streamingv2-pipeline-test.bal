@@ -15,8 +15,6 @@
 // under the License.
 
 import ballerina/runtime;
-import ballerina/io;
-import ballerina/streams;
 
 type Teacher record {
     string name;
@@ -32,9 +30,9 @@ type TeacherOutput record{
 };
 
 int index = 0;
-stream<Teacher> inputStream;
-stream<Teacher> outputStream;
-stream<TeacherOutput> finalOutputStream;
+stream<Teacher> inputStream = new;
+stream<Teacher> outputStream = new;
+stream<TeacherOutput> finalOutputStream = new;
 TeacherOutput[] globalEmployeeArray = [];
 
 function startPipelineQuery() returns (TeacherOutput[]) {
@@ -49,8 +47,8 @@ function startPipelineQuery() returns (TeacherOutput[]) {
 
     testPipelineQuery();
 
-    finalOutputStream.subscribe(printTeachers);
-    foreach t in teachers {
+    finalOutputStream.subscribe(function(TeacherOutput e) {printTeachers(e);});
+    foreach var t in teachers {
         inputStream.publish(t);
     }
 
@@ -58,12 +56,11 @@ function startPipelineQuery() returns (TeacherOutput[]) {
     while(true) {
         runtime:sleep(500);
         count += 1;
-        if((lengthof globalEmployeeArray) == 2 || count == 10) {
+        if((globalEmployeeArray.length()) == 2 || count == 10) {
             break;
         }
     }
 
-    io:println("output: ", globalEmployeeArray);
     return globalEmployeeArray;
 }
 
@@ -73,7 +70,7 @@ function testPipelineQuery() {
         from inputStream where inputStream.age > 25
         select inputStream.name, inputStream.age, inputStream.status, inputStream.batch, inputStream.school
         => (Teacher[] emp) {
-            foreach e in emp {
+            foreach var e in emp {
                 outputStream.publish(e);
             }
         }
@@ -81,7 +78,7 @@ function testPipelineQuery() {
         from outputStream
         select outputStream.name as TeacherName, outputStream.age
         => (TeacherOutput[] emp) {
-            foreach e in emp {
+            foreach var e in emp {
                 finalOutputStream.publish(e);
             }
         }

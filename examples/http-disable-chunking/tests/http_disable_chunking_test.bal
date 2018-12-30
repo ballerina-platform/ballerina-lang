@@ -2,7 +2,7 @@ import ballerina/test;
 import ballerina/io;
 import ballerina/http;
 
-boolean serviceStarted;
+boolean serviceStarted = false;
 
 function startService() {
     //serviceStarted = test:startServices("http-disable-chunking");
@@ -14,7 +14,7 @@ function startService() {
 }
 function testFunc() {
     // Invoking the main function.
-    endpoint http:Client httpEndpoint { url: "http://localhost:9092" };
+    http:Client httpEndpoint = new("http://localhost:9092");
     // Checking whether the server is started.
     //test:assertTrue(serviceStarted, msg = "Unable to start the service");
 
@@ -22,12 +22,10 @@ function testFunc() {
 
     // Sending a GET request to the specified endpoint.
     var response = httpEndpoint->get("/chunkingSample");
-    match response {
-        http:Response resp => {
-            var res = check resp.getJsonPayload();
-            test:assertEquals(res, response1);
-        }
-        error err => test:assertFail(msg = "Failed to call the endpoint:");
+    if (response is http:Response) {
+        test:assertEquals(response.getJsonPayload(), response1);
+    } else {
+        test:assertFail(msg = "Failed to call the endpoint:");
     }
 }
 

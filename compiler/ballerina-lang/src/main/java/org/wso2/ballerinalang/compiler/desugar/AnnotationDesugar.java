@@ -23,11 +23,10 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -40,7 +39,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 /**
  * Desugar annotations into executable entries.
@@ -51,6 +49,7 @@ public class AnnotationDesugar {
 
     private static final String ANNOTATION_DATA = "$annotation_data";
     private static final String DOT = ".";
+    private BLangSimpleVariable annotationMap;
 
     private static final CompilerContext.Key<AnnotationDesugar> ANNOTATION_DESUGAR_KEY =
             new CompilerContext.Key<>();
@@ -72,21 +71,36 @@ public class AnnotationDesugar {
         this.names = Names.getInstance(context);
     }
 
+    /**
+     * Initialize annotation map.
+     *
+     * @param pkgNode package node
+     */
+    void initializeAnnotationMap(BLangPackage pkgNode) {
+        annotationMap = createGlobalAnnotationMapVar(pkgNode);
+    }
+
     protected void rewritePackageAnnotations(BLangPackage pkgNode) {
         BLangFunction initFunction = pkgNode.initFunction;
 
-        // This is the variable which store all package level annotations.
-        BLangVariable annotationMap = createGlobalAnnotationMapVar(pkgNode);
-
-        // handle Service Annotations.
+        // Handle service annotations
         for (BLangService service : pkgNode.services) {
             generateAnnotations(service, service.name.value, initFunction, annotationMap);
-            for (BLangResource resource : service.resources) {
-                String key = service.name.value + DOT + resource.name.value;
-                generateAnnotations(resource, key, initFunction, annotationMap);
-            }
         }
+
         // Handle Function Annotations.
+        handleFunctionAnnotations(pkgNode, initFunction, annotationMap);
+
+        for (BLangVariable variable : pkgNode.globalVars) {
+            generateAnnotations(variable, variable.symbol.name.value, initFunction, annotationMap);
+        }
+
+        BLangReturn returnStmt = ASTBuilderUtil.createNilReturnStmt(pkgNode.pos, symTable.nilType);
+        pkgNode.initFunction.body.stmts.add(returnStmt);
+    }
+
+    private void handleFunctionAnnotations(BLangPackage pkgNode, BLangFunction initFunction,
+                                           BLangSimpleVariable annotationMap) {
         for (BLangFunction function : pkgNode.functions) {
             generateAnnotations(function, function.symbol.name.value, initFunction, annotationMap);
         }
@@ -98,58 +112,47 @@ public class AnnotationDesugar {
             }
             if (typeDef.symbol.type.tag == TypeTags.OBJECT) {
                 BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) typeDef.typeNode;
-                for (BLangVariable field : objectTypeNode.fields) {
+                for (BLangSimpleVariable field : objectTypeNode.fields) {
                     String key = typeDef.name.value + DOT + field.name.value;
                     generateAnnotations(field, key, initFunction, annotationMap);
                 }
             } else if (typeDef.symbol.type.tag == TypeTags.RECORD) {
                 BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDef.typeNode;
-                for (BLangVariable field : recordTypeNode.fields) {
+                for (BLangSimpleVariable field : recordTypeNode.fields) {
                     String key = typeDef.name.value + DOT + field.name.value;
                     generateAnnotations(field, key, initFunction, annotationMap);
                 }
             }
         }
-
-        for (BLangEndpoint globalEndpoint : pkgNode.globalEndpoints) {
-            generateAnnotations(globalEndpoint, globalEndpoint.name.value, initFunction, annotationMap);
-        }
-
-        BLangReturn returnStmt = ASTBuilderUtil.createNilReturnStmt(pkgNode.pos, symTable.nilType);
-        pkgNode.initFunction.body.stmts.add(returnStmt);
     }
 
-    private void generateAnnotations(AnnotatableNode node, String key, BLangFunction target, BLangVariable annMapVar) {
+    private void generateAnnotations(AnnotatableNode node, String key, BLangFunction target,
+                                     BLangSimpleVariable annMapVar) {
         if (node.getAnnotationAttachments().size() == 0) {
             return;
         }
-        BLangVariable entryVar = createAnnotationMapEntryVar(key, annMapVar, target.body, target.symbol);
+        BLangSimpleVariable entryVar = createAnnotationMapEntryVar(key, annMapVar, target.body, target.symbol);
         int annCount = 0;
         for (AnnotationAttachmentNode attachment : node.getAnnotationAttachments()) {
             initAnnotation((BLangAnnotationAttachment) attachment, entryVar, target.body, target.symbol, annCount++);
         }
     }
 
-    private BLangVariable createGlobalAnnotationMapVar(BLangPackage pkgNode) {
-        DiagnosticPos pos = pkgNode.pos;
-        BLangVariable annotationMap = ASTBuilderUtil.createVariable(pkgNode.pos, ANNOTATION_DATA, symTable.mapType);
+    private BLangSimpleVariable createGlobalAnnotationMapVar(BLangPackage pkgNode) {
+        BLangSimpleVariable annotationMap = ASTBuilderUtil.createVariable(pkgNode.pos, ANNOTATION_DATA,
+                symTable.mapType, ASTBuilderUtil.createEmptyRecordLiteral(pkgNode.pos, symTable.mapType), null);
         ASTBuilderUtil.defineVariable(annotationMap, pkgNode.symbol, names);
         pkgNode.addGlobalVariable(annotationMap);
-
-        final BLangRecordLiteral recordLiteralNode = ASTBuilderUtil.createEmptyRecordLiteral(pos, symTable.mapType);
-        final BLangAssignment annMapAssignment = ASTBuilderUtil.createAssignmentStmt(pos, pkgNode.initFunction.body);
-        annMapAssignment.expr = recordLiteralNode;
-        annMapAssignment.setVariable(ASTBuilderUtil.createVariableRef(pos, annotationMap.symbol));
         return annotationMap;
     }
 
-    private BLangVariable createAnnotationMapEntryVar(String key, BLangVariable annotationMapVar,
-                                                      BLangBlockStmt target, BSymbol parentSymbol) {
+    private BLangSimpleVariable createAnnotationMapEntryVar(String key, BLangSimpleVariable annotationMapVar,
+                                                            BLangBlockStmt target, BSymbol parentSymbol) {
         // create: map key = {};
         final BLangRecordLiteral recordLiteralNode =
                 ASTBuilderUtil.createEmptyRecordLiteral(target.pos, symTable.mapType);
 
-        BLangVariable entryVariable = ASTBuilderUtil.createVariable(target.pos, key, recordLiteralNode.type);
+        BLangSimpleVariable entryVariable = ASTBuilderUtil.createVariable(target.pos, key, recordLiteralNode.type);
         entryVariable.expr = recordLiteralNode;
         ASTBuilderUtil.defineVariable(entryVariable, parentSymbol, names);
         ASTBuilderUtil.createVariableDefStmt(target.pos, target).var = entryVariable;
@@ -167,9 +170,9 @@ public class AnnotationDesugar {
         return entryVariable;
     }
 
-    private void initAnnotation(BLangAnnotationAttachment attachment, BLangVariable annotationMapEntryVar,
+    private void initAnnotation(BLangAnnotationAttachment attachment, BLangSimpleVariable annotationMapEntryVar,
                                 BLangBlockStmt target, BSymbol parentSymbol, int index) {
-        BLangVariable annotationVar = null;
+        BLangSimpleVariable annotationVar = null;
         if (attachment.annotationSymbol.attachedType != null) {
             // create: AttachedType annotationVar = { annotation-expression }
             annotationVar = ASTBuilderUtil.createVariable(attachment.pos,

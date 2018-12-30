@@ -14,13 +14,10 @@ public function mockPrint(any... s) {
     counter += 1;
 }
 
-@test:Config {
-    enable: false
-}
+@test:Config
 function testFunc() {
     // Invoking the main function
     main();
-    test:assertEquals(outputs[0], "Iterating over a string array:-");
     test:assertEquals(outputs[1], "fruit: apple");
     test:assertEquals(outputs[2], "fruit: banana");
     test:assertEquals(outputs[3], "fruit: cherry");

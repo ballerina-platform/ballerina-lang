@@ -18,21 +18,24 @@
 #
 # `queue`: Destination type queue
 # `topic`: Destination type topic
-public type DestinationType "queue" | "topic";
+public type DestinationType "queue"|"topic";
 
-# Constant for jms destination type queue
-@final public DestinationType QUEUE = "queue";
+# Constant for JMS destination type queue
+public const QUEUE = "queue";
 
-# Constant for jms destination type topic
-@final public DestinationType TOPIC = "topic";
+# Constant for JMS destination type topic
+public const TOPIC = "topic";
 
 # Destination object
 #
-# + destinationName - name of the destination
-# + destinationType - type of the destination, either queue or topic
+# + destinationName - Name of the destination
+# + destinationType - Type of the destination, either queue or topic
 public type Destination object {
     public string destinationName;
     public string destinationType;
 
-    public new(destinationName, destinationType) {}
+    public function __init(string destName, string destType) {
+        self.destinationName = destName;
+        self.destinationType = destType;
+    }
 };

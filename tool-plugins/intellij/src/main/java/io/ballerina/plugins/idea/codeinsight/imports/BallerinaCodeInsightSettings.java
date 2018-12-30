@@ -27,10 +27,8 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Auto import code insight settings provider.
  */
-@State(
-        name = "BallerinaCodeInsight",
-        storages = @Storage(file = "editor.code.insight.xml")
-)
+@State(name = "BallerinaCodeInsight",
+       storages = @Storage(value = "editor.code.insight.xml"))
 public class BallerinaCodeInsightSettings implements PersistentStateComponent<BallerinaCodeInsightSettings> {
 
     @Attribute

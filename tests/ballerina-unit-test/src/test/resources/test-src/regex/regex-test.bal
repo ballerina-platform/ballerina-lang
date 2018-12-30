@@ -1,17 +1,9 @@
 function matches(string s, string r) returns (boolean|error) {
-    var result = s.matches(r);
-    match result {
-        boolean matched => return matched;
-        error err => return err;
-    }
+    return s.matches(r);
 }
 
 function findAll(string s, string r) returns (string[]|error) {
-    var result = s.findAll(r);
-    match result {
-        string[] regexMatches => return regexMatches;
-        error err => return err;
-    }
+    return s.findAll(r);
 }
 
 function replaceAllRgx(string s, string r, string target) returns (string|error) {

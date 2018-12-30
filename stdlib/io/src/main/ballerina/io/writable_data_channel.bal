@@ -19,14 +19,15 @@
 # BIG_ENDIAN - specifies the bytes to be in the order of most significant byte first
 #
 # LITTLE_ENDIAN - specifies the byte order to be the least significant byte first
-public type ByteOrder "BE";
-@final public ByteOrder BIG_ENDIAN = "BE";
+public type ByteOrder "BE"|"LE";
+public const BIG_ENDIAN = "BE";
+public const LITTLE_ENDIAN = "LE";
 
 # Represents a WritableDataChannel for writing data.
 public type WritableDataChannel object {
 
-    public new(WritableByteChannel byteChannel, ByteOrder bOrder = "BE") {
-        init(byteChannel, bOrder);
+    public function __init(WritableByteChannel byteChannel, ByteOrder bOrder = "BE") {
+        self.init(byteChannel, bOrder);
     }
 
     # Initializes data channel.

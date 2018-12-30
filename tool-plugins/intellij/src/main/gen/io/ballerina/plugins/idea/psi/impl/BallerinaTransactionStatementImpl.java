@@ -43,6 +43,12 @@ public class BallerinaTransactionStatementImpl extends BallerinaCompositeElement
 
   @Override
   @Nullable
+  public BallerinaCommittedAbortedClauses getCommittedAbortedClauses() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaCommittedAbortedClauses.class);
+  }
+
+  @Override
+  @Nullable
   public BallerinaOnRetryClause getOnRetryClause() {
     return PsiTreeUtil.getChildOfType(this, BallerinaOnRetryClause.class);
   }

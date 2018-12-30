@@ -1,8 +1,8 @@
 import ballerina/http;
 
-service<http:Service> echo1 {
+service echo1 on new http:MockListener(9090) {
 
-passthru (endpoint caller, http:Request request) {
+resource function passthru (http:Caller caller, http:Request request) {
     reply;
   }
 }

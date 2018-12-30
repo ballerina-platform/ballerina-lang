@@ -32,7 +32,7 @@ public class TaintTableAttributeInfo implements AttributeInfo {
 
     public int columnCount;
     public int rowCount;
-    public Map<Integer, List<Boolean>> taintTable = new LinkedHashMap<>();
+    public Map<Integer, List<Byte>> taintTable = new LinkedHashMap<>();
 
     public TaintTableAttributeInfo(int attributeNameIndex) {
         this.attributeNameIndex = attributeNameIndex;

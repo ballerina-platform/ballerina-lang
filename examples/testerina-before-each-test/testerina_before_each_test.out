@@ -1,7 +1,7 @@
-#At the command line, navigate to the directory that contains the 
-#`.bal` file and run the `ballerina test` command.
-#Note that you need to have the ballerina-tools distribution 
-#installed in order to run this command. 
+# To run this sample, navigate to the directory that contains the
+# `.bal` file and issue the `ballerina run` command.
+# Note that you need to have the ballerina-tools distribution
+# installed in order to run this command.
 $ ballerina test testerina_before_each_test.bal
 Compiling tests
     testerina_before_each_test.bal
@@ -14,11 +14,10 @@ I'm the before function!
 I'm in test function 2!
 I'm the before function!
 I'm in test function 1!
+        [pass] testFunction3
+        [pass] testFunction2
+        [pass] testFunction1
 
-	  [pass] testFunction3
-	  [pass] testFunction2
-	  [pass] testFunction1
-
-	  3 passing
-	  0 failing
-	  0 skipped
+        3 passing
+        0 failing
+        0 skipped

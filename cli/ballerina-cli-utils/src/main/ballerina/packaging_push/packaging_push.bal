@@ -1,3 +1,18 @@
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
 
 import ballerina/io;
 import ballerina/mime;
@@ -23,7 +38,7 @@ import ballerina/http;
 function pushPackage (http:Client definedEndpoint, string accessToken, string mdFileContent, string summary, string homePageURL, string repositoryURL,
                 string apiDocURL, string authors, string keywords, string license, string url, string dirPath, string ballerinaVersion, string msg, string baloVersion) {
     
-    endpoint http:Client httpEndpoint = definedEndpoint;
+    http:Client httpEndpoint = definedEndpoint;
     mime:Entity mdFileContentBodyPart = addStringBodyParts("description", mdFileContent);
     mime:Entity summaryBodyPart = addStringBodyParts("summary", summary);
     mime:Entity homePageURLBodyPart = addStringBodyParts("websiteURL", homePageURL);
@@ -39,7 +54,10 @@ function pushPackage (http:Client definedEndpoint, string accessToken, string md
     mime:Entity filePart = new;
     filePart.setContentDisposition(getContentDispositionForFormData("artifact"));
     filePart.setFileAsEntityBody(untaint dirPath);
-    filePart.setContentType(mime:APPLICATION_OCTET_STREAM);
+    var contentTypeSetResult = filePart.setContentType(mime:APPLICATION_OCTET_STREAM);
+    if (contentTypeSetResult is error)  {
+        panic contentTypeSetResult;
+    }
 
     mime:Entity[] bodyParts = [filePart, mdFileContentBodyPart, summaryBodyPart, homePageURLBodyPart, repositoryURLBodyPart,
                                apiDocURLBodyPart, authorsBodyPart, keywordsBodyPart, licenseBodyPart, ballerinaVersionBodyPart, 
@@ -50,20 +68,23 @@ function pushPackage (http:Client definedEndpoint, string accessToken, string md
 
     var result = httpEndpoint -> post("", req);
     http:Response httpResponse = new;
-    match result {
-        http:Response response => httpResponse = response;
-        error e => {
-            io:println("connection to the remote host failed : " + e.message);
-            return;
-        }
+    if (result is http:Response) {
+        httpResponse = result;
+    } else if (result is error) {
+        io:println("connection to the remote host failed : " + result.reason());
+        return;
     }
     string statusCode = <string> httpResponse.statusCode;
     if (statusCode.hasPrefix("5")) {
         io:println("remote registry failed for url :" + url);
     } else if (statusCode != "200") {
-        json jsonResponse = check (httpResponse.getJsonPayload());
-        string message = jsonResponse.message.toString();
-        io:println(message);
+        var jsonResponse = httpResponse.getJsonPayload();
+        if (jsonResponse is json) {
+            string message = jsonResponse.message.toString();
+            io:println(message);
+        } else {
+            io:println("invalid response json");
+        }
     } else {
         io:println(msg);
     }
@@ -74,21 +95,28 @@ function pushPackage (http:Client definedEndpoint, string accessToken, string md
 public function main (string... args) {
     http:Client httpEndpoint;
     string host = args[13];
-    string port = args[14];
-    if (host != "" && port != "") {
-        try {
-          httpEndpoint = defineEndpointWithProxy(args[9], host, port, args[15], args[16]);
-        } catch (error err) {
-          io:println("failed to resolve host : " + host + " with port " + port);
-          return;
+    string strPort = args[14];
+    if (host != "" && strPort != "") {
+        var port = int.convert(strPort);
+        if (port is int) {
+            http:Client|error result = trap defineEndpointWithProxy(args[9], host, port, args[15], args[16]);
+            if (result is http:Client) {
+                httpEndpoint = result;
+                pushPackage(httpEndpoint, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[12], args[11], args[17]);
+            } else if (result is error) {
+                io:println("failed to resolve host : " + host + " with port " + port);
+                return;
+            }
+        } else {
+            io:println("invalid port : " + strPort);
         }
-    } else  if (host != "" || port != "") {
+    } else  if (host != "" || strPort != "") {
         io:println("both host and port should be provided to enable proxy");     
         return;   
     } else {
         httpEndpoint = defineEndpointWithoutProxy(args[9]);
-    }        
-    pushPackage(httpEndpoint, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[12], args[11], args[17]);    
+        pushPackage(httpEndpoint, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[12], args[11], args[17]);
+    }
 }
 
 # This function defines an endpoint with proxy configurations.
@@ -99,9 +127,8 @@ public function main (string... args) {
 # + username - Username of the proxy
 # + password - Password of the proxy
 # + return - Endpoint defined
-function defineEndpointWithProxy (string url, string hostname, string port, string username, string password) returns http:Client{
-    endpoint http:Client httpEndpoint {
-        url: url,
+function defineEndpointWithProxy (string url, string hostname, int port, string username, string password) returns http:Client{
+    http:Client httpEndpoint = new (url, config = {
         secureSocket:{
             trustStore:{
                 path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
@@ -111,7 +138,7 @@ function defineEndpointWithProxy (string url, string hostname, string port, stri
             shareSession: true
         },
             proxy : getProxyConfigurations(hostname, port, username, password)
-    };
+    });
     return httpEndpoint;
 }
 
@@ -120,8 +147,7 @@ function defineEndpointWithProxy (string url, string hostname, string port, stri
 # + url - URL to be invoked
 # + return - Endpoint defined
 function defineEndpointWithoutProxy (string url) returns http:Client{
-    endpoint http:Client httpEndpoint {
-        url: url,
+    http:Client httpEndpoint = new (url, config = {
         secureSocket:{
             trustStore:{
                 path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
@@ -130,7 +156,7 @@ function defineEndpointWithoutProxy (string url) returns http:Client{
             verifyHostname: false,
             shareSession: true
         }
-    };
+    });
     return httpEndpoint;
 }
 
@@ -154,7 +180,10 @@ function addStringBodyParts (string key, string value) returns (mime:Entity) {
     mime:Entity stringBodyPart = new;
     stringBodyPart.setContentDisposition(getContentDispositionForFormData(key));
     stringBodyPart.setText(untaint value);
-    stringBodyPart.setContentType(mime:TEXT_PLAIN);
+    var contentTypeSetResult = stringBodyPart.setContentType(mime:TEXT_PLAIN);
+    if (contentTypeSetResult is error)  {
+        panic contentTypeSetResult;
+    }
     return stringBodyPart;
 }
 
@@ -165,8 +194,7 @@ function addStringBodyParts (string key, string value) returns (mime:Entity) {
 # + username - Username of the proxy
 # + password - Password of the proxy
 # + return - Proxy configurations for the endpoint
-function getProxyConfigurations(string hostName, string port, string username, string password) returns http:ProxyConfig {
-    int portInt = check <int> port;
-    http:ProxyConfig proxy = { host : hostName, port : portInt , userName: username, password : password };
+function getProxyConfigurations(string hostName, int port, string username, string password) returns http:ProxyConfig {
+    http:ProxyConfig proxy = { host : hostName, port : port , userName: username, password : password };
     return proxy;
 }

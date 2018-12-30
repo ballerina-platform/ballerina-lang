@@ -24,4 +24,6 @@ export const CONFIG_CHANGED: string = "Ballerina plugin configuration changed. P
 export const OLD_BALLERINA_VERSION: string ="Your Ballerina version does not match the Ballerina vscode plugin version. Some features may not work properly. Please download the latest Ballerina distribution.";
 export const OLD_PLUGIN_VERSION: string ="Your Ballerina vscode plugin version does not match your Ballerina version. Some features may not work properly. Please update the Ballerina vscode plugin.";
 export const MISSING_SERVER_CAPABILITY: string = "Your version of Ballerina platform distribution does not support this feature. Please update to the latest Ballerina platform";
+export const INVALID_FILE: string = "The current file is not a valid ballerina file. Please open a ballerina file and try again.";
 export const UNKNOWN_ERROR: string ="Unknown Error : Failed to start Ballerina Plugin.";
+export const API_DESIGNER_NO_SERVICE: string = "There are no services available in the source. Please add a service and try again.";

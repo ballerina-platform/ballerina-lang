@@ -30,6 +30,10 @@ import javax.naming.Context;
  * @since 0.8.0
  */
 public class Constants {
+    // Error fields
+    public static final String JMS_ERROR_RECORD = "JMSError";
+    public static final String JMS_ERROR_CODE = "{ballerina/jms}JMSError";
+
     // Common fields
     public static final String B_OBJECT_FIELD_PRODUCER_ACTIONS = "producerActions";
     public static final String B_OBJECT_FIELD_CONFIG = "config";

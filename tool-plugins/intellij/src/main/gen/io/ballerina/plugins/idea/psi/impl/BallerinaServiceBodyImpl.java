@@ -43,26 +43,8 @@ public class BallerinaServiceBodyImpl extends BallerinaCompositeElementImpl impl
 
   @Override
   @NotNull
-  public List<BallerinaEndpointDefinition> getEndpointDefinitionList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaEndpointDefinition.class);
-  }
-
-  @Override
-  @NotNull
-  public List<BallerinaNamespaceDeclarationStatement> getNamespaceDeclarationStatementList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaNamespaceDeclarationStatement.class);
-  }
-
-  @Override
-  @NotNull
-  public List<BallerinaResourceDefinition> getResourceDefinitionList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaResourceDefinition.class);
-  }
-
-  @Override
-  @NotNull
-  public List<BallerinaVariableDefinitionStatement> getVariableDefinitionStatementList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaVariableDefinitionStatement.class);
+  public List<BallerinaServiceBodyMember> getServiceBodyMemberList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaServiceBodyMember.class);
   }
 
   @Override

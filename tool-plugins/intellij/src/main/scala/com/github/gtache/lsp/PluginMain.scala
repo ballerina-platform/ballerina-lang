@@ -8,7 +8,7 @@ import com.github.gtache.lsp.client.languageserver.wrapper.{LanguageServerWrappe
 import com.github.gtache.lsp.contributors.LSPNavigationItem
 import com.github.gtache.lsp.editor.listeners.{EditorListener, FileDocumentManagerListenerImpl, VFSListener}
 import com.github.gtache.lsp.requests.{Timeout, Timeouts}
-import com.github.gtache.lsp.settings.LSPState
+import com.github.gtache.lsp.settings.BallerinaLSPState
 import com.github.gtache.lsp.utils.{ApplicationUtils, FileUtils, GUIUtils}
 import com.intellij.AppTopics
 import com.intellij.navigation.NavigationItem
@@ -34,7 +34,7 @@ object PluginMain {
   private val extToLanguageWrapper: mutable.Map[(String, String), LanguageServerWrapper] = mutable.HashMap()
   private val projectToLanguageWrappers: mutable.Map[String, mutable.Set[LanguageServerWrapper]] = mutable.HashMap()
   private var extToServerDefinition: Map[String, LanguageServerDefinition] = HashMap()
-  private var loadedExtensions: Boolean = false
+
 
   /**
     * @return All instantiated ServerWrappers
@@ -102,13 +102,12 @@ object PluginMain {
     * @param editor the editor
     */
   def editorOpened(editor: Editor): Unit = {
-    if (!loadedExtensions) {
-      val extensions = LanguageServerDefinition.getAllDefinitions.filter(s => !extToServerDefinition.contains(s.ext))
-      LOG.info("Added serverDefinitions " + extensions + " from plugins")
-      extToServerDefinition = extToServerDefinition ++ extensions.map(s => (s.ext, s))
-      flattenExt()
-      loadedExtensions = true
-    }
+    extToServerDefinition = HashMap()
+    val extensions = LanguageServerDefinition.getAllDefinitions.filter(s => !extToServerDefinition.contains(s.ext))
+    LOG.info("Added serverDefinitions " + extensions + " from plugins")
+    extToServerDefinition = extToServerDefinition ++ extensions.map(s => (s.ext, s))
+    flattenExt()
+
     val file: VirtualFile = FileDocumentManager.getInstance.getFile(editor.getDocument)
     if (file != null) {
       ApplicationUtils.pool(() => {
@@ -252,7 +251,7 @@ class PluginMain extends ApplicationComponent {
   override val getComponentName: String = "PluginMain"
 
   override def initComponent(): Unit = {
-    LSPState.getInstance.getState //Need that to trigger loadState
+    BallerinaLSPState.getInstance.getState //Need that to trigger loadState
     EditorFactory.getInstance.addEditorFactoryListener(new EditorListener, Disposer.newDisposable())
     VirtualFileManager.getInstance().addVirtualFileListener(VFSListener)
     ApplicationManager.getApplication.getMessageBus.connect().subscribe(AppTopics.FILE_DOCUMENT_SYNC, FileDocumentManagerListenerImpl)

@@ -18,8 +18,8 @@
 
 package org.ballerinalang.test.auth;
 
-import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
+import org.ballerinalang.test.util.HttpsClientRequest;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -31,26 +31,25 @@ import java.util.Map;
  */
 @Test(groups = "auth-test")
 public class AuthnConfigInheritanceTest extends AuthBaseTest {
+
     private final int servicePort = 9091;
 
     @Test(description = "invalid scope test case")
-    public void testAuthzFailureWithInheritedConfigs()
-            throws Exception {
+    public void testAuthzFailureWithInheritedConfigs() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic aXNoYXJhOmFiYw==");
-        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort, "echo/test"),
-                headersMap);
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
+                headersMap, serverInstance.getServerHome());
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
     }
 
     @Test(description = "Authn and authz failure test case")
-    public void testAuthFailureWithInheritedConfigs()
-            throws Exception {
+    public void testAuthFailureWithInheritedConfigs() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic dGVzdDp0ZXN0MTIz");
-        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort, "echo/test"),
-                headersMap);
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test"),
+                headersMap, serverInstance.getServerHome());
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
     }

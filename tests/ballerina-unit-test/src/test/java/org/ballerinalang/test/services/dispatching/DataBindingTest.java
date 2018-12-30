@@ -19,7 +19,6 @@
 package org.ballerinalang.test.services.dispatching;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -139,6 +138,18 @@ public class DataBindingTest {
                 , "Age variable not set properly.");
     }
 
+    @Test(description = "Test data binding with an array of records", enabled = false)
+    public void testDataBindingWithRecordArray() {
+        HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/echo/body8", "POST",
+                "[{'name':'wso2','age':12}, {'name':'ballerina','age':3}]");
+        requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_JSON);
+        HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_EP, requestMsg);
+        Assert.assertNotNull(responseMsg, "responseMsg message not found");
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
+        Assert.assertEquals(bJson.stringValue(), "[{\"name\":\"wso2\", \"age\":12}, " +
+                "{\"name\":\"ballerina\", \"age\":3}]");
+    }
+
     @Test(description = "Test data binding without content-type header")
     public void testDataBindingWithoutContentType() {
         HTTPTestRequest requestMsg = MessageUtils
@@ -191,8 +202,7 @@ public class DataBindingTest {
     }
 
     @Test(expectedExceptions = BallerinaConnectorException.class,
-            expectedExceptionsMessageRegExp = ".*data binding failed: Error in reading payload : " +
-                    "ParseError at .*")
+            expectedExceptionsMessageRegExp = ".*data binding failed: Error in reading payload.*")
     public void testDataBindingIncompatibleXMLPayload() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body4", "POST", "name':'WSO2', 'team':'ballerina");

@@ -21,9 +21,10 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -48,7 +49,7 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
                 structType = "ReadableTextRecordChannel",
                 structPackage = "ballerina/io"),
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING),
-                @ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina/io")},
+                      @ReturnType(type = TypeKind.ERROR)},
         isPublic = true
 )
 public class NextTextRecord implements NativeCallableUnit {
@@ -69,11 +70,11 @@ public class NextTextRecord implements NativeCallableUnit {
         CallableUnitCallback callback = eventContext.getCallback();
         Throwable error = eventContext.getError();
         if (null != error) {
-            BMap<String, BValue> errorStruct = IOUtils.createError(context, error.getMessage());
+            BError errorStruct = IOUtils.createError(context, IOConstants.IO_ERROR_CODE, error.getMessage());
             context.setReturnValues(errorStruct);
         } else {
             String[] fields = result.getResponse();
-            context.setReturnValues(new BStringArray(fields));
+            context.setReturnValues(new BValueArray(fields));
         }
         IOUtils.validateChannelState(eventContext);
         callback.notifySuccess();

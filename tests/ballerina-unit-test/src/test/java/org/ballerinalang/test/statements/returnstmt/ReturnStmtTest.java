@@ -199,4 +199,10 @@ public class ReturnStmtTest {
         Assert.assertEquals(4, ((BInteger) returns[2]).intValue());
     }
 
+    @Test(description = "Test return statement in resource")
+    public void testReturnInResource() {
+        CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/return-in-resource.bal");
+        Assert.assertEquals(result.getErrorCount(), 0);
+    }
+
 }

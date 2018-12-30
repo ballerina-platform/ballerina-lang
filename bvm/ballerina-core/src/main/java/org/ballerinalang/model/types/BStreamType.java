@@ -61,11 +61,6 @@ public class BStreamType extends BType {
     }
 
     @Override
-    public TypeSignature getSig() {
-        return new TypeSignature(TypeSignature.SIG_STREAM, constraint.getSig());
-    }
-
-    @Override
     public int getTag() {
         return TypeTags.STREAM_TAG;
     }
@@ -77,5 +72,23 @@ public class BStreamType extends BType {
         } else {
             return "stream" + "<" + constraint.getName() + ">";
         }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!super.equals(obj) || !(obj instanceof BStreamType)) {
+            return false;
+        }
+
+        BStreamType other = (BStreamType) obj;
+        if (constraint == other.constraint) {
+            return true;
+        }
+
+        if (constraint == null || other.constraint == null) {
+            return false;
+        }
+
+        return constraint.equals(other.constraint);
     }
 }

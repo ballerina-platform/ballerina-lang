@@ -22,9 +22,9 @@ import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
 import org.ballerinalang.model.tree.statements.TupleDestructureNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,22 +33,17 @@ import java.util.List;
  * @since 0.966.0
  */
 public class BLangTupleDestructure extends BLangStatement implements TupleDestructureNode {
-    public List<BLangExpression> varRefs;
+    public BLangTupleVarRef varRef;
     public BLangExpression expr;
-    public boolean declaredWithVar;
-
-    public BLangTupleDestructure() {
-        this.varRefs = new ArrayList<>();
-    }
 
     @Override
     public List<BLangExpression> getVariableRefs() {
-        return this.varRefs;
+        return this.varRef.expressions;
     }
 
     @Override
     public void addVariableRef(VariableReferenceNode variableReferenceNode) {
-        varRefs.add((BLangVariableReference) variableReferenceNode);
+        varRef.expressions.add((BLangVariableReference) variableReferenceNode);
     }
 
     @Override
@@ -59,16 +54,6 @@ public class BLangTupleDestructure extends BLangStatement implements TupleDestru
     @Override
     public void setExpression(ExpressionNode expression) {
         this.expr = (BLangExpression) expression;
-    }
-
-    @Override
-    public boolean isDeclaredWithVar() {
-        return this.declaredWithVar;
-    }
-
-    @Override
-    public void setDeclaredWithVar(boolean isDeclaredWithVar) {
-        this.declaredWithVar = isDeclaredWithVar;
     }
 
     @Override

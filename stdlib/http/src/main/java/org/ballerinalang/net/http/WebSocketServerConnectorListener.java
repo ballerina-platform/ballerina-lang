@@ -23,10 +23,11 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.services.ErrorHandlerUtils;
-import org.ballerinalang.util.observability.ObservabilityUtils;
+import org.ballerinalang.util.observability.ObserveUtils;
 import org.ballerinalang.util.observability.ObserverContext;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
@@ -37,9 +38,6 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
-import java.util.Optional;
-
-import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONNECTION_FIELD;
 import static org.ballerinalang.util.observability.ObservabilityConstants.SERVER_CONNECTOR_WEBSOCKET;
 
 /**
@@ -71,20 +69,22 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
             BValue[] signatureParams = HttpDispatcher.getSignatureParameters(onUpgradeResource, webSocketHandshaker
                     .getHttpCarbonRequest(), httpEndpointConfig);
 
-            BMap<String, BValue> httpServiceEndpoint = (BMap<String, BValue>) signatureParams[0];
-            BMap<String, BValue> httpConnection =
-                    (BMap<String, BValue>) httpServiceEndpoint.get(SERVICE_ENDPOINT_CONNECTION_FIELD);
+            BMap<String, BValue> httpConnection = (BMap<String, BValue>) signatureParams[0];
             httpConnection.addNativeData(WebSocketConstants.WEBSOCKET_MESSAGE, webSocketHandshaker);
             httpConnection.addNativeData(WebSocketConstants.WEBSOCKET_SERVICE, wsService);
             httpConnection.addNativeData(HttpConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER, connectionManager);
 
             // TODO: Need to revisit this code of observation.
-            Optional<ObserverContext> observerContext = ObservabilityUtils.startServerObservation(
-                    SERVER_CONNECTOR_WEBSOCKET, wsService.getServiceInfo(), balResource.getName(),
-                    null);
+            ObserverContext observerContext = null;
+            if (ObserveUtils.isObservabilityEnabled()) {
+                observerContext = new ObserverContext();
+                observerContext.setConnectorName(SERVER_CONNECTOR_WEBSOCKET);
+                observerContext.setServiceName(ObserveUtils.getFullServiceName(wsService.getServiceInfo()));
+                observerContext.setResourceName(balResource.getName());
+            }
 
             Executor.submit(balResource, new OnUpgradeResourceCallableUnitCallback(webSocketHandshaker, wsService),
-                            null, observerContext.orElse(null), signatureParams);
+                            null, observerContext, signatureParams);
 
         } else {
             WebSocketUtil.handleHandshake(wsService, connectionManager, null, webSocketHandshaker, null, null);
@@ -111,7 +111,12 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
                             WebSocketConstants.RESOURCE_NAME_ON_OPEN);
                     WebSocketOpenConnectionInfo connectionInfo =
                             connectionManager.getConnectionInfo(webSocketHandshaker.getChannelId());
-                    WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
+                    WebSocketConnection webSocketConnection = null;
+                    try {
+                        webSocketConnection = connectionInfo.getWebSocketConnection();
+                    } catch (IllegalAccessException e) {
+                        // Ignore as it is not possible have an Illegal access
+                    }
                     BMap<String, BValue> webSocketEndpoint = connectionInfo.getWebSocketEndpoint();
                     BMap<String, BValue> webSocketConnector = (BMap<String, BValue>) webSocketEndpoint
                             .get(WebSocketConstants.LISTENER_CONNECTOR_FIELD);
@@ -126,44 +131,70 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
         }
 
         @Override
-        public void notifyFailure(BMap<String, BValue> error) {
+        public void notifyFailure(BError error) {
             ErrorHandlerUtils.printError(BLangVMErrors.getPrintableStackTrace(error));
             WebSocketOpenConnectionInfo connectionInfo =
                     connectionManager.getConnectionInfo(webSocketHandshaker.getChannelId());
             if (connectionInfo != null) {
-                WebSocketUtil.closeDuringUnexpectedCondition(connectionInfo.getWebSocketConnection());
+                try {
+                    WebSocketUtil.closeDuringUnexpectedCondition(connectionInfo.getWebSocketConnection());
+                } catch (IllegalAccessException e) {
+                    // Ignore as it is not possible have an Illegal access
+                }
             }
         }
     }
 
     @Override
     public void onMessage(WebSocketTextMessage webSocketTextMessage) {
-        WebSocketDispatcher.dispatchTextMessage(
-                connectionManager.getConnectionInfo(getConnectionId(webSocketTextMessage)), webSocketTextMessage);
+        try {
+            WebSocketDispatcher.dispatchTextMessage(
+                    connectionManager.getConnectionInfo(getConnectionId(webSocketTextMessage)), webSocketTextMessage);
+        } catch (IllegalAccessException e) {
+            // Ignore as it is not possible have an Illegal access
+        }
     }
 
     @Override
     public void onMessage(WebSocketBinaryMessage webSocketBinaryMessage) {
-        WebSocketDispatcher.dispatchBinaryMessage(
-                connectionManager.getConnectionInfo(getConnectionId(webSocketBinaryMessage)), webSocketBinaryMessage);
+        try {
+            WebSocketDispatcher.dispatchBinaryMessage(
+                    connectionManager.getConnectionInfo(getConnectionId(webSocketBinaryMessage)),
+                    webSocketBinaryMessage);
+        } catch (IllegalAccessException e) {
+            // Ignore as it is not possible have an Illegal access
+        }
     }
 
     @Override
     public void onMessage(WebSocketControlMessage webSocketControlMessage) {
-        WebSocketDispatcher.dispatchControlMessage(
-                connectionManager.getConnectionInfo(getConnectionId(webSocketControlMessage)), webSocketControlMessage);
+        try {
+            WebSocketDispatcher.dispatchControlMessage(
+                    connectionManager.getConnectionInfo(getConnectionId(webSocketControlMessage)),
+                    webSocketControlMessage);
+        } catch (IllegalAccessException e) {
+            // Ignore as it is not possible have an Illegal access
+        }
     }
 
     @Override
     public void onMessage(WebSocketCloseMessage webSocketCloseMessage) {
-        WebSocketDispatcher.dispatchCloseMessage(
-                connectionManager.getConnectionInfo(getConnectionId(webSocketCloseMessage)), webSocketCloseMessage);
+        try {
+            WebSocketDispatcher.dispatchCloseMessage(
+                    connectionManager.getConnectionInfo(getConnectionId(webSocketCloseMessage)), webSocketCloseMessage);
+        } catch (IllegalAccessException e) {
+            // Ignore as it is not possible have an Illegal access
+        }
     }
 
     @Override
     public void onClose(WebSocketConnection webSocketConnection) {
-        WebSocketUtil.setListenerOpenField(
-                connectionManager.removeConnectionInfo(webSocketConnection.getChannelId()));
+        try {
+            WebSocketUtil.setListenerOpenField(
+                    connectionManager.removeConnectionInfo(webSocketConnection.getChannelId()));
+        } catch (IllegalAccessException e) {
+            // Ignore as it is not possible have an Illegal access
+        }
     }
 
     @Override
@@ -174,7 +205,12 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
 
     @Override
     public void onIdleTimeout(WebSocketControlMessage controlMessage) {
-        WebSocketDispatcher.dispatchIdleTimeout(connectionManager.getConnectionInfo(getConnectionId(controlMessage)));
+        try {
+            WebSocketDispatcher.dispatchIdleTimeout(
+                    connectionManager.getConnectionInfo(getConnectionId(controlMessage)));
+        } catch (IllegalAccessException e) {
+            // Ignore as it is not possible have an Illegal access
+        }
     }
 
     private String getConnectionId(WebSocketMessage webSocketMessage) {

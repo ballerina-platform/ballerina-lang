@@ -57,7 +57,5 @@ public class FunctionTest {
         BRunUtil.invoke(result, "test1", args);
         BRunUtil.invoke(result, "test2", args);
         BRunUtil.invoke(result, "test3", args);
-        BRunUtil.invoke(result, "test4", args);
-        BRunUtil.invoke(result, "test5", args);
     }
 }

@@ -34,6 +34,6 @@ public class ParserRuleReturnStatementContextRexolver extends AbstractItemResolv
     @Override
     public List<CompletionItem> resolveItems(LSServiceOperationContext context) {
         return CompletionItemResolver
-                .getResolverByClass(BallerinaParser.VariableDefinitionStatementContext.class).resolveItems(context);
+                .get(BallerinaParser.VariableDefinitionStatementContext.class).resolveItems(context);
     }
 }

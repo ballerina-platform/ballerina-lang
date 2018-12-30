@@ -17,7 +17,7 @@ annotation Test Tst;
 # Documentation for testConst constant
 #
 # + testConstd - abc description
-@final string testConsts = "TestConstantDocumentation";
+final string testConsts = "TestConstantDocumentation";
 
 # Documentation for Test struct
 #
@@ -38,8 +38,8 @@ type Test record {
 # + accessMode - read or write mode
 # + accessMode - read or write mode
 # + successfuls - boolean `true` or `false`
-function File::open (string accessMode) returns (boolean) {
-    boolean successful;
+function File.open (string accessMode) returns (boolean) {
+    boolean successful = false;
     return successful;
 }
 
@@ -48,7 +48,7 @@ function File::open (string accessMode) returns (boolean) {
 # + path - file path. Example: ``C:\users\OddThinking\Documents\My Source\Widget\foo.src``
 public type File object {
 
-    public string path;
+    public string path = "";
 
     public function open(string accessMode) returns boolean;
 };
@@ -79,7 +79,7 @@ type TestConnector record {
 # PizzaService HTTP Service
 #
 # + conn - HTTP connection.
-service<http:Service> PizzaService {
+service PizzaService on new http:Listener(9090) {
 
     # Check orderPizza resource.
     #
@@ -88,8 +88,8 @@ service<http:Service> PizzaService {
     # + reqest - In request.
 //  # + conn - HTTP connection. Commented due to https://github.com/ballerina-lang/ballerina/issues/5586 issue
 
-    orderPizza(endpoint conn, http:Request req) {
-        http:Response res;
+    resource function orderPizza(http:Caller conn, http:Request req) {
+        http:Response res = new;
         _ = conn -> respond(res);
     }
 }

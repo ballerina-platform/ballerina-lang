@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/runtime;
-import ballerina/io;
 
 type StatusCount record {
     string status;
@@ -33,9 +32,9 @@ type Teacher record {
 StatusCount[] globalStatusCountArray = [];
 int index = 0;
 
-stream<StatusCount> filteredStatusCountStream2;
-stream<Teacher> preProcessedStatusCountStream;
-stream<Teacher> teacherStream6;
+stream<StatusCount> filteredStatusCountStream2 = new;
+stream<Teacher> preProcessedStatusCountStream = new;
+stream<Teacher> teacherStream6 = new;
 
 function testPipelineQuery() {
 
@@ -43,7 +42,7 @@ function testPipelineQuery() {
         from teacherStream6 where age > 18
         select *
         => (Teacher[] teachers) {
-            foreach teacher in teachers {
+            foreach var teacher in teachers {
                 preProcessedStatusCountStream.publish(teacher);
             }
         }
@@ -53,7 +52,7 @@ function testPipelineQuery() {
         group by status
         having totalCount > 1
         => (StatusCount[] emp) {
-            foreach e in emp {
+            foreach var e in emp {
                 filteredStatusCountStream2.publish(e);
             }
         }

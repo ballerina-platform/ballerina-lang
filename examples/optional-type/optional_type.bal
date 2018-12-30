@@ -18,7 +18,8 @@ type address record {
     string zipcode;
 };
 
-// Here, the `addr` and `guardian` fields may or may not contain values.
+// Here, the `addr` and `guardian` fields may or may not contain values. And either all the fields must be assigned with
+// default values e.g. `string name = ""` or be initialized before use.
 type person record {
     string name;
     int age;
@@ -27,7 +28,7 @@ type person record {
 };
 
 public function main() {
-    person p = {};
+    person p = {name: "Paul", age: 40, addr: (), guardian:()};
     io:println(p);
 
     // It is optional for the `addr` field to have a value. Therefore, it needs to be handled explicitly.
@@ -36,7 +37,8 @@ public function main() {
     address? addr = p.addr;
     io:println(addr);
 
-    address myAddr = {line01: "61 brandon stree", city: "Santa Clara", state: "CA", zipcode: "95134"};
+    address myAddr = {line01: "No. 61", line02: "Brandon street",
+                      city: "Santa Clara", state: "CA", zipcode: "95134"};
     p.addr = myAddr;
 
     addr = p.addr;

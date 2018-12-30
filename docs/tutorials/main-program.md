@@ -51,17 +51,17 @@ Connectors may need to have usage specific parameters and hence must be instanti
 
 ## Call the connector
 
-When you add a connector, you need to have a way of calling a connector and those are called actions.
+When you add a connector, you need to have a way of calling a connector and those are called remote functions.
 
-A connector comes with a set of actions that represent the interactions that one can have with the remote service. Actions can be one directional or bi-directional and represent blocking from the calling worker's perspective. That is, the calling thread is blocked until the action has completed its remote interaction.
+A connector comes with a set of remote functions that represent the interactions that one can have with the remote service. Remote functions can be one directional or bi-directional and represent blocking from the calling worker's perspective. That is, the calling thread is blocked until the remote function has completed its remote interaction.
 
-In the case of the **HTTPClient** connector you are using in this tutorial, the actions are listed out under the connector in the tool palette.
+In the case of the **HTTPClient** connector you are using in this tutorial, the remote functions are listed out under the connector in the tool palette.
 
 ![alt text](../images/ConnectorActionsNew.png)
 
-1. Add an action by dragging one of the actions from the tool palette onto the canvas. In this instance, you need to add a GET action as this is a GET request to the weather forecast API. Drag and drop the GET action under the main program you added.
+1. Add a remote function by dragging one of the remote functions from the tool palette onto the canvas. In this instance, you need to add a GET remote function as this is a GET request to the weather forecast API. Drag and drop the GET remote function under the main program you added.
     ![alt text](../images/AddGetHTTP.gif)    
-   This calls the connector from the main program and can be visualized via an arrow to the connector from the action.
+   This calls the connector from the main program and can be visualized via an arrow to the connector from the remote function.
 1. You also need to pass a message to the connector from the main program. To do this, you must first add a variable.
 
     ![alt text](../images/AddVariableNew.gif)
@@ -71,7 +71,7 @@ In the case of the **HTTPClient** connector you are using in this tutorial, the 
     
     The `message` type is an opaque type used to represent a request to a `resource`. This approach allows the `resource` to be network-protocol independent, even though a given `resource` is always tied to a particular protocol because a `service` can only be bound to one network protocol at a time.
 
-1. The GET request action for the HTTP connector requires you to pass some parameters in the request. This includes the connector, the request path, and the message. In this tutorial, forecastAPI is the name of the connector that is passed. The request path is an additional string that can be passed in the request. You can set this up so that the request path includes the API key and country code. This will be portrayed in a different tutorial. In this instance, an empty string is passed **""**. Additionally, you can pass the message **m**.
+1. The GET remote function for the HTTP connector requires you to pass some parameters in the request. This includes the connector, the request path, and the message. In this tutorial, forecastAPI is the name of the connector that is passed. The request path is an additional string that can be passed in the request. You can set this up so that the request path includes the API key and country code. This will be portrayed in a different tutorial. In this instance, an empty string is passed **""**. Additionally, you can pass the message **m**.
     ![alt text](../images/GETRequestMessage.png)
 
 ## View the response

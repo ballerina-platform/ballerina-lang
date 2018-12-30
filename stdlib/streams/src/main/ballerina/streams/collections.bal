@@ -21,8 +21,10 @@ public type Node object {
     public Node? next;
     public Node? prev;
 
-    new(prev, data, next) {
-
+    function __init(Node? prev, any? data, Node? next) {
+        self.prev = prev;
+        self.data = data;
+        self.next = next;
     }
 };
 
@@ -33,123 +35,115 @@ public type LinkedList object {
     public int size = 0;
     public boolean ascend = true;
 
-    new() {
-        first = ();
-        last = ();
-        curr = ();
-        size = 0;
-        ascend = true;
+    function __init() {
+        self.first = ();
+        self.last = ();
+        self.curr = ();
+        self.size = 0;
+        self.ascend = true;
     }
 
     // Returns whether the list is empty.
     public function isEmpty() returns boolean {
-        match first {
-            Node value => {
-                return false;
-            }
-            () => {
-                return true;
-            }
+        var value = self.first;
+        if (value is Node) {
+            return false;
+        } else {
+            return true;
         }
     }
 
     // Reset the iterator head to the front of the list.
     public function resetToFront() {
-        curr = ();
-        ascend = true;
+        self.curr = ();
+        self.ascend = true;
     }
 
     // Reset the iterator head to the rear of the list.
     public function resetToRear() {
-        curr = ();
-        ascend = false;
+        self.curr = ();
+        self.ascend = false;
     }
 
-    // When iterating, indicates whethers there's a node next to the current node.
+    // When iterating, indicates whethers there's a node next to the self.current node.
     public function hasNext() returns boolean {
-        match curr {
-            Node c => {
-                Node? next = c.next;
-                return next != ();
-            }
-            () => {
-                return (ascend && first != ());
-            }
+        var c = self.curr;
+        if (c is Node) {
+            Node? next = c.next;
+            return !(next is ());
+        } else {
+            return (self.ascend && !(self.first is ()));
         }
     }
 
-    // When iterating, indicates whethers there's a node prior to the current node.
+    // When iterating, indicates whethers there's a node prior to the self.current node.
     public function hasPrevious() returns boolean {
-        match curr {
-            Node c => {
-                Node? prev = c.prev;
-                return prev != ();
-            }
-            () => {
-                return (!ascend && last != ());
-            }
+        var c = self.curr;
+        if (c is Node) {
+            Node? prev = c.prev;
+            return !(prev is ());
+        } else {
+            return (!self.ascend && !(self.last is ()));
         }
     }
 
     // Iterates to the next node and returns it's data.
     public function next() returns any? {
-        if (hasNext()) {
-            match curr {
-                Node c => {
-                    Node? next = c.next;
-                    curr = next;
-                }
-                () => {
-                    Node? next = first;
-                    curr = next;
-                }
+        if (self.hasNext()) {
+            var c = self.curr;
+            if (c is Node) {
+                Node? next = c.next;
+                self.curr = next;
+            } else {
+                Node? next = self.first;
+                self.curr = next;
             }
-            return curr.data;
+            return self.curr.data;
         } else {
-            error e = { message: "couldn't iterate to next node." };
-            return e;
+            error e = error("couldn't iterate to next node.");
+            // TODO : Fix this.
+            panic e;
         }
     }
 
-    // Iterates to the previos node and returns it's data.
+    // Iterates to the previous node and returns it's data.
     public function previous() returns any? {
-        if (hasPrevious()) {
-            match curr {
-                Node c => {
-                    Node? prev = c.prev;
-                    curr = prev;
-                }
-                () => {
-                    Node? prev = last;
-                    curr = prev;
-                }
+        if (self.hasPrevious()) {
+            var c = self.curr;
+            if (c is Node) {
+                Node? prev = c.prev;
+                self.curr = prev;
+            } else {
+                Node? prev = self.last;
+                self.curr = prev;
             }
-            return curr.data;
+            return self.curr.data;
         } else {
-            error e = { message: "couldn't iterate to previous node." };
-            return e;
+            error e = error("couldn't iterate to previous node.");
+            // TODO : Fix this.
+            panic e;
         }
     }
 
-    // Removes the current node.
+    // Removes the self.current node.
     public function removeCurrent() {
-        match curr {
-            Node c => {
-                _ = unlink(c);
-            }
-            () => {}
+        var c = self.curr;
+        if (c is Node) {
+            _ = self.unlink(c);
+        } else {
+
         }
     }
 
     // Returns the number of elements in this list.
     public function getSize() returns int {
-        return size;
+        return self.size;
     }
 
     // Removes all of the elements from this list.
     public function clear() {
         // TODO: unlink every node and clean up properly.
-        //match first {
+        //match self.first {
         //    Node f => {
         //        Node x = f;
         //        while (x != ()) {
@@ -159,20 +153,20 @@ public type LinkedList object {
         //            x.prev = ();
         //            x = nxt;
         //        }
-        //        first = ();
-        //        last = ();
-        //        size = 0;
+        //        self.first = ();
+        //        self.last = ();
+        //        self.size = 0;
         //    }
         //    () => {}
         //}
-        first = ();
-        last = ();
-        size = 0;
+        self.first = ();
+        self.last = ();
+        self.size = 0;
     }
 
     // Removes the first occurrence of the specified element from this list.
     public function removeFirstOccurrence(any? elem) returns boolean {
-        return remove(elem);
+        return self.remove(elem);
     }
 
     // Removes the first occurrence of the specified element from this list.
@@ -180,7 +174,7 @@ public type LinkedList object {
         // TODO: find a way to loop, and implement properly
         //match elem {
         //    () => {
-        //        Node x = first;
+        //        Node x = self.first;
         //        while (x != ()) {
         //            any? data = x.data;
         //            match data {
@@ -194,7 +188,7 @@ public type LinkedList object {
         //        }
         //    }
         //    any a => {
-        //        Node x = first;
+        //        Node x = self.first;
         //        while (x != ()) {
         //            any? data = x.data;
         //            match data {
@@ -213,105 +207,93 @@ public type LinkedList object {
         return false;
     }
 
-    // Returns the first element in this list.
+    // Returns the self.first element in this list.
     public function getFirst() returns any? {
-        match first {
-            Node n => {
-                return n.data;
-            }
-            () => {
-                return ();
-            }
+        var n = self.first;
+        if (n is Node) {
+            return n.data;
+        } else {
+            return ();
         }
     }
 
-    // Returns the last element in this list.
+    // Returns the self.last element in this list.
     public function getLast() returns any? {
-        match last {
-            Node n => {
-                return n.data;
-            }
-            () => {
-                return ();
-            }
+        var n = self.last;
+        if (n is Node) {
+            return n.data;
+        } else {
+            return ();
         }
     }
 
     // Inserts the specified element at the beginning of this list.
     public function addFirst(any data) {
-        linkFirst(data);
+        self.linkFirst(data);
     }
 
     // Inserts the specified element at the end of this list.
     public function addLast(any data) {
-        linkLast(data);
+        self.linkLast(data);
     }
 
-    // Removes and returns the first element from this list.
+    // Removes and returns the self.first element from this list.
     public function removeFirst() returns any? {
-        match first {
-            Node f => {
-                return unlinkFirst(f);
-            }
-            () => {
-                return ();
-            }
+        var f = self.first;
+        if (f is Node) {
+            return self.unlinkFirst(f);
+        } else {
+            return ();
         }
     }
 
     // Removes and returns the last element from this list.
     public function removeLast() returns any? {
-        match last {
-            Node l => {
-                return unlinkLast(l);
-            }
-            () => {
-                return ();
-            }
+        var l = self.last;
+        if (l is Node) {
+            return self.unlinkLast(l);
+        } else {
+            return ();
         }
     }
 
     public function insertBeforeCurrent(any data) {
-        match curr {
-            Node c => {
-                linkBefore(data, c);
-            }
-            () => {}
+        var c = self.curr;
+        if (c is Node) {
+            self.linkBefore(data, c);
+        } else {
+
         }
     }
 
     // Links data as first element.
     function linkFirst(any data) {
-        match first {
-            Node f => {
-                Node newNode = new((), data, f);
-                first = newNode;
-                f.prev = newNode;
-            }
-            () => {
-                Node newNode = new((), data, ());
-                first = newNode;
-                last = newNode;
-            }
+        var f = self.first;
+        if (f is Node) {
+            Node newNode = new((), data, f);
+            self.first = newNode;
+            f.prev = newNode;
+        } else {
+            Node newNode = new((), data, ());
+            self.first = newNode;
+            self.last = newNode;
         }
-        size += 1;
+        self.size += 1;
     }
 
     // Links data as last element.
     function linkLast(any data) {
-        match last {
-            Node l => {
-                Node newNode = new(l, data, ());
-                last = newNode;
-                l.next = newNode;
-            }
-            () => {
-                Node newNode = new((), data, ());
-                first = newNode;
-                last = newNode;
-            }
+        var l = self.last;
+        if (l is Node) {
+            Node newNode = new(l, data, ());
+            self.last = newNode;
+            l.next = newNode;
+        } else {
+            Node newNode = new((), data, ());
+            self.first = newNode;
+            self.last = newNode;
         }
-        size += 1;
+        self.size += 1;
     }
 
     // Inserts element 'data' before non-null Node succ.
@@ -319,33 +301,29 @@ public type LinkedList object {
         Node? pred = succ.prev;
         Node newNode = new(pred, data, succ);
         succ.prev = newNode;
-        match pred {
-            Node n => {
-                n.next = newNode;
-            }
-            () => {
-                first = newNode;
-            }
+        var n = pred;
+        if (n is Node) {
+            n.next = newNode;
+        } else {
+            self.first = newNode;
         }
-        size += 1;
+        self.size += 1;
     }
 
     // Unlinks non-null first Node node.
     function unlinkFirst(Node node) returns any? {
         any data = node.data;
         Node? next = node.next;
-        first = next;
+        self.first = next;
         node.data = ();
         node.next = ();
-        match next {
-            Node n => {
-                n.prev = ();
-            }
-            () => {
-                last = ();
-            }
+        var n = next;
+        if (n is Node) {
+            n.prev = ();
+        } else {
+            self.last = ();
         }
-        size -= 1;
+        self.size -= 1;
         return data;
     }
 
@@ -353,18 +331,16 @@ public type LinkedList object {
     function unlinkLast(Node node) returns any? {
         any data = node.data;
         Node? prev = node.prev;
-        last = prev;
+        self.last = prev;
         node.data = ();
         node.prev = ();
-        match prev {
-            Node n => {
-                n.next = ();
-            }
-            () => {
-                first = ();
-            }
+        var n = prev;
+        if (n is Node) {
+            n.next = ();
+        } else {
+            self.first = ();
         }
-        size -= 1;
+        self.size -= 1;
         return data;
     }
 
@@ -373,71 +349,66 @@ public type LinkedList object {
         any data = x.data;
         Node? next = x.next;
         Node? prev = x.prev;
-        match prev {
-            Node p => {
-                p.next = next;
-                x.prev = ();
-            }
-            () => {
-                first = next;
-            }
+
+        var p = prev;
+        if (p is Node) {
+            p.next = next;
+            x.prev = ();
+        } else {
+            self.first = next;
         }
-        match next {
-            Node n => {
-                n.prev = prev;
-                x.next = ();
-            }
-            () => {
-                last = prev;
-            }
+
+        var n = next;
+        if (n is Node) {
+            n.prev = prev;
+            x.next = ();
+        } else {
+            self.last = prev;
         }
-        if (reflect:equals(x, curr)) {
-            if (ascend) {
-                curr = prev;
+
+        if (x === self.curr) {
+            if (self.ascend) {
+                self.curr = prev;
             } else {
-                curr = next;
+                self.curr = next;
             }
         }
         x.data = ();
-        size -= 1;
+        self.size -= 1;
         return data;
     }
 
     public function dequeue() returns any? {
-        match first {
-            Node value => {
-                first = value.next;
-                match first {
-                    Node nextValue => {
-                        // do nothing
-                    }
-                    () => {
-                        last = ();
-                    }
-                }
-                return value.data;
+        var value = self.first;
+        if (value is Node) {
+            self.first = value.next;
+            var nextValue = self.first;
+            if (nextValue is Node) {
+                // do nothing
+            } else {
+                self.last = ();
             }
-            () => {
-                return ();
-            }
+            return value.data;
+        } else {
+            return ();
         }
     }
 
     public function asArray() returns any[] {
-        any[] arr = [size - 1];
+        any[] arr = [self.size - 1];
         Node? temp;
-        int i;
-        if (!isEmpty()) {
-            match first {
-                Node value => {
-                    temp = value;
-                    while (temp != ()) {
-                        arr[i] = temp.data;
-                        i = i + 1;
-                        temp = temp.next;
-                    }
+        int i = 0;
+        if (!self.isEmpty()) {
+            var value = self.first;
+            if (value is Node) {
+                temp = value;
+                while (temp !== ()) {
+                    arr[i] = temp.data;
+                    i = i + 1;
+                    temp = temp.next;
                 }
-                () => {}
+            } else {
+
             }
         }
         return arr;

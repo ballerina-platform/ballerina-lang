@@ -23,12 +23,12 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.utils.SQLDBUtils;
+import org.ballerinalang.test.utils.SQLDBUtils.DBType;
+import org.ballerinalang.test.utils.SQLDBUtils.TestDatabase;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
-import java.io.File;
 
 /**
  * Class to test functionality of distributed transactions in SQL.
@@ -37,14 +37,16 @@ public class SQLXATransactionsTest {
     private CompileResult result;
     private static final String DB_NAME1 = "TestDB1";
     private static final String DB_NAME2 = "TestDB2";
+    private TestDatabase testDatabase1;
+    private TestDatabase testDatabase2;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/jdbc/transaction/sql_xa_transaction_test.bal");
-        SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY_H2_1), DB_NAME1);
-        SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY_H2_2), DB_NAME2);
-        SQLDBUtils.initH2Database(SQLDBUtils.DB_DIRECTORY_H2_1, DB_NAME1, "datafiles/sql/SQLH2CustomerTableCreate.sql");
-        SQLDBUtils.initH2Database(SQLDBUtils.DB_DIRECTORY_H2_2, DB_NAME2, "datafiles/sql/SQLH2SalaryTableCreate.sql");
+        testDatabase1 = new SQLDBUtils.FileBasedTestDatabase(DBType.H2,
+                "datafiles/sql/SQLH2CustomerTableCreate.sql", SQLDBUtils.DB_DIRECTORY_H2_1, DB_NAME1);
+        testDatabase2 = new SQLDBUtils.FileBasedTestDatabase(DBType.H2,
+                "datafiles/sql/SQLH2SalaryTableCreate.sql", SQLDBUtils.DB_DIRECTORY_H2_2, DB_NAME2);
     }
 
     @Test
@@ -91,7 +93,11 @@ public class SQLXATransactionsTest {
 
     @AfterSuite
     public void cleanup() {
-        SQLDBUtils.deleteDirectory(new File(SQLDBUtils.DB_DIRECTORY_H2_1));
-        SQLDBUtils.deleteDirectory(new File(SQLDBUtils.DB_DIRECTORY_H2_2));
+        if (testDatabase1 != null) {
+            testDatabase1.stop();
+        }
+        if (testDatabase2 != null) {
+            testDatabase2.stop();
+        }
     }
 }

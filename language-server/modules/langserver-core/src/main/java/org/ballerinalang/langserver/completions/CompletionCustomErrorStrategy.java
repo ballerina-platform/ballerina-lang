@@ -63,7 +63,7 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
     @Override
     public void reportInputMismatch(Parser parser, InputMismatchException e) {
         if (!parser.getContext().start.getTokenSource().getSourceName()
-                .equals(context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY))) {
+                .equals(context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY).replace("\\", "/"))) {
             return;
         }
         this.context.put(CompletionKeys.TOKEN_STREAM_KEY, parser.getTokenStream());
@@ -72,7 +72,7 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
     @Override
     public void reportMissingToken(Parser parser) {
         if (!parser.getContext().start.getTokenSource().getSourceName()
-                .equals(context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY))) {
+                .equals(context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY).replace("\\", "/"))) {
             return;
         }
         this.context.put(CompletionKeys.TOKEN_STREAM_KEY, parser.getTokenStream());
@@ -81,7 +81,7 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
     @Override
     public void reportNoViableAlternative(Parser parser, NoViableAltException e) {
         if (!parser.getContext().start.getTokenSource().getSourceName()
-                .equals(context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY))) {
+                .equals(context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY).replace("\\", "/"))) {
             return;
         }
         this.context.put(CompletionKeys.TOKEN_STREAM_KEY, parser.getTokenStream());
@@ -90,7 +90,7 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
     @Override
     public void reportUnwantedToken(Parser parser) {
         if (!parser.getContext().start.getTokenSource().getSourceName()
-                .equals(context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY))) {
+                .equals(context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY).replace("\\", "/"))) {
             return;
         }
         this.context.put(CompletionKeys.TOKEN_STREAM_KEY, parser.getTokenStream());
@@ -99,7 +99,7 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
     @Override
     public void reportMatch(Parser recognizer) {
         if (!recognizer.getContext().start.getTokenSource().getSourceName()
-                .equals(context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY))) {
+                .equals(context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY).replace("\\", "/"))) {
             super.reportMatch(recognizer);
             return;
         }
@@ -115,7 +115,7 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
     @Override
     public void sync(Parser recognizer) throws RecognitionException {
         if (!recognizer.getContext().start.getTokenSource().getSourceName()
-                .equals(context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY))) {
+                .equals(context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY).replace("\\", "/"))) {
             super.sync(recognizer);
             return;
         }
@@ -243,8 +243,7 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
         while (type != BallerinaParser.EOF && ((tLine < cursorLine) || (tLine == cursorLine && tCol < cursorCol))) {
             // Checking for terminating tokens with the type number is inconsistent. Thus, uses string comparisons
             String tokenText = beforeCursorToken.getText();
-            if (beforeCursorToken.getTokenIndex() == 1 ||
-                    UtilSymbolKeys.SEMI_COLON_SYMBOL_KEY.equals(tokenText) ||
+            if (UtilSymbolKeys.SEMI_COLON_SYMBOL_KEY.equals(tokenText) ||
                     UtilSymbolKeys.OPEN_BRACE_KEY.equals(tokenText) ||
                     UtilSymbolKeys.CLOSE_BRACE_KEY.equals(tokenText) ||
                     UtilSymbolKeys.COMMA_SYMBOL_KEY.equals(tokenText)) {

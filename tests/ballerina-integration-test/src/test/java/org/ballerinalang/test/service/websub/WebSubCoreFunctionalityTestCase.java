@@ -24,7 +24,6 @@ import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
-import org.ballerinalang.test.util.HttpsClientRequest;
 import org.ballerinalang.test.util.TestConstant;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -58,10 +57,11 @@ import static org.ballerinalang.test.service.websub.WebSubTestUtils.requestUpdat
  */
 @Test(groups = "websub-test")
 public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
+    private static final int LOG_LEECHER_TIMEOUT = 45000;
     private BServerInstance webSubSubscriber;
     private BMainInstance subscriptionChanger;
 
-    private static String hubUrl = "https://localhost:9191/websub/hub";
+    private static String hubUrl = "http://localhost:9191/websub/hub";
     private static final String INTENT_VERIFICATION_LOG = "ballerina: Intent Verification agreed - Mode [subscribe], " +
             "Topic [http://one.websub.topic.com], Lease Seconds [86400]";
     private static final String EXPLICIT_INTENT_VERIFICATION_LOG = "Intent verified explicitly for subscription " +
@@ -119,37 +119,37 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
 
     @Test
     public void testSubscriptionAndAutomaticIntentVerification() throws BallerinaTestException {
-        intentVerificationLogLeecher.waitForText(30000);
+        intentVerificationLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
     @Test(dependsOnMethods = "testSubscriptionAndAutomaticIntentVerification")
     public void testSubscriptionAndExplicitIntentVerification() throws BallerinaTestException {
-        explicitIntentVerificationLogLeecher.waitForText(30000);
+        explicitIntentVerificationLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
         requestUpdate(PUBLISHER_NOTIFY_URL, HUB_MODE_INTERNAL, CONTENT_TYPE_JSON);
         requestUpdate(PUBLISHER_NOTIFY_URL, HUB_MODE_REMOTE, CONTENT_TYPE_JSON);
     }
 
     @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification")
     public void testContentReceiptForDirectHubNotification() throws BallerinaTestException {
-        internalHubNotificationLogLeecher.waitForText(45000);
+        internalHubNotificationLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
     @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification")
     public void testContentReceiptForRemoteHubNotification() throws BallerinaTestException {
-        remoteHubNotificationLogLeecher.waitForText(45000);
+        remoteHubNotificationLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
     @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification")
     public void testAuthenticatedContentReceiptForDirectHubNotification() throws BallerinaTestException {
-        internalHubNotificationLogLeecherTwo.waitForText(45000);
+        internalHubNotificationLogLeecherTwo.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
     @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification")
     public void testAuthenticatedContentReceiptForRemoteHubNotification() throws BallerinaTestException {
-        remoteHubNotificationLogLeecherTwo.waitForText(45000);
+        remoteHubNotificationLogLeecherTwo.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
-    @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification")
+    @Test(dependsOnMethods = "testSubscriberDetailsRetrievalFromHub")
     public void testUnsubscriptionIntentVerification() throws BallerinaTestException {
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                                           "websub" + File.separator + "test_unsubscription_client.bal")
@@ -162,14 +162,13 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
             }
         });
         webSubSubscriber.addLogLeecher(logAbsenceTestLogLeecher);
-        unsubscriptionIntentVerificationLogLeecher.waitForText(30000);
+        unsubscriptionIntentVerificationLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
-    @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification",
+    @Test(dependsOnMethods = "testUnsubscriptionIntentVerification",
             description = "Tests that no notifications are received after unsubscription",
             expectedExceptions = BallerinaTestException.class,
-            expectedExceptionsMessageRegExp = ".*Timeout expired waiting for matching log.*"
-    )
+            expectedExceptionsMessageRegExp = ".*Timeout expired waiting for matching log.*")
     public void testUnsubscription() throws BallerinaTestException {
         requestUpdate(PUBLISHER_NOTIFY_URL, HUB_MODE_INTERNAL, CONTENT_TYPE_JSON);
         logAbsenceTestLogLeecher.waitForText(5000);
@@ -179,12 +178,11 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
     public void testRemoteTopicRegistration() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_FORM_URL_ENCODED);
-        HttpResponse response = HttpsClientRequest.doPost(hubUrl,
-                                                          "hub.mode=subscribe" +
+        HttpResponse response = HttpClientRequest.doPost(hubUrl,
+                                                  "hub.mode=subscribe" +
                                                                   "&hub.topic=http://two.websub.topic.com" +
                                                                   "&hub.callback=http://localhost:8181/websub",
-                                                          headers,
-                                                          webSubSubscriber.getServerHome());
+                                                  headers);
         Assert.assertTrue(response != null);
         Assert.assertEquals(response.getResponseCode(), 202, "Remote topic registration unsuccessful "
                 + "to allow registering subscription");
@@ -192,7 +190,7 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
 
     @Test(dependsOnMethods = "testRemoteTopicRegistration")
     public void testIntentVerificationRejectionForIncorrectTopic() throws BallerinaTestException {
-        intentVerificationDenialLogLeecher.waitForText(45000);
+        intentVerificationDenialLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
     @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification")
@@ -216,6 +214,29 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
                 headers);
         Assert.assertEquals(response.getResponseCode(), 404);
         Assert.assertEquals(response.getData(), "validation failed for notification");
+    }
+
+    @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification")
+    public void testSubscriberDetailsRetrievalFromHub() throws IOException {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("x-topic", "http://one.websub.topic.com");
+        HttpResponse response = HttpClientRequest.doGet("http://localhost:8080/publisher/topicInfo", headers);
+
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertTrue(response.getData().contains("{\"callback\":\"http://localhost:8181/websub"));
+    }
+
+    @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification")
+    public void testAvailableTopicsRetrievalFromHub() throws IOException {
+        HttpResponse response = HttpClientRequest.doGet("http://localhost:8080/publisher/topicInfo");
+
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(response.getData(), "{\"Topic_1\":\"http://one.websub.topic.com\", " +
+                "\"Topic_2\":\"http://three.websub.topic.com\", \"Topic_3\":\"http://four.websub.topic.com\", " +
+                "\"Topic_4\":\"http://one.redir.topic.com\", \"Topic_5\":\"http://two.redir.topic.com\", " +
+                "\"Topic_6\":\"http://two.websub.topic.com\"}");
     }
 
     @AfterClass

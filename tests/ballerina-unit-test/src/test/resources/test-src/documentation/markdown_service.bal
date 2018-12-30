@@ -1,16 +1,14 @@
 import ballerina/http;
 
-endpoint http:Listener echoEP { // TODO: Need to replace with http mock endpoint once it's fixed
-    port:9090
-};
+listener http:MockListener echoEP = new(9090);
 
 # PizzaService HTTP Service
-service<http:Service> PizzaService bind echoEP {
+service PizzaService on echoEP {
 
     # Check orderPizza resource.
     # + conn - HTTP connection.
     # + req - In request.
-    orderPizza(endpoint conn, http:Request req) {
+    resource function orderPizza(http:Caller conn, http:Request req) {
         http:Response res = new;
         _ = conn -> respond(res);
     }
@@ -18,7 +16,7 @@ service<http:Service> PizzaService bind echoEP {
     # Check status resource.
     # + conn - HTTP connection.
     # + req - In request.
-    checkStatus(endpoint conn, http:Request req) {
+    resource function checkStatus(http:Caller conn, http:Request req) {
         http:Response res = new;
         _ = conn -> respond(res);
     }

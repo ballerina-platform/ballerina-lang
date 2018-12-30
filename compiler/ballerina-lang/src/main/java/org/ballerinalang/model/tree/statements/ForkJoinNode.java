@@ -17,10 +17,7 @@
 */
 package org.ballerinalang.model.tree.statements;
 
-import org.ballerinalang.model.tree.IdentifierNode;
-import org.ballerinalang.model.tree.VariableNode;
-import org.ballerinalang.model.tree.WorkerNode;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 
 import java.util.List;
 
@@ -29,31 +26,7 @@ import java.util.List;
  */
 public interface ForkJoinNode extends StatementNode {
 
-    List<? extends WorkerNode> getWorkers();
+    List<BLangSimpleVariableDef> getWorkers();
 
-    List<? extends IdentifierNode> getJoinedWorkerIdentifiers();
-
-    JoinType getJoinType();
-
-    int getJoinCount();
-
-    BlockNode getJoinBody();
-
-    ExpressionNode getTimeOutExpression();
-
-    VariableNode getTimeOutVariable();
-
-    BlockNode getTimeoutBody();
-    
-    VariableNode getJoinResultVar();
-        
-    void setJoinResultVar(VariableNode var);
-    
-    /**
-     * Join type.
-     */
-    enum JoinType {
-        SOME,
-        ALL
-    }
+    void addWorkers(BLangSimpleVariableDef workerDef);
 }

@@ -1,0 +1,54 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SamplesList renders properly 1`] = `
+<div
+  className="ui divided grid welcome-page"
+>
+  <div
+    className="one column row welcome-navbar"
+  >
+    <div
+      className="column"
+    >
+      <h3
+        className="ui dividing header"
+      >
+        Ballerina Examples
+      </h3>
+      <form
+        className="ui form"
+        onSubmit={[Function]}
+      >
+        <div
+          className="inline field"
+        >
+          <div
+            className="ui loading icon input search-control"
+          >
+            <input
+              onChange={[Function]}
+              placeholder="Search"
+              type="text"
+            />
+            <i
+              aria-hidden="true"
+              className="spinner icon"
+            />
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div
+    className="row welcome-content-wrapper"
+  >
+    <div
+      className="sixteen wide computer sixteen wide mobile sixteen wide tablet column rightContainer"
+    >
+      <div
+        className="ui grid"
+      />
+    </div>
+  </div>
+</div>
+`;

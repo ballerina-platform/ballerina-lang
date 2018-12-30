@@ -1,6 +1,6 @@
 
-int resValue;
-string stringResVal;
+int resValue = 0;
+string stringResVal = "";
 
 public function passValueForDefaultableObjectField () returns (int, string) {
     Person p = new Person(age = 50, name = "passed in name value");
@@ -8,10 +8,12 @@ public function passValueForDefaultableObjectField () returns (int, string) {
 }
 
 type Person object {
-    public int age = 10;
+    public int age;
     public string name;
 
-    new (age = 10, name = "sample result") {
+    function __init (int age = 10, string name = "sample result") {
+        self.age = age;
+        self.name = name;
         resValue = age;
         stringResVal = name;
     }

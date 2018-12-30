@@ -18,6 +18,7 @@
 package org.ballerinalang.langserver.completions.resolvers;
 
 import org.antlr.v4.runtime.Token;
+import org.ballerinalang.langserver.LSGlobalContextKeys;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
@@ -27,25 +28,41 @@ import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
 import org.ballerinalang.langserver.completions.util.Snippet;
+import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
+import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
+import org.ballerinalang.langserver.index.LSIndexException;
+import org.ballerinalang.langserver.index.LSIndexImpl;
+import org.ballerinalang.langserver.index.dao.BPackageSymbolDAO;
+import org.ballerinalang.langserver.index.dao.DAOType;
+import org.ballerinalang.langserver.index.dto.BObjectTypeSymbolDTO;
+import org.ballerinalang.langserver.index.dto.BPackageSymbolDTO;
 import org.ballerinalang.model.tree.NodeKind;
 import org.eclipse.lsp4j.CompletionItem;
-import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
-import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
  * Completion item resolver for the object type.
  */
 public class ObjectTypeContextResolver extends AbstractItemResolver {
+
+    private static final Logger logger = LoggerFactory.getLogger(ObjectTypeContextResolver.class);
+
     @Override
     public List<CompletionItem> resolveItems(LSServiceOperationContext context) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
@@ -60,58 +77,35 @@ public class ObjectTypeContextResolver extends AbstractItemResolver {
                 .stream()
                 .map(Token::getText)
                 .collect(Collectors.toList());
-        BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) objectNode;
-        List<BLangVariable> fields = objectTypeNode.fields;
-        List<BLangFunction> functions = objectTypeNode.functions;
-        BLangFunction initFunction = objectTypeNode.initFunction;
-        Position position = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
-        int line = position.getLine();
-        int col = position.getCharacter();
-        
-        DiagnosticPos lastFieldPos = fields.isEmpty() ? null
-                : CommonUtil.toZeroBasedPosition(CommonUtil.getLastItem(fields).pos);
-        if (poppedTokens.contains(UtilSymbolKeys.EQUAL_SYMBOL_KEY)) {
+
+        if (!poppedTokens.isEmpty() && poppedTokens.get(0).equals(UtilSymbolKeys.OBJECT_REFERENCE_SYMBOL_KEY)) {
+            this.fillObjectReferences(completionItems, poppedTokens, context);
+        } else if (this.isInvocationOrInteractionOrFieldAccess(context)) {
+            Either<List<CompletionItem>, List<SymbolInfo>> eitherList = SymbolFilters
+                    .get(DelimiterBasedContentFilter.class).filterItems(context);
+            completionItems.addAll(this.getCompletionsFromEither(eitherList, context));
+        } else if (poppedTokens.contains(UtilSymbolKeys.EQUAL_SYMBOL_KEY)) {
             // If the popped tokens contains the equal symbol, then the variable definition is being writing
             context.put(CompletionKeys.PARSER_RULE_CONTEXT_KEY,
                     new BallerinaParser.VariableDefinitionStatementContext(null, -1));
             return CompletionItemResolver
-                    .getResolverByClass(BallerinaParser.VariableDefinitionStatementContext.class)
+                    .get(BallerinaParser.VariableDefinitionStatementContext.class)
                     .resolveItems(context);
-        } else if (lastFieldPos != null
-                && (line < lastFieldPos.sLine || (line == lastFieldPos.sLine && col < lastFieldPos.sCol))) {
-            fillTypes(context, completionItems);
-        } else if (initFunction != null && objectTypeNode.initFunction.objInitFunction) {
-            DiagnosticPos initFuncPos = CommonUtil.toZeroBasedPosition(initFunction.pos);
-            DiagnosticPos firstFuncPos = functions.isEmpty() ? null
-                    : CommonUtil.toZeroBasedPosition(functions.get(0).pos);
-            if (line < initFuncPos.sLine || (line == initFuncPos.sLine && col < initFuncPos.sCol)) {
-                fillTypes(context, completionItems);
-            } else if ((firstFuncPos != null && line < firstFuncPos.sLine) || firstFuncPos == null) {
-                fillFunctionSignature(completionItems, isSnippet);
-            }
-        } else if (!functions.isEmpty()) {
-            DiagnosticPos firstFuncPos = CommonUtil.toZeroBasedPosition(functions.get(0).pos);
-            if (line < firstFuncPos.sLine) {
-                fillTypes(context, completionItems);
-                fillInitializerSignature(completionItems, isSnippet);
-                fillFunctionSignature(completionItems, isSnippet);
-            } else {
-                fillFunctionSignature(completionItems, isSnippet);
-            }
         } else {
             fillTypes(context, completionItems);
             fillInitializerSignature(completionItems, isSnippet);
             fillFunctionSignature(completionItems, isSnippet);
         }
-        
+
         return completionItems;
     }
-    
+
     private void fillTypes(LSContext context, List<CompletionItem> completionItems) {
         List<SymbolInfo> filteredTypes = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY).stream()
                 .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol)
                 .collect(Collectors.toList());
-        completionItems.addAll(this.getCompletionItemList(filteredTypes));
+        completionItems.addAll(this.getCompletionItemList(filteredTypes, context));
+        completionItems.addAll(this.getPackagesCompletionItems(context));
     }
     
     private void fillFunctionSignature(List<CompletionItem> completionItems, boolean snippetCapability) {
@@ -126,7 +120,96 @@ public class ObjectTypeContextResolver extends AbstractItemResolver {
     
     private void fillInitializerSignature(List<CompletionItem> completionItems, boolean snippetCapability) {
         CompletionItem constructorItem = new CompletionItem();
-        Snippet.DEF_NEW_OBJECT_CONSTRUCTOR.get().build(constructorItem, snippetCapability);
+        Snippet.DEF_NEW_OBJECT_INITIALIZER.get().build(constructorItem, snippetCapability);
         completionItems.add(constructorItem);
+    }
+    
+    private void fillObjectReferences(List<CompletionItem> completionItems, List<String> poppedTokens, LSContext ctx) {
+        if (CommonUtil.getLastItem(poppedTokens).equals(UtilSymbolKeys.PKG_DELIMITER_KEYWORD)) {
+            String pkgName = poppedTokens.get(1);
+            LSIndexImpl lsIndex = ctx.get(LSGlobalContextKeys.LS_INDEX_KEY);
+            String relativePath = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
+            BLangPackage currentBLangPkg = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+            BLangPackage sourceOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativePath, currentBLangPkg);
+            Optional bLangImport = CommonUtil.getCurrentFileImports(sourceOwnerPkg, ctx).stream()
+                    .filter(importPkg -> importPkg.getAlias().getValue().equals(pkgName))
+                    .findFirst();
+
+            String realPkgName;
+            String realOrgName;
+
+            if (bLangImport.isPresent()) {
+                // There is an added import statement.
+                realPkgName = CommonUtil.getPackageNameComponentsCombined(((BLangImportPackage) bLangImport.get()));
+                realOrgName = ((BLangImportPackage) bLangImport.get()).getOrgName().getValue();
+            } else {
+                realPkgName = pkgName;
+                realOrgName = "";
+            }
+
+            try {
+
+                BPackageSymbolDTO dto = new BPackageSymbolDTO.BPackageSymbolDTOBuilder()
+                        .setName(realPkgName)
+                        .setOrgName(realOrgName)
+                        .build();
+                List<BPackageSymbolDTO> result = ((BPackageSymbolDAO) lsIndex.getDaoFactory()
+                        .get(DAOType.PACKAGE_SYMBOL)).get(dto);
+                
+                if (result.isEmpty()) {
+                    this.fillSymbolsInPackageOnFallback(completionItems, ctx, realPkgName);
+                } else {
+                    HashMap<Integer, ArrayList<CompletionItem>> completionMap = new HashMap<>();
+                    BPackageSymbolDAO pkgSymbolDAO = ((BPackageSymbolDAO) lsIndex.getDaoFactory()
+                            .get(DAOType.PACKAGE_SYMBOL));
+                    ArrayList<BObjectTypeSymbolDTO> objDTOs = new ArrayList<>(pkgSymbolDAO.getObjects(dto, false));
+                    
+                    if (bLangImport.isPresent()) {
+                        completionItems.addAll(objDTOs.stream()
+                                .map(BObjectTypeSymbolDTO::getCompletionItem)
+                                .collect(Collectors.toList()));
+                    } else {
+                        objDTOs.forEach(objDto ->
+                                CommonUtil.populateIdCompletionMap(completionMap, objDto.getPackageId(),
+                                        objDto.getCompletionItem()));
+                        completionItems.addAll(CommonUtil.fillCompletionWithPkgImport(completionMap, ctx));
+                    }
+                }
+            } catch (LSIndexException e) {
+                logger.warn("Error retrieving Completion Items from Index DB.");
+                this.fillSymbolsInPackageOnFallback(completionItems, ctx, realPkgName);
+            }
+        } else {
+            this.fillVisibleObjectsAndPackages(completionItems, ctx);
+        }
+    }
+
+    private void fillSymbolsInPackageOnFallback(List<CompletionItem> completionItems, LSContext ctx, String pkgName) {
+        List<SymbolInfo> visibleSymbols = ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
+        Optional<SymbolInfo> pkgSymbolInfo = visibleSymbols.stream()
+                .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BPackageSymbol
+                && symbolInfo.getScopeEntry().symbol.pkgID.getName().getValue().equals(pkgName))
+                .findAny();
+        
+        if (pkgSymbolInfo.isPresent()) {
+            List<SymbolInfo> filteredSymbolInfo = pkgSymbolInfo.get().getScopeEntry().symbol.scope.entries.entrySet()
+                    .stream()
+                    .filter(entry -> entry.getValue().symbol instanceof BObjectTypeSymbol)
+                    .map(entry -> {
+                        BObjectTypeSymbol objSymbol = (BObjectTypeSymbol) entry.getValue().symbol;
+                        return new SymbolInfo(objSymbol.getName().getValue(), new Scope.ScopeEntry(objSymbol, null));
+                    })
+                    .collect(Collectors.toList());
+            completionItems.addAll(this.getCompletionItemList(filteredSymbolInfo, ctx));
+        }
+    }
+
+    private void fillVisibleObjectsAndPackages(List<CompletionItem> completionItems, LSContext ctx) {
+        List<SymbolInfo> visibleSymbols = ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
+        List<SymbolInfo> filteredList = visibleSymbols.stream()
+                .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BObjectTypeSymbol)
+                .collect(Collectors.toList());
+        completionItems.addAll(this.getCompletionItemList(filteredList, ctx));
+        completionItems.addAll(this.getPackagesCompletionItems(ctx));
     }
 }

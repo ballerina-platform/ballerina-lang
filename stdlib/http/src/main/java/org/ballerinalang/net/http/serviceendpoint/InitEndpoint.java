@@ -26,7 +26,7 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -51,11 +51,13 @@ import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY_PASSWORD;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY_STORE;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_OCSP_STAPLING;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_PORT;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_PROTOCOLS;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_TRUST_CERTIFICATES;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_TRUST_STORE;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_VALIDATE_CERT;
 import static org.ballerinalang.net.http.HttpConstants.FILE_PATH;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_LISTENER_ENDPOINT;
 import static org.ballerinalang.net.http.HttpConstants.PASSWORD;
 import static org.ballerinalang.net.http.HttpConstants.PKCS_STORE_TYPE;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_HTTPS;
@@ -73,7 +75,7 @@ import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "initEndpoint",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = HTTP_LISTENER_ENDPOINT,
                              structPackage = "ballerina/http"),
         isPublic = true
 )
@@ -88,7 +90,8 @@ public class InitEndpoint extends AbstractHttpNativeFunction {
 
             // Creating server connector
             Struct serviceEndpointConfig = serviceEndpoint.getStructField(HttpConstants.SERVICE_ENDPOINT_CONFIG);
-            ListenerConfiguration listenerConfiguration = getListenerConfig(serviceEndpointConfig);
+            long port = serviceEndpoint.getIntField(ENDPOINT_CONFIG_PORT);
+            ListenerConfiguration listenerConfiguration = getListenerConfig(port, serviceEndpointConfig);
             ServerConnector httpServerConnector =
                     HttpConnectionManager.getInstance().createHttpServerConnector(listenerConfiguration);
             serviceEndpoint.addNativeData(HttpConstants.HTTP_SERVER_CONNECTOR, httpServerConnector);
@@ -98,15 +101,13 @@ public class InitEndpoint extends AbstractHttpNativeFunction {
 
             context.setReturnValues((BValue) null);
         } catch (Exception e) {
-            BMap<String, BValue> errorStruct = HttpUtil.getError(context, e);
+            BError errorStruct = HttpUtil.getError(context, e);
             context.setReturnValues(errorStruct);
         }
-
     }
 
-    private ListenerConfiguration getListenerConfig(Struct endpointConfig) {
+    private ListenerConfiguration getListenerConfig(long port, Struct endpointConfig) {
         String host = endpointConfig.getStringField(HttpConstants.ENDPOINT_CONFIG_HOST);
-        long port = endpointConfig.getIntField(HttpConstants.ENDPOINT_CONFIG_PORT);
         String keepAlive = endpointConfig.getRefField(HttpConstants.ENDPOINT_CONFIG_KEEP_ALIVE).getStringValue();
         Struct sslConfig = endpointConfig.getStructField(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
         String httpVersion = endpointConfig.getStringField(HttpConstants.ENDPOINT_CONFIG_VERSION);
@@ -151,7 +152,7 @@ public class InitEndpoint extends AbstractHttpNativeFunction {
             return setSslConfig(sslConfig, listenerConfiguration);
         }
 
-        listenerConfiguration.setPipeliningNeeded(true); //Pipelining is enabled all the time
+        listenerConfiguration.setPipeliningEnabled(true); //Pipelining is enabled all the time
         listenerConfiguration.setPipeliningLimit(endpointConfig.getIntField(
                 HttpConstants.PIPELINING_REQUEST_LIMIT));
 

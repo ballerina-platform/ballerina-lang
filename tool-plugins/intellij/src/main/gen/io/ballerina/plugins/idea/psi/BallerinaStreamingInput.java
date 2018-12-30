@@ -24,10 +24,10 @@ import com.intellij.psi.PsiElement;
 public interface BallerinaStreamingInput extends BallerinaCompositeElement {
 
   @NotNull
-  BallerinaExpression getExpression();
+  List<BallerinaFunctionInvocation> getFunctionInvocationList();
 
   @NotNull
-  List<BallerinaFunctionInvocation> getFunctionInvocationList();
+  BallerinaVariableReference getVariableReference();
 
   @NotNull
   List<BallerinaWhereClause> getWhereClauseList();

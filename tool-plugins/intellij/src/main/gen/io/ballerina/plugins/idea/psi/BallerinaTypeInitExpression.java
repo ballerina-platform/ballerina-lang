@@ -23,7 +23,10 @@ import com.intellij.psi.PsiElement;
 
 public interface BallerinaTypeInitExpression extends BallerinaExpression {
 
-  @NotNull
-  BallerinaTypeInitExpr getTypeInitExpr();
+  @Nullable
+  BallerinaInitWithType getInitWithType();
+
+  @Nullable
+  BallerinaInitWithoutType getInitWithoutType();
 
 }

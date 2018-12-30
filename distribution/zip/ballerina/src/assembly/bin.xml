@@ -99,6 +99,7 @@
             <scope>runtime</scope>
             <includes>
                 <!-- stdlib dependencies -->
+                <include>org.ballerinalang:ballerina-auth:jar</include>
                 <include>org.ballerinalang:ballerina-builtin:jar</include>
                 <include>org.ballerinalang:ballerina-config-api:jar</include>
                 <include>org.ballerinalang:ballerina-crypto:jar</include>
@@ -108,7 +109,7 @@
                 <include>org.ballerinalang:ballerina-http:jar</include>
                 <include>org.ballerinalang:ballerina-internal:jar</include>
                 <include>org.ballerinalang:ballerina-io:jar</include>
-                <include>org.ballerinalang:ballerina-jdbc:jar</include>
+                <include>org.ballerinalang:ballerina-socket:jar</include>
                 <include>org.ballerinalang:ballerina-jms:jar</include>
                 <include>org.ballerinalang:ballerina-log-api:jar</include>
                 <include>org.ballerinalang:ballerina-math:jar</include>
@@ -141,6 +142,7 @@
                 <include>org.apache.ws.commons.axiom:axiom-api</include>
                 <include>org.apache.ws.commons.axiom:axiom-impl</include>
                 <include>org.apache.ws.commons.axiom:axiom-dom</include>
+                <include>org.apache.ws.commons.axiom:axiom-c14n</include>
                 <include>jaxen:jaxen</include>
                 <include>org.apache.geronimo.specs:geronimo-activation_1.1_spec</include>
                 <include>org.apache.geronimo.specs:geronimo-stax-api_1.0_spec</include>

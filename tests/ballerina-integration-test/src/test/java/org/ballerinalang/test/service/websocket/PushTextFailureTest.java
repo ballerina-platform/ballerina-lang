@@ -32,12 +32,13 @@ import java.net.URISyntaxException;
  *
  * @since 0.982.0
  */
-@Test(groups = "websocket-test")
+@Test(groups = {"websocket-test"})
 public class PushTextFailureTest extends WebSocketTestCommons {
 
     private static final String URL = "ws://localhost:9089/pushTextFailure";
     private LogLeecher logLeecher;
 
+    // Related file 07_pushText_failure.bal
     @BeforeClass(description = "Initializes the Ballerina server and client")
     public void setup() {
         String expectingErrorLog = "Close frame already sent. Cannot push text data!";
@@ -45,7 +46,7 @@ public class PushTextFailureTest extends WebSocketTestCommons {
         serverInstance.addLogLeecher(logLeecher);
     }
 
-    @Test(description = "Checks for the log that is printed when pushText fails. T")
+    @Test(description = "Checks for the log that is printed when pushText fails.")
     public void pushTextFailure() throws BallerinaTestException, URISyntaxException, InterruptedException {
         WebSocketTestClient client = new WebSocketTestClient(URL);
         client.handshake();

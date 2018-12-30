@@ -1,23 +1,21 @@
-#At the command line, navigate to the directory that contains the 
-#`.bal` file and run the `ballerina test` command.
-#Note that you need to have the ballerina-tools distribution 
-#installed in order to run this command. 
+# To run this sample, navigate to the directory that contains the
+# `.bal` file and issue the `ballerina run` command.
+# Note that you need to have the ballerina-tools distribution
+# installed in order to run this command.
 $ ballerina test testerina_group_tests.bal --groups g1 --groups g2
 Compiling tests
     testerina_group_tests.bal
 
 Running tests
-     testerina_group_tests.bal
-I'm in test belonging to g1 and g2!
-I'm in test belonging to g1!
+    testerina_group_tests.bal
+I'm in test belonging to groups g1 and g2!
+I'm in test belonging to group g1!
+        [pass] testFunction2
+        [pass] testFunction1
 
-	  [pass] testFunction2
-	  [pass] testFunction1
-
-	  2 passing
-	  0 failing
-	  0 skipped
-
+        2 passing
+        0 failing
+        0 skipped
 
 $ ballerina test testerina_group_tests.bal --groups g1
 Compiling tests
@@ -25,16 +23,14 @@ Compiling tests
 
 Running tests
     testerina_group_tests.bal
-I'm in test belonging to g1 and g2!
-I'm in test belonging to g1!
+I'm in test belonging to groups g1 and g2!
+I'm in test belonging to group g1!
+        [pass] testFunction2
+        [pass] testFunction1
 
-	  [pass] testFunction2
-	  [pass] testFunction1
-
-	  2 passing
-	  0 failing
-	  0 skipped
-
+        2 passing
+        0 failing
+        0 skipped
 
 $ ballerina test testerina_group_tests.bal --disable-groups g2
 Compiling tests
@@ -43,11 +39,10 @@ Compiling tests
 Running tests
     testerina_group_tests.bal
 I'm the ungrouped test
-I'm in test belonging to g1!
+I'm in test belonging to group g1!
+        [pass] testFunction3
+        [pass] testFunction1
 
-	  [pass] testFunction3
-	  [pass] testFunction1
-
-	  2 passing
-	  0 failing
-	  0 skipped
+        2 passing
+        0 failing
+        0 skipped

@@ -2,7 +2,7 @@ package com.github.gtache.lsp.settings.gui;
 
 import com.github.gtache.lsp.requests.Timeout;
 import com.github.gtache.lsp.requests.Timeouts;
-import com.github.gtache.lsp.settings.LSPState;
+import com.github.gtache.lsp.settings.BallerinaLSPState;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
@@ -29,7 +29,7 @@ public final class TimeoutGUI implements LSPGUI {
     private static final String FIELD_TOOLTIP = "Time in milliseconds";
     private static final Logger LOG = Logger.getInstance(TimeoutGUI.class);
     private final Map<Timeouts, JTextField> rows;
-    private final LSPState state = state();
+    private final BallerinaLSPState state = state();
     private final JPanel rootPanel;
 
     public TimeoutGUI() {

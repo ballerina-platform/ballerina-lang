@@ -32,11 +32,11 @@ import java.util.concurrent.TimeUnit;
 /**
  * This Class tests auto ping pong support of WebSocket client server if there's no onPing resource.
  */
-@Test(groups = "websocket-test")
+@Test(groups = {"websocket-test"})
 public class WebSocketAutoPingPongTest extends WebSocketTestCommons {
 
     private WebSocketTestClient client;
-    private static final String URL = "ws://localhost:9100/test/without/ping/resource";
+    private static final String URL = "ws://localhost:9100";
     private static final ByteBuffer SENDING_BYTE_BUFFER = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5});
 
     @BeforeClass(description = "Initializes Ballerina with the simple_server_without_ping_resource.bal file")

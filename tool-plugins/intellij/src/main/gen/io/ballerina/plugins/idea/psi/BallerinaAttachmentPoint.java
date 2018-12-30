@@ -30,13 +30,19 @@ public interface BallerinaAttachmentPoint extends BallerinaCompositeElement {
   PsiElement getAnnotation();
 
   @Nullable
-  PsiElement getEndpoint();
+  PsiElement getClient();
 
   @Nullable
   PsiElement getFunction();
 
   @Nullable
+  PsiElement getListener();
+
+  @Nullable
   PsiElement getObject();
+
+  @Nullable
+  PsiElement getRemote();
 
   @Nullable
   PsiElement getResource();

@@ -31,8 +31,6 @@ public final class BObjectTypeSymbolDTO {
 
     private int packageId;
 
-    private int actionHolderId;
-
     private boolean isPrivate;
 
     private String name;
@@ -43,11 +41,10 @@ public final class BObjectTypeSymbolDTO {
 
     private CompletionItem completionItem;
 
-    private BObjectTypeSymbolDTO(int id, int packageId, int actionHolderId, String name, String fields, ObjectType type,
+    private BObjectTypeSymbolDTO(int id, int packageId, String name, String fields, ObjectType type,
                                 boolean isPrivate, CompletionItem completionItem) {
         this.id = id;
         this.packageId = packageId;
-        this.actionHolderId = actionHolderId;
         this.name = name;
         this.fields = fields;
         this.type = type;
@@ -61,10 +58,6 @@ public final class BObjectTypeSymbolDTO {
 
     public int getPackageId() {
         return packageId;
-    }
-
-    public int getActionHolderId() {
-        return actionHolderId;
     }
 
     public String getName() {
@@ -96,8 +89,6 @@ public final class BObjectTypeSymbolDTO {
 
         private int packageId = -1;
 
-        private int actionHolderId = -1;
-
         private boolean isPrivate;
 
         private String name = "";
@@ -115,11 +106,6 @@ public final class BObjectTypeSymbolDTO {
 
         public BObjectTypeSymbolDTOBuilder setPackageId(int packageId) {
             this.packageId = packageId;
-            return this;
-        }
-
-        public BObjectTypeSymbolDTOBuilder setActionHolderId(int actionHolderId) {
-            this.actionHolderId = actionHolderId;
             return this;
         }
 
@@ -149,8 +135,8 @@ public final class BObjectTypeSymbolDTO {
         }
         
         public BObjectTypeSymbolDTO build() {
-            return new BObjectTypeSymbolDTO(this.id, this.packageId, this.actionHolderId, this.name, this.fields,
-                    this.type, this.isPrivate, this.completionItem);
+            return new BObjectTypeSymbolDTO(this.id, this.packageId, this.name, this.fields, this.type,
+                    this.isPrivate, this.completionItem);
         }
     }
 }

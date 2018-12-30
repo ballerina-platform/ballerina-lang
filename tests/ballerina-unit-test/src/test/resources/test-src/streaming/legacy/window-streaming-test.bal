@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/runtime;
-import ballerina/io;
 
 type StatusCount record {
     string status;
@@ -33,8 +32,8 @@ type Teacher record {
 StatusCount[] globalStatusCountArray = [];
 int index = 0;
 
-stream<StatusCount> statusCountStream1;
-stream<Teacher> teacherStream5;
+stream<StatusCount> statusCountStream1 = new;
+stream<Teacher> teacherStream5 = new;
 
 function testWindowQuery() {
 
@@ -43,7 +42,7 @@ function testWindowQuery() {
         select status, count(status) as totalCount
         group by status
         => (StatusCount[] emp) {
-            foreach e in emp {
+            foreach var e in emp {
                 statusCountStream1.publish(e);
             }
         }

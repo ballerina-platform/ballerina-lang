@@ -39,6 +39,7 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.OutputStream;
 
+import static org.ballerinalang.net.http.HttpConstants.CALLER;
 import static org.ballerinalang.net.http.HttpUtil.extractEntity;
 
 /**
@@ -47,7 +48,7 @@ import static org.ballerinalang.net.http.HttpUtil.extractEntity;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "pushPromisedResponse",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Connection",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = CALLER,
                 structPackage = "ballerina/http"),
         args = {@Argument(name = "promise", type = TypeKind.OBJECT, structType = "PushPromise",
                 structPackage = "ballerina/http"),

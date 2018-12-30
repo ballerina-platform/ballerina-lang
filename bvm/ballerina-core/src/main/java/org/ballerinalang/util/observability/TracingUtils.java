@@ -18,14 +18,12 @@
 package org.ballerinalang.util.observability;
 
 import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.util.tracer.BSpan;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.ballerinalang.util.observability.ObservabilityConstants.KEY_TRACE_CONTEXT;
 import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_BSTRUCT_ERROR;
 import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_ERROR;
 import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_ERROR_MESSAGE;
@@ -36,7 +34,6 @@ import static org.ballerinalang.util.tracer.TraceConstants.LOG_EVENT_TYPE_ERROR;
 import static org.ballerinalang.util.tracer.TraceConstants.LOG_KEY_ERROR_KIND;
 import static org.ballerinalang.util.tracer.TraceConstants.LOG_KEY_EVENT_TYPE;
 import static org.ballerinalang.util.tracer.TraceConstants.LOG_KEY_MESSAGE;
-import static org.ballerinalang.util.tracer.TraceConstants.TRACE_HEADER;
 
 /**
  * Util class to hold tracing specific util methods.
@@ -68,10 +65,10 @@ public class TracingUtils {
             span.setActionName(observerContext.getResourceName());
             Map<String, String> httpHeaders =
                     (Map<String, String>) observerContext.getProperty(PROPERTY_TRACE_PROPERTIES);
+
             if (httpHeaders != null) {
-                httpHeaders.entrySet().stream()
-                        .filter(c -> TRACE_HEADER.equals(c.getKey()))
-                        .forEach(e -> span.addProperty(KEY_TRACE_CONTEXT, e.getValue()));
+                httpHeaders.entrySet()
+                        .forEach(e -> span.addProperty(e.getKey(), e.getValue()));
             }
         }
 
@@ -94,8 +91,7 @@ public class TracingUtils {
                 if (errorMessage != null) {
                     errorMessageBuilder.append(errorMessage);
                 }
-                BMap<String, BValue> bError =
-                        (BMap<String, BValue>) observerContext.getProperty(PROPERTY_BSTRUCT_ERROR);
+                BError bError = (BError) observerContext.getProperty(PROPERTY_BSTRUCT_ERROR);
                 if (bError != null) {
                     if (errorMessage != null) {
                         errorMessageBuilder.append('\n');

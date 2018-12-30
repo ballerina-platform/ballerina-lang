@@ -21,9 +21,10 @@ package org.ballerinalang.net.http.nativeimpl.connection;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MultipartDataSource;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
@@ -61,15 +62,17 @@ public class ResponseWriter {
         if (HeaderUtil.isMultipart(contentType)) {
             boundaryString = HttpUtil.addBoundaryIfNotExist(responseMessage, contentType);
         }
-
         HttpMessageDataStreamer outboundMsgDataStreamer = getResponseDataStreamer(responseMessage);
+        BMap<String, BValue> entityStruct = extractEntity(outboundResponse);
+        if (entityStruct == null) {
+            responseMessage.setPassthrough(true);
+        }
         HttpResponseFuture outboundRespStatusFuture = HttpUtil.sendOutboundResponse(requestMessage, responseMessage);
         HttpConnectorListener outboundResStatusConnectorListener =
                 new ResponseWriter.HttpResponseConnectorListener(dataContext, outboundMsgDataStreamer);
         outboundRespStatusFuture.setHttpConnectorListener(outboundResStatusConnectorListener);
 
         OutputStream messageOutputStream = outboundMsgDataStreamer.getOutputStream();
-        BMap<String, BValue> entityStruct = extractEntity(outboundResponse);
         if (entityStruct != null) {
             if (boundaryString != null) {
                 serializeMultiparts(boundaryString, entityStruct, messageOutputStream);
@@ -90,7 +93,7 @@ public class ResponseWriter {
      */
     private static void serializeMultiparts(String boundaryString, BMap<String, BValue> entity,
                                             OutputStream messageOutputStream) {
-        BRefValueArray bodyParts = EntityBodyHandler.getBodyPartArray(entity);
+        BValueArray bodyParts = EntityBodyHandler.getBodyPartArray(entity);
         try {
             if (bodyParts != null && bodyParts.size() > 0) {
                 MultipartDataSource multipartDataSource = new MultipartDataSource(entity, boundaryString);
@@ -169,7 +172,7 @@ public class ResponseWriter {
 
         @Override
         public void onError(Throwable throwable) {
-            BMap<String, BValue> httpConnectorError = HttpUtil.getError(dataContext.context, throwable);
+            BError httpConnectorError = HttpUtil.getError(dataContext.context, throwable);
             if (outboundMsgDataStreamer != null) {
                 if (throwable instanceof IOException) {
                     this.dataContext.getOutboundRequest().setIoException((IOException) throwable);

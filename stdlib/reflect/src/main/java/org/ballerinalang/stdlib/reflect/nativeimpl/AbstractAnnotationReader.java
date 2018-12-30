@@ -23,8 +23,8 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.impl.ConnectorSPIModelHelper;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 
@@ -45,13 +45,13 @@ abstract class AbstractAnnotationReader extends BlockingNativeCallableUnit {
         return createAnnotationStructArray(context, bMap.get(key));
     }
 
-    private BRefValueArray createAnnotationStructArray(Context context, BValue map) {
-        if (map == null || map.getType().getTag() != BTypes.typeMap.getTag()) {
-            return null;
-        }
+    private BValueArray createAnnotationStructArray(Context context, BValue map) {
         final PackageInfo packageInfo = context.getProgramFile().getPackageInfo(PKG_REFELCT);
         final StructureTypeInfo structInfo = packageInfo.getStructInfo(STRUCT_ANNOTATION);
-        BRefValueArray annotationArray = new BRefValueArray(structInfo.getType());
+        BValueArray annotationArray = new BValueArray(structInfo.getType());
+        if (map == null || map.getType().getTag() != BTypes.typeMap.getTag()) {
+            return annotationArray;
+        }
         BMap<String, BValue> annotationMap = (BMap<String, BValue>) map;
         long index = 0;
         for (String key : annotationMap.keys()) {

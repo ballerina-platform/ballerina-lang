@@ -1,27 +1,36 @@
-import ballerina/sql;
-import ballerina/jdbc;
 import ballerina/io;
 import ballerina/http;
 
-endpoint http:NonListener testEP {
-    port:9093
-};
+listener http:MockListener testEP = new(9093);
 
 @http:ServiceConfig { 
     basePath: "/foo" 
 }
-service<http:Service> MyService bind testEP {
+service MyService on testEP {
 
     @http:ResourceConfig {
         methods: ["POST"],
         path: "/bar"
     }
-    myResource (endpoint caller, http:Request req) {
-        string s = check req.getPayloadAsString();
-    	json payload = check req.getJsonPayload();
-
-        http:Response res;
+    resource function myResource(http:Caller caller, http:Request req) {
+        var stringValue = req.getPayloadAsString();
+        if (stringValue is string) {
+            string s = stringValue;
+        } else {
+            panic stringValue;
+        }
+        json payload;
+        var jsonValue = req.getJsonPayload();
+        if (jsonValue is json) {
+            payload = jsonValue;
+        } else {
+            panic jsonValue;
+        }
+        http:Response res = new;
         res.setPayload(untaint payload.foo);
-        caller->respond(res) but { error e => io:println("Error sending response") };
+        var err = caller->respond(res);
+        if (err is error) {
+            io:println("Error sending response");
+        }
     }
 }

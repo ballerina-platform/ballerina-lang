@@ -15,8 +15,6 @@
 // under the License.
 
 import ballerina/runtime;
-import ballerina/io;
-import ballerina/streams;
 
 type Teacher record {
     int timestamp;
@@ -33,8 +31,8 @@ type TeacherOutput record{
 };
 
 int index = 0;
-stream<Teacher> inputStreamExternalTimeBatchTest4;
-stream<TeacherOutput > outputStreamExternalTimeBatchTest4;
+stream<Teacher> inputStreamExternalTimeBatchTest4 = new;
+stream<TeacherOutput > outputStreamExternalTimeBatchTest4 = new;
 TeacherOutput[] globalEmployeeArray = [];
 
 function startExternalTimeBatchwindowTest4() returns (TeacherOutput[]) {
@@ -54,8 +52,8 @@ function startExternalTimeBatchwindowTest4() returns (TeacherOutput[]) {
 
     testExternalTimeBatchwindow4();
 
-    outputStreamExternalTimeBatchTest4.subscribe(printTeachers);
-    foreach t in teachers {
+    outputStreamExternalTimeBatchTest4.subscribe(function(TeacherOutput e) {printTeachers(e);});
+    foreach var t in teachers {
         inputStreamExternalTimeBatchTest4.publish(t);
         runtime:sleep(450);
     }
@@ -64,22 +62,22 @@ function startExternalTimeBatchwindowTest4() returns (TeacherOutput[]) {
     while(true) {
         runtime:sleep(500);
         count += 1;
-        if((lengthof globalEmployeeArray) == 3 || count == 10) {
+        if((globalEmployeeArray.length()) == 3 || count == 10) {
             break;
         }
     }
-    io:println(globalEmployeeArray);
     return globalEmployeeArray;
 }
 
 function testExternalTimeBatchwindow4() {
 
     forever {
-        from inputStreamExternalTimeBatchTest4 window externalTimeBatchWindow(inputStreamExternalTimeBatchTest4.timestamp, 1000, timeOut = 1200)
+        from inputStreamExternalTimeBatchTest4 window externalTimeBatch(
+                                                          inputStreamExternalTimeBatchTest4.timestamp, 1000, (),1200)
         select inputStreamExternalTimeBatchTest4.timestamp, inputStreamExternalTimeBatchTest4.name, count() as count
         group by inputStreamExternalTimeBatchTest4.school
         => (TeacherOutput [] teachers) {
-            foreach t in teachers {
+            foreach var t in teachers {
                 outputStreamExternalTimeBatchTest4.publish(t);
             }
         }

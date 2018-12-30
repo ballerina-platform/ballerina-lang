@@ -17,9 +17,15 @@
 */
 package org.ballerinalang.util.codegen;
 
-import org.ballerinalang.model.types.BServiceType;
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.util.codegen.attributes.AttributeInfo;
+import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
+import org.ballerinalang.util.codegen.cpentries.TypeRefCPEntry;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -28,59 +34,75 @@ import java.util.Objects;
  *
  * @since 0.87
  */
-public class ServiceInfo extends CustomTypeInfo {
+public class ServiceInfo implements AttributeInfoPool {
 
-    private BServiceType serviceType;
-    private int endpointNameCPIndex;
-    private String endpointName;
+    protected int pkgPathCPIndex;
+    protected String packagePath;
 
-    private Map<String, ResourceInfo> resourceInfoMap = new HashMap<>();
+    protected int nameCPIndex;
+    protected String name;
 
-    private FunctionInfo initFuncInfo;
+    public int flags;
 
-    public ServiceInfo(int pkgPathCPIndex, String packageName,
-                       int nameCPIndex, String serviceName, int flags,
-                       int endpointNameCPIndex, String endpointName) {
+    public TypeRefCPEntry serviceType;
 
-        super(pkgPathCPIndex, packageName, nameCPIndex, serviceName, flags);
-        this.endpointNameCPIndex = endpointNameCPIndex;
-        this.endpointName = endpointName;
+    private Map<String, FunctionInfo> resourceInfoMap;
+    private List<String> resourceNameList = new ArrayList<>();
+
+    private PackageInfo packageInfo;
+
+    private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
+
+    // cached values.
+    public BMap serviceValue;
+
+    public ServiceInfo(int pkgPathCPIndex, String packageName, int nameCPIndex, String serviceName, int flags,
+            TypeRefCPEntry serviceType) {
+        this.pkgPathCPIndex = pkgPathCPIndex;
+        this.packagePath = packageName;
+        this.nameCPIndex = nameCPIndex;
+        this.name = serviceName;
+        this.flags = flags;
+
+        this.serviceType = serviceType;
     }
 
-    public int getEndpointNameCPIndex() {
-        return endpointNameCPIndex;
+    public FunctionInfo[] getResourceInfoEntries() {
+        if (resourceInfoMap == null) {
+            resourceInfoMap = new HashMap<>();
+            for (String name : resourceNameList) {
+                resourceInfoMap.put(name, packageInfo.getFunctionInfo(name));
+            }
+        }
+        return resourceInfoMap.values().toArray(new FunctionInfo[0]);
     }
 
-    public String getEndpointName() {
-        return endpointName;
+    public void addResourceInfo(String resourceName) {
+        resourceNameList.add(resourceName);
     }
 
-    public ResourceInfo[] getResourceInfoEntries() {
-        return resourceInfoMap.values().toArray(new ResourceInfo[0]);
-    }
-
-    public void addResourceInfo(String resourceName, ResourceInfo resourceInfo) {
-        resourceInfoMap.put(resourceName, resourceInfo);
-    }
-
-    public ResourceInfo getResourceInfo(String resourceName) {
+    public FunctionInfo getResourceInfo(String resourceName) {
         return resourceInfoMap.get(resourceName);
     }
 
-    public FunctionInfo getInitFunctionInfo() {
-        return initFuncInfo;
+    public String getName() {
+        return name;
     }
 
-    public void setInitFunctionInfo(FunctionInfo initFuncInfo) {
-        this.initFuncInfo = initFuncInfo;
+    public String getPackagePath() {
+        return packagePath;
     }
 
-    public BServiceType getType() {
-        return serviceType;
+    public PackageInfo getPackageInfo() {
+        return packageInfo;
     }
 
-    public void setType(BServiceType serviceType) {
-        this.serviceType = serviceType;
+    protected void setPackageInfo(PackageInfo packageInfo) {
+        this.packageInfo = packageInfo;
+    }
+
+    public BType getType() {
+        return serviceType.getType();
     }
 
     @Override
@@ -95,9 +117,18 @@ public class ServiceInfo extends CustomTypeInfo {
                 && nameCPIndex == (((ServiceInfo) obj).nameCPIndex);
     }
 
-    @Deprecated
-    public AnnAttachmentInfo getAnnotationAttachmentInfo(String packageName, String annotationName) {
-        return null;
+    @Override
+    public AttributeInfo getAttributeInfo(AttributeInfo.Kind attributeKind) {
+        return attributeInfoMap.get(attributeKind);
     }
 
+    @Override
+    public void addAttributeInfo(AttributeInfo.Kind attributeKind, AttributeInfo attributeInfo) {
+        attributeInfoMap.put(attributeKind, attributeInfo);
+    }
+
+    @Override
+    public AttributeInfo[] getAttributeInfoEntries() {
+        return attributeInfoMap.values().toArray(new AttributeInfo[0]);
+    }
 }

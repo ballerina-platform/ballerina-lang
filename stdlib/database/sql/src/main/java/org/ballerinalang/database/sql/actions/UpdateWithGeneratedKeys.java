@@ -18,15 +18,12 @@
 package org.ballerinalang.database.sql.actions;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.database.sql.Constants;
 import org.ballerinalang.database.sql.SQLDatasource;
 import org.ballerinalang.database.sql.SQLDatasourceUtils;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BRefValueArray;
-import org.ballerinalang.model.values.BStringArray;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
@@ -38,8 +35,7 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "sql",
-        functionName = "updateWithGeneratedKeys",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = Constants.CALLER_ACTIONS),
+        functionName = "nativeUpdateWithGeneratedKeys",
         args = {
                 @Argument(name = "sqlQuery", type = TypeKind.STRING),
                 @Argument(name = "keyColumns", type = TypeKind.ARRAY, elementType = TypeKind.STRING),
@@ -58,8 +54,8 @@ public class UpdateWithGeneratedKeys extends AbstractSQLAction {
     public void execute(Context context) {
         try {
             String query = context.getStringArgument(0);
-            BStringArray keyColumns = (BStringArray) context.getNullableRefArgument(1);
-            BRefValueArray parameters = (BRefValueArray) context.getNullableRefArgument(2);
+            BValueArray keyColumns = (BValueArray) context.getNullableRefArgument(1);
+            BValueArray parameters = (BValueArray) context.getNullableRefArgument(2);
 
             SQLDatasource datasource = retrieveDatasource(context);
 

@@ -67,6 +67,12 @@ public class BallerinaFieldDefinitionImpl extends BallerinaCompositeElementImpl 
 
   @Override
   @Nullable
+  public PsiElement getQuestionMark() {
+    return findChildByType(QUESTION_MARK);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getSemicolon() {
     return findChildByType(SEMICOLON);
   }

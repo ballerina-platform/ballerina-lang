@@ -17,6 +17,7 @@ package org.ballerinalang.net.grpc;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.HttpContent;
+import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -74,7 +75,7 @@ public class MessageDeframer implements Closeable {
     private boolean compressedFlag;
     private CompositeContent nextFrame;
     private CompositeContent unprocessed = new CompositeContent();
-    private boolean inDelivery = false;
+    private volatile boolean inDelivery = false;
 
     private boolean closeWhenComplete = false;
 
@@ -111,7 +112,7 @@ public class MessageDeframer implements Closeable {
             if (!isClosedOrScheduledToClose()) {
                 unprocessed.addBuffer(data.content());
                 needToCloseData = false;
-                deliver();
+                ThreadPoolFactory.getInstance().getWorkerExecutor().execute(this::deliver);
             }
         } finally {
             if (needToCloseData && data.refCnt() != 0) {
@@ -167,7 +168,9 @@ public class MessageDeframer implements Closeable {
     }
 
     private boolean isStalled() {
-        return unprocessed.readableBytes() == 0;
+        synchronized (this) {
+            return unprocessed == null || unprocessed.readableBytes() == 0;
+        }
     }
 
     /**
@@ -177,27 +180,32 @@ public class MessageDeframer implements Closeable {
         if (inDelivery) {
             return;
         }
-        inDelivery = true;
-        try {
-            // Process the uncompressed bytes.
-            while (readRequiredBytes()) {
-                switch (state) {
-                    case HEADER:
-                        processHeader();
-                        break;
-                    case BODY:
-                        // Read the body and deliver the message.
-                        processBody();
-                        break;
-                    default:
-                        throw new IllegalStateException("Invalid state: " + state);
+        synchronized (this) {
+            if (isClosed()) {
+                return;
+            }
+            inDelivery = true;
+            try {
+                // Process the uncompressed bytes.
+                while (readRequiredBytes()) {
+                    switch (state) {
+                        case HEADER:
+                            processHeader();
+                            break;
+                        case BODY:
+                            // Read the body and deliver the message.
+                            processBody();
+                            break;
+                        default:
+                            throw new IllegalStateException("Invalid state: " + state);
+                    }
                 }
+                if (closeWhenComplete && isStalled()) {
+                    close();
+                }
+            } finally {
+                inDelivery = false;
             }
-            if (closeWhenComplete && isStalled()) {
-                close();
-            }
-        } finally {
-            inDelivery = false;
         }
     }
 

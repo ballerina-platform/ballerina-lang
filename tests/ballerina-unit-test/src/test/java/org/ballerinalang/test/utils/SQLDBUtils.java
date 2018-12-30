@@ -49,18 +49,6 @@ public class SQLDBUtils {
     private static final Logger log = LoggerFactory.getLogger(SQLDBUtils.class);
 
     /**
-     * Create HyperSQL DB with the given name and initialize with given SQL file.
-     *
-     * @param dbDirectory Name of the DB directory.
-     * @param dbName  Name of the DB instance.
-     * @param sqlFile SQL statements for initialization.
-     */
-    public static void initHSQLDBDatabase(String dbDirectory, String dbName, String sqlFile) {
-        String jdbcURL = "jdbc:hsqldb:file:" + dbDirectory + dbName;
-        initDatabase(jdbcURL, "SA", "", sqlFile);
-    }
-
-    /**
      * Create H2 DB with the given name and initialize with given SQL file.
      *
      * @param dbDirectory Name of the DB directory.

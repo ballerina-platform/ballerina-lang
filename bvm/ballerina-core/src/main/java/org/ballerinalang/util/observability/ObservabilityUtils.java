@@ -18,11 +18,10 @@
 package org.ballerinalang.util.observability;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.bre.old.WorkerExecutionContext;
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.model.types.BServiceType;
+import org.ballerinalang.model.types.BType;
 import org.ballerinalang.util.codegen.ServiceInfo;
-import org.ballerinalang.util.program.BLangVMUtils;
 import org.ballerinalang.util.tracer.BSpan;
 
 import java.util.ArrayList;
@@ -38,7 +37,6 @@ import java.util.function.Supplier;
 import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
 import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
 import static org.ballerinalang.util.observability.ObservabilityConstants.KEY_OBSERVER_CONTEXT;
-import static org.ballerinalang.util.observability.ObservabilityConstants.UNKNOWN_SERVICE;
 import static org.ballerinalang.util.tracer.TraceConstants.KEY_SPAN;
 
 /**
@@ -136,12 +134,13 @@ public class ObservabilityUtils {
         ctx.setConnectorName(connectorName);
         ctx.setActionName(actionName);
         if (parentCtx != null) {
-            ServiceInfo serviceInfo = BLangVMUtils.getServiceInfo(parentCtx);
-            if (serviceInfo != null) {
-                ctx.setServiceName(getFullServiceName(serviceInfo));
-            } else {
-                ctx.setServiceName(UNKNOWN_SERVICE);
-            }
+            //TODO fix - rajith
+//            ServiceInfo serviceInfo = BLangVMUtils.getServiceInfo(parentCtx);
+//            if (serviceInfo != null) {
+//                ctx.setServiceName(getFullServiceName(serviceInfo));
+//            } else {
+//                ctx.setServiceName(UNKNOWN_SERVICE);
+//            }
             continueClientObservation(ctx, parentCtx);
         }
         return Optional.of(ctx);
@@ -205,20 +204,20 @@ public class ObservabilityUtils {
         observerContext.setFinished();
     }
 
-    /**
-     * @param context The {@link Context} instance.
-     * @return the parent {@link ObserverContext} or a new {@link ObserverContext} depending on whether observability
-     * is enabled or not.
-     */
-    public static Optional<ObserverContext> getParentContext(Context context) {
-        return enabled ? Optional.of(populateAndGetParentObserverContext(context.getParentWorkerExecutionContext()))
-                : Optional.empty();
-    }
+//    /**
+//     * @param context The {@link Context} instance.
+//     * @return the parent {@link ObserverContext} or a new {@link ObserverContext} depending on whether observability
+//     * is enabled or not.
+//     */
+//    public static Optional<ObserverContext> getParentContext(Context context) {
+//        return enabled ? Optional.of(populateAndGetParentObserverContext(context.getParentWorkerExecutionContext()))
+//                : Optional.empty();
+//    }
 
-    public static Map<String, String> getContextProperties(ObserverContext observerContext, String headerName) {
+    public static Map<String, String> getContextProperties(ObserverContext observerContext) {
         BSpan bSpan = (BSpan) observerContext.getProperty(KEY_SPAN);
         if (bSpan != null) {
-            return bSpan.getTraceContext(headerName);
+            return bSpan.getTraceContext();
         }
         return Collections.emptyMap();
     }
@@ -262,7 +261,7 @@ public class ObservabilityUtils {
     }
 
     public static String getFullServiceName(ServiceInfo serviceInfo) {
-        BServiceType serviceInfoType = serviceInfo.getType();
+        BType serviceInfoType = serviceInfo.getType();
         return serviceInfoType.getPackagePath().equals(PACKAGE_SEPARATOR)
                 ? serviceInfoType.getName()
                 : serviceInfoType.getPackagePath() + PACKAGE_SEPARATOR + serviceInfoType.getName();
@@ -271,19 +270,19 @@ public class ObservabilityUtils {
     public static void logMessageToActiveSpan(Context context, String logLevel, Supplier<String> logMessage,
                                               boolean isError) {
         if (tracingEnabled) {
-            Optional<ObserverContext> observerContext = ObservabilityUtils.getParentContext(context);
-            if (observerContext.isPresent()) {
-                BSpan span = (BSpan) observerContext.get().getProperty(KEY_SPAN);
-                if (span != null) {
-                    HashMap<String, Object> logs = new HashMap<>(1);
-                    logs.put(logLevel, logMessage.get());
-                    if (!isError) {
-                        span.log(logs);
-                    } else {
-                        span.logError(logs);
-                    }
-                }
-            }
+//            Optional<ObserverContext> observerContext = ObservabilityUtils.getParentContext(context);
+//            if (observerContext.isPresent()) {
+//                BSpan span = (BSpan) observerContext.get().getProperty(KEY_SPAN);
+//                if (span != null) {
+//                    HashMap<String, Object> logs = new HashMap<>(1);
+//                    logs.put(logLevel, logMessage.get());
+//                    if (!isError) {
+//                        span.log(logs);
+//                    } else {
+//                        span.logError(logs);
+//                    }
+//                }
+//            }
         }
     }
 }

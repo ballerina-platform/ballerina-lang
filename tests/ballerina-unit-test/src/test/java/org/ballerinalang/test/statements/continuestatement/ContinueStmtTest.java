@@ -21,7 +21,6 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -94,31 +93,6 @@ public class ContinueStmtTest {
         long actual = ((BInteger) returns[0]).intValue();
         long expected = 2486;
         Assert.assertEquals(actual, expected);
-    }
-
-    @Test
-    public void testFinallyWithWhile() {
-        BValue[] args = {new BString("continue")};
-        BValue[] returns = BRunUtil.invoke(positiveCompileResult, "testFinallyWithWhile", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "start->while0->try0->finally0->whileEnd0->" +
-                "while1->try1->finally1->whileEnd1->" +
-                "while2->try2->continue->finally2->" +
-                "while3->try3->finally3->whileEnd3->" +
-                "while4->try4->finally4->whileEnd4->end");
-    }
-
-    @Test
-    public void testFinallyWithForeach() {
-        BValue[] args = {new BString("continue")};
-        BValue[] returns = BRunUtil.invoke(positiveCompileResult, "testFinallyWithForeach", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "start->foreach0->try0->finally0->foreachEnd0->" +
-                "foreach1->try1->finally1->foreachEnd1->" +
-                "foreach2->try2->finally2->foreachEnd2->" +
-                "foreach3->try3->continue->finally3->" +
-                "foreach4->try4->finally4->foreachEnd4->" +
-                "foreach5->try5->finally5->foreachEnd5->end");
     }
 
     @Test(description = "Check invalid continue statement location.")

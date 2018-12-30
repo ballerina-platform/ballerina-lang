@@ -19,7 +19,7 @@
     <parent>
         <artifactId>swagger-ballerina</artifactId>
         <groupId>org.ballerinalang</groupId>
-        <version>0.982.1-SNAPSHOT</version>
+        <version>0.990.2-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -89,9 +89,6 @@
                                     <include>javax.validation:validation-api</include>
                                     <include>com.google.code.gson:gson</include>
                                     <include>org.ballerinalang:ballerina-to-swagger</include>
-                                    <include>org.ballerinalang:composer-ballerina-parser-service</include>
-                                    <include>org.ballerinalang:language-server-core</include>
-                                    <include>org.ballerinalang:language-server-compiler</include>
                                 </includes>
                             </artifactSet>
                             <filters>

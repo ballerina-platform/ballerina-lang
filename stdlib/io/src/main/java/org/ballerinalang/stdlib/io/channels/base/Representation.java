@@ -39,7 +39,11 @@ public enum Representation {
     /**
      * Represents a variable value which does not have a size defined.
      */
-    VARIABLE(-1, IOConstants.PROTO_BUF_BASE);
+    VARIABLE(-1, IOConstants.PROTO_BUF_BASE),
+    /**
+     * If representation is none.
+     */
+    NONE(-1, -1);
 
     private int numberOfBytes;
 

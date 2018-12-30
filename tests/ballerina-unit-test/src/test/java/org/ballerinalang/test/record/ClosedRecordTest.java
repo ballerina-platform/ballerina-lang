@@ -163,7 +163,7 @@ public class ClosedRecordTest {
     @Test (description = "Negative test to test attaching functions to record literal")
     public void testStructLiteralAttachedFunc() {
         CompileResult result = BCompileUtil.compile(
-                "test-src/record/sealed_record_literal_with_attached_functions.bal");
+                "test-src/record/sealed_record_literal_with_attached_functions_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 2);
         BAssertUtil.validateError(result, 0, "cannot attach function 'getName' to record type 'Person'", 8, 1);
         BAssertUtil.validateError(result, 1, "undefined symbol 'self'", 9, 12);
@@ -184,6 +184,35 @@ public class ClosedRecordTest {
         Assert.assertEquals(returns[0].stringValue(), "Doe, John");
     }
 
+    @Test(description = "Test nil-able function pointer invocation")
+    public void testNilableFuncPtrInvocation() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testNilableFuncPtrInvocation");
+        Assert.assertEquals(returns[0].stringValue(), "Bob White");
+    }
+
+    @Test(description = "Test nil-able function pointer invocation")
+    public void testNilableFuncPtrInvocation2() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testNilableFuncPtrInvocation2");
+        Assert.assertNull(returns[0]);
+    }
+
+    @Test
+    public void testAmbiguityResolution() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAmbiguityResolution");
+        Assert.assertEquals(returns[0].stringValue(), "In-memory mode configuration");
+        Assert.assertEquals(returns[1].stringValue(), "Server mode configuration");
+        Assert.assertEquals(returns[2].stringValue(), "Embedded mode configuration");
+    }
+
+    @Test
+    public void testAmbiguityResolution2() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAmbiguityResolution2");
+        Assert.assertEquals(returns[0].stringValue(), "A");
+        Assert.assertEquals(returns[1].stringValue(), "B");
+        Assert.assertEquals(returns[2].stringValue(), "B");
+        Assert.assertEquals(returns[3].stringValue(), "C");
+    }
+
     @Test(description = "Test white space between the type name and ellipsis in rest descriptor")
     public void testRestDescriptorSyntax() {
         CompileResult result = BCompileUtil.compile("test-src/record/closed_record_negative.bal");
@@ -193,15 +222,18 @@ public class ClosedRecordTest {
         BAssertUtil.validateError(result, 2, "invalid record rest descriptor", 20, 5);
     }
 
+    @Test(description = "Test ambiguous type resolution negative cases")
+    public void testAmbiguityResolutionNegative() {
+        CompileResult result = BCompileUtil.compile("test-src/record/closed_record_ambiguous_types_negative.bal");
+        BAssertUtil.validateError(result, 0, "ambiguous type 'InMemoryModeConfig|ServerModeConfig|EmbeddedModeConfig'",
+                                  39, 22);
+    }
+
     @Test(description = "Test invocation of nil-able function pointer fields in a closed record")
     public void testNilableFunctionPtrInvocation() {
         CompileResult result = BCompileUtil.compile("test-src/record/negative/closed_record_nil-able_fn_ptr.bal");
 
-        BAssertUtil.validateError(result, 0,
-                                  "invalid function pointer invocation on non-invokable field 'getName' in record " +
-                                          "'Person'", 29, 16);
-        BAssertUtil.validateError(result, 1,
-                                  "invalid function pointer invocation on non-invokable field 'getName' in record " +
-                                          "'Person'", 34, 16);
+        BAssertUtil.validateError(result, 0, "incompatible types: expected 'string', found 'string?'", 29, 16);
+        BAssertUtil.validateError(result, 1, "incompatible types: expected 'string', found 'string?'", 34, 16);
     }
 }

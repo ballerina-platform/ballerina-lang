@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Tests success and failure of client endpoint creation based on the different ways of its creation.
  */
-@Test(groups = "websocket-test")
+@Test(groups = {"websocket-test"})
 public class ClientServiceTest extends WebSocketTestCommons {
 
     private WebSocketTestClient client;

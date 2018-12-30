@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.langserver.compiler;
 
+import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -27,6 +28,7 @@ import java.util.List;
 
 /**
  * Text Document Service context keys for the completion operation context.
+ *
  * @since 0.95.5
  */
 public class DocumentServiceKeys {
@@ -43,6 +45,8 @@ public class DocumentServiceKeys {
     public static final LSContext.Key<List<SymbolInformation>> SYMBOL_LIST_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<String> CURRENT_PACKAGE_NAME_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<PackageID> CURRENT_PACKAGE_ID_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<LSContext> OPERATION_META_CONTEXT_KEY
             = new LSContext.Key<>();

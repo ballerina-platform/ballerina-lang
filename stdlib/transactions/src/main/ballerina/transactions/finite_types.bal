@@ -14,22 +14,22 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type TransactionState "active"|"prepared"|"committed"|"aborted";
-@final public TransactionState TXN_STATE_ACTIVE = "active";
-@final public TransactionState TXN_STATE_PREPARED = "prepared";
-@final TransactionState TXN_STATE_COMMITTED = "committed";
-@final TransactionState TXN_STATE_ABORTED = "aborted";
+type TransactionState TXN_STATE_ACTIVE|TXN_STATE_PREPARED|TXN_STATE_COMMITTED|TXN_STATE_ABORTED;
+const TXN_STATE_ACTIVE = "active";
+const TXN_STATE_PREPARED = "prepared";
+const TXN_STATE_COMMITTED = "committed";
+const TXN_STATE_ABORTED = "aborted";
 
-type PrepareResult "prepared"|"aborted"|"committed"|"read-only";
-@final PrepareResult PREPARE_RESULT_PREPARED = "prepared";
-@final PrepareResult PREPARE_RESULT_ABORTED = "aborted";
-@final PrepareResult PREPARE_RESULT_COMMITTED = "committed";
-@final PrepareResult PREPARE_RESULT_READ_ONLY = "read-only";
+type PrepareResult PREPARE_RESULT_PREPARED|PREPARE_RESULT_ABORTED|PREPARE_RESULT_COMMITTED|PREPARE_RESULT_READ_ONLY;
+const PREPARE_RESULT_PREPARED = "prepared";
+const PREPARE_RESULT_ABORTED = "aborted";
+const PREPARE_RESULT_COMMITTED = "committed";
+const PREPARE_RESULT_READ_ONLY = "read-only";
 
-type NotifyResult "committed"|"aborted";
-@final NotifyResult NOTIFY_RESULT_COMMITTED = "committed";
-@final NotifyResult NOTIFY_RESULT_ABORTED = "aborted";
+type NotifyResult NOTIFY_RESULT_COMMITTED|NOTIFY_RESULT_ABORTED;
+const NOTIFY_RESULT_COMMITTED = "committed";
+const NOTIFY_RESULT_ABORTED = "aborted";
 
-type PrepareDecision "commit"|"abort";
-@final PrepareDecision PREPARE_DECISION_COMMIT = "commit";
-@final PrepareDecision PREPARE_DECISION_ABORT = "abort";
+type PrepareDecision PREPARE_DECISION_COMMIT|PREPARE_DECISION_ABORT;
+const PREPARE_DECISION_COMMIT = "commit";
+const PREPARE_DECISION_ABORT = "abort";

@@ -24,6 +24,9 @@ import com.intellij.psi.PsiElement;
 public interface BallerinaBuiltInReferenceTypeName extends BallerinaCompositeElement {
 
   @Nullable
+  BallerinaErrorTypeName getErrorTypeName();
+
+  @Nullable
   BallerinaFunctionTypeName getFunctionTypeName();
 
   @Nullable
@@ -34,6 +37,9 @@ public interface BallerinaBuiltInReferenceTypeName extends BallerinaCompositeEle
 
   @Nullable
   BallerinaMapTypeName getMapTypeName();
+
+  @Nullable
+  BallerinaServiceTypeName getServiceTypeName();
 
   @Nullable
   BallerinaStreamTypeName getStreamTypeName();

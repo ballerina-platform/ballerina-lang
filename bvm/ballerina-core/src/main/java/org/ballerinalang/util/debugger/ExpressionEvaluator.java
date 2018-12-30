@@ -18,7 +18,8 @@
 
 package org.ballerinalang.util.debugger;
 
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.bre.bvm.StackFrame;
+import org.ballerinalang.bre.bvm.Strand;
 import org.ballerinalang.model.util.JsonGenerator;
 import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.codegen.LocalVariableInfo;
@@ -57,18 +58,18 @@ public class ExpressionEvaluator {
      * @param variableName    Name of the variable to be evaluated.
      * @return Evaluated results.
      */
-    public String evaluateVariable(WorkerExecutionContext ctx, LineNumberInfo currentExecLine, String variableName) {
+    public String evaluateVariable(Strand ctx, LineNumberInfo currentExecLine, String variableName) {
         int currentExecLineNum = currentExecLine.getLineNumber();
 
         String defaultMessage = constructJsonResults(false, "cannot find variable '" + variableName + "'");
 
         // Check local variables
-        List<LocalVariableInfo> localVars = getLocalVariables(ctx);
+        List<LocalVariableInfo> localVars = getLocalVariables(ctx.currentFrame);
         for (LocalVariableInfo var : localVars) {
             if (var.getVariableName().equals(variableName)) {
                 if ((var.getScopeStartLineNumber() < currentExecLineNum) &&
                         (currentExecLineNum <= var.getScopeEndLineNumber())) {
-                    VariableDTO variableDTO = Debugger.constructLocalVariable(ctx, var);
+                    VariableDTO variableDTO = Debugger.constructLocalVariable(ctx.currentFrame, var);
                     return constructJsonResults(true, variableDTO.getValue());
                 }
                 // Variable found, but not in the current scope
@@ -80,7 +81,7 @@ public class ExpressionEvaluator {
         PackageVarInfo[] globalVars = getPackageVariables(ctx);
         for (PackageVarInfo var : globalVars) {
             if (var.getName().equals(variableName)) {
-                int pkgIndex = ctx.callableUnitInfo.getPackageInfo().pkgIndex;
+                int pkgIndex = ctx.currentFrame.callableUnitInfo.getPackageInfo().pkgIndex;
                 VariableDTO variableDTO = Debugger.constructGlobalVariable(ctx, var, pkgIndex);
                 return constructJsonResults(true, variableDTO.getValue());
             }
@@ -117,13 +118,14 @@ public class ExpressionEvaluator {
         return defaultMessage;
     }
 
-    private List<LocalVariableInfo> getLocalVariables(WorkerExecutionContext ctx) {
-        LocalVariableAttributeInfo localVarAttrInfo = (LocalVariableAttributeInfo) ctx.workerInfo.
-                getAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE);
+    private List<LocalVariableInfo> getLocalVariables(StackFrame ctx) {
+        LocalVariableAttributeInfo localVarAttrInfo
+                = (LocalVariableAttributeInfo) ctx.callableUnitInfo.getDefaultWorkerInfo().
+                getAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE); //TODO check default worker - rajith
         return localVarAttrInfo.getLocalVariables();
     }
 
-    private PackageVarInfo[] getPackageVariables(WorkerExecutionContext ctx) {
+    private PackageVarInfo[] getPackageVariables(Strand ctx) {
         return ctx.programFile.getPackageInfo(ctx.programFile.getEntryPkgName()).
                 getPackageInfoEntries();
     }

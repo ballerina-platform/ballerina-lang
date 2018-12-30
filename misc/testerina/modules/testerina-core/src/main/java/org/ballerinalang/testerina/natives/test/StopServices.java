@@ -18,6 +18,7 @@
 package org.ballerinalang.testerina.natives.test;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -25,11 +26,10 @@ import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
-import org.ballerinalang.testerina.util.Utils;
+import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.ballerinalang.util.LaunchListener;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.program.BLangFunctions;
 
 import java.util.ServiceLoader;
 
@@ -57,10 +57,10 @@ public class StopServices extends BlockingNativeCallableUnit {
         for (ProgramFile programFile : TesterinaRegistry.getInstance().getProgramFiles()) {
             PackageInfo servicesPackage = programFile.getEntryPackage();
             if (servicesPackage == null ||
-                !servicesPackage.getPkgPath().equals(Utils.getFullModuleName(moduleName))) {
+                !servicesPackage.getPkgPath().equals(TesterinaUtils.getFullModuleName(moduleName))) {
                 continue;
             }
-            BLangFunctions.invokeVMUtilFunction(servicesPackage.getStopFunctionInfo());
+            BVMExecutor.executeFunction(programFile, servicesPackage.getStopFunctionInfo());
             ServiceLoader<LaunchListener> listeners = ServiceLoader.load(LaunchListener.class);
             listeners.forEach(listener -> listener.afterRunProgram(true));
             break;

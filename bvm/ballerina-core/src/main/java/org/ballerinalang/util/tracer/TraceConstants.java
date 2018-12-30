@@ -32,7 +32,6 @@ public class TraceConstants {
 
     static final String DEFAULT_CONNECTOR_NAME = "BallerinaConnector";
     static final String DEFAULT_ACTION_NAME = "BallerinaAction";
-    public static final String TRACE_HEADER = "x-b7a-trace";
     public static final String KEY_SPAN = "_span_";
 
     public static final String TAG_KEY_SPAN_KIND = "span.kind";

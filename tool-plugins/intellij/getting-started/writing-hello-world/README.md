@@ -34,9 +34,9 @@ Now you should have a new Ballerina file with a **main** function.
 
 ![alt text](images/Figure-2-3.png)
 
-## Running Ballerina files
+## Running Ballerina Files
 
-### Running Ballerina mains
+### Running Ballerina Mains
 
 Near the main function, in the gutter area, **Run** icon can be found.
 
@@ -52,7 +52,7 @@ Select **Run** command. This will run the main function and show the output in t
 
 Note: You can right click on the file and run the main method as well.
 
-### Running Ballerina services
+### Running Ballerina Services
 
 This is similar to running main functions. Near the service definition, in the gutter area, **Run** icon can be found. Clicking on this **Run** icon, available commands can be viewed. Select **Run** command. This will start the service and show the output in the **Run** window. Please note that running a Ballerina file with few services will start all services in that file.
 

@@ -75,6 +75,50 @@ export interface BallerinaFragmentASTRequest {
 export interface BallerinaFragmentASTResponse {
 }
 
+export interface BallerinaOASResponse {
+    ballerinaOASJson?: string;
+}
+
+export interface BallerinaOASRequest {
+    ballerinaDocument: {
+        uri: string;
+    };
+    ballerinaService?: string;
+}
+
+export interface BallerinaAstOasChangeRequest {
+    oasDefinition?: string,
+    documentIdentifier: {
+        uri: string;
+    };
+}
+
+export interface BallerinaProject {
+    path?: string;
+    version?: string;
+    author?: string;
+}
+
+export interface GetBallerinaProjectParams {
+    documentIdentifier: {
+        uri: string;
+    };
+}
+
+export interface BallerinaAstOasChangeResponse {
+    oasAST?: string
+}
+
+export interface BallerinaServiceListRequest {
+    documentIdentifier: {
+        uri: string;
+    };
+}
+
+export interface BallerinaServiceListResponse {
+    services: string[];
+}
+
 export class ExtendedLangClient extends LanguageClient {
 
     getAST(uri: Uri): Thenable<BallerinaASTResponse> {
@@ -107,5 +151,38 @@ export class ExtendedLangClient extends LanguageClient {
     getEndpoints(): Thenable<Array<any>> {
         return this.sendRequest("ballerinaSymbol/endpoints", {})
                     .then((resp: any) => resp.endpoints);
+    }
+
+    getBallerinaOASDef(uri: Uri, oasService: string): Thenable<BallerinaOASResponse> {
+        const req: BallerinaOASRequest = {
+            ballerinaDocument: {
+                uri: uri.toString()
+            },
+            ballerinaService: oasService
+        }
+        return this.sendRequest("ballerinaDocument/swaggerDef", req);
+    }
+
+    triggerSwaggerDefChange(oasJson: string, uri: Uri): void {
+        const req: BallerinaAstOasChangeRequest = {
+            oasDefinition: oasJson,
+            documentIdentifier: {
+                uri: uri.toString()
+            },
+        }
+        return this.sendNotification("ballerinaDocument/apiDesignDidChange", req);
+    }
+
+    getServiceListForActiveFile(uri: Uri): Thenable<BallerinaServiceListResponse> {
+        const req: BallerinaServiceListRequest = {
+            documentIdentifier: {
+                uri: uri.toString()
+            },
+        }
+        return this.sendRequest("ballerinaDocument/serviceList", req)
+    }
+
+    getBallerinaProject(params: GetBallerinaProjectParams): Thenable<BallerinaProject> {
+        return this.sendRequest("ballerinaDocument/project", params);
     }
 }

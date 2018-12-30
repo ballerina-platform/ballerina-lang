@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static org.ballerinalang.test.utils.PackagingTestUtils.deleteFiles;
 
@@ -44,23 +45,28 @@ import static org.ballerinalang.test.utils.PackagingTestUtils.deleteFiles;
 public class BalxRunFunctionPositiveTestCase extends BaseTest {
 
     private static final String PRINT_RETURN = "--printreturn";
+    private static final int LOG_LEECHER_TIMEOUT = 10000;
 
-    private String sourceRoot = (new File("src/test/resources/run/balx/")).getAbsolutePath();
+    private String sourceRoot = (new File("src/test/resources/run/balx/simple/")).getAbsolutePath();
 
-    private Path tempProjectDir;
     private String balxPath;
     private String sourceArg;
+    private Path tempProjectDir;
+    private Path tempProjectDirTwo;
 
     @BeforeClass()
     public void setUp() throws BallerinaTestException, IOException {
+        // set up for testMainWithNoReturn, testNoArg, testMultipleParams
         tempProjectDir = Files.createTempDirectory("temp-entry-func-test");
         String fileName = "test_entry_function.bal";
-        String[] clientArgs = {"-o", tempProjectDir.toString().concat(File.separator).concat("entry"),
-                                sourceRoot.concat(File.separator).concat(fileName)};
+        String[] clientArgs = {"-o", Paths.get(tempProjectDir.toString(), "entry").toString(),
+                new File(sourceRoot + "/"  + fileName).getAbsolutePath()};
         balClient.runMain("build", clientArgs, null, new String[0],
-                new LogLeecher[0], tempProjectDir.toString());
+                          new LogLeecher[0], tempProjectDir.toString());
         Path generatedBalx = tempProjectDir.resolve("entry.balx");
         balxPath = generatedBalx.toString();
+        // create a temp directory for testFunctionNameWithColons
+        tempProjectDirTwo = Files.createTempDirectory("temp-entry-func-test-complex");
     }
 
     @Test
@@ -69,7 +75,7 @@ public class BalxRunFunctionPositiveTestCase extends BaseTest {
         String arg0 = "main with no return";
         LogLeecher outLogLeecher = new LogLeecher(arg0);
         balClient.runMain(sourceArg, new String[]{PRINT_RETURN}, new String[]{arg0}, new LogLeecher[]{outLogLeecher});
-        outLogLeecher.waitForText(2000);
+        outLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
     @Test
@@ -78,11 +84,11 @@ public class BalxRunFunctionPositiveTestCase extends BaseTest {
         sourceArg = balxPath + ":" + functionName;
         LogLeecher outLogLeecher = new LogLeecher("1");
         balClient.runMain(sourceArg, new String[]{PRINT_RETURN}, new String[0], new LogLeecher[]{outLogLeecher});
-        outLogLeecher.waitForText(2000);
+        outLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
     @Test
-    public void testMultipleParam() throws BallerinaTestException {
+    public void testMultipleParams() throws BallerinaTestException {
         String functionName = "combinedTypeEntry";
         sourceArg = balxPath + ":" + functionName;
         LogLeecher outLogLeecher = new LogLeecher("integer: 1000, float: 1.0, string: Hello Ballerina, byte: 255, "
@@ -92,13 +98,29 @@ public class BalxRunFunctionPositiveTestCase extends BaseTest {
         balClient.runMain(sourceArg, new String[]{PRINT_RETURN}, new String[]{"1000", "1.0",
                         "Hello Ballerina", "255", "true", "{ \"name\": \"Maryam\" }", "<book>Harry Potter</book>",
                         "{ \"name\": \"Em\" }", "just", "the", "rest"}, new LogLeecher[]{outLogLeecher});
-        outLogLeecher.waitForText(2000);
+        outLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
+    }
+
+    @Test(description = "test running a function where the function name has colons. " +
+            "e.g., ballerina run <SOURCE>:functionWithColons:inName")
+    public void testFunctionNameWithColons() throws BallerinaTestException {
+        String arg = "test arg";
+        String fileName = "test_entry_function_with_colons.bal";
+        String[] args = {"-o", Paths.get(tempProjectDirTwo.toString(), "test_entry_function_with_colons").toString(),
+                new File("src/test/resources/run/balx/complex/" + fileName).getAbsolutePath()};
+        balClient.runMain("build", args, null, new String[0], new LogLeecher[0], tempProjectDirTwo.toString());
+        Path generatedBalx = tempProjectDirTwo.resolve(fileName.replace("bal", "balx"));
+        String sourceArg = generatedBalx.toString() + ":colonsInName:Function";
+        LogLeecher outLogLeecher = new LogLeecher(arg);
+        balClient.runMain(sourceArg, new String[]{PRINT_RETURN}, new String[]{arg}, new LogLeecher[]{outLogLeecher});
+        outLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
     @AfterClass
     public void tearDown() throws BallerinaTestException {
         try {
             deleteFiles(tempProjectDir);
+            deleteFiles(tempProjectDirTwo);
         } catch (IOException e) {
             throw new BallerinaTestException("Error deleting files");
         }

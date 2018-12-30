@@ -1,16 +1,15 @@
-#To run this sample, navigate to the directory that contains the
-#'.bal' file and issue the 'ballerina run' command.
-$ ballerina run xa_transactions.bal
-ballerina: started HTTP/WS endpoint 172.17.0.1:42244
+# To run this sample, navigate to the directory that contains the
+# `.bal` file and issue the `ballerina run` command.
+$ ballerina run --experimental xa_transactions.bal
+[ballerina/http] started HTTP/WS endpoint 172.17.0.1:53599
 Create CUSTOMER table status: 0
 Create SALARY table status: 0
-2018-04-25 15:04:01,699 INFO  [ballerina/transactions] - Created transaction: 28b49779-1ef9-46ad-85a9-5bea51ef9f4f
+2018-12-04 20:12:03,507 INFO  [ballerina/log] - Created transaction: aec7b091-cbac-4d61-8834-bed8e1a3c9ec
 Inserted row count: 1
 Generated key: 1
 Generated key for the inserted row: 1
 Insert to SALARY table status: 1
-2018-04-25 15:04:01,715 INFO  [ballerina/transactions] - Running 2-phase commit for transaction: 28b49779-1ef9-46ad-85a9-5bea51ef9f4f:1
-Transaction: 28b49779-1ef9-46ad-85a9-5bea51ef9f4f:1 committed
+2018-12-04 20:12:03,541 INFO  [ballerina/log] - Running 2-phase commit for transaction: aec7b091-cbac-4d61-8834-bed8e1a3c9ec:$anon$.$1
+Transaction committed
 Drop Table CUSTOMER status: 0
 Drop Table SALARY status: 0
-ballerina: stopped HTTP/WS endpoint 172.17.0.1:42244

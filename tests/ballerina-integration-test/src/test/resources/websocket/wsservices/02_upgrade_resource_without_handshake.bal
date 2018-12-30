@@ -17,22 +17,24 @@
 import ballerina/http;
 import ballerina/io;
 
-service<http:Service> UpgradeWithoutHandshake bind { port: 9079 } {
+service UpgradeWithoutHandshake on new http:Listener(9079) {
 
     @http:ResourceConfig {
         webSocketUpgrade: {
             upgradeService: upgradeService
         }
     }
-    websocketProxy(endpoint caller, http:Request req) {
+    resource function websocketProxy(http:Caller caller, http:Request req) {
         io:println("Simply log something");
     }
 }
 
-service<http:WebSocketService> upgradeService {
+service upgradeService = @http:WebSocketServiceConfig {} service {
 
-    onOpen(endpoint caller) {
-        _ = caller->pushText("Handshake check");
+    resource function onOpen(http:WebSocketCaller caller) {
+        var returnVal = caller->pushText("Handshake check");
+        if (returnVal is error) {
+             panic returnVal;
+        }
     }
-}
-
+};

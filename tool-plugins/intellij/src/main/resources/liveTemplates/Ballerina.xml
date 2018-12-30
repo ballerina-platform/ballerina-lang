@@ -17,7 +17,7 @@
 <templateSet group="Ballerina">
 
     <template description="Main Function" name="funm"
-              value="public function main(string... args) {&#10;    $END$&#10;}"
+              value="public function main() {&#10;    $END$&#10;}"
               toReformat="true" toShortenFQNames="false">
 
         <context>

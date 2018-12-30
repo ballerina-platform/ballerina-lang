@@ -22,19 +22,19 @@ object LSPDefaultIconProvider extends LSPIconProvider {
       case CompletionItemKind.Color => null
       case CompletionItemKind.Constructor => null
       case CompletionItemKind.Enum => Nodes.Enum
-      case CompletionItemKind.Field => Nodes.Field
+      case CompletionItemKind.Field => Nodes.Advice
       case CompletionItemKind.File => AllIcons.FileTypes.Any_type
-      case CompletionItemKind.Function => Nodes.Function
+      case CompletionItemKind.Function => Nodes.Field
       case CompletionItemKind.Interface => Nodes.Interface
-      case CompletionItemKind.Keyword => null
+      case CompletionItemKind.Keyword => Nodes.UpLevel
       case CompletionItemKind.Method => Nodes.Method
       case CompletionItemKind.Module => Nodes.Module
       case CompletionItemKind.Property => Nodes.Property
       case CompletionItemKind.Reference => Nodes.MethodReference
-      case CompletionItemKind.Snippet => null
+      case CompletionItemKind.Snippet => Nodes.Static
       case CompletionItemKind.Text => AllIcons.FileTypes.Text
-      case CompletionItemKind.Unit => null
-      case CompletionItemKind.Value => null
+      case CompletionItemKind.Unit => Nodes.Artifact
+      case CompletionItemKind.Value => Nodes.DataSource
       case CompletionItemKind.Variable => Nodes.Variable
       case _ => null
     }

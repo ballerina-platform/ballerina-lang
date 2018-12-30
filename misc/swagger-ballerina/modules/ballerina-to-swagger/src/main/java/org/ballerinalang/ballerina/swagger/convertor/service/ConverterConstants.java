@@ -42,7 +42,9 @@ public class ConverterConstants {
     public static final String ATTR_HEADERS = "headers";
     public static final String ATTR_TAGS = "tags";
     public static final String ATTR_EXT_DOC = "externalDoc";
+    public static final String ATTR_TYPE = "paramType";
 
     // annotation keys
     public static final String ANNON_RES_INFO = "ResourceInfo";
+    public static final String ANNON_MULTI_RES_INFO = "MultiResourceInfo";
 }

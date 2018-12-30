@@ -19,9 +19,9 @@ package org.ballerinalang.model.util.serializer;
 
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 
 import java.util.Set;
 
@@ -56,7 +56,7 @@ class BTreeHelper {
      * @param repeatedReferenceSet Set of hashCodes of repeated references.
      */
     @SuppressWarnings("unchecked")
-    public static void trimTree(BValue jsonObj, Set<Long> repeatedReferenceSet) {
+    static void trimTree(BValue jsonObj, Set<Long> repeatedReferenceSet) {
         if (jsonObj == null) {
             return;
         }
@@ -68,10 +68,10 @@ class BTreeHelper {
             }
             trimTree(map.get(JsonSerializerConst.VALUE_TAG), repeatedReferenceSet);
         }
-        if (jsonObj instanceof BRefValueArray) {
-            BRefValueArray array = (BRefValueArray) jsonObj;
+        if (jsonObj instanceof BValueArray) {
+            BValueArray array = (BValueArray) jsonObj;
             for (int i = 0; i < array.size(); i++) {
-                trimTree(array.get(i), repeatedReferenceSet);
+                trimTree(array.getRefValue(i), repeatedReferenceSet);
             }
         }
     }

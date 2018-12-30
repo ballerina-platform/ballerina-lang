@@ -1,14 +1,12 @@
-
 import initializers as inp;
 
 public type person object {
 
-    public int age;
-    public string name;
-    public string address;
+    public int age = 0;
+    public string name = "";
+    public string address = "";
 
-
-    new (int a = 10, string n = "Charles") {
+    function __init (int a = 10, string n = "Charles") {
         self.name = n;
         self.age = a;
     }
@@ -16,7 +14,7 @@ public type person object {
     function getAge();
 };
 
-function person::getAge() {
+function person.getAge() {
     self.age = 12;
 }
 
@@ -32,13 +30,10 @@ function testObjectInitializerInAnotherPackage() returns (int, string){
 
 type employee object {
 
-    public int age;
+    public int age = 0;
     public string name = "A";
 
-
-    //TODO: define construvtor as new (int age = 30, string name) once
-    // https://github.com/ballerina-platform/ballerina-lang/issues/6849 is fixed.
-    new (int a = 30, name) {
+    function __init (int a = 30, string name) {
         self.name = self.name + name;
         self.age = a;
     }
@@ -47,4 +42,15 @@ type employee object {
 function testObjectInitializerOrder() returns (int, string){
     employee p = new (a = 40, "B");
     return (p.age, p.name);
+}
+
+function testObjectInitializerUsedAsAFunction() returns (int, string, int, string) {
+    person p = new(n = "Peter");
+    int age1 = p.age;
+    string name1 = p.name;
+    p.age = 15;
+    p.name = "Jack";
+
+    p.__init(a = 20, n = "James");
+    return (p.age, p.name, age1, name1);
 }

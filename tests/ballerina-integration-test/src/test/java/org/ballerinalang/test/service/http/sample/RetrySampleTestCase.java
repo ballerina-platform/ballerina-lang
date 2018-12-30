@@ -38,6 +38,8 @@ import java.util.Map;
 public class RetrySampleTestCase extends HttpBaseTest {
 
     private final int servicePort = 9105;
+    private final int statusCodeServicePort = 9225;
+    private static final String RETRY_HEADER = "x-retry";
 
     @Test(description = "Test basic retry functionality")
     public void testSimpleRetry() throws IOException {
@@ -131,5 +133,31 @@ public class RetrySampleTestCase extends HttpBaseTest {
                 "Response is not form of multipart");
         Assert.assertTrue(response.getData().contains(expectedChildPart1), "Message content mismatched");
         Assert.assertTrue(response.getData().contains(expectedChildPart2), "Message content mismatched");
+    }
+
+    @Test(description = "Test retry functionality based on HTTP status codes")
+    public void testRetryBasedOnHttpStatusCodes() throws IOException {
+        Map<String, String> headers = new HashMap<>();
+        headers.put(RETRY_HEADER, "recover");
+        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
+        HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(statusCodeServicePort,
+                "retry"), "{\"Name\":\"Ballerina\"}", headers);
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString()),
+                TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
+        Assert.assertEquals(response.getData(), "Hello World!!!", "Message content mismatched");
+    }
+
+    @Test(description = "Test continuous 502 response code")
+    public void testRetryBasedOnHttpStatusCodesContinuousFailure() throws IOException {
+        Map<String, String> headers = new HashMap<>();
+        headers.put(RETRY_HEADER, "internalError");
+        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
+        HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(statusCodeServicePort,
+                "retry"), "{\"Name\":\"Ballerina\"}", headers);
+        Assert.assertEquals(response.getResponseCode(), 502, "Response code mismatched");
+        Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString()),
+                TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
+        Assert.assertEquals(response.getData(), "Gateway Timed out.", "Message content mismatched");
     }
 }

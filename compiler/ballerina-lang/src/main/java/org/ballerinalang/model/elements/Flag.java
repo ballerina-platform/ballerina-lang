@@ -30,6 +30,10 @@ public enum Flag {
      */
     PRIVATE,
     /**
+     * Indicates Flagged node is a remote function.
+     */
+    REMOTE,
+    /**
      * Indicates Flagged node is a native construct.
      */
     NATIVE,
@@ -46,15 +50,17 @@ public enum Flag {
      */
     LAMBDA,
     /**
+     * Indicates Flagged node is a worker lambda.
+     */
+    WORKER,
+    /**
      * Indicates Flagged Node executes in parallel workers.
      */
     PARALLEL,
     /**
-     * Indicates Flagged Node is a connector node.
-     * TODO need to fix this in a better way.
-     * this is needed for composer to identify whether user defined type is a connector or not.
+     * Indicates Flagged Node is a listener node.
      */
-    CONNECTOR,
+    LISTENER,
     /**
      * Indicates Flagged node is deprecated.
      */
@@ -72,13 +78,9 @@ public enum Flag {
      */
     INTERFACE,
     /**
-     * Indicates Flagged type is checked for default values.
+     * Indicates Flagged record field is a required field.
      */
-    DEFAULTABLE_CHECKED,
-    /**
-     * Indicates Flagged type is a defaultable type.
-     */
-    DEFAULTABLE,
+    REQUIRED,
     /**
      * Temporary indicator for records.
      */
@@ -94,5 +96,25 @@ public enum Flag {
     /**
      * Indicates that the flagged node is an optional field.
      */
-    OPTIONAL
+    OPTIONAL,
+    /**
+     * Indicates flagged node is a testable node.
+     */
+    TESTABLE,
+    /**
+     * Indicates Flagged node is a client node.
+     */
+    CLIENT,
+    /**
+     * Indicates Flagged node is a resource node.
+     */
+    RESOURCE,
+    /**
+     * Indicates Flagged node is a service node.
+     */
+    SERVICE,
+    /**
+     * Indicates flagged node is a constant node.
+     */
+    CONSTANT,
 }

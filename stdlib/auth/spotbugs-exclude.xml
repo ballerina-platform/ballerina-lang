@@ -16,5 +16,7 @@
   ~ under the License.
   -->
 <FindBugsFilter>
-
+    <Match>
+        <Class name="org.ballerinalang.auth.ldap.SslContextTrustManager"/>
+    </Match>
 </FindBugsFilter>

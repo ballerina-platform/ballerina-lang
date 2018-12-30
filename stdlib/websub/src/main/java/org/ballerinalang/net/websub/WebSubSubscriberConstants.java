@@ -27,12 +27,13 @@ public class WebSubSubscriberConstants {
 
     public static final String GENERIC_SUBSCRIBER_SERVICE_TYPE = "Service";
     public static final String WEBSUB_SERVICE_REGISTRY = "WEBSUB_SERVICE_REGISTRY";
-    public static final String WEBSUB_SUBSCRIBER_SERVICE_ENDPOINT_NAME =
-                                                        "ballerina/websub:Listener";
-    public static final String SERVICE_ENDPOINT = "Listener";
+
     public static final String SERVICE_ENDPOINT_CONFIG_NAME = "config";
     public static final String ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG = "SubscriberServiceConfig";
+    public static final String WEBSUB = "websub";
     public static final String WEBSUB_PACKAGE = "ballerina/websub";
+    public static final String WEBSUB_SERVICE_LISTENER = "Listener";
+    public static final String WEBSUB_SERVICE_CALLER = "Caller";
     public static final String WEBSUB_HTTP_ENDPOINT = "serviceEndpoint";
     public static final String WEBSUB_SERVICE_NAME = "webSubServiceName";
 
@@ -47,9 +48,7 @@ public class WebSubSubscriberConstants {
     public static final String ANN_WEBSUB_ATTR_LEASE_SECONDS = "leaseSeconds";
     public static final String ANN_WEBSUB_ATTR_SECRET = "secret";
     public static final String ANN_WEBSUB_ATTR_CALLBACK = "callback";
-    public static final String ANN_WEBSUB_ATTR_AUTH_CONFIG = "auth";
-    public static final String ANN_WEBSUB_ATTR_SECURE_SOCKET_CONFIG = "secureSocket";
-    public static final String ANN_WEBSUB_ATTR_FOLLOW_REDIRECTS_CONFIG = "followRedirects";
+    public static final String ANN_WEBSUB_ATTR_SUBSCRIPTION_CLIENT_CONFIG = "subscriptionClientConfig";
 
     public static final String TOPIC_ID_HEADER = "TOPIC_ID_HEADER";
     public static final String TOPIC_ID_PAYLOAD_KEY = "TOPIC_ID_PAYLOAD_KEY";
@@ -81,7 +80,10 @@ public class WebSubSubscriberConstants {
     // SubscriptionDetails struct field names
     public static final String SUBSCRIPTION_DETAILS_TOPIC = "topic";
     public static final String SUBSCRIPTION_DETAILS_CALLBACK = "callback";
-    public static final String SUBSCRIPTION_DETAILS_SECRET = "sceret";
+    public static final String SUBSCRIPTION_DETAILS_SECRET = "secret";
+    public static final String SUBSCRIPTION_DETAILS_LEASE_SECONDS = "leaseSeconds";
+    public static final String SUBSCRIPTION_DETAILS_CREATED_AT = "createdAt";
+    public static final String SUBSCRIPTION_DETAILS = "SubscriberDetails";
 
     // IntentVerificationRequest
     public static final String VERIFICATION_REQUEST_MODE = "mode";

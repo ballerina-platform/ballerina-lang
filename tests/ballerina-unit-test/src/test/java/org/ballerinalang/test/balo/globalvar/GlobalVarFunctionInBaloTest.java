@@ -22,12 +22,12 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BByte;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.balo.BaloCreator;
 import org.ballerinalang.test.utils.ByteArrayUtils;
 import org.testng.Assert;
@@ -132,8 +132,8 @@ public class GlobalVarFunctionInBaloTest {
         byte[] bytes1 = new byte[]{2, 3, 4, 67, 89};
         BValue[] returns = BRunUtil.invoke(result, "getGlobalVarByteArray1");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BByteArray.class);
-        BByteArray blob1 = (BByteArray) returns[0];
+        Assert.assertSame(returns[0].getClass(), BValueArray.class);
+        BValueArray blob1 = (BValueArray) returns[0];
         ByteArrayUtils.assertJBytesWithBBytes(bytes1, blob1);
     }
 
@@ -143,8 +143,8 @@ public class GlobalVarFunctionInBaloTest {
         byte[] bytes1 = ByteArrayUtils.decodeBase64(b1);
         BValue[] returns = BRunUtil.invoke(result, "getGlobalVarByteArray2");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BByteArray.class);
-        BByteArray blob1 = (BByteArray) returns[0];
+        Assert.assertSame(returns[0].getClass(), BValueArray.class);
+        BValueArray blob1 = (BValueArray) returns[0];
         ByteArrayUtils.assertJBytesWithBBytes(bytes1, blob1);
     }
 
@@ -154,8 +154,8 @@ public class GlobalVarFunctionInBaloTest {
         byte[] bytes1 = ByteArrayUtils.hexStringToByteArray(b1);
         BValue[] returns = BRunUtil.invoke(result, "getGlobalVarByteArray3");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BByteArray.class);
-        BByteArray blob1 = (BByteArray) returns[0];
+        Assert.assertSame(returns[0].getClass(), BValueArray.class);
+        BValueArray blob1 = (BValueArray) returns[0];
         ByteArrayUtils.assertJBytesWithBBytes(bytes1, blob1);
     }
 

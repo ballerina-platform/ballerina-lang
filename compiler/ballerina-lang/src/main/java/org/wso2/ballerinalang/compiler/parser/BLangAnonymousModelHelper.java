@@ -17,6 +17,7 @@
 package org.wso2.ballerinalang.compiler.parser;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 
@@ -33,10 +34,13 @@ import java.util.Optional;
 public class BLangAnonymousModelHelper {
 
     private Map<PackageID, Integer> anonTypeCount;
+    private Map<PackageID, Integer> anonServiceCount;
     private Map<PackageID, Integer> anonFunctionCount;
 
     private static final String ANON_TYPE = "$anonType$";
     private static final String LAMBDA = "$lambda$";
+    private static final String SERVICE = "$$service$";
+    private static final String ANON_SERVICE = "$anonService$";
     private static final String BUILTIN_ANON_TYPE = "$anonType$builtin$";
     private static final String BUILTIN_LAMBDA = "$lambda$builtin$";
 
@@ -46,6 +50,7 @@ public class BLangAnonymousModelHelper {
     private BLangAnonymousModelHelper(CompilerContext context) {
         context.put(ANONYMOUS_MODEL_HELPER_KEY, this);
         anonTypeCount = new HashMap<>();
+        anonServiceCount = new HashMap<>();
         anonFunctionCount = new HashMap<>();
     }
 
@@ -66,6 +71,18 @@ public class BLangAnonymousModelHelper {
         return ANON_TYPE + nextValue;
     }
 
+    String getNextAnonymousServiceTypeKey(PackageID packageID, String serviceName) {
+        Integer nextValue = Optional.ofNullable(anonServiceCount.get(packageID)).orElse(0);
+        anonServiceCount.put(packageID, nextValue + 1);
+        return serviceName + SERVICE + nextValue;
+    }
+
+    String getNextAnonymousServiceVarKey(PackageID packageID) {
+        Integer nextValue = Optional.ofNullable(anonServiceCount.get(packageID)).orElse(0);
+        anonServiceCount.put(packageID, nextValue + 1);
+        return ANON_SERVICE + nextValue;
+    }
+
     public String getNextAnonymousFunctionKey(PackageID packageID) {
         Integer nextValue = Optional.ofNullable(anonFunctionCount.get(packageID)).orElse(0);
         anonFunctionCount.put(packageID, nextValue + 1);
@@ -75,4 +92,7 @@ public class BLangAnonymousModelHelper {
         return LAMBDA + nextValue;
     }
 
+    public boolean isAnonymousType(BSymbol symbol) {
+        return symbol.name.value.startsWith(ANON_TYPE);
+    }
 }

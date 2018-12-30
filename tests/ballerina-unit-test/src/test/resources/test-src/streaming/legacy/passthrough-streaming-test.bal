@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/runtime;
-import ballerina/io;
 
 type Employee record {
     string name;
@@ -32,8 +31,8 @@ type Teacher record {
 Employee[] globalEmployeeArray = [];
 int employeeIndex = 0;
 
-stream<Employee> employeeStream3;
-stream<Teacher> teacherStream6;
+stream<Employee> employeeStream3 = new;
+stream<Teacher> teacherStream6 = new;
 
 function testPassthroughQuery() {
 
@@ -41,7 +40,7 @@ function testPassthroughQuery() {
         from teacherStream6
         select *
         => (Employee[] emp) {
-            foreach e in emp {
+            foreach var e in emp {
                 employeeStream3.publish(e);
             }
         }

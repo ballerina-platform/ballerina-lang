@@ -1,6 +1,6 @@
 package com.github.gtache.lsp.settings.gui;
 
-import com.github.gtache.lsp.settings.LSPState;
+import com.github.gtache.lsp.settings.BallerinaLSPState;
 import com.github.gtache.lsp.utils.Utils;
 import com.github.gtache.lsp.utils.coursier.CoursierImpl$;
 import com.intellij.uiDesigner.core.GridConstraints;
@@ -22,7 +22,7 @@ import javax.swing.JTextArea;
  */
 public final class CoursierGUI implements LSPGUI {
     private static final String placeholder = Utils.bundle().getString("coursier.settings.textarea.basetext");
-    private final LSPState state = state();
+    private final BallerinaLSPState state = state();
     private JPanel rootPanel;
     private JTextArea repositoriesTextArea;
     private JLabel repositoriesLabel;

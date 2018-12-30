@@ -25,7 +25,6 @@ import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.GrpcConstants;
@@ -43,11 +42,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.net.grpc.GrpcConstants.ENDPOINT_CONFIG_TIMEOUT;
+import static org.ballerinalang.net.grpc.GrpcConstants.LISTENER;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVER_CONNECTOR;
-import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_ENDPOINT_TYPE;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_REGISTRY_BUILDER;
 import static org.ballerinalang.net.http.HttpConstants.ENABLE;
 import static org.ballerinalang.net.http.HttpConstants.ENABLED_PROTOCOLS;
@@ -79,10 +79,8 @@ import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
         orgName = ORG_NAME,
         packageName = PROTOCOL_PACKAGE_GRPC,
         functionName = "init",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = SERVICE_ENDPOINT_TYPE,
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = LISTENER,
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
-        args = {@Argument(name = "config", type = TypeKind.RECORD, structType = "ServiceEndpointConfiguration",
-                structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC)},
         isPublic = true
 )
 public class Init extends AbstractGrpcNativeFunction {
@@ -92,8 +90,9 @@ public class Init extends AbstractGrpcNativeFunction {
     public void execute(Context context) {
         Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
         BMap<String, BValue> endpointConfigStruct = (BMap<String, BValue>) context.getRefArgument(1);
+        long port = context.getIntArgument(0);
         Struct serviceEndpointConfig = BLangConnectorSPIUtil.toStruct(endpointConfigStruct);
-        ListenerConfiguration configuration = getListenerConfig(serviceEndpointConfig);
+        ListenerConfiguration configuration = getListenerConfig(port, serviceEndpointConfig);
         ServerConnector httpServerConnector =
                 HttpConnectionManager.getInstance().createHttpServerConnector(configuration);
 
@@ -103,10 +102,10 @@ public class Init extends AbstractGrpcNativeFunction {
         context.setReturnValues();
     }
     
-    private ListenerConfiguration getListenerConfig(Struct endpointConfig) {
+    private ListenerConfiguration getListenerConfig(long port, Struct endpointConfig) {
         String host = endpointConfig.getStringField(GrpcConstants.ENDPOINT_CONFIG_HOST);
-        long port = endpointConfig.getIntField(GrpcConstants.ENDPOINT_CONFIG_PORT);
         Struct sslConfig = endpointConfig.getStructField(GrpcConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
+        long idleTimeout = endpointConfig.getIntField(ENDPOINT_CONFIG_TIMEOUT);
         
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         
@@ -125,6 +124,12 @@ public class Init extends AbstractGrpcNativeFunction {
         if (sslConfig != null) {
             setSslConfig(sslConfig, listenerConfiguration);
         }
+
+        if (idleTimeout < 0) {
+            throw new BallerinaConnectorException("Idle timeout cannot be negative. To disable the " +
+                    "timeout, set value to 0");
+        }
+        listenerConfiguration.setSocketIdleTimeout(Math.toIntExact(idleTimeout));
         
         listenerConfiguration.setServerHeader(getServerName());
         listenerConfiguration.setVersion(String.valueOf(Constants.HTTP_2_0));

@@ -40,14 +40,14 @@ public class ProjectionTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/streaming/legacy/projection-streaming-test.bal");
-        resultNegative = BCompileUtil.compile("test-src/streaming/negative/projection-streaming-negative-test.bal");
+        result = BCompileUtil.compile("test-src/streaming/legacy/projection-streaming-test.bal", true);
+        resultNegative = BCompileUtil.
+                compile("test-src/streaming/negative/projection-streaming-negative-test.bal", true);
     }
 
     @Test(description = "Test projection streaming query")
     public void testProjectionQuery() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startProjectionQuery");
-
         Assert.assertNotNull(outputEmployeeEvents);
 
         Assert.assertEquals(outputEmployeeEvents.length, 3, "Expected events are not received");
@@ -66,7 +66,7 @@ public class ProjectionTest {
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
         BAssertUtil.validateError(resultNegative, 0,
                 "incompatible stream action argument type 'Employee' defined",
-                45, 9);
+                44, 9);
     }
 
 }

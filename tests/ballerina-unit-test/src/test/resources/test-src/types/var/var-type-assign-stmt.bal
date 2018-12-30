@@ -3,9 +3,9 @@ type Person record {
     int age;
     Person? parent;
     json info;
-    map address;
+    map<anydata> address;
     int[] marks;
-    any a;
+    anydata a;
     float score;
     boolean alive;
 };
@@ -66,10 +66,10 @@ function testAnyToStringWithErrors() returns (string) {
     return s;
 }
 
-function testAnyNullToStringWithErrors() returns (string) {
+function testAnyNullToStringWithErrors() returns (string | error) {
     any a = null;
 
-    var s = <string> a;
+    var s = check trap <string> a;
 
     return s;
 }
@@ -77,7 +77,7 @@ function testAnyNullToStringWithErrors() returns (string) {
 function testAnyToBooleanWithErrors() returns (boolean | error) {
     any a = 5;
 
-    var b = <boolean> a;
+    var b = check trap <boolean> a;
 
     return b;
 }
@@ -85,7 +85,7 @@ function testAnyToBooleanWithErrors() returns (boolean | error) {
 function testAnyNullToBooleanWithErrors() returns (boolean | error) {
     any a = null;
 
-    var b = <boolean> a;
+    var b = check trap <boolean> a;
 
     return b;
 }
@@ -93,7 +93,7 @@ function testAnyNullToBooleanWithErrors() returns (boolean | error) {
 function testAnyToIntWithErrors() returns (int | error) {
     any a = "foo";
 
-    var b = <int> a;
+    var b = check trap <int> a;
 
     return b;
 }
@@ -101,7 +101,7 @@ function testAnyToIntWithErrors() returns (int | error) {
 function testAnyNullToIntWithErrors() returns (int | error) {
     any a = null;
 
-    var b = <int> a;
+    var b = check trap <int> a;
 
     return b;
 }
@@ -109,7 +109,7 @@ function testAnyNullToIntWithErrors() returns (int | error) {
 function testAnyToFloatWithErrors() returns (float | error) {
     any a = "foo";
 
-    var b = <float> a;
+    var b = check trap <float> a;
 
     return b;
 }
@@ -117,15 +117,15 @@ function testAnyToFloatWithErrors() returns (float | error) {
 function testAnyNullToFloatWithErrors() returns (float | error) {
     any a = null;
 
-    var b = <float> a;
+    var b = check trap <float> a;
 
     return b;
 }
 
-function testAnyToMapWithErrors() returns (map | error) {
+function testAnyToMapWithErrors() returns (map<any> | error) {
     any a = "foo";
 
-    var b = <map> a;
+    var b = check trap <map<any>> a;
 
     return b;
 }
@@ -146,7 +146,7 @@ function testIncompatibleJsonToStructWithErrors() returns (Person | error) {
                  info:{status:"single"},
                  marks:[87,94,72]
              };
-    var p = <Person> j;
+    var p = Person.convert(j);
     return p;
 }
 
@@ -158,7 +158,7 @@ type PersonA record {
 function testJsonToStructWithErrors() returns (PersonA | error) {
     json j = {name:"supun", age:"25"};
 
-    var p = <PersonA> j;
+    var p = PersonA.convert(j);
 
     return p;
 }
@@ -176,9 +176,9 @@ function testCompatibleStructForceCasting() returns (A | error) {
     A a = {x: "x-valueof-a", y:4};
     B b = {x: "x-valueof-b"};
 
-    b = <B> a;
+    b = B.convert(a);
 
-    var c = <A> b;
+    var c = A.convert(b);
 
     a.x = "updated-x-valueof-a";
     return c;
@@ -187,7 +187,7 @@ function testCompatibleStructForceCasting() returns (A | error) {
 function testInCompatibleStructForceCasting() returns (A | error) {
     B b = {x: "x-valueof-b"};
 
-    var a = <A> b;
+    var a = check trap <A> b;
 
     return a;
 }

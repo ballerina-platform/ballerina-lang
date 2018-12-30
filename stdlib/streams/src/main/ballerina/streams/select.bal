@@ -17,72 +17,83 @@
 public type Select object {
 
     private function (StreamEvent[]) nextProcessorPointer;
-    private Aggregator [] aggregatorArr;
-    private (function(StreamEvent o) returns string)? groupbyFunc;
-    private function(StreamEvent o, Aggregator []  aggregatorArr1) returns map selectFunc;
+    private Aggregator[] aggregatorArr;
+    private ((function (StreamEvent o) returns anydata)[])? groupbyFuncArray;
+    private function (StreamEvent o, Aggregator[] aggregatorArr1) returns map<anydata> selectFunc;
     private map<Aggregator[]> aggregatorsCloneMap;
 
 
-    new(nextProcessorPointer, aggregatorArr, groupbyFunc, selectFunc) {
+    function __init(function (StreamEvent[]) nextProcessorPointer, Aggregator[] aggregatorArr,
+                    ((function (StreamEvent) returns anydata)[])? groupbyFuncArray,
+                    function (StreamEvent o, Aggregator[] aggregatorArr1) returns map<anydata> selectFunc) {
+        self.aggregatorsCloneMap = {};
+        self.nextProcessorPointer = nextProcessorPointer;
+        self.aggregatorArr = aggregatorArr;
+        self.groupbyFuncArray = groupbyFuncArray;
+        self.selectFunc = selectFunc;
     }
 
     public function process(StreamEvent[] streamEvents) {
         StreamEvent[] outputStreamEvents = [];
-        if (lengthof aggregatorArr > 0) {
-            map<StreamEvent> groupedEvents;
-            foreach event in streamEvents {
-
+        if (self.aggregatorArr.length() > 0) {
+            map<StreamEvent> groupedEvents = {};
+            foreach var event in streamEvents {
                 if (event.eventType == RESET) {
-                    aggregatorsCloneMap.clear();
+                    self.aggregatorsCloneMap.clear();
                 }
 
-                string groupbyKey = groupbyFunc but {
-                    (function(StreamEvent o) returns string) groupbyFunction => groupbyFunction(event),
-                    () => DEFAULT
-                };
-                Aggregator[] aggregatorsClone;
-                match (aggregatorsCloneMap[groupbyKey]) {
-                    Aggregator[] aggregators => {
-                        aggregatorsClone = aggregators;
+                string groupbyKey = self.getGroupByKey(self.groupbyFuncArray, event);
+                Aggregator[] aggregatorsClone = [];
+                var aggregators = self.aggregatorsCloneMap[groupbyKey];
+                if (aggregators is Aggregator[]) {
+                    aggregatorsClone = aggregators;
+                } else {
+                    int i = 0;
+                    foreach var aggregator in self.aggregatorArr {
+                        aggregatorsClone[i] = aggregator.copy();
+                        i += 1;
                     }
-                    () => {
-                        int i = 0;
-                        foreach aggregator in aggregatorArr {
-                            aggregatorsClone[i] = aggregator.clone();
-                            i += 1;
-                        }
-                        aggregatorsCloneMap[groupbyKey] = aggregatorsClone;
-                    }
+                    self.aggregatorsCloneMap[groupbyKey] = aggregatorsClone;
                 }
-                StreamEvent e = new ((OUTPUT, selectFunc(event, aggregatorsClone)), event.eventType, event.timestamp);
+                map<anydata> x = self.selectFunc.call(event, aggregatorsClone);
+                StreamEvent e = new((OUTPUT, x), event.eventType, event.timestamp);
                 groupedEvents[groupbyKey] = e;
             }
-            foreach key in groupedEvents.keys() {
-                match groupedEvents[key] {
-                    StreamEvent e => {
-                        outputStreamEvents[lengthof outputStreamEvents] = e;
-                    }
-                    () => {}
-                }
+            foreach var key in groupedEvents.keys() {
+                StreamEvent event = <StreamEvent>groupedEvents[key];
+                outputStreamEvents[outputStreamEvents.length()] = event;
             }
         } else {
-            foreach event in streamEvents {
-                StreamEvent e = new ((OUTPUT, selectFunc(event, aggregatorArr)), event.eventType, event.timestamp);
-                outputStreamEvents[lengthof outputStreamEvents] = e;
+            foreach var event in streamEvents {
+                StreamEvent e = new((OUTPUT, self.selectFunc.call(event, self.aggregatorArr)), event.eventType,
+                    event.timestamp);
+                outputStreamEvents[outputStreamEvents.length()] = e;
             }
         }
-        if (lengthof outputStreamEvents > 0) {
-            nextProcessorPointer(outputStreamEvents);
+        if (outputStreamEvents.length() > 0) {
+            self.nextProcessorPointer.call(outputStreamEvents);
         }
+    }
+
+    public function getGroupByKey(((function (StreamEvent o) returns anydata)[])? groupbyFunctionArray, StreamEvent e)
+                        returns string {
+        string key = "";
+        if(groupbyFunctionArray is (function (StreamEvent o) returns anydata)[]) {
+            foreach var func in groupbyFunctionArray {
+                key += <string > func.call(e);
+                key += ",";
+            }
+        }
+        return key;
     }
 };
 
 public function createSelect(function (StreamEvent[]) nextProcPointer,
-                                Aggregator [] aggregatorArr,
-                                (function(StreamEvent o) returns string)? groupbyFunc,
-                                function(StreamEvent o, Aggregator [] aggregatorArr1) returns map selectFunc)
-        returns Select {
+                             Aggregator[] aggregatorArr,
+                             ((function (StreamEvent o) returns anydata)[])? groupbyFuncArray,
+                             function (StreamEvent o, Aggregator[] aggregatorArr1) returns map<anydata> selectFunc)
+                    returns Select {
 
-    Select select = new(nextProcPointer, aggregatorArr, groupbyFunc, selectFunc);
+    Select select = new(nextProcPointer, aggregatorArr, groupbyFuncArray, selectFunc);
     return select;
 }

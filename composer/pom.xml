@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.982.1-SNAPSHOT</version>
+        <version>0.990.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -29,41 +29,8 @@
     <packaging>pom</packaging>
     <name>Ballerina - Composer Library</name>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>language-server-core</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>language-server-stdio-launcher</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-    </dependencies>
-
-
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>copy-dependencies</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
-                            <overWriteReleases>false</overWriteReleases>
-                            <overWriteSnapshots>false</overWriteSnapshots>
-                            <overWriteIfNewer>true</overWriteIfNewer>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
@@ -81,9 +48,21 @@
                             <arguments>
                                 <argument>run</argument>
                                 <argument>build</argument>
-                                <argument>--</argument>
-                                <argument>--skipTest=${maven.test.skip}</argument>
-                                <argument>--projectVersion=${project.version}</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>node test</id>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <phase>compile</phase>
+                        <configuration>
+                            <skip>${skipTests}</skip>
+                            <executable>${npm.executable}</executable>
+                            <arguments>
+                                <argument>run</argument>
+                                <argument>test</argument>
                             </arguments>
                         </configuration>
                     </execution>
@@ -105,8 +84,11 @@
                                 <condition property="npm.executable" value="npm.cmd" else="npm">
                                     <os family="windows" />
                                 </condition>
-                                <condition property="maven.test.skip" value="${maven.test.skip}" else="false">
-                                    <isset property="maven.test.skip" />
+                                <condition property="skipTests" value="true" else="false">
+                                    <or>
+                                        <isset property="maven.test.skip" />
+                                        <isset property="skipTests" />
+                                    </or>
                                 </condition>
                             </target>
                             <exportAntProperties>true</exportAntProperties>

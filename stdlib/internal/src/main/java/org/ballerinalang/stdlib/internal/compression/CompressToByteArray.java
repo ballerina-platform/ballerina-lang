@@ -18,9 +18,9 @@ package org.ballerinalang.stdlib.internal.compression;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -41,7 +41,8 @@ import java.nio.file.Path;
         functionName = "compressToByteArray",
         args = {@Argument(name = "dirPath", type = TypeKind.RECORD, structType = "Path",
                 structPackage = "ballerina/file")},
-        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.BYTE)},
+        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.BYTE),
+                        @ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )
 public class CompressToByteArray extends BlockingNativeCallableUnit {
@@ -63,7 +64,7 @@ public class CompressToByteArray extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BByteArray readBytes;
+        BValueArray readBytes;
         BMap<String, BValue> dirPathStruct = (BMap) context.getRefArgument(SRC_PATH_FIELD_INDEX);
         Path dirPath = (Path) dirPathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
         if (!dirPath.toFile().exists()) {
@@ -72,7 +73,7 @@ public class CompressToByteArray extends BlockingNativeCallableUnit {
         } else {
             try {
                 byte[] compressedBytes = compressToBlob(dirPath);
-                readBytes = new BByteArray(compressedBytes);
+                readBytes = new BValueArray(compressedBytes);
                 context.setReturnValues(readBytes);
             } catch (IOException e) {
                 context.setReturnValues(CompressionUtils.createCompressionError(context,

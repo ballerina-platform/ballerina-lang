@@ -1,8 +1,8 @@
 function variableDefaultValue () returns (int, boolean, string, float) {
-    int i;
-    boolean b;
-    string s;
-    float f;
+    int i = 0;
+    boolean b = false;
+    string s = "";
+    float f = 0.0;
 
     return (i, b, s, f);
 }
@@ -18,10 +18,10 @@ function inlineVarInit () returns (int, boolean, string, float) {
 
 
 function updateDefaultValue (int v1, boolean v3, string v4, float v5) returns (int, boolean, string, float) {
-    int i;
-    boolean b;
-    string s;
-    float f;
+    int i = 0;
+    boolean b = false;
+    string s = "";
+    float f = 0.0;
 
     i = v1;
     b = v3;

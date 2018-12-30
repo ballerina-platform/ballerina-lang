@@ -76,6 +76,11 @@ public class BPacket {
         return this;
     }
 
+    public BPacket putString(String key, String val) {
+        map.put(key, BTreeHelper.createBString(val));
+        return this;
+    }
+
     public BValue getValue() {
         return map.get(JsonSerializerConst.VALUE_TAG);
     }

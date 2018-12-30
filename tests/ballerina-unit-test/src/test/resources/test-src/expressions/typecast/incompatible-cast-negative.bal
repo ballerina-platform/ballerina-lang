@@ -3,7 +3,7 @@ type Person record {
     int age;
     Person? parent;
     json info;
-    map address;
+    map<any> address;
     int[] marks;
 };
 
@@ -11,7 +11,7 @@ type Person record {
 type Student record {
     string name;
     int age;
-    map address;
+    map<any> address;
     int[] marks;
 };
 
@@ -33,6 +33,13 @@ function intToFloatImpCast() {
     numbers = [a, b, c];
     float val1 = 160.0;
     float val2 = <float> 160;
-    int d;
+    int d = 0;
     float val3 = d;
+}
+
+function testAnyArrayToJson() returns (json|error) {
+    any[] a = [8,4,6];
+    json value;
+    value = check trap <json> a;
+    return value;
 }

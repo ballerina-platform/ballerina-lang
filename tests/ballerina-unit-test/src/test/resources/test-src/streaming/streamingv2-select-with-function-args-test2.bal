@@ -15,8 +15,6 @@
 // under the License.
 
 import ballerina/runtime;
-import ballerina/io;
-import ballerina/streams;
 
 type Teacher record {
     string name;
@@ -32,8 +30,8 @@ type TeacherOutput record{
 };
 
 int index = 0;
-stream<Teacher> inputStream;
-stream<TeacherOutput> outputStream;
+stream<Teacher> inputStream = new;
+stream<TeacherOutput> outputStream = new;
 TeacherOutput[] globalEmployeeArray = [];
 
 function startSelectQuery() returns (TeacherOutput[]) {
@@ -48,8 +46,8 @@ function startSelectQuery() returns (TeacherOutput[]) {
 
     testSelectQuery();
 
-    outputStream.subscribe(printTeachers);
-    foreach t in teachers {
+    outputStream.subscribe(function(TeacherOutput e) {printTeachers(e);});
+    foreach var t in teachers {
         inputStream.publish(t);
     }
 
@@ -57,7 +55,7 @@ function startSelectQuery() returns (TeacherOutput[]) {
     while(true) {
         runtime:sleep(500);
         count += 1;
-        if((lengthof globalEmployeeArray) == 3 || count == 10) {
+        if((globalEmployeeArray.length()) == 3 || count == 10) {
             break;
         }
     }
@@ -70,7 +68,7 @@ function testSelectQuery() {
         from inputStream
         select inputStream.name as teacherName, getDefaultAge(inputStream.age) as age
         => (TeacherOutput[] emp) {
-            foreach e in emp {
+            foreach var e in emp {
                 outputStream.publish(e);
             }
         }

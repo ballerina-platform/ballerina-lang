@@ -21,12 +21,12 @@ package org.ballerinalang.net.websub.hub;
 import io.ballerina.messaging.broker.core.BrokerException;
 import io.ballerina.messaging.broker.core.Consumer;
 import io.ballerina.messaging.broker.core.Message;
+import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.broker.BallerinaBrokerByteBuf;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.program.BLangFunctions;
 
 import java.util.Objects;
 
@@ -37,7 +37,7 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACK
  *
  * @since 0.965.0
  */
-class HubSubscriber extends Consumer {
+public class HubSubscriber extends Consumer {
 
     private final String queue;
     private final String topic;
@@ -56,8 +56,8 @@ class HubSubscriber extends Consumer {
         ProgramFile programFile = Hub.getInstance().getHubProgramFile();
         BValue content =
                 ((BallerinaBrokerByteBuf) (message.getContentChunks().get(0).getByteBuf()).unwrap()).getValue();
-        BValue[] args = {new BString(callback), subscriptionDetails, content};
-        BLangFunctions.invokeCallable(programFile.getPackageInfo(WEBSUB_PACKAGE)
+        BValue[] args = {new BString(getCallback()), getSubscriptionDetails(), content};
+        BVMExecutor.executeFunction(programFile, programFile.getPackageInfo(WEBSUB_PACKAGE)
                                      .getFunctionInfo("distributeContent"), args);
     }
 
@@ -85,13 +85,25 @@ class HubSubscriber extends Consumer {
     public boolean equals(Object subscriberObject) {
         if (subscriberObject instanceof HubSubscriber) {
             HubSubscriber subscriber = (HubSubscriber) subscriberObject;
-            return subscriber.topic.equals(topic) && subscriber.callback.equals(callback);
+            return subscriber.getTopic().equals(getTopic()) && subscriber.getCallback().equals(getCallback());
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(topic, callback);
+        return Objects.hash(getTopic(), getCallback());
+    }
+
+    public String getTopic() {
+        return topic;
+    }
+
+    public String getCallback() {
+        return callback;
+    }
+
+    public BMap<String, BValue> getSubscriptionDetails() {
+        return subscriptionDetails;
     }
 }

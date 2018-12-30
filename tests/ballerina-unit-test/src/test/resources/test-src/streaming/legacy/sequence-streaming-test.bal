@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/runtime;
-import ballerina/io;
 
 type DeviceTempInfo record {
     int deviceID;
@@ -28,8 +27,8 @@ type TempDiffInfo record {
     float peakTemp;
 };
 
-stream<DeviceTempInfo> tempStream;
-stream<TempDiffInfo> tempDiffInfoStream;
+stream<DeviceTempInfo> tempStream = new;
+stream<TempDiffInfo> tempDiffInfoStream = new;
 
 TempDiffInfo[] tempDiffInfoArray = [];
 int index = 0;
@@ -40,7 +39,7 @@ function deployStreamingRules() {
         tempStream where e2[e2.length-1].temp > temp as e3
         select e1.temp as initialTemp, e2[e2.length-1].temp as peakTemp
         => (TempDiffInfo[] tempDiffInfos) {
-            foreach t in tempDiffInfos {
+            foreach var t in tempDiffInfos {
                 tempDiffInfoStream.publish(t);
             }
         }
@@ -79,7 +78,7 @@ function runSequenceQuery1() returns(TempDiffInfo[]) {
     while(true) {
         runtime:sleep(500);
         count += 1;
-        if((lengthof tempDiffInfoArray) > 1 || count == 10) {
+        if((tempDiffInfoArray.length()) > 1 || count == 10) {
             break;
         }
     }
@@ -94,4 +93,3 @@ function addToGlobalTempDiffArray(TempDiffInfo s) {
     tempDiffInfoArray[index] = s;
     index = index + 1;
 }
-

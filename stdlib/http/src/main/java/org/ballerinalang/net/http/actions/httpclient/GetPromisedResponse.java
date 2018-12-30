@@ -19,12 +19,11 @@ package org.ballerinalang.net.http.actions.httpclient;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
@@ -41,18 +40,8 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "getPromisedResponse",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = HttpConstants.CALLER_ACTIONS,
-                structPackage = "ballerina/http"),
-        args = {
-                @Argument(name = "client", type = TypeKind.OBJECT),
-                @Argument(name = "promise", type = TypeKind.OBJECT, structType = "PushPromise",
-                        structPackage = "ballerina/http")
-        },
-        returnType = {
-                @ReturnType(type = TypeKind.OBJECT, structType = "InResponse", structPackage = "ballerina/http"),
-                @ReturnType(type = TypeKind.RECORD, structType = "HttpConnectorError",
-                        structPackage = "ballerina/http"),
-        }
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = HttpConstants.HTTP_CALLER,
+                structPackage = "ballerina/http")
 )
 public class GetPromisedResponse extends AbstractHTTPAction {
 
@@ -66,8 +55,8 @@ public class GetPromisedResponse extends AbstractHTTPAction {
             throw new BallerinaException("invalid push promise");
         }
         BMap<String, BValue> bConnector = (BMap<String, BValue>) context.getRefArgument(0);
-        HttpClientConnector clientConnector =
-                (HttpClientConnector) bConnector.getNativeData(HttpConstants.CALLER_ACTIONS);
+        HttpClientConnector clientConnector = (HttpClientConnector) ((BMap<String, BValue>) bConnector.values()[0])
+                .getNativeData(HttpConstants.HTTP_CLIENT);
         clientConnector.getPushResponse(http2PushPromise).
                 setPushResponseListener(new PushResponseListener(dataContext), http2PushPromise.getPromisedStreamId());
     }
@@ -88,7 +77,7 @@ public class GetPromisedResponse extends AbstractHTTPAction {
 
         @Override
         public void onError(Throwable throwable) {
-            BMap<String, BValue> httpConnectorError =  HttpUtil.getError(dataContext.context, throwable);
+            BError httpConnectorError = HttpUtil.getError(dataContext.context, throwable);
             dataContext.notifyInboundResponseStatus(null, httpConnectorError);
         }
     }

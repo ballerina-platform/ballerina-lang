@@ -14,9 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
 import ballerina/runtime;
-import ballerina/streams;
 
 type Teacher record {
     string name;
@@ -31,8 +29,8 @@ type TeacherOutput record {
 };
 
 int index = 0;
-stream<Teacher> inputStreamUniqueLengthTest3;
-stream<TeacherOutput> outputStreamUniqueLengthTest3;
+stream<Teacher> inputStreamUniqueLengthTest3 = new;
+stream<TeacherOutput> outputStreamUniqueLengthTest3 = new;
 TeacherOutput[] globalEmployeeArray = [];
 
 function startUniqueLengthwindowTest3() returns TeacherOutput[] {
@@ -48,8 +46,8 @@ function startUniqueLengthwindowTest3() returns TeacherOutput[] {
 
     testUniqueLengthwindow();
 
-    outputStreamUniqueLengthTest3.subscribe(printTeachers);
-    foreach t in teachers {
+    outputStreamUniqueLengthTest3.subscribe(function(TeacherOutput e) {printTeachers(e);});
+    foreach var t in teachers {
         inputStreamUniqueLengthTest3.publish(t);
         runtime:sleep(500);
     }
@@ -58,23 +56,21 @@ function startUniqueLengthwindowTest3() returns TeacherOutput[] {
     while(true) {
         runtime:sleep(500);
         count += 1;
-        if((lengthof globalEmployeeArray) == 3 || count == 10) {
+        if((globalEmployeeArray.length()) == 3 || count == 10) {
             break;
         }
     }
-
-    io:println(globalEmployeeArray);
     return globalEmployeeArray;
 }
 
 function testUniqueLengthwindow() {
 
     forever {
-        from inputStreamUniqueLengthTest3 window uniqueLengthWindow(inputStreamUniqueLengthTest3.age, 4) as input
-        select input.timestamp, input.name, count() as count
+        from inputStreamUniqueLengthTest3 window uniqueLength(inputStreamUniqueLengthTest3.age, 4) as input
+        select input.name, count() as count
         group by input.school
         => (TeacherOutput [] emp) {
-            foreach e in emp {
+            foreach var e in emp {
                 outputStreamUniqueLengthTest3.publish(e);
             }
         }

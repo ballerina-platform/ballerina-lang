@@ -55,10 +55,10 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.DOT_BALLE
 public class BinaryFileWriter {
     private static final CompilerContext.Key<BinaryFileWriter> BINARY_FILE_WRITER_KEY =
             new CompilerContext.Key<>();
+    private static PrintStream outStream = System.out;
 
     private final CodeGenerator codeGenerator;
     private final SourceDirectory sourceDirectory;
-    private static PrintStream outStream = System.out;
 
     public static BinaryFileWriter getInstance(CompilerContext context) {
         BinaryFileWriter binaryFileWriter = context.get(BINARY_FILE_WRITER_KEY);

@@ -16,39 +16,61 @@
 
 # The gRPC client endpoint provides the capability for initiating contact with a remote gRPC service. The API it
 # provides includes functions to send request/error messages.
-public type Client object {
+public type Client client object {
 
     # Gets invoked to initialize the endpoint. During initialization, configurations provided through the `config`
     # record is used for endpoint initialization.
     #
+    # + url - The server url.
     # + config - - The ClientEndpointConfig of the endpoint.
-    public extern function init(ClientEndpointConfig config);
+    public extern function init(string url, ClientEndpointConfig config);
 
-    # Gets called every time a service attaches itself to this endpoint - also happens at module init time.
-    # Not supported in client endpoint.
+    # Calls when initializing client endpoint with service descriptor data extracted from proto file.
     #
-    # + serviceType - - The type of the service to be registered.
-    public extern function register(typedesc serviceType);
+    # + stubType - Service Stub type. possible values: blocking, nonblocking.
+    # + descriptorKey - Proto descriptor key. Key of proto descriptor.
+    # + descriptorMap - Proto descriptor map. descriptor map with all dependent descriptors.
+    # + return - Returns an error if encounters an error while initializing the stub, returns nill otherwise.
+    public extern function initStub(string stubType, string descriptorKey, map<any> descriptorMap)
+                               returns error?;
 
-    # Starts the registered service. Not supported in client endpoint.
-    public extern function start();
-
-    # Stops the registered. Not supported in client endpoint.
-    public extern function stop();
-
-    # Returns the client connection which is used to send message to server.
+    # Calls when executing blocking call with gRPC service.
     #
-    # + return - - Client connection.
-    public extern function getCallerActions() returns GrpcClient;
+    # + methodID - Remote service method id.
+    # + payload - Request message. Message type varies with remote service method parameter.
+    # + headers - Optional headers parameter. Passes header value if needed. Default sets to nil.
+    # + return - Returns response message and headers if executes successfully, error otherwise.
+    public remote extern function blockingExecute(string methodID, any payload, Headers? headers = ())
+                               returns ((any, Headers)|error);
+
+    # Calls when executing non-blocking call with gRPC service.
+    #
+    # + methodID - Remote service method id.
+    # + payload - Request message. Message type varies with remote service method parameter..
+    # + listenerService - Call back listener service. This service listens the response message from service.
+    # + headers - Optional headers parameter. Passes header value if needed. Default sets to nil.
+    # + return - Returns an error if encounters an error while sending the request, returns nil otherwise.
+    public remote extern function nonBlockingExecute(string methodID, any payload, service listenerService,
+                                              Headers? headers = ()) returns error?;
+
+
+    # Calls when executing streaming call with gRPC service.
+    #
+    # + methodID - Remote service method id.
+    # + listenerService - Call back listener service. This service listens the response message from service.
+    # + headers - Optional headers parameter. Passes header value if needed. Default sets to nil.
+    # + return - Returns client connection if executes successfully, error otherwise.
+    public remote extern function streamingExecute(string methodID, service listenerService, Headers? headers = ())
+                               returns StreamingClient|error;
 };
 
 # Represents client endpoint configuration.
 #
-# + url - The server url.
 # + secureSocket - The SSL configurations for the client endpoint.
+# + timeoutMillis - The maximum time to wait (in milliseconds) for a response before closing the connection.
 public type ClientEndpointConfig record {
-    string url;
-    SecureSocket? secureSocket;
+    SecureSocket? secureSocket = ();
+    int timeoutMillis = 60000;
     !...
 };
 
@@ -68,17 +90,17 @@ public type ClientEndpointConfig record {
 # + shareSession - Enable/disable new ssl session creation.
 # + ocspStapling - Enable/disable ocsp stapling.
 public type SecureSocket record {
-    TrustStore? trustStore;
-    KeyStore? keyStore;
-    string certFile;
-    string keyFile;
-    string keyPassword;
-    string trustedCertFile;
-    Protocols? protocol;
-    ValidateCert? certValidation;
-    string[] ciphers;
+    TrustStore? trustStore = ();
+    KeyStore? keyStore = ();
+    string certFile = "";
+    string keyFile = "";
+    string keyPassword = "";
+    string trustedCertFile = "";
+    Protocols? protocol = ();
+    ValidateCert? certValidation = ();
+    string[] ciphers = [];
     boolean verifyHostname = true;
     boolean shareSession = true;
-    boolean ocspStapling;
+    boolean ocspStapling = false;
     !...
 };

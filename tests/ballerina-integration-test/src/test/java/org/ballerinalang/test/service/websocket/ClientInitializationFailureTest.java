@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Test whether resource failure during client initialization causes a close frame to be sent.
  */
-@Test(groups = "websocket-test")
+@Test(groups = {"websocket-test"})
 public class ClientInitializationFailureTest extends WebSocketTestCommons {
 
     private WebSocketTestClient client;
@@ -48,12 +48,12 @@ public class ClientInitializationFailureTest extends WebSocketTestCommons {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         client.setCountDownLatch(countDownLatch);
         client.handshake();
-        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        countDownLatch.await(10, TimeUnit.SECONDS);
         CloseWebSocketFrame closeWebSocketFrame = client.getReceivedCloseFrame();
 
         Assert.assertNotNull(closeWebSocketFrame);
         Assert.assertEquals(closeWebSocketFrame.statusCode(), 1011);
-        Assert.assertEquals(closeWebSocketFrame.reasonText(), "Unexpected condition");
+        Assert.assertEquals(closeWebSocketFrame.reasonText(), "Connection refused: localhost/127.0.0.1:15500");
 
         closeWebSocketFrame.release();
     }

@@ -14,68 +14,74 @@ function startService() {
 }
 function testFunc() {
     // Invoking the main function.
-    endpoint http:Client httpEndpoint { url: "http://localhost:9090" };
+    http:Client httpEndpoint = new("http://localhost:9090");
     // Check whether the server has started.
     //test:assertTrue(serviceStarted, msg = "Unable to start the service");
 
-    string response1 = "Hello World!!!";
+    string responseString = "Hello World!!!";
     // Send a GET request to the specified endpoint
-    var response = httpEndpoint->get("/cb");
-    match response {
-        http:Response resp => {
-            var res = check resp.getTextPayload();
-            test:assertEquals(res, response1);
+    var response1 = httpEndpoint->get("/cb");
+    if (response1 is http:Response) {
+        var result = response1.getTextPayload();
+        if (result is string) {
+            test:assertEquals(result, responseString);
+        } else {
+            test:assertFail(msg = "Invalid response message:");
         }
-        error err => test:assertFail(msg = "Failed to call the endpoint:");
+    } else {
+        test:assertFail(msg = "Failed to call the endpoint:");
     }
 
     // Send a GET request to the specified endpoint.
     var response2 = httpEndpoint->get("/cb");
-    match response2 {
-        http:Response resp => {
-            var res = check resp.getTextPayload();
-            test:assertEquals(res, response1);
+    if (response2 is http:Response) {
+        var result = response2.getTextPayload();
+        if (result is string) {
+            test:assertEquals(result, responseString);
+        } else {
+            test:assertFail(msg = "Invalid response message:");
         }
-        error err => test:assertFail(msg = "Failed to call the endpoint:");
+    } else {
+        test:assertFail(msg = "Failed to call the endpoint:");
     }
 
     // Send a GET request to the specified endpoint.
     var response3 = httpEndpoint->get("/cb");
-    match response3 {
-        http:Response resp => {
-            var res = check resp.getTextPayload();
-            test:assertEquals(res, "Internal error occurred while processing the request.");
+    if (response3 is http:Response) {
+        var result = response3.getTextPayload();
+        if (result is string) {
+            test:assertEquals(result, "Internal error occurred while processing the request.");
+        } else {
+            test:assertFail(msg = "Invalid response message:");
         }
-        error err => test:assertFail(msg = "Failed to call the endpoint:");
+    } else {
+        test:assertFail(msg = "Failed to call the endpoint:");
     }
 
     // Send a GET request to the specified endpoint.
     var response4 = httpEndpoint->get("/cb");
-    match response4 {
-        http:Response resp => {
-            var res = check resp.getTextPayload();
-        }
-        error err => test:assertFail(msg = "Failed to call the endpoint:");
+    if (response4 is http:Response) {
+        var result = response4.getTextPayload();
+    } else {
+        test:assertFail(msg = "Failed to call the endpoint:");
     }
 
     // Send a GET request to the specified endpoint.
     var response5 = httpEndpoint->get("/cb");
-    match response5 {
-        http:Response resp => {
-            var res = check resp.getTextPayload();
-        }
-        error err => test:assertFail(msg = "Failed to call the endpoint:");
+    if (response5 is http:Response) {
+        var result = response5.getTextPayload();
+    } else {
+        test:assertFail(msg = "Failed to call the endpoint:");
     }
 
     io:println("Reached");
 
     // Send a GET request to the specified endpoint.
     var response6 = httpEndpoint->get("/cb");
-    match response6 {
-        http:Response resp => {
-            var res = check resp.getTextPayload();
-        }
-        error err => test:assertFail(msg = "Failed to call the endpoint:");
+    if (response6 is http:Response) {
+        var result = response6.getTextPayload();
+    } else {
+        test:assertFail(msg = "Failed to call the endpoint:");
     }
 }
 

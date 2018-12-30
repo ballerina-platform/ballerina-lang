@@ -30,7 +30,6 @@ import org.testng.annotations.Test;
  */
 public class FunctionPointersNegativeTest {
 
-
     @Test()
     public void testFunctionPointerAsVariable() {
         CompileResult result =
@@ -53,8 +52,7 @@ public class FunctionPointersNegativeTest {
     public void testFPInStruct() {
         CompileResult result = BCompileUtil.compile("test-src/expressions/lambda/negative/fp-struct-negative.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "undefined field 'getFullName' in record 'Person'", 17, 16);
-
+        BAssertUtil.validateError(result, 0, "function invocation on type 'anydata' is not supported", 17, 16);
     }
 
     @Test()
@@ -62,6 +60,38 @@ public class FunctionPointersNegativeTest {
         CompileResult result =
                 BCompileUtil.compile("test-src/expressions/lambda/negative/fp-struct-incorrect-arg-negative.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "incompatible types: expected 'string', found 'Person'", 32, 39);
+        BAssertUtil.validateError(result, 0, "incompatible types: expected 'string', found 'Person'", 32, 44);
+    }
+
+    @Test()
+    public void testFPWithNoImport() {
+        CompileResult result =
+                BCompileUtil.compile("test-src/expressions/lambda/negative/fp-with-import-negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 5);
+        int i = -1;
+        BAssertUtil.validateError(result, ++i, "undefined module 'streams'", 19, 5);
+        BAssertUtil.validateError(result, ++i, "unknown type 'Select'", 19, 5);
+        BAssertUtil.validateError(result, ++i, "undefined module 'streams'", 19, 29);
+        BAssertUtil.validateError(result, ++i, "undefined function 'createSelect'", 19, 29);
+        BAssertUtil.validateError(result, ++i, "undefined symbol 'outputProcess'", 19, 50);
+//        BAssertUtil.validateError(result, ++i, "array index out of range: index: '3', size: '2'", 23, 29); #12122
+    }
+
+    @Test()
+    public void testFPInvalidInvocation() {
+        CompileResult result = BCompileUtil.compile("test-src/expressions/lambda/negative" +
+                "/fp_invalid_invocation_negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 10);
+        int i = 0;
+        BAssertUtil.validateError(result, i++, "undefined function 'Person.getFullName'", 35, 16);
+        BAssertUtil.validateError(result, i++, "undefined function 'Person.getName'", 36, 16);
+        BAssertUtil.validateError(result, i++, "undefined function 'f1'", 39, 5);
+        BAssertUtil.validateError(result, i++, "undefined function 'f2'", 42, 9);
+        BAssertUtil.validateError(result, i++, "undefined field 'getFname' in object 'Employee'", 45, 14);
+        BAssertUtil.validateError(result, i++, "undefined function 'f3'", 46, 9);
+        BAssertUtil.validateError(result, i++, "undefined function 'f4'", 49, 9);
+        BAssertUtil.validateError(result, i++, "undefined function 'getLname' in object 'Employee'", 51, 9);
+        BAssertUtil.validateError(result, i++, "undefined field 'getFname' in object 'Employee'", 76, 14);
+        BAssertUtil.validateError(result, i++, "undefined field 'getFname' in object 'Employee'", 85, 9);
     }
 }

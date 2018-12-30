@@ -29,7 +29,10 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+
+import java.nio.ByteOrder;
 
 /**
  * Test data io operations.
@@ -44,71 +47,81 @@ public class DataChannelTest {
         currentDirectoryPath = System.getProperty("user.dir") + "/target";
     }
 
-    @Test(description = "read and write fixed size integers")
-    public void processFixedInteger() {
+    @Test(description = "read and write fixed size integers", dataProvider = "Endianness")
+    public void processFixedInteger(ByteOrder order) {
         String sourceToWrite = currentDirectoryPath + "/integer.bin";
         //Will initialize the channel
         int value = 123;
-        BValue[] args = {new BInteger(value), new BString(sourceToWrite)};
+        BValue[] args = {new BInteger(value),
+                new BString(sourceToWrite),
+                new BString(order.toString())};
         BRunUtil.invokeStateful(dataChannel, "testWriteFixedSignedInt", args);
 
-        BValue[] args2 = {new BString(sourceToWrite)};
+        BValue[] args2 = {new BString(sourceToWrite), new BString(order.toString())};
         BValue[] result = BRunUtil.invokeStateful(dataChannel, "testReadFixedSignedInt", args2);
 
         Assert.assertEquals(value, ((BInteger) result[0]).intValue());
     }
 
-    @Test(description = "read and write var integers")
-    public void processVarInteger() {
+    @Test(description = "read and write var integers", dataProvider = "Endianness")
+    public void processVarInteger(ByteOrder order) {
         String sourceToWrite = currentDirectoryPath + "/varint.bin";
         //Will initialize the channel
         int value = 2;
-        BValue[] args = {new BInteger(value), new BString(sourceToWrite)};
+        BValue[] args = {new BInteger(value), new BString(sourceToWrite), new BString(order.toString())};
         BRunUtil.invokeStateful(dataChannel, "testWriteVarInt", args);
 
-        BValue[] args2 = {new BString(sourceToWrite)};
+        BValue[] args2 = {new BString(sourceToWrite), new BString(order.toString())};
         BValue[] result = BRunUtil.invokeStateful(dataChannel, "testReadVarInt", args2);
 
         Assert.assertEquals(value, ((BInteger) result[0]).intValue());
     }
 
-    @Test(description = "read and write fixed size float values")
-    public void processFixedFloat() {
+    @Test(description = "read and write fixed size float values", dataProvider = "Endianness")
+    public void processFixedFloat(ByteOrder order) {
         String sourceToWrite = currentDirectoryPath + "/float.bin";
         //Will initialize the channel
         double value = 1359494.69;
-        BValue[] args = {new BFloat(value), new BString(sourceToWrite)};
+        BValue[] args = {new BFloat(value), new BString(sourceToWrite), new BString(order.toString())};
         BRunUtil.invokeStateful(dataChannel, "testWriteFixedFloat", args);
 
-        BValue[] args2 = {new BString(sourceToWrite)};
+        BValue[] args2 = {new BString(sourceToWrite), new BString(order.toString())};
         BValue[] result = BRunUtil.invokeStateful(dataChannel, "testReadFixedFloat", args2);
 
         Assert.assertEquals(value, ((BFloat) result[0]).floatValue());
     }
 
-    @Test(description = "read and write bool")
-    public void processBool() {
+    @Test(description = "read and write bool", dataProvider = "Endianness")
+    public void processBool(ByteOrder order) {
         String sourceToWrite = currentDirectoryPath + "/boolean.bin";
-        BValue[] args = {new BBoolean(false), new BString(sourceToWrite)};
+        BValue[] args = {new BBoolean(false), new BString(sourceToWrite), new BString(order.toString())};
         BRunUtil.invokeStateful(dataChannel, "testWriteBool", args);
 
-        BValue[] args2 = {new BString(sourceToWrite)};
+        BValue[] args2 = {new BString(sourceToWrite), new BString(order.toString())};
         BValue[] result = BRunUtil.invokeStateful(dataChannel, "testReadBool", args2);
 
         Assert.assertEquals(false, ((BBoolean) result[0]).booleanValue());
     }
 
-    @Test(description = "read and write string")
-    public void processString() {
+    @Test(description = "read and write string", dataProvider = "Endianness")
+    public void processString(ByteOrder order) {
         String sourceToWrite = currentDirectoryPath + "/string.bin";
         String content = "Ballerina";
         String encoding = "UTF-8";
-        BValue[] args = {new BString(sourceToWrite), new BString(content), new BString(encoding)};
+        BValue[] args = {new BString(sourceToWrite), new BString(content), new BString(encoding),
+                new BString(order.toString())};
         BRunUtil.invokeStateful(dataChannel, "testWriteString", args);
 
-        BValue[] args2 = {new BString(sourceToWrite), new BInteger(content.getBytes().length), new BString(encoding)};
+        BValue[] args2 = {new BString(sourceToWrite), new BInteger(content.getBytes().length), new BString(encoding),
+                new BString(order.toString())};
         BValue[] result = BRunUtil.invokeStateful(dataChannel, "testReadString", args2);
 
         Assert.assertEquals(content, result[0].stringValue());
     }
+
+    @DataProvider(name = "Endianness")
+    public Object[][] endianness() {
+        return new Object[][]{{ByteOrder.BIG_ENDIAN}, {ByteOrder.LITTLE_ENDIAN}};
+    }
+
 }
