@@ -628,8 +628,14 @@ public class CodeGenerator extends BLangNodeVisitor {
                 double doubleVal = literalExpr.value instanceof String ?
                         Double.parseDouble((String) literalExpr.value) :
                         (Double) literalExpr.value;
-                int floatCPEntryIndex = currentPkgInfo.addCPEntry(new FloatCPEntry(doubleVal));
-                emit(InstructionCodes.FCONST, getOperand(floatCPEntryIndex), regIndex);
+                if (doubleVal == 0 || doubleVal == 1 || doubleVal == 2 ||
+                        doubleVal == 3 || doubleVal == 4 || doubleVal == 5) {
+                    opcode = InstructionCodes.FCONST_0 + (int) doubleVal;
+                    emit(opcode, regIndex);
+                } else {
+                    int floatCPEntryIndex = currentPkgInfo.addCPEntry(new FloatCPEntry(doubleVal));
+                    emit(InstructionCodes.FCONST, getOperand(floatCPEntryIndex), regIndex);
+                }
                 break;
 
             case TypeTags.DECIMAL:
