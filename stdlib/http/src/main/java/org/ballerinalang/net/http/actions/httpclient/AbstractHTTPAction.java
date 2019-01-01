@@ -111,7 +111,7 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
 
         HttpCarbonMessage requestMsg = HttpUtil
                 .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(true));
-        Boolean nonEntityBodyReq = context.getBooleanArgument(0);
+        Boolean nonEntityBodyReq = isNonEntityBodyRequest(requestStruct);
 
         HttpUtil.checkEntityAvailability(context, requestStruct);
         HttpUtil.enrichOutboundMessage(requestMsg, requestStruct);
@@ -270,7 +270,7 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
             if (dirty(requestStruct)) {
                 cleanOutboundReq(outboundRequestMsg, requestStruct, contentType);
             } else {
-                requestStruct.put(HttpConstants.REQUEST_REUSE_STATUS_INDEX, new BBoolean(HttpConstants.DIRTY_REQUEST));
+                requestStruct.put(HttpConstants.REQUEST_REUSE_STATUS_FIELD, new BBoolean(HttpConstants.DIRTY_REQUEST));
             }
         }
     }
@@ -291,9 +291,15 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
         }
     }
 
+
+    private static boolean isNonEntityBodyRequest(BMap<String, BValue> requestStruct) {
+        BValue nonEntityBodyReq = requestStruct.get(HttpConstants.REQUEST_NON_ENTITY_BODY_FIELD);
+        return ((BBoolean) nonEntityBodyReq).booleanValue();
+    }
+
     private boolean dirty(BMap<String, BValue> requestStruct) {
-        BValue isDirty = requestStruct.get(HttpConstants.REQUEST_REUSE_STATUS_INDEX);
-        return ((BBoolean) isDirty).booleanValue() == HttpConstants.DIRTY_REQUEST;
+        BValue isDirty = requestStruct.get(HttpConstants.REQUEST_REUSE_STATUS_FIELD);
+        return ((BBoolean) isDirty).booleanValue();
     }
 
     private void sendOutboundRequest(DataContext dataContext, HttpCarbonMessage outboundRequestMsg, boolean async) {

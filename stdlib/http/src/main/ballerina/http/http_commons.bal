@@ -196,6 +196,7 @@ public extern function parseHeader (string headerValue) returns (string, map<any
 function buildRequest(Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns Request {
     Request request = new;
     if (message is ()) {
+        request.nonEntityBody = true;
         return request;
     } else if (message is Request) {
         request = message;

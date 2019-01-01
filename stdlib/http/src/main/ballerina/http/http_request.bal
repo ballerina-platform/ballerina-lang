@@ -38,10 +38,11 @@ public type Request object {
 
     private mime:Entity entity;
     private boolean dirtyRequest;
-    private boolean nonEntityBodyRequest;
+    boolean nonEntityBody;
 
     public function __init() {
         self.dirtyRequest = false;
+        self.nonEntityBody = false;
         self.entity = self.createNewEntity();
     }
 

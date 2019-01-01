@@ -222,6 +222,8 @@ public class HttpConstants {
     public static final String REQUEST_USER_AGENT_FIELD = "userAgent";
     public static final String REQUEST_EXTRA_PATH_INFO_FIELD = "extraPathInfo";
     public static final String REQUEST_CACHE_CONTROL_FIELD = "cacheControl";
+    public static final String REQUEST_REUSE_STATUS_FIELD = "dirtyRequest";
+    public static final String REQUEST_NON_ENTITY_BODY_FIELD = "nonEntityBody";
 
     //Response struct field names
     public static final String RESPONSE_STATUS_CODE_FIELD = "statusCode";
@@ -395,7 +397,6 @@ public class HttpConstants {
     public static final String NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER = "NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER";
 
     public static final int REQUEST_STRUCT_INDEX = 1;
-    public static final String REQUEST_REUSE_STATUS_INDEX = "dirtyRequest";
     public static final boolean DIRTY_REQUEST = true;
     public static final String NON_ENTITY_BODY_REQUEST = "NON_ENTITY_BODY_REQUEST";
 
