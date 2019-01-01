@@ -89,10 +89,13 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
+import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
@@ -396,17 +399,36 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void checkErrors(BLangTypeDefinition unresolvedType, BLangType currentTypeNode, List<String> visitedNodes,
-            List<LocationData> encounteredUnknownTypes) {
+                             List<LocationData> encounteredUnknownTypes) {
         String unresolvedTypeNodeName = unresolvedType.name.value;
-        // Type node can be either user defined type or union type. Finite types will not be added to the
-        // unresolved list because they can be resolved.
-        if (currentTypeNode.getKind() == NodeKind.UNION_TYPE_NODE) {
+        //// Type node can be either user defined type or union type. Finite types will not be added to the
+        //// unresolved list because they can be resolved.
+
+        if (currentTypeNode.getKind() == NodeKind.ARRAY_TYPE) {
+            checkErrors(unresolvedType, ((BLangArrayType) currentTypeNode).elemtype, visitedNodes,
+                    encounteredUnknownTypes);
+        } else if (currentTypeNode.getKind() == NodeKind.UNION_TYPE_NODE) {
             // If the current type node is a union type node, we need to check all member nodes.
             List<BLangType> memberTypeNodes = ((BLangUnionTypeNode) currentTypeNode).memberTypeNodes;
             for (BLangType memberTypeNode : memberTypeNodes) {
-                if (memberTypeNode.getKind() == NodeKind.UNION_TYPE_NODE) {
+                if (memberTypeNode.getKind() == NodeKind.ARRAY_TYPE) {
+                    checkErrors(unresolvedType, ((BLangArrayType) memberTypeNode).elemtype, visitedNodes,
+                            encounteredUnknownTypes);
+                } else if (memberTypeNode.getKind() == NodeKind.UNION_TYPE_NODE) {
                     // Recursively check all members.
                     checkErrors(unresolvedType, memberTypeNode, visitedNodes, encounteredUnknownTypes);
+                } else if (memberTypeNode.getKind() == NodeKind.FINITE_TYPE_NODE) {
+                    // This situation cannot occur since we know all the types of a finite type.
+                } else if (memberTypeNode.getKind() == NodeKind.TUPLE_TYPE_NODE) {
+                    // Recursively check all members.
+                    checkErrors(unresolvedType, memberTypeNode, visitedNodes, encounteredUnknownTypes);
+                } else if (memberTypeNode.getKind() == NodeKind.BUILT_IN_REF_TYPE) {
+                    // Todo
+                } else if (memberTypeNode.getKind() == NodeKind.CONSTRAINED_TYPE) {
+                    checkErrors(unresolvedType, ((BLangConstrainedType) memberTypeNode).constraint, visitedNodes,
+                            encounteredUnknownTypes);
+                } else if (memberTypeNode.getKind() == NodeKind.FUNCTION_TYPE) {
+                    // Todo
                 } else if (memberTypeNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
                     String memberTypeNodeName = ((BLangUserDefinedType) memberTypeNode).typeName.value;
                     // Skip all types defined as anonymous types.
@@ -425,8 +447,34 @@ public class SymbolEnter extends BLangNodeVisitor {
                     } else {
                         checkErrors(unresolvedType, memberTypeNode, visitedNodes, encounteredUnknownTypes);
                     }
+                } else if (memberTypeNode.getKind() == NodeKind.ENDPOINT_TYPE) {
+                    // Todo
+                } else if (memberTypeNode.getKind() == NodeKind.VALUE_TYPE) {
+                    // Todo
+                } else if (memberTypeNode.getKind() == NodeKind.RECORD_TYPE) {
+                    // Todo
+                } else if (memberTypeNode.getKind() == NodeKind.OBJECT_TYPE) {
+                    // Todo
+                } else if (memberTypeNode.getKind() == NodeKind.ERROR_TYPE) {
+                    // Todo
+                } else {
+                    throw new RuntimeException("Unhandled type kind: " + currentTypeNode.getKind());
                 }
             }
+        } else if (currentTypeNode.getKind() == NodeKind.FINITE_TYPE_NODE) {
+            // This situation cannot occur since we know all the types of a finite type.
+        } else if (currentTypeNode.getKind() == NodeKind.TUPLE_TYPE_NODE) {
+            List<BLangType> memberTypeNodes = ((BLangTupleTypeNode) currentTypeNode).memberTypeNodes;
+            for (BLangType memberTypeNode : memberTypeNodes) {
+                checkErrors(unresolvedType, memberTypeNode, visitedNodes, encounteredUnknownTypes);
+            }
+        } else if (currentTypeNode.getKind() == NodeKind.BUILT_IN_REF_TYPE) {
+            // Todo
+        } else if (currentTypeNode.getKind() == NodeKind.CONSTRAINED_TYPE) {
+            checkErrors(unresolvedType, ((BLangConstrainedType) currentTypeNode).constraint, visitedNodes,
+                    encounteredUnknownTypes);
+        } else if (currentTypeNode.getKind() == NodeKind.FUNCTION_TYPE) {
+            // Todo
         } else if (currentTypeNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
             String currentTypeNodeName = ((BLangUserDefinedType) currentTypeNode).typeName.value;
             if (unresolvedTypeNodeName.equals(currentTypeNodeName)) {
@@ -481,6 +529,18 @@ public class SymbolEnter extends BLangNodeVisitor {
                     }
                 }
             }
+        } else if (currentTypeNode.getKind() == NodeKind.ENDPOINT_TYPE) {
+            // Todo
+        } else if (currentTypeNode.getKind() == NodeKind.VALUE_TYPE) {
+            // Todo
+        } else if (currentTypeNode.getKind() == NodeKind.RECORD_TYPE) {
+            // Todo
+        } else if (currentTypeNode.getKind() == NodeKind.OBJECT_TYPE) {
+            // Do nothing
+        } else if (currentTypeNode.getKind() == NodeKind.ERROR_TYPE) {
+            // Do nothing
+        } else {
+            throw new RuntimeException("Unhandled type kind: " + currentTypeNode.getKind());
         }
     }
 
