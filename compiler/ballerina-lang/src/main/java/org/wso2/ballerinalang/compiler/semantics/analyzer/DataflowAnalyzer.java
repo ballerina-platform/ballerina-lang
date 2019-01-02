@@ -262,18 +262,18 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 sortedListOfNodes.add(topLevelNode);
             }
         });
-        mapTopLevelNodeToSymbol(pkgNode.globalVars);
+        populateGlobalVarRefPositionMap(pkgNode.globalVars);
         sortedListOfNodes.forEach(topLevelNode -> analyzeNode((BLangNode) topLevelNode, env));
         pkgNode.getTestablePkgs().forEach(testablePackage -> visit((BLangPackage) testablePackage));
-        analyzeTopLevelNodeReferencePatterns(pkgNode, this.globalVarSymbolRefPositions, dlog);
+        analyzeGlobalVariableReferencePatterns(pkgNode, this.globalVarSymbolRefPositions, dlog);
         pkgNode.completedPhases.add(CompilerPhase.DATAFLOW_ANALYZE);
     }
 
-    private void analyzeTopLevelNodeReferencePatterns(BLangPackage pkgNode,
-                                                      Map<BSymbol, List<RefPosition>> globalVarSymbolRefPositions,
-                                                      BLangDiagnosticLog dlog) {
+    private void analyzeGlobalVariableReferencePatterns(BLangPackage pkgNode,
+                                                        Map<BSymbol, List<RefPosition>> globalVarSymbolRefPositions,
+                                                        BLangDiagnosticLog dlog) {
 
-        List<List<Integer>> graph = TarjanSccSolverAdjacencyList.createGraph(pkgNode.globalVars.size());
+        TarjanSccSolverAdjacencyList graph = TarjanSccSolverAdjacencyList.createGraph(pkgNode.globalVars.size());
 
         boolean forwardRefFound = false;
         for (BLangSimpleVariable globalVar : pkgNode.globalVars) {
@@ -289,7 +289,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
             for (RefPosition refPosition : accessedSequence) {
                 DefPosition position = globalVarSymbolDefPositions.get(refPosition.dependentSymbol);
-                TarjanSccSolverAdjacencyList.addEdge(graph, position.refId, defPosition.refId);
+                graph.addEdge(position.refId, defPosition.refId);
             }
         }
 
@@ -297,8 +297,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        TarjanSccSolverAdjacencyList solver = new TarjanSccSolverAdjacencyList(graph);
-        Map<Integer, List<Integer>> multimap = solver.getSCCs();
+        Map<Integer, List<Integer>> multimap = graph.getSCCs();
 
         // If cyclic references are found, we can't reorder, exit with error.
         if (findCyclicDependencies(multimap, pkgNode.globalVars)) {
@@ -308,7 +307,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         // Sort global variable definitions.
         // Tarjan's algorithm as a by product topologically sorts the graph.
         List<BLangSimpleVariable> sorted = new ArrayList<>();
-        for (Integer index : solver.dependencyOrder) {
+        for (Integer index : graph.dependencyOrder) {
             sorted.add(pkgNode.globalVars.get(index));
         }
         pkgNode.globalVars.clear();
@@ -357,7 +356,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         return foundForwardRef;
     }
 
-    private void mapTopLevelNodeToSymbol(List<BLangSimpleVariable> globalVars) {
+    private void populateGlobalVarRefPositionMap(List<BLangSimpleVariable> globalVars) {
         for (TopLevelNode node : globalVars) {
             BLangSimpleVariable globalVar = (BLangSimpleVariable) node;
             globalVarSymbolRefPositions.put(globalVar.symbol, new ArrayList<>());
@@ -400,18 +399,12 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangSimpleVariableDef varDefNode) {
         BLangVariable var = varDefNode.var;
-        VariableSymbol prevDepSymbol = setDependentSymbol(var.symbol);
-        try {
-            observeGlobalVariableDefinition(var.symbol, var.pos, var);
-            if (var.expr == null) {
-                addUninitializedVar(var);
-                return;
-            }
-
-            analyzeNode(var, env);
-        } finally {
-            resetDependentSymbol(prevDepSymbol);
+        if (var.expr == null) {
+            addUninitializedVar(var);
+            return;
         }
+
+        analyzeNode(var, env);
     }
 
     private void resetDependentSymbol(VariableSymbol prevDependentId) {

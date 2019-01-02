@@ -57,52 +57,48 @@ public class ForwardReferencingGlobalDefinitionTest {
     @Test(description = "Test algorithms on graph with cycles")
     public void dependencyGraphWithCycles() {
         int n = 8;
-        List<List<Integer>> graph = TarjanSccSolverAdjacencyList.createGraph(n);
+        TarjanSccSolverAdjacencyList graph = TarjanSccSolverAdjacencyList.createGraph(n);
 
-        TarjanSccSolverAdjacencyList.addEdge(graph, 6, 0);
-        TarjanSccSolverAdjacencyList.addEdge(graph, 6, 2);
-        TarjanSccSolverAdjacencyList.addEdge(graph, 3, 4);
-        TarjanSccSolverAdjacencyList.addEdge(graph, 6, 4);
-        TarjanSccSolverAdjacencyList.addEdge(graph, 2, 0);
-        TarjanSccSolverAdjacencyList.addEdge(graph, 0, 1);
-        TarjanSccSolverAdjacencyList.addEdge(graph, 4, 5);
-        TarjanSccSolverAdjacencyList.addEdge(graph, 5, 6);
-        TarjanSccSolverAdjacencyList.addEdge(graph, 3, 7);
-        TarjanSccSolverAdjacencyList.addEdge(graph, 7, 5);
-        TarjanSccSolverAdjacencyList.addEdge(graph, 1, 2);
-        TarjanSccSolverAdjacencyList.addEdge(graph, 7, 3);
-        TarjanSccSolverAdjacencyList.addEdge(graph, 5, 0);
+        graph.addEdge(6, 0);
+        graph.addEdge(6, 2);
+        graph.addEdge(3, 4);
+        graph.addEdge(6, 4);
+        graph.addEdge(2, 0);
+        graph.addEdge(0, 1);
+        graph.addEdge(4, 5);
+        graph.addEdge(5, 6);
+        graph.addEdge(3, 7);
+        graph.addEdge(7, 5);
+        graph.addEdge(1, 2);
+        graph.addEdge(7, 3);
+        graph.addEdge(5, 0);
 
-        TarjanSccSolverAdjacencyList solver = new TarjanSccSolverAdjacencyList(graph);
-
-        Map<Integer, List<Integer>> multimap = solver.getSCCs();
-        Assert.assertEquals(solver.sccCount(), 3);
+        Map<Integer, List<Integer>> multimap = graph.getSCCs();
+        Assert.assertEquals(graph.sccCount(), 3);
         Assert.assertEquals(multimap.get(0), Arrays.asList(0, 1, 2));
         Assert.assertEquals(multimap.get(3), Arrays.asList(3, 7));
         Assert.assertEquals(multimap.get(4), Arrays.asList(4, 5, 6));
 
-        Assert.assertEquals(solver.dependencyOrder, Arrays.asList(2, 1, 0, 6, 5, 4, 7, 3));
+        Assert.assertEquals(graph.dependencyOrder, Arrays.asList(2, 1, 0, 6, 5, 4, 7, 3));
     }
 
     @Test(description = "Test cycle find algorithm with no cycles")
     public void cycleFindAlgorithmNoCycles() {
         int n = 5;
-        List<List<Integer>> graph = TarjanSccSolverAdjacencyList.createGraph(n);
+        TarjanSccSolverAdjacencyList graph = TarjanSccSolverAdjacencyList.createGraph(n);
 
-        TarjanSccSolverAdjacencyList.addEdge(graph, 0, 1);
-        TarjanSccSolverAdjacencyList.addEdge(graph, 1, 2);
-        TarjanSccSolverAdjacencyList.addEdge(graph, 1, 3);
-        TarjanSccSolverAdjacencyList.addEdge(graph, 1, 4);
-        TarjanSccSolverAdjacencyList.addEdge(graph, 2, 4);
+        graph.addEdge(0, 1);
+        graph.addEdge(1, 2);
+        graph.addEdge(1, 3);
+        graph.addEdge(1, 4);
+        graph.addEdge(2, 4);
 
-        TarjanSccSolverAdjacencyList solver = new TarjanSccSolverAdjacencyList(graph);
+        Assert.assertEquals(graph.sccCount(), 5);
 
-        Assert.assertEquals(solver.sccCount(), 5);
-
-        int index4 = solver.dependencyOrder.indexOf(4);
-        int index2 = solver.dependencyOrder.indexOf(2);
-        int index1 = solver.dependencyOrder.indexOf(1);
-        int index0 = solver.dependencyOrder.indexOf(0);
+        int index4 = graph.dependencyOrder.indexOf(4);
+        int index2 = graph.dependencyOrder.indexOf(2);
+        int index1 = graph.dependencyOrder.indexOf(1);
+        int index0 = graph.dependencyOrder.indexOf(0);
 
         Assert.assertTrue(index4 < index2);
         Assert.assertTrue(index2 < index1);
@@ -112,15 +108,13 @@ public class ForwardReferencingGlobalDefinitionTest {
     @Test(description = "Test cycle find algorithm with 2 nodes")
     public void cycleFindAlgorithmTwoNodes() {
         int n = 2;
-        List<List<Integer>> graph = TarjanSccSolverAdjacencyList.createGraph(n);
+        TarjanSccSolverAdjacencyList graph = TarjanSccSolverAdjacencyList.createGraph(n);
 
-        TarjanSccSolverAdjacencyList.addEdge(graph, 0, 1);
-        TarjanSccSolverAdjacencyList.addEdge(graph, 1, 0);
+        graph.addEdge(0, 1);
+        graph.addEdge(1, 0);
 
-        TarjanSccSolverAdjacencyList solver = new TarjanSccSolverAdjacencyList(graph);
-
-        Map<Integer, List<Integer>> multimap = solver.getSCCs();
-        Assert.assertEquals(solver.sccCount(), 1);
+        Map<Integer, List<Integer>> multimap = graph.getSCCs();
+        Assert.assertEquals(graph.sccCount(), 1);
         Assert.assertEquals(multimap.get(0), Arrays.asList(0, 1));
     }
 }

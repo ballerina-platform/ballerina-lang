@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -47,7 +47,7 @@ public class TarjanSccSolverAdjacencyList {
 
     private static final int UNVISITED = -1;
 
-    public TarjanSccSolverAdjacencyList(List<List<Integer>> adjacencyList) {
+    private TarjanSccSolverAdjacencyList(List<List<Integer>> adjacencyList) {
         if (adjacencyList == null) {
             throw new IllegalArgumentException("Graph cannot be null.");
         }
@@ -122,22 +122,23 @@ public class TarjanSccSolverAdjacencyList {
      * @param n number of nodes
      * @return initialized list to fill with edges
      */
-    public static List<List<Integer>> createGraph(int n) {
+    public static TarjanSccSolverAdjacencyList createGraph(int n) {
         List<List<Integer>> graph = new ArrayList<>(n);
         for (int i = 0; i < n; i++) {
             graph.add(new ArrayList<>());
         }
-        return graph;
+        return new TarjanSccSolverAdjacencyList(graph);
     }
 
     /**
      * Adds a directed edge from node 'from' to node 'to'.
-     * @param graph graph's adjacency list representation
      * @param from edge starting from node
      * @param to to node
+     * @return graph with added edge
      */
-    public static void addEdge(List<List<Integer>> graph, int from, int to) {
-        graph.get(from).add(to);
+    public TarjanSccSolverAdjacencyList addEdge(int from, int to) {
+        this.adjacencyList.get(from).add(to);
+        return this;
     }
 
     /**
